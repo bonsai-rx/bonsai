@@ -171,7 +171,7 @@
             this.workflowLayoutPanel.AutoScroll = true;
             this.workflowLayoutPanel.ColumnCount = 2;
             this.workflowLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50F));
-            this.workflowLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 170F));
+            this.workflowLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 185F));
             this.workflowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.workflowLayoutPanel.Location = new System.Drawing.Point(3, 16);
             this.workflowLayoutPanel.Name = "workflowLayoutPanel";
@@ -180,6 +180,7 @@
             this.workflowLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.workflowLayoutPanel.Size = new System.Drawing.Size(252, 237);
             this.workflowLayoutPanel.TabIndex = 0;
+            this.workflowLayoutPanel.Click += new System.EventHandler(this.workflowLayoutPanel_Click);
             this.workflowLayoutPanel.DragDrop += new System.Windows.Forms.DragEventHandler(this.workflowLayoutPanel_DragDrop);
             this.workflowLayoutPanel.DragEnter += new System.Windows.Forms.DragEventHandler(this.workflowLayoutPanel_DragEnter);
             // 
@@ -522,6 +523,7 @@
             this.MainMenuStrip = this.menuStrip;
             this.Name = "MainForm";
             this.Text = "Video Analyzer";
+            this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.MainForm_KeyPress);
             this.tableLayoutPanel.ResumeLayout(false);
             this.propertiesGroupBox.ResumeLayout(false);
             this.toolboxGroupBox.ResumeLayout(false);
