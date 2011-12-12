@@ -2,15 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.ComponentModel.Design;
 
 namespace VideoAnalyzer
 {
-    public class WorkflowContext
-        : IServiceProvider
+    public class WorkflowContext : ServiceContainer
     {
-        public object GetService(Type serviceType)
+        public WorkflowContext()
         {
-            return null;
+        }
+
+        public WorkflowContext(IServiceProvider parentProvider)
+            : base(parentProvider)
+        {
         }
     }
 }
