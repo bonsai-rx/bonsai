@@ -62,6 +62,43 @@ namespace VideoAnalyzer
             else e.Effect = DragDropEffects.None;
         }
 
+        void AddElement(WorkflowElement element)
+        {
+            var type = element.GetType();
+            var elementControl = new WorkflowElementControl();
+            elementControl.Element = element;
+            elementControl.Dock = DockStyle.Fill;
+            elementControl.Click += delegate
+            {
+                workflowLayoutPanel_Click(this, EventArgs.Empty);
+                propertyGrid.SelectedObject = element;
+                elementControl.Selected = true;
+            };
+
+            if (ReflectionHelper.MatchGenericType(type, typeof(Source<>))) elementControl.Connections = AnchorStyles.Right;
+            if (ReflectionHelper.MatchGenericType(type, typeof(Filter<,>))) elementControl.Connections = AnchorStyles.Left | AnchorStyles.Right;
+            if (ReflectionHelper.MatchGenericType(type, typeof(Sink<>))) elementControl.Connections = AnchorStyles.Left;
+
+            if (workflowLayoutPanel.GetControlFromPosition(0, 0) == null)
+            {
+                workflowLayoutPanel.Controls.Add(elementControl, 0, 0);
+            }
+            else if (elementControl.Connections == AnchorStyles.Right)
+            {
+                workflowLayoutPanel.RowCount++;
+                workflowLayoutPanel.Controls.Add(elementControl, 0, workflowLayoutPanel.RowCount - 2);
+            }
+            else if (elementControl.Connections.HasFlag(AnchorStyles.Left))
+            {
+                var row = 0;
+                var columnStyle = workflowLayoutPanel.ColumnStyles[0];
+
+                workflowLayoutPanel.ColumnCount++;
+                workflowLayoutPanel.Controls.Add(elementControl, workflowLayoutPanel.ColumnCount - 2, row);
+                workflowLayoutPanel.ColumnStyles.Insert(workflowLayoutPanel.ColumnStyles.Count - 1, new ColumnStyle(columnStyle.SizeType, columnStyle.Width));
+            }
+        }
+
         private void workflowLayoutPanel_DragDrop(object sender, DragEventArgs e)
         {
             var typeName = e.Data.GetData(DataFormats.Text).ToString();
@@ -70,37 +107,7 @@ namespace VideoAnalyzer
             {
                 var element = (WorkflowElement)Activator.CreateInstance(type);
                 workflow.Components.Add(element);
-
-                var elementControl = new WorkflowElementControl();
-                elementControl.Element = element;
-                elementControl.Dock = DockStyle.Fill;
-                elementControl.Click += delegate { propertyGrid.SelectedObject = element; };
-                if (ReflectionHelper.MatchGenericType(type, typeof(Source<>))) elementControl.Connections = AnchorStyles.Right;
-                if (ReflectionHelper.MatchGenericType(type, typeof(Filter<,>))) elementControl.Connections = AnchorStyles.Left | AnchorStyles.Right;
-                if (ReflectionHelper.MatchGenericType(type, typeof(Sink<>))) elementControl.Connections = AnchorStyles.Left;
-
-                if (workflowLayoutPanel.GetControlFromPosition(0, 0) == null)
-                {
-                    workflowLayoutPanel.Controls.Add(elementControl, 0, 0);
-                }
-                else if (elementControl.Connections == AnchorStyles.Right)
-                {
-                    workflowLayoutPanel.RowCount++;
-                    workflowLayoutPanel.Controls.Add(elementControl, 0, workflowLayoutPanel.RowCount - 2);
-                }
-                else if (elementControl.Connections.HasFlag(AnchorStyles.Left))
-                {
-                    var parent = workflowLayoutPanel.GetChildAtPoint(workflowLayoutPanel.PointToClient(new Point(e.X, e.Y)));
-                    if (parent != null)
-                    {
-                        var row = workflowLayoutPanel.GetRow(parent);
-                        var columnStyle = workflowLayoutPanel.ColumnStyles[0];
-
-                        workflowLayoutPanel.ColumnCount++;
-                        workflowLayoutPanel.Controls.Add(elementControl, workflowLayoutPanel.ColumnCount - 2, row);
-                        workflowLayoutPanel.ColumnStyles.Insert(workflowLayoutPanel.ColumnStyles.Count - 1, new ColumnStyle(columnStyle.SizeType, columnStyle.Width));
-                    }
-                }
+                AddElement(element);
             }
         }
 
@@ -120,6 +127,10 @@ namespace VideoAnalyzer
                 using (var reader = XmlReader.Create(openWorkflowDialog.FileName))
                 {
                     workflow = (Workflow)serializer.Deserialize(reader);
+                    foreach (var element in workflow.Components)
+                    {
+                        AddElement(element);
+                    }
                 }
             }
         }
@@ -164,6 +175,20 @@ namespace VideoAnalyzer
             workflow.Unload();
             context.Dispose();
             context = null;
+        }
+
+        private void workflowLayoutPanel_Click(object sender, EventArgs e)
+        {
+            propertyGrid.SelectedObject = null;
+            foreach (WorkflowElementControl control in workflowLayoutPanel.Controls)
+            {
+                control.Selected = false;
+                control.Invalidate();
+            }
+        }
+
+        private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
+        {
         }
     }
 }

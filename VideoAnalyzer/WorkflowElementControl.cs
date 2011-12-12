@@ -17,6 +17,8 @@ namespace VideoAnalyzer
             Font = new Font(FontFamily.GenericMonospace, 8);
         }
 
+        public bool Selected { get; set; }
+
         public AnchorStyles Connections { get; set; }
 
         public WorkflowElement Element { get; set; }
@@ -30,8 +32,16 @@ namespace VideoAnalyzer
 
             var width = textSize.Width + 2 * BorderSize;
             var height = textSize.Height + 2 * BorderSize;
-            e.Graphics.DrawRectangle(Pens.Black, ElementOffset, ElementOffset, width, height);
-            e.Graphics.DrawString(text, Font, Brushes.Black, new PointF(ElementOffset + BorderSize, ElementOffset + BorderSize));
+            if (Selected)
+            {
+                e.Graphics.FillRectangle(Brushes.Black, ElementOffset, ElementOffset, width, height);
+                e.Graphics.DrawString(text, Font, Brushes.White, new PointF(ElementOffset + BorderSize, ElementOffset + BorderSize));
+            }
+            else
+            {
+                e.Graphics.DrawRectangle(Pens.Black, ElementOffset, ElementOffset, width, height);
+                e.Graphics.DrawString(text, Font, Brushes.Black, new PointF(ElementOffset + BorderSize, ElementOffset + BorderSize));
+            }
 
             var midX = ElementOffset + textSize.Width / 2f + BorderSize;
             var midY = ElementOffset + textSize.Height / 2f + BorderSize;
