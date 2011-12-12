@@ -2,34 +2,60 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Disposables;
+using System.ComponentModel;
 
 namespace VideoAnalyzer
 {
-    public abstract class Source<T> : WorkflowElement
+    public abstract class Source : WorkflowElement
     {
-        public event EventHandler<OutputChangedEventArgs<T>> OutputChanged;
-
         public abstract void Start();
 
         public abstract void Stop();
-
-        protected virtual void OnOutput(OutputChangedEventArgs<T> e)
-        {
-            var handler = OutputChanged;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
     }
 
-    public class OutputChangedEventArgs<T> : EventArgs
+    public abstract class Source<T> : Source
     {
-        public OutputChangedEventArgs(T output)
+        OutputObservable output;
+
+        protected Source()
         {
-            Output = output;
+            output = new OutputObservable();
         }
 
-        public T Output { get; private set; }
+        [Browsable(false)]
+        public IObservable<T> Output
+        {
+            get { return output; }
+        }
+
+        protected virtual void OnOutput(T value)
+        {
+            output.OnNext(value);
+        }
+
+        #region OutputObservable
+
+        class OutputObservable : IObservable<T>
+        {
+            event Action<T> observers;
+
+            public IDisposable Subscribe(IObserver<T> observer)
+            {
+                observers += observer.OnNext;
+                return Disposable.Create(() => observers -= observer.OnNext);
+            }
+
+            public void OnNext(T output)
+            {
+                var handler = observers;
+                if (handler != null)
+                {
+                    handler(output);
+                }
+            }
+        }
+
+        #endregion
     }
 }
