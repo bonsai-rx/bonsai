@@ -1,4 +1,4 @@
-﻿namespace Bonsai
+﻿namespace Bonsai.Editor
 {
     partial class MainForm
     {
@@ -171,7 +171,7 @@
             this.workflowLayoutPanel.AutoScroll = true;
             this.workflowLayoutPanel.ColumnCount = 2;
             this.workflowLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50F));
-            this.workflowLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 185F));
+            this.workflowLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 202F));
             this.workflowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.workflowLayoutPanel.Location = new System.Drawing.Point(3, 16);
             this.workflowLayoutPanel.Name = "workflowLayoutPanel";
@@ -522,7 +522,7 @@
             this.Controls.Add(this.menuStrip);
             this.MainMenuStrip = this.menuStrip;
             this.Name = "MainForm";
-            this.Text = "Video Analyzer";
+            this.Text = "Bonsai";
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.MainForm_KeyPress);
             this.tableLayoutPanel.ResumeLayout(false);
             this.propertiesGroupBox.ResumeLayout(false);
