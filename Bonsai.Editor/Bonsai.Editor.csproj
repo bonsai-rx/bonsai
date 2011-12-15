@@ -8,8 +8,8 @@
     <ProjectGuid>{097AF938-2A32-4937-B2B8-BB9F01D069B0}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>VideoAnalyzer</RootNamespace>
-    <AssemblyName>VideoAnalyzer</AssemblyName>
+    <RootNamespace>Bonsai.Editor</RootNamespace>
+    <AssemblyName>Bonsai.Editor</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="WorkflowElementLoader.cs" />
     <Compile Include="IplImageControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -61,7 +62,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReflectionHelper.cs" />
     <EmbeddedResource Include="IplImageControl.resx">
       <DependentUpon>IplImageControl.cs</DependentUpon>
     </EmbeddedResource>
@@ -76,6 +76,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -91,6 +92,10 @@
     <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj">
       <Project>{C88292CE-41AE-4081-B2F6-5AEA1891D245}</Project>
       <Name>Bonsai.Design</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Bonsai.Vision\Bonsai.Vision.csproj">
+      <Project>{36EA4D04-39F3-436E-8AC7-06F868CC0D11}</Project>
+      <Name>Bonsai.Vision</Name>
     </ProjectReference>
     <ProjectReference Include="..\Bonsai\Bonsai.csproj">
       <Project>{CB47FD6C-0B10-4BF9-8C6E-63F41B8A5B32}</Project>

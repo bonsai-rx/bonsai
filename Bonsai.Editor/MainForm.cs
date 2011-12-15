@@ -10,7 +10,7 @@ using System.Xml.Serialization;
 using System.Xml;
 using Bonsai.Design;
 
-namespace Bonsai
+namespace Bonsai.Editor
 {
     public partial class MainForm : Form
     {
@@ -24,17 +24,18 @@ namespace Bonsai
             InitializeToolbox();
 
             workflow = new Workflow();
-            serializer = new XmlSerializer(typeof(Workflow), ReflectionHelper.GetAssemblyTypes().Where(type => type.IsSubclassOf(typeof(WorkflowElement))).ToArray());
         }
 
         #region Toolbox
 
         void InitializeToolbox()
         {
-            var types = ReflectionHelper.GetAssemblyTypes();
-            InitializeToolboxCategory(toolboxTreeView.Nodes[0], types.Where(type => ReflectionHelper.MatchGenericType(type, typeof(Source<>))));
-            InitializeToolboxCategory(toolboxTreeView.Nodes[1], types.Where(type => ReflectionHelper.MatchGenericType(type, typeof(Filter<,>))));
-            InitializeToolboxCategory(toolboxTreeView.Nodes[2], types.Where(type => ReflectionHelper.MatchGenericType(type, typeof(Sink<>))));
+            var types = WorkflowElementLoader.GetWorkflowElementTypes();
+            serializer = new XmlSerializer(typeof(Workflow), types);
+
+            InitializeToolboxCategory(toolboxTreeView.Nodes[0], types.Where(type => WorkflowElementLoader.MatchGenericType(type, typeof(Source<>))));
+            InitializeToolboxCategory(toolboxTreeView.Nodes[1], types.Where(type => WorkflowElementLoader.MatchGenericType(type, typeof(Filter<,>))));
+            InitializeToolboxCategory(toolboxTreeView.Nodes[2], types.Where(type => WorkflowElementLoader.MatchGenericType(type, typeof(Sink<>))));
         }
 
         void InitializeToolboxCategory(TreeNode category, IEnumerable<Type> types)
@@ -76,9 +77,9 @@ namespace Bonsai
                 elementControl.Selected = true;
             };
 
-            if (ReflectionHelper.MatchGenericType(type, typeof(Source<>))) elementControl.Connections = AnchorStyles.Right;
-            if (ReflectionHelper.MatchGenericType(type, typeof(Filter<,>))) elementControl.Connections = AnchorStyles.Left | AnchorStyles.Right;
-            if (ReflectionHelper.MatchGenericType(type, typeof(Sink<>))) elementControl.Connections = AnchorStyles.Left;
+            if (WorkflowElementLoader.MatchGenericType(type, typeof(Source<>))) elementControl.Connections = AnchorStyles.Right;
+            if (WorkflowElementLoader.MatchGenericType(type, typeof(Filter<,>))) elementControl.Connections = AnchorStyles.Left | AnchorStyles.Right;
+            if (WorkflowElementLoader.MatchGenericType(type, typeof(Sink<>))) elementControl.Connections = AnchorStyles.Left;
 
             if (workflowLayoutPanel.GetControlFromPosition(0, 0) == null)
             {
