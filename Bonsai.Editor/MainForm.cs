@@ -64,6 +64,42 @@ namespace Bonsai.Editor
             else e.Effect = DragDropEffects.None;
         }
 
+        void StopWorkflow()
+        {
+            if (workflow.Running)
+            {
+                workflow.Stop();
+                workflow.Unload();
+            }
+        }
+
+        void UpdateWorkflowLayout()
+        {
+            workflowLayoutPanel.SuspendLayout();
+            for (int i = workflowLayoutPanel.Controls.Count - 1; i >= 0; i--)
+            {
+                workflowLayoutPanel.Controls[i].Dispose();
+            }
+            workflowLayoutPanel.Controls.Clear();
+            for (int i = 1; i < workflowLayoutPanel.RowCount - 1; i++)
+            {
+                workflowLayoutPanel.RowStyles.RemoveAt(1);
+            }
+            for (int i = 1; i < workflowLayoutPanel.ColumnCount - 1; i++)
+            {
+                workflowLayoutPanel.ColumnStyles.RemoveAt(1);
+            }
+            workflowLayoutPanel.RowCount = 2;
+            workflowLayoutPanel.ColumnCount = 2;
+
+            foreach (var element in workflow.Components)
+            {
+                AddElement(element);
+            }
+
+            workflowLayoutPanel.ResumeLayout();
+        }
+
         void AddElement(WorkflowElement element)
         {
             var type = element.GetType();
@@ -119,6 +155,9 @@ namespace Bonsai.Editor
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            StopWorkflow();
+            workflow.Components.Clear();
+            UpdateWorkflowLayout();
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -129,10 +168,7 @@ namespace Bonsai.Editor
                 using (var reader = XmlReader.Create(openWorkflowDialog.FileName))
                 {
                     workflow = (Workflow)serializer.Deserialize(reader);
-                    foreach (var element in workflow.Components)
-                    {
-                        AddElement(element);
-                    }
+                    UpdateWorkflowLayout();
                 }
             }
         }
@@ -191,6 +227,11 @@ namespace Bonsai.Editor
 
         private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
         {
+        }
+
+        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            StopWorkflow();
         }
     }
 }

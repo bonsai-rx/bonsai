@@ -1,4 +1,4 @@
-﻿namespace Bonsai.Editor
+﻿namespace Bonsai.Vision.Editor
 {
     partial class IplImageControl
     {

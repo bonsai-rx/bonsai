@@ -48,12 +48,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="WorkflowElementLoader.cs" />
-    <Compile Include="IplImageControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="IplImageControl.Designer.cs">
-      <DependentUpon>IplImageControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -62,9 +56,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="IplImageControl.resx">
-      <DependentUpon>IplImageControl.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
