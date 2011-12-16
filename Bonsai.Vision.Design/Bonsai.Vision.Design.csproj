@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{CB47FD6C-0B10-4BF9-8C6E-63F41B8A5B32}</ProjectGuid>
+    <ProjectGuid>{DAC4AEB4-A66D-4CFC-9E92-2E96E7F8F303}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Bonsai</RootNamespace>
-    <AssemblyName>Bonsai</AssemblyName>
+    <RootNamespace>Bonsai.Vision.Design</RootNamespace>
+    <AssemblyName>Bonsai.Vision.Design</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -33,7 +33,8 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Reactive, Version=1.0.10621.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -41,16 +42,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Filter.cs" />
+    <Compile Include="IplImageControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="IplImageControl.Designer.cs">
+      <DependentUpon>IplImageControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RangeAttribute.cs" />
-    <Compile Include="Sink.cs" />
-    <Compile Include="Source.cs" />
-    <Compile Include="TypeVisualizerAttribute.cs" />
-    <Compile Include="Workflow.cs" />
-    <Compile Include="WorkflowContext.cs" />
-    <Compile Include="WorkflowElement.cs" />
-    <Compile Include="WorkflowElementCollection.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="IplImageControl.resx">
+      <DependentUpon>IplImageControl.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Externals\OpenCV.Net\OpenCV.Net\OpenCV.Net.csproj">
+      <Project>{D07280E0-B436-4E29-956C-AC881E7C9A82}</Project>
+      <Name>OpenCV.Net</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

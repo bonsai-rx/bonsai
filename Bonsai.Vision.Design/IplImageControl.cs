@@ -9,7 +9,7 @@ using System.Windows.Forms;
 using OpenCV.Net;
 using System.Drawing.Imaging;
 
-namespace Bonsai.Editor
+namespace Bonsai.Vision.Editor
 {
     public partial class IplImageControl : UserControl
     {

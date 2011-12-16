@@ -17,6 +17,8 @@ namespace Bonsai
             components = new WorkflowElementCollection();
         }
 
+        public bool Running { get; set; }
+
         public WorkflowElementCollection Components
         {
             get { return components; }
@@ -24,20 +26,28 @@ namespace Bonsai
 
         public override void Start()
         {
+            if (Running) return;
+
             foreach (var component in components)
             {
                 var source = component as Source;
                 if (source != null) source.Start();
             }
+
+            Running = true;
         }
 
         public override void Stop()
         {
+            if (!Running) return;
+
             foreach (var component in components)
             {
                 var source = component as Source;
                 if (source != null) source.Stop();
             }
+
+            Running = false;
         }
 
         public override void Load(WorkflowContext context)
