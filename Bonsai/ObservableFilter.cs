@@ -2,23 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Reactive.Disposables;
 using System.ComponentModel;
 
 namespace Bonsai
 {
-    public abstract class Source : WorkflowElement
-    {
-        public abstract void Start();
-
-        public abstract void Stop();
-    }
-
-    public abstract class Source<T> : Source
+    public class ObservableFilter<T> : Filter<T, T>
     {
         OutputObservable<T> output;
 
-        protected Source()
+        public ObservableFilter()
         {
             output = new OutputObservable<T>();
         }
@@ -29,9 +21,18 @@ namespace Bonsai
             get { return output; }
         }
 
-        protected virtual void OnOutput(T value)
+        public override T Process(T input)
         {
-            output.OnNext(value);
+            output.OnNext(input);
+            return input;
+        }
+
+        public override void Load(WorkflowContext context)
+        {
+        }
+
+        public override void Unload()
+        {
         }
     }
 }
