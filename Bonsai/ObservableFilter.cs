@@ -31,7 +31,7 @@ namespace Bonsai
         {
         }
 
-        public override void Unload()
+        public override void Unload(WorkflowContext context)
         {
         }
     }

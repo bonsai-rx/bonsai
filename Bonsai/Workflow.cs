@@ -86,7 +86,7 @@ namespace Bonsai
             processingChain = (IDisposable)subscribeMethod.Invoke(null, new[] { observableSource, observer });
         }
 
-        public override void Unload()
+        public override void Unload(WorkflowContext context)
         {
             // Unsubscribe the processing chain from the observable source
             processingChain.Dispose();
@@ -94,7 +94,7 @@ namespace Bonsai
             // Unload the workflow elements in reverse order
             foreach (var component in components.Reverse())
             {
-                component.Unload();
+                component.Unload(context);
             }
         }
     }

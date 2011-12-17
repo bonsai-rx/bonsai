@@ -22,7 +22,7 @@ namespace Bonsai.Vision
             window = new NamedWindow(Name);
         }
 
-        public override void Unload()
+        public override void Unload(WorkflowContext context)
         {
             window.Dispose();
         }
