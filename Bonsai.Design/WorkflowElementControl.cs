@@ -6,11 +6,14 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Linq.Expressions;
 
 namespace Bonsai.Design
 {
     public partial class WorkflowElementControl : UserControl
     {
+        EventHandler visualizerHandler;
+
         public WorkflowElementControl()
         {
             InitializeComponent();
@@ -22,6 +25,67 @@ namespace Bonsai.Design
         public AnchorStyles Connections { get; set; }
 
         public WorkflowElement Element { get; set; }
+
+        public WorkflowElement ObservableElement { get; private set; }
+
+        public static Type GetWorkflowElementOutputType(Type type)
+        {
+            while (type != null)
+            {
+                if (type.IsGenericType)
+                {
+                    var arguments = type.GetGenericArguments();
+                    return arguments[arguments.Length - 1];
+                }
+
+                type = type.BaseType;
+            }
+
+            return null;
+        }
+
+        public void SetObservableElement(WorkflowElement element, DialogTypeVisualizer visualizer, IServiceProvider provider)
+        {
+            IDisposable visualizerObserver = null;
+            TypeVisualizerDialog visualizerDialog = null;
+            var outputType = GetWorkflowElementOutputType(element.GetType());
+
+            var input = Expression.Parameter(outputType);
+            var output = Expression.Call(Expression.Constant(visualizer), typeof(DialogTypeVisualizer).GetMethod("Show"), input);
+            var observer = Expression.Lambda(output, input).Compile();
+            var outputProperty = element.GetType().GetProperty("Output");
+            var observableSource = outputProperty.GetValue(element, null);
+            var subscribeMethod = typeof(ObservableExtensions).GetMethods().First(m => m.Name == "Subscribe" && m.GetParameters().Length == 2);
+            subscribeMethod = subscribeMethod.MakeGenericMethod(new[] { outputType });
+
+            visualizerHandler = (sender, e) =>
+            {
+                if (visualizerDialog == null)
+                {
+                    using (var visualizerContext = new WorkflowContext(provider))
+                    {
+                        visualizerDialog = new TypeVisualizerDialog();
+                        visualizerDialog.Text = Name;
+                        visualizerContext.AddService(typeof(IDialogTypeVisualizerService), visualizerDialog);
+                        visualizer.Load(visualizerContext);
+                        visualizerDialog.FormClosed += delegate
+                        {
+                            visualizerObserver.Dispose();
+                            visualizer.Unload();
+                            visualizerDialog = null;
+                        };
+
+                        visualizerContext.RemoveService(typeof(IDialogTypeVisualizerService));
+                        visualizerObserver = (IDisposable)subscribeMethod.Invoke(null, new object[] { observableSource, observer });
+                        visualizerDialog.Show();
+                    }
+                }
+
+                visualizerDialog.Focus();
+            };
+
+            ObservableElement = element;
+        }
 
         private void WorkflowElementControl_Paint(object sender, PaintEventArgs e)
         {
@@ -49,6 +113,15 @@ namespace Bonsai.Design
             if (Connections.HasFlag(AnchorStyles.Right)) e.Graphics.DrawLine(Pens.Black, ElementOffset + width, midY, Size.Width, midY);
             if (Connections.HasFlag(AnchorStyles.Top)) e.Graphics.DrawLine(Pens.Black, midX, 0, midX, ElementOffset);
             if (Connections.HasFlag(AnchorStyles.Bottom)) e.Graphics.DrawLine(Pens.Black, midX, ElementOffset + height, midX, Size.Height);
+        }
+
+        private void WorkflowElementControl_DoubleClick(object sender, EventArgs e)
+        {
+            var handler = visualizerHandler;
+            if (handler != null)
+            {
+                handler(sender, e);
+            }
         }
     }
 }
