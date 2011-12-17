@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
+using System.Xml.Serialization;
 
 namespace Bonsai
 {
@@ -17,7 +18,8 @@ namespace Bonsai
             components = new WorkflowElementCollection();
         }
 
-        public bool Running { get; set; }
+        [XmlIgnore]
+        public bool Running { get; private set; }
 
         public WorkflowElementCollection Components
         {
