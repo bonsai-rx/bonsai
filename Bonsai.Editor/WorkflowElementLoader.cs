@@ -37,22 +37,6 @@ namespace Bonsai.Editor
             return types.Distinct().ToArray();
         }
 
-        public static Type GetWorkflowElementOutputType(Type type)
-        {
-            while (type != null)
-            {
-                if (type.IsGenericType)
-                {
-                    var arguments = type.GetGenericArguments();
-                    return arguments[arguments.Length - 1];
-                }
-
-                type = type.BaseType;
-            }
-
-            return null;
-        }
-
         public static bool MatchGenericType(Type type, Type genericType)
         {
             if (!genericType.IsGenericType)

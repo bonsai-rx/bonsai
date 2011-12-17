@@ -81,9 +81,11 @@ namespace Bonsai.Editor
                     var elementControl = workflowLayoutPanel.Controls.Find(component.GetType().Name, false)
                         .Cast<WorkflowElementControl>()
                         .FirstOrDefault(control => control.Element == component);
-                    if (elementControl != null && elementControl.Tag != null)
+                    if (elementControl != null &&
+                        elementControl.ObservableElement != null &&
+                        elementControl.ObservableElement != component)
                     {
-                        observableWorkflow.Components.Add((WorkflowElement)elementControl.Tag);
+                        observableWorkflow.Components.Add(elementControl.ObservableElement);
                     }
                 }
 
@@ -130,7 +132,7 @@ namespace Bonsai.Editor
 
         WorkflowElement CreateObservableFilter(WorkflowElement filter)
         {
-            var outputType = WorkflowElementLoader.GetWorkflowElementOutputType(filter.GetType());
+            var outputType = WorkflowElementControl.GetWorkflowElementOutputType(filter.GetType());
             var observableFilterType = typeof(ObservableFilter<>).MakeGenericType(outputType);
             return (WorkflowElement)Activator.CreateInstance(observableFilterType);
         }
@@ -138,50 +140,14 @@ namespace Bonsai.Editor
         void CreateVisualizerSource(WorkflowElementControl elementControl, WorkflowElement element)
         {
             Type visualizerType;
-            var outputType = WorkflowElementLoader.GetWorkflowElementOutputType(element.GetType());
+            var outputType = WorkflowElementControl.GetWorkflowElementOutputType(element.GetType());
             if (!typeVisualizers.TryGetValue(outputType, out visualizerType))
             {
                 visualizerType = typeVisualizers[typeof(object)];
             }
 
-            IDisposable visualizerObserver = null;
-            TypeVisualizerDialog visualizerDialog = null;
             var visualizer = (DialogTypeVisualizer)Activator.CreateInstance(visualizerType);
-
-            var input = Expression.Parameter(outputType);
-            var output = Expression.Call(Expression.Constant(visualizer), typeof(DialogTypeVisualizer).GetMethod("Show"), input);
-            var observer = Expression.Lambda(output, input).Compile();
-            var outputProperty = element.GetType().GetProperty("Output");
-            var observableSource = outputProperty.GetValue(element, null);
-            var subscribeMethod = typeof(ObservableExtensions).GetMethods().First(m => m.Name == "Subscribe" && m.GetParameters().Length == 2);
-            subscribeMethod = subscribeMethod.MakeGenericMethod(new[] { outputType });
-
-            if (elementControl.Element != element) elementControl.Tag = element;
-            elementControl.DoubleClick += (sender, e) =>
-            {
-                if (visualizerDialog == null)
-                {
-                    using (var visualizerContext = new WorkflowContext(context))
-                    {
-                        visualizerDialog = new TypeVisualizerDialog();
-                        visualizerDialog.Text = elementControl.Name;
-                        visualizerContext.AddService(typeof(IDialogTypeVisualizerService), visualizerDialog);
-                        visualizer.Load(visualizerContext);
-                        visualizerDialog.FormClosed += delegate
-                        {
-                            visualizerObserver.Dispose();
-                            visualizer.Unload();
-                            visualizerDialog = null;
-                        };
-
-                        visualizerContext.RemoveService(typeof(IDialogTypeVisualizerService));
-                        visualizerObserver = (IDisposable)subscribeMethod.Invoke(null, new object[] { observableSource, observer });
-                        visualizerDialog.Show();
-                    }
-                }
-
-                visualizerDialog.Focus();
-            };
+            elementControl.SetObservableElement(element, visualizer, context);
         }
 
         void AddElement(WorkflowElement element)

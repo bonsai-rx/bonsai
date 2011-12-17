@@ -37,6 +37,7 @@
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "WorkflowElementControl";
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.WorkflowElementControl_Paint);
+            this.DoubleClick += new System.EventHandler(this.WorkflowElementControl_DoubleClick);
             this.ResumeLayout(false);
 
         }
