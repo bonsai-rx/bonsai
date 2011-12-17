@@ -28,6 +28,7 @@ namespace Bonsai.Editor
 
             workflow = new Workflow();
             observableWorkflow = new Workflow();
+            context = new WorkflowContext();
             typeVisualizers = TypeVisualizerLoader.GetTypeVisualizerDictionary();
         }
 
@@ -99,7 +100,7 @@ namespace Bonsai.Editor
             if (observableWorkflow.Running)
             {
                 observableWorkflow.Stop();
-                observableWorkflow.Unload();
+                observableWorkflow.Unload(context);
             }
         }
 
@@ -263,15 +264,12 @@ namespace Bonsai.Editor
 
         private void startToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            context = new WorkflowContext();
             StartWorkflow();
         }
 
         private void stopToolStripMenuItem_Click(object sender, EventArgs e)
         {
             StopWorkflow();
-            context.Dispose();
-            context = null;
         }
 
         private void workflowLayoutPanel_Click(object sender, EventArgs e)

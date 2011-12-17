@@ -6,23 +6,19 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class SmoothFilter : Filter<IplImage, IplImage>
+    public class ThresholdFilter : Filter<IplImage, IplImage>
     {
         IplImage output;
 
-        public SmoothMethod SmoothType { get; set; }
+        public double Threshold { get; set; }
 
-        public int Size1 { get; set; }
+        public double MaxValue { get; set; }
 
-        public int Size2 { get; set; }
-
-        public double Sigma1 { get; set; }
-
-        public double Sigma2 { get; set; }
+        public ThresholdType ThresholdType { get; set; }
 
         public override IplImage Process(IplImage input)
         {
-            ImgProc.cvSmooth(input, output, SmoothType, Size1, Size2, Sigma1, Sigma2);
+            ImgProc.cvThreshold(input, output, Threshold, MaxValue, ThresholdType);
             return output;
         }
 

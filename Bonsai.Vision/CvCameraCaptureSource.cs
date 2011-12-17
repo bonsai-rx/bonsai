@@ -55,9 +55,10 @@ namespace Bonsai.Vision
             context.AddService(typeof(CvSize), new CvSize(width, height));
         }
 
-        public override void Unload()
+        public override void Unload(WorkflowContext context)
         {
             capture.Close();
+            context.RemoveService(typeof(CvSize));
         }
     }
 }

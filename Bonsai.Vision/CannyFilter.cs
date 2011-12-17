@@ -37,7 +37,7 @@ namespace Bonsai.Vision
             output = new IplImage(size, 8, 1);
         }
 
-        public override void Unload()
+        public override void Unload(WorkflowContext context)
         {
             output.Close();
         }

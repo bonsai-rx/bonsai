@@ -27,7 +27,7 @@ namespace Bonsai.Vision
             writer = new CvVideoWriter(FileName, FourCC, FrameRate, size);
         }
 
-        public override void Unload()
+        public override void Unload(WorkflowContext context)
         {
             writer.Close();
         }

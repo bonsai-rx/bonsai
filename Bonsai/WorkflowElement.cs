@@ -9,6 +9,6 @@ namespace Bonsai
     {
         public abstract void Load(WorkflowContext context);
 
-        public abstract void Unload();
+        public abstract void Unload(WorkflowContext context);
     }
 }
