@@ -9,7 +9,7 @@ using System.Windows.Forms;
 using OpenCV.Net;
 using System.Drawing.Imaging;
 
-namespace Bonsai.Vision.Editor
+namespace Bonsai.Vision.Design
 {
     public partial class IplImageControl : UserControl
     {
@@ -26,40 +26,46 @@ namespace Bonsai.Vision.Editor
             set
             {
                 image = value;
-                if (image != null)
-                {
-                    var bitmap = new Bitmap(image.Width, image.Height, image.WidthStep, GetPixelFormat(image), image.ImageData);
-                    pictureBox.Image = bitmap;
-                }
-                else pictureBox.Image = null;
+                var bitmap = ConvertImage(image);
+                SetPictureBoxImage(bitmap);
             }
         }
 
-        PixelFormat GetPixelFormat(IplImage image)
+        void SetPictureBoxImage(Bitmap bitmap)
         {
-            switch (image.NumChannels)
+            if (pictureBox.InvokeRequired)
             {
-                case 1:
-                    switch (image.Depth)
-                    {
-                        case 8: return PixelFormat.Format8bppIndexed;
-                        case 16: return PixelFormat.Format16bppGrayScale;
-                        default: return PixelFormat.DontCare;
-                    }
-                case 3:
-                    switch (image.Depth)
-                    {
-                        case 8: return PixelFormat.Format24bppRgb;
-                        default: return PixelFormat.DontCare;
-                    }
-                case 4:
-                    switch (image.Depth)
-                    {
-                        case 8: return PixelFormat.Format32bppArgb;
-                        default: return PixelFormat.DontCare;
-                    }
-                default: return PixelFormat.DontCare;
+                pictureBox.BeginInvoke((Action<Bitmap>)SetPictureBoxImage, bitmap);
             }
+            else pictureBox.Image = bitmap;
+        }
+
+        Bitmap ConvertImage(IplImage image)
+        {
+            if (image == null) return null;
+            if (image.Depth != 8) throw new ArgumentException("Non 8-bit depth images are not supported by the control.", "image");
+
+            var bitmap = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb);
+            var bitmapData = bitmap.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            var bitmapImage = new IplImage(image.Size, 8, 4, bitmapData.Scan0);
+
+            try
+            {
+                switch (image.NumChannels)
+                {
+                    case 1: ImgProc.cvCvtColor(image, bitmapImage, ColorConversion.GRAY2BGRA); break;
+                    case 3: ImgProc.cvCvtColor(image, bitmapImage, ColorConversion.BGR2BGRA); break;
+                    case 4: Core.cvCopy(image, bitmapImage); break;
+                    default: throw new ArgumentException("Image has an unsupported number of channels.", "image");
+                }
+            }
+            finally
+            {
+                bitmapImage.Close();
+                bitmap.UnlockBits(bitmapData);
+            }
+
+            return bitmap;
         }
     }
 }
