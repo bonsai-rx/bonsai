@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TypeVisualizerLoader.cs" />
     <Compile Include="WorkflowElementLoader.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -83,6 +84,10 @@
     <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj">
       <Project>{C88292CE-41AE-4081-B2F6-5AEA1891D245}</Project>
       <Name>Bonsai.Design</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Bonsai.Vision.Design\Bonsai.Vision.Design.csproj">
+      <Project>{DAC4AEB4-A66D-4CFC-9E92-2E96E7F8F303}</Project>
+      <Name>Bonsai.Vision.Design</Name>
     </ProjectReference>
     <ProjectReference Include="..\Bonsai.Vision\Bonsai.Vision.csproj">
       <Project>{36EA4D04-39F3-436E-8AC7-06F868CC0D11}</Project>
