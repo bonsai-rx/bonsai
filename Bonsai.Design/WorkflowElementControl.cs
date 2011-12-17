@@ -28,8 +28,11 @@ namespace Bonsai.Design
 
         public WorkflowElement ObservableElement { get; private set; }
 
-        public static Type GetWorkflowElementOutputType(Type type)
+        public static Type GetWorkflowElementOutputType(WorkflowElement element)
         {
+            if (element == null) throw new ArgumentNullException("element");
+
+            var type = element.GetType();
             while (type != null)
             {
                 if (type.IsGenericType)
@@ -48,7 +51,7 @@ namespace Bonsai.Design
         {
             IDisposable visualizerObserver = null;
             TypeVisualizerDialog visualizerDialog = null;
-            var outputType = GetWorkflowElementOutputType(element.GetType());
+            var outputType = GetWorkflowElementOutputType(element);
 
             var input = Expression.Parameter(outputType);
             var output = Expression.Call(Expression.Constant(visualizer), typeof(DialogTypeVisualizer).GetMethod("Show"), input);

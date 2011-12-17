@@ -132,7 +132,7 @@ namespace Bonsai.Editor
 
         WorkflowElement CreateObservableFilter(WorkflowElement filter)
         {
-            var outputType = WorkflowElementControl.GetWorkflowElementOutputType(filter.GetType());
+            var outputType = WorkflowElementControl.GetWorkflowElementOutputType(filter);
             var observableFilterType = typeof(ObservableFilter<>).MakeGenericType(outputType);
             return (WorkflowElement)Activator.CreateInstance(observableFilterType);
         }
@@ -140,7 +140,7 @@ namespace Bonsai.Editor
         void CreateVisualizerSource(WorkflowElementControl elementControl, WorkflowElement element)
         {
             Type visualizerType;
-            var outputType = WorkflowElementControl.GetWorkflowElementOutputType(element.GetType());
+            var outputType = WorkflowElementControl.GetWorkflowElementOutputType(element);
             if (!typeVisualizers.TryGetValue(outputType, out visualizerType))
             {
                 visualizerType = typeVisualizers[typeof(object)];
