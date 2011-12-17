@@ -9,14 +9,17 @@ using System.Windows.Forms;
 using System.Xml.Serialization;
 using System.Xml;
 using Bonsai.Design;
+using System.Linq.Expressions;
 
 namespace Bonsai.Editor
 {
     public partial class MainForm : Form
     {
         Workflow workflow;
+        Workflow observableWorkflow;
         WorkflowContext context;
         XmlSerializer serializer;
+        Dictionary<Type, Type> typeVisualizers;
 
         public MainForm()
         {
@@ -24,6 +27,8 @@ namespace Bonsai.Editor
             InitializeToolbox();
 
             workflow = new Workflow();
+            observableWorkflow = new Workflow();
+            typeVisualizers = TypeVisualizerLoader.GetTypeVisualizerDictionary();
         }
 
         #region Toolbox
@@ -64,12 +69,35 @@ namespace Bonsai.Editor
             else e.Effect = DragDropEffects.None;
         }
 
+        void StartWorkflow()
+        {
+            if (!observableWorkflow.Running)
+            {
+                observableWorkflow.Components.Clear();
+                foreach (var component in workflow.Components)
+                {
+                    observableWorkflow.Components.Add(component);
+
+                    var elementControl = workflowLayoutPanel.Controls.Find(component.GetType().Name, false)
+                        .Cast<WorkflowElementControl>()
+                        .FirstOrDefault(control => control.Element == component);
+                    if (elementControl != null && elementControl.Tag != null)
+                    {
+                        observableWorkflow.Components.Add((WorkflowElement)elementControl.Tag);
+                    }
+                }
+
+                observableWorkflow.Load(context);
+                observableWorkflow.Start();
+            }
+        }
+
         void StopWorkflow()
         {
-            if (workflow.Running)
+            if (observableWorkflow.Running)
             {
-                workflow.Stop();
-                workflow.Unload();
+                observableWorkflow.Stop();
+                observableWorkflow.Unload();
             }
         }
 
@@ -100,10 +128,67 @@ namespace Bonsai.Editor
             workflowLayoutPanel.ResumeLayout();
         }
 
+        WorkflowElement CreateObservableFilter(WorkflowElement filter)
+        {
+            var outputType = WorkflowElementLoader.GetWorkflowElementOutputType(filter.GetType());
+            var observableFilterType = typeof(ObservableFilter<>).MakeGenericType(outputType);
+            return (WorkflowElement)Activator.CreateInstance(observableFilterType);
+        }
+
+        void CreateVisualizerSource(WorkflowElementControl elementControl, WorkflowElement element)
+        {
+            Type visualizerType;
+            var outputType = WorkflowElementLoader.GetWorkflowElementOutputType(element.GetType());
+            if (!typeVisualizers.TryGetValue(outputType, out visualizerType))
+            {
+                visualizerType = typeVisualizers[typeof(object)];
+            }
+
+            IDisposable visualizerObserver = null;
+            TypeVisualizerDialog visualizerDialog = null;
+            var visualizer = (DialogTypeVisualizer)Activator.CreateInstance(visualizerType);
+
+            var input = Expression.Parameter(outputType);
+            var output = Expression.Call(Expression.Constant(visualizer), typeof(DialogTypeVisualizer).GetMethod("Show"), input);
+            var observer = Expression.Lambda(output, input).Compile();
+            var outputProperty = element.GetType().GetProperty("Output");
+            var observableSource = outputProperty.GetValue(element, null);
+            var subscribeMethod = typeof(ObservableExtensions).GetMethods().First(m => m.Name == "Subscribe" && m.GetParameters().Length == 2);
+            subscribeMethod = subscribeMethod.MakeGenericMethod(new[] { outputType });
+
+            if (elementControl.Element != element) elementControl.Tag = element;
+            elementControl.DoubleClick += (sender, e) =>
+            {
+                if (visualizerDialog == null)
+                {
+                    using (var visualizerContext = new WorkflowContext(context))
+                    {
+                        visualizerDialog = new TypeVisualizerDialog();
+                        visualizerDialog.Text = elementControl.Name;
+                        visualizerContext.AddService(typeof(IDialogTypeVisualizerService), visualizerDialog);
+                        visualizer.Load(visualizerContext);
+                        visualizerDialog.FormClosed += delegate
+                        {
+                            visualizerObserver.Dispose();
+                            visualizer.Unload();
+                            visualizerDialog = null;
+                        };
+
+                        visualizerContext.RemoveService(typeof(IDialogTypeVisualizerService));
+                        visualizerObserver = (IDisposable)subscribeMethod.Invoke(null, new object[] { observableSource, observer });
+                        visualizerDialog.Show();
+                    }
+                }
+
+                visualizerDialog.Focus();
+            };
+        }
+
         void AddElement(WorkflowElement element)
         {
             var type = element.GetType();
             var elementControl = new WorkflowElementControl();
+            elementControl.Name = type.Name;
             elementControl.Element = element;
             elementControl.Dock = DockStyle.Fill;
             elementControl.Click += delegate
@@ -113,8 +198,18 @@ namespace Bonsai.Editor
                 elementControl.Selected = true;
             };
 
-            if (WorkflowElementLoader.MatchGenericType(type, typeof(Source<>))) elementControl.Connections = AnchorStyles.Right;
-            if (WorkflowElementLoader.MatchGenericType(type, typeof(Filter<,>))) elementControl.Connections = AnchorStyles.Left | AnchorStyles.Right;
+            if (WorkflowElementLoader.MatchGenericType(type, typeof(Source<>)))
+            {
+                elementControl.Connections = AnchorStyles.Right;
+                CreateVisualizerSource(elementControl, elementControl.Element);
+            }
+
+            if (WorkflowElementLoader.MatchGenericType(type, typeof(Filter<,>)))
+            {
+                elementControl.Connections = AnchorStyles.Left | AnchorStyles.Right;
+                CreateVisualizerSource(elementControl, CreateObservableFilter(elementControl.Element));
+            }
+
             if (WorkflowElementLoader.MatchGenericType(type, typeof(Sink<>))) elementControl.Connections = AnchorStyles.Left;
 
             if (workflowLayoutPanel.GetControlFromPosition(0, 0) == null)
@@ -203,14 +298,12 @@ namespace Bonsai.Editor
         private void startToolStripMenuItem_Click(object sender, EventArgs e)
         {
             context = new WorkflowContext();
-            workflow.Load(context);
-            workflow.Start();
+            StartWorkflow();
         }
 
         private void stopToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            workflow.Stop();
-            workflow.Unload();
+            StopWorkflow();
             context.Dispose();
             context = null;
         }

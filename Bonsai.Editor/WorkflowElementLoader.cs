@@ -14,7 +14,7 @@ namespace Bonsai.Editor
             var types = assembly.GetTypes();
             for (int i = 0; i < types.Length; i++)
             {
-                if (!types[i].IsAbstract && types[i].IsSubclassOf(baseClass))
+                if (!types[i].IsAbstract && !types[i].ContainsGenericParameters && types[i].IsSubclassOf(baseClass))
                 {
                     yield return types[i];
                 }
@@ -35,6 +35,22 @@ namespace Bonsai.Editor
             }
 
             return types.Distinct().ToArray();
+        }
+
+        public static Type GetWorkflowElementOutputType(Type type)
+        {
+            while (type != null)
+            {
+                if (type.IsGenericType)
+                {
+                    var arguments = type.GetGenericArguments();
+                    return arguments[arguments.Length - 1];
+                }
+
+                type = type.BaseType;
+            }
+
+            return null;
         }
 
         public static bool MatchGenericType(Type type, Type genericType)
