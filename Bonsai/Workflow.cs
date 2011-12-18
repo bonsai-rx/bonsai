@@ -21,9 +21,20 @@ namespace Bonsai
         [XmlIgnore]
         public bool Running { get; private set; }
 
+        public event EventHandler RunningChanged;
+
         public WorkflowElementCollection Components
         {
             get { return components; }
+        }
+
+        protected virtual void OnRunningChanged(EventArgs e)
+        {
+            var handler = RunningChanged;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
         }
 
         public override void Start()
@@ -37,6 +48,7 @@ namespace Bonsai
             }
 
             Running = true;
+            OnRunningChanged(EventArgs.Empty);
         }
 
         public override void Stop()
@@ -50,6 +62,7 @@ namespace Bonsai
             }
 
             Running = false;
+            OnRunningChanged(EventArgs.Empty);
         }
 
         public override void Load(WorkflowContext context)
@@ -84,10 +97,16 @@ namespace Bonsai
             var subscribeMethod = typeof(ObservableExtensions).GetMethods().First(m => m.Name == "Subscribe" && m.GetParameters().Length == 2);
             subscribeMethod = subscribeMethod.MakeGenericMethod(new[] { outputType });
             processingChain = (IDisposable)subscribeMethod.Invoke(null, new[] { observableSource, observer });
+
+            // Add the workflow as a context service
+            context.AddService(typeof(Workflow), this);
         }
 
         public override void Unload(WorkflowContext context)
         {
+            // Remove the workflow as a context service
+            context.RemoveService(typeof(Workflow));
+
             // Unsubscribe the processing chain from the observable source
             processingChain.Dispose();
 
