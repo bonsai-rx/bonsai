@@ -75,13 +75,12 @@ namespace Bonsai.Editor
             if (!observableWorkflow.Running)
             {
                 observableWorkflow.Components.Clear();
-                foreach (var component in workflow.Components)
+                for (int i = 0; i < workflow.Components.Count; i++)
                 {
+                    var component = workflow.Components[i];
                     observableWorkflow.Components.Add(component);
 
-                    var elementControl = workflowLayoutPanel.Controls.Find(component.GetType().Name, false)
-                        .Cast<WorkflowElementControl>()
-                        .FirstOrDefault(control => control.Element == component);
+                    var elementControl = workflowLayoutPanel.GetElementFromPosition(i, 0);
                     if (elementControl != null &&
                         elementControl.ObservableElement != null &&
                         elementControl.ObservableElement != component)
@@ -106,22 +105,9 @@ namespace Bonsai.Editor
 
         void UpdateWorkflowLayout()
         {
+            propertyGrid.SelectedObject = null;
+            workflowLayoutPanel.ClearLayout();
             workflowLayoutPanel.SuspendLayout();
-            for (int i = workflowLayoutPanel.Controls.Count - 1; i >= 0; i--)
-            {
-                workflowLayoutPanel.Controls[i].Dispose();
-            }
-            workflowLayoutPanel.Controls.Clear();
-            for (int i = 1; i < workflowLayoutPanel.RowCount - 1; i++)
-            {
-                workflowLayoutPanel.RowStyles.RemoveAt(1);
-            }
-            for (int i = 1; i < workflowLayoutPanel.ColumnCount - 1; i++)
-            {
-                workflowLayoutPanel.ColumnStyles.RemoveAt(1);
-            }
-            workflowLayoutPanel.RowCount = 2;
-            workflowLayoutPanel.ColumnCount = 2;
 
             foreach (var element in workflow.Components)
             {
@@ -158,12 +144,7 @@ namespace Bonsai.Editor
             elementControl.Name = type.Name;
             elementControl.Element = element;
             elementControl.Dock = DockStyle.Fill;
-            elementControl.Click += delegate
-            {
-                workflowLayoutPanel_Click(this, EventArgs.Empty);
-                propertyGrid.SelectedObject = element;
-                elementControl.Selected = true;
-            };
+            elementControl.Click += delegate { propertyGrid.SelectedObject = element; };
 
             if (WorkflowElementLoader.MatchGenericType(type, typeof(Source<>)))
             {
@@ -179,24 +160,7 @@ namespace Bonsai.Editor
 
             if (WorkflowElementLoader.MatchGenericType(type, typeof(Sink<>))) elementControl.Connections = AnchorStyles.Left;
 
-            if (workflowLayoutPanel.GetControlFromPosition(0, 0) == null)
-            {
-                workflowLayoutPanel.Controls.Add(elementControl, 0, 0);
-            }
-            else if (elementControl.Connections == AnchorStyles.Right)
-            {
-                workflowLayoutPanel.RowCount++;
-                workflowLayoutPanel.Controls.Add(elementControl, 0, workflowLayoutPanel.RowCount - 2);
-            }
-            else if (elementControl.Connections.HasFlag(AnchorStyles.Left))
-            {
-                var row = 0;
-                var columnStyle = workflowLayoutPanel.ColumnStyles[0];
-
-                workflowLayoutPanel.ColumnCount++;
-                workflowLayoutPanel.Controls.Add(elementControl, workflowLayoutPanel.ColumnCount - 2, row);
-                workflowLayoutPanel.ColumnStyles.Insert(workflowLayoutPanel.ColumnStyles.Count - 1, new ColumnStyle(columnStyle.SizeType, columnStyle.Width));
-            }
+            workflowLayoutPanel.AddElement(elementControl);
         }
 
         private void workflowLayoutPanel_DragDrop(object sender, DragEventArgs e)
@@ -206,8 +170,19 @@ namespace Bonsai.Editor
             if (type != null && type.IsSubclassOf(typeof(WorkflowElement)))
             {
                 var element = (WorkflowElement)Activator.CreateInstance(type);
-                workflow.Components.Add(element);
-                AddElement(element);
+                var point = workflowLayoutPanel.PointToClient(new Point(e.X, e.Y));
+                var targetElement = workflowLayoutPanel.GetChildAtPoint(point) as WorkflowElementControl;
+                if (targetElement != null)
+                {
+                    var targetPosition = workflowLayoutPanel.GetPositionFromElement(targetElement);
+                    workflow.Components.Insert(targetPosition.Column, element);
+                    UpdateWorkflowLayout();
+                }
+                else
+                {
+                    workflow.Components.Add(element);
+                    AddElement(element);
+                }
             }
         }
 
@@ -272,16 +247,6 @@ namespace Bonsai.Editor
             StopWorkflow();
         }
 
-        private void workflowLayoutPanel_Click(object sender, EventArgs e)
-        {
-            propertyGrid.SelectedObject = null;
-            foreach (WorkflowElementControl control in workflowLayoutPanel.Controls)
-            {
-                control.Selected = false;
-                control.Invalidate();
-            }
-        }
-
         private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
         {
         }
@@ -289,6 +254,17 @@ namespace Bonsai.Editor
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             StopWorkflow();
+        }
+
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var activeElement = workflowLayoutPanel.ActiveControl as WorkflowElementControl;
+            if (activeElement != null)
+            {
+                var elementPosition = workflowLayoutPanel.GetPositionFromElement(activeElement);
+                workflow.Components.RemoveAt(elementPosition.Column);
+                UpdateWorkflowLayout();
+            }
         }
     }
 }

@@ -38,7 +38,6 @@
             this.toolboxGroupBox = new System.Windows.Forms.GroupBox();
             this.toolboxTreeView = new System.Windows.Forms.TreeView();
             this.workflowGroupBox = new System.Windows.Forms.GroupBox();
-            this.workflowLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -55,8 +54,6 @@
             this.cutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pasteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-            this.selectAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.workflowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.startToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.stopToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -80,6 +77,8 @@
             this.helpToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.commandExecutor = new Bonsai.Design.CommandExecutor();
+            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.workflowLayoutPanel = new Bonsai.Editor.WorkflowLayoutPanel();
             this.tableLayoutPanel.SuspendLayout();
             this.propertiesGroupBox.SuspendLayout();
             this.toolboxGroupBox.SuspendLayout();
@@ -164,25 +163,6 @@
             this.workflowGroupBox.TabIndex = 2;
             this.workflowGroupBox.TabStop = false;
             this.workflowGroupBox.Text = "Workflow";
-            // 
-            // workflowLayoutPanel
-            // 
-            this.workflowLayoutPanel.AllowDrop = true;
-            this.workflowLayoutPanel.AutoScroll = true;
-            this.workflowLayoutPanel.ColumnCount = 2;
-            this.workflowLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50F));
-            this.workflowLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 202F));
-            this.workflowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.workflowLayoutPanel.Location = new System.Drawing.Point(3, 16);
-            this.workflowLayoutPanel.Name = "workflowLayoutPanel";
-            this.workflowLayoutPanel.RowCount = 2;
-            this.workflowLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
-            this.workflowLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.workflowLayoutPanel.Size = new System.Drawing.Size(252, 237);
-            this.workflowLayoutPanel.TabIndex = 0;
-            this.workflowLayoutPanel.Click += new System.EventHandler(this.workflowLayoutPanel_Click);
-            this.workflowLayoutPanel.DragDrop += new System.Windows.Forms.DragEventHandler(this.workflowLayoutPanel_DragDrop);
-            this.workflowLayoutPanel.DragEnter += new System.Windows.Forms.DragEventHandler(this.workflowLayoutPanel_DragEnter);
             // 
             // menuStrip
             // 
@@ -274,8 +254,7 @@
             this.cutToolStripMenuItem,
             this.copyToolStripMenuItem,
             this.pasteToolStripMenuItem,
-            this.toolStripSeparator4,
-            this.selectAllToolStripMenuItem});
+            this.deleteToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
             this.editToolStripMenuItem.Text = "&Edit";
@@ -325,17 +304,6 @@
             this.pasteToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
             this.pasteToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.pasteToolStripMenuItem.Text = "&Paste";
-            // 
-            // toolStripSeparator4
-            // 
-            this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(141, 6);
-            // 
-            // selectAllToolStripMenuItem
-            // 
-            this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
-            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
-            this.selectAllToolStripMenuItem.Text = "Select &All";
             // 
             // workflowToolStripMenuItem
             // 
@@ -511,6 +479,26 @@
             this.statusStrip.TabIndex = 3;
             this.statusStrip.Text = "statusStrip1";
             // 
+            // deleteToolStripMenuItem
+            // 
+            this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
+            this.deleteToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.Delete;
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.deleteToolStripMenuItem.Text = "&Delete";
+            this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
+            // 
+            // workflowLayoutPanel
+            // 
+            this.workflowLayoutPanel.AllowDrop = true;
+            this.workflowLayoutPanel.AutoScroll = true;
+            this.workflowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.workflowLayoutPanel.Location = new System.Drawing.Point(3, 16);
+            this.workflowLayoutPanel.Name = "workflowLayoutPanel";
+            this.workflowLayoutPanel.Size = new System.Drawing.Size(252, 237);
+            this.workflowLayoutPanel.TabIndex = 0;
+            this.workflowLayoutPanel.DragDrop += new System.Windows.Forms.DragEventHandler(this.workflowLayoutPanel_DragDrop);
+            this.workflowLayoutPanel.DragEnter += new System.Windows.Forms.DragEventHandler(this.workflowLayoutPanel_DragEnter);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -562,8 +550,6 @@
         private System.Windows.Forms.ToolStripMenuItem cutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem pasteToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
-        private System.Windows.Forms.ToolStripMenuItem selectAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem workflowToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem contentsToolStripMenuItem;
@@ -574,7 +560,7 @@
         private System.Windows.Forms.OpenFileDialog openWorkflowDialog;
         private System.Windows.Forms.SaveFileDialog saveWorkflowDialog;
         private Bonsai.Design.CommandExecutor commandExecutor;
-        private System.Windows.Forms.TableLayoutPanel workflowLayoutPanel;
+        private Bonsai.Editor.WorkflowLayoutPanel workflowLayoutPanel;
         private System.Windows.Forms.ToolStripMenuItem startToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem stopToolStripMenuItem;
         private System.Windows.Forms.ToolStrip toolStrip;
@@ -588,6 +574,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
         private System.Windows.Forms.ToolStripButton helpToolStripButton;
         private System.Windows.Forms.StatusStrip statusStrip;
+        private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
     }
 }
 

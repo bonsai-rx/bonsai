@@ -12,6 +12,7 @@ namespace Bonsai.Design
 {
     public partial class WorkflowElementControl : UserControl
     {
+        bool selected;
         EventHandler visualizerHandler;
 
         public WorkflowElementControl()
@@ -19,8 +20,6 @@ namespace Bonsai.Design
             InitializeComponent();
             Font = new Font(FontFamily.GenericMonospace, 8);
         }
-
-        public bool Selected { get; set; }
 
         public AnchorStyles Connections { get; set; }
 
@@ -65,14 +64,22 @@ namespace Bonsai.Design
             {
                 if (visualizerDialog == null)
                 {
+                    var workflow = (Workflow)provider.GetService(typeof(Workflow));
+                    if (workflow == null || !workflow.Running) return;
+
                     using (var visualizerContext = new WorkflowContext(provider))
                     {
                         visualizerDialog = new TypeVisualizerDialog();
                         visualizerDialog.Text = Name;
                         visualizerContext.AddService(typeof(IDialogTypeVisualizerService), visualizerDialog);
                         visualizer.Load(visualizerContext);
+
+                        EventHandler runningChangedHandler = delegate { if (!workflow.Running) visualizerDialog.Close(); };
+                        workflow.RunningChanged += runningChangedHandler;
+
                         visualizerDialog.FormClosed += delegate
                         {
+                            workflow.RunningChanged -= runningChangedHandler;
                             visualizerObserver.Dispose();
                             visualizer.Unload();
                             visualizerDialog = null;
@@ -84,10 +91,27 @@ namespace Bonsai.Design
                     }
                 }
 
-                visualizerDialog.Focus();
+                visualizerDialog.Activate();
             };
 
             ObservableElement = element;
+        }
+
+        protected override void OnGotFocus(EventArgs e)
+        {
+            foreach (Control control in Parent.Controls)
+            {
+                var elementControl = control as WorkflowElementControl;
+                if (elementControl != null && elementControl.selected)
+                {
+                    elementControl.selected = false;
+                    elementControl.Invalidate();
+                }
+            }
+
+            Invalidate();
+            selected = true;
+            base.OnGotFocus(e);
         }
 
         private void WorkflowElementControl_Paint(object sender, PaintEventArgs e)
@@ -99,7 +123,7 @@ namespace Bonsai.Design
 
             var width = textSize.Width + 2 * BorderSize;
             var height = textSize.Height + 2 * BorderSize;
-            if (Selected)
+            if (selected)
             {
                 e.Graphics.FillRectangle(Brushes.Black, ElementOffset, ElementOffset, width, height);
                 e.Graphics.DrawString(text, Font, Brushes.White, new PointF(ElementOffset + BorderSize, ElementOffset + BorderSize));
