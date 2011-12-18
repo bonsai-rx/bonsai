@@ -18,6 +18,7 @@ namespace Bonsai.Vision.Design
         public IplImageControl()
         {
             InitializeComponent();
+            Dock = DockStyle.Fill;
         }
 
         public IplImage Image
