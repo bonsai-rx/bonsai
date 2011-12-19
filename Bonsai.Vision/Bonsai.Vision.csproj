@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BackgroundSubtractionFilter.cs" />
     <Compile Include="BinaryRegionAnalysisFilter.cs" />
     <Compile Include="ConnectedComponentCollection.cs" />
     <Compile Include="FindContoursFilter.cs" />
