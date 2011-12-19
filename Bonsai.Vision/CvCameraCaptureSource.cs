@@ -16,7 +16,6 @@ namespace Bonsai.Vision
 
         public CvCameraCaptureSource()
         {
-            captureThread = new Thread(CaptureNewFrame);
             stop = new ManualResetEventSlim();
         }
 
@@ -48,6 +47,7 @@ namespace Bonsai.Vision
 
         public override void Load(WorkflowContext context)
         {
+            captureThread = new Thread(CaptureNewFrame);
             capture = CvCapture.CreateCameraCapture(Index);
 
             var width = (int)capture.GetProperty(CaptureProperty.FRAME_WIDTH);
@@ -58,6 +58,7 @@ namespace Bonsai.Vision
         public override void Unload(WorkflowContext context)
         {
             capture.Close();
+            captureThread = null;
             context.RemoveService(typeof(CvSize));
         }
     }

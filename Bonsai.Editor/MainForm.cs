@@ -28,8 +28,22 @@ namespace Bonsai.Editor
 
             workflow = new Workflow();
             observableWorkflow = new Workflow();
+            observableWorkflow.Error.Subscribe(HandleWorkflowError);
             context = new WorkflowContext();
             typeVisualizers = TypeVisualizerLoader.GetTypeVisualizerDictionary();
+        }
+
+        void HandleWorkflowError(Exception e)
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke((Action<Exception>)HandleWorkflowError, e);
+            }
+            else if (observableWorkflow.Running)
+            {
+                StopWorkflow();
+                MessageBox.Show(e.Message, "Processing Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         #region Toolbox
@@ -175,7 +189,7 @@ namespace Bonsai.Editor
                 if (targetElement != null)
                 {
                     var targetPosition = workflowLayoutPanel.GetPositionFromElement(targetElement);
-                    workflow.Components.Insert(targetPosition.Column, element);
+                    workflow.Components.Insert(targetPosition.Column + 1, element);
                     UpdateWorkflowLayout();
                 }
                 else
