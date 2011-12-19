@@ -60,11 +60,15 @@ namespace Bonsai.Editor
             var files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
             for (int i = 0; i < files.Length; i++)
             {
-                var assembly = Assembly.ReflectionOnlyLoadFrom(files[i]);
-                var visualizerAttributes = assembly.GetCustomAttributesData().Where(data => data.Constructor.DeclaringType == typeVisualizerAttributeType);
-                typeVisualizers = typeVisualizers.Concat(visualizerAttributes);
+                try
+                {
+                    var assembly = Assembly.ReflectionOnlyLoadFrom(files[i]);
+                    var visualizerAttributes = assembly.GetCustomAttributesData().Where(data => data.Constructor.DeclaringType == typeVisualizerAttributeType);
+                    typeVisualizers = typeVisualizers.Concat(visualizerAttributes);
 
-                typeVisualizers = typeVisualizers.Concat(GetCustomAttributeTypes(assembly, typeVisualizerAttributeType));
+                    typeVisualizers = typeVisualizers.Concat(GetCustomAttributeTypes(assembly, typeVisualizerAttributeType));
+                }
+                catch (BadImageFormatException) { continue; }
             }
 
             return typeVisualizers.Distinct().Select(data => new TypeVisualizerInfo(data)).ToArray();
