@@ -30,8 +30,12 @@ namespace Bonsai.Editor
             var files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
             for (int i = 0; i < files.Length; i++)
             {
-                var assembly = Assembly.ReflectionOnlyLoadFrom(files[i]);
-                types = types.Concat(GetSubclassElementTypes(assembly, workflowElementType).Select(type => type.AssemblyQualifiedName));
+                try
+                {
+                    var assembly = Assembly.ReflectionOnlyLoadFrom(files[i]);
+                    types = types.Concat(GetSubclassElementTypes(assembly, workflowElementType).Select(type => type.AssemblyQualifiedName));
+                }
+                catch (BadImageFormatException) { continue; }
             }
 
             return types.Distinct().ToArray();
