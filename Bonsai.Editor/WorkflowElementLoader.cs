@@ -41,26 +41,6 @@ namespace Bonsai.Editor
             return types.Distinct().ToArray();
         }
 
-        public static bool MatchGenericType(Type type, Type genericType)
-        {
-            if (!genericType.IsGenericType)
-            {
-                throw new ArgumentException("Trying to match against a non-generic type.", "genericType");
-            }
-
-            while (type != null)
-            {
-                if (type.IsGenericType && type.GetGenericTypeDefinition() == genericType)
-                {
-                    return true;
-                }
-
-                type = type.BaseType;
-            }
-
-            return false;
-        }
-
         public static Type[] GetWorkflowElementTypes()
         {
             var reflectionOnlyDomain = AppDomain.CreateDomain("ReflectionOnly");

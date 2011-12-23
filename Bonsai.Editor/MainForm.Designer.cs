@@ -38,6 +38,7 @@
             this.toolboxGroupBox = new System.Windows.Forms.GroupBox();
             this.toolboxTreeView = new System.Windows.Forms.TreeView();
             this.workflowGroupBox = new System.Windows.Forms.GroupBox();
+            this.workflowLayoutPanel = new Bonsai.Editor.WorkflowLayoutPanel();
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -54,6 +55,7 @@
             this.cutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pasteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.workflowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.startToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.stopToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -77,8 +79,6 @@
             this.helpToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.commandExecutor = new Bonsai.Design.CommandExecutor();
-            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.workflowLayoutPanel = new Bonsai.Editor.WorkflowLayoutPanel();
             this.tableLayoutPanel.SuspendLayout();
             this.propertiesGroupBox.SuspendLayout();
             this.toolboxGroupBox.SuspendLayout();
@@ -101,16 +101,16 @@
             this.tableLayoutPanel.Name = "tableLayoutPanel";
             this.tableLayoutPanel.RowCount = 1;
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel.Size = new System.Drawing.Size(664, 262);
+            this.tableLayoutPanel.Size = new System.Drawing.Size(673, 268);
             this.tableLayoutPanel.TabIndex = 0;
             // 
             // propertiesGroupBox
             // 
             this.propertiesGroupBox.Controls.Add(this.propertyGrid);
             this.propertiesGroupBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.propertiesGroupBox.Location = new System.Drawing.Point(467, 3);
+            this.propertiesGroupBox.Location = new System.Drawing.Point(476, 3);
             this.propertiesGroupBox.Name = "propertiesGroupBox";
-            this.propertiesGroupBox.Size = new System.Drawing.Size(194, 256);
+            this.propertiesGroupBox.Size = new System.Drawing.Size(194, 262);
             this.propertiesGroupBox.TabIndex = 0;
             this.propertiesGroupBox.TabStop = false;
             this.propertiesGroupBox.Text = "Properties";
@@ -120,7 +120,7 @@
             this.propertyGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.propertyGrid.Location = new System.Drawing.Point(3, 16);
             this.propertyGrid.Name = "propertyGrid";
-            this.propertyGrid.Size = new System.Drawing.Size(188, 237);
+            this.propertyGrid.Size = new System.Drawing.Size(188, 243);
             this.propertyGrid.TabIndex = 0;
             // 
             // toolboxGroupBox
@@ -129,7 +129,7 @@
             this.toolboxGroupBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.toolboxGroupBox.Location = new System.Drawing.Point(3, 3);
             this.toolboxGroupBox.Name = "toolboxGroupBox";
-            this.toolboxGroupBox.Size = new System.Drawing.Size(194, 256);
+            this.toolboxGroupBox.Size = new System.Drawing.Size(194, 262);
             this.toolboxGroupBox.TabIndex = 1;
             this.toolboxGroupBox.TabStop = false;
             this.toolboxGroupBox.Text = "Toolbox";
@@ -149,7 +149,7 @@
             treeNode1,
             treeNode2,
             treeNode3});
-            this.toolboxTreeView.Size = new System.Drawing.Size(188, 237);
+            this.toolboxTreeView.Size = new System.Drawing.Size(188, 243);
             this.toolboxTreeView.TabIndex = 0;
             this.toolboxTreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.toolboxTreeView_ItemDrag);
             // 
@@ -159,10 +159,23 @@
             this.workflowGroupBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.workflowGroupBox.Location = new System.Drawing.Point(203, 3);
             this.workflowGroupBox.Name = "workflowGroupBox";
-            this.workflowGroupBox.Size = new System.Drawing.Size(258, 256);
+            this.workflowGroupBox.Size = new System.Drawing.Size(267, 262);
             this.workflowGroupBox.TabIndex = 2;
             this.workflowGroupBox.TabStop = false;
             this.workflowGroupBox.Text = "Workflow";
+            // 
+            // workflowLayoutPanel
+            // 
+            this.workflowLayoutPanel.AllowDrop = true;
+            this.workflowLayoutPanel.AutoScroll = true;
+            this.workflowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.workflowLayoutPanel.Location = new System.Drawing.Point(3, 16);
+            this.workflowLayoutPanel.Name = "workflowLayoutPanel";
+            this.workflowLayoutPanel.Project = null;
+            this.workflowLayoutPanel.Size = new System.Drawing.Size(261, 243);
+            this.workflowLayoutPanel.TabIndex = 0;
+            this.workflowLayoutPanel.DragDrop += new System.Windows.Forms.DragEventHandler(this.workflowLayoutPanel_DragDrop);
+            this.workflowLayoutPanel.DragEnter += new System.Windows.Forms.DragEventHandler(this.workflowLayoutPanel_DragEnter);
             // 
             // menuStrip
             // 
@@ -173,7 +186,7 @@
             this.helpToolStripMenuItem});
             this.menuStrip.Location = new System.Drawing.Point(0, 0);
             this.menuStrip.Name = "menuStrip";
-            this.menuStrip.Size = new System.Drawing.Size(664, 24);
+            this.menuStrip.Size = new System.Drawing.Size(673, 24);
             this.menuStrip.TabIndex = 1;
             this.menuStrip.Text = "menuStrip1";
             // 
@@ -305,6 +318,14 @@
             this.pasteToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.pasteToolStripMenuItem.Text = "&Paste";
             // 
+            // deleteToolStripMenuItem
+            // 
+            this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
+            this.deleteToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.Delete;
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.deleteToolStripMenuItem.Text = "&Delete";
+            this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
+            // 
             // workflowToolStripMenuItem
             // 
             this.workflowToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -391,7 +412,7 @@
             this.helpToolStripButton});
             this.toolStrip.Location = new System.Drawing.Point(0, 24);
             this.toolStrip.Name = "toolStrip";
-            this.toolStrip.Size = new System.Drawing.Size(664, 25);
+            this.toolStrip.Size = new System.Drawing.Size(673, 25);
             this.toolStrip.TabIndex = 2;
             this.toolStrip.Text = "toolStrip1";
             // 
@@ -473,37 +494,17 @@
             // 
             // statusStrip
             // 
-            this.statusStrip.Location = new System.Drawing.Point(0, 311);
+            this.statusStrip.Location = new System.Drawing.Point(0, 317);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(664, 22);
+            this.statusStrip.Size = new System.Drawing.Size(673, 22);
             this.statusStrip.TabIndex = 3;
             this.statusStrip.Text = "statusStrip1";
-            // 
-            // deleteToolStripMenuItem
-            // 
-            this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.Delete;
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
-            this.deleteToolStripMenuItem.Text = "&Delete";
-            this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
-            // 
-            // workflowLayoutPanel
-            // 
-            this.workflowLayoutPanel.AllowDrop = true;
-            this.workflowLayoutPanel.AutoScroll = true;
-            this.workflowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.workflowLayoutPanel.Location = new System.Drawing.Point(3, 16);
-            this.workflowLayoutPanel.Name = "workflowLayoutPanel";
-            this.workflowLayoutPanel.Size = new System.Drawing.Size(252, 237);
-            this.workflowLayoutPanel.TabIndex = 0;
-            this.workflowLayoutPanel.DragDrop += new System.Windows.Forms.DragEventHandler(this.workflowLayoutPanel_DragDrop);
-            this.workflowLayoutPanel.DragEnter += new System.Windows.Forms.DragEventHandler(this.workflowLayoutPanel_DragEnter);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(664, 333);
+            this.ClientSize = new System.Drawing.Size(673, 339);
             this.Controls.Add(this.tableLayoutPanel);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.toolStrip);
