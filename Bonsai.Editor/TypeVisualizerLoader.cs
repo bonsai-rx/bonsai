@@ -44,7 +44,7 @@ namespace Bonsai.Editor
             var typeVisualizers = Enumerable.Empty<CustomAttributeData>();
             for (int i = 0; i < types.Length; i++)
             {
-                var visualizerAttributes = types[i].GetCustomAttributesData().Where(data => data.Constructor.DeclaringType == attributeClass);
+                var visualizerAttributes = CustomAttributeData.GetCustomAttributes(types[i]).Where(data => data.Constructor.DeclaringType == attributeClass);
                 typeVisualizers = typeVisualizers.Concat(visualizerAttributes);
             }
 
