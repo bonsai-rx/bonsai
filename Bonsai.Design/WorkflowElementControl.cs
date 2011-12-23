@@ -65,10 +65,10 @@ namespace Bonsai.Design
                         EventHandler runningChangedHandler = delegate { if (!workflow.Running) visualizerDialog.Close(); };
                         workflow.RunningChanged += runningChangedHandler;
 
+                        visualizerDialog.FormClosing += delegate { visualizerObserver.Dispose(); };
                         visualizerDialog.FormClosed += delegate
                         {
                             workflow.RunningChanged -= runningChangedHandler;
-                            visualizerObserver.Dispose();
                             visualizer.Unload();
                             visualizerDialog = null;
                         };
