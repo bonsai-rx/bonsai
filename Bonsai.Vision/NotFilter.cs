@@ -21,11 +21,13 @@ namespace VideoAnalyzer.Vision
         {
             var size = (CvSize)context.GetService(typeof(CvSize));
             output = new IplImage(size, 8, 1);
+            base.Load(context);
         }
 
         public override void Unload(WorkflowContext context)
         {
             output.Close();
+            base.Unload(context);
         }
     }
 }

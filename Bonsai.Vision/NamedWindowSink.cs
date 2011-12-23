@@ -20,11 +20,13 @@ namespace Bonsai.Vision
         public override void Load(WorkflowContext context)
         {
             window = new NamedWindow(Name);
+            base.Load(context);
         }
 
         public override void Unload(WorkflowContext context)
         {
             window.Dispose();
+            base.Unload(context);
         }
     }
 }

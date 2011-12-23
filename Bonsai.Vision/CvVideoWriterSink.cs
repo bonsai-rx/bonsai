@@ -25,11 +25,13 @@ namespace Bonsai.Vision
         {
             var size = (CvSize)context.GetService(typeof(CvSize));
             writer = new CvVideoWriter(FileName, FourCC, FrameRate, size);
+            base.Load(context);
         }
 
         public override void Unload(WorkflowContext context)
         {
             writer.Close();
+            base.Unload(context);
         }
     }
 }

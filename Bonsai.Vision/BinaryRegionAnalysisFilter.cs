@@ -45,12 +45,14 @@ namespace Bonsai.Vision
         public override void Load(WorkflowContext context)
         {
             output = new ConnectedComponentCollection();
+            base.Load(context);
         }
 
         public override void Unload(WorkflowContext context)
         {
             output.Clear();
             output = null;
+            base.Unload(context);
         }
     }
 }
