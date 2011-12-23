@@ -44,6 +44,8 @@
     <Compile Include="BackgroundSubtractionFilter.cs" />
     <Compile Include="BinaryRegionAnalysisFilter.cs" />
     <Compile Include="ConnectedComponentCollection.cs" />
+    <Compile Include="CvCaptureSource.cs" />
+    <Compile Include="CvFileCaptureSource.cs" />
     <Compile Include="FindContoursFilter.cs" />
     <Compile Include="CannyFilter.cs" />
     <Compile Include="ConnectedComponent.cs" />
