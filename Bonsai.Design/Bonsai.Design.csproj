@@ -46,6 +46,12 @@
     <Compile Include="CommandExecutor.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="WorkflowConnectorControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="WorkflowConnectorControl.Designer.cs">
+      <DependentUpon>WorkflowConnectorControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="DialogTypeVisualizer.cs" />
     <Compile Include="IDialogTypeVisualizerService.cs" />
     <Compile Include="NumericUpDownEditor.cs" />
@@ -66,6 +72,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="WorkflowConnectorControl.resx">
+      <DependentUpon>WorkflowConnectorControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="TypeVisualizerDialog.resx">
       <DependentUpon>TypeVisualizerDialog.cs</DependentUpon>
     </EmbeddedResource>
