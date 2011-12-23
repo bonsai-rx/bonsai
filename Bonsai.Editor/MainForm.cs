@@ -15,9 +15,9 @@ namespace Bonsai.Editor
 {
     public partial class MainForm : Form
     {
-        Workflow workflow;
-        Workflow observableWorkflow;
+        WorkflowProject project;
         WorkflowContext context;
+        IDisposable errorHandler;
         XmlSerializer serializer;
         Dictionary<Type, Type> typeVisualizers;
 
@@ -26,10 +26,11 @@ namespace Bonsai.Editor
             InitializeComponent();
             InitializeToolbox();
 
-            workflow = new Workflow();
-            observableWorkflow = new Workflow();
-            observableWorkflow.Error.Subscribe(HandleWorkflowError);
+            project = new WorkflowProject();
             context = new WorkflowContext();
+            workflowLayoutPanel.Project = project;
+            workflowLayoutPanel.Context = context;
+            workflowLayoutPanel.PropertyGrid = propertyGrid;
             typeVisualizers = TypeVisualizerLoader.GetTypeVisualizerDictionary();
         }
 
@@ -39,7 +40,7 @@ namespace Bonsai.Editor
             {
                 BeginInvoke((Action<Exception>)HandleWorkflowError, e);
             }
-            else if (observableWorkflow.Running)
+            else if (project.Running)
             {
                 StopWorkflow();
                 MessageBox.Show(e.Message, "Processing Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -51,11 +52,13 @@ namespace Bonsai.Editor
         void InitializeToolbox()
         {
             var types = WorkflowElementLoader.GetWorkflowElementTypes();
-            serializer = new XmlSerializer(typeof(Workflow), types);
+            serializer = new XmlSerializer(typeof(WorkflowProject));
 
-            InitializeToolboxCategory(toolboxTreeView.Nodes[0], types.Where(type => WorkflowElementLoader.MatchGenericType(type, typeof(Source<>))));
-            InitializeToolboxCategory(toolboxTreeView.Nodes[1], types.Where(type => WorkflowElementLoader.MatchGenericType(type, typeof(Filter<,>))));
-            InitializeToolboxCategory(toolboxTreeView.Nodes[2], types.Where(type => WorkflowElementLoader.MatchGenericType(type, typeof(Sink<>))));
+            InitializeToolboxCategory(toolboxTreeView.Nodes[0], types.Where(type => WorkflowElementControl.MatchGenericType(type, typeof(Source<>))));
+            InitializeToolboxCategory(toolboxTreeView.Nodes[1], types
+                .Where(type => WorkflowElementControl.MatchGenericType(type, typeof(Filter<,>)))
+                .Concat(Enumerable.Repeat(typeof(ParallelFilter<>), 1)));
+            InitializeToolboxCategory(toolboxTreeView.Nodes[2], types.Where(type => WorkflowElementControl.MatchGenericType(type, typeof(Sink<>))));
         }
 
         void InitializeToolboxCategory(TreeNode category, IEnumerable<Type> types)
@@ -77,104 +80,87 @@ namespace Bonsai.Editor
 
         private void workflowLayoutPanel_DragEnter(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.Text))
+            if (!project.Running && e.Data.GetDataPresent(DataFormats.Text))
             {
                 e.Effect = DragDropEffects.Copy;
             }
             else e.Effect = DragDropEffects.None;
         }
 
+        void WorkflowProjectVisitor(Action<IWorkflowContainer, int, int, int> visitor)
+        {
+            var rowOffset = 0;
+            for (int i = 0; i < project.Workflows.Count; i++)
+            {
+                var workflow = project.Workflows[i];
+                rowOffset += WorkflowVisitor(workflow, visitor, 0, rowOffset);
+            }
+        }
+
+        int WorkflowVisitor(IWorkflowContainer container, Action<IWorkflowContainer, int, int, int> visitor, int column, int row)
+        {
+            var rowHeight = 1;
+            for (int i = container.Components.Count - 1; i >= 0; i--)
+            {
+                var component = container.Components[i];
+                visitor(container, i, column + i, row);
+
+                var subContainer = component as IWorkflowContainer;
+                if (subContainer != null)
+                {
+                    rowHeight += WorkflowVisitor(subContainer, visitor, column + i + 1, row + rowHeight);
+                }
+            }
+
+            return rowHeight;
+        }
+
         void StartWorkflow()
         {
-            if (!observableWorkflow.Running)
+            if (!project.Running)
             {
-                observableWorkflow.Components.Clear();
-                for (int i = 0; i < workflow.Components.Count; i++)
+                WorkflowProjectVisitor((container, index, column, row) =>
                 {
-                    var component = workflow.Components[i];
-                    observableWorkflow.Components.Add(component);
-
-                    var elementControl = workflowLayoutPanel.GetElementFromPosition(i, 0);
+                    var elementControl = workflowLayoutPanel.GetElementFromPosition(column, row);
                     if (elementControl != null &&
                         elementControl.ObservableElement != null &&
-                        elementControl.ObservableElement != component)
+                        elementControl.ObservableElement != elementControl.Element)
                     {
-                        observableWorkflow.Components.Add(elementControl.ObservableElement);
+                        container.Components.Insert(index + 1, elementControl.ObservableElement);
                     }
-                }
+                });
 
-                observableWorkflow.Load(context);
-                observableWorkflow.Start();
+                errorHandler = project.Error.Subscribe(HandleWorkflowError);
+                project.Load(context);
+                project.Start();
             }
         }
 
         void StopWorkflow()
         {
-            if (observableWorkflow.Running)
+            if (project.Running)
             {
-                observableWorkflow.Stop();
-                observableWorkflow.Unload(context);
+                project.Stop();
+                project.Unload(context);
+                errorHandler.Dispose();
+
+                WorkflowProjectVisitor((container, index, column, row) =>
+                {
+                    var isWorkflow = container is Workflow;
+                    if (index > 0 &&
+                       (isWorkflow && index % 2 == 0 ||
+                       (!isWorkflow && index % 2 != 0)))
+                    {
+                        container.Components.RemoveAt(index);
+                    }
+                });
             }
         }
 
         void UpdateWorkflowLayout()
         {
             propertyGrid.SelectedObject = null;
-            workflowLayoutPanel.ClearLayout();
-            workflowLayoutPanel.SuspendLayout();
-
-            foreach (var element in workflow.Components)
-            {
-                AddElement(element);
-            }
-
-            workflowLayoutPanel.ResumeLayout();
-        }
-
-        WorkflowElement CreateObservableFilter(WorkflowElement filter)
-        {
-            var outputType = WorkflowElementControl.GetWorkflowElementOutputType(filter);
-            var observableFilterType = typeof(ObservableFilter<>).MakeGenericType(outputType);
-            return (WorkflowElement)Activator.CreateInstance(observableFilterType);
-        }
-
-        void CreateVisualizerSource(WorkflowElementControl elementControl, WorkflowElement element)
-        {
-            Type visualizerType;
-            var outputType = WorkflowElementControl.GetWorkflowElementOutputType(element);
-            if (!typeVisualizers.TryGetValue(outputType, out visualizerType))
-            {
-                visualizerType = typeVisualizers[typeof(object)];
-            }
-
-            var visualizer = (DialogTypeVisualizer)Activator.CreateInstance(visualizerType);
-            elementControl.SetObservableElement(element, visualizer, context);
-        }
-
-        void AddElement(WorkflowElement element)
-        {
-            var type = element.GetType();
-            var elementControl = new WorkflowElementControl();
-            elementControl.Name = type.Name;
-            elementControl.Element = element;
-            elementControl.Dock = DockStyle.Fill;
-            elementControl.Click += delegate { propertyGrid.SelectedObject = element; };
-
-            if (WorkflowElementLoader.MatchGenericType(type, typeof(Source<>)))
-            {
-                elementControl.Connections = AnchorStyles.Right;
-                CreateVisualizerSource(elementControl, elementControl.Element);
-            }
-
-            if (WorkflowElementLoader.MatchGenericType(type, typeof(Filter<,>)))
-            {
-                elementControl.Connections = AnchorStyles.Left | AnchorStyles.Right;
-                CreateVisualizerSource(elementControl, CreateObservableFilter(elementControl.Element));
-            }
-
-            if (WorkflowElementLoader.MatchGenericType(type, typeof(Sink<>))) elementControl.Connections = AnchorStyles.Left;
-
-            workflowLayoutPanel.AddElement(elementControl);
+            workflowLayoutPanel.UpdateWorkflowLayout();
         }
 
         private void workflowLayoutPanel_DragDrop(object sender, DragEventArgs e)
@@ -183,20 +169,10 @@ namespace Bonsai.Editor
             var type = Type.GetType(typeName);
             if (type != null && type.IsSubclassOf(typeof(WorkflowElement)))
             {
-                var element = (WorkflowElement)Activator.CreateInstance(type);
-                var point = workflowLayoutPanel.PointToClient(new Point(e.X, e.Y));
-                var targetElement = workflowLayoutPanel.GetChildAtPoint(point) as WorkflowElementControl;
-                if (targetElement != null)
-                {
-                    var targetPosition = workflowLayoutPanel.GetPositionFromElement(targetElement);
-                    workflow.Components.Insert(targetPosition.Column + 1, element);
-                    UpdateWorkflowLayout();
-                }
-                else
-                {
-                    workflow.Components.Add(element);
-                    AddElement(element);
-                }
+                var point = new Point(e.X, e.Y);
+                var position = workflowLayoutPanel.GetPositionFromPoint(point);
+                var elementControl = workflowLayoutPanel.CreateWorkflowElement(type, point);
+                workflowLayoutPanel.AddElement(elementControl, position.Column, position.Row);
             }
         }
 
@@ -207,7 +183,7 @@ namespace Bonsai.Editor
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
             StopWorkflow();
-            workflow.Components.Clear();
+            project.Workflows.Clear();
             UpdateWorkflowLayout();
         }
 
@@ -218,7 +194,8 @@ namespace Bonsai.Editor
                 saveWorkflowDialog.FileName = openWorkflowDialog.FileName;
                 using (var reader = XmlReader.Create(openWorkflowDialog.FileName))
                 {
-                    workflow = (Workflow)serializer.Deserialize(reader);
+                    project = (WorkflowProject)serializer.Deserialize(reader);
+                    workflowLayoutPanel.Project = project;
                     UpdateWorkflowLayout();
                 }
             }
@@ -231,7 +208,7 @@ namespace Bonsai.Editor
             {
                 using (var writer = XmlWriter.Create(saveWorkflowDialog.FileName, new XmlWriterSettings { Indent = true }))
                 {
-                    serializer.Serialize(writer, workflow);
+                    serializer.Serialize(writer, project);
                 }
             }
         }
@@ -273,11 +250,9 @@ namespace Bonsai.Editor
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var activeElement = workflowLayoutPanel.ActiveControl as WorkflowElementControl;
-            if (activeElement != null)
+            if (activeElement != null && !project.Running)
             {
-                var elementPosition = workflowLayoutPanel.GetPositionFromElement(activeElement);
-                workflow.Components.RemoveAt(elementPosition.Column);
-                UpdateWorkflowLayout();
+                workflowLayoutPanel.RemoveElement(activeElement);
             }
         }
     }
