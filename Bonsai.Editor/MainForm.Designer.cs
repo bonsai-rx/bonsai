@@ -38,7 +38,7 @@
             this.toolboxGroupBox = new System.Windows.Forms.GroupBox();
             this.toolboxTreeView = new System.Windows.Forms.TreeView();
             this.workflowGroupBox = new System.Windows.Forms.GroupBox();
-            this.workflowLayoutPanel = new Bonsai.Editor.WorkflowLayoutPanel();
+            this.workflowLayoutPanel = new Bonsai.Design.WorkflowLayoutPanel();
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -561,7 +561,7 @@
         private System.Windows.Forms.OpenFileDialog openWorkflowDialog;
         private System.Windows.Forms.SaveFileDialog saveWorkflowDialog;
         private Bonsai.Design.CommandExecutor commandExecutor;
-        private Bonsai.Editor.WorkflowLayoutPanel workflowLayoutPanel;
+        private Bonsai.Design.WorkflowLayoutPanel workflowLayoutPanel;
         private System.Windows.Forms.ToolStripMenuItem startToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem stopToolStripMenuItem;
         private System.Windows.Forms.ToolStrip toolStrip;

@@ -6,19 +6,14 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using Bonsai.Design;
 
-namespace Bonsai.Editor
+namespace Bonsai.Design
 {
     public partial class WorkflowLayoutPanel : UserControl
     {
-        Dictionary<Type, Type> typeVisualizers;
-
         public WorkflowLayoutPanel()
         {
             InitializeComponent();
-
-            typeVisualizers = TypeVisualizerLoader.GetTypeVisualizerDictionary();
         }
 
         public WorkflowProject Project { get; set; }
@@ -26,6 +21,8 @@ namespace Bonsai.Editor
         public WorkflowContext Context { get; set; }
 
         public PropertyGrid PropertyGrid { get; set; }
+
+        public Dictionary<Type, Type> TypeVisualizers { get; set; }
 
         #region CreateWorkflowElement Methods
 
@@ -63,9 +60,9 @@ namespace Bonsai.Editor
         {
             Type visualizerType;
             var outputType = WorkflowElementControl.GetWorkflowElementOutputType(element);
-            if (!typeVisualizers.TryGetValue(outputType, out visualizerType))
+            if (!TypeVisualizers.TryGetValue(outputType, out visualizerType))
             {
-                visualizerType = typeVisualizers[typeof(object)];
+                visualizerType = TypeVisualizers[typeof(object)];
             }
 
             var visualizer = (DialogTypeVisualizer)Activator.CreateInstance(visualizerType);
