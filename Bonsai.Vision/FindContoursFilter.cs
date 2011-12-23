@@ -42,11 +42,13 @@ namespace Bonsai.Vision
             var size = (CvSize)context.GetService(typeof(CvSize));
             temp = new IplImage(size, 8, 1);
             storage = new CvMemStorage();
+            base.Load(context);
         }
 
         public override void Unload(WorkflowContext context)
         {
             storage.Close();
+            base.Unload(context);
         }
     }
 }

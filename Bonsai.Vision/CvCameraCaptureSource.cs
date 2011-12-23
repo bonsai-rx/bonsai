@@ -53,6 +53,7 @@ namespace Bonsai.Vision
             var width = (int)capture.GetProperty(CaptureProperty.FRAME_WIDTH);
             var height = (int)capture.GetProperty(CaptureProperty.FRAME_HEIGHT);
             context.AddService(typeof(CvSize), new CvSize(width, height));
+            base.Load(context);
         }
 
         public override void Unload(WorkflowContext context)
@@ -60,6 +61,7 @@ namespace Bonsai.Vision
             capture.Close();
             captureThread = null;
             context.RemoveService(typeof(CvSize));
+            base.Unload(context);
         }
     }
 }

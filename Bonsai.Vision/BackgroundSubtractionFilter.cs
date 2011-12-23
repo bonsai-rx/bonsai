@@ -45,11 +45,13 @@ namespace Bonsai.Vision
             backgroundMask.SetZero();
             output.SetZero();
             averageCount = 0;
+            base.Load(context);
         }
 
         public override void Unload(WorkflowContext context)
         {
             output.Close();
+            base.Unload(context);
         }
     }
 }
