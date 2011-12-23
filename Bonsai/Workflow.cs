@@ -5,29 +5,18 @@ using System.Text;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using System.Xml.Serialization;
+using System.Reflection;
 
 namespace Bonsai
 {
-    public class Workflow : Source
+    public class Workflow : ProcessingElement, IWorkflowContainer
     {
         IDisposable processingChain;
-        readonly OutputObservable<Exception> error;
         readonly WorkflowElementCollection components;
 
         public Workflow()
         {
-            error = new OutputObservable<Exception>();
             components = new WorkflowElementCollection();
-        }
-
-        [XmlIgnore]
-        public bool Running { get; private set; }
-
-        public event EventHandler RunningChanged;
-
-        public IObservable<Exception> Error
-        {
-            get { return error; }
         }
 
         public WorkflowElementCollection Components
@@ -35,41 +24,22 @@ namespace Bonsai
             get { return components; }
         }
 
-        protected virtual void OnRunningChanged(EventArgs e)
-        {
-            var handler = RunningChanged;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
-
         public override void Start()
         {
             if (Running) return;
 
-            foreach (var component in components)
-            {
-                var source = component as Source;
-                if (source != null) source.Start();
-            }
-
-            Running = true;
-            OnRunningChanged(EventArgs.Empty);
+            var source = (Source)components.First();
+            source.Start();
+            base.Start();
         }
 
         public override void Stop()
         {
             if (!Running) return;
 
-            foreach (var component in components)
-            {
-                var source = component as Source;
-                if (source != null) source.Stop();
-            }
-
-            Running = false;
-            OnRunningChanged(EventArgs.Empty);
+            var source = (Source)components.First();
+            source.Stop();
+            base.Stop();
         }
 
         public override void Load(WorkflowContext context)
@@ -100,8 +70,8 @@ namespace Bonsai
             }
 
             // Route any raised exceptions through the observable error stream
-            var errorInstance = Expression.Constant(error);
-            var errorMethod = error.GetType().GetMethod("OnNext");
+            var errorInstance = Expression.Constant(this);
+            var errorMethod = GetType().BaseType.GetMethod("OnError", BindingFlags.Instance | BindingFlags.NonPublic);
             var exception = Expression.Parameter(typeof(Exception));
             output = Expression.TryCatch(output, Expression.Catch(exception, Expression.Call(errorInstance, errorMethod, exception)));
 
@@ -113,6 +83,7 @@ namespace Bonsai
 
             // Add the workflow as a context service
             context.AddService(typeof(Workflow), this);
+            base.Load(context);
         }
 
         public override void Unload(WorkflowContext context)
@@ -128,6 +99,7 @@ namespace Bonsai
             {
                 component.Unload(context);
             }
+            base.Unload(context);
         }
     }
 }
