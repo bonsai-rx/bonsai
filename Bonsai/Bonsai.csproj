@@ -42,19 +42,25 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Filter.cs" />
+    <Compile Include="IWorkflowContainer.cs" />
+    <Compile Include="LoadUnloadEventArgs.cs" />
     <Compile Include="NullSink.cs" />
     <Compile Include="ObservableFilter.cs" />
     <Compile Include="ObservableSink.cs" />
     <Compile Include="OutputObservable.cs" />
+    <Compile Include="ParallelFilter.cs" />
+    <Compile Include="ProcessingElement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RangeAttribute.cs" />
     <Compile Include="Sink.cs" />
     <Compile Include="Source.cs" />
     <Compile Include="TypeVisualizerAttribute.cs" />
     <Compile Include="Workflow.cs" />
+    <Compile Include="WorkflowCollection.cs" />
     <Compile Include="WorkflowContext.cs" />
     <Compile Include="WorkflowElement.cs" />
     <Compile Include="WorkflowElementCollection.cs" />
+    <Compile Include="WorkflowProject.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

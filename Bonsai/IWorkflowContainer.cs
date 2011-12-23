@@ -5,10 +5,8 @@ using System.Text;
 
 namespace Bonsai
 {
-    public class NullSink : Sink<object>
+    public interface IWorkflowContainer
     {
-        public override void Process(object input)
-        {
-        }
+        WorkflowElementCollection Components { get; }
     }
 }

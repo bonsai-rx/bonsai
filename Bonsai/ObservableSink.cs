@@ -25,13 +25,5 @@ namespace Bonsai
         {
             output.OnNext(input);
         }
-
-        public override void Load(WorkflowContext context)
-        {
-        }
-
-        public override void Unload(WorkflowContext context)
-        {
-        }
     }
 }
