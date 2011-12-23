@@ -70,6 +70,12 @@
     <Compile Include="WorkflowElementControl.Designer.cs">
       <DependentUpon>WorkflowElementControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="WorkflowLayoutPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="WorkflowLayoutPanel.Designer.cs">
+      <DependentUpon>WorkflowLayoutPanel.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="WorkflowConnectorControl.resx">
@@ -80,6 +86,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="WorkflowElementControl.resx">
       <DependentUpon>WorkflowElementControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WorkflowLayoutPanel.resx">
+      <DependentUpon>WorkflowLayoutPanel.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,4 @@
-﻿namespace Bonsai.Editor
+﻿namespace Bonsai.Design
 {
     partial class WorkflowLayoutPanel
     {

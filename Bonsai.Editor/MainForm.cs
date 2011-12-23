@@ -28,10 +28,11 @@ namespace Bonsai.Editor
 
             project = new WorkflowProject();
             context = new WorkflowContext();
+            typeVisualizers = TypeVisualizerLoader.GetTypeVisualizerDictionary();
             workflowLayoutPanel.Project = project;
             workflowLayoutPanel.Context = context;
             workflowLayoutPanel.PropertyGrid = propertyGrid;
-            typeVisualizers = TypeVisualizerLoader.GetTypeVisualizerDictionary();
+            workflowLayoutPanel.TypeVisualizers = typeVisualizers;
         }
 
         void HandleWorkflowError(Exception e)
