@@ -9,12 +9,15 @@ using System.Windows.Forms;
 using System.Xml.Serialization;
 using System.Xml;
 using Bonsai.Design;
+using System.Reactive.Linq;
 using System.Linq.Expressions;
+using System.ComponentModel.Design;
 
 namespace Bonsai.Editor
 {
     public partial class MainForm : Form
     {
+        EditorSite editorSite;
         WorkflowProject project;
         WorkflowContext context;
         IDisposable errorHandler;
@@ -26,27 +29,58 @@ namespace Bonsai.Editor
             InitializeComponent();
             InitializeToolbox();
 
+            editorSite = new EditorSite();
             project = new WorkflowProject();
             context = new WorkflowContext();
+            editorSite.Context = context;
             typeVisualizers = TypeVisualizerLoader.GetTypeVisualizerDictionary();
             workflowLayoutPanel.Project = project;
             workflowLayoutPanel.Context = context;
             workflowLayoutPanel.PropertyGrid = propertyGrid;
             workflowLayoutPanel.TypeVisualizers = typeVisualizers;
+            propertyGrid.Site = editorSite;
         }
 
         void HandleWorkflowError(Exception e)
         {
-            if (InvokeRequired)
-            {
-                BeginInvoke((Action<Exception>)HandleWorkflowError, e);
-            }
-            else if (project.Running)
+            if (project.Running)
             {
                 StopWorkflow();
                 MessageBox.Show(e.Message, "Processing Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        #region EditorSite Class
+
+        class EditorSite : ISite
+        {
+            public WorkflowContext Context { get; set; }
+
+            public IComponent Component
+            {
+                get { return null; }
+            }
+
+            public IContainer Container
+            {
+                get { return null; }
+            }
+
+            public bool DesignMode
+            {
+                get { return false; }
+            }
+
+            public string Name { get; set; }
+
+            public object GetService(Type serviceType)
+            {
+                if (Context == null) return null;
+                else return Context.GetService(serviceType);
+            }
+        }
+
+        #endregion
 
         #region Toolbox
 
@@ -88,39 +122,11 @@ namespace Bonsai.Editor
             else e.Effect = DragDropEffects.None;
         }
 
-        void WorkflowProjectVisitor(Action<IWorkflowContainer, int, int, int> visitor)
-        {
-            var rowOffset = 0;
-            for (int i = 0; i < project.Workflows.Count; i++)
-            {
-                var workflow = project.Workflows[i];
-                rowOffset += WorkflowVisitor(workflow, visitor, 0, rowOffset);
-            }
-        }
-
-        int WorkflowVisitor(IWorkflowContainer container, Action<IWorkflowContainer, int, int, int> visitor, int column, int row)
-        {
-            var rowHeight = 1;
-            for (int i = container.Components.Count - 1; i >= 0; i--)
-            {
-                var component = container.Components[i];
-                visitor(container, i, column + i, row);
-
-                var subContainer = component as IWorkflowContainer;
-                if (subContainer != null)
-                {
-                    rowHeight += WorkflowVisitor(subContainer, visitor, column + i + 1, row + rowHeight);
-                }
-            }
-
-            return rowHeight;
-        }
-
         void StartWorkflow()
         {
             if (!project.Running)
             {
-                WorkflowProjectVisitor((container, index, column, row) =>
+                project.Visitor((container, index, column, row) =>
                 {
                     var elementControl = workflowLayoutPanel.GetElementFromPosition(column, row);
                     if (elementControl != null &&
@@ -130,8 +136,7 @@ namespace Bonsai.Editor
                         container.Components.Insert(index + 1, elementControl.ObservableElement);
                     }
                 });
-
-                errorHandler = project.Error.Subscribe(HandleWorkflowError);
+                errorHandler = project.Error.ObserveOn(this).Subscribe(HandleWorkflowError);
                 project.Load(context);
                 project.Start();
             }
@@ -145,7 +150,7 @@ namespace Bonsai.Editor
                 project.Unload(context);
                 errorHandler.Dispose();
 
-                WorkflowProjectVisitor((container, index, column, row) =>
+                project.Visitor((container, index, column, row) =>
                 {
                     var isWorkflow = container is Workflow;
                     if (index > 0 &&
