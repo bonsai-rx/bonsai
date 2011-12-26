@@ -23,10 +23,13 @@ namespace Bonsai.Design
             {
                 var propertyDescriptor = context.PropertyDescriptor;
                 var range = (RangeAttribute)propertyDescriptor.Attributes[typeof(RangeAttribute)];
+                var precision = (PrecisionAttribute)propertyDescriptor.Attributes[typeof(PrecisionAttribute)];
 
                 var numericUpDown = new NumericUpDown();
                 numericUpDown.Minimum = range.Minimum;
                 numericUpDown.Maximum = range.Maximum;
+                numericUpDown.DecimalPlaces = precision.DecimalPlaces;
+                numericUpDown.Increment = precision.Increment;
                 numericUpDown.Value = Convert.ToDecimal(value);
                 numericUpDown.ValueChanged += (sender, e) => propertyDescriptor.SetValue(context.Instance, Convert.ChangeType(numericUpDown.Value, propertyDescriptor.PropertyType));
                 editorService.DropDownControl(numericUpDown);

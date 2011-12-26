@@ -16,11 +16,7 @@ namespace Bonsai.Design
 
         public override void Show(object value)
         {
-            if (control.InvokeRequired)
-            {
-                control.BeginInvoke((Action<object>)Show, value);
-            }
-            else control.Text = value != null ? value.ToString() : null;
+            control.Text = value != null ? value.ToString() : null;
         }
 
         public override void Load(IServiceProvider provider)
