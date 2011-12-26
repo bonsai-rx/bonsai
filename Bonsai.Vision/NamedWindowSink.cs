@@ -10,6 +10,11 @@ namespace Bonsai.Vision
     {
         NamedWindow window;
 
+        public NamedWindowSink()
+        {
+            Name = "Output";
+        }
+
         public string Name { get; set; }
 
         public override void Process(IplImage input)
