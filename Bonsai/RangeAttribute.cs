@@ -11,21 +11,18 @@ namespace Bonsai
         public static readonly RangeAttribute Default = new RangeAttribute(decimal.MinValue, decimal.MaxValue);
 
         public RangeAttribute(int min, int max)
+            : this((decimal)min, (decimal)max)
         {
-            Minimum = min;
-            Maximum = max;
         }
 
         public RangeAttribute(float min, float max)
+            : this((decimal)min, (decimal)max)
         {
-            Minimum = (decimal)min;
-            Maximum = (decimal)max;
         }
 
         public RangeAttribute(double min, double max)
+            : this((decimal)min, (decimal)max)
         {
-            Minimum = (decimal)min;
-            Maximum = (decimal)max;
         }
 
         public RangeAttribute(decimal min, decimal max)

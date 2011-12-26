@@ -49,6 +49,7 @@
     <Compile Include="ObservableSink.cs" />
     <Compile Include="OutputObservable.cs" />
     <Compile Include="ParallelFilter.cs" />
+    <Compile Include="PrecisionAttribute.cs" />
     <Compile Include="ProcessingElement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RangeAttribute.cs" />
