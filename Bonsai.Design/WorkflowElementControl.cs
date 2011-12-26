@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Linq.Expressions;
+using System.Reactive.Linq;
 
 namespace Bonsai.Design
 {
@@ -39,7 +40,9 @@ namespace Bonsai.Design
             var observer = Expression.Lambda(output, input).Compile();
             var outputProperty = element.GetType().GetProperty("Output");
             var observableSource = outputProperty.GetValue(element, null);
+            var observeOnMethod = typeof(ControlObservable).GetMethod("ObserveOn");
             var subscribeMethod = typeof(ObservableExtensions).GetMethods().First(m => m.Name == "Subscribe" && m.GetParameters().Length == 2);
+            observeOnMethod = observeOnMethod.MakeGenericMethod(new[] { outputType });
             subscribeMethod = subscribeMethod.MakeGenericMethod(new[] { outputType });
 
             WorkflowContext context = null;
@@ -74,7 +77,9 @@ namespace Bonsai.Design
                         };
 
                         visualizerContext.RemoveService(typeof(IDialogTypeVisualizerService));
-                        visualizerObserver = (IDisposable)subscribeMethod.Invoke(null, new object[] { observableSource, observer });
+
+                        var uiObservableSource = observeOnMethod.Invoke(null, new object[] { observableSource, visualizerDialog });
+                        visualizerObserver = (IDisposable)subscribeMethod.Invoke(null, new object[] { uiObservableSource, observer });
                         visualizerDialog.Show();
                     }
                 }
