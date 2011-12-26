@@ -13,6 +13,11 @@ namespace Bonsai.Vision
     {
         IplImage output;
 
+        public CannyFilter()
+        {
+            ApertureSize = 3;
+        }
+
         [Range(0, 255)]
         [Editor(typeof(TrackBarEditor), typeof(UITypeEditor))]
         public double Threshold1 { get; set; }
@@ -21,7 +26,8 @@ namespace Bonsai.Vision
         [Editor(typeof(TrackBarEditor), typeof(UITypeEditor))]
         public double Threshold2 { get; set; }
 
-        [Range(0, 255)]
+        [Range(3, 7)]
+        [Precision(0, 2)]
         [Editor(typeof(NumericUpDownEditor), typeof(UITypeEditor))]
         public int ApertureSize { get; set; }
 

@@ -21,27 +21,18 @@ namespace Bonsai.Vision.Design
             Dock = DockStyle.Fill;
         }
 
-        public IplImage Image
+        public virtual IplImage Image
         {
             get { return image; }
             set
             {
                 image = value;
                 var bitmap = ConvertImage(image);
-                SetPictureBoxImage(bitmap);
+                pictureBox.Image = bitmap;
             }
         }
 
-        void SetPictureBoxImage(Bitmap bitmap)
-        {
-            if (pictureBox.InvokeRequired)
-            {
-                pictureBox.BeginInvoke((Action<Bitmap>)SetPictureBoxImage, bitmap);
-            }
-            else pictureBox.Image = bitmap;
-        }
-
-        Bitmap ConvertImage(IplImage image)
+        protected Bitmap ConvertImage(IplImage image)
         {
             if (image == null) return null;
             if (image.Depth != 8) throw new ArgumentException("Non 8-bit depth images are not supported by the control.", "image");
