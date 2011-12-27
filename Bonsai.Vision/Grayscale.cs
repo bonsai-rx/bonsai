@@ -6,23 +6,13 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class SmoothFilter : Filter<IplImage, IplImage>
+    public class Grayscale : Filter<IplImage, IplImage>
     {
         IplImage output;
 
-        public SmoothMethod SmoothType { get; set; }
-
-        public int Size1 { get; set; }
-
-        public int Size2 { get; set; }
-
-        public double Sigma1 { get; set; }
-
-        public double Sigma2 { get; set; }
-
         public override IplImage Process(IplImage input)
         {
-            ImgProc.cvSmooth(input, output, SmoothType, Size1, Size2, Sigma1, Sigma2);
+            ImgProc.cvCvtColor(input, output, ColorConversion.BGR2GRAY);
             return output;
         }
 

@@ -3,17 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OpenCV.Net;
-using Bonsai;
 
-namespace VideoAnalyzer.Vision
+namespace Bonsai.Vision
 {
-    public class NotFilter : Filter<IplImage, IplImage>
+    public class Smooth : Filter<IplImage, IplImage>
     {
         IplImage output;
 
+        public SmoothMethod SmoothType { get; set; }
+
+        public int Size1 { get; set; }
+
+        public int Size2 { get; set; }
+
+        public double Sigma1 { get; set; }
+
+        public double Sigma2 { get; set; }
+
         public override IplImage Process(IplImage input)
         {
-            Core.cvNot(input, output);
+            ImgProc.cvSmooth(input, output, SmoothType, Size1, Size2, Sigma1, Sigma2);
             return output;
         }
 

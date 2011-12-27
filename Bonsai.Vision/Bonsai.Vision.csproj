@@ -41,27 +41,27 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BackgroundSubtractionFilter.cs" />
-    <Compile Include="BinaryRegionAnalysisFilter.cs" />
+    <Compile Include="BackgroundSubtraction.cs" />
+    <Compile Include="BinaryRegionAnalysis.cs" />
     <Compile Include="ColorBackProject.cs" />
-    <Compile Include="ColorConversionFilter.cs" />
-    <Compile Include="HsvThresholdFilter.cs" />
+    <Compile Include="ConvertColor.cs" />
+    <Compile Include="HsvThreshold.cs" />
     <Compile Include="ConnectedComponentCollection.cs" />
     <Compile Include="CvCaptureSource.cs" />
-    <Compile Include="CvFileCaptureSource.cs" />
+    <Compile Include="FileCapture.cs" />
     <Compile Include="ExtensionMethods.cs" />
-    <Compile Include="FindContoursFilter.cs" />
-    <Compile Include="CannyFilter.cs" />
+    <Compile Include="FindContours.cs" />
+    <Compile Include="Canny.cs" />
     <Compile Include="ConnectedComponent.cs" />
-    <Compile Include="CvCameraCaptureSource.cs" />
-    <Compile Include="CvVideoWriterSink.cs" />
-    <Compile Include="GrayscaleFilter.cs" />
-    <Compile Include="NamedWindowSink.cs" />
-    <Compile Include="NotFilter.cs" />
+    <Compile Include="CameraCapture.cs" />
+    <Compile Include="VideoWriter.cs" />
+    <Compile Include="Grayscale.cs" />
+    <Compile Include="Window.cs" />
+    <Compile Include="Not.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SmoothFilter.cs" />
-    <Compile Include="ThresholdFilter.cs" />
-    <Compile Include="WarpPerspectiveFilter.cs" />
+    <Compile Include="Smooth.cs" />
+    <Compile Include="Threshold.cs" />
+    <Compile Include="WarpPerspective.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj">

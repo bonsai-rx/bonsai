@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OpenCV.Net;
+using Bonsai;
 
-namespace Bonsai.Vision
+namespace VideoAnalyzer.Vision
 {
-    public class GrayscaleFilter : Filter<IplImage, IplImage>
+    public class Not : Filter<IplImage, IplImage>
     {
         IplImage output;
 
         public override IplImage Process(IplImage input)
         {
-            ImgProc.cvCvtColor(input, output, ColorConversion.BGR2GRAY);
+            Core.cvNot(input, output);
             return output;
         }
 

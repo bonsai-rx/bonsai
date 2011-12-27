@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class FindContoursFilter : Filter<IplImage, CvSeq>
+    public class FindContours : Filter<IplImage, CvSeq>
     {
         IplImage temp;
         CvMemStorage storage;

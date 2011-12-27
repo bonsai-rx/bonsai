@@ -6,31 +6,31 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class NamedWindowSink : Sink<IplImage>
+    public class VideoWriter : Sink<IplImage>
     {
-        NamedWindow window;
+        CvVideoWriter writer;
 
-        public NamedWindowSink()
-        {
-            Name = "Output";
-        }
+        public string FileName { get; set; }
 
-        public string Name { get; set; }
+        public int FourCC { get; set; }
+
+        public int FrameRate { get; set; }
 
         public override void Process(IplImage input)
         {
-            window.ShowImage(input);
+            writer.WriteFrame(input);
         }
 
         public override void Load(WorkflowContext context)
         {
-            window = new NamedWindow(Name);
+            var size = (CvSize)context.GetService(typeof(CvSize));
+            writer = new CvVideoWriter(FileName, FourCC, FrameRate, size);
             base.Load(context);
         }
 
         public override void Unload(WorkflowContext context)
         {
-            window.Dispose();
+            writer.Close();
             base.Unload(context);
         }
     }

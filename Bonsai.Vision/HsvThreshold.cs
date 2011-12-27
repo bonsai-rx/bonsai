@@ -7,11 +7,11 @@ using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
-    public class HsvThresholdFilter : Filter<IplImage, IplImage>
+    public class HsvThreshold : Filter<IplImage, IplImage>
     {
         IplImage output;
 
-        public HsvThresholdFilter()
+        public HsvThreshold()
         {
             Upper = new CvScalar(179, 255, 255, 255);
         }

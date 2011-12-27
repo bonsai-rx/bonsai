@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class BackgroundSubtractionFilter : Filter<IplImage, IplImage>
+    public class BackgroundSubtraction : Filter<IplImage, IplImage>
     {
         IplImage output;
         IplImage background;
