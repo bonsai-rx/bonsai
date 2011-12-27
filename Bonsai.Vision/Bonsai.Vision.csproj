@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="BackgroundSubtractionFilter.cs" />
     <Compile Include="BinaryRegionAnalysisFilter.cs" />
+    <Compile Include="ColorBackProject.cs" />
     <Compile Include="ColorConversionFilter.cs" />
     <Compile Include="HsvThresholdFilter.cs" />
     <Compile Include="ConnectedComponentCollection.cs" />
