@@ -6,31 +6,32 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class CvVideoWriterSink : Sink<IplImage>
+    public class Threshold : Filter<IplImage, IplImage>
     {
-        CvVideoWriter writer;
+        IplImage output;
 
-        public string FileName { get; set; }
+        public double ThresholdValue { get; set; }
 
-        public int FourCC { get; set; }
+        public double MaxValue { get; set; }
 
-        public int FrameRate { get; set; }
+        public ThresholdType ThresholdType { get; set; }
 
-        public override void Process(IplImage input)
+        public override IplImage Process(IplImage input)
         {
-            writer.WriteFrame(input);
+            ImgProc.cvThreshold(input, output, ThresholdValue, MaxValue, ThresholdType);
+            return output;
         }
 
         public override void Load(WorkflowContext context)
         {
             var size = (CvSize)context.GetService(typeof(CvSize));
-            writer = new CvVideoWriter(FileName, FourCC, FrameRate, size);
+            output = new IplImage(size, 8, 1);
             base.Load(context);
         }
 
         public override void Unload(WorkflowContext context)
         {
-            writer.Close();
+            output.Close();
             base.Unload(context);
         }
     }

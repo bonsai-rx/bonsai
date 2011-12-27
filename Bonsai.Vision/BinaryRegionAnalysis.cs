@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class BinaryRegionAnalysisFilter : Filter<CvSeq, ConnectedComponentCollection>
+    public class BinaryRegionAnalysis : Filter<CvSeq, ConnectedComponentCollection>
     {
         ConnectedComponentCollection output;
 

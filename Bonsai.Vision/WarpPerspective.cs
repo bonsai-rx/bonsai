@@ -8,7 +8,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
-    public class WarpPerspectiveFilter : Filter<IplImage, IplImage>
+    public class WarpPerspective : Filter<IplImage, IplImage>
     {
         IplImage output;
         CvMat mapMatrix;

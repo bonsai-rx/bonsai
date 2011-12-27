@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace Bonsai.Vision
 {
-    public class CvCameraCaptureSource : CvCaptureSource
+    public class CameraCapture : CvCaptureSource
     {
         public int Index { get; set; }
 

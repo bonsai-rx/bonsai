@@ -9,11 +9,11 @@ using Bonsai.Design;
 
 namespace Bonsai.Vision
 {
-    public class CannyFilter : Filter<IplImage, IplImage>
+    public class Canny : Filter<IplImage, IplImage>
     {
         IplImage output;
 
-        public CannyFilter()
+        public Canny()
         {
             ApertureSize = 3;
         }

@@ -6,13 +6,13 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class ColorConversionFilter : Filter<IplImage, IplImage>
+    public class ConvertColor : Filter<IplImage, IplImage>
     {
         IplImage output;
         bool conversionChanged;
         ColorConversion conversion;
 
-        public ColorConversionFilter()
+        public ConvertColor()
         {
             Conversion = ColorConversion.BGR2GRAY;
         }
