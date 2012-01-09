@@ -151,6 +151,8 @@ namespace Bonsai.Design
         {
             foreach (var layout in nodes)
             {
+                if (layout.Node.Value == null) continue;
+
                 if (CircleIntersect(point, layout.Center, HalfSize))
                 {
                     return layout.Node;
@@ -166,6 +168,8 @@ namespace Bonsai.Design
             GraphNode closest = null;
             foreach (var layout in nodes)
             {
+                if (layout.Node.Value == null) continue;
+
                 var center = layout.Center;
                 var distance = SquaredDistance(ref point, ref center);
                 if (closest == null || distance < minDistance)
@@ -216,7 +220,7 @@ namespace Bonsai.Design
 
                     e.Graphics.DrawEllipse(pen, nodeRectangle);
                     e.Graphics.FillEllipse(brush, nodeRectangle);
-                    e.Graphics.DrawString(layout.Node.Text.Substring(0, 1), Font, textBrush, new Point(layout.Location.X + 8, layout.Location.Y + 8));
+                    e.Graphics.DrawString(layout.Node.Text.Substring(0, 1), Font, textBrush, new Point(layout.Location.X + 9, layout.Location.Y + 9));
                 }
                 else e.Graphics.DrawLine(Pens.Black, layout.EntryPoint, layout.ExitPoint);
 
