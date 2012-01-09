@@ -3,13 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OpenCV.Net;
+using System.ComponentModel;
+using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
-    public class Threshold : Filter<IplImage, IplImage>
+    public class Threshold : Projection<IplImage, IplImage>
     {
-        IplImage output;
+        public Threshold()
+        {
+            ThresholdValue = 128;
+            MaxValue = 255;
+        }
 
+        [Range(0, 255)]
+        [Editor(DesignTypes.TrackbarEditor, typeof(UITypeEditor))]
         public double ThresholdValue { get; set; }
 
         public double MaxValue { get; set; }
@@ -18,21 +26,9 @@ namespace Bonsai.Vision
 
         public override IplImage Process(IplImage input)
         {
+            var output = new IplImage(input.Size, 8, 1);
             ImgProc.cvThreshold(input, output, ThresholdValue, MaxValue, ThresholdType);
             return output;
-        }
-
-        public override void Load(WorkflowContext context)
-        {
-            var size = (CvSize)context.GetService(typeof(CvSize));
-            output = new IplImage(size, 8, 1);
-            base.Load(context);
-        }
-
-        public override void Unload(WorkflowContext context)
-        {
-            output.Close();
-            base.Unload(context);
         }
     }
 }

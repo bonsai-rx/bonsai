@@ -5,13 +5,14 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{36EA4D04-39F3-436E-8AC7-06F868CC0D11}</ProjectGuid>
+    <ProjectGuid>{C226E461-6A82-49A7-9CAF-0CF872A1C91B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Bonsai.Vision</RootNamespace>
     <AssemblyName>Bonsai.Vision</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -34,6 +35,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Reactive, Version=1.0.10621.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -43,33 +45,30 @@
   <ItemGroup>
     <Compile Include="BackgroundSubtraction.cs" />
     <Compile Include="BinaryRegionAnalysis.cs" />
-    <Compile Include="ColorBackProject.cs" />
-    <Compile Include="ConvertColor.cs" />
-    <Compile Include="HsvThreshold.cs" />
-    <Compile Include="ConnectedComponentCollection.cs" />
-    <Compile Include="CvCaptureSource.cs" />
-    <Compile Include="FileCapture.cs" />
-    <Compile Include="ExtensionMethods.cs" />
-    <Compile Include="FindContours.cs" />
+    <Compile Include="CameraCapture.cs" />
     <Compile Include="Canny.cs" />
     <Compile Include="ConnectedComponent.cs" />
-    <Compile Include="CameraCapture.cs" />
-    <Compile Include="VideoWriter.cs" />
+    <Compile Include="ConnectedComponentCollection.cs" />
+    <Compile Include="Contours.cs" />
+    <Compile Include="ConvertColor.cs" />
+    <Compile Include="CvCaptureSource.cs" />
+    <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="FileCapture.cs" />
+    <Compile Include="FindContours.cs" />
     <Compile Include="Grayscale.cs" />
-    <Compile Include="Window.cs" />
+    <Compile Include="HsvThreshold.cs" />
+    <Compile Include="IplImageHelper.cs" />
+    <Compile Include="ApproximatePolygon.cs" />
     <Compile Include="Not.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Smooth.cs" />
     <Compile Include="Threshold.cs" />
     <Compile Include="WarpPerspective.cs" />
+    <Compile Include="Window.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj">
-      <Project>{C88292CE-41AE-4081-B2F6-5AEA1891D245}</Project>
-      <Name>Bonsai.Design</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Bonsai\Bonsai.csproj">
-      <Project>{CB47FD6C-0B10-4BF9-8C6E-63F41B8A5B32}</Project>
+      <Project>{E4D03BA3-54A2-4FF8-9DC6-52BA4CC14FED}</Project>
       <Name>Bonsai</Name>
     </ProjectReference>
     <ProjectReference Include="..\Externals\OpenCV.Net\OpenCV.Net\OpenCV.Net.csproj">

@@ -24,8 +24,8 @@ namespace Bonsai.Editor
         string[] GetReflectionOnlyWorkflowElementTypes()
         {
             var types = Enumerable.Empty<string>();
-            var workflowElementAssembly = Assembly.ReflectionOnlyLoad(typeof(WorkflowElement).Assembly.FullName);
-            var workflowElementType = workflowElementAssembly.GetType(typeof(WorkflowElement).FullName);
+            var loadableElementAssembly = Assembly.ReflectionOnlyLoad(typeof(LoadableElement).Assembly.FullName);
+            var loadableElementType = loadableElementAssembly.GetType(typeof(LoadableElement).FullName);
 
             var files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
             for (int i = 0; i < files.Length; i++)
@@ -33,7 +33,7 @@ namespace Bonsai.Editor
                 try
                 {
                     var assembly = Assembly.ReflectionOnlyLoadFrom(files[i]);
-                    types = types.Concat(GetSubclassElementTypes(assembly, workflowElementType).Select(type => type.AssemblyQualifiedName));
+                    types = types.Concat(GetSubclassElementTypes(assembly, loadableElementType).Select(type => type.AssemblyQualifiedName));
                 }
                 catch (BadImageFormatException) { continue; }
             }

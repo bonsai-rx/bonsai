@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("HP")]
 [assembly: AssemblyProduct("Bonsai")]
-[assembly: AssemblyCopyright("Copyright © HP 2011")]
+[assembly: AssemblyCopyright("Copyright © HP 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("e70b3abd-4029-4a1f-9f34-1410bb9bcb38")]
+[assembly: Guid("49826e15-7e7e-463e-b319-d5a37200b235")]
 
 // Version information for an assembly consists of the following four values:
 //

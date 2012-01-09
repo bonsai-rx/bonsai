@@ -1,0 +1,36 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Reactive.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.ComponentModel;
+using System.Xml.Serialization;
+
+namespace Bonsai.Expressions
+{
+    [XmlType("Do")]
+    [TypeDescriptionProvider(typeof(BuilderDescriptionProvider<DoBuilder>))]
+    public class DoBuilder : CombinatorBuilder
+    {
+        static readonly MethodInfo doMethod = typeof(Observable).GetMethods()
+                                                                .First(m => m.Name == "Do" &&
+                                                                       m.GetParameters().Length == 2 &&
+                                                                       m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Action<>));
+
+        [Browsable(false)]
+        public LoadableElement Sink { get; set; }
+
+        public override Expression Build()
+        {
+            var sinkGenericArguments = ExpressionBuilder.GetSinkGenericArguments(Sink);
+            var actionType = Expression.GetActionType(sinkGenericArguments);
+
+            var processMethod = Sink.GetType().GetMethod("Process");
+            var actionDelegate = Delegate.CreateDelegate(actionType, Sink, processMethod);
+            var action = Expression.Constant(actionDelegate);
+            return Expression.Call(doMethod.MakeGenericMethod(sinkGenericArguments), Source, action);
+        }
+    }
+}

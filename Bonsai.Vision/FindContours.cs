@@ -6,10 +6,14 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class FindContours : Filter<IplImage, CvSeq>
+    public class FindContours : Projection<IplImage, Contours>
     {
         IplImage temp;
-        CvMemStorage storage;
+
+        public FindContours()
+        {
+            Method = ContourApproximation.CHAIN_APPROX_NONE;
+        }
 
         public ContourRetrieval Mode { get; set; }
 
@@ -19,12 +23,13 @@ namespace Bonsai.Vision
 
         public double MinArea { get; set; }
 
-        public override CvSeq Process(IplImage input)
+        public override Contours Process(IplImage input)
         {
             CvSeq currentContour;
+            temp = IplImageHelper.EnsureImageFormat(temp, input.Size, 8, 1);
             Core.cvCopy(input, temp);
 
-            storage.Clear();
+            var storage = new CvMemStorage();
             var scanner = ImgProc.cvStartFindContours(temp, storage, CvContour.HeaderSize, Mode, Method, Offset);
             while (!(currentContour = scanner.FindNextContour()).IsInvalid)
             {
@@ -34,21 +39,17 @@ namespace Bonsai.Vision
                 }
             }
 
-            return scanner.EndFindContours();
+            return new Contours(scanner.EndFindContours(), input.Size);
         }
 
-        public override void Load(WorkflowContext context)
+        protected override void Unload()
         {
-            var size = (CvSize)context.GetService(typeof(CvSize));
-            temp = new IplImage(size, 8, 1);
-            storage = new CvMemStorage();
-            base.Load(context);
-        }
-
-        public override void Unload(WorkflowContext context)
-        {
-            storage.Close();
-            base.Unload(context);
+            if (temp != null)
+            {
+                temp.Close();
+                temp = null;
+            }
+            base.Unload();
         }
     }
 }
