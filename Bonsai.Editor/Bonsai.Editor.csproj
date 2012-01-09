@@ -5,14 +5,13 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{097AF938-2A32-4937-B2B8-BB9F01D069B0}</ProjectGuid>
+    <ProjectGuid>{C7FDC11D-066A-4B2B-9A52-27A5E793BEFB}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Bonsai.Editor</RootNamespace>
     <AssemblyName>Bonsai.Editor</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -35,10 +34,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Bonsai">
+      <HintPath>..\Bonsai\bin\Debug\Bonsai.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Reactive, Version=1.0.10621.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
-    <Reference Include="System.Reactive.Windows.Forms, Version=1.0.10621.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -70,7 +71,6 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="App.config" />
     <None Include="Properties\Settings.settings">
@@ -85,27 +85,22 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj">
-      <Project>{C88292CE-41AE-4081-B2F6-5AEA1891D245}</Project>
+      <Project>{765D928A-B147-46FF-8A59-BDE73F88A844}</Project>
       <Name>Bonsai.Design</Name>
     </ProjectReference>
     <ProjectReference Include="..\Bonsai.Vision.Design\Bonsai.Vision.Design.csproj">
-      <Project>{DAC4AEB4-A66D-4CFC-9E92-2E96E7F8F303}</Project>
+      <Project>{0004026F-D014-451D-859F-93DCEC59B2A2}</Project>
       <Name>Bonsai.Vision.Design</Name>
     </ProjectReference>
     <ProjectReference Include="..\Bonsai.Vision\Bonsai.Vision.csproj">
-      <Project>{36EA4D04-39F3-436E-8AC7-06F868CC0D11}</Project>
+      <Project>{C226E461-6A82-49A7-9CAF-0CF872A1C91B}</Project>
       <Name>Bonsai.Vision</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Bonsai\Bonsai.csproj">
-      <Project>{CB47FD6C-0B10-4BF9-8C6E-63F41B8A5B32}</Project>
-      <Name>Bonsai</Name>
     </ProjectReference>
     <ProjectReference Include="..\Externals\OpenCV.Net\OpenCV.Net\OpenCV.Net.csproj">
       <Project>{D07280E0-B436-4E29-956C-AC881E7C9A82}</Project>
       <Name>OpenCV.Net</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

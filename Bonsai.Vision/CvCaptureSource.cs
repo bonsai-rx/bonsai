@@ -24,44 +24,44 @@ namespace Bonsai.Vision
             while (running)
             {
                 var image = capture.QueryFrame();
-                if (image == null) break;
-                OnOutput(image);
+                if (image == null)
+                {
+                    Subject.OnCompleted();
+                    break;
+                }
+
+                Subject.OnNext(image);
             }
 
             stop.Set();
         }
 
-        public override void Start()
+        protected override void Start()
         {
             running = true;
             captureThread.Start();
         }
 
-        public override void Stop()
+        protected override void Stop()
         {
             running = false;
             stop.Wait();
         }
 
-        protected abstract CvCapture CreateCapture(WorkflowContext context);
+        protected abstract CvCapture CreateCapture();
 
-        public override void Load(WorkflowContext context)
+        public override IDisposable Load()
         {
             captureThread = new Thread(CaptureNewFrame);
-            capture = CreateCapture(context);
-
-            var width = (int)capture.GetProperty(CaptureProperty.FRAME_WIDTH);
-            var height = (int)capture.GetProperty(CaptureProperty.FRAME_HEIGHT);
-            context.AddService(typeof(CvSize), new CvSize(width, height));
-            base.Load(context);
+            capture = CreateCapture();
+            return base.Load();
         }
 
-        public override void Unload(WorkflowContext context)
+        protected override void Unload()
         {
             capture.Close();
             captureThread = null;
-            context.RemoveService(typeof(CvSize));
-            base.Unload(context);
+            base.Unload();
         }
     }
 }

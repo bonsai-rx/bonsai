@@ -14,15 +14,15 @@ namespace Bonsai.Vision.Design
 {
     public class ConnectedComponentCollectionVisualizer : DialogTypeVisualizer
     {
-        IplImage output;
         IplImageControl control;
 
         public override void Show(object value)
         {
+            var connectedComponents = (ConnectedComponentCollection)value;
+            var output = new IplImage(connectedComponents.ImageSize, 8, 3);
             output.SetZero();
 
-            var components = (ConnectedComponentCollection)value;
-            foreach (var component in components)
+            foreach (var component in connectedComponents)
             {
                 var center = component.Center;
                 var angle = component.Angle;
@@ -40,8 +40,6 @@ namespace Bonsai.Vision.Design
 
         public override void Load(IServiceProvider provider)
         {
-            var size = (CvSize)provider.GetService(typeof(CvSize));
-            output = new IplImage(size, 8, 3);
             control = new IplImageControl();
 
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));

@@ -22,16 +22,16 @@ namespace Bonsai.Vision
             window.ShowImage(input);
         }
 
-        public override void Load(WorkflowContext context)
+        public override IDisposable Load()
         {
             window = new NamedWindow(Name);
-            base.Load(context);
+            return base.Load();
         }
 
-        public override void Unload(WorkflowContext context)
+        protected override void Unload()
         {
             window.Dispose();
-            base.Unload(context);
+            base.Unload();
         }
     }
 }

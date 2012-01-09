@@ -6,9 +6,10 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class ConvertColor : Filter<IplImage, IplImage>
+    public class ConvertColor : Projection<IplImage, IplImage>
     {
-        IplImage output;
+        int depth;
+        int numChannels;
         bool conversionChanged;
         ColorConversion conversion;
 
@@ -29,26 +30,16 @@ namespace Bonsai.Vision
 
         public override IplImage Process(IplImage input)
         {
-            if (output == null || conversionChanged)
+            if (conversionChanged)
             {
-                var depth = Conversion.GetConversionDepth();
-                var numChannels = Conversion.GetConversionNumChannels();
-                output = new IplImage(input.Size, depth, numChannels);
+                depth = Conversion.GetConversionDepth();
+                numChannels = Conversion.GetConversionNumChannels();
                 conversionChanged = false;
             }
 
+            var output = new IplImage(input.Size, depth, numChannels);
             ImgProc.cvCvtColor(input, output, conversion);
             return output;
-        }
-
-        public override void Unload(WorkflowContext context)
-        {
-            if (output != null)
-            {
-                output.Close();
-                output = null;
-            }
-            base.Unload(context);
         }
     }
 }

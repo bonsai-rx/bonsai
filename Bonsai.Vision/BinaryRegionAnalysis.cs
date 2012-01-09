@@ -6,19 +6,17 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class BinaryRegionAnalysis : Filter<CvSeq, ConnectedComponentCollection>
+    public class BinaryRegionAnalysis : Projection<Contours, ConnectedComponentCollection>
     {
-        ConnectedComponentCollection output;
-
-        public override ConnectedComponentCollection Process(CvSeq input)
+        public override ConnectedComponentCollection Process(Contours input)
         {
-            var contours = input;
-            output.Clear();
+            var currentContour = input.FirstContour;
+            var output = new ConnectedComponentCollection(input.ImageSize);
 
             CvMoments moments;
-            while (contours != null && !contours.IsInvalid)
+            while (currentContour != null && !currentContour.IsInvalid)
             {
-                ImgProc.cvMoments(contours, out moments, 0);
+                ImgProc.cvMoments(currentContour, out moments, 0);
 
                 var x = moments.m10 / moments.m00;
                 var y = moments.m01 / moments.m00;
@@ -33,26 +31,13 @@ namespace Bonsai.Vision
                 {
                     Center = center,
                     Angle = angle,
-                    Contour = CvContour.FromCvSeq(contours)
+                    Contour = CvContour.FromCvSeq(currentContour)
                 });
 
-                contours = contours.HNext;
+                currentContour = currentContour.HNext;
             }
 
             return output;
-        }
-
-        public override void Load(WorkflowContext context)
-        {
-            output = new ConnectedComponentCollection();
-            base.Load(context);
-        }
-
-        public override void Unload(WorkflowContext context)
-        {
-            output.Clear();
-            output = null;
-            base.Unload(context);
         }
     }
 }

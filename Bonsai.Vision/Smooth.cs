@@ -6,10 +6,8 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class Smooth : Filter<IplImage, IplImage>
+    public class Smooth : Projection<IplImage, IplImage>
     {
-        IplImage output;
-
         public SmoothMethod SmoothType { get; set; }
 
         public int Size1 { get; set; }
@@ -22,21 +20,9 @@ namespace Bonsai.Vision
 
         public override IplImage Process(IplImage input)
         {
+            var output = new IplImage(input.Size, input.Depth, input.NumChannels);
             ImgProc.cvSmooth(input, output, SmoothType, Size1, Size2, Sigma1, Sigma2);
             return output;
-        }
-
-        public override void Load(WorkflowContext context)
-        {
-            var size = (CvSize)context.GetService(typeof(CvSize));
-            output = new IplImage(size, 8, 1);
-            base.Load(context);
-        }
-
-        public override void Unload(WorkflowContext context)
-        {
-            output.Close();
-            base.Unload(context);
         }
     }
 }

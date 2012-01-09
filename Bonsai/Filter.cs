@@ -5,8 +5,8 @@ using System.Text;
 
 namespace Bonsai
 {
-    public abstract class Filter<TInput, TOutput> : WorkflowElement
+    public abstract class Filter<T> : LoadableElement
     {
-        public abstract TOutput Process(TInput input);
+        public abstract bool Process(T input);
     }
 }

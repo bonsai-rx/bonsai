@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Bonsai")]
+[assembly: AssemblyTitle("Bonsai.Editor")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("HP")]
-[assembly: AssemblyProduct("Bonsai")]
-[assembly: AssemblyCopyright("Copyright © HP 2011")]
+[assembly: AssemblyProduct("Bonsai.Editor")]
+[assembly: AssemblyCopyright("Copyright © HP 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("021e1a2f-4c3d-4773-8a6b-88ef15839246")]
+[assembly: Guid("808702f6-734e-42c5-ba86-7283bbae9d4d")]
 
 // Version information for an assembly consists of the following four values:
 //

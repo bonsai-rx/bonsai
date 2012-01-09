@@ -9,14 +9,13 @@ using Bonsai.Design;
 using OpenCV.Net;
 using System.Reflection;
 using System.Reactive.Linq;
+using Bonsai.Expressions;
+using Bonsai.Dag;
 
 namespace Bonsai.Vision.Design
 {
     public abstract class IplImageQuadrangleEditor : UITypeEditor
     {
-        static readonly MethodInfo observeOn = typeof(ControlObservable).GetMethod("ObserveOn");
-        static readonly MethodInfo subscribe = typeof(ObservableExtensions).GetMethods().First(m => m.Name == "Subscribe" && m.GetParameters().Length == 2);
-
         protected IplImageQuadrangleEditor(QuadrangleSource source)
         {
             Source = source;
@@ -41,6 +40,8 @@ namespace Bonsai.Vision.Design
             if (context != null && editorService != null)
             {
                 var quadrangle = ((CvPoint2D32f[])value);
+                if (quadrangle == null) return base.EditValue(context, provider, value);
+
                 var propertyDescriptor = context.PropertyDescriptor;
 
                 using (var visualizerDialog = new TypeVisualizerDialog())
@@ -51,19 +52,24 @@ namespace Bonsai.Vision.Design
                     imageControl.QuadrangleChanged += (sender, e) => propertyDescriptor.SetValue(context.Instance, imageControl.Quadrangle.Clone());
                     visualizerDialog.AddControl(imageControl);
 
-                    var project = (WorkflowProject)provider.GetService(typeof(WorkflowProject));
-                    object source;
+                    var workflow = (ExpressionBuilderGraph)provider.GetService(typeof(ExpressionBuilderGraph));
+                    if (workflow == null) return base.EditValue(context, provider, value);
+
+                    var workflowNode = workflow.FirstOrDefault(node => node.Value == context.Instance);
+                    if (workflowNode == null) return base.EditValue(context, provider, value);
+
+                    IObservable<object> source;
                     switch (Source)
                     {
-                        case QuadrangleSource.Input: source = project.GetFilterInput(context.Instance); break;
-                        case QuadrangleSource.Output: source = project.GetFilterOutput(context.Instance); break;
-                        default: return base.EditValue(context, provider, value); 
+                        case QuadrangleSource.Input: source = ((InspectBuilder)workflow.Predecessors(workflowNode).First().Value).Output; break;
+                        case QuadrangleSource.Output: source = ((InspectBuilder)workflow.Successors(workflowNode).First().Value).Output; break;
+                        default: return base.EditValue(context, provider, value);
                     }
 
-                    using (var handler = (IDisposable)DynamicObservable.Subscribe(DynamicObservable.ObserveOn(source, imageControl), (Action<IplImage>)(image => imageControl.Image = image)))
-                    {
-                        editorService.ShowDialog(visualizerDialog);
-                    }
+                    IDisposable subscription = null;
+                    imageControl.HandleCreated += delegate { subscription = source.ObserveOn(imageControl).Subscribe(image => imageControl.Image = (IplImage)image); };
+                    imageControl.HandleDestroyed += delegate { subscription.Dispose(); };
+                    editorService.ShowDialog(visualizerDialog);
 
                     return imageControl.Quadrangle;
                 }

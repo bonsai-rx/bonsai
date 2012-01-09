@@ -6,9 +6,8 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class BackgroundSubtraction : Filter<IplImage, IplImage>
+    public class BackgroundSubtraction : Projection<IplImage, IplImage>
     {
-        IplImage output;
         IplImage background;
         IplImage backgroundMask;
         int averageCount;
@@ -17,13 +16,24 @@ namespace Bonsai.Vision
 
         public override IplImage Process(IplImage input)
         {
+            background = IplImageHelper.EnsureImageFormat(background, input.Size, 32, 1);
+            backgroundMask = IplImageHelper.EnsureImageFormat(backgroundMask, input.Size, 8, 1);
+            if (averageCount == 0)
+            {
+                background.SetZero();
+                backgroundMask.SetZero();
+            }
+
+            var output = new IplImage(input.Size, 8, 1);
             if (averageCount < BackgroundFrames)
             {
+                output.SetZero();
                 ImgProc.cvAcc(input, background, CvArr.Null);
                 averageCount++;
             }
             else if (averageCount == BackgroundFrames)
             {
+                output.SetZero();
                 Core.cvConvertScale(background, backgroundMask, 1.0 / averageCount, 0);
                 averageCount++;
             }
@@ -35,23 +45,16 @@ namespace Bonsai.Vision
             return output;
         }
 
-        public override void Load(WorkflowContext context)
+        protected override void Unload()
         {
-            var size = (CvSize)context.GetService(typeof(CvSize));
-            output = new IplImage(size, 8, 1);
-            background = new IplImage(size, 32, 1);
-            backgroundMask = new IplImage(size, 8, 1);
-            background.SetZero();
-            backgroundMask.SetZero();
-            output.SetZero();
             averageCount = 0;
-            base.Load(context);
-        }
-
-        public override void Unload(WorkflowContext context)
-        {
-            output.Close();
-            base.Unload(context);
+            if (background != null)
+            {
+                background.Close();
+                backgroundMask.Close();
+                background = backgroundMask = null;
+            }
+            base.Unload();
         }
     }
 }

@@ -8,9 +8,8 @@ using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
-    public class WarpPerspective : Filter<IplImage, IplImage>
+    public class WarpPerspective : Projection<IplImage, IplImage>
     {
-        IplImage output;
         CvMat mapMatrix;
         CvPoint2D32f[] currentSource;
         CvPoint2D32f[] currentDestination;
@@ -34,12 +33,9 @@ namespace Bonsai.Vision
 
         public override IplImage Process(IplImage input)
         {
-            if (output == null || !output.FormatEquals(input))
-            {
-                output = new IplImage(input.Size, input.Depth, input.NumChannels);
-                Source = Source ?? InitializeQuadrangle(output);
-                Destination = Destination ?? InitializeQuadrangle(output);
-            }
+            var output = new IplImage(input.Size, input.Depth, input.NumChannels);
+            Source = Source ?? InitializeQuadrangle(output);
+            Destination = Destination ?? InitializeQuadrangle(output);
 
             if (Source != currentSource || Destination != currentDestination)
             {
@@ -52,21 +48,16 @@ namespace Bonsai.Vision
             return output;
         }
 
-        public override void Load(WorkflowContext context)
+        public override IDisposable Load()
         {
             mapMatrix = new CvMat(3, 3, CvMatDepth.CV_32F, 1);
-            base.Load(context);
+            return base.Load();
         }
 
-        public override void Unload(WorkflowContext context)
+        protected override void Unload()
         {
             mapMatrix.Close();
-            if (output != null)
-            {
-                output.Close();
-                output = null;
-            }
-            base.Unload(context);
+            base.Unload();
         }
     }
 }

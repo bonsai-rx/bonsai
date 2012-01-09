@@ -11,7 +11,7 @@ namespace Bonsai.Vision
     {
         public int Index { get; set; }
 
-        protected override CvCapture CreateCapture(WorkflowContext context)
+        protected override CvCapture CreateCapture()
         {
             return CvCapture.CreateCameraCapture(Index);
         }

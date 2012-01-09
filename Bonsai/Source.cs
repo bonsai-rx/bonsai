@@ -2,36 +2,64 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Reactive.Subjects;
 using System.Reactive.Disposables;
 using System.ComponentModel;
+using System.Xml.Serialization;
 
 namespace Bonsai
 {
-    public abstract class Source : WorkflowElement
+    [XmlType("SourceBase")]
+    public abstract class Source : LoadableElement
     {
-        public abstract void Start();
+        protected abstract void Start();
 
-        public abstract void Stop();
+        protected abstract void Stop();
+
+        public IDisposable Connect()
+        {
+            Start();
+            return Disposable.Create(Stop);
+        }
     }
 
-    public abstract class Source<T> : Source
+    public abstract class Source<T> : Source, IDisposable
     {
-        OutputObservable<T> output;
+        bool disposed;
+        readonly Subject<T> subject = new Subject<T>();
 
-        protected Source()
+        protected Subject<T> Subject
         {
-            output = new OutputObservable<T>();
+            get { return subject; }
         }
 
         [Browsable(false)]
         public IObservable<T> Output
         {
-            get { return output; }
+            get { return subject; }
         }
 
-        protected virtual void OnOutput(T value)
+        ~Source()
         {
-            output.OnNext(value);
+            Dispose(false);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    subject.Dispose();
+                    disposed = true;
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

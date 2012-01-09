@@ -7,10 +7,8 @@ using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
-    public class HsvThreshold : Filter<IplImage, IplImage>
+    public class HsvThreshold : Projection<IplImage, IplImage>
     {
-        IplImage output;
-
         public HsvThreshold()
         {
             Upper = new CvScalar(179, 255, 255, 255);
@@ -24,23 +22,9 @@ namespace Bonsai.Vision
 
         public override IplImage Process(IplImage input)
         {
-            if (output == null || output.Width != input.Width || output.Height != input.Height)
-            {
-                output = new IplImage(input.Size, 8, 1);
-            }
-
+            var output = new IplImage(input.Size, 8, 1);
             Core.cvInRangeS(input, Lower, Upper, output);
             return output;
-        }
-
-        public override void Unload(WorkflowContext context)
-        {
-            if (output != null)
-            {
-                output.Close();
-                output = null;
-            }
-            base.Unload(context);
         }
     }
 }
