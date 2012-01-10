@@ -21,11 +21,12 @@ namespace Bonsai.Design
         static readonly Pen WhitePen = new Pen(Brushes.White, PenWidth);
         static readonly Pen BlackPen = new Pen(Brushes.Black, PenWidth);
 
+        static readonly object EventItemDrag = new object();
         static readonly object EventNodeMouseClick = new object();
         static readonly object EventNodeMouseDoubleClick = new object();
         static readonly object EventNodeMouseHover = new object();
         static readonly object EventSelectedNodeChanged = new object();
-        LayoutNodeCollection nodes = new LayoutNodeCollection();
+        LayoutNodeCollection layoutNodes = new LayoutNodeCollection();
 
         GraphNode selectedNode;
         IEnumerable<GraphNodeGrouping> model;
@@ -33,6 +34,12 @@ namespace Bonsai.Design
         public GraphView()
         {
             InitializeComponent();
+        }
+
+        public event ItemDragEventHandler ItemDrag
+        {
+            add { Events.AddHandler(EventItemDrag, value); }
+            remove { Events.RemoveHandler(EventItemDrag, value); }
         }
 
         public event EventHandler<GraphNodeMouseClickEventArgs> NodeMouseClick
@@ -89,12 +96,21 @@ namespace Bonsai.Design
         {
             if (selectedNode != null)
             {
-                var nodeLayout = nodes[selectedNode];
+                var nodeLayout = layoutNodes[selectedNode];
                 var boundingRectangle = nodeLayout.BoundingRectangle;
                 boundingRectangle.X -= canvas.HorizontalScroll.Value;
                 boundingRectangle.Y -= canvas.VerticalScroll.Value;
 
                 canvas.Invalidate(boundingRectangle);
+            }
+        }
+
+        protected virtual void OnItemDrag(ItemDragEventArgs e)
+        {
+            var handler = Events[EventItemDrag] as ItemDragEventHandler;
+            if (handler != null)
+            {
+                handler(this, e);
             }
         }
 
@@ -140,6 +156,27 @@ namespace Bonsai.Design
             base.OnInvalidated(e);
         }
 
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            Size selectionOffset;
+            switch (keyData)
+            {
+                case Keys.Up: selectionOffset = new Size(0, -NodeAirspace); break;
+                case Keys.Down: selectionOffset = new Size(0, NodeAirspace); break;
+                case Keys.Left: selectionOffset = new Size(-NodeAirspace, 0); break;
+                case Keys.Right: selectionOffset = new Size(NodeAirspace, 0); break;
+                default: selectionOffset = Size.Empty; break;
+            }
+
+            if (selectionOffset != Size.Empty)
+            {
+                SelectedNode = SelectedNode == null
+                    ? layoutNodes.Select(layoutNode => layoutNode.Node).FirstOrDefault()
+                    : GetClosestNodeTo(Point.Add(layoutNodes[SelectedNode].Location, selectionOffset));
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
         float SquaredDistance(ref Point point, ref Point center)
         {
             var xdiff = point.X - center.X;
@@ -152,12 +189,17 @@ namespace Bonsai.Design
             return SquaredDistance(ref point, ref center) <= radius * radius;
         }
 
+        public Point GetNodeLocation(GraphNode node)
+        {
+            return layoutNodes[node].Location;
+        }
+
         public GraphNode GetNodeAt(Point point)
         {
             point.X += canvas.HorizontalScroll.Value;
             point.Y += canvas.VerticalScroll.Value;
 
-            foreach (var layout in nodes)
+            foreach (var layout in layoutNodes)
             {
                 if (layout.Node.Value == null) continue;
 
@@ -177,7 +219,7 @@ namespace Bonsai.Design
 
             float minDistance = 0;
             GraphNode closest = null;
-            foreach (var layout in nodes)
+            foreach (var layout in layoutNodes)
             {
                 if (layout.Node.Value == null) continue;
 
@@ -195,7 +237,7 @@ namespace Bonsai.Design
 
         private void UpdateModelLayout()
         {
-            nodes.Clear();
+            layoutNodes.Clear();
             var model = Model;
             Size size = Size.Empty;
             if (model != null)
@@ -210,7 +252,7 @@ namespace Bonsai.Design
                         var location = new Point(column * NodeAirspace + PenWidth, row * NodeAirspace + PenWidth);
                         var entryPoint = new Point(location.X - PenWidth / 2, location.Y + NodeSize / 2);
                         var exitPoint = new Point(location.X + NodeSize + PenWidth / 2, location.Y + NodeSize / 2);
-                        nodes.Add(new LayoutNode(node, location, entryPoint, exitPoint));
+                        layoutNodes.Add(new LayoutNode(node, location, entryPoint, exitPoint));
                     }
 
                     var rowHeight = layer.Count * NodeAirspace;
@@ -228,7 +270,7 @@ namespace Bonsai.Design
             var offset = new Point(-canvas.HorizontalScroll.Value, -canvas.VerticalScroll.Value);
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
-            foreach (var layout in nodes)
+            foreach (var layout in layoutNodes)
             {
                 if (layout.Node.Value != null)
                 {
@@ -253,7 +295,7 @@ namespace Bonsai.Design
 
                 foreach (var successor in layout.Node.Successors)
                 {
-                    var successorLayout = nodes[successor];
+                    var successorLayout = layoutNodes[successor];
                     e.Graphics.DrawLine(
                         Pens.Black,
                         layout.ExitPoint.X + offset.X, layout.ExitPoint.Y + offset.Y,
