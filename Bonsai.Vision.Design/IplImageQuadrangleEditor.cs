@@ -55,7 +55,11 @@ namespace Bonsai.Vision.Design
                     var workflow = (ExpressionBuilderGraph)provider.GetService(typeof(ExpressionBuilderGraph));
                     if (workflow == null) return base.EditValue(context, provider, value);
 
-                    var workflowNode = workflow.FirstOrDefault(node => node.Value == context.Instance);
+                    var workflowNode = (from node in workflow
+                                        let builder = node.Value as SelectBuilder
+                                        where builder != null && builder.Projection == context.Instance
+                                        select node)
+                                        .FirstOrDefault();
                     if (workflowNode == null) return base.EditValue(context, provider, value);
 
                     IObservable<object> source;

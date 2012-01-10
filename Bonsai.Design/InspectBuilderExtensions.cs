@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Bonsai.Expressions;
 using System.ComponentModel.Design;
+using System.Reactive.Linq;
 
 namespace Bonsai.Design
 {
@@ -26,6 +27,8 @@ namespace Bonsai.Design
                         visualizer.Load(visualizerContext);
                         visualizerContext.RemoveService(typeof(IDialogTypeVisualizerService));
 
+                        visualizerDialog.Load += delegate { visualizerObserver = source.Output.ObserveOn(visualizerDialog)
+                                                                                       .Subscribe(value => visualizer.Show(value)); };
                         visualizerDialog.FormClosing += delegate { visualizerObserver.Dispose(); };
                         visualizerDialog.FormClosed += delegate
                         {
@@ -33,7 +36,6 @@ namespace Bonsai.Design
                             visualizerDialog = null;
                         };
 
-                        visualizerObserver = source.Output.Subscribe(value => visualizer.Show(value));
                         visualizerDialog.Show();
                     }
                 }
