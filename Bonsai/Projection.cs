@@ -9,4 +9,9 @@ namespace Bonsai
     {
         public abstract TResult Process(TSource input);
     }
+
+    public abstract class Projection<TFirst, TSecond, TResult> : LoadableElement
+    {
+        public abstract TResult Process(TFirst first, TSecond second);
+    }
 }

@@ -42,7 +42,7 @@ namespace Bonsai
             if (MatchGenericType(type, typeof(Filter<>))) return LoadableElementType.Filter;
             if (MatchGenericType(type, typeof(Projection<,>))) return LoadableElementType.Projection;
             if (MatchGenericType(type, typeof(Sink<>))) return LoadableElementType.Sink;
-            throw new ArgumentException("Invalid loadable element type.");
+            return null;
         }
     }
 }

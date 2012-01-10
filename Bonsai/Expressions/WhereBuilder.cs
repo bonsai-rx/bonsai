@@ -11,7 +11,6 @@ using System.Xml.Serialization;
 namespace Bonsai.Expressions
 {
     [XmlType("Where")]
-    [TypeDescriptionProvider(typeof(BuilderDescriptionProvider<WhereBuilder>))]
     public class WhereBuilder : CombinatorBuilder
     {
         static readonly MethodInfo whereMethod = typeof(Observable).GetMethods()
