@@ -55,6 +55,7 @@ namespace Bonsai.Editor
             InitializeToolboxCategory(toolboxTreeView.Nodes["Filter"], types.Where(type => LoadableElementType.MatchGenericType(type, typeof(Filter<>))));
             InitializeToolboxCategory(toolboxTreeView.Nodes["Projection"], types.Where(type => LoadableElementType.MatchGenericType(type, typeof(Projection<,>))));
             InitializeToolboxCategory(toolboxTreeView.Nodes["Sink"], types.Where(type => LoadableElementType.MatchGenericType(type, typeof(Sink<>))));
+            InitializeToolboxCategory(toolboxTreeView.Nodes["Combinator"], new[] { typeof(TimestampBuilder), typeof(SkipUntilBuilder) });
         }
 
         void InitializeToolboxCategory(TreeNode category, IEnumerable<Type> types)
@@ -86,39 +87,9 @@ namespace Bonsai.Editor
         private void workflowGraphView_DragDrop(object sender, DragEventArgs e)
         {
             var typeName = e.Data.GetData(DataFormats.Text).ToString();
-            var type = Type.GetType(typeName);
-            if (type != null && type.IsSubclassOf(typeof(LoadableElement)))
-            {
-                var elementType = LoadableElementType.FromType(type);
-                var element = (LoadableElement)Activator.CreateInstance(type);
-                ExpressionBuilder builder = ExpressionBuilder.FromLoadableElement(element);
-
-                var node = new Node<ExpressionBuilder, string>(builder);
-                workflowBuilder.Workflow.Add(node);
-
-                if (elementType != LoadableElementType.Source)
-                {
-                    var dropLocation = workflowGraphView.PointToClient(new Point(e.X, e.Y));
-                    var predecessor = workflowGraphView.GetClosestNodeTo(dropLocation);
-                    if (predecessor == null) throw new InvalidOperationException("A source must be placed before other elements.");
-                    var predecessorNode = workflowBuilder.Workflow.First(n => n.Value == predecessor.Value);
-
-                    if ((e.KeyState & CtrlModifier) == 0)
-                    {
-                        var oldSuccessor = predecessorNode.Successors.FirstOrDefault();
-                        if (oldSuccessor.Node != null)
-                        {
-                            //TODO: Decide when to insert or branch
-                            workflowBuilder.Workflow.RemoveEdge(predecessorNode, oldSuccessor.Node, oldSuccessor.Label);
-                            workflowBuilder.Workflow.AddEdge(node, oldSuccessor.Node, oldSuccessor.Label);
-                        }
-                    }
-
-                    workflowBuilder.Workflow.AddEdge(predecessorNode, node, "Source");
-                }
-
-                UpdateGraphLayout();
-            }
+            var dropLocation = workflowGraphView.PointToClient(new Point(e.X, e.Y));
+            var closestGraphViewNode = workflowGraphView.GetClosestNodeTo(dropLocation);
+            CreateGraphNode(typeName, closestGraphViewNode, (e.KeyState & CtrlModifier) != 0);
         }
 
         void UpdateGraphLayout()
@@ -227,7 +198,16 @@ namespace Bonsai.Editor
         private void workflowGraphView_SelectedNodeChanged(object sender, EventArgs e)
         {
             var node = workflowGraphView.SelectedNode;
-            propertyGrid.SelectedObject = node != null ? node.Value : null;
+            if (node != null && node.Value != null)
+            {
+                var loadableElement = node.Value.GetType().GetProperties().FirstOrDefault(property => typeof(LoadableElement).IsAssignableFrom(property.PropertyType));
+                if (loadableElement != null)
+                {
+                    propertyGrid.SelectedObject = loadableElement.GetValue(node.Value, null);
+                }
+                else propertyGrid.SelectedObject = node.Value;
+            }
+            else propertyGrid.SelectedObject = null;
         }
 
         private void startToolStripMenuItem_Click(object sender, EventArgs e)
@@ -246,7 +226,12 @@ namespace Bonsai.Editor
                                     .ToDictionary(mapping => workflowGraphView.Model.SelectMany(layer => layer).First(node => node.Value == mapping.node.Value),
                                                   mapping =>
                                                   {
-                                                      var visualizerType = typeVisualizers[mapping.inspectBuilder.ObservableType];
+                                                      Type visualizerType;
+                                                      if (!typeVisualizers.TryGetValue(mapping.inspectBuilder.ObservableType, out visualizerType))
+                                                      {
+                                                          visualizerType = typeVisualizers[typeof(object)];
+                                                      };
+
                                                       var visualizer = (DialogTypeVisualizer)Activator.CreateInstance(visualizerType);
                                                       return mapping.inspectBuilder.CreateVisualizer(mapping.nodeName, visualizer, editorSite);
                                                   });
@@ -290,10 +275,66 @@ namespace Bonsai.Editor
                 {
                     workflowBuilder.Workflow.AddEdge(predecessor, successor, "Source");
                 }
-                else workflowBuilder.Workflow.Clear();
 
                 workflowBuilder.Workflow.Remove(workflowNode);
                 UpdateGraphLayout();
+            }
+        }
+
+        private void toolboxTreeView_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Return && toolboxTreeView.SelectedNode != null && toolboxTreeView.SelectedNode.Parent != null)
+            {
+                var typeName = toolboxTreeView.SelectedNode.Name;
+                CreateGraphNode(typeName, workflowGraphView.SelectedNode, e.Modifiers == Keys.Control);
+            }
+        }
+
+        void CreateGraphNode(string typeName, GraphNode closestGraphViewNode, bool branch)
+        {
+            var type = Type.GetType(typeName);
+            if (type != null)
+            {
+                ExpressionBuilder builder;
+                var elementType = LoadableElementType.FromType(type);
+                if (type.IsSubclassOf(typeof(LoadableElement)))
+                {
+                    var element = (LoadableElement)Activator.CreateInstance(type);
+                    builder = ExpressionBuilder.FromLoadableElement(element);
+                }
+                else builder = (ExpressionBuilder)Activator.CreateInstance(type);
+
+                var node = new Node<ExpressionBuilder, string>(builder);
+                workflowBuilder.Workflow.Add(node);
+
+                var closestNode = closestGraphViewNode != null ? workflowBuilder.Workflow.First(n => n.Value == closestGraphViewNode.Value) : null;
+                if (elementType == LoadableElementType.Source)
+                {
+                    if (closestNode != null && !(closestNode.Value is SourceBuilder) && !workflowBuilder.Workflow.Predecessors(closestNode).Any())
+                    {
+                        workflowBuilder.Workflow.AddEdge(node, closestNode, "Source");
+                    }
+                }
+                else
+                {
+                    if (closestGraphViewNode == null) throw new InvalidOperationException("A source must be placed before other elements.");
+
+                    if (!branch)
+                    {
+                        var oldSuccessor = closestNode.Successors.FirstOrDefault();
+                        if (oldSuccessor.Node != null)
+                        {
+                            //TODO: Decide when to insert or branch
+                            workflowBuilder.Workflow.RemoveEdge(closestNode, oldSuccessor.Node, oldSuccessor.Label);
+                            workflowBuilder.Workflow.AddEdge(node, oldSuccessor.Node, oldSuccessor.Label);
+                        }
+                    }
+
+                    workflowBuilder.Workflow.AddEdge(closestNode, node, "Source");
+                }
+
+                UpdateGraphLayout();
+                workflowGraphView.SelectedNode = workflowGraphView.Model.SelectMany(layer => layer).First(n => node.Value == n.Value);
             }
         }
     }
