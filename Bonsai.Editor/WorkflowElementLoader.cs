@@ -21,10 +21,10 @@ namespace Bonsai.Editor
             }
         }
 
-        string[] GetReflectionOnlyWorkflowElementTypes()
+        string[] GetReflectionWorkflowElementTypes()
         {
             var types = Enumerable.Empty<string>();
-            var loadableElementAssembly = Assembly.ReflectionOnlyLoad(typeof(LoadableElement).Assembly.FullName);
+            var loadableElementAssembly = Assembly.Load(typeof(LoadableElement).Assembly.FullName);
             var loadableElementType = loadableElementAssembly.GetType(typeof(LoadableElement).FullName);
 
             var files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
@@ -32,7 +32,7 @@ namespace Bonsai.Editor
             {
                 try
                 {
-                    var assembly = Assembly.ReflectionOnlyLoadFrom(files[i]);
+                    var assembly = Assembly.LoadFrom(files[i]);
                     types = types.Concat(GetSubclassElementTypes(assembly, loadableElementType).Select(type => type.AssemblyQualifiedName));
                 }
                 catch (BadImageFormatException) { continue; }
@@ -43,12 +43,11 @@ namespace Bonsai.Editor
 
         public static Type[] GetWorkflowElementTypes()
         {
-            var reflectionOnlyDomain = AppDomain.CreateDomain("ReflectionOnly");
+            var reflectionDomain = AppDomain.CreateDomain("ReflectionOnly");
             try
             {
-                reflectionOnlyDomain.ReflectionOnlyAssemblyResolve += new ResolveEventHandler(reflectionOnlyDomain_ReflectionOnlyAssemblyResolve);
-                var loader = (WorkflowElementLoader)reflectionOnlyDomain.CreateInstanceAndUnwrap(typeof(WorkflowElementLoader).Assembly.FullName, typeof(WorkflowElementLoader).FullName);
-                var typeNames = loader.GetReflectionOnlyWorkflowElementTypes();
+                var loader = (WorkflowElementLoader)reflectionDomain.CreateInstanceAndUnwrap(typeof(WorkflowElementLoader).Assembly.FullName, typeof(WorkflowElementLoader).FullName);
+                var typeNames = loader.GetReflectionWorkflowElementTypes();
 
                 var types = new Type[typeNames.Length];
                 for (int i = 0; i < typeNames.Length; i++)
@@ -57,12 +56,7 @@ namespace Bonsai.Editor
                 }
                 return types;
             }
-            finally { AppDomain.Unload(reflectionOnlyDomain); }
-        }
-
-        static Assembly reflectionOnlyDomain_ReflectionOnlyAssemblyResolve(object sender, ResolveEventArgs args)
-        {
-            return Assembly.ReflectionOnlyLoad(args.Name);
+            finally { AppDomain.Unload(reflectionDomain); }
         }
     }
 }

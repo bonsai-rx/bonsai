@@ -34,9 +34,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Bonsai">
-      <HintPath>..\Bonsai\bin\Debug\Bonsai.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Reactive, Version=1.0.10621.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
@@ -94,6 +91,10 @@
     <ProjectReference Include="..\Bonsai.Vision\Bonsai.Vision.csproj">
       <Project>{C226E461-6A82-49A7-9CAF-0CF872A1C91B}</Project>
       <Name>Bonsai.Vision</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Bonsai\Bonsai.csproj">
+      <Project>{E4D03BA3-54A2-4FF8-9DC6-52BA4CC14FED}</Project>
+      <Name>Bonsai</Name>
     </ProjectReference>
     <ProjectReference Include="..\Externals\OpenCV.Net\OpenCV.Net\OpenCV.Net.csproj">
       <Project>{D07280E0-B436-4E29-956C-AC881E7C9A82}</Project>
