@@ -123,7 +123,7 @@ namespace Bonsai.Editor
 
         void UpdateGraphLayout()
         {
-            workflowGraphView.Model = workflowBuilder.Workflow.LongestPathLayering();
+            workflowGraphView.Model = workflowBuilder.Workflow.LongestPathLayering().AverageMinimizeCrossings();
             workflowGraphView.Invalidate();
         }
 
