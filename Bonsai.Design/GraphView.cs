@@ -16,6 +16,7 @@ namespace Bonsai.Design
         const int PenWidth = 3;
         const int NodeAirspace = 80;
         const int NodeSize = 30;
+        const int TextOffset = 9;
         const int HalfSize = NodeSize / 2;
         static readonly Pen WhitePen = new Pen(Brushes.White, PenWidth);
         static readonly Pen BlackPen = new Pen(Brushes.Black, PenWidth);
@@ -89,7 +90,11 @@ namespace Bonsai.Design
             if (selectedNode != null)
             {
                 var nodeLayout = nodes[selectedNode];
-                canvas.Invalidate(nodeLayout.BoundingRectangle);
+                var boundingRectangle = nodeLayout.BoundingRectangle;
+                boundingRectangle.X -= canvas.HorizontalScroll.Value;
+                boundingRectangle.Y -= canvas.VerticalScroll.Value;
+
+                canvas.Invalidate(boundingRectangle);
             }
         }
 
@@ -149,6 +154,9 @@ namespace Bonsai.Design
 
         public GraphNode GetNodeAt(Point point)
         {
+            point.X += canvas.HorizontalScroll.Value;
+            point.Y += canvas.VerticalScroll.Value;
+
             foreach (var layout in nodes)
             {
                 if (layout.Node.Value == null) continue;
@@ -164,6 +172,9 @@ namespace Bonsai.Design
 
         public GraphNode GetClosestNodeTo(Point point)
         {
+            point.X += canvas.HorizontalScroll.Value;
+            point.Y += canvas.VerticalScroll.Value;
+
             float minDistance = 0;
             GraphNode closest = null;
             foreach (var layout in nodes)
@@ -186,6 +197,7 @@ namespace Bonsai.Design
         {
             nodes.Clear();
             var model = Model;
+            Size size = Size.Empty;
             if (model != null)
             {
                 var layerCount = model.Count();
@@ -200,19 +212,28 @@ namespace Bonsai.Design
                         var exitPoint = new Point(location.X + NodeSize + PenWidth / 2, location.Y + NodeSize / 2);
                         nodes.Add(new LayoutNode(node, location, entryPoint, exitPoint));
                     }
+
+                    var rowHeight = layer.Count * NodeAirspace;
+                    size.Height = Math.Max(rowHeight, size.Height);
                 }
+
+                size.Width = layerCount * NodeAirspace;
             }
+
+            canvas.AutoScrollMinSize = size;
         }
 
         private void canvas_Paint(object sender, PaintEventArgs e)
         {
+            var offset = new Point(-canvas.HorizontalScroll.Value, -canvas.VerticalScroll.Value);
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+
             foreach (var layout in nodes)
             {
                 if (layout.Node.Value != null)
                 {
                     var selected = layout.Node == SelectedNode;
-                    var nodeRectangle = new Rectangle(layout.Location, new Size(NodeSize, NodeSize));
+                    var nodeRectangle = new Rectangle(layout.Location.X + offset.X, layout.Location.Y + offset.Y, NodeSize, NodeSize);
 
                     var pen = selected ? WhitePen : BlackPen;
                     var brush = selected ? Brushes.Black : Brushes.White;
@@ -220,14 +241,23 @@ namespace Bonsai.Design
 
                     e.Graphics.DrawEllipse(pen, nodeRectangle);
                     e.Graphics.FillEllipse(brush, nodeRectangle);
-                    e.Graphics.DrawString(layout.Node.Text.Substring(0, 1), Font, textBrush, new Point(layout.Location.X + 9, layout.Location.Y + 9));
+                    e.Graphics.DrawString(
+                        layout.Node.Text.Substring(0, 1),
+                        Font, textBrush,
+                        new Point(layout.Location.X + offset.X + TextOffset, layout.Location.Y + offset.Y + TextOffset));
                 }
-                else e.Graphics.DrawLine(Pens.Black, layout.EntryPoint, layout.ExitPoint);
+                else e.Graphics.DrawLine(
+                    Pens.Black,
+                    layout.EntryPoint.X + offset.X, layout.EntryPoint.Y + offset.Y,
+                    layout.ExitPoint.X + offset.X, layout.ExitPoint.Y + offset.Y);
 
                 foreach (var successor in layout.Node.Successors)
                 {
                     var successorLayout = nodes[successor];
-                    e.Graphics.DrawLine(Pens.Black, layout.ExitPoint, successorLayout.EntryPoint);
+                    e.Graphics.DrawLine(
+                        Pens.Black,
+                        layout.ExitPoint.X + offset.X, layout.ExitPoint.Y + offset.Y,
+                        successorLayout.EntryPoint.X + offset.X, successorLayout.EntryPoint.Y + offset.Y);
                 }
             }
         }

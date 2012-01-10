@@ -126,6 +126,26 @@ namespace Bonsai.Design
             return crosscount;
         }
 
+        public static IEnumerable<GraphNodeGrouping> AverageMinimizeCrossings(this IEnumerable<GraphNodeGrouping> source)
+        {
+            //TODO: Remove method side-effects by creating new layer instances
+            foreach (var layer in source)
+            {
+                var ordering = (from node in layer
+                                let average = node.Successors.Average(successor => (int?)successor.LayerIndex)
+                                orderby average.HasValue ? average : -1 ascending
+                                select node).ToArray();
+
+                int i = 0;
+                foreach (var node in ordering)
+                {
+                    layer[i++] = node;
+                }
+
+                yield return layer;
+            }
+        }
+
         public static IEnumerable<GraphNodeGrouping> MinimizeCrossings(this IEnumerable<GraphNodeGrouping> source)
         {
             var layers = source.ToArray();
