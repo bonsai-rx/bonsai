@@ -15,46 +15,30 @@ namespace Bonsai.Editor
             public string VisualizerTypeName;
             public string TargetTypeName;
 
-            public TypeVisualizerInfo(CustomAttributeData typeVisualizerAttributeData)
+            public TypeVisualizerInfo(TypeVisualizerAttribute typeVisualizer)
             {
-                var constructorArgument = typeVisualizerAttributeData.ConstructorArguments[0];
-                if (constructorArgument.ArgumentType == typeof(Type))
-                {
-                    var type = (Type)constructorArgument.Value;
-                    VisualizerTypeName = type != null ? type.AssemblyQualifiedName : null;
-                }
-                else VisualizerTypeName = constructorArgument.Value != null ? constructorArgument.Value.ToString() : null;
-
-                foreach (var namedArgument in typeVisualizerAttributeData.NamedArguments)
-                {
-                    var typedValue = namedArgument.TypedValue;
-                    if (typedValue.ArgumentType == typeof(Type))
-                    {
-                        var type = (Type)typedValue.Value;
-                        TargetTypeName = type != null ? type.AssemblyQualifiedName : null;
-                    }
-                    else TargetTypeName = typedValue.Value != null ? typedValue.Value.ToString() : null;
-                }
+                TargetTypeName = typeVisualizer.TargetTypeName;
+                VisualizerTypeName = typeVisualizer.VisualizerTypeName;
             }
         }
 
-        IEnumerable<CustomAttributeData> GetCustomAttributeTypes(Assembly assembly, Type attributeClass)
+        IEnumerable<TypeVisualizerAttribute> GetCustomAttributeTypes(Assembly assembly, Type attributeType)
         {
             var types = assembly.GetTypes();
-            var typeVisualizers = Enumerable.Empty<CustomAttributeData>();
+            var typeVisualizers = Enumerable.Empty<TypeVisualizerAttribute>();
             for (int i = 0; i < types.Length; i++)
             {
-                var visualizerAttributes = CustomAttributeData.GetCustomAttributes(types[i]).Where(data => data.Constructor.DeclaringType == attributeClass);
+                var visualizerAttributes = types[i].GetCustomAttributes(attributeType, true).Cast<TypeVisualizerAttribute>();
                 typeVisualizers = typeVisualizers.Concat(visualizerAttributes);
             }
 
             return typeVisualizers;
         }
 
-        TypeVisualizerInfo[] GetReflectionOnlyTypeVisualizerAttributes()
+        TypeVisualizerInfo[] GetReflectionTypeVisualizerAttributes()
         {
-            var typeVisualizers = Enumerable.Empty<CustomAttributeData>();
-            var typeVisualizerAttributeAssembly = Assembly.ReflectionOnlyLoad(typeof(TypeVisualizerAttribute).Assembly.FullName);
+            var typeVisualizers = Enumerable.Empty<TypeVisualizerAttribute>();
+            var typeVisualizerAttributeAssembly = Assembly.Load(typeof(TypeVisualizerAttribute).Assembly.FullName);
             var typeVisualizerAttributeType = typeVisualizerAttributeAssembly.GetType(typeof(TypeVisualizerAttribute).FullName);
 
             var files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
@@ -62,8 +46,8 @@ namespace Bonsai.Editor
             {
                 try
                 {
-                    var assembly = Assembly.ReflectionOnlyLoadFrom(files[i]);
-                    var visualizerAttributes = assembly.GetCustomAttributesData().Where(data => data.Constructor.DeclaringType == typeVisualizerAttributeType);
+                    var assembly = Assembly.LoadFrom(files[i]);
+                    var visualizerAttributes = assembly.GetCustomAttributes(typeVisualizerAttributeType, true).Cast<TypeVisualizerAttribute>();
                     typeVisualizers = typeVisualizers.Concat(visualizerAttributes);
 
                     typeVisualizers = typeVisualizers.Concat(GetCustomAttributeTypes(assembly, typeVisualizerAttributeType));
@@ -76,12 +60,11 @@ namespace Bonsai.Editor
 
         public static Dictionary<Type, Type> GetTypeVisualizerDictionary()
         {
-            var reflectionOnlyDomain = AppDomain.CreateDomain("ReflectionOnly");
+            var reflectionDomain = AppDomain.CreateDomain("ReflectionOnly");
             try
             {
-                reflectionOnlyDomain.ReflectionOnlyAssemblyResolve += new ResolveEventHandler(reflectionOnlyDomain_ReflectionOnlyAssemblyResolve);
-                var loader = (TypeVisualizerLoader)reflectionOnlyDomain.CreateInstanceAndUnwrap(typeof(TypeVisualizerLoader).Assembly.FullName, typeof(TypeVisualizerLoader).FullName);
-                var typeVisualizers = loader.GetReflectionOnlyTypeVisualizerAttributes();
+                var loader = (TypeVisualizerLoader)reflectionDomain.CreateInstanceAndUnwrap(typeof(TypeVisualizerLoader).Assembly.FullName, typeof(TypeVisualizerLoader).FullName);
+                var typeVisualizers = loader.GetReflectionTypeVisualizerAttributes();
 
                 var visualizerMap = new Dictionary<Type, Type>(typeVisualizers.Length);
                 for (int i = 0; i < typeVisualizers.Length; i++)
@@ -93,12 +76,7 @@ namespace Bonsai.Editor
 
                 return visualizerMap;
             }
-            finally { AppDomain.Unload(reflectionOnlyDomain); }
-        }
-
-        static Assembly reflectionOnlyDomain_ReflectionOnlyAssemblyResolve(object sender, ResolveEventArgs args)
-        {
-            return Assembly.ReflectionOnlyLoad(args.Name);
+            finally { AppDomain.Unload(reflectionDomain); }
         }
     }
 }
