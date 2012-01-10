@@ -9,7 +9,6 @@ using System.Xml.Serialization;
 namespace Bonsai.Expressions
 {
     [XmlType("Source")]
-    [TypeDescriptionProvider(typeof(BuilderDescriptionProvider<SourceBuilder>))]
     public class SourceBuilder : ExpressionBuilder
     {
         [Browsable(false)]

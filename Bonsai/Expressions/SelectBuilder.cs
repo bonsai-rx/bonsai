@@ -11,7 +11,6 @@ using System.Xml.Serialization;
 namespace Bonsai.Expressions
 {
     [XmlType("Select")]
-    [TypeDescriptionProvider(typeof(BuilderDescriptionProvider<SelectBuilder>))]
     public class SelectBuilder : CombinatorBuilder
     {
         static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()

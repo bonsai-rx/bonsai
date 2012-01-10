@@ -27,11 +27,11 @@ namespace Bonsai.Expressions
         public override Expression Build()
         {
             ObservableType = Source.Type.GetGenericArguments()[0];
-            var actionType = Expression.GetActionType(ObservableType);
+            var subjectInstance = Expression.Constant(subject);
 
-            var onNextMethod = subject.GetType().GetMethod("OnNext");
-            var actionDelegate = Delegate.CreateDelegate(actionType, subject, onNextMethod);
-            var action = Expression.Constant(actionDelegate);
+            var actionParameter = Expression.Parameter(ObservableType);
+            var actionBody = Expression.Call(subjectInstance, "OnNext", null, Expression.Convert(actionParameter, typeof(object)));
+            var action = Expression.Lambda(actionBody, actionParameter);
             return Expression.Call(doMethod.MakeGenericMethod(ObservableType), Source, action);
         }
     }

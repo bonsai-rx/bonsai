@@ -11,7 +11,6 @@ using System.Xml.Serialization;
 namespace Bonsai.Expressions
 {
     [XmlType("Do")]
-    [TypeDescriptionProvider(typeof(BuilderDescriptionProvider<DoBuilder>))]
     public class DoBuilder : CombinatorBuilder
     {
         static readonly MethodInfo doMethod = typeof(Observable).GetMethods()
