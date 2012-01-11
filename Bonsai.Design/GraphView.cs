@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Collections.ObjectModel;
 using System.Drawing.Drawing2D;
+using System.Reactive.Linq;
 
 namespace Bonsai.Design
 {
@@ -16,8 +17,10 @@ namespace Bonsai.Design
         const int PenWidth = 3;
         const int NodeAirspace = 80;
         const int NodeSize = 30;
-        const int TextOffset = 9;
         const int HalfSize = NodeSize / 2;
+        static readonly Size TextOffset = new Size(9, 9);
+        static readonly Size EntryOffset = new Size(-PenWidth / 2, NodeSize / 2);
+        static readonly Size ExitOffset = new Size(NodeSize + PenWidth / 2, NodeSize / 2);
         static readonly Pen WhitePen = new Pen(Brushes.White, PenWidth);
         static readonly Pen BlackPen = new Pen(Brushes.Black, PenWidth);
 
@@ -34,6 +37,38 @@ namespace Bonsai.Design
         public GraphView()
         {
             InitializeComponent();
+            InitializeItemDragEvent();
+        }
+
+        void InitializeItemDragEvent()
+        {
+            var mouseDownEvent = Observable.FromEventPattern<MouseEventHandler, MouseEventArgs>(
+                handler => canvas.MouseDown += handler,
+                handler => canvas.MouseDown -= handler)
+                .Select(evt => evt.EventArgs);
+
+            var mouseMoveEvent = Observable.FromEventPattern<MouseEventHandler, MouseEventArgs>(
+                handler => canvas.MouseMove += handler,
+                handler => canvas.MouseMove -= handler)
+                .Select(evt => evt.EventArgs);
+
+            var mouseUpEvent = Observable.FromEventPattern<MouseEventHandler, MouseEventArgs>(
+                handler => canvas.MouseUp += handler,
+                handler => canvas.MouseUp -= handler)
+                .Select(evt => evt.EventArgs);
+
+            var itemDrag = from mouseDown in mouseDownEvent
+                           where mouseDown.Button == MouseButtons.Left
+                           let node = GetNodeAt(mouseDown.Location)
+                           where node != null
+                           from mouseMove in mouseMoveEvent.TakeUntil(mouseUpEvent)
+                           let displacementX = mouseMove.X - mouseDown.X
+                           let displacementY = mouseMove.Y - mouseDown.Y
+                           where mouseMove.Button == MouseButtons.Left &&
+                                 displacementX * displacementX + displacementY * displacementY > 16
+                           select new { node, mouseMove.Button };
+
+            itemDrag.Subscribe(drag => OnItemDrag(new ItemDragEventArgs(drag.Button, drag.node)));
         }
 
         public event ItemDragEventHandler ItemDrag
@@ -250,9 +285,7 @@ namespace Bonsai.Design
                     {
                         var row = node.LayerIndex;
                         var location = new Point(column * NodeAirspace + PenWidth, row * NodeAirspace + PenWidth);
-                        var entryPoint = new Point(location.X - PenWidth / 2, location.Y + NodeSize / 2);
-                        var exitPoint = new Point(location.X + NodeSize + PenWidth / 2, location.Y + NodeSize / 2);
-                        layoutNodes.Add(new LayoutNode(node, location, entryPoint, exitPoint));
+                        layoutNodes.Add(new LayoutNode(node, location));
                     }
 
                     var rowHeight = layer.Count * NodeAirspace;
@@ -267,7 +300,7 @@ namespace Bonsai.Design
 
         private void canvas_Paint(object sender, PaintEventArgs e)
         {
-            var offset = new Point(-canvas.HorizontalScroll.Value, -canvas.VerticalScroll.Value);
+            var offset = new Size(-canvas.HorizontalScroll.Value, -canvas.VerticalScroll.Value);
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
             foreach (var layout in layoutNodes)
@@ -275,7 +308,10 @@ namespace Bonsai.Design
                 if (layout.Node.Value != null)
                 {
                     var selected = layout.Node == SelectedNode;
-                    var nodeRectangle = new Rectangle(layout.Location.X + offset.X, layout.Location.Y + offset.Y, NodeSize, NodeSize);
+                    var nodeRectangle = new Rectangle(
+                        layout.Location.X + offset.Width,
+                        layout.Location.Y + offset.Height,
+                        NodeSize, NodeSize);
 
                     var pen = selected ? WhitePen : BlackPen;
                     var brush = selected ? Brushes.Black : Brushes.White;
@@ -286,20 +322,14 @@ namespace Bonsai.Design
                     e.Graphics.DrawString(
                         layout.Node.Text.Substring(0, 1),
                         Font, textBrush,
-                        new Point(layout.Location.X + offset.X + TextOffset, layout.Location.Y + offset.Y + TextOffset));
+                        Point.Add(layout.Location, Size.Add(offset, TextOffset)));
                 }
-                else e.Graphics.DrawLine(
-                    Pens.Black,
-                    layout.EntryPoint.X + offset.X, layout.EntryPoint.Y + offset.Y,
-                    layout.ExitPoint.X + offset.X, layout.ExitPoint.Y + offset.Y);
+                else e.Graphics.DrawLine(Pens.Black, Point.Add(layout.EntryPoint, offset), Point.Add(layout.ExitPoint, offset));
 
                 foreach (var successor in layout.Node.Successors)
                 {
                     var successorLayout = layoutNodes[successor];
-                    e.Graphics.DrawLine(
-                        Pens.Black,
-                        layout.ExitPoint.X + offset.X, layout.ExitPoint.Y + offset.Y,
-                        successorLayout.EntryPoint.X + offset.X, successorLayout.EntryPoint.Y + offset.Y);
+                    e.Graphics.DrawLine(Pens.Black, Point.Add(layout.ExitPoint, offset), Point.Add(successorLayout.EntryPoint, offset));
                 }
             }
         }
@@ -342,12 +372,10 @@ namespace Bonsai.Design
 
         class LayoutNode
         {
-            public LayoutNode(GraphNode node, Point location, Point entryPoint, Point exitPoint)
+            public LayoutNode(GraphNode node, Point location)
             {
                 Node = node;
                 Location = location;
-                EntryPoint = entryPoint;
-                ExitPoint = exitPoint;
             }
 
             public GraphNode Node { get; set; }
@@ -356,12 +384,18 @@ namespace Bonsai.Design
 
             public Point Center
             {
-                get { return new Point(Location.X + HalfSize, Location.Y + HalfSize); }
+                get { return Point.Add(Location, new Size(HalfSize, HalfSize)); }
             }
 
-            public Point EntryPoint { get; set; }
+            public Point EntryPoint
+            {
+                get { return Point.Add(Location, EntryOffset); }
+            }
 
-            public Point ExitPoint { get; set; }
+            public Point ExitPoint
+            {
+                get { return Point.Add(Location, ExitOffset); }
+            }
 
             public Rectangle BoundingRectangle
             {

@@ -487,6 +487,7 @@
             this.workflowGraphView.SelectedNode = null;
             this.workflowGraphView.Size = new System.Drawing.Size(326, 266);
             this.workflowGraphView.TabIndex = 0;
+            this.workflowGraphView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.workflowGraphView_ItemDrag);
             this.workflowGraphView.NodeMouseDoubleClick += new System.EventHandler<Bonsai.Design.GraphNodeMouseClickEventArgs>(this.workflowGraphView_NodeMouseDoubleClick);
             this.workflowGraphView.SelectedNodeChanged += new System.EventHandler(this.workflowGraphView_SelectedNodeChanged);
             this.workflowGraphView.DragDrop += new System.Windows.Forms.DragEventHandler(this.workflowGraphView_DragDrop);
