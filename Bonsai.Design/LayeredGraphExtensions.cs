@@ -49,6 +49,7 @@ namespace Bonsai.Design
                 }
 
                 var layeredNode = new GraphNode(node.Value, layer, layeredSuccessors);
+                layeredNode.Tag = node;
                 layerMap.Add(node, layeredNode);
                 yield return layeredNode;
             }

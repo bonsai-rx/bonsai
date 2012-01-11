@@ -54,6 +54,9 @@
     <Compile Include="DesignTypes.cs" />
     <Compile Include="Expressions\CombinatorBuilder.cs" />
     <Compile Include="Expressions\CombineLatestBuilder.cs" />
+    <Compile Include="Expressions\BinaryCombinatorBuilder.cs" />
+    <Compile Include="Expressions\SampleIntervalBuilder.cs" />
+    <Compile Include="Expressions\TakeUntilBuilder.cs" />
     <Compile Include="Expressions\DoBuilder.cs" />
     <Compile Include="Expressions\ExpressionBuilder.cs" />
     <Compile Include="Expressions\ExpressionBuilderGraph.cs" />
@@ -64,6 +67,7 @@
     <Compile Include="Expressions\SelectBuilder.cs" />
     <Compile Include="Expressions\SkipUntilBuilder.cs" />
     <Compile Include="Expressions\SourceBuilder.cs" />
+    <Compile Include="Expressions\SampleBuilder.cs" />
     <Compile Include="Expressions\TimestampBuilder.cs" />
     <Compile Include="Expressions\WhereBuilder.cs" />
     <Compile Include="Filter.cs" />

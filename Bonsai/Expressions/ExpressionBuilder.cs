@@ -15,7 +15,10 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(WhereBuilder))]
     [XmlInclude(typeof(DoBuilder))]
     [XmlInclude(typeof(TimestampBuilder))]
+    [XmlInclude(typeof(SampleBuilder))]
+    [XmlInclude(typeof(SampleIntervalBuilder))]
     [XmlInclude(typeof(SkipUntilBuilder))]
+    [XmlInclude(typeof(TakeUntilBuilder))]
     [XmlInclude(typeof(CombineLatestBuilder))]
     [TypeConverter(typeof(ExpressionBuilderTypeConverter))]
     public abstract class ExpressionBuilder
