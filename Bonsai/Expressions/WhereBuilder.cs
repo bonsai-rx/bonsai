@@ -22,13 +22,13 @@ namespace Bonsai.Expressions
 
         public override Expression Build()
         {
-            var filterGenericArguments = ExpressionBuilder.GetFilterGenericArguments(Filter);
-            var predicateType = Expression.GetFuncType(filterGenericArguments);
+            var filterGenericArgument = ExpressionBuilder.GetFilterGenericArgument(Filter);
+            var predicateType = Expression.GetFuncType(new[] { filterGenericArgument, typeof(bool) });
 
             var processMethod = Filter.GetType().GetMethod("Process");
             var predicateDelegate = Delegate.CreateDelegate(predicateType, Filter, processMethod);
             var predicate = Expression.Constant(predicateDelegate);
-            return Expression.Call(whereMethod.MakeGenericMethod(filterGenericArguments), Source, predicate);
+            return Expression.Call(whereMethod.MakeGenericMethod(filterGenericArgument), Source, predicate);
         }
     }
 }

@@ -321,7 +321,7 @@ namespace Bonsai.Editor
             var combinator = target.Value as CombinatorBuilder;
             if (combinator != null)
             {
-                if (combinator.Source == null) connection = "Source";
+                if (!workflowBuilder.Workflow.Predecessors(target).Any()) connection = "Source";
                 else
                 {
                     var binaryCombinator = combinator as BinaryCombinatorBuilder;

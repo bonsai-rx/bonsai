@@ -28,7 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.canvas = new System.Windows.Forms.Panel();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.tooltipTimer = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // canvas
@@ -46,6 +49,15 @@
             this.canvas.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseDoubleClick);
             this.canvas.MouseHover += new System.EventHandler(this.canvas_MouseHover);
             // 
+            // toolTip
+            // 
+            this.toolTip.AutomaticDelay = 0;
+            this.toolTip.ShowAlways = true;
+            // 
+            // tooltipTimer
+            // 
+            this.tooltipTimer.Interval = 200;
+            // 
             // GraphView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -59,5 +71,7 @@
         #endregion
 
         private System.Windows.Forms.Panel canvas;
+        private System.Windows.Forms.ToolTip toolTip;
+        private System.Windows.Forms.Timer tooltipTimer;
     }
 }
