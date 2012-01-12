@@ -29,7 +29,7 @@ namespace Bonsai.Expressions
 
                 foreach (var successor in node.Successors)
                 {
-                    var target = successor.Node.Value.GetType().GetProperty(successor.Label);
+                    var target = successor.Node.Value.GetType().GetProperty(successor.Label.Value);
                     target.SetValue(successor.Node.Value, expression, null);
                 }
 
@@ -53,16 +53,16 @@ namespace Bonsai.Expressions
 
         public static ExpressionBuilderGraph ToInspectableGraph(this ExpressionBuilderGraph source)
         {
-            var observableMapping = new Dictionary<Node<ExpressionBuilder, string>, Tuple<Node<ExpressionBuilder, string>, Node<ExpressionBuilder, string>>>();
+            var observableMapping = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderParameter>, Tuple<Node<ExpressionBuilder, ExpressionBuilderParameter>, Node<ExpressionBuilder, ExpressionBuilderParameter>>>();
             var observableGraph = new ExpressionBuilderGraph();
             foreach (var node in source)
             {
                 var observableExpression = new InspectBuilder();
-                var observableNode = new Node<ExpressionBuilder, string>(observableExpression);
-                var expressionNode = new Node<ExpressionBuilder, string>(node.Value);
+                var observableNode = new Node<ExpressionBuilder, ExpressionBuilderParameter>(observableExpression);
+                var expressionNode = new Node<ExpressionBuilder, ExpressionBuilderParameter>(node.Value);
                 observableGraph.Add(expressionNode);
                 observableGraph.Add(observableNode);
-                observableGraph.AddEdge(expressionNode, observableNode, "Source");
+                observableGraph.AddEdge(expressionNode, observableNode, new ExpressionBuilderParameter("Source"));
                 observableMapping.Add(node, Tuple.Create(expressionNode, observableNode));
             }
 
