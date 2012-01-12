@@ -49,6 +49,7 @@
     </Compile>
     <Compile Include="DialogTypeVisualizer.cs" />
     <Compile Include="DynamicPropertyDescriptor.cs" />
+    <Compile Include="ExpressionBuilderTypeConverter.cs" />
     <Compile Include="GraphNodeMouseClickEventArgs.cs" />
     <Compile Include="GraphNodeMouseHoverEventArgs.cs" />
     <Compile Include="IDialogTypeVisualizerService.cs" />

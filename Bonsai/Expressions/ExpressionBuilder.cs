@@ -20,7 +20,7 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(SkipUntilBuilder))]
     [XmlInclude(typeof(TakeUntilBuilder))]
     [XmlInclude(typeof(CombineLatestBuilder))]
-    [TypeConverter(typeof(ExpressionBuilderTypeConverter))]
+    [TypeConverter("Bonsai.Design.ExpressionBuilderTypeConverter, Bonsai.Design")]
     public abstract class ExpressionBuilder
     {
         public abstract Expression Build();
@@ -74,7 +74,7 @@ namespace Bonsai.Expressions
             return null;
         }
 
-        protected static Type[] GetFilterGenericArguments(LoadableElement filter)
+        protected static Type GetFilterGenericArgument(LoadableElement filter)
         {
             if (filter == null)
             {
@@ -86,7 +86,7 @@ namespace Bonsai.Expressions
             {
                 if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Filter<>))
                 {
-                    return type.GetGenericArguments();
+                    return type.GetGenericArguments()[0];
                 }
 
                 type = type.BaseType;

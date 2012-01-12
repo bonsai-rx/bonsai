@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Collections.ObjectModel;
 using System.Drawing.Drawing2D;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 
 namespace Bonsai.Design
 {
@@ -37,10 +38,10 @@ namespace Bonsai.Design
         public GraphView()
         {
             InitializeComponent();
-            InitializeItemDragEvent();
+            InitializeReactiveEvents();
         }
 
-        void InitializeItemDragEvent()
+        void InitializeReactiveEvents()
         {
             var mouseDownEvent = Observable.FromEventPattern<MouseEventHandler, MouseEventArgs>(
                 handler => canvas.MouseDown += handler,
@@ -68,7 +69,38 @@ namespace Bonsai.Design
                                  displacementX * displacementX + displacementY * displacementY > 16
                            select new { node, mouseMove.Button };
 
-            itemDrag.Subscribe(drag => OnItemDrag(new ItemDragEventArgs(drag.Button, drag.node)));
+            var tooltipTimerTickEvent = Observable.FromEventPattern<EventHandler, EventArgs>(
+                handler => tooltipTimer.Tick += handler,
+                handler => tooltipTimer.Tick -= handler);
+
+            var hideTooltip = false;
+            var tooltipShown = false;
+            tooltipTimerTickEvent.Subscribe(tick =>
+            {
+                if (tooltipShown) hideTooltip = true;
+                tooltipTimer.Stop();
+            });
+
+            var showTooltip = from tick in tooltipTimerTickEvent
+                              where !tooltipShown
+                              let mousePosition = PointToClient(MousePosition)
+                              let node = GetNodeAt(mousePosition)
+                              where node != null
+                              select new { node, mousePosition };
+
+            showTooltip.Subscribe(show => { toolTip.Show(layoutNodes[show.node].Text, canvas, show.mousePosition); tooltipShown = true; });
+            mouseMoveEvent.Subscribe(mouseMove =>
+            {
+                if (hideTooltip)
+                {
+                    toolTip.Hide(canvas);
+                    hideTooltip = false;
+                    tooltipShown = false;
+                }
+
+                tooltipTimer.Stop();
+                tooltipTimer.Start();
+            });
         }
 
         public event ItemDragEventHandler ItemDrag
@@ -314,13 +346,13 @@ namespace Bonsai.Design
                         NodeSize, NodeSize);
 
                     var pen = selected ? WhitePen : BlackPen;
-                    var brush = selected ? Brushes.Black : Brushes.White;
+                    var brush = selected ? Brushes.Black : layout.Brush;
                     var textBrush = selected ? Brushes.White : Brushes.Black;
 
                     e.Graphics.DrawEllipse(pen, nodeRectangle);
                     e.Graphics.FillEllipse(brush, nodeRectangle);
                     e.Graphics.DrawString(
-                        layout.Node.Text.Substring(0, 1),
+                        layout.Text.Substring(0, 1),
                         Font, textBrush,
                         Point.Add(layout.Location, Size.Add(offset, TextOffset)));
                 }
@@ -376,9 +408,25 @@ namespace Bonsai.Design
             {
                 Node = node;
                 Location = location;
+
+                Text = string.Empty;
+                Brush = Brushes.White;
+                if (node.Value != null)
+                {
+                    var typeConverter = TypeDescriptor.GetConverter(node.Value);
+                    Text = typeConverter.ConvertToString(node.Value);
+                    if (typeConverter.CanConvertTo(typeof(Brush)))
+                    {
+                        Brush = (Brush)typeConverter.ConvertTo(node.Value, typeof(Brush));
+                    }
+                }
             }
 
             public GraphNode Node { get; set; }
+
+            public string Text { get; private set; }
+
+            public Brush Brush { get; private set; }
 
             public Point Location { get; set; }
 
