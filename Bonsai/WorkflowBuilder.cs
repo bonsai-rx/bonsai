@@ -67,7 +67,7 @@ namespace Bonsai
             var serializer = GetXmlSerializer(types);
             using (var workflowReader = new StringReader(workflowMarkup))
             {
-                var descriptor = (DirectedGraphDescriptor<ExpressionBuilder, string>)serializer.Deserialize(workflowReader);
+                var descriptor = (DirectedGraphDescriptor<ExpressionBuilder, ExpressionBuilderParameter>)serializer.Deserialize(workflowReader);
                 workflow.AddDescriptor(descriptor);
             }
             reader.ReadEndElement();
@@ -110,7 +110,7 @@ namespace Bonsai
                     }
                     else serializerTypes.UnionWith(types);
 
-                    serializerCache = new XmlSerializer(typeof(DirectedGraphDescriptor<ExpressionBuilder, string>), new XmlAttributeOverrides(), serializerTypes.ToArray(), new XmlRootAttribute("Workflow"), null);
+                    serializerCache = new XmlSerializer(typeof(DirectedGraphDescriptor<ExpressionBuilder, ExpressionBuilderParameter>), new XmlAttributeOverrides(), serializerTypes.ToArray(), new XmlRootAttribute("Workflow"), null);
                 }
             }
 

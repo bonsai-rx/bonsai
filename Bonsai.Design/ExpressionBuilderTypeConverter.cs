@@ -48,15 +48,15 @@ namespace Bonsai.Design
                 if (sourceBuilder != null) return Brushes.Violet;
 
                 var whereBuilder = expressionBuilder as WhereBuilder;
-                if (whereBuilder != null) return Brushes.White;
+                if (whereBuilder != null) return Brushes.Green;
 
                 var selectBuilder = expressionBuilder as SelectBuilder;
                 if (selectBuilder != null) return Brushes.White;
 
                 var doBuilder = expressionBuilder as DoBuilder;
-                if (doBuilder != null) return Brushes.White;
+                if (doBuilder != null) return Brushes.Gray;
 
-                return Brushes.White;
+                return Brushes.LightBlue;
             }
 
             return base.ConvertTo(context, culture, value, destinationType);

@@ -55,6 +55,7 @@
     <Compile Include="Expressions\CombinatorBuilder.cs" />
     <Compile Include="Expressions\CombineLatestBuilder.cs" />
     <Compile Include="Expressions\BinaryCombinatorBuilder.cs" />
+    <Compile Include="Expressions\ExpressionBuilderParameter.cs" />
     <Compile Include="Expressions\SampleIntervalBuilder.cs" />
     <Compile Include="Expressions\TakeUntilBuilder.cs" />
     <Compile Include="Expressions\DoBuilder.cs" />
