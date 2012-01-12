@@ -68,32 +68,40 @@ namespace Bonsai.Dag
 
         public static IEnumerable<Node<TValue, TLabel>> TopologicalSort<TValue, TLabel>(this DirectedGraph<TValue, TLabel> source)
         {
-            var closed = new HashSet<Node<TValue, TLabel>>();
-            var open = new Stack<Node<TValue, TLabel>>();
-            var ordering = new Stack<Node<TValue, TLabel>>(source.Count);
+            var predecessorCount = new Dictionary<Node<TValue, TLabel>, int>();
+            var ordering = new List<Node<TValue, TLabel>>(source.Count);
 
             foreach (var node in source)
             {
-                if (closed.Contains(node)) continue;
-                open.Push(node);
-
-                while (open.Count > 0)
+                foreach (var successor in node.Successors)
                 {
-                    var current = open.Peek();
-                    if (!closed.Contains(current))
-                    {
-                        closed.Add(current);
-                        foreach (var successor in current.Successors)
-                        {
-                            if (open.Contains(successor.Node)) return Enumerable.Empty<Node<TValue, TLabel>>();
-                            if (closed.Contains(successor.Node)) continue;
-                            open.Push(successor.Node);
-                        }
-                    }
-                    else ordering.Push(open.Pop());
+                    int count;
+                    predecessorCount.TryGetValue(successor.Node, out count);
+                    predecessorCount[successor.Node] = count + 1;
+                    ordering.Remove(node);
+                }
+
+                if (!predecessorCount.ContainsKey(node))
+                {
+                    predecessorCount[node] = 0;
+                    ordering.Add(node);
                 }
             }
 
+            for (int i = 0; i < ordering.Count; i++)
+            {
+                var node = ordering[i];
+
+                foreach (var successor in node.Successors)
+                {
+                    if (--predecessorCount[successor.Node] == 0)
+                    {
+                        ordering.Add(successor.Node);
+                    }
+                }
+            }
+
+            if (ordering.Count < ordering.Capacity) return Enumerable.Empty<Node<TValue, TLabel>>();
             return ordering;
         }
 
