@@ -88,7 +88,8 @@ namespace Bonsai.Design
                               where node != null
                               select new { node, mousePosition };
 
-            showTooltip.Subscribe(show => { toolTip.Show(layoutNodes[show.node].Text, canvas, show.mousePosition); tooltipShown = true; });
+            itemDrag.Subscribe(drag => OnItemDrag(new ItemDragEventArgs(drag.Button, drag.node)));
+            showTooltip.Subscribe(show => { toolTip.Show(show.node.Text, canvas, show.mousePosition); tooltipShown = true; });
             mouseMoveEvent.Subscribe(mouseMove =>
             {
                 if (hideTooltip)
@@ -346,22 +347,22 @@ namespace Bonsai.Design
                         NodeSize, NodeSize);
 
                     var pen = selected ? WhitePen : BlackPen;
-                    var brush = selected ? Brushes.Black : layout.Brush;
+                    var brush = selected ? Brushes.Black : layout.Node.Brush;
                     var textBrush = selected ? Brushes.White : Brushes.Black;
 
                     e.Graphics.DrawEllipse(pen, nodeRectangle);
                     e.Graphics.FillEllipse(brush, nodeRectangle);
                     e.Graphics.DrawString(
-                        layout.Text.Substring(0, 1),
+                        layout.Node.Text.Substring(0, 1),
                         Font, textBrush,
                         Point.Add(layout.Location, Size.Add(offset, TextOffset)));
                 }
-                else e.Graphics.DrawLine(Pens.Black, Point.Add(layout.EntryPoint, offset), Point.Add(layout.ExitPoint, offset));
+                else e.Graphics.DrawLine(((GraphEdge)layout.Node.Tag).Pen, Point.Add(layout.EntryPoint, offset), Point.Add(layout.ExitPoint, offset));
 
                 foreach (var successor in layout.Node.Successors)
                 {
-                    var successorLayout = layoutNodes[successor];
-                    e.Graphics.DrawLine(Pens.Black, Point.Add(layout.ExitPoint, offset), Point.Add(successorLayout.EntryPoint, offset));
+                    var successorLayout = layoutNodes[successor.Node];
+                    e.Graphics.DrawLine(successor.Pen, Point.Add(layout.ExitPoint, offset), Point.Add(successorLayout.EntryPoint, offset));
                 }
             }
         }
@@ -408,25 +409,9 @@ namespace Bonsai.Design
             {
                 Node = node;
                 Location = location;
-
-                Text = string.Empty;
-                Brush = Brushes.White;
-                if (node.Value != null)
-                {
-                    var typeConverter = TypeDescriptor.GetConverter(node.Value);
-                    Text = typeConverter.ConvertToString(node.Value);
-                    if (typeConverter.CanConvertTo(typeof(Brush)))
-                    {
-                        Brush = (Brush)typeConverter.ConvertTo(node.Value, typeof(Brush));
-                    }
-                }
             }
 
             public GraphNode Node { get; set; }
-
-            public string Text { get; private set; }
-
-            public Brush Brush { get; private set; }
 
             public Point Location { get; set; }
 
