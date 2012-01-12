@@ -8,7 +8,7 @@ namespace Bonsai.Design
 {
     public static class LayeredGraphExtensions
     {
-        static IEnumerable<GraphNode> GetLayeredSuccessors<TValue, TLabel>(Node<TValue, TLabel> node, int layer, Dictionary<Node<TValue, TLabel>, GraphNode> layerMap)
+        static IEnumerable<GraphEdge> GetLayeredSuccessors<TValue, TLabel>(Node<TValue, TLabel> node, int layer, Dictionary<Node<TValue, TLabel>, GraphNode> layerMap)
         {
             foreach (var successor in node.Successors)
             {
@@ -17,11 +17,13 @@ namespace Bonsai.Design
 
                 for (int i = layeredSuccessor.Layer + 1; i < layer; i++)
                 {
-                    var dummyNode = new GraphNode(null, i, Enumerable.Repeat(currentSuccessor, 1));
+                    var edge = new GraphEdge(successor.Label, currentSuccessor);
+                    var dummyNode = new GraphNode(null, i, Enumerable.Repeat(edge, 1));
+                    dummyNode.Tag = edge;
                     currentSuccessor = dummyNode;
                 }
 
-                yield return currentSuccessor;
+                yield return new GraphEdge(successor.Label, currentSuccessor);
             }
         }
 
@@ -38,13 +40,16 @@ namespace Bonsai.Design
 
                 if (node.Successors.Count > 0) layer++;
                 var layeredSuccessors = GetLayeredSuccessors(node, layer, layerMap).ToList();
-                foreach (var layeredSuccessor in layeredSuccessors.Where(successor => successor.Value == null))
+                foreach (var layeredSuccessor in layeredSuccessors.Where(successor => successor.Node.Value == null))
                 {
-                    var dummyNode = layeredSuccessor;
+                    var dummyNode = layeredSuccessor.Node;
                     while (dummyNode != null)
                     {
                         yield return dummyNode;
-                        dummyNode = dummyNode.Successors.FirstOrDefault(successor => successor.Value == null);
+                        dummyNode = (from successor in dummyNode.Successors
+                                     where successor.Node.Value == null
+                                     select successor.Node)
+                                     .FirstOrDefault();
                     }
                 }
 
@@ -79,15 +84,15 @@ namespace Bonsai.Design
             {
                 return (from south in northern
                         from north in south.Successors
-                        orderby north.LayerIndex ascending, south.LayerIndex ascending
+                        orderby north.Node.LayerIndex ascending, south.LayerIndex ascending
                         select south.LayerIndex).ToArray();
             }
             else
             {
                 return (from north in northern
                         from south in north.Successors
-                        orderby north.LayerIndex ascending, south.LayerIndex ascending
-                        select south.LayerIndex).ToArray();
+                        orderby north.LayerIndex ascending, south.Node.LayerIndex ascending
+                        select south.Node.LayerIndex).ToArray();
             }
         }
 
@@ -133,7 +138,7 @@ namespace Bonsai.Design
             foreach (var layer in source)
             {
                 var ordering = (from node in layer
-                                let average = node.Successors.Average(successor => (int?)successor.LayerIndex)
+                                let average = node.Successors.Average(successor => (int?)successor.Node.LayerIndex)
                                 orderby average.HasValue ? average : -1 ascending
                                 select node).ToArray();
 
