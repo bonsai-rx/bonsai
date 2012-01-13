@@ -14,6 +14,7 @@ using Bonsai.Dag;
 using Bonsai.Design;
 using System.Reactive.Disposables;
 using System.Linq.Expressions;
+using Bonsai.Editor.Properties;
 
 namespace Bonsai.Editor
 {
@@ -26,7 +27,7 @@ namespace Bonsai.Editor
         XmlSerializer serializer;
         Dictionary<Type, Type> typeVisualizers;
         ExpressionBuilderGraph runningWorkflow;
-        Dictionary<GraphNode, Action> inspectorMapping;
+        Dictionary<GraphNode, Action<bool>> visualizerMapping;
         ExpressionBuilderTypeConverter builderConverter;
 
         IDisposable loaded;
@@ -127,6 +128,7 @@ namespace Bonsai.Editor
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
             workflowBuilder.Workflow.Clear();
+            commandExecutor.Clear();
             UpdateGraphLayout();
         }
 
@@ -138,6 +140,7 @@ namespace Bonsai.Editor
                 using (var reader = XmlReader.Create(openWorkflowDialog.FileName))
                 {
                     workflowBuilder = (WorkflowBuilder)serializer.Deserialize(reader);
+                    commandExecutor.Clear();
                     UpdateGraphLayout();
                 }
             }
@@ -238,7 +241,7 @@ namespace Bonsai.Editor
             {
                 runningWorkflow = workflowBuilder.Workflow.ToInspectableGraph();
                 var subscriber = runningWorkflow.BuildSubscribe().Compile();
-                inspectorMapping = (from node in runningWorkflow
+                visualizerMapping = (from node in runningWorkflow
                                     where !(node.Value is InspectBuilder)
                                     let inspectBuilder = node.Successors.First().Node.Value as InspectBuilder
                                     where inspectBuilder != null
@@ -254,34 +257,43 @@ namespace Bonsai.Editor
                                                       };
 
                                                       var visualizer = (DialogTypeVisualizer)Activator.CreateInstance(visualizerType);
-                                                      return mapping.inspectBuilder.CreateVisualizer(mapping.nodeName, visualizer, editorSite);
+                                                      return mapping.inspectBuilder.CreateVisualizerDialog(mapping.nodeName, visualizer, editorSite);
                                                   });
 
                 loaded = workflowBuilder.Load();
                 var sourceConnections = workflowBuilder.GetSources().Select(source => source.Connect());
                 running = new CompositeDisposable(Enumerable.Repeat(subscriber(), 1).Concat(sourceConnections));
             }
+
+            runningStatusLabel.Text = Resources.RunningStatus;
         }
 
         private void stopToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (running != null)
             {
+                foreach (var visualizerDialog in visualizerMapping.Values)
+                {
+                    visualizerDialog(false);
+                }
+
                 running.Dispose();
                 loaded.Dispose();
                 loaded = null;
                 running = null;
                 runningWorkflow = null;
-                inspectorMapping = null;
+                visualizerMapping = null;
             }
+
+            runningStatusLabel.Text = Resources.StoppedStatus;
         }
 
         private void workflowGraphView_NodeMouseDoubleClick(object sender, GraphNodeMouseClickEventArgs e)
         {
             if (running != null)
             {
-                var inspector = inspectorMapping[e.Node];
-                inspector();
+                var visualizerDialog = visualizerMapping[e.Node];
+                visualizerDialog(true);
             }
         }
 
@@ -290,16 +302,57 @@ namespace Bonsai.Editor
             var node = workflowGraphView.SelectedNode;
             if (running == null && node != null)
             {
+                Action addEdge = () => { };
+                Action removeEdge = () => { };
+
                 var workflowNode = (Node<ExpressionBuilder, ExpressionBuilderParameter>)node.Tag;
-                var predecessor = workflowBuilder.Workflow.Predecessors(workflowNode).FirstOrDefault();
-                var successor = workflowBuilder.Workflow.Successors(workflowNode).FirstOrDefault();
-                if (predecessor != null && successor != null)
+                var predecessorEdges = workflowBuilder.Workflow.PredecessorEdges(workflowNode).ToArray();
+                var sourcePredecessor = Array.Find(predecessorEdges, edge => edge.Item2.Label.Value == "Source");
+                if (sourcePredecessor != null)
                 {
-                    workflowBuilder.Workflow.AddEdge(predecessor, successor, new ExpressionBuilderParameter("Source"));
+                    addEdge = () =>
+                    {
+                        foreach (var successor in workflowNode.Successors)
+                        {
+                            if (workflowBuilder.Workflow.Successors(sourcePredecessor.Item1).Contains(successor.Node)) continue;
+                            workflowBuilder.Workflow.AddEdge(sourcePredecessor.Item1, successor.Node, successor.Label);
+                        }
+                    };
+
+                    removeEdge = () =>
+                    {
+                        foreach (var successor in workflowNode.Successors)
+                        {
+                            workflowBuilder.Workflow.RemoveEdge(sourcePredecessor.Item1, successor.Node, successor.Label);
+                        }
+                    };
                 }
 
-                workflowBuilder.Workflow.Remove(workflowNode);
-                UpdateGraphLayout();
+                Action removeNode = () => workflowBuilder.Workflow.Remove(workflowNode);
+                Action addNode = () =>
+                {
+                    workflowBuilder.Workflow.Add(workflowNode);
+                    foreach (var edge in predecessorEdges)
+                    {
+                        edge.Item1.Successors.Insert(edge.Item3, edge.Item2);
+                    }
+                };
+
+                commandExecutor.Execute(
+                () =>
+                {
+                    addEdge();
+                    removeNode();
+                    UpdateGraphLayout();
+                    workflowGraphView.SelectedNode = workflowGraphView.Model.SelectMany(layer => layer).FirstOrDefault(n => n.Tag != null && n.Tag == sourcePredecessor);
+                },
+                () =>
+                {
+                    addNode();
+                    removeEdge();
+                    UpdateGraphLayout();
+                    workflowGraphView.SelectedNode = workflowGraphView.Model.SelectMany(layer => layer).FirstOrDefault(n => n.Tag == node.Tag);
+                });
             }
         }
 
@@ -316,6 +369,7 @@ namespace Bonsai.Editor
         {
             var source = (Node<ExpressionBuilder, ExpressionBuilderParameter>)graphViewSource.Tag;
             var target = (Node<ExpressionBuilder, ExpressionBuilderParameter>)graphViewTarget.Tag;
+            if (workflowBuilder.Workflow.Successors(source).Contains(target)) return;
             var connection = string.Empty;
 
             var combinator = target.Value as CombinatorBuilder;
@@ -334,8 +388,18 @@ namespace Bonsai.Editor
 
             if (!string.IsNullOrEmpty(connection))
             {
-                workflowBuilder.Workflow.AddEdge(source, target, new ExpressionBuilderParameter(connection));
-                UpdateGraphLayout();
+                var parameter = new ExpressionBuilderParameter(connection);
+                commandExecutor.Execute(
+                () =>
+                {
+                    workflowBuilder.Workflow.AddEdge(source, target, parameter);
+                    UpdateGraphLayout();
+                },
+                () =>
+                {
+                    workflowBuilder.Workflow.RemoveEdge(source, target, parameter);
+                    UpdateGraphLayout();
+                });
             }
         }
 
@@ -354,14 +418,19 @@ namespace Bonsai.Editor
                 else builder = (ExpressionBuilder)Activator.CreateInstance(type);
 
                 var node = new Node<ExpressionBuilder, ExpressionBuilderParameter>(builder);
-                workflowBuilder.Workflow.Add(node);
+                Action addNode = () => workflowBuilder.Workflow.Add(node);
+                Action removeNode = () => workflowBuilder.Workflow.Remove(node);
+                Action addConnection = () => { };
+                Action removeConnection = () => { };
 
                 var closestNode = closestGraphViewNode != null ? (Node<ExpressionBuilder, ExpressionBuilderParameter>)closestGraphViewNode.Tag : null;
                 if (elementType == LoadableElementType.Source)
                 {
                     if (closestNode != null && !(closestNode.Value is SourceBuilder) && !workflowBuilder.Workflow.Predecessors(closestNode).Any())
                     {
-                        workflowBuilder.Workflow.AddEdge(node, closestNode, new ExpressionBuilderParameter("Source"));
+                        var parameter = new ExpressionBuilderParameter("Source");
+                        addConnection = () => workflowBuilder.Workflow.AddEdge(node, closestNode, parameter);
+                        removeConnection = () => workflowBuilder.Workflow.RemoveEdge(node, closestNode, parameter);
                     }
                 }
                 else if (closestNode != null)
@@ -372,16 +441,42 @@ namespace Bonsai.Editor
                         if (oldSuccessor.Node != null)
                         {
                             //TODO: Decide when to insert or branch
-                            workflowBuilder.Workflow.RemoveEdge(closestNode, oldSuccessor.Node, oldSuccessor.Label);
-                            workflowBuilder.Workflow.AddEdge(node, oldSuccessor.Node, oldSuccessor.Label);
+                            addConnection = () =>
+                            {
+                                workflowBuilder.Workflow.RemoveEdge(closestNode, oldSuccessor.Node, oldSuccessor.Label);
+                                workflowBuilder.Workflow.AddEdge(node, oldSuccessor.Node, oldSuccessor.Label);
+                            };
+
+                            removeConnection = () =>
+                            {
+                                workflowBuilder.Workflow.RemoveEdge(node, oldSuccessor.Node, oldSuccessor.Label);
+                                workflowBuilder.Workflow.AddEdge(closestNode, oldSuccessor.Node, oldSuccessor.Label);
+                            };
                         }
                     }
 
-                    workflowBuilder.Workflow.AddEdge(closestNode, node, new ExpressionBuilderParameter("Source"));
+                    var insertSuccessor = addConnection;
+                    var removeSuccessor = removeConnection;
+                    var parameter = new ExpressionBuilderParameter("Source");
+                    addConnection = () => { insertSuccessor(); workflowBuilder.Workflow.AddEdge(closestNode, node, parameter); };
+                    removeConnection = () => { workflowBuilder.Workflow.RemoveEdge(closestNode, node, parameter); removeSuccessor(); };
                 }
 
-                UpdateGraphLayout();
-                workflowGraphView.SelectedNode = workflowGraphView.Model.SelectMany(layer => layer).First(n => n.Tag == node);
+                commandExecutor.Execute(
+                () =>
+                {
+                    addNode();
+                    addConnection();
+                    UpdateGraphLayout();
+                    workflowGraphView.SelectedNode = workflowGraphView.Model.SelectMany(layer => layer).First(n => n.Tag == node);
+                },
+                () =>
+                {
+                    removeConnection();
+                    removeNode();
+                    UpdateGraphLayout();
+                    workflowGraphView.SelectedNode = workflowGraphView.Model.SelectMany(layer => layer).FirstOrDefault(n => n.Tag == closestNode);
+                });
             }
         }
 
@@ -392,6 +487,30 @@ namespace Bonsai.Editor
             {
                 workflowGraphView.DoDragDrop(selectedNode, DragDropEffects.Link);
             }
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var about = new AboutBox())
+            {
+                about.ShowDialog();
+            }
+        }
+
+        private void commandExecutor_StatusChanged(object sender, EventArgs e)
+        {
+            undoToolStripMenuItem.Enabled = commandExecutor.CanUndo;
+            redoToolStripMenuItem.Enabled = commandExecutor.CanRedo;
+        }
+
+        private void undoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            commandExecutor.Undo();
+        }
+
+        private void redoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            commandExecutor.Redo();
         }
     }
 }

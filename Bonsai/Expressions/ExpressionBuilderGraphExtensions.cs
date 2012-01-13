@@ -72,7 +72,8 @@ namespace Bonsai.Expressions
                 foreach (var successor in node.Successors)
                 {
                     var successorNode = observableMapping[successor.Node].Item1;
-                    observableGraph.AddEdge(observableNode, successorNode, successor.Label);
+                    var parameter = new ExpressionBuilderParameter(successor.Label.Value);
+                    observableGraph.AddEdge(observableNode, successorNode, parameter);
                 }
             }
 

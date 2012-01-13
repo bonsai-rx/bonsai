@@ -27,6 +27,29 @@ namespace Bonsai.Dag
             }
         }
 
+        public static IEnumerable<Tuple<Node<TValue, TLabel>, Edge<TValue, TLabel>, int>> PredecessorEdges<TValue, TLabel>(this DirectedGraph<TValue, TLabel> source, Node<TValue, TLabel> node)
+        {
+            if (!source.Contains(node))
+            {
+                throw new ArgumentException("The specified node does not belong to the graph.", "node");
+            }
+
+            foreach (var predecessor in source)
+            {
+                int edgeIndex = 0;
+                foreach (var successor in predecessor.Successors)
+                {
+                    if (successor.Node == node)
+                    {
+                        yield return Tuple.Create(predecessor, successor, edgeIndex);
+                        break;
+                    }
+
+                    edgeIndex++;
+                }
+            }
+        }
+
         public static IEnumerable<Node<TValue, TLabel>> Successors<TValue, TLabel>(this DirectedGraph<TValue, TLabel> source, Node<TValue, TLabel> node)
         {
             if (!source.Contains(node))
