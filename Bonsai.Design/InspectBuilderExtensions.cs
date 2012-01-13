@@ -10,37 +10,48 @@ namespace Bonsai.Design
 {
     public static class InspectBuilderExtensions
     {
-        public static Action CreateVisualizer(this InspectBuilder source, string caption, DialogTypeVisualizer visualizer, IServiceProvider provider)
+        public static Action<bool> CreateVisualizerDialog(this InspectBuilder source, string caption, DialogTypeVisualizer visualizer, IServiceProvider provider)
         {
             TypeVisualizerDialog visualizerDialog = null;
             IDisposable visualizerObserver = null;
 
-            return () =>
+            return show =>
             {
-                if (visualizerDialog == null)
+                if (show)
                 {
-                    using (var visualizerContext = new ServiceContainer(provider))
+                    if (visualizerDialog == null)
                     {
-                        visualizerDialog = new TypeVisualizerDialog();
-                        visualizerDialog.Text = caption;
-                        visualizerContext.AddService(typeof(IDialogTypeVisualizerService), visualizerDialog);
-                        visualizer.Load(visualizerContext);
-                        visualizerContext.RemoveService(typeof(IDialogTypeVisualizerService));
-
-                        visualizerDialog.Load += delegate { visualizerObserver = source.Output.ObserveOn(visualizerDialog)
-                                                                                       .Subscribe(value => visualizer.Show(value)); };
-                        visualizerDialog.FormClosing += delegate { visualizerObserver.Dispose(); };
-                        visualizerDialog.FormClosed += delegate
+                        using (var visualizerContext = new ServiceContainer(provider))
                         {
-                            visualizer.Unload();
-                            visualizerDialog = null;
-                        };
+                            visualizerDialog = new TypeVisualizerDialog();
+                            visualizerDialog.Text = caption;
+                            visualizerContext.AddService(typeof(IDialogTypeVisualizerService), visualizerDialog);
+                            visualizer.Load(visualizerContext);
+                            visualizerContext.RemoveService(typeof(IDialogTypeVisualizerService));
 
-                        visualizerDialog.Show();
+                            visualizerDialog.Load += delegate
+                            {
+                                visualizerObserver = source.Output.ObserveOn(visualizerDialog)
+                                                           .Subscribe(value => visualizer.Show(value));
+                            };
+                            visualizerDialog.FormClosing += delegate { visualizerObserver.Dispose(); };
+                            visualizerDialog.FormClosed += delegate
+                            {
+                                visualizer.Unload();
+                                visualizerDialog.Dispose();
+                                visualizerDialog = null;
+                            };
+
+                            visualizerDialog.Show();
+                        }
                     }
-                }
 
-                visualizerDialog.Activate();
+                    visualizerDialog.Activate();
+                }
+                else if (visualizerDialog != null)
+                {
+                    visualizerDialog.Close();
+                }
             };
         }
     }
