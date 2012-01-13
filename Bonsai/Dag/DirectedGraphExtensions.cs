@@ -78,7 +78,7 @@ namespace Bonsai.Dag
                     int count;
                     predecessorCount.TryGetValue(successor.Node, out count);
                     predecessorCount[successor.Node] = count + 1;
-                    ordering.Remove(node);
+                    ordering.Remove(successor.Node);
                 }
 
                 if (!predecessorCount.ContainsKey(node))
