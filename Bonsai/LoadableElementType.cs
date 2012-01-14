@@ -16,7 +16,21 @@ namespace Bonsai
         {
         }
 
-        public static bool MatchGenericType(Type type, Type genericType)
+        public static bool MatchType(Type type, LoadableElementType elementType)
+        {
+            if (elementType == LoadableElementType.Source) return MatchGenericType(type, typeof(Source<>));
+            if (elementType == LoadableElementType.Filter) return MatchGenericType(type, typeof(Filter<>));
+            if (elementType == LoadableElementType.Sink) return MatchGenericType(type, typeof(Sink<>));
+            if (elementType == LoadableElementType.Projection)
+            {
+                return MatchGenericType(type, typeof(Projection<,>)) ||
+                       MatchGenericType(type, typeof(Projection<,,>));
+            }
+
+            return false;
+        }
+
+        static bool MatchGenericType(Type type, Type genericType)
         {
             if (!genericType.IsGenericType)
             {
@@ -38,10 +52,10 @@ namespace Bonsai
 
         public static LoadableElementType FromType(Type type)
         {
-            if (MatchGenericType(type, typeof(Source<>))) return LoadableElementType.Source;
-            if (MatchGenericType(type, typeof(Filter<>))) return LoadableElementType.Filter;
-            if (MatchGenericType(type, typeof(Projection<,>))) return LoadableElementType.Projection;
-            if (MatchGenericType(type, typeof(Sink<>))) return LoadableElementType.Sink;
+            if (MatchType(type, LoadableElementType.Source)) return LoadableElementType.Source;
+            if (MatchType(type, LoadableElementType.Filter)) return LoadableElementType.Filter;
+            if (MatchType(type, LoadableElementType.Projection)) return LoadableElementType.Projection;
+            if (MatchType(type, LoadableElementType.Sink)) return LoadableElementType.Sink;
             return null;
         }
     }

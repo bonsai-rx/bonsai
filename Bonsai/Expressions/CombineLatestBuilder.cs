@@ -11,30 +11,26 @@ using System.Reflection;
 namespace Bonsai.Expressions
 {
     [XmlType("CombineLatest")]
-    public class CombineLatestBuilder : ExpressionBuilder
+    public class CombineLatestBuilder : BinaryCombinatorBuilder
     {
         static readonly MethodInfo combineLatestMethod = typeof(Observable).GetMethod("CombineLatest");
-
-        [XmlIgnore]
-        [Browsable(false)]
-        public Expression First { get; set; }
-
-        [XmlIgnore]
-        [Browsable(false)]
-        public Expression Second { get; set; }
+        static readonly MethodInfo tupleCreateMethod = typeof(Tuple).GetMethods().First(m => m.Name == "Create" &&
+                                                                                        m.GetParameters().Length == 2);
 
         [Browsable(false)]
         public LoadableElement Projection { get; set; }
 
         public override Expression Build()
         {
-            var projectionGenericArguments = ExpressionBuilder.GetProjectionGenericArguments(Projection);
-            var selectorType = Expression.GetFuncType(projectionGenericArguments);
+            var sourceType = Source.Type.GetGenericArguments()[0];
+            var otherType = Other.Type.GetGenericArguments()[0];
+            var resultType = typeof(Tuple<,>).MakeGenericType(sourceType, otherType);
 
-            var processMethod = Projection.GetType().GetMethod("Process");
-            var selectorDelegate = Delegate.CreateDelegate(selectorType, Projection, processMethod);
-            var selector = Expression.Constant(selectorDelegate);
-            return Expression.Call(combineLatestMethod.MakeGenericMethod(projectionGenericArguments), First, Second, selector);
+            var sourceParameter = Expression.Parameter(sourceType);
+            var otherParameter = Expression.Parameter(otherType);
+            var selectorBody = Expression.Call(null, tupleCreateMethod.MakeGenericMethod(sourceType, otherType), sourceParameter, otherParameter);
+            var selector = Expression.Lambda(selectorBody, sourceParameter, otherParameter);
+            return Expression.Call(combineLatestMethod.MakeGenericMethod(sourceType, otherType, resultType), Source, Other, selector);
         }
     }
 }
