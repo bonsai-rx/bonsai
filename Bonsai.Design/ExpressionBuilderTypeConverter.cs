@@ -48,7 +48,7 @@ namespace Bonsai.Design
                 if (sourceBuilder != null) return Brushes.Violet;
 
                 var whereBuilder = expressionBuilder as WhereBuilder;
-                if (whereBuilder != null) return Brushes.Green;
+                if (whereBuilder != null) return Brushes.LightGreen;
 
                 var selectBuilder = expressionBuilder as SelectBuilder;
                 if (selectBuilder != null) return Brushes.White;
