@@ -52,14 +52,14 @@ namespace Bonsai.Editor
         {
             var types = WorkflowElementLoader.GetWorkflowElementTypes();
 
-            InitializeToolboxCategory(toolboxTreeView.Nodes["Source"], types.Where(type => LoadableElementType.MatchGenericType(type, typeof(Source<>))));
-            InitializeToolboxCategory(toolboxTreeView.Nodes["Filter"], types.Where(type => LoadableElementType.MatchGenericType(type, typeof(Filter<>))));
-            InitializeToolboxCategory(toolboxTreeView.Nodes["Projection"], types.Where(type => LoadableElementType.MatchGenericType(type, typeof(Projection<,>))));
-            InitializeToolboxCategory(toolboxTreeView.Nodes["Sink"], types.Where(type => LoadableElementType.MatchGenericType(type, typeof(Sink<>))));
+            InitializeToolboxCategory(toolboxTreeView.Nodes["Source"], types.Where(type => LoadableElementType.MatchType(type, LoadableElementType.Source)));
+            InitializeToolboxCategory(toolboxTreeView.Nodes["Filter"], types.Where(type => LoadableElementType.MatchType(type, LoadableElementType.Filter)));
+            InitializeToolboxCategory(toolboxTreeView.Nodes["Projection"], types.Where(type => LoadableElementType.MatchType(type, LoadableElementType.Projection)));
+            InitializeToolboxCategory(toolboxTreeView.Nodes["Sink"], types.Where(type => LoadableElementType.MatchType(type, LoadableElementType.Sink)));
             InitializeToolboxCategory(toolboxTreeView.Nodes["Combinator"], new[]
             {
                 typeof(TimestampBuilder), typeof(SkipUntilBuilder), typeof(TakeUntilBuilder),
-                typeof(SampleBuilder), typeof(SampleIntervalBuilder)
+                typeof(SampleBuilder), typeof(SampleIntervalBuilder), typeof(CombineLatestBuilder)
             });
         }
 

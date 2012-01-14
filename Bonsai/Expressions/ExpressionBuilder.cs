@@ -53,27 +53,6 @@ namespace Bonsai.Expressions
                          .GetGenericArguments()[0];
         }
 
-        protected static Type[] GetProjectionGenericArguments(LoadableElement projection)
-        {
-            if (projection == null)
-            {
-                throw new ArgumentNullException("projection");
-            }
-
-            var type = projection.GetType();
-            while (type != typeof(object))
-            {
-                if (type.IsGenericType && type.GetGenericTypeDefinition().FullName.StartsWith("Bonsai.Projection"))
-                {
-                    return type.GetGenericArguments();
-                }
-
-                type = type.BaseType;
-            }
-
-            return null;
-        }
-
         protected static Type GetFilterGenericArgument(LoadableElement filter)
         {
             if (filter == null)
