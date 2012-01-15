@@ -20,6 +20,9 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(SkipUntilBuilder))]
     [XmlInclude(typeof(TakeUntilBuilder))]
     [XmlInclude(typeof(CombineLatestBuilder))]
+    [XmlInclude(typeof(ConcatBuilder))]
+    [XmlInclude(typeof(ZipBuilder))]
+    [XmlInclude(typeof(AmbBuilder))]
     [TypeConverter("Bonsai.Design.ExpressionBuilderTypeConverter, Bonsai.Design")]
     public abstract class ExpressionBuilder
     {

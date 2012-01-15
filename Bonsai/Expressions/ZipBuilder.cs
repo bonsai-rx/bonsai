@@ -10,10 +10,11 @@ using System.Reflection;
 
 namespace Bonsai.Expressions
 {
-    [XmlType("CombineLatest")]
-    public class CombineLatestBuilder : BinaryCombinatorBuilder
+    [XmlType("Zip")]
+    public class ZipBuilder : BinaryCombinatorBuilder
     {
-        static readonly MethodInfo combineLatestMethod = typeof(Observable).GetMethod("CombineLatest");
+        static readonly MethodInfo zipMethod = typeof(Observable).GetMethods().First(m => m.Name == "Zip" &&
+                                                                                     m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(IObservable<>));
         static readonly MethodInfo tupleCreateMethod = typeof(Tuple).GetMethods().First(m => m.Name == "Create" &&
                                                                                         m.GetParameters().Length == 2);
 
@@ -27,7 +28,7 @@ namespace Bonsai.Expressions
             var otherParameter = Expression.Parameter(otherType);
             var selectorBody = Expression.Call(null, tupleCreateMethod.MakeGenericMethod(sourceType, otherType), sourceParameter, otherParameter);
             var selector = Expression.Lambda(selectorBody, sourceParameter, otherParameter);
-            return Expression.Call(combineLatestMethod.MakeGenericMethod(sourceType, otherType, resultType), Source, Other, selector);
+            return Expression.Call(zipMethod.MakeGenericMethod(sourceType, otherType, resultType), Source, Other, selector);
         }
     }
 }
