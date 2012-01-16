@@ -48,9 +48,10 @@ namespace Bonsai.Editor
 
         void HandleWorkflowError(Exception e)
         {
+            MessageBox.Show(e.Message, "Processing Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
             if (running != null)
             {
-                MessageBox.Show(e.Message, "Processing Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 BeginInvoke((Action)(() => stopToolStripMenuItem_Click(this, EventArgs.Empty)));
             }
         }
@@ -250,7 +251,7 @@ namespace Bonsai.Editor
             if (running == null)
             {
                 runningWorkflow = workflowBuilder.Workflow.ToInspectableGraph();
-                var subscriber = runningWorkflow.BuildSubscribe(HandleWorkflowError).Compile();
+                var subscribeExpression = runningWorkflow.BuildSubscribe(HandleWorkflowError);
                 visualizerMapping = (from node in runningWorkflow
                                     where !(node.Value is InspectBuilder)
                                     let inspectBuilder = node.Successors.First().Node.Value as InspectBuilder
@@ -270,7 +271,14 @@ namespace Bonsai.Editor
                                                       return mapping.inspectBuilder.CreateVisualizerDialog(mapping.nodeName, visualizer, editorSite);
                                                   });
 
-                loaded = workflowBuilder.Load();
+                try { loaded = workflowBuilder.Load(); }
+                catch (Exception ex)
+                {
+                    HandleWorkflowError(ex);
+                    return;
+                }
+
+                var subscriber = subscribeExpression.Compile();
                 var sourceConnections = workflowBuilder.GetSources().Select(source => source.Connect());
                 running = new CompositeDisposable(Enumerable.Repeat(subscriber(), 1).Concat(sourceConnections));
             }
