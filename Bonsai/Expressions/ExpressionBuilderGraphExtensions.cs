@@ -12,7 +12,7 @@ namespace Bonsai.Expressions
     public static class ExpressionBuilderGraphExtensions
     {
         static readonly ConstructorInfo compositeDisposableConstructor = typeof(CompositeDisposable).GetConstructor(new[] { typeof(IEnumerable<IDisposable>) });
-        static readonly MethodInfo subscribeMethod = typeof(ObservableExtensions).GetMethods().First(m => m.Name == "Subscribe" && m.GetParameters().Length == 1);
+        static readonly MethodInfo subscribeMethod = typeof(ObservableExtensions).GetMethods().First(m => m.Name == "Subscribe" && m.GetParameters().Length == 3);
 
         public static IEnumerable<Expression> Build(this ExpressionBuilderGraph source)
         {
@@ -40,11 +40,14 @@ namespace Bonsai.Expressions
             }
         }
 
-        public static Expression<Func<IDisposable>> BuildSubscribe(this ExpressionBuilderGraph source)
+        public static Expression<Func<IDisposable>> BuildSubscribe(this ExpressionBuilderGraph source, Action<Exception> onError)
         {
+            var onErrorExpression = Expression.Constant(onError);
             var subscribeActions = from expression in source.Build()
-                                   let observableType = expression.Type.GetGenericArguments()
-                                   select Expression.Call(subscribeMethod.MakeGenericMethod(observableType), expression);
+                                   let observableType = expression.Type.GetGenericArguments()[0]
+                                   let onNextParameter = Expression.Parameter(observableType)
+                                   let onNext = Expression.Lambda(Expression.Empty(), onNextParameter)
+                                   select Expression.Call(subscribeMethod.MakeGenericMethod(observableType), expression, onNext, onErrorExpression);
 
             var subscriptions = Expression.NewArrayInit(typeof(IDisposable), subscribeActions);
             var disposable = Expression.New(compositeDisposableConstructor, subscriptions);
