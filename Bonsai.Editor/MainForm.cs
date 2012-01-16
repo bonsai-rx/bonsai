@@ -46,6 +46,15 @@ namespace Bonsai.Editor
             propertyGrid.Site = editorSite;
         }
 
+        void HandleWorkflowError(Exception e)
+        {
+            if (running != null)
+            {
+                MessageBox.Show(e.Message, "Processing Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                BeginInvoke((Action)(() => stopToolStripMenuItem_Click(this, EventArgs.Empty)));
+            }
+        }
+
         #region Toolbox
 
         void InitializeToolbox()
@@ -241,7 +250,7 @@ namespace Bonsai.Editor
             if (running == null)
             {
                 runningWorkflow = workflowBuilder.Workflow.ToInspectableGraph();
-                var subscriber = runningWorkflow.BuildSubscribe().Compile();
+                var subscriber = runningWorkflow.BuildSubscribe(HandleWorkflowError).Compile();
                 visualizerMapping = (from node in runningWorkflow
                                     where !(node.Value is InspectBuilder)
                                     let inspectBuilder = node.Successors.First().Node.Value as InspectBuilder
@@ -359,7 +368,7 @@ namespace Bonsai.Editor
 
         private void toolboxTreeView_KeyUp(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Return && toolboxTreeView.SelectedNode != null && toolboxTreeView.SelectedNode.Parent != null)
+            if (e.KeyCode == Keys.Return && running == null && toolboxTreeView.SelectedNode != null && toolboxTreeView.SelectedNode.Parent != null)
             {
                 var typeName = toolboxTreeView.SelectedNode.Name;
                 CreateGraphNode(typeName, workflowGraphView.SelectedNode, e.Modifiers == Keys.Control);
