@@ -20,11 +20,11 @@ namespace Bonsai.Vision.Design
             var mouseDown = Observable.FromEventPattern<MouseEventArgs>(pictureBox, "MouseDown").Select(e => e.EventArgs);
             var mouseUp = Observable.FromEventPattern<MouseEventArgs>(pictureBox, "MouseUp").Select(e => e.EventArgs);
 
-            var mousePick = from downEvt in mouseDown
-                            where pictureBox.Image != null && downEvt.Button.HasFlag(MouseButtons.Left)
-                            let origin = new CvPoint(downEvt.X, downEvt.Y)
-                            from moveEvt in mouseMove.TakeUntil(mouseUp)
-                            select new CvRect(origin.X, origin.Y, moveEvt.X - origin.X, moveEvt.Y - origin.Y);
+            var mousePick = (from downEvt in mouseDown
+                             where pictureBox.Image != null && downEvt.Button.HasFlag(MouseButtons.Left)
+                             let origin = new CvPoint(downEvt.X, downEvt.Y)
+                             select from moveEvt in mouseMove
+                                    select new CvRect(origin.X, origin.Y, moveEvt.X - origin.X, moveEvt.Y - origin.Y)).Switch();
 
             mousePick.Subscribe(rect => rectangleSample = NormalizedRectangle(rect));
             mouseUp.Subscribe(evt =>
