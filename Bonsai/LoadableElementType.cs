@@ -7,13 +7,21 @@ namespace Bonsai
 {
     public class LoadableElementType
     {
-        public static readonly LoadableElementType Source = new LoadableElementType();
-        public static readonly LoadableElementType Filter = new LoadableElementType();
-        public static readonly LoadableElementType Projection = new LoadableElementType();
-        public static readonly LoadableElementType Sink = new LoadableElementType();
+        public static readonly LoadableElementType Source = new LoadableElementType("Source");
+        public static readonly LoadableElementType Filter = new LoadableElementType("Filter");
+        public static readonly LoadableElementType Projection = new LoadableElementType("Projection");
+        public static readonly LoadableElementType Sink = new LoadableElementType("Sink");
 
-        private LoadableElementType()
+        private LoadableElementType(string text)
         {
+            Text = text;
+        }
+
+        private string Text { get; set; }
+
+        public override string ToString()
+        {
+            return Text;
         }
 
         public static bool MatchType(Type type, LoadableElementType elementType)

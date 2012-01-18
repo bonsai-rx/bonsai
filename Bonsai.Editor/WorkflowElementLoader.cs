@@ -21,9 +21,9 @@ namespace Bonsai.Editor
             }
         }
 
-        string[] GetReflectionWorkflowElementTypes()
+        WorkflowElementType[] GetReflectionWorkflowElementTypes()
         {
-            var types = Enumerable.Empty<string>();
+            var types = Enumerable.Empty<WorkflowElementType>();
             var loadableElementAssembly = Assembly.Load(typeof(LoadableElement).Assembly.FullName);
             var loadableElementType = loadableElementAssembly.GetType(typeof(LoadableElement).FullName);
 
@@ -33,7 +33,11 @@ namespace Bonsai.Editor
                 try
                 {
                     var assembly = Assembly.LoadFrom(files[i]);
-                    types = types.Concat(GetSubclassElementTypes(assembly, loadableElementType).Select(type => type.AssemblyQualifiedName));
+                    types = types.Concat(GetSubclassElementTypes(assembly, loadableElementType).Select(type => new WorkflowElementType
+                    {
+                        AssemblyName = type.Assembly.GetName().Name,
+                        Type = type.AssemblyQualifiedName
+                    }));
                 }
                 catch (BadImageFormatException) { continue; }
             }
@@ -41,20 +45,26 @@ namespace Bonsai.Editor
             return types.Distinct().ToArray();
         }
 
-        public static Type[] GetWorkflowElementTypes()
+        [Serializable]
+        struct WorkflowElementType
+        {
+            public string AssemblyName { get; set; }
+
+            public string Type { get; set; }
+        }
+
+        public static IEnumerable<IGrouping<string, Type>> GetWorkflowElementTypes()
         {
             var reflectionDomain = AppDomain.CreateDomain("ReflectionOnly");
             try
             {
                 var loader = (WorkflowElementLoader)reflectionDomain.CreateInstanceAndUnwrap(typeof(WorkflowElementLoader).Assembly.FullName, typeof(WorkflowElementLoader).FullName);
-                var typeNames = loader.GetReflectionWorkflowElementTypes();
+                var assemblyTypeNames = loader.GetReflectionWorkflowElementTypes();
 
-                var types = new Type[typeNames.Length];
-                for (int i = 0; i < typeNames.Length; i++)
-                {
-                    types[i] = Type.GetType(typeNames[i]);
-                }
-                return types;
+                return from elementType in assemblyTypeNames
+                       let type = Type.GetType(elementType.Type)
+                       where type != null
+                       group type by elementType.AssemblyName;
             }
             finally { AppDomain.Unload(reflectionDomain); }
         }

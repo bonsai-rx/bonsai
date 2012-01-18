@@ -50,13 +50,13 @@ namespace Bonsai.Editor
 
         void InitializeToolbox()
         {
-            var types = WorkflowElementLoader.GetWorkflowElementTypes();
+            var packages = WorkflowElementLoader.GetWorkflowElementTypes();
+            foreach (var package in packages)
+            {
+                InitializeToolboxCategory(package.Key, package);
+            }
 
-            InitializeToolboxCategory(toolboxTreeView.Nodes["Source"], types.Where(type => LoadableElementType.MatchType(type, LoadableElementType.Source)));
-            InitializeToolboxCategory(toolboxTreeView.Nodes["Filter"], types.Where(type => LoadableElementType.MatchType(type, LoadableElementType.Filter)));
-            InitializeToolboxCategory(toolboxTreeView.Nodes["Projection"], types.Where(type => LoadableElementType.MatchType(type, LoadableElementType.Projection)));
-            InitializeToolboxCategory(toolboxTreeView.Nodes["Sink"], types.Where(type => LoadableElementType.MatchType(type, LoadableElementType.Sink)));
-            InitializeToolboxCategory(toolboxTreeView.Nodes["Combinator"], new[]
+            InitializeToolboxCategory("Combinator", new[]
             {
                 typeof(TimestampBuilder), typeof(SkipUntilBuilder), typeof(TakeUntilBuilder),
                 typeof(SampleBuilder), typeof(SampleIntervalBuilder), typeof(CombineLatestBuilder),
@@ -64,12 +64,26 @@ namespace Bonsai.Editor
             });
         }
 
-        void InitializeToolboxCategory(TreeNode category, IEnumerable<Type> types)
+        string GetPackageDisplayName(string packageKey)
         {
+            return packageKey.Replace("Bonsai.", string.Empty);
+        }
+
+        void InitializeToolboxCategory(string categoryName, IEnumerable<Type> types)
+        {
+            var category = toolboxTreeView.Nodes.Add(categoryName, GetPackageDisplayName(categoryName));
+
             foreach (var type in types)
             {
                 var name = type.IsSubclassOf(typeof(ExpressionBuilder)) ? type.Name.Remove(type.Name.LastIndexOf("Builder")) : type.Name;
-                category.Nodes.Add(type.AssemblyQualifiedName, name);
+                var elementType = LoadableElementType.FromType(type);
+                var elementTypeNode = elementType == null ? category : category.Nodes[elementType.ToString()];
+                if (elementTypeNode == null)
+                {
+                    elementTypeNode = category.Nodes.Add(elementType.ToString(), elementType.ToString());
+                }
+
+                elementTypeNode.Nodes.Add(type.AssemblyQualifiedName, name);
             }
         }
 
@@ -390,7 +404,7 @@ namespace Bonsai.Editor
         private void toolboxTreeView_ItemDrag(object sender, ItemDragEventArgs e)
         {
             var selectedNode = e.Item as TreeNode;
-            if (selectedNode != null)
+            if (selectedNode != null && selectedNode.GetNodeCount(false) == 0)
             {
                 toolboxTreeView.DoDragDrop(selectedNode.Name, DragDropEffects.Copy);
             }
@@ -472,7 +486,7 @@ namespace Bonsai.Editor
 
         private void toolboxTreeView_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Return && toolboxTreeView.SelectedNode != null && toolboxTreeView.SelectedNode.Parent != null)
+            if (e.KeyCode == Keys.Return && toolboxTreeView.SelectedNode != null && toolboxTreeView.SelectedNode.GetNodeCount(false) == 0)
             {
                 var typeName = toolboxTreeView.SelectedNode.Name;
                 CreateGraphNode(typeName, workflowGraphView.SelectedNode, e.Modifiers == Keys.Control);
@@ -490,7 +504,7 @@ namespace Bonsai.Editor
 
         private void toolboxTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Button == MouseButtons.Left && e.Node.Parent != null)
+            if (e.Button == MouseButtons.Left && e.Node.GetNodeCount(false) == 0)
             {
                 var typeName = e.Node.Name;
                 CreateGraphNode(typeName, workflowGraphView.SelectedNode, Control.ModifierKeys == Keys.Control);
