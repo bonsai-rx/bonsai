@@ -33,7 +33,7 @@ namespace Bonsai.Design
         LayoutNodeCollection layoutNodes = new LayoutNodeCollection();
 
         GraphNode selectedNode;
-        IEnumerable<GraphNodeGrouping> model;
+        IEnumerable<GraphNodeGrouping> nodes;
 
         public GraphView()
         {
@@ -134,12 +134,12 @@ namespace Bonsai.Design
             remove { Events.RemoveHandler(EventSelectedNodeChanged, value); }
         }
 
-        public IEnumerable<GraphNodeGrouping> Model
+        public IEnumerable<GraphNodeGrouping> Nodes
         {
-            get { return model; }
+            get { return nodes; }
             set
             {
-                model = value;
+                nodes = value;
                 SelectedNode = null;
                 UpdateModelLayout();
             }
@@ -306,7 +306,7 @@ namespace Bonsai.Design
         private void UpdateModelLayout()
         {
             layoutNodes.Clear();
-            var model = Model;
+            var model = Nodes;
             Size size = Size.Empty;
             if (model != null)
             {
