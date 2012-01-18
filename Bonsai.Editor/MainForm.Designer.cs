@@ -481,7 +481,8 @@
             this.toolboxTreeView.Size = new System.Drawing.Size(188, 266);
             this.toolboxTreeView.TabIndex = 0;
             this.toolboxTreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.toolboxTreeView_ItemDrag);
-            this.toolboxTreeView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.toolboxTreeView_KeyUp);
+            this.toolboxTreeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.toolboxTreeView_NodeMouseDoubleClick);
+            this.toolboxTreeView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.toolboxTreeView_KeyDown);
             // 
             // workflowGroupBox
             // 
@@ -499,8 +500,8 @@
             this.workflowGraphView.AllowDrop = true;
             this.workflowGraphView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.workflowGraphView.Location = new System.Drawing.Point(3, 16);
-            this.workflowGraphView.Model = null;
             this.workflowGraphView.Name = "workflowGraphView";
+            this.workflowGraphView.Nodes = null;
             this.workflowGraphView.SelectedNode = null;
             this.workflowGraphView.Size = new System.Drawing.Size(326, 266);
             this.workflowGraphView.TabIndex = 0;
