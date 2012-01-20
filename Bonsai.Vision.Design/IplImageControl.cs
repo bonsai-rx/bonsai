@@ -14,6 +14,7 @@ namespace Bonsai.Vision.Design
     public partial class IplImageControl : UserControl
     {
         IplImage image;
+        Bitmap bitmap;
 
         public IplImageControl()
         {
@@ -27,17 +28,30 @@ namespace Bonsai.Vision.Design
             set
             {
                 image = value;
-                var bitmap = ConvertImage(image);
+                if (image != null)
+                {
+                    SetImage(image);
+                }
+                else pictureBox.Image = null;
+            }
+        }
+
+        void EnsureFormat(IplImage image)
+        {
+            if (bitmap == null || bitmap.Width != image.Width || bitmap.Height != image.Height)
+            {
+                if (bitmap != null) bitmap.Dispose();
+                bitmap = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb);
                 pictureBox.Image = bitmap;
             }
         }
 
-        protected Bitmap ConvertImage(IplImage image)
+        protected void SetImage(IplImage image)
         {
-            if (image == null) return null;
+            if (image == null) throw new ArgumentNullException("image");
             if (image.Depth != 8) throw new ArgumentException("Non 8-bit depth images are not supported by the control.", "image");
 
-            var bitmap = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb);
+            EnsureFormat(image);
             var bitmapData = bitmap.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
             var bitmapImage = new IplImage(image.Size, 8, 4, bitmapData.Scan0);
 
@@ -57,7 +71,7 @@ namespace Bonsai.Vision.Design
                 bitmap.UnlockBits(bitmapData);
             }
 
-            return bitmap;
+            pictureBox.Invalidate();
         }
     }
 }
