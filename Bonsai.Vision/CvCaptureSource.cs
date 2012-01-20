@@ -30,7 +30,7 @@ namespace Bonsai.Vision
                     break;
                 }
 
-                Subject.OnNext(image);
+                Subject.OnNext(image.Clone());
             }
 
             stop.Set();

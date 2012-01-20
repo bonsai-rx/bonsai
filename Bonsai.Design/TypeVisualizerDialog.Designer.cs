@@ -36,6 +36,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(184, 162);
             this.Name = "TypeVisualizerDialog";
+            this.ShowIcon = false;
             this.Text = "TypeVisualizerDialog";
             this.ResumeLayout(false);
 

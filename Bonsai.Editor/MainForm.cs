@@ -60,13 +60,27 @@ namespace Bonsai.Editor
             {
                 typeof(TimestampBuilder), typeof(SkipUntilBuilder), typeof(TakeUntilBuilder),
                 typeof(SampleBuilder), typeof(SampleIntervalBuilder), typeof(CombineLatestBuilder),
-                typeof(ConcatBuilder), typeof(ZipBuilder), typeof(AmbBuilder)
+                typeof(ConcatBuilder), typeof(ZipBuilder), typeof(AmbBuilder), typeof(MemberSelectorBuilder)
             });
         }
 
         string GetPackageDisplayName(string packageKey)
         {
             return packageKey.Replace("Bonsai.", string.Empty);
+        }
+
+        int GetElementTypeIndex(string typeName)
+        {
+            return
+                typeName == LoadableElementType.Source.ToString() ? 0 :
+                typeName == LoadableElementType.Filter.ToString() ? 1 :
+                typeName == LoadableElementType.Projection.ToString() ? 2 :
+                typeName == LoadableElementType.Sink.ToString() ? 3 : 4;
+        }
+
+        int CompareLoadableElementType(string left, string right)
+        {
+            return GetElementTypeIndex(left).CompareTo(GetElementTypeIndex(right));
         }
 
         void InitializeToolboxCategory(string categoryName, IEnumerable<Type> types)
@@ -80,7 +94,16 @@ namespace Bonsai.Editor
                 var elementTypeNode = elementType == null ? category : category.Nodes[elementType.ToString()];
                 if (elementTypeNode == null)
                 {
-                    elementTypeNode = category.Nodes.Add(elementType.ToString(), elementType.ToString());
+                    int index;
+                    for (index = 0; index < category.Nodes.Count; index++)
+                    {
+                        if (CompareLoadableElementType(elementType.ToString(), category.Nodes[index].Name) <= 0)
+                        {
+                            break;
+                        }
+                    }
+
+                    elementTypeNode = category.Nodes.Insert(index, elementType.ToString(), elementType.ToString());
                 }
 
                 elementTypeNode.Nodes.Add(type.AssemblyQualifiedName, name);
@@ -578,6 +601,11 @@ namespace Bonsai.Editor
                 if (serviceType == typeof(ExpressionBuilderGraph))
                 {
                     return siteForm.runningWorkflow;
+                }
+
+                if (serviceType == typeof(WorkflowBuilder))
+                {
+                    return siteForm.workflowBuilder;
                 }
 
                 return null;
