@@ -14,6 +14,30 @@ namespace Bonsai.Expressions
         static readonly ConstructorInfo compositeDisposableConstructor = typeof(CompositeDisposable).GetConstructor(new[] { typeof(IEnumerable<IDisposable>) });
         static readonly MethodInfo subscribeMethod = typeof(ObservableExtensions).GetMethods().First(m => m.Name == "Subscribe" && m.GetParameters().Length == 3);
 
+        public static Type ExpressionType(this ExpressionBuilderGraph source, Node<ExpressionBuilder, ExpressionBuilderParameter> node)
+        {
+            if (!source.Contains(node))
+            {
+                throw new ArgumentException("The specified node is not a member of the graph.", "node");
+            }
+
+            foreach (var expressionNode in source.TopologicalSort())
+            {
+                var expression = expressionNode.Value.Build();
+                if (expressionNode == node) return expression.Type;
+                else
+                {
+                    foreach (var successor in expressionNode.Successors)
+                    {
+                        var target = successor.Node.Value.GetType().GetProperty(successor.Label.Value);
+                        target.SetValue(successor.Node.Value, expression, null);
+                    }
+                }
+            }
+
+            throw new ArgumentException("Cannot infer expression type on cyclic graphs.", "source");
+        }
+
         public static IEnumerable<Expression> Build(this ExpressionBuilderGraph source)
         {
             foreach (var node in source.TopologicalSort())

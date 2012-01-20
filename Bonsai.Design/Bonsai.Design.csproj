@@ -65,6 +65,14 @@
     </Compile>
     <Compile Include="GraphNode.cs" />
     <Compile Include="GraphNodeGrouping.cs" />
+    <Compile Include="MemberSelectorConverter.cs" />
+    <Compile Include="MemberSelectorEditor.cs" />
+    <Compile Include="MemberSelectorEditorDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MemberSelectorEditorDialog.Designer.cs">
+      <DependentUpon>MemberSelectorEditorDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="NumericUpDownEditor.cs" />
     <Compile Include="ObjectTextVisualizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -85,6 +93,9 @@
   <ItemGroup>
     <EmbeddedResource Include="GraphView.resx">
       <DependentUpon>GraphView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MemberSelectorEditorDialog.resx">
+      <DependentUpon>MemberSelectorEditorDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TypeVisualizerDialog.resx">
       <DependentUpon>TypeVisualizerDialog.cs</DependentUpon>
