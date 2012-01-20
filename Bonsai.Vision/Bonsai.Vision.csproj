@@ -62,8 +62,10 @@
     <Compile Include="ApproximatePolygon.cs" />
     <Compile Include="Not.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resize.cs" />
     <Compile Include="Smooth.cs" />
     <Compile Include="Threshold.cs" />
+    <Compile Include="Undistort.cs" />
     <Compile Include="WarpPerspective.cs" />
     <Compile Include="Window.cs" />
   </ItemGroup>
