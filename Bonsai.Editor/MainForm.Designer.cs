@@ -308,11 +308,11 @@
             // 
             // openWorkflowDialog
             // 
-            this.openWorkflowDialog.Filter = "XML files|*.xml|All files|*.*";
+            this.openWorkflowDialog.Filter = "XML Files (*.xml)|*.xml|All Files (*.*)|*.*";
             // 
             // saveWorkflowDialog
             // 
-            this.saveWorkflowDialog.Filter = "XML files|*.xml|All files|*.*";
+            this.saveWorkflowDialog.Filter = "XML Files (*.xml)|*.xml|All Files (*.*)|*.*";
             // 
             // toolStrip
             // 
