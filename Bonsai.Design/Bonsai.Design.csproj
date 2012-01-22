@@ -76,6 +76,7 @@
     <Compile Include="NumericUpDownEditor.cs" />
     <Compile Include="ObjectTextVisualizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SaveFileNameEditor.cs" />
     <Compile Include="TrackBarEditor.cs" />
     <Compile Include="TypeVisualizerDialog.cs">
       <SubType>Form</SubType>
