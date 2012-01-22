@@ -23,13 +23,25 @@ namespace Bonsai.Expressions
 
         public override Expression Build()
         {
-            var sinkGenericArguments = ExpressionBuilder.GetSinkGenericArguments(Sink);
-            var actionType = Expression.GetActionType(sinkGenericArguments);
+            Delegate actionDelegate;
+            var observableType = Source.Type.GetGenericArguments()[0];
 
-            var processMethod = Sink.GetType().GetMethod("Process");
-            var actionDelegate = Delegate.CreateDelegate(actionType, Sink, processMethod);
+            var dynamicSink = Sink as DynamicSink;
+            if (dynamicSink != null)
+            {
+                var createMethod = dynamicSink.GetType().GetMethod("Create");
+                createMethod = createMethod.MakeGenericMethod(observableType);
+                actionDelegate = (Delegate)createMethod.Invoke(dynamicSink, null);
+            }
+            else
+            {
+                var actionType = Expression.GetActionType(observableType);
+                var processMethod = Sink.GetType().GetMethod("Process");
+                actionDelegate = Delegate.CreateDelegate(actionType, Sink, processMethod);
+            }
+
             var action = Expression.Constant(actionDelegate);
-            return Expression.Call(doMethod.MakeGenericMethod(sinkGenericArguments), Source, action);
+            return Expression.Call(doMethod.MakeGenericMethod(observableType), Source, action);
         }
     }
 }
