@@ -28,7 +28,7 @@ namespace Bonsai
         {
             if (elementType == LoadableElementType.Source) return MatchGenericType(type, typeof(Source<>));
             if (elementType == LoadableElementType.Filter) return MatchGenericType(type, typeof(Filter<>));
-            if (elementType == LoadableElementType.Sink) return MatchGenericType(type, typeof(Sink<>));
+            if (elementType == LoadableElementType.Sink) return type.IsSubclassOf(typeof(DynamicSink)) || MatchGenericType(type, typeof(Sink<>));
             if (elementType == LoadableElementType.Projection)
             {
                 return MatchGenericType(type, typeof(Projection<,>)) ||

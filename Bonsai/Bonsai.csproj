@@ -75,6 +75,7 @@
     <Compile Include="Expressions\TimestampBuilder.cs" />
     <Compile Include="Expressions\WhereBuilder.cs" />
     <Compile Include="Filter.cs" />
+    <Compile Include="DynamicSink.cs" />
     <Compile Include="ILoadable.cs" />
     <Compile Include="LoadableElement.cs" />
     <Compile Include="LoadableElementType.cs" />
