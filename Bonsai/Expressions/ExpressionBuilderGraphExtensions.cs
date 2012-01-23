@@ -38,17 +38,38 @@ namespace Bonsai.Expressions
             throw new ArgumentException("Cannot infer expression type on cyclic graphs.", "source");
         }
 
-        public static IEnumerable<Expression> Build(this ExpressionBuilderGraph source)
+        internal static IEnumerable<LoadableElement> GetLoadableElements(this ExpressionBuilder expressionBuilder)
         {
+            foreach (var property in expressionBuilder.GetType().GetProperties())
+            {
+                if (typeof(LoadableElement).IsAssignableFrom(property.PropertyType))
+                {
+                    var value = (LoadableElement)property.GetValue(expressionBuilder, null);
+                    if (value != null)
+                    {
+                        yield return value;
+                    }
+                }
+            }
+        }
+
+        public static ReactiveWorkflow Build(this ExpressionBuilderGraph source)
+        {
+            List<LoadableElement> loadableElements = new List<LoadableElement>();
+            List<Expression> connections = new List<Expression>();
+
             foreach (var node in source.TopologicalSort())
             {
                 var expression = node.Value.Build();
+                loadableElements.AddRange(node.Value.GetLoadableElements());
+
                 if (node.Successors.Count > 1)
                 {
                     // Publish workflow result to avoid repeating operations
                     var publishBuilder = new PublishBuilder { Source = expression };
                     var publish = Expression.Lambda(publishBuilder.Build()).Compile();
                     expression = Expression.Constant(publish.DynamicInvoke());
+                    loadableElements.Add(publishBuilder.Connector);
                 }
 
                 foreach (var successor in node.Successors)
@@ -59,15 +80,17 @@ namespace Bonsai.Expressions
 
                 if (node.Successors.Count == 0)
                 {
-                    yield return expression;
+                    connections.Add(expression);
                 }
             }
+
+            return new ReactiveWorkflow(loadableElements, connections);
         }
 
-        public static Expression<Func<IDisposable>> BuildSubscribe(this ExpressionBuilderGraph source, Action<Exception> onError)
+        public static Expression<Func<IDisposable>> BuildSubscribe(this ReactiveWorkflow source, Action<Exception> onError)
         {
             var onErrorExpression = Expression.Constant(onError);
-            var subscribeActions = from expression in source.Build()
+            var subscribeActions = from expression in source.Connections
                                    let observableType = expression.Type.GetGenericArguments()[0]
                                    let onNextParameter = Expression.Parameter(observableType)
                                    let onNext = Expression.Lambda(Expression.Empty(), onNextParameter)

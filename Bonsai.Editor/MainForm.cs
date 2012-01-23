@@ -26,7 +26,7 @@ namespace Bonsai.Editor
         WorkflowBuilder workflowBuilder;
         XmlSerializer serializer;
         Dictionary<Type, Type> typeVisualizers;
-        ExpressionBuilderGraph runningWorkflow;
+        ExpressionBuilderGraph inspectableWorkflow;
         Dictionary<GraphNode, Action<bool>> visualizerMapping;
         ExpressionBuilderTypeConverter builderConverter;
 
@@ -347,12 +347,13 @@ namespace Bonsai.Editor
         {
             if (running == null)
             {
-                runningWorkflow = workflowBuilder.Workflow.ToInspectableGraph();
+                inspectableWorkflow = workflowBuilder.Workflow.ToInspectableGraph();
                 try
                 {
+                    var runningWorkflow = inspectableWorkflow.Build();
                     var subscribeExpression = runningWorkflow.BuildSubscribe(HandleWorkflowError);
 
-                    visualizerMapping = (from node in runningWorkflow
+                    visualizerMapping = (from node in inspectableWorkflow
                                          where !(node.Value is InspectBuilder)
                                          let inspectBuilder = node.Successors.First().Node.Value as InspectBuilder
                                          where inspectBuilder != null
@@ -371,7 +372,7 @@ namespace Bonsai.Editor
                                                           return mapping.inspectBuilder.CreateVisualizerDialog(mapping.nodeName, visualizer, editorSite);
                                                       });
 
-                    loaded = workflowBuilder.Load();
+                    loaded = runningWorkflow.Load();
 
                     var subscriber = subscribeExpression.Compile();
                     var sourceConnections = workflowBuilder.GetSources().Select(source => source.Connect());
@@ -397,7 +398,7 @@ namespace Bonsai.Editor
                 loaded.Dispose();
                 loaded = null;
                 running = null;
-                runningWorkflow = null;
+                inspectableWorkflow = null;
                 visualizerMapping = null;
             }
 
@@ -600,7 +601,7 @@ namespace Bonsai.Editor
             {
                 if (serviceType == typeof(ExpressionBuilderGraph))
                 {
-                    return siteForm.runningWorkflow;
+                    return siteForm.inspectableWorkflow;
                 }
 
                 if (serviceType == typeof(WorkflowBuilder))
