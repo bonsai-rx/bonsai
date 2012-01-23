@@ -31,7 +31,7 @@ namespace Bonsai.Vision
                 {
                     Center = center,
                     Angle = angle,
-                    Area = ImgProc.cvContourArea(currentContour, CvSlice.WholeSeq, 0),
+                    Area = moments.m00,
                     Contour = CvContour.FromCvSeq(currentContour)
                 });
 
