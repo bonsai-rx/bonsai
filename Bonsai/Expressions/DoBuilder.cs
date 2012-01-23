@@ -35,9 +35,21 @@ namespace Bonsai.Expressions
             }
             else
             {
-                var actionType = Expression.GetActionType(observableType);
+                var sinkType = ExpressionBuilder.GetSinkGenericArgument(Sink);
                 var processMethod = Sink.GetType().GetMethod("Process");
-                actionDelegate = Delegate.CreateDelegate(actionType, Sink, processMethod);
+
+                if (observableType.IsValueType && sinkType == typeof(object))
+                {
+                    var sinkExpression = Expression.Constant(Sink);
+                    var parameter = Expression.Parameter(observableType);
+                    var body = Expression.Call(sinkExpression, processMethod, Expression.Convert(parameter, typeof(object)));
+                    actionDelegate = Expression.Lambda(body, parameter).Compile();
+                }
+                else
+                {
+                    var actionType = Expression.GetActionType(observableType);
+                    actionDelegate = Delegate.CreateDelegate(actionType, Sink, processMethod);
+                }
             }
 
             var action = Expression.Constant(actionDelegate);
