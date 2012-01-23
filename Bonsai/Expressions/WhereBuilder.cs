@@ -22,13 +22,26 @@ namespace Bonsai.Expressions
 
         public override Expression Build()
         {
-            var filterGenericArgument = ExpressionBuilder.GetFilterGenericArgument(Filter);
-            var predicateType = Expression.GetFuncType(new[] { filterGenericArgument, typeof(bool) });
-
+            Delegate predicateDelegate;
+            var observableType = Source.Type.GetGenericArguments()[0];
+            var filterType = ExpressionBuilder.GetFilterGenericArgument(Filter);
             var processMethod = Filter.GetType().GetMethod("Process");
-            var predicateDelegate = Delegate.CreateDelegate(predicateType, Filter, processMethod);
+
+            if (observableType.IsValueType && filterType == typeof(object))
+            {
+                var filterExpression = Expression.Constant(Filter);
+                var parameter = Expression.Parameter(observableType);
+                var body = Expression.Call(filterExpression, processMethod, Expression.Convert(parameter, typeof(object)));
+                predicateDelegate = Expression.Lambda(body, parameter).Compile();
+            }
+            else
+            {
+                var predicateType = Expression.GetFuncType(new[] { observableType, typeof(bool) });
+                predicateDelegate = Delegate.CreateDelegate(predicateType, Filter, processMethod);
+            }
+
             var predicate = Expression.Constant(predicateDelegate);
-            return Expression.Call(whereMethod.MakeGenericMethod(filterGenericArgument), Source, predicate);
+            return Expression.Call(whereMethod.MakeGenericMethod(observableType), Source, predicate);
         }
     }
 }

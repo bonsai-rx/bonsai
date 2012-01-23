@@ -78,7 +78,7 @@ namespace Bonsai.Expressions
             return null;
         }
 
-        protected static Type[] GetSinkGenericArguments(LoadableElement sink)
+        protected static Type GetSinkGenericArgument(LoadableElement sink)
         {
             if (sink == null)
             {
@@ -90,7 +90,7 @@ namespace Bonsai.Expressions
             {
                 if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Sink<>))
                 {
-                    return type.GetGenericArguments();
+                    return type.GetGenericArguments()[0];
                 }
 
                 type = type.BaseType;
