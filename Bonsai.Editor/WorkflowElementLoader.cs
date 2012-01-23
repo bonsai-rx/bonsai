@@ -11,7 +11,11 @@ namespace Bonsai.Editor
     {
         IEnumerable<Type> GetSubclassElementTypes(Assembly assembly, Type baseClass)
         {
-            var types = assembly.GetTypes();
+            Type[] types;
+
+            try { types = assembly.GetTypes(); }
+            catch (ReflectionTypeLoadException) { yield break; }
+
             for (int i = 0; i < types.Length; i++)
             {
                 if (!types[i].IsAbstract && !types[i].ContainsGenericParameters && types[i].IsSubclassOf(baseClass))
@@ -39,6 +43,7 @@ namespace Bonsai.Editor
                         Type = type.AssemblyQualifiedName
                     }));
                 }
+                catch (FileNotFoundException) { continue; }
                 catch (BadImageFormatException) { continue; }
             }
 

@@ -24,8 +24,12 @@ namespace Bonsai.Editor
 
         IEnumerable<TypeVisualizerAttribute> GetCustomAttributeTypes(Assembly assembly, Type attributeType)
         {
-            var types = assembly.GetTypes();
+            Type[] types;
             var typeVisualizers = Enumerable.Empty<TypeVisualizerAttribute>();
+
+            try { types = assembly.GetTypes(); }
+            catch (ReflectionTypeLoadException) { return typeVisualizers; }
+
             for (int i = 0; i < types.Length; i++)
             {
                 var visualizerAttributes = types[i].GetCustomAttributes(attributeType, true).Cast<TypeVisualizerAttribute>();
@@ -52,6 +56,7 @@ namespace Bonsai.Editor
 
                     typeVisualizers = typeVisualizers.Concat(GetCustomAttributeTypes(assembly, typeVisualizerAttributeType));
                 }
+                catch (FileNotFoundException) { continue; }
                 catch (BadImageFormatException) { continue; }
             }
 
