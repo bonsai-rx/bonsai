@@ -12,6 +12,8 @@ namespace Bonsai.Vision
 
         public double Angle { get; set; }
 
+        public double Area { get; set; }
+
         public CvContour Contour { get; set; }
     }
 }

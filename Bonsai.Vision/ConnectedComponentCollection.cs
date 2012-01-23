@@ -22,11 +22,10 @@ namespace Bonsai.Vision
                 ConnectedComponent largest = null;
                 foreach (var component in Items)
                 {
-                    var area = ImgProc.cvContourArea(component.Contour, CvSlice.WholeSeq, 0);
-                    if (area > max)
+                    if (component.Area > max)
                     {
                         largest = component;
-                        max = area;
+                        max = component.Area;
                     }
                 }
 
