@@ -15,7 +15,7 @@ namespace Bonsai.Vision
 
         public ConvertColor()
         {
-            Conversion = ColorConversion.BGR2GRAY;
+            Conversion = ColorConversion.BGR2HSV;
         }
 
         public ColorConversion Conversion
