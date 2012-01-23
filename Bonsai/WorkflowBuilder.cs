@@ -13,20 +13,13 @@ using System.Reflection;
 
 namespace Bonsai
 {
-    public class WorkflowBuilder : ILoadable, IXmlSerializable
+    public class WorkflowBuilder : IXmlSerializable
     {
         readonly ExpressionBuilderGraph workflow = new ExpressionBuilderGraph();
 
         public ExpressionBuilderGraph Workflow
         {
             get { return workflow; }
-        }
-
-        public IDisposable Load()
-        {
-            return new CompositeDisposable(from node in workflow
-                                           from element in GetLoadableElements(node.Value)
-                                           select element.Load());
         }
 
         public IEnumerable<Source> GetSources()
@@ -117,25 +110,10 @@ namespace Bonsai
             return serializerCache;
         }
 
-        static IEnumerable<LoadableElement> GetLoadableElements(ExpressionBuilder expressionBuilder)
-        {
-            foreach (var property in expressionBuilder.GetType().GetProperties())
-            {
-                if (typeof(LoadableElement).IsAssignableFrom(property.PropertyType))
-                {
-                    var value = (LoadableElement)property.GetValue(expressionBuilder, null);
-                    if (value != null)
-                    {
-                        yield return value;
-                    }
-                }
-            }
-        }
-
         static IEnumerable<Type> GetExtensionTypes(ExpressionBuilderGraph workflow)
         {
             return from node in workflow
-                   from element in GetLoadableElements(node.Value)
+                   from element in node.Value.GetLoadableElements()
                    select element.GetType();
         }
 
