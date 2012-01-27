@@ -36,6 +36,8 @@ namespace Bonsai.Vision
             stop.Set();
         }
 
+        protected abstract CvCapture CreateCapture();
+
         protected override void Start()
         {
             running = true;
@@ -47,8 +49,6 @@ namespace Bonsai.Vision
             running = false;
             stop.Wait();
         }
-
-        protected abstract CvCapture CreateCapture();
 
         public override IDisposable Load()
         {
