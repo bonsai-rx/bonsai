@@ -21,6 +21,7 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(ThrottleBuilder))]
     [XmlInclude(typeof(SampleBuilder))]
     [XmlInclude(typeof(SampleIntervalBuilder))]
+    [XmlInclude(typeof(RateThrottleBuilder))]
     [XmlInclude(typeof(SkipUntilBuilder))]
     [XmlInclude(typeof(TakeUntilBuilder))]
     [XmlInclude(typeof(CombineLatestBuilder))]
