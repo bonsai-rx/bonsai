@@ -58,10 +58,11 @@ namespace Bonsai.Editor
 
             InitializeToolboxCategory("Combinator", new[]
             {
-                typeof(DistinctUntilChangedBuilder),
-                typeof(TimestampBuilder), typeof(TimeIntervalBuilder), typeof(ThrottleBuilder), typeof(SkipUntilBuilder),
-                typeof(TakeUntilBuilder), typeof(SampleBuilder), typeof(SampleIntervalBuilder), typeof(CombineLatestBuilder),
-                typeof(ConcatBuilder), typeof(ZipBuilder), typeof(AmbBuilder), typeof(DelayBuilder), typeof(MemberSelectorBuilder)
+                typeof(DistinctUntilChangedBuilder), typeof(TimestampBuilder), typeof(TimeIntervalBuilder),
+                typeof(ThrottleBuilder), typeof(SkipUntilBuilder), typeof(TakeUntilBuilder),
+                typeof(SampleBuilder), typeof(SampleIntervalBuilder), typeof(RateThrottleBuilder),
+                typeof(CombineLatestBuilder), typeof(ConcatBuilder), typeof(ZipBuilder),
+                typeof(AmbBuilder), typeof(DelayBuilder), typeof(MemberSelectorBuilder)
             });
         }
 
