@@ -16,7 +16,7 @@ namespace Bonsai.Expressions
     {
         static readonly MethodInfo sampleMethod = typeof(Observable).GetMethods()
                                                                     .First(m => m.Name == "Sample" &&
-                                                                           m.GetParameters().Length == 2 &&
+                                                                           m.GetParameters().Length == 3 &&
                                                                            m.GetParameters()[1].ParameterType == typeof(TimeSpan));
 
         [XmlIgnore]
@@ -34,7 +34,8 @@ namespace Bonsai.Expressions
         {
             var observableType = Source.Type.GetGenericArguments()[0];
             var interval = Expression.Constant(Interval);
-            return Expression.Call(sampleMethod.MakeGenericMethod(observableType), Source, interval);
+            var scheduler = Expression.Constant(HighResolutionScheduler.ThreadPool);
+            return Expression.Call(sampleMethod.MakeGenericMethod(observableType), Source, interval, scheduler);
         }
     }
 }

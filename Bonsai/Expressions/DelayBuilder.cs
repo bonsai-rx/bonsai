@@ -15,7 +15,7 @@ namespace Bonsai.Expressions
     public class DelayBuilder : CombinatorBuilder
     {
         static readonly MethodInfo delayMethod = typeof(Observable).GetMethods().First(m => m.Name == "Delay" &&
-                                                                                       m.GetParameters().Length == 2 &&
+                                                                                       m.GetParameters().Length == 3 &&
                                                                                        m.GetParameters()[1].ParameterType == typeof(TimeSpan));
 
         [XmlIgnore]
@@ -33,7 +33,8 @@ namespace Bonsai.Expressions
         {
             var sourceType = Source.Type.GetGenericArguments()[0];
             var dueTime = Expression.Constant(DueTime);
-            return Expression.Call(delayMethod.MakeGenericMethod(sourceType), Source, dueTime);
+            var scheduler = Expression.Constant(HighResolutionScheduler.ThreadPool);
+            return Expression.Call(delayMethod.MakeGenericMethod(sourceType), Source, dueTime, scheduler);
         }
     }
 }

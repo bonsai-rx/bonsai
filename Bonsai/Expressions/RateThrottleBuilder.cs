@@ -14,7 +14,7 @@ namespace Bonsai.Expressions
     public class RateThrottleBuilder : CombinatorBuilder
     {
         static readonly MethodInfo rateThrottleMethod = typeof(ObservableCombinators).GetMethods().First(m => m.Name == "RateThrottle" &&
-                                                                                                        m.GetParameters().Length == 2);
+                                                                                                        m.GetParameters().Length == 3);
 
         [XmlIgnore]
         public TimeSpan Interval { get; set; }
@@ -31,7 +31,8 @@ namespace Bonsai.Expressions
         {
             var observableType = Source.Type.GetGenericArguments()[0];
             var interval = Expression.Constant(Interval);
-            return Expression.Call(rateThrottleMethod.MakeGenericMethod(observableType), Source, interval);
+            var scheduler = Expression.Constant(HighResolutionScheduler.ThreadPool);
+            return Expression.Call(rateThrottleMethod.MakeGenericMethod(observableType), Source, interval, scheduler);
         }
     }
 }
