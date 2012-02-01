@@ -14,12 +14,13 @@ namespace Bonsai.Expressions
     {
         static readonly MethodInfo timestampMethod = typeof(Observable).GetMethods()
                                                                        .First(m => m.Name == "Timestamp" &&
-                                                                              m.GetParameters().Length == 1);
+                                                                              m.GetParameters().Length == 2);
 
         public override Expression Build()
         {
             var observableType = Source.Type.GetGenericArguments()[0];
-            return Expression.Call(timestampMethod.MakeGenericMethod(observableType), Source);
+            var scheduler = Expression.Constant(HighResolutionScheduler.ThreadPool);
+            return Expression.Call(timestampMethod.MakeGenericMethod(observableType), Source, scheduler);
         }
     }
 }

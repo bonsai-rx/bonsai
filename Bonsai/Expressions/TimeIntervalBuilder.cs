@@ -14,12 +14,13 @@ namespace Bonsai.Expressions
     {
         static readonly MethodInfo timeIntervalMethod = typeof(Observable).GetMethods()
                                                                           .First(m => m.Name == "TimeInterval" &&
-                                                                                 m.GetParameters().Length == 1);
+                                                                                 m.GetParameters().Length == 2);
 
         public override Expression Build()
         {
             var observableType = Source.Type.GetGenericArguments()[0];
-            return Expression.Call(timeIntervalMethod.MakeGenericMethod(observableType), Source);
+            var scheduler = Expression.Constant(HighResolutionScheduler.ThreadPool);
+            return Expression.Call(timeIntervalMethod.MakeGenericMethod(observableType), Source, scheduler);
         }
     }
 }

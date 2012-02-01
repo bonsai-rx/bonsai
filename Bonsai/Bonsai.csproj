@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="HighResolutionScheduler.cs" />
     <Compile Include="ObservableCombinators.cs" />
     <Compile Include="ConnectableElement.cs" />
     <Compile Include="Dag\DirectedGraph.cs" />
