@@ -6,16 +6,27 @@ using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Xml.Serialization;
 using System.Reflection;
+using System.ComponentModel;
+using System.Xml;
 
 namespace Bonsai.Expressions
 {
-    [XmlType("Throttle")]
+    [XmlType("Throttle", Namespace = Constants.XmlNamespace)]
     public class ThrottleBuilder : CombinatorBuilder
     {
         static readonly MethodInfo throttleMethod = typeof(Observable).GetMethods().First(m => m.Name == "Throttle" &&
                                                                                           m.GetParameters().Length == 2);
 
+        [XmlIgnore]
         public TimeSpan DueTime { get; set; }
+
+        [Browsable(false)]
+        [XmlElement("DueTime")]
+        public string DueTimeXml
+        {
+            get { return XmlConvert.ToString(DueTime); }
+            set { DueTime = XmlConvert.ToTimeSpan(value); }
+        }
 
         public override Expression Build()
         {

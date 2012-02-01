@@ -6,17 +6,28 @@ using System.Linq.Expressions;
 using System.Xml.Serialization;
 using System.Reflection;
 using System.Reactive.Linq;
+using System.Xml;
+using System.ComponentModel;
 
 namespace Bonsai.Expressions
 {
-    [XmlType("Delay")]
+    [XmlType("Delay", Namespace = Constants.XmlNamespace)]
     public class DelayBuilder : CombinatorBuilder
     {
         static readonly MethodInfo delayMethod = typeof(Observable).GetMethods().First(m => m.Name == "Delay" &&
                                                                                        m.GetParameters().Length == 2 &&
                                                                                        m.GetParameters()[1].ParameterType == typeof(TimeSpan));
 
+        [XmlIgnore]
         public TimeSpan DueTime { get; set; }
+
+        [Browsable(false)]
+        [XmlElement("DueTime")]
+        public string DueTimeXml
+        {
+            get { return XmlConvert.ToString(DueTime); }
+            set { DueTime = XmlConvert.ToTimeSpan(value); }
+        }
 
         public override Expression Build()
         {

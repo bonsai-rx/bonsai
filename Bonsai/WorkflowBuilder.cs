@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reflection;
+using System.Xml.Schema;
 
 namespace Bonsai
 {
@@ -89,21 +90,50 @@ namespace Bonsai
         static XmlSerializerNamespaces serializerNamespaces;
         static readonly object cacheLock = new object();
 
+        static string GetXmlNamespace(Type type)
+        {
+            var xmlTypeAttribute = (XmlTypeAttribute)Attribute.GetCustomAttribute(type, typeof(XmlTypeAttribute), false);
+            if (xmlTypeAttribute != null) return xmlTypeAttribute.Namespace;
+            return GetClrNamespace(type);
+        }
+
+        static string GetClrNamespace(Type type)
+        {
+            return string.Format("clr-namespace:{0};assembly={1}", type.Namespace, type.Assembly.GetName().Name);
+        }
+
         static XmlSerializer GetXmlSerializer(HashSet<Type> types)
         {
             lock (cacheLock)
             {
                 if (serializerCache == null || !types.IsSubsetOf(serializerTypes))
                 {
-                    if (serializerTypes == null)
-                    {
-                        serializerTypes = types;
-                        serializerNamespaces = new XmlSerializerNamespaces();
-                        serializerNamespaces.Add("xsi", "http://www.w3.org/2001/XMLSchema-instance");
-                    }
+                    if (serializerTypes == null) serializerTypes = types;
                     else serializerTypes.UnionWith(types);
 
-                    serializerCache = new XmlSerializer(typeof(DirectedGraphDescriptor<ExpressionBuilder, ExpressionBuilderParameter>), new XmlAttributeOverrides(), serializerTypes.ToArray(), new XmlRootAttribute("Workflow"), null);
+                    int namespaceIndex = 1;
+                    serializerNamespaces = new XmlSerializerNamespaces();
+                    serializerNamespaces.Add("xsi", XmlSchema.InstanceNamespace);
+                    foreach (var xmlNamespace in (from type in types
+                                                  select GetXmlNamespace(type))
+                                                 .Distinct())
+                    {
+                        serializerNamespaces.Add("q" + namespaceIndex, xmlNamespace);
+                        namespaceIndex++;
+                    }
+
+                    XmlAttributeOverrides overrides = new XmlAttributeOverrides();
+                    foreach (var type in types)
+                    {
+                        if (Attribute.IsDefined(type, typeof(XmlTypeAttribute), false)) continue;
+
+                        var attributes = new XmlAttributes();
+                        attributes.XmlType = new XmlTypeAttribute { Namespace = GetClrNamespace(type) };
+                        overrides.Add(type, attributes);
+                    }
+
+                    var rootAttribute = new XmlRootAttribute("Workflow") { Namespace = Constants.XmlNamespace };
+                    serializerCache = new XmlSerializer(typeof(DirectedGraphDescriptor<ExpressionBuilder, ExpressionBuilderParameter>), overrides, serializerTypes.ToArray(), rootAttribute, null);
                 }
             }
 

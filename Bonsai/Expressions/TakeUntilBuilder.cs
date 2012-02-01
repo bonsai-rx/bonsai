@@ -10,7 +10,7 @@ using System.ComponentModel;
 
 namespace Bonsai.Expressions
 {
-    [XmlType("TakeUntil")]
+    [XmlType("TakeUntil", Namespace = Constants.XmlNamespace)]
     public class TakeUntilBuilder : BinaryCombinatorBuilder
     {
         static readonly MethodInfo takeUntilMethod = typeof(Observable).GetMethod("TakeUntil");

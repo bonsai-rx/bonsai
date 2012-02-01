@@ -8,7 +8,6 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
 {
-    [XmlType("Expression")]
     [XmlInclude(typeof(CombinatorBuilder))]
     [XmlInclude(typeof(SourceBuilder))]
     [XmlInclude(typeof(SelectBuilder))]
@@ -29,6 +28,7 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(DelayBuilder))]
     [XmlInclude(typeof(ZipBuilder))]
     [XmlInclude(typeof(AmbBuilder))]
+    [XmlType("Expression", Namespace = Constants.XmlNamespace)]
     [TypeConverter("Bonsai.Design.ExpressionBuilderTypeConverter, Bonsai.Design")]
     public abstract class ExpressionBuilder
     {

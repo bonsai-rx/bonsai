@@ -8,7 +8,7 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
 {
-    [XmlType("Source")]
+    [XmlType("Source", Namespace = Constants.XmlNamespace)]
     public class SourceBuilder : ExpressionBuilder
     {
         [Browsable(false)]

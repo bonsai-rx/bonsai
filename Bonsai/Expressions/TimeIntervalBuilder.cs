@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
 {
-    [XmlType("TimeInterval")]
+    [XmlType("TimeInterval", Namespace = Constants.XmlNamespace)]
     public class TimeIntervalBuilder : CombinatorBuilder
     {
         static readonly MethodInfo timeIntervalMethod = typeof(Observable).GetMethods()

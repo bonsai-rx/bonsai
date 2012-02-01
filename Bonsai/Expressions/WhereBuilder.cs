@@ -10,7 +10,7 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
 {
-    [XmlType("Where")]
+    [XmlType("Where", Namespace = Constants.XmlNamespace)]
     public class WhereBuilder : CombinatorBuilder
     {
         static readonly MethodInfo whereMethod = typeof(Observable).GetMethods()

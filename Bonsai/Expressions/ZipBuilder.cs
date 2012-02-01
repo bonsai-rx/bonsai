@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace Bonsai.Expressions
 {
-    [XmlType("Zip")]
+    [XmlType("Zip", Namespace = Constants.XmlNamespace)]
     public class ZipBuilder : BinaryCombinatorBuilder
     {
         static readonly MethodInfo zipMethod = typeof(Observable).GetMethods().First(m => m.Name == "Zip" &&

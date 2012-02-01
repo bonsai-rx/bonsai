@@ -10,7 +10,7 @@ using System.ComponentModel;
 
 namespace Bonsai.Expressions
 {
-    [XmlType("SkipUntil")]
+    [XmlType("SkipUntil", Namespace = Constants.XmlNamespace)]
     public class SkipUntilBuilder : BinaryCombinatorBuilder
     {
         static readonly MethodInfo skipUntilMethod = typeof(Observable).GetMethod("SkipUntil");

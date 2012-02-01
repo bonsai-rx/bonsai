@@ -11,7 +11,7 @@ using System.ComponentModel;
 
 namespace Bonsai.Expressions
 {
-    [XmlType("MemberSelector")]
+    [XmlType("MemberSelector", Namespace = Constants.XmlNamespace)]
     public class MemberSelectorBuilder : CombinatorBuilder
     {
         static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()

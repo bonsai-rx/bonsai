@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 
 namespace Bonsai
 {
-    [XmlType("SourceBase")]
+    [XmlType("SourceBase", Namespace = Constants.XmlNamespace)]
     public abstract class Source : LoadableElement
     {
         protected abstract void Start();

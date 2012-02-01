@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
 {
-    [XmlType("Sample")]
+    [XmlType("Sample", Namespace = Constants.XmlNamespace)]
     public class SampleBuilder : BinaryCombinatorBuilder
     {
         static readonly MethodInfo sampleMethod = typeof(Observable).GetMethods()

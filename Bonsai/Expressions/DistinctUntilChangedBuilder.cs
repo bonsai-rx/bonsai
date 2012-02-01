@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
 {
-    [XmlType("DistinctUntilChanged")]
+    [XmlType("DistinctUntilChanged", Namespace = Constants.XmlNamespace)]
     public class DistinctUntilChangedBuilder : CombinatorBuilder
     {
         static readonly MethodInfo distinctUntilChangedMethod = typeof(Observable).GetMethods().First(m => m.Name == "DistinctUntilChanged" &&
