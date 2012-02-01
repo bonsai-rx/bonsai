@@ -10,7 +10,7 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
 {
-    [XmlType("Do")]
+    [XmlType("Do", Namespace = Constants.XmlNamespace)]
     public class DoBuilder : CombinatorBuilder
     {
         static readonly MethodInfo doMethod = typeof(Observable).GetMethods()

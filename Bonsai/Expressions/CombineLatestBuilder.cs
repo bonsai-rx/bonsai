@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace Bonsai.Expressions
 {
-    [XmlType("CombineLatest")]
+    [XmlType("CombineLatest", Namespace = Constants.XmlNamespace)]
     public class CombineLatestBuilder : BinaryCombinatorBuilder
     {
         static readonly MethodInfo combineLatestMethod = typeof(Observable).GetMethod("CombineLatest");

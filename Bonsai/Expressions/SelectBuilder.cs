@@ -10,7 +10,7 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
 {
-    [XmlType("Select")]
+    [XmlType("Select", Namespace = Constants.XmlNamespace)]
     public class SelectBuilder : CombinatorBuilder
     {
         static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()

@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace Bonsai.Expressions
 {
-    [XmlType("Amb")]
+    [XmlType("Amb", Namespace = Constants.XmlNamespace)]
     public class AmbBuilder : BinaryCombinatorBuilder
     {
         static readonly MethodInfo ambMethod = typeof(Observable).GetMethods().First(m => m.Name == "Amb" &&
