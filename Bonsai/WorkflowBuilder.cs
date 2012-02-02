@@ -114,7 +114,7 @@ namespace Bonsai
                     int namespaceIndex = 1;
                     serializerNamespaces = new XmlSerializerNamespaces();
                     serializerNamespaces.Add("xsi", XmlSchema.InstanceNamespace);
-                    foreach (var xmlNamespace in (from type in types
+                    foreach (var xmlNamespace in (from type in serializerTypes
                                                   select GetXmlNamespace(type))
                                                  .Distinct())
                     {
@@ -123,7 +123,7 @@ namespace Bonsai
                     }
 
                     XmlAttributeOverrides overrides = new XmlAttributeOverrides();
-                    foreach (var type in types)
+                    foreach (var type in serializerTypes)
                     {
                         if (Attribute.IsDefined(type, typeof(XmlTypeAttribute), false)) continue;
 
