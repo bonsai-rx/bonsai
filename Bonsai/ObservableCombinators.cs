@@ -9,26 +9,20 @@ namespace Bonsai
 {
     public static class ObservableCombinators
     {
-        public static IObservable<T> RateThrottle<T>(this IObservable<T> source, TimeSpan interval)
+        public static IObservable<TSource> Gate<TSource>(this IObservable<TSource> source, TimeSpan interval)
         {
-            return RateThrottle<T>(source, interval, Scheduler.ThreadPool);
+            return Gate(source, interval, Scheduler.ThreadPool);
         }
 
-        public static IObservable<T> RateThrottle<T>(this IObservable<T> source, TimeSpan interval, IScheduler scheduler)
+        public static IObservable<TSource> Gate<TSource>(this IObservable<TSource> source, TimeSpan interval, IScheduler scheduler)
         {
-            return Observable.Create<T>(o =>
-            {
-                DateTimeOffset last = DateTimeOffset.MinValue;
-                return source.Subscribe(x =>
-                {
-                    DateTimeOffset now = scheduler.Now;
-                    if (now - last >= interval)
-                    {
-                        last = now;
-                        o.OnNext(x);
-                    }
-                }, o.OnError, o.OnCompleted);
-            });
+            return Gate(source, Observable.Timer(interval, scheduler));
+        }
+
+        public static IObservable<TSource> Gate<TSource, TGate>(this IObservable<TSource> source, IObservable<TGate> sampler)
+        {
+            return source.Window(() => sampler)
+                         .SelectMany(window => window.Take(1));
         }
     }
 }

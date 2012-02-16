@@ -14,6 +14,7 @@ namespace Bonsai.Expressions
     public class ZipBuilder : BinaryCombinatorBuilder
     {
         static readonly MethodInfo zipMethod = typeof(Observable).GetMethods().First(m => m.Name == "Zip" &&
+                                                                                     m.GetParameters()[1].ParameterType.IsGenericType &&
                                                                                      m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(IObservable<>));
         static readonly MethodInfo tupleCreateMethod = typeof(Tuple).GetMethods().First(m => m.Name == "Create" &&
                                                                                         m.GetParameters().Length == 2);

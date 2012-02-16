@@ -3,18 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Linq.Expressions;
-using System.Xml.Serialization;
 using System.Reflection;
+using System.Reactive.Linq;
+using System.Xml.Serialization;
 using System.ComponentModel;
 using System.Xml;
 
 namespace Bonsai.Expressions
 {
-    [XmlType("RateThrottle", Namespace = Constants.XmlNamespace)]
-    public class RateThrottleBuilder : CombinatorBuilder
+    [XmlType("GateInterval", Namespace = Constants.XmlNamespace)]
+    public class GateIntervalBuilder : CombinatorBuilder
     {
-        static readonly MethodInfo rateThrottleMethod = typeof(ObservableCombinators).GetMethods().First(m => m.Name == "RateThrottle" &&
-                                                                                                        m.GetParameters().Length == 3);
+        static readonly MethodInfo gateMethod = typeof(ObservableCombinators).GetMethods()
+                                                                             .First(m => m.Name == "Gate" &&
+                                                                                    m.GetParameters().Length == 3 &&
+                                                                                    m.GetParameters()[1].ParameterType == typeof(TimeSpan));
 
         [XmlIgnore]
         public TimeSpan Interval { get; set; }
@@ -32,7 +35,7 @@ namespace Bonsai.Expressions
             var observableType = Source.Type.GetGenericArguments()[0];
             var interval = Expression.Constant(Interval);
             var scheduler = Expression.Constant(HighResolutionScheduler.ThreadPool);
-            return Expression.Call(rateThrottleMethod.MakeGenericMethod(observableType), Source, interval, scheduler);
+            return Expression.Call(gateMethod.MakeGenericMethod(observableType), Source, interval, scheduler);
         }
     }
 }

@@ -16,6 +16,7 @@ namespace Bonsai.Expressions
         static readonly MethodInfo doMethod = typeof(Observable).GetMethods()
                                                                 .First(m => m.Name == "Do" &&
                                                                        m.GetParameters().Length == 2 &&
+                                                                       m.GetParameters()[1].ParameterType.IsGenericType &&
                                                                        m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Action<>));
 
         [Browsable(false)]

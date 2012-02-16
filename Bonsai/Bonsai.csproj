@@ -43,6 +43,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="Expressions\GateIntervalBuilder.cs" />
+    <Compile Include="Expressions\GateBuilder.cs" />
     <Compile Include="HighResolutionScheduler.cs" />
     <Compile Include="ObservableCombinators.cs" />
     <Compile Include="ConnectableElement.cs" />
@@ -63,7 +65,6 @@
     <Compile Include="Expressions\AmbBuilder.cs" />
     <Compile Include="Expressions\DelayBuilder.cs" />
     <Compile Include="Expressions\DistinctUntilChangedBuilder.cs" />
-    <Compile Include="Expressions\RateThrottleBuilder.cs" />
     <Compile Include="Expressions\ThrottleBuilder.cs" />
     <Compile Include="Expressions\TimeIntervalBuilder.cs" />
     <Compile Include="Expressions\MemberSelectorBuilder.cs" />
