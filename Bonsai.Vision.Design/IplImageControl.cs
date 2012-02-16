@@ -41,7 +41,7 @@ namespace Bonsai.Vision.Design
             if (bitmap == null || bitmap.Width != image.Width || bitmap.Height != image.Height)
             {
                 if (bitmap != null) bitmap.Dispose();
-                bitmap = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb);
+                bitmap = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppPArgb);
                 pictureBox.Image = bitmap;
             }
         }
@@ -52,7 +52,7 @@ namespace Bonsai.Vision.Design
             if (image.Depth != 8) throw new ArgumentException("Non 8-bit depth images are not supported by the control.", "image");
 
             EnsureFormat(image);
-            var bitmapData = bitmap.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            var bitmapData = bitmap.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppPArgb);
             var bitmapImage = new IplImage(image.Size, 8, 4, bitmapData.Scan0);
 
             try
