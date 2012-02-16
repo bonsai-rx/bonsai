@@ -15,6 +15,7 @@ namespace Bonsai.Expressions
         static readonly MethodInfo sampleMethod = typeof(Observable).GetMethods()
                                                                     .First(m => m.Name == "Sample" &&
                                                                            m.GetParameters().Length == 2 &&
+                                                                           m.GetParameters()[1].ParameterType.IsGenericType &&
                                                                            m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(IObservable<>));
 
         public override Expression Build()
