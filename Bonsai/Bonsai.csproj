@@ -42,9 +42,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Combinator.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Expressions\GateIntervalBuilder.cs" />
     <Compile Include="Expressions\GateBuilder.cs" />
+    <Compile Include="Expressions\QueryBuilder.cs" />
     <Compile Include="HighResolutionScheduler.cs" />
     <Compile Include="ObservableCombinators.cs" />
     <Compile Include="ConnectableElement.cs" />
