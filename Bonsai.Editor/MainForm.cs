@@ -27,7 +27,7 @@ namespace Bonsai.Editor
         XmlSerializer serializer;
         Dictionary<Type, Type> typeVisualizers;
         ExpressionBuilderGraph inspectableWorkflow;
-        Dictionary<GraphNode, Action<bool>> visualizerMapping;
+        Dictionary<GraphNode, VisualizerDialogLauncher> visualizerMapping;
         ExpressionBuilderTypeConverter builderConverter;
 
         IDisposable loaded;
@@ -379,7 +379,10 @@ namespace Bonsai.Editor
                                                           };
 
                                                           var visualizer = (DialogTypeVisualizer)Activator.CreateInstance(visualizerType);
-                                                          return mapping.inspectBuilder.CreateVisualizerDialog(mapping.nodeName, visualizer, editorSite);
+                                                          return new VisualizerDialogLauncher(mapping.inspectBuilder, visualizer)
+                                                          {
+                                                              Text = mapping.nodeName
+                                                          };
                                                       });
 
                     loaded = runningWorkflow.Load();
@@ -401,7 +404,7 @@ namespace Bonsai.Editor
             {
                 foreach (var visualizerDialog in visualizerMapping.Values)
                 {
-                    visualizerDialog(false);
+                    visualizerDialog.Hide();
                 }
 
                 running.Dispose();
@@ -427,7 +430,7 @@ namespace Bonsai.Editor
 
         void UpdateGraphLayout()
         {
-            workflowGraphView.Nodes = workflowBuilder.Workflow.LongestPathLayering().AverageMinimizeCrossings();
+            workflowGraphView.Nodes = workflowBuilder.Workflow.LongestPathLayering().AverageMinimizeCrossings().ToList();
             workflowGraphView.Invalidate();
         }
 
@@ -508,7 +511,7 @@ namespace Bonsai.Editor
             if (running != null)
             {
                 var visualizerDialog = visualizerMapping[e.Node];
-                visualizerDialog(true);
+                visualizerDialog.Show();
             }
         }
 

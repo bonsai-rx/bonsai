@@ -56,7 +56,6 @@
     <Compile Include="GraphNodeMouseClickEventArgs.cs" />
     <Compile Include="GraphNodeMouseHoverEventArgs.cs" />
     <Compile Include="IDialogTypeVisualizerService.cs" />
-    <Compile Include="InspectBuilderExtensions.cs" />
     <Compile Include="LayeredGraphExtensions.cs" />
     <Compile Include="GraphView.cs">
       <SubType>UserControl</SubType>
@@ -92,6 +91,7 @@
     <Compile Include="TypeVisualizerDialog.designer.cs">
       <DependentUpon>TypeVisualizerDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="VisualizerDialogLauncher.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai\Bonsai.csproj">
