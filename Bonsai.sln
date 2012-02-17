@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Vision.Design", "Bon
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.IO", "Bonsai.IO\Bonsai.IO.csproj", "{B783D74F-CB2D-4419-B438-266CD15774FB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Arduino", "Bonsai.Arduino\Bonsai.Arduino.csproj", "{CFED93E8-2AE9-471D-81D6-C89BB0356EF3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +97,16 @@ Global
 		{B783D74F-CB2D-4419-B438-266CD15774FB}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{B783D74F-CB2D-4419-B438-266CD15774FB}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{B783D74F-CB2D-4419-B438-266CD15774FB}.Release|x86.ActiveCfg = Release|Any CPU
+		{CFED93E8-2AE9-471D-81D6-C89BB0356EF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFED93E8-2AE9-471D-81D6-C89BB0356EF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFED93E8-2AE9-471D-81D6-C89BB0356EF3}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{CFED93E8-2AE9-471D-81D6-C89BB0356EF3}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{CFED93E8-2AE9-471D-81D6-C89BB0356EF3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CFED93E8-2AE9-471D-81D6-C89BB0356EF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFED93E8-2AE9-471D-81D6-C89BB0356EF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFED93E8-2AE9-471D-81D6-C89BB0356EF3}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{CFED93E8-2AE9-471D-81D6-C89BB0356EF3}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{CFED93E8-2AE9-471D-81D6-C89BB0356EF3}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
