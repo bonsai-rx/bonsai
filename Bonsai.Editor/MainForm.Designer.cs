@@ -69,21 +69,29 @@
             this.helpToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.runningStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.toolboxGroupBox = new System.Windows.Forms.GroupBox();
             this.toolboxTreeView = new System.Windows.Forms.TreeView();
             this.workflowGroupBox = new System.Windows.Forms.GroupBox();
-            this.workflowGraphView = new Bonsai.Design.GraphView();
             this.propertiesGroupBox = new System.Windows.Forms.GroupBox();
             this.propertyGrid = new System.Windows.Forms.PropertyGrid();
+            this.toolboxSplitContainer = new System.Windows.Forms.SplitContainer();
+            this.workflowSplitContainer = new System.Windows.Forms.SplitContainer();
+            this.workflowGraphView = new Bonsai.Design.GraphView();
             this.commandExecutor = new Bonsai.Design.CommandExecutor();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
-            this.tableLayoutPanel.SuspendLayout();
             this.toolboxGroupBox.SuspendLayout();
             this.workflowGroupBox.SuspendLayout();
             this.propertiesGroupBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.toolboxSplitContainer)).BeginInit();
+            this.toolboxSplitContainer.Panel1.SuspendLayout();
+            this.toolboxSplitContainer.Panel2.SuspendLayout();
+            this.toolboxSplitContainer.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.workflowSplitContainer)).BeginInit();
+            this.workflowSplitContainer.Panel1.SuspendLayout();
+            this.workflowSplitContainer.Panel2.SuspendLayout();
+            this.workflowSplitContainer.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip
@@ -424,30 +432,13 @@
             this.runningStatusLabel.Size = new System.Drawing.Size(51, 17);
             this.runningStatusLabel.Text = "Stopped";
             // 
-            // tableLayoutPanel
-            // 
-            this.tableLayoutPanel.ColumnCount = 3;
-            this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 200F));
-            this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 70F));
-            this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 30F));
-            this.tableLayoutPanel.Controls.Add(this.toolboxGroupBox, 0, 0);
-            this.tableLayoutPanel.Controls.Add(this.workflowGroupBox, 1, 0);
-            this.tableLayoutPanel.Controls.Add(this.propertiesGroupBox, 2, 0);
-            this.tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel.Location = new System.Drawing.Point(0, 49);
-            this.tableLayoutPanel.Name = "tableLayoutPanel";
-            this.tableLayoutPanel.RowCount = 1;
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel.Size = new System.Drawing.Size(684, 291);
-            this.tableLayoutPanel.TabIndex = 3;
-            // 
             // toolboxGroupBox
             // 
             this.toolboxGroupBox.Controls.Add(this.toolboxTreeView);
             this.toolboxGroupBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.toolboxGroupBox.Location = new System.Drawing.Point(3, 3);
+            this.toolboxGroupBox.Location = new System.Drawing.Point(0, 0);
             this.toolboxGroupBox.Name = "toolboxGroupBox";
-            this.toolboxGroupBox.Size = new System.Drawing.Size(194, 285);
+            this.toolboxGroupBox.Size = new System.Drawing.Size(200, 291);
             this.toolboxGroupBox.TabIndex = 0;
             this.toolboxGroupBox.TabStop = false;
             this.toolboxGroupBox.Text = "Toolbox";
@@ -457,7 +448,7 @@
             this.toolboxTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.toolboxTreeView.Location = new System.Drawing.Point(3, 16);
             this.toolboxTreeView.Name = "toolboxTreeView";
-            this.toolboxTreeView.Size = new System.Drawing.Size(188, 266);
+            this.toolboxTreeView.Size = new System.Drawing.Size(194, 272);
             this.toolboxTreeView.TabIndex = 0;
             this.toolboxTreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.toolboxTreeView_ItemDrag);
             this.toolboxTreeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.toolboxTreeView_NodeMouseDoubleClick);
@@ -467,36 +458,20 @@
             // 
             this.workflowGroupBox.Controls.Add(this.workflowGraphView);
             this.workflowGroupBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.workflowGroupBox.Location = new System.Drawing.Point(203, 3);
+            this.workflowGroupBox.Location = new System.Drawing.Point(0, 0);
             this.workflowGroupBox.Name = "workflowGroupBox";
-            this.workflowGroupBox.Size = new System.Drawing.Size(332, 285);
+            this.workflowGroupBox.Size = new System.Drawing.Size(300, 291);
             this.workflowGroupBox.TabIndex = 1;
             this.workflowGroupBox.TabStop = false;
             this.workflowGroupBox.Text = "Workflow";
-            // 
-            // workflowGraphView
-            // 
-            this.workflowGraphView.AllowDrop = true;
-            this.workflowGraphView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.workflowGraphView.Location = new System.Drawing.Point(3, 16);
-            this.workflowGraphView.Name = "workflowGraphView";
-            this.workflowGraphView.Nodes = null;
-            this.workflowGraphView.SelectedNode = null;
-            this.workflowGraphView.Size = new System.Drawing.Size(326, 266);
-            this.workflowGraphView.TabIndex = 0;
-            this.workflowGraphView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.workflowGraphView_ItemDrag);
-            this.workflowGraphView.NodeMouseDoubleClick += new System.EventHandler<Bonsai.Design.GraphNodeMouseClickEventArgs>(this.workflowGraphView_NodeMouseDoubleClick);
-            this.workflowGraphView.SelectedNodeChanged += new System.EventHandler(this.workflowGraphView_SelectedNodeChanged);
-            this.workflowGraphView.DragDrop += new System.Windows.Forms.DragEventHandler(this.workflowGraphView_DragDrop);
-            this.workflowGraphView.DragEnter += new System.Windows.Forms.DragEventHandler(this.workflowGraphView_DragEnter);
             // 
             // propertiesGroupBox
             // 
             this.propertiesGroupBox.Controls.Add(this.propertyGrid);
             this.propertiesGroupBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.propertiesGroupBox.Location = new System.Drawing.Point(541, 3);
+            this.propertiesGroupBox.Location = new System.Drawing.Point(0, 0);
             this.propertiesGroupBox.Name = "propertiesGroupBox";
-            this.propertiesGroupBox.Size = new System.Drawing.Size(140, 285);
+            this.propertiesGroupBox.Size = new System.Drawing.Size(176, 291);
             this.propertiesGroupBox.TabIndex = 2;
             this.propertiesGroupBox.TabStop = false;
             this.propertiesGroupBox.Text = "Properties";
@@ -506,8 +481,60 @@
             this.propertyGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.propertyGrid.Location = new System.Drawing.Point(3, 16);
             this.propertyGrid.Name = "propertyGrid";
-            this.propertyGrid.Size = new System.Drawing.Size(134, 266);
+            this.propertyGrid.Size = new System.Drawing.Size(170, 272);
             this.propertyGrid.TabIndex = 0;
+            // 
+            // toolboxSplitContainer
+            // 
+            this.toolboxSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.toolboxSplitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
+            this.toolboxSplitContainer.Location = new System.Drawing.Point(0, 49);
+            this.toolboxSplitContainer.Name = "toolboxSplitContainer";
+            // 
+            // toolboxSplitContainer.Panel1
+            // 
+            this.toolboxSplitContainer.Panel1.Controls.Add(this.toolboxGroupBox);
+            // 
+            // toolboxSplitContainer.Panel2
+            // 
+            this.toolboxSplitContainer.Panel2.Controls.Add(this.workflowSplitContainer);
+            this.toolboxSplitContainer.Size = new System.Drawing.Size(684, 291);
+            this.toolboxSplitContainer.SplitterDistance = 200;
+            this.toolboxSplitContainer.TabIndex = 4;
+            // 
+            // workflowSplitContainer
+            // 
+            this.workflowSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.workflowSplitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
+            this.workflowSplitContainer.Location = new System.Drawing.Point(0, 0);
+            this.workflowSplitContainer.Name = "workflowSplitContainer";
+            // 
+            // workflowSplitContainer.Panel1
+            // 
+            this.workflowSplitContainer.Panel1.Controls.Add(this.workflowGroupBox);
+            // 
+            // workflowSplitContainer.Panel2
+            // 
+            this.workflowSplitContainer.Panel2.Controls.Add(this.propertiesGroupBox);
+            this.workflowSplitContainer.Size = new System.Drawing.Size(480, 291);
+            this.workflowSplitContainer.SplitterDistance = 300;
+            this.workflowSplitContainer.TabIndex = 0;
+            // 
+            // workflowGraphView
+            // 
+            this.workflowGraphView.AllowDrop = true;
+            this.workflowGraphView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.workflowGraphView.Location = new System.Drawing.Point(3, 16);
+            this.workflowGraphView.Name = "workflowGraphView";
+            this.workflowGraphView.Nodes = null;
+            this.workflowGraphView.SelectedNode = null;
+            this.workflowGraphView.Size = new System.Drawing.Size(294, 272);
+            this.workflowGraphView.TabIndex = 0;
+            this.workflowGraphView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.workflowGraphView_ItemDrag);
+            this.workflowGraphView.NodeMouseDoubleClick += new System.EventHandler<Bonsai.Design.GraphNodeMouseClickEventArgs>(this.workflowGraphView_NodeMouseDoubleClick);
+            this.workflowGraphView.SelectedNodeChanged += new System.EventHandler(this.workflowGraphView_SelectedNodeChanged);
+            this.workflowGraphView.DragDrop += new System.Windows.Forms.DragEventHandler(this.workflowGraphView_DragDrop);
+            this.workflowGraphView.DragEnter += new System.Windows.Forms.DragEventHandler(this.workflowGraphView_DragEnter);
             // 
             // commandExecutor
             // 
@@ -518,7 +545,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(684, 362);
-            this.Controls.Add(this.tableLayoutPanel);
+            this.Controls.Add(this.toolboxSplitContainer);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.toolStrip);
             this.Controls.Add(this.menuStrip);
@@ -531,10 +558,17 @@
             this.toolStrip.PerformLayout();
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
-            this.tableLayoutPanel.ResumeLayout(false);
             this.toolboxGroupBox.ResumeLayout(false);
             this.workflowGroupBox.ResumeLayout(false);
             this.propertiesGroupBox.ResumeLayout(false);
+            this.toolboxSplitContainer.Panel1.ResumeLayout(false);
+            this.toolboxSplitContainer.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.toolboxSplitContainer)).EndInit();
+            this.toolboxSplitContainer.ResumeLayout(false);
+            this.workflowSplitContainer.Panel1.ResumeLayout(false);
+            this.workflowSplitContainer.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.workflowSplitContainer)).EndInit();
+            this.workflowSplitContainer.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -579,7 +613,6 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
         private System.Windows.Forms.ToolStripButton helpToolStripButton;
         private System.Windows.Forms.StatusStrip statusStrip;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel;
         private System.Windows.Forms.GroupBox toolboxGroupBox;
         private System.Windows.Forms.TreeView toolboxTreeView;
         private System.Windows.Forms.GroupBox workflowGroupBox;
@@ -590,6 +623,8 @@
         private System.Windows.Forms.ToolStripMenuItem stopToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel runningStatusLabel;
+        private System.Windows.Forms.SplitContainer toolboxSplitContainer;
+        private System.Windows.Forms.SplitContainer workflowSplitContainer;
     }
 }
 

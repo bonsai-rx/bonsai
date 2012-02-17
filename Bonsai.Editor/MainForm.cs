@@ -87,12 +87,19 @@ namespace Bonsai.Editor
 
         void InitializeToolboxCategory(string categoryName, IEnumerable<Type> types)
         {
-            var category = toolboxTreeView.Nodes.Add(categoryName, GetPackageDisplayName(categoryName));
+            TreeNode category = null;
 
             foreach (var type in types)
             {
-                var name = type.IsSubclassOf(typeof(ExpressionBuilder)) ? type.Name.Remove(type.Name.LastIndexOf("Builder")) : type.Name;
                 var elementType = LoadableElementType.FromType(type);
+                var name = type.IsSubclassOf(typeof(ExpressionBuilder)) ? type.Name.Remove(type.Name.LastIndexOf("Builder")) : type.Name;
+
+                if (elementType == null && type.IsSubclassOf(typeof(LoadableElement))) continue;
+                if (category == null)
+                {
+                    category = toolboxTreeView.Nodes.Add(categoryName, GetPackageDisplayName(categoryName));
+                }
+
                 var elementTypeNode = elementType == null ? category : category.Nodes[elementType.ToString()];
                 if (elementTypeNode == null)
                 {
@@ -118,6 +125,7 @@ namespace Bonsai.Editor
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            saveWorkflowDialog.FileName = null;
             workflowBuilder.Workflow.Clear();
             commandExecutor.Clear();
             UpdateGraphLayout();
