@@ -13,6 +13,7 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(SelectBuilder))]
     [XmlInclude(typeof(WhereBuilder))]
     [XmlInclude(typeof(DoBuilder))]
+    [XmlInclude(typeof(QueryBuilder))]
     [XmlInclude(typeof(MemberSelectorBuilder))]
     [XmlInclude(typeof(DistinctUntilChangedBuilder))]
     [XmlInclude(typeof(TimestampBuilder))]
@@ -47,6 +48,7 @@ namespace Bonsai.Expressions
             if (elementType == LoadableElementType.Filter) return new WhereBuilder { Filter = element };
             if (elementType == LoadableElementType.Projection) return new SelectBuilder { Projection = element };
             if (elementType == LoadableElementType.Sink) return new DoBuilder { Sink = element };
+            if (elementType == LoadableElementType.Combinator) return new QueryBuilder { Combinator = element };
             throw new InvalidOperationException("Invalid loadable element type.");
         }
 

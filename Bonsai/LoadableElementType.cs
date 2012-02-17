@@ -11,6 +11,7 @@ namespace Bonsai
         public static readonly LoadableElementType Filter = new LoadableElementType("Filter");
         public static readonly LoadableElementType Projection = new LoadableElementType("Projection");
         public static readonly LoadableElementType Sink = new LoadableElementType("Sink");
+        public static readonly LoadableElementType Combinator = new LoadableElementType("Combinator");
 
         private LoadableElementType(string text)
         {
@@ -29,6 +30,7 @@ namespace Bonsai
             if (elementType == LoadableElementType.Source) return MatchGenericType(type, typeof(Source<>));
             if (elementType == LoadableElementType.Filter) return MatchGenericType(type, typeof(Filter<>));
             if (elementType == LoadableElementType.Sink) return type.IsSubclassOf(typeof(DynamicSink)) || MatchGenericType(type, typeof(Sink<>));
+            if (elementType == LoadableElementType.Combinator) return MatchGenericType(type, typeof(Combinator<,>));
             if (elementType == LoadableElementType.Projection)
             {
                 return MatchGenericType(type, typeof(Projection<,>)) ||
@@ -64,6 +66,7 @@ namespace Bonsai
             if (MatchType(type, LoadableElementType.Filter)) return LoadableElementType.Filter;
             if (MatchType(type, LoadableElementType.Projection)) return LoadableElementType.Projection;
             if (MatchType(type, LoadableElementType.Sink)) return LoadableElementType.Sink;
+            if (MatchType(type, LoadableElementType.Combinator)) return LoadableElementType.Combinator;
             return null;
         }
     }

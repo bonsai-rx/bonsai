@@ -36,6 +36,9 @@ namespace Bonsai.Design
                 var doBuilder = expressionBuilder as DoBuilder;
                 if (doBuilder != null) return doBuilder.Sink.GetType().Name;
 
+                var queryBuilder = expressionBuilder as QueryBuilder;
+                if (queryBuilder != null) return queryBuilder.Combinator.GetType().Name;
+
                 var type = expressionBuilder.GetType();
                 return type.Name.Remove(type.Name.LastIndexOf("Builder"));
             }
