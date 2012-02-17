@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="And.cs" />
+    <Compile Include="AverageBinaryRegion.cs" />
     <Compile Include="BackgroundSubtraction.cs" />
     <Compile Include="BinaryRegionAnalysis.cs" />
     <Compile Include="CameraCapture.cs" />
@@ -60,8 +61,11 @@
     <Compile Include="HsvThreshold.cs" />
     <Compile Include="IplImageHelper.cs" />
     <Compile Include="ApproximatePolygon.cs" />
+    <Compile Include="LargestBinaryRegion.cs" />
+    <Compile Include="Mask.cs" />
     <Compile Include="Not.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RangeThreshold.cs" />
     <Compile Include="Resize.cs" />
     <Compile Include="Smooth.cs" />
     <Compile Include="Threshold.cs" />
