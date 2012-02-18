@@ -72,11 +72,11 @@
             this.toolboxGroupBox = new System.Windows.Forms.GroupBox();
             this.toolboxTreeView = new System.Windows.Forms.TreeView();
             this.workflowGroupBox = new System.Windows.Forms.GroupBox();
+            this.workflowGraphView = new Bonsai.Design.GraphView();
             this.propertiesGroupBox = new System.Windows.Forms.GroupBox();
             this.propertyGrid = new System.Windows.Forms.PropertyGrid();
             this.toolboxSplitContainer = new System.Windows.Forms.SplitContainer();
             this.workflowSplitContainer = new System.Windows.Forms.SplitContainer();
-            this.workflowGraphView = new Bonsai.Design.GraphView();
             this.commandExecutor = new Bonsai.Design.CommandExecutor();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
@@ -316,11 +316,11 @@
             // 
             // openWorkflowDialog
             // 
-            this.openWorkflowDialog.Filter = "XML Files (*.xml)|*.xml|All Files (*.*)|*.*";
+            this.openWorkflowDialog.Filter = "Bonsai Files (*.bonsai)|*.bonsai|All Files (*.*)|*.*";
             // 
             // saveWorkflowDialog
             // 
-            this.saveWorkflowDialog.Filter = "XML Files (*.xml)|*.xml|All Files (*.*)|*.*";
+            this.saveWorkflowDialog.Filter = "Bonsai Files (*.bonsai)|*.bonsai|All Files (*.*)|*.*";
             // 
             // toolStrip
             // 
@@ -465,6 +465,22 @@
             this.workflowGroupBox.TabStop = false;
             this.workflowGroupBox.Text = "Workflow";
             // 
+            // workflowGraphView
+            // 
+            this.workflowGraphView.AllowDrop = true;
+            this.workflowGraphView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.workflowGraphView.Location = new System.Drawing.Point(3, 16);
+            this.workflowGraphView.Name = "workflowGraphView";
+            this.workflowGraphView.Nodes = null;
+            this.workflowGraphView.SelectedNode = null;
+            this.workflowGraphView.Size = new System.Drawing.Size(294, 272);
+            this.workflowGraphView.TabIndex = 0;
+            this.workflowGraphView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.workflowGraphView_ItemDrag);
+            this.workflowGraphView.NodeMouseDoubleClick += new System.EventHandler<Bonsai.Design.GraphNodeMouseClickEventArgs>(this.workflowGraphView_NodeMouseDoubleClick);
+            this.workflowGraphView.SelectedNodeChanged += new System.EventHandler(this.workflowGraphView_SelectedNodeChanged);
+            this.workflowGraphView.DragDrop += new System.Windows.Forms.DragEventHandler(this.workflowGraphView_DragDrop);
+            this.workflowGraphView.DragEnter += new System.Windows.Forms.DragEventHandler(this.workflowGraphView_DragEnter);
+            // 
             // propertiesGroupBox
             // 
             this.propertiesGroupBox.Controls.Add(this.propertyGrid);
@@ -519,22 +535,6 @@
             this.workflowSplitContainer.Size = new System.Drawing.Size(480, 291);
             this.workflowSplitContainer.SplitterDistance = 300;
             this.workflowSplitContainer.TabIndex = 0;
-            // 
-            // workflowGraphView
-            // 
-            this.workflowGraphView.AllowDrop = true;
-            this.workflowGraphView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.workflowGraphView.Location = new System.Drawing.Point(3, 16);
-            this.workflowGraphView.Name = "workflowGraphView";
-            this.workflowGraphView.Nodes = null;
-            this.workflowGraphView.SelectedNode = null;
-            this.workflowGraphView.Size = new System.Drawing.Size(294, 272);
-            this.workflowGraphView.TabIndex = 0;
-            this.workflowGraphView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.workflowGraphView_ItemDrag);
-            this.workflowGraphView.NodeMouseDoubleClick += new System.EventHandler<Bonsai.Design.GraphNodeMouseClickEventArgs>(this.workflowGraphView_NodeMouseDoubleClick);
-            this.workflowGraphView.SelectedNodeChanged += new System.EventHandler(this.workflowGraphView_SelectedNodeChanged);
-            this.workflowGraphView.DragDrop += new System.Windows.Forms.DragEventHandler(this.workflowGraphView_DragDrop);
-            this.workflowGraphView.DragEnter += new System.Windows.Forms.DragEventHandler(this.workflowGraphView_DragEnter);
             // 
             // commandExecutor
             // 
