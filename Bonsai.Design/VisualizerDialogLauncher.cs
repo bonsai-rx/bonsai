@@ -6,6 +6,7 @@ using System.ComponentModel.Design;
 using Bonsai.Expressions;
 using System.Reactive.Linq;
 using System.Drawing;
+using System.Windows.Forms;
 
 namespace Bonsai.Design
 {
@@ -36,6 +37,11 @@ namespace Bonsai.Design
 
         public Rectangle Bounds { get; set; }
 
+        public bool Visible
+        {
+            get { return visualizerDialog != null; }
+        }
+
         public void Show()
         {
             Show(null);
@@ -55,7 +61,11 @@ namespace Bonsai.Design
 
                     visualizerDialog.Load += delegate
                     {
-                        if (!Bounds.IsEmpty) visualizerDialog.DesktopBounds = Bounds;
+                        if (!Bounds.IsEmpty && SystemInformation.VirtualScreen.Contains(Bounds))
+                        {
+                            visualizerDialog.DesktopBounds = Bounds;
+                        }
+
                         visualizerObserver = source.Output.ObserveOn(visualizerDialog)
                                                    .Subscribe(value => visualizer.Show(value));
                     };

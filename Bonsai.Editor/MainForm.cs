@@ -15,18 +15,22 @@ using Bonsai.Design;
 using System.Reactive.Disposables;
 using System.Linq.Expressions;
 using Bonsai.Editor.Properties;
+using System.IO;
 
 namespace Bonsai.Editor
 {
     public partial class MainForm : Form
     {
         const int CtrlModifier = 0x8;
+        const string LayoutExtension = ".layout";
 
         EditorSite editorSite;
         WorkflowBuilder workflowBuilder;
         XmlSerializer serializer;
+        XmlSerializer layoutSerializer;
         Dictionary<Type, Type> typeVisualizers;
         ExpressionBuilderGraph inspectableWorkflow;
+        VisualizerLayout visualizerLayout;
         Dictionary<GraphNode, VisualizerDialogLauncher> visualizerMapping;
         ExpressionBuilderTypeConverter builderConverter;
 
@@ -41,6 +45,7 @@ namespace Bonsai.Editor
             editorSite = new EditorSite(this);
             workflowBuilder = new WorkflowBuilder();
             serializer = new XmlSerializer(typeof(WorkflowBuilder));
+            layoutSerializer = new XmlSerializer(typeof(VisualizerLayout));
             typeVisualizers = TypeVisualizerLoader.GetTypeVisualizerDictionary();
             builderConverter = new ExpressionBuilderTypeConverter();
             propertyGrid.Site = editorSite;
@@ -123,8 +128,14 @@ namespace Bonsai.Editor
 
         #region File Menu
 
+        string GetLayoutPath(string fileName)
+        {
+            return Path.ChangeExtension(fileName, Path.GetExtension(fileName) + LayoutExtension);
+        }
+
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            visualizerLayout = null;
             saveWorkflowDialog.FileName = null;
             workflowBuilder.Workflow.Clear();
             commandExecutor.Clear();
@@ -142,6 +153,15 @@ namespace Bonsai.Editor
                     commandExecutor.Clear();
                     UpdateGraphLayout();
                 }
+
+                var layoutPath = GetLayoutPath(openWorkflowDialog.FileName);
+                if (File.Exists(layoutPath))
+                {
+                    using (var reader = XmlReader.Create(layoutPath))
+                    {
+                        visualizerLayout = (VisualizerLayout)layoutSerializer.Deserialize(reader);
+                    }
+                }
             }
         }
 
@@ -153,6 +173,15 @@ namespace Bonsai.Editor
                 using (var writer = XmlWriter.Create(saveWorkflowDialog.FileName, new XmlWriterSettings { Indent = true }))
                 {
                     serializer.Serialize(writer, workflowBuilder);
+                }
+
+                if (visualizerLayout != null)
+                {
+                    var layoutPath = GetLayoutPath(saveWorkflowDialog.FileName);
+                    using (var writer = XmlWriter.Create(layoutPath, new XmlWriterSettings { Indent = true }))
+                    {
+                        layoutSerializer.Serialize(writer, visualizerLayout);
+                    }
                 }
             }
         }
@@ -363,6 +392,9 @@ namespace Bonsai.Editor
                     var runningWorkflow = inspectableWorkflow.Build();
                     var subscribeExpression = runningWorkflow.BuildSubscribe(HandleWorkflowError);
 
+                    var layoutSettings = visualizerLayout != null ? visualizerLayout.DialogSettings.GetEnumerator() : null;
+                    Action setLayout = null;
+
                     visualizerMapping = (from node in inspectableWorkflow
                                          where !(node.Value is InspectBuilder)
                                          let inspectBuilder = node.Successors.First().Node.Value as InspectBuilder
@@ -379,10 +411,18 @@ namespace Bonsai.Editor
                                                           };
 
                                                           var visualizer = (DialogTypeVisualizer)Activator.CreateInstance(visualizerType);
-                                                          return new VisualizerDialogLauncher(mapping.inspectBuilder, visualizer)
+                                                          var launcher = new VisualizerDialogLauncher(mapping.inspectBuilder, visualizer);
+                                                          launcher.Text = mapping.nodeName;
+                                                          if (layoutSettings != null && layoutSettings.MoveNext())
                                                           {
-                                                              Text = mapping.nodeName
-                                                          };
+                                                              launcher.Bounds = layoutSettings.Current.Bounds;
+                                                              if (layoutSettings.Current.Visible)
+                                                              {
+                                                                  setLayout += () => launcher.Show(editorSite);
+                                                              }
+                                                          }
+
+                                                          return launcher;
                                                       });
 
                     loaded = runningWorkflow.Load();
@@ -390,6 +430,10 @@ namespace Bonsai.Editor
                     var subscriber = subscribeExpression.Compile();
                     var sourceConnections = workflowBuilder.GetSources().Select(source => source.Connect());
                     running = new CompositeDisposable(Enumerable.Repeat(subscriber(), 1).Concat(sourceConnections));
+                    if (setLayout != null)
+                    {
+                        setLayout();
+                    }
                 }
                 catch (InvalidOperationException ex) { HandleWorkflowError(ex); return; }
                 catch (ArgumentException ex) { HandleWorkflowError(ex); return; }
@@ -402,9 +446,22 @@ namespace Bonsai.Editor
         {
             if (running != null)
             {
+                if (visualizerLayout == null)
+                {
+                    visualizerLayout = new VisualizerLayout();
+                }
+                visualizerLayout.DialogSettings.Clear();
+
                 foreach (var visualizerDialog in visualizerMapping.Values)
                 {
+                    var visible = visualizerDialog.Visible;
                     visualizerDialog.Hide();
+
+                    visualizerLayout.DialogSettings.Add(new VisualizerDialogSettings
+                    {
+                        Visible = visible,
+                        Bounds = visualizerDialog.Bounds
+                    });
                 }
 
                 running.Dispose();
