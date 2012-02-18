@@ -24,5 +24,21 @@ namespace Bonsai
             return source.Window(() => sampler)
                          .SelectMany(window => window.Take(1));
         }
+
+        public static IObservable<TSource> Gate<TSource, TGate>(this IObservable<TSource> source, IObservable<TGate> sampler, TimeSpan timeSpan)
+        {
+            return Gate(source, sampler, timeSpan, Scheduler.ThreadPool);
+        }
+
+        public static IObservable<TSource> Gate<TSource, TGate>(this IObservable<TSource> source, IObservable<TGate> sampler, TimeSpan timeSpan, IScheduler scheduler)
+        {
+            return Gate(source, sampler, Observable.Timer(timeSpan, scheduler));
+        }
+
+        public static IObservable<TSource> Gate<TSource, TGateOpening, TGateClosing>(this IObservable<TSource> source, IObservable<TGateOpening> openSampler, IObservable<TGateClosing> closeSampler)
+        {
+            return source.Window(openSampler, window => closeSampler)
+                         .SelectMany(window => window.Take(1));
+        }
     }
 }
