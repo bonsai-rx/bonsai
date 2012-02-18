@@ -23,6 +23,7 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(SampleIntervalBuilder))]
     [XmlInclude(typeof(GateBuilder))]
     [XmlInclude(typeof(GateIntervalBuilder))]
+    [XmlInclude(typeof(TimedGateBuilder))]
     [XmlInclude(typeof(SkipUntilBuilder))]
     [XmlInclude(typeof(TakeUntilBuilder))]
     [XmlInclude(typeof(CombineLatestBuilder))]
