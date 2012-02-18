@@ -24,8 +24,11 @@ namespace Bonsai.Editor
         const int CtrlModifier = 0x8;
         const string LayoutExtension = ".layout";
 
+        int version;
+        int saveVersion;
         EditorSite editorSite;
         WorkflowBuilder workflowBuilder;
+
         XmlSerializer serializer;
         XmlSerializer layoutSerializer;
         Dictionary<Type, Type> typeVisualizers;
@@ -128,6 +131,35 @@ namespace Bonsai.Editor
 
         #region File Menu
 
+        void ResetProjectStatus()
+        {
+            commandExecutor.Clear();
+            UpdateGraphLayout();
+            version = 0;
+            saveVersion = 0;
+        }
+
+        void UpdateSaveStatus()
+        {
+            saveToolStripButton.Enabled = saveToolStripMenuItem.Enabled = saveVersion != version;
+        }
+
+        bool CheckUnsavedChanges()
+        {
+            if (saveVersion != version)
+            {
+                var result = MessageBox.Show("Workflow has unsaved changes. Save project file?", "Unsaved Changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                if (result == DialogResult.Yes)
+                {
+                    saveToolStripMenuItem_Click(this, EventArgs.Empty);
+                    return saveVersion == version;
+                }
+                else return result == DialogResult.No;
+            }
+
+            return true;
+        }
+
         string GetLayoutPath(string fileName)
         {
             return Path.ChangeExtension(fileName, Path.GetExtension(fileName) + LayoutExtension);
@@ -135,23 +167,25 @@ namespace Bonsai.Editor
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (!CheckUnsavedChanges()) return;
+
             visualizerLayout = null;
             saveWorkflowDialog.FileName = null;
             workflowBuilder.Workflow.Clear();
-            commandExecutor.Clear();
-            UpdateGraphLayout();
+            ResetProjectStatus();
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (!CheckUnsavedChanges()) return;
+
             if (openWorkflowDialog.ShowDialog() == DialogResult.OK)
             {
                 saveWorkflowDialog.FileName = openWorkflowDialog.FileName;
                 using (var reader = XmlReader.Create(openWorkflowDialog.FileName))
                 {
                     workflowBuilder = (WorkflowBuilder)serializer.Deserialize(reader);
-                    commandExecutor.Clear();
-                    UpdateGraphLayout();
+                    ResetProjectStatus();
                 }
 
                 var layoutPath = GetLayoutPath(openWorkflowDialog.FileName);
@@ -173,6 +207,8 @@ namespace Bonsai.Editor
                 using (var writer = XmlWriter.Create(saveWorkflowDialog.FileName, new XmlWriterSettings { Indent = true }))
                 {
                     serializer.Serialize(writer, workflowBuilder);
+                    saveVersion = version;
+                    UpdateSaveStatus();
                 }
 
                 if (visualizerLayout != null)
@@ -201,7 +237,8 @@ namespace Bonsai.Editor
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            StopWorkflow();
+            if (!CheckUnsavedChanges()) e.Cancel = true;
+            else StopWorkflow();
             base.OnClosing(e);
         }
 
@@ -613,10 +650,13 @@ namespace Bonsai.Editor
         {
             undoToolStripMenuItem.Enabled = commandExecutor.CanUndo;
             redoToolStripMenuItem.Enabled = commandExecutor.CanRedo;
+            version++;
+            UpdateSaveStatus();
         }
 
         private void undoToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            version -= 2;
             commandExecutor.Undo();
         }
 
