@@ -139,11 +139,6 @@ namespace Bonsai.Editor
             saveVersion = 0;
         }
 
-        void UpdateSaveStatus()
-        {
-            saveToolStripButton.Enabled = saveToolStripMenuItem.Enabled = saveVersion != version;
-        }
-
         bool CheckUnsavedChanges()
         {
             if (saveVersion != version)
@@ -208,7 +203,6 @@ namespace Bonsai.Editor
                 {
                     serializer.Serialize(writer, workflowBuilder);
                     saveVersion = version;
-                    UpdateSaveStatus();
                 }
 
                 if (visualizerLayout != null)
@@ -651,7 +645,6 @@ namespace Bonsai.Editor
             undoToolStripMenuItem.Enabled = commandExecutor.CanUndo;
             redoToolStripMenuItem.Enabled = commandExecutor.CanRedo;
             version++;
-            UpdateSaveStatus();
         }
 
         private void undoToolStripMenuItem_Click(object sender, EventArgs e)
