@@ -32,6 +32,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="IronPython, Version=2.7.0.40, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.Scripting, Version=1.1.0.20, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -65,6 +67,7 @@
     <Compile Include="Mask.cs" />
     <Compile Include="Not.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="CanvasScript.cs" />
     <Compile Include="RangeThreshold.cs" />
     <Compile Include="Resize.cs" />
     <Compile Include="Smooth.cs" />
@@ -74,6 +77,10 @@
     <Compile Include="Window.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Bonsai.Scripting\Bonsai.Scripting.csproj">
+      <Project>{A341A5A1-45A6-4B35-9AB1-FE42C622F738}</Project>
+      <Name>Bonsai.Scripting</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Bonsai\Bonsai.csproj">
       <Project>{E4D03BA3-54A2-4FF8-9DC6-52BA4CC14FED}</Project>
       <Name>Bonsai</Name>
