@@ -53,6 +53,7 @@
     <Compile Include="Canny.cs" />
     <Compile Include="ConnectedComponent.cs" />
     <Compile Include="ConnectedComponentCollection.cs" />
+    <Compile Include="ConnectedComponentCheck.cs" />
     <Compile Include="Contours.cs" />
     <Compile Include="ConvertColor.cs" />
     <Compile Include="CvCaptureSource.cs" />
