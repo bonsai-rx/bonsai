@@ -70,7 +70,7 @@ namespace Bonsai.Editor
                 typeof(ThrottleBuilder), typeof(SkipUntilBuilder), typeof(TakeUntilBuilder),
                 typeof(SampleBuilder), typeof(SampleIntervalBuilder), typeof(GateBuilder), typeof(GateIntervalBuilder),
                 typeof(TimedGateBuilder), typeof(CombineLatestBuilder), typeof(ConcatBuilder), typeof(ZipBuilder),
-                typeof(AmbBuilder), typeof(DelayBuilder), typeof(MemberSelectorBuilder)
+                typeof(AmbBuilder), typeof(DelayBuilder), typeof(RepeatBuilder), typeof(MemberSelectorBuilder)
             });
         }
 
