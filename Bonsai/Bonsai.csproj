@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Combinator.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="Expressions\RepeatBuilder.cs" />
     <Compile Include="Expressions\TimedGateBuilder.cs" />
     <Compile Include="Expressions\GateIntervalBuilder.cs" />
     <Compile Include="Expressions\GateBuilder.cs" />

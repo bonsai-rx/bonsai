@@ -17,6 +17,7 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(MemberSelectorBuilder))]
     [XmlInclude(typeof(DistinctUntilChangedBuilder))]
     [XmlInclude(typeof(TimestampBuilder))]
+    [XmlInclude(typeof(RepeatBuilder))]
     [XmlInclude(typeof(TimeIntervalBuilder))]
     [XmlInclude(typeof(ThrottleBuilder))]
     [XmlInclude(typeof(SampleBuilder))]
