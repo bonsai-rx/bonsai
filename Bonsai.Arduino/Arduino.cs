@@ -93,7 +93,7 @@ namespace Bonsai.Arduino
         void serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             var bytesToRead = serialPort.BytesToRead;
-            if (bytesToRead > 0)
+            if (serialPort.IsOpen && bytesToRead > 0)
             {
                 bytesToRead = serialPort.Read(readBuffer, 0, bytesToRead);
                 for (int i = 0; i < bytesToRead; i++)
