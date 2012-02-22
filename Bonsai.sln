@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.IO", "Bonsai.IO\Bons
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Arduino", "Bonsai.Arduino\Bonsai.Arduino.csproj", "{CFED93E8-2AE9-471D-81D6-C89BB0356EF3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Scripting", "Bonsai.Scripting\Bonsai.Scripting.csproj", "{A341A5A1-45A6-4B35-9AB1-FE42C622F738}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -107,6 +109,16 @@ Global
 		{CFED93E8-2AE9-471D-81D6-C89BB0356EF3}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{CFED93E8-2AE9-471D-81D6-C89BB0356EF3}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{CFED93E8-2AE9-471D-81D6-C89BB0356EF3}.Release|x86.ActiveCfg = Release|Any CPU
+		{A341A5A1-45A6-4B35-9AB1-FE42C622F738}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A341A5A1-45A6-4B35-9AB1-FE42C622F738}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A341A5A1-45A6-4B35-9AB1-FE42C622F738}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{A341A5A1-45A6-4B35-9AB1-FE42C622F738}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{A341A5A1-45A6-4B35-9AB1-FE42C622F738}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A341A5A1-45A6-4B35-9AB1-FE42C622F738}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A341A5A1-45A6-4B35-9AB1-FE42C622F738}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A341A5A1-45A6-4B35-9AB1-FE42C622F738}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{A341A5A1-45A6-4B35-9AB1-FE42C622F738}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{A341A5A1-45A6-4B35-9AB1-FE42C622F738}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
