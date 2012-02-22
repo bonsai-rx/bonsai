@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using System.IO;
+using System.Diagnostics;
 
 namespace Bonsai.Editor
 {
@@ -43,6 +44,7 @@ namespace Bonsai.Editor
                         Type = type.AssemblyQualifiedName
                     }));
                 }
+                catch (FileLoadException) { continue; }
                 catch (FileNotFoundException) { continue; }
                 catch (BadImageFormatException) { continue; }
             }
@@ -51,6 +53,7 @@ namespace Bonsai.Editor
         }
 
         [Serializable]
+        [DebuggerDisplay("Type = {Type}, AssemblyName = {AssemblyName}")]
         struct WorkflowElementType
         {
             public string AssemblyName { get; set; }

@@ -56,6 +56,7 @@ namespace Bonsai.Editor
 
                     typeVisualizers = typeVisualizers.Concat(GetCustomAttributeTypes(assembly, typeVisualizerAttributeType));
                 }
+                catch (FileLoadException) { continue; }
                 catch (FileNotFoundException) { continue; }
                 catch (BadImageFormatException) { continue; }
             }
