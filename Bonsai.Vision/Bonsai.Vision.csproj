@@ -78,7 +78,7 @@
     <Compile Include="Window.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Bonsai.Scripting\Bonsai.Scripting.csproj">
+    <ProjectReference Include="..\Bonsai.Scripting\Bonsai.Scripting.csproj">
       <Project>{A341A5A1-45A6-4B35-9AB1-FE42C622F738}</Project>
       <Name>Bonsai.Scripting</Name>
     </ProjectReference>
