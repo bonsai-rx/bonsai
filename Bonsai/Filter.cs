@@ -5,8 +5,7 @@ using System.Text;
 
 namespace Bonsai
 {
-    public abstract class Filter<T> : LoadableElement
+    public abstract class Filter<T> : Projection<T, bool>
     {
-        public abstract bool Process(T input);
     }
 }

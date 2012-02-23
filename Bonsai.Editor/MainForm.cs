@@ -99,31 +99,34 @@ namespace Bonsai.Editor
 
             foreach (var type in types)
             {
-                var elementType = LoadableElementType.FromType(type);
-                var name = type.IsSubclassOf(typeof(ExpressionBuilder)) ? type.Name.Remove(type.Name.LastIndexOf("Builder")) : type.Name;
-
-                if (elementType == null && type.IsSubclassOf(typeof(LoadableElement))) continue;
-                if (category == null)
+                foreach (var elementType in LoadableElementType.FromType(type))
                 {
-                    category = toolboxTreeView.Nodes.Add(categoryName, GetPackageDisplayName(categoryName));
-                }
+                    var name = type.IsSubclassOf(typeof(ExpressionBuilder)) ? type.Name.Remove(type.Name.LastIndexOf("Builder")) : type.Name;
 
-                var elementTypeNode = elementType == null ? category : category.Nodes[elementType.ToString()];
-                if (elementTypeNode == null)
-                {
-                    int index;
-                    for (index = 0; index < category.Nodes.Count; index++)
+                    if (elementType == null && type.IsSubclassOf(typeof(LoadableElement))) continue;
+                    if (category == null)
                     {
-                        if (CompareLoadableElementType(elementType.ToString(), category.Nodes[index].Name) <= 0)
-                        {
-                            break;
-                        }
+                        category = toolboxTreeView.Nodes.Add(categoryName, GetPackageDisplayName(categoryName));
                     }
 
-                    elementTypeNode = category.Nodes.Insert(index, elementType.ToString(), elementType.ToString());
-                }
+                    var elementTypeNode = elementType == null ? category : category.Nodes[elementType.ToString()];
+                    if (elementTypeNode == null)
+                    {
+                        int index;
+                        for (index = 0; index < category.Nodes.Count; index++)
+                        {
+                            if (CompareLoadableElementType(elementType.ToString(), category.Nodes[index].Name) <= 0)
+                            {
+                                break;
+                            }
+                        }
 
-                elementTypeNode.Nodes.Add(type.AssemblyQualifiedName, name);
+                        elementTypeNode = category.Nodes.Insert(index, elementType.ToString(), elementType.ToString());
+                    }
+
+                    var node = elementTypeNode.Nodes.Add(type.AssemblyQualifiedName, name);
+                    node.Tag = elementType;
+                }
             }
         }
 
@@ -278,9 +281,11 @@ namespace Bonsai.Editor
             }
         }
 
-        void CreateGraphNode(string typeName, GraphNode closestGraphViewNode, bool branch)
+        void CreateGraphNode(TreeNode typeNode, GraphNode closestGraphViewNode, bool branch)
         {
-            var type = Type.GetType(typeName);
+            if(typeNode== null) throw new ArgumentNullException("typeNode");
+
+            var type = Type.GetType(typeNode.Name);
             if (running == null && type != null)
             {
                 ExpressionBuilder builder;
@@ -288,7 +293,7 @@ namespace Bonsai.Editor
                 if (type.IsSubclassOf(typeof(LoadableElement)))
                 {
                     var element = (LoadableElement)Activator.CreateInstance(type);
-                    builder = ExpressionBuilder.FromLoadableElement(element);
+                    builder = ExpressionBuilder.FromLoadableElement(element, (LoadableElementType)typeNode.Tag);
                 }
                 else builder = (ExpressionBuilder)Activator.CreateInstance(type);
 
@@ -299,7 +304,7 @@ namespace Bonsai.Editor
                 Action removeConnection = () => { };
 
                 var closestNode = closestGraphViewNode != null ? (Node<ExpressionBuilder, ExpressionBuilderParameter>)closestGraphViewNode.Tag : null;
-                if (elementType == LoadableElementType.Source)
+                if (elementType.Contains(LoadableElementType.Source))
                 {
                     if (closestNode != null && !(closestNode.Value is SourceBuilder) && !workflowBuilder.Workflow.Predecessors(closestNode).Any())
                     {
@@ -531,13 +536,13 @@ namespace Bonsai.Editor
             var selectedNode = e.Item as TreeNode;
             if (selectedNode != null && selectedNode.GetNodeCount(false) == 0)
             {
-                toolboxTreeView.DoDragDrop(selectedNode.Name, DragDropEffects.Copy);
+                toolboxTreeView.DoDragDrop(selectedNode, DragDropEffects.Copy);
             }
         }
 
         private void workflowGraphView_DragEnter(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.Text))
+            if (e.Data.GetDataPresent(typeof(TreeNode)))
             {
                 e.Effect = DragDropEffects.Copy;
             }
@@ -553,7 +558,7 @@ namespace Bonsai.Editor
             var dropLocation = workflowGraphView.PointToClient(new Point(e.X, e.Y));
             if (e.Effect == DragDropEffects.Copy)
             {
-                var typeName = e.Data.GetData(DataFormats.Text).ToString();
+                var typeName = (TreeNode)e.Data.GetData(typeof(TreeNode));
                 var closestGraphViewNode = workflowGraphView.GetClosestNodeTo(dropLocation);
                 CreateGraphNode(typeName, closestGraphViewNode, (e.KeyState & CtrlModifier) != 0);
             }
@@ -613,8 +618,8 @@ namespace Bonsai.Editor
         {
             if (e.KeyCode == Keys.Return && toolboxTreeView.SelectedNode != null && toolboxTreeView.SelectedNode.GetNodeCount(false) == 0)
             {
-                var typeName = toolboxTreeView.SelectedNode.Name;
-                CreateGraphNode(typeName, workflowGraphView.SelectedNode, e.Modifiers == Keys.Control);
+                var typeNode = toolboxTreeView.SelectedNode;
+                CreateGraphNode(typeNode, workflowGraphView.SelectedNode, e.Modifiers == Keys.Control);
             }
         }
 
@@ -631,8 +636,8 @@ namespace Bonsai.Editor
         {
             if (e.Button == MouseButtons.Left && e.Node.GetNodeCount(false) == 0)
             {
-                var typeName = e.Node.Name;
-                CreateGraphNode(typeName, workflowGraphView.SelectedNode, Control.ModifierKeys == Keys.Control);
+                var typeNode = e.Node;
+                CreateGraphNode(typeNode, workflowGraphView.SelectedNode, Control.ModifierKeys == Keys.Control);
             }
         }
 

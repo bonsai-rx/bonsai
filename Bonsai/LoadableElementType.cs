@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Bonsai.Expressions;
 
 namespace Bonsai
 {
@@ -60,14 +61,14 @@ namespace Bonsai
             return false;
         }
 
-        public static LoadableElementType FromType(Type type)
+        public static IEnumerable<LoadableElementType> FromType(Type type)
         {
-            if (MatchType(type, LoadableElementType.Source)) return LoadableElementType.Source;
-            if (MatchType(type, LoadableElementType.Filter)) return LoadableElementType.Filter;
-            if (MatchType(type, LoadableElementType.Projection)) return LoadableElementType.Projection;
-            if (MatchType(type, LoadableElementType.Sink)) return LoadableElementType.Sink;
-            if (MatchType(type, LoadableElementType.Combinator)) return LoadableElementType.Combinator;
-            return null;
+            if (MatchType(type, LoadableElementType.Source)) yield return LoadableElementType.Source;
+            if (MatchType(type, LoadableElementType.Filter)) yield return LoadableElementType.Filter;
+            if (MatchType(type, LoadableElementType.Projection)) yield return LoadableElementType.Projection;
+            if (MatchType(type, LoadableElementType.Sink)) yield return LoadableElementType.Sink;
+            if (MatchType(type, LoadableElementType.Combinator)) yield return LoadableElementType.Combinator;
+            if (type.IsSubclassOf(typeof(ExpressionBuilder))) yield return null;
         }
     }
 }
