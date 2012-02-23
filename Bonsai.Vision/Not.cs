@@ -5,7 +5,7 @@ using System.Text;
 using OpenCV.Net;
 using Bonsai;
 
-namespace VideoAnalyzer.Vision
+namespace Bonsai.Vision
 {
     public class Not : Projection<IplImage, IplImage>
     {
