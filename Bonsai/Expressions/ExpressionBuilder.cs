@@ -38,14 +38,13 @@ namespace Bonsai.Expressions
     {
         public abstract Expression Build();
 
-        public static ExpressionBuilder FromLoadableElement(LoadableElement element)
+        public static ExpressionBuilder FromLoadableElement(LoadableElement element, LoadableElementType elementType)
         {
             if (element == null)
             {
                 throw new ArgumentNullException("element");
             }
 
-            var elementType = LoadableElementType.FromType(element.GetType());
             if (elementType == LoadableElementType.Source) return new SourceBuilder { Source = (Source)element };
             if (elementType == LoadableElementType.Filter) return new WhereBuilder { Filter = element };
             if (elementType == LoadableElementType.Projection) return new SelectBuilder { Projection = element };
