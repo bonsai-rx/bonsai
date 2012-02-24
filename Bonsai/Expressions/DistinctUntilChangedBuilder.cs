@@ -12,13 +12,9 @@ namespace Bonsai.Expressions
     [XmlType("DistinctUntilChanged", Namespace = Constants.XmlNamespace)]
     public class DistinctUntilChangedBuilder : CombinatorBuilder
     {
-        static readonly MethodInfo distinctUntilChangedMethod = typeof(Observable).GetMethods().First(m => m.Name == "DistinctUntilChanged" &&
-                                                                                                      m.GetParameters().Length == 1);
-
-        public override Expression Build()
+        protected override IObservable<TSource> Combine<TSource>(IObservable<TSource> source)
         {
-            var sourceType = Source.Type.GetGenericArguments()[0];
-            return Expression.Call(distinctUntilChangedMethod.MakeGenericMethod(sourceType), Source);
+            return source.DistinctUntilChanged();
         }
     }
 }

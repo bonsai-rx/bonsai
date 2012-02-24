@@ -10,7 +10,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Expressions
 {
     [XmlType("Timestamp", Namespace = Constants.XmlNamespace)]
-    public class TimestampBuilder : CombinatorBuilder
+    public class TimestampBuilder : CombinatorExpressionBuilder
     {
         static readonly MethodInfo timestampMethod = typeof(Observable).GetMethods()
                                                                        .First(m => m.Name == "Timestamp" &&

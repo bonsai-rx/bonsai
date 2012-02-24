@@ -11,7 +11,7 @@ using System.ComponentModel;
 namespace Bonsai.Expressions
 {
     [XmlType("Concat", Namespace = Constants.XmlNamespace)]
-    public class ConcatBuilder : BinaryCombinatorBuilder
+    public class ConcatBuilder : BinaryCombinatorExpressionBuilder
     {
         static readonly MethodInfo concatMethod = typeof(Observable).GetMethods().First(m => m.Name == "Concat" &&
                                                                                         m.GetParameters().Length == 2);

@@ -11,6 +11,12 @@ namespace Bonsai.Design
 {
     public class ExpressionBuilderTypeConverter : TypeConverter
     {
+        string RemoveSuffix(string source, string suffix)
+        {
+            var suffixStart = source.LastIndexOf(suffix);
+            return suffixStart >= 0 ? source.Remove(suffixStart) : source;
+        }
+
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
             if (destinationType == typeof(Brush)) return true;
@@ -36,11 +42,8 @@ namespace Bonsai.Design
                 var doBuilder = expressionBuilder as DoBuilder;
                 if (doBuilder != null) return doBuilder.Sink.GetType().Name;
 
-                var queryBuilder = expressionBuilder as QueryBuilder;
-                if (queryBuilder != null) return queryBuilder.Combinator.GetType().Name;
-
                 var type = expressionBuilder.GetType();
-                return type.Name.Remove(type.Name.LastIndexOf("Builder"));
+                return RemoveSuffix(type.Name, "Builder");
             }
 
             if (destinationType == typeof(Brush))

@@ -14,11 +14,6 @@ namespace Bonsai.Expressions
     [XmlType("GateInterval", Namespace = Constants.XmlNamespace)]
     public class GateIntervalBuilder : CombinatorBuilder
     {
-        static readonly MethodInfo gateMethod = typeof(ObservableCombinators).GetMethods()
-                                                                             .First(m => m.Name == "Gate" &&
-                                                                                    m.GetParameters().Length == 3 &&
-                                                                                    m.GetParameters()[1].ParameterType == typeof(TimeSpan));
-
         [XmlIgnore]
         public TimeSpan Interval { get; set; }
 
@@ -30,12 +25,9 @@ namespace Bonsai.Expressions
             set { Interval = XmlConvert.ToTimeSpan(value); }
         }
 
-        public override Expression Build()
+        protected override IObservable<TSource> Combine<TSource>(IObservable<TSource> source)
         {
-            var observableType = Source.Type.GetGenericArguments()[0];
-            var interval = Expression.Constant(Interval);
-            var scheduler = Expression.Constant(HighResolutionScheduler.ThreadPool);
-            return Expression.Call(gateMethod.MakeGenericMethod(observableType), Source, interval, scheduler);
+            return source.Gate(Interval);
         }
     }
 }

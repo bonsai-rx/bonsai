@@ -14,9 +14,6 @@ namespace Bonsai.Expressions
     [XmlType("Throttle", Namespace = Constants.XmlNamespace)]
     public class ThrottleBuilder : CombinatorBuilder
     {
-        static readonly MethodInfo throttleMethod = typeof(Observable).GetMethods().First(m => m.Name == "Throttle" &&
-                                                                                          m.GetParameters().Length == 3);
-
         [XmlIgnore]
         public TimeSpan DueTime { get; set; }
 
@@ -28,12 +25,9 @@ namespace Bonsai.Expressions
             set { DueTime = XmlConvert.ToTimeSpan(value); }
         }
 
-        public override Expression Build()
+        protected override IObservable<TSource> Combine<TSource>(IObservable<TSource> source)
         {
-            var sourceType = Source.Type.GetGenericArguments()[0];
-            var dueTime = Expression.Constant(DueTime);
-            var scheduler = Expression.Constant(HighResolutionScheduler.ThreadPool);
-            return Expression.Call(throttleMethod.MakeGenericMethod(sourceType), Source, dueTime, scheduler);
+            return source.Throttle(DueTime, HighResolutionScheduler.ThreadPool);
         }
     }
 }

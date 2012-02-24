@@ -11,7 +11,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Expressions
 {
     [XmlType("Select", Namespace = Constants.XmlNamespace)]
-    public class SelectBuilder : CombinatorBuilder
+    public class SelectBuilder : CombinatorExpressionBuilder
     {
         static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()
                                                                     .First(m => m.Name == "Select" &&

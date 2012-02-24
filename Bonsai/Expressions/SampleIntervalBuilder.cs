@@ -14,11 +14,6 @@ namespace Bonsai.Expressions
     [XmlType("SampleInterval", Namespace = Constants.XmlNamespace)]
     public class SampleIntervalBuilder : CombinatorBuilder
     {
-        static readonly MethodInfo sampleMethod = typeof(Observable).GetMethods()
-                                                                    .First(m => m.Name == "Sample" &&
-                                                                           m.GetParameters().Length == 3 &&
-                                                                           m.GetParameters()[1].ParameterType == typeof(TimeSpan));
-
         [XmlIgnore]
         public TimeSpan Interval { get; set; }
 
@@ -30,12 +25,9 @@ namespace Bonsai.Expressions
             set { Interval = XmlConvert.ToTimeSpan(value); }
         }
 
-        public override Expression Build()
+        protected override IObservable<TSource> Combine<TSource>(IObservable<TSource> source)
         {
-            var observableType = Source.Type.GetGenericArguments()[0];
-            var interval = Expression.Constant(Interval);
-            var scheduler = Expression.Constant(HighResolutionScheduler.ThreadPool);
-            return Expression.Call(sampleMethod.MakeGenericMethod(observableType), Source, interval, scheduler);
+            return source.Sample(Interval, HighResolutionScheduler.ThreadPool);
         }
     }
 }

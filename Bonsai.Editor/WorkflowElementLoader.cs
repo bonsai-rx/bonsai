@@ -5,12 +5,13 @@ using System.Text;
 using System.Reflection;
 using System.IO;
 using System.Diagnostics;
+using Bonsai.Expressions;
 
 namespace Bonsai.Editor
 {
     public class WorkflowElementLoader : MarshalByRefObject
     {
-        IEnumerable<Type> GetSubclassElementTypes(Assembly assembly, Type baseClass)
+        IEnumerable<WorkflowElementType> GetSubclassElementTypes(Assembly assembly, Type baseClass)
         {
             Type[] types;
 
@@ -19,9 +20,14 @@ namespace Bonsai.Editor
 
             for (int i = 0; i < types.Length; i++)
             {
-                if (!types[i].IsAbstract && !types[i].ContainsGenericParameters && types[i].IsSubclassOf(baseClass))
+                var type = types[i];
+                if (!type.IsAbstract && !type.ContainsGenericParameters && type.IsSubclassOf(baseClass))
                 {
-                    yield return types[i];
+                    yield return new WorkflowElementType
+                    {
+                        AssemblyName = type.Assembly.GetName().Name,
+                        Type = type.AssemblyQualifiedName
+                    };
                 }
             }
         }
@@ -31,6 +37,7 @@ namespace Bonsai.Editor
             var types = Enumerable.Empty<WorkflowElementType>();
             var loadableElementAssembly = Assembly.Load(typeof(LoadableElement).Assembly.FullName);
             var loadableElementType = loadableElementAssembly.GetType(typeof(LoadableElement).FullName);
+            var expressionBuilderType = loadableElementAssembly.GetType(typeof(ExpressionBuilder).FullName);
 
             var files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
             for (int i = 0; i < files.Length; i++)
@@ -38,11 +45,8 @@ namespace Bonsai.Editor
                 try
                 {
                     var assembly = Assembly.LoadFrom(files[i]);
-                    types = types.Concat(GetSubclassElementTypes(assembly, loadableElementType).Select(type => new WorkflowElementType
-                    {
-                        AssemblyName = type.Assembly.GetName().Name,
-                        Type = type.AssemblyQualifiedName
-                    }));
+                    types = types.Concat(GetSubclassElementTypes(assembly, loadableElementType))
+                                 .Concat(GetSubclassElementTypes(assembly, expressionBuilderType));
                 }
                 catch (FileLoadException) { continue; }
                 catch (FileNotFoundException) { continue; }

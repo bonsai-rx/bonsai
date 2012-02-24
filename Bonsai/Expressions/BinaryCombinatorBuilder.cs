@@ -3,15 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Linq.Expressions;
-using System.Xml.Serialization;
-using System.ComponentModel;
 
 namespace Bonsai.Expressions
 {
-    public abstract class BinaryCombinatorBuilder : CombinatorBuilder
+    public abstract class BinaryCombinatorBuilder : BinaryCombinatorExpressionBuilder
     {
-        [XmlIgnore]
-        [Browsable(false)]
-        public Expression Other { get; set; }
+        public override Expression Build()
+        {
+            var sourceType = Source.Type.GetGenericArguments()[0];
+            var otherType = Other.Type.GetGenericArguments()[0];
+            var combinatorExpression = Expression.Constant(this);
+            return Expression.Call(combinatorExpression, "Combine", new[] { sourceType, otherType }, Source, Other);
+        }
+
+        protected abstract IObservable<TSource> Combine<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other);
     }
 }

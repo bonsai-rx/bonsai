@@ -23,6 +23,9 @@ namespace Bonsai.Editor
     {
         const int CtrlModifier = 0x8;
         const string LayoutExtension = ".layout";
+        const string BonsaiPackageName = "Bonsai";
+        const string CombinatorCategoryName = "Combinator";
+        const string ExpressionBuilderSuffix = "Builder";
 
         int version;
         int saveVersion;
@@ -59,33 +62,28 @@ namespace Bonsai.Editor
         void InitializeToolbox()
         {
             var packages = WorkflowElementLoader.GetWorkflowElementTypes();
+            var bonsaiPackage = packages.Single(package => package.Key == BonsaiPackageName);
             foreach (var package in packages)
             {
+                if (package == bonsaiPackage) continue;
                 InitializeToolboxCategory(package.Key, package);
             }
 
-            InitializeToolboxCategory("Combinator", new[]
-            {
-                typeof(DistinctUntilChangedBuilder), typeof(TimestampBuilder), typeof(TimeIntervalBuilder),
-                typeof(ThrottleBuilder), typeof(SkipUntilBuilder), typeof(TakeUntilBuilder),
-                typeof(SampleBuilder), typeof(SampleIntervalBuilder), typeof(GateBuilder), typeof(GateIntervalBuilder),
-                typeof(TimedGateBuilder), typeof(CombineLatestBuilder), typeof(ConcatBuilder), typeof(ZipBuilder),
-                typeof(AmbBuilder), typeof(DelayBuilder), typeof(RepeatBuilder), typeof(MemberSelectorBuilder)
-            });
+            InitializeToolboxCategory(CombinatorCategoryName, bonsaiPackage);
         }
 
         string GetPackageDisplayName(string packageKey)
         {
-            return packageKey.Replace("Bonsai.", string.Empty);
+            return packageKey.Replace(BonsaiPackageName + ".", string.Empty);
         }
 
         int GetElementTypeIndex(string typeName)
         {
             return
-                typeName == LoadableElementType.Source.ToString() ? 0 :
-                typeName == LoadableElementType.Filter.ToString() ? 1 :
-                typeName == LoadableElementType.Projection.ToString() ? 2 :
-                typeName == LoadableElementType.Sink.ToString() ? 3 : 4;
+                typeName == WorkflowElementType.Source.ToString() ? 0 :
+                typeName == WorkflowElementType.Filter.ToString() ? 1 :
+                typeName == WorkflowElementType.Projection.ToString() ? 2 :
+                typeName == WorkflowElementType.Sink.ToString() ? 3 : 4;
         }
 
         int CompareLoadableElementType(string left, string right)
@@ -93,23 +91,28 @@ namespace Bonsai.Editor
             return GetElementTypeIndex(left).CompareTo(GetElementTypeIndex(right));
         }
 
+        //TODO: Remove duplicate method from ExpressionBuilderTypeConverter.cs
+        string RemoveSuffix(string source, string suffix)
+        {
+            var suffixStart = source.LastIndexOf(suffix);
+            return suffixStart >= 0 ? source.Remove(suffixStart) : source;
+        }
+
         void InitializeToolboxCategory(string categoryName, IEnumerable<Type> types)
         {
             TreeNode category = null;
 
-            foreach (var type in types)
+            foreach (var type in types.OrderBy(type => type.Name))
             {
-                foreach (var elementType in LoadableElementType.FromType(type))
+                foreach (var elementType in WorkflowElementType.FromType(type))
                 {
-                    var name = type.IsSubclassOf(typeof(ExpressionBuilder)) ? type.Name.Remove(type.Name.LastIndexOf("Builder")) : type.Name;
-
-                    if (elementType == null && type.IsSubclassOf(typeof(LoadableElement))) continue;
+                    var name = type.IsSubclassOf(typeof(ExpressionBuilder)) ? RemoveSuffix(type.Name, ExpressionBuilderSuffix) : type.Name;
                     if (category == null)
                     {
                         category = toolboxTreeView.Nodes.Add(categoryName, GetPackageDisplayName(categoryName));
                     }
 
-                    var elementTypeNode = elementType == null ? category : category.Nodes[elementType.ToString()];
+                    var elementTypeNode = categoryName == CombinatorCategoryName ? category : category.Nodes[elementType.ToString()];
                     if (elementTypeNode == null)
                     {
                         int index;
@@ -250,13 +253,13 @@ namespace Bonsai.Editor
             if (workflowBuilder.Workflow.Successors(source).Contains(target)) return;
             var connection = string.Empty;
 
-            var combinator = target.Value as CombinatorBuilder;
+            var combinator = target.Value as CombinatorExpressionBuilder;
             if (combinator != null)
             {
                 if (!workflowBuilder.Workflow.Predecessors(target).Any()) connection = "Source";
                 else
                 {
-                    var binaryCombinator = combinator as BinaryCombinatorBuilder;
+                    var binaryCombinator = combinator as BinaryCombinatorExpressionBuilder;
                     if (binaryCombinator != null && binaryCombinator.Other == null)
                     {
                         connection = "Other";
@@ -289,11 +292,11 @@ namespace Bonsai.Editor
             if (running == null && type != null)
             {
                 ExpressionBuilder builder;
-                var elementType = LoadableElementType.FromType(type);
+                var elementType = WorkflowElementType.FromType(type);
                 if (type.IsSubclassOf(typeof(LoadableElement)))
                 {
                     var element = (LoadableElement)Activator.CreateInstance(type);
-                    builder = ExpressionBuilder.FromLoadableElement(element, (LoadableElementType)typeNode.Tag);
+                    builder = ExpressionBuilder.FromLoadableElement(element, (WorkflowElementType)typeNode.Tag);
                 }
                 else builder = (ExpressionBuilder)Activator.CreateInstance(type);
 
@@ -304,7 +307,7 @@ namespace Bonsai.Editor
                 Action removeConnection = () => { };
 
                 var closestNode = closestGraphViewNode != null ? (Node<ExpressionBuilder, ExpressionBuilderParameter>)closestGraphViewNode.Tag : null;
-                if (elementType.Contains(LoadableElementType.Source))
+                if (elementType.Contains(WorkflowElementType.Source))
                 {
                     if (closestNode != null && !(closestNode.Value is SourceBuilder) && !workflowBuilder.Workflow.Predecessors(closestNode).Any())
                     {

@@ -13,13 +13,9 @@ namespace Bonsai.Expressions
     [XmlType("TakeUntil", Namespace = Constants.XmlNamespace)]
     public class TakeUntilBuilder : BinaryCombinatorBuilder
     {
-        static readonly MethodInfo takeUntilMethod = typeof(Observable).GetMethod("TakeUntil");
-
-        public override Expression Build()
+        protected override IObservable<TSource> Combine<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
         {
-            var sourceType = Source.Type.GetGenericArguments()[0];
-            var otherType = Other.Type.GetGenericArguments()[0];
-            return Expression.Call(takeUntilMethod.MakeGenericMethod(sourceType, otherType), Source, Other);
+            return source.TakeUntil(other);
         }
     }
 }
