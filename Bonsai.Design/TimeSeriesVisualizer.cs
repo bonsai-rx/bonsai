@@ -13,42 +13,63 @@ namespace Bonsai.Design
 {
     public class TimeSeriesVisualizer : DialogTypeVisualizer
     {
-        TimeSeriesControl control;
+        const double TimeScaleFactor = 42;
+        TimeSeriesControl chart;
         List<DateTime> valuesX;
         List<object> valuesY;
 
-        public override void Show(object value)
+        protected TimeSeriesControl Chart
         {
-            var excess = valuesX.Count - control.Width;
+            get { return chart; }
+        }
+
+        protected IList<DateTime> ValuesX
+        {
+            get { return valuesX; }
+        }
+
+        protected IList<object> ValuesY
+        {
+            get { return valuesY; }
+        }
+
+        protected void AddValue(DateTime time, object value)
+        {
+            var excess = valuesX.Where(x => (time - x).TotalSeconds > chart.Width / TimeScaleFactor).Count();
             if (excess > 0)
             {
                 valuesX.RemoveRange(0, excess);
                 valuesY.RemoveRange(0, excess);
             }
 
-            valuesX.Add(DateTime.Now);
+            valuesX.Add(time);
             valuesY.Add(value);
 
-            control.Points.DataBindXY(valuesX, valuesY);
+            chart.TimeSeries.Points.DataBindXY(valuesX, valuesY);
+        }
+
+        public override void Show(object value)
+        {
+            AddValue(DateTime.Now, value);
         }
 
         public override void Load(IServiceProvider provider)
         {
-            control = new TimeSeriesControl();
+            chart = new TimeSeriesControl();
             valuesX = new List<DateTime>();
             valuesY = new List<object>();
 
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
             if (visualizerService != null)
             {
-                visualizerService.AddControl(control);
+                visualizerService.AddControl(chart);
             }
         }
 
         public override void Unload()
         {
-            control.Dispose();
-            control = null;
+            chart.Dispose();
+            chart = null;
         }
     }
 }
