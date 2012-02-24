@@ -14,10 +14,6 @@ namespace Bonsai.Expressions
     [XmlType("TimedGate", Namespace = Constants.XmlNamespace)]
     public class TimedGateBuilder : BinaryCombinatorBuilder
     {
-        static readonly MethodInfo gateMethod = typeof(ObservableCombinators).GetMethods()
-                                                                             .First(m => m.Name == "Gate" &&
-                                                                                    m.GetParameters().Length == 4);
-
         [XmlIgnore]
         public TimeSpan TimeSpan { get; set; }
 
@@ -29,13 +25,9 @@ namespace Bonsai.Expressions
             set { TimeSpan = XmlConvert.ToTimeSpan(value); }
         }
 
-        public override Expression Build()
+        protected override IObservable<TSource> Combine<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
         {
-            var sourceType = Source.Type.GetGenericArguments()[0];
-            var otherType = Other.Type.GetGenericArguments()[0];
-            var timeSpan = Expression.Constant(TimeSpan);
-            var scheduler = Expression.Constant(HighResolutionScheduler.ThreadPool);
-            return Expression.Call(gateMethod.MakeGenericMethod(sourceType, otherType), Source, Other, timeSpan, scheduler);
+            return source.Gate(other, TimeSpan);
         }
     }
 }

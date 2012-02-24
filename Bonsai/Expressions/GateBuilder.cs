@@ -12,17 +12,9 @@ namespace Bonsai.Expressions
     [XmlType("Gate", Namespace = Constants.XmlNamespace)]
     public class GateBuilder : BinaryCombinatorBuilder
     {
-        static readonly MethodInfo gateMethod = typeof(ObservableCombinators).GetMethods()
-                                                                             .First(m => m.Name == "Gate" &&
-                                                                                    m.GetParameters().Length == 2 &&
-                                                                                    m.GetParameters()[1].ParameterType.IsGenericType &&
-                                                                                    m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(IObservable<>));
-
-        public override Expression Build()
+        protected override IObservable<TSource> Combine<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
         {
-            var sourceType = Source.Type.GetGenericArguments()[0];
-            var otherType = Other.Type.GetGenericArguments()[0];
-            return Expression.Call(gateMethod.MakeGenericMethod(sourceType, otherType), Source, Other);
+            return source.Gate(other);
         }
     }
 }

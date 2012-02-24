@@ -42,13 +42,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Combinator.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="Expressions\BinaryCombinatorBuilder.cs" />
+    <Compile Include="Expressions\MergeCombinatorBuilder.cs" />
+    <Compile Include="Expressions\CombinatorBuilder.cs" />
     <Compile Include="Expressions\RepeatBuilder.cs" />
     <Compile Include="Expressions\TimedGateBuilder.cs" />
     <Compile Include="Expressions\GateIntervalBuilder.cs" />
     <Compile Include="Expressions\GateBuilder.cs" />
-    <Compile Include="Expressions\QueryBuilder.cs" />
     <Compile Include="HighResolutionScheduler.cs" />
     <Compile Include="ObservableCombinators.cs" />
     <Compile Include="ConnectableElement.cs" />
@@ -62,9 +63,9 @@
     <Compile Include="Dag\LayeredNodeGrouping.cs" />
     <Compile Include="Dag\Node.cs" />
     <Compile Include="DesignTypes.cs" />
-    <Compile Include="Expressions\CombinatorBuilder.cs" />
+    <Compile Include="Expressions\CombinatorExpressionBuilder.cs" />
     <Compile Include="Expressions\CombineLatestBuilder.cs" />
-    <Compile Include="Expressions\BinaryCombinatorBuilder.cs" />
+    <Compile Include="Expressions\BinaryCombinatorExpressionBuilder.cs" />
     <Compile Include="Expressions\ConcatBuilder.cs" />
     <Compile Include="Expressions\AmbBuilder.cs" />
     <Compile Include="Expressions\DelayBuilder.cs" />
@@ -92,7 +93,7 @@
     <Compile Include="DynamicSink.cs" />
     <Compile Include="ILoadable.cs" />
     <Compile Include="LoadableElement.cs" />
-    <Compile Include="LoadableElementType.cs" />
+    <Compile Include="WorkflowElementType.cs" />
     <Compile Include="ObservableSink.cs" />
     <Compile Include="PrecisionAttribute.cs" />
     <Compile Include="Projection.cs" />

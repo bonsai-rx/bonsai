@@ -11,7 +11,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Expressions
 {
     [XmlType("Where", Namespace = Constants.XmlNamespace)]
-    public class WhereBuilder : CombinatorBuilder
+    public class WhereBuilder : CombinatorExpressionBuilder
     {
         static readonly MethodInfo whereMethod = typeof(Observable).GetMethods()
                                                                    .First(m => m.Name == "Where" &&

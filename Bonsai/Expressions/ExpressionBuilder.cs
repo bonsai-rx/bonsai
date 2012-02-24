@@ -8,12 +8,11 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
 {
-    [XmlInclude(typeof(CombinatorBuilder))]
+    [XmlInclude(typeof(CombinatorExpressionBuilder))]
     [XmlInclude(typeof(SourceBuilder))]
     [XmlInclude(typeof(SelectBuilder))]
     [XmlInclude(typeof(WhereBuilder))]
     [XmlInclude(typeof(DoBuilder))]
-    [XmlInclude(typeof(QueryBuilder))]
     [XmlInclude(typeof(MemberSelectorBuilder))]
     [XmlInclude(typeof(DistinctUntilChangedBuilder))]
     [XmlInclude(typeof(TimestampBuilder))]
@@ -38,18 +37,17 @@ namespace Bonsai.Expressions
     {
         public abstract Expression Build();
 
-        public static ExpressionBuilder FromLoadableElement(LoadableElement element, LoadableElementType elementType)
+        public static ExpressionBuilder FromLoadableElement(LoadableElement element, WorkflowElementType elementType)
         {
             if (element == null)
             {
                 throw new ArgumentNullException("element");
             }
 
-            if (elementType == LoadableElementType.Source) return new SourceBuilder { Source = (Source)element };
-            if (elementType == LoadableElementType.Filter) return new WhereBuilder { Filter = element };
-            if (elementType == LoadableElementType.Projection) return new SelectBuilder { Projection = element };
-            if (elementType == LoadableElementType.Sink) return new DoBuilder { Sink = element };
-            if (elementType == LoadableElementType.Combinator) return new QueryBuilder { Combinator = element };
+            if (elementType == WorkflowElementType.Source) return new SourceBuilder { Source = (Source)element };
+            if (elementType == WorkflowElementType.Filter) return new WhereBuilder { Filter = element };
+            if (elementType == WorkflowElementType.Projection) return new SelectBuilder { Projection = element };
+            if (elementType == WorkflowElementType.Sink) return new DoBuilder { Sink = element };
             throw new InvalidOperationException("Invalid loadable element type.");
         }
 

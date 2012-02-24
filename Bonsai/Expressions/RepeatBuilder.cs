@@ -12,16 +12,9 @@ namespace Bonsai.Expressions
     [XmlType("Repeat", Namespace = Constants.XmlNamespace)]
     public class RepeatBuilder : CombinatorBuilder
     {
-        static readonly MethodInfo repeatMethod = typeof(Observable).GetMethods()
-                                                                    .First(m => m.Name == "Repeat" &&
-                                                                           m.GetParameters().Length == 1 &&
-                                                                           m.GetParameters()[0].ParameterType.IsGenericType &&
-                                                                           m.GetParameters()[0].ParameterType.GetGenericTypeDefinition() == typeof(IObservable<>));
-
-        public override Expression Build()
+        protected override IObservable<TSource> Combine<TSource>(IObservable<TSource> source)
         {
-            var observableType = Source.Type.GetGenericArguments()[0];
-            return Expression.Call(repeatMethod.MakeGenericMethod(observableType), Source);
+            return source.Repeat();
         }
     }
 }

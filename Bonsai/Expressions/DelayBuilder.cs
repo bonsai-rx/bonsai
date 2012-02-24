@@ -14,10 +14,6 @@ namespace Bonsai.Expressions
     [XmlType("Delay", Namespace = Constants.XmlNamespace)]
     public class DelayBuilder : CombinatorBuilder
     {
-        static readonly MethodInfo delayMethod = typeof(Observable).GetMethods().First(m => m.Name == "Delay" &&
-                                                                                       m.GetParameters().Length == 3 &&
-                                                                                       m.GetParameters()[1].ParameterType == typeof(TimeSpan));
-
         [XmlIgnore]
         public TimeSpan DueTime { get; set; }
 
@@ -29,12 +25,9 @@ namespace Bonsai.Expressions
             set { DueTime = XmlConvert.ToTimeSpan(value); }
         }
 
-        public override Expression Build()
+        protected override IObservable<TSource> Combine<TSource>(IObservable<TSource> source)
         {
-            var sourceType = Source.Type.GetGenericArguments()[0];
-            var dueTime = Expression.Constant(DueTime);
-            var scheduler = Expression.Constant(HighResolutionScheduler.ThreadPool);
-            return Expression.Call(delayMethod.MakeGenericMethod(sourceType), Source, dueTime, scheduler);
+            return source.Delay(DueTime, HighResolutionScheduler.ThreadPool);
         }
     }
 }

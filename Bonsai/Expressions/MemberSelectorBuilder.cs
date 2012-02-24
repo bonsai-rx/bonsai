@@ -12,7 +12,7 @@ using System.ComponentModel;
 namespace Bonsai.Expressions
 {
     [XmlType("MemberSelector", Namespace = Constants.XmlNamespace)]
-    public class MemberSelectorBuilder : CombinatorBuilder
+    public class MemberSelectorBuilder : CombinatorExpressionBuilder
     {
         static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()
                                                                     .First(m => m.Name == "Select" &&

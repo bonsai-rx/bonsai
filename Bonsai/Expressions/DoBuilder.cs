@@ -11,7 +11,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Expressions
 {
     [XmlType("Do", Namespace = Constants.XmlNamespace)]
-    public class DoBuilder : CombinatorBuilder
+    public class DoBuilder : CombinatorExpressionBuilder
     {
         static readonly MethodInfo doMethod = typeof(Observable).GetMethods()
                                                                 .First(m => m.Name == "Do" &&

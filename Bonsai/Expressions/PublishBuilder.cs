@@ -11,7 +11,7 @@ using System.ComponentModel;
 
 namespace Bonsai.Expressions
 {
-    public class PublishBuilder : CombinatorBuilder
+    public class PublishBuilder : CombinatorExpressionBuilder
     {
         static readonly Type connectableObservableType = typeof(IConnectableObservable<>);
         static readonly ConstructorInfo connectorConstructor = typeof(ConnectableElement).GetConstructors().First();

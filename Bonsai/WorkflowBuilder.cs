@@ -90,6 +90,12 @@ namespace Bonsai
         static XmlSerializerNamespaces serializerNamespaces;
         static readonly object cacheLock = new object();
 
+        static IEnumerable<Type> GetDefaultSerializerTypes()
+        {
+            return Attribute.GetCustomAttributes(typeof(ExpressionBuilder), typeof(XmlIncludeAttribute), false)
+                            .Select(attribute => ((XmlIncludeAttribute)attribute).Type);
+        }
+
         static string GetXmlNamespace(Type type)
         {
             var xmlTypeAttribute = (XmlTypeAttribute)Attribute.GetCustomAttribute(type, typeof(XmlTypeAttribute), false);
@@ -115,7 +121,9 @@ namespace Bonsai
                     serializerNamespaces = new XmlSerializerNamespaces();
                     serializerNamespaces.Add("xsi", XmlSchema.InstanceNamespace);
                     foreach (var xmlNamespace in (from type in serializerTypes
-                                                  select GetXmlNamespace(type))
+                                                  let xmlNamespace = GetXmlNamespace(type)
+                                                  where xmlNamespace != Constants.XmlNamespace
+                                                  select xmlNamespace)
                                                  .Distinct())
                     {
                         serializerNamespaces.Add("q" + namespaceIndex, xmlNamespace);
@@ -142,9 +150,10 @@ namespace Bonsai
 
         static IEnumerable<Type> GetExtensionTypes(ExpressionBuilderGraph workflow)
         {
-            return from node in workflow
-                   from element in node.Value.GetLoadableElements()
-                   select element.GetType();
+            return workflow.SelectMany(node => node.Value.GetLoadableElements()
+                .Select(element => element.GetType())
+                .Concat(Enumerable.Repeat(node.Value.GetType(), 1)))
+                .Except(GetDefaultSerializerTypes());
         }
 
         #endregion

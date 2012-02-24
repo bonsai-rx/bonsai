@@ -12,17 +12,9 @@ namespace Bonsai.Expressions
     [XmlType("Sample", Namespace = Constants.XmlNamespace)]
     public class SampleBuilder : BinaryCombinatorBuilder
     {
-        static readonly MethodInfo sampleMethod = typeof(Observable).GetMethods()
-                                                                    .First(m => m.Name == "Sample" &&
-                                                                           m.GetParameters().Length == 2 &&
-                                                                           m.GetParameters()[1].ParameterType.IsGenericType &&
-                                                                           m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(IObservable<>));
-
-        public override Expression Build()
+        protected override IObservable<TSource> Combine<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
         {
-            var sourceType = Source.Type.GetGenericArguments()[0];
-            var otherType = Other.Type.GetGenericArguments()[0];
-            return Expression.Call(sampleMethod.MakeGenericMethod(sourceType, otherType), Source, Other);
+            return source.Sample(other);
         }
     }
 }
