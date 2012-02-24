@@ -32,7 +32,14 @@ namespace Bonsai.Editor
 
             for (int i = 0; i < types.Length; i++)
             {
-                var visualizerAttributes = types[i].GetCustomAttributes(attributeType, true).Cast<TypeVisualizerAttribute>();
+                var type = types[i];
+                var visualizerAttributes = Array.ConvertAll(type.GetCustomAttributes(attributeType, true), attribute =>
+                {
+                    var visualizerAttribute = (TypeVisualizerAttribute)attribute;
+                    visualizerAttribute.TargetTypeName = type.AssemblyQualifiedName;
+                    return visualizerAttribute;
+                });
+
                 typeVisualizers = typeVisualizers.Concat(visualizerAttributes);
             }
 
