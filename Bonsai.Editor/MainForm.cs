@@ -444,7 +444,9 @@ namespace Bonsai.Editor
                                                       mapping =>
                                                       {
                                                           Type visualizerType;
-                                                          if (!typeVisualizers.TryGetValue(mapping.inspectBuilder.ObservableType, out visualizerType))
+                                                          var workflowElementType = ExpressionBuilder.GetWorkflowElementType(mapping.node.Value);
+                                                          if (!typeVisualizers.TryGetValue(workflowElementType, out visualizerType) &&
+                                                              !typeVisualizers.TryGetValue(mapping.inspectBuilder.ObservableType, out visualizerType))
                                                           {
                                                               visualizerType = typeVisualizers[typeof(object)];
                                                           };

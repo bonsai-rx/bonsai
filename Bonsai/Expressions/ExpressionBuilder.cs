@@ -37,6 +37,23 @@ namespace Bonsai.Expressions
     {
         public abstract Expression Build();
 
+        public static Type GetWorkflowElementType(ExpressionBuilder builder)
+        {
+            var sourceBuilder = builder as SourceBuilder;
+            if (sourceBuilder != null) return sourceBuilder.Source.GetType();
+
+            var selectBuilder = builder as SelectBuilder;
+            if (selectBuilder != null) return selectBuilder.Projection.GetType();
+
+            var whereBuilder = builder as WhereBuilder;
+            if (whereBuilder != null) return whereBuilder.Filter.GetType();
+
+            var doBuilder = builder as DoBuilder;
+            if (doBuilder != null) return doBuilder.Sink.GetType();
+
+            return builder.GetType();
+        }
+
         public static ExpressionBuilder FromLoadableElement(LoadableElement element, WorkflowElementType elementType)
         {
             if (element == null)
