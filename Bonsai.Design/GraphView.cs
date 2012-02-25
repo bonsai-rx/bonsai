@@ -53,11 +53,6 @@ namespace Bonsai.Design
                 handler => canvas.MouseMove -= handler)
                 .Select(evt => evt.EventArgs);
 
-            var mouseUpEvent = Observable.FromEventPattern<MouseEventHandler, MouseEventArgs>(
-                handler => canvas.MouseUp += handler,
-                handler => canvas.MouseUp -= handler)
-                .Select(evt => evt.EventArgs);
-
             var itemDrag = (from mouseDown in mouseDownEvent
                             where mouseDown.Button == MouseButtons.Left
                             let node = GetNodeAt(mouseDown.Location)
