@@ -73,10 +73,11 @@ namespace Bonsai.Editor
                 var loader = (WorkflowElementLoader)reflectionDomain.CreateInstanceAndUnwrap(typeof(WorkflowElementLoader).Assembly.FullName, typeof(WorkflowElementLoader).FullName);
                 var assemblyTypeNames = loader.GetReflectionWorkflowElementTypes();
 
-                return from elementType in assemblyTypeNames
-                       let type = Type.GetType(elementType.Type)
-                       where type != null
-                       group type by elementType.AssemblyName;
+                return (from elementType in assemblyTypeNames
+                        let type = Type.GetType(elementType.Type)
+                        where type != null
+                        group type by elementType.AssemblyName)
+                       .ToArray();
             }
             finally { AppDomain.Unload(reflectionDomain); }
         }

@@ -48,6 +48,8 @@
     <Compile Include="CommandExecutor.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="FileNameEditor.cs" />
+    <Compile Include="OpenFileNameEditor.cs" />
     <Compile Include="DialogTypeVisualizer.cs" />
     <Compile Include="DynamicPropertyDescriptor.cs" />
     <Compile Include="ExpressionBuilderParameterTypeConverter.cs" />

@@ -50,6 +50,7 @@
     <Compile Include="Expressions\TimedGateBuilder.cs" />
     <Compile Include="Expressions\GateIntervalBuilder.cs" />
     <Compile Include="Expressions\GateBuilder.cs" />
+    <Compile Include="FileNameFilterAttribute.cs" />
     <Compile Include="HighResolutionScheduler.cs" />
     <Compile Include="ObservableCombinators.cs" />
     <Compile Include="ConnectableElement.cs" />

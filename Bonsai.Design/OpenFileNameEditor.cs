@@ -9,11 +9,11 @@ using System.Windows.Forms;
 
 namespace Bonsai.Design
 {
-    public class SaveFileNameEditor : FileNameEditor
+    public class OpenFileNameEditor : FileNameEditor
     {
         protected override FileDialog CreateFileDialog()
         {
-            return new SaveFileDialog();
+            return new OpenFileDialog();
         }
     }
 }
