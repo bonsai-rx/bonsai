@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BooleanTimeSeriesVisualizer.cs" />
     <Compile Include="CommandExecutor.cs">
       <SubType>Component</SubType>
     </Compile>
