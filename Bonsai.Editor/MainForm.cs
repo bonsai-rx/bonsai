@@ -22,6 +22,7 @@ namespace Bonsai.Editor
     public partial class MainForm : Form
     {
         const int CtrlModifier = 0x8;
+        const string BonsaiExtension = ".bonsai";
         const string LayoutExtension = ".layout";
         const string BonsaiPackageName = "Bonsai";
         const string CombinatorCategoryName = "Combinator";
@@ -56,6 +57,23 @@ namespace Bonsai.Editor
             builderConverter = new ExpressionBuilderTypeConverter();
             propertyGrid.Site = editorSite;
         }
+
+        #region Loading
+
+        public string InitialFileName { get; set; }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(InitialFileName) &&
+                Path.GetExtension(InitialFileName) == BonsaiExtension &&
+                File.Exists(InitialFileName))
+            {
+                OpenWorkflow(InitialFileName);
+            }
+            base.OnLoad(e);
+        }
+
+        #endregion
 
         #region Toolbox
 
@@ -167,6 +185,25 @@ namespace Bonsai.Editor
             return Path.ChangeExtension(fileName, Path.GetExtension(fileName) + LayoutExtension);
         }
 
+        void OpenWorkflow(string fileName)
+        {
+            saveWorkflowDialog.FileName = fileName;
+            using (var reader = XmlReader.Create(fileName))
+            {
+                workflowBuilder = (WorkflowBuilder)serializer.Deserialize(reader);
+                ResetProjectStatus(Path.GetDirectoryName(fileName));
+            }
+
+            var layoutPath = GetLayoutPath(fileName);
+            if (File.Exists(layoutPath))
+            {
+                using (var reader = XmlReader.Create(layoutPath))
+                {
+                    visualizerLayout = (VisualizerLayout)layoutSerializer.Deserialize(reader);
+                }
+            }
+        }
+
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (!CheckUnsavedChanges()) return;
@@ -183,21 +220,7 @@ namespace Bonsai.Editor
 
             if (openWorkflowDialog.ShowDialog() == DialogResult.OK)
             {
-                saveWorkflowDialog.FileName = openWorkflowDialog.FileName;
-                using (var reader = XmlReader.Create(openWorkflowDialog.FileName))
-                {
-                    workflowBuilder = (WorkflowBuilder)serializer.Deserialize(reader);
-                    ResetProjectStatus(Path.GetDirectoryName(openWorkflowDialog.FileName));
-                }
-
-                var layoutPath = GetLayoutPath(openWorkflowDialog.FileName);
-                if (File.Exists(layoutPath))
-                {
-                    using (var reader = XmlReader.Create(layoutPath))
-                    {
-                        visualizerLayout = (VisualizerLayout)layoutSerializer.Deserialize(reader);
-                    }
-                }
+                OpenWorkflow(openWorkflowDialog.FileName);
             }
         }
 
