@@ -137,12 +137,13 @@ namespace Bonsai.Editor
 
         #region File Menu
 
-        void ResetProjectStatus()
+        void ResetProjectStatus(string currentDirectory)
         {
             commandExecutor.Clear();
             UpdateGraphLayout();
             version = 0;
             saveVersion = 0;
+            Environment.CurrentDirectory = currentDirectory;
         }
 
         bool CheckUnsavedChanges()
@@ -173,7 +174,7 @@ namespace Bonsai.Editor
             visualizerLayout = null;
             saveWorkflowDialog.FileName = null;
             workflowBuilder.Workflow.Clear();
-            ResetProjectStatus();
+            ResetProjectStatus(Path.GetDirectoryName(Application.ExecutablePath));
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -186,7 +187,7 @@ namespace Bonsai.Editor
                 using (var reader = XmlReader.Create(openWorkflowDialog.FileName))
                 {
                     workflowBuilder = (WorkflowBuilder)serializer.Deserialize(reader);
-                    ResetProjectStatus();
+                    ResetProjectStatus(Path.GetDirectoryName(openWorkflowDialog.FileName));
                 }
 
                 var layoutPath = GetLayoutPath(openWorkflowDialog.FileName);
@@ -209,6 +210,7 @@ namespace Bonsai.Editor
                 {
                     serializer.Serialize(writer, workflowBuilder);
                     saveVersion = version;
+                    Environment.CurrentDirectory = Path.GetDirectoryName(saveWorkflowDialog.FileName);
                 }
 
                 if (visualizerLayout != null)
