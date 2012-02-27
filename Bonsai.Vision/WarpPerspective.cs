@@ -57,6 +57,9 @@ namespace Bonsai.Vision
         protected override void Unload()
         {
             mapMatrix.Close();
+            mapMatrix = null;
+            currentSource = null;
+            currentDestination = null;
             base.Unload();
         }
     }
