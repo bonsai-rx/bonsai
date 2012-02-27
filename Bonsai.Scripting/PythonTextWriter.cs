@@ -23,6 +23,8 @@ namespace Bonsai.Scripting
                 "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public string FileName { get; set; }
 
+        public bool Append { get; set; }
+
         [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
         public string Script { get; set; }
 
@@ -41,7 +43,7 @@ namespace Bonsai.Scripting
         {
             if (!string.IsNullOrEmpty(FileName))
             {
-                writer = new StreamWriter(FileName, true, Encoding.ASCII);
+                writer = new StreamWriter(FileName, Append, Encoding.ASCII);
                 writerTask = new Task(() => { });
                 writerTask.Start();
 
