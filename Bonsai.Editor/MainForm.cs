@@ -95,6 +95,16 @@ namespace Bonsai.Editor
             return packageKey.Replace(BonsaiPackageName + ".", string.Empty);
         }
 
+        string GetElementDisplayName(Type type)
+        {
+            var displayNameAttribute = (DisplayNameAttribute)TypeDescriptor.GetAttributes(type)[typeof(DisplayNameAttribute)];
+            if (displayNameAttribute != null && !string.IsNullOrEmpty(displayNameAttribute.DisplayName))
+            {
+                return displayNameAttribute.DisplayName;
+            }
+            else return type.IsSubclassOf(typeof(ExpressionBuilder)) ? RemoveSuffix(type.Name, ExpressionBuilderSuffix) : type.Name;
+        }
+
         int GetElementTypeIndex(string typeName)
         {
             return
@@ -124,7 +134,7 @@ namespace Bonsai.Editor
             {
                 foreach (var elementType in WorkflowElementType.FromType(type))
                 {
-                    var name = type.IsSubclassOf(typeof(ExpressionBuilder)) ? RemoveSuffix(type.Name, ExpressionBuilderSuffix) : type.Name;
+                    var name = GetElementDisplayName(type);
                     if (category == null)
                     {
                         category = toolboxTreeView.Nodes.Add(categoryName, GetPackageDisplayName(categoryName));
