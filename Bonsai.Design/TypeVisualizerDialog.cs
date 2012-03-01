@@ -21,5 +21,11 @@ namespace Bonsai.Design
             ClientSize = control.Size;
             Controls.Add(control);
         }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape) Close();
+            base.OnKeyDown(e);
+        }
     }
 }
