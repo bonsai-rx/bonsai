@@ -18,14 +18,14 @@ namespace Bonsai.Design
             Dock = DockStyle.Fill;
         }
 
-        public Series TimeSeries
+        public SeriesCollection TimeSeries
         {
-            get { return chart.Series[0]; }
+            get { return chart.Series; }
         }
 
-        public ChartArea ChartArea
+        public ChartAreaCollection ChartAreas
         {
-            get { return chart.ChartAreas[0]; }
+            get { return chart.ChartAreas; }
         }
     }
 }
