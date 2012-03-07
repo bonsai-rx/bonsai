@@ -49,7 +49,9 @@
     <Compile Include="CommandExecutor.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="DialogLauncher.cs" />
     <Compile Include="FileNameEditor.cs" />
+    <Compile Include="IWorkflowEditorService.cs" />
     <Compile Include="OpenFileNameEditor.cs" />
     <Compile Include="DialogTypeVisualizer.cs" />
     <Compile Include="DynamicPropertyDescriptor.cs" />
@@ -95,6 +97,13 @@
       <DependentUpon>TypeVisualizerDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="VisualizerDialogLauncher.cs" />
+    <Compile Include="VisualizerDialogSettings.cs" />
+    <Compile Include="VisualizerDialogSettingsCollection.cs" />
+    <Compile Include="VisualizerLayout.cs" />
+    <Compile Include="WorkflowEditorLauncher.cs" />
+    <Compile Include="WorkflowEditorSettings.cs" />
+    <Compile Include="WorkflowSelectionModel.cs" />
+    <Compile Include="WorkflowViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai\Bonsai.csproj">

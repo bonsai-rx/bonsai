@@ -64,9 +64,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypeVisualizerLoader.cs" />
-    <Compile Include="VisualizerDialogSettings.cs" />
-    <Compile Include="VisualizerDialogSettingsCollection.cs" />
-    <Compile Include="VisualizerLayout.cs" />
     <Compile Include="WorkflowElementLoader.cs" />
     <EmbeddedResource Include="AboutBox.resx">
       <DependentUpon>AboutBox.cs</DependentUpon>

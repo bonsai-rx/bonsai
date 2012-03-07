@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 
-namespace Bonsai.Editor
+namespace Bonsai.Design
 {
     public class VisualizerLayout
     {
