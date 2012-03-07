@@ -108,7 +108,17 @@ namespace Bonsai.Expressions
             {
                 var observableExpression = new InspectBuilder();
                 var observableNode = new Node<ExpressionBuilder, ExpressionBuilderParameter>(observableExpression);
-                var expressionNode = new Node<ExpressionBuilder, ExpressionBuilderParameter>(node.Value);
+
+                ExpressionBuilder nodeValue = node.Value;
+                var workflowExpression = nodeValue as WorkflowExpressionBuilder;
+                if (workflowExpression != null)
+                {
+                    var observableWorkflowExpression = new WorkflowExpressionBuilder(workflowExpression.Workflow.ToInspectableGraph());
+                    observableWorkflowExpression.Name = workflowExpression.Name;
+                    nodeValue = observableWorkflowExpression;
+                }
+
+                var expressionNode = new Node<ExpressionBuilder, ExpressionBuilderParameter>(nodeValue);
                 observableGraph.Add(expressionNode);
                 observableGraph.Add(observableNode);
                 observableGraph.AddEdge(expressionNode, observableNode, new ExpressionBuilderParameter("Source"));
@@ -127,6 +137,57 @@ namespace Bonsai.Expressions
             }
 
             return observableGraph;
+        }
+
+        public static ExpressionBuilderGraph FromInspectableGraph(this ExpressionBuilderGraph source)
+        {
+            return FromInspectableGraph(source, true);
+        }
+
+        public static ExpressionBuilderGraph FromInspectableGraph(this ExpressionBuilderGraph source, bool recurse)
+        {
+            var workflow = new ExpressionBuilderGraph();
+            var nodeMapping = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderParameter>, Node<ExpressionBuilder, ExpressionBuilderParameter>>();
+            foreach (var node in source.Where(node => !(node.Value is InspectBuilder)))
+            {
+                var inspectNode = node.Successors.Single().Node;
+
+                ExpressionBuilder nodeValue = node.Value;
+                var workflowExpression = recurse ? nodeValue as WorkflowExpressionBuilder : null;
+                if (workflowExpression != null)
+                {
+                    workflowExpression = new WorkflowExpressionBuilder(workflowExpression.Workflow.FromInspectableGraph(recurse))
+                    {
+                        Name = workflowExpression.Name
+                    };
+                    nodeValue = workflowExpression;
+                }
+
+                var sourceNode = new Node<ExpressionBuilder, ExpressionBuilderParameter>(nodeValue);
+                workflow.Add(sourceNode);
+                nodeMapping.Add(node, sourceNode);
+            }
+
+            foreach (var node in source.Where(node => !(node.Value is InspectBuilder)))
+            {
+                var inspectNode = node.Successors.Single().Node;
+                foreach (var successor in inspectNode.Successors)
+                {
+                    var sourceNode = nodeMapping[node];
+                    var targetNode = nodeMapping[successor.Node];
+                    var parameter = new ExpressionBuilderParameter(successor.Label.Value);
+                    workflow.AddEdge(sourceNode, targetNode, parameter);
+                }
+            }
+
+            return workflow;
+        }
+
+        public static ExpressionBuilderGraphDescriptor ToDescriptor(this ExpressionBuilderGraph source)
+        {
+            var descriptor = new ExpressionBuilderGraphDescriptor();
+            source.ToDescriptor(descriptor);
+            return descriptor;
         }
     }
 }

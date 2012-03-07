@@ -9,6 +9,8 @@ using System.Xml.Serialization;
 namespace Bonsai.Expressions
 {
     [XmlInclude(typeof(CombinatorExpressionBuilder))]
+    [XmlInclude(typeof(WorkflowExpressionBuilder))]
+    [XmlInclude(typeof(WorkflowInputBuilder))]
     [XmlInclude(typeof(SourceBuilder))]
     [XmlInclude(typeof(SelectBuilder))]
     [XmlInclude(typeof(WhereBuilder))]
