@@ -213,6 +213,18 @@ namespace Bonsai.Design
             }
         }
 
+        protected override void OnGotFocus(EventArgs e)
+        {
+            InvalidateNode(selectedNode);
+            base.OnGotFocus(e);
+        }
+
+        protected override void OnLostFocus(EventArgs e)
+        {
+            InvalidateNode(selectedNode);
+            base.OnLostFocus(e);
+        }
+
         protected override void OnInvalidated(InvalidateEventArgs e)
         {
             canvas.Invalidate(e.InvalidRect);
@@ -342,7 +354,7 @@ namespace Bonsai.Design
                         NodeSize, NodeSize);
 
                     var pen = selected ? WhitePen : BlackPen;
-                    var brush = selected ? Brushes.Black : layout.Node.Brush;
+                    var brush = selected ? (Focused ? Brushes.Black : Brushes.Gray) : layout.Node.Brush;
                     var textBrush = selected ? Brushes.White : Brushes.Black;
 
                     e.Graphics.DrawEllipse(pen, nodeRectangle);
@@ -364,6 +376,8 @@ namespace Bonsai.Design
 
         private void canvas_MouseClick(object sender, MouseEventArgs e)
         {
+            if (!Focused) Select();
+
             var node = GetNodeAt(e.Location);
             if (node != null)
             {

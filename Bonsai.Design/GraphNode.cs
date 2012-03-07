@@ -9,18 +9,18 @@ namespace Bonsai.Design
 {
     public class GraphNode
     {
+        readonly TypeConverter typeConverter;
+
         public GraphNode(object value, int layer, IEnumerable<GraphEdge> successors)
         {
             Value = value;
             Layer = layer;
             Successors = successors;
 
-            Text = string.Empty;
             Brush = Brushes.White;
             if (value != null)
             {
-                var typeConverter = TypeDescriptor.GetConverter(value);
-                Text = typeConverter.ConvertToString(value);
+                typeConverter = TypeDescriptor.GetConverter(value);
                 if (typeConverter.CanConvertTo(typeof(Brush)))
                 {
                     Brush = (Brush)typeConverter.ConvertTo(value, typeof(Brush));
@@ -38,8 +38,11 @@ namespace Bonsai.Design
 
         public object Tag { get; set; }
 
-        public string Text { get; private set; }
-
         public Brush Brush { get; private set; }
+
+        public string Text
+        {
+            get { return typeConverter != null ? typeConverter.ConvertToString(Value) : string.Empty; }
+        }
     }
 }
