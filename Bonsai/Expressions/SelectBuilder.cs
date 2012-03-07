@@ -17,7 +17,6 @@ namespace Bonsai.Expressions
                                                                     .First(m => m.Name == "Select" &&
                                                                            m.GetParameters().Length == 2);
 
-        [Browsable(false)]
         public LoadableElement Projection { get; set; }
 
         public override Expression Build()

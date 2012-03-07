@@ -19,7 +19,6 @@ namespace Bonsai.Expressions
                                                                        m.GetParameters()[1].ParameterType.IsGenericType &&
                                                                        m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Action<>));
 
-        [Browsable(false)]
         public LoadableElement Sink { get; set; }
 
         public override Expression Build()

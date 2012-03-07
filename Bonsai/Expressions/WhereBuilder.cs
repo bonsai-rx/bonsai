@@ -17,7 +17,6 @@ namespace Bonsai.Expressions
                                                                    .First(m => m.Name == "Where" &&
                                                                           m.GetParameters().Length == 2);
 
-        [Browsable(false)]
         public LoadableElement Filter { get; set; }
 
         public override Expression Build()
