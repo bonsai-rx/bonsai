@@ -10,11 +10,10 @@ using System.Windows.Forms;
 
 namespace Bonsai.Design
 {
-    public class VisualizerDialogLauncher
+    public class VisualizerDialogLauncher : DialogLauncher
     {
         InspectBuilder source;
         DialogTypeVisualizer visualizer;
-        TypeVisualizerDialog visualizerDialog;
         IDisposable visualizerObserver;
 
         public VisualizerDialogLauncher(InspectBuilder source, DialogTypeVisualizer visualizer)
@@ -35,66 +34,23 @@ namespace Bonsai.Design
 
         public string Text { get; set; }
 
-        public Rectangle Bounds { get; set; }
-
-        public bool Visible
+        protected override void InitializeComponents(TypeVisualizerDialog visualizerDialog, IServiceProvider provider)
         {
-            get { return visualizerDialog != null; }
-        }
-
-        public void Show()
-        {
-            Show(null);
-        }
-
-        public void Show(IServiceProvider provider)
-        {
-            if (visualizerDialog == null)
+            using (var visualizerContext = new ServiceContainer(provider))
             {
-                using (var visualizerContext = new ServiceContainer(provider))
+                visualizerDialog.Text = Text;
+                visualizerContext.AddService(typeof(IDialogTypeVisualizerService), visualizerDialog);
+                visualizer.Load(visualizerContext);
+                visualizerContext.RemoveService(typeof(IDialogTypeVisualizerService));
+
+                visualizerDialog.Load += delegate
                 {
-                    visualizerDialog = new TypeVisualizerDialog();
-                    visualizerDialog.Text = Text;
-                    visualizerContext.AddService(typeof(IDialogTypeVisualizerService), visualizerDialog);
-                    visualizer.Load(visualizerContext);
-                    visualizerContext.RemoveService(typeof(IDialogTypeVisualizerService));
+                    visualizerObserver = source.Output.ObserveOn(visualizerDialog)
+                                                      .Subscribe(value => visualizer.Show(value));
+                };
 
-                    visualizerDialog.Load += delegate
-                    {
-                        if (!Bounds.IsEmpty && SystemInformation.VirtualScreen.Contains(Bounds))
-                        {
-                            visualizerDialog.DesktopBounds = Bounds;
-                        }
-
-                        visualizerObserver = source.Output.ObserveOn(visualizerDialog)
-                                                   .Subscribe(value => visualizer.Show(value));
-                    };
-
-                    visualizerDialog.FormClosing += delegate
-                    {
-                        Bounds = visualizerDialog.DesktopBounds;
-                        visualizerObserver.Dispose();
-                    };
-
-                    visualizerDialog.FormClosed += delegate
-                    {
-                        visualizer.Unload();
-                        visualizerDialog.Dispose();
-                        visualizerDialog = null;
-                    };
-
-                    visualizerDialog.Show();
-                }
-            }
-
-            visualizerDialog.Activate();
-        }
-
-        public void Hide()
-        {
-            if (visualizerDialog != null)
-            {
-                visualizerDialog.Close();
+                visualizerDialog.FormClosing += delegate { visualizerObserver.Dispose(); };
+                visualizerDialog.FormClosed += delegate { visualizer.Unload(); };
             }
         }
     }

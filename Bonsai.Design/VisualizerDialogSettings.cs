@@ -5,10 +5,14 @@ using System.Text;
 using System.Drawing;
 using System.Xml.Serialization;
 
-namespace Bonsai.Editor
+namespace Bonsai.Design
 {
+    [XmlInclude(typeof(WorkflowEditorSettings))]
     public class VisualizerDialogSettings
     {
+        [XmlIgnore]
+        public object Tag { get; set; }
+
         public bool Visible { get; set; }
 
         public Point Location { get; set; }
