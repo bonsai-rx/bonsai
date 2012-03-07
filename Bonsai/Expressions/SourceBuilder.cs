@@ -11,7 +11,6 @@ namespace Bonsai.Expressions
     [XmlType("Source", Namespace = Constants.XmlNamespace)]
     public class SourceBuilder : ExpressionBuilder
     {
-        [Browsable(false)]
         public Source Source { get; set; }
 
         public override Expression Build()
