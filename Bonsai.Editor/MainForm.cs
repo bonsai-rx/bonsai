@@ -196,15 +196,21 @@ namespace Bonsai.Editor
             return Path.ChangeExtension(fileName, Path.GetExtension(fileName) + LayoutExtension);
         }
 
+        WorkflowBuilder LoadWorkflow(string fileName)
+        {
+            using (var reader = XmlReader.Create(fileName))
+            {
+                var workflowBuilder = (WorkflowBuilder)serializer.Deserialize(reader);
+                workflowBuilder = new WorkflowBuilder(workflowBuilder.Workflow.ToInspectableGraph());
+                return workflowBuilder;
+            }
+        }
+
         void OpenWorkflow(string fileName)
         {
             saveWorkflowDialog.FileName = fileName;
-            using (var reader = XmlReader.Create(fileName))
-            {
-                workflowBuilder = (WorkflowBuilder)serializer.Deserialize(reader);
-                workflowBuilder = new WorkflowBuilder(workflowBuilder.Workflow.ToInspectableGraph());
-                ResetProjectStatus(Path.GetDirectoryName(fileName));
-            }
+            workflowBuilder = LoadWorkflow(fileName);
+            ResetProjectStatus(Path.GetDirectoryName(fileName));
 
             var layoutPath = GetLayoutPath(fileName);
             if (File.Exists(layoutPath))
@@ -214,6 +220,7 @@ namespace Bonsai.Editor
                     workflowViewModel.VisualizerLayout = (VisualizerLayout)layoutSerializer.Deserialize(reader);
                 }
             }
+            else workflowViewModel.VisualizerLayout = null;
 
             workflowViewModel.Workflow = workflowBuilder.Workflow;
         }
@@ -224,6 +231,7 @@ namespace Bonsai.Editor
 
             saveWorkflowDialog.FileName = null;
             workflowBuilder.Workflow.Clear();
+            workflowViewModel.VisualizerLayout = null;
             workflowViewModel.Workflow = workflowBuilder.Workflow;
             ResetProjectStatus(Path.GetDirectoryName(Application.ExecutablePath));
         }
@@ -541,6 +549,16 @@ namespace Bonsai.Editor
                 }
 
                 return null;
+            }
+
+            public WorkflowBuilder LoadWorkflow(string fileName)
+            {
+                return siteForm.LoadWorkflow(fileName);
+            }
+
+            public void OpenWorkflow(string fileName)
+            {
+                siteForm.OpenWorkflow(fileName);
             }
 
             public Type GetTypeVisualizer(Type targetType)

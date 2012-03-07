@@ -7,6 +7,10 @@ namespace Bonsai.Design
 {
     public interface IWorkflowEditorService
     {
+        WorkflowBuilder LoadWorkflow(string fileName);
+
+        void OpenWorkflow(string fileName);
+
         Type GetTypeVisualizer(Type targetType);
 
         bool WorkflowRunning { get; }
