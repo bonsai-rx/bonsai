@@ -42,6 +42,9 @@ namespace Bonsai.Design
                 var doBuilder = expressionBuilder as DoBuilder;
                 if (doBuilder != null) return doBuilder.Sink.GetType().Name;
 
+                var workflowExpressionBuilder = expressionBuilder as WorkflowExpressionBuilder;
+                if (workflowExpressionBuilder != null && !string.IsNullOrWhiteSpace(workflowExpressionBuilder.Name)) return workflowExpressionBuilder.Name;
+
                 var type = expressionBuilder.GetType();
                 return RemoveSuffix(type.Name, "Builder");
             }
@@ -61,6 +64,9 @@ namespace Bonsai.Design
 
                 var doBuilder = expressionBuilder as DoBuilder;
                 if (doBuilder != null) return Brushes.Gray;
+
+                var workflowExpressionBuilder = expressionBuilder as WorkflowExpressionBuilder;
+                if (workflowExpressionBuilder != null) return Brushes.Goldenrod;
 
                 return Brushes.LightBlue;
             }
