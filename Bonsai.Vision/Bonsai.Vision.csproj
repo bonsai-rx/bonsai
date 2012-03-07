@@ -72,6 +72,7 @@
     <Compile Include="RangeThreshold.cs" />
     <Compile Include="Resize.cs" />
     <Compile Include="Smooth.cs" />
+    <Compile Include="Sum.cs" />
     <Compile Include="Threshold.cs" />
     <Compile Include="Undistort.cs" />
     <Compile Include="WarpPerspective.cs" />
