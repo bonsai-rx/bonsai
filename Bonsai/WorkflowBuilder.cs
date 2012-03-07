@@ -16,7 +16,22 @@ namespace Bonsai
 {
     public class WorkflowBuilder : IXmlSerializable
     {
-        readonly ExpressionBuilderGraph workflow = new ExpressionBuilderGraph();
+        readonly ExpressionBuilderGraph workflow;
+
+        public WorkflowBuilder()
+            : this(new ExpressionBuilderGraph())
+        {
+        }
+
+        public WorkflowBuilder(ExpressionBuilderGraph workflow)
+        {
+            if (workflow == null)
+            {
+                throw new ArgumentNullException("workflow");
+            }
+
+            this.workflow = workflow;
+        }
 
         public ExpressionBuilderGraph Workflow
         {
@@ -61,7 +76,7 @@ namespace Bonsai
             var serializer = GetXmlSerializer(types);
             using (var workflowReader = new StringReader(workflowMarkup))
             {
-                var descriptor = (DirectedGraphDescriptor<ExpressionBuilder, ExpressionBuilderParameter>)serializer.Deserialize(workflowReader);
+                var descriptor = (ExpressionBuilderGraphDescriptor)serializer.Deserialize(workflowReader);
                 workflow.AddDescriptor(descriptor);
             }
             reader.ReadEndElement();
@@ -141,17 +156,26 @@ namespace Bonsai
                     }
 
                     var rootAttribute = new XmlRootAttribute("Workflow") { Namespace = Constants.XmlNamespace };
-                    serializerCache = new XmlSerializer(typeof(DirectedGraphDescriptor<ExpressionBuilder, ExpressionBuilderParameter>), overrides, serializerTypes.ToArray(), rootAttribute, null);
+                    serializerCache = new XmlSerializer(typeof(ExpressionBuilderGraphDescriptor), overrides, serializerTypes.ToArray(), rootAttribute, null);
                 }
             }
 
             return serializerCache;
         }
 
+        static IEnumerable<Type> GetLoadableElementTypes(ExpressionBuilder builder)
+        {
+            var workflowExpressionBuilder = builder as WorkflowExpressionBuilder;
+            if (workflowExpressionBuilder != null)
+            {
+                return GetExtensionTypes(workflowExpressionBuilder.Workflow);
+            }
+            else return builder.GetLoadableElements().Select(element => element.GetType());
+        }
+
         static IEnumerable<Type> GetExtensionTypes(ExpressionBuilderGraph workflow)
         {
-            return workflow.SelectMany(node => node.Value.GetLoadableElements()
-                .Select(element => element.GetType())
+            return workflow.SelectMany(node => GetLoadableElementTypes(node.Value)
                 .Concat(Enumerable.Repeat(node.Value.GetType(), 1)))
                 .Except(GetDefaultSerializerTypes());
         }

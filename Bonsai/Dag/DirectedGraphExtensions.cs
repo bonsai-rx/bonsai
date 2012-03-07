@@ -136,6 +136,12 @@ namespace Bonsai.Dag
         public static DirectedGraphDescriptor<TValue, TLabel> ToDescriptor<TValue, TLabel>(this DirectedGraph<TValue, TLabel> source)
         {
             var descriptor = new DirectedGraphDescriptor<TValue, TLabel>();
+            ToDescriptor(source, descriptor);
+            return descriptor;
+        }
+
+        public static void ToDescriptor<TValue, TLabel>(this DirectedGraph<TValue, TLabel> source, DirectedGraphDescriptor<TValue, TLabel> descriptor)
+        {
             var nodes = source.ToArray();
 
             foreach (var node in nodes)
@@ -154,8 +160,6 @@ namespace Bonsai.Dag
 
                 from++;
             }
-
-            return descriptor;
         }
 
         public static void AddDescriptor<TValue, TLabel>(this DirectedGraph<TValue, TLabel> source, DirectedGraphDescriptor<TValue, TLabel> descriptor)
