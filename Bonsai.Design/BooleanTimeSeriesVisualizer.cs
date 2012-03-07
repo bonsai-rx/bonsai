@@ -28,7 +28,7 @@ namespace Bonsai.Design
         public override void Load(IServiceProvider provider)
         {
             base.Load(provider);
-            Chart.TimeSeries.BorderWidth = 2;
+            Chart.TimeSeries[0].BorderWidth = 2;
         }
 
         public override void Unload()
