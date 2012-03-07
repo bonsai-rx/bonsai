@@ -471,6 +471,7 @@ namespace Bonsai.Design
                     e.Effect = DragDropEffects.Link;
                 }
             }
+            else e.Effect = DragDropEffects.None;
         }
 
         void workflowGraphView_DragOver(object sender, DragEventArgs e)
