@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="ConnectedComponentCollectionVisualizer.cs" />
     <Compile Include="ContoursVisualizer.cs" />
+    <Compile Include="CvScalarVisualizer.cs" />
     <Compile Include="RangeScalarConverter.cs" />
     <Compile Include="CvScalarConverter.cs" />
     <Compile Include="HsvScalarConverter.cs" />
