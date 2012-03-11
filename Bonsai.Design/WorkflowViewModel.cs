@@ -448,7 +448,7 @@ namespace Bonsai.Design
 
         private void UpdateGraphLayout()
         {
-            workflowGraphView.Nodes = workflow.FromInspectableGraph(false).LongestPathLayering().AverageMinimizeCrossings().ToList();
+            workflowGraphView.Nodes = workflow.FromInspectableGraph(false).LongestPathLayering().EnsureLayerPriority().ToList();
             workflowGraphView.Invalidate();
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Bonsai.Dag;
+using System.Globalization;
 
 namespace Bonsai.Design
 {
@@ -130,6 +131,55 @@ namespace Bonsai.Design
             }
 
             return crosscount;
+        }
+
+        class LayerPriorityComparer : IComparer<string>
+        {
+            public static readonly IComparer<string> Default = new LayerPriorityComparer();
+
+            public int Compare(string x, string y)
+            {
+                var nullX = string.IsNullOrEmpty(x);
+                var nullY = string.IsNullOrEmpty(y);
+                if (nullX)
+                {
+                    return nullY ? 0 : 1;
+                }
+                else if (nullY)
+                {
+                    return -1;
+                }
+
+                return x.CompareTo(y);
+            }
+        }
+
+        public static IEnumerable<GraphNodeGrouping> EnsureLayerPriority(this IEnumerable<GraphNodeGrouping> source)
+        {
+            var priorityMapping = new Dictionary<GraphNode, string>();
+            foreach (var layer in source.Reverse())
+            {
+                var ordering = (from node in layer
+                                let priority = priorityMapping.ContainsKey(node) ? priorityMapping[node] : string.Empty
+                                select new { node, priority })
+                                .OrderBy(entry => entry.priority, LayerPriorityComparer.Default)
+                                .ToArray();
+
+                int i = 0;
+                foreach (var entry in ordering)
+                {
+                    var entryPriority = string.IsNullOrEmpty(entry.priority) ? i.ToString(CultureInfo.InvariantCulture) : entry.priority;
+                    var successorPriority = 0;
+
+                    layer[i++] = entry.node;
+                    foreach (var successor in entry.node.Successors)
+                    {
+                        priorityMapping[successor.Node] = entryPriority + successorPriority++;
+                    }
+                }
+            }
+
+            return source;
         }
 
         public static IEnumerable<GraphNodeGrouping> AverageMinimizeCrossings(this IEnumerable<GraphNodeGrouping> source)
