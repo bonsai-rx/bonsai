@@ -140,6 +140,12 @@ namespace Bonsai.Design
 
         private Node<ExpressionBuilder, ExpressionBuilderParameter> GetGraphNodeTag(GraphNode node)
         {
+            while (node.Value == null)
+            {
+                var edge = (GraphEdge)node.Tag;
+                node = edge.Node;
+            }
+
             var nodeTag = (Node<ExpressionBuilder, ExpressionBuilderParameter>)node.Tag;
             return workflow.First(ns => ns.Value == nodeTag.Value);
         }
@@ -222,7 +228,6 @@ namespace Bonsai.Design
             Action removeConnection = () => { };
 
             var closestNode = closestGraphViewNode != null ? GetGraphNodeTag(closestGraphViewNode) : null;
-            var closestInspectNode = closestNode != null ? closestNode.Successors.Single().Node : null;
             if (elementType == WorkflowElementType.Source)
             {
                 if (closestNode != null && !(closestNode.Value is SourceBuilder) && !workflow.Predecessors(closestNode).Any())
@@ -234,31 +239,30 @@ namespace Bonsai.Design
             }
             else if (closestNode != null)
             {
-                if (!branch)
-                {
-                    var oldSuccessor = closestInspectNode.Successors.FirstOrDefault();
-                    if (oldSuccessor.Node != null)
-                    {
-                        //TODO: Decide when to insert or branch
-                        addConnection = () =>
-                        {
-                            workflow.RemoveEdge(closestInspectNode, oldSuccessor.Node, oldSuccessor.Label);
-                            workflow.AddEdge(inspectNode, oldSuccessor.Node, oldSuccessor.Label);
-                        };
-
-                        removeConnection = () =>
-                        {
-                            workflow.RemoveEdge(inspectNode, oldSuccessor.Node, oldSuccessor.Label);
-                            workflow.AddEdge(closestInspectNode, oldSuccessor.Node, oldSuccessor.Label);
-                        };
-                    }
-                }
-
-                var insertSuccessor = addConnection;
-                var removeSuccessor = removeConnection;
+                var closestInspectNode = closestNode != null ? closestNode.Successors.Single().Node : null;
                 var parameter = new ExpressionBuilderParameter("Source");
-                addConnection = () => { insertSuccessor(); workflow.AddEdge(closestInspectNode, sourceNode, parameter); };
-                removeConnection = () => { workflow.RemoveEdge(closestInspectNode, sourceNode, parameter); removeSuccessor(); };
+                if (!branch && closestInspectNode.Successors.Count > 0)
+                {
+                    //TODO: Decide to which branch the edge should be added
+                    var oldSuccessor = closestInspectNode.Successors.First();
+                    var edgeIndex = closestInspectNode.Successors.IndexOf(oldSuccessor);
+                    addConnection = () =>
+                    {
+                        workflow.SetEdge(closestInspectNode, edgeIndex, sourceNode, parameter);
+                        workflow.AddEdge(inspectNode, oldSuccessor.Node, oldSuccessor.Label);
+                    };
+
+                    removeConnection = () =>
+                    {
+                        workflow.RemoveEdge(inspectNode, oldSuccessor.Node, oldSuccessor.Label);
+                        workflow.SetEdge(closestInspectNode, edgeIndex, oldSuccessor.Node, oldSuccessor.Label);
+                    };
+                }
+                else
+                {
+                    addConnection = () => { workflow.AddEdge(closestInspectNode, sourceNode, parameter); };
+                    removeConnection = () => { workflow.RemoveEdge(closestInspectNode, sourceNode, parameter); };
+                }
             }
 
             commandExecutor.Execute(
