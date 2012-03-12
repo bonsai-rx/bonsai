@@ -76,7 +76,7 @@ namespace Bonsai.Design
             workflowModel.Workflow = workflowExpressionBuilder.Workflow;
             if (!workflowModel.Workflow.Any(n => n.Value is WorkflowInputBuilder) && workflow.Predecessors(builderNode).Any())
             {
-                workflowModel.CreateGraphNode(typeof(WorkflowInputBuilder).AssemblyQualifiedName, WorkflowElementType.Combinator, null, false);
+                workflowModel.CreateGraphNode(typeof(WorkflowInputBuilder).AssemblyQualifiedName, WorkflowElementType.Combinator, null, CreateGraphNodeType.Successor, false);
             }
         }
     }

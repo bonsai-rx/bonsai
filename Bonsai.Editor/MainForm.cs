@@ -438,7 +438,9 @@ namespace Bonsai.Editor
                 var model = selectionModel.SelectedModel;
                 if (model != null)
                 {
-                    model.CreateGraphNode(typeNode, selectionModel.SelectedNode, e.Modifiers == Keys.Control);
+                    var branch = e.Modifiers.HasFlag(Keys.Control);
+                    var predecessor = e.Modifiers.HasFlag(Keys.Shift) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
+                    model.CreateGraphNode(typeNode, selectionModel.SelectedNode, predecessor, branch);
                 }
             }
         }
@@ -451,7 +453,9 @@ namespace Bonsai.Editor
                 var model = selectionModel.SelectedModel;
                 if (model != null)
                 {
-                    model.CreateGraphNode(typeNode, selectionModel.SelectedNode, Control.ModifierKeys == Keys.Control);
+                    var branch = Control.ModifierKeys.HasFlag(Keys.Control);
+                    var predecessor = Control.ModifierKeys.HasFlag(Keys.Shift) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
+                    model.CreateGraphNode(typeNode, selectionModel.SelectedNode, predecessor, branch);
                 }
             }
         }
