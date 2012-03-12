@@ -14,6 +14,7 @@ namespace Bonsai.Design
 {
     public class WorkflowViewModel
     {
+        const int ShiftModifier = 0x4;
         const int CtrlModifier = 0x8;
         const int AltModifier = 0x20;
         const string BonsaiExtension = ".bonsai";
@@ -188,14 +189,14 @@ namespace Bonsai.Design
             }
         }
 
-        public void CreateGraphNode(TreeNode typeNode, GraphNode closestGraphViewNode, bool branch)
+        public void CreateGraphNode(TreeNode typeNode, GraphNode closestGraphViewNode, CreateGraphNodeType nodeType, bool branch)
         {
             var typeName = typeNode.Name;
             var elementType = (WorkflowElementType)typeNode.Tag;
-            CreateGraphNode(typeName, elementType, closestGraphViewNode, branch);
+            CreateGraphNode(typeName, elementType, closestGraphViewNode, nodeType, branch);
         }
 
-        public void CreateGraphNode(string typeName, WorkflowElementType elementType, GraphNode closestGraphViewNode, bool branch)
+        public void CreateGraphNode(string typeName, WorkflowElementType elementType, GraphNode closestGraphViewNode, CreateGraphNodeType nodeType, bool branch)
         {
             var type = Type.GetType(typeName);
             if (type != null)
@@ -207,11 +208,11 @@ namespace Bonsai.Design
                     builder = ExpressionBuilder.FromLoadableElement(element, elementType);
                 }
                 else builder = (ExpressionBuilder)Activator.CreateInstance(type);
-                CreateGraphNode(builder, elementType, closestGraphViewNode, branch);
+                CreateGraphNode(builder, elementType, closestGraphViewNode, nodeType, branch);
             }
         }
 
-        public void CreateGraphNode(ExpressionBuilder builder, WorkflowElementType elementType, GraphNode closestGraphViewNode, bool branch)
+        public void CreateGraphNode(ExpressionBuilder builder, WorkflowElementType elementType, GraphNode closestGraphViewNode, CreateGraphNodeType nodeType, bool branch)
         {
             if (builder == null)
             {
@@ -239,13 +240,27 @@ namespace Bonsai.Design
             }
             else if (closestNode != null)
             {
-                var closestInspectNode = closestNode != null ? closestNode.Successors.Single().Node : null;
+                var edgeIndex = 0;
+                var closestInspectNode = closestNode.Successors.Single().Node;
+                if (nodeType == CreateGraphNodeType.Predecessor)
+                {
+                    var closestPredecessorNode = workflow.Predecessors(closestNode).FirstOrDefault();
+                    if (closestPredecessorNode != null)
+                    {
+                        closestInspectNode = closestPredecessorNode;
+                        foreach (var edge in closestInspectNode.Successors)
+                        {
+                            if (edge.Node == closestNode) break;
+                            edgeIndex++;
+                        }
+                    }
+                }
+
                 var parameter = new ExpressionBuilderParameter("Source");
                 if (!branch && closestInspectNode.Successors.Count > 0)
                 {
                     //TODO: Decide to which branch the edge should be added
-                    var oldSuccessor = closestInspectNode.Successors.First();
-                    var edgeIndex = closestInspectNode.Successors.IndexOf(oldSuccessor);
+                    var oldSuccessor = closestInspectNode.Successors[edgeIndex];
                     addConnection = () =>
                     {
                         workflow.SetEdge(closestInspectNode, edgeIndex, sourceNode, parameter);
@@ -504,18 +519,19 @@ namespace Bonsai.Design
             if (e.Effect == DragDropEffects.Copy)
             {
                 var branch = (e.KeyState & CtrlModifier) != 0;
+                var predecessor = (e.KeyState & ShiftModifier) != 0 ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
                 var closestGraphViewNode = workflowGraphView.GetClosestNodeTo(dropLocation);
                 if (e.Data.GetDataPresent(DataFormats.FileDrop, true))
                 {
                     var path = (string[])e.Data.GetData(DataFormats.FileDrop, true);
                     var workflowBuilder = editorService.LoadWorkflow(path[0]);
                     var workflowExpressionBuilder = new WorkflowExpressionBuilder(workflowBuilder.Workflow);
-                    CreateGraphNode(workflowExpressionBuilder, WorkflowElementType.Combinator, closestGraphViewNode, branch);
+                    CreateGraphNode(workflowExpressionBuilder, WorkflowElementType.Combinator, closestGraphViewNode, predecessor, branch);
                 }
                 else
                 {
                     var typeNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
-                    CreateGraphNode(typeNode, closestGraphViewNode, branch);
+                    CreateGraphNode(typeNode, closestGraphViewNode, predecessor, branch);
                 }
             }
 
@@ -611,5 +627,11 @@ namespace Bonsai.Design
         }
 
         #endregion
+    }
+
+    public enum CreateGraphNodeType
+    {
+        Successor,
+        Predecessor
     }
 }
