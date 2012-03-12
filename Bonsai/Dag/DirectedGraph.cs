@@ -35,6 +35,27 @@ namespace Bonsai.Dag
             from.Successors.Add(edge);
         }
 
+        public void SetEdge(Node<TValue, TLabel> from, int edgeIndex, Node<TValue, TLabel> to, TLabel label)
+        {
+            if (!nodes.Contains(from))
+            {
+                throw new ArgumentException("The specified node does not belong to the graph.", "from");
+            }
+
+            if (!nodes.Contains(to))
+            {
+                throw new ArgumentException("The specified node does not belong to the graph.", "to");
+            }
+
+            if (edgeIndex < 0 || edgeIndex >= from.Successors.Count)
+            {
+                throw new ArgumentOutOfRangeException("The specified edge index is out of range.", "edgeIndex");
+            }
+
+            var edge = new Edge<TValue, TLabel>(label, to);
+            from.Successors[edgeIndex] = edge;
+        }
+
         public bool Contains(Node<TValue, TLabel> node)
         {
             return nodes.Contains(node);
