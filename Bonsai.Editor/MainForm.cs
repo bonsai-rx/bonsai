@@ -322,8 +322,8 @@ namespace Bonsai.Editor
                     loaded = runningWorkflow.Load();
 
                     var subscriber = subscribeExpression.Compile();
-                    var sourceConnections = workflowBuilder.GetSources().Select(source => source.Connect());
-                    running = new CompositeDisposable(Enumerable.Repeat(subscriber(), 1).Concat(sourceConnections));
+                    running = subscriber();
+
                     editorSite.OnWorkflowStarted(EventArgs.Empty);
                 }
                 catch (InvalidOperationException ex) { HandleWorkflowError(ex); return; }
