@@ -10,7 +10,7 @@ namespace Bonsai.Vision
 {
     public class Mask : Projection<IplImage, IplImage>
     {
-        IplImage mask;
+        CvArr mask;
 
         [FileNameFilter("PNG Files|*.png|BMP Files|*.bmp|JPEG Files|*.jpg;*.jpeg")]
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
@@ -26,13 +26,20 @@ namespace Bonsai.Vision
 
         public override IDisposable Load()
         {
-            mask = HighGui.cvLoadImage(FileName, LoadImageMode.Grayscale);
+            if (string.IsNullOrEmpty(FileName))
+            {
+                mask = CvArr.Null;
+            }
+            else mask = HighGui.cvLoadImage(FileName, LoadImageMode.Grayscale);
             return base.Load();
         }
 
         protected override void Unload()
         {
-            mask.Close();
+            if (mask != null && mask != CvArr.Null)
+            {
+                mask.Close();
+            }
             base.Unload();
         }
     }
