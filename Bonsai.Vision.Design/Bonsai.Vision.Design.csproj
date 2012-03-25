@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="ConnectedComponentCollectionVisualizer.cs" />
     <Compile Include="ContoursVisualizer.cs" />
+    <Compile Include="TimeIntervalIplImageVisualizer.cs" />
     <Compile Include="CvScalarVisualizer.cs" />
     <Compile Include="RangeScalarConverter.cs" />
     <Compile Include="CvScalarConverter.cs" />
@@ -67,6 +68,7 @@
     </Compile>
     <Compile Include="IplImageVisualizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TimestampedIplImageVisualizer.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="IplImageControl.resx">

@@ -89,6 +89,7 @@
       <DependentUpon>TimeSeriesControl.cs</DependentUpon>
     </Compile>
     <Compile Include="TimeSeriesVisualizer.cs" />
+    <Compile Include="TimestampedTimeSeriesVisualizer.cs" />
     <Compile Include="TrackBarEditor.cs" />
     <Compile Include="TypeVisualizerDialog.cs">
       <SubType>Form</SubType>
