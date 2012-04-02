@@ -14,7 +14,7 @@ namespace Bonsai.Expressions
 
         protected override IObservable<TSource> Combine<TSource>(IObservable<TSource> source)
         {
-            return source.Take(Count, HighResolutionScheduler.ThreadPool);
+            return source.Take(Count);
         }
     }
 }
