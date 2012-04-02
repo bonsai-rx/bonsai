@@ -45,7 +45,7 @@
             this.chart.Location = new System.Drawing.Point(0, 0);
             this.chart.Name = "chart";
             series1.ChartArea = "ChartArea";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
             series1.Name = "TimeSeries";
             series1.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Time;
             this.chart.Series.Add(series1);
