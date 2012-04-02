@@ -41,6 +41,11 @@ namespace Bonsai.Design
 
         protected void AddValue(DateTime time, params object[] value)
         {
+            AddValue(true, time, value);
+        }
+
+        protected void AddValue(bool dataBind, DateTime time, params object[] value)
+        {
             var excess = valuesX.Where(x => (time - x).TotalSeconds > chart.Width / TimeScaleFactor).Count();
             if (excess > 0)
             {
@@ -52,6 +57,14 @@ namespace Bonsai.Design
             for (int i = 0; i < valuesY.Length; i++)
             {
                 valuesY[i].Add(value[i]);
+                if (dataBind) chart.TimeSeries[i].Points.DataBindXY(valuesX, valuesY[i]);
+            }
+        }
+
+        protected void DataBindValues()
+        {
+            for (int i = 0; i < valuesY.Length; i++)
+            {
                 chart.TimeSeries[i].Points.DataBindXY(valuesX, valuesY[i]);
             }
         }
@@ -67,8 +80,8 @@ namespace Bonsai.Design
             for (int i = 1; i < valuesY.Length; i++)
             {
                 var series = chart.TimeSeries.Add(chart.TimeSeries[0].Name + i);
-                series.ChartType = SeriesChartType.Line;
-                series.XValueType = ChartValueType.Time;
+                series.ChartType = chart.TimeSeries[0].ChartType;
+                series.XValueType = chart.TimeSeries[0].XValueType;
                 series.ChartArea = chart.TimeSeries[0].ChartArea;
             }
 
