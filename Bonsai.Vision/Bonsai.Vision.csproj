@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdaptiveThreshold.cs" />
     <Compile Include="And.cs" />
     <Compile Include="AverageBinaryRegion.cs" />
     <Compile Include="BackgroundSubtraction.cs" />
