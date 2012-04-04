@@ -49,6 +49,13 @@
     <Compile Include="CommandExecutor.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="StateTimeVisualizer.cs" />
+    <Compile Include="StateTimeHistogram.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="StateTimeHistogram.Designer.cs">
+      <DependentUpon>StateTimeHistogram.cs</DependentUpon>
+    </Compile>
     <Compile Include="DialogLauncher.cs" />
     <Compile Include="FileNameEditor.cs" />
     <Compile Include="IWorkflowEditorService.cs" />
@@ -113,6 +120,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="StateTimeHistogram.resx">
+      <DependentUpon>StateTimeHistogram.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="GraphView.resx">
       <DependentUpon>GraphView.cs</DependentUpon>
     </EmbeddedResource>
