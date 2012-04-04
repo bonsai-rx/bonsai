@@ -14,11 +14,6 @@ namespace Bonsai.Vision
         volatile bool running;
         ManualResetEventSlim stop;
 
-        public CvCaptureSource()
-        {
-            stop = new ManualResetEventSlim();
-        }
-
         void CaptureNewFrame()
         {
             while (running)
@@ -41,6 +36,7 @@ namespace Bonsai.Vision
         protected override void Start()
         {
             running = true;
+            captureThread = new Thread(CaptureNewFrame);
             captureThread.Start();
         }
 
@@ -52,7 +48,7 @@ namespace Bonsai.Vision
 
         public override IDisposable Load()
         {
-            captureThread = new Thread(CaptureNewFrame);
+            stop = new ManualResetEventSlim();
             capture = CreateCapture();
             return base.Load();
         }
