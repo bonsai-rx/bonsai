@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace Bonsai.Design
 {
-    public class VisualizerDialogLauncher : DialogLauncher
+    public class VisualizerDialogLauncher : DialogLauncher, ITypeVisualizerContext
     {
         InspectBuilder source;
         DialogTypeVisualizer visualizer;
@@ -34,14 +34,21 @@ namespace Bonsai.Design
 
         public string Text { get; set; }
 
+        public InspectBuilder Source
+        {
+            get { return source; }
+        }
+
         protected override void InitializeComponents(TypeVisualizerDialog visualizerDialog, IServiceProvider provider)
         {
             using (var visualizerContext = new ServiceContainer(provider))
             {
                 visualizerDialog.Text = Text;
+                visualizerContext.AddService(typeof(ITypeVisualizerContext), this);
                 visualizerContext.AddService(typeof(IDialogTypeVisualizerService), visualizerDialog);
                 visualizer.Load(visualizerContext);
                 visualizerContext.RemoveService(typeof(IDialogTypeVisualizerService));
+                visualizerContext.RemoveService(typeof(ITypeVisualizerContext));
 
                 visualizerDialog.Load += delegate
                 {

@@ -49,6 +49,7 @@
     <Compile Include="CommandExecutor.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="ITypeVisualizerContext.cs" />
     <Compile Include="StateTimeVisualizer.cs" />
     <Compile Include="StateTimeHistogram.cs">
       <SubType>UserControl</SubType>
