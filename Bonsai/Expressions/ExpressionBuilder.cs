@@ -15,6 +15,7 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(SelectBuilder))]
     [XmlInclude(typeof(WhereBuilder))]
     [XmlInclude(typeof(DoBuilder))]
+    [XmlInclude(typeof(NullSinkBuilder))]
     [XmlInclude(typeof(MemberSelectorBuilder))]
     [XmlInclude(typeof(DistinctUntilChangedBuilder))]
     [XmlInclude(typeof(TimestampBuilder))]
