@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Constants.cs" />
     <Compile Include="Expressions\BinaryCombinatorBuilder.cs" />
+    <Compile Include="Expressions\NullSinkBuilder.cs" />
     <Compile Include="Expressions\SkipLastBuilder.cs" />
     <Compile Include="Expressions\SubscribeWhenBuilder.cs" />
     <Compile Include="Expressions\TakeLastBuilder.cs" />
