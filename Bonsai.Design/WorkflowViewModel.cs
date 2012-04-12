@@ -141,6 +141,11 @@ namespace Bonsai.Design
 
         private Node<ExpressionBuilder, ExpressionBuilderParameter> GetGraphNodeTag(GraphNode node)
         {
+            return GetGraphNodeTag(node, true);
+        }
+
+        private Node<ExpressionBuilder, ExpressionBuilderParameter> GetGraphNodeTag(GraphNode node, bool throwOnError)
+        {
             while (node.Value == null)
             {
                 var edge = (GraphEdge)node.Tag;
@@ -148,7 +153,8 @@ namespace Bonsai.Design
             }
 
             var nodeTag = (Node<ExpressionBuilder, ExpressionBuilderParameter>)node.Tag;
-            return workflow.First(ns => ns.Value == nodeTag.Value);
+            if (throwOnError) return workflow.First(ns => ns.Value == nodeTag.Value);
+            else return workflow.FirstOrDefault(ns => ns.Value == nodeTag.Value);
         }
 
         public void ConnectGraphNodes(GraphNode graphViewSource, GraphNode graphViewTarget)
@@ -484,7 +490,7 @@ namespace Bonsai.Design
             else if (e.Data.GetDataPresent(typeof(GraphNode)))
             {
                 var graphViewSource = (GraphNode)e.Data.GetData(typeof(GraphNode));
-                var node = GetGraphNodeTag(graphViewSource);
+                var node = GetGraphNodeTag(graphViewSource, false);
                 if (node != null && workflow.Contains(node))
                 {
                     e.Effect = DragDropEffects.Link;
