@@ -7,6 +7,7 @@ using Bonsai.Vision.Design;
 using OpenCV.Net;
 using Bonsai.Design;
 using System.Reactive;
+using System.Windows.Forms;
 
 [assembly: TypeVisualizer(typeof(TimeIntervalIplImageVisualizer), Target = typeof(TimeInterval<IplImage>))]
 
@@ -14,27 +15,31 @@ namespace Bonsai.Vision.Design
 {
     public class TimeIntervalIplImageVisualizer : IplImageVisualizer
     {
-        CvFont font;
+        ToolStripStatusLabel timeIntervalLabel;
+        ToolStripStatusLabel fpsLabel;
 
         public override void Show(object value)
         {
             var timeIntervalImage = (TimeInterval<IplImage>)value;
-            var image = timeIntervalImage.Value.Clone();
             var interval = timeIntervalImage.Interval.TotalSeconds;
-            Core.cvPutText(image, string.Format("Interval: {0:f4}", interval), new CvPoint(10, 20), font, CvScalar.Rgb(255, 0, 0));
-            Core.cvPutText(image, string.Format("FPS: {0:f2}", 1 / interval), new CvPoint(10, 40), font, CvScalar.Rgb(255, 0, 0));
-            base.Show(image);
+            timeIntervalLabel.Text = string.Format("Interval: {0:f4}", interval);
+            fpsLabel.Text = string.Format("FPS: {0:f2}", 1 / interval);
+            base.Show(timeIntervalImage.Value);
         }
 
         public override void Load(IServiceProvider provider)
         {
-            font = new CvFont(1);
             base.Load(provider);
+            timeIntervalLabel = new ToolStripStatusLabel();
+            fpsLabel = new ToolStripStatusLabel();
+            StatusStrip.Items.Add(timeIntervalLabel);
+            StatusStrip.Items.Add(fpsLabel);
         }
 
         public override void Unload()
         {
-            font.Close();
+            timeIntervalLabel = null;
+            fpsLabel = null;
             base.Unload();
         }
     }
