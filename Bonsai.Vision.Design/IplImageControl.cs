@@ -22,7 +22,7 @@ namespace Bonsai.Vision.Design
             Dock = DockStyle.Fill;
         }
 
-        protected PictureBox PictureBox
+        public PictureBox PictureBox
         {
             get { return pictureBox; }
         }
