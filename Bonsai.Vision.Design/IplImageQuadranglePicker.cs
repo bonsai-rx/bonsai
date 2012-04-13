@@ -14,12 +14,12 @@ namespace Bonsai.Vision.Design
 
         public IplImageQuadranglePicker()
         {
-            var mouseMove = Observable.FromEventPattern<MouseEventArgs>(pictureBox, "MouseMove").Select(e => e.EventArgs);
+            var mouseMove = Observable.FromEventPattern<MouseEventArgs>(PictureBox, "MouseMove").Select(e => e.EventArgs);
             var mouseDrag = from evt in mouseMove
-                            where pictureBox.Image != null && evt.Button.HasFlag(MouseButtons.Left)
+                            where PictureBox.Image != null && evt.Button.HasFlag(MouseButtons.Left)
                             select new CvPoint2D32f(
-                                evt.X * pictureBox.Image.Width / (float)pictureBox.Width,
-                                evt.Y * pictureBox.Image.Height / (float)pictureBox.Height);
+                                evt.X * PictureBox.Image.Width / (float)PictureBox.Width,
+                                evt.Y * PictureBox.Image.Height / (float)PictureBox.Height);
 
             mouseDrag.Subscribe(point =>
             {
@@ -56,18 +56,14 @@ namespace Bonsai.Vision.Design
             }
         }
 
-        public override IplImage Image
+        protected override void SetImage(IplImage image)
         {
-            get { return base.Image; }
-            set
-            {
-                var image = value.Clone();
-                Core.cvLine(image, new CvPoint(quadrangle[0]), new CvPoint(quadrangle[1]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
-                Core.cvLine(image, new CvPoint(quadrangle[1]), new CvPoint(quadrangle[2]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
-                Core.cvLine(image, new CvPoint(quadrangle[2]), new CvPoint(quadrangle[3]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
-                Core.cvLine(image, new CvPoint(quadrangle[3]), new CvPoint(quadrangle[0]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
-                base.Image = image;
-            }
+            image = image.Clone();
+            Core.cvLine(image, new CvPoint(quadrangle[0]), new CvPoint(quadrangle[1]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
+            Core.cvLine(image, new CvPoint(quadrangle[1]), new CvPoint(quadrangle[2]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
+            Core.cvLine(image, new CvPoint(quadrangle[2]), new CvPoint(quadrangle[3]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
+            Core.cvLine(image, new CvPoint(quadrangle[3]), new CvPoint(quadrangle[0]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
+            base.SetImage(image);
         }
     }
 }
