@@ -27,7 +27,7 @@ namespace Bonsai.Vision.Design
             get { return pictureBox; }
         }
 
-        public virtual IplImage Image
+        public IplImage Image
         {
             get { return image; }
             set
