@@ -16,12 +16,12 @@ namespace Bonsai.Vision.Design
 
         public IplImageRectanglePicker()
         {
-            var mouseMove = Observable.FromEventPattern<MouseEventArgs>(pictureBox, "MouseMove").Select(e => e.EventArgs);
-            var mouseDown = Observable.FromEventPattern<MouseEventArgs>(pictureBox, "MouseDown").Select(e => e.EventArgs);
-            var mouseUp = Observable.FromEventPattern<MouseEventArgs>(pictureBox, "MouseUp").Select(e => e.EventArgs);
+            var mouseMove = Observable.FromEventPattern<MouseEventArgs>(PictureBox, "MouseMove").Select(e => e.EventArgs);
+            var mouseDown = Observable.FromEventPattern<MouseEventArgs>(PictureBox, "MouseDown").Select(e => e.EventArgs);
+            var mouseUp = Observable.FromEventPattern<MouseEventArgs>(PictureBox, "MouseUp").Select(e => e.EventArgs);
 
             var mousePick = (from downEvt in mouseDown
-                             where pictureBox.Image != null && downEvt.Button.HasFlag(MouseButtons.Left)
+                             where PictureBox.Image != null && downEvt.Button.HasFlag(MouseButtons.Left)
                              let origin = new CvPoint(downEvt.X, downEvt.Y)
                              select from moveEvt in mouseMove
                                     select new CvRect(origin.X, origin.Y, moveEvt.X - origin.X, moveEvt.Y - origin.Y)).Switch();
@@ -42,10 +42,10 @@ namespace Bonsai.Vision.Design
         CvRect NormalizedRectangle(CvRect rect)
         {
             return new CvRect(
-                (int)(rect.X * pictureBox.Image.Width / (float)pictureBox.Width),
-                (int)(rect.Y * pictureBox.Image.Height / (float)pictureBox.Height),
-                (int)(rect.Width * pictureBox.Image.Width / (float)pictureBox.Width),
-                (int)(rect.Height * pictureBox.Image.Width / (float)pictureBox.Width));
+                (int)(rect.X * PictureBox.Image.Width / (float)PictureBox.Width),
+                (int)(rect.Y * PictureBox.Image.Height / (float)PictureBox.Height),
+                (int)(rect.Width * PictureBox.Image.Width / (float)PictureBox.Width),
+                (int)(rect.Height * PictureBox.Image.Width / (float)PictureBox.Width));
         }
 
         public CvRect PickedRectangle
@@ -64,20 +64,16 @@ namespace Bonsai.Vision.Design
             }
         }
 
-        public override IplImage Image
+        protected override void SetImage(IplImage image)
         {
-            get { return base.Image; }
-            set
-            {
-                var image = value.Clone();
-                Core.cvRectangle(
-                    image,
-                    new CvPoint(rectangleSample.X, rectangleSample.Y),
-                    new CvPoint(rectangleSample.X + rectangleSample.Width, rectangleSample.Y + rectangleSample.Height),
-                    CvScalar.Rgb(255, 0, 0),
-                    -1, 8, 0);
-                base.Image = image;
-            }
+            image = image.Clone();
+            Core.cvRectangle(
+                image,
+                new CvPoint(rectangleSample.X, rectangleSample.Y),
+                new CvPoint(rectangleSample.X + rectangleSample.Width, rectangleSample.Y + rectangleSample.Height),
+                CvScalar.Rgb(255, 0, 0),
+                -1, 8, 0);
+            base.SetImage(image);
         }
     }
 }

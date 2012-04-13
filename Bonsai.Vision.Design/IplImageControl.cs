@@ -22,6 +22,11 @@ namespace Bonsai.Vision.Design
             Dock = DockStyle.Fill;
         }
 
+        protected PictureBox PictureBox
+        {
+            get { return pictureBox; }
+        }
+
         public virtual IplImage Image
         {
             get { return image; }
@@ -46,7 +51,7 @@ namespace Bonsai.Vision.Design
             }
         }
 
-        protected void SetImage(IplImage image)
+        protected virtual void SetImage(IplImage image)
         {
             if (image == null) throw new ArgumentNullException("image");
             if (image.Depth != 8) throw new ArgumentException("Non 8-bit depth images are not supported by the control.", "image");
