@@ -31,6 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="OpenTK, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL" />
+    <Reference Include="OpenTK.GLControl, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -46,18 +48,21 @@
   <ItemGroup>
     <Compile Include="ConnectedComponentCollectionVisualizer.cs" />
     <Compile Include="ContoursVisualizer.cs" />
-    <Compile Include="TimeIntervalIplImageVisualizer.cs" />
-    <Compile Include="CvScalarVisualizer.cs" />
-    <Compile Include="RangeScalarConverter.cs" />
-    <Compile Include="CvScalarConverter.cs" />
-    <Compile Include="HsvScalarConverter.cs" />
+    <Compile Include="IplImageOutputRectangleEditor.cs" />
+    <Compile Include="IplImageInputQuadrangleEditor.cs" />
+    <Compile Include="IplImageInputRectangleEditor.cs" />
+    <Compile Include="IplImageRectangleEditor.cs" />
     <Compile Include="IplImageControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="IplImageControl.designer.cs">
       <DependentUpon>IplImageControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="IplImageInputQuadrangleEditor.cs" />
+    <Compile Include="TimeIntervalIplImageVisualizer.cs" />
+    <Compile Include="CvScalarVisualizer.cs" />
+    <Compile Include="RangeScalarConverter.cs" />
+    <Compile Include="CvScalarConverter.cs" />
+    <Compile Include="HsvScalarConverter.cs" />
     <Compile Include="IplImageOutputQuadrangleEditor.cs" />
     <Compile Include="IplImageQuadrangleEditor.cs" />
     <Compile Include="IplImageQuadranglePicker.cs">
