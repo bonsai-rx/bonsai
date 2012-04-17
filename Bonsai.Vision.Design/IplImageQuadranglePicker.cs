@@ -16,10 +16,10 @@ namespace Bonsai.Vision.Design
         {
             var mouseMove = Observable.FromEventPattern<MouseEventArgs>(PictureBox, "MouseMove").Select(e => e.EventArgs);
             var mouseDrag = from evt in mouseMove
-                            where PictureBox.Image != null && evt.Button.HasFlag(MouseButtons.Left)
+                            where Image != null && evt.Button.HasFlag(MouseButtons.Left)
                             select new CvPoint2D32f(
-                                evt.X * PictureBox.Image.Width / (float)PictureBox.Width,
-                                evt.Y * PictureBox.Image.Height / (float)PictureBox.Height);
+                                evt.X * Image.Width / (float)PictureBox.Width,
+                                evt.Y * Image.Height / (float)PictureBox.Height);
 
             mouseDrag.Subscribe(point =>
             {
