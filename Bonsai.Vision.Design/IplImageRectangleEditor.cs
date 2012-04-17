@@ -1,0 +1,83 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Drawing.Design;
+using System.ComponentModel;
+using System.Windows.Forms.Design;
+using Bonsai.Design;
+using OpenCV.Net;
+using System.Reflection;
+using System.Reactive.Linq;
+using Bonsai.Expressions;
+using Bonsai.Dag;
+
+namespace Bonsai.Vision.Design
+{
+    public abstract class IplImageRectangleEditor : UITypeEditor
+    {
+        protected IplImageRectangleEditor(RectangleSource source)
+        {
+            Source = source;
+        }
+
+        private RectangleSource Source { get; set; }
+
+        protected enum RectangleSource
+        {
+            Input,
+            Output
+        }
+
+        public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
+        {
+            return UITypeEditorEditStyle.Modal;
+        }
+
+        public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
+        {
+            var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
+            if (context != null && editorService != null)
+            {
+                var rectangle = (CvRect)value;
+                var propertyDescriptor = context.PropertyDescriptor;
+
+                using (var visualizerDialog = new TypeVisualizerDialog())
+                using (var imageControl = new IplImageRectanglePicker())
+                {
+                    visualizerDialog.Text = propertyDescriptor.Name;
+                    imageControl.Rectangle = rectangle;
+                    imageControl.RectangleChanged += (sender, e) => propertyDescriptor.SetValue(context.Instance, imageControl.Rectangle);
+                    visualizerDialog.AddControl(imageControl);
+
+                    var workflow = (ExpressionBuilderGraph)provider.GetService(typeof(ExpressionBuilderGraph));
+                    if (workflow == null) return base.EditValue(context, provider, value);
+
+                    var workflowNode = (from node in workflow
+                                        let builder = node.Value as SelectBuilder
+                                        where builder != null && builder.Projection == context.Instance
+                                        select node)
+                                        .FirstOrDefault();
+                    if (workflowNode == null) return base.EditValue(context, provider, value);
+
+                    IObservable<object> source;
+                    switch (Source)
+                    {
+                        case RectangleSource.Input: source = ((InspectBuilder)workflow.Predecessors(workflowNode).First().Value).Output; break;
+                        case RectangleSource.Output: source = ((InspectBuilder)workflow.Successors(workflowNode).First().Value).Output; break;
+                        default: return base.EditValue(context, provider, value);
+                    }
+
+                    IDisposable subscription = null;
+                    imageControl.HandleCreated += delegate { subscription = source.ObserveOn(imageControl).Subscribe(image => imageControl.Image = (IplImage)image); };
+                    imageControl.HandleDestroyed += delegate { subscription.Dispose(); };
+                    editorService.ShowDialog(visualizerDialog);
+
+                    return imageControl.Rectangle;
+                }
+            }
+
+            return base.EditValue(context, provider, value);
+        }
+    }
+}

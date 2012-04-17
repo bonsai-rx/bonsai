@@ -8,13 +8,16 @@ using System.Text;
 using System.Windows.Forms;
 using OpenCV.Net;
 using System.Drawing.Imaging;
+using OpenTK.Graphics.OpenGL;
+using OpenTK;
 
 namespace Bonsai.Vision.Design
 {
     public partial class IplImageControl : UserControl
     {
+        bool loaded;
+        int texture;
         IplImage image;
-        Bitmap bitmap;
 
         public IplImageControl()
         {
@@ -22,9 +25,9 @@ namespace Bonsai.Vision.Design
             Dock = DockStyle.Fill;
         }
 
-        public PictureBox PictureBox
+        public GLControl PictureBox
         {
-            get { return pictureBox; }
+            get { return glControl; }
         }
 
         public IplImage Image
@@ -37,17 +40,6 @@ namespace Bonsai.Vision.Design
                 {
                     SetImage(image);
                 }
-                else pictureBox.Image = null;
-            }
-        }
-
-        void EnsureFormat(IplImage image)
-        {
-            if (bitmap == null || bitmap.Width != image.Width || bitmap.Height != image.Height)
-            {
-                if (bitmap != null) bitmap.Dispose();
-                bitmap = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppPArgb);
-                pictureBox.Image = bitmap;
             }
         }
 
@@ -56,27 +48,74 @@ namespace Bonsai.Vision.Design
             if (image == null) throw new ArgumentNullException("image");
             if (image.Depth != 8) throw new ArgumentException("Non 8-bit depth images are not supported by the control.", "image");
 
-            EnsureFormat(image);
-            var bitmapData = bitmap.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppPArgb);
-            var bitmapImage = new IplImage(image.Size, 8, 4, bitmapData.Scan0);
-
-            try
+            OpenTK.Graphics.OpenGL.PixelFormat pixelFormat;
+            switch (image.NumChannels)
             {
-                switch (image.NumChannels)
-                {
-                    case 1: ImgProc.cvCvtColor(image, bitmapImage, ColorConversion.GRAY2BGRA); break;
-                    case 3: ImgProc.cvCvtColor(image, bitmapImage, ColorConversion.BGR2BGRA); break;
-                    case 4: Core.cvCopy(image, bitmapImage); break;
-                    default: throw new ArgumentException("Image has an unsupported number of channels.", "image");
-                }
-            }
-            finally
-            {
-                bitmapImage.Close();
-                bitmap.UnlockBits(bitmapData);
+                case 1: pixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Luminance; break;
+                case 3: pixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Bgr; break;
+                case 4: pixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Bgra; break;
+                default: throw new ArgumentException("Image has an unsupported number of channels.", "image");
             }
 
-            pictureBox.Invalidate();
+            glControl.MakeCurrent();
+            GL.BindTexture(TextureTarget.Texture2D, texture);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0, pixelFormat, PixelType.UnsignedByte, image.ImageData);
+            RenderImage();
+        }
+
+        private void glControl_Load(object sender, EventArgs e)
+        {
+            glControl.MakeCurrent();
+            GL.ClearColor(Color.Black);
+            GL.Enable(EnableCap.Texture2D);
+            GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
+
+            GL.GenTextures(1, out texture);
+            GL.BindTexture(TextureTarget.Texture2D, texture);
+
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadIdentity();
+            GL.Ortho(-1.0, 1.0, -1.0, 1.0, 0.0, 1.0);
+
+            loaded = true;
+        }
+
+        private void glControl_Resize(object sender, EventArgs e)
+        {
+            if (!loaded) return;
+
+            GL.Viewport(0, 0, glControl.Width, glControl.Height);
+        }
+
+        private void glControl_Paint(object sender, PaintEventArgs e)
+        {
+            if (!loaded) return;
+
+            glControl.MakeCurrent();
+            GL.BindTexture(TextureTarget.Texture2D, texture);
+            RenderImage();
+        }
+
+        void RenderImage()
+        {
+            GL.Clear(ClearBufferMask.ColorBufferBit);
+
+            GL.MatrixMode(MatrixMode.Modelview);
+            GL.LoadIdentity();
+
+            GL.Begin(BeginMode.Quads);
+
+            GL.TexCoord2(0.0f, 1.0f); GL.Vertex2(-1f, -1f);
+            GL.TexCoord2(1.0f, 1.0f); GL.Vertex2(1f, -1f);
+            GL.TexCoord2(1.0f, 0.0f); GL.Vertex2(1f, 1f);
+            GL.TexCoord2(0.0f, 0.0f); GL.Vertex2(-1f, 1f);
+
+            GL.End();
+
+            glControl.SwapBuffers();
         }
     }
 }
