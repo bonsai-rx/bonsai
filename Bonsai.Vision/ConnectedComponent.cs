@@ -8,11 +8,15 @@ namespace Bonsai.Vision
 {
     public class ConnectedComponent
     {
-        public CvPoint Center { get; set; }
-
-        public double Angle { get; set; }
-
         public double Area { get; set; }
+
+        public CvPoint Centroid { get; set; }
+
+        public double Orientation { get; set; }
+
+        public double MajorAxisLength { get; set; }
+
+        public double MinorAxisLength { get; set; }
 
         public CvContour Contour { get; set; }
     }

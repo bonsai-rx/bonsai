@@ -18,9 +18,9 @@ namespace Bonsai.Vision
             for (int i = 0; i < input.Count; i++)
             {
                 var component = input[i];
-                centroid.X += component.Center.X;
-                centroid.Y += component.Center.Y;
-                angle += component.Angle;
+                centroid.X += component.Centroid.X;
+                centroid.Y += component.Centroid.Y;
+                angle += component.Orientation;
                 area += component.Area;
             }
 
@@ -29,8 +29,8 @@ namespace Bonsai.Vision
                 var component = new ConnectedComponent();
                 centroid.X = (int)(centroid.X / (double)input.Count);
                 centroid.Y = (int)(centroid.Y / (double)input.Count);
-                component.Center = centroid;
-                component.Angle = angle / input.Count;
+                component.Centroid = centroid;
+                component.Orientation = angle / input.Count;
                 component.Area = area;
                 component.Contour = CvContour.FromCvSeq(CvSeq.Null);
                 result.Add(component);

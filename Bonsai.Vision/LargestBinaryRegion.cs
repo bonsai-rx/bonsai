@@ -12,31 +12,19 @@ namespace Bonsai.Vision
         {
             var result = new ConnectedComponentCollection(input.ImageSize);
 
-            CvPoint centroid = new CvPoint();
-            double angle = 0;
-            double area = 0;
-            CvContour contour = null;
+            ConnectedComponent largest = null;
             for (int i = 0; i < input.Count; i++)
             {
                 var component = input[i];
-                if (area == 0 || component.Area > area)
+                if (largest == null || component.Area > largest.Area)
                 {
-                    centroid.X = component.Center.X;
-                    centroid.Y = component.Center.Y;
-                    angle = component.Angle;
-                    area = component.Area;
-                    contour = component.Contour;
+                    largest = component;
                 }
             }
 
             if (input.Count > 0)
             {
-                var component = new ConnectedComponent();
-                component.Center = centroid;
-                component.Angle = angle;
-                component.Area = area;
-                component.Contour = contour;
-                result.Add(component);
+                result.Add(largest);
             }
 
             return result;

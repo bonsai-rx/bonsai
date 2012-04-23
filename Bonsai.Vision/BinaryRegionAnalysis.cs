@@ -18,20 +18,30 @@ namespace Bonsai.Vision
             {
                 ImgProc.cvMoments(currentContour, out moments, 0);
 
+                // Compute centroid components
                 var x = moments.m10 / moments.m00;
                 var y = moments.m01 / moments.m00;
-                var center = new CvPoint((int)x, (int)y);
+                var centroid = new CvPoint((int)x, (int)y);
 
+                // Compute second-order central moments
                 var miu20 = moments.m20 / moments.m00 - x * x;
                 var miu02 = moments.m02 / moments.m00 - y * y;
                 var miu11 = moments.m11 / moments.m00 - x * y;
-                var angle = 0.5 * Math.Atan2(2 * miu11, (miu20 - miu02));
+
+                // Compute orientation and major/minor axis length
+                var b = 2 * miu11;
+                var orientation = 0.5 * Math.Atan2(b, miu20 - miu02);
+                var deviation = Math.Sqrt(b * b + Math.Pow(miu20 - miu02, 2));
+                var majorAxisLength = Math.Sqrt(6 * (miu20 + miu02 + deviation));
+                var minorAxisLength = Math.Sqrt(6 * (miu20 + miu02 - deviation));
 
                 output.Add(new ConnectedComponent
                 {
-                    Center = center,
-                    Angle = angle,
                     Area = moments.m00,
+                    Centroid = centroid,
+                    Orientation = orientation,
+                    MajorAxisLength = majorAxisLength,
+                    MinorAxisLength = minorAxisLength,
                     Contour = CvContour.FromCvSeq(currentContour)
                 });
 
