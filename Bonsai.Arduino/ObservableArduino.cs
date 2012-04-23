@@ -50,11 +50,16 @@ namespace Bonsai.Arduino
 
         public static IEnumerable<Action<int>> AnalogOutput(string serialPort, int pin)
         {
+            return AnalogOutput(serialPort, pin, PinMode.Pwm);
+        }
+
+        public static IEnumerable<Action<int>> AnalogOutput(string serialPort, int pin, PinMode pinMode)
+        {
             var arduino = ReserveConnection(serialPort);
 
             try
             {
-                arduino.PinMode(pin, PinMode.Pwm);
+                arduino.PinMode(pin, pinMode);
                 while (true)
                 {
                     yield return value => arduino.AnalogWrite(pin, value);
