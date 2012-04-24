@@ -60,7 +60,7 @@ namespace Bonsai.Vision.Design
             glControl.MakeCurrent();
             GL.BindTexture(TextureTarget.Texture2D, texture);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0, pixelFormat, PixelType.UnsignedByte, image.ImageData);
-            RenderImage();
+            glControl.Invalidate();
         }
 
         private void glControl_Load(object sender, EventArgs e)
