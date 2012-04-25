@@ -109,6 +109,7 @@
     <Compile Include="VisualizerDialogSettings.cs" />
     <Compile Include="VisualizerDialogSettingsCollection.cs" />
     <Compile Include="VisualizerLayout.cs" />
+    <Compile Include="WorkflowComponentEditor.cs" />
     <Compile Include="WorkflowEditorLauncher.cs" />
     <Compile Include="WorkflowEditorSettings.cs" />
     <Compile Include="WorkflowSelectionModel.cs" />

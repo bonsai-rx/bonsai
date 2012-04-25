@@ -16,6 +16,7 @@ using System.Reactive.Disposables;
 using System.Linq.Expressions;
 using Bonsai.Editor.Properties;
 using System.IO;
+using System.Windows.Forms.Design;
 
 namespace Bonsai.Editor
 {
@@ -338,11 +339,12 @@ namespace Bonsai.Editor
             if (running != null)
             {
                 running.Dispose();
+                editorSite.OnWorkflowStopped(EventArgs.Empty);
+
                 loaded.Dispose();
                 loaded = null;
                 running = null;
                 workflowViewModel.UpdateVisualizerLayout();
-                editorSite.OnWorkflowStopped(EventArgs.Empty);
             }
 
             runningStatusLabel.Text = Resources.StoppedStatus;
@@ -498,13 +500,16 @@ namespace Bonsai.Editor
 
         #region EditorSite Class
 
-        class EditorSite : ISite, IWorkflowEditorService
+        class EditorSite : ISite, IWorkflowEditorService, IUIService
         {
+            System.Collections.IDictionary styles;
             MainForm siteForm;
 
             public EditorSite(MainForm form)
             {
                 siteForm = form;
+                styles = new System.Collections.Hashtable();
+                styles["DialogFont"] = siteForm.Font;
             }
 
             public IComponent Component
@@ -548,6 +553,11 @@ namespace Bonsai.Editor
                 }
 
                 if (serviceType == typeof(IWorkflowEditorService))
+                {
+                    return this;
+                }
+
+                if (serviceType == typeof(IUIService))
                 {
                     return this;
                 }
@@ -597,6 +607,89 @@ namespace Bonsai.Editor
                 {
                     handler(this, e);
                 }
+            }
+
+            public bool CanShowComponentEditor(object component)
+            {
+                var editor = TypeDescriptor.GetEditor(component, typeof(ComponentEditor));
+                return editor != null;
+            }
+
+            public IWin32Window GetDialogOwnerWindow()
+            {
+                return siteForm;
+            }
+
+            public void SetUIDirty()
+            {
+            }
+
+            public bool ShowComponentEditor(object component, IWin32Window parent)
+            {
+                var editor = (ComponentEditor)TypeDescriptor.GetEditor(component, typeof(ComponentEditor));
+                if (editor != null)
+                {
+                    var windowsFormsEditor = editor as WindowsFormsComponentEditor;
+                    if (windowsFormsEditor != null)
+                    {
+                        return windowsFormsEditor.EditComponent(component, parent);
+                    }
+
+                    var workflowEditor = editor as WorkflowComponentEditor;
+                    if (workflowEditor != null)
+                    {
+                        return workflowEditor.EditComponent(component, this, parent);
+                    }
+
+                    return editor.EditComponent(component);
+                }
+
+                return false;
+            }
+
+            public DialogResult ShowDialog(Form form)
+            {
+                return form.ShowDialog(siteForm);
+            }
+
+            public void ShowError(Exception ex, string message)
+            {
+                MessageBox.Show(message, siteForm.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            public void ShowError(Exception ex)
+            {
+                MessageBox.Show(ex.Message, siteForm.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            public void ShowError(string message)
+            {
+                MessageBox.Show(message, siteForm.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            public DialogResult ShowMessage(string message, string caption, MessageBoxButtons buttons)
+            {
+                return MessageBox.Show(message, caption, buttons);
+            }
+
+            public void ShowMessage(string message, string caption)
+            {
+                MessageBox.Show(message, caption);
+            }
+
+            public void ShowMessage(string message)
+            {
+                MessageBox.Show(message);
+            }
+
+            public bool ShowToolWindow(Guid toolWindow)
+            {
+                return false;
+            }
+
+            public System.Collections.IDictionary Styles
+            {
+                get { return styles; }
             }
         }
 
