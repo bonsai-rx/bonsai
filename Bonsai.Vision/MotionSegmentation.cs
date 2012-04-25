@@ -8,8 +8,9 @@ using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
-    public class RunningAverage : Projection<IplImage, IplImage>
+    public class MotionSegmentation : Projection<IplImage, IplImage>
     {
+        IplImage temp;
         IplImage accumulator;
 
         [Range(0, 1)]
@@ -22,11 +23,13 @@ namespace Bonsai.Vision
             if (accumulator == null)
             {
                 accumulator = new IplImage(input.Size, 32, input.NumChannels);
+                temp = new IplImage(accumulator.Size, accumulator.Depth, accumulator.NumChannels);
             }
 
             var output = new IplImage(input.Size, input.Depth, input.NumChannels);
+            Core.cvSub(input, accumulator, temp, CvArr.Null);
             ImgProc.cvRunningAvg(input, accumulator, Alpha, CvArr.Null);
-            Core.cvConvertScale(accumulator, output, 1, 0);
+            Core.cvConvertScale(temp, output, 1, 0);
             return output;
         }
 
@@ -35,7 +38,9 @@ namespace Bonsai.Vision
             if (accumulator != null)
             {
                 accumulator.Close();
+                temp.Close();
                 accumulator = null;
+                temp = null;
             }
             base.Unload();
         }
