@@ -69,6 +69,7 @@
     <Compile Include="ApproximatePolygon.cs" />
     <Compile Include="LargestBinaryRegion.cs" />
     <Compile Include="Mask.cs" />
+    <Compile Include="MotionSegmentation.cs" />
     <Compile Include="Not.cs" />
     <Compile Include="Opening.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

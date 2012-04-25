@@ -23,14 +23,16 @@ namespace Bonsai.Design
             {
                 var propertyDescriptor = context.PropertyDescriptor;
                 var range = (RangeAttribute)propertyDescriptor.Attributes[typeof(RangeAttribute)];
+                var precision = (PrecisionAttribute)propertyDescriptor.Attributes[typeof(PrecisionAttribute)];
+                var multiplier = Math.Pow(10, precision.DecimalPlaces);
 
                 var trackBar = new TrackBar();
-                trackBar.Minimum = Convert.ToInt32(range.Minimum < int.MinValue ? int.MinValue : range.Minimum);
-                trackBar.Maximum = Convert.ToInt32(range.Maximum > int.MaxValue ? int.MaxValue : range.Maximum);
-                trackBar.Value = Convert.ToInt32(value);
-                trackBar.ValueChanged += (sender, e) => propertyDescriptor.SetValue(context.Instance, Convert.ChangeType(trackBar.Value, propertyDescriptor.PropertyType));
+                trackBar.Minimum = (int)(Convert.ToInt32(range.Minimum < int.MinValue ? int.MinValue : range.Minimum) * multiplier);
+                trackBar.Maximum = (int)(Convert.ToInt32(range.Maximum > int.MaxValue ? int.MaxValue : range.Maximum) * multiplier);
+                trackBar.Value = (int)(Convert.ToDouble(value) * multiplier);
+                trackBar.ValueChanged += (sender, e) => propertyDescriptor.SetValue(context.Instance, Convert.ChangeType(trackBar.Value / multiplier, propertyDescriptor.PropertyType));
                 editorService.DropDownControl(trackBar);
-                return Convert.ChangeType(trackBar.Value, propertyDescriptor.PropertyType);
+                return Convert.ChangeType(trackBar.Value / multiplier, propertyDescriptor.PropertyType);
             }
 
             return base.EditValue(context, provider, value);
