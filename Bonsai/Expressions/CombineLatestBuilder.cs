@@ -11,7 +11,7 @@ using System.Reflection;
 namespace Bonsai.Expressions
 {
     [XmlType("CombineLatest", Namespace = Constants.XmlNamespace)]
-    public class CombineLatestBuilder : MergeCombinatorBuilder
+    public class CombineLatestBuilder : CombineBuilder
     {
         protected override IObservable<Tuple<TSource, TOther>> Combine<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
         {
