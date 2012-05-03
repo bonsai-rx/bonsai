@@ -11,7 +11,7 @@ using System.Reflection;
 namespace Bonsai.Expressions
 {
     [XmlType("Zip", Namespace = Constants.XmlNamespace)]
-    public class ZipBuilder : MergeCombinatorBuilder
+    public class ZipBuilder : CombineBuilder
     {
         protected override IObservable<Tuple<TSource, TOther>> Combine<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
         {

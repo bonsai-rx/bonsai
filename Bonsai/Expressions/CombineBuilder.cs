@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace Bonsai.Expressions
 {
-    public abstract class MergeCombinatorBuilder : BinaryCombinatorExpressionBuilder
+    public abstract class CombineBuilder : BinaryCombinatorExpressionBuilder
     {
         public override Expression Build()
         {
@@ -19,7 +19,7 @@ namespace Bonsai.Expressions
         protected abstract IObservable<Tuple<TSource, TOther>> Combine<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other);
     }
 
-    public abstract class MergeCombinatorBuilder<TSource, TOther, TResult> : BinaryCombinatorExpressionBuilder
+    public abstract class CombineBuilder<TSource, TOther, TResult> : BinaryCombinatorExpressionBuilder
     {
         public override Expression Build()
         {

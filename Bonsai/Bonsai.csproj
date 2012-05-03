@@ -44,13 +44,14 @@
   <ItemGroup>
     <Compile Include="Constants.cs" />
     <Compile Include="Expressions\BinaryCombinatorBuilder.cs" />
+    <Compile Include="Expressions\MergeBuilder.cs" />
     <Compile Include="Expressions\NullSinkBuilder.cs" />
     <Compile Include="Expressions\SkipLastBuilder.cs" />
     <Compile Include="Expressions\SubscribeWhenBuilder.cs" />
     <Compile Include="Expressions\TakeLastBuilder.cs" />
     <Compile Include="Expressions\SkipBuilder.cs" />
     <Compile Include="Expressions\ExpressionBuilderGraphDescriptor.cs" />
-    <Compile Include="Expressions\MergeCombinatorBuilder.cs" />
+    <Compile Include="Expressions\CombineBuilder.cs" />
     <Compile Include="Expressions\CombinatorBuilder.cs" />
     <Compile Include="Expressions\RepeatBuilder.cs" />
     <Compile Include="Expressions\TakeBuilder.cs" />
