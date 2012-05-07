@@ -21,7 +21,7 @@ namespace Bonsai.Expressions
         {
             var observableType = Source.Type.GetGenericArguments()[0];
             var innerType = observableType.GetGenericArguments();
-            return Expression.Call(Source, mergeMethod.MakeGenericMethod(innerType));
+            return Expression.Call(mergeMethod.MakeGenericMethod(innerType), Source);
         }
     }
 }
