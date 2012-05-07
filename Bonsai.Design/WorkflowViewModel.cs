@@ -531,7 +531,7 @@ namespace Bonsai.Design
                 {
                     var path = (string[])e.Data.GetData(DataFormats.FileDrop, true);
                     var workflowBuilder = editorService.LoadWorkflow(path[0]);
-                    var workflowExpressionBuilder = new WorkflowExpressionBuilder(workflowBuilder.Workflow);
+                    var workflowExpressionBuilder = new NestedWorkflowExpressionBuilder(workflowBuilder.Workflow);
                     CreateGraphNode(workflowExpressionBuilder, WorkflowElementType.Combinator, closestGraphViewNode, predecessor, branch);
                 }
                 else

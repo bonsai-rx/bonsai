@@ -113,7 +113,7 @@ namespace Bonsai.Expressions
                 var workflowExpression = nodeValue as WorkflowExpressionBuilder;
                 if (workflowExpression != null)
                 {
-                    var observableWorkflowExpression = new WorkflowExpressionBuilder(workflowExpression.Workflow.ToInspectableGraph());
+                    var observableWorkflowExpression = (WorkflowExpressionBuilder)Activator.CreateInstance(workflowExpression.GetType(), workflowExpression.Workflow.ToInspectableGraph());
                     observableWorkflowExpression.Name = workflowExpression.Name;
                     nodeValue = observableWorkflowExpression;
                 }
@@ -156,10 +156,9 @@ namespace Bonsai.Expressions
                 var workflowExpression = recurse ? nodeValue as WorkflowExpressionBuilder : null;
                 if (workflowExpression != null)
                 {
-                    workflowExpression = new WorkflowExpressionBuilder(workflowExpression.Workflow.FromInspectableGraph(recurse))
-                    {
-                        Name = workflowExpression.Name
-                    };
+                    var workflowName = workflowExpression.Name;
+                    workflowExpression = (WorkflowExpressionBuilder)Activator.CreateInstance(workflowExpression.GetType(), workflowExpression.Workflow.FromInspectableGraph());
+                    workflowExpression.Name = workflowName;
                     nodeValue = workflowExpression;
                 }
 
