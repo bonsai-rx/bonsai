@@ -27,7 +27,7 @@ namespace Bonsai.Expressions
 
         protected override IObservable<TSource> Combine<TSource>(IObservable<TSource> source)
         {
-            return source.Gate(Interval);
+            return source.Gate(Interval, HighResolutionScheduler.ThreadPool);
         }
     }
 }
