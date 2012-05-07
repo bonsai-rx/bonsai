@@ -44,8 +44,12 @@
   <ItemGroup>
     <Compile Include="Constants.cs" />
     <Compile Include="Expressions\BinaryCombinatorBuilder.cs" />
+    <Compile Include="Expressions\ElementCountWindowBuilder.cs" />
     <Compile Include="Expressions\MergeBuilder.cs" />
+    <Compile Include="Expressions\NestedWorkflowExpressionBuilder.cs" />
     <Compile Include="Expressions\NullSinkBuilder.cs" />
+    <Compile Include="Expressions\RemoveTimestampBuilder.cs" />
+    <Compile Include="Expressions\SelectManyBuilder.cs" />
     <Compile Include="Expressions\SkipLastBuilder.cs" />
     <Compile Include="Expressions\SubscribeWhenBuilder.cs" />
     <Compile Include="Expressions\TakeLastBuilder.cs" />
@@ -58,10 +62,13 @@
     <Compile Include="Expressions\TimedGateBuilder.cs" />
     <Compile Include="Expressions\GateIntervalBuilder.cs" />
     <Compile Include="Expressions\GateBuilder.cs" />
+    <Compile Include="Expressions\TimeSpanWindowBuilder.cs" />
+    <Compile Include="Expressions\WindowBuilder.cs" />
     <Compile Include="Expressions\WorkflowExpressionBuilder.cs" />
     <Compile Include="Expressions\WorkflowInputBuilder.cs" />
     <Compile Include="FileNameFilterAttribute.cs" />
     <Compile Include="HighResolutionScheduler.cs" />
+    <Compile Include="InvalidWorkflowException.cs" />
     <Compile Include="ObservableCombinators.cs" />
     <Compile Include="Dag\DirectedGraph.cs" />
     <Compile Include="Dag\DirectedGraphDescriptor.cs" />

@@ -9,18 +9,17 @@ using Bonsai.Dag;
 
 namespace Bonsai.Expressions
 {
-    [DisplayName("Workflow")]
     [XmlType("Workflow", Namespace = Constants.XmlNamespace)]
-    public class WorkflowExpressionBuilder : CombinatorExpressionBuilder
+    public abstract class WorkflowExpressionBuilder : CombinatorExpressionBuilder
     {
         readonly ExpressionBuilderGraph workflow;
 
-        public WorkflowExpressionBuilder()
+        protected WorkflowExpressionBuilder()
             : this(new ExpressionBuilderGraph())
         {
         }
 
-        public WorkflowExpressionBuilder(ExpressionBuilderGraph workflow)
+        protected WorkflowExpressionBuilder(ExpressionBuilderGraph workflow)
         {
             if (workflow == null)
             {
@@ -39,10 +38,6 @@ namespace Bonsai.Expressions
             get { return workflow; }
         }
 
-        [XmlIgnore]
-        [Browsable(false)]
-        public ReactiveWorkflow RunningWorkflow { get; private set; }
-
         [Browsable(false)]
         [XmlElement("Workflow")]
         public ExpressionBuilderGraphDescriptor WorkflowDescriptor
@@ -53,20 +48,6 @@ namespace Bonsai.Expressions
                 workflow.Clear();
                 workflow.AddDescriptor(value);
             }
-        }
-
-        public override Expression Build()
-        {
-            // Assign source if available
-            var workflowInput = workflow.Select(node => node.Value as WorkflowInputBuilder)
-                                        .SingleOrDefault(builder => builder != null);
-            if (workflowInput != null)
-            {
-                workflowInput.Source = Source;
-            }
-
-            RunningWorkflow = workflow.Build();
-            return RunningWorkflow.Connections.Single();
         }
     }
 }

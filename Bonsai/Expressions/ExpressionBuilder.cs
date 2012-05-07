@@ -40,6 +40,9 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(ZipBuilder))]
     [XmlInclude(typeof(AmbBuilder))]
     [XmlInclude(typeof(MergeBuilder))]
+    [XmlInclude(typeof(SelectManyBuilder))]
+    [XmlInclude(typeof(TimeSpanWindowBuilder))]
+    [XmlInclude(typeof(ElementCountWindowBuilder))]
     [XmlType("Expression", Namespace = Constants.XmlNamespace)]
     [TypeConverter("Bonsai.Design.ExpressionBuilderTypeConverter, Bonsai.Design")]
     public abstract class ExpressionBuilder
