@@ -210,8 +210,8 @@ namespace Bonsai.Editor
         void OpenWorkflow(string fileName)
         {
             saveWorkflowDialog.FileName = fileName;
-            workflowBuilder = LoadWorkflow(fileName);
             ResetProjectStatus(Path.GetDirectoryName(fileName));
+            workflowBuilder = LoadWorkflow(fileName);
 
             var layoutPath = GetLayoutPath(fileName);
             if (File.Exists(layoutPath))
@@ -254,10 +254,10 @@ namespace Bonsai.Editor
             {
                 using (var writer = XmlWriter.Create(saveWorkflowDialog.FileName, new XmlWriterSettings { Indent = true }))
                 {
+                    Environment.CurrentDirectory = Path.GetDirectoryName(saveWorkflowDialog.FileName);
                     var serializerWorkflowBuilder = new WorkflowBuilder(workflowBuilder.Workflow.FromInspectableGraph());
                     serializer.Serialize(writer, serializerWorkflowBuilder);
                     saveVersion = version;
-                    Environment.CurrentDirectory = Path.GetDirectoryName(saveWorkflowDialog.FileName);
                 }
 
                 if (workflowViewModel.VisualizerLayout != null)
