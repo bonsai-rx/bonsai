@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="AdaptiveThreshold.cs" />
     <Compile Include="And.cs" />
+    <Compile Include="Average.cs" />
     <Compile Include="AverageBinaryRegion.cs" />
     <Compile Include="BackgroundSubtraction.cs" />
     <Compile Include="BinaryRegionAnalysis.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="Flip.cs" />
     <Compile Include="Grayscale.cs" />
     <Compile Include="HsvThreshold.cs" />
+    <Compile Include="ImageSubtraction.cs" />
     <Compile Include="IplImageHelper.cs" />
     <Compile Include="ApproximatePolygon.cs" />
     <Compile Include="LargestBinaryRegion.cs" />
