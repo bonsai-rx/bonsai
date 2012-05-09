@@ -28,15 +28,19 @@ namespace Bonsai.Design
                 var workflowBuilder = (WorkflowBuilder)provider.GetService(typeof(WorkflowBuilder));
                 if (workflowBuilder == null) return base.EditValue(context, provider, value);
 
+                var nodeBuilderGraph = (ExpressionBuilderGraph)provider.GetService(typeof(ExpressionBuilderGraph));
+                if (nodeBuilderGraph == null) return base.EditValue(context, provider, value);
+
                 var workflow = workflowBuilder.Workflow;
-                var predecessorNode = (from node in workflow
+                var predecessorNode = (from node in nodeBuilderGraph
                                        let builder = node.Value
                                        where builder == context.Instance
-                                       select workflow.Predecessors(node).SingleOrDefault()).SingleOrDefault();
+                                       select nodeBuilderGraph.Predecessors(node).SingleOrDefault()).SingleOrDefault();
 
                 if (predecessorNode == null) return base.EditValue(context, provider, value);
-                var expressionType = workflow.ExpressionType(predecessorNode).GetGenericArguments()[0];
+                workflow.Build(); //TODO: Find a better way to ensure type inference on arbitrary nested workflows
 
+                var expressionType = predecessorNode.Value.Build().Type.GetGenericArguments()[0];
                 var editorDialog = new MemberSelectorEditorDialog(expressionType, selector);
                 if (editorService.ShowDialog(editorDialog) == DialogResult.OK)
                 {
