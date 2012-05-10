@@ -87,6 +87,7 @@ namespace Bonsai.Vision.Design
         {
             if (!loaded) return;
 
+            glControl.MakeCurrent();
             GL.Viewport(0, 0, glControl.Width, glControl.Height);
         }
 
