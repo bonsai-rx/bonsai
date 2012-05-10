@@ -12,10 +12,8 @@ using Bonsai.Vision;
 
 namespace Bonsai.Vision.Design
 {
-    public class ContoursVisualizer : DialogTypeVisualizer
+    public class ContoursVisualizer : IplImageVisualizer
     {
-        IplImageControl control;
-
         public override void Show(object value)
         {
             var contours = (Contours)value;
@@ -27,24 +25,7 @@ namespace Bonsai.Vision.Design
                 Core.cvDrawContours(output, contours.FirstContour, CvScalar.All(255), CvScalar.All(0), 1, -1, 8, CvPoint.Zero);
             }
 
-            control.Image = output;
-        }
-
-        public override void Load(IServiceProvider provider)
-        {
-            control = new IplImageControl();
-
-            var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
-            if (visualizerService != null)
-            {
-                visualizerService.AddControl(control);
-            }
-        }
-
-        public override void Unload()
-        {
-            control.Dispose();
-            control = null;
+            base.Show(output);
         }
     }
 }

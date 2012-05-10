@@ -12,10 +12,8 @@ using Bonsai.Vision;
 
 namespace Bonsai.Vision.Design
 {
-    public class ConnectedComponentCollectionVisualizer : DialogTypeVisualizer
+    public class ConnectedComponentCollectionVisualizer : IplImageVisualizer
     {
-        IplImageControl control;
-
         public override void Show(object value)
         {
             var connectedComponents = (ConnectedComponentCollection)value;
@@ -41,24 +39,7 @@ namespace Bonsai.Vision.Design
                 Core.cvCircle(output, centroid, 2, CvScalar.Rgb(255, 0, 0), -1, 8, 0);
             }
 
-            control.Image = output;
-        }
-
-        public override void Load(IServiceProvider provider)
-        {
-            control = new IplImageControl();
-
-            var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
-            if (visualizerService != null)
-            {
-                visualizerService.AddControl(control);
-            }
-        }
-
-        public override void Unload()
-        {
-            control.Dispose();
-            control = null;
+            base.Show(output);
         }
     }
 }
