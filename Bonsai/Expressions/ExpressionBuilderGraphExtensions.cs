@@ -67,8 +67,8 @@ namespace Bonsai.Expressions
                 {
                     // Publish workflow result to avoid repeating operations
                     var publishBuilder = new PublishBuilder { Source = expression };
-                    var publish = Expression.Lambda(publishBuilder.Build()).Compile();
-                    expression = Expression.Constant(publish.DynamicInvoke());
+                    loadableElements.Add(publishBuilder.PublishHandle);
+                    expression = publishBuilder.Build();
                 }
 
                 foreach (var successor in node.Successors)
