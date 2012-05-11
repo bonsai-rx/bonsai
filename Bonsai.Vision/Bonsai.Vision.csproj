@@ -81,6 +81,7 @@
     <Compile Include="RunningAverage.cs" />
     <Compile Include="SaveImage.cs" />
     <Compile Include="Smooth.cs" />
+    <Compile Include="Subtract.cs" />
     <Compile Include="Sum.cs" />
     <Compile Include="Threshold.cs" />
     <Compile Include="Undistort.cs" />
