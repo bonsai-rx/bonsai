@@ -13,9 +13,28 @@ namespace Bonsai.Expressions
 {
     public class PublishBuilder : CombinatorBuilder
     {
+        ObservableHandle handle = new ObservableHandle();
+
+        public LoadableElement PublishHandle
+        {
+            get { return handle; }
+        }
+
         protected override IObservable<TSource> Combine<TSource>(IObservable<TSource> source)
         {
-            return source.Publish().RefCount();
+            handle.ObservableCache = handle.ObservableCache ?? source.Publish().RefCount();
+            return (IObservable<TSource>)handle.ObservableCache;
+        }
+
+        class ObservableHandle : LoadableElement
+        {
+            public object ObservableCache { get; set; }
+
+            protected override void Unload()
+            {
+                ObservableCache = null;
+                base.Unload();
+            }
         }
     }
 }
