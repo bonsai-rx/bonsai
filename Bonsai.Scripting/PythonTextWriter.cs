@@ -26,7 +26,13 @@ namespace Bonsai.Scripting
         public bool Append { get; set; }
 
         [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
+        public string LoadScript { get; set; }
+
+        [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
         public string Script { get; set; }
+
+        [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
+        public string UnloadScript { get; set; }
 
         public override void Process(object input)
         {
@@ -49,15 +55,28 @@ namespace Bonsai.Scripting
 
                 engine = IronPython.Hosting.Python.CreateEngine();
                 engine.Runtime.IO.SetOutput(writer.BaseStream, writer);
+                scope = engine.CreateScope();
+                if (!string.IsNullOrEmpty(LoadScript))
+                {
+                    engine.Execute(LoadScript, scope);
+                }
+
                 var source = engine.CreateScriptSourceFromString(Script);
                 script = source.Compile();
-                scope = engine.CreateScope();
             }
             return base.Load();
         }
 
         protected override void Unload()
         {
+            writerTask = writerTask.ContinueWith(task =>
+            {
+                if (!string.IsNullOrEmpty(UnloadScript))
+                {
+                    engine.Execute(UnloadScript, scope);
+                }
+            });
+
             writerTask.Wait();
             writer.Close();
             base.Unload();
