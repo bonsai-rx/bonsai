@@ -12,7 +12,6 @@ namespace Bonsai.Vision
         CvCapture capture;
         Thread captureThread;
         volatile bool running;
-        ManualResetEventSlim stop;
 
         void CaptureNewFrame()
         {
@@ -27,8 +26,6 @@ namespace Bonsai.Vision
 
                 Subject.OnNext(image.Clone());
             }
-
-            stop.Set();
         }
 
         protected abstract CvCapture CreateCapture();
@@ -43,12 +40,11 @@ namespace Bonsai.Vision
         protected override void Stop()
         {
             running = false;
-            stop.Wait();
+            captureThread.Join();
         }
 
         public override IDisposable Load()
         {
-            stop = new ManualResetEventSlim();
             capture = CreateCapture();
             return base.Load();
         }
