@@ -364,6 +364,16 @@ namespace Bonsai.Editor
 
         #region Workflow Controller
 
+        private void DeleteSelectedNode()
+        {
+            var model = selectionModel.SelectedModel;
+            if (model != null && model.WorkflowGraphView.Focused)
+            {
+                var node = selectionModel.SelectedNode;
+                model.DeleteGraphNode(node);
+            }
+        }
+
         protected override void OnDeactivate(EventArgs e)
         {
             if (workflowGraphView.Focused)
@@ -424,12 +434,7 @@ namespace Bonsai.Editor
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var model = selectionModel.SelectedModel;
-            if (model != null)
-            {
-                var node = selectionModel.SelectedNode;
-                model.DeleteGraphNode(node);
-            }
+            DeleteSelectedNode();
         }
 
         private void toolboxTreeView_KeyDown(object sender, KeyEventArgs e)
@@ -459,6 +464,14 @@ namespace Bonsai.Editor
                     var predecessor = Control.ModifierKeys.HasFlag(Keys.Shift) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
                     model.CreateGraphNode(typeNode, selectionModel.SelectedNode, predecessor, branch);
                 }
+            }
+        }
+
+        private void MainForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Delete)
+            {
+                DeleteSelectedNode();
             }
         }
 
