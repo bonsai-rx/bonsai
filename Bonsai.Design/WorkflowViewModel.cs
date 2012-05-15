@@ -62,6 +62,11 @@ namespace Bonsai.Design
             editorService.WorkflowStarted += new EventHandler(editorService_WorkflowStarted);
         }
 
+        public GraphView WorkflowGraphView
+        {
+            get { return workflowGraphView; }
+        }
+
         public VisualizerLayout VisualizerLayout
         {
             get { return visualizerLayout; }
