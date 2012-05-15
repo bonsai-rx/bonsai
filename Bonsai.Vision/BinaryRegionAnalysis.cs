@@ -24,7 +24,7 @@ namespace Bonsai.Vision
                     // Compute centroid components
                     var x = moments.m10 / moments.m00;
                     var y = moments.m01 / moments.m00;
-                    var centroid = new CvPoint((int)x, (int)y);
+                    var centroid = new CvPoint2D32f((float)x, (float)y);
 
                     // Compute second-order central moments
                     var miu20 = moments.m20 / moments.m00 - x * x;

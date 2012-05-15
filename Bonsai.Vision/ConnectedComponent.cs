@@ -10,7 +10,7 @@ namespace Bonsai.Vision
     {
         public double Area { get; set; }
 
-        public CvPoint Centroid { get; set; }
+        public CvPoint2D32f Centroid { get; set; }
 
         public double Orientation { get; set; }
 
