@@ -49,6 +49,13 @@
     <Compile Include="CommandExecutor.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="NumericTupleVisualizer.cs" />
+    <Compile Include="PlotControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PlotControl.Designer.cs">
+      <DependentUpon>PlotControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="ITypeVisualizerContext.cs" />
     <Compile Include="StateTimeVisualizer.cs" />
     <Compile Include="StateTimeHistogram.cs">
@@ -122,6 +129,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="PlotControl.resx">
+      <DependentUpon>PlotControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="StateTimeHistogram.resx">
       <DependentUpon>StateTimeHistogram.cs</DependentUpon>
     </EmbeddedResource>
