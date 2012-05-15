@@ -36,7 +36,7 @@ namespace Bonsai.Vision.Design
                 Core.cvDrawContours(output, component.Contour, CvScalar.Rgb(255, 0, 0), CvScalar.Rgb(0, 0, 255), 0, 1, 8, CvPoint.Zero);
                 Core.cvLine(output, major1, major2, CvScalar.Rgb(0, 0, 255), 1, 8, 0);
                 Core.cvLine(output, minor1, minor2, CvScalar.Rgb(255, 0, 0), 1, 8, 0);
-                Core.cvCircle(output, centroid, 2, CvScalar.Rgb(255, 0, 0), -1, 8, 0);
+                Core.cvCircle(output, new CvPoint(centroid), 2, CvScalar.Rgb(255, 0, 0), -1, 8, 0);
             }
 
             base.Show(output);

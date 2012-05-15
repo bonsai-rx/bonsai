@@ -12,7 +12,7 @@ namespace Bonsai.Vision
         {
             var result = new ConnectedComponentCollection(input.ImageSize);
 
-            CvPoint centroid = new CvPoint();
+            CvPoint2D32f centroid = new CvPoint2D32f();
             double angle = 0;
             double area = 0;
             for (int i = 0; i < input.Count; i++)
@@ -27,8 +27,8 @@ namespace Bonsai.Vision
             if (input.Count > 0)
             {
                 var component = new ConnectedComponent();
-                centroid.X = (int)(centroid.X / (double)input.Count);
-                centroid.Y = (int)(centroid.Y / (double)input.Count);
+                centroid.X = centroid.X / input.Count;
+                centroid.Y = centroid.Y / input.Count;
                 component.Centroid = centroid;
                 component.Orientation = angle / input.Count;
                 component.Area = area;
