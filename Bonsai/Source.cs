@@ -18,15 +18,13 @@ namespace Bonsai
         protected abstract void Stop();
     }
 
-    public abstract class Source<T> : Source, IDisposable
+    public abstract class Source<T> : Source
     {
-        bool disposed;
-        readonly Subject<T> subject;
+        Subject<T> subject;
         readonly IObservable<T> output;
 
         public Source()
         {
-            subject = new Subject<T>();
             output = new ConnectableSource(this).RefCount();
         }
 
@@ -35,33 +33,23 @@ namespace Bonsai
             get { return subject; }
         }
 
+        public override IDisposable Load()
+        {
+            subject = new Subject<T>();
+            return base.Load();
+        }
+
+        protected override void Unload()
+        {
+            subject.Dispose();
+            subject = null;
+            base.Unload();
+        }
+
         [Browsable(false)]
         public IObservable<T> Output
         {
             get { return output; }
-        }
-
-        ~Source()
-        {
-            Dispose(false);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    subject.Dispose();
-                    disposed = true;
-                }
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         class ConnectableSource : IConnectableObservable<T>
@@ -86,6 +74,11 @@ namespace Bonsai
 
             public IDisposable Subscribe(IObserver<T> observer)
             {
+                if (source.Subject == null)
+                {
+                    throw new InvalidOperationException("Cannot subscribe to unloaded data source.");
+                }
+
                 return source.Subject.Subscribe(observer);
             }
         }
