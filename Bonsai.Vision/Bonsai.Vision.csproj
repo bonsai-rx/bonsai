@@ -59,7 +59,6 @@
     <Compile Include="Contours.cs" />
     <Compile Include="ConvertColor.cs" />
     <Compile Include="Crop.cs" />
-    <Compile Include="CvCaptureSource.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="FileCapture.cs" />
     <Compile Include="FindContours.cs" />
