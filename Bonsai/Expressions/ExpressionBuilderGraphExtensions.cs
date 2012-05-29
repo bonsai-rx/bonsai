@@ -6,13 +6,14 @@ using Bonsai.Dag;
 using System.Linq.Expressions;
 using System.Reactive.Disposables;
 using System.Reflection;
+using System.Threading;
 
 namespace Bonsai.Expressions
 {
     public static class ExpressionBuilderGraphExtensions
     {
         static readonly ConstructorInfo compositeDisposableConstructor = typeof(CompositeDisposable).GetConstructor(new[] { typeof(IEnumerable<IDisposable>) });
-        static readonly MethodInfo subscribeMethod = typeof(ObservableExtensions).GetMethods().First(m => m.Name == "Subscribe" && m.GetParameters().Length == 3);
+        static readonly MethodInfo subscribeMethod = typeof(ObservableExtensions).GetMethods().First(m => m.Name == "Subscribe" && m.GetParameters().Length == 4);
 
         public static Type ExpressionType(this ExpressionBuilderGraph source, Node<ExpressionBuilder, ExpressionBuilderParameter> node)
         {
@@ -86,18 +87,37 @@ namespace Bonsai.Expressions
             return new ReactiveWorkflow(loadableElements, connections);
         }
 
+
+
         public static Expression<Func<IDisposable>> BuildSubscribe(this ReactiveWorkflow source, Action<Exception> onError)
         {
+            return BuildSubscribe(source, onError, () => { });
+        }
+
+        public static Expression<Func<IDisposable>> BuildSubscribe(this ReactiveWorkflow source, Action<Exception> onError, Action onCompleted)
+        {
+            var subscriptionCounter = Expression.Variable(typeof(int));
+            var subscriptionInitializer = Expression.Assign(subscriptionCounter, Expression.Constant(0));
+            Expression<Action> onCompletedCall = () => onCompleted();
+
+            var decrementCall = Expression.Call(typeof(Interlocked), "Decrement", null, subscriptionCounter);
+            var comparison = Expression.LessThanOrEqual(decrementCall, Expression.Constant(0));
+            var onCompletedCheck = Expression.IfThen(comparison, Expression.Invoke(onCompletedCall));
+
             var onErrorExpression = Expression.Constant(onError);
             var subscribeActions = from expression in source.Connections
                                    let observableType = expression.Type.GetGenericArguments()[0]
                                    let onNextParameter = Expression.Parameter(observableType)
                                    let onNext = Expression.Lambda(Expression.Empty(), onNextParameter)
-                                   select Expression.Call(subscribeMethod.MakeGenericMethod(observableType), expression, onNext, onErrorExpression);
+                                   let onCompletedExpression = Expression.Lambda(onCompletedCheck)
+                                   let increment = Expression.Assign(subscriptionCounter, Expression.Increment(subscriptionCounter))
+                                   let subscribeCall = Expression.Call(subscribeMethod.MakeGenericMethod(observableType), expression, onNext, onErrorExpression, onCompletedExpression)
+                                   select Expression.Block(increment, subscribeCall);
 
             var subscriptions = Expression.NewArrayInit(typeof(IDisposable), subscribeActions);
             var disposable = Expression.New(compositeDisposableConstructor, subscriptions);
-            return Expression.Lambda<Func<IDisposable>>(disposable);
+            var subscribeBlock = Expression.Block(new[] { subscriptionCounter }, subscriptionInitializer, disposable);
+            return Expression.Lambda<Func<IDisposable>>(subscribeBlock);
         }
 
         public static ExpressionBuilderGraph ToInspectableGraph(this ExpressionBuilderGraph source)
