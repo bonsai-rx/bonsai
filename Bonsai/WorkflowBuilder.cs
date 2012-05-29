@@ -68,7 +68,7 @@ namespace Bonsai
             var types = new HashSet<Type>();
             while (reader.ReadToNextSibling("Type"))
             {
-                var type = Type.GetType(reader.ReadElementString());
+                var type = Type.GetType(reader.ReadElementString(), true);
                 types.Add(type);
             }
             reader.ReadEndElement();
