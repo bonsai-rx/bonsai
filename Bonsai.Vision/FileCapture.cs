@@ -53,6 +53,7 @@ namespace Bonsai.Vision
                         }
                         else
                         {
+                            running = false;
                             Subject.OnCompleted();
                             break;
                         }
@@ -79,8 +80,11 @@ namespace Bonsai.Vision
 
         protected override void Stop()
         {
-            running = false;
-            if (captureThread != Thread.CurrentThread) captureThread.Join();
+            if (running)
+            {
+                running = false;
+                if (captureThread != Thread.CurrentThread) captureThread.Join();
+            }
         }
 
         public override IDisposable Load()
