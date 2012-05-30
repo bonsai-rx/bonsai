@@ -10,16 +10,22 @@ namespace Bonsai.Arduino
     static class ObservableArduino
     {
         static readonly Dictionary<string, ArduinoReference> openConnections = new Dictionary<string, ArduinoReference>();
-        class ArduinoReference
+        class ArduinoReference : IDisposable
         {
             public ArduinoReference(Arduino arduino)
             {
                 Arduino = arduino;
+                Arduino.Open();
             }
 
             public Arduino Arduino { get; private set; }
 
             public int RefCount { get; set; }
+
+            public void Dispose()
+            {
+                Arduino.Close();
+            }
         }
 
         static Arduino ReserveConnection(string serialPort)
@@ -30,7 +36,6 @@ namespace Bonsai.Arduino
                 var arduino = new Arduino(serialPort);
                 arduinoReference = new ArduinoReference(arduino);
                 openConnections.Add(serialPort, arduinoReference);
-                arduino.Open();
             }
 
             arduinoReference.RefCount++;
@@ -42,8 +47,7 @@ namespace Bonsai.Arduino
             var arduinoReference = openConnections[serialPort];
             if (--arduinoReference.RefCount <= 0)
             {
-                var arduino = arduinoReference.Arduino;
-                arduino.Close();
+                arduinoReference.Dispose();
                 openConnections.Remove(serialPort);
             }
         }
@@ -62,7 +66,13 @@ namespace Bonsai.Arduino
                 arduino.PinMode(pin, pinMode);
                 while (true)
                 {
-                    yield return value => arduino.AnalogWrite(pin, value);
+                    yield return value =>
+                    {
+                        lock (arduino)
+                        {
+                            arduino.AnalogWrite(pin, value);
+                        }
+                    };
                 }
             }
             finally { ReleaseConnection(serialPort); }
@@ -74,11 +84,16 @@ namespace Bonsai.Arduino
 
             try
             {
-                if (!arduino.IsOpen) arduino.Open();
                 arduino.PinMode(pin, PinMode.Output);
                 while (true)
                 {
-                    yield return value => arduino.DigitalWrite(pin, value ? Arduino.High : Arduino.Low);
+                    yield return value =>
+                    {
+                        lock (arduino)
+                        {
+                            arduino.DigitalWrite(pin, value ? Arduino.High : Arduino.Low);
+                        };
+                    };
                 }
             }
             finally { ReleaseConnection(serialPort); }
