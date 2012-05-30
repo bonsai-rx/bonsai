@@ -73,6 +73,8 @@ namespace Bonsai.Editor
             {
                 OpenWorkflow(InitialFileName);
             }
+
+            directoryToolStripTextBox.Text = Environment.CurrentDirectory;
             base.OnLoad(e);
         }
 
@@ -168,12 +170,11 @@ namespace Bonsai.Editor
 
         #region File Menu
 
-        void ResetProjectStatus(string currentDirectory)
+        void ResetProjectStatus()
         {
             commandExecutor.Clear();
             version = 0;
             saveVersion = 0;
-            Environment.CurrentDirectory = currentDirectory;
         }
 
         bool CheckUnsavedChanges()
@@ -210,8 +211,8 @@ namespace Bonsai.Editor
         void OpenWorkflow(string fileName)
         {
             saveWorkflowDialog.FileName = fileName;
-            ResetProjectStatus(Path.GetDirectoryName(fileName));
             workflowBuilder = LoadWorkflow(fileName);
+            ResetProjectStatus();
 
             var layoutPath = GetLayoutPath(fileName);
             if (File.Exists(layoutPath))
@@ -226,6 +227,41 @@ namespace Bonsai.Editor
             workflowViewModel.Workflow = workflowBuilder.Workflow;
         }
 
+        void UpdateCurrentDirectory()
+        {
+            Environment.CurrentDirectory = directoryToolStripTextBox.Text;
+        }
+
+        private void directoryToolStripTextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (!directoryToolStripTextBox.Focused)
+            {
+                UpdateCurrentDirectory();
+            }
+        }
+
+        private void directoryToolStripTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Return)
+            {
+                ProcessTabKey(true);
+            }
+        }
+
+        private void directoryToolStripTextBox_Leave(object sender, EventArgs e)
+        {
+            UpdateCurrentDirectory();
+        }
+
+        private void browseDirectoryToolStripButton_Click(object sender, EventArgs e)
+        {
+            folderBrowserDialog.SelectedPath = directoryToolStripTextBox.Text;
+            if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+            {
+                directoryToolStripTextBox.Text = folderBrowserDialog.SelectedPath;
+            }
+        }
+
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (!CheckUnsavedChanges()) return;
@@ -234,7 +270,7 @@ namespace Bonsai.Editor
             workflowBuilder.Workflow.Clear();
             workflowViewModel.VisualizerLayout = null;
             workflowViewModel.Workflow = workflowBuilder.Workflow;
-            ResetProjectStatus(Path.GetDirectoryName(Application.ExecutablePath));
+            ResetProjectStatus();
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -254,7 +290,6 @@ namespace Bonsai.Editor
             {
                 using (var writer = XmlWriter.Create(saveWorkflowDialog.FileName, new XmlWriterSettings { Indent = true }))
                 {
-                    Environment.CurrentDirectory = Path.GetDirectoryName(saveWorkflowDialog.FileName);
                     var serializerWorkflowBuilder = new WorkflowBuilder(workflowBuilder.Workflow.FromInspectableGraph());
                     serializer.Serialize(writer, serializerWorkflowBuilder);
                     saveVersion = version;
@@ -295,23 +330,6 @@ namespace Bonsai.Editor
 
         #region Workflow Model
 
-        IEnumerable<Node<ExpressionBuilder, ExpressionBuilderParameter>> FlattenHierarchy(ExpressionBuilderGraph workflow)
-        {
-            foreach (var node in workflow)
-            {
-                yield return node;
-
-                var workflowExpressionBuilder = node.Value as WorkflowExpressionBuilder;
-                if (workflowExpressionBuilder != null)
-                {
-                    foreach (var childNode in FlattenHierarchy(workflowExpressionBuilder.Workflow))
-                    {
-                        yield return childNode;
-                    }
-                }
-            }
-        }
-
         void StartWorkflow()
         {
             if (running == null)
@@ -319,7 +337,7 @@ namespace Bonsai.Editor
                 try
                 {
                     var runningWorkflow = workflowBuilder.Workflow.Build();
-                    var subscribeExpression = runningWorkflow.BuildSubscribe(HandleWorkflowError);
+                    var subscribeExpression = runningWorkflow.BuildSubscribe(HandleWorkflowError, WorkflowCompleted);
                     loaded = runningWorkflow.Load();
 
                     var subscriber = subscribeExpression.Compile();
@@ -358,6 +376,11 @@ namespace Bonsai.Editor
             {
                 BeginInvoke((Action)StopWorkflow);
             }
+        }
+
+        void WorkflowCompleted()
+        {
+            BeginInvoke((Action)StopWorkflow);
         }
 
         #endregion
