@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Constants.cs" />
     <Compile Include="Expressions\BinaryCombinatorBuilder.cs" />
+    <Compile Include="Expressions\CombineTimestampBuilder.cs" />
     <Compile Include="Expressions\ElementCountWindowBuilder.cs" />
     <Compile Include="Expressions\MergeBuilder.cs" />
     <Compile Include="Expressions\NestedWorkflowExpressionBuilder.cs" />
