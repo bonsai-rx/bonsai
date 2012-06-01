@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbsoluteDifference.cs" />
     <Compile Include="AdaptiveThreshold.cs" />
     <Compile Include="And.cs" />
     <Compile Include="Average.cs" />
@@ -58,7 +59,9 @@
     <Compile Include="ConnectedComponentCheck.cs" />
     <Compile Include="Contours.cs" />
     <Compile Include="ConvertColor.cs" />
+    <Compile Include="DrawConnectedComponents.cs" />
     <Compile Include="Crop.cs" />
+    <Compile Include="DrawContours.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="FileCapture.cs" />
     <Compile Include="FindContours.cs" />
@@ -69,6 +72,7 @@
     <Compile Include="IplImageHelper.cs" />
     <Compile Include="ApproximatePolygon.cs" />
     <Compile Include="LargestBinaryRegion.cs" />
+    <Compile Include="LoadImage.cs" />
     <Compile Include="Mask.cs" />
     <Compile Include="MotionSegmentation.cs" />
     <Compile Include="Not.cs" />

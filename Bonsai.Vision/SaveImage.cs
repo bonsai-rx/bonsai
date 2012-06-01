@@ -5,6 +5,7 @@ using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
 using System.Drawing.Design;
+using System.IO;
 
 namespace Bonsai.Vision
 {
@@ -18,6 +19,8 @@ namespace Bonsai.Vision
         {
             if (!string.IsNullOrEmpty(FileName))
             {
+                var directoryName = Path.GetDirectoryName(FileName);
+                if (!Directory.Exists(directoryName)) Directory.CreateDirectory(directoryName);
                 HighGui.cvSaveImage(FileName, input);
             }
         }
