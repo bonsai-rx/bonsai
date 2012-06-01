@@ -72,9 +72,9 @@ namespace Bonsai.Editor
                 File.Exists(InitialFileName))
             {
                 OpenWorkflow(InitialFileName);
+                directoryToolStripTextBox.Text = Environment.CurrentDirectory;
             }
 
-            directoryToolStripTextBox.Text = Environment.CurrentDirectory;
             base.OnLoad(e);
         }
 
@@ -380,6 +380,7 @@ namespace Bonsai.Editor
 
         void WorkflowCompleted()
         {
+            running.Dispose();
             BeginInvoke((Action)StopWorkflow);
         }
 

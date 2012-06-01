@@ -38,18 +38,6 @@ namespace Bonsai
             get { return workflow; }
         }
 
-        public IEnumerable<Source> GetSources()
-        {
-            foreach (var node in workflow)
-            {
-                var sourceBuilder = node.Value as SourceBuilder;
-                if (sourceBuilder != null)
-                {
-                    yield return sourceBuilder.Source;
-                }
-            }
-        }
-
         #region IXmlSerializable Members
 
         public System.Xml.Schema.XmlSchema GetSchema()
