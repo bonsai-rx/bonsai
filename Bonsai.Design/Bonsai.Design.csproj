@@ -49,6 +49,7 @@
     <Compile Include="CommandExecutor.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="FolderNameEditor.cs" />
     <Compile Include="NumericTupleVisualizer.cs" />
     <Compile Include="PlotControl.cs">
       <SubType>UserControl</SubType>
