@@ -18,5 +18,13 @@ namespace Bonsai.Vision
 
             return output;
         }
+
+        public static IplImage ColorClone(this IplImage image)
+        {
+            var color = new IplImage(image.Size, image.Depth, 3);
+            if (image.NumChannels == 1) ImgProc.cvCvtColor(image, color, ColorConversion.GRAY2BGR);
+            else Core.cvCopy(image, color);
+            return color;
+        }
     }
 }
