@@ -79,7 +79,7 @@ namespace Bonsai.Vision.Design
 
         protected override void SetImage(IplImage image)
         {
-            image = image.Clone();
+            image = image.ColorClone();
             Core.cvRectangle(
                 image,
                 new CvPoint(rectangle.X, rectangle.Y),
