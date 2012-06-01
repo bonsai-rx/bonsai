@@ -21,7 +21,7 @@ namespace Bonsai.Design
 
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
         {
-            var selector = value as Collection<string>;
+            var selector = value as string[] ?? new string[0];
             var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
             if (selector != null && context != null && editorService != null)
             {
@@ -44,13 +44,7 @@ namespace Bonsai.Design
                 var editorDialog = new MemberSelectorEditorDialog(expressionType, selector);
                 if (editorService.ShowDialog(editorDialog) == DialogResult.OK)
                 {
-                    selector.Clear();
-                    foreach (var memberName in editorDialog.GetMemberChain())
-                    {
-                        selector.Add(memberName);
-                    }
-
-                    return selector;
+                    return editorDialog.GetMemberChain().ToArray();
                 }
             }
 

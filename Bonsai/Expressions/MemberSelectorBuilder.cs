@@ -17,23 +17,23 @@ namespace Bonsai.Expressions
         static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()
                                                                     .First(m => m.Name == "Select" &&
                                                                            m.GetParameters().Length == 2);
-        readonly Collection<string> selector = new Collection<string>();
 
         [TypeConverter("Bonsai.Design.MemberSelectorConverter, Bonsai.Design")]
         [Editor("Bonsai.Design.MemberSelectorEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
-        public Collection<string> Selector
-        {
-            get { return selector; }
-        }
+        public string[] Selector { get; set; }
 
         public override Expression Build()
         {
             var observableType = Source.Type.GetGenericArguments()[0];
             var parameter = Expression.Parameter(observableType);
             Expression body = parameter;
-            foreach (var memberName in selector)
+            var selector = Selector;
+            if (selector != null)
             {
-                body = Expression.PropertyOrField(body, memberName);
+                foreach (var memberName in selector)
+                {
+                    body = Expression.PropertyOrField(body, memberName);
+                }
             }
 
             var selectorExpression = Expression.Lambda(body, parameter);

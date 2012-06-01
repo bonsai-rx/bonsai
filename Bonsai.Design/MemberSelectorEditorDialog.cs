@@ -13,7 +13,7 @@ namespace Bonsai.Design
 {
     public partial class MemberSelectorEditorDialog : Form
     {
-        public MemberSelectorEditorDialog(Type componentType, Collection<string> memberChain)
+        public MemberSelectorEditorDialog(Type componentType, IEnumerable<string> memberChain)
         {
             if (componentType == null)
             {
@@ -31,7 +31,7 @@ namespace Bonsai.Design
             Text = string.Format("{0} {1}", componentType.Name, Text);
         }
 
-        void InitializeSelection(Collection<string> memberChain)
+        void InitializeSelection(IEnumerable<string> memberChain)
         {
             var nodes = treeView.Nodes;
             foreach (var memberName in memberChain)
