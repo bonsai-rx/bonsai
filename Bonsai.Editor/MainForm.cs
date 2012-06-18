@@ -71,8 +71,8 @@ namespace Bonsai.Editor
                 Path.GetExtension(InitialFileName) == BonsaiExtension &&
                 File.Exists(InitialFileName))
             {
-                OpenWorkflow(InitialFileName);
                 directoryToolStripTextBox.Text = Environment.CurrentDirectory;
+                OpenWorkflow(InitialFileName);
             }
 
             base.OnLoad(e);
@@ -225,6 +225,10 @@ namespace Bonsai.Editor
             else workflowViewModel.VisualizerLayout = null;
 
             workflowViewModel.Workflow = workflowBuilder.Workflow;
+            if (string.IsNullOrEmpty(directoryToolStripTextBox.Text))
+            {
+                directoryToolStripTextBox.Text = Path.GetDirectoryName(fileName);
+            }
         }
 
         void UpdateCurrentDirectory()
