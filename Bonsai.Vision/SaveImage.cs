@@ -20,7 +20,7 @@ namespace Bonsai.Vision
             if (!string.IsNullOrEmpty(FileName))
             {
                 var directoryName = Path.GetDirectoryName(FileName);
-                if (!Directory.Exists(directoryName)) Directory.CreateDirectory(directoryName);
+                if (!string.IsNullOrEmpty(directoryName) && !Directory.Exists(directoryName)) Directory.CreateDirectory(directoryName);
                 HighGui.cvSaveImage(FileName, input);
             }
         }
