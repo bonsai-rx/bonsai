@@ -3,29 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
-using Bonsai.IO;
 
-namespace Bonsai.Arduino
+namespace Bonsai.IO
 {
-    public class ArduinoDigitalOutput : Sink<bool>
+    public class SerialStringWrite : Sink<string>
     {
-        IEnumerable<Action<bool>> digitalOutput;
-        IEnumerator<Action<bool>> iterator;
+        IEnumerable<Action<string>> analogOutput;
+        IEnumerator<Action<string>> iterator;
 
         [TypeConverter(typeof(SerialPortNameConverter))]
         public string SerialPort { get; set; }
 
-        public int Pin { get; set; }
-
-        public override void Process(bool input)
+        public override void Process(string input)
         {
             iterator.Current(input);
         }
 
         public override IDisposable Load()
         {
-            digitalOutput = ObservableArduino.DigitalOutput(SerialPort, Pin);
-            iterator = digitalOutput.GetEnumerator();
+            analogOutput = ObservableSerialPort.WriteLine(SerialPort);
+            iterator = analogOutput.GetEnumerator();
             iterator.MoveNext();
             return base.Load();
         }
@@ -33,7 +30,7 @@ namespace Bonsai.Arduino
         protected override void Unload()
         {
             iterator.Dispose();
-            digitalOutput = null;
+            analogOutput = null;
             base.Unload();
         }
     }

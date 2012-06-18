@@ -2,30 +2,34 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO.Ports;
 using System.ComponentModel;
-using Bonsai.IO;
 
-namespace Bonsai.Arduino
+namespace Bonsai.IO
 {
-    public class ArduinoAnalogInput : Source<int>
+    public class SerialStringRead : Source<string>
     {
-        IObservable<int> analogInput;
+        IObservable<string> readLine;
         IDisposable connection;
 
         [TypeConverter(typeof(SerialPortNameConverter))]
         public string SerialPort { get; set; }
 
-        public int Pin { get; set; }
-
         public override IDisposable Load()
         {
-            analogInput = ObservableArduino.AnalogInput(SerialPort, Pin);
+            readLine = ObservableSerialPort.ReadLine(SerialPort);
             return base.Load();
+        }
+
+        protected override void Unload()
+        {
+            readLine = null;
+            base.Unload();
         }
 
         protected override void Start()
         {
-            connection = analogInput.Subscribe(Subject);
+            connection = readLine.Subscribe(Subject);
         }
 
         protected override void Stop()

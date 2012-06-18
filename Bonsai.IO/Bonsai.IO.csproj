@@ -47,7 +47,12 @@
     <Compile Include="Keyboard.cs" />
     <Compile Include="KeyPressed.cs" />
     <Compile Include="Mouse.cs" />
+    <Compile Include="ObservableSerialPort.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SerialPortNameConverter.cs" />
+    <Compile Include="SerialStringRead.cs" />
+    <Compile Include="SerialStringWrite.cs" />
+    <Compile Include="StringConstant.cs" />
     <Compile Include="Timer.cs" />
   </ItemGroup>
   <ItemGroup>
