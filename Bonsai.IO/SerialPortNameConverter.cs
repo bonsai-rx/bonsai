@@ -5,7 +5,7 @@ using System.Text;
 using System.ComponentModel;
 using System.IO.Ports;
 
-namespace Bonsai.Arduino
+namespace Bonsai.IO
 {
     public class SerialPortNameConverter : TypeConverter
     {

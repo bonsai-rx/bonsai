@@ -51,9 +51,12 @@
     <Compile Include="DigitalInputReceivedEventArgs.cs" />
     <Compile Include="ObservableArduino.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SerialPortNameConverter.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Bonsai.IO\Bonsai.IO.csproj">
+      <Project>{B783D74F-CB2D-4419-B438-266CD15774FB}</Project>
+      <Name>Bonsai.IO</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Bonsai\Bonsai.csproj">
       <Project>{E4D03BA3-54A2-4FF8-9DC6-52BA4CC14FED}</Project>
       <Name>Bonsai</Name>
