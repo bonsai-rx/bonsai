@@ -560,7 +560,7 @@ namespace Bonsai.Design
             var dropLocation = workflowGraphView.PointToClient(new Point(e.X, e.Y));
             if (e.Effect == DragDropEffects.Copy)
             {
-                var branch = (e.KeyState & CtrlModifier) != 0;
+                var branch = (e.KeyState & AltModifier) != 0;
                 var predecessor = (e.KeyState & ShiftModifier) != 0 ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
                 var closestGraphViewNode = workflowGraphView.GetClosestNodeTo(dropLocation);
                 if (e.Data.GetDataPresent(DataFormats.FileDrop, true))

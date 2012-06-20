@@ -27,7 +27,7 @@ namespace Bonsai.Editor
         const string BonsaiPackageName = "Bonsai";
         const string CombinatorCategoryName = "Combinator";
         const string ExpressionBuilderSuffix = "Builder";
-        const Keys BranchModifier = Keys.Control;
+        const Keys BranchModifier = Keys.Alt;
         const Keys PredecessorModifier = Keys.Shift;
 
         int version;
