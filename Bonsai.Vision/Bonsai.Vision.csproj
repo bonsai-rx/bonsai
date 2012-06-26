@@ -54,6 +54,7 @@
     <Compile Include="BinaryRegionAnalysis.cs" />
     <Compile Include="CameraCapture.cs" />
     <Compile Include="Canny.cs" />
+    <Compile Include="ColorBalance.cs" />
     <Compile Include="ConnectedComponent.cs" />
     <Compile Include="ConnectedComponentCollection.cs" />
     <Compile Include="ConnectedComponentCheck.cs" />
@@ -76,9 +77,9 @@
     <Compile Include="LargestBinaryRegion.cs" />
     <Compile Include="LoadImage.cs" />
     <Compile Include="Mask.cs" />
+    <Compile Include="MorphologicalOperation.cs" />
     <Compile Include="MotionSegmentation.cs" />
     <Compile Include="Not.cs" />
-    <Compile Include="Opening.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CanvasScript.cs" />
     <Compile Include="RangeThreshold.cs" />
