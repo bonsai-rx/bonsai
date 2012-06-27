@@ -17,7 +17,9 @@ namespace Bonsai.Design
         const int ShiftModifier = 0x4;
         const int CtrlModifier = 0x8;
         const int AltModifier = 0x20;
-        const string BonsaiExtension = ".bonsai";
+        public const Keys BranchModifier = Keys.Alt;
+        public const Keys PredecessorModifier = Keys.Shift;
+        public const string BonsaiExtension = ".bonsai";
 
         CommandExecutor commandExecutor;
         ExpressionBuilderGraph workflow;
@@ -637,6 +639,26 @@ namespace Bonsai.Design
                 if (owner != null)
                 {
                     owner.Activate();
+                }
+            }
+
+            if (e.KeyCode == Keys.C && e.Modifiers == Keys.Control)
+            {
+                var node = workflowGraphView.SelectedNode;
+                if (node != null)
+                {
+                    editorService.StoreWorkflowElement((ExpressionBuilder)node.Value);
+                }
+            }
+
+            if (e.KeyCode == Keys.V && e.Modifiers == Keys.Control)
+            {
+                var expressionBuilder = editorService.RetrieveWorkflowElement();
+                if (expressionBuilder != null)
+                {
+                    var branch = e.Modifiers.HasFlag(BranchModifier);
+                    var predecessor = e.Modifiers.HasFlag(PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
+                    CreateGraphNode(expressionBuilder, expressionBuilder.GetType() == typeof(SourceBuilder) ? WorkflowElementType.Source : WorkflowElementType.Combinator, workflowGraphView.SelectedNode, predecessor, branch);
                 }
             }
         }

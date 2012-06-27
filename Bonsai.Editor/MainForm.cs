@@ -27,8 +27,6 @@ namespace Bonsai.Editor
         const string BonsaiPackageName = "Bonsai";
         const string CombinatorCategoryName = "Combinator";
         const string ExpressionBuilderSuffix = "Builder";
-        const Keys BranchModifier = Keys.Alt;
-        const Keys PredecessorModifier = Keys.Shift;
 
         int version;
         int saveVersion;
@@ -475,8 +473,8 @@ namespace Bonsai.Editor
                 var model = selectionModel.SelectedModel;
                 if (model != null)
                 {
-                    var branch = e.Modifiers.HasFlag(BranchModifier);
-                    var predecessor = e.Modifiers.HasFlag(PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
+                    var branch = e.Modifiers.HasFlag(WorkflowViewModel.BranchModifier);
+                    var predecessor = e.Modifiers.HasFlag(WorkflowViewModel.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
                     model.CreateGraphNode(typeNode, selectionModel.SelectedNode, predecessor, branch);
                 }
             }
@@ -490,8 +488,8 @@ namespace Bonsai.Editor
                 var model = selectionModel.SelectedModel;
                 if (model != null)
                 {
-                    var branch = Control.ModifierKeys.HasFlag(BranchModifier);
-                    var predecessor = Control.ModifierKeys.HasFlag(PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
+                    var branch = Control.ModifierKeys.HasFlag(WorkflowViewModel.BranchModifier);
+                    var predecessor = Control.ModifierKeys.HasFlag(WorkflowViewModel.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
                     model.CreateGraphNode(typeNode, selectionModel.SelectedNode, predecessor, branch);
                 }
             }
@@ -517,34 +515,21 @@ namespace Bonsai.Editor
             var model = selectionModel.SelectedModel;
             if (node != null && model != null && model.WorkflowGraphView.Focused)
             {
-                var stringBuilder = new StringBuilder();
-                using (var writer = XmlWriter.Create(stringBuilder, new XmlWriterSettings { Indent = true }))
-                {
-                    var builder = new WorkflowBuilder();
-                    builder.Workflow.Add(new Node<ExpressionBuilder, ExpressionBuilderParameter>((ExpressionBuilder)node.Value));
-                    serializer.Serialize(writer, builder);
-                }
-
-                Clipboard.SetText(stringBuilder.ToString());
+                editorSite.StoreWorkflowElement((ExpressionBuilder)node.Value);
             }
         }
 
         private void pasteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var model = selectionModel.SelectedModel;
-            if (model != null && Clipboard.ContainsText())
+            if (model != null)
             {
-                var stringReader = new StringReader(Clipboard.GetText());
-                using (var reader = XmlReader.Create(stringReader))
+                var expressionBuilder = editorSite.RetrieveWorkflowElement();
+                if (expressionBuilder != null)
                 {
-                    if (serializer.CanDeserialize(reader))
-                    {
-                        var builder = (WorkflowBuilder)serializer.Deserialize(reader);
-                        var expressionBuilder = builder.Workflow.First().Value;
-                        var branch = Control.ModifierKeys.HasFlag(BranchModifier);
-                        var predecessor = Control.ModifierKeys.HasFlag(PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
-                        model.CreateGraphNode(expressionBuilder, expressionBuilder.GetType() == typeof(SourceBuilder) ? WorkflowElementType.Source : WorkflowElementType.Combinator, selectionModel.SelectedNode, predecessor, branch);
-                    }
+                    var branch = Control.ModifierKeys.HasFlag(WorkflowViewModel.BranchModifier);
+                    var predecessor = Control.ModifierKeys.HasFlag(WorkflowViewModel.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
+                    model.CreateGraphNode(expressionBuilder, expressionBuilder.GetType() == typeof(SourceBuilder) ? WorkflowElementType.Source : WorkflowElementType.Combinator, selectionModel.SelectedNode, predecessor, branch);
                 }
             }
         }
@@ -660,6 +645,47 @@ namespace Bonsai.Editor
             public void OpenWorkflow(string fileName)
             {
                 siteForm.OpenWorkflow(fileName);
+            }
+
+            public void StoreWorkflowElement(ExpressionBuilder expressionBuilder)
+            {
+                if (expressionBuilder != null)
+                {
+                    var stringBuilder = new StringBuilder();
+                    using (var writer = XmlWriter.Create(stringBuilder, new XmlWriterSettings { Indent = true }))
+                    {
+                        var builder = new WorkflowBuilder();
+                        var builderNode = new Node<ExpressionBuilder, ExpressionBuilderParameter>(expressionBuilder);
+                        var inspectNode = new Node<ExpressionBuilder, ExpressionBuilderParameter>(new InspectBuilder());
+                        builder.Workflow.Add(builderNode);
+                        builder.Workflow.Add(inspectNode);
+                        builder.Workflow.AddEdge(builderNode, inspectNode, new ExpressionBuilderParameter("Source"));
+                        builder = new WorkflowBuilder(builder.Workflow.FromInspectableGraph());
+                        siteForm.serializer.Serialize(writer, builder);
+                    }
+
+                    Clipboard.SetText(stringBuilder.ToString());
+                }
+            }
+
+            public ExpressionBuilder RetrieveWorkflowElement()
+            {
+                if (Clipboard.ContainsText())
+                {
+                    var text = Clipboard.GetText();
+                    var stringReader = new StringReader(text);
+                    using (var reader = XmlReader.Create(stringReader))
+                    {
+                        if (siteForm.serializer.CanDeserialize(reader))
+                        {
+                            var builder = (WorkflowBuilder)siteForm.serializer.Deserialize(reader);
+                            builder = new WorkflowBuilder(builder.Workflow.ToInspectableGraph());
+                            return builder.Workflow.First().Value;
+                        }
+                    }
+                }
+
+                return null;
             }
 
             public Type GetTypeVisualizer(Type targetType)
