@@ -26,7 +26,7 @@ namespace Bonsai.Vision
 
         public override IplImage Process(IplImage input)
         {
-            var output = new IplImage(input.Size, 8, 1);
+            var output = new IplImage(input.Size, 8, input.NumChannels);
             ImgProc.cvThreshold(input, output, ThresholdValue, MaxValue, ThresholdType);
             return output;
         }
