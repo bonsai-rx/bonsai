@@ -642,7 +642,7 @@ namespace Bonsai.Design
                 }
             }
 
-            if (e.KeyCode == Keys.C && e.Modifiers == Keys.Control)
+            if (e.KeyCode == Keys.C && e.Modifiers.HasFlag(Keys.Control))
             {
                 var node = workflowGraphView.SelectedNode;
                 if (node != null)
@@ -651,7 +651,7 @@ namespace Bonsai.Design
                 }
             }
 
-            if (e.KeyCode == Keys.V && e.Modifiers == Keys.Control)
+            if (e.KeyCode == Keys.V && e.Modifiers.HasFlag(Keys.Control))
             {
                 var expressionBuilder = editorService.RetrieveWorkflowElement();
                 if (expressionBuilder != null)
