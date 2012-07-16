@@ -52,7 +52,7 @@ namespace Bonsai.Vision
 
         protected override IObservable<IplImage> Generate()
         {
-            return Observable.Create<IplImage>(observer => HighResolutionScheduler.TaskPool.Schedule(TimeSpan.Zero, loop =>
+            return Observable.Create<IplImage>(observer => HighResolutionScheduler.TaskPool.Schedule(TimeSpan.Zero, self =>
             {
                 stopwatch.Restart();
                 if (Playing || image == null)
@@ -77,7 +77,7 @@ namespace Bonsai.Vision
 
                 var targetFps = PlaybackRate > 0 ? PlaybackRate : captureFps;
                 var dueTime = Math.Max(0, (1000.0 / targetFps) - stopwatch.Elapsed.TotalMilliseconds);
-                loop(TimeSpan.FromMilliseconds(dueTime));
+                self(TimeSpan.FromMilliseconds(dueTime));
             }));
         }
     }
