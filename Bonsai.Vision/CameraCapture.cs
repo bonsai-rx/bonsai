@@ -29,14 +29,14 @@ namespace Bonsai.Vision
 
         protected override IObservable<IplImage> Generate()
         {
-            return Observable.Create<IplImage>(observer => HighResolutionScheduler.TaskPool.Schedule(loop =>
+            return Observable.Create<IplImage>(observer => HighResolutionScheduler.TaskPool.Schedule(self =>
             {
                 var image = capture.QueryFrame();
                 if (image == null) observer.OnCompleted();
                 else
                 {
                     observer.OnNext(image.Clone());
-                    loop();
+                    self();
                 }
             }));
         }
