@@ -6,33 +6,19 @@ using OpenCV.Net;
 using System.ComponentModel;
 using System.Drawing.Design;
 using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 
 namespace Bonsai.Vision
 {
     public class LoadImage : Source<IplImage>
     {
         IplImage image;
-        IDisposable action;
 
         [FileNameFilter("PNG Files|*.png|BMP Files|*.bmp|JPEG Files|*.jpg;*.jpeg")]
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
         public string FileName { get; set; }
 
         public LoadImageMode Mode { get; set; }
-
-        protected override void Start()
-        {
-            action = HighResolutionScheduler.ThreadPool.Schedule(() =>
-            {
-                Subject.OnNext(image);
-                Subject.OnCompleted();
-            });
-        }
-
-        protected override void Stop()
-        {
-            action.Dispose();
-        }
 
         public override IDisposable Load()
         {
@@ -45,6 +31,15 @@ namespace Bonsai.Vision
             image.Dispose();
             image = null;
             base.Unload();
+        }
+
+        protected override IObservable<IplImage> Generate()
+        {
+            return Observable.Create<IplImage>(observer => HighResolutionScheduler.TaskPool.Schedule(() =>
+            {
+                observer.OnNext(image);
+                observer.OnCompleted();
+            }));
         }
     }
 }
