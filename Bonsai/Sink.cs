@@ -5,8 +5,8 @@ using System.Text;
 
 namespace Bonsai
 {
-    public abstract class Sink<T> : LoadableElement
+    public abstract class Sink<TSource> : LoadableElement
     {
-        public abstract void Process(T input);
+        public abstract void Process(TSource input);
     }
 }
