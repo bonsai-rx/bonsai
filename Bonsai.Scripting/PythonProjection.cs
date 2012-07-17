@@ -11,7 +11,7 @@ using System.Linq.Expressions;
 
 namespace Bonsai.Scripting
 {
-    public class PythonFilter : CombinatorExpressionBuilder
+    public class PythonProjection : CombinatorExpressionBuilder
     {
         [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
         public string Script { get; set; }
@@ -23,18 +23,26 @@ namespace Bonsai.Scripting
             var scriptSource = engine.CreateScriptSourceFromString(Script);
             scriptSource.Execute(scope);
 
+            Type outputType;
+            Func<Type> getOutputType;
+            if (scope.TryGetVariable<Func<Type>>("getOutputType", out getOutputType))
+            {
+                outputType = getOutputType();
+            }
+            else outputType = typeof(object);
+
             var observableType = Source.Type.GetGenericArguments()[0];
             var scopeExpression = Expression.Constant(scope);
-            var predicateType = Expression.GetFuncType(observableType, typeof(bool));
-            var processExpression = Expression.Call(scopeExpression, "GetVariable", new[] { predicateType }, Expression.Constant("process"));
+            var selectorType = Expression.GetFuncType(observableType, outputType);
+            var processExpression = Expression.Call(scopeExpression, "GetVariable", new[] { selectorType }, Expression.Constant("process"));
 
             var combinatorExpression = Expression.Constant(this);
-            return Expression.Call(combinatorExpression, "Combine", new[] { observableType }, Source, processExpression);
+            return Expression.Call(combinatorExpression, "Combine", new[] { observableType, outputType }, Source, processExpression);
         }
 
-        IObservable<TSource> Combine<TSource>(IObservable<TSource> source, Func<TSource, bool> predicate)
+        IObservable<TResult> Combine<TSource, TResult>(IObservable<TSource> source, Func<TSource, TResult> selector)
         {
-            return source.Where(predicate);
+            return source.Select(selector);
         }
     }
 }

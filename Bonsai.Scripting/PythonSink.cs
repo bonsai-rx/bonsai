@@ -5,71 +5,36 @@ using System.Text;
 using System.ComponentModel;
 using Microsoft.Scripting.Hosting;
 using System.Drawing.Design;
-using System.Threading.Tasks;
+using Bonsai.Expressions;
+using System.Reactive.Linq;
+using System.Linq.Expressions;
 
 namespace Bonsai.Scripting
 {
-    public class PythonSink : Sink<object>
+    public class PythonSink : CombinatorExpressionBuilder
     {
-        Task scriptTask;
-        ScriptEngine engine;
-        CompiledCode script;
-        ScriptScope scope;
-
-        [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
-        public string LoadScript { get; set; }
-
         [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
         public string Script { get; set; }
 
-        [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
-        public string UnloadScript { get; set; }
-
-        public override void Process(object input)
+        public override Expression Build()
         {
-            if (scriptTask == null) return;
+            var engine = IronPython.Hosting.Python.CreateEngine();
+            var scope = engine.CreateScope();
+            var scriptSource = engine.CreateScriptSourceFromString(Script);
+            scriptSource.Execute(scope);
 
-            scriptTask = scriptTask.ContinueWith(task =>
-            {
-                scope.SetVariable("input", input);
-                script.Execute(scope);
-            });
+            var observableType = Source.Type.GetGenericArguments()[0];
+            var scopeExpression = Expression.Constant(scope);
+            var actionType = Expression.GetActionType(observableType);
+            var processExpression = Expression.Call(scopeExpression, "GetVariable", new[] { actionType }, Expression.Constant("process"));
+
+            var combinatorExpression = Expression.Constant(this);
+            return Expression.Call(combinatorExpression, "Combine", new[] { observableType }, Source, processExpression, scopeExpression);
         }
 
-        protected virtual ScriptEngine CreateEngine()
+        protected virtual IObservable<TSource> Combine<TSource>(IObservable<TSource> source, Action<TSource> action, ScriptScope scope)
         {
-            return IronPython.Hosting.Python.CreateEngine();
-        }
-
-        public override IDisposable Load()
-        {
-            scriptTask = new Task(() => { });
-            scriptTask.Start();
-
-            engine = CreateEngine();
-            scope = engine.CreateScope();
-            if (!string.IsNullOrEmpty(LoadScript))
-            {
-                engine.Execute(LoadScript, scope);
-            }
-
-            var source = engine.CreateScriptSourceFromString(Script);
-            script = source.Compile();
-            return base.Load();
-        }
-
-        protected override void Unload()
-        {
-            scriptTask = scriptTask.ContinueWith(task =>
-            {
-                if (!string.IsNullOrEmpty(UnloadScript))
-                {
-                    engine.Execute(UnloadScript, scope);
-                }
-            });
-
-            scriptTask.Wait();
-            base.Unload();
+            return source.Do(action);
         }
     }
 }
