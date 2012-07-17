@@ -60,6 +60,7 @@
     <Compile Include="ConnectedComponentCheck.cs" />
     <Compile Include="Contours.cs" />
     <Compile Include="ConvertColor.cs" />
+    <Compile Include="ConvertScale.cs" />
     <Compile Include="DrawConnectedComponents.cs" />
     <Compile Include="Crop.cs" />
     <Compile Include="DrawContours.cs" />
@@ -87,6 +88,7 @@
     <Compile Include="RunningAverage.cs" />
     <Compile Include="SaveImage.cs" />
     <Compile Include="Smooth.cs" />
+    <Compile Include="Sobel.cs" />
     <Compile Include="Subtract.cs" />
     <Compile Include="Sum.cs" />
     <Compile Include="Threshold.cs" />
