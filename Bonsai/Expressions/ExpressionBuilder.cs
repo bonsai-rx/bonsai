@@ -74,7 +74,7 @@ namespace Bonsai.Expressions
                 throw new ArgumentNullException("element");
             }
 
-            if (elementType == WorkflowElementType.Source) return new SourceBuilder { Source = element };
+            if (elementType == WorkflowElementType.Source) return new SourceBuilder { Source = (Source)element };
             if (elementType == WorkflowElementType.Filter) return new WhereBuilder { Filter = element };
             if (elementType == WorkflowElementType.Projection) return new SelectBuilder { Projection = element };
             if (elementType == WorkflowElementType.Sink) return new DoBuilder { Sink = element };

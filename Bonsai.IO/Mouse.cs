@@ -7,50 +7,55 @@ using System.Reactive.Linq;
 using System.Drawing;
 using System.Security.Permissions;
 using System.Runtime.InteropServices;
-using System.Reactive.Subjects;
 
 namespace Bonsai.IO
 {
     public class Mouse : Source<Point>
     {
+        MouseMessageFilter messageFilter;
+
         [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
-        class MouseMessageFilter : IMessageFilter, IDisposable
+        public class MouseMessageFilter : IMessageFilter
         {
             const int WM_MOUSEMOVE = 0x200;
-            readonly Subject<Point> mouseMove;
+            Mouse source;
 
-            public MouseMessageFilter()
+            public MouseMessageFilter(Mouse mouseSource)
             {
-                mouseMove = new Subject<Point>();
-                Application.AddMessageFilter(this);
-            }
-
-            public IObservable<Point> MouseMove
-            {
-                get { return mouseMove; }
+                source = mouseSource;
             }
 
             public bool PreFilterMessage(ref Message m)
             {
                 if (m.Msg == WM_MOUSEMOVE)
                 {
-                    mouseMove.OnNext(Form.MousePosition);
+                    source.Subject.OnNext(Form.MousePosition);
                 }
 
                 return false;
             }
-
-            public void Dispose()
-            {
-                Application.RemoveMessageFilter(this);
-            }
         }
 
-        protected override IObservable<Point> Generate()
+        public override IDisposable Load()
         {
-            return Observable.Using(
-                () => new MouseMessageFilter(),
-                filter => filter.MouseMove);
+            messageFilter = new MouseMessageFilter(this);
+            return base.Load();
+        }
+
+        protected override void Unload()
+        {
+            messageFilter = null;
+            base.Unload();
+        }
+
+        protected override void Start()
+        {
+            Application.AddMessageFilter(messageFilter);
+        }
+
+        protected override void Stop()
+        {
+            Application.RemoveMessageFilter(messageFilter);
         }
     }
 }

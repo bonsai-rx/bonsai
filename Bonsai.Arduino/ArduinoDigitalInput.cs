@@ -9,14 +9,34 @@ namespace Bonsai.Arduino
 {
     public class ArduinoDigitalInput : Source<bool>
     {
+        IObservable<bool> digitalInput;
+        IDisposable connection;
+
         [TypeConverter(typeof(SerialPortNameConverter))]
         public string SerialPort { get; set; }
 
         public int Pin { get; set; }
 
-        protected override IObservable<bool> Generate()
+        public override IDisposable Load()
         {
-            return ObservableArduino.DigitalInput(SerialPort, Pin);
+            digitalInput = ObservableArduino.DigitalInput(SerialPort, Pin);
+            return base.Load();
+        }
+
+        protected override void Unload()
+        {
+            digitalInput = null;
+            base.Unload();
+        }
+
+        protected override void Start()
+        {
+            connection = digitalInput.Subscribe(Subject);
+        }
+
+        protected override void Stop()
+        {
+            connection.Dispose();
         }
     }
 }
