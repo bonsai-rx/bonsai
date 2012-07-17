@@ -7,12 +7,13 @@ using System.Threading;
 using System.ComponentModel;
 using System.Xml.Serialization;
 using System.Xml;
-using System.Reactive.Linq;
 
 namespace Bonsai.IO
 {
-    public class Timer : Source<long>
+    public class Timer : Source<Unit>
     {
+        System.Threading.Timer timer;
+
         [XmlIgnore]
         public TimeSpan DueTime { get; set; }
 
@@ -35,9 +36,31 @@ namespace Bonsai.IO
             set { Period = XmlConvert.ToTimeSpan(value); }
         }
 
-        protected override IObservable<long> Generate()
+        void TimerCallback(object state)
         {
-            return Observable.Timer(DueTime, Period);
+            Subject.OnNext(Unit.Default);
+        }
+
+        public override IDisposable Load()
+        {
+            timer = new System.Threading.Timer(TimerCallback);
+            return base.Load();
+        }
+
+        protected override void Unload()
+        {
+            timer.Dispose();
+            base.Unload();
+        }
+
+        protected override void Start()
+        {
+            timer.Change(DueTime, Period);
+        }
+
+        protected override void Stop()
+        {
+            timer.Change(Timeout.Infinite, Timeout.Infinite);
         }
     }
 }

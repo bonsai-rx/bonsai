@@ -9,14 +9,28 @@ namespace Bonsai.Arduino
 {
     public class ArduinoAnalogInput : Source<int>
     {
+        IObservable<int> analogInput;
+        IDisposable connection;
+
         [TypeConverter(typeof(SerialPortNameConverter))]
         public string SerialPort { get; set; }
 
         public int Pin { get; set; }
 
-        protected override IObservable<int> Generate()
+        public override IDisposable Load()
         {
-            return ObservableArduino.AnalogInput(SerialPort, Pin);
+            analogInput = ObservableArduino.AnalogInput(SerialPort, Pin);
+            return base.Load();
+        }
+
+        protected override void Start()
+        {
+            connection = analogInput.Subscribe(Subject);
+        }
+
+        protected override void Stop()
+        {
+            connection.Dispose();
         }
     }
 }

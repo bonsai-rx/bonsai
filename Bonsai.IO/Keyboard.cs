@@ -9,19 +9,33 @@ namespace Bonsai.IO
 {
     public class Keyboard : Source<Keys>
     {
-        protected override IObservable<Keys> Generate()
+        IDisposable running;
+
+        protected override void Start()
         {
             var mainForm = Application.OpenForms.Cast<Form>().FirstOrDefault();
             if (mainForm != null)
             {
                 mainForm.KeyPreview = true;
-                return Observable.FromEventPattern<KeyEventHandler, KeyEventArgs>(
+                var keyDown = Observable.FromEventPattern<KeyEventHandler, KeyEventArgs>(
                     handler => mainForm.KeyDown += handler,
                     handler => mainForm.KeyDown -= handler)
-                    .Select(evt => evt.EventArgs.KeyData);
-            }
+                    .Select(evt => evt.EventArgs);
 
-            return Observable.Never<Keys>();
+                var onNext = from key in keyDown
+                             select key.KeyData;
+
+                running = onNext.Subscribe(val => Subject.OnNext(val));
+            }
+        }
+
+        protected override void Stop()
+        {
+            if (running != null)
+            {
+                running.Dispose();
+                running = null;
+            }
         }
     }
 }

@@ -9,12 +9,32 @@ namespace Bonsai.IO
 {
     public class SerialStringRead : Source<string>
     {
+        IObservable<string> readLine;
+        IDisposable connection;
+
         [TypeConverter(typeof(SerialPortNameConverter))]
         public string SerialPort { get; set; }
 
-        protected override IObservable<string> Generate()
+        public override IDisposable Load()
         {
-            return ObservableSerialPort.ReadLine(SerialPort);
+            readLine = ObservableSerialPort.ReadLine(SerialPort);
+            return base.Load();
+        }
+
+        protected override void Unload()
+        {
+            readLine = null;
+            base.Unload();
+        }
+
+        protected override void Start()
+        {
+            connection = readLine.Subscribe(Subject);
+        }
+
+        protected override void Stop()
+        {
+            connection.Dispose();
         }
     }
 }

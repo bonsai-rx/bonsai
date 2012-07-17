@@ -7,14 +7,14 @@ using System.ComponentModel;
 using System.Drawing.Design;
 using System.Diagnostics;
 using System.Threading;
-using System.Reactive.Linq;
-using System.Reactive.Concurrency;
 
 namespace Bonsai.Vision
 {
     public class FileCapture : Source<IplImage>
     {
         CvCapture capture;
+        Thread captureThread;
+        volatile bool running;
         Stopwatch stopwatch;
         double captureFps;
         IplImage image;
@@ -36,23 +36,9 @@ namespace Bonsai.Vision
 
         public bool Playing { get; set; }
 
-        public override IDisposable Load()
+        void CaptureNewFrame()
         {
-            capture = CvCapture.CreateFileCapture(FileName);
-            captureFps = capture.GetProperty(CaptureProperty.FPS);
-            return base.Load();
-        }
-
-        protected override void Unload()
-        {
-            capture.Close();
-            image = null;
-            base.Unload();
-        }
-
-        protected override IObservable<IplImage> Generate()
-        {
-            return Observable.Create<IplImage>(observer => HighResolutionScheduler.TaskPool.Schedule(TimeSpan.Zero, self =>
+            while (running)
             {
                 stopwatch.Restart();
                 if (Playing || image == null)
@@ -67,18 +53,53 @@ namespace Bonsai.Vision
                         }
                         else
                         {
-                            observer.OnCompleted();
-                            return;
+                            running = false;
+                            Subject.OnCompleted();
+                            break;
                         }
                     }
                 }
 
-                observer.OnNext(image.Clone());
-
                 var targetFps = PlaybackRate > 0 ? PlaybackRate : captureFps;
                 var dueTime = Math.Max(0, (1000.0 / targetFps) - stopwatch.Elapsed.TotalMilliseconds);
-                self(TimeSpan.FromMilliseconds(dueTime));
-            }));
+                if (dueTime > 0)
+                {
+                    Thread.Sleep(TimeSpan.FromMilliseconds(dueTime));
+                }
+
+                Subject.OnNext(image.Clone());
+            }
+        }
+
+        protected override void Start()
+        {
+            running = true;
+            captureThread = new Thread(CaptureNewFrame);
+            captureThread.Start();
+        }
+
+        protected override void Stop()
+        {
+            if (running)
+            {
+                running = false;
+                if (captureThread != Thread.CurrentThread) captureThread.Join();
+            }
+        }
+
+        public override IDisposable Load()
+        {
+            capture = CvCapture.CreateFileCapture(FileName);
+            captureFps = capture.GetProperty(CaptureProperty.FPS);
+            return base.Load();
+        }
+
+        protected override void Unload()
+        {
+            capture.Close();
+            captureThread = null;
+            image = null;
+            base.Unload();
         }
     }
 }

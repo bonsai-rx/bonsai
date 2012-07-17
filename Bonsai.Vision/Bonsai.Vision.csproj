@@ -59,8 +59,8 @@
     <Compile Include="ConnectedComponentCollection.cs" />
     <Compile Include="ConnectedComponentCheck.cs" />
     <Compile Include="Contours.cs" />
-    <Compile Include="ConvertScale.cs" />
     <Compile Include="ConvertColor.cs" />
+    <Compile Include="ConvertScale.cs" />
     <Compile Include="DrawConnectedComponents.cs" />
     <Compile Include="Crop.cs" />
     <Compile Include="DrawContours.cs" />

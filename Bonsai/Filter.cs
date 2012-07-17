@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Bonsai
 {
-    public abstract class Filter<TSource> : Projection<TSource, bool>
+    public abstract class Filter<T> : Projection<T, bool>
     {
     }
 }
