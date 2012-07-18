@@ -92,6 +92,7 @@
     <Compile Include="Subtract.cs" />
     <Compile Include="Sum.cs" />
     <Compile Include="Threshold.cs" />
+    <Compile Include="Transpose.cs" />
     <Compile Include="Undistort.cs" />
     <Compile Include="WarpPerspective.cs" />
     <Compile Include="Window.cs" />
