@@ -17,14 +17,7 @@ namespace Bonsai.Vision
         {
             if (RegionOfInterest.Width > 0 && RegionOfInterest.Height > 0)
             {
-                using (var image = new IplImage(input.Size, input.Depth, input.NumChannels, input.ImageData))
-                {
-                    var output = new IplImage(new CvSize(RegionOfInterest.Width, RegionOfInterest.Height), input.Depth, input.NumChannels);
-                    image.ImageROI = RegionOfInterest;
-                    Core.cvCopy(image, output);
-                    GC.KeepAlive(input);
-                    return output;
-                }
+                return Core.cvGetSubRect(input, RegionOfInterest);
             }
 
             return input;
