@@ -58,12 +58,14 @@ namespace Bonsai.Vision.Design
 
         protected override void SetImage(IplImage image)
         {
-            image = image.Clone();
-            Core.cvLine(image, new CvPoint(quadrangle[0]), new CvPoint(quadrangle[1]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
-            Core.cvLine(image, new CvPoint(quadrangle[1]), new CvPoint(quadrangle[2]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
-            Core.cvLine(image, new CvPoint(quadrangle[2]), new CvPoint(quadrangle[3]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
-            Core.cvLine(image, new CvPoint(quadrangle[3]), new CvPoint(quadrangle[0]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
-            base.SetImage(image);
+            using (image = image.Clone())
+            {
+                Core.cvLine(image, new CvPoint(quadrangle[0]), new CvPoint(quadrangle[1]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
+                Core.cvLine(image, new CvPoint(quadrangle[1]), new CvPoint(quadrangle[2]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
+                Core.cvLine(image, new CvPoint(quadrangle[2]), new CvPoint(quadrangle[3]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
+                Core.cvLine(image, new CvPoint(quadrangle[3]), new CvPoint(quadrangle[0]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
+                base.SetImage(image);
+            }
         }
     }
 }

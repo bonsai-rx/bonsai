@@ -15,9 +15,21 @@ namespace Bonsai.Vision
 
         public override IplImage Process(IplImage input)
         {
-            if (RegionOfInterest.Width > 0 && RegionOfInterest.Height > 0)
+            var rect = RegionOfInterest;
+            if (rect.Width > 0 && rect.Height > 0)
             {
-                return Core.cvGetSubRect(input, RegionOfInterest);
+                try
+                {
+                    var output = new IplImage(new CvSize(rect.Width, rect.Height), input.Depth, input.NumChannels);
+                    using (var header = new IplImage(input.Size, input.Depth, input.NumChannels, input.ImageData))
+                    {
+                        header.ImageROI = rect;
+                        Core.cvCopy(header, output);
+                    }
+
+                    return output;
+                }
+                finally { GC.KeepAlive(input); }
             }
 
             return input;
