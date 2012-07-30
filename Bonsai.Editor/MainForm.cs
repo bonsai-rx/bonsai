@@ -384,7 +384,7 @@ namespace Bonsai.Editor
 
         void WorkflowCompleted()
         {
-            running.Dispose();
+            if (running != null) running.Dispose();
             BeginInvoke((Action)StopWorkflow);
         }
 

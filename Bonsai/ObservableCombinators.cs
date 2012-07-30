@@ -4,11 +4,35 @@ using System.Linq;
 using System.Text;
 using System.Reactive.Linq;
 using System.Reactive.Concurrency;
+using System.Threading;
+using System.Reactive.Disposables;
 
 namespace Bonsai
 {
     public static class ObservableCombinators
     {
+        public static IObservable<TSource> GenerateWithThread<TSource>(Action<IObserver<TSource>> generator)
+        {
+            return Observable.Create<TSource>(observer =>
+            {
+                var running = true;
+                var thread = new Thread(() =>
+                {
+                    while (running)
+                    {
+                        generator(observer);
+                    }
+                });
+
+                thread.Start();
+                return () =>
+                {
+                    running = false;
+                    if (thread != Thread.CurrentThread) thread.Join();
+                };
+            });
+        }
+
         public static IObservable<TSource> Gate<TSource>(this IObservable<TSource> source, TimeSpan interval)
         {
             return Gate(source, interval, Scheduler.ThreadPool);
