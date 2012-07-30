@@ -7,55 +7,50 @@ using System.Reactive.Linq;
 using System.Drawing;
 using System.Security.Permissions;
 using System.Runtime.InteropServices;
+using System.Reactive.Subjects;
 
 namespace Bonsai.IO
 {
     public class Mouse : Source<Point>
     {
-        MouseMessageFilter messageFilter;
-
         [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
-        public class MouseMessageFilter : IMessageFilter
+        class MouseMessageFilter : IMessageFilter, IDisposable
         {
             const int WM_MOUSEMOVE = 0x200;
-            Mouse source;
+            readonly Subject<Point> mouseMove;
 
-            public MouseMessageFilter(Mouse mouseSource)
+            public MouseMessageFilter()
             {
-                source = mouseSource;
+                mouseMove = new Subject<Point>();
+                Application.AddMessageFilter(this);
+            }
+
+            public IObservable<Point> MouseMove
+            {
+                get { return mouseMove; }
             }
 
             public bool PreFilterMessage(ref Message m)
             {
                 if (m.Msg == WM_MOUSEMOVE)
                 {
-                    source.Subject.OnNext(Form.MousePosition);
+                    mouseMove.OnNext(Form.MousePosition);
                 }
 
                 return false;
             }
+
+            public void Dispose()
+            {
+                Application.RemoveMessageFilter(this);
+            }
         }
 
-        public override IDisposable Load()
+        protected override IObservable<Point> Generate()
         {
-            messageFilter = new MouseMessageFilter(this);
-            return base.Load();
-        }
-
-        protected override void Unload()
-        {
-            messageFilter = null;
-            base.Unload();
-        }
-
-        protected override void Start()
-        {
-            Application.AddMessageFilter(messageFilter);
-        }
-
-        protected override void Stop()
-        {
-            Application.RemoveMessageFilter(messageFilter);
+            return Observable.Using(
+                () => new MouseMessageFilter(),
+                filter => filter.MouseMove);
         }
     }
 }
