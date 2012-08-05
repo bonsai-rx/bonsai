@@ -54,6 +54,7 @@
     <Compile Include="SerialStringWrite.cs" />
     <Compile Include="StringConstant.cs" />
     <Compile Include="Timer.cs" />
+    <Compile Include="ToggleSwitch.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai\Bonsai.csproj">
