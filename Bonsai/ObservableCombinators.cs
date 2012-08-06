@@ -30,7 +30,7 @@ namespace Bonsai
                     running = false;
                     if (thread != Thread.CurrentThread) thread.Join();
                 };
-            }).Publish().RefCount();
+            });
         }
 
         public static IObservable<TSource> Gate<TSource>(this IObservable<TSource> source, TimeSpan interval)
