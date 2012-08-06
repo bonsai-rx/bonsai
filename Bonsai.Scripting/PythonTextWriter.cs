@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using System.IO;
 using System.Reactive.Disposables;
 using System.Threading.Tasks;
+using Bonsai.IO;
 
 namespace Bonsai.Scripting
 {
@@ -22,12 +23,15 @@ namespace Bonsai.Scripting
 
         public bool Append { get; set; }
 
+        public PathSuffix Suffix { get; set; }
+
         protected override IObservable<TSource> Combine<TSource>(IObservable<TSource> source, Action<TSource> action, ScriptScope scope)
         {
             Task writerTask = null;
             return Observable.Using(
                 () =>
                 {
+                    var fileName = PathHelper.AppendSuffix(FileName, Suffix);
                     writerTask = new Task(() => { });
                     writerTask.Start();
                     var disposable = new CompositeDisposable();

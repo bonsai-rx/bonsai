@@ -72,6 +72,8 @@
     <Compile Include="FileNameFilterAttribute.cs" />
     <Compile Include="HighResolutionScheduler.cs" />
     <Compile Include="InvalidWorkflowException.cs" />
+    <Compile Include="IO\PathHelper.cs" />
+    <Compile Include="IO\PathSuffix.cs" />
     <Compile Include="ObservableCombinators.cs" />
     <Compile Include="Dag\DirectedGraph.cs" />
     <Compile Include="Dag\DirectedGraphDescriptor.cs" />
