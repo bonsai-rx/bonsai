@@ -15,9 +15,13 @@ namespace Bonsai.Vision.Design
 {
     public partial class IplImageControl : UserControl
     {
+        bool disposed;
         bool loaded;
         int texture;
         IplImage image;
+        int maxTextureSize;
+        bool nonPowerOfTwo;
+        IplImage textureImage;
 
         public IplImageControl()
         {
@@ -43,10 +47,32 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        public static int NearestPowerOfTwo(int num)
+        {
+            int n = num > 0 ? num - 1 : 0;
+
+            n |= n >> 1;
+            n |= n >> 2;
+            n |= n >> 4;
+            n |= n >> 8;
+            n |= n >> 16;
+            n++;
+
+            return n;
+        }
+
         protected virtual void SetImage(IplImage image)
         {
             if (image == null) throw new ArgumentNullException("image");
             if (image.Depth != 8) throw new ArgumentException("Non 8-bit depth images are not supported by the control.", "image");
+            if (!nonPowerOfTwo || image.Width > maxTextureSize || image.Height > maxTextureSize)
+            {
+                var textureWidth = Math.Min(maxTextureSize, NearestPowerOfTwo(image.Width));
+                var textureHeight = Math.Min(maxTextureSize, NearestPowerOfTwo(image.Height));
+                textureImage = IplImageHelper.EnsureImageFormat(textureImage, new CvSize(textureWidth, textureHeight), image.Depth, image.NumChannels);
+                ImgProc.cvResize(image, textureImage, SubPixelInterpolation.Linear);
+                image = textureImage;
+            }
 
             OpenTK.Graphics.OpenGL.PixelFormat pixelFormat;
             switch (image.NumChannels)
@@ -65,6 +91,10 @@ namespace Bonsai.Vision.Design
 
         private void glControl_Load(object sender, EventArgs e)
         {
+            var extensions = GL.GetString(StringName.Extensions).Split(' ');
+            nonPowerOfTwo = extensions.Contains("GL_ARB_texture_non_power_of_two");
+            GL.GetInteger(GetPName.MaxTextureSize, out maxTextureSize);
+
             glControl.MakeCurrent();
             GL.ClearColor(Color.Black);
             GL.Enable(EnableCap.Texture2D);
@@ -117,6 +147,31 @@ namespace Bonsai.Vision.Design
             GL.End();
 
             glControl.SwapBuffers();
+        }
+
+        /// <summary> 
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    GL.DeleteTextures(1, ref texture);
+                    if (textureImage != null)
+                    {
+                        textureImage.Close();
+                        textureImage = null;
+                    }
+
+                    if (components != null) components.Dispose();
+                    disposed = true;
+                }
+            }
+
+            base.Dispose(disposing);
         }
     }
 }
