@@ -146,5 +146,27 @@ namespace Bonsai.Arduino
                 });
             });
         }
+
+        public static IEnumerable<Action<int, int>> StepperOutput(string serialPort, int stepper, int stepsPerRevolution, int directionPin, int stepPin)
+        {
+            var arduino = ReserveConnection(serialPort);
+
+            try
+            {
+                arduino.StepperConfig(stepper, stepsPerRevolution, directionPin, stepPin);
+                arduino.StepperSpeed(stepper, 100);
+                while (true)
+                {
+                    yield return (steps, direction) =>
+                    {
+                        lock (arduino)
+                        {
+                            arduino.StepperStep(stepper, steps, direction);
+                        }
+                    };
+                }
+            }
+            finally { ReleaseConnection(serialPort); }
+        }
     }
 }

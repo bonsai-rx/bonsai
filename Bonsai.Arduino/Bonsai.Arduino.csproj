@@ -48,6 +48,7 @@
     <Compile Include="ArduinoDigitalOutput.cs" />
     <Compile Include="ArduinoAnalogOutput.cs" />
     <Compile Include="ArduinoServoOutput.cs" />
+    <Compile Include="ArduinoStepperOutput.cs" />
     <Compile Include="DigitalInputReceivedEventArgs.cs" />
     <Compile Include="ObservableArduino.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
