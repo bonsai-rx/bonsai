@@ -29,6 +29,14 @@ namespace Bonsai.Arduino
         const int START_SYSEX     = 0xF0; // start a MIDI SysEx message
         const int END_SYSEX       = 0xF7; // end a MIDI SysEx message
 
+        const int I2C_REQUEST     = 0x76; // send an I2C request message
+        const int I2C_REPLY       = 0x77; // receive an I2C reply message
+        const int I2C_CONFIG      = 0x78; // set an I2C config message
+        const int STEPPER_COMMAND = 0x67; // send a stepper control command
+        const int STEPPER_CONFIG  = 0x00; // send a stepper control command
+        const int STEPPER_STEP    = 0x01; // send a stepper control command
+        const int STEPPER_SPEED   = 0x02; // send a stepper control command
+
         #endregion
 
         bool disposed;
@@ -50,7 +58,7 @@ namespace Bonsai.Arduino
             serialPort.Parity = Parity.None;
             serialPort.StopBits = StopBits.One;
 
-            commandBuffer = new byte[3];
+            commandBuffer = new byte[9];
             responseBuffer = new byte[2];
             readBuffer = new byte[serialPort.ReadBufferSize];
             analogInput = new byte[AnalogPins];
@@ -156,6 +164,45 @@ namespace Bonsai.Arduino
             commandBuffer[1] = (byte)(value & 0x7F);
             commandBuffer[2] = (byte)(value >> 7);
             serialPort.Write(commandBuffer, 0, 3);
+        }
+
+        public void StepperConfig(int stepper, int stepsPerRevolution, int directionPin, int stepPin)
+        {
+            commandBuffer[0] = (byte)START_SYSEX;
+            commandBuffer[1] = (byte)STEPPER_COMMAND;
+            commandBuffer[2] = (byte)STEPPER_CONFIG;
+            commandBuffer[3] = (byte)stepper;
+            commandBuffer[4] = (byte)(stepsPerRevolution & 0xFF);
+            commandBuffer[5] = (byte)(stepsPerRevolution >> 8);
+            commandBuffer[6] = (byte)directionPin;
+            commandBuffer[7] = (byte)stepPin;
+            commandBuffer[8] = (byte)END_SYSEX;
+            serialPort.Write(commandBuffer, 0, 9);
+        }
+
+        public void StepperStep(int stepper, int steps, int direction)
+        {
+            commandBuffer[0] = (byte)START_SYSEX;
+            commandBuffer[1] = (byte)STEPPER_COMMAND;
+            commandBuffer[2] = (byte)STEPPER_STEP;
+            commandBuffer[3] = (byte)stepper;
+            commandBuffer[4] = (byte)(steps & 0xFF);
+            commandBuffer[5] = (byte)(steps >> 8);
+            commandBuffer[6] = (byte)direction;
+            commandBuffer[7] = (byte)END_SYSEX;
+            serialPort.Write(commandBuffer, 0, 8);
+        }
+
+        public void StepperSpeed(int stepper, int speed)
+        {
+            commandBuffer[0] = (byte)START_SYSEX;
+            commandBuffer[1] = (byte)STEPPER_COMMAND;
+            commandBuffer[2] = (byte)STEPPER_SPEED;
+            commandBuffer[3] = (byte)stepper;
+            commandBuffer[4] = (byte)(speed & 0xFF);
+            commandBuffer[5] = (byte)(speed >> 8);
+            commandBuffer[6] = (byte)END_SYSEX;
+            serialPort.Write(commandBuffer, 0, 7);
         }
 
         void ReportAnalog(int pin, bool state)
