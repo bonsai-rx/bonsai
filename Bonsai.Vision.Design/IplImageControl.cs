@@ -22,6 +22,7 @@ namespace Bonsai.Vision.Design
         int maxTextureSize;
         bool nonPowerOfTwo;
         IplImage textureImage;
+        IplImage normalizedImage;
 
         public IplImageControl()
         {
@@ -64,6 +65,20 @@ namespace Bonsai.Vision.Design
         protected virtual void SetImage(IplImage image)
         {
             if (image == null) throw new ArgumentNullException("image");
+            if (image.Depth == 32 && image.NumChannels == 1)
+            {
+                double min, max;
+                CvPoint minLoc, maxLoc;
+                normalizedImage = IplImageHelper.EnsureImageFormat(normalizedImage, image.Size, 8, image.NumChannels);
+                Core.cvMinMaxLoc(image, out min, out max, out minLoc, out maxLoc, CvArr.Null);
+
+                var range = max - min;
+                var scale = range > 0 ? 255.0 / range : 0;
+                var shift = range > 0 ? -min : 0;
+                Core.cvConvertScale(image, normalizedImage, scale, shift);
+                image = normalizedImage;
+            }
+
             if (image.Depth != 8) throw new ArgumentException("Non 8-bit depth images are not supported by the control.", "image");
             if (!nonPowerOfTwo || image.Width > maxTextureSize || image.Height > maxTextureSize)
             {
@@ -164,6 +179,12 @@ namespace Bonsai.Vision.Design
                     {
                         textureImage.Close();
                         textureImage = null;
+                    }
+
+                    if (normalizedImage != null)
+                    {
+                        normalizedImage.Close();
+                        normalizedImage = null;
                     }
 
                     if (components != null) components.Dispose();
