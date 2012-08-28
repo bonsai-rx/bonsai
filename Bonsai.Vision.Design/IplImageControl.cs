@@ -65,7 +65,7 @@ namespace Bonsai.Vision.Design
         protected virtual void SetImage(IplImage image)
         {
             if (image == null) throw new ArgumentNullException("image");
-            if (image.Depth == 32 && image.NumChannels == 1)
+            if (image.Depth >= 32 && image.NumChannels == 1)
             {
                 double min, max;
                 CvPoint minLoc, maxLoc;
@@ -79,7 +79,7 @@ namespace Bonsai.Vision.Design
                 image = normalizedImage;
             }
 
-            if (image.Depth != 8) throw new ArgumentException("Non 8-bit depth images are not supported by the control.", "image");
+            if (image.Depth != 8) throw new ArgumentException("Multi-channel floating point or non 8-bit depth images are not supported by the control.", "image");
             if (!nonPowerOfTwo || image.Width > maxTextureSize || image.Height > maxTextureSize)
             {
                 var textureWidth = Math.Min(maxTextureSize, NearestPowerOfTwo(image.Width));
