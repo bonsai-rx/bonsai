@@ -16,36 +16,36 @@ namespace Bonsai.Arduino
 
         const int AnalogPins = 6;
         const int DigitalPorts = 2;
+        const int MaxDataBytes = 32;
         const int ConnectionDelay = 2000;
         const int DefaultBaudRate = 115200;
 
-        const int DIGITAL_MESSAGE = 0x90; // send data for a digital port
-        const int ANALOG_MESSAGE  = 0xE0; // send data for an analog pin (or PWM)
-        const int REPORT_ANALOG   = 0xC0; // enable analog input by pin #
-        const int REPORT_DIGITAL  = 0xD0; // enable digital input by port
-        const int SET_PIN_MODE    = 0xF4; // set a pin to INPUT/OUTPUT/PWM/etc
-        const int REPORT_VERSION  = 0xF9; // report firmware version
-        const int SYSTEM_RESET    = 0xFF; // reset from MIDI
-        const int START_SYSEX     = 0xF0; // start a MIDI SysEx message
-        const int END_SYSEX       = 0xF7; // end a MIDI SysEx message
+        const byte DIGITAL_MESSAGE = 0x90; // send data for a digital port
+        const byte ANALOG_MESSAGE  = 0xE0; // send data for an analog pin (or PWM)
+        const byte REPORT_ANALOG   = 0xC0; // enable analog input by pin #
+        const byte REPORT_DIGITAL  = 0xD0; // enable digital input by port
+        const byte SET_PIN_MODE    = 0xF4; // set a pin to INPUT/OUTPUT/PWM/etc
+        const byte REPORT_VERSION  = 0xF9; // report firmware version
+        const byte SYSTEM_RESET    = 0xFF; // reset from MIDI
+        const byte START_SYSEX     = 0xF0; // start a MIDI SysEx message
+        const byte END_SYSEX       = 0xF7; // end a MIDI SysEx message
 
-        const int I2C_REQUEST     = 0x76; // send an I2C request message
-        const int I2C_REPLY       = 0x77; // receive an I2C reply message
-        const int I2C_CONFIG      = 0x78; // set an I2C config message
-        const int STEPPER_COMMAND = 0x67; // send a stepper control command
-        const int STEPPER_CONFIG  = 0x00; // send a stepper control command
-        const int STEPPER_STEP    = 0x01; // send a stepper control command
-        const int STEPPER_SPEED   = 0x02; // send a stepper control command
+        const byte I2C_REQUEST     = 0x76; // send an I2C request message
+        const byte I2C_REPLY       = 0x77; // receive an I2C reply message
+        const byte I2C_CONFIG      = 0x78; // set an I2C config message
 
         #endregion
 
         bool disposed;
+        bool parsingSysex;
         int dataToReceive;
         int multiByteCommand;
         int multiByteChannel;
+        int sysexBytesRead;
         readonly SerialPort serialPort;
-        readonly byte[] commandBuffer;
         readonly byte[] responseBuffer;
+        readonly byte[] commandBuffer;
+        readonly byte[] sysexBuffer;
         readonly byte[] readBuffer;
         readonly byte[] analogInput;
         readonly byte[] digitalInput;
@@ -58,8 +58,9 @@ namespace Bonsai.Arduino
             serialPort.Parity = Parity.None;
             serialPort.StopBits = StopBits.One;
 
-            commandBuffer = new byte[9];
             responseBuffer = new byte[2];
+            commandBuffer = new byte[MaxDataBytes];
+            sysexBuffer = new byte[MaxDataBytes];
             readBuffer = new byte[serialPort.ReadBufferSize];
             analogInput = new byte[AnalogPins];
             digitalInput = new byte[DigitalPorts];
@@ -70,6 +71,8 @@ namespace Bonsai.Arduino
         public event EventHandler<AnalogInputReceivedEventArgs> AnalogInputReceived;
 
         public event EventHandler<DigitalInputReceivedEventArgs> DigitalInputReceived;
+
+        public event EventHandler<SysexReceivedEventArgs> SysexReceived;
 
         public int MajorVersion { get; private set; }
 
@@ -92,6 +95,15 @@ namespace Bonsai.Arduino
         void OnDigitalInputReceived(DigitalInputReceivedEventArgs e)
         {
             var handler = DigitalInputReceived;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        void OnSysexReceived(SysexReceivedEventArgs e)
+        {
+            var handler = SysexReceived;
             if (handler != null)
             {
                 handler(this, e);
@@ -166,43 +178,13 @@ namespace Bonsai.Arduino
             serialPort.Write(commandBuffer, 0, 3);
         }
 
-        public void StepperConfig(int stepper, int stepsPerRevolution, int directionPin, int stepPin)
+        public void SendSysex(byte command, params byte[] args)
         {
-            commandBuffer[0] = (byte)START_SYSEX;
-            commandBuffer[1] = (byte)STEPPER_COMMAND;
-            commandBuffer[2] = (byte)STEPPER_CONFIG;
-            commandBuffer[3] = (byte)stepper;
-            commandBuffer[4] = (byte)(stepsPerRevolution & 0xFF);
-            commandBuffer[5] = (byte)(stepsPerRevolution >> 8);
-            commandBuffer[6] = (byte)directionPin;
-            commandBuffer[7] = (byte)stepPin;
-            commandBuffer[8] = (byte)END_SYSEX;
-            serialPort.Write(commandBuffer, 0, 9);
-        }
-
-        public void StepperStep(int stepper, int steps, int direction)
-        {
-            commandBuffer[0] = (byte)START_SYSEX;
-            commandBuffer[1] = (byte)STEPPER_COMMAND;
-            commandBuffer[2] = (byte)STEPPER_STEP;
-            commandBuffer[3] = (byte)stepper;
-            commandBuffer[4] = (byte)(steps & 0xFF);
-            commandBuffer[5] = (byte)(steps >> 8);
-            commandBuffer[6] = (byte)direction;
-            commandBuffer[7] = (byte)END_SYSEX;
-            serialPort.Write(commandBuffer, 0, 8);
-        }
-
-        public void StepperSpeed(int stepper, int speed)
-        {
-            commandBuffer[0] = (byte)START_SYSEX;
-            commandBuffer[1] = (byte)STEPPER_COMMAND;
-            commandBuffer[2] = (byte)STEPPER_SPEED;
-            commandBuffer[3] = (byte)stepper;
-            commandBuffer[4] = (byte)(speed & 0xFF);
-            commandBuffer[5] = (byte)(speed >> 8);
-            commandBuffer[6] = (byte)END_SYSEX;
-            serialPort.Write(commandBuffer, 0, 7);
+            commandBuffer[0] = START_SYSEX;
+            commandBuffer[1] = command;
+            Array.Copy(args, 0, commandBuffer, 2, args.Length);
+            commandBuffer[args.Length + 2] = END_SYSEX;
+            serialPort.Write(commandBuffer, 0, args.Length + 3);
         }
 
         void ReportAnalog(int pin, bool state)
@@ -239,7 +221,19 @@ namespace Bonsai.Arduino
 
         void ProcessInput(byte inputData)
         {
-            if (dataToReceive > 0 && inputData < 128)
+            if (parsingSysex)
+            {
+                if (inputData == END_SYSEX)
+                {
+                    parsingSysex = false;
+                    var command = sysexBuffer[0];
+                    var args = new byte[sysexBytesRead - 1];
+                    Array.Copy(sysexBuffer, 1, args, 0, sysexBytesRead);
+                    OnSysexReceived(new SysexReceivedEventArgs(command, args));
+                }
+                else sysexBuffer[sysexBytesRead++] = inputData;
+            }
+            else if (dataToReceive > 0 && inputData < 128)
             {
                 dataToReceive--;
                 responseBuffer[dataToReceive] = inputData;
@@ -271,6 +265,10 @@ namespace Bonsai.Arduino
                     case REPORT_VERSION:
                         dataToReceive = 2;
                         multiByteCommand = command;
+                        break;
+                    case START_SYSEX:
+                        parsingSysex = true;
+                        sysexBytesRead = 0;
                         break;
                 }
             }
