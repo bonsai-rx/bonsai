@@ -30,6 +30,8 @@ namespace Bonsai.Editor
 
         int version;
         int saveVersion;
+        Font regularFont;
+        Font selectionFont;
         EditorSite editorSite;
         WorkflowBuilder workflowBuilder;
         WorkflowViewModel workflowViewModel;
@@ -51,6 +53,8 @@ namespace Bonsai.Editor
             workflowBuilder = new WorkflowBuilder();
             serializer = new XmlSerializer(typeof(WorkflowBuilder));
             layoutSerializer = new XmlSerializer(typeof(VisualizerLayout));
+            regularFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Regular);
+            selectionFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Bold);
             typeVisualizers = TypeVisualizerLoader.GetTypeVisualizerDictionary();
             selectionModel = new WorkflowSelectionModel();
             workflowViewModel = new WorkflowViewModel(workflowGraphView, editorSite);
@@ -491,6 +495,33 @@ namespace Bonsai.Editor
                     var branch = Control.ModifierKeys.HasFlag(WorkflowViewModel.BranchModifier);
                     var predecessor = Control.ModifierKeys.HasFlag(WorkflowViewModel.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
                     model.CreateGraphNode(typeNode, selectionModel.SelectedNode, predecessor, branch);
+                }
+            }
+        }
+
+        private void toolboxTreeView_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            var selectedNode = e.Node;
+            if (selectedNode != null && selectedNode.GetNodeCount(false) == 0)
+            {
+                var type = Type.GetType(selectedNode.Name);
+                if (type != null)
+                {
+                    var descriptionAttribute = (DescriptionAttribute)TypeDescriptor.GetAttributes(type)[typeof(DescriptionAttribute)];
+                    toolboxDescriptionTextBox.SuspendLayout();
+                    toolboxDescriptionTextBox.Lines = new[]
+                    {
+                        selectedNode.Text,
+                        descriptionAttribute.Description
+                    };
+
+                    toolboxDescriptionTextBox.SelectionStart = 0;
+                    toolboxDescriptionTextBox.SelectionLength = selectedNode.Text.Length;
+                    toolboxDescriptionTextBox.SelectionFont = selectionFont;
+                    toolboxDescriptionTextBox.SelectionStart = selectedNode.Text.Length;
+                    toolboxDescriptionTextBox.SelectionLength = descriptionAttribute.Description.Length;
+                    toolboxDescriptionTextBox.SelectionFont = regularFont;
+                    toolboxDescriptionTextBox.ResumeLayout();
                 }
             }
         }
