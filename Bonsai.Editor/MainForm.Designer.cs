@@ -73,37 +73,37 @@
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.runningStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolboxGroupBox = new System.Windows.Forms.GroupBox();
+            this.toolboxSplitContainer = new System.Windows.Forms.SplitContainer();
             this.toolboxTreeView = new System.Windows.Forms.TreeView();
+            this.toolboxDescriptionPanel = new System.Windows.Forms.Panel();
+            this.toolboxDescriptionTextBox = new System.Windows.Forms.RichTextBox();
             this.workflowGroupBox = new System.Windows.Forms.GroupBox();
             this.workflowGraphView = new Bonsai.Design.GraphView();
             this.propertiesGroupBox = new System.Windows.Forms.GroupBox();
             this.propertyGrid = new System.Windows.Forms.PropertyGrid();
-            this.toolboxSplitContainer = new System.Windows.Forms.SplitContainer();
+            this.panelSplitContainer = new System.Windows.Forms.SplitContainer();
             this.workflowSplitContainer = new System.Windows.Forms.SplitContainer();
             this.commandExecutor = new Bonsai.Design.CommandExecutor();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
-            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.toolboxDescriptionPanel = new System.Windows.Forms.Panel();
-            this.toolboxDescriptionTextBox = new System.Windows.Forms.RichTextBox();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.toolboxGroupBox.SuspendLayout();
-            this.workflowGroupBox.SuspendLayout();
-            this.propertiesGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.toolboxSplitContainer)).BeginInit();
             this.toolboxSplitContainer.Panel1.SuspendLayout();
             this.toolboxSplitContainer.Panel2.SuspendLayout();
             this.toolboxSplitContainer.SuspendLayout();
+            this.toolboxDescriptionPanel.SuspendLayout();
+            this.workflowGroupBox.SuspendLayout();
+            this.propertiesGroupBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelSplitContainer)).BeginInit();
+            this.panelSplitContainer.Panel1.SuspendLayout();
+            this.panelSplitContainer.Panel2.SuspendLayout();
+            this.panelSplitContainer.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.workflowSplitContainer)).BeginInit();
             this.workflowSplitContainer.Panel1.SuspendLayout();
             this.workflowSplitContainer.Panel2.SuspendLayout();
             this.workflowSplitContainer.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
-            this.splitContainer1.Panel1.SuspendLayout();
-            this.splitContainer1.Panel2.SuspendLayout();
-            this.splitContainer1.SuspendLayout();
-            this.toolboxDescriptionPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip
@@ -476,7 +476,7 @@
             // 
             // toolboxGroupBox
             // 
-            this.toolboxGroupBox.Controls.Add(this.splitContainer1);
+            this.toolboxGroupBox.Controls.Add(this.toolboxSplitContainer);
             this.toolboxGroupBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.toolboxGroupBox.Location = new System.Drawing.Point(0, 0);
             this.toolboxGroupBox.Name = "toolboxGroupBox";
@@ -484,6 +484,25 @@
             this.toolboxGroupBox.TabIndex = 0;
             this.toolboxGroupBox.TabStop = false;
             this.toolboxGroupBox.Text = "Toolbox";
+            // 
+            // toolboxSplitContainer
+            // 
+            this.toolboxSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.toolboxSplitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
+            this.toolboxSplitContainer.Location = new System.Drawing.Point(3, 16);
+            this.toolboxSplitContainer.Name = "toolboxSplitContainer";
+            this.toolboxSplitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // toolboxSplitContainer.Panel1
+            // 
+            this.toolboxSplitContainer.Panel1.Controls.Add(this.toolboxTreeView);
+            // 
+            // toolboxSplitContainer.Panel2
+            // 
+            this.toolboxSplitContainer.Panel2.Controls.Add(this.toolboxDescriptionPanel);
+            this.toolboxSplitContainer.Size = new System.Drawing.Size(194, 272);
+            this.toolboxSplitContainer.SplitterDistance = 209;
+            this.toolboxSplitContainer.TabIndex = 1;
             // 
             // toolboxTreeView
             // 
@@ -496,6 +515,27 @@
             this.toolboxTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.toolboxTreeView_AfterSelect);
             this.toolboxTreeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.toolboxTreeView_NodeMouseDoubleClick);
             this.toolboxTreeView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.toolboxTreeView_KeyDown);
+            // 
+            // toolboxDescriptionPanel
+            // 
+            this.toolboxDescriptionPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.toolboxDescriptionPanel.Controls.Add(this.toolboxDescriptionTextBox);
+            this.toolboxDescriptionPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.toolboxDescriptionPanel.Location = new System.Drawing.Point(0, 0);
+            this.toolboxDescriptionPanel.Name = "toolboxDescriptionPanel";
+            this.toolboxDescriptionPanel.Size = new System.Drawing.Size(194, 59);
+            this.toolboxDescriptionPanel.TabIndex = 0;
+            // 
+            // toolboxDescriptionTextBox
+            // 
+            this.toolboxDescriptionTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.toolboxDescriptionTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.toolboxDescriptionTextBox.Location = new System.Drawing.Point(0, 0);
+            this.toolboxDescriptionTextBox.Name = "toolboxDescriptionTextBox";
+            this.toolboxDescriptionTextBox.ReadOnly = true;
+            this.toolboxDescriptionTextBox.Size = new System.Drawing.Size(192, 57);
+            this.toolboxDescriptionTextBox.TabIndex = 0;
+            this.toolboxDescriptionTextBox.Text = "";
             // 
             // workflowGroupBox
             // 
@@ -538,24 +578,24 @@
             this.propertyGrid.Size = new System.Drawing.Size(170, 272);
             this.propertyGrid.TabIndex = 0;
             // 
-            // toolboxSplitContainer
+            // panelSplitContainer
             // 
-            this.toolboxSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.toolboxSplitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
-            this.toolboxSplitContainer.Location = new System.Drawing.Point(0, 49);
-            this.toolboxSplitContainer.Name = "toolboxSplitContainer";
+            this.panelSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelSplitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
+            this.panelSplitContainer.Location = new System.Drawing.Point(0, 49);
+            this.panelSplitContainer.Name = "panelSplitContainer";
             // 
-            // toolboxSplitContainer.Panel1
+            // panelSplitContainer.Panel1
             // 
-            this.toolboxSplitContainer.Panel1.Controls.Add(this.toolboxGroupBox);
+            this.panelSplitContainer.Panel1.Controls.Add(this.toolboxGroupBox);
             // 
-            // toolboxSplitContainer.Panel2
+            // panelSplitContainer.Panel2
             // 
-            this.toolboxSplitContainer.Panel2.Controls.Add(this.workflowSplitContainer);
-            this.toolboxSplitContainer.Size = new System.Drawing.Size(684, 291);
-            this.toolboxSplitContainer.SplitterDistance = 200;
-            this.toolboxSplitContainer.TabIndex = 4;
-            this.toolboxSplitContainer.TabStop = false;
+            this.panelSplitContainer.Panel2.Controls.Add(this.workflowSplitContainer);
+            this.panelSplitContainer.Size = new System.Drawing.Size(684, 291);
+            this.panelSplitContainer.SplitterDistance = 200;
+            this.panelSplitContainer.TabIndex = 4;
+            this.panelSplitContainer.TabStop = false;
             // 
             // workflowSplitContainer
             // 
@@ -580,52 +620,12 @@
             // 
             this.commandExecutor.StatusChanged += new System.EventHandler(this.commandExecutor_StatusChanged);
             // 
-            // splitContainer1
-            // 
-            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
-            this.splitContainer1.Location = new System.Drawing.Point(3, 16);
-            this.splitContainer1.Name = "splitContainer1";
-            this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
-            // splitContainer1.Panel1
-            // 
-            this.splitContainer1.Panel1.Controls.Add(this.toolboxTreeView);
-            // 
-            // splitContainer1.Panel2
-            // 
-            this.splitContainer1.Panel2.Controls.Add(this.toolboxDescriptionPanel);
-            this.splitContainer1.Size = new System.Drawing.Size(194, 272);
-            this.splitContainer1.SplitterDistance = 209;
-            this.splitContainer1.TabIndex = 1;
-            // 
-            // toolboxDescriptionPanel
-            // 
-            this.toolboxDescriptionPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.toolboxDescriptionPanel.Controls.Add(this.toolboxDescriptionTextBox);
-            this.toolboxDescriptionPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.toolboxDescriptionPanel.Location = new System.Drawing.Point(0, 0);
-            this.toolboxDescriptionPanel.Name = "toolboxDescriptionPanel";
-            this.toolboxDescriptionPanel.Size = new System.Drawing.Size(194, 59);
-            this.toolboxDescriptionPanel.TabIndex = 0;
-            // 
-            // toolboxDescriptionTextBox
-            // 
-            this.toolboxDescriptionTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.toolboxDescriptionTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.toolboxDescriptionTextBox.Location = new System.Drawing.Point(0, 0);
-            this.toolboxDescriptionTextBox.Name = "toolboxDescriptionTextBox";
-            this.toolboxDescriptionTextBox.ReadOnly = true;
-            this.toolboxDescriptionTextBox.Size = new System.Drawing.Size(192, 57);
-            this.toolboxDescriptionTextBox.TabIndex = 0;
-            this.toolboxDescriptionTextBox.Text = "";
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(684, 362);
-            this.Controls.Add(this.toolboxSplitContainer);
+            this.Controls.Add(this.panelSplitContainer);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.toolStrip);
             this.Controls.Add(this.menuStrip);
@@ -641,21 +641,21 @@
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
             this.toolboxGroupBox.ResumeLayout(false);
-            this.workflowGroupBox.ResumeLayout(false);
-            this.propertiesGroupBox.ResumeLayout(false);
             this.toolboxSplitContainer.Panel1.ResumeLayout(false);
             this.toolboxSplitContainer.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.toolboxSplitContainer)).EndInit();
             this.toolboxSplitContainer.ResumeLayout(false);
+            this.toolboxDescriptionPanel.ResumeLayout(false);
+            this.workflowGroupBox.ResumeLayout(false);
+            this.propertiesGroupBox.ResumeLayout(false);
+            this.panelSplitContainer.Panel1.ResumeLayout(false);
+            this.panelSplitContainer.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panelSplitContainer)).EndInit();
+            this.panelSplitContainer.ResumeLayout(false);
             this.workflowSplitContainer.Panel1.ResumeLayout(false);
             this.workflowSplitContainer.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.workflowSplitContainer)).EndInit();
             this.workflowSplitContainer.ResumeLayout(false);
-            this.splitContainer1.Panel1.ResumeLayout(false);
-            this.splitContainer1.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
-            this.splitContainer1.ResumeLayout(false);
-            this.toolboxDescriptionPanel.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -709,14 +709,14 @@
         private System.Windows.Forms.ToolStripMenuItem stopToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel runningStatusLabel;
-        private System.Windows.Forms.SplitContainer toolboxSplitContainer;
+        private System.Windows.Forms.SplitContainer panelSplitContainer;
         private System.Windows.Forms.SplitContainer workflowSplitContainer;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripTextBox directoryToolStripTextBox;
         private System.Windows.Forms.ToolStripButton browseDirectoryToolStripButton;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
-        private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.SplitContainer toolboxSplitContainer;
         private System.Windows.Forms.Panel toolboxDescriptionPanel;
         private System.Windows.Forms.RichTextBox toolboxDescriptionTextBox;
     }
