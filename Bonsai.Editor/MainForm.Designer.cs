@@ -547,11 +547,11 @@
             // 
             // panelSplitContainer.Panel1
             // 
-            this.toolboxSplitContainer.Panel1.Controls.Add(this.toolboxGroupBox);
+            this.panelSplitContainer.Panel1.Controls.Add(this.toolboxGroupBox);
             // 
             // panelSplitContainer.Panel2
             // 
-            this.toolboxSplitContainer.Panel2.Controls.Add(this.workflowSplitContainer);
+            this.panelSplitContainer.Panel2.Controls.Add(this.workflowSplitContainer);
             this.panelSplitContainer.Size = new System.Drawing.Size(684, 291);
             this.panelSplitContainer.SplitterDistance = 200;
             this.panelSplitContainer.TabIndex = 4;
