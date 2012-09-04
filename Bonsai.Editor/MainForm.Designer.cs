@@ -78,31 +78,31 @@
             this.workflowGraphView = new Bonsai.Design.GraphView();
             this.propertiesGroupBox = new System.Windows.Forms.GroupBox();
             this.propertyGrid = new System.Windows.Forms.PropertyGrid();
-            this.panelSplitContainer = new System.Windows.Forms.SplitContainer();
+            this.toolboxSplitContainer = new System.Windows.Forms.SplitContainer();
             this.workflowSplitContainer = new System.Windows.Forms.SplitContainer();
             this.commandExecutor = new Bonsai.Design.CommandExecutor();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
-            this.toolboxSplitContainer = new System.Windows.Forms.SplitContainer();
-            this.toolboxDescriptionTextBox = new System.Windows.Forms.RichTextBox();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.toolboxDescriptionPanel = new System.Windows.Forms.Panel();
+            this.toolboxDescriptionTextBox = new System.Windows.Forms.RichTextBox();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.toolboxGroupBox.SuspendLayout();
             this.workflowGroupBox.SuspendLayout();
             this.propertiesGroupBox.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.panelSplitContainer)).BeginInit();
-            this.toolboxSplitContainer.Panel1.SuspendLayout();
-            this.toolboxSplitContainer.Panel2.SuspendLayout();
-            this.panelSplitContainer.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.workflowSplitContainer)).BeginInit();
-            this.workflowSplitContainer.Panel1.SuspendLayout();
-            this.workflowSplitContainer.Panel2.SuspendLayout();
-            this.workflowSplitContainer.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.toolboxSplitContainer)).BeginInit();
             this.toolboxSplitContainer.Panel1.SuspendLayout();
             this.toolboxSplitContainer.Panel2.SuspendLayout();
             this.toolboxSplitContainer.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.workflowSplitContainer)).BeginInit();
+            this.workflowSplitContainer.Panel1.SuspendLayout();
+            this.workflowSplitContainer.Panel2.SuspendLayout();
+            this.workflowSplitContainer.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
             this.toolboxDescriptionPanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -139,7 +139,7 @@
             this.newToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
             this.newToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
             this.newToolStripMenuItem.Text = "&New";
             this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
             // 
@@ -149,14 +149,14 @@
             this.openToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
             this.openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
             this.openToolStripMenuItem.Text = "&Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // toolStripSeparator
             // 
             this.toolStripSeparator.Name = "toolStripSeparator";
-            this.toolStripSeparator.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator.Size = new System.Drawing.Size(143, 6);
             // 
             // saveToolStripMenuItem
             // 
@@ -164,26 +164,26 @@
             this.saveToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
             this.saveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
             this.saveToolStripMenuItem.Text = "&Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // saveAsToolStripMenuItem
             // 
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
             this.saveAsToolStripMenuItem.Text = "Save &As";
             this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(143, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
             this.exitToolStripMenuItem.Text = "E&xit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -206,7 +206,7 @@
             this.undoToolStripMenuItem.Enabled = false;
             this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
             this.undoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
-            this.undoToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.undoToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.undoToolStripMenuItem.Text = "&Undo";
             this.undoToolStripMenuItem.Click += new System.EventHandler(this.undoToolStripMenuItem_Click);
             // 
@@ -215,14 +215,14 @@
             this.redoToolStripMenuItem.Enabled = false;
             this.redoToolStripMenuItem.Name = "redoToolStripMenuItem";
             this.redoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Y)));
-            this.redoToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.redoToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.redoToolStripMenuItem.Text = "&Redo";
             this.redoToolStripMenuItem.Click += new System.EventHandler(this.redoToolStripMenuItem_Click);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(141, 6);
             // 
             // cutToolStripMenuItem
             // 
@@ -230,7 +230,7 @@
             this.cutToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.cutToolStripMenuItem.Name = "cutToolStripMenuItem";
             this.cutToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
-            this.cutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.cutToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.cutToolStripMenuItem.Text = "Cu&t";
             this.cutToolStripMenuItem.Click += new System.EventHandler(this.cutToolStripMenuItem_Click);
             // 
@@ -240,7 +240,7 @@
             this.copyToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
             this.copyToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-            this.copyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.copyToolStripMenuItem.Text = "&Copy";
             this.copyToolStripMenuItem.Click += new System.EventHandler(this.copyToolStripMenuItem_Click);
             // 
@@ -250,7 +250,7 @@
             this.pasteToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
             this.pasteToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
-            this.pasteToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.pasteToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.pasteToolStripMenuItem.Text = "&Paste";
             this.pasteToolStripMenuItem.Click += new System.EventHandler(this.pasteToolStripMenuItem_Click);
             // 
@@ -258,7 +258,7 @@
             // 
             this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
             this.deleteToolStripMenuItem.ShortcutKeyDisplayString = "Del";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.deleteToolStripMenuItem.Text = "&Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
@@ -275,7 +275,7 @@
             // 
             this.startToolStripMenuItem.Name = "startToolStripMenuItem";
             this.startToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.R)));
-            this.startToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.startToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.startToolStripMenuItem.Text = "Sta&rt";
             this.startToolStripMenuItem.Click += new System.EventHandler(this.startToolStripMenuItem_Click);
             // 
@@ -283,7 +283,7 @@
             // 
             this.stopToolStripMenuItem.Name = "stopToolStripMenuItem";
             this.stopToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.T)));
-            this.stopToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.stopToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.stopToolStripMenuItem.Text = "S&top";
             this.stopToolStripMenuItem.Click += new System.EventHandler(this.stopToolStripMenuItem_Click);
             // 
@@ -302,30 +302,30 @@
             // contentsToolStripMenuItem
             // 
             this.contentsToolStripMenuItem.Name = "contentsToolStripMenuItem";
-            this.contentsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.contentsToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.contentsToolStripMenuItem.Text = "&Contents";
             // 
             // indexToolStripMenuItem
             // 
             this.indexToolStripMenuItem.Name = "indexToolStripMenuItem";
-            this.indexToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.indexToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.indexToolStripMenuItem.Text = "&Index";
             // 
             // searchToolStripMenuItem
             // 
             this.searchToolStripMenuItem.Name = "searchToolStripMenuItem";
-            this.searchToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.searchToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.searchToolStripMenuItem.Text = "&Search";
             // 
             // toolStripSeparator5
             // 
             this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator5.Size = new System.Drawing.Size(119, 6);
             // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.aboutToolStripMenuItem.Text = "&About...";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
@@ -476,7 +476,7 @@
             // 
             // toolboxGroupBox
             // 
-            this.toolboxGroupBox.Controls.Add(this.toolboxSplitContainer);
+            this.toolboxGroupBox.Controls.Add(this.splitContainer1);
             this.toolboxGroupBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.toolboxGroupBox.Location = new System.Drawing.Point(0, 0);
             this.toolboxGroupBox.Name = "toolboxGroupBox";
@@ -538,24 +538,24 @@
             this.propertyGrid.Size = new System.Drawing.Size(170, 272);
             this.propertyGrid.TabIndex = 0;
             // 
-            // panelSplitContainer
+            // toolboxSplitContainer
             // 
-            this.panelSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelSplitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
-            this.panelSplitContainer.Location = new System.Drawing.Point(0, 49);
-            this.panelSplitContainer.Name = "panelSplitContainer";
+            this.toolboxSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.toolboxSplitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
+            this.toolboxSplitContainer.Location = new System.Drawing.Point(0, 49);
+            this.toolboxSplitContainer.Name = "toolboxSplitContainer";
             // 
-            // panelSplitContainer.Panel1
+            // toolboxSplitContainer.Panel1
             // 
-            this.panelSplitContainer.Panel1.Controls.Add(this.toolboxGroupBox);
+            this.toolboxSplitContainer.Panel1.Controls.Add(this.toolboxGroupBox);
             // 
-            // panelSplitContainer.Panel2
+            // toolboxSplitContainer.Panel2
             // 
-            this.panelSplitContainer.Panel2.Controls.Add(this.workflowSplitContainer);
-            this.panelSplitContainer.Size = new System.Drawing.Size(684, 291);
-            this.panelSplitContainer.SplitterDistance = 200;
-            this.panelSplitContainer.TabIndex = 4;
-            this.panelSplitContainer.TabStop = false;
+            this.toolboxSplitContainer.Panel2.Controls.Add(this.workflowSplitContainer);
+            this.toolboxSplitContainer.Size = new System.Drawing.Size(684, 291);
+            this.toolboxSplitContainer.SplitterDistance = 200;
+            this.toolboxSplitContainer.TabIndex = 4;
+            this.toolboxSplitContainer.TabStop = false;
             // 
             // workflowSplitContainer
             // 
@@ -580,24 +580,34 @@
             // 
             this.commandExecutor.StatusChanged += new System.EventHandler(this.commandExecutor_StatusChanged);
             // 
-            // toolboxSplitContainer
+            // splitContainer1
             // 
-            this.toolboxSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.toolboxSplitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
-            this.toolboxSplitContainer.Location = new System.Drawing.Point(3, 16);
-            this.toolboxSplitContainer.Name = "toolboxSplitContainer";
-            this.toolboxSplitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
+            this.splitContainer1.Location = new System.Drawing.Point(3, 16);
+            this.splitContainer1.Name = "splitContainer1";
+            this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
-            // toolboxSplitContainer.Panel1
+            // splitContainer1.Panel1
             // 
-            this.toolboxSplitContainer.Panel1.Controls.Add(this.toolboxTreeView);
+            this.splitContainer1.Panel1.Controls.Add(this.toolboxTreeView);
             // 
-            // toolboxSplitContainer.Panel2
+            // splitContainer1.Panel2
             // 
-            this.toolboxSplitContainer.Panel2.Controls.Add(this.toolboxDescriptionPanel);
-            this.toolboxSplitContainer.Size = new System.Drawing.Size(194, 272);
-            this.toolboxSplitContainer.SplitterDistance = 209;
-            this.toolboxSplitContainer.TabIndex = 1;
+            this.splitContainer1.Panel2.Controls.Add(this.toolboxDescriptionPanel);
+            this.splitContainer1.Size = new System.Drawing.Size(194, 272);
+            this.splitContainer1.SplitterDistance = 209;
+            this.splitContainer1.TabIndex = 1;
+            // 
+            // toolboxDescriptionPanel
+            // 
+            this.toolboxDescriptionPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.toolboxDescriptionPanel.Controls.Add(this.toolboxDescriptionTextBox);
+            this.toolboxDescriptionPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.toolboxDescriptionPanel.Location = new System.Drawing.Point(0, 0);
+            this.toolboxDescriptionPanel.Name = "toolboxDescriptionPanel";
+            this.toolboxDescriptionPanel.Size = new System.Drawing.Size(194, 59);
+            this.toolboxDescriptionPanel.TabIndex = 0;
             // 
             // toolboxDescriptionTextBox
             // 
@@ -610,22 +620,12 @@
             this.toolboxDescriptionTextBox.TabIndex = 0;
             this.toolboxDescriptionTextBox.Text = "";
             // 
-            // toolboxDescriptionPanel
-            // 
-            this.toolboxDescriptionPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.toolboxDescriptionPanel.Controls.Add(this.toolboxDescriptionTextBox);
-            this.toolboxDescriptionPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.toolboxDescriptionPanel.Location = new System.Drawing.Point(0, 0);
-            this.toolboxDescriptionPanel.Name = "toolboxDescriptionPanel";
-            this.toolboxDescriptionPanel.Size = new System.Drawing.Size(194, 59);
-            this.toolboxDescriptionPanel.TabIndex = 1;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(684, 362);
-            this.Controls.Add(this.panelSplitContainer);
+            this.Controls.Add(this.toolboxSplitContainer);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.toolStrip);
             this.Controls.Add(this.menuStrip);
@@ -645,16 +645,16 @@
             this.propertiesGroupBox.ResumeLayout(false);
             this.toolboxSplitContainer.Panel1.ResumeLayout(false);
             this.toolboxSplitContainer.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.panelSplitContainer)).EndInit();
-            this.panelSplitContainer.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.toolboxSplitContainer)).EndInit();
+            this.toolboxSplitContainer.ResumeLayout(false);
             this.workflowSplitContainer.Panel1.ResumeLayout(false);
             this.workflowSplitContainer.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.workflowSplitContainer)).EndInit();
             this.workflowSplitContainer.ResumeLayout(false);
-            this.toolboxSplitContainer.Panel1.ResumeLayout(false);
-            this.toolboxSplitContainer.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.toolboxSplitContainer)).EndInit();
-            this.toolboxSplitContainer.ResumeLayout(false);
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+            this.splitContainer1.ResumeLayout(false);
             this.toolboxDescriptionPanel.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -709,16 +709,16 @@
         private System.Windows.Forms.ToolStripMenuItem stopToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel runningStatusLabel;
-        private System.Windows.Forms.SplitContainer panelSplitContainer;
+        private System.Windows.Forms.SplitContainer toolboxSplitContainer;
         private System.Windows.Forms.SplitContainer workflowSplitContainer;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripTextBox directoryToolStripTextBox;
         private System.Windows.Forms.ToolStripButton browseDirectoryToolStripButton;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
-        private System.Windows.Forms.SplitContainer toolboxSplitContainer;
-        private System.Windows.Forms.RichTextBox toolboxDescriptionTextBox;
+        private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.Panel toolboxDescriptionPanel;
+        private System.Windows.Forms.RichTextBox toolboxDescriptionTextBox;
     }
 }
 
