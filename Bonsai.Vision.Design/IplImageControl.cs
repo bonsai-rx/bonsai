@@ -48,7 +48,7 @@ namespace Bonsai.Vision.Design
             }
         }
 
-        public static int NearestPowerOfTwo(int num)
+        static int NearestPowerOfTwo(int num)
         {
             int n = num > 0 ? num - 1 : 0;
 
@@ -59,6 +59,7 @@ namespace Bonsai.Vision.Design
             n |= n >> 16;
             n++;
 
+            if (n != num) n >>= 1;
             return n;
         }
 
