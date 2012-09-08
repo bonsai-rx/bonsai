@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using Bonsai.IO;
+using System.Drawing.Design;
 
 namespace Bonsai.Arduino
 {
@@ -12,7 +13,7 @@ namespace Bonsai.Arduino
         IEnumerable<Action<int>> analogOutput;
         IEnumerator<Action<int>> iterator;
 
-        [TypeConverter(typeof(SerialPortNameConverter))]
+        [Editor("Bonsai.Arduino.Design.ArduinoConfigurationEditor, Bonsai.Arduino.Design", typeof(UITypeEditor))]
         public string SerialPort { get; set; }
 
         public int Pin { get; set; }
