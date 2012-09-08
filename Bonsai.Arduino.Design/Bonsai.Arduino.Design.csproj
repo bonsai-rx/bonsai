@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{CFED93E8-2AE9-471D-81D6-C89BB0356EF3}</ProjectGuid>
+    <ProjectGuid>{210D12B7-B183-420B-A60E-FE63F0AF6134}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Bonsai.Arduino</RootNamespace>
-    <AssemblyName>Bonsai.Arduino</AssemblyName>
+    <RootNamespace>Bonsai.Arduino.Design</RootNamespace>
+    <AssemblyName>Bonsai.Arduino.Design</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -33,8 +33,9 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Design" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Reactive, Version=1.0.10621.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -42,34 +43,34 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnalogInputReceivedEventArgs.cs" />
-    <Compile Include="Arduino.cs" />
-    <Compile Include="ArduinoAnalogInput.cs" />
-    <Compile Include="ArduinoConfiguration.cs" />
-    <Compile Include="ArduinoConfigurationCollection.cs" />
-    <Compile Include="ArduinoDigitalInput.cs" />
-    <Compile Include="ArduinoDigitalOutput.cs" />
-    <Compile Include="ArduinoAnalogOutput.cs" />
-    <Compile Include="ArduinoManager.cs" />
-    <Compile Include="ArduinoServoOutput.cs" />
-    <Compile Include="DigitalInputReceivedEventArgs.cs" />
-    <Compile Include="ObservableArduino.cs" />
+    <Compile Include="ArduinoConfigurationControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ArduinoConfigurationControl.Designer.cs">
+      <DependentUpon>ArduinoConfigurationControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ArduinoConfigurationEditor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StepperSysex.cs" />
-    <Compile Include="StepperConfiguration.cs" />
-    <Compile Include="SysexConfiguration.cs" />
-    <Compile Include="SysexConfigurationCollection.cs" />
-    <Compile Include="SysexReceivedEventArgs.cs" />
+    <Compile Include="SysexConfigurationCollectionEditor.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bonsai.IO\Bonsai.IO.csproj">
-      <Project>{B783D74F-CB2D-4419-B438-266CD15774FB}</Project>
-      <Name>Bonsai.IO</Name>
+    <ProjectReference Include="..\Bonsai.Arduino\Bonsai.Arduino.csproj">
+      <Project>{CFED93E8-2AE9-471D-81D6-C89BB0356EF3}</Project>
+      <Name>Bonsai.Arduino</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj">
+      <Project>{765D928A-B147-46FF-8A59-BDE73F88A844}</Project>
+      <Name>Bonsai.Design</Name>
     </ProjectReference>
     <ProjectReference Include="..\Bonsai\Bonsai.csproj">
       <Project>{E4D03BA3-54A2-4FF8-9DC6-52BA4CC14FED}</Project>
       <Name>Bonsai</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ArduinoConfigurationControl.resx">
+      <DependentUpon>ArduinoConfigurationControl.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

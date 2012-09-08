@@ -13,26 +13,28 @@ namespace Bonsai.Arduino
 
         public const int Low = 0;
         public const int High = 1;
+        public const int DefaultBaudRate = 57600;
+        public const int DefaultSamplingInterval = 19;
 
         const int AnalogPins = 6;
         const int DigitalPorts = 2;
         const int MaxDataBytes = 32;
         const int ConnectionDelay = 2000;
-        const int DefaultBaudRate = 115200;
 
-        const byte DIGITAL_MESSAGE = 0x90; // send data for a digital port
-        const byte ANALOG_MESSAGE  = 0xE0; // send data for an analog pin (or PWM)
-        const byte REPORT_ANALOG   = 0xC0; // enable analog input by pin #
-        const byte REPORT_DIGITAL  = 0xD0; // enable digital input by port
-        const byte SET_PIN_MODE    = 0xF4; // set a pin to INPUT/OUTPUT/PWM/etc
-        const byte REPORT_VERSION  = 0xF9; // report firmware version
-        const byte SYSTEM_RESET    = 0xFF; // reset from MIDI
-        const byte START_SYSEX     = 0xF0; // start a MIDI SysEx message
-        const byte END_SYSEX       = 0xF7; // end a MIDI SysEx message
+        const byte DIGITAL_MESSAGE   = 0x90; // send data for a digital port
+        const byte ANALOG_MESSAGE    = 0xE0; // send data for an analog pin (or PWM)
+        const byte REPORT_ANALOG     = 0xC0; // enable analog input by pin #
+        const byte REPORT_DIGITAL    = 0xD0; // enable digital input by port
+        const byte SET_PIN_MODE      = 0xF4; // set a pin to INPUT/OUTPUT/PWM/etc
+        const byte REPORT_VERSION    = 0xF9; // report firmware version
+        const byte SYSTEM_RESET      = 0xFF; // reset from MIDI
+        const byte START_SYSEX       = 0xF0; // start a MIDI SysEx message
+        const byte END_SYSEX         = 0xF7; // end a MIDI SysEx message
 
-        const byte I2C_REQUEST     = 0x76; // send an I2C request message
-        const byte I2C_REPLY       = 0x77; // receive an I2C reply message
-        const byte I2C_CONFIG      = 0x78; // set an I2C config message
+        const byte I2C_REQUEST       = 0x76; // send an I2C request message
+        const byte I2C_REPLY         = 0x77; // receive an I2C reply message
+        const byte I2C_CONFIG        = 0x78; // set an I2C config message
+        const byte SAMPLING_INTERVAL = 0x7A; // set the sampling interval
 
         #endregion
 
@@ -52,9 +54,14 @@ namespace Bonsai.Arduino
         readonly byte[] digitalOutput;
 
         public Arduino(string portName)
+            : this(portName, DefaultBaudRate)
+        {
+        }
+
+        public Arduino(string portName, int baudRate)
         {
             serialPort = new SerialPort(portName);
-            serialPort.BaudRate = DefaultBaudRate;
+            serialPort.BaudRate = baudRate;
             serialPort.Parity = Parity.None;
             serialPort.StopBits = StopBits.One;
 
@@ -176,6 +183,16 @@ namespace Bonsai.Arduino
             commandBuffer[1] = (byte)(value & 0x7F);
             commandBuffer[2] = (byte)(value >> 7);
             serialPort.Write(commandBuffer, 0, 3);
+        }
+
+        public void SamplingInterval(int milliseconds)
+        {
+            commandBuffer[0] = START_SYSEX;
+            commandBuffer[1] = SAMPLING_INTERVAL;
+            commandBuffer[2] = (byte)(milliseconds & 0x7F);
+            commandBuffer[3] = (byte)(milliseconds >> 7);
+            commandBuffer[4] = END_SYSEX;
+            serialPort.Write(commandBuffer, 0, 5);
         }
 
         public void SendSysex(byte command, params byte[] args)
