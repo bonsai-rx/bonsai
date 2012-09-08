@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using System.IO;
+using System.Reactive.Linq;
 
 namespace Bonsai.Editor
 {
@@ -46,50 +47,56 @@ namespace Bonsai.Editor
             return typeVisualizers;
         }
 
-        TypeVisualizerInfo[] GetReflectionTypeVisualizerAttributes()
+        TypeVisualizerInfo[] GetReflectionTypeVisualizerAttributes(string fileName)
         {
             var typeVisualizers = Enumerable.Empty<TypeVisualizerAttribute>();
             var typeVisualizerAttributeAssembly = Assembly.Load(typeof(TypeVisualizerAttribute).Assembly.FullName);
             var typeVisualizerAttributeType = typeVisualizerAttributeAssembly.GetType(typeof(TypeVisualizerAttribute).FullName);
 
-            var files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
-            for (int i = 0; i < files.Length; i++)
+            try
             {
-                try
-                {
-                    var assembly = Assembly.LoadFrom(files[i]);
-                    var visualizerAttributes = assembly.GetCustomAttributes(typeVisualizerAttributeType, true).Cast<TypeVisualizerAttribute>();
-                    typeVisualizers = typeVisualizers.Concat(visualizerAttributes);
+                var assembly = Assembly.LoadFrom(fileName);
+                var visualizerAttributes = assembly.GetCustomAttributes(typeVisualizerAttributeType, true).Cast<TypeVisualizerAttribute>();
+                typeVisualizers = typeVisualizers.Concat(visualizerAttributes);
 
-                    typeVisualizers = typeVisualizers.Concat(GetCustomAttributeTypes(assembly, typeVisualizerAttributeType));
-                }
-                catch (FileLoadException) { continue; }
-                catch (FileNotFoundException) { continue; }
-                catch (BadImageFormatException) { continue; }
+                typeVisualizers = typeVisualizers.Concat(GetCustomAttributeTypes(assembly, typeVisualizerAttributeType));
             }
+            catch (FileLoadException) { }
+            catch (FileNotFoundException) { }
+            catch (BadImageFormatException) { }
 
             return typeVisualizers.Distinct().Select(data => new TypeVisualizerInfo(data)).ToArray();
         }
 
-        public static Dictionary<Type, Type> GetTypeVisualizerDictionary()
+        class LoaderResource : IDisposable
         {
-            var reflectionDomain = AppDomain.CreateDomain("ReflectionOnly");
-            try
+            AppDomain reflectionDomain;
+
+            public LoaderResource()
             {
-                var loader = (TypeVisualizerLoader)reflectionDomain.CreateInstanceAndUnwrap(typeof(TypeVisualizerLoader).Assembly.FullName, typeof(TypeVisualizerLoader).FullName);
-                var typeVisualizers = loader.GetReflectionTypeVisualizerAttributes();
-
-                var visualizerMap = new Dictionary<Type, Type>(typeVisualizers.Length);
-                for (int i = 0; i < typeVisualizers.Length; i++)
-                {
-                    var key = Type.GetType(typeVisualizers[i].TargetTypeName);
-                    var value = Type.GetType(typeVisualizers[i].VisualizerTypeName);
-                    visualizerMap.Add(key, value);
-                }
-
-                return visualizerMap;
+                AppDomainSetup setup = AppDomain.CurrentDomain.SetupInformation;
+                setup.LoaderOptimization = LoaderOptimization.MultiDomainHost;
+                reflectionDomain = AppDomain.CreateDomain("ReflectionOnly", AppDomain.CurrentDomain.Evidence, setup);
+                Loader = (TypeVisualizerLoader)reflectionDomain.CreateInstanceAndUnwrap(typeof(TypeVisualizerLoader).Assembly.FullName, typeof(TypeVisualizerLoader).FullName);
             }
-            finally { AppDomain.Unload(reflectionDomain); }
+
+            public TypeVisualizerLoader Loader { get; private set; }
+
+            public void Dispose()
+            {
+                AppDomain.Unload(reflectionDomain);
+            }
+        }
+
+        public static IObservable<Tuple<Type, Type>> GetTypeVisualizerDictionary()
+        {
+            var files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
+            return Observable.Using(
+                () => new LoaderResource(),
+                resource => from fileName in files.ToObservable()
+                            let typeVisualizers = resource.Loader.GetReflectionTypeVisualizerAttributes(fileName)
+                            from typeVisualizer in typeVisualizers
+                            select Tuple.Create(Type.GetType(typeVisualizer.TargetTypeName), Type.GetType(typeVisualizer.VisualizerTypeName)));
         }
     }
 }

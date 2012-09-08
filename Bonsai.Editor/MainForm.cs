@@ -12,11 +12,13 @@ using System.Xml;
 using Bonsai.Expressions;
 using Bonsai.Dag;
 using Bonsai.Design;
+using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using System.Linq.Expressions;
 using Bonsai.Editor.Properties;
 using System.IO;
 using System.Windows.Forms.Design;
+using System.Reactive.Concurrency;
 
 namespace Bonsai.Editor
 {
@@ -47,7 +49,6 @@ namespace Bonsai.Editor
         public MainForm()
         {
             InitializeComponent();
-            InitializeToolbox();
 
             editorSite = new EditorSite(this);
             workflowBuilder = new WorkflowBuilder();
@@ -55,8 +56,8 @@ namespace Bonsai.Editor
             layoutSerializer = new XmlSerializer(typeof(VisualizerLayout));
             regularFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Regular);
             selectionFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Bold);
-            typeVisualizers = TypeVisualizerLoader.GetTypeVisualizerDictionary();
             selectionModel = new WorkflowSelectionModel();
+            typeVisualizers = new Dictionary<Type, Type>();
             workflowViewModel = new WorkflowViewModel(workflowGraphView, editorSite);
             workflowViewModel.Workflow = workflowBuilder.Workflow;
             propertyGrid.Site = editorSite;
@@ -71,6 +72,9 @@ namespace Bonsai.Editor
 
         protected override void OnLoad(EventArgs e)
         {
+            Scheduler.ThreadPool.Schedule(InitializeToolbox);
+            Scheduler.ThreadPool.Schedule(InitializeTypeVisualizers);
+
             if (!string.IsNullOrEmpty(InitialFileName) &&
                 Path.GetExtension(InitialFileName) == BonsaiExtension &&
                 File.Exists(InitialFileName))
@@ -86,21 +90,29 @@ namespace Bonsai.Editor
 
         #region Toolbox
 
+        void InitializeTypeVisualizers()
+        {
+            var visualizerMapping = TypeVisualizerLoader.GetTypeVisualizerDictionary();
+            visualizerMapping
+                .ObserveOn(this)
+                .Do(typeMapping => typeVisualizers.Add(typeMapping.Item1, typeMapping.Item2))
+                .SubscribeOn(Scheduler.ThreadPool)
+                .Subscribe();
+        }
+
         void InitializeToolbox()
         {
             var packages = WorkflowElementLoader.GetWorkflowElementTypes();
-            var bonsaiPackage = packages.Single(package => package.Key == BonsaiPackageName);
-            foreach (var package in packages)
-            {
-                if (package == bonsaiPackage) continue;
-                InitializeToolboxCategory(package.Key, package);
-            }
-
-            InitializeToolboxCategory(CombinatorCategoryName, bonsaiPackage);
+            var packageInitialization = packages
+                .ObserveOn(this)
+                .Do(package => InitializeToolboxCategory(package.Key == BonsaiPackageName ? CombinatorCategoryName : package.Key, package))
+                .SubscribeOn(Scheduler.ThreadPool)
+                .Subscribe();
         }
 
         string GetPackageDisplayName(string packageKey)
         {
+            if (packageKey == BonsaiPackageName) return packageKey;
             return packageKey.Replace(BonsaiPackageName + ".", string.Empty);
         }
 
@@ -310,6 +322,11 @@ namespace Bonsai.Editor
                     {
                         layoutSerializer.Serialize(writer, workflowViewModel.VisualizerLayout);
                     }
+                }
+
+                if (string.IsNullOrEmpty(directoryToolStripTextBox.Text))
+                {
+                    directoryToolStripTextBox.Text = Path.GetDirectoryName(saveWorkflowDialog.FileName);
                 }
             }
         }
