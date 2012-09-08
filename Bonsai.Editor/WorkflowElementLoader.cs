@@ -6,6 +6,7 @@ using System.Reflection;
 using System.IO;
 using System.Diagnostics;
 using Bonsai.Expressions;
+using System.Reactive.Linq;
 
 namespace Bonsai.Editor
 {
@@ -32,26 +33,22 @@ namespace Bonsai.Editor
             }
         }
 
-        WorkflowElementType[] GetReflectionWorkflowElementTypes()
+        WorkflowElementType[] GetReflectionWorkflowElementTypes(string fileName)
         {
             var types = Enumerable.Empty<WorkflowElementType>();
             var loadableElementAssembly = Assembly.Load(typeof(LoadableElement).Assembly.FullName);
             var loadableElementType = loadableElementAssembly.GetType(typeof(LoadableElement).FullName);
             var expressionBuilderType = loadableElementAssembly.GetType(typeof(ExpressionBuilder).FullName);
 
-            var files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
-            for (int i = 0; i < files.Length; i++)
+            try
             {
-                try
-                {
-                    var assembly = Assembly.LoadFrom(files[i]);
-                    types = types.Concat(GetSubclassElementTypes(assembly, loadableElementType))
-                                 .Concat(GetSubclassElementTypes(assembly, expressionBuilderType));
-                }
-                catch (FileLoadException) { continue; }
-                catch (FileNotFoundException) { continue; }
-                catch (BadImageFormatException) { continue; }
+                var assembly = Assembly.LoadFrom(fileName);
+                types = types.Concat(GetSubclassElementTypes(assembly, loadableElementType))
+                             .Concat(GetSubclassElementTypes(assembly, expressionBuilderType));
             }
+            catch (FileLoadException) { }
+            catch (FileNotFoundException) { }
+            catch (BadImageFormatException) { }
 
             return types.Distinct().ToArray();
         }
@@ -65,21 +62,60 @@ namespace Bonsai.Editor
             public string Type { get; set; }
         }
 
-        public static IEnumerable<IGrouping<string, Type>> GetWorkflowElementTypes()
+        class LoaderResource : IDisposable
         {
-            var reflectionDomain = AppDomain.CreateDomain("ReflectionOnly");
-            try
-            {
-                var loader = (WorkflowElementLoader)reflectionDomain.CreateInstanceAndUnwrap(typeof(WorkflowElementLoader).Assembly.FullName, typeof(WorkflowElementLoader).FullName);
-                var assemblyTypeNames = loader.GetReflectionWorkflowElementTypes();
+            AppDomain reflectionDomain;
 
-                return (from elementType in assemblyTypeNames
-                        let type = Type.GetType(elementType.Type)
-                        where type != null
-                        group type by elementType.AssemblyName)
-                       .ToArray();
+            public LoaderResource()
+            {
+                AppDomainSetup setup = AppDomain.CurrentDomain.SetupInformation;
+                setup.LoaderOptimization = LoaderOptimization.MultiDomainHost;
+                reflectionDomain = AppDomain.CreateDomain("ReflectionOnly", AppDomain.CurrentDomain.Evidence, setup);
+                Loader = (WorkflowElementLoader)reflectionDomain.CreateInstanceAndUnwrap(typeof(WorkflowElementLoader).Assembly.FullName, typeof(WorkflowElementLoader).FullName);
             }
-            finally { AppDomain.Unload(reflectionDomain); }
+
+            public WorkflowElementLoader Loader { get; private set; }
+
+            public void Dispose()
+            {
+                AppDomain.Unload(reflectionDomain);
+            }
+        }
+
+        class WorkflowElementGroup : IGrouping<string, Type>
+        {
+            IEnumerable<Type> elementTypes;
+
+            public WorkflowElementGroup(string key, IEnumerable<WorkflowElementType> types)
+            {
+                Key = key;
+                elementTypes = from elementType in types
+                               let type = Type.GetType(elementType.Type)
+                               where type != null
+                               select type;
+            }
+
+            public string Key { get; private set; }
+
+            public IEnumerator<Type> GetEnumerator()
+            {
+                return elementTypes.GetEnumerator();
+            }
+
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+            {
+                return elementTypes.GetEnumerator();
+            }
+        }
+
+        public static IObservable<IGrouping<string, Type>> GetWorkflowElementTypes()
+        {
+            var files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
+            return Observable.Using(
+                () => new LoaderResource(),
+                resource => from fileName in files.ToObservable()
+                            let assemblyTypeNames = resource.Loader.GetReflectionWorkflowElementTypes(fileName)
+                            select new WorkflowElementGroup(Path.GetFileNameWithoutExtension(fileName), assemblyTypeNames));
         }
     }
 }
