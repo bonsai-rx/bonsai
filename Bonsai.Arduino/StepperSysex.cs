@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Reactive.Linq;
 
 namespace Bonsai.Arduino
 {
@@ -58,6 +59,15 @@ namespace Bonsai.Arduino
                 (byte)device,
                 (byte)(absolute & SysexBitmask),
                 (byte)((absolute >> SysexBitshift) & SysexBitmask));
+        }
+
+        public static IObservable<int> StepperDone(this Arduino arduino)
+        {
+            return from evt in Observable.FromEventPattern<SysexReceivedEventArgs>(
+                       handler => arduino.SysexReceived += handler,
+                       handler => arduino.SysexReceived -= handler)
+                   where evt.EventArgs.Command == STEPPER_COMMAND
+                   select (int)evt.EventArgs.Args[0];
         }
     }
 
