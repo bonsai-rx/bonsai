@@ -16,51 +16,45 @@ namespace Bonsai.Arduino
 
         public static IEnumerable<Action<int>> AnalogOutput(string serialPort, int pin, PinMode pinMode)
         {
-            var arduino = ArduinoManager.ReserveConnection(serialPort);
-
-            try
+            using (var connection = ArduinoManager.ReserveConnection(serialPort))
             {
-                arduino.PinMode(pin, pinMode);
+                connection.Arduino.PinMode(pin, pinMode);
                 while (true)
                 {
                     yield return value =>
                     {
-                        lock (arduino)
+                        lock (connection.Arduino)
                         {
-                            arduino.AnalogWrite(pin, value);
+                            connection.Arduino.AnalogWrite(pin, value);
                         }
                     };
                 }
             }
-            finally { ArduinoManager.ReleaseConnection(serialPort); }
         }
 
         public static IEnumerable<Action<bool>> DigitalOutput(string serialPort, int pin)
         {
-            var arduino = ArduinoManager.ReserveConnection(serialPort);
-
-            try
+            using (var connection = ArduinoManager.ReserveConnection(serialPort))
             {
-                arduino.PinMode(pin, PinMode.Output);
+                connection.Arduino.PinMode(pin, PinMode.Output);
                 while (true)
                 {
                     yield return value =>
                     {
-                        lock (arduino)
+                        lock (connection.Arduino)
                         {
-                            arduino.DigitalWrite(pin, value ? Arduino.High : Arduino.Low);
+                            connection.Arduino.DigitalWrite(pin, value ? Arduino.High : Arduino.Low);
                         };
                     };
                 }
             }
-            finally { ArduinoManager.ReleaseConnection(serialPort); }
         }
 
         public static IObservable<int> AnalogInput(string serialPort, int pin)
         {
             return Observable.Create<int>(observer =>
             {
-                var arduino = ArduinoManager.ReserveConnection(serialPort);
+                var connection = ArduinoManager.ReserveConnection(serialPort);
                 EventHandler<AnalogInputReceivedEventArgs> inputReceived;
                 inputReceived = (sender, e) =>
                 {
@@ -70,11 +64,11 @@ namespace Bonsai.Arduino
                     }
                 };
 
-                arduino.AnalogInputReceived += inputReceived;
+                connection.Arduino.AnalogInputReceived += inputReceived;
                 return Disposable.Create(() =>
                 {
-                    arduino.AnalogInputReceived -= inputReceived;
-                    ArduinoManager.ReleaseConnection(serialPort);
+                    connection.Arduino.AnalogInputReceived -= inputReceived;
+                    connection.Dispose();
                 });
             });
         }
@@ -83,23 +77,23 @@ namespace Bonsai.Arduino
         {
             return Observable.Create<bool>(observer =>
             {
-                var arduino = ArduinoManager.ReserveConnection(serialPort);
-                arduino.PinMode(pin, PinMode.Input);
+                var connection = ArduinoManager.ReserveConnection(serialPort);
+                connection.Arduino.PinMode(pin, PinMode.Input);
                 var port = (pin >> 3) & 0x0F;
                 EventHandler<DigitalInputReceivedEventArgs> inputReceived;
                 inputReceived = (sender, e) =>
                 {
                     if (e.Port == port)
                     {
-                        observer.OnNext(arduino.DigitalRead(pin) != 0);
+                        observer.OnNext(connection.Arduino.DigitalRead(pin) != 0);
                     }
                 };
 
-                arduino.DigitalInputReceived += inputReceived;
+                connection.Arduino.DigitalInputReceived += inputReceived;
                 return Disposable.Create(() =>
                 {
-                    arduino.DigitalInputReceived -= inputReceived;
-                    ArduinoManager.ReleaseConnection(serialPort);
+                    connection.Arduino.DigitalInputReceived -= inputReceived;
+                    connection.Dispose();
                 });
             });
         }

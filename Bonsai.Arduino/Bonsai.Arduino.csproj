@@ -50,6 +50,7 @@
     <Compile Include="ArduinoDigitalInput.cs" />
     <Compile Include="ArduinoDigitalOutput.cs" />
     <Compile Include="ArduinoAnalogOutput.cs" />
+    <Compile Include="ArduinoDisposable.cs" />
     <Compile Include="ArduinoManager.cs" />
     <Compile Include="ArduinoServoOutput.cs" />
     <Compile Include="DigitalInputReceivedEventArgs.cs" />
