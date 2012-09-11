@@ -245,7 +245,7 @@ namespace Bonsai.Arduino
                     parsingSysex = false;
                     var command = sysexBuffer[0];
                     var args = new byte[sysexBytesRead - 1];
-                    Array.Copy(sysexBuffer, 1, args, 0, sysexBytesRead);
+                    Array.Copy(sysexBuffer, 1, args, 0, args.Length);
                     OnSysexReceived(new SysexReceivedEventArgs(command, args));
                 }
                 else sysexBuffer[sysexBytesRead++] = inputData;
