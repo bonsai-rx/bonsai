@@ -87,8 +87,6 @@ namespace Bonsai.Expressions
             return new ReactiveWorkflow(loadableElements, connections);
         }
 
-
-
         public static Expression<Func<IDisposable>> BuildSubscribe(this ReactiveWorkflow source, Action<Exception> onError)
         {
             return BuildSubscribe(source, onError, () => { });

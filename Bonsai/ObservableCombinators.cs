@@ -64,5 +64,16 @@ namespace Bonsai
             return source.Window(openSampler, window => closeSampler)
                          .SelectMany(window => window.Take(1));
         }
+
+        public static IObservable<IList<TSource>> Zip<TSource>(this IEnumerable<IObservable<TSource>> sources)
+        {
+            var completed = Observable.Return(new List<TSource>());
+            foreach (var source in sources)
+            {
+                completed = completed.Zip(source, (xs, ys) => { xs.Add(ys); return xs; });
+            }
+
+            return completed;
+        }
     }
 }
