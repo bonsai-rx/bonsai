@@ -21,6 +21,7 @@ namespace Bonsai.Arduino
         [TypeConverter(typeof(SerialPortNameConverter))]
         public string PortName { get; set; }
 
+        [TypeConverter(typeof(BaudRateConverter))]
         public int BaudRate { get; set; }
 
         public int SamplingInterval { get; set; }

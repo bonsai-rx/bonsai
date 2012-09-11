@@ -5,37 +5,18 @@ using System.Text;
 using System.Xml.Serialization;
 using System.Xml;
 using System.IO;
+using System.Reactive.Disposables;
 
 namespace Bonsai.Arduino
 {
     public static class ArduinoManager
     {
         public const string DefaultConfigurationFile = "Arduino.config";
-        static readonly Dictionary<string, ArduinoReference> openConnections = new Dictionary<string, ArduinoReference>();
-        class ArduinoReference : IDisposable
+        static readonly Dictionary<string, Tuple<Arduino, RefCountDisposable>> openConnections = new Dictionary<string, Tuple<Arduino, RefCountDisposable>>();
+
+        public static ArduinoDisposable ReserveConnection(string serialPort)
         {
-            public ArduinoReference(Arduino arduino)
-            {
-                Arduino = arduino;
-                if (!Arduino.IsOpen)
-                {
-                    Arduino.Open();
-                }
-            }
-
-            public Arduino Arduino { get; private set; }
-
-            public int RefCount { get; set; }
-
-            public void Dispose()
-            {
-                Arduino.Close();
-            }
-        }
-
-        public static Arduino ReserveConnection(string serialPort)
-        {
-            ArduinoReference arduinoReference;
+            Tuple<Arduino, RefCountDisposable> arduinoReference;
             if (!openConnections.TryGetValue(serialPort, out arduinoReference))
             {
                 Arduino arduino;
@@ -52,24 +33,23 @@ namespace Bonsai.Arduino
                         section.Configure(arduino);
                     }
                 }
-                else arduino = new Arduino(serialPort);
+                else
+                {
+                    arduino = new Arduino(serialPort);
+                    arduino.Open();
+                }
 
-                arduinoReference = new ArduinoReference(arduino);
+                var dispose = Disposable.Create(() =>
+                {
+                    arduino.Close();
+                    openConnections.Remove(serialPort);
+                });
+
+                arduinoReference = Tuple.Create(arduino, new RefCountDisposable(dispose));
                 openConnections.Add(serialPort, arduinoReference);
             }
 
-            arduinoReference.RefCount++;
-            return arduinoReference.Arduino;
-        }
-
-        public static void ReleaseConnection(string serialPort)
-        {
-            var arduinoReference = openConnections[serialPort];
-            if (--arduinoReference.RefCount <= 0)
-            {
-                arduinoReference.Dispose();
-                openConnections.Remove(serialPort);
-            }
+            return new ArduinoDisposable(arduinoReference.Item1, arduinoReference.Item2.GetDisposable());
         }
 
         public static ArduinoConfigurationCollection LoadConfiguration()
