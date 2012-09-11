@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaudRateConverter.cs" />
     <Compile Include="CsvWriter.cs" />
     <Compile Include="Keyboard.cs" />
     <Compile Include="KeyPressed.cs" />
