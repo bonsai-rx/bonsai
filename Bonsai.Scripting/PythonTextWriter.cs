@@ -38,7 +38,7 @@ namespace Bonsai.Scripting
                     disposable.Add(Disposable.Create(writerTask.Wait));
                     if (!string.IsNullOrEmpty(FileName))
                     {
-                        var writer = new StreamWriter(FileName, Append, Encoding.ASCII);
+                        var writer = new StreamWriter(fileName, Append, Encoding.ASCII);
                         scope.Engine.Runtime.IO.SetOutput(writer.BaseStream, writer);
                         disposable.Add(writer);
                     }
