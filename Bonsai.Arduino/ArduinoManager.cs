@@ -16,8 +16,8 @@ namespace Bonsai.Arduino
 
         public static ArduinoDisposable ReserveConnection(string serialPort)
         {
-            Tuple<Arduino, RefCountDisposable> arduinoReference;
-            if (!openConnections.TryGetValue(serialPort, out arduinoReference))
+            Tuple<Arduino, RefCountDisposable> connection;
+            if (!openConnections.TryGetValue(serialPort, out connection))
             {
                 Arduino arduino;
                 var configuration = LoadConfiguration();
@@ -45,11 +45,13 @@ namespace Bonsai.Arduino
                     openConnections.Remove(serialPort);
                 });
 
-                arduinoReference = Tuple.Create(arduino, new RefCountDisposable(dispose));
-                openConnections.Add(serialPort, arduinoReference);
+                var refCount = new RefCountDisposable(dispose);
+                connection = Tuple.Create(arduino, refCount);
+                openConnections.Add(serialPort, connection);
+                return new ArduinoDisposable(arduino, refCount);
             }
 
-            return new ArduinoDisposable(arduinoReference.Item1, arduinoReference.Item2.GetDisposable());
+            return new ArduinoDisposable(connection.Item1, connection.Item2.GetDisposable());
         }
 
         public static ArduinoConfigurationCollection LoadConfiguration()
