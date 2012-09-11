@@ -12,7 +12,7 @@ namespace Bonsai.IO
         public static void EnsureDirectory(string path)
         {
             var directory = Path.GetDirectoryName(path);
-            if (!Directory.Exists(directory))
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
             {
                 Directory.CreateDirectory(directory);
             }
