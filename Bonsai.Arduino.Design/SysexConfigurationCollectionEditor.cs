@@ -13,17 +13,6 @@ namespace Bonsai.Arduino.Design
         {
         }
 
-        protected override string GetDisplayText(object value)
-        {
-            var configuration = value as SysexConfiguration;
-            if (configuration != null)
-            {
-                return configuration.GetType().Name;
-            }
-
-            return base.GetDisplayText(value);
-        }
-
         protected override Type[] CreateNewItemTypes()
         {
             return new[]
