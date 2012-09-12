@@ -45,7 +45,7 @@ namespace Bonsai
         static Expression<Func<IDisposable>> BuildSubscribe(this ReactiveWorkflow source, Action<Exception> onError, Action onCompleted)
         {
             var subscriptionCounter = Expression.Variable(typeof(int));
-            var subscriptionInitializer = Expression.Assign(subscriptionCounter, Expression.Constant(0));
+            var subscriptionInitializer = Expression.Assign(subscriptionCounter, Expression.Constant(source.Connections.Count));
             Expression<Action> onCompletedCall = () => onCompleted();
 
             var decrementCall = Expression.Call(typeof(Interlocked), "Decrement", null, subscriptionCounter);
@@ -58,9 +58,8 @@ namespace Bonsai
                                    let onNextParameter = Expression.Parameter(observableType)
                                    let onNext = Expression.Lambda(Expression.Empty(), onNextParameter)
                                    let onCompletedExpression = Expression.Lambda(onCompletedCheck)
-                                   let increment = Expression.Assign(subscriptionCounter, Expression.Increment(subscriptionCounter))
                                    let subscribeCall = Expression.Call(subscribeMethod.MakeGenericMethod(observableType), expression, onNext, onErrorExpression, onCompletedExpression)
-                                   select Expression.Block(increment, subscribeCall);
+                                   select subscribeCall;
 
             var subscriptions = Expression.NewArrayInit(typeof(IDisposable), subscribeActions);
             var disposable = Expression.New(compositeDisposableConstructor, subscriptions);

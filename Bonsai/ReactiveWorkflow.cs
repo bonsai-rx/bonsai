@@ -9,9 +9,9 @@ namespace Bonsai
 {
     public class ReactiveWorkflow : LoadableElement
     {
-        IEnumerable<LoadableElement> elements;
+        IEnumerable<ILoadable> elements;
 
-        public ReactiveWorkflow(IEnumerable<LoadableElement> loadableElements, IEnumerable<Expression> connections)
+        public ReactiveWorkflow(IEnumerable<ILoadable> loadableElements, IList<Expression> connections)
         {
             elements = loadableElements;
             Connections = connections;
@@ -22,6 +22,6 @@ namespace Bonsai
             return new CompositeDisposable(elements.Select(element => element.Load()));
         }
 
-        public IEnumerable<Expression> Connections { get; private set; }
+        public IList<Expression> Connections { get; private set; }
     }
 }

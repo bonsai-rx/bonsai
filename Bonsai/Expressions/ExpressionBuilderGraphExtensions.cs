@@ -38,13 +38,13 @@ namespace Bonsai.Expressions
             throw new ArgumentException("Cannot infer expression type on cyclic graphs.", "source");
         }
 
-        internal static IEnumerable<LoadableElement> GetLoadableElements(this ExpressionBuilder expressionBuilder)
+        internal static IEnumerable<ILoadable> GetLoadableElements(this ExpressionBuilder expressionBuilder)
         {
             foreach (var property in expressionBuilder.GetType().GetProperties())
             {
-                if (typeof(LoadableElement).IsAssignableFrom(property.PropertyType))
+                if (typeof(ILoadable).IsAssignableFrom(property.PropertyType))
                 {
-                    var value = (LoadableElement)property.GetValue(expressionBuilder, null);
+                    var value = (ILoadable)property.GetValue(expressionBuilder, null);
                     if (value != null)
                     {
                         yield return value;
@@ -55,7 +55,7 @@ namespace Bonsai.Expressions
 
         public static ReactiveWorkflow Build(this ExpressionBuilderGraph source)
         {
-            List<LoadableElement> loadableElements = new List<LoadableElement>();
+            List<ILoadable> loadableElements = new List<ILoadable>();
             List<Expression> connections = new List<Expression>();
 
             foreach (var node in source.TopologicalSort())
