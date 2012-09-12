@@ -67,6 +67,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReactiveWorkflowDisposable.cs" />
     <Compile Include="TypeVisualizerLoader.cs" />
     <Compile Include="WorkflowElementLoader.cs" />
     <EmbeddedResource Include="AboutBox.resx">

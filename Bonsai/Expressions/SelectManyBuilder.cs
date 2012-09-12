@@ -46,13 +46,13 @@ namespace Bonsai.Expressions
             var workflowInput = Workflow.Select(node => node.Value as WorkflowInputBuilder)
                                         .Single(builder => builder != null);
             workflowInput.Source = selectorParameter;
-            var runningWorkflow = Workflow.Build();
+            var runtimeWorkflow = Workflow.Build();
 
-            var workflowExpression = Expression.Constant(runningWorkflow);
+            var workflowExpression = Expression.Constant(runtimeWorkflow);
             var loadWorkflowExpression = Expression.Call(workflowExpression, "Load", null);
             var resourceFactoryExpression = Expression.Lambda(loadWorkflowExpression);
             var resourceParameter = Expression.Parameter(typeof(IDisposable));
-            var workflowObservableExpression = runningWorkflow.Connections.Single();
+            var workflowObservableExpression = runtimeWorkflow.Connections.Single();
             var workflowObservableType = workflowObservableExpression.Type.GetGenericArguments()[0];
             var observableFactoryExpression = Expression.Lambda(workflowObservableExpression, resourceParameter);
             var usingExpression = Expression.Call(usingMethod.MakeGenericMethod(workflowObservableType, typeof(IDisposable)), resourceFactoryExpression, observableFactoryExpression);

@@ -7,6 +7,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using Bonsai.Expressions;
 using System.Threading;
+using System.Reactive.Linq;
 
 namespace Bonsai.Player
 {
@@ -34,15 +35,12 @@ namespace Bonsai.Player
             }
 
             var workflowCompleted = new ManualResetEvent(false);
-            var runningWorkflow = workflowBuilder.Workflow.Build();
-            var subscribeExpression = runningWorkflow.BuildSubscribe(ex => { Console.WriteLine(ex); workflowCompleted.Set(); }, () => workflowCompleted.Set());
-            var subscriber = subscribeExpression.Compile();
-
-            using (var loaded = runningWorkflow.Load())
-            using (var running = subscriber())
-            {
-                workflowCompleted.WaitOne();
-            }
+            var runtimeWorkflow = workflowBuilder.Workflow.Build();
+            runtimeWorkflow.Run().Subscribe(
+                unit => { },
+                ex => { Console.WriteLine(ex); workflowCompleted.Set(); },
+                () => workflowCompleted.Set());
+            workflowCompleted.WaitOne();
         }
     }
 }
