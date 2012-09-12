@@ -24,7 +24,7 @@ namespace Bonsai.Expressions
 
         [XmlIgnore]
         [Browsable(false)]
-        public ReactiveWorkflow RunningWorkflow { get; private set; }
+        public ReactiveWorkflow RuntimeWorkflow { get; private set; }
 
         public override Expression Build()
         {
@@ -36,8 +36,8 @@ namespace Bonsai.Expressions
                 workflowInput.Source = Source;
             }
 
-            RunningWorkflow = Workflow.Build();
-            return RunningWorkflow.Connections.Single();
+            RuntimeWorkflow = Workflow.Build();
+            return RuntimeWorkflow.Connections.Single();
         }
     }
 }

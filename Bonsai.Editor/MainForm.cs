@@ -19,6 +19,7 @@ using Bonsai.Editor.Properties;
 using System.IO;
 using System.Windows.Forms.Design;
 using System.Reactive.Concurrency;
+using System.Reactive;
 
 namespace Bonsai.Editor
 {
@@ -42,8 +43,6 @@ namespace Bonsai.Editor
         XmlSerializer serializer;
         XmlSerializer layoutSerializer;
         Dictionary<Type, Type> typeVisualizers;
-
-        IDisposable loaded;
         IDisposable running;
 
         public MainForm()
@@ -359,22 +358,26 @@ namespace Bonsai.Editor
         {
             if (running == null)
             {
-                try
-                {
-                    var runningWorkflow = workflowBuilder.Workflow.Build();
-                    var subscribeExpression = runningWorkflow.BuildSubscribe(HandleWorkflowError, WorkflowCompleted);
-                    loaded = runningWorkflow.Load();
+                running = Observable.Using(
+                    () =>
+                    {
+                        var runtimeWorkflow = workflowBuilder.Workflow.Build();
+                        runningStatusLabel.Text = Resources.RunningStatus;
+                        editorSite.OnWorkflowStarted(EventArgs.Empty);
 
-                    var subscriber = subscribeExpression.Compile();
-                    running = subscriber();
+                        var shutdown = new ScheduledDisposable(new ControlScheduler(this), Disposable.Create(() =>
+                        {
+                            editorSite.OnWorkflowStopped(EventArgs.Empty);
+                            workflowViewModel.UpdateVisualizerLayout();
+                            runningStatusLabel.Text = Resources.StoppedStatus;
+                            running = null;
+                        }));
 
-                    editorSite.OnWorkflowStarted(EventArgs.Empty);
-                }
-                catch (InvalidOperationException ex) { HandleWorkflowError(ex); return; }
-                catch (ArgumentException ex) { HandleWorkflowError(ex); return; }
+                        return new ReactiveWorkflowDisposable(runtimeWorkflow, shutdown);
+                    },
+                    resource => resource.Workflow.Run().SubscribeOn(Scheduler.NewThread))
+                    .Subscribe(unit => { }, HandleWorkflowError, () => { });
             }
-
-            runningStatusLabel.Text = Resources.RunningStatus;
         }
 
         void StopWorkflow()
@@ -382,31 +385,12 @@ namespace Bonsai.Editor
             if (running != null)
             {
                 running.Dispose();
-                editorSite.OnWorkflowStopped(EventArgs.Empty);
-
-                loaded.Dispose();
-                loaded = null;
-                running = null;
-                workflowViewModel.UpdateVisualizerLayout();
             }
-
-            runningStatusLabel.Text = Resources.StoppedStatus;
         }
 
         void HandleWorkflowError(Exception e)
         {
             MessageBox.Show(e.Message, "Processing Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-            if (running != null)
-            {
-                BeginInvoke((Action)StopWorkflow);
-            }
-        }
-
-        void WorkflowCompleted()
-        {
-            if (running != null) running.Dispose();
-            BeginInvoke((Action)StopWorkflow);
         }
 
         #endregion
