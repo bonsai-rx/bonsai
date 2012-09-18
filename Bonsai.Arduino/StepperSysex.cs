@@ -12,28 +12,31 @@ namespace Bonsai.Arduino
         const int SysexBitshift = 7;
         const byte STEPPER_COMMAND = 0x67; // send data for a digital port
         const byte STEPPER_CONFIG  = 0x01;
-        const byte STEPPER_ACCEL  = 0x02;
+        const byte STEPPER_PARAMS  = 0x02;
         const byte STEPPER_MOVE    = 0x03;
         const byte STEPPER_MOVETO  = 0x04;
+        const byte STEPPER_RUNSPEED = 0x05;
 
-        public static void StepperConfig(this Arduino arduino, int device, StepperMotorInterfaceType interfaceType, params int[] pins)
+        public static void StepperConfig(this Arduino arduino, int device, int stepsPerRevolution, StepperMotorInterfaceType interfaceType, params int[] pins)
         {
-            var sysex = new byte[pins.Length + 3];
+            var sysex = new byte[pins.Length + 5];
             sysex[0] = STEPPER_CONFIG;
             sysex[1] = (byte)device;
-            sysex[2] = (byte)interfaceType;
+            sysex[2] = (byte)(stepsPerRevolution & SysexBitmask);
+            sysex[3] = (byte)((stepsPerRevolution >> SysexBitshift) & SysexBitmask);
+            sysex[4] = (byte)interfaceType;
             for (int i = 0; i < pins.Length; i++)
             {
-                sysex[i + 3] = (byte)pins[i];
+                sysex[i + 5] = (byte)pins[i];
             }
             arduino.SendSysex(STEPPER_COMMAND, sysex);
         }
 
-        public static void StepperAcceleration(this Arduino arduino, int device, int maxSpeed, int acceleration)
+        public static void StepperParameters(this Arduino arduino, int device, int maxSpeed, int acceleration)
         {
             arduino.SendSysex(
                 STEPPER_COMMAND,
-                STEPPER_ACCEL,
+                STEPPER_PARAMS,
                 (byte)device,
                 (byte)(maxSpeed & SysexBitmask),
                 (byte)((maxSpeed >> SysexBitshift) & SysexBitmask),
@@ -59,6 +62,16 @@ namespace Bonsai.Arduino
                 (byte)device,
                 (byte)(absolute & SysexBitmask),
                 (byte)((absolute >> SysexBitshift) & SysexBitmask));
+        }
+
+        public static void StepperRunSpeed(this Arduino arduino, int device, int speed)
+        {
+            arduino.SendSysex(
+                STEPPER_COMMAND,
+                STEPPER_RUNSPEED,
+                (byte)device,
+                (byte)(speed & SysexBitmask),
+                (byte)((speed >> SysexBitshift) & SysexBitmask));
         }
 
         public static IObservable<int> StepperDone(this Arduino arduino)
