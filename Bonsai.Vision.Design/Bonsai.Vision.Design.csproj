@@ -60,6 +60,7 @@
     <Compile Include="IplImageControl.designer.cs">
       <DependentUpon>IplImageControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="KeyPointCollectionVisualizer.cs" />
     <Compile Include="TimeIntervalIplImageVisualizer.cs" />
     <Compile Include="CvScalarVisualizer.cs" />
     <Compile Include="RangeScalarConverter.cs" />
