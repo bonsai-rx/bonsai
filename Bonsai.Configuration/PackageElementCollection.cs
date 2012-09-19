@@ -13,7 +13,7 @@ namespace Bonsai.Configuration
             get { return ConfigurationElementCollectionType.BasicMap; }
         }
 
-        public PackageElement this[string name]
+        public new PackageElement this[string name]
         {
             get { return (PackageElement)base.BaseGet(name); }
         }

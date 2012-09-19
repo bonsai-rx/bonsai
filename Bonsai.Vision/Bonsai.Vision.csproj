@@ -69,12 +69,14 @@
     <Compile Include="FileCapture.cs" />
     <Compile Include="FindContours.cs" />
     <Compile Include="Flip.cs" />
+    <Compile Include="GoodFeaturesToTrack.cs" />
     <Compile Include="Grayscale.cs" />
     <Compile Include="HsvThreshold.cs" />
     <Compile Include="ImageSubtraction.cs" />
     <Compile Include="IplImageHelper.cs" />
     <Compile Include="ApproximatePolygon.cs" />
     <Compile Include="IncrementalMean.cs" />
+    <Compile Include="KeyPointCollection.cs" />
     <Compile Include="LargestBinaryRegion.cs" />
     <Compile Include="LoadImage.cs" />
     <Compile Include="Mask.cs" />
