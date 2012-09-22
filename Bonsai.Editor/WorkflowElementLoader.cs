@@ -10,8 +10,18 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Editor
 {
-    public class WorkflowElementLoader : MarshalByRefObject
+    internal sealed class WorkflowElementLoader : MarshalByRefObject
     {
+        Type loadableElementType;
+        Type expressionBuilderType;
+
+        public WorkflowElementLoader()
+        {
+            var loadableElementAssembly = Assembly.Load(typeof(LoadableElement).Assembly.FullName);
+            loadableElementType = loadableElementAssembly.GetType(typeof(LoadableElement).FullName);
+            expressionBuilderType = loadableElementAssembly.GetType(typeof(ExpressionBuilder).FullName);
+        }
+
         IEnumerable<WorkflowElementType> GetSubclassElementTypes(Assembly assembly, Type baseClass)
         {
             Type[] types;
@@ -36,10 +46,6 @@ namespace Bonsai.Editor
         WorkflowElementType[] GetReflectionWorkflowElementTypes(string fileName)
         {
             var types = Enumerable.Empty<WorkflowElementType>();
-            var loadableElementAssembly = Assembly.Load(typeof(LoadableElement).Assembly.FullName);
-            var loadableElementType = loadableElementAssembly.GetType(typeof(LoadableElement).FullName);
-            var expressionBuilderType = loadableElementAssembly.GetType(typeof(ExpressionBuilder).FullName);
-
             try
             {
                 var assembly = Assembly.LoadFrom(fileName);

@@ -8,8 +8,16 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Editor
 {
-    public class TypeVisualizerLoader : MarshalByRefObject
+    internal sealed class TypeVisualizerLoader : MarshalByRefObject
     {
+        Type typeVisualizerAttributeType;
+
+        public TypeVisualizerLoader()
+        {
+            var typeVisualizerAttributeAssembly = Assembly.Load(typeof(TypeVisualizerAttribute).Assembly.FullName);
+            typeVisualizerAttributeType = typeVisualizerAttributeAssembly.GetType(typeof(TypeVisualizerAttribute).FullName);
+        }
+
         [Serializable]
         class TypeVisualizerInfo
         {
@@ -50,9 +58,6 @@ namespace Bonsai.Editor
         TypeVisualizerInfo[] GetReflectionTypeVisualizerAttributes(string fileName)
         {
             var typeVisualizers = Enumerable.Empty<TypeVisualizerAttribute>();
-            var typeVisualizerAttributeAssembly = Assembly.Load(typeof(TypeVisualizerAttribute).Assembly.FullName);
-            var typeVisualizerAttributeType = typeVisualizerAttributeAssembly.GetType(typeof(TypeVisualizerAttribute).FullName);
-
             try
             {
                 var assembly = Assembly.LoadFrom(fileName);
@@ -96,7 +101,10 @@ namespace Bonsai.Editor
                 resource => from fileName in files.ToObservable()
                             let typeVisualizers = resource.Loader.GetReflectionTypeVisualizerAttributes(fileName)
                             from typeVisualizer in typeVisualizers
-                            select Tuple.Create(Type.GetType(typeVisualizer.TargetTypeName), Type.GetType(typeVisualizer.VisualizerTypeName)));
+                            let targetType = Type.GetType(typeVisualizer.TargetTypeName)
+                            let visualizerType = Type.GetType(typeVisualizer.VisualizerTypeName)
+                            where targetType != null && visualizerType != null
+                            select Tuple.Create(targetType, visualizerType));
         }
     }
 }
