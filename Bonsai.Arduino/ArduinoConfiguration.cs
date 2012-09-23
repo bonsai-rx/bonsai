@@ -19,13 +19,17 @@ namespace Bonsai.Arduino
         }
 
         [TypeConverter(typeof(SerialPortNameConverter))]
+        [Description("The name of the serial port used to communicate with the Arduino.")]
         public string PortName { get; set; }
 
         [TypeConverter(typeof(BaudRateConverter))]
+        [Description("The baud rate used by the serial port.")]
         public int BaudRate { get; set; }
 
+        [Description("The time interval controlling how often analog and I2C data are sampled and transmitted.")]
         public int SamplingInterval { get; set; }
 
+        [Description("The configuration parameters for communication protocol extensions.")]
         public SysexConfigurationCollection SysexConfigurationSettings
         {
             get { return sysexConfigurationSettings; }

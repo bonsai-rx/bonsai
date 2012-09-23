@@ -10,6 +10,7 @@ namespace Bonsai.Arduino
     public abstract class SysexConfiguration
     {
         [Category("Data")]
+        [Description("The name of the protocol extension configuration.")]
         public string Name { get; set; }
 
         public abstract void Configure(Arduino arduino);

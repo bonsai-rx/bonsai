@@ -10,6 +10,7 @@ using System.ComponentModel.Design;
 using System.Collections.ObjectModel;
 using System.Windows.Forms.Design;
 using System.IO.Ports;
+using Bonsai.Design;
 
 namespace Bonsai.Arduino.Design
 {
@@ -74,7 +75,7 @@ namespace Bonsai.Arduino.Design
             }
         }
 
-        class ArduinoConfigurationCollectionEditor : CollectionEditor
+        class ArduinoConfigurationCollectionEditor : DescriptiveCollectionEditor
         {
             public ArduinoConfigurationCollectionEditor(Type type)
                 : base(type)
