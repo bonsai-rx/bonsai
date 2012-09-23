@@ -7,11 +7,14 @@ using System.IO;
 using System.Diagnostics;
 using Bonsai.Expressions;
 using System.Reactive.Linq;
+using System.ComponentModel;
 
 namespace Bonsai.Editor
 {
-    internal sealed class WorkflowElementLoader : MarshalByRefObject
+    sealed class WorkflowElementLoader : MarshalByRefObject
     {
+        const string ExpressionBuilderSuffix = "Builder";
+
         Type loadableElementType;
         Type expressionBuilderType;
 
@@ -22,7 +25,24 @@ namespace Bonsai.Editor
             expressionBuilderType = loadableElementAssembly.GetType(typeof(ExpressionBuilder).FullName);
         }
 
-        IEnumerable<WorkflowElementType> GetSubclassElementTypes(Assembly assembly, Type baseClass)
+        //TODO: Remove duplicate method from ExpressionBuilderTypeConverter.cs
+        string RemoveSuffix(string source, string suffix)
+        {
+            var suffixStart = source.LastIndexOf(suffix);
+            return suffixStart >= 0 ? source.Remove(suffixStart) : source;
+        }
+
+        string GetElementDisplayName(Type type)
+        {
+            var displayNameAttribute = (DisplayNameAttribute)TypeDescriptor.GetAttributes(type)[typeof(DisplayNameAttribute)];
+            if (displayNameAttribute != null && !string.IsNullOrEmpty(displayNameAttribute.DisplayName))
+            {
+                return displayNameAttribute.DisplayName;
+            }
+            else return type.IsSubclassOf(typeof(ExpressionBuilder)) ? RemoveSuffix(type.Name, ExpressionBuilderSuffix) : type.Name;
+        }
+
+        IEnumerable<WorkflowElementDescriptor> GetSubclassElementTypes(Assembly assembly, Type baseClass)
         {
             Type[] types;
 
@@ -34,18 +54,22 @@ namespace Bonsai.Editor
                 var type = types[i];
                 if (!type.IsAbstract && !type.ContainsGenericParameters && type.IsSubclassOf(baseClass))
                 {
-                    yield return new WorkflowElementType
+                    var descriptionAttribute = (DescriptionAttribute)TypeDescriptor.GetAttributes(type)[typeof(DescriptionAttribute)];
+                    yield return new WorkflowElementDescriptor
                     {
+                        Name = GetElementDisplayName(type),
                         AssemblyName = type.Assembly.GetName().Name,
-                        Type = type.AssemblyQualifiedName
+                        AssemblyQualifiedName = type.AssemblyQualifiedName,
+                        Description = descriptionAttribute.Description,
+                        ElementTypes = WorkflowElementTypeConverter.FromType(type).ToArray()
                     };
                 }
             }
         }
 
-        WorkflowElementType[] GetReflectionWorkflowElementTypes(string fileName)
+        WorkflowElementDescriptor[] GetReflectionWorkflowElementTypes(string fileName)
         {
-            var types = Enumerable.Empty<WorkflowElementType>();
+            var types = Enumerable.Empty<WorkflowElementDescriptor>();
             try
             {
                 var assembly = Assembly.LoadFrom(fileName);
@@ -57,15 +81,6 @@ namespace Bonsai.Editor
             catch (BadImageFormatException) { }
 
             return types.Distinct().ToArray();
-        }
-
-        [Serializable]
-        [DebuggerDisplay("Type = {Type}, AssemblyName = {AssemblyName}")]
-        struct WorkflowElementType
-        {
-            public string AssemblyName { get; set; }
-
-            public string Type { get; set; }
         }
 
         class LoaderResource : IDisposable
@@ -88,22 +103,19 @@ namespace Bonsai.Editor
             }
         }
 
-        class WorkflowElementGroup : IGrouping<string, Type>
+        class WorkflowElementGroup : IGrouping<string, WorkflowElementDescriptor>
         {
-            IEnumerable<Type> elementTypes;
+            IEnumerable<WorkflowElementDescriptor> elementTypes;
 
-            public WorkflowElementGroup(string key, IEnumerable<WorkflowElementType> types)
+            public WorkflowElementGroup(string key, IEnumerable<WorkflowElementDescriptor> types)
             {
                 Key = key;
-                elementTypes = from elementType in types
-                               let type = Type.GetType(elementType.Type)
-                               where type != null
-                               select type;
+                elementTypes = types;
             }
 
             public string Key { get; private set; }
 
-            public IEnumerator<Type> GetEnumerator()
+            public IEnumerator<WorkflowElementDescriptor> GetEnumerator()
             {
                 return elementTypes.GetEnumerator();
             }
@@ -114,7 +126,7 @@ namespace Bonsai.Editor
             }
         }
 
-        public static IObservable<IGrouping<string, Type>> GetWorkflowElementTypes()
+        public static IObservable<IGrouping<string, WorkflowElementDescriptor>> GetWorkflowElementTypes()
         {
             var files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
             return Observable.Using(
@@ -123,5 +135,20 @@ namespace Bonsai.Editor
                             let assemblyTypeNames = resource.Loader.GetReflectionWorkflowElementTypes(fileName)
                             select new WorkflowElementGroup(Path.GetFileNameWithoutExtension(fileName), assemblyTypeNames));
         }
+    }
+
+    [Serializable]
+    [DebuggerDisplay("Type = {Type}, AssemblyName = {AssemblyName}")]
+    struct WorkflowElementDescriptor
+    {
+        public string Name { get; set; }
+
+        public string AssemblyName { get; set; }
+
+        public string AssemblyQualifiedName { get; set; }
+
+        public string Description { get; set; }
+
+        public WorkflowElementType[] ElementTypes { get; set; }
     }
 }

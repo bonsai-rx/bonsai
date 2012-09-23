@@ -29,7 +29,6 @@ namespace Bonsai.Editor
         const string LayoutExtension = ".layout";
         const string BonsaiPackageName = "Bonsai";
         const string CombinatorCategoryName = "Combinator";
-        const string ExpressionBuilderSuffix = "Builder";
 
         int version;
         int saveVersion;
@@ -115,16 +114,6 @@ namespace Bonsai.Editor
             return packageKey.Replace(BonsaiPackageName + ".", string.Empty);
         }
 
-        string GetElementDisplayName(Type type)
-        {
-            var displayNameAttribute = (DisplayNameAttribute)TypeDescriptor.GetAttributes(type)[typeof(DisplayNameAttribute)];
-            if (displayNameAttribute != null && !string.IsNullOrEmpty(displayNameAttribute.DisplayName))
-            {
-                return displayNameAttribute.DisplayName;
-            }
-            else return type.IsSubclassOf(typeof(ExpressionBuilder)) ? RemoveSuffix(type.Name, ExpressionBuilderSuffix) : type.Name;
-        }
-
         int GetElementTypeIndex(string typeName)
         {
             return
@@ -139,22 +128,14 @@ namespace Bonsai.Editor
             return GetElementTypeIndex(left).CompareTo(GetElementTypeIndex(right));
         }
 
-        //TODO: Remove duplicate method from ExpressionBuilderTypeConverter.cs
-        string RemoveSuffix(string source, string suffix)
-        {
-            var suffixStart = source.LastIndexOf(suffix);
-            return suffixStart >= 0 ? source.Remove(suffixStart) : source;
-        }
-
-        void InitializeToolboxCategory(string categoryName, IEnumerable<Type> types)
+        void InitializeToolboxCategory(string categoryName, IEnumerable<WorkflowElementDescriptor> types)
         {
             TreeNode category = null;
 
             foreach (var type in types.OrderBy(type => type.Name))
             {
-                foreach (var elementType in WorkflowElementType.FromType(type))
+                foreach (var elementType in type.ElementTypes)
                 {
-                    var name = GetElementDisplayName(type);
                     if (category == null)
                     {
                         category = toolboxTreeView.Nodes.Add(categoryName, GetPackageDisplayName(categoryName));
@@ -175,8 +156,9 @@ namespace Bonsai.Editor
                         elementTypeNode = category.Nodes.Insert(index, elementType.ToString(), elementType.ToString());
                     }
 
-                    var node = elementTypeNode.Nodes.Add(type.AssemblyQualifiedName, name);
+                    var node = elementTypeNode.Nodes.Add(type.AssemblyQualifiedName, type.Name);
                     node.Tag = elementType;
+                    node.ToolTipText = type.Description;
                 }
             }
         }
@@ -505,25 +487,21 @@ namespace Bonsai.Editor
             var selectedNode = e.Node;
             if (selectedNode != null && selectedNode.GetNodeCount(false) == 0)
             {
-                var type = Type.GetType(selectedNode.Name);
-                if (type != null)
+                var description = selectedNode.ToolTipText;
+                toolboxDescriptionTextBox.SuspendLayout();
+                toolboxDescriptionTextBox.Lines = new[]
                 {
-                    var descriptionAttribute = (DescriptionAttribute)TypeDescriptor.GetAttributes(type)[typeof(DescriptionAttribute)];
-                    toolboxDescriptionTextBox.SuspendLayout();
-                    toolboxDescriptionTextBox.Lines = new[]
-                    {
-                        selectedNode.Text,
-                        descriptionAttribute.Description
-                    };
+                    selectedNode.Text,
+                    description
+                };
 
-                    toolboxDescriptionTextBox.SelectionStart = 0;
-                    toolboxDescriptionTextBox.SelectionLength = selectedNode.Text.Length;
-                    toolboxDescriptionTextBox.SelectionFont = selectionFont;
-                    toolboxDescriptionTextBox.SelectionStart = selectedNode.Text.Length;
-                    toolboxDescriptionTextBox.SelectionLength = descriptionAttribute.Description.Length;
-                    toolboxDescriptionTextBox.SelectionFont = regularFont;
-                    toolboxDescriptionTextBox.ResumeLayout();
-                }
+                toolboxDescriptionTextBox.SelectionStart = 0;
+                toolboxDescriptionTextBox.SelectionLength = selectedNode.Text.Length;
+                toolboxDescriptionTextBox.SelectionFont = selectionFont;
+                toolboxDescriptionTextBox.SelectionStart = selectedNode.Text.Length;
+                toolboxDescriptionTextBox.SelectionLength = description.Length;
+                toolboxDescriptionTextBox.SelectionFont = regularFont;
+                toolboxDescriptionTextBox.ResumeLayout();
             }
         }
 

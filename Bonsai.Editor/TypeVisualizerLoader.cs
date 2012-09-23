@@ -8,7 +8,7 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Editor
 {
-    internal sealed class TypeVisualizerLoader : MarshalByRefObject
+    sealed class TypeVisualizerLoader : MarshalByRefObject
     {
         Type typeVisualizerAttributeType;
 
