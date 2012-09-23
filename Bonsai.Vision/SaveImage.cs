@@ -9,10 +9,12 @@ using System.IO;
 
 namespace Bonsai.Vision
 {
+    [Description("Writes the input image into the specified file.")]
     public class SaveImage : Sink<IplImage>
     {
         [FileNameFilter("PNG Files|*.png|BMP Files|*.bmp|JPEG Files|*.jpg;*.jpeg")]
         [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
+        [Description("The name of the image file.")]
         public string FileName { get; set; }
 
         public override void Process(IplImage input)

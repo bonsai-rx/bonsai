@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OpenCV.Net;
+using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
+    [Description("Converts an image from one color space to another.")]
     public class ConvertColor : Projection<IplImage, IplImage>
     {
         int depth;
@@ -18,6 +20,7 @@ namespace Bonsai.Vision
             Conversion = ColorConversion.BGR2HSV;
         }
 
+        [Description("The color conversion to apply to individual image elements.")]
         public ColorConversion Conversion
         {
             get { return conversion; }

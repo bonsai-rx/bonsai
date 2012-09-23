@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OpenCV.Net;
+using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
+    [Description("Calculates the per-element bitwise conjunction of the two input images.")]
     public class And : Projection<IplImage, IplImage, IplImage>
     {
         public override IplImage Process(IplImage first, IplImage second)
