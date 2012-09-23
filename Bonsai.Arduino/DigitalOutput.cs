@@ -8,14 +8,17 @@ using System.Drawing.Design;
 
 namespace Bonsai.Arduino
 {
-    public class ArduinoDigitalOutput : Sink<bool>
+    [Description("Writes the sequence of digital state transitions to the specified Arduino output pin.")]
+    public class DigitalOutput : Sink<bool>
     {
         IEnumerable<Action<bool>> digitalOutput;
         IEnumerator<Action<bool>> iterator;
 
         [Editor("Bonsai.Arduino.Design.ArduinoConfigurationEditor, Bonsai.Arduino.Design", typeof(UITypeEditor))]
+        [Description("The name of the serial port used to communicate with the Arduino.")]
         public string SerialPort { get; set; }
 
+        [Description("The digital output pin number for which to write values.")]
         public int Pin { get; set; }
 
         public override void Process(bool input)

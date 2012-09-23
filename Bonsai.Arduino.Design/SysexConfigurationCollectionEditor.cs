@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel.Design;
+using Bonsai.Design;
 
 namespace Bonsai.Arduino.Design
 {
-    public class SysexConfigurationCollectionEditor : CollectionEditor
+    public class SysexConfigurationCollectionEditor : DescriptiveCollectionEditor
     {
         public SysexConfigurationCollectionEditor(Type type)
             : base(type)

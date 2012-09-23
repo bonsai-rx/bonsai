@@ -44,15 +44,15 @@
   <ItemGroup>
     <Compile Include="AnalogInputReceivedEventArgs.cs" />
     <Compile Include="Arduino.cs" />
-    <Compile Include="ArduinoAnalogInput.cs" />
+    <Compile Include="AnalogInput.cs" />
     <Compile Include="ArduinoConfiguration.cs" />
     <Compile Include="ArduinoConfigurationCollection.cs" />
-    <Compile Include="ArduinoDigitalInput.cs" />
-    <Compile Include="ArduinoDigitalOutput.cs" />
-    <Compile Include="ArduinoAnalogOutput.cs" />
+    <Compile Include="DigitalInput.cs" />
+    <Compile Include="DigitalOutput.cs" />
+    <Compile Include="AnalogOutput.cs" />
     <Compile Include="ArduinoDisposable.cs" />
     <Compile Include="ArduinoManager.cs" />
-    <Compile Include="ArduinoServoOutput.cs" />
+    <Compile Include="ServoOutput.cs" />
     <Compile Include="DigitalInputReceivedEventArgs.cs" />
     <Compile Include="ObservableArduino.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
