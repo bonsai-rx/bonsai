@@ -6,10 +6,12 @@ using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Xml.Serialization;
+using System.ComponentModel;
 
 namespace Bonsai.Expressions
 {
     [XmlType("Timestamp", Namespace = Constants.XmlNamespace)]
+    [Description("Records the timestamp for each value produced by the sequence.")]
     public class TimestampBuilder : CombinatorExpressionBuilder
     {
         static readonly MethodInfo timestampMethod = typeof(Observable).GetMethods()

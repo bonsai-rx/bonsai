@@ -11,6 +11,7 @@ using System.Reflection;
 namespace Bonsai.Expressions
 {
     [XmlType("CombineLatest", Namespace = Constants.XmlNamespace)]
+    [Description("Combines values from both input sequences whenever one of the sequences produces an element.")]
     public class CombineLatestBuilder : CombineBuilder
     {
         protected override IObservable<Tuple<TSource, TOther>> Combine<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)

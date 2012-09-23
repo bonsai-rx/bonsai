@@ -11,6 +11,7 @@ using System.ComponentModel;
 namespace Bonsai.Expressions
 {
     [XmlType("Concat", Namespace = Constants.XmlNamespace)]
+    [Description("Ensures that values of the second sequence are propagated only after the first sequence terminates.")]
     public class ConcatBuilder : BinaryCombinatorExpressionBuilder
     {
         static readonly MethodInfo concatMethod = typeof(Observable).GetMethods().First(m => m.Name == "Concat" &&

@@ -12,9 +12,11 @@ using System.ComponentModel;
 namespace Bonsai.Expressions
 {
     [XmlType("Delay", Namespace = Constants.XmlNamespace)]
+    [Description("Delays the propagation of values by the specified time interval.")]
     public class DelayBuilder : CombinatorBuilder
     {
         [XmlIgnore]
+        [Description("The time interval by which to delay the sequence.")]
         public TimeSpan DueTime { get; set; }
 
         [Browsable(false)]

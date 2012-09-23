@@ -29,6 +29,7 @@ namespace Bonsai.Expressions
             this.workflow = workflow;
         }
 
+        [Description("The name of the encapsulated workflow.")]
         public string Name { get; set; }
 
         [XmlIgnore]

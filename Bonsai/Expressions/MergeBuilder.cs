@@ -6,10 +6,12 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Reactive.Linq;
 using System.Xml.Serialization;
+using System.ComponentModel;
 
 namespace Bonsai.Expressions
 {
     [XmlType("Merge", Namespace = Constants.XmlNamespace)]
+    [Description("Merges the sequence of windows into a single sequence of elements.")]
     public class MergeBuilder : CombinatorExpressionBuilder
     {
         static readonly MethodInfo mergeMethod = typeof(Observable).GetMethods().First(m => m.Name == "Merge" &&

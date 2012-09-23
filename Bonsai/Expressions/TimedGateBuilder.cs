@@ -12,9 +12,11 @@ using System.Xml;
 namespace Bonsai.Expressions
 {
     [XmlType("TimedGate", Namespace = Constants.XmlNamespace)]
+    [Description("Allows a value of the first sequence to propagate if it is produced no more than the specified interval after the second sequence produces an element.")]
     public class TimedGateBuilder : BinaryCombinatorBuilder
     {
         [XmlIgnore]
+        [Description("The time interval during which the gate is open after each value of the second sequence is produced.")]
         public TimeSpan TimeSpan { get; set; }
 
         [Browsable(false)]

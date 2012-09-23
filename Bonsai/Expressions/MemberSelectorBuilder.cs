@@ -12,6 +12,7 @@ using System.ComponentModel;
 namespace Bonsai.Expressions
 {
     [XmlType("MemberSelector", Namespace = Constants.XmlNamespace)]
+    [Description("Selects inner properties of elements of the sequence.")]
     public class MemberSelectorBuilder : CombinatorExpressionBuilder
     {
         static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()
@@ -20,6 +21,7 @@ namespace Bonsai.Expressions
 
         [TypeConverter("Bonsai.Design.MemberSelectorConverter, Bonsai.Design")]
         [Editor("Bonsai.Design.MemberSelectorEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        [Description("The inner properties that will be selected for each element of the sequence.")]
         public string[] Selector { get; set; }
 
         public override Expression Build()
