@@ -10,6 +10,7 @@ using System.Threading;
 
 namespace Bonsai.Vision
 {
+    [Description("Produces a video sequence of images from the specified movie file.")]
     public class FileCapture : Source<IplImage>
     {
         CvCapture capture;
@@ -24,14 +25,18 @@ namespace Bonsai.Vision
         }
 
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
+        [Description("The name of the movie file.")]
         public string FileName { get; set; }
 
         [Range(0, int.MaxValue)]
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Description("The rate at which to read images from the file. A value of 0 means the native video frame rate will be used.")]
         public double PlaybackRate { get; set; }
 
+        [Description("Indicates whether the video sequence should loop when the end of the file is reached.")]
         public bool Loop { get; set; }
 
+        [Description("Allows the video sequence to be paused or resumed.")]
         public bool Playing { get; set; }
 
         public override IDisposable Load()

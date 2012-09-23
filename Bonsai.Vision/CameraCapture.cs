@@ -5,13 +5,16 @@ using System.Text;
 using OpenCV.Net;
 using System.Threading;
 using System.Reactive.Linq;
+using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
+    [Description("Produces a video sequence of images acquired from the specified camera index.")]
     public class CameraCapture : Source<IplImage>
     {
         CvCapture capture;
 
+        [Description("The index of the camera from which to acquire images.")]
         public int Index { get; set; }
 
         public override IDisposable Load()

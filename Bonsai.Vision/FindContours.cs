@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OpenCV.Net;
+using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
+    [Description("Finds the contours of connected components in the input binary image.")]
     public class FindContours : Projection<IplImage, Contours>
     {
         IplImage temp;
@@ -15,12 +17,16 @@ namespace Bonsai.Vision
             Method = ContourApproximation.CHAIN_APPROX_NONE;
         }
 
+        [Description("Specifies the contour retrieval strategy.")]
         public ContourRetrieval Mode { get; set; }
 
+        [Description("The approximation method used to output the contours.")]
         public ContourApproximation Method { get; set; }
 
+        [Description("The optional offset to apply to individual contour points.")]
         public CvPoint Offset { get; set; }
 
+        [Description("The minimum area for individual contours to be accepted.")]
         public double MinArea { get; set; }
 
         public override Contours Process(IplImage input)
