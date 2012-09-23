@@ -12,9 +12,11 @@ using System.Xml;
 namespace Bonsai.Expressions
 {
     [XmlType("Throttle", Namespace = Constants.XmlNamespace)]
+    [Description("Bypasses values from the sequence which are followed by other values before the specified time elapses.")]
     public class ThrottleBuilder : CombinatorBuilder
     {
         [XmlIgnore]
+        [Description("The time interval that must elapse before a value is propagated.")]
         public TimeSpan DueTime { get; set; }
 
         [Browsable(false)]

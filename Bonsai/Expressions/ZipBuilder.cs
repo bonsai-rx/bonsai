@@ -11,6 +11,7 @@ using System.Reflection;
 namespace Bonsai.Expressions
 {
     [XmlType("Zip", Namespace = Constants.XmlNamespace)]
+    [Description("Combines pairwise values from both input sequences only when both sequences produce a new element.")]
     public class ZipBuilder : CombineBuilder
     {
         protected override IObservable<Tuple<TSource, TOther>> Combine<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)

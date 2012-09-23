@@ -12,6 +12,7 @@ using System.Reflection;
 namespace Bonsai.Expressions
 {
     [XmlType("SelectMany", Namespace = Constants.XmlNamespace)]
+    [Description("Processes each input window using the encapsulated workflow logic.")]
     public class SelectManyBuilder : WorkflowExpressionBuilder
     {
         static readonly MethodInfo usingMethod = typeof(Observable).GetMethod("Using");

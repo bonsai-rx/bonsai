@@ -12,9 +12,11 @@ using System.Xml;
 namespace Bonsai.Expressions
 {
     [XmlType("SampleInterval", Namespace = Constants.XmlNamespace)]
+    [Description("Samples values of the sequence each time the specified interval elapses.")]
     public class SampleIntervalBuilder : CombinatorBuilder
     {
         [XmlIgnore]
+        [Description("The time interval at which to sample the sequence.")]
         public TimeSpan Interval { get; set; }
 
         [Browsable(false)]

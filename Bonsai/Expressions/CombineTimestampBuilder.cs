@@ -6,10 +6,12 @@ using System.Linq.Expressions;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Xml.Serialization;
+using System.ComponentModel;
 
 namespace Bonsai.Expressions
 {
     [XmlType("CombineTimestamp", Namespace = Constants.XmlNamespace)]
+    [Description("Converts a tuple of element and timestamp into a proper timestamped type.")]
     public class CombineTimestampBuilder : CombinatorExpressionBuilder
     {
         public override Expression Build()

@@ -12,9 +12,11 @@ using System.Xml;
 namespace Bonsai.Expressions
 {
     [XmlType("GateInterval", Namespace = Constants.XmlNamespace)]
+    [Description("Allows the next value of the sequence to propagate only when the specified interval elapses.")]
     public class GateIntervalBuilder : CombinatorBuilder
     {
         [XmlIgnore]
+        [Description("The time interval after which a new value of the sequence is allowed to propagate.")]
         public TimeSpan Interval { get; set; }
 
         [Browsable(false)]

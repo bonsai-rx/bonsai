@@ -9,6 +9,7 @@ using System.ComponentModel;
 namespace Bonsai.Expressions
 {
     [XmlType("WorkflowInput", Namespace = Constants.XmlNamespace)]
+    [Description("Represents an input sequence inside a nested workflow.")]
     public class WorkflowInputBuilder : ExpressionBuilder
     {
         [XmlIgnore]

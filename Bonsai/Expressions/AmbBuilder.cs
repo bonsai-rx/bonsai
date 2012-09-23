@@ -11,6 +11,7 @@ using System.Reflection;
 namespace Bonsai.Expressions
 {
     [XmlType("Amb", Namespace = Constants.XmlNamespace)]
+    [Description("Propagates the sequence that responds first and ignores the other.")]
     public class AmbBuilder : BinaryCombinatorExpressionBuilder
     {
         static readonly MethodInfo ambMethod = typeof(Observable).GetMethods().First(m => m.Name == "Amb" &&

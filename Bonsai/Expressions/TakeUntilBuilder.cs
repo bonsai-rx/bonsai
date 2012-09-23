@@ -11,6 +11,7 @@ using System.ComponentModel;
 namespace Bonsai.Expressions
 {
     [XmlType("TakeUntil", Namespace = Constants.XmlNamespace)]
+    [Description("Propagates values from the first sequence only until the second sequence produces a value.")]
     public class TakeUntilBuilder : BinaryCombinatorBuilder
     {
         protected override IObservable<TSource> Combine<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
