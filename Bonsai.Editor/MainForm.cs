@@ -20,6 +20,7 @@ using System.IO;
 using System.Windows.Forms.Design;
 using System.Reactive.Concurrency;
 using System.Reactive;
+using Bonsai.Configuration;
 
 namespace Bonsai.Editor
 {
@@ -70,6 +71,7 @@ namespace Bonsai.Editor
 
         protected override void OnLoad(EventArgs e)
         {
+            ConfigurationHelper.SetAssemblyResolve(Environment.CurrentDirectory);
             Scheduler.ThreadPool.Schedule(InitializeToolbox);
             Scheduler.ThreadPool.Schedule(InitializeTypeVisualizers);
 

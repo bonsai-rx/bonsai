@@ -11,6 +11,19 @@ namespace Bonsai.Configuration
 {
     public static class ConfigurationHelper
     {
+        public static IEnumerable<string> GetPackageFiles()
+        {
+            IEnumerable<string> packageFiles = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
+            if (!string.Equals(Path.GetFullPath(Environment.CurrentDirectory).TrimEnd('\\'),
+                               Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\'),
+                               StringComparison.InvariantCultureIgnoreCase))
+            {
+                packageFiles = packageFiles.Concat(Directory.GetFiles(Environment.CurrentDirectory, "*.dll"));
+            }
+
+            return packageFiles;
+        }
+
         public static IDisposable SetAssemblyResolve()
         {
             return SetAssemblyResolve(AppDomain.CurrentDomain, string.Empty);
