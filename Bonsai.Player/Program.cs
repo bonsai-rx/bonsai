@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 using Bonsai.Expressions;
 using System.Threading;
 using System.Reactive.Linq;
+using Bonsai.Configuration;
 
 namespace Bonsai.Player
 {
@@ -28,6 +29,7 @@ namespace Bonsai.Player
             }
 
             WorkflowBuilder workflowBuilder;
+            ConfigurationHelper.SetAssemblyResolve(Environment.CurrentDirectory);
             using (var reader = XmlReader.Create(fileName))
             {
                 var serializer = new XmlSerializer(typeof(WorkflowBuilder));

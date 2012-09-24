@@ -8,6 +8,7 @@ using System.Diagnostics;
 using Bonsai.Expressions;
 using System.Reactive.Linq;
 using System.ComponentModel;
+using Bonsai.Configuration;
 
 namespace Bonsai.Editor
 {
@@ -20,6 +21,7 @@ namespace Bonsai.Editor
 
         public WorkflowElementLoader()
         {
+            ConfigurationHelper.SetAssemblyResolve(Environment.CurrentDirectory);
             var loadableElementAssembly = Assembly.Load(typeof(LoadableElement).Assembly.FullName);
             loadableElementType = loadableElementAssembly.GetType(typeof(LoadableElement).FullName);
             expressionBuilderType = loadableElementAssembly.GetType(typeof(ExpressionBuilder).FullName);
@@ -128,7 +130,7 @@ namespace Bonsai.Editor
 
         public static IObservable<IGrouping<string, WorkflowElementDescriptor>> GetWorkflowElementTypes()
         {
-            var files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
+            var files = ConfigurationHelper.GetPackageFiles();
             return Observable.Using(
                 () => new LoaderResource(),
                 resource => from fileName in files.ToObservable()

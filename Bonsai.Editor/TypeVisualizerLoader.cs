@@ -5,6 +5,7 @@ using System.Text;
 using System.Reflection;
 using System.IO;
 using System.Reactive.Linq;
+using Bonsai.Configuration;
 
 namespace Bonsai.Editor
 {
@@ -14,6 +15,7 @@ namespace Bonsai.Editor
 
         public TypeVisualizerLoader()
         {
+            ConfigurationHelper.SetAssemblyResolve(Environment.CurrentDirectory);
             var typeVisualizerAttributeAssembly = Assembly.Load(typeof(TypeVisualizerAttribute).Assembly.FullName);
             typeVisualizerAttributeType = typeVisualizerAttributeAssembly.GetType(typeof(TypeVisualizerAttribute).FullName);
         }
@@ -95,7 +97,7 @@ namespace Bonsai.Editor
 
         public static IObservable<Tuple<Type, Type>> GetTypeVisualizerDictionary()
         {
-            var files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
+            var files = ConfigurationHelper.GetPackageFiles();
             return Observable.Using(
                 () => new LoaderResource(),
                 resource => from fileName in files.ToObservable()
