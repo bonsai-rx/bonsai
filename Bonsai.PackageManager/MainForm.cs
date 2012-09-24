@@ -14,8 +14,6 @@ namespace Bonsai.PackageManager
 {
     public partial class MainForm : Form
     {
-        const string BonsaiExe = "Bonsai.Editor.exe";
-
         public MainForm()
         {
             InitializeComponent();
@@ -23,17 +21,13 @@ namespace Bonsai.PackageManager
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            if (File.Exists(BonsaiExe))
+            var packageConfiguration = (PackageConfiguration)ConfigurationManager.GetSection(PackageConfiguration.SectionName);
+            if (packageConfiguration != null)
             {
-                var configuration = ConfigurationManager.OpenExeConfiguration(BonsaiExe);
-                var packageConfiguration = (PackageConfiguration)configuration.GetSection(PackageConfiguration.SectionName);
-                if (packageConfiguration != null)
+                foreach (PackageElement package in packageConfiguration.Packages)
                 {
-                    foreach (PackageElement package in packageConfiguration.Packages)
-                    {
-                        if (package.Dependency) listBox1.Items.Add(package.AssemblyName);
-                        else listBox2.Items.Add(package.AssemblyName);
-                    }
+                    if (package.Dependency) listBox1.Items.Add(package.AssemblyName);
+                    else listBox2.Items.Add(package.AssemblyName);
                 }
             }
         }
