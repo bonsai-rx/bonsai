@@ -11,6 +11,15 @@ namespace Bonsai.Configuration
 {
     public static class ConfigurationHelper
     {
+        const string PathEnvironmentVariable = "PATH";
+
+        static void AddLibraryPath(string path)
+        {
+            var currentPath = Environment.GetEnvironmentVariable(PathEnvironmentVariable);
+            currentPath = string.Join(new string(Path.PathSeparator, 1), currentPath, path);
+            Environment.SetEnvironmentVariable(PathEnvironmentVariable, currentPath);
+        }
+
         public static IEnumerable<string> GetPackageFiles()
         {
             IEnumerable<string> packageFiles = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
@@ -39,6 +48,14 @@ namespace Bonsai.Configuration
             PackageConfiguration packageConfiguration;
             try { packageConfiguration = (PackageConfiguration)ConfigurationManager.GetSection(PackageConfiguration.SectionName) ?? new PackageConfiguration(); }
             catch (ConfigurationErrorsException) { packageConfiguration = new PackageConfiguration(); }
+
+            foreach (PackageElement package in packageConfiguration.Packages)
+            {
+                if (!string.IsNullOrEmpty(package.LibraryPath))
+                {
+                    AddLibraryPath(package.LibraryPath);
+                }
+            }
 
             ResolveEventHandler assemblyResolveHandler = (sender, args) =>
             {

@@ -11,6 +11,7 @@ namespace Bonsai.Configuration
         static readonly ConfigurationProperty AssemblyNameProperty = new ConfigurationProperty("assembly", typeof(string), null, ConfigurationPropertyOptions.IsKey | ConfigurationPropertyOptions.IsRequired);
         static readonly ConfigurationProperty AssemblyLocationProperty = new ConfigurationProperty("location", typeof(string), null, ConfigurationPropertyOptions.IsRequired);
         static readonly ConfigurationProperty DependencyProperty = new ConfigurationProperty("dependency", typeof(bool), false, ConfigurationPropertyOptions.None);
+        static readonly ConfigurationProperty LibraryPathProperty = new ConfigurationProperty("libraryPath", typeof(string), null, ConfigurationPropertyOptions.None);
         static readonly ConfigurationPropertyCollection ConfigurationProperties = new ConfigurationPropertyCollection { AssemblyNameProperty, AssemblyLocationProperty, DependencyProperty };
 
         public PackageElement()
@@ -43,6 +44,12 @@ namespace Bonsai.Configuration
         {
             get { return (bool)this[DependencyProperty]; }
             set { this[DependencyProperty] = value; }
+        }
+
+        public string LibraryPath
+        {
+            get { return this[LibraryPathProperty] as string; }
+            set { this[LibraryPathProperty] = value; }
         }
     }
 }
