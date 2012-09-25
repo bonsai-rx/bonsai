@@ -46,6 +46,7 @@
     <Compile Include="ContinuationScheduler.cs" />
     <Compile Include="Expressions\BinaryCombinatorBuilder.cs" />
     <Compile Include="Expressions\CombineTimestampBuilder.cs" />
+    <Compile Include="Expressions\RepeatCountBuilder.cs" />
     <Compile Include="Expressions\TriggeredWindowBuilder.cs" />
     <Compile Include="Expressions\ElementCountWindowBuilder.cs" />
     <Compile Include="Expressions\MergeBuilder.cs" />
