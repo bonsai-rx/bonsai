@@ -13,10 +13,12 @@
     <Icon Id="Bonsai.ico" SourceFile="$(var.EditorProjectPath)\Bonsai.ico" />
     <Property Id="ARPPRODUCTICON" Value="Bonsai.ico" />
     <Property Id="PROJECTTEMPLATESLOCATION">
-      <RegistrySearch Id="ProjectTemplatesLocationRegistry" Type="directory" Root="HKCU" Key="Software\Microsoft\VCSExpress\10.0" Name="UserProjectTemplatesLocation" />
+      <RegistrySearch Id="ProjectTemplatesLocationVCSExpressRegistry" Type="directory" Root="HKCU" Key="Software\Microsoft\VCSExpress\10.0" Name="UserProjectTemplatesLocation" />
+      <RegistrySearch Id="ProjectTemplatesLocationVSRegistry" Type="directory" Root="HKCU" Key="Software\Microsoft\VisualStudio\10.0" Name="UserProjectTemplatesLocation" />
     </Property>
     <Property Id="ITEMTEMPLATESLOCATION">
-      <RegistrySearch Id="ItemTemplatesLocationRegistry" Type="directory" Root="HKCU" Key="Software\Microsoft\VCSExpress\10.0" Name="UserItemTemplatesLocation" />
+      <RegistrySearch Id="ItemTemplatesLocationVCSExpressRegistry" Type="directory" Root="HKCU" Key="Software\Microsoft\VCSExpress\10.0" Name="UserItemTemplatesLocation" />
+      <RegistrySearch Id="ItemTemplatesLocationVSRegistry" Type="directory" Root="HKCU" Key="Software\Microsoft\VisualStudio\10.0" Name="UserItemTemplatesLocation" />
     </Property>
 
 		<Feature Id="ProductFeature" Title="Bonsai" Level="1">
