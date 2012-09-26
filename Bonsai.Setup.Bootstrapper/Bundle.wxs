@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Bundle Name="Bonsai" Version="1.0.0.0" Manufacturer="Goncalo Lopes" UpgradeCode="8718e5ba-be5d-4616-9357-206ceba5ec69">
-		<BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense" />
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:bal="http://schemas.microsoft.com/wix/BalExtension">
+  <?define EditorProjectPath="..\Bonsai.Editor"?>
+	<Bundle Name="Bonsai" Version="1.0.0.0" Manufacturer="Goncalo Lopes" UpgradeCode="8718e5ba-be5d-4616-9357-206ceba5ec69" IconSourceFile="$(var.EditorProjectPath)\Bonsai.ico">
+    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense">
+      <bal:WixStandardBootstrapperApplication LicenseFile="License.rtf" LogoFile="Bonsai.png"/>
+    </BootstrapperApplicationRef>
 
 		<Chain>
       <PackageGroupRef Id="NetFx40Web"/>
