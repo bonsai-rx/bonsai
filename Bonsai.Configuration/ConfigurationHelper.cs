@@ -27,7 +27,10 @@ namespace Bonsai.Configuration
                                Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\'),
                                StringComparison.InvariantCultureIgnoreCase))
             {
-                packageFiles = packageFiles.Concat(Directory.GetFiles(Environment.CurrentDirectory, "*.dll"));
+                var bonsaiAssemblyName = typeof(LoadableElement).Assembly.GetName();
+                packageFiles = packageFiles.Concat(Directory
+                    .GetFiles(Environment.CurrentDirectory, "*.dll")
+                    .Where(fileName => AssemblyName.GetAssemblyName(fileName).FullName != bonsaiAssemblyName.FullName));
             }
 
             return packageFiles;
