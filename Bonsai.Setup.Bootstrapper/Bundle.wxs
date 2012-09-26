@@ -4,7 +4,7 @@
   <?define EditorProjectPath="..\Bonsai.Editor"?>
 	<Bundle Name="Bonsai" Version="1.0.0.0" Manufacturer="Goncalo Lopes" UpgradeCode="8718e5ba-be5d-4616-9357-206ceba5ec69" IconSourceFile="$(var.EditorProjectPath)\Bonsai.ico">
     <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense">
-      <bal:WixStandardBootstrapperApplication LicenseFile="License.rtf" LogoFile="Bonsai.png"/>
+      <bal:WixStandardBootstrapperApplication LicenseFile="License.rtf" LogoFile="Bonsai.png" SuppressOptionsUI="yes"/>
     </BootstrapperApplicationRef>
 
 		<Chain>

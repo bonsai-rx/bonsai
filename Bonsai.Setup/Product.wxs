@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <?define EditorProjectPath="..\Bonsai.Editor"?>
-  <?define EditorBuildPath="..\Bonsai.Editor\bin\Release"?>
-  <?define PlayerBuildPath="..\Bonsai.Player\bin\Release"?>
-  <?define ResourcesPath="..\Resources"?>
 	<Product Id="84694a9b-9960-48fa-ac5e-5e8d7c5c6e62" Name="Bonsai" Language="1033" Version="1.0.0.0" Manufacturer="Goncalo Lopes" UpgradeCode="c515ec87-8a06-4285-94bf-cfa00c7a7212">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
@@ -21,15 +18,19 @@
       <RegistrySearch Id="ItemTemplatesLocationVSRegistry" Type="directory" Root="HKCU" Key="Software\Microsoft\VisualStudio\10.0" Name="UserItemTemplatesLocation" />
     </Property>
 
-		<Feature Id="ProductFeature" Title="Bonsai" Level="1">
-      <Feature Id="Runtime" Level="1">
+		<Feature Id="ProductFeature" Title="Bonsai" Level="1" ConfigurableDirectory="INSTALLFOLDER">
+      <Feature Id="RuntimeFeature" Title="Runtime" Level="1">
         <ComponentGroupRef Id="ProductComponents" />
         <ComponentRef Id='ProgramMenuDir' />
       </Feature>
 
-      <Feature Id='Development' Level='1'>
+      <Feature Id='DevelopmentFeature' Title='Development' Level='1'>
         <ComponentGroupRef Id='ProductProjectTemplates'/>
         <ComponentGroupRef Id='ProductItemTemplates'/>
+      </Feature>
+
+      <Feature Id='PackagesFeature' Title='Packages' Level='1'>
+        <ComponentGroupRef Id='ProductPackages'/>
       </Feature>
 		</Feature>
 	</Product>
@@ -58,91 +59,4 @@
     <SetProperty Id="PROJECTTEMPLATESFOLDER" Value="[PROJECTTEMPLATESLOCATION]\Bonsai" After="AppSearch"/>
     <SetProperty Id="ITEMTEMPLATESFOLDER" Value="[ITEMTEMPLATESLOCATION]\Bonsai" After="AppSearch"/>
 	</Fragment>
-
-	<Fragment>
-		<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
-			<!-- TODO: Remove the comments around this Component element and the ComponentRef below in order to add resources to this installer. -->
-      <Component Id="BonsaiLibrary" Guid="61b8f242-7946-49a2-a673-c2cd06cee42c">
-        <File Id="BonsaiDLL" Name="Bonsai.dll" Source="$(var.EditorBuildPath)\Bonsai.dll" KeyPath="yes"/>
-      </Component>
-
-      <Component Id="BonsaiConfigurationLibrary" Guid="91b83573-6ea9-4200-b94c-010f35d61f41">
-        <File Id="BonsaiConfigurationDLL" Name="Bonsai.Configuration.dll" Source="$(var.EditorBuildPath)\Bonsai.Configuration.dll" KeyPath="yes"/>
-      </Component>
-
-      <Component Id="BonsaiDesignLibrary" Guid="1ba34661-c62d-4df4-bb6b-04ace5ea0440">
-        <File Id="BonsaiDesignDLL" Name="Bonsai.Design.dll" Source="$(var.EditorBuildPath)\Bonsai.Design.dll" KeyPath="yes"/>
-      </Component>
-
-      <Component Id="ReactiveLibrary" Guid="36b10cce-df84-4c41-8d7f-2c326fe40fbb">
-        <File Id="SystemReactiveDLL" Name="System.Reactive.dll" Source="$(var.EditorBuildPath)\System.Reactive.dll" KeyPath="yes"/>
-      </Component>
-
-      <Component Id="ReactiveWindowsFormsLibrary" Guid="16e8e51a-2104-4f33-acb0-71ef8ed7e1c7">
-        <File Id="SystemReactiveWindowsFormsDLL" Name="System.Reactive.Windows.Forms.dll" Source="$(var.EditorBuildPath)\System.Reactive.Windows.Forms.dll" KeyPath="yes"/>
-      </Component>
-
-      <Component Id="BonsaiPlayerExecutable" Guid="6d04a0a4-e897-4849-a3ef-86fa4d178a96">
-        <File Id="BonsaiPlayerEXE" Name="Bonsai.Player.exe" Source="$(var.PlayerBuildPath)\Bonsai.Player.exe" KeyPath="yes"/>
-      </Component>
-
-      <Component Id="BonsaiEditorExecutable" Guid="f9ebaf5a-c6a7-4502-b57b-bb793f9035ba">
-        <File Id="BonsaiEditorEXE" Name="Bonsai.Editor.exe" Source="$(var.EditorBuildPath)\Bonsai.Editor.exe" KeyPath="yes">
-          <Shortcut Id="startmenuBonsaiEditor" Directory="ProgramMenuDir" WorkingDirectory="INSTALLFOLDER" Name="Bonsai Editor" Icon="Bonsai.ico" Advertise="yes"/>
-        </File>
-        <File Id="BonsaiEditorCONFIG" Name="Bonsai.Editor.exe.config" Source="$(var.EditorBuildPath)\Bonsai.Editor.exe.config"/>
-        <ProgId Id='Bonsai.workflow' Description='Bonsai workflow file' Icon='BonsaiEditorEXE'>
-          <Extension Id='bonsai' ContentType='application/xml'>
-            <Verb Id='open' Command='Open' TargetFile='BonsaiEditorEXE' Argument='"%1"' />
-          </Extension>
-        </ProgId>
-      </Component>
-
-      <Component Id='BonsaiInstallDir' Guid='7ddaab3d-0959-468c-a9ac-83e414b134c1'>
-        <RegistryValue Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' Name='InstallDir' Type='string' Value='[INSTALLFOLDER]' KeyPath='yes'/>
-      </Component>
-
-      <Component Id='BonsaiAssemblyFolders' Guid='1f06b6da-4acb-438e-93d5-046b366e20c9'>
-        <RegistryKey Root='HKCU' Key='Software\Microsoft\.NETFramework\v4.0.30319\AssemblyFoldersEx\Bonsai'>
-          <RegistryValue Type='string' Value='[INSTALLFOLDER]' KeyPath='yes'/>
-        </RegistryKey>
-      </Component>
-			<!-- <Component Id="ProductComponent"> -->
-				<!-- TODO: Insert files, registry keys, and other resources here. -->
-			<!-- </Component> -->
-		</ComponentGroup>
-	</Fragment>
-
-  <Fragment>
-    <ComponentGroup Id="ProductProjectTemplates" Directory="PROJECTTEMPLATESFOLDER">
-      <Component Id='BonsaiPackageTemplate' Guid='282adbfa-aad6-49d0-9856-02ac738e2cdc'>
-        <Condition>PROJECTTEMPLATESLOCATION</Condition>
-        <File Id='BonsaiPackageTemplateZIP' Name='BonsaiPackage.zip' Source='$(var.ResourcesPath)\BonsaiPackage.zip' KeyPath='yes'/>
-      </Component>
-    </ComponentGroup>
-  </Fragment>
-
-  <Fragment>
-    <ComponentGroup Id="ProductItemTemplates" Directory="ITEMTEMPLATESFOLDER">
-      <Component Id='BonsaiSourceTemplate' Guid='1349a22b-8a16-4128-97ec-20e3923aa5a3'>
-        <Condition>ITEMTEMPLATESLOCATION</Condition>
-        <File Id='BonsaiSourceTemplateZIP' Name='BonsaiSource.zip' Source='$(var.ResourcesPath)\BonsaiSource.zip' KeyPath='yes'/>
-      </Component>
-
-      <Component Id='BonsaiProjectionTemplate' Guid='fecd09a9-eef2-4122-9067-179fbcb5df05'>
-        <Condition>ITEMTEMPLATESLOCATION</Condition>
-        <File Id='BonsaiProjectionTemplateZIP' Name='BonsaiProjection.zip' Source='$(var.ResourcesPath)\BonsaiProjection.zip' KeyPath='yes'/>
-      </Component>
-
-      <Component Id='BonsaiFilterTemplate' Guid='67d51a35-cac1-4784-809e-6fee1d5d5c70'>
-        <Condition>ITEMTEMPLATESLOCATION</Condition>
-        <File Id='BonsaiFilterTemplateZIP' Name='BonsaiFilter.zip' Source='$(var.ResourcesPath)\BonsaiFilter.zip' KeyPath='yes'/>
-      </Component>
-
-      <Component Id='BonsaiSinkTemplate' Guid='41478b41-d471-47dd-bcef-ff6beba72b87'>
-        <Condition>ITEMTEMPLATESLOCATION</Condition>
-        <File Id='BonsaiSinkTemplateZIP' Name='BonsaiSink.zip' Source='$(var.ResourcesPath)\BonsaiSink.zip' KeyPath='yes'/>
-      </Component>
-    </ComponentGroup>
-  </Fragment>
 </Wix>

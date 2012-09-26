@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?define EditorBuildPath="..\Bonsai.Editor\bin\Release"?>
+	<Fragment>
+    <ComponentGroup Id="ProductPackages" Directory="INSTALLFOLDER">
+      <Component Id="BonsaiArduinoLibrary" Guid="5496053c-4d7a-4da9-9bc3-d53ec153f8b3">
+        <File Id="BonsaiArduinoDLL" Name="Bonsai.Arduino.dll" Source="$(var.EditorBuildPath)\Bonsai.Arduino.dll" KeyPath="yes"/>
+      </Component>
+
+      <Component Id="BonsaiArduinoDesignLibrary" Guid="5ba292bd-8e36-42aa-bd70-f684b7de4e58">
+        <File Id="BonsaiArduinoDesignDLL" Name="Bonsai.Arduino.Design.dll" Source="$(var.EditorBuildPath)\Bonsai.Arduino.Design.dll" KeyPath="yes"/>
+      </Component>
+
+      <Component Id="BonsaiIOLibrary" Guid="ba5f1ba5-6f8b-4819-b679-ea48f630623a">
+        <File Id="BonsaiIODLL" Name="Bonsai.IO.dll" Source="$(var.EditorBuildPath)\Bonsai.IO.dll" KeyPath="yes"/>
+      </Component>
+
+      <Component Id="OpenCVNetLibrary" Guid="3f14562a-eac6-4dc7-ab7d-53cffc8a545e">
+        <File Id="OpenCVNetDLL" Name="OpenCV.Net.dll" Source="$(var.EditorBuildPath)\OpenCV.Net.dll" KeyPath="yes"/>
+      </Component>
+
+      <Component Id="BonsaiVisionLibrary" Guid="31019144-d943-4357-baa9-bf960d3a9659">
+        <File Id="BonsaiVisionDLL" Name="Bonsai.Vision.dll" Source="$(var.EditorBuildPath)\Bonsai.Vision.dll" KeyPath="yes"/>
+      </Component>
+
+      <Component Id="BonsaiVisionDesignLibrary" Guid="7fd58c2d-3da7-4a6e-b9b0-83d7446f23ef">
+        <File Id="BonsaiVisionDesignDLL" Name="Bonsai.Vision.Design.dll" Source="$(var.EditorBuildPath)\Bonsai.Vision.Design.dll" KeyPath="yes"/>
+      </Component>
+
+      <Component Id="BonsaiScriptingLibrary" Guid="e918bd8d-52ee-41f1-9f98-4a2928be8315">
+        <File Id="BonsaiScriptingDLL" Name="Bonsai.Scripting.dll" Source="$(var.EditorBuildPath)\Bonsai.Scripting.dll" KeyPath="yes"/>
+      </Component>
+
+      <Component Id="IronPythonLibrary" Guid="b8917145-ec94-4677-8201-cb8c13cc3230">
+        <File Id="IronPythonDLL" Name="IronPython.dll" Source="$(var.EditorBuildPath)\IronPython.dll" KeyPath="yes"/>
+      </Component>
+
+      <Component Id="MicrosoftScriptingLibrary" Guid="4d8b47f7-e60b-4a49-9d86-871617d2d733">
+        <File Id="MicrosoftScriptingDLL" Name="Microsoft.Scripting.dll" Source="$(var.EditorBuildPath)\Microsoft.Scripting.dll" KeyPath="yes"/>
+      </Component>
+    </ComponentGroup>
+	</Fragment>
+</Wix>
