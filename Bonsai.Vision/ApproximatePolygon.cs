@@ -10,16 +10,16 @@ namespace Bonsai.Vision
     {
         public PolygonApproximation Method { get; set; }
 
-        public double Parameter { get; set; }
+        public double Eps { get; set; }
 
-        public int Parameter2 { get; set; }
+        public int Recursive { get; set; }
 
         public override Contours Process(Contours input)
         {
             CvSeq output = input.FirstContour;
             if (!input.FirstContour.IsInvalid)
             {
-                output = ImgProc.cvApproxPoly(input.FirstContour, CvContour.HeaderSize, input.FirstContour.Storage, Method, Parameter, Parameter2);
+                output = ImgProc.cvApproxPoly(input.FirstContour, CvContour.HeaderSize, input.FirstContour.Storage, Method, Eps, Recursive);
             }
 
             return new Contours(output, input.ImageSize);
