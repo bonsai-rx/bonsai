@@ -53,6 +53,7 @@
     <Compile Include="Mouse.cs" />
     <Compile Include="ObservableSerialPort.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TextWriter.cs" />
     <Compile Include="SerialPortNameConverter.cs" />
     <Compile Include="SerialStringRead.cs" />
     <Compile Include="SerialStringWrite.cs" />
