@@ -57,6 +57,23 @@
       </Component>
     </ComponentGroup>
 
+    <ComponentGroup Id="DspPackageComponents" Directory="PACKAGESFOLDER">
+      <ComponentRef Id="OpenCVNetLibrary"/>
+      <Component Id="BonsaiDspDesignLibrary" Guid="c6232801-e9a3-44be-9075-105965153cb0">
+        <File Id="BonsaiDspDesignDLL" Name="Bonsai.Dsp.Design.dll" Source="$(var.PackageBuildPath)\Bonsai.Dsp.Design.dll" KeyPath="yes"/>
+        <File Id="BonsaiDspDesignPDB" Name="Bonsai.Dsp.Design.pdb" Source="$(var.PackageBuildPath)\Bonsai.Dsp.Design.pdb"/>
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="AudioPackageComponents" Directory="PACKAGESFOLDER">
+      <ComponentGroupRef Id="OpenTK"/>
+      <ComponentGroupRef Id="DspPackageComponents"/>
+      <Component Id="BonsaiAudioLibrary" Guid="be2654a8-4a3b-4b6d-8a37-f8c41de928d9">
+        <File Id="BonsaiAudioDLL" Name="Bonsai.Audio.dll" Source="$(var.PackageBuildPath)\Bonsai.Audio.dll" KeyPath="yes"/>
+        <File Id="BonsaiAudioPDB" Name="Bonsai.Audio.pdb" Source="$(var.PackageBuildPath)\Bonsai.Audio.pdb"/>
+      </Component>
+    </ComponentGroup>
+
     <ComponentGroup Id="VisionPackageComponents" Directory="PACKAGESFOLDER">
       <ComponentGroupRef Id="OpenTK"/>
       <ComponentRef Id="OpenCVNetLibrary"/>
