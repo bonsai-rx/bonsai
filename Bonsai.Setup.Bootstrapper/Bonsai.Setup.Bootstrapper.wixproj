@@ -24,6 +24,10 @@
     <Compile Include="Bundle.wxs" />
   </ItemGroup>
   <ItemGroup>
+    <WixExtension Include="WixUtilExtension">
+      <HintPath>$(WixExtDir)\WixUtilExtension.dll</HintPath>
+      <Name>WixUtilExtension</Name>
+    </WixExtension>
     <WixExtension Include="WixNetFxExtension">
       <HintPath>$(WixExtDir)\WixNetFxExtension.dll</HintPath>
       <Name>WixNetFxExtension</Name>
@@ -45,7 +49,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Bonsai.png" />
+    <Content Include="Dependencies\IronPython-2.7.2.1.msi" />
+    <Content Include="Dependencies\opentk-2010-10-06.exe" />
     <Content Include="License.rtf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Dependencies" />
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <!--

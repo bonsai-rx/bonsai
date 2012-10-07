@@ -1,0 +1,6 @@
+Build Configuration
+-------------------
+
+In order to properly build the WiX installer, please copy the following packages to this directory:
+IronPython 2.7.2.1: IronPython-2.7.2.1.msi
+OpenTK 1.0: opentk-2010-10-06.exe

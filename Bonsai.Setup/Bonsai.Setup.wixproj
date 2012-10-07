@@ -26,6 +26,37 @@
     <Compile Include="Product.wxs" />
     <Compile Include="Runtime.wxs" />
   </ItemGroup>
+  <ItemGroup>
+    <WixExtension Include="WixUtilExtension">
+      <HintPath>$(WixExtDir)\WixUtilExtension.dll</HintPath>
+      <Name>WixUtilExtension</Name>
+    </WixExtension>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="opencv" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Packages.config" />
+    <Content Include="opencv\opencv_calib3d242.dll" />
+    <Content Include="opencv\opencv_contrib242.dll" />
+    <Content Include="opencv\opencv_core242.dll" />
+    <Content Include="opencv\opencv_features2d242.dll" />
+    <Content Include="opencv\opencv_ffmpeg242.dll" />
+    <Content Include="opencv\opencv_flann242.dll" />
+    <Content Include="opencv\opencv_gpu242.dll" />
+    <Content Include="opencv\opencv_highgui242.dll" />
+    <Content Include="opencv\opencv_imgproc242.dll" />
+    <Content Include="opencv\opencv_legacy242.dll" />
+    <Content Include="opencv\opencv_ml242.dll" />
+    <Content Include="opencv\opencv_nonfree242.dll" />
+    <Content Include="opencv\opencv_objdetect242.dll" />
+    <Content Include="opencv\opencv_photo242.dll" />
+    <Content Include="opencv\opencv_stitching242.dll" />
+    <Content Include="opencv\opencv_ts242.dll" />
+    <Content Include="opencv\opencv_video242.dll" />
+    <Content Include="opencv\opencv_videostab242.dll" />
+    <Content Include="opencv\tbb.dll" />
+  </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.

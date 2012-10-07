@@ -1,43 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <?define EditorBuildPath="..\Bonsai.Editor\bin\Release"?>
-	<Fragment>
-    <ComponentGroup Id="ProductPackages" Directory="INSTALLFOLDER">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  <?define PackageBuildPath="..\Bonsai.Editor\bin\Release"?>
+  <?define PackageConfigPath="[INSTALLFOLDER]\Packages.config"?>
+  <Fragment>
+    <ComponentGroup Id="IOPackageComponents" Directory="PACKAGESFOLDER">
+      <Component Id="BonsaiIOLibrary" Guid="ba5f1ba5-6f8b-4819-b679-ea48f630623a">
+        <File Id="BonsaiIODLL" Name="Bonsai.IO.dll" Source="$(var.PackageBuildPath)\Bonsai.IO.dll" KeyPath="yes"/>
+        <File Id="BonsaiIOPDB" Name="Bonsai.IO.pdb" Source="$(var.PackageBuildPath)\Bonsai.IO.pdb"/>
+        <util:XmlFile Id="BonsaiIOPackageConfig" Action="createElement" Name="add" ElementPath="//packages" Permanent="no" File="$(var.PackageConfigPath)"/>
+        <util:XmlFile Id="BonsaiIOPackageConfigAssembly" Action="setValue" Name="assembly" Value="Bonsai.IO, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ElementPath="//packages/add" Permanent="no" File="$(var.PackageConfigPath)"/>
+        <util:XmlFile Id="BonsaiIOPackageConfigLocation" Action="setValue" Name="location" Value="[PACKAGESFOLDER]\Bonsai.IO.dll" ElementPath="//packages/add" Permanent="no" File="$(var.PackageConfigPath)"/>
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="ArduinoPackageComponents" Directory="PACKAGESFOLDER">
+      <ComponentGroupRef Id="IOPackageComponents"/>
       <Component Id="BonsaiArduinoLibrary" Guid="5496053c-4d7a-4da9-9bc3-d53ec153f8b3">
-        <File Id="BonsaiArduinoDLL" Name="Bonsai.Arduino.dll" Source="$(var.EditorBuildPath)\Bonsai.Arduino.dll" KeyPath="yes"/>
+        <File Id="BonsaiArduinoDLL" Name="Bonsai.Arduino.dll" Source="$(var.PackageBuildPath)\Bonsai.Arduino.dll" KeyPath="yes"/>
+        <File Id="BonsaiArduinoPDB" Name="Bonsai.Arduino.pdb" Source="$(var.PackageBuildPath)\Bonsai.Arduino.pdb"/>
       </Component>
 
       <Component Id="BonsaiArduinoDesignLibrary" Guid="5ba292bd-8e36-42aa-bd70-f684b7de4e58">
-        <File Id="BonsaiArduinoDesignDLL" Name="Bonsai.Arduino.Design.dll" Source="$(var.EditorBuildPath)\Bonsai.Arduino.Design.dll" KeyPath="yes"/>
+        <File Id="BonsaiArduinoDesignDLL" Name="Bonsai.Arduino.Design.dll" Source="$(var.PackageBuildPath)\Bonsai.Arduino.Design.dll" KeyPath="yes"/>
+        <File Id="BonsaiArduinoDesignPDB" Name="Bonsai.Arduino.Design.pdb" Source="$(var.PackageBuildPath)\Bonsai.Arduino.Design.pdb"/>
+      </Component>
+    </ComponentGroup>
+
+    <?define OpenCVNetPackageFolder=?>
+    <Component Id="OpenCVNetLibrary" Guid="3f14562a-eac6-4dc7-ab7d-53cffc8a545e" Directory="PACKAGESFOLDER">
+      <File Id="OpenCVNetDLL" Name="OpenCV.Net.dll" Source="$(var.PackageBuildPath)\OpenCV.Net.dll" KeyPath="yes"/>
+      <File Id="OpenCVNetPDB" Name="OpenCV.Net.pdb" Source="$(var.PackageBuildPath)\OpenCV.Net.pdb"/>
+      <File Id="opencv_calib3d242DLL" Name="opencv_calib3d242.dll" Source="opencv\opencv_calib3d242.dll"/>
+      <File Id="opencv_contrib242DLL" Name="opencv_contrib242.dll" Source="opencv\opencv_contrib242.dll"/>
+      <File Id="opencv_core242DLL" Name="opencv_core242.dll" Source="opencv\opencv_core242.dll"/>
+      <File Id="opencv_features2d242DLL" Name="opencv_features2d242.dll" Source="opencv\opencv_features2d242.dll"/>
+      <File Id="opencv_ffmpeg242DLL" Name="opencv_ffmpeg242.dll" Source="opencv\opencv_ffmpeg242.dll"/>
+      <File Id="opencv_flann242DLL" Name="opencv_flann242.dll" Source="opencv\opencv_flann242.dll"/>
+      <File Id="opencv_gpu242DLL" Name="opencv_gpu242.dll" Source="opencv\opencv_gpu242.dll"/>
+      <File Id="opencv_highgui242DLL" Name="opencv_highgui242.dll" Source="opencv\opencv_highgui242.dll"/>
+      <File Id="opencv_imgproc242DLL" Name="opencv_imgproc242.dll" Source="opencv\opencv_imgproc242.dll"/>
+      <File Id="opencv_legacy242DLL" Name="opencv_legacy242.dll" Source="opencv\opencv_legacy242.dll"/>
+      <File Id="opencv_ml242DLL" Name="opencv_ml242.dll" Source="opencv\opencv_ml242.dll"/>
+      <File Id="opencv_nonfree242DLL" Name="opencv_nonfree242.dll" Source="opencv\opencv_nonfree242.dll"/>
+      <File Id="opencv_objdetect242DLL" Name="opencv_objdetect242.dll" Source="opencv\opencv_objdetect242.dll"/>
+      <File Id="opencv_photo242DLL" Name="opencv_photo242.dll" Source="opencv\opencv_photo242.dll"/>
+      <File Id="opencv_stitching242DLL" Name="opencv_stitching242.dll" Source="opencv\opencv_stitching242.dll"/>
+      <File Id="opencv_ts242DLL" Name="opencv_ts242.dll" Source="opencv\opencv_ts242.dll"/>
+      <File Id="opencv_video242DLL" Name="opencv_video242.dll" Source="opencv\opencv_video242.dll"/>
+      <File Id="opencv_videostab242DLL" Name="opencv_videostab242.dll" Source="opencv\opencv_videostab242.dll"/>
+      <File Id="tbbDLL" Name="tbb.dll" Source="opencv\tbb.dll"/>
+      <util:XmlFile Id="OpenCVNetPackageConfig" Action="createElement" Name="add" ElementPath="//packages" Permanent="no" File="$(var.PackageConfigPath)"/>
+      <util:XmlFile Id="OpenCVNetPackageConfigAssembly" Action="setValue" Name="assembly" Value="OpenCV.Net, Version=2.4.2.0, Culture=neutral, PublicKeyToken=null" ElementPath="//packages/add" Permanent="no" File="$(var.PackageConfigPath)"/>
+      <util:XmlFile Id="OpenCVNetPackageConfigLocation" Action="setValue" Name="location" Value="[PACKAGESFOLDER]\OpenCV.Net.dll" ElementPath="//packages/add" Permanent="no" File="$(var.PackageConfigPath)"/>
+      <util:XmlFile Id="OpenCVNetPackageConfigDependency" Action="setValue" Name="dependency" Value="true" ElementPath="//packages/add" Permanent="no" File="$(var.PackageConfigPath)"/>
+      <util:XmlFile Id="OpenCVNetPackageConfigLibraryPath" Action="setValue" Name="libraryPath" Value="[PACKAGESFOLDER]" ElementPath="//packages/add" Permanent="no" File="$(var.PackageConfigPath)"/>
+    </Component>
+
+    <ComponentGroup Id="OpenTK" Directory="PACKAGESFOLDER">
+      <Component Id="OpenTKLibrary" Guid="6383e0fe-4ed8-42ec-aca9-32af0e2d1b55">
+        <File Id="OpenTKDLL" Name="OpenTK.dll" Source="$(var.PackageBuildPath)\OpenTK.dll" KeyPath="yes"/>
       </Component>
 
-      <Component Id="BonsaiIOLibrary" Guid="ba5f1ba5-6f8b-4819-b679-ea48f630623a">
-        <File Id="BonsaiIODLL" Name="Bonsai.IO.dll" Source="$(var.EditorBuildPath)\Bonsai.IO.dll" KeyPath="yes"/>
+      <Component Id="OpenTKGLControlLibrary" Guid="b56585a6-7cea-48c3-802d-9b12ae9c7ca9">
+        <File Id="OpenTKGLControlDLL" Name="OpenTK.GLControl.dll" Source="$(var.PackageBuildPath)\OpenTK.GLControl.dll" KeyPath="yes"/>
       </Component>
+    </ComponentGroup>
 
-      <Component Id="OpenCVNetLibrary" Guid="3f14562a-eac6-4dc7-ab7d-53cffc8a545e">
-        <File Id="OpenCVNetDLL" Name="OpenCV.Net.dll" Source="$(var.EditorBuildPath)\OpenCV.Net.dll" KeyPath="yes"/>
-      </Component>
-
+    <ComponentGroup Id="VisionPackageComponents" Directory="PACKAGESFOLDER">
+      <ComponentGroupRef Id="OpenTK"/>
+      <ComponentRef Id="OpenCVNetLibrary"/>
       <Component Id="BonsaiVisionLibrary" Guid="31019144-d943-4357-baa9-bf960d3a9659">
-        <File Id="BonsaiVisionDLL" Name="Bonsai.Vision.dll" Source="$(var.EditorBuildPath)\Bonsai.Vision.dll" KeyPath="yes"/>
+        <File Id="BonsaiVisionDLL" Name="Bonsai.Vision.dll" Source="$(var.PackageBuildPath)\Bonsai.Vision.dll" KeyPath="yes"/>
+        <File Id="BonsaiVisionPDB" Name="Bonsai.Vision.pdb" Source="$(var.PackageBuildPath)\Bonsai.Vision.pdb"/>
       </Component>
 
       <Component Id="BonsaiVisionDesignLibrary" Guid="7fd58c2d-3da7-4a6e-b9b0-83d7446f23ef">
-        <File Id="BonsaiVisionDesignDLL" Name="Bonsai.Vision.Design.dll" Source="$(var.EditorBuildPath)\Bonsai.Vision.Design.dll" KeyPath="yes"/>
-      </Component>
-
-      <Component Id="BonsaiScriptingLibrary" Guid="e918bd8d-52ee-41f1-9f98-4a2928be8315">
-        <File Id="BonsaiScriptingDLL" Name="Bonsai.Scripting.dll" Source="$(var.EditorBuildPath)\Bonsai.Scripting.dll" KeyPath="yes"/>
-      </Component>
-
-      <Component Id="IronPythonLibrary" Guid="b8917145-ec94-4677-8201-cb8c13cc3230">
-        <File Id="IronPythonDLL" Name="IronPython.dll" Source="$(var.EditorBuildPath)\IronPython.dll" KeyPath="yes"/>
-      </Component>
-
-      <Component Id="MicrosoftScriptingLibrary" Guid="4d8b47f7-e60b-4a49-9d86-871617d2d733">
-        <File Id="MicrosoftScriptingDLL" Name="Microsoft.Scripting.dll" Source="$(var.EditorBuildPath)\Microsoft.Scripting.dll" KeyPath="yes"/>
+        <File Id="BonsaiVisionDesignDLL" Name="Bonsai.Vision.Design.dll" Source="$(var.PackageBuildPath)\Bonsai.Vision.Design.dll" KeyPath="yes"/>
+        <File Id="BonsaiVisionDesignPDB" Name="Bonsai.Vision.Design.pdb" Source="$(var.PackageBuildPath)\Bonsai.Vision.Design.pdb"/>
       </Component>
     </ComponentGroup>
-	</Fragment>
+
+    <ComponentGroup Id="ScriptingPackageComponents" Directory="PACKAGESFOLDER">
+      <Component Id="BonsaiScriptingLibrary" Guid="e918bd8d-52ee-41f1-9f98-4a2928be8315">
+        <File Id="BonsaiScriptingDLL" Name="Bonsai.Scripting.dll" Source="$(var.PackageBuildPath)\Bonsai.Scripting.dll" KeyPath="yes"/>
+        <File Id="BonsaiScriptingPDB" Name="Bonsai.Scripting.pdb" Source="$(var.PackageBuildPath)\Bonsai.Scripting.pdb"/>
+      </Component>
+    </ComponentGroup>
+  </Fragment>
 </Wix>
