@@ -71,7 +71,7 @@ namespace Bonsai.Editor
 
         protected override void OnLoad(EventArgs e)
         {
-            ConfigurationHelper.SetAssemblyResolve(Environment.CurrentDirectory);
+            ConfigurationHelper.SetAssemblyResolve();
             Scheduler.ThreadPool.Schedule(InitializeToolbox);
             Scheduler.ThreadPool.Schedule(InitializeTypeVisualizers);
 

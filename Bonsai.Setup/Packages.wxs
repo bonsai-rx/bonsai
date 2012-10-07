@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
-  <?define PackageBuildPath="..\Bonsai.Editor\bin\Release"?>
-  <?define PackageConfigPath="[INSTALLFOLDER]\Packages.config"?>
+  <?define PackageBuildPath="..\Bonsai.Editor\bin\Release\Packages"?>
   <Fragment>
     <ComponentGroup Id="IOPackageComponents" Directory="PACKAGESFOLDER">
       <Component Id="BonsaiIOLibrary" Guid="ba5f1ba5-6f8b-4819-b679-ea48f630623a">
         <File Id="BonsaiIODLL" Name="Bonsai.IO.dll" Source="$(var.PackageBuildPath)\Bonsai.IO.dll" KeyPath="yes"/>
         <File Id="BonsaiIOPDB" Name="Bonsai.IO.pdb" Source="$(var.PackageBuildPath)\Bonsai.IO.pdb"/>
-        <util:XmlFile Id="BonsaiIOPackageConfig" Action="createElement" Name="add" ElementPath="//packages" Permanent="no" File="$(var.PackageConfigPath)"/>
-        <util:XmlFile Id="BonsaiIOPackageConfigAssembly" Action="setValue" Name="assembly" Value="Bonsai.IO, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ElementPath="//packages/add" Permanent="no" File="$(var.PackageConfigPath)"/>
-        <util:XmlFile Id="BonsaiIOPackageConfigLocation" Action="setValue" Name="location" Value="[PACKAGESFOLDER]\Bonsai.IO.dll" ElementPath="//packages/add" Permanent="no" File="$(var.PackageConfigPath)"/>
       </Component>
     </ComponentGroup>
 
@@ -27,7 +23,6 @@
       </Component>
     </ComponentGroup>
 
-    <?define OpenCVNetPackageFolder=?>
     <Component Id="OpenCVNetLibrary" Guid="3f14562a-eac6-4dc7-ab7d-53cffc8a545e" Directory="PACKAGESFOLDER">
       <File Id="OpenCVNetDLL" Name="OpenCV.Net.dll" Source="$(var.PackageBuildPath)\OpenCV.Net.dll" KeyPath="yes"/>
       <File Id="OpenCVNetPDB" Name="OpenCV.Net.pdb" Source="$(var.PackageBuildPath)\OpenCV.Net.pdb"/>
@@ -50,11 +45,6 @@
       <File Id="opencv_video242DLL" Name="opencv_video242.dll" Source="opencv\opencv_video242.dll"/>
       <File Id="opencv_videostab242DLL" Name="opencv_videostab242.dll" Source="opencv\opencv_videostab242.dll"/>
       <File Id="tbbDLL" Name="tbb.dll" Source="opencv\tbb.dll"/>
-      <util:XmlFile Id="OpenCVNetPackageConfig" Action="createElement" Name="add" ElementPath="//packages" Permanent="no" File="$(var.PackageConfigPath)"/>
-      <util:XmlFile Id="OpenCVNetPackageConfigAssembly" Action="setValue" Name="assembly" Value="OpenCV.Net, Version=2.4.2.0, Culture=neutral, PublicKeyToken=null" ElementPath="//packages/add" Permanent="no" File="$(var.PackageConfigPath)"/>
-      <util:XmlFile Id="OpenCVNetPackageConfigLocation" Action="setValue" Name="location" Value="[PACKAGESFOLDER]\OpenCV.Net.dll" ElementPath="//packages/add" Permanent="no" File="$(var.PackageConfigPath)"/>
-      <util:XmlFile Id="OpenCVNetPackageConfigDependency" Action="setValue" Name="dependency" Value="true" ElementPath="//packages/add" Permanent="no" File="$(var.PackageConfigPath)"/>
-      <util:XmlFile Id="OpenCVNetPackageConfigLibraryPath" Action="setValue" Name="libraryPath" Value="[PACKAGESFOLDER]" ElementPath="//packages/add" Permanent="no" File="$(var.PackageConfigPath)"/>
     </Component>
 
     <ComponentGroup Id="OpenTK" Directory="PACKAGESFOLDER">

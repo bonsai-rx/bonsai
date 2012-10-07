@@ -15,7 +15,7 @@ namespace Bonsai.Editor
 
         public TypeVisualizerLoader()
         {
-            ConfigurationHelper.SetAssemblyResolve(Environment.CurrentDirectory);
+            ConfigurationHelper.SetAssemblyResolve();
             var typeVisualizerAttributeAssembly = Assembly.Load(typeof(TypeVisualizerAttribute).Assembly.FullName);
             typeVisualizerAttributeType = typeVisualizerAttributeAssembly.GetType(typeof(TypeVisualizerAttribute).FullName);
         }
@@ -97,7 +97,7 @@ namespace Bonsai.Editor
 
         public static IObservable<Tuple<Type, Type>> GetTypeVisualizerDictionary()
         {
-            var files = ConfigurationHelper.GetPackageFiles();
+            var files = PackageHelper.GetPackageFiles();
             return Observable.Using(
                 () => new LoaderResource(),
                 resource => from fileName in files.ToObservable()

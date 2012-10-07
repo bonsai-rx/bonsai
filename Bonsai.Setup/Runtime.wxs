@@ -28,10 +28,6 @@
         <File Id="SystemReactiveWindowsFormsDLL" Name="System.Reactive.Windows.Forms.dll" Source="$(var.EditorBuildPath)\System.Reactive.Windows.Forms.dll" KeyPath="yes"/>
       </Component>
 
-      <Component Id="PackagesConfig" Guid="ead2857c-4ce1-4d05-a2d9-09a2d2b02871">
-        <File Id="PackagesCONFIG" Name="Packages.config" Source="Packages.config" KeyPath="yes"/>
-      </Component>
-
       <Component Id="BonsaiPlayerExecutable" Guid="6d04a0a4-e897-4849-a3ef-86fa4d178a96">
         <File Id="BonsaiPlayerEXE" Name="Bonsai.Player.exe" Source="$(var.PlayerBuildPath)\Bonsai.Player.exe" KeyPath="yes"/>
         <File Id="BonsaiPlayerPDB" Name="Bonsai.Player.pdb" Source="$(var.PlayerBuildPath)\Bonsai.Player.pdb"/>
