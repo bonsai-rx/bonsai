@@ -27,16 +27,9 @@
     <Compile Include="Runtime.wxs" />
   </ItemGroup>
   <ItemGroup>
-    <WixExtension Include="WixUtilExtension">
-      <HintPath>$(WixExtDir)\WixUtilExtension.dll</HintPath>
-      <Name>WixUtilExtension</Name>
-    </WixExtension>
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="opencv" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Packages.config" />
     <Content Include="opencv\opencv_calib3d242.dll" />
     <Content Include="opencv\opencv_contrib242.dll" />
     <Content Include="opencv\opencv_core242.dll" />

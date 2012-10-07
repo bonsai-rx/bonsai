@@ -21,7 +21,7 @@ namespace Bonsai.Editor
 
         public WorkflowElementLoader()
         {
-            ConfigurationHelper.SetAssemblyResolve(Environment.CurrentDirectory);
+            ConfigurationHelper.SetAssemblyResolve();
             var loadableElementAssembly = Assembly.Load(typeof(LoadableElement).Assembly.FullName);
             loadableElementType = loadableElementAssembly.GetType(typeof(LoadableElement).FullName);
             expressionBuilderType = loadableElementAssembly.GetType(typeof(ExpressionBuilder).FullName);
@@ -130,7 +130,7 @@ namespace Bonsai.Editor
 
         public static IObservable<IGrouping<string, WorkflowElementDescriptor>> GetWorkflowElementTypes()
         {
-            var files = ConfigurationHelper.GetPackageFiles();
+            var files = PackageHelper.GetPackageFiles();
             return Observable.Using(
                 () => new LoaderResource(),
                 resource => from fileName in files.ToObservable()
