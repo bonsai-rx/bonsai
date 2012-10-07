@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
-     xmlns:bal="http://schemas.microsoft.com/wix/BalExtension">
+     xmlns:bal="http://schemas.microsoft.com/wix/BalExtension"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
   <?define EditorProjectPath="..\Bonsai.Editor"?>
 	<Bundle Name="Bonsai" Version="1.0.0.0" Manufacturer="Goncalo Lopes" UpgradeCode="8718e5ba-be5d-4616-9357-206ceba5ec69" IconSourceFile="$(var.EditorProjectPath)\Bonsai.ico">
     <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense">
@@ -9,6 +10,8 @@
 
 		<Chain>
       <PackageGroupRef Id="NetFx40Web"/>
+      <ExePackage Id="OpenTK" SourceFile="Dependencies\opentk-2010-10-06.exe"/>
+      <MsiPackage Id="IronPython" SourceFile="Dependencies\IronPython-2.7.2.1.msi"/>
       <MsiPackage Id="Bonsai" SourceFile="$(var.Bonsai.Setup.TargetPath)"/>
 			<!-- TODO: Define the list of chained packages. -->
 			<!-- <MsiPackage SourceFile="path\to\your.msi" /> -->

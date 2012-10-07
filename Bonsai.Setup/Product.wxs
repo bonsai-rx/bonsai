@@ -30,7 +30,18 @@
       </Feature>
 
       <Feature Id='PackagesFeature' Title='Packages' Level='1'>
-        <ComponentGroupRef Id='ProductPackages'/>
+        <Feature Id='IOPackage' Title='IO' Level='1'>
+          <ComponentGroupRef Id='IOPackageComponents'/>
+        </Feature>
+        <Feature Id='ArduinoPackage' Title='Arduino' Level='1'>
+          <ComponentGroupRef Id='ArduinoPackageComponents'/>
+        </Feature>
+        <Feature Id='VisionPackage' Title='Vision' Level='1'>
+          <ComponentGroupRef Id='VisionPackageComponents'/>
+        </Feature>
+        <Feature Id='ScriptingPackage' Title='Scripting' Level='1'>
+          <ComponentGroupRef Id='ScriptingPackageComponents'/>
+        </Feature>
       </Feature>
 		</Feature>
 	</Product>
@@ -39,6 +50,7 @@
     <Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="ProgramFilesFolder">
         <Directory Id="INSTALLFOLDER" Name="Bonsai">
+          <Directory Id="PACKAGESFOLDER" Name="Packages"/>
           <Directory Id="TemplatesFolder" Name="Templates">
             <Directory Id="PROJECTTEMPLATESFOLDER" Name="ProjectTemplates"/>
             <Directory Id="ITEMTEMPLATESFOLDER" Name="ItemTemplates"/>

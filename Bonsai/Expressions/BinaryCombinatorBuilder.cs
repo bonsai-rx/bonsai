@@ -30,4 +30,16 @@ namespace Bonsai.Expressions
 
         protected abstract IObservable<TSource> Combine<TSource>(IObservable<TSource> source, IObservable<TOther> other);
     }
+
+    public abstract class BinaryCombinatorBuilder<TSource, TOther> : BinaryCombinatorExpressionBuilder
+    {
+        public override Expression Build()
+        {
+            var sourceType = Source.Type.GetGenericArguments()[0];
+            var combinatorExpression = Expression.Constant(this);
+            return Expression.Call(combinatorExpression, "Combine", null, Source, Other);
+        }
+
+        protected abstract IObservable<TSource> Combine(IObservable<TSource> source, IObservable<TOther> other);
+    }
 }

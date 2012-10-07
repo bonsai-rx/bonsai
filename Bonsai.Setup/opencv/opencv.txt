@@ -1,0 +1,4 @@
+Build Configuration
+-------------------
+
+In order to properly build the WiX installer, please copy the OpenCV 2.4.2 x86 bin files to this directory.
