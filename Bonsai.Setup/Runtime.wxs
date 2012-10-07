@@ -10,11 +10,6 @@
         <File Id="BonsaiPDB" Name="Bonsai.pdb" Source="$(var.EditorBuildPath)\Bonsai.pdb"/>
       </Component>
 
-      <Component Id="BonsaiConfigurationLibrary" Guid="91b83573-6ea9-4200-b94c-010f35d61f41">
-        <File Id="BonsaiConfigurationDLL" Name="Bonsai.Configuration.dll" Source="$(var.EditorBuildPath)\Bonsai.Configuration.dll" KeyPath="yes"/>
-        <File Id="BonsaiConfigurationPDB" Name="Bonsai.Configuration.pdb" Source="$(var.EditorBuildPath)\Bonsai.Configuration.pdb"/>
-      </Component>
-
       <Component Id="BonsaiDesignLibrary" Guid="1ba34661-c62d-4df4-bb6b-04ace5ea0440">
         <File Id="BonsaiDesignDLL" Name="Bonsai.Design.dll" Source="$(var.EditorBuildPath)\Bonsai.Design.dll" KeyPath="yes"/>
         <File Id="BonsaiDesignPDB" Name="Bonsai.Design.pdb" Source="$(var.EditorBuildPath)\Bonsai.Design.pdb"/>

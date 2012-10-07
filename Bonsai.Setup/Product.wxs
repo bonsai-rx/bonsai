@@ -36,6 +36,12 @@
         <Feature Id='ArduinoPackage' Title='Arduino' Level='1'>
           <ComponentGroupRef Id='ArduinoPackageComponents'/>
         </Feature>
+        <Feature Id='DspPackage' Title='Dsp' Level='1'>
+          <ComponentGroupRef Id='DspPackageComponents'/>
+        </Feature>
+        <Feature Id='AudioPackage' Title='Audio' Level='1'>
+          <ComponentGroupRef Id='AudioPackageComponents'/>
+        </Feature>
         <Feature Id='VisionPackage' Title='Vision' Level='1'>
           <ComponentGroupRef Id='VisionPackageComponents'/>
         </Feature>
