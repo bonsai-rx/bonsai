@@ -103,10 +103,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bonsai.Configuration\Bonsai.Configuration.csproj">
-      <Project>{09B798DC-4753-4691-ACE7-7253F18ECE87}</Project>
-      <Name>Bonsai.Configuration</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj">
       <Project>{765D928A-B147-46FF-8A59-BDE73F88A844}</Project>
       <Name>Bonsai.Design</Name>
