@@ -12,6 +12,15 @@ namespace Bonsai.Editor
     {
         const string DefaultProbingPath = "Packages";
 
+        static AssemblyName GetAssemblyName(string fileName)
+        {
+            try { return AssemblyName.GetAssemblyName(fileName); }
+            catch (BadImageFormatException)
+            {
+                return null;
+            }
+        }
+
         static IEnumerable<string> GetPackageFiles(string path)
         {
             path = Path.GetFullPath(path);
@@ -21,10 +30,12 @@ namespace Bonsai.Editor
             {
                 var bonsaiAssemblyName = typeof(LoadableElement).Assembly.GetName();
                 var bonsaiDesignAssemblyName = typeof(DialogTypeVisualizer).Assembly.GetName();
-                return Directory
-                    .GetFiles(path, "*.dll")
-                    .Where(fileName => AssemblyName.GetAssemblyName(fileName).FullName != bonsaiAssemblyName.FullName &&
-                                       AssemblyName.GetAssemblyName(fileName).FullName != bonsaiDesignAssemblyName.FullName);
+                return from fileName in Directory.GetFiles(path, "*.dll")
+                       let assemblyName = GetAssemblyName(fileName)
+                       where assemblyName != null &&
+                             assemblyName.FullName != bonsaiAssemblyName.FullName &&
+                             assemblyName.FullName != bonsaiDesignAssemblyName.FullName
+                       select fileName;
             }
 
             return Enumerable.Empty<string>();
