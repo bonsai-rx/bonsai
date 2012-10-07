@@ -8,10 +8,12 @@
       <bal:WixStandardBootstrapperApplication LicenseFile="License.rtf" LogoFile="Bonsai.png" SuppressOptionsUI="yes"/>
     </BootstrapperApplicationRef>
 
+    <util:RegistrySearch Root="HKCU" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenTK" Value="InstallDir" Variable="OpenTKInstalled"/>
+
 		<Chain>
       <PackageGroupRef Id="NetFx40Web"/>
-      <ExePackage Id="OpenTK" SourceFile="Dependencies\opentk-2010-10-06.exe"/>
-      <MsiPackage Id="IronPython" SourceFile="Dependencies\IronPython-2.7.2.1.msi"/>
+      <ExePackage Id="OpenTK" SourceFile="Dependencies\opentk-2010-10-06.exe" Permanent="yes" DetectCondition="OpenTKInstalled"/>
+      <MsiPackage Id="IronPython" SourceFile="Dependencies\IronPython-2.7.2.1.msi" DisplayInternalUI="yes" Permanent="yes"/>
       <MsiPackage Id="Bonsai" SourceFile="$(var.Bonsai.Setup.TargetPath)"/>
 			<!-- TODO: Define the list of chained packages. -->
 			<!-- <MsiPackage SourceFile="path\to\your.msi" /> -->
