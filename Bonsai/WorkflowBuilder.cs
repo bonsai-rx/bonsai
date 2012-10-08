@@ -11,12 +11,16 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Xml.Schema;
+using System.Xml;
 
 namespace Bonsai
 {
     public class WorkflowBuilder : IXmlSerializable
     {
         readonly ExpressionBuilderGraph workflow;
+        const string ExtensionTypeNodeName = "ExtensionTypes";
+        const string WorkflowNodeName = "Workflow";
+        const string TypeNodeName = "Type";
 
         public WorkflowBuilder()
             : this(new ExpressionBuilderGraph())
@@ -47,19 +51,23 @@ namespace Bonsai
 
         public void ReadXml(System.Xml.XmlReader reader)
         {
-            reader.ReadToFollowing("Workflow");
+            reader.ReadToFollowing(WorkflowNodeName);
 
             var workflowMarkup = reader.ReadOuterXml();
 
-            reader.ReadToFollowing("ExtensionTypes");
+            reader.ReadToFollowing(ExtensionTypeNodeName);
             reader.ReadStartElement();
             var types = new HashSet<Type>();
-            while (reader.ReadToNextSibling("Type"))
+            while (reader.ReadToNextSibling(TypeNodeName))
             {
                 var type = Type.GetType(reader.ReadElementString(), true);
                 types.Add(type);
             }
-            reader.ReadEndElement();
+
+            if (reader.NodeType == XmlNodeType.EndElement && reader.Name == ExtensionTypeNodeName)
+            {
+                reader.ReadEndElement();
+            }
 
             var serializer = GetXmlSerializer(types);
             using (var workflowReader = new StringReader(workflowMarkup))
@@ -76,10 +84,10 @@ namespace Bonsai
             var serializer = GetXmlSerializer(types);
             serializer.Serialize(writer, workflow.ToDescriptor(), serializerNamespaces);
 
-            writer.WriteStartElement("ExtensionTypes");
+            writer.WriteStartElement(ExtensionTypeNodeName);
             foreach (var type in types)
             {
-                writer.WriteElementString("Type", type.AssemblyQualifiedName);
+                writer.WriteElementString(TypeNodeName, type.AssemblyQualifiedName);
             }
             writer.WriteEndElement();
         }
