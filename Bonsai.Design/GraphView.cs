@@ -37,6 +37,8 @@ namespace Bonsai.Design
 
         public GraphView()
         {
+            FocusedSelectionBrush = Brushes.Black;
+            UnfocusedSelectionBrush = Brushes.Gray;
             InitializeComponent();
             InitializeReactiveEvents();
         }
@@ -128,6 +130,10 @@ namespace Bonsai.Design
             add { Events.AddHandler(EventSelectedNodeChanged, value); }
             remove { Events.RemoveHandler(EventSelectedNodeChanged, value); }
         }
+
+        public Brush FocusedSelectionBrush { get; set; }
+
+        public Brush UnfocusedSelectionBrush { get; set; }
 
         public IEnumerable<GraphNodeGrouping> Nodes
         {
@@ -354,7 +360,7 @@ namespace Bonsai.Design
                         NodeSize, NodeSize);
 
                     var pen = selected ? WhitePen : BlackPen;
-                    var brush = selected ? (Focused ? Brushes.Black : Brushes.Gray) : layout.Node.Brush;
+                    var brush = selected ? (Focused ? FocusedSelectionBrush : UnfocusedSelectionBrush) : layout.Node.Brush;
                     var textBrush = selected ? Brushes.White : Brushes.Black;
 
                     e.Graphics.DrawEllipse(pen, nodeRectangle);

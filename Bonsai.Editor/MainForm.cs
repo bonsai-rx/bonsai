@@ -338,6 +338,17 @@ namespace Bonsai.Editor
 
         #region Workflow Model
 
+        IDisposable ShutdownSequence()
+        {
+            return new ScheduledDisposable(new ControlScheduler(this), Disposable.Create(() =>
+            {
+                editorSite.OnWorkflowStopped(EventArgs.Empty);
+                workflowViewModel.UpdateVisualizerLayout();
+                runningStatusLabel.Text = Resources.StoppedStatus;
+                running = null;
+            }));
+        }
+
         void StartWorkflow()
         {
             if (running == null)
@@ -349,14 +360,7 @@ namespace Bonsai.Editor
                         runningStatusLabel.Text = Resources.RunningStatus;
                         editorSite.OnWorkflowStarted(EventArgs.Empty);
 
-                        var shutdown = new ScheduledDisposable(new ControlScheduler(this), Disposable.Create(() =>
-                        {
-                            editorSite.OnWorkflowStopped(EventArgs.Empty);
-                            workflowViewModel.UpdateVisualizerLayout();
-                            runningStatusLabel.Text = Resources.StoppedStatus;
-                            running = null;
-                        }));
-
+                        var shutdown = ShutdownSequence();
                         return new ReactiveWorkflowDisposable(runtimeWorkflow, shutdown);
                     },
                     resource => resource.Workflow.Run().SubscribeOn(Scheduler.NewThread))
@@ -372,9 +376,42 @@ namespace Bonsai.Editor
             }
         }
 
+        void SelectExceptionBuilderNode(WorkflowViewModel viewModel, WorkflowBuildException e)
+        {
+            var graphNode = viewModel.FindGraphNode(e.Builder);
+            if (graphNode != null)
+            {
+                viewModel.WorkflowGraphView.SelectedNode = graphNode;
+                var buildException = e.InnerException as WorkflowBuildException;
+                if (buildException != null)
+                {
+                    viewModel.LaunchWorkflowView(graphNode);
+                    var editorLauncher = viewModel.GetWorkflowEditorLauncher(graphNode);
+                    if (editorLauncher != null)
+                    {
+                        SelectExceptionBuilderNode(editorLauncher.ViewModel, buildException);
+                    }
+                }
+                else
+                {
+                    var selectionBrush = viewModel.WorkflowGraphView.UnfocusedSelectionBrush;
+                    viewModel.WorkflowGraphView.UnfocusedSelectionBrush = Brushes.Red;
+                    MessageBox.Show(e.Message, "Build Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    viewModel.WorkflowGraphView.UnfocusedSelectionBrush = selectionBrush;
+                }
+            }
+        }
+
         void HandleWorkflowError(Exception e)
         {
-            MessageBox.Show(e.Message, "Processing Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            var buildException = e as WorkflowBuildException;
+            if (buildException != null)
+            {
+                SelectExceptionBuilderNode(workflowViewModel, buildException);
+                var shutdown = ShutdownSequence();
+                shutdown.Dispose();
+            }
+            else MessageBox.Show(e.Message, "Processing Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         #endregion

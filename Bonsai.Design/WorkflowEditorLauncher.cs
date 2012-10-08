@@ -13,7 +13,7 @@ namespace Bonsai.Design
     public class WorkflowEditorLauncher : DialogLauncher
     {
         ExpressionBuilderGraph workflow;
-        WorkflowViewModel workflowModel;
+        WorkflowViewModel viewModel;
         Node<ExpressionBuilder, ExpressionBuilderParameter> builderNode;
 
         public WorkflowEditorLauncher(ExpressionBuilderGraph workflow, Node<ExpressionBuilder, ExpressionBuilderParameter> builderNode)
@@ -34,12 +34,17 @@ namespace Bonsai.Design
 
         public VisualizerLayout VisualizerLayout { get; set; }
 
+        public WorkflowViewModel ViewModel
+        {
+            get { return viewModel; }
+        }
+
         public void UpdateEditorLayout()
         {
-            if (workflowModel != null)
+            if (viewModel != null)
             {
-                workflowModel.UpdateVisualizerLayout();
-                VisualizerLayout = workflowModel.VisualizerLayout;
+                viewModel.UpdateVisualizerLayout();
+                VisualizerLayout = viewModel.VisualizerLayout;
                 if (VisualizerDialog != null)
                 {
                     Bounds = VisualizerDialog.DesktopBounds;
@@ -71,12 +76,12 @@ namespace Bonsai.Design
             visualizerDialog.Padding = new Padding(10);
             visualizerDialog.AddControl(graphView);
 
-            workflowModel = new WorkflowViewModel(graphView, provider);
-            workflowModel.VisualizerLayout = VisualizerLayout;
-            workflowModel.Workflow = workflowExpressionBuilder.Workflow;
-            if (!workflowModel.Workflow.Any(n => n.Value is WorkflowInputBuilder) && workflow.Predecessors(builderNode).Any())
+            viewModel = new WorkflowViewModel(graphView, provider);
+            viewModel.VisualizerLayout = VisualizerLayout;
+            viewModel.Workflow = workflowExpressionBuilder.Workflow;
+            if (!viewModel.Workflow.Any(n => n.Value is WorkflowInputBuilder) && workflow.Predecessors(builderNode).Any())
             {
-                workflowModel.CreateGraphNode(typeof(WorkflowInputBuilder).AssemblyQualifiedName, WorkflowElementType.Combinator, null, CreateGraphNodeType.Successor, false);
+                viewModel.CreateGraphNode(typeof(WorkflowInputBuilder).AssemblyQualifiedName, WorkflowElementType.Combinator, null, CreateGraphNodeType.Successor, false);
             }
         }
     }
