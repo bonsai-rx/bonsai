@@ -18,8 +18,8 @@ namespace Bonsai
         {
         }
 
-        public InvalidWorkflowException(string message, Exception inner)
-            : base(message, inner)
+        public InvalidWorkflowException(string message, Exception innerException)
+            : base(message, innerException)
         {
         }
 
