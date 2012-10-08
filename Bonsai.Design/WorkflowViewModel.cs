@@ -403,7 +403,12 @@ namespace Bonsai.Design
             }
         }
 
-        private void LaunchVisualizer(GraphNode node)
+        public GraphNode FindGraphNode(object value)
+        {
+            return workflowGraphView.Nodes.SelectMany(layer => layer).FirstOrDefault(n => n.Value == value);
+        }
+
+        public void LaunchVisualizer(GraphNode node)
         {
             if (visualizerMapping != null && node != null)
             {
@@ -412,7 +417,7 @@ namespace Bonsai.Design
             }
         }
 
-        private void LaunchWorkflowView(GraphNode node)
+        public void LaunchWorkflowView(GraphNode node)
         {
             var editorLauncher = GetWorkflowEditorLauncher(node);
             if (editorLauncher != null)
@@ -421,7 +426,7 @@ namespace Bonsai.Design
             }
         }
 
-        private WorkflowEditorLauncher GetWorkflowEditorLauncher(GraphNode node)
+        public WorkflowEditorLauncher GetWorkflowEditorLauncher(GraphNode node)
         {
             var builderNode = node != null ? GetGraphNodeTag(node) : null;
             var workflowExpressionBuilder = builderNode != null ? builderNode.Value as WorkflowExpressionBuilder : null;
