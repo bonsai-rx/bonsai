@@ -118,6 +118,7 @@
     <Compile Include="ILoadable.cs" />
     <Compile Include="LoadableElement.cs" />
     <Compile Include="ReactiveWorkflowExtensions.cs" />
+    <Compile Include="WorkflowBuildException.cs" />
     <Compile Include="WorkflowElementType.cs" />
     <Compile Include="ObservableSink.cs" />
     <Compile Include="PrecisionAttribute.cs" />

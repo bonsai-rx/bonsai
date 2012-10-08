@@ -60,26 +60,33 @@ namespace Bonsai.Expressions
 
             foreach (var node in source.TopologicalSort())
             {
-                var expression = node.Value.Build();
-                loadableElements.AddRange(node.Value.GetLoadableElements());
-
-                if (node.Successors.Count > 1)
+                try
                 {
-                    // Publish workflow result to avoid repeating operations
-                    var publishBuilder = new PublishBuilder { Source = expression };
-                    loadableElements.Add(publishBuilder.PublishHandle);
-                    expression = publishBuilder.Build();
+                    var expression = node.Value.Build();
+                    loadableElements.AddRange(node.Value.GetLoadableElements());
+
+                    if (node.Successors.Count > 1)
+                    {
+                        // Publish workflow result to avoid repeating operations
+                        var publishBuilder = new PublishBuilder { Source = expression };
+                        loadableElements.Add(publishBuilder.PublishHandle);
+                        expression = publishBuilder.Build();
+                    }
+
+                    foreach (var successor in node.Successors)
+                    {
+                        var target = successor.Node.Value.GetType().GetProperty(successor.Label.Value);
+                        target.SetValue(successor.Node.Value, expression, null);
+                    }
+
+                    if (node.Successors.Count == 0)
+                    {
+                        connections.Add(expression);
+                    }
                 }
-
-                foreach (var successor in node.Successors)
+                catch (Exception e)
                 {
-                    var target = successor.Node.Value.GetType().GetProperty(successor.Label.Value);
-                    target.SetValue(successor.Node.Value, expression, null);
-                }
-
-                if (node.Successors.Count == 0)
-                {
-                    connections.Add(expression);
+                    throw new WorkflowBuildException("There was an error building the Bonsai workflow.", node.Value, e);
                 }
             }
 
