@@ -24,7 +24,8 @@ namespace Bonsai.Editor
         static IEnumerable<string> GetPackageFiles(string path)
         {
             path = Path.GetFullPath(path);
-            if (!string.Equals(path.TrimEnd('\\'),
+            if (Directory.Exists(path) &&
+                !string.Equals(path.TrimEnd('\\'),
                                Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\'),
                                StringComparison.InvariantCultureIgnoreCase))
             {
@@ -44,7 +45,7 @@ namespace Bonsai.Editor
         public static IEnumerable<string> GetPackageFiles()
         {
             IEnumerable<string> packageFiles = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
-            packageFiles = packageFiles.Concat(GetPackageFiles(DefaultProbingPath));
+            packageFiles = packageFiles.Concat(GetPackageFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DefaultProbingPath)));
             packageFiles = packageFiles.Concat(GetPackageFiles(Environment.CurrentDirectory));
             return packageFiles;
         }
