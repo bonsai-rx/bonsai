@@ -11,14 +11,17 @@ using OpenCV.Net;
 
 namespace Bonsai.Audio
 {
+    [Description("Plays the sequence of buffered samples to the specified audio output device.")]
     public class AudioPlayback : Sink<CvMat>
     {
         int source;
         AudioContext context;
 
+        [Description("The name of the output device used for playback.")]
         [TypeConverter(typeof(PlaybackDeviceNameConverter))]
         public string DeviceName { get; set; }
 
+        [Description("The playback frequency (Hz) used by the output device.")]
         public int Frequency { get; set; }
 
         public override void Process(CvMat input)

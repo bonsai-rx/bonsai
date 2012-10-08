@@ -11,9 +11,16 @@ using System.Linq.Expressions;
 
 namespace Bonsai.Scripting
 {
+    [Description("A Python script used to process and convert individual elements of the input sequence.")]
     public class PythonProjection : CombinatorExpressionBuilder
     {
+        public PythonProjection()
+        {
+            Script = "import clr\n\ndef getOutputType():\n    return clr.GetClrType(bool)\n\ndef process(input):\n    return True";
+        }
+
         [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
+        [Description("The script that determines the operation of the projection.")]
         public string Script { get; set; }
 
         public override Expression Build()
