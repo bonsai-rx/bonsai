@@ -15,6 +15,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Audio
 {
+    [Description("Produces a sequence of buffered samples acquired from the specified audio capture device.")]
     public class AudioCapture : Source<CvMat>
     {
         OpenTK.Audio.AudioCapture capture;
@@ -26,11 +27,14 @@ namespace Bonsai.Audio
             Frequency = 44100;
         }
 
+        [Description("The name of the capture device from which to acquire samples.")]
         [TypeConverter(typeof(CaptureDeviceNameConverter))]
         public string DeviceName { get; set; }
 
+        [Description("The sampling frequency (Hz) used by the audio capture device.")]
         public int Frequency { get; set; }
 
+        [Description("The length of the sample buffer (ms).")]
         public double BufferLength { get; set; }
 
         public override IDisposable Load()

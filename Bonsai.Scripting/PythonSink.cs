@@ -11,9 +11,16 @@ using System.Linq.Expressions;
 
 namespace Bonsai.Scripting
 {
+    [Description("A Python script used to operate on individual elements of the input sequence.")]
     public class PythonSink : CombinatorExpressionBuilder
     {
+        public PythonSink()
+        {
+            Script = "def process(input):\n";
+        }
+
         [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
+        [Description("The script that determines the operation of the sink.")]
         public string Script { get; set; }
 
         public override Expression Build()
