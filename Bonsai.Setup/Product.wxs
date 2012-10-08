@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <?define EditorProjectPath="..\Bonsai.Editor"?>
+  <?define ResourcesPath="..\Resources"?>
 	<Product Id="84694a9b-9960-48fa-ac5e-5e8d7c5c6e62" Name="Bonsai" Language="1033" Version="1.0.0.0" Manufacturer="Goncalo Lopes" UpgradeCode="c515ec87-8a06-4285-94bf-cfa00c7a7212">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
@@ -8,6 +9,7 @@
 		<MediaTemplate EmbedCab="yes"/>
 
     <Icon Id="Bonsai.ico" SourceFile="$(var.EditorProjectPath)\Bonsai.ico" />
+    <Icon Id="BonsaiWorkflow.ico" SourceFile="$(var.ResourcesPath)\BonsaiWorkflow.ico" />
     <Property Id="ARPPRODUCTICON" Value="Bonsai.ico" />
     <Property Id="PROJECTTEMPLATESLOCATION">
       <RegistrySearch Id="ProjectTemplatesLocationVCSExpressRegistry" Type="directory" Root="HKCU" Key="Software\Microsoft\VCSExpress\10.0" Name="UserProjectTemplatesLocation" />

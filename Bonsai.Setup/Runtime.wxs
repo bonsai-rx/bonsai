@@ -34,9 +34,9 @@
         </File>
         <File Id="BonsaiEditorPDB" Name="Bonsai.Editor.pdb" Source="$(var.EditorBuildPath)\Bonsai.Editor.pdb"/>
         <File Id="BonsaiEditorCONFIG" Name="Bonsai.Editor.exe.config" Source="$(var.EditorBuildPath)\Bonsai.Editor.exe.config"/>
-        <ProgId Id='Bonsai.workflow' Description='Bonsai workflow file' Icon='BonsaiEditorEXE'>
+        <ProgId Id='Bonsai.workflow' Description='Bonsai workflow file' Icon='BonsaiWorkflow.ico' Advertise='yes'>
           <Extension Id='bonsai' ContentType='application/xml'>
-            <Verb Id='open' Command='Open' TargetFile='BonsaiEditorEXE' Argument='"%1"' />
+            <Verb Id='open' Command='Open' Argument='"%1"' />
           </Extension>
         </ProgId>
       </Component>
@@ -48,6 +48,12 @@
       <Component Id='BonsaiAssemblyFolders' Guid='1f06b6da-4acb-438e-93d5-046b366e20c9'>
         <RegistryKey Root='HKCU' Key='Software\Microsoft\.NETFramework\v4.0.30319\AssemblyFoldersEx\Bonsai'>
           <RegistryValue Type='string' Value='[INSTALLFOLDER]' KeyPath='yes'/>
+        </RegistryKey>
+      </Component>
+
+      <Component Id='BonsaiPackageAssemblyFolders' Guid='8dbd69d8-3c90-435d-834d-8169105e7c9a'>
+        <RegistryKey Root='HKCU' Key='Software\Microsoft\.NETFramework\v4.0.30319\AssemblyFoldersEx\BonsaiPackages'>
+          <RegistryValue Type='string' Value='[PACKAGESFOLDER]' KeyPath='yes'/>
         </RegistryKey>
       </Component>
     </ComponentGroup>
