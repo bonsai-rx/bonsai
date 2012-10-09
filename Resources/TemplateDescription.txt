@@ -1,5 +1,7 @@
 A project for creating a C# Bonsai package (.dll)
 
+A project for creating a Bonsai workflow with custom C# extensions (.dll)
+
 A project item for creating a Bonsai source
 
 A project item for creating a Bonsai filter
