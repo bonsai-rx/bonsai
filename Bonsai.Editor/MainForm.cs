@@ -209,19 +209,26 @@ namespace Bonsai.Editor
 
         void OpenWorkflow(string fileName)
         {
+            try { workflowBuilder = LoadWorkflow(fileName); }
+            catch (InvalidOperationException ex)
+            {
+                MessageBox.Show(string.Format("There was an error opening the Bonsai workflow:\n{0}", ex.InnerException.Message), "Open Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             saveWorkflowDialog.FileName = fileName;
-            workflowBuilder = LoadWorkflow(fileName);
             ResetProjectStatus();
 
             var layoutPath = GetLayoutPath(fileName);
+            workflowViewModel.VisualizerLayout = null;
             if (File.Exists(layoutPath))
             {
                 using (var reader = XmlReader.Create(layoutPath))
                 {
-                    workflowViewModel.VisualizerLayout = (VisualizerLayout)layoutSerializer.Deserialize(reader);
+                    try { workflowViewModel.VisualizerLayout = (VisualizerLayout)layoutSerializer.Deserialize(reader); }
+                    catch (InvalidOperationException) { }
                 }
             }
-            else workflowViewModel.VisualizerLayout = null;
 
             workflowViewModel.Workflow = workflowBuilder.Workflow;
             if (string.IsNullOrEmpty(directoryToolStripTextBox.Text))
