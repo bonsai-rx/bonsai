@@ -134,6 +134,7 @@ namespace Bonsai.Arduino
         {
             serialPort.Open();
             Thread.Sleep(ConnectionDelay);
+            serialPort.ReadExisting();
 
             for (int i = 0; i < AnalogPins; i++)
             {
