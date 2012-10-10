@@ -569,18 +569,18 @@ namespace Bonsai.Design
             {
                 var branch = (e.KeyState & AltModifier) != 0;
                 var predecessor = (e.KeyState & ShiftModifier) != 0 ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
-                var closestGraphViewNode = workflowGraphView.GetClosestNodeTo(dropLocation);
+                var linkNode = workflowGraphView.GetNodeAt(dropLocation) ?? workflowGraphView.SelectedNode;
                 if (e.Data.GetDataPresent(DataFormats.FileDrop, true))
                 {
                     var path = (string[])e.Data.GetData(DataFormats.FileDrop, true);
                     var workflowBuilder = editorService.LoadWorkflow(path[0]);
                     var workflowExpressionBuilder = new NestedWorkflowExpressionBuilder(workflowBuilder.Workflow);
-                    CreateGraphNode(workflowExpressionBuilder, WorkflowElementType.Combinator, closestGraphViewNode, predecessor, branch);
+                    CreateGraphNode(workflowExpressionBuilder, WorkflowElementType.Combinator, linkNode, predecessor, branch);
                 }
                 else
                 {
                     var typeNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
-                    CreateGraphNode(typeNode, closestGraphViewNode, predecessor, branch);
+                    CreateGraphNode(typeNode, linkNode, predecessor, branch);
                 }
             }
 

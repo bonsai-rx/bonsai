@@ -385,9 +385,9 @@ namespace Bonsai.Design
             if (!Focused) Select();
 
             var node = GetNodeAt(e.Location);
+            SelectedNode = node;
             if (node != null)
             {
-                SelectedNode = node;
                 OnNodeMouseClick(new GraphNodeMouseClickEventArgs(node, e.Button, e.Clicks, e.X, e.Y, e.Delta));
             }
         }
