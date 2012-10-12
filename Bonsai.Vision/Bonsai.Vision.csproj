@@ -83,7 +83,11 @@
     <Compile Include="Not.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RangeThreshold.cs" />
+    <Compile Include="RegionActivity.cs" />
+    <Compile Include="RegionActivityCollection.cs" />
     <Compile Include="Resize.cs" />
+    <Compile Include="RoiActivity.cs" />
+    <Compile Include="RoiActivityDetected.cs" />
     <Compile Include="RunningAverage.cs" />
     <Compile Include="SaveImage.cs" />
     <Compile Include="Smooth.cs" />

@@ -11,13 +11,14 @@ using System.Reflection;
 using System.Reactive.Linq;
 using Bonsai.Expressions;
 using Bonsai.Dag;
+using System.Collections.ObjectModel;
 using System.Drawing;
 
 namespace Bonsai.Vision.Design
 {
-    public abstract class IplImageRectangleEditor : UITypeEditor
+    public abstract class IplImageRoiEditor : UITypeEditor
     {
-        protected IplImageRectangleEditor(RectangleSource source)
+        protected IplImageRoiEditor(RectangleSource source)
         {
             Source = source;
         }
@@ -40,15 +41,19 @@ namespace Bonsai.Vision.Design
             var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
             if (context != null && editorService != null)
             {
-                var rectangle = (CvRect)value;
+                var regions = (CvPoint[][])value;
                 var propertyDescriptor = context.PropertyDescriptor;
 
                 using (var visualizerDialog = new TypeVisualizerDialog())
-                using (var imageControl = new IplImageRectanglePicker())
+                using (var imageControl = new IplImageRoiPicker())
                 {
                     visualizerDialog.Text = propertyDescriptor.Name;
-                    imageControl.Rectangle = rectangle;
-                    imageControl.RectangleChanged += (sender, e) => propertyDescriptor.SetValue(context.Instance, imageControl.Rectangle);
+                    if (regions != null)
+                    {
+                        foreach (var region in regions) imageControl.Regions.Add(region);
+                    }
+
+                    imageControl.SelectedRegionChanged += (sender, e) => propertyDescriptor.SetValue(context.Instance, imageControl.Regions.ToArray());
                     visualizerDialog.AddControl(imageControl);
                     imageControl.PictureBox.DoubleClick += (sender, e) =>
                     {
@@ -81,7 +86,7 @@ namespace Bonsai.Vision.Design
                     imageControl.HandleDestroyed += delegate { subscription.Dispose(); };
                     editorService.ShowDialog(visualizerDialog);
 
-                    return imageControl.Rectangle;
+                    return imageControl.Regions.ToArray();
                 }
             }
 
