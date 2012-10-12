@@ -112,7 +112,6 @@
             this.labelCopyright.TabIndex = 21;
             this.labelCopyright.Text = "Copyright";
             this.labelCopyright.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.labelCopyright.Visible = false;
             // 
             // labelCompanyName
             // 
