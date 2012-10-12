@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Reactive.Linq;
 using Bonsai.Expressions;
 using Bonsai.Dag;
+using System.Drawing;
 
 namespace Bonsai.Vision.Design
 {
@@ -51,6 +52,13 @@ namespace Bonsai.Vision.Design
                     Array.Copy(quadrangle, imageControl.Quadrangle, imageControl.Quadrangle.Length);
                     imageControl.QuadrangleChanged += (sender, e) => propertyDescriptor.SetValue(context.Instance, imageControl.Quadrangle.Clone());
                     visualizerDialog.AddControl(imageControl);
+                    imageControl.PictureBox.DoubleClick += (sender, e) =>
+                    {
+                        if (imageControl.Image != null)
+                        {
+                            visualizerDialog.ClientSize = new Size(imageControl.Image.Width, imageControl.Image.Height);
+                        }
+                    };
 
                     var workflow = (ExpressionBuilderGraph)provider.GetService(typeof(ExpressionBuilderGraph));
                     if (workflow == null) return base.EditValue(context, provider, value);

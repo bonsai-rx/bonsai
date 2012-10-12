@@ -50,6 +50,7 @@
     <Compile Include="ContoursVisualizer.cs" />
     <Compile Include="BgraScalarConverter.cs" />
     <Compile Include="CvPointVisualizer.cs" />
+    <Compile Include="IplImageInputRoiEditor.cs" />
     <Compile Include="IplImageOutputRectangleEditor.cs" />
     <Compile Include="IplImageInputQuadrangleEditor.cs" />
     <Compile Include="IplImageInputRectangleEditor.cs" />
@@ -60,7 +61,12 @@
     <Compile Include="IplImageControl.designer.cs">
       <DependentUpon>IplImageControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="IplImageRoiEditor.cs" />
+    <Compile Include="IplImageRoiPicker.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="KeyPointCollectionVisualizer.cs" />
+    <Compile Include="RoiActivityVisualizer.cs" />
     <Compile Include="TimeIntervalIplImageVisualizer.cs" />
     <Compile Include="CvScalarVisualizer.cs" />
     <Compile Include="RangeScalarConverter.cs" />
