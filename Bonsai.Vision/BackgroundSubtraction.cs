@@ -31,6 +31,7 @@ namespace Bonsai.Vision
         [Editor(DesignTypes.TrackbarEditor, typeof(UITypeEditor))]
         public double ThresholdValue { get; set; }
 
+        [TypeConverter(typeof(ThresholdTypeConverter))]
         public ThresholdType ThresholdType { get; set; }
 
         public override IplImage Process(IplImage input)
@@ -80,6 +81,23 @@ namespace Bonsai.Vision
                 background = image = difference = null;
             }
             base.Unload();
+        }
+
+        class ThresholdTypeConverter : EnumConverter
+        {
+            public ThresholdTypeConverter(Type type)
+                : base(type)
+            {
+            }
+
+            public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+            {
+                return new StandardValuesCollection(
+                    base.GetStandardValues(context)
+                    .Cast<ThresholdType>()
+                    .Where(type => type != ThresholdType.Otsu)
+                    .ToArray());
+            }
         }
     }
 }
