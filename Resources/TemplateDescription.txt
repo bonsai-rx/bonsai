@@ -4,9 +4,9 @@ A project for creating a Bonsai workflow with custom C# extensions (.dll)
 
 A project item for creating a Bonsai source
 
-A project item for creating a Bonsai filter
+A project item for creating a Bonsai condition
 
-A project item for creating a Bonsai projection
+A project item for creating a Bonsai transform
 
 A project item for creating a Bonsai sink
 

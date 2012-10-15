@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class Subtract : Projection<IplImage, IplImage, IplImage>
+    public class Subtract : Transform<IplImage, IplImage, IplImage>
     {
         public override IplImage Process(IplImage first, IplImage second)
         {

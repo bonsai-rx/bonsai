@@ -10,7 +10,7 @@ using TResult = System.String;
 
 namespace Bonsai.PackageTemplate
 {
-    public class Projection1 : Projection<TSource, TResult>
+    public class Transform1 : Transform<TSource, TResult>
     {
         public override TResult Process(TSource input)
         {

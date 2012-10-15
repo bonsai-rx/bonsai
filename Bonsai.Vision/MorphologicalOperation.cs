@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class MorphologicalOperation : Projection<IplImage, IplImage>
+    public class MorphologicalOperation : Transform<IplImage, IplImage>
     {
         CvSize size;
         CvPoint anchor;

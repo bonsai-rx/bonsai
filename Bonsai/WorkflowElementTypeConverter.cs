@@ -11,13 +11,13 @@ namespace Bonsai
         static bool MatchType(Type type, WorkflowElementType elementType)
         {
             if (elementType == WorkflowElementType.Source) return MatchGenericType(type, typeof(Source<>));
-            if (elementType == WorkflowElementType.Filter) return MatchGenericType(type, typeof(Filter<>));
+            if (elementType == WorkflowElementType.Condition) return MatchGenericType(type, typeof(Condition<>));
             if (elementType == WorkflowElementType.Sink) return type.IsSubclassOf(typeof(DynamicSink)) || MatchGenericType(type, typeof(Sink<>));
             if (elementType == WorkflowElementType.Combinator) return type.IsSubclassOf(typeof(ExpressionBuilder));
-            if (elementType == WorkflowElementType.Projection)
+            if (elementType == WorkflowElementType.Transform)
             {
-                return MatchGenericType(type, typeof(Projection<,>)) ||
-                       MatchGenericType(type, typeof(Projection<,,>));
+                return MatchGenericType(type, typeof(Transform<,>)) ||
+                       MatchGenericType(type, typeof(Transform<,,>));
             }
 
             return false;
@@ -57,8 +57,8 @@ namespace Bonsai
         {
             if (MatchIgnoredTypes(type)) yield break;
             if (MatchType(type, WorkflowElementType.Source)) yield return WorkflowElementType.Source;
-            if (MatchType(type, WorkflowElementType.Filter)) yield return WorkflowElementType.Filter;
-            if (MatchType(type, WorkflowElementType.Projection)) yield return WorkflowElementType.Projection;
+            if (MatchType(type, WorkflowElementType.Condition)) yield return WorkflowElementType.Condition;
+            if (MatchType(type, WorkflowElementType.Transform)) yield return WorkflowElementType.Transform;
             if (MatchType(type, WorkflowElementType.Sink)) yield return WorkflowElementType.Sink;
             if (MatchType(type, WorkflowElementType.Combinator)) yield return WorkflowElementType.Combinator;
         }

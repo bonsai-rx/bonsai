@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace Bonsai.Vision.AForge
 {
-    public class KeyPressed : Filter<Keys>
+    public class KeyPressed : Condition<Keys>
     {
         public Keys Key { get; set; }
 

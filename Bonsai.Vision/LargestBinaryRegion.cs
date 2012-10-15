@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class LargestBinaryRegion : Projection<ConnectedComponentCollection, ConnectedComponentCollection>
+    public class LargestBinaryRegion : Transform<ConnectedComponentCollection, ConnectedComponentCollection>
     {
         public override ConnectedComponentCollection Process(ConnectedComponentCollection input)
         {

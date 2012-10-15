@@ -34,10 +34,10 @@ namespace Bonsai.Design
                 if (sourceBuilder != null) return sourceBuilder.Source.GetType().Name;
 
                 var whereBuilder = expressionBuilder as WhereBuilder;
-                if (whereBuilder != null) return whereBuilder.Filter.GetType().Name;
+                if (whereBuilder != null) return whereBuilder.Condition.GetType().Name;
 
                 var selectBuilder = expressionBuilder as SelectBuilder;
-                if (selectBuilder != null) return selectBuilder.Projection.GetType().Name;
+                if (selectBuilder != null) return selectBuilder.Transform.GetType().Name;
 
                 var doBuilder = expressionBuilder as DoBuilder;
                 if (doBuilder != null) return doBuilder.Sink.GetType().Name;

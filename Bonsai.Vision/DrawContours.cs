@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class DrawContours : Projection<Contours, IplImage>
+    public class DrawContours : Transform<Contours, IplImage>
     {
         public override IplImage Process(Contours input)
         {

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Bonsai.Vision
 {
-    public class ConnectedComponentCheck : Filter<ConnectedComponentCollection>
+    public class ConnectedComponentCheck : Condition<ConnectedComponentCollection>
     {
         public override bool Process(ConnectedComponentCollection input)
         {

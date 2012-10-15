@@ -57,10 +57,10 @@ namespace Bonsai.Expressions
             if (sourceBuilder != null) return sourceBuilder.Source.GetType();
 
             var selectBuilder = builder as SelectBuilder;
-            if (selectBuilder != null) return selectBuilder.Projection.GetType();
+            if (selectBuilder != null) return selectBuilder.Transform.GetType();
 
             var whereBuilder = builder as WhereBuilder;
-            if (whereBuilder != null) return whereBuilder.Filter.GetType();
+            if (whereBuilder != null) return whereBuilder.Condition.GetType();
 
             var doBuilder = builder as DoBuilder;
             if (doBuilder != null) return doBuilder.Sink.GetType();
@@ -76,8 +76,8 @@ namespace Bonsai.Expressions
             }
 
             if (elementType == WorkflowElementType.Source) return new SourceBuilder { Source = element };
-            if (elementType == WorkflowElementType.Filter) return new WhereBuilder { Filter = element };
-            if (elementType == WorkflowElementType.Projection) return new SelectBuilder { Projection = element };
+            if (elementType == WorkflowElementType.Condition) return new WhereBuilder { Condition = element };
+            if (elementType == WorkflowElementType.Transform) return new SelectBuilder { Transform = element };
             if (elementType == WorkflowElementType.Sink) return new DoBuilder { Sink = element };
             throw new InvalidOperationException("Invalid loadable element type.");
         }
@@ -95,17 +95,17 @@ namespace Bonsai.Expressions
                          .GetGenericArguments()[0];
         }
 
-        protected static Type GetFilterGenericArgument(LoadableElement filter)
+        protected static Type GetConditionGenericArgument(LoadableElement condition)
         {
-            if (filter == null)
+            if (condition == null)
             {
-                throw new ArgumentNullException("filter");
+                throw new ArgumentNullException("condition");
             }
 
-            var type = filter.GetType();
+            var type = condition.GetType();
             while (type != typeof(object))
             {
-                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Filter<>))
+                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Condition<>))
                 {
                     return type.GetGenericArguments()[0];
                 }

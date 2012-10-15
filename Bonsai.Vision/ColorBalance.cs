@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
-    public class ColorBalance : Projection<IplImage, IplImage>
+    public class ColorBalance : Transform<IplImage, IplImage>
     {
         IplImage channel1;
         IplImage channel2;

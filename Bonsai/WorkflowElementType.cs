@@ -9,8 +9,8 @@ namespace Bonsai
     public enum WorkflowElementType
     {
         Source,
-        Filter,
-        Projection,
+        Condition,
+        Transform,
         Sink,
         Combinator
     }

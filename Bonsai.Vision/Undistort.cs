@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 
 namespace Bonsai.Vision
 {
-    public class Undistort : Projection<IplImage, IplImage>
+    public class Undistort : Transform<IplImage, IplImage>
     {
         CvMat cameraMatrix;
         CvMat distortionCoefficients;

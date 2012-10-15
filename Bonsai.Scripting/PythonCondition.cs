@@ -12,15 +12,15 @@ using System.Linq.Expressions;
 namespace Bonsai.Scripting
 {
     [Description("A Python script used to determine which elements of the input sequence are accepted.")]
-    public class PythonFilter : CombinatorExpressionBuilder
+    public class PythonCondition : CombinatorExpressionBuilder
     {
-        public PythonFilter()
+        public PythonCondition()
         {
             Script = "def process(input):\n    return True";
         }
 
         [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
-        [Description("The script that determines the criteria for the filter.")]
+        [Description("The script that determines the criteria for the condition.")]
         public string Script { get; set; }
 
         public override Expression Build()

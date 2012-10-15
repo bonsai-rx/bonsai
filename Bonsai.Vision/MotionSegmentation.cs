@@ -8,7 +8,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
-    public class MotionSegmentation : Projection<IplImage, IplImage>
+    public class MotionSegmentation : Transform<IplImage, IplImage>
     {
         IplImage temp;
         IplImage accumulator;

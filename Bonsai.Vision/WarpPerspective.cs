@@ -8,7 +8,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
-    public class WarpPerspective : Projection<IplImage, IplImage>
+    public class WarpPerspective : Transform<IplImage, IplImage>
     {
         CvMat mapMatrix;
         CvPoint2D32f[] currentSource;

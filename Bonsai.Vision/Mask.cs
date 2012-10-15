@@ -8,7 +8,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
-    public class Mask : Projection<IplImage, IplImage>
+    public class Mask : Transform<IplImage, IplImage>
     {
         CvArr mask;
 

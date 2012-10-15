@@ -8,7 +8,7 @@ using System.ComponentModel;
 namespace Bonsai.Vision
 {
     [Description("Finds the contours of connected components in the input binary image.")]
-    public class FindContours : Projection<IplImage, Contours>
+    public class FindContours : Transform<IplImage, Contours>
     {
         IplImage temp;
 

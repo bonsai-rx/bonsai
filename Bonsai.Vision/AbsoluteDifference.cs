@@ -8,7 +8,7 @@ using System.ComponentModel;
 namespace Bonsai.Vision
 {
     [Description("Calculates the absolute difference between the two input images.")]
-    public class AbsoluteDifference : Projection<IplImage, IplImage, IplImage>
+    public class AbsoluteDifference : Transform<IplImage, IplImage, IplImage>
     {
         public override IplImage Process(IplImage first, IplImage second)
         {

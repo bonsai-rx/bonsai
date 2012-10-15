@@ -47,8 +47,8 @@
   <ItemGroup>
     <Compile Include="PythonTextWriter.cs" />
     <Compile Include="PythonSink.cs" />
-    <Compile Include="PythonFilter.cs" />
-    <Compile Include="PythonProjection.cs" />
+    <Compile Include="PythonCondition.cs" />
+    <Compile Include="PythonTransform.cs" />
     <Compile Include="PythonScriptEditor.cs" />
     <Compile Include="PythonScriptEditorDialog.cs">
       <SubType>Form</SubType>

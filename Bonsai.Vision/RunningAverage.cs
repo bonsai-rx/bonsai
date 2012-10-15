@@ -8,7 +8,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
-    public class RunningAverage : Projection<IplImage, IplImage>
+    public class RunningAverage : Transform<IplImage, IplImage>
     {
         IplImage accumulator;
 

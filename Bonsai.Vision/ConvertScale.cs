@@ -8,7 +8,7 @@ using System.ComponentModel;
 namespace Bonsai.Vision
 {
     [Description("Converts the input image into the specified bit depth, with optional linear transformation.")]
-    public class ConvertScale : Projection<IplImage, IplImage>
+    public class ConvertScale : Transform<IplImage, IplImage>
     {
         public ConvertScale()
         {

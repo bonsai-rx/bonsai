@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
-    public class HsvThreshold : Projection<IplImage, IplImage>
+    public class HsvThreshold : Transform<IplImage, IplImage>
     {
         public HsvThreshold()
         {

@@ -8,7 +8,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
-    public class BackgroundSubtraction : Projection<IplImage, IplImage>
+    public class BackgroundSubtraction : Transform<IplImage, IplImage>
     {
         IplImage image;
         IplImage difference;

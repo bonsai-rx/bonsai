@@ -8,7 +8,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
-    public class ImageSubtraction : Projection<IplImage, IplImage>
+    public class ImageSubtraction : Transform<IplImage, IplImage>
     {
         CvArr image;
 

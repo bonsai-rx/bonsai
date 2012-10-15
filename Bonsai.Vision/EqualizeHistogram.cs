@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class EqualizeHistogram : Projection<IplImage, IplImage>
+    public class EqualizeHistogram : Transform<IplImage, IplImage>
     {
         public override IplImage Process(IplImage input)
         {

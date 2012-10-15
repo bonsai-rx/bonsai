@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class GoodFeaturesToTrack : Projection<IplImage, KeyPointCollection>
+    public class GoodFeaturesToTrack : Transform<IplImage, KeyPointCollection>
     {
         IplImage temp;
         IplImage eigen;
