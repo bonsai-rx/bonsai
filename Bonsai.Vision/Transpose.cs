@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class Transpose : Projection<IplImage, IplImage>
+    public class Transpose : Transform<IplImage, IplImage>
     {
         public override IplImage Process(IplImage input)
         {

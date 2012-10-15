@@ -17,22 +17,22 @@ namespace Bonsai.Expressions
                                                                     .First(m => m.Name == "Select" &&
                                                                            m.GetParameters().Length == 2);
 
-        public LoadableElement Projection { get; set; }
+        public LoadableElement Transform { get; set; }
 
         public override Expression Build()
         {
-            var processMethod = Projection.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            var processMethod = Transform.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                                                     .First(m => m.Name == "Process" && m.GetParameters().Length == 1);
 
-            var projectionGenericArguments = processMethod.GetParameters()
+            var transformGenericArguments = processMethod.GetParameters()
                                                           .Select(info => info.ParameterType)
                                                           .Concat(Enumerable.Repeat(processMethod.ReturnType, 1))
                                                           .ToArray();
 
-            var selectorType = Expression.GetFuncType(projectionGenericArguments);
-            var selectorDelegate = Delegate.CreateDelegate(selectorType, Projection, processMethod);
+            var selectorType = Expression.GetFuncType(transformGenericArguments);
+            var selectorDelegate = Delegate.CreateDelegate(selectorType, Transform, processMethod);
             var selector = Expression.Constant(selectorDelegate);
-            return Expression.Call(selectMethod.MakeGenericMethod(projectionGenericArguments), Source, selector);
+            return Expression.Call(selectMethod.MakeGenericMethod(transformGenericArguments), Source, selector);
         }
     }
 }

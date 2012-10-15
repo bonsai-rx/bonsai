@@ -9,7 +9,7 @@ using TSource = System.String;
 
 namespace Bonsai.ItemTemplates
 {
-    public class FilterTemplate : Filter<TSource>
+    public class ConditionTemplate : Condition<TSource>
     {
         public override bool Process(TSource input)
         {

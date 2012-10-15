@@ -43,9 +43,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="SourceTemplate.cs" />
-    <Compile Include="FilterTemplate.cs" />
+    <Compile Include="ConditionTemplate.cs" />
     <Compile Include="SinkTemplate.cs" />
-    <Compile Include="ProjectionTemplate.cs" />
+    <Compile Include="TransformTemplate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class Smooth : Projection<IplImage, IplImage>
+    public class Smooth : Transform<IplImage, IplImage>
     {
         public SmoothMethod SmoothType { get; set; }
 

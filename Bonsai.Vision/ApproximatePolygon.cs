@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class ApproximatePolygon : Projection<Contours, Contours>
+    public class ApproximatePolygon : Transform<Contours, Contours>
     {
         public PolygonApproximation Method { get; set; }
 

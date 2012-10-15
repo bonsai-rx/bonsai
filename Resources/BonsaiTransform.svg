@@ -15,10 +15,10 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.1 "
-   sodipodi:docname="BonsaiFilter.svg"
-   inkscape:export-filename="C:\Projects\Bonsai.Packages\Externals\Bonsai\BonsaiSource16.png"
-   inkscape:export-xdpi="1.4082111"
-   inkscape:export-ydpi="1.4082111">
+   sodipodi:docname="BonsaiProjection.svg"
+   inkscape:export-filename="C:\Projects\Bonsai.Packages\Externals\Bonsai\BonsaiSource256.png"
+   inkscape:export-xdpi="22.531378"
+   inkscape:export-ydpi="22.531378">
   <defs
      id="defs4">
     <linearGradient
@@ -281,7 +281,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.50558689"
-     inkscape:cx="57.236436"
+     inkscape:cx="-179.12254"
      inkscape:cy="511.28699"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -304,7 +304,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -366,13 +366,13 @@
        sodipodi:nodetypes="cccc" />
     <path
        sodipodi:type="arc"
-       style="fill:#90ee90;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:10;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:10;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="path3820"
        sodipodi:cx="-107.79552"
        sodipodi:cy="697.20953"
        sodipodi:rx="202.73468"
        sodipodi:ry="202.73468"
-       d="m 94.939163,697.20953 a 202.73468,202.73468 0 1 1 -405.469363,0 202.73468,202.73468 0 1 1 405.469363,0 z"
+       d="m 94.939163,697.20953 c 0,111.96728 -90.7674078,202.73468 -202.734683,202.73468 -111.96727,0 -202.73468,-90.7674 -202.73468,-202.73468 0,-111.96727 90.76741,-202.73468 202.73468,-202.73468 111.9672752,0 202.734683,90.76741 202.734683,202.73468 z"
        transform="translate(-1701.4074,571.38833)" />
     <path
        style="fill:none;stroke:#000000;stroke-width:9.30648327;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
@@ -382,13 +382,13 @@
     <text
        xml:space="preserve"
        style="font-size:250px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
-       x="-1890.0745"
+       x="-1885.9851"
        y="1358.0754"
        id="text3824"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan3826"
-         x="-1890.0745"
-         y="1358.0754">F</tspan></text>
+         x="-1885.9851"
+         y="1358.0754">T</tspan></text>
   </g>
 </svg>

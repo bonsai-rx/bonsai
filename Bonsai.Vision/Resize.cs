@@ -8,7 +8,7 @@ using System.ComponentModel;
 namespace Bonsai.Vision
 {
     [Description("Resizes the input image.")]
-    public class Resize : Projection<IplImage, IplImage>
+    public class Resize : Transform<IplImage, IplImage>
     {
         public Resize()
         {

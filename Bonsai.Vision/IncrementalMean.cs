@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class IncrementalMean : Projection<IplImage, IplImage>
+    public class IncrementalMean : Transform<IplImage, IplImage>
     {
         int count;
         IplImage mean;

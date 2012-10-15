@@ -105,7 +105,7 @@ namespace Bonsai.Editor
             var packages = WorkflowElementLoader.GetWorkflowElementTypes();
             var packageInitialization = packages
                 .ObserveOn(this)
-                .Do(package => InitializeToolboxCategory(package.Key == BonsaiPackageName ? CombinatorCategoryName : package.Key, package))
+                .Do(package => InitializeToolboxCategory(package.Key, package))
                 .SubscribeOn(Scheduler.ThreadPool)
                 .Subscribe();
         }
@@ -120,8 +120,8 @@ namespace Bonsai.Editor
         {
             return
                 typeName == WorkflowElementType.Source.ToString() ? 0 :
-                typeName == WorkflowElementType.Filter.ToString() ? 1 :
-                typeName == WorkflowElementType.Projection.ToString() ? 2 :
+                typeName == WorkflowElementType.Condition.ToString() ? 1 :
+                typeName == WorkflowElementType.Transform.ToString() ? 2 :
                 typeName == WorkflowElementType.Sink.ToString() ? 3 : 4;
         }
 
@@ -132,33 +132,18 @@ namespace Bonsai.Editor
 
         void InitializeToolboxCategory(string categoryName, IEnumerable<WorkflowElementDescriptor> types)
         {
-            TreeNode category = null;
-
             foreach (var type in types.OrderBy(type => type.Name))
             {
                 foreach (var elementType in type.ElementTypes)
                 {
+                    var elementTypeNode = toolboxTreeView.Nodes[elementType.ToString()];
+                    var category = elementTypeNode.Nodes[categoryName];
                     if (category == null)
                     {
-                        category = toolboxTreeView.Nodes.Add(categoryName, GetPackageDisplayName(categoryName));
+                        category = elementTypeNode.Nodes.Add(categoryName, GetPackageDisplayName(categoryName));
                     }
 
-                    var elementTypeNode = categoryName == CombinatorCategoryName ? category : category.Nodes[elementType.ToString()];
-                    if (elementTypeNode == null)
-                    {
-                        int index;
-                        for (index = 0; index < category.Nodes.Count; index++)
-                        {
-                            if (CompareLoadableElementType(elementType.ToString(), category.Nodes[index].Name) <= 0)
-                            {
-                                break;
-                            }
-                        }
-
-                        elementTypeNode = category.Nodes.Insert(index, elementType.ToString(), elementType.ToString());
-                    }
-
-                    var node = elementTypeNode.Nodes.Add(type.AssemblyQualifiedName, type.Name);
+                    var node = category.Nodes.Add(type.AssemblyQualifiedName, type.Name);
                     node.Tag = elementType;
                     node.ToolTipText = type.Description;
                 }

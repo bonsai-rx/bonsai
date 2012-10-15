@@ -22,14 +22,14 @@
         <File Id='BonsaiSourceTemplateZIP' Name='BonsaiSource.zip' Source='$(var.ResourcesPath)\BonsaiSource.zip' KeyPath='yes'/>
       </Component>
 
-      <Component Id='BonsaiProjectionTemplate' Guid='fecd09a9-eef2-4122-9067-179fbcb5df05'>
+      <Component Id='BonsaiTransformTemplate' Guid='fecd09a9-eef2-4122-9067-179fbcb5df05'>
         <Condition>ITEMTEMPLATESLOCATION</Condition>
-        <File Id='BonsaiProjectionTemplateZIP' Name='BonsaiProjection.zip' Source='$(var.ResourcesPath)\BonsaiProjection.zip' KeyPath='yes'/>
+        <File Id='BonsaiTransformTemplateZIP' Name='BonsaiTransform.zip' Source='$(var.ResourcesPath)\BonsaiTransform.zip' KeyPath='yes'/>
       </Component>
 
-      <Component Id='BonsaiFilterTemplate' Guid='67d51a35-cac1-4784-809e-6fee1d5d5c70'>
+      <Component Id='BonsaiConditionTemplate' Guid='67d51a35-cac1-4784-809e-6fee1d5d5c70'>
         <Condition>ITEMTEMPLATESLOCATION</Condition>
-        <File Id='BonsaiFilterTemplateZIP' Name='BonsaiFilter.zip' Source='$(var.ResourcesPath)\BonsaiFilter.zip' KeyPath='yes'/>
+        <File Id='BonsaiConditionTemplateZIP' Name='BonsaiCondition.zip' Source='$(var.ResourcesPath)\BonsaiCondition.zip' KeyPath='yes'/>
       </Component>
 
       <Component Id='BonsaiSinkTemplate' Guid='41478b41-d471-47dd-bcef-ff6beba72b87'>
