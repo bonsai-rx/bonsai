@@ -21,7 +21,7 @@ namespace Bonsai.Expressions
         public override Expression Build()
         {
             var observableType = Source.Type.GetGenericArguments()[0];
-            var scheduler = Expression.Constant(HighResolutionScheduler.ThreadPool);
+            var scheduler = Expression.Constant(HighResolutionScheduler.Default);
             return Expression.Call(timeIntervalMethod.MakeGenericMethod(observableType), Source, scheduler);
         }
     }

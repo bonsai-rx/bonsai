@@ -87,8 +87,8 @@ namespace Bonsai.Editor
         protected override void OnLoad(EventArgs e)
         {
             ConfigurationHelper.SetAssemblyResolve();
-            Scheduler.ThreadPool.Schedule(InitializeToolbox);
-            Scheduler.ThreadPool.Schedule(InitializeTypeVisualizers);
+            Scheduler.Default.Schedule(InitializeToolbox);
+            Scheduler.Default.Schedule(InitializeTypeVisualizers);
 
             if (!string.IsNullOrEmpty(InitialFileName) &&
                 Path.GetExtension(InitialFileName) == BonsaiExtension &&
@@ -121,7 +121,7 @@ namespace Bonsai.Editor
             visualizerMapping
                 .ObserveOn(this)
                 .Do(typeMapping => typeVisualizers.Add(typeMapping.Item1, typeMapping.Item2))
-                .SubscribeOn(Scheduler.ThreadPool)
+                .SubscribeOn(Scheduler.Default)
                 .Subscribe();
         }
 
@@ -131,7 +131,7 @@ namespace Bonsai.Editor
             var packageInitialization = packages
                 .ObserveOn(this)
                 .Do(package => InitializeToolboxCategory(package.Key, package))
-                .SubscribeOn(Scheduler.ThreadPool)
+                .SubscribeOn(Scheduler.Default)
                 .Subscribe();
         }
 
@@ -380,7 +380,7 @@ namespace Bonsai.Editor
                         var shutdown = ShutdownSequence();
                         return new ReactiveWorkflowDisposable(runtimeWorkflow, shutdown);
                     },
-                    resource => resource.Workflow.Run().SubscribeOn(Scheduler.NewThread))
+                    resource => resource.Workflow.Run().SubscribeOn(NewThreadScheduler.Default))
                     .Subscribe(unit => { }, HandleWorkflowError, () => { });
             }
         }

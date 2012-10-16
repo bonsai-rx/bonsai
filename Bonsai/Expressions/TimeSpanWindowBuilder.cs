@@ -30,7 +30,7 @@ namespace Bonsai.Expressions
 
         protected override IObservable<IObservable<TSource>> Combine<TSource>(IObservable<TSource> source)
         {
-            return source.Window(Length, HighResolutionScheduler.ThreadPool);
+            return source.Window(Length, HighResolutionScheduler.Default);
         }
     }
 }
