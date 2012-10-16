@@ -42,7 +42,7 @@ namespace Bonsai
                 var normalizedDueTime = Scheduler.Normalize(dueTime);
                 if (normalizedDueTime.Ticks != 0)
                 {
-                    return HighResolutionScheduler.ThreadPool.Schedule<TState>(state, normalizedDueTime, (_, xs) => this.Schedule<TState>(xs, action));
+                    return HighResolutionScheduler.Default.Schedule<TState>(state, normalizedDueTime, (_, xs) => this.Schedule<TState>(xs, action));
                 }
                 else return this.Schedule<TState>(state, action);
             }

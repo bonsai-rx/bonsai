@@ -60,7 +60,7 @@ namespace Bonsai.Audio
                 },
                 resource => Observable.Create<CvMat>(observer =>
                 {
-                    return HighResolutionScheduler.ThreadPool.Schedule<int>((int)(BufferLength / 2 + 0.5), TimeSpan.Zero, (interval, self) =>
+                    return HighResolutionScheduler.Default.Schedule<int>((int)(BufferLength / 2 + 0.5), TimeSpan.Zero, (interval, self) =>
                     {
                         int availableSamples = capture.AvailableSamples;
                         if(availableSamples > 0)

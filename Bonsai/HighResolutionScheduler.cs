@@ -22,29 +22,9 @@ namespace Bonsai
             }
         }
 
-        public static HighResolutionCurrentThreadScheduler CurrentThread
+        public static IScheduler Default
         {
-            get { return HighResolutionCurrentThreadScheduler.Instance; }
-        }
-
-        public static HighResolutionImmediateScheduler Immediate
-        {
-            get { return HighResolutionImmediateScheduler.Instance; }
-        }
-
-        public static HighResolutionNewThreadScheduler NewThread
-        {
-            get { return HighResolutionNewThreadScheduler.Instance; }
-        }
-
-        public static HighResolutionTaskPoolScheduler TaskPool
-        {
-            get { return HighResolutionTaskPoolScheduler.Instance; }
-        }
-
-        public static HighResolutionThreadPoolScheduler ThreadPool
-        {
-            get { return HighResolutionThreadPoolScheduler.Instance; }
+            get { return HighResolutionDefaultScheduler.Default; }
         }
     }
 
@@ -81,52 +61,12 @@ namespace Bonsai
         }
     }
 
-    public sealed class HighResolutionCurrentThreadScheduler : StopwatchScheduler
+    sealed class HighResolutionDefaultScheduler : StopwatchScheduler
     {
-        internal static readonly HighResolutionCurrentThreadScheduler Instance = new HighResolutionCurrentThreadScheduler();
+        internal static readonly HighResolutionDefaultScheduler Default = new HighResolutionDefaultScheduler();
 
-        public HighResolutionCurrentThreadScheduler()
-            : base(Scheduler.CurrentThread)
-        {
-        }
-    }
-
-    public sealed class HighResolutionImmediateScheduler : StopwatchScheduler
-    {
-        internal static readonly HighResolutionImmediateScheduler Instance = new HighResolutionImmediateScheduler();
-
-        public HighResolutionImmediateScheduler()
-            : base(Scheduler.Immediate)
-        {
-        }
-    }
-
-    public sealed class HighResolutionNewThreadScheduler : StopwatchScheduler
-    {
-        internal static readonly HighResolutionNewThreadScheduler Instance = new HighResolutionNewThreadScheduler();
-
-        public HighResolutionNewThreadScheduler()
-            : base(Scheduler.NewThread)
-        {
-        }
-    }
-
-    public sealed class HighResolutionTaskPoolScheduler : StopwatchScheduler
-    {
-        internal static readonly HighResolutionTaskPoolScheduler Instance = new HighResolutionTaskPoolScheduler();
-
-        public HighResolutionTaskPoolScheduler()
-            : base(Scheduler.TaskPool)
-        {
-        }
-    }
-
-    public sealed class HighResolutionThreadPoolScheduler : StopwatchScheduler
-    {
-        internal static readonly HighResolutionThreadPoolScheduler Instance = new HighResolutionThreadPoolScheduler();
-
-        public HighResolutionThreadPoolScheduler()
-            : base(Scheduler.ThreadPool)
+        public HighResolutionDefaultScheduler()
+            : base(Scheduler.Default)
         {
         }
     }

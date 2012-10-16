@@ -29,7 +29,7 @@ namespace Bonsai.Expressions
 
         protected override IObservable<TSource> Combine<TSource>(IObservable<TSource> source)
         {
-            return source.Sample(Interval, HighResolutionScheduler.ThreadPool);
+            return source.Sample(Interval, HighResolutionScheduler.Default);
         }
     }
 }

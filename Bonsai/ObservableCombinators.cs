@@ -35,7 +35,7 @@ namespace Bonsai
 
         public static IObservable<TSource> Gate<TSource>(this IObservable<TSource> source, TimeSpan interval)
         {
-            return Gate(source, interval, Scheduler.ThreadPool);
+            return Gate(source, interval, Scheduler.Default);
         }
 
         public static IObservable<TSource> Gate<TSource>(this IObservable<TSource> source, TimeSpan interval, IScheduler scheduler)
@@ -51,7 +51,7 @@ namespace Bonsai
 
         public static IObservable<TSource> Gate<TSource, TGate>(this IObservable<TSource> source, IObservable<TGate> sampler, TimeSpan timeSpan)
         {
-            return Gate(source, sampler, timeSpan, Scheduler.ThreadPool);
+            return Gate(source, sampler, timeSpan, Scheduler.Default);
         }
 
         public static IObservable<TSource> Gate<TSource, TGate>(this IObservable<TSource> source, IObservable<TGate> sampler, TimeSpan timeSpan, IScheduler scheduler)
@@ -63,17 +63,6 @@ namespace Bonsai
         {
             return source.Window(openSampler, window => closeSampler)
                          .SelectMany(window => window.Take(1));
-        }
-
-        public static IObservable<IList<TSource>> Zip<TSource>(this IEnumerable<IObservable<TSource>> sources)
-        {
-            var completed = Observable.Return(new List<TSource>());
-            foreach (var source in sources)
-            {
-                completed = completed.Zip(source, (xs, ys) => { xs.Add(ys); return xs; });
-            }
-
-            return completed;
         }
     }
 }
