@@ -60,6 +60,13 @@ namespace Bonsai.Editor.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap BonsaiWelcome {
+            get {
+                object obj = ResourceManager.GetObject("BonsaiWelcome", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         /// <summary>
         ///   Looks up a localized string similar to Running.
         /// </summary>

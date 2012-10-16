@@ -69,6 +69,21 @@ namespace Bonsai.Editor
 
         public string InitialFileName { get; set; }
 
+        void ShowWelcomeDialog()
+        {
+            using (var welcome = new WelcomeDialog())
+            {
+                if (welcome.ShowDialog(this) == DialogResult.OK)
+                {
+                    if (welcome.ShowWelcomeDialog != Settings.Default.ShowWelcomeDialog)
+                    {
+                        Settings.Default.ShowWelcomeDialog = welcome.ShowWelcomeDialog;
+                        Settings.Default.Save();
+                    }
+                }
+            }
+        }
+
         protected override void OnLoad(EventArgs e)
         {
             ConfigurationHelper.SetAssemblyResolve();
@@ -84,6 +99,16 @@ namespace Bonsai.Editor
             }
 
             base.OnLoad(e);
+        }
+
+        protected override void OnShown(EventArgs e)
+        {
+            if (Settings.Default.ShowWelcomeDialog)
+            {
+                ShowWelcomeDialog();
+            }
+
+            base.OnShown(e);
         }
 
         #endregion
@@ -607,6 +632,11 @@ namespace Bonsai.Editor
             {
                 about.ShowDialog();
             }
+        }
+
+        private void welcomeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ShowWelcomeDialog();
         }
 
         #endregion
