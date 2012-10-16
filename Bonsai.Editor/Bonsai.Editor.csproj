@@ -126,6 +126,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Bonsai.ico" />
+    <None Include="Resources\BonsaiCommands.png" />
     <None Include="Resources\BonsaiWelcome.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
