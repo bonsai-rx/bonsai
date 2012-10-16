@@ -49,7 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Bonsai.png" />
-    <Content Include="Dependencies\IronPython-2.7.2.1.msi" />
+    <Content Include="Dependencies\IronPython-2.7.3.msi" />
     <Content Include="Dependencies\opentk-2010-10-06.exe" />
     <Content Include="License.rtf" />
   </ItemGroup>
