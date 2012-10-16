@@ -30,8 +30,10 @@
         {
             this.pictureBox = new System.Windows.Forms.PictureBox();
             this.controlPanel = new System.Windows.Forms.Panel();
-            this.showWelcomeDialogCheckBox = new System.Windows.Forms.CheckBox();
             this.closeButton = new System.Windows.Forms.Button();
+            this.showWelcomeDialogCheckBox = new System.Windows.Forms.CheckBox();
+            this.nextButton = new System.Windows.Forms.Button();
+            this.previousButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.controlPanel.SuspendLayout();
             this.SuspendLayout();
@@ -50,6 +52,8 @@
             // 
             this.controlPanel.BackColor = System.Drawing.SystemColors.Control;
             this.controlPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.controlPanel.Controls.Add(this.previousButton);
+            this.controlPanel.Controls.Add(this.nextButton);
             this.controlPanel.Controls.Add(this.closeButton);
             this.controlPanel.Controls.Add(this.showWelcomeDialogCheckBox);
             this.controlPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -57,6 +61,17 @@
             this.controlPanel.Name = "controlPanel";
             this.controlPanel.Size = new System.Drawing.Size(553, 60);
             this.controlPanel.TabIndex = 1;
+            // 
+            // closeButton
+            // 
+            this.closeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.closeButton.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.closeButton.Location = new System.Drawing.Point(464, 18);
+            this.closeButton.Name = "closeButton";
+            this.closeButton.Size = new System.Drawing.Size(75, 23);
+            this.closeButton.TabIndex = 6;
+            this.closeButton.Text = "Close";
+            this.closeButton.UseVisualStyleBackColor = true;
             // 
             // showWelcomeDialogCheckBox
             // 
@@ -68,16 +83,25 @@
             this.showWelcomeDialogCheckBox.Text = "Show welcome at startup";
             this.showWelcomeDialogCheckBox.UseVisualStyleBackColor = true;
             // 
-            // closeButton
+            // nextButton
             // 
-            this.closeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.closeButton.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.closeButton.Location = new System.Drawing.Point(464, 18);
-            this.closeButton.Name = "closeButton";
-            this.closeButton.Size = new System.Drawing.Size(75, 23);
-            this.closeButton.TabIndex = 3;
-            this.closeButton.Text = "Close";
-            this.closeButton.UseVisualStyleBackColor = true;
+            this.nextButton.Location = new System.Drawing.Point(383, 18);
+            this.nextButton.Name = "nextButton";
+            this.nextButton.Size = new System.Drawing.Size(75, 23);
+            this.nextButton.TabIndex = 5;
+            this.nextButton.Text = "Tell me more";
+            this.nextButton.UseVisualStyleBackColor = true;
+            this.nextButton.Click += new System.EventHandler(this.nextButton_Click);
+            // 
+            // previousButton
+            // 
+            this.previousButton.Location = new System.Drawing.Point(302, 18);
+            this.previousButton.Name = "previousButton";
+            this.previousButton.Size = new System.Drawing.Size(75, 23);
+            this.previousButton.TabIndex = 4;
+            this.previousButton.Text = "Previous";
+            this.previousButton.UseVisualStyleBackColor = true;
+            this.previousButton.Click += new System.EventHandler(this.previousButton_Click);
             // 
             // WelcomeDialog
             // 
@@ -107,5 +131,7 @@
         private System.Windows.Forms.Panel controlPanel;
         private System.Windows.Forms.Button closeButton;
         private System.Windows.Forms.CheckBox showWelcomeDialogCheckBox;
+        private System.Windows.Forms.Button previousButton;
+        private System.Windows.Forms.Button nextButton;
     }
 }

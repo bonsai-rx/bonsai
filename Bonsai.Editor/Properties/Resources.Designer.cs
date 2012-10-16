@@ -60,6 +60,13 @@ namespace Bonsai.Editor.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap BonsaiCommands {
+            get {
+                object obj = ResourceManager.GetObject("BonsaiCommands", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap BonsaiWelcome {
             get {
                 object obj = ResourceManager.GetObject("BonsaiWelcome", resourceCulture);
