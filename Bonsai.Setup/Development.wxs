@@ -7,11 +7,6 @@
         <Condition>PROJECTTEMPLATESLOCATION</Condition>
         <File Id='BonsaiPackageTemplateZIP' Name='BonsaiPackage.zip' Source='$(var.ResourcesPath)\BonsaiPackage.zip' KeyPath='yes'/>
       </Component>
-
-      <Component Id='BonsaiWorkflowTemplate' Guid='f3f5ed25-4082-4812-b5f7-99a02ae41a6b'>
-        <Condition>PROJECTTEMPLATESLOCATION</Condition>
-        <File Id='BonsaiWorkflowTemplateZIP' Name='BonsaiWorkflow.zip' Source='$(var.ResourcesPath)\BonsaiWorkflow.zip' KeyPath='yes'/>
-      </Component>
     </ComponentGroup>
   </Fragment>
 
