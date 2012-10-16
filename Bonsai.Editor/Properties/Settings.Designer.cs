@@ -22,5 +22,17 @@ namespace Bonsai.Editor.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ShowWelcomeDialog {
+            get {
+                return ((bool)(this["ShowWelcomeDialog"]));
+            }
+            set {
+                this["ShowWelcomeDialog"] = value;
+            }
+        }
     }
 }
