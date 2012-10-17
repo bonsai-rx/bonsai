@@ -51,6 +51,12 @@
           <ComponentGroupRef Id='ScriptingPackageComponents'/>
         </Feature>
       </Feature>
+
+      <Feature Id='ExamplesFeature' Title='Examples' Level='1'>
+        <Feature Id='VisionExamples' Title='Vision' Level='1'>
+          <ComponentGroupRef Id='VisionPackageExamples'/>
+        </Feature>
+      </Feature>
 		</Feature>
 	</Product>
 
@@ -59,6 +65,15 @@
 			<Directory Id="ProgramFilesFolder">
         <Directory Id="INSTALLFOLDER" Name="Bonsai">
           <Directory Id="PACKAGESFOLDER" Name="Packages"/>
+          
+          <Directory Id="EXAMPLESFOLDER" Name="Examples">
+            <Directory Id="VISIONEXAMPLESFOLDER" Name="Vision">
+              <Directory Id="CAMERATRIGGERFOLDER" Name="CameraTrigger"/>
+              <Directory Id="COLORSEGMENTATIONFOLDER" Name="ColorSegmentation"/>
+              <Directory Id="CONTRASTSEGMENTATIONFOLDER" Name="ContrastSegmentation"/>
+            </Directory>
+          </Directory>
+            
           <Directory Id="TemplatesFolder" Name="Templates">
             <Directory Id="PROJECTTEMPLATESFOLDER" Name="ProjectTemplates"/>
             <Directory Id="ITEMTEMPLATESFOLDER" Name="ItemTemplates"/>

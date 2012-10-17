@@ -2,6 +2,7 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
   <?define PackageBuildPath="..\Bonsai.Editor\bin\Release\Packages"?>
+  <?define ExamplesPath="..\Examples"?>
   <Fragment>
     <ComponentGroup Id="IOPackageComponents" Directory="PACKAGESFOLDER">
       <Component Id="BonsaiIOLibrary" Guid="ba5f1ba5-6f8b-4819-b679-ea48f630623a">
@@ -85,6 +86,20 @@
       <Component Id="BonsaiVisionDesignLibrary" Guid="7fd58c2d-3da7-4a6e-b9b0-83d7446f23ef">
         <File Id="BonsaiVisionDesignDLL" Name="Bonsai.Vision.Design.dll" Source="$(var.PackageBuildPath)\Bonsai.Vision.Design.dll" KeyPath="yes"/>
         <File Id="BonsaiVisionDesignPDB" Name="Bonsai.Vision.Design.pdb" Source="$(var.PackageBuildPath)\Bonsai.Vision.Design.pdb"/>
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="VisionPackageExamples">
+      <Component Id="CameraTrigger" Directory="CAMERATRIGGERFOLDER" Guid="90691c86-3721-480f-9a47-30060656b159">
+        <File Id="CameraTriggerBONSAI" Name="CameraTrigger.bonsai" Source="$(var.ExamplesPath)\Vision\CameraTrigger\CameraTrigger.bonsai" KeyPath="yes"/>
+      </Component>
+
+      <Component Id="ColorSegmentation" Directory="COLORSEGMENTATIONFOLDER" Guid="615fa2b5-7db8-4e40-af99-e7f4c5a19ac9">
+        <File Id="ColorSegmentationBONSAI" Name="ColorSegmentation.bonsai" Source="$(var.ExamplesPath)\Vision\ColorSegmentation\ColorSegmentation.bonsai" KeyPath="yes"/>
+      </Component>
+      
+      <Component Id="ContrastSegmentation" Directory="CONTRASTSEGMENTATIONFOLDER" Guid="50d41ba0-e911-430f-be14-5ad81a018beb">
+        <File Id="ContrastSegmentationBONSAI" Name="ContrastSegmentation.bonsai" Source="$(var.ExamplesPath)\Vision\ContrastSegmentation\ContrastSegmentation.bonsai" KeyPath="yes"/>
       </Component>
     </ComponentGroup>
 
