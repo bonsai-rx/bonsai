@@ -89,6 +89,7 @@ namespace Bonsai.Editor
             ConfigurationHelper.SetAssemblyResolve();
             Scheduler.Default.Schedule(InitializeToolbox);
             Scheduler.Default.Schedule(InitializeTypeVisualizers);
+            InitializeExampleDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Examples"), examplesToolStripMenuItem);
 
             if (!string.IsNullOrEmpty(InitialFileName) &&
                 Path.GetExtension(InitialFileName) == BonsaiExtension &&
@@ -172,6 +173,46 @@ namespace Bonsai.Editor
                     node.Tag = elementType;
                     node.ToolTipText = type.Description;
                 }
+            }
+        }
+
+        #endregion
+
+        #region Workflow Examples
+
+        bool InitializeExampleDirectory(string path, ToolStripMenuItem exampleMenuItem)
+        {
+            if (!Directory.Exists(path)) return false;
+
+            var examplePath = Path.Combine(path, Path.ChangeExtension(exampleMenuItem.Text, BonsaiExtension));
+            if (File.Exists(examplePath))
+            {
+                exampleMenuItem.Tag = examplePath;
+                exampleMenuItem.Click += (sender, e) =>
+                {
+                    if (CheckUnsavedChanges())
+                    {
+                        OpenWorkflow(examplePath);
+                        saveWorkflowDialog.FileName = null;
+                    }
+                };
+                return true;
+            }
+            else
+            {
+                var containsExamples = false;
+                foreach (var directory in Directory.GetDirectories(path))
+                {
+                    var menuItem = new ToolStripMenuItem(Path.GetFileNameWithoutExtension(directory));
+                    var examplesFound = InitializeExampleDirectory(directory, menuItem);
+                    if (examplesFound)
+                    {
+                        exampleMenuItem.DropDownItems.Add(menuItem);
+                        containsExamples = true;
+                    }
+                }
+
+                return containsExamples;
             }
         }
 
