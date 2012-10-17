@@ -6,6 +6,7 @@ using OpenCV.Net;
 using System.ComponentModel;
 using System.Drawing.Design;
 using System.IO;
+using Bonsai.IO;
 
 namespace Bonsai.Vision
 {
@@ -17,13 +18,15 @@ namespace Bonsai.Vision
         [Description("The name of the image file.")]
         public string FileName { get; set; }
 
+        public PathSuffix Suffix { get; set; }
+
         public override void Process(IplImage input)
         {
             if (!string.IsNullOrEmpty(FileName))
             {
-                var directoryName = Path.GetDirectoryName(FileName);
-                if (!string.IsNullOrEmpty(directoryName) && !Directory.Exists(directoryName)) Directory.CreateDirectory(directoryName);
-                HighGui.cvSaveImage(FileName, input);
+                PathHelper.EnsureDirectory(FileName);
+                var fileName = PathHelper.AppendSuffix(FileName, Suffix);
+                HighGui.cvSaveImage(fileName, input);
             }
         }
     }
