@@ -27,8 +27,15 @@
       </Feature>
 
       <Feature Id='DevelopmentFeature' Title='Development' Level='1'>
-        <ComponentGroupRef Id='ProductProjectTemplates'/>
-        <ComponentGroupRef Id='ProductItemTemplates'/>
+        <Feature Id='ProjectTemplatesFeature' Title='ProjectTemplates' Level='1'>
+          <Condition Level='1'>PROJECTTEMPLATESLOCATION</Condition>
+          <ComponentGroupRef Id='ProductProjectTemplates'/>
+        </Feature>
+
+        <Feature Id='ItemTemplatesFeature' Title='ItemTemplates' Level='1'>
+          <Condition Level='1'>ITEMTEMPLATESLOCATION</Condition>
+          <ComponentGroupRef Id='ProductItemTemplates'/>
+        </Feature>
       </Feature>
 
       <Feature Id='PackagesFeature' Title='Packages' Level='1'>
@@ -91,7 +98,7 @@
       </Directory>
 		</Directory>
 
-    <SetProperty Id="PROJECTTEMPLATESFOLDER" Value="[PROJECTTEMPLATESLOCATION]\Bonsai" After="AppSearch"/>
-    <SetProperty Id="ITEMTEMPLATESFOLDER" Value="[ITEMTEMPLATESLOCATION]\Bonsai" After="AppSearch"/>
+    <SetProperty Id="PROJECTTEMPLATESFOLDER" Value="[PROJECTTEMPLATESLOCATION]\Bonsai" After="AppSearch">PROJECTTEMPLATESLOCATION</SetProperty>
+    <SetProperty Id="ITEMTEMPLATESFOLDER" Value="[ITEMTEMPLATESLOCATION]\Bonsai" After="AppSearch">ITEMTEMPLATESLOCATION</SetProperty>
 	</Fragment>
 </Wix>
