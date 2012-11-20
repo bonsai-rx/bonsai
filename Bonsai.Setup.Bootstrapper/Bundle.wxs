@@ -9,9 +9,11 @@
     </BootstrapperApplicationRef>
 
     <util:RegistrySearch Root="HKCU" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenTK" Value="InstallDir" Variable="OpenTKInstalled"/>
+    <util:RegistrySearch Root="HKLM" Key="Software\Microsoft\VisualStudio\10.0\VC\VCRedist\x86" Value="Installed" Variable="VCRTInstalled"/>
 
 		<Chain>
       <PackageGroupRef Id="NetFx40Web"/>
+      <ExePackage Id="VCRT" SourceFile="Dependencies\vcredist_x86.exe" Permanent="yes" DetectCondition="VCRTInstalled"/>
       <ExePackage Id="OpenTK" SourceFile="Dependencies\opentk-2010-10-06.exe" Permanent="yes" DetectCondition="OpenTKInstalled"/>
       <MsiPackage Id="IronPython" SourceFile="Dependencies\IronPython-2.7.3.msi" DisplayInternalUI="yes" Permanent="yes"/>
       <MsiPackage Id="Bonsai" SourceFile="$(var.Bonsai.Setup.TargetPath)"/>
