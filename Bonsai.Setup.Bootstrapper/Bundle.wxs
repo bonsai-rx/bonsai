@@ -13,7 +13,7 @@
 
 		<Chain>
       <PackageGroupRef Id="NetFx40Web"/>
-      <ExePackage Id="VCRT" SourceFile="Dependencies\vcredist_x86.exe" Permanent="yes" DetectCondition="VCRTInstalled"/>
+      <ExePackage Id="VCRT" SourceFile="Dependencies\vcredist_x86.exe" InstallCommand="/q /norestart" Permanent="yes" DetectCondition="VCRTInstalled"/>
       <ExePackage Id="OpenTK" SourceFile="Dependencies\opentk-2010-10-06.exe" Permanent="yes" DetectCondition="OpenTKInstalled"/>
       <MsiPackage Id="IronPython" SourceFile="Dependencies\IronPython-2.7.3.msi" DisplayInternalUI="yes" Permanent="yes"/>
       <MsiPackage Id="Bonsai" SourceFile="$(var.Bonsai.Setup.TargetPath)"/>
