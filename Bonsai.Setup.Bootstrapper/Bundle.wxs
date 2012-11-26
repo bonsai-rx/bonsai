@@ -17,8 +17,6 @@
       <ExePackage Id="OpenTK" SourceFile="Dependencies\opentk-2010-10-06.exe" Permanent="yes" DetectCondition="OpenTKInstalled"/>
       <MsiPackage Id="IronPython" SourceFile="Dependencies\IronPython-2.7.3.msi" DisplayInternalUI="yes" Permanent="yes"/>
       <MsiPackage Id="Bonsai" SourceFile="$(var.Bonsai.Setup.TargetPath)"/>
-			<!-- TODO: Define the list of chained packages. -->
-			<!-- <MsiPackage SourceFile="path\to\your.msi" /> -->
 		</Chain>
 	</Bundle>
 </Wix>

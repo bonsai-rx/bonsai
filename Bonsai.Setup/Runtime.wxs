@@ -35,11 +35,6 @@
         <File Id="SystemReactivePlatformServicesXML" Name="System.Reactive.PlatformServices.xml" Source="$(var.EditorBuildPath)\System.Reactive.PlatformServices.xml"/>
       </Component>
 
-      <Component Id="ReactiveWindowsFormsLibrary" Guid="d8bbfa22-a2cc-4335-9e27-e9a85f3823b6">
-        <File Id="SystemReactiveWindowsFormsDLL" Name="System.Reactive.Windows.Forms.dll" Source="$(var.EditorBuildPath)\System.Reactive.Windows.Forms.dll" KeyPath="yes"/>
-        <File Id="SystemReactiveWindowsFormsXML" Name="System.Reactive.Windows.Forms.xml" Source="$(var.EditorBuildPath)\System.Reactive.Windows.Forms.xml"/>
-      </Component>
-
       <Component Id="BonsaiPlayerExecutable" Guid="6d04a0a4-e897-4849-a3ef-86fa4d178a96">
         <File Id="BonsaiPlayerEXE" Name="Bonsai.Player.exe" Source="$(var.PlayerBuildPath)\Bonsai.Player.exe" KeyPath="yes"/>
         <File Id="BonsaiPlayerPDB" Name="Bonsai.Player.pdb" Source="$(var.PlayerBuildPath)\Bonsai.Player.pdb"/>
