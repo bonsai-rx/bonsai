@@ -27,25 +27,24 @@
     <Component Id="OpenCVNetLibrary" Guid="3f14562a-eac6-4dc7-ab7d-53cffc8a545e" Directory="PACKAGESFOLDER">
       <File Id="OpenCVNetDLL" Name="OpenCV.Net.dll" Source="$(var.PackageBuildPath)\OpenCV.Net.dll" KeyPath="yes"/>
       <File Id="OpenCVNetPDB" Name="OpenCV.Net.pdb" Source="$(var.PackageBuildPath)\OpenCV.Net.pdb"/>
-      <File Id="opencv_calib3d242DLL" Name="opencv_calib3d242.dll" Source="opencv\opencv_calib3d242.dll"/>
-      <File Id="opencv_contrib242DLL" Name="opencv_contrib242.dll" Source="opencv\opencv_contrib242.dll"/>
-      <File Id="opencv_core242DLL" Name="opencv_core242.dll" Source="opencv\opencv_core242.dll"/>
-      <File Id="opencv_features2d242DLL" Name="opencv_features2d242.dll" Source="opencv\opencv_features2d242.dll"/>
-      <File Id="opencv_ffmpeg242DLL" Name="opencv_ffmpeg242.dll" Source="opencv\opencv_ffmpeg242.dll"/>
-      <File Id="opencv_flann242DLL" Name="opencv_flann242.dll" Source="opencv\opencv_flann242.dll"/>
-      <File Id="opencv_gpu242DLL" Name="opencv_gpu242.dll" Source="opencv\opencv_gpu242.dll"/>
-      <File Id="opencv_highgui242DLL" Name="opencv_highgui242.dll" Source="opencv\opencv_highgui242.dll"/>
-      <File Id="opencv_imgproc242DLL" Name="opencv_imgproc242.dll" Source="opencv\opencv_imgproc242.dll"/>
-      <File Id="opencv_legacy242DLL" Name="opencv_legacy242.dll" Source="opencv\opencv_legacy242.dll"/>
-      <File Id="opencv_ml242DLL" Name="opencv_ml242.dll" Source="opencv\opencv_ml242.dll"/>
-      <File Id="opencv_nonfree242DLL" Name="opencv_nonfree242.dll" Source="opencv\opencv_nonfree242.dll"/>
-      <File Id="opencv_objdetect242DLL" Name="opencv_objdetect242.dll" Source="opencv\opencv_objdetect242.dll"/>
-      <File Id="opencv_photo242DLL" Name="opencv_photo242.dll" Source="opencv\opencv_photo242.dll"/>
-      <File Id="opencv_stitching242DLL" Name="opencv_stitching242.dll" Source="opencv\opencv_stitching242.dll"/>
-      <File Id="opencv_ts242DLL" Name="opencv_ts242.dll" Source="opencv\opencv_ts242.dll"/>
-      <File Id="opencv_video242DLL" Name="opencv_video242.dll" Source="opencv\opencv_video242.dll"/>
-      <File Id="opencv_videostab242DLL" Name="opencv_videostab242.dll" Source="opencv\opencv_videostab242.dll"/>
-      <File Id="tbbDLL" Name="tbb.dll" Source="opencv\tbb.dll"/>
+      <File Id="opencv_calib3d243DLL" Name="opencv_calib3d243.dll" Source="opencv\opencv_calib3d243.dll"/>
+      <File Id="opencv_contrib243DLL" Name="opencv_contrib243.dll" Source="opencv\opencv_contrib243.dll"/>
+      <File Id="opencv_core243DLL" Name="opencv_core243.dll" Source="opencv\opencv_core243.dll"/>
+      <File Id="opencv_features2d243DLL" Name="opencv_features2d243.dll" Source="opencv\opencv_features2d243.dll"/>
+      <File Id="opencv_ffmpeg243DLL" Name="opencv_ffmpeg243.dll" Source="opencv\opencv_ffmpeg243.dll"/>
+      <File Id="opencv_flann243DLL" Name="opencv_flann243.dll" Source="opencv\opencv_flann243.dll"/>
+      <File Id="opencv_gpu243DLL" Name="opencv_gpu243.dll" Source="opencv\opencv_gpu243.dll"/>
+      <File Id="opencv_highgui243DLL" Name="opencv_highgui243.dll" Source="opencv\opencv_highgui243.dll"/>
+      <File Id="opencv_imgproc243DLL" Name="opencv_imgproc243.dll" Source="opencv\opencv_imgproc243.dll"/>
+      <File Id="opencv_legacy243DLL" Name="opencv_legacy243.dll" Source="opencv\opencv_legacy243.dll"/>
+      <File Id="opencv_ml243DLL" Name="opencv_ml243.dll" Source="opencv\opencv_ml243.dll"/>
+      <File Id="opencv_nonfree243DLL" Name="opencv_nonfree243.dll" Source="opencv\opencv_nonfree243.dll"/>
+      <File Id="opencv_objdetect243DLL" Name="opencv_objdetect243.dll" Source="opencv\opencv_objdetect243.dll"/>
+      <File Id="opencv_photo243DLL" Name="opencv_photo243.dll" Source="opencv\opencv_photo243.dll"/>
+      <File Id="opencv_stitching243DLL" Name="opencv_stitching243.dll" Source="opencv\opencv_stitching243.dll"/>
+      <File Id="opencv_ts243DLL" Name="opencv_ts243.dll" Source="opencv\opencv_ts243.dll"/>
+      <File Id="opencv_video243DLL" Name="opencv_video243.dll" Source="opencv\opencv_video243.dll"/>
+      <File Id="opencv_videostab243DLL" Name="opencv_videostab243.dll" Source="opencv\opencv_videostab243.dll"/>
     </Component>
 
     <ComponentGroup Id="OpenTK" Directory="PACKAGESFOLDER">
