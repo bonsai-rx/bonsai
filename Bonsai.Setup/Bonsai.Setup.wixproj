@@ -30,25 +30,24 @@
     <Folder Include="opencv" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="opencv\opencv_calib3d242.dll" />
-    <Content Include="opencv\opencv_contrib242.dll" />
-    <Content Include="opencv\opencv_core242.dll" />
-    <Content Include="opencv\opencv_features2d242.dll" />
-    <Content Include="opencv\opencv_ffmpeg242.dll" />
-    <Content Include="opencv\opencv_flann242.dll" />
-    <Content Include="opencv\opencv_gpu242.dll" />
-    <Content Include="opencv\opencv_highgui242.dll" />
-    <Content Include="opencv\opencv_imgproc242.dll" />
-    <Content Include="opencv\opencv_legacy242.dll" />
-    <Content Include="opencv\opencv_ml242.dll" />
-    <Content Include="opencv\opencv_nonfree242.dll" />
-    <Content Include="opencv\opencv_objdetect242.dll" />
-    <Content Include="opencv\opencv_photo242.dll" />
-    <Content Include="opencv\opencv_stitching242.dll" />
-    <Content Include="opencv\opencv_ts242.dll" />
-    <Content Include="opencv\opencv_video242.dll" />
-    <Content Include="opencv\opencv_videostab242.dll" />
-    <Content Include="opencv\tbb.dll" />
+    <Content Include="opencv\opencv_calib3d243.dll" />
+    <Content Include="opencv\opencv_contrib243.dll" />
+    <Content Include="opencv\opencv_core243.dll" />
+    <Content Include="opencv\opencv_features2d243.dll" />
+    <Content Include="opencv\opencv_ffmpeg243.dll" />
+    <Content Include="opencv\opencv_flann243.dll" />
+    <Content Include="opencv\opencv_gpu243.dll" />
+    <Content Include="opencv\opencv_highgui243.dll" />
+    <Content Include="opencv\opencv_imgproc243.dll" />
+    <Content Include="opencv\opencv_legacy243.dll" />
+    <Content Include="opencv\opencv_ml243.dll" />
+    <Content Include="opencv\opencv_nonfree243.dll" />
+    <Content Include="opencv\opencv_objdetect243.dll" />
+    <Content Include="opencv\opencv_photo243.dll" />
+    <Content Include="opencv\opencv_stitching243.dll" />
+    <Content Include="opencv\opencv_ts243.dll" />
+    <Content Include="opencv\opencv_video243.dll" />
+    <Content Include="opencv\opencv_videostab243.dll" />
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <!--
