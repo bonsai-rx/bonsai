@@ -11,7 +11,9 @@ namespace Bonsai.Vision.Design
 {
     class IplImageRectanglePicker : IplImageControl
     {
+        bool disposed;
         CvRect rectangle;
+        IplImage canvas;
 
         public IplImageRectanglePicker()
         {
@@ -79,15 +81,31 @@ namespace Bonsai.Vision.Design
 
         protected override void SetImage(IplImage image)
         {
-            using (image = image.ColorClone())
+            canvas = IplImageHelper.EnsureColorCopy(canvas, image);
+            Core.cvRectangle(
+                canvas,
+                new CvPoint(rectangle.X, rectangle.Y),
+                new CvPoint(rectangle.X + rectangle.Width, rectangle.Y + rectangle.Height),
+                CvScalar.Rgb(255, 0, 0), 3, 8, 0);
+            base.SetImage(canvas);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!disposed)
             {
-                Core.cvRectangle(
-                    image,
-                    new CvPoint(rectangle.X, rectangle.Y),
-                    new CvPoint(rectangle.X + rectangle.Width, rectangle.Y + rectangle.Height),
-                    CvScalar.Rgb(255, 0, 0), 3, 8, 0);
-                base.SetImage(image);
+                if (disposing)
+                {
+                    if (canvas != null)
+                    {
+                        canvas.Close();
+                        canvas = null;
+                    }
+
+                    disposed = true;
+                }
             }
+            base.Dispose(disposing);
         }
     }
 }
