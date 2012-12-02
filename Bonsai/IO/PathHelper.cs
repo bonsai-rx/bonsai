@@ -51,6 +51,8 @@ namespace Bonsai.IO
         {
             var fileCount = 0;
             var directory = Path.GetDirectoryName(path);
+            if (string.IsNullOrEmpty(directory)) directory = ".";
+
             if (Directory.Exists(directory))
             {
                 var fileName = Path.GetFileNameWithoutExtension(path);
