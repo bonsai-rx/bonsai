@@ -135,6 +135,7 @@ namespace Bonsai.Vision.Design
 
             glControl.MakeCurrent();
             GL.Viewport(0, 0, glControl.Width, glControl.Height);
+            glControl.Invalidate();
         }
 
         private void glControl_Paint(object sender, PaintEventArgs e)
@@ -142,7 +143,6 @@ namespace Bonsai.Vision.Design
             if (!loaded) return;
 
             glControl.MakeCurrent();
-            GL.BindTexture(TextureTarget.Texture2D, texture);
             RenderImage();
         }
 
@@ -153,6 +153,7 @@ namespace Bonsai.Vision.Design
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadIdentity();
 
+            GL.BindTexture(TextureTarget.Texture2D, texture);
             GL.Begin(BeginMode.Quads);
 
             GL.TexCoord2(0.0f, 1.0f); GL.Vertex2(-1f, -1f);

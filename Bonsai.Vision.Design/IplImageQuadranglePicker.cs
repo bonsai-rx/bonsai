@@ -10,6 +10,8 @@ namespace Bonsai.Vision.Design
 {
     class IplImageQuadranglePicker : IplImageControl
     {
+        bool disposed;
+        IplImage canvas;
         CvPoint2D32f[] quadrangle = new CvPoint2D32f[4];
 
         public IplImageQuadranglePicker()
@@ -58,14 +60,31 @@ namespace Bonsai.Vision.Design
 
         protected override void SetImage(IplImage image)
         {
-            using (image = image.Clone())
+            canvas = IplImageHelper.EnsureColorCopy(canvas, image);
+            Core.cvLine(canvas, new CvPoint(quadrangle[0]), new CvPoint(quadrangle[1]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
+            Core.cvLine(canvas, new CvPoint(quadrangle[1]), new CvPoint(quadrangle[2]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
+            Core.cvLine(canvas, new CvPoint(quadrangle[2]), new CvPoint(quadrangle[3]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
+            Core.cvLine(canvas, new CvPoint(quadrangle[3]), new CvPoint(quadrangle[0]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
+            base.SetImage(canvas);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!disposed)
             {
-                Core.cvLine(image, new CvPoint(quadrangle[0]), new CvPoint(quadrangle[1]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
-                Core.cvLine(image, new CvPoint(quadrangle[1]), new CvPoint(quadrangle[2]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
-                Core.cvLine(image, new CvPoint(quadrangle[2]), new CvPoint(quadrangle[3]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
-                Core.cvLine(image, new CvPoint(quadrangle[3]), new CvPoint(quadrangle[0]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
-                base.SetImage(image);
+                if (disposing)
+                {
+                    if (canvas != null)
+                    {
+                        canvas.Close();
+                        canvas = null;
+                    }
+
+                    disposed = true;
+                }
             }
+
+            base.Dispose(disposing);
         }
     }
 }

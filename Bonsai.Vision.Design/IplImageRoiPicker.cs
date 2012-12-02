@@ -16,7 +16,9 @@ namespace Bonsai.Vision.Design
 {
     class IplImageRoiPicker : IplImageControl
     {
+        bool disposed;
         CvFont font;
+        IplImage canvas;
         int? selectedRoi;
         Collection<CvPoint[]> regions;
         static readonly CvScalar SelectionColor = CvScalar.Rgb(0, 255, 0);
@@ -216,10 +218,10 @@ namespace Bonsai.Vision.Design
 
         protected override void SetImage(IplImage image)
         {
-            image = image.ColorClone();
+            canvas = IplImageHelper.EnsureColorCopy(canvas, image);
             var unselectedRois = regions.Where((region, i) => i != selectedRoi);
             Core.cvPolyLine(
-                image,
+                canvas,
                 unselectedRois.ToArray(),
                 unselectedRois.Select(polygon => polygon.Length).ToArray(),
                 regions.Count,
@@ -230,7 +232,7 @@ namespace Bonsai.Vision.Design
             {
                 var region = regions[selectedRoi.Value];
                 Core.cvPolyLine(
-                    image,
+                    canvas,
                     new[] { region },
                     new[] { region.Length },
                     1, 1,
@@ -239,10 +241,28 @@ namespace Bonsai.Vision.Design
 
                 for (int i = 0; i < region.Length; i++)
                 {
-                    Core.cvCircle(image, region[i], 1, CvScalar.Rgb(0, 0, 255), -1, 8, 0);
+                    Core.cvCircle(canvas, region[i], 1, CvScalar.Rgb(0, 0, 255), -1, 8, 0);
                 }
             }
-            base.SetImage(image);
+            base.SetImage(canvas);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (canvas != null)
+                    {
+                        canvas.Close();
+                        canvas = null;
+                    }
+
+                    disposed = true;
+                }
+            }
+            base.Dispose(disposing);
         }
     }
 }

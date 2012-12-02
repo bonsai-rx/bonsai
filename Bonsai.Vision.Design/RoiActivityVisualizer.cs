@@ -21,6 +21,7 @@ namespace Bonsai.Vision.Design
         static readonly CvScalar ActiveRoi = CvScalar.Rgb(0, 255, 0);
 
         IplImage input;
+        IplImage canvas;
         CvFont font;
 
         public override void Show(object value)
@@ -28,23 +29,23 @@ namespace Bonsai.Vision.Design
             var regions = (RegionActivityCollection)value;
             if (input != null)
             {
-                var image = input.ColorClone();
+                canvas = IplImageHelper.EnsureColorCopy(canvas, input);
                 for (int i = 0; i < regions.Count; i++)
                 {
                     var polygon = regions[i].Roi;
                     var rectangle = regions[i].Rect;
                     var color = regions[i].Activity.Val0 > 0 ? ActiveRoi : InactiveRoi;
-                    Core.cvPolyLine(image, new[] { polygon }, new[] { polygon.Length }, 1, 1, color, RoiThickness, 8, 0);
+                    Core.cvPolyLine(canvas, new[] { polygon }, new[] { polygon.Length }, 1, 1, color, RoiThickness, 8, 0);
 
                     int baseline;
                     CvSize labelSize;
                     var label = i.ToString();
                     Core.cvGetTextSize(label, font, out labelSize, out baseline);
-                    Core.cvPutText(image, i.ToString(), new CvPoint(rectangle.X + RoiThickness, rectangle.Y + labelSize.Height + RoiThickness), font, color);
-                    Core.cvPutText(image, regions[i].Activity.Val0.ToString(), new CvPoint(rectangle.X + RoiThickness, rectangle.Y - labelSize.Height - RoiThickness), font, color);
+                    Core.cvPutText(canvas, i.ToString(), new CvPoint(rectangle.X + RoiThickness, rectangle.Y + labelSize.Height + RoiThickness), font, color);
+                    Core.cvPutText(canvas, regions[i].Activity.Val0.ToString(), new CvPoint(rectangle.X + RoiThickness, rectangle.Y - labelSize.Height - RoiThickness), font, color);
                 }
 
-                base.Show(image);
+                base.Show(canvas);
             }
         }
 
@@ -67,6 +68,17 @@ namespace Bonsai.Vision.Design
 
             font = new CvFont(1);
             base.Load(provider);
+        }
+
+        public override void Unload()
+        {
+            if (canvas != null)
+            {
+                canvas.Close();
+                canvas = null;
+            }
+
+            base.Unload();
         }
     }
 }
