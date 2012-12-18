@@ -14,7 +14,7 @@ namespace Bonsai
     public static class ReactiveWorkflowExtensions
     {
         static readonly ConstructorInfo compositeDisposableConstructor = typeof(CompositeDisposable).GetConstructor(new[] { typeof(IEnumerable<IDisposable>) });
-        static readonly MethodInfo subscribeMethod = typeof(ObservableExtensions).GetMethods().First(m => m.Name == "Subscribe" && m.GetParameters().Length == 4);
+        static readonly MethodInfo subscribeMethod = typeof(ObservableExtensions).GetMethods().Single(m => m.Name == "Subscribe" && m.GetParameters().Length == 4);
 
         public static IObservable<Unit> Run(this ReactiveWorkflow source)
         {

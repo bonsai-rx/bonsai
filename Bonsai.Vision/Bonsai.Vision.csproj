@@ -101,7 +101,6 @@
     <Compile Include="Undistort.cs" />
     <Compile Include="VideoWriter.cs" />
     <Compile Include="WarpPerspective.cs" />
-    <Compile Include="Window.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai\Bonsai.csproj">

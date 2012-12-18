@@ -15,8 +15,8 @@ namespace Bonsai.Expressions
     public class TimestampBuilder : CombinatorExpressionBuilder
     {
         static readonly MethodInfo timestampMethod = typeof(Observable).GetMethods()
-                                                                       .First(m => m.Name == "Timestamp" &&
-                                                                              m.GetParameters().Length == 2);
+                                                                       .Single(m => m.Name == "Timestamp" &&
+                                                                               m.GetParameters().Length == 2);
 
         public override Expression Build()
         {

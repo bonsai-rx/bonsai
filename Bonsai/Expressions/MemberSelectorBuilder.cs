@@ -16,8 +16,9 @@ namespace Bonsai.Expressions
     public class MemberSelectorBuilder : CombinatorExpressionBuilder
     {
         static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()
-                                                                    .First(m => m.Name == "Select" &&
-                                                                           m.GetParameters().Length == 2);
+                                                                    .Single(m => m.Name == "Select" &&
+                                                                            m.GetParameters().Length == 2 &&
+                                                                            m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
 
         [TypeConverter("Bonsai.Design.MemberSelectorConverter, Bonsai.Design")]
         [Editor("Bonsai.Design.MemberSelectorEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
