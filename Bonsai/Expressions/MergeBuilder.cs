@@ -14,10 +14,14 @@ namespace Bonsai.Expressions
     [Description("Merges the sequence of windows into a single sequence of elements.")]
     public class MergeBuilder : CombinatorExpressionBuilder
     {
-        static readonly MethodInfo mergeMethod = typeof(Observable).GetMethods().First(m => m.Name == "Merge" &&
-                                                                                       m.GetParameters().Length == 1 &&
-                                                                                       !m.GetParameters()[0].ParameterType.IsArray &&
-                                                                                       m.GetParameters()[0].ParameterType.GetGenericTypeDefinition() == typeof(IObservable<>));
+        static readonly MethodInfo mergeMethod = (from method in typeof(Observable).GetMethods()
+                                                  where method.Name == "Merge"
+                                                  let parameters = method.GetParameters()
+                                                  where parameters.Length == 1 && !parameters[0].ParameterType.IsArray &&
+                                                        parameters[0].ParameterType.GetGenericTypeDefinition() == typeof(IObservable<>) &&
+                                                        parameters[0].ParameterType.GetGenericArguments()[0].GetGenericTypeDefinition() == typeof(IObservable<>)
+                                                  select method)
+                                                  .Single();
 
         public override Expression Build()
         {
