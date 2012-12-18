@@ -15,7 +15,13 @@ namespace Bonsai.Expressions
     [Description("Processes each input window using the encapsulated workflow logic.")]
     public class SelectManyBuilder : WorkflowExpressionBuilder
     {
-        static readonly MethodInfo usingMethod = typeof(Observable).GetMethod("Using");
+        static readonly MethodInfo usingMethod = (from method in typeof(Observable).GetMethods()
+                                                  where method.Name == "Using"
+                                                  let parameters = method.GetParameters()
+                                                  let resourceFactoryType = parameters[0].ParameterType
+                                                  where resourceFactoryType.GetGenericTypeDefinition() == typeof(Func<>)
+                                                  select method)
+                                                  .Single();
         static readonly MethodInfo selectManyMethod = (from method in typeof(Observable).GetMethods()
                                                        where method.Name == "SelectMany"
                                                        let parameters = method.GetParameters()
@@ -24,7 +30,7 @@ namespace Bonsai.Expressions
                                                        where selectorType.IsGenericType && selectorType.GetGenericTypeDefinition() == typeof(Func<,>) &&
                                                              selectorType.GetGenericArguments()[1].GetGenericTypeDefinition() == typeof(IObservable<>)
                                                        select method)
-                                                      .First();
+                                                      .Single();
 
         public SelectManyBuilder()
         {

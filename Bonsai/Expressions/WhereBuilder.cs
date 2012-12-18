@@ -14,8 +14,8 @@ namespace Bonsai.Expressions
     public class WhereBuilder : CombinatorExpressionBuilder
     {
         static readonly MethodInfo whereMethod = typeof(Observable).GetMethods()
-                                                                   .First(m => m.Name == "Where" &&
-                                                                          m.GetParameters().Length == 2);
+                                                                   .Single(m => m.Name == "Where" &&
+                                                                           m.GetParameters().Length == 2);
 
         public LoadableElement Condition { get; set; }
 

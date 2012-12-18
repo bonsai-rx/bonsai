@@ -14,8 +14,8 @@ namespace Bonsai.Expressions
     [Description("Propagates the sequence that responds first and ignores the other.")]
     public class AmbBuilder : BinaryCombinatorExpressionBuilder
     {
-        static readonly MethodInfo ambMethod = typeof(Observable).GetMethods().First(m => m.Name == "Amb" &&
-                                                                                     m.GetParameters().Length == 2);
+        static readonly MethodInfo ambMethod = typeof(Observable).GetMethods().Single(m => m.Name == "Amb" &&
+                                                                                      m.GetParameters().Length == 2);
 
         public override Expression Build()
         {
