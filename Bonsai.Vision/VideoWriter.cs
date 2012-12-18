@@ -14,6 +14,7 @@ namespace Bonsai.Vision
         Task writerTask;
         CvVideoWriter writer;
         CvSize writerFrameSize;
+        static readonly object syncRoot = new object();
 
         [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public string FileName { get; set; }
@@ -23,8 +24,6 @@ namespace Bonsai.Vision
         public double FrameRate { get; set; }
 
         public CvSize FrameSize { get; set; }
-
-        public bool IsColor { get; set; }
 
         public PathSuffix Suffix { get; set; }
 
@@ -44,8 +43,11 @@ namespace Bonsai.Vision
                     var frameSize = FrameSize.Width > 0 && FrameSize.Height > 0 ? FrameSize : input.Size;
                     var fourCCText = FourCC;
                     var fourCC = fourCCText.Length != 4 ? 0 : CvVideoWriter.FourCC(fourCCText[0], fourCCText[1], fourCCText[2], fourCCText[3]);
-                    runningWriter = writer = new CvVideoWriter(FileName, fourCC, FrameRate, frameSize, IsColor);
                     writerFrameSize = frameSize;
+                    lock (syncRoot)
+                    {
+                        runningWriter = writer = new CvVideoWriter(FileName, fourCC, FrameRate, frameSize, input.NumChannels > 1);
+                    }
                 }
 
                 if (input.Width != writerFrameSize.Width || input.Height != writerFrameSize.Height)
@@ -73,7 +75,13 @@ namespace Bonsai.Vision
         protected override void Unload()
         {
             var closingWriter = writer;
-            writerTask.ContinueWith(task => closingWriter.Close());
+            writerTask.ContinueWith(task =>
+            {
+                lock (syncRoot)
+                {
+                    closingWriter.Close();
+                }
+            });
 
             writerTask = null;
             writer = null;
