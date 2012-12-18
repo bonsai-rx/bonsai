@@ -14,15 +14,16 @@ namespace Bonsai.Expressions
     public class SelectBuilder : CombinatorExpressionBuilder
     {
         static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()
-                                                                    .First(m => m.Name == "Select" &&
-                                                                           m.GetParameters().Length == 2);
+                                                                    .Single(m => m.Name == "Select" &&
+                                                                            m.GetParameters().Length == 2 &&
+                                                                            m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
 
         public LoadableElement Transform { get; set; }
 
         public override Expression Build()
         {
             var processMethod = Transform.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                                                    .First(m => m.Name == "Process" && m.GetParameters().Length == 1);
+                                                   .Single(m => m.Name == "Process" && m.GetParameters().Length == 1);
 
             var transformGenericArguments = processMethod.GetParameters()
                                                           .Select(info => info.ParameterType)

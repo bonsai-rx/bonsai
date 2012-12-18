@@ -15,8 +15,8 @@ namespace Bonsai.Expressions
     public class TimeIntervalBuilder : CombinatorExpressionBuilder
     {
         static readonly MethodInfo timeIntervalMethod = typeof(Observable).GetMethods()
-                                                                          .First(m => m.Name == "TimeInterval" &&
-                                                                                 m.GetParameters().Length == 2);
+                                                                          .Single(m => m.Name == "TimeInterval" &&
+                                                                                  m.GetParameters().Length == 2);
 
         public override Expression Build()
         {

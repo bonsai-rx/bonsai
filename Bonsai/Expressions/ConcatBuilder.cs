@@ -14,8 +14,8 @@ namespace Bonsai.Expressions
     [Description("Ensures that values of the second sequence are propagated only after the first sequence terminates.")]
     public class ConcatBuilder : BinaryCombinatorExpressionBuilder
     {
-        static readonly MethodInfo concatMethod = typeof(Observable).GetMethods().First(m => m.Name == "Concat" &&
-                                                                                        m.GetParameters().Length == 2);
+        static readonly MethodInfo concatMethod = typeof(Observable).GetMethods().Single(m => m.Name == "Concat" &&
+                                                                                         m.GetParameters().Length == 2);
 
         public override Expression Build()
         {
