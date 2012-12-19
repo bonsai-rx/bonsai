@@ -14,25 +14,6 @@ namespace Bonsai.Vision
             ImageSize = imageSize;
         }
 
-        public ConnectedComponent Largest
-        {
-            get
-            {
-                var max = 0.0;
-                ConnectedComponent largest = null;
-                foreach (var component in Items)
-                {
-                    if (component.Area > max)
-                    {
-                        largest = component;
-                        max = component.Area;
-                    }
-                }
-
-                return largest;
-            }
-        }
-
         public CvSize ImageSize { get; private set; }
     }
 }
