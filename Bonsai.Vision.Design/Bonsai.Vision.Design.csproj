@@ -50,7 +50,9 @@
     <Compile Include="ConnectedComponentCollectionVisualizer.cs" />
     <Compile Include="ContoursVisualizer.cs" />
     <Compile Include="BgraScalarConverter.cs" />
+    <Compile Include="ConnectedComponentVisualizer.cs" />
     <Compile Include="CvPointVisualizer.cs" />
+    <Compile Include="DrawingHelper.cs" />
     <Compile Include="IplImageInputRoiEditor.cs" />
     <Compile Include="IplImageOutputRectangleEditor.cs" />
     <Compile Include="IplImageInputQuadrangleEditor.cs" />

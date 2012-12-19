@@ -6,28 +6,21 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class LargestBinaryRegion : Transform<ConnectedComponentCollection, ConnectedComponentCollection>
+    public class LargestBinaryRegion : Transform<ConnectedComponentCollection, ConnectedComponent>
     {
-        public override ConnectedComponentCollection Process(ConnectedComponentCollection input)
+        public override ConnectedComponent Process(ConnectedComponentCollection input)
         {
-            var result = new ConnectedComponentCollection(input.ImageSize);
-
-            ConnectedComponent largest = null;
+            ConnectedComponent largest = new ConnectedComponent();
             for (int i = 0; i < input.Count; i++)
             {
                 var component = input[i];
-                if (largest == null || component.Area > largest.Area)
+                if (component.Area > largest.Area)
                 {
                     largest = component;
                 }
             }
 
-            if (input.Count > 0)
-            {
-                result.Add(largest);
-            }
-
-            return result;
+            return largest;
         }
     }
 }
