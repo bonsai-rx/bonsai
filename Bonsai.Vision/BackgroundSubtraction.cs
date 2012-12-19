@@ -34,6 +34,8 @@ namespace Bonsai.Vision
         [TypeConverter(typeof(ThresholdTypeConverter))]
         public ThresholdType ThresholdType { get; set; }
 
+        public SubtractionMethod SubtractionMethod { get; set; }
+
         public override IplImage Process(IplImage input)
         {
             if (averageCount == 0)
@@ -58,7 +60,20 @@ namespace Bonsai.Vision
             else
             {
                 Core.cvConvert(input, image);
-                Core.cvAbsDiff(image, background, difference);
+                switch (SubtractionMethod)
+                {
+                    case SubtractionMethod.Bright:
+                        Core.cvSub(image, background, difference, CvArr.Null);
+                        break;
+                    case SubtractionMethod.Dark:
+                        Core.cvSub(background, image, difference, CvArr.Null);
+                        break;
+                    case SubtractionMethod.Absolute:
+                    default:
+                        Core.cvAbsDiff(image, background, difference);
+                        break;
+                }
+
                 if (AdaptationRate > 0)
                 {
                     ImgProc.cvRunningAvg(image, background, AdaptationRate, CvArr.Null);
@@ -99,5 +114,12 @@ namespace Bonsai.Vision
                     .ToArray());
             }
         }
+    }
+
+    public enum SubtractionMethod
+    {
+        Absolute,
+        Bright,
+        Dark
     }
 }
