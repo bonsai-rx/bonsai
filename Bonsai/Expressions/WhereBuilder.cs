@@ -15,7 +15,8 @@ namespace Bonsai.Expressions
     {
         static readonly MethodInfo whereMethod = typeof(Observable).GetMethods()
                                                                    .Single(m => m.Name == "Where" &&
-                                                                           m.GetParameters().Length == 2);
+                                                                           m.GetParameters().Length == 2 &&
+                                                                           m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
 
         public LoadableElement Condition { get; set; }
 
