@@ -51,7 +51,10 @@ namespace Bonsai.Editor
                     return visualizerAttribute;
                 });
 
-                typeVisualizers = typeVisualizers.Concat(visualizerAttributes);
+                if (visualizerAttributes.Length > 0)
+                {
+                    typeVisualizers = typeVisualizers.Concat(visualizerAttributes);
+                }
             }
 
             return typeVisualizers;
