@@ -12,13 +12,22 @@
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <OutputPath>bin\$(Configuration)\</OutputPath>
-    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
     <DefineConstants>Debug</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <OutputPath>bin\$(Configuration)\</OutputPath>
-    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>Debug</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Development.wxs" />
@@ -28,26 +37,46 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="opencv" />
+    <Folder Include="opencv\x64" />
+    <Folder Include="opencv\x86" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="opencv\opencv_calib3d243.dll" />
-    <Content Include="opencv\opencv_contrib243.dll" />
-    <Content Include="opencv\opencv_core243.dll" />
-    <Content Include="opencv\opencv_features2d243.dll" />
-    <Content Include="opencv\opencv_ffmpeg243.dll" />
-    <Content Include="opencv\opencv_flann243.dll" />
-    <Content Include="opencv\opencv_gpu243.dll" />
-    <Content Include="opencv\opencv_highgui243.dll" />
-    <Content Include="opencv\opencv_imgproc243.dll" />
-    <Content Include="opencv\opencv_legacy243.dll" />
-    <Content Include="opencv\opencv_ml243.dll" />
-    <Content Include="opencv\opencv_nonfree243.dll" />
-    <Content Include="opencv\opencv_objdetect243.dll" />
-    <Content Include="opencv\opencv_photo243.dll" />
-    <Content Include="opencv\opencv_stitching243.dll" />
-    <Content Include="opencv\opencv_ts243.dll" />
-    <Content Include="opencv\opencv_video243.dll" />
-    <Content Include="opencv\opencv_videostab243.dll" />
+    <Content Include="opencv\x64\opencv_calib3d243.dll" />
+    <Content Include="opencv\x64\opencv_contrib243.dll" />
+    <Content Include="opencv\x64\opencv_core243.dll" />
+    <Content Include="opencv\x64\opencv_features2d243.dll" />
+    <Content Include="opencv\x64\opencv_ffmpeg243_64.dll" />
+    <Content Include="opencv\x64\opencv_flann243.dll" />
+    <Content Include="opencv\x64\opencv_gpu243.dll" />
+    <Content Include="opencv\x64\opencv_highgui243.dll" />
+    <Content Include="opencv\x64\opencv_imgproc243.dll" />
+    <Content Include="opencv\x64\opencv_legacy243.dll" />
+    <Content Include="opencv\x64\opencv_ml243.dll" />
+    <Content Include="opencv\x64\opencv_nonfree243.dll" />
+    <Content Include="opencv\x64\opencv_objdetect243.dll" />
+    <Content Include="opencv\x64\opencv_photo243.dll" />
+    <Content Include="opencv\x64\opencv_stitching243.dll" />
+    <Content Include="opencv\x64\opencv_ts243.dll" />
+    <Content Include="opencv\x64\opencv_video243.dll" />
+    <Content Include="opencv\x64\opencv_videostab243.dll" />
+    <Content Include="opencv\x86\opencv_calib3d243.dll" />
+    <Content Include="opencv\x86\opencv_contrib243.dll" />
+    <Content Include="opencv\x86\opencv_core243.dll" />
+    <Content Include="opencv\x86\opencv_features2d243.dll" />
+    <Content Include="opencv\x86\opencv_ffmpeg243.dll" />
+    <Content Include="opencv\x86\opencv_flann243.dll" />
+    <Content Include="opencv\x86\opencv_gpu243.dll" />
+    <Content Include="opencv\x86\opencv_highgui243.dll" />
+    <Content Include="opencv\x86\opencv_imgproc243.dll" />
+    <Content Include="opencv\x86\opencv_legacy243.dll" />
+    <Content Include="opencv\x86\opencv_ml243.dll" />
+    <Content Include="opencv\x86\opencv_nonfree243.dll" />
+    <Content Include="opencv\x86\opencv_objdetect243.dll" />
+    <Content Include="opencv\x86\opencv_photo243.dll" />
+    <Content Include="opencv\x86\opencv_stitching243.dll" />
+    <Content Include="opencv\x86\opencv_ts243.dll" />
+    <Content Include="opencv\x86\opencv_video243.dll" />
+    <Content Include="opencv\x86\opencv_videostab243.dll" />
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <!--

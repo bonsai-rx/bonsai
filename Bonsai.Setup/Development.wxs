@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <?define ResourcesPath="..\Resources"?>
+  <?if $(var.Platform) = x64?>
+    <?define Win64="yes"?>
+  <?else?>
+    <?define Win64="no"?>
+  <?endif?>
+
   <Fragment>
     <ComponentGroup Id="ProductProjectTemplates" Directory="PROJECTTEMPLATESFOLDER">
-      <Component Id='BonsaiPackageTemplate' Guid='282adbfa-aad6-49d0-9856-02ac738e2cdc'>
+      <Component Id='BonsaiPackageTemplate' Guid='*' Win64="$(var.Win64)">
         <File Id='BonsaiPackageTemplateZIP' Name='BonsaiPackage.zip' Source='$(var.ResourcesPath)\BonsaiPackage.zip' KeyPath='yes'/>
       </Component>
     </ComponentGroup>
@@ -11,19 +17,19 @@
 
   <Fragment>
     <ComponentGroup Id="ProductItemTemplates" Directory="ITEMTEMPLATESFOLDER">
-      <Component Id='BonsaiSourceTemplate' Guid='1349a22b-8a16-4128-97ec-20e3923aa5a3'>
+      <Component Id='BonsaiSourceTemplate' Guid='*' Win64="$(var.Win64)">
         <File Id='BonsaiSourceTemplateZIP' Name='BonsaiSource.zip' Source='$(var.ResourcesPath)\BonsaiSource.zip' KeyPath='yes'/>
       </Component>
 
-      <Component Id='BonsaiTransformTemplate' Guid='fecd09a9-eef2-4122-9067-179fbcb5df05'>
+      <Component Id='BonsaiTransformTemplate' Guid='*' Win64="$(var.Win64)">
         <File Id='BonsaiTransformTemplateZIP' Name='BonsaiTransform.zip' Source='$(var.ResourcesPath)\BonsaiTransform.zip' KeyPath='yes'/>
       </Component>
 
-      <Component Id='BonsaiConditionTemplate' Guid='67d51a35-cac1-4784-809e-6fee1d5d5c70'>
+      <Component Id='BonsaiConditionTemplate' Guid='*' Win64="$(var.Win64)">
         <File Id='BonsaiConditionTemplateZIP' Name='BonsaiCondition.zip' Source='$(var.ResourcesPath)\BonsaiCondition.zip' KeyPath='yes'/>
       </Component>
 
-      <Component Id='BonsaiSinkTemplate' Guid='41478b41-d471-47dd-bcef-ff6beba72b87'>
+      <Component Id='BonsaiSinkTemplate' Guid='*' Win64="$(var.Win64)">
         <File Id='BonsaiSinkTemplateZIP' Name='BonsaiSink.zip' Source='$(var.ResourcesPath)\BonsaiSink.zip' KeyPath='yes'/>
       </Component>
     </ComponentGroup>

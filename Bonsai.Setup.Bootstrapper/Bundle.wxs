@@ -3,17 +3,27 @@
      xmlns:bal="http://schemas.microsoft.com/wix/BalExtension"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
   <?define EditorProjectPath="..\Bonsai.Editor"?>
-	<Bundle Name="Bonsai" Version="1.0.0.0" Manufacturer="Goncalo Lopes" UpgradeCode="8718e5ba-be5d-4616-9357-206ceba5ec69" IconSourceFile="$(var.EditorProjectPath)\Bonsai.ico">
+  <?if $(var.Platform) = x64?>
+    <?define VCRTSource="vcredist_x64.exe"?>
+    <?define ProductDisplayName="Bonsai (64-bit)"?>
+    <?define ProductUpgradeCode="762f27b1-165b-45a1-b04c-a3ba198fd9d7"?>
+  <?else?>
+    <?define VCRTSource="vcredist_x86.exe"?>
+    <?define ProductDisplayName="Bonsai"?>
+    <?define ProductUpgradeCode="8718e5ba-be5d-4616-9357-206ceba5ec69"?>
+  <?endif?>
+  
+	<Bundle Name="$(var.ProductDisplayName)" Version="1.0.0.0" Manufacturer="Goncalo Lopes" UpgradeCode="$(var.ProductUpgradeCode)" IconSourceFile="$(var.EditorProjectPath)\Bonsai.ico">
     <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense">
       <bal:WixStandardBootstrapperApplication LicenseFile="License.rtf" LogoFile="Bonsai.png" SuppressOptionsUI="yes"/>
     </BootstrapperApplicationRef>
 
     <util:RegistrySearch Root="HKCU" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenTK" Value="InstallDir" Variable="OpenTKInstalled"/>
-    <util:RegistrySearch Root="HKLM" Key="Software\Microsoft\VisualStudio\10.0\VC\VCRedist\x86" Value="Installed" Variable="VCRTInstalled"/>
+    <util:RegistrySearch Root="HKLM" Key="Software\Microsoft\VisualStudio\10.0\VC\VCRedist\$(var.Platform)" Value="Installed" Variable="VCRTInstalled"/>
 
 		<Chain>
       <PackageGroupRef Id="NetFx40Web"/>
-      <ExePackage Id="VCRT" SourceFile="Dependencies\vcredist_x86.exe" InstallCommand="/q /norestart" Permanent="yes" DetectCondition="VCRTInstalled"/>
+      <ExePackage Id="VCRT" SourceFile="Dependencies\$(var.VCRTSource)" InstallCommand="/q /norestart" Permanent="yes" DetectCondition="VCRTInstalled"/>
       <ExePackage Id="OpenTK" SourceFile="Dependencies\opentk-2010-10-06.exe" Permanent="yes" DetectCondition="OpenTKInstalled"/>
       <MsiPackage Id="IronPython" SourceFile="Dependencies\IronPython-2.7.3.msi" DisplayInternalUI="yes" Permanent="yes"/>
       <MsiPackage Id="Bonsai" SourceFile="$(var.Bonsai.Setup.TargetPath)"/>
