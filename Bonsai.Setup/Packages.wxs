@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
-  <?define PackageBuildPath="..\Bonsai.Editor\bin\Release\Packages"?>
+  <?define PackageBuildPath="..\Packages\Release"?>
   <?define ExamplesPath="..\Examples"?>
+  <?if $(var.Platform) = x64?>
+    <?define Win64="yes"?>
+    <?define OpenCVSource="opencv\x64"?>
+    <?define OpenCVffmpeg="opencv_ffmpeg243_64.dll"?>
+  <?else?>
+    <?define Win64="no"?>
+    <?define OpenCVSource="opencv\x86"?>
+    <?define OpenCVffmpeg="opencv_ffmpeg243.dll"?>
+  <?endif?>
+
   <Fragment>
     <ComponentGroup Id="IOPackageComponents" Directory="PACKAGESFOLDER">
-      <Component Id="BonsaiIOLibrary" Guid="ba5f1ba5-6f8b-4819-b679-ea48f630623a">
+      <Component Id="BonsaiIOLibrary" Guid="*" Win64="$(var.Win64)">
         <File Id="BonsaiIODLL" Name="Bonsai.IO.dll" Source="$(var.PackageBuildPath)\Bonsai.IO.dll" KeyPath="yes"/>
         <File Id="BonsaiIOPDB" Name="Bonsai.IO.pdb" Source="$(var.PackageBuildPath)\Bonsai.IO.pdb"/>
       </Component>
@@ -13,53 +23,53 @@
 
     <ComponentGroup Id="ArduinoPackageComponents" Directory="PACKAGESFOLDER">
       <ComponentGroupRef Id="IOPackageComponents"/>
-      <Component Id="BonsaiArduinoLibrary" Guid="5496053c-4d7a-4da9-9bc3-d53ec153f8b3">
+      <Component Id="BonsaiArduinoLibrary" Guid="*" Win64="$(var.Win64)">
         <File Id="BonsaiArduinoDLL" Name="Bonsai.Arduino.dll" Source="$(var.PackageBuildPath)\Bonsai.Arduino.dll" KeyPath="yes"/>
         <File Id="BonsaiArduinoPDB" Name="Bonsai.Arduino.pdb" Source="$(var.PackageBuildPath)\Bonsai.Arduino.pdb"/>
       </Component>
 
-      <Component Id="BonsaiArduinoDesignLibrary" Guid="5ba292bd-8e36-42aa-bd70-f684b7de4e58">
+      <Component Id="BonsaiArduinoDesignLibrary" Guid="*" Win64="$(var.Win64)">
         <File Id="BonsaiArduinoDesignDLL" Name="Bonsai.Arduino.Design.dll" Source="$(var.PackageBuildPath)\Bonsai.Arduino.Design.dll" KeyPath="yes"/>
         <File Id="BonsaiArduinoDesignPDB" Name="Bonsai.Arduino.Design.pdb" Source="$(var.PackageBuildPath)\Bonsai.Arduino.Design.pdb"/>
       </Component>
     </ComponentGroup>
 
-    <Component Id="OpenCVNetLibrary" Guid="3f14562a-eac6-4dc7-ab7d-53cffc8a545e" Directory="PACKAGESFOLDER">
+    <Component Id="OpenCVNetLibrary" Guid="*" Directory="PACKAGESFOLDER" Win64="$(var.Win64)">
       <File Id="OpenCVNetDLL" Name="OpenCV.Net.dll" Source="$(var.PackageBuildPath)\OpenCV.Net.dll" KeyPath="yes"/>
       <File Id="OpenCVNetPDB" Name="OpenCV.Net.pdb" Source="$(var.PackageBuildPath)\OpenCV.Net.pdb"/>
-      <File Id="opencv_calib3d243DLL" Name="opencv_calib3d243.dll" Source="opencv\opencv_calib3d243.dll"/>
-      <File Id="opencv_contrib243DLL" Name="opencv_contrib243.dll" Source="opencv\opencv_contrib243.dll"/>
-      <File Id="opencv_core243DLL" Name="opencv_core243.dll" Source="opencv\opencv_core243.dll"/>
-      <File Id="opencv_features2d243DLL" Name="opencv_features2d243.dll" Source="opencv\opencv_features2d243.dll"/>
-      <File Id="opencv_ffmpeg243DLL" Name="opencv_ffmpeg243.dll" Source="opencv\opencv_ffmpeg243.dll"/>
-      <File Id="opencv_flann243DLL" Name="opencv_flann243.dll" Source="opencv\opencv_flann243.dll"/>
-      <File Id="opencv_gpu243DLL" Name="opencv_gpu243.dll" Source="opencv\opencv_gpu243.dll"/>
-      <File Id="opencv_highgui243DLL" Name="opencv_highgui243.dll" Source="opencv\opencv_highgui243.dll"/>
-      <File Id="opencv_imgproc243DLL" Name="opencv_imgproc243.dll" Source="opencv\opencv_imgproc243.dll"/>
-      <File Id="opencv_legacy243DLL" Name="opencv_legacy243.dll" Source="opencv\opencv_legacy243.dll"/>
-      <File Id="opencv_ml243DLL" Name="opencv_ml243.dll" Source="opencv\opencv_ml243.dll"/>
-      <File Id="opencv_nonfree243DLL" Name="opencv_nonfree243.dll" Source="opencv\opencv_nonfree243.dll"/>
-      <File Id="opencv_objdetect243DLL" Name="opencv_objdetect243.dll" Source="opencv\opencv_objdetect243.dll"/>
-      <File Id="opencv_photo243DLL" Name="opencv_photo243.dll" Source="opencv\opencv_photo243.dll"/>
-      <File Id="opencv_stitching243DLL" Name="opencv_stitching243.dll" Source="opencv\opencv_stitching243.dll"/>
-      <File Id="opencv_ts243DLL" Name="opencv_ts243.dll" Source="opencv\opencv_ts243.dll"/>
-      <File Id="opencv_video243DLL" Name="opencv_video243.dll" Source="opencv\opencv_video243.dll"/>
-      <File Id="opencv_videostab243DLL" Name="opencv_videostab243.dll" Source="opencv\opencv_videostab243.dll"/>
+      <File Id="opencv_calib3d243DLL" Name="opencv_calib3d243.dll" Source="$(var.OpenCVSource)\opencv_calib3d243.dll"/>
+      <File Id="opencv_contrib243DLL" Name="opencv_contrib243.dll" Source="$(var.OpenCVSource)\opencv_contrib243.dll"/>
+      <File Id="opencv_core243DLL" Name="opencv_core243.dll" Source="$(var.OpenCVSource)\opencv_core243.dll"/>
+      <File Id="opencv_features2d243DLL" Name="opencv_features2d243.dll" Source="$(var.OpenCVSource)\opencv_features2d243.dll"/>
+      <File Id="opencv_ffmpeg243DLL" Name="$(var.OpenCVffmpeg)" Source="$(var.OpenCVSource)\$(var.OpenCVffmpeg)"/>
+      <File Id="opencv_flann243DLL" Name="opencv_flann243.dll" Source="$(var.OpenCVSource)\opencv_flann243.dll"/>
+      <File Id="opencv_gpu243DLL" Name="opencv_gpu243.dll" Source="$(var.OpenCVSource)\opencv_gpu243.dll"/>
+      <File Id="opencv_highgui243DLL" Name="opencv_highgui243.dll" Source="$(var.OpenCVSource)\opencv_highgui243.dll"/>
+      <File Id="opencv_imgproc243DLL" Name="opencv_imgproc243.dll" Source="$(var.OpenCVSource)\opencv_imgproc243.dll"/>
+      <File Id="opencv_legacy243DLL" Name="opencv_legacy243.dll" Source="$(var.OpenCVSource)\opencv_legacy243.dll"/>
+      <File Id="opencv_ml243DLL" Name="opencv_ml243.dll" Source="$(var.OpenCVSource)\opencv_ml243.dll"/>
+      <File Id="opencv_nonfree243DLL" Name="opencv_nonfree243.dll" Source="$(var.OpenCVSource)\opencv_nonfree243.dll"/>
+      <File Id="opencv_objdetect243DLL" Name="opencv_objdetect243.dll" Source="$(var.OpenCVSource)\opencv_objdetect243.dll"/>
+      <File Id="opencv_photo243DLL" Name="opencv_photo243.dll" Source="$(var.OpenCVSource)\opencv_photo243.dll"/>
+      <File Id="opencv_stitching243DLL" Name="opencv_stitching243.dll" Source="$(var.OpenCVSource)\opencv_stitching243.dll"/>
+      <File Id="opencv_ts243DLL" Name="opencv_ts243.dll" Source="$(var.OpenCVSource)\opencv_ts243.dll"/>
+      <File Id="opencv_video243DLL" Name="opencv_video243.dll" Source="$(var.OpenCVSource)\opencv_video243.dll"/>
+      <File Id="opencv_videostab243DLL" Name="opencv_videostab243.dll" Source="$(var.OpenCVSource)\opencv_videostab243.dll"/>
     </Component>
 
     <ComponentGroup Id="OpenTK" Directory="PACKAGESFOLDER">
-      <Component Id="OpenTKLibrary" Guid="6383e0fe-4ed8-42ec-aca9-32af0e2d1b55">
+      <Component Id="OpenTKLibrary" Guid="*" Win64="$(var.Win64)">
         <File Id="OpenTKDLL" Name="OpenTK.dll" Source="$(var.PackageBuildPath)\OpenTK.dll" KeyPath="yes"/>
       </Component>
 
-      <Component Id="OpenTKGLControlLibrary" Guid="b56585a6-7cea-48c3-802d-9b12ae9c7ca9">
+      <Component Id="OpenTKGLControlLibrary" Guid="*" Win64="$(var.Win64)">
         <File Id="OpenTKGLControlDLL" Name="OpenTK.GLControl.dll" Source="$(var.PackageBuildPath)\OpenTK.GLControl.dll" KeyPath="yes"/>
       </Component>
     </ComponentGroup>
 
     <ComponentGroup Id="DspPackageComponents" Directory="PACKAGESFOLDER">
       <ComponentRef Id="OpenCVNetLibrary"/>
-      <Component Id="BonsaiDspDesignLibrary" Guid="c6232801-e9a3-44be-9075-105965153cb0">
+      <Component Id="BonsaiDspDesignLibrary" Guid="*" Win64="$(var.Win64)">
         <File Id="BonsaiDspDesignDLL" Name="Bonsai.Dsp.Design.dll" Source="$(var.PackageBuildPath)\Bonsai.Dsp.Design.dll" KeyPath="yes"/>
         <File Id="BonsaiDspDesignPDB" Name="Bonsai.Dsp.Design.pdb" Source="$(var.PackageBuildPath)\Bonsai.Dsp.Design.pdb"/>
       </Component>
@@ -68,7 +78,7 @@
     <ComponentGroup Id="AudioPackageComponents" Directory="PACKAGESFOLDER">
       <ComponentGroupRef Id="OpenTK"/>
       <ComponentGroupRef Id="DspPackageComponents"/>
-      <Component Id="BonsaiAudioLibrary" Guid="be2654a8-4a3b-4b6d-8a37-f8c41de928d9">
+      <Component Id="BonsaiAudioLibrary" Guid="*" Win64="$(var.Win64)">
         <File Id="BonsaiAudioDLL" Name="Bonsai.Audio.dll" Source="$(var.PackageBuildPath)\Bonsai.Audio.dll" KeyPath="yes"/>
         <File Id="BonsaiAudioPDB" Name="Bonsai.Audio.pdb" Source="$(var.PackageBuildPath)\Bonsai.Audio.pdb"/>
       </Component>
@@ -77,33 +87,33 @@
     <ComponentGroup Id="VisionPackageComponents" Directory="PACKAGESFOLDER">
       <ComponentGroupRef Id="OpenTK"/>
       <ComponentRef Id="OpenCVNetLibrary"/>
-      <Component Id="BonsaiVisionLibrary" Guid="31019144-d943-4357-baa9-bf960d3a9659">
+      <Component Id="BonsaiVisionLibrary" Guid="*" Win64="$(var.Win64)">
         <File Id="BonsaiVisionDLL" Name="Bonsai.Vision.dll" Source="$(var.PackageBuildPath)\Bonsai.Vision.dll" KeyPath="yes"/>
         <File Id="BonsaiVisionPDB" Name="Bonsai.Vision.pdb" Source="$(var.PackageBuildPath)\Bonsai.Vision.pdb"/>
       </Component>
 
-      <Component Id="BonsaiVisionDesignLibrary" Guid="7fd58c2d-3da7-4a6e-b9b0-83d7446f23ef">
+      <Component Id="BonsaiVisionDesignLibrary" Guid="*" Win64="$(var.Win64)">
         <File Id="BonsaiVisionDesignDLL" Name="Bonsai.Vision.Design.dll" Source="$(var.PackageBuildPath)\Bonsai.Vision.Design.dll" KeyPath="yes"/>
         <File Id="BonsaiVisionDesignPDB" Name="Bonsai.Vision.Design.pdb" Source="$(var.PackageBuildPath)\Bonsai.Vision.Design.pdb"/>
       </Component>
     </ComponentGroup>
 
     <ComponentGroup Id="VisionPackageExamples">
-      <Component Id="CameraTrigger" Directory="CAMERATRIGGERFOLDER" Guid="90691c86-3721-480f-9a47-30060656b159">
+      <Component Id="CameraTrigger" Directory="CAMERATRIGGERFOLDER" Guid="*" Win64="$(var.Win64)">
         <File Id="CameraTriggerBONSAI" Name="CameraTrigger.bonsai" Source="$(var.ExamplesPath)\Vision\CameraTrigger\CameraTrigger.bonsai" KeyPath="yes"/>
       </Component>
 
-      <Component Id="ColorSegmentation" Directory="COLORSEGMENTATIONFOLDER" Guid="615fa2b5-7db8-4e40-af99-e7f4c5a19ac9">
+      <Component Id="ColorSegmentation" Directory="COLORSEGMENTATIONFOLDER" Guid="*" Win64="$(var.Win64)">
         <File Id="ColorSegmentationBONSAI" Name="ColorSegmentation.bonsai" Source="$(var.ExamplesPath)\Vision\ColorSegmentation\ColorSegmentation.bonsai" KeyPath="yes"/>
       </Component>
       
-      <Component Id="ContrastSegmentation" Directory="CONTRASTSEGMENTATIONFOLDER" Guid="50d41ba0-e911-430f-be14-5ad81a018beb">
+      <Component Id="ContrastSegmentation" Directory="CONTRASTSEGMENTATIONFOLDER" Guid="*" Win64="$(var.Win64)">
         <File Id="ContrastSegmentationBONSAI" Name="ContrastSegmentation.bonsai" Source="$(var.ExamplesPath)\Vision\ContrastSegmentation\ContrastSegmentation.bonsai" KeyPath="yes"/>
       </Component>
     </ComponentGroup>
 
     <ComponentGroup Id="ScriptingPackageComponents" Directory="PACKAGESFOLDER">
-      <Component Id="BonsaiScriptingLibrary" Guid="e918bd8d-52ee-41f1-9f98-4a2928be8315">
+      <Component Id="BonsaiScriptingLibrary" Guid="*" Win64="$(var.Win64)">
         <File Id="BonsaiScriptingDLL" Name="Bonsai.Scripting.dll" Source="$(var.PackageBuildPath)\Bonsai.Scripting.dll" KeyPath="yes"/>
         <File Id="BonsaiScriptingPDB" Name="Bonsai.Scripting.pdb" Source="$(var.PackageBuildPath)\Bonsai.Scripting.pdb"/>
       </Component>
