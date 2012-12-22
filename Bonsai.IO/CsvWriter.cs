@@ -113,6 +113,10 @@ namespace Bonsai.IO
                 {
                     return Expression.Call(expression, "ToString", null, Expression.Constant("o"));
                 }
+                else if (expression.Type == typeof(IntPtr))
+                {
+                    return Expression.Call(expression, "ToString", null);
+                }
                 else
                 {
                     return Expression.Call(expression, "ToString", null, Expression.Constant(CultureInfo.InvariantCulture));
