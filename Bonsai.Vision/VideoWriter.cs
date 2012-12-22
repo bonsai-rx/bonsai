@@ -77,9 +77,12 @@ namespace Bonsai.Vision
             var closingWriter = writer;
             writerTask.ContinueWith(task =>
             {
-                lock (syncRoot)
+                if (closingWriter != null)
                 {
-                    closingWriter.Close();
+                    lock (syncRoot)
+                    {
+                        closingWriter.Close();
+                    }
                 }
             });
 
