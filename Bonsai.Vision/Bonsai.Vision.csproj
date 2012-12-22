@@ -94,6 +94,7 @@
     <Compile Include="SaveImage.cs" />
     <Compile Include="Smooth.cs" />
     <Compile Include="Sobel.cs" />
+    <Compile Include="SortBinaryRegions.cs" />
     <Compile Include="Subtract.cs" />
     <Compile Include="Sum.cs" />
     <Compile Include="Threshold.cs" />
