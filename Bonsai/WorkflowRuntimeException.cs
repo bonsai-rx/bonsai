@@ -8,28 +8,28 @@ using Bonsai.Expressions;
 namespace Bonsai
 {
     [Serializable]
-    public class WorkflowBuildException : WorkflowException
+    public class WorkflowRuntimeException : WorkflowException
     {
-        public WorkflowBuildException()
+        public WorkflowRuntimeException()
         {
         }
 
-        public WorkflowBuildException(string message)
+        public WorkflowRuntimeException(string message)
             : base(message)
         {
         }
 
-        public WorkflowBuildException(string message, Exception innerException)
+        public WorkflowRuntimeException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        public WorkflowBuildException(string message, ExpressionBuilder builder, Exception innerException)
+        public WorkflowRuntimeException(string message, ExpressionBuilder builder, Exception innerException)
             : base(message, builder, innerException)
         {
         }
 
-        protected WorkflowBuildException(SerializationInfo info, StreamingContext context)
+        protected WorkflowRuntimeException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

@@ -47,6 +47,8 @@
     <Compile Include="Configuration\ConfigurationHelper.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="ContinuationScheduler.cs" />
+    <Compile Include="WorkflowRuntimeException.cs" />
+    <Compile Include="WorkflowException.cs" />
     <Compile Include="Expressions\BinaryCombinatorBuilder.cs" />
     <Compile Include="Expressions\CombineTimestampBuilder.cs" />
     <Compile Include="Expressions\RepeatCountBuilder.cs" />
