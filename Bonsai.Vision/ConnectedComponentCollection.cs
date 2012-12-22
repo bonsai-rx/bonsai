@@ -14,6 +14,12 @@ namespace Bonsai.Vision
             ImageSize = imageSize;
         }
 
+        public ConnectedComponentCollection(IList<ConnectedComponent> components, CvSize imageSize)
+            : base(components)
+        {
+            ImageSize = imageSize;
+        }
+
         public CvSize ImageSize { get; private set; }
     }
 }
