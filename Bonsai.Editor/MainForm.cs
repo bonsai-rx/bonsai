@@ -434,13 +434,13 @@ namespace Bonsai.Editor
             }
         }
 
-        void SelectExceptionBuilderNode(WorkflowViewModel viewModel, WorkflowBuildException e)
+        void SelectExceptionBuilderNode(WorkflowViewModel viewModel, WorkflowException e)
         {
             var graphNode = viewModel.FindGraphNode(e.Builder);
             if (graphNode != null)
             {
                 viewModel.WorkflowGraphView.SelectedNode = graphNode;
-                var buildException = e.InnerException as WorkflowBuildException;
+                var buildException = e.InnerException as WorkflowException;
                 if (buildException != null)
                 {
                     viewModel.LaunchWorkflowView(graphNode);
@@ -452,9 +452,11 @@ namespace Bonsai.Editor
                 }
                 else
                 {
+                    viewModel.WorkflowGraphView.Select();
+                    var errorCaption = e is WorkflowBuildException ? "Build Error" : "Runtime Error";
                     var selectionBrush = viewModel.WorkflowGraphView.UnfocusedSelectionBrush;
                     viewModel.WorkflowGraphView.UnfocusedSelectionBrush = Brushes.Red;
-                    MessageBox.Show(e.Message, "Build Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(e.Message, errorCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     viewModel.WorkflowGraphView.UnfocusedSelectionBrush = selectionBrush;
                 }
             }
@@ -462,10 +464,13 @@ namespace Bonsai.Editor
 
         void HandleWorkflowError(Exception e)
         {
-            var buildException = e as WorkflowBuildException;
-            if (buildException != null)
+            var workflowException = e as WorkflowException;
+            if (workflowException != null)
             {
-                SelectExceptionBuilderNode(workflowViewModel, buildException);
+                Action selectExceptionNode = () => SelectExceptionBuilderNode(workflowViewModel, workflowException);
+                if (InvokeRequired) BeginInvoke(selectExceptionNode);
+                else selectExceptionNode();
+
                 var shutdown = ShutdownSequence();
                 shutdown.Dispose();
             }
