@@ -13,6 +13,7 @@ namespace Bonsai.Expressions
     [XmlType("Where", Namespace = Constants.XmlNamespace)]
     public class WhereBuilder : CombinatorExpressionBuilder
     {
+        static readonly ConstructorInfo runtimeExceptionConstructor = typeof(WorkflowRuntimeException).GetConstructor(new[] { typeof(string), typeof(ExpressionBuilder), typeof(Exception) });
         static readonly MethodInfo whereMethod = typeof(Observable).GetMethods()
                                                                    .Single(m => m.Name == "Where" &&
                                                                            m.GetParameters().Length == 2 &&
@@ -22,26 +23,24 @@ namespace Bonsai.Expressions
 
         public override Expression Build()
         {
-            Delegate predicateDelegate;
             var observableType = Source.Type.GetGenericArguments()[0];
             var conditionType = ExpressionBuilder.GetConditionGenericArgument(Condition);
             var processMethod = Condition.GetType().GetMethod("Process");
 
+            var conditionExpression = Expression.Constant(Condition);
+            var parameter = Expression.Parameter(observableType);
+            var processParameter = (Expression)parameter;
             if (observableType.IsValueType && conditionType == typeof(object))
             {
-                var conditionExpression = Expression.Constant(Condition);
-                var parameter = Expression.Parameter(observableType);
-                var body = Expression.Call(conditionExpression, processMethod, Expression.Convert(parameter, typeof(object)));
-                predicateDelegate = Expression.Lambda(body, parameter).Compile();
-            }
-            else
-            {
-                var predicateType = Expression.GetFuncType(new[] { observableType, typeof(bool) });
-                predicateDelegate = Delegate.CreateDelegate(predicateType, Condition, processMethod);
+                processParameter = Expression.Convert(processParameter, typeof(object));
             }
 
-            var predicate = Expression.Constant(predicateDelegate);
-            return Expression.Call(whereMethod.MakeGenericMethod(observableType), Source, predicate);
+            var process = Expression.Call(conditionExpression, processMethod, processParameter);
+            var exception = Expression.Parameter(typeof(Exception));
+            var exceptionText = Expression.Property(exception, "Message");
+            var runtimeException = Expression.New(runtimeExceptionConstructor, exceptionText, Expression.Constant(this), exception);
+            var predicate = Expression.TryCatch(process, Expression.Catch(exception, Expression.Throw(runtimeException, process.Type)));
+            return Expression.Call(whereMethod.MakeGenericMethod(observableType), Source, Expression.Lambda(predicate, parameter));
         }
     }
 }

@@ -12,11 +12,11 @@ namespace Bonsai
 
         protected abstract Sink<T> CreateProcessor<T>();
 
-        public Action<T> Create<T>()
+        public Sink<T> Create<T>()
         {
             var processor = CreateProcessor<T>();
             sink = processor;
-            return processor.Process;
+            return processor;
         }
 
         public override IDisposable Load()

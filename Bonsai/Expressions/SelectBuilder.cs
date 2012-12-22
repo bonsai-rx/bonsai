@@ -13,6 +13,7 @@ namespace Bonsai.Expressions
     [XmlType("Select", Namespace = Constants.XmlNamespace)]
     public class SelectBuilder : CombinatorExpressionBuilder
     {
+        static readonly ConstructorInfo runtimeExceptionConstructor = typeof(WorkflowRuntimeException).GetConstructor(new[] { typeof(string), typeof(ExpressionBuilder), typeof(Exception) });
         static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()
                                                                     .Single(m => m.Name == "Select" &&
                                                                             m.GetParameters().Length == 2 &&
@@ -25,15 +26,14 @@ namespace Bonsai.Expressions
             var processMethod = Transform.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                                                    .Single(m => m.Name == "Process" && m.GetParameters().Length == 1);
 
-            var transformGenericArguments = processMethod.GetParameters()
-                                                          .Select(info => info.ParameterType)
-                                                          .Concat(Enumerable.Repeat(processMethod.ReturnType, 1))
-                                                          .ToArray();
-
-            var selectorType = Expression.GetFuncType(transformGenericArguments);
-            var selectorDelegate = Delegate.CreateDelegate(selectorType, Transform, processMethod);
-            var selector = Expression.Constant(selectorDelegate);
-            return Expression.Call(selectMethod.MakeGenericMethod(transformGenericArguments), Source, selector);
+            var transformExpression = Expression.Constant(Transform);
+            var parameter = Expression.Parameter(processMethod.GetParameters()[0].ParameterType);
+            var process = Expression.Call(transformExpression, processMethod, parameter);
+            var exception = Expression.Parameter(typeof(Exception));
+            var exceptionText = Expression.Property(exception, "Message");
+            var runtimeException = Expression.New(runtimeExceptionConstructor, exceptionText, Expression.Constant(this), exception);
+            var selector = Expression.TryCatch(process, Expression.Catch(exception, Expression.Throw(runtimeException, process.Type)));
+            return Expression.Call(selectMethod.MakeGenericMethod(parameter.Type, processMethod.ReturnType), Source, Expression.Lambda(selector, parameter));
         }
     }
 }
