@@ -13,6 +13,7 @@ namespace Bonsai.Expressions
     [XmlType("Do", Namespace = Constants.XmlNamespace)]
     public class DoBuilder : CombinatorExpressionBuilder
     {
+        static readonly ConstructorInfo runtimeExceptionConstructor = typeof(WorkflowRuntimeException).GetConstructor(new[] { typeof(string), typeof(ExpressionBuilder), typeof(Exception) });
         static readonly MethodInfo doMethod = typeof(Observable).GetMethods()
                                                                 .Single(m => m.Name == "Do" &&
                                                                         m.GetParameters().Length == 2 &&
@@ -23,37 +24,33 @@ namespace Bonsai.Expressions
 
         public override Expression Build()
         {
-            Delegate actionDelegate;
+            var sink = Sink;
+            var dynamicSink = sink as DynamicSink;
             var observableType = Source.Type.GetGenericArguments()[0];
-
-            var dynamicSink = Sink as DynamicSink;
             if (dynamicSink != null)
             {
                 var createMethod = dynamicSink.GetType().GetMethod("Create");
                 createMethod = createMethod.MakeGenericMethod(observableType);
-                actionDelegate = (Delegate)createMethod.Invoke(dynamicSink, null);
+                sink = (LoadableElement)createMethod.Invoke(dynamicSink, null);
             }
-            else
+
+            var sinkType = ExpressionBuilder.GetSinkGenericArgument(sink);
+            var processMethod = sink.GetType().GetMethod("Process");
+
+            var sinkExpression = Expression.Constant(sink);
+            var parameter = Expression.Parameter(observableType);
+            var processParameter = (Expression)parameter;
+            if (observableType.IsValueType && sinkType == typeof(object))
             {
-                var sinkType = ExpressionBuilder.GetSinkGenericArgument(Sink);
-                var processMethod = Sink.GetType().GetMethod("Process");
-
-                if (observableType.IsValueType && sinkType == typeof(object))
-                {
-                    var sinkExpression = Expression.Constant(Sink);
-                    var parameter = Expression.Parameter(observableType);
-                    var body = Expression.Call(sinkExpression, processMethod, Expression.Convert(parameter, typeof(object)));
-                    actionDelegate = Expression.Lambda(body, parameter).Compile();
-                }
-                else
-                {
-                    var actionType = Expression.GetActionType(observableType);
-                    actionDelegate = Delegate.CreateDelegate(actionType, Sink, processMethod);
-                }
+                processParameter = Expression.Convert(processParameter, typeof(object));
             }
 
-            var action = Expression.Constant(actionDelegate);
-            return Expression.Call(doMethod.MakeGenericMethod(observableType), Source, action);
+            var process = Expression.Call(sinkExpression, processMethod, processParameter);
+            var exception = Expression.Parameter(typeof(Exception));
+            var exceptionText = Expression.Property(exception, "Message");
+            var runtimeException = Expression.New(runtimeExceptionConstructor, exceptionText, Expression.Constant(this), exception);
+            var action = Expression.TryCatch(process, Expression.Catch(exception, Expression.Throw(runtimeException, process.Type)));
+            return Expression.Call(doMethod.MakeGenericMethod(observableType), Source, Expression.Lambda(action, parameter));
         }
     }
 }
