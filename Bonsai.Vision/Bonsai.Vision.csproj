@@ -101,6 +101,7 @@
     <Compile Include="Transpose.cs" />
     <Compile Include="Undistort.cs" />
     <Compile Include="VideoWriter.cs" />
+    <Compile Include="VideoWriterDisposable.cs" />
     <Compile Include="WarpPerspective.cs" />
   </ItemGroup>
   <ItemGroup>
