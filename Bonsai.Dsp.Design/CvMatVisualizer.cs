@@ -75,7 +75,7 @@ namespace Bonsai.Dsp.Design
         {
             valuesX.Clear();
             sampleIntervals.Clear();
-            Array.ForEach(valuesY, y => y.Clear());
+            valuesY = null;
         }
 
         protected void DataBindValues()
@@ -139,6 +139,7 @@ namespace Bonsai.Dsp.Design
             {
                 Core.cvConvert(buffer, sampleHeader);
             }
+            sampleHandle.Free();
 
             var maxValues = new double[rows];
             for (int j = 0; j < columns; j += blockSize)
@@ -152,7 +153,7 @@ namespace Bonsai.Dsp.Design
                         maxValues[i] = Math.Max(sample, maxValues[i]);
                     }
 
-                    maxValues[i] += i * 1000;
+                    maxValues[i] += i * 10000;
                 }
 
                 AddValue(blockSize, maxValues);
