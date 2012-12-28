@@ -11,23 +11,20 @@ using System.Collections.ObjectModel;
 using System.Drawing;
 using Bonsai.Vision;
 using System.Runtime.InteropServices;
+using OpenTK.Graphics.OpenGL;
+using OpenTK;
 
 namespace Bonsai.Vision.Design
 {
     class IplImageRoiPicker : IplImageControl
     {
-        bool disposed;
-        CvFont font;
-        IplImage canvas;
         int? selectedRoi;
         Collection<CvPoint[]> regions;
-        static readonly CvScalar SelectionColor = CvScalar.Rgb(0, 255, 0);
-        static readonly CvScalar RoiColor = CvScalar.Rgb(255, 0, 0);
+        const float LineWidth = 1;
+        const float PointSize = 2;
 
         public IplImageRoiPicker()
         {
-            RoiThickness = 1;
-            font = new CvFont(1);
             regions = new Collection<CvPoint[]>();
 
             this.PictureBox.KeyDown += new KeyEventHandler(PictureBox_KeyDown);
@@ -126,8 +123,6 @@ namespace Bonsai.Vision.Design
             });
         }
 
-        public int RoiThickness { get; set; }
-
         void PictureBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Delete && selectedRoi.HasValue)
@@ -216,53 +211,53 @@ namespace Bonsai.Vision.Design
             }
         }
 
-        protected override void SetImage(IplImage image)
+        Vector2 NormalizePoint(CvPoint point)
         {
-            canvas = IplImageHelper.EnsureColorCopy(canvas, image);
-            var unselectedRois = regions.Where((region, i) => i != selectedRoi);
-            Core.cvPolyLine(
-                canvas,
-                unselectedRois.ToArray(),
-                unselectedRois.Select(polygon => polygon.Length).ToArray(),
-                regions.Count,
-                1, RoiColor,
-                RoiThickness, 8, 0);
+            return new Vector2(
+                (point.X * 2f / Image.Width) - 1,
+                -((point.Y * 2f / Image.Height) - 1));
+        }
+
+        void RenderRegion(CvPoint[] region, BeginMode mode)
+        {
+            GL.Begin(mode);
+            for (int i = 0; i < region.Length; i++)
+            {
+                GL.Vertex2(NormalizePoint(region[i]));
+            }
+            GL.End();
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            GL.LineWidth(LineWidth);
+            GL.PointSize(PointSize);
+            GL.Enable(EnableCap.PointSmooth);
+            base.OnLoad(e);
+        }
+
+        protected override void RenderImage()
+        {
+            GL.Color3(Color.White);
+            GL.Enable(EnableCap.Texture2D);
+            base.RenderImage();
+
+            GL.Color3(Color.Red);
+            GL.Disable(EnableCap.Texture2D);
+            foreach(var region in regions.Where((region, i) => i != selectedRoi))
+            {
+                RenderRegion(region, BeginMode.LineLoop);
+            }
 
             if (selectedRoi.HasValue)
             {
                 var region = regions[selectedRoi.Value];
-                Core.cvPolyLine(
-                    canvas,
-                    new[] { region },
-                    new[] { region.Length },
-                    1, 1,
-                    SelectionColor,
-                    RoiThickness, 8, 0);
+                GL.Color3(Color.LimeGreen);
+                RenderRegion(region, BeginMode.LineLoop);
 
-                for (int i = 0; i < region.Length; i++)
-                {
-                    Core.cvCircle(canvas, region[i], 1, CvScalar.Rgb(0, 0, 255), -1, 8, 0);
-                }
+                GL.Color3(Color.Blue);
+                RenderRegion(region, BeginMode.Points);
             }
-            base.SetImage(canvas);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (canvas != null)
-                    {
-                        canvas.Close();
-                        canvas = null;
-                    }
-
-                    disposed = true;
-                }
-            }
-            base.Dispose(disposing);
         }
     }
 }

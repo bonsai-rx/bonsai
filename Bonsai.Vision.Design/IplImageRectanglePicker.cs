@@ -90,6 +90,12 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        protected override void OnLoad(EventArgs e)
+        {
+            GL.LineWidth(LineWidth);
+            base.OnLoad(e);
+        }
+
         protected override void RenderImage()
         {
             GL.Color3(Color.White);
@@ -97,7 +103,6 @@ namespace Bonsai.Vision.Design
             base.RenderImage();
 
             GL.Color3(Color.Red);
-            GL.LineWidth(LineWidth);
             GL.Disable(EnableCap.Texture2D);
             GL.Begin(BeginMode.LineLoop);
             var drawingRectangle = DrawingRectangle(rectangle);
