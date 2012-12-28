@@ -144,13 +144,13 @@ namespace Bonsai.Vision.Design
             if (!loaded) return;
 
             glControl.MakeCurrent();
+            GL.Clear(ClearBufferMask.ColorBufferBit);
             RenderImage();
+            glControl.SwapBuffers();
         }
 
-        void RenderImage()
+        protected virtual void RenderImage()
         {
-            GL.Clear(ClearBufferMask.ColorBufferBit);
-
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadIdentity();
 
@@ -163,8 +163,6 @@ namespace Bonsai.Vision.Design
             GL.TexCoord2(0.0f, 0.0f); GL.Vertex2(-1f, 1f);
 
             GL.End();
-
-            glControl.SwapBuffers();
         }
 
         /// <summary> 
