@@ -52,10 +52,8 @@ namespace Bonsai.Design
 
                 visualizerDialog.Load += delegate
                 {
-                    visualizerObserver = source.Output.Subscribe(value =>
-                    {
-                        visualizerDialog.BeginInvoke((Action)(() => visualizer.Show(value)));
-                    });
+                    visualizerObserver = source.Output.ObserveOn(visualizerDialog)
+                                                      .Subscribe(visualizer.Show);
                 };
 
                 visualizerDialog.FormClosing += delegate { visualizerObserver.Dispose(); };
