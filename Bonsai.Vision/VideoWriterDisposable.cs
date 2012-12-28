@@ -2,32 +2,28 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
+using OpenCV.Net;
 using System.Reactive.Disposables;
+using System.Threading;
 
-namespace Bonsai.Arduino
+namespace Bonsai.Vision
 {
-    public sealed class ArduinoDisposable : ICancelable, IDisposable
+    public sealed class VideoWriterDisposable : ICancelable, IDisposable
     {
         IDisposable resource;
 
-        public ArduinoDisposable(Arduino arduino, IDisposable disposable)
+        public VideoWriterDisposable(CvVideoWriter writer, IDisposable disposable)
         {
-            if (arduino == null)
+            if (writer == null)
             {
-                throw new ArgumentNullException("arduino");
+                throw new ArgumentNullException("writer");
             }
 
-            if (disposable == null)
-            {
-                throw new ArgumentNullException("disposable");
-            }
-
-            Arduino = arduino;
+            Writer = writer;
             resource = disposable;
         }
 
-        public Arduino Arduino { get; private set; }
+        public CvVideoWriter Writer { get; private set; }
 
         public bool IsDisposed
         {
