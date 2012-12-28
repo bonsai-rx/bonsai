@@ -6,14 +6,16 @@ using OpenCV.Net;
 using System.Reactive.Linq;
 using System.Windows.Forms;
 using System.Reactive;
+using OpenTK.Graphics.OpenGL;
+using System.Drawing;
+using OpenTK;
 
 namespace Bonsai.Vision.Design
 {
     class IplImageRectanglePicker : IplImageControl
     {
-        bool disposed;
         CvRect rectangle;
-        IplImage canvas;
+        const float LineWidth = 2;
 
         public IplImageRectanglePicker()
         {
@@ -59,7 +61,16 @@ namespace Bonsai.Vision.Design
                 (int)(rect.X * Image.Width / (float)PictureBox.Width),
                 (int)(rect.Y * Image.Height / (float)PictureBox.Height),
                 (int)(rect.Width * Image.Width / (float)PictureBox.Width),
-                (int)(rect.Height * Image.Width / (float)PictureBox.Width));
+                (int)(rect.Height * Image.Height / (float)PictureBox.Height));
+        }
+
+        Box2 DrawingRectangle(CvRect rect)
+        {
+            return new Box2(
+                (rect.X * 2 / (float)Image.Width) - 1,
+                -((rect.Y * 2 / (float)Image.Height) - 1),
+                ((rect.X + rect.Width) * 2 / (float)Image.Width) - 1,
+                -(((rect.Y + rect.Height) * 2 / (float)Image.Height) - 1));
         }
 
         public CvRect Rectangle
@@ -79,33 +90,22 @@ namespace Bonsai.Vision.Design
             }
         }
 
-        protected override void SetImage(IplImage image)
+        protected override void RenderImage()
         {
-            canvas = IplImageHelper.EnsureColorCopy(canvas, image);
-            Core.cvRectangle(
-                canvas,
-                new CvPoint(rectangle.X, rectangle.Y),
-                new CvPoint(rectangle.X + rectangle.Width, rectangle.Y + rectangle.Height),
-                CvScalar.Rgb(255, 0, 0), 3, 8, 0);
-            base.SetImage(canvas);
-        }
+            GL.Color3(Color.White);
+            GL.Enable(EnableCap.Texture2D);
+            base.RenderImage();
 
-        protected override void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (canvas != null)
-                    {
-                        canvas.Close();
-                        canvas = null;
-                    }
-
-                    disposed = true;
-                }
-            }
-            base.Dispose(disposing);
+            GL.Color3(Color.Red);
+            GL.LineWidth(LineWidth);
+            GL.Disable(EnableCap.Texture2D);
+            GL.Begin(BeginMode.LineLoop);
+            var drawingRectangle = DrawingRectangle(rectangle);
+            GL.Vertex2(drawingRectangle.Left, drawingRectangle.Top);
+            GL.Vertex2(drawingRectangle.Right, drawingRectangle.Top);
+            GL.Vertex2(drawingRectangle.Right, drawingRectangle.Bottom);
+            GL.Vertex2(drawingRectangle.Left, drawingRectangle.Bottom);
+            GL.End();
         }
     }
 }
