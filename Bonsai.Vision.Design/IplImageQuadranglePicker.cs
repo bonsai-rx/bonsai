@@ -5,14 +5,16 @@ using System.Text;
 using OpenCV.Net;
 using System.Reactive.Linq;
 using System.Windows.Forms;
+using OpenTK.Graphics.OpenGL;
+using System.Drawing;
+using OpenTK;
 
 namespace Bonsai.Vision.Design
 {
     class IplImageQuadranglePicker : IplImageControl
     {
-        bool disposed;
-        IplImage canvas;
         CvPoint2D32f[] quadrangle = new CvPoint2D32f[4];
+        const float LineWidth = 2;
 
         public IplImageQuadranglePicker()
         {
@@ -58,33 +60,33 @@ namespace Bonsai.Vision.Design
             }
         }
 
-        protected override void SetImage(IplImage image)
+        Vector2 NormalizePoint(CvPoint2D32f point)
         {
-            canvas = IplImageHelper.EnsureColorCopy(canvas, image);
-            Core.cvLine(canvas, new CvPoint(quadrangle[0]), new CvPoint(quadrangle[1]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
-            Core.cvLine(canvas, new CvPoint(quadrangle[1]), new CvPoint(quadrangle[2]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
-            Core.cvLine(canvas, new CvPoint(quadrangle[2]), new CvPoint(quadrangle[3]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
-            Core.cvLine(canvas, new CvPoint(quadrangle[3]), new CvPoint(quadrangle[0]), CvScalar.Rgb(255, 0, 0), 3, 8, 0);
-            base.SetImage(canvas);
+            return new Vector2(
+                (point.X * 2 / Image.Width) - 1,
+                -((point.Y * 2 / Image.Height) - 1));
         }
 
-        protected override void Dispose(bool disposing)
+        protected override void OnLoad(EventArgs e)
         {
-            if (!disposed)
+            GL.LineWidth(LineWidth);
+            base.OnLoad(e);
+        }
+
+        protected override void RenderImage()
+        {
+            GL.Color3(Color.White);
+            GL.Enable(EnableCap.Texture2D);
+            base.RenderImage();
+
+            GL.Color3(Color.Red);
+            GL.Disable(EnableCap.Texture2D);
+            GL.Begin(BeginMode.LineLoop);
+            for (int i = 0; i < quadrangle.Length; i++)
             {
-                if (disposing)
-                {
-                    if (canvas != null)
-                    {
-                        canvas.Close();
-                        canvas = null;
-                    }
-
-                    disposed = true;
-                }
+                GL.Vertex2(NormalizePoint(quadrangle[i]));
             }
-
-            base.Dispose(disposing);
+            GL.End();
         }
     }
 }
