@@ -19,9 +19,9 @@ namespace Bonsai.Vision.Design
 
         public IplImageRectanglePicker()
         {
-            var mouseMove = Observable.FromEventPattern<MouseEventArgs>(PictureBox, "MouseMove").Select(e => e.EventArgs);
-            var mouseDown = Observable.FromEventPattern<MouseEventArgs>(PictureBox, "MouseDown").Select(e => e.EventArgs);
-            var mouseUp = Observable.FromEventPattern<MouseEventArgs>(PictureBox, "MouseUp").Select(e => e.EventArgs);
+            var mouseMove = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseMove").Select(e => e.EventArgs);
+            var mouseDown = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseDown").Select(e => e.EventArgs);
+            var mouseUp = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseUp").Select(e => e.EventArgs);
 
             var mousePick = (from downEvt in mouseDown
                              where Image != null && downEvt.Button.HasFlag(MouseButtons.Left)
@@ -58,19 +58,21 @@ namespace Bonsai.Vision.Design
         CvRect NormalizedRectangle(CvRect rect)
         {
             return new CvRect(
-                (int)(rect.X * Image.Width / (float)PictureBox.Width),
-                (int)(rect.Y * Image.Height / (float)PictureBox.Height),
-                (int)(rect.Width * Image.Width / (float)PictureBox.Width),
-                (int)(rect.Height * Image.Height / (float)PictureBox.Height));
+                (int)(rect.X * Image.Width / (float)Canvas.Width),
+                (int)(rect.Y * Image.Height / (float)Canvas.Height),
+                (int)(rect.Width * Image.Width / (float)Canvas.Width),
+                (int)(rect.Height * Image.Height / (float)Canvas.Height));
         }
 
         Box2 DrawingRectangle(CvRect rect)
         {
+            var image = Image;
+            if (image == null) return new Box2(0, 0, 0, 0);
             return new Box2(
-                (rect.X * 2 / (float)Image.Width) - 1,
-                -((rect.Y * 2 / (float)Image.Height) - 1),
-                ((rect.X + rect.Width) * 2 / (float)Image.Width) - 1,
-                -(((rect.Y + rect.Height) * 2 / (float)Image.Height) - 1));
+                (rect.X * 2 / (float)image.Width) - 1,
+                -((rect.Y * 2 / (float)image.Height) - 1),
+                ((rect.X + rect.Width) * 2 / (float)image.Width) - 1,
+                -(((rect.Y + rect.Height) * 2 / (float)image.Height) - 1));
         }
 
         public CvRect Rectangle
@@ -96,11 +98,11 @@ namespace Bonsai.Vision.Design
             base.OnLoad(e);
         }
 
-        protected override void RenderImage()
+        protected override void OnRenderFrame(EventArgs e)
         {
             GL.Color3(Color.White);
             GL.Enable(EnableCap.Texture2D);
-            base.RenderImage();
+            base.OnRenderFrame(e);
 
             GL.Color3(Color.Red);
             GL.Disable(EnableCap.Texture2D);

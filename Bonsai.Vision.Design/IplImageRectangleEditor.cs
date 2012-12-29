@@ -50,7 +50,7 @@ namespace Bonsai.Vision.Design
                     imageControl.Rectangle = rectangle;
                     imageControl.RectangleChanged += (sender, e) => propertyDescriptor.SetValue(context.Instance, imageControl.Rectangle);
                     visualizerDialog.AddControl(imageControl);
-                    imageControl.PictureBox.DoubleClick += (sender, e) =>
+                    imageControl.Canvas.DoubleClick += (sender, e) =>
                     {
                         if (imageControl.Image != null)
                         {

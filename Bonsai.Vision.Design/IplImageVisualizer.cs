@@ -15,10 +15,12 @@ namespace Bonsai.Vision.Design
 {
     public class IplImageVisualizer : DialogTypeVisualizer
     {
+        IplImage image;
         Panel imagePanel;
         StatusStrip statusStrip;
         ToolStripStatusLabel statusLabel;
-        IplImageControl imageControl;
+        VisualizerCanvasControl imageControl;
+        IplImageTexture imageTexture;
 
         protected StatusStrip StatusStrip
         {
@@ -29,7 +31,7 @@ namespace Bonsai.Vision.Design
         {
             if (image != null)
             {
-                var cursorPosition = imageControl.PictureBox.PointToClient(Form.MousePosition);
+                var cursorPosition = imageControl.Canvas.PointToClient(Form.MousePosition);
                 if (imageControl.ClientRectangle.Contains(cursorPosition))
                 {
                     var imageX = (int)(cursorPosition.X * ((float)image.Width / imageControl.Width));
@@ -44,13 +46,20 @@ namespace Bonsai.Vision.Design
 
         public override void Show(object value)
         {
-            var image = (IplImage)value;
+            image = (IplImage)value;
             if (statusStrip.Visible)
             {
                 statusLabel.Text = UpdateImageStatus(image);
             }
 
-            imageControl.Image = image;
+            imageControl.Canvas.MakeCurrent();
+            imageTexture.Update(image);
+            imageControl.Canvas.Invalidate();
+        }
+
+        protected virtual void RenderFrame()
+        {
+            imageTexture.Draw();
         }
 
         public override void Load(IServiceProvider provider)
@@ -59,12 +68,14 @@ namespace Bonsai.Vision.Design
             statusStrip = new StatusStrip { Visible = false };
             statusLabel = new ToolStripStatusLabel();
             statusStrip.Items.Add(statusLabel);
-            imageControl.PictureBox.MouseClick += (sender, e) => statusStrip.Visible = e.Button == MouseButtons.Right ? !statusStrip.Visible : statusStrip.Visible;
-            imageControl.PictureBox.DoubleClick += (sender, e) =>
+            imageControl.RenderFrame += (sender, e) => RenderFrame();
+            imageControl.Load += (sender, e) => imageTexture = new IplImageTexture();
+            imageControl.Canvas.MouseClick += (sender, e) => statusStrip.Visible = e.Button == MouseButtons.Right ? !statusStrip.Visible : statusStrip.Visible;
+            imageControl.Canvas.DoubleClick += (sender, e) =>
             {
-                if (imageControl.Image != null)
+                if (image != null)
                 {
-                    imagePanel.Parent.ClientSize = new Size(imageControl.Image.Width, imageControl.Image.Height);
+                    imagePanel.Parent.ClientSize = new Size(image.Width, image.Height);
                 }
             };
 

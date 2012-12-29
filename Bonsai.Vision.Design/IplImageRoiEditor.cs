@@ -55,7 +55,7 @@ namespace Bonsai.Vision.Design
 
                     imageControl.SelectedRegionChanged += (sender, e) => propertyDescriptor.SetValue(context.Instance, imageControl.Regions.ToArray());
                     visualizerDialog.AddControl(imageControl);
-                    imageControl.PictureBox.DoubleClick += (sender, e) =>
+                    imageControl.Canvas.DoubleClick += (sender, e) =>
                     {
                         if (imageControl.Image != null)
                         {

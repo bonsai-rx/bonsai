@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OpenCV.Net;
+using OpenTK;
 
 namespace Bonsai.Vision.Design
 {
@@ -30,6 +31,13 @@ namespace Bonsai.Vision.Design
             Core.cvLine(image, major1, major2, CvScalar.Rgb(0, 0, 255), 1, 8, 0);
             Core.cvLine(image, minor1, minor2, CvScalar.Rgb(255, 0, 0), 1, 8, 0);
             Core.cvCircle(image, new CvPoint(centroid), 2, CvScalar.Rgb(255, 0, 0), -1, 8, 0);
+        }
+
+        public static Vector2 NormalizePoint(CvPoint point, CvSize imageSize)
+        {
+            return new Vector2(
+                (point.X * 2f / imageSize.Width) - 1,
+                -((point.Y * 2f / imageSize.Height) - 1));
         }
     }
 }

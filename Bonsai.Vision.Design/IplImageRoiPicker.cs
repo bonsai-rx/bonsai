@@ -27,11 +27,11 @@ namespace Bonsai.Vision.Design
         {
             regions = new Collection<CvPoint[]>();
 
-            this.PictureBox.KeyDown += new KeyEventHandler(PictureBox_KeyDown);
-            var mouseDoubleClick = Observable.FromEventPattern<MouseEventArgs>(PictureBox, "MouseDoubleClick").Select(e => e.EventArgs);
-            var mouseMove = Observable.FromEventPattern<MouseEventArgs>(PictureBox, "MouseMove").Select(e => e.EventArgs);
-            var mouseDown = Observable.FromEventPattern<MouseEventArgs>(PictureBox, "MouseDown").Select(e => e.EventArgs);
-            var mouseUp = Observable.FromEventPattern<MouseEventArgs>(PictureBox, "MouseUp").Select(e => e.EventArgs);
+            this.Canvas.KeyDown += new KeyEventHandler(PictureBox_KeyDown);
+            var mouseDoubleClick = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseDoubleClick").Select(e => e.EventArgs);
+            var mouseMove = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseMove").Select(e => e.EventArgs);
+            var mouseDown = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseDown").Select(e => e.EventArgs);
+            var mouseUp = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseUp").Select(e => e.EventArgs);
             
             var roiSelected = from downEvt in mouseDown
                               let location = NormalizedLocation(downEvt.X, downEvt.Y)
@@ -172,17 +172,17 @@ namespace Bonsai.Vision.Design
         CvPoint NormalizedLocation(int x, int y)
         {
             return new CvPoint(
-                (int)(x * Image.Width / (float)PictureBox.Width),
-                (int)(y * Image.Height / (float)PictureBox.Height));
+                (int)(x * Image.Width / (float)Canvas.Width),
+                (int)(y * Image.Height / (float)Canvas.Height));
         }
 
         CvRect NormalizedRectangle(CvRect rect)
         {
             return new CvRect(
-                (int)(rect.X * Image.Width / (float)PictureBox.Width),
-                (int)(rect.Y * Image.Height / (float)PictureBox.Height),
-                (int)(rect.Width * Image.Width / (float)PictureBox.Width),
-                (int)(rect.Height * Image.Width / (float)PictureBox.Width));
+                (int)(rect.X * Image.Width / (float)Canvas.Width),
+                (int)(rect.Y * Image.Height / (float)Canvas.Height),
+                (int)(rect.Width * Image.Width / (float)Canvas.Width),
+                (int)(rect.Height * Image.Width / (float)Canvas.Width));
         }
 
         int NearestPoint(CvPoint[] region, CvPoint location)
@@ -211,19 +211,13 @@ namespace Bonsai.Vision.Design
             }
         }
 
-        Vector2 NormalizePoint(CvPoint point)
+        void RenderRegion(CvPoint[] region, BeginMode mode, Color color)
         {
-            return new Vector2(
-                (point.X * 2f / Image.Width) - 1,
-                -((point.Y * 2f / Image.Height) - 1));
-        }
-
-        void RenderRegion(CvPoint[] region, BeginMode mode)
-        {
+            GL.Color3(color);
             GL.Begin(mode);
             for (int i = 0; i < region.Length; i++)
             {
-                GL.Vertex2(NormalizePoint(region[i]));
+                GL.Vertex2(DrawingHelper.NormalizePoint(region[i], Image.Size));
             }
             GL.End();
         }
@@ -236,27 +230,23 @@ namespace Bonsai.Vision.Design
             base.OnLoad(e);
         }
 
-        protected override void RenderImage()
+        protected override void OnRenderFrame(EventArgs e)
         {
             GL.Color3(Color.White);
             GL.Enable(EnableCap.Texture2D);
-            base.RenderImage();
+            base.OnRenderFrame(e);
 
-            GL.Color3(Color.Red);
             GL.Disable(EnableCap.Texture2D);
-            foreach(var region in regions.Where((region, i) => i != selectedRoi))
+            foreach (var region in regions.Where((region, i) => i != selectedRoi))
             {
-                RenderRegion(region, BeginMode.LineLoop);
+                RenderRegion(region, BeginMode.LineLoop, Color.Red);
             }
 
             if (selectedRoi.HasValue)
             {
                 var region = regions[selectedRoi.Value];
-                GL.Color3(Color.LimeGreen);
-                RenderRegion(region, BeginMode.LineLoop);
-
-                GL.Color3(Color.Blue);
-                RenderRegion(region, BeginMode.Points);
+                RenderRegion(region, BeginMode.LineLoop, Color.LimeGreen);
+                RenderRegion(region, BeginMode.Points, Color.Blue);
             }
         }
     }

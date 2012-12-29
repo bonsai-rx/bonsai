@@ -9,6 +9,8 @@ using Bonsai.Dag;
 using Bonsai.Expressions;
 using OpenCV.Net;
 using Bonsai.Vision;
+using OpenTK.Graphics.OpenGL;
+using System.Drawing;
 
 [assembly: TypeVisualizer(typeof(RoiActivityVisualizer), Target = typeof(RoiActivity))]
 
@@ -20,22 +22,21 @@ namespace Bonsai.Vision.Design
         static readonly CvScalar InactiveRoi = CvScalar.Rgb(255, 0, 0);
         static readonly CvScalar ActiveRoi = CvScalar.Rgb(0, 255, 0);
 
+        CvFont font;
         IplImage input;
         IplImage canvas;
-        CvFont font;
+        RegionActivityCollection regions;
 
         public override void Show(object value)
         {
-            var regions = (RegionActivityCollection)value;
+            regions = (RegionActivityCollection)value;
             if (input != null)
             {
                 canvas = IplImageHelper.EnsureColorCopy(canvas, input);
                 for (int i = 0; i < regions.Count; i++)
                 {
-                    var polygon = regions[i].Roi;
                     var rectangle = regions[i].Rect;
                     var color = regions[i].Activity.Val0 > 0 ? ActiveRoi : InactiveRoi;
-                    Core.cvPolyLine(canvas, new[] { polygon }, new[] { polygon.Length }, 1, 1, color, RoiThickness, 8, 0);
 
                     int baseline;
                     CvSize labelSize;
@@ -46,6 +47,31 @@ namespace Bonsai.Vision.Design
                 }
 
                 base.Show(canvas);
+            }
+        }
+
+        protected override void RenderFrame()
+        {
+            GL.Color3(Color.White);
+            GL.Enable(EnableCap.Texture2D);
+            base.RenderFrame();
+
+            if (regions != null)
+            {
+                GL.Disable(EnableCap.Texture2D);
+                foreach (var region in regions)
+                {
+                    var roi = region.Roi;
+                    var color = region.Activity.Val0 > 0 ? Color.LimeGreen : Color.Red;
+
+                    GL.Color3(color);
+                    GL.Begin(BeginMode.LineLoop);
+                    for (int i = 0; i < roi.Length; i++)
+                    {
+                        GL.Vertex2(DrawingHelper.NormalizePoint(roi[i], input.Size));
+                    }
+                    GL.End();
+                }
             }
         }
 
