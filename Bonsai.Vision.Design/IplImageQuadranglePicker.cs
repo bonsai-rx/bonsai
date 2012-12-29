@@ -18,12 +18,12 @@ namespace Bonsai.Vision.Design
 
         public IplImageQuadranglePicker()
         {
-            var mouseMove = Observable.FromEventPattern<MouseEventArgs>(PictureBox, "MouseMove").Select(e => e.EventArgs);
+            var mouseMove = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseMove").Select(e => e.EventArgs);
             var mouseDrag = from evt in mouseMove
                             where Image != null && evt.Button.HasFlag(MouseButtons.Left)
                             select new CvPoint2D32f(
-                                evt.X * Image.Width / (float)PictureBox.Width,
-                                evt.Y * Image.Height / (float)PictureBox.Height);
+                                evt.X * Image.Width / (float)Canvas.Width,
+                                evt.Y * Image.Height / (float)Canvas.Height);
 
             mouseDrag.Subscribe(point =>
             {
@@ -73,11 +73,11 @@ namespace Bonsai.Vision.Design
             base.OnLoad(e);
         }
 
-        protected override void RenderImage()
+        protected override void OnRenderFrame(EventArgs e)
         {
             GL.Color3(Color.White);
             GL.Enable(EnableCap.Texture2D);
-            base.RenderImage();
+            base.OnRenderFrame(e);
 
             GL.Color3(Color.Red);
             GL.Disable(EnableCap.Texture2D);

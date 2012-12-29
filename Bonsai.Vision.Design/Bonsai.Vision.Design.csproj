@@ -51,6 +51,12 @@
     <Compile Include="ContoursVisualizer.cs" />
     <Compile Include="BgraScalarConverter.cs" />
     <Compile Include="ConnectedComponentVisualizer.cs" />
+    <Compile Include="VisualizerCanvasControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VisualizerCanvasControl.designer.cs">
+      <DependentUpon>VisualizerCanvasControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="CvPointVisualizer.cs" />
     <Compile Include="DrawingHelper.cs" />
     <Compile Include="IplImageInputRoiEditor.cs" />
@@ -61,13 +67,11 @@
     <Compile Include="IplImageControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="IplImageControl.designer.cs">
-      <DependentUpon>IplImageControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="IplImageRoiEditor.cs" />
     <Compile Include="IplImageRoiPicker.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="IplImageTexture.cs" />
     <Compile Include="KeyPointCollectionVisualizer.cs" />
     <Compile Include="RoiActivityVisualizer.cs" />
     <Compile Include="TimeIntervalIplImageVisualizer.cs" />
@@ -88,8 +92,8 @@
     <Compile Include="TimestampedIplImageVisualizer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="IplImageControl.resx">
-      <DependentUpon>IplImageControl.cs</DependentUpon>
+    <EmbeddedResource Include="VisualizerCanvasControl.resx">
+      <DependentUpon>VisualizerCanvasControl.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

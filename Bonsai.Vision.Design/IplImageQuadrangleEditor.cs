@@ -52,7 +52,7 @@ namespace Bonsai.Vision.Design
                     Array.Copy(quadrangle, imageControl.Quadrangle, imageControl.Quadrangle.Length);
                     imageControl.QuadrangleChanged += (sender, e) => propertyDescriptor.SetValue(context.Instance, imageControl.Quadrangle.Clone());
                     visualizerDialog.AddControl(imageControl);
-                    imageControl.PictureBox.DoubleClick += (sender, e) =>
+                    imageControl.Canvas.DoubleClick += (sender, e) =>
                     {
                         if (imageControl.Image != null)
                         {
