@@ -61,6 +61,7 @@
     <Compile Include="Contours.cs" />
     <Compile Include="ConvertColor.cs" />
     <Compile Include="ConvertScale.cs" />
+    <Compile Include="Add.cs" />
     <Compile Include="DrawConnectedComponents.cs" />
     <Compile Include="Crop.cs" />
     <Compile Include="DrawContours.cs" />
@@ -80,6 +81,7 @@
     <Compile Include="LargestBinaryRegion.cs" />
     <Compile Include="LoadImage.cs" />
     <Compile Include="Mask.cs" />
+    <Compile Include="MergeBinaryRegions.cs" />
     <Compile Include="MorphologicalOperation.cs" />
     <Compile Include="MotionSegmentation.cs" />
     <Compile Include="Not.cs" />
