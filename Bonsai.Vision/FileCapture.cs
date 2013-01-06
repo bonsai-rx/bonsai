@@ -11,8 +11,10 @@ using System.Threading;
 namespace Bonsai.Vision
 {
     [Description("Produces a video sequence of images from the specified movie file.")]
+    [Editor("Bonsai.Vision.Design.FileCaptureEditor, Bonsai.Vision.Design", typeof(ComponentEditor))]
     public class FileCapture : Source<IplImage>
     {
+        int? targetFrame;
         CvCapture capture;
         Stopwatch stopwatch;
         double captureFps;
@@ -22,6 +24,12 @@ namespace Bonsai.Vision
         {
             stopwatch = new Stopwatch();
             Playing = true;
+        }
+
+        [Browsable(false)]
+        public CvCapture Capture
+        {
+            get { return capture; }
         }
 
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
@@ -38,6 +46,11 @@ namespace Bonsai.Vision
 
         [Description("Allows the video sequence to be paused or resumed.")]
         public bool Playing { get; set; }
+
+        public void Seek(int frameNumber)
+        {
+            targetFrame = frameNumber;
+        }
 
         public override IDisposable Load()
         {
@@ -58,7 +71,47 @@ namespace Bonsai.Vision
             return ObservableCombinators.GenerateWithThread<IplImage>(observer =>
             {
                 stopwatch.Restart();
-                if (Playing || image == null)
+                if (targetFrame.HasValue)
+                {
+                    var target = targetFrame.Value;
+                    var currentFrame = (int)capture.GetProperty(CaptureProperty.POS_FRAMES) - 1;
+                    if (target != currentFrame)
+                    {
+                        if (target > currentFrame) // seek forward
+                        {
+                            capture.SetProperty(CaptureProperty.POS_FRAMES, target);
+                            // continue seeking frame-by-frame until target is reached
+                            while (target > currentFrame)
+                            {
+                                currentFrame = (int)capture.GetProperty(CaptureProperty.POS_FRAMES);
+                                image = capture.QueryFrame();
+                            }
+                        }
+                        else // seek backward
+                        {
+                            capture.SetProperty(CaptureProperty.POS_FRAMES, target);
+                            currentFrame = (int)capture.GetProperty(CaptureProperty.POS_FRAMES);
+                            image = capture.QueryFrame();
+
+                            int skip = 1;
+                            while (target < currentFrame)
+                            {
+                                capture.SetProperty(CaptureProperty.POS_FRAMES, target - skip);
+                                currentFrame = (int)capture.GetProperty(CaptureProperty.POS_FRAMES);
+                                skip *= 2;
+                            }
+
+                            while (target > currentFrame)
+                            {
+                                currentFrame = (int)capture.GetProperty(CaptureProperty.POS_FRAMES);
+                                image = capture.QueryFrame();
+                            }
+                        }
+                    }
+
+                    targetFrame = null;
+                }
+                else if (Playing || image == null)
                 {
                     image = capture.QueryFrame();
                     if (image == null)
