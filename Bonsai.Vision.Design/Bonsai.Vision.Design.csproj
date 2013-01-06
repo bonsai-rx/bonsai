@@ -51,6 +51,13 @@
     <Compile Include="ContoursVisualizer.cs" />
     <Compile Include="BgraScalarConverter.cs" />
     <Compile Include="ConnectedComponentVisualizer.cs" />
+    <Compile Include="FileCaptureEditor.cs" />
+    <Compile Include="VideoPlayerControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VideoPlayerControl.Designer.cs">
+      <DependentUpon>VideoPlayerControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="VisualizerCanvasControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -92,6 +99,9 @@
     <Compile Include="TimestampedIplImageVisualizer.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="VideoPlayerControl.resx">
+      <DependentUpon>VideoPlayerControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="VisualizerCanvasControl.resx">
       <DependentUpon>VisualizerCanvasControl.cs</DependentUpon>
     </EmbeddedResource>
