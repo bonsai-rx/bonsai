@@ -21,7 +21,6 @@ namespace Bonsai.Vision.Design
         public VisualizerCanvasControl()
         {
             InitializeComponent();
-            Dock = DockStyle.Fill;
         }
 
         public event EventHandler RenderFrame;

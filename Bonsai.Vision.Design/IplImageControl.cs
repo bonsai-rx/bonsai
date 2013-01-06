@@ -47,7 +47,11 @@ namespace Bonsai.Vision.Design
 
         protected override void OnRenderFrame(EventArgs e)
         {
-            texture.Draw();
+            if (image != null)
+            {
+                texture.Draw();
+            }
+
             base.OnRenderFrame(e);
         }
 
@@ -61,7 +65,12 @@ namespace Bonsai.Vision.Design
             {
                 if (disposing)
                 {
-                    texture.Dispose();
+                    if (texture != null)
+                    {
+                        texture.Dispose();
+                        texture = null;
+                    }
+
                     disposed = true;
                 }
             }

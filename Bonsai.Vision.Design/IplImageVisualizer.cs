@@ -64,7 +64,7 @@ namespace Bonsai.Vision.Design
 
         public override void Load(IServiceProvider provider)
         {
-            imageControl = new IplImageControl();
+            imageControl = new IplImageControl { Dock = DockStyle.Fill };
             statusStrip = new StatusStrip { Visible = false };
             statusLabel = new ToolStripStatusLabel();
             statusStrip.Items.Add(statusLabel);

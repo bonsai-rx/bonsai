@@ -12,6 +12,7 @@ using System.Reactive.Linq;
 using Bonsai.Expressions;
 using Bonsai.Dag;
 using System.Drawing;
+using System.Windows.Forms;
 
 namespace Bonsai.Vision.Design
 {
@@ -46,6 +47,7 @@ namespace Bonsai.Vision.Design
                 using (var visualizerDialog = new TypeVisualizerDialog())
                 using (var imageControl = new IplImageRectanglePicker())
                 {
+                    imageControl.Dock = DockStyle.Fill;
                     visualizerDialog.Text = propertyDescriptor.Name;
                     imageControl.Rectangle = rectangle;
                     imageControl.RectangleChanged += (sender, e) => propertyDescriptor.SetValue(context.Instance, imageControl.Rectangle);
