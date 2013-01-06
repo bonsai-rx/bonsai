@@ -22,7 +22,7 @@
     <util:RegistrySearch Root="HKLM" Key="Software\Microsoft\VisualStudio\10.0\VC\VCRedist\$(var.Platform)" Value="Installed" Variable="VCRTInstalled"/>
 
 		<Chain>
-      <PackageGroupRef Id="NetFx40Web"/>
+      <PackageGroupRef Id="NetFx45Web"/>
       <ExePackage Id="VCRT" SourceFile="Dependencies\$(var.VCRTSource)" InstallCommand="/q /norestart" Permanent="yes" DetectCondition="VCRTInstalled"/>
       <ExePackage Id="OpenTK" SourceFile="Dependencies\opentk-2010-10-06.exe" Permanent="yes" DetectCondition="OpenTKInstalled"/>
       <MsiPackage Id="IronPython" SourceFile="Dependencies\IronPython-2.7.3.msi" DisplayInternalUI="yes" Permanent="yes"/>
