@@ -63,6 +63,9 @@
       <DependentUpon>PlotControl.cs</DependentUpon>
     </Compile>
     <Compile Include="ITypeVisualizerContext.cs" />
+    <Compile Include="SeekBar.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="StateTimeVisualizer.cs" />
     <Compile Include="StateTimeHistogram.cs">
       <SubType>UserControl</SubType>
