@@ -13,7 +13,7 @@
     <?define ProductUpgradeCode="8718e5ba-be5d-4616-9357-206ceba5ec69"?>
   <?endif?>
   
-	<Bundle Name="$(var.ProductDisplayName)" Version="1.0.0.0" Manufacturer="Goncalo Lopes" UpgradeCode="$(var.ProductUpgradeCode)" IconSourceFile="$(var.EditorProjectPath)\Bonsai.ico">
+	<Bundle Name="$(var.ProductDisplayName)" Version="!(bind.PackageVersion.Bonsai)" Manufacturer="Goncalo Lopes" UpgradeCode="$(var.ProductUpgradeCode)" IconSourceFile="$(var.EditorProjectPath)\Bonsai.ico">
     <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense">
       <bal:WixStandardBootstrapperApplication LicenseFile="License.rtf" LogoFile="Bonsai.png" SuppressOptionsUI="yes"/>
     </BootstrapperApplicationRef>
