@@ -63,6 +63,7 @@
       <DependentUpon>PlotControl.cs</DependentUpon>
     </Compile>
     <Compile Include="ITypeVisualizerContext.cs" />
+    <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="SeekBar.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -158,6 +159,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildProjectDirectory)\..\MSBuild\AssemblyInfo.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
