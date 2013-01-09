@@ -16,6 +16,7 @@ namespace Bonsai.Vision.Design
         double playbackRate;
         ToolStripButton loopButton;
         ToolStripStatusLabel statusLabel;
+        ToolStripStatusLabel frameNumberLabel;
 
         public VideoPlayerControl()
         {
@@ -27,19 +28,21 @@ namespace Bonsai.Vision.Design
             loopButton = new ToolStripButton("loop");
             loopButton.CheckOnClick = true;
             statusLabel = new ToolStripStatusLabel();
+            frameNumberLabel = new ToolStripStatusLabel();
             statusStrip.Items.Add(playButton);
             statusStrip.Items.Add(pauseButton);
             statusStrip.Items.Add(slowerButton);
             statusStrip.Items.Add(fasterButton);
             statusStrip.Items.Add(loopButton);
+            statusStrip.Items.Add(frameNumberLabel);
             statusStrip.Items.Add(statusLabel);
 
             if (!DesignMode) statusStrip.Visible = false;
             imageControl.Canvas.MouseClick += new MouseEventHandler(imageControl_MouseClick);
             playButton.Click += (sender, e) => Playing = true;
             pauseButton.Click += (sender, e) => Playing = false;
-            slowerButton.Click += (sender, e) => PlaybackRate /= 2;
-            fasterButton.Click += (sender, e) => PlaybackRate *= 2;
+            slowerButton.Click += (sender, e) => DecreasePlaybackRate();
+            fasterButton.Click += (sender, e) => IncreasePlaybackRate();
             imageControl.Canvas.MouseMove += (sender, e) =>
             {
                 var image = imageControl.Image;
@@ -137,6 +140,7 @@ namespace Bonsai.Vision.Design
             imageControl.Image = frame;
             seekBar.Value = frameNumber;
             if (frame == null) statusLabel.Text = string.Empty;
+            frameNumberLabel.Text = string.Format("Frame: {0}", frameNumber);
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -146,6 +150,8 @@ namespace Bonsai.Vision.Design
                 Playing = !Playing;
             }
 
+            if (keyData == Keys.Add) IncreasePlaybackRate();
+            if (keyData == Keys.Subtract) DecreasePlaybackRate();
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
@@ -155,6 +161,16 @@ namespace Bonsai.Vision.Design
             {
                 statusStrip.Visible = !statusStrip.Visible;
             }
+        }
+
+        void IncreasePlaybackRate()
+        {
+            PlaybackRate *= 2;
+        }
+
+        void DecreasePlaybackRate()
+        {
+            PlaybackRate /= 2;
         }
     }
 }
