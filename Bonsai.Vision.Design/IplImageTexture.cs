@@ -87,6 +87,7 @@ namespace Bonsai.Vision.Design
 
         public void Draw()
         {
+            GL.Enable(EnableCap.Texture2D);
             GL.BindTexture(TextureTarget.Texture2D, texture);
             GL.Begin(BeginMode.Quads);
 

@@ -76,7 +76,6 @@ namespace Bonsai.Vision.Design
         protected override void OnRenderFrame(EventArgs e)
         {
             GL.Color3(Color.White);
-            GL.Enable(EnableCap.Texture2D);
             base.OnRenderFrame(e);
 
             GL.Color3(Color.Red);
