@@ -53,7 +53,6 @@ namespace Bonsai.Vision.Design
         protected override void RenderFrame()
         {
             GL.Color3(Color.White);
-            GL.Enable(EnableCap.Texture2D);
             base.RenderFrame();
 
             if (regions != null)

@@ -34,7 +34,6 @@ namespace Bonsai.Vision.Design
         {
             canvas.MakeCurrent();
             GL.ClearColor(Color.Black);
-            GL.Enable(EnableCap.Texture2D);
             GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
 
             GL.MatrixMode(MatrixMode.Projection);
