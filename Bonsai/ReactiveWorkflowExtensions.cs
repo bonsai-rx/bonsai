@@ -19,14 +19,14 @@ namespace Bonsai
                                                                                          m.GetParameters().Length == 4 &&
                                                                                          m.GetParameters()[3].ParameterType == typeof(Action));
 
-        public static IObservable<Unit> Run(this ReactiveWorkflow source)
+        public static IObservable<Unit> Run(this ReactiveWorkflow source, params LambdaExpression[] onNext)
         {
             return Observable.Create<Unit>(observer =>
             {
                 var loadDisposable = Disposable.Empty;
                 try
                 {
-                    var subscribeExpression = source.BuildSubscribe(observer.OnError, observer.OnCompleted);
+                    var subscribeExpression = source.BuildSubscribe(observer.OnError, observer.OnCompleted, onNext);
                     loadDisposable = source.Load();
 
                     var subscriber = subscribeExpression.Compile();
@@ -45,8 +45,13 @@ namespace Bonsai
             return BuildSubscribe(source, onError, () => { });
         }
 
-        static Expression<Func<IDisposable>> BuildSubscribe(this ReactiveWorkflow source, Action<Exception> onError, Action onCompleted)
+        static Expression<Func<IDisposable>> BuildSubscribe(this ReactiveWorkflow source, Action<Exception> onError, Action onCompleted, params LambdaExpression[] onNext)
         {
+            if (onNext == null)
+            {
+                throw new ArgumentNullException("onNext");
+            }
+
             var subscriptionCounter = Expression.Variable(typeof(int));
             var subscriptionInitializer = Expression.Assign(subscriptionCounter, Expression.Constant(source.Connections.Count));
             Expression<Action> onCompletedCall = () => onCompleted();
@@ -55,13 +60,14 @@ namespace Bonsai
             var comparison = Expression.LessThanOrEqual(decrementCall, Expression.Constant(0));
             var onCompletedCheck = Expression.IfThen(comparison, Expression.Invoke(onCompletedCall));
 
+            int connectionIndex = -1;
             var onErrorExpression = Expression.Constant(onError);
             var subscribeActions = from expression in source.Connections
                                    let observableType = expression.Type.GetGenericArguments()[0]
                                    let onNextParameter = Expression.Parameter(observableType)
-                                   let onNext = Expression.Lambda(Expression.Empty(), onNextParameter)
+                                   let onNextExpression = ++connectionIndex < onNext.Length ? onNext[connectionIndex] : Expression.Lambda(Expression.Empty(), onNextParameter)
                                    let onCompletedExpression = Expression.Lambda(onCompletedCheck)
-                                   let subscribeCall = Expression.Call(subscribeMethod.MakeGenericMethod(observableType), expression, onNext, onErrorExpression, onCompletedExpression)
+                                   let subscribeCall = Expression.Call(subscribeMethod.MakeGenericMethod(observableType), expression, onNextExpression, onErrorExpression, onCompletedExpression)
                                    select subscribeCall;
 
             var subscriptions = Expression.NewArrayInit(typeof(IDisposable), subscribeActions);
