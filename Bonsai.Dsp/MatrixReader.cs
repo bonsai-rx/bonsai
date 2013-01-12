@@ -26,6 +26,8 @@ namespace Bonsai.Dsp
 
         public CvMatDepth Depth { get; set; }
 
+        public MatrixLayout Layout { get; set; }
+
         protected override IObservable<CvMat> Generate()
         {
             var stopwatch = new Stopwatch();
@@ -43,11 +45,22 @@ namespace Bonsai.Dsp
                     if (bytesRead == 0) observer.OnCompleted();
                     else
                     {
+                        CvMat bufferHeader;
                         var bufferHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
                         try
                         {
-                            var bufferHeader = new CvMat(bufferLength, channelCount, Depth, 1, bufferHandle.AddrOfPinnedObject());
-                            Core.cvTranspose(bufferHeader, output);
+                            switch (Layout)
+                            {
+                                case MatrixLayout.ColumnMajor:
+                                    bufferHeader = new CvMat(bufferLength, channelCount, Depth, 1, bufferHandle.AddrOfPinnedObject());
+                                    Core.cvTranspose(bufferHeader, output);
+                                    break;
+                                default:
+                                case MatrixLayout.RowMajor:
+                                    bufferHeader = new CvMat(channelCount, bufferLength, Depth, 1, bufferHandle.AddrOfPinnedObject());
+                                    Core.cvCopy(bufferHeader, output);
+                                    break;
+                            }
                         }
                         finally { bufferHandle.Free(); }
 
