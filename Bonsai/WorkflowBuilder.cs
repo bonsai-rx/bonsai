@@ -12,12 +12,14 @@ using System.Reactive.Linq;
 using System.Reflection;
 using System.Xml.Schema;
 using System.Xml;
+using System.Diagnostics;
 
 namespace Bonsai
 {
     public class WorkflowBuilder : IXmlSerializable
     {
         readonly ExpressionBuilderGraph workflow;
+        const string VersionAttributeName = "Version";
         const string ExtensionTypeNodeName = "ExtensionTypes";
         const string WorkflowNodeName = "Workflow";
         const string TypeNodeName = "Type";
@@ -80,6 +82,10 @@ namespace Bonsai
 
         public void WriteXml(System.Xml.XmlWriter writer)
         {
+            var assembly = Assembly.GetExecutingAssembly();
+            var versionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+            writer.WriteAttributeString(VersionAttributeName, versionInfo.ProductVersion);
+
             var types = new HashSet<Type>(GetExtensionTypes(workflow));
             var serializer = GetXmlSerializer(types);
             serializer.Serialize(writer, workflow.ToDescriptor(), serializerNamespaces);
@@ -151,7 +157,7 @@ namespace Bonsai
                         overrides.Add(type, attributes);
                     }
 
-                    var rootAttribute = new XmlRootAttribute("Workflow") { Namespace = Constants.XmlNamespace };
+                    var rootAttribute = new XmlRootAttribute(WorkflowNodeName) { Namespace = Constants.XmlNamespace };
                     serializerCache = new XmlSerializer(typeof(ExpressionBuilderGraphDescriptor), overrides, serializerTypes.ToArray(), rootAttribute, null);
                 }
             }
