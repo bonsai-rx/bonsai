@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Bonsai.Arduino")]
-[assembly: AssemblyCopyright("Copyright © Gonçalo C. Lopes 2011-2012")]
+[assembly: AssemblyCopyright("Copyright © Gonçalo C. Lopes 2011-2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
