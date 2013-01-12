@@ -148,7 +148,10 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\MSBuild\AssemblyInfo.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(ProjectDir)..\Packages\$(ConfigurationName)\*.*" "$(TargetDir)Packages\" /d /y</PostBuildEvent>
+    <PostBuildEvent>set packagesMSIL=$(ProjectDir)..\Packages\$(ConfigurationName)
+set packagesPlatform=$(ProjectDir)..\Packages\$(PlatformName)\$(ConfigurationName)
+if exist "%25packagesMSIL%25\*.*" xcopy "%25packagesMSIL%25\*.*" "$(TargetDir)Packages\" /d /y
+if exist "%25packagesPlatform%25" xcopy "%25packagesPlatform%25\*.*" "$(TargetDir)Packages\" /d /y</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
