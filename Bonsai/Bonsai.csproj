@@ -47,7 +47,9 @@
     <Compile Include="Configuration\ConfigurationHelper.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="ContinuationScheduler.cs" />
+    <Compile Include="ArrayConvert.cs" />
     <Compile Include="IO\FileSink.cs" />
+    <Compile Include="MultidimensionalArrayConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="WorkflowRuntimeException.cs" />
     <Compile Include="WorkflowException.cs" />
