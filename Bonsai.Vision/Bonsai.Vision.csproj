@@ -68,6 +68,7 @@
     <Compile Include="EqualizeHistogram.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="FileCapture.cs" />
+    <Compile Include="Filter2D.cs" />
     <Compile Include="FindContours.cs" />
     <Compile Include="Flip.cs" />
     <Compile Include="GoodFeaturesToTrack.cs" />
@@ -108,6 +109,10 @@
     <Compile Include="WarpPerspective.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Bonsai.Dsp\Bonsai.Dsp.csproj">
+      <Project>{9C5BE065-0175-4C6F-A3A3-44F78CA7370E}</Project>
+      <Name>Bonsai.Dsp</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Bonsai\Bonsai.csproj">
       <Project>{E4D03BA3-54A2-4FF8-9DC6-52BA4CC14FED}</Project>
       <Name>Bonsai</Name>
