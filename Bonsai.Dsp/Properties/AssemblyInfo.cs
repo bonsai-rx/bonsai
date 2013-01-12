@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Bonsai.Arduino.Design")]
+[assembly: AssemblyTitle("Bonsai.Dsp")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Bonsai.Arduino.Design")]
+[assembly: AssemblyProduct("Bonsai.Dsp")]
 [assembly: AssemblyCopyright("Copyright © Gonçalo C. Lopes 2011-2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("8f25171f-4bb7-4169-be0a-22196ef5465d")]
+[assembly: Guid("f8abd90e-e2fe-4b46-9ca2-8ce039bd06db")]
 
 // Version information for an assembly consists of the following four values:
 //
