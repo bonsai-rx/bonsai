@@ -69,6 +69,11 @@
 
     <ComponentGroup Id="DspPackageComponents" Directory="PACKAGESFOLDER">
       <ComponentRef Id="OpenCVNetLibrary"/>
+      <Component Id="BonsaiDspLibrary" Guid="*" Win64="$(var.Win64)">
+        <File Id="BonsaiDspDLL" Name="Bonsai.Dsp.dll" Source="$(var.PackageBuildPath)\Bonsai.Dsp.dll" KeyPath="yes"/>
+        <File Id="BonsaiDspPDB" Name="Bonsai.Dsp.pdb" Source="$(var.PackageBuildPath)\Bonsai.Dsp.pdb"/>
+      </Component>
+
       <Component Id="BonsaiDspDesignLibrary" Guid="*" Win64="$(var.Win64)">
         <File Id="BonsaiDspDesignDLL" Name="Bonsai.Dsp.Design.dll" Source="$(var.PackageBuildPath)\Bonsai.Dsp.Design.dll" KeyPath="yes"/>
         <File Id="BonsaiDspDesignPDB" Name="Bonsai.Dsp.Design.pdb" Source="$(var.PackageBuildPath)\Bonsai.Dsp.Design.pdb"/>
