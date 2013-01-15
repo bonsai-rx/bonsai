@@ -28,7 +28,7 @@ namespace Bonsai
         }
     }
 
-    public abstract class StopwatchScheduler : IScheduler
+    public abstract class StopwatchScheduler : LocalScheduler
     {
         IScheduler scheduler;
 
@@ -37,7 +37,7 @@ namespace Bonsai
             this.scheduler = scheduler;
         }
 
-        public DateTimeOffset Now
+        public override DateTimeOffset Now
         {
             get
             {
@@ -45,17 +45,17 @@ namespace Bonsai
             }
         }
 
-        public IDisposable Schedule<TState>(TState state, DateTimeOffset dueTime, Func<IScheduler, TState, IDisposable> action)
+        public override IDisposable Schedule<TState>(TState state, DateTimeOffset dueTime, Func<IScheduler, TState, IDisposable> action)
         {
             return scheduler.Schedule(state, dueTime, action);
         }
 
-        public IDisposable Schedule<TState>(TState state, TimeSpan dueTime, Func<IScheduler, TState, IDisposable> action)
+        public override IDisposable Schedule<TState>(TState state, TimeSpan dueTime, Func<IScheduler, TState, IDisposable> action)
         {
             return scheduler.Schedule(state, dueTime, action);
         }
 
-        public IDisposable Schedule<TState>(TState state, Func<IScheduler, TState, IDisposable> action)
+        public override IDisposable Schedule<TState>(TState state, Func<IScheduler, TState, IDisposable> action)
         {
             return scheduler.Schedule(state, action);
         }
