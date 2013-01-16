@@ -11,79 +11,9 @@ namespace Bonsai.IO
 {
     static class ObservableSerialPort
     {
-        static readonly Dictionary<string, SerialPortReference> openConnections = new Dictionary<string, SerialPortReference>();
-        class SerialPortReference : IDisposable
-        {
-            string output;
-            const char MessageTerminator = '\n';
-
-            public SerialPortReference(SerialPort serialPort)
-            {
-                SerialPort = serialPort;
-                MessageReceived = new Subject<string>();
-                SerialPort.DataReceived += new SerialDataReceivedEventHandler(SerialPort_DataReceived);
-                SerialPort.Open();
-                output = string.Empty;
-            }
-
-            void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
-            {
-                switch (e.EventType)
-                {
-                    case SerialData.Eof: MessageReceived.OnCompleted(); break;
-                    case SerialData.Chars:
-                        output += SerialPort.ReadExisting();
-                        var messages = output.Split(MessageTerminator);
-                        for (int i = 0; i < messages.Length - 1; i++)
-                        {
-                            MessageReceived.OnNext(messages[i]);
-                        }
-                        break;
-                }
-            }
-
-            public SerialPort SerialPort { get; private set; }
-
-            public Subject<string> MessageReceived { get; private set; }
-
-            public int RefCount { get; set; }
-
-            public void Dispose()
-            {
-                SerialPort.Close();
-                MessageReceived.Dispose();
-            }
-        }
-
-        static SerialPortReference ReserveConnection(string portName)
-        {
-            SerialPortReference serialReference;
-            if (!openConnections.TryGetValue(portName, out serialReference))
-            {
-                var arduino = new SerialPort(portName, 115200);
-                serialReference = new SerialPortReference(arduino);
-                openConnections.Add(portName, serialReference);
-            }
-
-            serialReference.RefCount++;
-            return serialReference;
-        }
-
-        static void ReleaseConnection(string serialPort)
-        {
-            var arduinoReference = openConnections[serialPort];
-            if (--arduinoReference.RefCount <= 0)
-            {
-                arduinoReference.Dispose();
-                openConnections.Remove(serialPort);
-            }
-        }
-
         public static IEnumerable<Action<string>> WriteLine(string portName)
         {
-            var connection = ReserveConnection(portName);
-
-            try
+            using (var connection = SerialPortManager.ReserveConnection(portName))
             {
                 while (true)
                 {
@@ -96,13 +26,48 @@ namespace Bonsai.IO
                     };
                 }
             }
-            finally { ReleaseConnection(portName); }
         }
 
         public static IObservable<string> ReadLine(string portName)
         {
-            var connection = ReserveConnection(portName);
-            return connection.MessageReceived;
+            const string MessageTerminator = "\r\n";
+
+            return Observable.Create<string>(observer =>
+            {
+                var first = true;
+                var data = string.Empty;
+                var connection = SerialPortManager.ReserveConnection(portName);
+                SerialDataReceivedEventHandler dataReceivedHandler;
+                var serialPort = connection.SerialPort;
+                dataReceivedHandler = (sender, e) =>
+                {
+                    switch (e.EventType)
+                    {
+                        case SerialData.Eof: observer.OnCompleted(); break;
+                        case SerialData.Chars:
+                        default:
+                            if (serialPort.IsOpen && serialPort.BytesToRead > 0)
+                            {
+                                data += serialPort.ReadExisting();
+                                var messages = data.Split(new[] { MessageTerminator }, StringSplitOptions.None);
+                                for (int i = 0; i < messages.Length; i++)
+                                {
+                                    if (i == messages.Length - 1) data = messages[i];
+                                    else if (first) first = false;
+                                    else observer.OnNext(messages[i]);
+                                }
+                            }
+                            break;
+                    }
+                };
+
+                connection.SerialPort.DataReceived += dataReceivedHandler;
+                return Disposable.Create(() =>
+                {
+                    connection.SerialPort.DataReceived -= dataReceivedHandler;
+                    connection.Dispose();
+                });
+            });
         }
     }
 }

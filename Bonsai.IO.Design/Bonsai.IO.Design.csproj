@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{210D12B7-B183-420B-A60E-FE63F0AF6134}</ProjectGuid>
+    <ProjectGuid>{8005E3ED-424B-4CF8-94CF-9A4F6EED32B5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Bonsai.Arduino.Design</RootNamespace>
-    <AssemblyName>Bonsai.Arduino.Design</AssemblyName>
+    <RootNamespace>Bonsai.IO.Design</RootNamespace>
+    <AssemblyName>Bonsai.IO.Design</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -43,26 +43,29 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ArduinoConfigurationControl.cs">
+    <Compile Include="SerialPortConfigurationControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ArduinoConfigurationEditor.cs" />
+    <Compile Include="SerialPortConfigurationControl.Designer.cs">
+      <DependentUpon>SerialPortConfigurationControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SerialPortConfigurationEditor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
-    <Compile Include="SysexConfigurationCollectionEditor.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bonsai.Arduino\Bonsai.Arduino.csproj">
-      <Project>{CFED93E8-2AE9-471D-81D6-C89BB0356EF3}</Project>
-      <Name>Bonsai.Arduino</Name>
-    </ProjectReference>
+    <EmbeddedResource Include="SerialPortConfigurationControl.resx">
+      <DependentUpon>SerialPortConfigurationControl.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj">
       <Project>{765D928A-B147-46FF-8A59-BDE73F88A844}</Project>
       <Name>Bonsai.Design</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Bonsai.IO.Design\Bonsai.IO.Design.csproj">
-      <Project>{8005E3ED-424B-4CF8-94CF-9A4F6EED32B5}</Project>
-      <Name>Bonsai.IO.Design</Name>
+    <ProjectReference Include="..\Bonsai.IO\Bonsai.IO.csproj">
+      <Project>{B783D74F-CB2D-4419-B438-266CD15774FB}</Project>
+      <Name>Bonsai.IO</Name>
     </ProjectReference>
     <ProjectReference Include="..\Bonsai\Bonsai.csproj">
       <Project>{E4D03BA3-54A2-4FF8-9DC6-52BA4CC14FED}</Project>

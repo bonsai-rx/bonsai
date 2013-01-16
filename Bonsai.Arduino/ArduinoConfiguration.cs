@@ -8,7 +8,7 @@ using System.Collections.ObjectModel;
 
 namespace Bonsai.Arduino
 {
-    public class ArduinoConfiguration
+    public class ArduinoConfiguration : SerialPortConfiguration
     {
         readonly SysexConfigurationCollection sysexConfigurationSettings = new SysexConfigurationCollection();
 
@@ -17,14 +17,6 @@ namespace Bonsai.Arduino
             BaudRate = Arduino.DefaultBaudRate;
             SamplingInterval = Arduino.DefaultSamplingInterval;
         }
-
-        [TypeConverter(typeof(SerialPortNameConverter))]
-        [Description("The name of the serial port used to communicate with the Arduino.")]
-        public string PortName { get; set; }
-
-        [TypeConverter(typeof(BaudRateConverter))]
-        [Description("The baud rate used by the serial port.")]
-        public int BaudRate { get; set; }
 
         [Description("The interval (ms) controlling how often analog and I2C data are sampled and transmitted.")]
         public int SamplingInterval { get; set; }

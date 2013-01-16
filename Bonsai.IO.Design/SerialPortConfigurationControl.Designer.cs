@@ -1,6 +1,6 @@
-﻿namespace Bonsai.Arduino.Design
+﻿namespace Bonsai.IO.Design
 {
-    partial class ArduinoConfigurationControl
+    partial class SerialPortConfigurationControl
     {
         /// <summary> 
         /// Required designer variable.
@@ -30,7 +30,7 @@
         {
             this.portNameListbox = new System.Windows.Forms.ListBox();
             this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.configurationManagerButton = new Bonsai.Arduino.Design.ArduinoConfigurationControl.FlatButton();
+            this.configurationManagerButton = new Bonsai.IO.Design.SerialPortConfigurationControl.FlatButton();
             this.tableLayoutPanel.SuspendLayout();
             this.SuspendLayout();
             // 

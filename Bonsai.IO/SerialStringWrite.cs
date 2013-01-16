@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using System.Drawing.Design;
 
 namespace Bonsai.IO
 {
     public class SerialStringWrite : Sink<string>
     {
-        IEnumerable<Action<string>> analogOutput;
+        IEnumerable<Action<string>> writeLine;
         IEnumerator<Action<string>> iterator;
 
-        [TypeConverter(typeof(SerialPortNameConverter))]
+        [Editor("Bonsai.IO.Design.SerialPortConfigurationEditor, Bonsai.IO.Design", typeof(UITypeEditor))]
         public string SerialPort { get; set; }
 
         public override void Process(string input)
@@ -21,8 +22,8 @@ namespace Bonsai.IO
 
         public override IDisposable Load()
         {
-            analogOutput = ObservableSerialPort.WriteLine(SerialPort);
-            iterator = analogOutput.GetEnumerator();
+            writeLine = ObservableSerialPort.WriteLine(SerialPort);
+            iterator = writeLine.GetEnumerator();
             iterator.MoveNext();
             return base.Load();
         }
@@ -30,7 +31,7 @@ namespace Bonsai.IO
         protected override void Unload()
         {
             iterator.Dispose();
-            analogOutput = null;
+            writeLine = null;
             base.Unload();
         }
     }
