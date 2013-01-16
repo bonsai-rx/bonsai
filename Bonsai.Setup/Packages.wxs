@@ -19,6 +19,11 @@
         <File Id="BonsaiIODLL" Name="Bonsai.IO.dll" Source="$(var.PackageBuildPath)\Bonsai.IO.dll" KeyPath="yes"/>
         <File Id="BonsaiIOPDB" Name="Bonsai.IO.pdb" Source="$(var.PackageBuildPath)\Bonsai.IO.pdb"/>
       </Component>
+
+      <Component Id="BonsaiIODesignLibrary" Guid="*" Win64="$(var.Win64)">
+        <File Id="BonsaiIODesignDLL" Name="Bonsai.IO.Design.dll" Source="$(var.PackageBuildPath)\Bonsai.IO.Design.dll" KeyPath="yes"/>
+        <File Id="BonsaiIODesignPDB" Name="Bonsai.IO.Design.pdb" Source="$(var.PackageBuildPath)\Bonsai.IO.Design.pdb"/>
+      </Component>
     </ComponentGroup>
 
     <ComponentGroup Id="ArduinoPackageComponents" Directory="PACKAGESFOLDER">
