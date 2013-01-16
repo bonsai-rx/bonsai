@@ -60,7 +60,7 @@ namespace Bonsai.Editor
                     yield return new WorkflowElementDescriptor
                     {
                         Name = GetElementDisplayName(type),
-                        AssemblyName = type.Assembly.GetName().Name,
+                        Namespace = type.Namespace,
                         AssemblyQualifiedName = type.AssemblyQualifiedName,
                         Description = descriptionAttribute.Description,
                         ElementTypes = WorkflowElementTypeConverter.FromType(type).ToArray()
@@ -134,18 +134,20 @@ namespace Bonsai.Editor
             return Observable.Using(
                 () => new LoaderResource(),
                 resource => from fileName in files.ToObservable()
-                            let assemblyTypeNames = resource.Loader.GetReflectionWorkflowElementTypes(fileName)
-                            select new WorkflowElementGroup(Path.GetFileNameWithoutExtension(fileName), assemblyTypeNames));
+                            from package in resource.Loader
+                                .GetReflectionWorkflowElementTypes(fileName)
+                                .GroupBy(element => element.Namespace)
+                            select package);
         }
     }
 
     [Serializable]
-    [DebuggerDisplay("Type = {Type}, AssemblyName = {AssemblyName}")]
+    [DebuggerDisplay("Name = {Name}, AssemblyName = {AssemblyName}")]
     struct WorkflowElementDescriptor
     {
         public string Name { get; set; }
 
-        public string AssemblyName { get; set; }
+        public string Namespace { get; set; }
 
         public string AssemblyQualifiedName { get; set; }
 
