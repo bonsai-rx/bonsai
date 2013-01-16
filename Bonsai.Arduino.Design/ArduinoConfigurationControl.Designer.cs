@@ -30,7 +30,7 @@
         {
             this.portNameListbox = new System.Windows.Forms.ListBox();
             this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.configurationManagerButton = new FlatButton();
+            this.configurationManagerButton = new Bonsai.Arduino.Design.ArduinoConfigurationControl.FlatButton();
             this.tableLayoutPanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -44,7 +44,6 @@
             this.portNameListbox.MinimumSize = new System.Drawing.Size(0, 17);
             this.portNameListbox.Name = "portNameListbox";
             this.portNameListbox.Size = new System.Drawing.Size(87, 20);
-            this.portNameListbox.Sorted = true;
             this.portNameListbox.TabIndex = 0;
             this.portNameListbox.SelectedValueChanged += new System.EventHandler(this.portNameListbox_SelectedValueChanged);
             // 
