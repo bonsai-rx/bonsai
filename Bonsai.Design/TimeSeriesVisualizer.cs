@@ -14,7 +14,7 @@ namespace Bonsai.Design
 {
     public class TimeSeriesVisualizer : DialogTypeVisualizer
     {
-        const double TimeScaleFactor = 42;
+        const double TimeWindow = 7.5;
         TimeSeriesControl chart;
         List<DateTime> valuesX;
         List<object>[] valuesY;
@@ -46,7 +46,7 @@ namespace Bonsai.Design
 
         protected void AddValue(bool dataBind, DateTime time, params object[] value)
         {
-            var excess = valuesX.Where(x => (time - x).TotalSeconds > chart.Width / TimeScaleFactor).Count();
+            var excess = valuesX.Where(x => (time - x).TotalSeconds > TimeWindow).Count();
             if (excess > 0)
             {
                 valuesX.RemoveRange(0, excess);
