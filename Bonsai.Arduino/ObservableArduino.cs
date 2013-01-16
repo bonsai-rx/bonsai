@@ -9,14 +9,14 @@ namespace Bonsai.Arduino
 {
     static class ObservableArduino
     {
-        public static IEnumerable<Action<int>> AnalogOutput(string serialPort, int pin)
+        public static IEnumerable<Action<int>> AnalogOutput(string portName, int pin)
         {
-            return AnalogOutput(serialPort, pin, PinMode.Pwm);
+            return AnalogOutput(portName, pin, PinMode.Pwm);
         }
 
-        public static IEnumerable<Action<int>> AnalogOutput(string serialPort, int pin, PinMode pinMode)
+        public static IEnumerable<Action<int>> AnalogOutput(string portName, int pin, PinMode pinMode)
         {
-            using (var connection = ArduinoManager.ReserveConnection(serialPort))
+            using (var connection = ArduinoManager.ReserveConnection(portName))
             {
                 connection.Arduino.PinMode(pin, pinMode);
                 while (true)
@@ -32,9 +32,9 @@ namespace Bonsai.Arduino
             }
         }
 
-        public static IEnumerable<Action<bool>> DigitalOutput(string serialPort, int pin)
+        public static IEnumerable<Action<bool>> DigitalOutput(string portName, int pin)
         {
-            using (var connection = ArduinoManager.ReserveConnection(serialPort))
+            using (var connection = ArduinoManager.ReserveConnection(portName))
             {
                 connection.Arduino.PinMode(pin, PinMode.Output);
                 while (true)
@@ -50,11 +50,11 @@ namespace Bonsai.Arduino
             }
         }
 
-        public static IObservable<int> AnalogInput(string serialPort, int pin)
+        public static IObservable<int> AnalogInput(string portName, int pin)
         {
             return Observable.Create<int>(observer =>
             {
-                var connection = ArduinoManager.ReserveConnection(serialPort);
+                var connection = ArduinoManager.ReserveConnection(portName);
                 EventHandler<AnalogInputReceivedEventArgs> inputReceived;
                 inputReceived = (sender, e) =>
                 {
@@ -73,11 +73,11 @@ namespace Bonsai.Arduino
             });
         }
 
-        public static IObservable<bool> DigitalInput(string serialPort, int pin)
+        public static IObservable<bool> DigitalInput(string portName, int pin)
         {
             return Observable.Create<bool>(observer =>
             {
-                var connection = ArduinoManager.ReserveConnection(serialPort);
+                var connection = ArduinoManager.ReserveConnection(portName);
                 connection.Arduino.PinMode(pin, PinMode.Input);
                 var port = (pin >> 3) & 0x0F;
                 EventHandler<DigitalInputReceivedEventArgs> inputReceived;
