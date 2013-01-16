@@ -113,7 +113,7 @@ namespace Bonsai.IO
                 {
                     return Expression.Call(expression, "ToString", null, Expression.Constant("o"));
                 }
-                else if (expression.Type == typeof(IntPtr))
+                else if (expression.Type == typeof(IntPtr) || expression.Type == typeof(TimeSpan))
                 {
                     return Expression.Call(expression, "ToString", null);
                 }
