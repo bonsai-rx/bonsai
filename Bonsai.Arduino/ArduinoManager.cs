@@ -14,17 +14,17 @@ namespace Bonsai.Arduino
         public const string DefaultConfigurationFile = "Arduino.config";
         static readonly Dictionary<string, Tuple<Arduino, RefCountDisposable>> openConnections = new Dictionary<string, Tuple<Arduino, RefCountDisposable>>();
 
-        public static ArduinoDisposable ReserveConnection(string serialPort)
+        public static ArduinoDisposable ReserveConnection(string portName)
         {
             Tuple<Arduino, RefCountDisposable> connection;
-            if (!openConnections.TryGetValue(serialPort, out connection))
+            if (!openConnections.TryGetValue(portName, out connection))
             {
                 Arduino arduino;
                 var configuration = LoadConfiguration();
-                if (configuration.Contains(serialPort))
+                if (configuration.Contains(portName))
                 {
-                    var arduinoConfiguration = configuration[serialPort];
-                    arduino = new Arduino(serialPort, arduinoConfiguration.BaudRate);
+                    var arduinoConfiguration = configuration[portName];
+                    arduino = new Arduino(portName, arduinoConfiguration.BaudRate);
                     arduino.Open();
 
                     arduino.SamplingInterval(arduinoConfiguration.SamplingInterval);
@@ -35,19 +35,19 @@ namespace Bonsai.Arduino
                 }
                 else
                 {
-                    arduino = new Arduino(serialPort);
+                    arduino = new Arduino(portName);
                     arduino.Open();
                 }
 
                 var dispose = Disposable.Create(() =>
                 {
                     arduino.Close();
-                    openConnections.Remove(serialPort);
+                    openConnections.Remove(portName);
                 });
 
                 var refCount = new RefCountDisposable(dispose);
                 connection = Tuple.Create(arduino, refCount);
-                openConnections.Add(serialPort, connection);
+                openConnections.Add(portName, connection);
                 return new ArduinoDisposable(arduino, refCount);
             }
 
