@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaudRateConverter.cs" />
+    <Compile Include="ParseInt.cs" />
     <Compile Include="SerialPortConfiguration.cs" />
     <Compile Include="SerialPortDisposable.cs" />
     <Compile Include="SerialPortManager.cs" />
