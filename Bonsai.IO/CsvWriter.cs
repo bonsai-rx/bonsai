@@ -31,6 +31,9 @@ namespace Bonsai.IO
         [Description("The optional suffix used to create file names.")]
         public PathSuffix Suffix { get; set; }
 
+        [Description("Indicates whether to include a text header with column names for multi-dimensional input.")]
+        public bool IncludeHeader { get; set; }
+
         protected override Sink<T> CreateProcessor<T>()
         {
             return new CsvProcessor<T>(this);
@@ -152,12 +155,15 @@ namespace Bonsai.IO
                     writeAction = Expression.Lambda<Action<T>>(body, parameter).Compile();
 
                     var header = string.Empty;
-                    foreach (var memberAccess in memberAccessExpressions)
+                    if (parent.IncludeHeader)
                     {
-                        var accessExpression = memberAccess.ToString();
-                        header += string.Format(EntryFormat, accessExpression.Remove(accessExpression.IndexOf(ParameterName), ParameterName.Length)).TrimStart('.');
+                        foreach (var memberAccess in memberAccessExpressions)
+                        {
+                            var accessExpression = memberAccess.ToString();
+                            header += string.Format(EntryFormat, accessExpression.Remove(accessExpression.IndexOf(ParameterName), ParameterName.Length)).TrimStart('.');
+                        }
+                        header = header.Trim();
                     }
-                    header = header.Trim();
 
                     writerTask = new Task(() => { if (!string.IsNullOrEmpty(header)) writer.WriteLine(header); });
                     writerTask.Start();
