@@ -31,7 +31,7 @@ namespace Bonsai.Vision
             writerFrameSize = frameSize;
             lock (SyncRoot)
             {
-                var writer = new CvVideoWriter(FileName, fourCC, FrameRate, frameSize, input.NumChannels > 1);
+                var writer = new CvVideoWriter(fileName, fourCC, FrameRate, frameSize, input.NumChannels > 1);
                 return new VideoWriterDisposable(writer, Disposable.Create(() =>
                 {
                     lock (SyncRoot)
