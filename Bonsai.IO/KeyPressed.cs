@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Bonsai.Vision.AForge
+namespace Bonsai.IO
 {
     public class KeyPressed : Condition<Keys>
     {
