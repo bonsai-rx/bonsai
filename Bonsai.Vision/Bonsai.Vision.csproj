@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbsoluteDifference.cs" />
+    <Compile Include="Accumulator.cs" />
     <Compile Include="AdaptiveThreshold.cs" />
     <Compile Include="And.cs" />
     <Compile Include="Average.cs" />
