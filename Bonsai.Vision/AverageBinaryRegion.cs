@@ -6,15 +6,15 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class AverageBinaryRegion : Transform<ConnectedComponentCollection, ConnectedComponentCollection>
+    public class AverageBinaryRegion : Transform<ConnectedComponentCollection, ConnectedComponent>
     {
-        public override ConnectedComponentCollection Process(ConnectedComponentCollection input)
+        public override ConnectedComponent Process(ConnectedComponentCollection input)
         {
-            var result = new ConnectedComponentCollection(input.ImageSize);
+            var result = new ConnectedComponent();
 
-            CvPoint2D32f centroid = new CvPoint2D32f();
             double angle = 0;
             double area = 0;
+            CvPoint2D32f centroid = new CvPoint2D32f();
             for (int i = 0; i < input.Count; i++)
             {
                 var component = input[i];
@@ -26,14 +26,12 @@ namespace Bonsai.Vision
 
             if (input.Count > 0)
             {
-                var component = new ConnectedComponent();
                 centroid.X = centroid.X / input.Count;
                 centroid.Y = centroid.Y / input.Count;
-                component.Centroid = centroid;
-                component.Orientation = angle / input.Count;
-                component.Area = area;
-                component.Contour = CvContour.FromCvSeq(CvSeq.Null);
-                result.Add(component);
+                result.Centroid = centroid;
+                result.Orientation = angle / input.Count;
+                result.Area = area;
+                result.Contour = CvContour.FromCvSeq(CvSeq.Null);
             }
 
             return result;
