@@ -50,6 +50,11 @@ namespace Bonsai.Design
                 handler => canvas.MouseDown -= handler)
                 .Select(evt => evt.EventArgs);
 
+            var mouseUpEvent = Observable.FromEventPattern<MouseEventHandler, MouseEventArgs>(
+                handler => canvas.MouseUp += handler,
+                handler => canvas.MouseUp -= handler)
+                .Select(evt => evt.EventArgs);
+
             var mouseMoveEvent = Observable.FromEventPattern<MouseEventHandler, MouseEventArgs>(
                 handler => canvas.MouseMove += handler,
                 handler => canvas.MouseMove -= handler)
@@ -59,7 +64,7 @@ namespace Bonsai.Design
                             where mouseDown.Button == MouseButtons.Left
                             let node = GetNodeAt(mouseDown.Location)
                             where node != null
-                            select from mouseMove in mouseMoveEvent
+                            select from mouseMove in mouseMoveEvent.TakeUntil(mouseUpEvent)
                                    let displacementX = mouseMove.X - mouseDown.X
                                    let displacementY = mouseMove.Y - mouseDown.Y
                                    where mouseMove.Button == MouseButtons.Left &&
