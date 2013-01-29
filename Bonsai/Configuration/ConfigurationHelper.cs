@@ -24,7 +24,7 @@ namespace Bonsai.Configuration
 
         static IDisposable SetAssemblyResolve(AppDomain domain, string privateBinPath)
         {
-            AddLibraryPath(DefaultProbingPath);
+            AddLibraryPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DefaultProbingPath));
             AddLibraryPath(privateBinPath);
 
             ResolveEventHandler assemblyResolveHandler = (sender, args) =>
