@@ -15,7 +15,8 @@ namespace Bonsai.Vision
             var output = new IplImage(input.Size, input.Depth, input.NumChannels);
             sum = IplImageHelper.EnsureImageFormat(sum, input.Size, 32, input.NumChannels);
             ImgProc.cvAcc(input, sum, CvArr.Null);
-            Core.cvConvert(sum, output);
+            if (sum.Depth == input.Depth) Core.cvCopy(sum, output);
+            else Core.cvConvert(sum, output);
             return output;
         }
 
