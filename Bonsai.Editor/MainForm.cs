@@ -91,12 +91,13 @@ namespace Bonsai.Editor
             Scheduler.Default.Schedule(InitializeTypeVisualizers);
             InitializeExampleDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Examples"), examplesToolStripMenuItem);
 
-            if (!string.IsNullOrEmpty(InitialFileName) &&
-                Path.GetExtension(InitialFileName) == BonsaiExtension &&
-                File.Exists(InitialFileName))
+            var initialFileName = InitialFileName;
+            if (!string.IsNullOrEmpty(initialFileName) &&
+                Path.GetExtension(initialFileName) == BonsaiExtension &&
+                File.Exists(initialFileName))
             {
-                directoryToolStripTextBox.Text = Environment.CurrentDirectory;
-                OpenWorkflow(InitialFileName);
+                directoryToolStripTextBox.Text = Path.GetDirectoryName(initialFileName);
+                OpenWorkflow(initialFileName);
             }
 
             base.OnLoad(e);
