@@ -20,25 +20,15 @@ namespace Bonsai.Expressions
                                                                             m.GetParameters().Length == 2 &&
                                                                             m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
 
-        [TypeConverter("Bonsai.Design.MemberSelectorConverter, Bonsai.Design")]
-        [Editor("Bonsai.Design.MemberSelectorEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         [Description("The inner properties that will be selected for each element of the sequence.")]
-        public string[] Selector { get; set; }
+        [Editor("Bonsai.Design.MemberSelectorEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        public string Selector { get; set; }
 
         public override Expression Build()
         {
             var observableType = Source.Type.GetGenericArguments()[0];
             var parameter = Expression.Parameter(observableType);
-            Expression body = parameter;
-            var selector = Selector;
-            if (selector != null)
-            {
-                foreach (var memberName in selector)
-                {
-                    body = Expression.PropertyOrField(body, memberName);
-                }
-            }
-
+            Expression body = ExpressionHelper.MemberAccess(parameter, Selector);
             var selectorExpression = Expression.Lambda(body, parameter);
             return Expression.Call(selectMethod.MakeGenericMethod(parameter.Type, body.Type), Source, selectorExpression);
         }
