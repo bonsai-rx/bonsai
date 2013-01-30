@@ -34,6 +34,10 @@ namespace Bonsai.IO
         [Description("Indicates whether to include a text header with column names for multi-dimensional input.")]
         public bool IncludeHeader { get; set; }
 
+        [Description("The inner properties that will be selected for output in each element of the sequence.")]
+        [Editor("Bonsai.Design.MemberSelectorEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        public string Selector { get; set; }
+
         protected override Sink<T> CreateProcessor<T>()
         {
             return new CsvProcessor<T>(this);
@@ -138,11 +142,12 @@ namespace Bonsai.IO
 
                     var parameterType = typeof(T);
                     var parameter = Expression.Parameter(parameterType, ParameterName);
+                    var memberExpression = ExpressionHelper.MemberAccess(parameter, parent.Selector);
 
                     var formatConstant = Expression.Constant(EntryFormat);
                     var writerConstant = Expression.Constant(writer);
 
-                    var memberAccessExpressions = MakeMemberAccess(parameter).ToArray();
+                    var memberAccessExpressions = MakeMemberAccess(memberExpression).ToArray();
                     Array.Reverse(memberAccessExpressions);
 
                     var writeParameters = from memberAccess in memberAccessExpressions
@@ -175,7 +180,11 @@ namespace Bonsai.IO
             protected override void Unload()
             {
                 var closingWriter = writer;
-                writerTask.ContinueWith(task => closingWriter.Close());
+                if (closingWriter != null)
+                {
+                    writerTask.ContinueWith(task => closingWriter.Close());
+                }
+
                 writerTask = null;
                 writer = null;
                 base.Unload();
