@@ -13,21 +13,21 @@ namespace Bonsai.Design
 {
     public partial class MemberSelectorEditorDialog : Form
     {
-        public MemberSelectorEditorDialog(Type componentType, IEnumerable<string> memberChain)
+        public MemberSelectorEditorDialog(Type componentType, string selector)
         {
             if (componentType == null)
             {
                 throw new ArgumentNullException("componentType");
             }
 
-            if (memberChain == null)
+            if (selector == null)
             {
-                throw new ArgumentNullException("memberChain");
+                throw new ArgumentNullException("selector");
             }
 
             InitializeComponent();
             InitializeMemberTree(treeView.Nodes, componentType);
-            InitializeSelection(memberChain);
+            InitializeSelection(selector.Split(new[] { ExpressionHelper.MemberSeparator }, StringSplitOptions.RemoveEmptyEntries));
             Text = string.Format("{0} {1}", componentType.Name, Text);
         }
 

@@ -95,7 +95,6 @@
     </Compile>
     <Compile Include="GraphNode.cs" />
     <Compile Include="GraphNodeGrouping.cs" />
-    <Compile Include="MemberSelectorConverter.cs" />
     <Compile Include="MemberSelectorEditor.cs" />
     <Compile Include="MemberSelectorEditorDialog.cs">
       <SubType>Form</SubType>
