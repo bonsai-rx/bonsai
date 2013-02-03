@@ -47,7 +47,7 @@ namespace Bonsai.Vision.Design
         public void Update(IplImage image)
         {
             if (image == null) throw new ArgumentNullException("image");
-            if (image.Depth >= 32 && image.NumChannels == 1)
+            if (image.Depth > 8 && image.NumChannels == 1)
             {
                 double min, max;
                 CvPoint minLoc, maxLoc;
