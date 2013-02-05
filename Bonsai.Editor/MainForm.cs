@@ -97,7 +97,7 @@ namespace Bonsai.Editor
                 File.Exists(initialFileName))
             {
                 directoryToolStripTextBox.Text = Path.GetDirectoryName(initialFileName);
-                OpenWorkflow(initialFileName);
+                OpenWorkflow(Path.GetFileName(initialFileName));
             }
 
             base.OnLoad(e);
