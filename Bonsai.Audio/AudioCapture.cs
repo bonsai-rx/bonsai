@@ -19,11 +19,10 @@ namespace Bonsai.Audio
     public class AudioCapture : Source<CvMat>
     {
         OpenTK.Audio.AudioCapture capture;
-        const byte SampleToByte = 2;
 
         public AudioCapture()
         {
-            BufferLength = 10;
+            BufferLength = 441;
             Frequency = 44100;
         }
 
@@ -34,13 +33,12 @@ namespace Bonsai.Audio
         [Description("The sampling frequency (Hz) used by the audio capture device.")]
         public int Frequency { get; set; }
 
-        [Description("The length of the sample buffer (ms).")]
-        public double BufferLength { get; set; }
+        [Description("The length of the output buffer in samples.")]
+        public int BufferLength { get; set; }
 
         public override IDisposable Load()
         {
-            var bufferSize = (int)(BufferLength * Frequency * 0.001 / BlittableValueType.StrideOf(short.MinValue));
-            capture = new OpenTK.Audio.AudioCapture(DeviceName, Frequency, ALFormat.Mono16, bufferSize);
+            capture = new OpenTK.Audio.AudioCapture(DeviceName, Frequency, ALFormat.Mono16, BufferLength * 2);
             return base.Load();
         }
 
@@ -60,13 +58,13 @@ namespace Bonsai.Audio
                 },
                 resource => Observable.Create<CvMat>(observer =>
                 {
-                    return HighResolutionScheduler.Default.Schedule<int>((int)(BufferLength / 2 + 0.5), TimeSpan.Zero, (interval, self) =>
+                    var bufferLength = BufferLength;
+                    return HighResolutionScheduler.Default.Schedule<int>((int)(1000.0 * bufferLength / (2 * Frequency)), TimeSpan.Zero, (interval, self) =>
                     {
-                        int availableSamples = capture.AvailableSamples;
-                        if(availableSamples > 0)
+                        while (capture.AvailableSamples > bufferLength)
                         {
-                            var buffer = new CvMat(1, availableSamples, CvMatDepth.CV_16S, 1);
-                            capture.ReadSamples(buffer.Data, availableSamples);
+                            var buffer = new CvMat(1, bufferLength, CvMatDepth.CV_16S, 1);
+                            capture.ReadSamples(buffer.Data, bufferLength);
                             observer.OnNext(buffer);
                         }
                         self(interval, TimeSpan.FromMilliseconds(interval));
