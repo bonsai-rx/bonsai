@@ -17,6 +17,11 @@ namespace Bonsai.Audio
         int source;
         AudioContext context;
 
+        public AudioPlayback()
+        {
+            Frequency = 44100;
+        }
+
         [Description("The name of the output device used for playback.")]
         [TypeConverter(typeof(PlaybackDeviceNameConverter))]
         public string DeviceName { get; set; }
