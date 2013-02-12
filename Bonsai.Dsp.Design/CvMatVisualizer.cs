@@ -22,6 +22,7 @@ namespace Bonsai.Dsp.Design
         List<object>[] valuesY;
         List<object> sampleIntervals;
 
+        double channelOffset;
         int blockSize = 100;
         DateTimeOffset updateTime;
         static readonly TimeSpan targetElapsedTime = TimeSpan.FromSeconds(1.0 / 20);
@@ -102,6 +103,7 @@ namespace Bonsai.Dsp.Design
 
         public override void Load(IServiceProvider provider)
         {
+            channelOffset = 0;
             chart = new CvMatControl();
             chart.Chart.MouseDoubleClick += (sender, e) => SetBlockSize((int)(blockSize * ((e.Button == System.Windows.Forms.MouseButtons.Left) ? 10 : 0.1)));
             updateTime = HighResolutionScheduler.Now;
@@ -146,14 +148,15 @@ namespace Bonsai.Dsp.Design
             {
                 for (int i = 0; i < maxValues.Length; i++)
                 {
-                    maxValues[i] = Convert.ToDouble(samples[i, j]);
+                    maxValues[i] = samples[i, j];
                     for (int k = 1; j + k < Math.Min(j + blockSize, columns); k++)
                     {
                         var sample = samples[i, j + k];
                         maxValues[i] = Math.Max(sample, maxValues[i]);
                     }
 
-                    maxValues[i] += i * 10000;
+                    channelOffset = Math.Max(channelOffset, maxValues[i]);
+                    maxValues[i] += i * channelOffset;
                 }
 
                 AddValue(blockSize, maxValues);
