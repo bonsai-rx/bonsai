@@ -15,15 +15,25 @@ namespace Bonsai.Expressions
 
         public Type ObservableType { get; private set; }
 
-        public IObservable<object> Output
-        {
-            get { return subject; }
-        }
+        public IObservable<object> Output { get; private set; }
 
         public override Expression Build()
         {
             ObservableType = Source.Type.GetGenericArguments()[0];
-            return base.Build();
+
+            // If source is already an inspect node, use it
+            var methodCall = Source as MethodCallExpression;
+            if (methodCall != null && methodCall.Object != null && methodCall.Object.Type == typeof(InspectBuilder))
+            {
+                var inspectBuilder = (InspectBuilder)((ConstantExpression)methodCall.Object).Value;
+                Output = inspectBuilder.Output;
+                return Source;
+            }
+            else
+            {
+                Output = subject;
+                return base.Build();
+            }
         }
 
         protected override IObservable<TSource> Combine<TSource>(IObservable<TSource> source)
