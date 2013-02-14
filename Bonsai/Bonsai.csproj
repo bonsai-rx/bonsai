@@ -49,6 +49,7 @@
     <Compile Include="ContinuationScheduler.cs" />
     <Compile Include="ArrayConvert.cs" />
     <Compile Include="ExpressionHelper.cs" />
+    <Compile Include="Expressions\WorkflowOutputBuilder.cs" />
     <Compile Include="IO\FileSink.cs" />
     <Compile Include="MultidimensionalArrayConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />

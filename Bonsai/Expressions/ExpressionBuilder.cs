@@ -11,6 +11,7 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(CombinatorExpressionBuilder))]
     [XmlInclude(typeof(WorkflowExpressionBuilder))]
     [XmlInclude(typeof(WorkflowInputBuilder))]
+    [XmlInclude(typeof(WorkflowOutputBuilder))]
     [XmlInclude(typeof(SourceBuilder))]
     [XmlInclude(typeof(SelectBuilder))]
     [XmlInclude(typeof(WhereBuilder))]

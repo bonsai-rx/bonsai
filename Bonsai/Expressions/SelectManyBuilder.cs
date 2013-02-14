@@ -49,17 +49,24 @@ namespace Bonsai.Expressions
                 throw new InvalidWorkflowException("SelectMany operator takes as input an observable sequence of windows.");
             }
 
+            // Assign input
             var selectorParameter = Expression.Parameter(sourceType);
             var workflowInput = Workflow.Select(node => node.Value as WorkflowInputBuilder)
                                         .Single(builder => builder != null);
             workflowInput.Source = selectorParameter;
-            var runtimeWorkflow = Workflow.Build();
 
+            // Build selector workflow
+            var runtimeWorkflow = Workflow.Build();
             var workflowExpression = Expression.Constant(runtimeWorkflow);
             var loadWorkflowExpression = Expression.Call(workflowExpression, "Load", null);
             var resourceFactoryExpression = Expression.Lambda(loadWorkflowExpression);
             var resourceParameter = Expression.Parameter(typeof(IDisposable));
-            var workflowObservableExpression = runtimeWorkflow.Connections.Single();
+
+            // Assign output
+            var workflowOutput = Workflow.Select(node => node.Value as WorkflowOutputBuilder)
+                                         .Single(builder => builder != null);
+            var workflowObservableExpression = BuildOutput(workflowOutput, runtimeWorkflow.Connections);
+
             var workflowObservableType = workflowObservableExpression.Type.GetGenericArguments()[0];
             var observableFactoryExpression = Expression.Lambda(workflowObservableExpression, resourceParameter);
             var usingExpression = Expression.Call(usingMethod.MakeGenericMethod(workflowObservableType, typeof(IDisposable)), resourceFactoryExpression, observableFactoryExpression);

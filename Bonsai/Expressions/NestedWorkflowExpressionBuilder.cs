@@ -38,7 +38,11 @@ namespace Bonsai.Expressions
             }
 
             RuntimeWorkflow = Workflow.Build();
-            return RuntimeWorkflow.Connections.Single();
+
+            // Assign output if available
+            var workflowOutput = Workflow.Select(node => node.Value as WorkflowOutputBuilder)
+                                         .SingleOrDefault(builder => builder != null);
+            return BuildOutput(workflowOutput, RuntimeWorkflow.Connections);
         }
     }
 }
