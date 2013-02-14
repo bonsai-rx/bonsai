@@ -13,11 +13,10 @@ namespace Bonsai
 {
     public static class ReactiveWorkflowExtensions
     {
-        static readonly ConstructorInfo compositeDisposableConstructor = typeof(CompositeDisposable).GetConstructor(new[] { typeof(IEnumerable<IDisposable>) });
-        static readonly MethodInfo subscribeMethod = typeof(ObservableExtensions).GetMethods()
-                                                                                 .Single(m => m.Name == "Subscribe" &&
-                                                                                         m.GetParameters().Length == 4 &&
-                                                                                         m.GetParameters()[3].ParameterType == typeof(Action));
+        static readonly MethodInfo mergeMethod = typeof(Observable).GetMethods()
+                                                                   .Single(m => m.Name == "Merge" &&
+                                                                           m.GetParameters().Length == 1 &&
+                                                                           m.GetParameters()[0].ParameterType.IsArray);
 
         public static IObservable<Unit> Run(this ReactiveWorkflow source, params LambdaExpression[] onNext)
         {
@@ -26,11 +25,12 @@ namespace Bonsai
                 var loadDisposable = Disposable.Empty;
                 try
                 {
-                    var subscribeExpression = source.BuildSubscribe(observer.OnError, observer.OnCompleted, onNext);
+                    var observableExpression = source.BuildObservable(onNext);
                     loadDisposable = source.Load();
 
-                    var subscriber = subscribeExpression.Compile();
-                    var subscribeDisposable = subscriber();
+                    var observableCreator = observableExpression.Compile();
+                    var observable = observableCreator();
+                    var subscribeDisposable = observable.Subscribe(xs => { }, observer.OnError, observer.OnCompleted);
                     return new CompositeDisposable(subscribeDisposable, loadDisposable);
                 }
                 catch (Exception ex)
@@ -40,40 +40,28 @@ namespace Bonsai
             });
         }
 
-        static Expression<Func<IDisposable>> BuildSubscribe(this ReactiveWorkflow source, Action<Exception> onError)
+        static IObservable<Unit> Connection<TSource>(IObservable<TSource> source, Action<TSource> onNext)
         {
-            return BuildSubscribe(source, onError, () => { });
+            return source.Do(onNext).IgnoreElements().Select(xs => Unit.Default);
         }
 
-        static Expression<Func<IDisposable>> BuildSubscribe(this ReactiveWorkflow source, Action<Exception> onError, Action onCompleted, params LambdaExpression[] onNext)
+        static Expression<Func<IObservable<Unit>>> BuildObservable(this ReactiveWorkflow source, params LambdaExpression[] onNext)
         {
             if (onNext == null)
             {
                 throw new ArgumentNullException("onNext");
             }
 
-            var subscriptionCounter = Expression.Variable(typeof(int));
-            var subscriptionInitializer = Expression.Assign(subscriptionCounter, Expression.Constant(source.Connections.Count));
-            Expression<Action> onCompletedCall = () => onCompleted();
-
-            var decrementCall = Expression.Call(typeof(Interlocked), "Decrement", null, subscriptionCounter);
-            var comparison = Expression.LessThanOrEqual(decrementCall, Expression.Constant(0));
-            var onCompletedCheck = Expression.IfThen(comparison, Expression.Invoke(onCompletedCall));
-
             int connectionIndex = -1;
-            var onErrorExpression = Expression.Constant(onError);
-            var subscribeActions = from expression in source.Connections
-                                   let observableType = expression.Type.GetGenericArguments()[0]
-                                   let onNextParameter = Expression.Parameter(observableType)
-                                   let onNextExpression = ++connectionIndex < onNext.Length ? onNext[connectionIndex] : Expression.Lambda(Expression.Empty(), onNextParameter)
-                                   let onCompletedExpression = Expression.Lambda(onCompletedCheck)
-                                   let subscribeCall = Expression.Call(subscribeMethod.MakeGenericMethod(observableType), expression, onNextExpression, onErrorExpression, onCompletedExpression)
-                                   select subscribeCall;
+            var connections = from expression in source.Connections
+                              let observableType = expression.Type.GetGenericArguments()[0]
+                              let onNextParameter = Expression.Parameter(observableType)
+                              let onNextExpression = ++connectionIndex < onNext.Length ? onNext[connectionIndex] : Expression.Lambda(Expression.Empty(), onNextParameter)
+                              select Expression.Call(typeof(ReactiveWorkflowExtensions), "Connection", new[] { observableType }, expression, onNextExpression);
 
-            var subscriptions = Expression.NewArrayInit(typeof(IDisposable), subscribeActions);
-            var disposable = Expression.New(compositeDisposableConstructor, subscriptions);
-            var subscribeBlock = Expression.Block(new[] { subscriptionCounter }, subscriptionInitializer, disposable);
-            return Expression.Lambda<Func<IDisposable>>(subscribeBlock);
+            var connectionArrayExpression = Expression.NewArrayInit(typeof(IObservable<Unit>), connections.ToArray());
+            var observableExpression = Expression.Call(null, mergeMethod.MakeGenericMethod(typeof(Unit)), connectionArrayExpression);
+            return Expression.Lambda<Func<IObservable<Unit>>>(observableExpression);
         }
     }
 }
