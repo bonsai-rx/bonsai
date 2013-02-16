@@ -69,6 +69,8 @@ namespace Bonsai.Editor
 
         public string InitialFileName { get; set; }
 
+        public bool StartOnLoad { get; set; }
+
         void ShowWelcomeDialog()
         {
             using (var welcome = new WelcomeDialog())
@@ -98,6 +100,7 @@ namespace Bonsai.Editor
             {
                 directoryToolStripTextBox.Text = Path.GetDirectoryName(initialFileName);
                 OpenWorkflow(Path.GetFileName(initialFileName));
+                if (StartOnLoad) BeginInvoke((Action)(() => StartWorkflow()));
             }
 
             base.OnLoad(e);
