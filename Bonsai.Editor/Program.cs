@@ -14,9 +14,10 @@ namespace Bonsai.Editor
         static void Main(string[] args)
         {
             var initialFileName = args.Length > 0 ? args[0] : null;
+            var start = args.Length > 1 && (args[1] == "-s" || args[1] == "--start");
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm { InitialFileName = initialFileName });
+            Application.Run(new MainForm { InitialFileName = initialFileName, StartOnLoad = start });
         }
     }
 }
