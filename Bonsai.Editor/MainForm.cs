@@ -350,10 +350,16 @@ namespace Bonsai.Editor
             if (string.IsNullOrEmpty(saveWorkflowDialog.FileName)) saveAsToolStripMenuItem_Click(this, e);
             else
             {
-                using (var writer = XmlWriter.Create(saveWorkflowDialog.FileName, new XmlWriterSettings { Indent = true }))
+                using (var memoryStream = new MemoryStream())
+                using (var writer = XmlWriter.Create(memoryStream, new XmlWriterSettings { Indent = true }))
                 {
                     var serializerWorkflowBuilder = new WorkflowBuilder(workflowBuilder.Workflow.FromInspectableGraph());
                     serializer.Serialize(writer, serializerWorkflowBuilder);
+                    using (var fileStream = new FileStream(saveWorkflowDialog.FileName, FileMode.Create, FileAccess.Write))
+                    {
+                        memoryStream.WriteTo(fileStream);
+                    }
+
                     saveVersion = version;
                 }
 
