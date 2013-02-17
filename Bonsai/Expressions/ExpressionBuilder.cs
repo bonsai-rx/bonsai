@@ -5,6 +5,7 @@ using System.Text;
 using System.Linq.Expressions;
 using System.ComponentModel;
 using System.Xml.Serialization;
+using System.Reflection;
 
 namespace Bonsai.Expressions
 {
@@ -97,46 +98,17 @@ namespace Bonsai.Expressions
                          .GetGenericArguments()[0];
         }
 
-        protected static Type GetConditionGenericArgument(LoadableElement condition)
+        internal static Expression BuildProcessExpression(Expression parameter, object processor, MethodInfo processMethod)
         {
-            if (condition == null)
+            var processorExpression = Expression.Constant(processor);
+            var processorType = processMethod.GetParameters()[0].ParameterType;
+            var processParameter = (Expression)parameter;
+            if (parameter.Type != processorType)
             {
-                throw new ArgumentNullException("condition");
+                processParameter = Expression.Convert(processParameter, processorType);
             }
 
-            var type = condition.GetType();
-            while (type != typeof(object))
-            {
-                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Condition<>))
-                {
-                    return type.GetGenericArguments()[0];
-                }
-
-                type = type.BaseType;
-            }
-
-            return null;
-        }
-
-        protected static Type GetSinkGenericArgument(LoadableElement sink)
-        {
-            if (sink == null)
-            {
-                throw new ArgumentNullException("sink");
-            }
-
-            var type = sink.GetType();
-            while (type != typeof(object))
-            {
-                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Sink<>))
-                {
-                    return type.GetGenericArguments()[0];
-                }
-
-                type = type.BaseType;
-            }
-
-            return null;
+            return Expression.Call(processorExpression, processMethod, processParameter);
         }
     }
 }
