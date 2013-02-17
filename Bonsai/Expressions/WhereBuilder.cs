@@ -24,18 +24,10 @@ namespace Bonsai.Expressions
         public override Expression Build()
         {
             var observableType = Source.Type.GetGenericArguments()[0];
-            var conditionType = ExpressionBuilder.GetConditionGenericArgument(Condition);
             var processMethod = Condition.GetType().GetMethod("Process");
-
-            var conditionExpression = Expression.Constant(Condition);
             var parameter = Expression.Parameter(observableType);
-            var processParameter = (Expression)parameter;
-            if (observableType.IsValueType && conditionType == typeof(object))
-            {
-                processParameter = Expression.Convert(processParameter, typeof(object));
-            }
+            var process = BuildProcessExpression(parameter, Condition, processMethod);
 
-            var process = Expression.Call(conditionExpression, processMethod, processParameter);
             var exception = Expression.Parameter(typeof(Exception));
             var exceptionText = Expression.Property(exception, "Message");
             var runtimeException = Expression.New(runtimeExceptionConstructor, exceptionText, Expression.Constant(this), exception);

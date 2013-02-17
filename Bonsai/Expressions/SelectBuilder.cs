@@ -26,9 +26,9 @@ namespace Bonsai.Expressions
             var processMethod = Transform.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                                                    .Single(m => m.Name == "Process" && m.GetParameters().Length == 1);
 
-            var transformExpression = Expression.Constant(Transform);
-            var parameter = Expression.Parameter(processMethod.GetParameters()[0].ParameterType);
-            var process = Expression.Call(transformExpression, processMethod, parameter);
+            var parameter = Expression.Parameter(Source.Type.GetGenericArguments()[0]);
+            var process = BuildProcessExpression(parameter, Transform, processMethod);
+
             var exception = Expression.Parameter(typeof(Exception));
             var exceptionText = Expression.Property(exception, "Message");
             var runtimeException = Expression.New(runtimeExceptionConstructor, exceptionText, Expression.Constant(this), exception);
