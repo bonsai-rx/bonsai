@@ -24,8 +24,7 @@ namespace Bonsai.Vision.Design
 
             if (validContour)
             {
-                var boundingBoxCenter = new CvPoint2D32f(0.5f * boundingBox.Width, 0.5f * boundingBox.Height);
-                DrawingHelper.DrawConnectedComponent(output, connectedComponent, boundingBoxCenter - connectedComponent.Centroid);
+                DrawingHelper.DrawConnectedComponent(output, connectedComponent, new CvPoint2D32f(-boundingBox.X, -boundingBox.Y));
             }
             base.Show(output);
         }
