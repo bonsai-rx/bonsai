@@ -318,6 +318,11 @@ namespace Bonsai.Editor
             UpdateCurrentDirectory();
         }
 
+        private void directoryToolStripTextBox_DoubleClick(object sender, EventArgs e)
+        {
+            directoryToolStripTextBox.SelectAll();
+        }
+
         private void browseDirectoryToolStripButton_Click(object sender, EventArgs e)
         {
             folderBrowserDialog.SelectedPath = directoryToolStripTextBox.Text;
@@ -633,11 +638,18 @@ namespace Bonsai.Editor
 
         private void copyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var node = selectionModel.SelectedNode;
-            var model = selectionModel.SelectedModel;
-            if (node != null && model != null && model.WorkflowGraphView.Focused)
+            if (directoryToolStripTextBox.Focused)
             {
-                editorSite.StoreWorkflowElement((ExpressionBuilder)node.Value);
+                directoryToolStripTextBox.Copy();
+            }
+            else
+            {
+                var node = selectionModel.SelectedNode;
+                var model = selectionModel.SelectedModel;
+                if (node != null && model != null && model.WorkflowGraphView.Focused)
+                {
+                    editorSite.StoreWorkflowElement((ExpressionBuilder)node.Value);
+                }
             }
         }
 

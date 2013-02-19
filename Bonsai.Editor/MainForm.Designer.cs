@@ -468,6 +468,7 @@
             this.directoryToolStripTextBox.Size = new System.Drawing.Size(200, 25);
             this.directoryToolStripTextBox.Leave += new System.EventHandler(this.directoryToolStripTextBox_Leave);
             this.directoryToolStripTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.directoryToolStripTextBox_KeyDown);
+            this.directoryToolStripTextBox.DoubleClick += new System.EventHandler(this.directoryToolStripTextBox_DoubleClick);
             this.directoryToolStripTextBox.TextChanged += new System.EventHandler(this.directoryToolStripTextBox_TextChanged);
             // 
             // browseDirectoryToolStripButton
