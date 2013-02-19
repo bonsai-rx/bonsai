@@ -63,6 +63,7 @@
     <Compile Include="ConvertColor.cs" />
     <Compile Include="ConvertScale.cs" />
     <Compile Include="Add.cs" />
+    <Compile Include="MaskImage.cs" />
     <Compile Include="DrawConnectedComponents.cs" />
     <Compile Include="Crop.cs" />
     <Compile Include="DrawContours.cs" />
