@@ -92,10 +92,12 @@ namespace Bonsai.Vision.Design
 
         public override void Unload()
         {
+            imageTexture.Dispose();
             imagePanel.Dispose();
             imagePanel = null;
             statusStrip = null;
             imageControl = null;
+            imageTexture = null;
         }
     }
 }
