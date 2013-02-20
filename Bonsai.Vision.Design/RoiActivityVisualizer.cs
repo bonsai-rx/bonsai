@@ -25,6 +25,7 @@ namespace Bonsai.Vision.Design
         CvFont font;
         IplImage input;
         IplImage canvas;
+        IDisposable inputHandle;
         RegionActivityCollection regions;
 
         public override void Show(object value)
@@ -87,7 +88,7 @@ namespace Bonsai.Vision.Design
                 if (predecessorNode != null)
                 {
                     var inputInspector = (InspectBuilder)predecessorNode.Value;
-                    inputInspector.Output.Subscribe(value => input = (IplImage)value);
+                    inputHandle = inputInspector.Output.Subscribe(value => input = (IplImage)value);
                 }
             }
 
@@ -103,6 +104,11 @@ namespace Bonsai.Vision.Design
                 canvas = null;
             }
 
+            if (inputHandle != null)
+            {
+                inputHandle.Dispose();
+                inputHandle = null;
+            }
             base.Unload();
         }
     }
