@@ -18,6 +18,7 @@ namespace Bonsai.Audio
     [Description("Produces a sequence of buffered samples acquired from the specified audio capture device.")]
     public class AudioCapture : Source<CvMat>
     {
+        int bufferSize;
         OpenTK.Audio.AudioCapture capture;
 
         public AudioCapture()
@@ -38,8 +39,9 @@ namespace Bonsai.Audio
 
         public override IDisposable Load()
         {
-            var bufferSize = (int)(BufferLength * Frequency * 0.001 / BlittableValueType.StrideOf(short.MinValue));
-            capture = new OpenTK.Audio.AudioCapture(DeviceName, Frequency, ALFormat.Mono16, bufferSize);
+            bufferSize = (int)Math.Ceiling(Frequency * 0.01);
+            var captureBufferSize = (int)(BufferLength * Frequency * 0.001 / BlittableValueType.StrideOf(short.MinValue));
+            capture = new OpenTK.Audio.AudioCapture(DeviceName, Frequency, ALFormat.Mono16, captureBufferSize);
             return base.Load();
         }
 
@@ -61,11 +63,10 @@ namespace Bonsai.Audio
                 {
                     return HighResolutionScheduler.Default.Schedule<int>((int)(BufferLength / 2 + 0.5), TimeSpan.Zero, (interval, self) =>
                     {
-                        int availableSamples = capture.AvailableSamples;
-                        if(availableSamples > 0)
+                        while (capture.AvailableSamples > bufferSize)
                         {
-                            var buffer = new CvMat(1, availableSamples, CvMatDepth.CV_16S, 1);
-                            capture.ReadSamples(buffer.Data, availableSamples);
+                            var buffer = new CvMat(1, bufferSize, CvMatDepth.CV_16S, 1);
+                            capture.ReadSamples(buffer.Data, bufferSize);
                             observer.OnNext(buffer);
                         }
                         self(interval, TimeSpan.FromMilliseconds(interval));
