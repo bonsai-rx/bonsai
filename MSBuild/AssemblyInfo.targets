@@ -49,7 +49,7 @@
       <MajorMinor>$([System.Text.RegularExpressions.Regex]::Match($(AssemblyInfoInput), $(AssemblyVersionPattern)).Result("$1.$2"))</MajorMinor>
     </PropertyGroup>
 
-    <HgVersion LocalPath="$(MSBuildProjectDirectory)">
+    <HgVersion LocalPath="$(MSBuildProjectDirectory)" ContinueOnError="True">
       <Output TaskParameter="Revision" PropertyName="HgRevisionNumber" />
     </HgVersion>
 
