@@ -53,6 +53,7 @@
     <Compile Include="AverageBinaryRegion.cs" />
     <Compile Include="BackgroundSubtraction.cs" />
     <Compile Include="BinaryRegionAnalysis.cs" />
+    <Compile Include="BinaryRegionExtremes.cs" />
     <Compile Include="CameraCapture.cs" />
     <Compile Include="Canny.cs" />
     <Compile Include="ColorBalance.cs" />
