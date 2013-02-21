@@ -73,6 +73,7 @@ namespace Bonsai.Dsp
             {
                 kernel.Dispose();
                 kernel = null;
+                currentKernel = null;
             }
         }
 
