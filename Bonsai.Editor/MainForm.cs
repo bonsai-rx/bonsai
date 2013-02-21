@@ -418,6 +418,7 @@ namespace Bonsai.Editor
                 editorSite.OnWorkflowStopped(EventArgs.Empty);
                 workflowViewModel.UpdateVisualizerLayout();
                 runningStatusLabel.Text = Resources.StoppedStatus;
+                runningStatusLabel.Image = Resources.StoppedStatusImage;
                 running = null;
             }));
         }
@@ -431,6 +432,7 @@ namespace Bonsai.Editor
                     {
                         var runtimeWorkflow = workflowBuilder.Workflow.Build();
                         runningStatusLabel.Text = Resources.RunningStatus;
+                        runningStatusLabel.Image = Resources.RunningStatusImage;
                         editorSite.OnWorkflowStarted(EventArgs.Empty);
 
                         var shutdown = ShutdownSequence();

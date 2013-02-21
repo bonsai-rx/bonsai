@@ -142,6 +142,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Bonsai.ico" />
+    <None Include="Resources\RunningStatusImage.png" />
+    <None Include="Resources\StoppedStatusImage.png" />
     <None Include="Resources\BonsaiCommands.png" />
     <None Include="Resources\BonsaiWelcome.png" />
   </ItemGroup>
