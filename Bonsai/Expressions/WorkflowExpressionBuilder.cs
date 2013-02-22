@@ -70,7 +70,7 @@ namespace Bonsai.Expressions
 
         protected Expression BuildOutput(WorkflowOutputBuilder workflowOutput, IEnumerable<Expression> connections)
         {
-            var output = workflowOutput != null ? connections.SingleOrDefault(connection => connection == workflowOutput.Output) : null;
+            var output = workflowOutput != null ? connections.FirstOrDefault(connection => connection == workflowOutput.Output) : null;
             var ignoredConnections = from connection in connections
                                      where connection != output
                                      let observableType = connection.Type.GetGenericArguments()[0]
