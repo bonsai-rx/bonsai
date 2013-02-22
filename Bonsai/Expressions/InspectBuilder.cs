@@ -21,8 +21,14 @@ namespace Bonsai.Expressions
         {
             ObservableType = Source.Type.GetGenericArguments()[0];
 
-            // If source is already an inspect node, use it
+            // If source is a publish node, unwrap it to check for inspect nodes
             var methodCall = Source as MethodCallExpression;
+            if (methodCall != null && methodCall.Object != null && methodCall.Object.Type == typeof(PublishBuilder))
+            {
+                methodCall = methodCall.Arguments[0] as MethodCallExpression;
+            }
+
+            // If source is already an inspect node, use it
             if (methodCall != null && methodCall.Object != null && methodCall.Object.Type == typeof(InspectBuilder))
             {
                 var inspectBuilder = (InspectBuilder)((ConstantExpression)methodCall.Object).Value;
