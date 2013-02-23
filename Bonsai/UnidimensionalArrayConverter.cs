@@ -7,7 +7,7 @@ using System.Globalization;
 
 namespace Bonsai
 {
-    public class MultidimensionalArrayConverter : TypeConverter
+    public class UnidimensionalArrayConverter : TypeConverter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
@@ -21,7 +21,7 @@ namespace Bonsai
             if (valueString != null)
             {
                 return ArrayConvert.ToArray(
-                    valueString, 2,
+                    valueString, 1,
                     context.PropertyDescriptor.PropertyType.GetElementType(),
                     culture);
             }
