@@ -36,7 +36,10 @@ namespace Bonsai.Design
             var nodes = treeView.Nodes;
             foreach (var memberName in memberChain)
             {
-                var node = nodes[memberName];
+                var nodeName = memberName;
+                var indexBegin = nodeName.IndexOf(ExpressionHelper.IndexBegin);
+                if (indexBegin >= 0) nodeName = nodeName.Substring(0, indexBegin);
+                var node = nodes[nodeName];
                 ExpandNode(node);
                 nodes = node.Nodes;
                 treeView.SelectedNode = node;
