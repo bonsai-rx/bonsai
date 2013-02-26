@@ -219,6 +219,21 @@ namespace Bonsai.Design
                 {
                     var element = (LoadableElement)Activator.CreateInstance(type);
                     builder = ExpressionBuilder.FromLoadableElement(element, elementType);
+                    if (elementType == WorkflowElementType.Condition)
+                    {
+                        var builderProperties = TypeDescriptor.GetProperties(builder);
+                        var provider = new DynamicTypeDescriptionProvider();
+                        foreach (PropertyDescriptor builderProperty in builderProperties)
+                        {
+                            var property = builderProperty;
+                            if (property.PropertyType == typeof(LoadableElement)) continue;
+                            var attributes = new Attribute[property.Attributes.Count];
+                            property.Attributes.CopyTo(attributes, 0);
+                            var dynamicProp = new DynamicPropertyDescriptor(property.Name, property.PropertyType, xs => property.GetValue(builder), (xs, value) => property.SetValue(builder, value), attributes);
+                            provider.Properties.Add(dynamicProp);
+                        }
+                        TypeDescriptor.AddProvider(provider, element);
+                    }
                 }
                 else builder = (ExpressionBuilder)Activator.CreateInstance(type);
                 CreateGraphNode(builder, elementType, closestGraphViewNode, nodeType, branch);

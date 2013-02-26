@@ -21,12 +21,17 @@ namespace Bonsai.Expressions
 
         public LoadableElement Condition { get; set; }
 
+        [Description("The inner property on which to apply the condition.")]
+        [Editor("Bonsai.Design.MemberSelectorEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        public string Selector { get; set; }
+
         public override Expression Build()
         {
             var observableType = Source.Type.GetGenericArguments()[0];
             var processMethod = Condition.GetType().GetMethod("Process");
             var parameter = Expression.Parameter(observableType);
-            var process = BuildProcessExpression(parameter, Condition, processMethod);
+            var processParameter = ExpressionHelper.MemberAccess(parameter, Selector);
+            var process = BuildProcessExpression(processParameter, Condition, processMethod);
 
             var exception = Expression.Parameter(typeof(Exception));
             var exceptionText = Expression.Property(exception, "Message");
