@@ -24,11 +24,14 @@ namespace Bonsai.Design
             var expression = instance as ExpressionBuilder;
             if (expression != null) return builder == expression;
 
-            var sink = instance as DynamicSink;
-            if (sink != null)
+            var loadableElement = instance as LoadableElement;
+            if (loadableElement != null)
             {
                 var doBuilder = builder as DoBuilder;
-                return doBuilder != null && doBuilder.Sink == sink;
+                if (doBuilder != null) return doBuilder.Sink == loadableElement;
+
+                var whereBuilder = builder as WhereBuilder;
+                if (whereBuilder != null) return whereBuilder.Condition == loadableElement;
             }
 
             return false;
@@ -53,7 +56,7 @@ namespace Bonsai.Design
                                        select nodeBuilderGraph.Predecessors(node).SingleOrDefault()).SingleOrDefault();
 
                 if (predecessorNode == null) return base.EditValue(context, provider, value);
-                workflow.Build(); //TODO: Find a better way to ensure type inference on arbitrary nested workflows
+                workflow.Build(predecessorNode.Value);
 
                 var expressionType = predecessorNode.Value.Build().Type.GetGenericArguments()[0];
                 var editorDialog = new MemberSelectorEditorDialog(expressionType, selector);

@@ -28,7 +28,7 @@ namespace Bonsai.Expressions
         {
             var observableType = Source.Type.GetGenericArguments()[0];
             var parameter = Expression.Parameter(observableType);
-            Expression body = ExpressionHelper.MemberAccess(parameter, Selector);
+            var body = ExpressionHelper.MemberAccess(parameter, Selector);
             var selectorExpression = Expression.Lambda(body, parameter);
             return Expression.Call(selectMethod.MakeGenericMethod(parameter.Type, body.Type), Source, selectorExpression);
         }
