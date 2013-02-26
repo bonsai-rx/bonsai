@@ -657,15 +657,22 @@ namespace Bonsai.Editor
 
         private void pasteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var model = selectionModel.SelectedModel;
-            if (model != null)
+            if (directoryToolStripTextBox.Focused)
             {
-                var expressionBuilder = editorSite.RetrieveWorkflowElement();
-                if (expressionBuilder != null)
+                directoryToolStripTextBox.Paste();
+            }
+            else
+            {
+                var model = selectionModel.SelectedModel;
+                if (model != null)
                 {
-                    var branch = Control.ModifierKeys.HasFlag(WorkflowViewModel.BranchModifier);
-                    var predecessor = Control.ModifierKeys.HasFlag(WorkflowViewModel.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
-                    model.CreateGraphNode(expressionBuilder, expressionBuilder.GetType() == typeof(SourceBuilder) ? WorkflowElementType.Source : WorkflowElementType.Combinator, selectionModel.SelectedNode, predecessor, branch);
+                    var expressionBuilder = editorSite.RetrieveWorkflowElement();
+                    if (expressionBuilder != null)
+                    {
+                        var branch = Control.ModifierKeys.HasFlag(WorkflowViewModel.BranchModifier);
+                        var predecessor = Control.ModifierKeys.HasFlag(WorkflowViewModel.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
+                        model.CreateGraphNode(expressionBuilder, expressionBuilder.GetType() == typeof(SourceBuilder) ? WorkflowElementType.Source : WorkflowElementType.Combinator, selectionModel.SelectedNode, predecessor, branch);
+                    }
                 }
             }
         }
