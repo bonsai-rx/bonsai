@@ -6,14 +6,16 @@ using System.ComponentModel;
 
 namespace Bonsai.Design
 {
-    public class DynamicPropertyDescriptor<T> : PropertyDescriptor
+    public class DynamicPropertyDescriptor : PropertyDescriptor
     {
+        Type propertyType;
         Func<object, object> getter;
         Action<object, object> setter;
 
-        public DynamicPropertyDescriptor(string name, Func<object, object> getter, Action<object, object> setter, params Attribute[] attributes)
+        public DynamicPropertyDescriptor(string name, Type propertyType, Func<object, object> getter, Action<object, object> setter, params Attribute[] attributes)
             : base(name, attributes)
         {
+            this.propertyType = propertyType;
             this.getter = getter;
             this.setter = setter;
         }
@@ -40,7 +42,7 @@ namespace Bonsai.Design
 
         public override Type PropertyType
         {
-            get { return typeof(T); }
+            get { return propertyType; }
         }
 
         public override void ResetValue(object component)
