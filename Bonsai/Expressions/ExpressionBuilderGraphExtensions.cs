@@ -55,6 +55,11 @@ namespace Bonsai.Expressions
 
         public static ReactiveWorkflow Build(this ExpressionBuilderGraph source)
         {
+            return Build(source, null);
+        }
+
+        public static ReactiveWorkflow Build(this ExpressionBuilderGraph source, ExpressionBuilder buildTarget)
+        {
             List<ILoadable> loadableElements = new List<ILoadable>();
             List<Expression> connections = new List<Expression>();
 
@@ -62,6 +67,7 @@ namespace Bonsai.Expressions
             {
                 try
                 {
+                    if (node.Value == buildTarget) break;
                     var expression = node.Value.Build();
                     loadableElements.AddRange(node.Value.GetLoadableElements());
 
