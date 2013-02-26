@@ -20,10 +20,10 @@ namespace Bonsai.Vision.Design
             var propertyDescriptor = context.PropertyDescriptor;
 
             var properties = new PropertyDescriptor[4];
-            properties[0] = new DynamicPropertyDescriptor<double>("Val0", c => ((CvScalar)c).Val0, (c, v) => { var s = (CvScalar)c; s.Val0 = (double)v; propertyDescriptor.SetValue(context.Instance, s); });
-            properties[1] = new DynamicPropertyDescriptor<double>("Val1", c => ((CvScalar)c).Val1, (c, v) => { var s = (CvScalar)c; s.Val1 = (double)v; propertyDescriptor.SetValue(context.Instance, s); });
-            properties[2] = new DynamicPropertyDescriptor<double>("Val2", c => ((CvScalar)c).Val2, (c, v) => { var s = (CvScalar)c; s.Val2 = (double)v; propertyDescriptor.SetValue(context.Instance, s); });
-            properties[3] = new DynamicPropertyDescriptor<double>("Val3", c => ((CvScalar)c).Val3, (c, v) => { var s = (CvScalar)c; s.Val3 = (double)v; propertyDescriptor.SetValue(context.Instance, s); });
+            properties[0] = new DynamicPropertyDescriptor("Val0", typeof(double), c => ((CvScalar)c).Val0, (c, v) => { var s = (CvScalar)c; s.Val0 = (double)v; propertyDescriptor.SetValue(context.Instance, s); });
+            properties[1] = new DynamicPropertyDescriptor("Val1", typeof(double), c => ((CvScalar)c).Val1, (c, v) => { var s = (CvScalar)c; s.Val1 = (double)v; propertyDescriptor.SetValue(context.Instance, s); });
+            properties[2] = new DynamicPropertyDescriptor("Val2", typeof(double), c => ((CvScalar)c).Val2, (c, v) => { var s = (CvScalar)c; s.Val2 = (double)v; propertyDescriptor.SetValue(context.Instance, s); });
+            properties[3] = new DynamicPropertyDescriptor("Val3", typeof(double), c => ((CvScalar)c).Val3, (c, v) => { var s = (CvScalar)c; s.Val3 = (double)v; propertyDescriptor.SetValue(context.Instance, s); });
 
             return new PropertyDescriptorCollection(properties);
         }

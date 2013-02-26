@@ -23,9 +23,9 @@ namespace Bonsai.Vision.Design
             var satValAttributes = new Attribute[] { new RangeAttribute(0, 255), new EditorAttribute(typeof(TrackBarEditor), typeof(UITypeEditor)) };
 
             var properties = new PropertyDescriptor[3];
-            properties[0] = new DynamicPropertyDescriptor<double>("H", c => ((CvScalar)c).Val0, (c, v) => { var s = (CvScalar)c; s.Val0 = (double)v; propertyDescriptor.SetValue(context.Instance, s); }, hueAttributes);
-            properties[1] = new DynamicPropertyDescriptor<double>("S", c => ((CvScalar)c).Val1, (c, v) => { var s = (CvScalar)c; s.Val1 = (double)v; propertyDescriptor.SetValue(context.Instance, s); }, satValAttributes);
-            properties[2] = new DynamicPropertyDescriptor<double>("V", c => ((CvScalar)c).Val2, (c, v) => { var s = (CvScalar)c; s.Val2 = (double)v; propertyDescriptor.SetValue(context.Instance, s); }, satValAttributes);
+            properties[0] = new DynamicPropertyDescriptor("H", typeof(double), c => ((CvScalar)c).Val0, (c, v) => { var s = (CvScalar)c; s.Val0 = (double)v; propertyDescriptor.SetValue(context.Instance, s); }, hueAttributes);
+            properties[1] = new DynamicPropertyDescriptor("S", typeof(double), c => ((CvScalar)c).Val1, (c, v) => { var s = (CvScalar)c; s.Val1 = (double)v; propertyDescriptor.SetValue(context.Instance, s); }, satValAttributes);
+            properties[2] = new DynamicPropertyDescriptor("V", typeof(double), c => ((CvScalar)c).Val2, (c, v) => { var s = (CvScalar)c; s.Val2 = (double)v; propertyDescriptor.SetValue(context.Instance, s); }, satValAttributes);
 
             return new PropertyDescriptorCollection(properties);
         }
