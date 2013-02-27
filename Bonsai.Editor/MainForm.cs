@@ -824,12 +824,16 @@ namespace Bonsai.Editor
                     var stringReader = new StringReader(text);
                     using (var reader = XmlReader.Create(stringReader))
                     {
-                        if (siteForm.serializer.CanDeserialize(reader))
+                        try
                         {
-                            var builder = (WorkflowBuilder)siteForm.serializer.Deserialize(reader);
-                            builder = new WorkflowBuilder(builder.Workflow.ToInspectableGraph());
-                            return builder.Workflow.First().Value;
+                            if (siteForm.serializer.CanDeserialize(reader))
+                            {
+                                var builder = (WorkflowBuilder)siteForm.serializer.Deserialize(reader);
+                                builder = new WorkflowBuilder(builder.Workflow.ToInspectableGraph());
+                                return builder.Workflow.First().Value;
+                            }
                         }
+                        catch (XmlException) { }
                     }
                 }
 
