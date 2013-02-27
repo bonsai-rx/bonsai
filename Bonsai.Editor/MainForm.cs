@@ -39,6 +39,7 @@ namespace Bonsai.Editor
         WorkflowBuilder workflowBuilder;
         WorkflowViewModel workflowViewModel;
         WorkflowSelectionModel selectionModel;
+        TypeDescriptionProvider selectionTypeDescriptor;
 
         XmlSerializer serializer;
         XmlSerializer layoutSerializer;
@@ -528,6 +529,12 @@ namespace Bonsai.Editor
 
         private void selectionModel_SelectionChanged(object sender, EventArgs e)
         {
+            if (selectionTypeDescriptor != null)
+            {
+                TypeDescriptor.RemoveProvider(selectionTypeDescriptor, propertyGrid.SelectedObject);
+                selectionTypeDescriptor = null;
+            }
+
             var node = selectionModel.SelectedNode;
             if (node != null && node.Value != null)
             {
@@ -549,7 +556,31 @@ namespace Bonsai.Editor
 
                 if (loadableElement != null)
                 {
-                    propertyGrid.SelectedObject = loadableElement.GetValue(node.Value, null);
+                    var element = loadableElement.GetValue(node.Value, null);
+                    var builder = node.Value as WhereBuilder;
+                    if (builder != null)
+                    {
+                        var builderProperties = TypeDescriptor.GetProperties(builder);
+                        var provider = new DynamicTypeDescriptionProvider();
+                        foreach (PropertyDescriptor builderProperty in builderProperties)
+                        {
+                            var property = builderProperty;
+                            if (property.PropertyType == typeof(LoadableElement)) continue;
+                            var attributes = new Attribute[property.Attributes.Count];
+                            property.Attributes.CopyTo(attributes, 0);
+                            var dynamicProperty = new DynamicPropertyDescriptor(
+                                property.Name, property.PropertyType,
+                                xs => property.GetValue(builder),
+                                (xs, value) => property.SetValue(builder, value),
+                                attributes);
+                            provider.Properties.Add(dynamicProperty);
+                        }
+
+                        TypeDescriptor.AddProvider(provider, element);
+                        selectionTypeDescriptor = provider;
+                    }
+
+                    propertyGrid.SelectedObject = element;
                 }
                 else propertyGrid.SelectedObject = node.Value;
             }
