@@ -89,17 +89,20 @@ namespace Bonsai.Editor
 
         protected override void OnLoad(EventArgs e)
         {
+            var initialFileName = InitialFileName;
+            var validFileName =
+                !string.IsNullOrEmpty(initialFileName) &&
+                Path.GetExtension(initialFileName) == BonsaiExtension &&
+                File.Exists(initialFileName);
+
+            directoryToolStripTextBox.Text = validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             ConfigurationHelper.SetAssemblyResolve();
             Scheduler.Default.Schedule(InitializeToolbox);
             Scheduler.Default.Schedule(InitializeTypeVisualizers);
             InitializeExampleDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Examples"), examplesToolStripMenuItem);
 
-            var initialFileName = InitialFileName;
-            if (!string.IsNullOrEmpty(initialFileName) &&
-                Path.GetExtension(initialFileName) == BonsaiExtension &&
-                File.Exists(initialFileName))
+            if (validFileName)
             {
-                directoryToolStripTextBox.Text = Path.GetDirectoryName(initialFileName);
                 OpenWorkflow(Path.GetFileName(initialFileName));
                 if (StartOnLoad) BeginInvoke((Action)(() => StartWorkflow()));
             }
