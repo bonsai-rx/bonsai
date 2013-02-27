@@ -45,15 +45,17 @@ namespace Bonsai.Design
             {
                 visualizerDialog.Text = Text;
                 visualizerContext.AddService(typeof(ITypeVisualizerContext), this);
+                visualizerContext.AddService(typeof(TypeVisualizerDialog), visualizerDialog);
                 visualizerContext.AddService(typeof(IDialogTypeVisualizerService), visualizerDialog);
                 visualizer.Load(visualizerContext);
+                var visualizerOutput = visualizer.Visualize(source.Output, visualizerContext);
                 visualizerContext.RemoveService(typeof(IDialogTypeVisualizerService));
+                visualizerContext.RemoveService(typeof(TypeVisualizerDialog));
                 visualizerContext.RemoveService(typeof(ITypeVisualizerContext));
 
                 visualizerDialog.Load += delegate
                 {
-                    visualizerObserver = source.Output.ObserveOn(visualizerDialog)
-                                                      .Subscribe(visualizer.Show);
+                    visualizerObserver = visualizerOutput.Subscribe();
                 };
 
                 visualizerDialog.FormClosing += delegate { visualizerObserver.Dispose(); };
