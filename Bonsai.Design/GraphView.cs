@@ -256,6 +256,7 @@ namespace Bonsai.Design
 
             if (selectionOffset != Size.Empty)
             {
+                selectionOffset -= new Size(canvas.HorizontalScroll.Value, canvas.VerticalScroll.Value);
                 SelectedNode = SelectedNode == null
                     ? layoutNodes.Select(layoutNode => layoutNode.Node).FirstOrDefault()
                     : GetClosestNodeTo(Point.Add(layoutNodes[SelectedNode].Location, selectionOffset));
