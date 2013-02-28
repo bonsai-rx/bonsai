@@ -16,6 +16,7 @@ namespace Bonsai.Vision.Design
 
         public static void DrawConnectedComponent(IplImage image, ConnectedComponent component, CvPoint2D32f offset)
         {
+            if (component.Area <= 0) return;
             var centroid = component.Centroid + offset;
             var orientation = component.Orientation;
             var minorAxisOrientation = orientation + Math.PI / 2.0;
