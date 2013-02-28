@@ -14,6 +14,8 @@ namespace Bonsai.Vision.Design
     {
         bool playing;
         double playbackRate;
+        bool allowUpdate;
+        bool canvasInvalidated;
         ToolStripButton loopButton;
         ToolStripStatusLabel statusLabel;
         ToolStripStatusLabel frameNumberLabel;
@@ -21,6 +23,8 @@ namespace Bonsai.Vision.Design
         public VideoPlayerControl()
         {
             InitializeComponent();
+            allowUpdate = true;
+            canvasInvalidated = false;
             var playButton = new ToolStripButton(">");
             var pauseButton = new ToolStripButton("| |");
             var slowerButton = new ToolStripButton("<<");
@@ -43,6 +47,7 @@ namespace Bonsai.Vision.Design
             pauseButton.Click += (sender, e) => Playing = false;
             slowerButton.Click += (sender, e) => DecreasePlaybackRate();
             fasterButton.Click += (sender, e) => IncreasePlaybackRate();
+            imageControl.SwapBuffers += (sender, e) => SwapBuffers();
             imageControl.Canvas.MouseMove += (sender, e) =>
             {
                 var image = imageControl.Image;
@@ -67,6 +72,15 @@ namespace Bonsai.Vision.Design
                     Parent.ClientSize = new Size(image.Width, image.Height);
                 }
             };
+        }
+
+        private void SwapBuffers()
+        {
+            if (canvasInvalidated)
+            {
+                canvasInvalidated = false;
+                allowUpdate = true;
+            }
         }
 
         public int FrameCount
@@ -137,10 +151,19 @@ namespace Bonsai.Vision.Design
 
         public void Update(IplImage frame, int frameNumber)
         {
-            imageControl.Image = frame;
-            seekBar.Value = frameNumber;
-            if (frame == null) statusLabel.Text = string.Empty;
-            frameNumberLabel.Text = string.Format("Frame: {0}", frameNumber);
+            if (!allowUpdate) return;
+            else
+            {
+                allowUpdate = false;
+                BeginInvoke((Action)(() =>
+                {
+                    imageControl.Image = frame;
+                    seekBar.Value = frameNumber;
+                    if (frame == null) statusLabel.Text = string.Empty;
+                    frameNumberLabel.Text = string.Format("Frame: {0}", frameNumber);
+                    canvasInvalidated = true;
+                }));
+            }
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
