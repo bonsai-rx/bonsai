@@ -8,6 +8,8 @@ using OpenCV.Net;
 using Bonsai.Design;
 using System.Windows.Forms;
 using System.Drawing;
+using System.Reactive.Linq;
+using System.Threading;
 
 [assembly: TypeVisualizer(typeof(IplImageVisualizer), Target = typeof(IplImage))]
 
@@ -15,6 +17,8 @@ namespace Bonsai.Vision.Design
 {
     public class IplImageVisualizer : DialogTypeVisualizer
     {
+        bool allowUpdate;
+        bool canvasInvalidated;
         IplImage image;
         Panel imagePanel;
         StatusStrip statusStrip;
@@ -27,34 +31,13 @@ namespace Bonsai.Vision.Design
             get { return statusStrip; }
         }
 
-        private string UpdateImageStatus(IplImage image)
-        {
-            if (image != null)
-            {
-                var cursorPosition = imageControl.Canvas.PointToClient(Form.MousePosition);
-                if (imageControl.ClientRectangle.Contains(cursorPosition))
-                {
-                    var imageX = (int)(cursorPosition.X * ((float)image.Width / imageControl.Width));
-                    var imageY = (int)(cursorPosition.Y * ((float)image.Height / imageControl.Height));
-                    var cursorColor = Core.cvGet2D(image, imageY, imageX);
-                    return string.Format("Cursor: ({0},{1}) Value: ({2},{3},{4})", imageX, imageY, cursorColor.Val0, cursorColor.Val1, cursorColor.Val2);
-                }
-            }
-
-            return string.Empty;
-        }
-
         public override void Show(object value)
         {
             image = (IplImage)value;
-            if (statusStrip.Visible)
-            {
-                statusLabel.Text = UpdateImageStatus(image);
-            }
-
             imageControl.Canvas.MakeCurrent();
             imageTexture.Update(image);
             imageControl.Canvas.Invalidate();
+            canvasInvalidated = true;
         }
 
         protected virtual void RenderFrame()
@@ -62,20 +45,50 @@ namespace Bonsai.Vision.Design
             imageTexture.Draw();
         }
 
+        private void SwapBuffers()
+        {
+            if (canvasInvalidated)
+            {
+                canvasInvalidated = false;
+                allowUpdate = true;
+            }
+        }
+
         public override void Load(IServiceProvider provider)
         {
+            allowUpdate = true;
+            canvasInvalidated = false;
             imageControl = new VisualizerCanvasControl { Dock = DockStyle.Fill };
             statusStrip = new StatusStrip { Visible = false };
             statusLabel = new ToolStripStatusLabel();
             statusStrip.Items.Add(statusLabel);
             imageControl.RenderFrame += (sender, e) => RenderFrame();
+            imageControl.SwapBuffers += (sender, e) => SwapBuffers();
             imageControl.Load += (sender, e) => imageTexture = new IplImageTexture();
             imageControl.Canvas.MouseClick += (sender, e) => statusStrip.Visible = e.Button == MouseButtons.Right ? !statusStrip.Visible : statusStrip.Visible;
-            imageControl.Canvas.DoubleClick += (sender, e) =>
+            imageControl.Canvas.MouseDoubleClick += (sender, e) =>
             {
-                if (image != null)
+                if (e.Button == MouseButtons.Left)
                 {
-                    imagePanel.Parent.ClientSize = new Size(image.Width, image.Height);
+                    if (image != null)
+                    {
+                        imagePanel.Parent.ClientSize = new Size(image.Width, image.Height);
+                    }
+                }
+            };
+
+            imageControl.Canvas.MouseMove += (sender, e) =>
+            {
+                if (image != null && statusStrip.Visible)
+                {
+                    var cursorPosition = imageControl.Canvas.PointToClient(Form.MousePosition);
+                    if (imageControl.ClientRectangle.Contains(cursorPosition))
+                    {
+                        var imageX = (int)(cursorPosition.X * ((float)image.Width / imageControl.Width));
+                        var imageY = (int)(cursorPosition.Y * ((float)image.Height / imageControl.Height));
+                        var cursorColor = Core.cvGet2D(image, imageY, imageX);
+                        statusLabel.Text = string.Format("Cursor: ({0},{1}) Value: ({2},{3},{4})", imageX, imageY, cursorColor.Val0, cursorColor.Val1, cursorColor.Val2);
+                    }
                 }
             };
 
@@ -90,6 +103,21 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        public override IObservable<object> Visualize(IObservable<object> source, IServiceProvider provider)
+        {
+            var visualizerDialog = (TypeVisualizerDialog)provider.GetService(typeof(TypeVisualizerDialog));
+            if (visualizerDialog != null)
+            {
+                return source
+                    .Where(xs => allowUpdate)
+                    .Do(xs => allowUpdate = false)
+                    .ObserveOn(imageControl.Canvas)
+                    .Do(xs => Show(xs));
+            }
+
+            return base.Visualize(source, provider);
+        }
+
         public override void Unload()
         {
             imageTexture.Dispose();
@@ -98,6 +126,7 @@ namespace Bonsai.Vision.Design
             statusStrip = null;
             imageControl = null;
             imageTexture = null;
+            image = null;
         }
     }
 }

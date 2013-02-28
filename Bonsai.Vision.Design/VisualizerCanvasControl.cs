@@ -25,6 +25,8 @@ namespace Bonsai.Vision.Design
 
         public event EventHandler RenderFrame;
 
+        public event EventHandler SwapBuffers;
+
         public GLControl Canvas
         {
             get { return canvas; }
@@ -62,11 +64,21 @@ namespace Bonsai.Vision.Design
             GL.LoadIdentity();
             OnRenderFrame(e);
             canvas.SwapBuffers();
+            OnSwapBuffers(e);
         }
 
         protected virtual void OnRenderFrame(EventArgs e)
         {
             var handler = RenderFrame;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        protected virtual void OnSwapBuffers(EventArgs e)
+        {
+            var handler = SwapBuffers;
             if (handler != null)
             {
                 handler(this, e);

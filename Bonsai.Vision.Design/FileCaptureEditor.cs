@@ -39,7 +39,6 @@ namespace Bonsai.Vision.Design
                         var capture = (FileCapture)component;
                         var captureFrame = captureOutput
                             .Select(image => Tuple.Create((IplImage)image, (int)capture.Capture.GetProperty(CaptureProperty.POS_FRAMES)))
-                            .ObserveOn(videoPlayer)
                             .Do(frame => videoPlayer.Update(frame.Item1, frame.Item2 - 1));
 
                         var frameRate = 0.0;

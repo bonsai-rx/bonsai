@@ -17,6 +17,8 @@ namespace Bonsai.Vision.Design
     {
         bool disposed;
         IplImage image;
+        bool allowUpdate;
+        bool canvasInvalidated;
         IplImageTexture texture;
 
         public IplImage Image
@@ -27,7 +29,16 @@ namespace Bonsai.Vision.Design
                 image = value;
                 if (image != null)
                 {
-                    SetImage(image);
+                    if (InvokeRequired)
+                    {
+                        if (allowUpdate)
+                        {
+                            Action<IplImage> setImage = SetImage;
+                            BeginInvoke(setImage, image);
+                            allowUpdate = false;
+                        }
+                    }
+                    else SetImage(image);
                 }
             }
         }
@@ -37,10 +48,13 @@ namespace Bonsai.Vision.Design
             Canvas.MakeCurrent();
             texture.Update(image);
             Canvas.Invalidate();
+            canvasInvalidated = true;
         }
 
         protected override void OnLoad(EventArgs e)
         {
+            allowUpdate = true;
+            canvasInvalidated = false;
             texture = new IplImageTexture();
             base.OnLoad(e);
         }
@@ -53,6 +67,16 @@ namespace Bonsai.Vision.Design
             }
 
             base.OnRenderFrame(e);
+        }
+
+        protected override void OnSwapBuffers(EventArgs e)
+        {
+            if (canvasInvalidated)
+            {
+                canvasInvalidated = false;
+                allowUpdate = true;
+            }
+            base.OnSwapBuffers(e);
         }
 
         /// <summary> 
@@ -71,6 +95,7 @@ namespace Bonsai.Vision.Design
                         texture = null;
                     }
 
+                    allowUpdate = false;
                     disposed = true;
                 }
             }
