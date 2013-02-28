@@ -42,14 +42,16 @@ namespace Bonsai.Vision
 
         public override Tuple<CvPoint2D32f, CvPoint2D32f> Process(ConnectedComponent input)
         {
+            int[] points;
             var contour = input.Contour;
             var centroid = input.Centroid;
             var orientation = input.Orientation;
-            var points = new int[contour.Total * 2];
-            if (points.Length > 0)
+            if (contour != null)
             {
-                Marshal.Copy(contour.GetElement(0), points, 0, points.Length);
+                points = new int[contour.Total * 2];
+                contour.CopyTo(points);
             }
+            else points = new int[0];
 
             CvPoint2D32f? extremePoint1 = null;
             CvPoint2D32f? extremePoint2 = null;
