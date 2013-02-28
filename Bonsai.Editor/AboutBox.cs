@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace Bonsai.Editor
 {
@@ -44,7 +45,7 @@ namespace Bonsai.Editor
         {
             get
             {
-                return Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                return FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
             }
         }
 
