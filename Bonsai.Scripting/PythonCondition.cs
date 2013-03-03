@@ -12,8 +12,12 @@ using System.Linq.Expressions;
 namespace Bonsai.Scripting
 {
     [Description("A Python script used to determine which elements of the input sequence are accepted.")]
-    public class PythonCondition : CombinatorExpressionBuilder
+    public class PythonCondition : Condition<object>
     {
+        Action load;
+        Action unload;
+        Func<object, bool> process;
+
         public PythonCondition()
         {
             Script = "def process(input):\n    return True";
@@ -23,25 +27,38 @@ namespace Bonsai.Scripting
         [Description("The script that determines the criteria for the condition.")]
         public string Script { get; set; }
 
-        public override Expression Build()
+        public override bool Process(object input)
+        {
+            return process(input);
+        }
+
+        public override IDisposable Load()
         {
             var engine = IronPython.Hosting.Python.CreateEngine();
             var scope = engine.CreateScope();
-            var scriptSource = engine.CreateScriptSourceFromString(Script);
-            scriptSource.Execute(scope);
+            engine.Execute(Script, scope);
+            scope.TryGetVariable<Action>("load", out load);
+            scope.TryGetVariable<Action>("unload", out unload);
+            process = scope.GetVariable<Func<object, bool>>("process");
 
-            var observableType = Source.Type.GetGenericArguments()[0];
-            var scopeExpression = Expression.Constant(scope);
-            var predicateType = Expression.GetFuncType(observableType, typeof(bool));
-            var processExpression = Expression.Call(scopeExpression, "GetVariable", new[] { predicateType }, Expression.Constant("process"));
-
-            var combinatorExpression = Expression.Constant(this);
-            return Expression.Call(combinatorExpression, "Combine", new[] { observableType }, Source, processExpression);
+            if (load != null)
+            {
+                load();
+            }
+            return base.Load();
         }
 
-        IObservable<TSource> Combine<TSource>(IObservable<TSource> source, Func<TSource, bool> predicate)
+        protected override void Unload()
         {
-            return source.Where(predicate);
+            if (unload != null)
+            {
+                unload();
+            }
+
+            load = null;
+            unload = null;
+            process = null;
+            base.Unload();
         }
     }
 }
