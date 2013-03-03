@@ -79,16 +79,20 @@ namespace Bonsai.Vision.Design
                                  where clickEvt.Button == MouseButtons.Left && selectedRoi.HasValue
                                  let location = NormalizedLocation(clickEvt.X, clickEvt.Y)
                                  let region = regions[selectedRoi.Value]
-                                 let nearestPoint = NearestPoint(region, location)
+                                 let nearestLine = NearestLine(region, location)
                                  select new Action(() =>
                                  {
                                      var resizeRegion = region;
+                                     var line0 = region[nearestLine.Item1];
+                                     var line1 = region[nearestLine.Item2];
+                                     var midPoint = new CvPoint((line0.X + line1.X) / 2, (line0.Y + line1.Y) / 2);
                                      Array.Resize(ref resizeRegion, resizeRegion.Length + 1);
-                                     for (int i = resizeRegion.Length - 1; i > nearestPoint; i--)
+                                     for (int i = resizeRegion.Length - 1; i > nearestLine.Item2; i--)
                                      {
                                          resizeRegion[i] = resizeRegion[i - 1];
                                      }
-                                     resizeRegion[nearestPoint] = location;
+
+                                     resizeRegion[nearestLine.Item2] = midPoint;
                                      regions[selectedRoi.Value] = resizeRegion;
                                  });
 
@@ -121,6 +125,28 @@ namespace Bonsai.Vision.Design
                     regions.Add(region);
                 }
             });
+        }
+
+        static float PointLineSegmentDistance(CvPoint point, CvPoint line0, CvPoint line1)
+        {
+            return PointLineSegmentDistance(new Vector2(point.X, point.Y), new Vector2(line0.X, line0.Y), new Vector2(line1.X, line1.Y));
+        }
+
+        static float PointLineSegmentDistance(Vector2 point, Vector2 line0, Vector2 line1)
+        {
+            var segmentLengthSquared = (line1 - line0).LengthSquared;
+            if (segmentLengthSquared == 0) return (point - line0).Length; // line0 == line1
+
+            // The line that extends the segment is parameterized as line0 + t (line1 - line0).
+            // Projection of point on line then has t = [(point-line0) . (line1-line0)] / |line1-line0|^2
+            var t = Vector2.Dot(point - line0, line1 - line0) / segmentLengthSquared;
+
+            if (t < 0.0) return (point - line0).Length; // Beyond line0 end of the segment
+            else if (t > 1.0) return (point - line1).Length; // Beyond line1 end of the segment
+
+            // Projection falls on the segment
+            var projection = line0 + t * (line1 - line0);
+            return (point - projection).Length;
         }
 
         void PictureBox_KeyDown(object sender, KeyEventArgs e)
@@ -185,6 +211,19 @@ namespace Bonsai.Vision.Design
                 (int)(rect.Height * Image.Width / (float)Canvas.Width));
         }
 
+        Tuple<int, int> NearestLine(CvPoint[] region, CvPoint location)
+        {
+            var pointIndex = region
+                .Concat(Enumerable.Repeat(region[0], 1))
+                .Select((p, i) => new { p, i = i % region.Length });
+
+            return (from line in pointIndex.Zip(pointIndex.Skip(1), (l0, l1) => Tuple.Create(l0, l1))
+                    let lineDistance = PointLineSegmentDistance(location, line.Item1.p, line.Item2.p)
+                    orderby lineDistance ascending
+                    select Tuple.Create(line.Item1.i, line.Item2.i))
+                    .FirstOrDefault();
+        }
+
         int NearestPoint(CvPoint[] region, CvPoint location)
         {
             return (from point in region.Select((p, i) => new { p, i })
@@ -195,29 +234,35 @@ namespace Bonsai.Vision.Design
                     .FirstOrDefault();
         }
 
+        public int? SelectedRegion
+        {
+            get { return selectedRoi; }
+            set { selectedRoi = value; }
+        }
+
         public Collection<CvPoint[]> Regions
         {
             get { return regions; }
         }
 
-        public event EventHandler SelectedRegionChanged;
+        public event EventHandler RegionsChanged;
 
-        protected virtual void OnSelectedRegionChanged(EventArgs e)
+        protected virtual void OnRegionsChanged(EventArgs e)
         {
-            var handler = SelectedRegionChanged;
+            var handler = RegionsChanged;
             if (handler != null)
             {
                 handler(this, e);
             }
         }
 
-        void RenderRegion(CvPoint[] region, BeginMode mode, Color color)
+        void RenderRegion(CvPoint[] region, BeginMode mode, Color color, CvSize imageSize)
         {
             GL.Color3(color);
             GL.Begin(mode);
             for (int i = 0; i < region.Length; i++)
             {
-                GL.Vertex2(DrawingHelper.NormalizePoint(region[i], Image.Size));
+                GL.Vertex2(DrawingHelper.NormalizePoint(region[i], imageSize));
             }
             GL.End();
         }
@@ -235,17 +280,21 @@ namespace Bonsai.Vision.Design
             GL.Color3(Color.White);
             base.OnRenderFrame(e);
 
-            GL.Disable(EnableCap.Texture2D);
-            foreach (var region in regions.Where((region, i) => i != selectedRoi))
+            var image = Image;
+            if (image != null)
             {
-                RenderRegion(region, BeginMode.LineLoop, Color.Red);
-            }
+                GL.Disable(EnableCap.Texture2D);
+                foreach (var region in regions.Where((region, i) => i != selectedRoi))
+                {
+                    RenderRegion(region, BeginMode.LineLoop, Color.Red, image.Size);
+                }
 
-            if (selectedRoi.HasValue)
-            {
-                var region = regions[selectedRoi.Value];
-                RenderRegion(region, BeginMode.LineLoop, Color.LimeGreen);
-                RenderRegion(region, BeginMode.Points, Color.Blue);
+                if (selectedRoi.HasValue)
+                {
+                    var region = regions[selectedRoi.Value];
+                    RenderRegion(region, BeginMode.LineLoop, Color.LimeGreen, image.Size);
+                    RenderRegion(region, BeginMode.Points, Color.Blue, image.Size);
+                }
             }
         }
     }

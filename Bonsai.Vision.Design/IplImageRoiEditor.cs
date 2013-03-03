@@ -55,11 +55,11 @@ namespace Bonsai.Vision.Design
                         foreach (var region in regions) imageControl.Regions.Add(region);
                     }
 
-                    imageControl.SelectedRegionChanged += (sender, e) => propertyDescriptor.SetValue(context.Instance, imageControl.Regions.ToArray());
+                    imageControl.RegionsChanged += (sender, e) => propertyDescriptor.SetValue(context.Instance, imageControl.Regions.ToArray());
                     visualizerDialog.AddControl(imageControl);
-                    imageControl.Canvas.DoubleClick += (sender, e) =>
+                    imageControl.Canvas.MouseDoubleClick += (sender, e) =>
                     {
-                        if (imageControl.Image != null)
+                        if (e.Button == MouseButtons.Left && imageControl.Image != null && !imageControl.SelectedRegion.HasValue)
                         {
                             visualizerDialog.ClientSize = new Size(imageControl.Image.Width, imageControl.Image.Height);
                         }
