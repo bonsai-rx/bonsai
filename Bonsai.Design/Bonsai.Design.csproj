@@ -54,6 +54,7 @@
     <Compile Include="ControlObservable.cs" />
     <Compile Include="ControlScheduler.cs" />
     <Compile Include="DescriptiveCollectionEditor.cs" />
+    <Compile Include="DialogMashupVisualizer.cs" />
     <Compile Include="DynamicTypeDescriptionProvider.cs" />
     <Compile Include="FolderNameEditor.cs" />
     <Compile Include="NumericTupleVisualizer.cs" />
@@ -126,6 +127,7 @@
     <Compile Include="VisualizerDialogSettings.cs" />
     <Compile Include="VisualizerDialogSettingsCollection.cs" />
     <Compile Include="VisualizerLayout.cs" />
+    <Compile Include="VisualizerMashup.cs" />
     <Compile Include="WorkflowComponentEditor.cs" />
     <Compile Include="WorkflowEditorLauncher.cs" />
     <Compile Include="WorkflowEditorSettings.cs" />

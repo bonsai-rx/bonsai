@@ -4,12 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Drawing;
 using System.Xml.Serialization;
+using System.Collections.ObjectModel;
 
 namespace Bonsai.Design
 {
     [XmlInclude(typeof(WorkflowEditorSettings))]
     public class VisualizerDialogSettings
     {
+        readonly Collection<int> mashups = new Collection<int>();
+
         [XmlIgnore]
         public object Tag { get; set; }
 
@@ -28,6 +31,11 @@ namespace Bonsai.Design
                 Location = value.Location;
                 Size = value.Size;
             }
+        }
+
+        public Collection<int> Mashups
+        {
+            get { return mashups; }
         }
     }
 }
