@@ -14,11 +14,10 @@ using System.Drawing;
 
 namespace Bonsai.Vision.Design
 {
-    public class ContoursVisualizer : DialogTypeVisualizer
+    public class ContoursVisualizer : IplImageVisualizer
     {
         int maxLevel;
         int thickness;
-        IplImageControl imageControl;
 
         public override void Show(object value)
         {
@@ -31,15 +30,16 @@ namespace Bonsai.Vision.Design
                 Core.cvDrawContours(output, contours.FirstContour, CvScalar.All(255), CvScalar.All(128), maxLevel, thickness, 8, CvPoint.Zero);
             }
 
-            imageControl.Image = output;
+            base.Show(output);
         }
 
         public override void Load(IServiceProvider provider)
         {
             maxLevel = 1;
             thickness = -1;
-            imageControl = new IplImageControl { Dock = DockStyle.Fill };
-            imageControl.Canvas.MouseClick += (sender, e) =>
+            base.Load(provider);
+            StatusStripEnabled = false;
+            VisualizerCanvas.Canvas.MouseClick += (sender, e) =>
             {
                 if (e.Button == MouseButtons.Right)
                 {
@@ -52,27 +52,6 @@ namespace Bonsai.Vision.Design
                     }
                 }
             };
-
-            imageControl.Canvas.DoubleClick += (sender, e) =>
-            {
-                var image = imageControl.Image;
-                if (image != null)
-                {
-                    imageControl.Parent.ClientSize = new Size(image.Width, image.Height);
-                }
-            };
-
-            var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
-            if (visualizerService != null)
-            {
-                visualizerService.AddControl(imageControl);
-            }
-        }
-
-        public override void Unload()
-        {
-            imageControl.Dispose();
-            imageControl = null;
         }
     }
 }
