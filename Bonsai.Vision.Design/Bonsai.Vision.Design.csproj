@@ -49,9 +49,12 @@
   <ItemGroup>
     <Compile Include="BinaryRegionExtremesVisualizer.cs" />
     <Compile Include="ConnectedComponentCollectionVisualizer.cs" />
+    <Compile Include="ContoursMashupVisualizer.cs" />
     <Compile Include="ContoursVisualizer.cs" />
     <Compile Include="BgraScalarConverter.cs" />
     <Compile Include="ConnectedComponentVisualizer.cs" />
+    <Compile Include="ConnectedComponentMashupVisualizer.cs" />
+    <Compile Include="ConnectedComponentCollectionMashupVisualizer.cs" />
     <Compile Include="FileCaptureEditor.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="VideoPlayerControl.cs">
