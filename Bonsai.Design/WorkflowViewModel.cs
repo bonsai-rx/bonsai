@@ -124,21 +124,35 @@ namespace Bonsai.Design
                                                                         editorService.GetTypeVisualizer(typeof(object));
 
                                                    var visualizer = (DialogTypeVisualizer)Activator.CreateInstance(visualizerType);
-                                                   var launcher = new VisualizerDialogLauncher(mapping.inspectBuilder, visualizer);
+                                                   var launcher = new VisualizerDialogLauncher(mapping.inspectBuilder, visualizer, this);
                                                    launcher.Text = mapping.nodeName;
-
-                                                   var layoutSettings = visualizerLayout != null ? visualizerLayout.DialogSettings.FirstOrDefault(xs => xs.Tag == mapping.key) : null;
-                                                   if (layoutSettings != null)
-                                                   {
-                                                       launcher.Bounds = layoutSettings.Bounds;
-                                                       if (layoutSettings.Visible)
-                                                       {
-                                                           setLayout += () => launcher.Show(workflowGraphView, serviceProvider);
-                                                       }
-                                                   }
-
                                                    return launcher;
                                                });
+
+            foreach (var mapping in visualizerMapping)
+            {
+                var layoutSettings = visualizerLayout != null ? visualizerLayout.DialogSettings.FirstOrDefault(xs => xs.Tag == mapping.Key) : null;
+                if (layoutSettings != null)
+                {
+                    var launcher = mapping.Value;
+                    var mashupVisualizer = launcher.Visualizer as DialogMashupVisualizer;
+                    if (mashupVisualizer != null)
+                    {
+                        foreach (var mashup in layoutSettings.Mashups)
+                        {
+                            if (mashup < 0 || mashup >= visualizerLayout.DialogSettings.Count) continue;
+                            var mashupNode = (GraphNode)visualizerLayout.DialogSettings[mashup].Tag;
+                            launcher.CreateMashup(mashupNode, editorService);
+                        }
+                    }
+
+                    launcher.Bounds = layoutSettings.Bounds;
+                    if (layoutSettings.Visible)
+                    {
+                        setLayout += () => launcher.Show(workflowGraphView, serviceProvider);
+                    }
+                }
+            }
 
             if (setLayout != null)
             {
@@ -410,9 +424,9 @@ namespace Bonsai.Design
 
         public void LaunchVisualizer(GraphNode node)
         {
-            if (visualizerMapping != null && node != null)
+            var visualizerDialog = GetVisualizerDialogLauncher(node);
+            if (visualizerDialog != null)
             {
-                var visualizerDialog = visualizerMapping[node];
                 visualizerDialog.Show(workflowGraphView, serviceProvider);
             }
         }
@@ -424,6 +438,17 @@ namespace Bonsai.Design
             {
                 editorLauncher.Show(workflowGraphView, serviceProvider);
             }
+        }
+
+        public VisualizerDialogLauncher GetVisualizerDialogLauncher(GraphNode node)
+        {
+            VisualizerDialogLauncher visualizerDialog = null;
+            if (visualizerMapping != null && node != null)
+            {
+                visualizerMapping.TryGetValue(node, out visualizerDialog);
+            }
+
+            return visualizerDialog;
         }
 
         public WorkflowEditorLauncher GetWorkflowEditorLauncher(GraphNode node)
@@ -503,6 +528,19 @@ namespace Bonsai.Design
                         };
                     }
                     else dialogSettings = new VisualizerDialogSettings();
+
+                    var mashupVisualizer = visualizerDialog.Visualizer as DialogMashupVisualizer;
+                    if (mashupVisualizer != null)
+                    {
+                        foreach (var mashup in mashupVisualizer.Mashups)
+                        {
+                            var predecessorIndex = (from indexedNode in visualizerMapping.Select((node, index) => new { node, index })
+                                                    where indexedNode.node.Value.Source.Output == mashup.Source
+                                                    select indexedNode.index)
+                                                   .FirstOrDefault();
+                            dialogSettings.Mashups.Add(predecessorIndex);
+                        }
+                    }
 
                     dialogSettings.Visible = visible;
                     dialogSettings.Bounds = visualizerDialog.Bounds;
