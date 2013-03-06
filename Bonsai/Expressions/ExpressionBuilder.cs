@@ -101,11 +101,11 @@ namespace Bonsai.Expressions
         internal static Expression BuildProcessExpression(Expression parameter, object processor, MethodInfo processMethod)
         {
             var processorExpression = Expression.Constant(processor);
-            var processorType = processMethod.GetParameters()[0].ParameterType;
+            var parameterType = processMethod.GetParameters()[0].ParameterType;
             var processParameter = (Expression)parameter;
-            if (parameter.Type != processorType)
+            if (parameter.Type != parameterType)
             {
-                processParameter = Expression.Convert(processParameter, processorType);
+                processParameter = Expression.Convert(processParameter, parameterType);
             }
 
             return Expression.Call(processorExpression, processMethod, processParameter);

@@ -34,10 +34,18 @@ namespace Bonsai.Expressions
                 sink = (LoadableElement)createMethod.Invoke(dynamicSink, null);
             }
 
-            var parameter = Expression.Parameter(observableType);
-            var processMethod = sink.GetType().GetMethod("Process");
-            var process = BuildProcessExpression(parameter, sink, processMethod);
+            var sinkType = sink.GetType();
+            var sinkAttributes = sinkType.GetCustomAttributes(typeof(SinkAttribute), true);
+            var methodName = ((SinkAttribute)sinkAttributes.Single()).MethodName;
 
+            var parameter = Expression.Parameter(observableType);
+            var processMethod = sinkType.GetMethod(methodName);
+            if (processMethod.IsGenericMethodDefinition)
+            {
+                processMethod = processMethod.MakeGenericMethod(parameter.Type);
+            }
+
+            var process = BuildProcessExpression(parameter, sink, processMethod);
             var exception = Expression.Parameter(typeof(Exception));
             var exceptionText = Expression.Property(exception, "Message");
             var runtimeException = Expression.New(runtimeExceptionConstructor, exceptionText, Expression.Constant(this), exception);
