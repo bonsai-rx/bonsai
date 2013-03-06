@@ -98,11 +98,96 @@ namespace Bonsai.Expressions
                          .GetGenericArguments()[0];
         }
 
+        internal static Type[] GetMethodBindings(MethodInfo methodInfo, params Type[] parameters)
+        {
+            if (methodInfo == null)
+            {
+                throw new ArgumentNullException("methodInfo");
+            }
+
+            if (parameters == null)
+            {
+                throw new ArgumentNullException("parameters");
+            }
+
+            var methodParameters = methodInfo.GetParameters();
+            var methodGenericArguments = methodInfo.GetGenericArguments();
+
+            // The binding candidates are the distinct results from matching parameters with input
+            // Matches for the same generic parameter position should be identical
+            var bindingCandidates = (from bindings in methodParameters.Zip(parameters, (methodParameter, parameter) => GetParameterBindings(methodParameter.ParameterType, parameter))
+                                     from binding in bindings
+                                     group binding by binding.Item2 into matches
+                                     orderby matches.Key ascending
+                                     select matches.Distinct().Single().Item1)
+                                     .ToArray();
+
+            return methodGenericArguments.Zip(bindingCandidates, (argument, match) => match).Concat(methodGenericArguments.Skip(bindingCandidates.Length)).ToArray();
+        }
+
+        internal static IEnumerable<Tuple<Type, int>> GetParameterBindings(Type parameterType, Type inputType)
+        {
+            // If parameter is a generic parameter, just bind it to the input type
+            if (parameterType.IsGenericParameter)
+            {
+                return Enumerable.Repeat(Tuple.Create(inputType, parameterType.GenericParameterPosition), 1);
+            }
+            // If parameter contains generic parameters, we may have possible bindings
+            else if (parameterType.ContainsGenericParameters)
+            {
+                // Check if we have a straight type match
+                var bindings = MatchTypeBindings(parameterType, inputType).ToArray();
+                if (bindings.Length > 0) return bindings;
+
+                // Direct match didn't produce any bindings, so we need to check inheritance chain
+                Type currentType = inputType;
+                while (currentType != typeof(object))
+                {
+                    currentType = currentType.BaseType;
+                    bindings = MatchTypeBindings(parameterType, currentType).ToArray();
+                    if (bindings.Length > 0) return bindings;
+                }
+
+                // Inheritance chain match didn't produce any bindings, so we need to check interface set
+                var interfaces = inputType.GetInterfaces();
+                foreach (var interfaceType in interfaces)
+                {
+                    bindings = MatchTypeBindings(parameterType, interfaceType).ToArray();
+                    if (bindings.Length > 0) return bindings;
+                }
+            }
+
+            // If parameter does not contain generic parameters, there's nothing to bind to (check for error?)
+            return Enumerable.Empty<Tuple<Type, int>>();
+        }
+
+        internal static IEnumerable<Tuple<Type, int>> MatchTypeBindings(Type parameterType, Type inputType)
+        {
+            // Match bindings can only be obtained if both types are generic types
+            if (parameterType.IsGenericType && inputType.IsGenericType)
+            {
+                var parameterTypeDefinition = parameterType.GetGenericTypeDefinition();
+                var inputTypeDefinition = parameterType.GetGenericTypeDefinition();
+                // Match bindings can only be obtained if both types share the same type definition
+                if (parameterTypeDefinition == inputTypeDefinition)
+                {
+                    var parameterGenericArguments = parameterType.GetGenericArguments();
+                    var inputGenericArguments = inputType.GetGenericArguments();
+                    return parameterGenericArguments
+                        .Zip(inputGenericArguments, (parameter, input) => GetParameterBindings(parameter, input))
+                        .SelectMany(xs => xs);
+                }
+            }
+
+            return Enumerable.Empty<Tuple<Type, int>>();
+        }
+
         internal static Expression BuildProcessExpression(Expression parameter, object processor, MethodInfo processMethod)
         {
             if (processMethod.IsGenericMethodDefinition)
             {
-                processMethod = processMethod.MakeGenericMethod(parameter.Type);
+                var typeArguments = GetMethodBindings(processMethod, parameter.Type);
+                processMethod = processMethod.MakeGenericMethod(typeArguments.ToArray());
             }
 
             var processorExpression = Expression.Constant(processor);
