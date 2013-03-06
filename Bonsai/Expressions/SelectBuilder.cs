@@ -29,17 +29,13 @@ namespace Bonsai.Expressions
             var processMethod = transformType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                                                    .Single(m => m.Name == methodName && m.GetParameters().Length == 1);
             var parameter = Expression.Parameter(Source.Type.GetGenericArguments()[0]);
-            if (processMethod.IsGenericMethodDefinition)
-            {
-                processMethod = processMethod.MakeGenericMethod(parameter.Type);
-            }
-
             var process = BuildProcessExpression(parameter, Transform, processMethod);
+
             var exception = Expression.Parameter(typeof(Exception));
             var exceptionText = Expression.Property(exception, "Message");
             var runtimeException = Expression.New(runtimeExceptionConstructor, exceptionText, Expression.Constant(this), exception);
             var selector = Expression.TryCatch(process, Expression.Catch(exception, Expression.Throw(runtimeException, process.Type)));
-            return Expression.Call(selectMethod.MakeGenericMethod(parameter.Type, processMethod.ReturnType), Source, Expression.Lambda(selector, parameter));
+            return Expression.Call(selectMethod.MakeGenericMethod(parameter.Type, process.Type), Source, Expression.Lambda(selector, parameter));
         }
     }
 }

@@ -34,11 +34,6 @@ namespace Bonsai.Expressions
             var observableType = Source.Type.GetGenericArguments()[0];
             var parameter = Expression.Parameter(observableType);
             var processMethod = conditionType.GetMethod(methodName);
-            if (processMethod.IsGenericMethodDefinition)
-            {
-                processMethod = processMethod.MakeGenericMethod(parameter.Type);
-            }
-
             var processParameter = ExpressionHelper.MemberAccess(parameter, Selector);
             var process = BuildProcessExpression(processParameter, Condition, processMethod);
 

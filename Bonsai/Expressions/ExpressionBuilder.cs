@@ -100,6 +100,11 @@ namespace Bonsai.Expressions
 
         internal static Expression BuildProcessExpression(Expression parameter, object processor, MethodInfo processMethod)
         {
+            if (processMethod.IsGenericMethodDefinition)
+            {
+                processMethod = processMethod.MakeGenericMethod(parameter.Type);
+            }
+
             var processorExpression = Expression.Constant(processor);
             var parameterType = processMethod.GetParameters()[0].ParameterType;
             var processParameter = (Expression)parameter;
