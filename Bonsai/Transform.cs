@@ -5,11 +5,13 @@ using System.Text;
 
 namespace Bonsai
 {
+    [Transform]
     public abstract class Transform<TSource, TResult> : LoadableElement
     {
         public abstract TResult Process(TSource input);
     }
 
+    [Transform]
     public abstract class Transform<TFirst, TSecond, TResult> : LoadableElement
     {
         internal TResult Process(Tuple<TFirst, TSecond> input)

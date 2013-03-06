@@ -23,12 +23,18 @@ namespace Bonsai.Expressions
 
         public override Expression Build()
         {
-            var processMethod = Transform.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                                                   .Single(m => m.Name == "Process" && m.GetParameters().Length == 1);
-
+            var transformType = Transform.GetType();
+            var transformAttributes = transformType.GetCustomAttributes(typeof(TransformAttribute), true);
+            var methodName = ((TransformAttribute)transformAttributes.Single()).MethodName;
+            var processMethod = transformType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                                                   .Single(m => m.Name == methodName && m.GetParameters().Length == 1);
             var parameter = Expression.Parameter(Source.Type.GetGenericArguments()[0]);
-            var process = BuildProcessExpression(parameter, Transform, processMethod);
+            if (processMethod.IsGenericMethodDefinition)
+            {
+                processMethod = processMethod.MakeGenericMethod(parameter.Type);
+            }
 
+            var process = BuildProcessExpression(parameter, Transform, processMethod);
             var exception = Expression.Parameter(typeof(Exception));
             var exceptionText = Expression.Property(exception, "Message");
             var runtimeException = Expression.New(runtimeExceptionConstructor, exceptionText, Expression.Constant(this), exception);

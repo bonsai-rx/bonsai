@@ -48,6 +48,9 @@
     <Compile Include="Constants.cs" />
     <Compile Include="ContinuationScheduler.cs" />
     <Compile Include="ArrayConvert.cs" />
+    <Compile Include="ConditionAttribute.cs" />
+    <Compile Include="SinkAttribute.cs" />
+    <Compile Include="TransformAttribute.cs" />
     <Compile Include="UnidimensionalArrayConverter.cs" />
     <Compile Include="ExpressionHelper.cs" />
     <Compile Include="Expressions\UnitBuilder.cs" />

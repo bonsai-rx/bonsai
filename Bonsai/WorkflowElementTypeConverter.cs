@@ -11,15 +11,10 @@ namespace Bonsai
         static bool MatchType(Type type, WorkflowElementType elementType)
         {
             if (elementType == WorkflowElementType.Source) return MatchGenericType(type, typeof(Source<>));
-            if (elementType == WorkflowElementType.Condition) return MatchGenericType(type, typeof(Condition<>));
-            if (elementType == WorkflowElementType.Sink) return type.IsSubclassOf(typeof(DynamicSink)) || MatchGenericType(type, typeof(Sink<>));
+            if (elementType == WorkflowElementType.Condition) return type.GetCustomAttributes(typeof(ConditionAttribute), true).Length > 0;
+            if (elementType == WorkflowElementType.Sink) return type.IsSubclassOf(typeof(DynamicSink)) || type.GetCustomAttributes(typeof(SinkAttribute), true).Length > 0;
             if (elementType == WorkflowElementType.Combinator) return type.IsSubclassOf(typeof(ExpressionBuilder));
-            if (elementType == WorkflowElementType.Transform)
-            {
-                return MatchGenericType(type, typeof(Transform<,>)) ||
-                       MatchGenericType(type, typeof(Transform<,,>));
-            }
-
+            if (elementType == WorkflowElementType.Transform) return type.GetCustomAttributes(typeof(TransformAttribute), true).Length > 0;
             return false;
         }
 
