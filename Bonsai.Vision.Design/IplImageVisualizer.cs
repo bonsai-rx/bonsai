@@ -60,8 +60,8 @@ namespace Bonsai.Vision.Design
                 mashupValue.visualizer.Show(mashupValue.value);
             }
 
-            visualizerCanvas.Canvas.MakeCurrent();
-            imageTexture.Update(visualizerImage);
+            visualizerCanvas.MakeCurrent();
+            if (visualizerImage != null) imageTexture.Update(visualizerImage);
             visualizerCanvas.Canvas.Invalidate();
             canvasInvalidated = true;
         }
@@ -142,8 +142,7 @@ namespace Bonsai.Vision.Design
 
         public override IObservable<object> Visualize(IObservable<object> source, IServiceProvider provider)
         {
-            allowUpdate = true;
-            canvasInvalidated = false;
+            canvasInvalidated = true;
             IObservable<IList<object>> dataSource;
             if (Mashups.Count > 0)
             {

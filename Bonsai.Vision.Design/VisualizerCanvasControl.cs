@@ -10,6 +10,7 @@ using OpenCV.Net;
 using System.Drawing.Imaging;
 using OpenTK.Graphics.OpenGL;
 using OpenTK;
+using OpenTK.Graphics;
 
 namespace Bonsai.Vision.Design
 {
@@ -34,7 +35,7 @@ namespace Bonsai.Vision.Design
 
         private void canvas_Load(object sender, EventArgs e)
         {
-            canvas.MakeCurrent();
+            MakeCurrent();
             GL.ClearColor(Color.Black);
             GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
 
@@ -49,7 +50,7 @@ namespace Bonsai.Vision.Design
         {
             if (!loaded) return;
 
-            canvas.MakeCurrent();
+            MakeCurrent();
             GL.Viewport(0, 0, canvas.Width, canvas.Height);
             canvas.Invalidate();
         }
@@ -58,7 +59,7 @@ namespace Bonsai.Vision.Design
         {
             if (!loaded) return;
 
-            canvas.MakeCurrent();
+            MakeCurrent();
             GL.Clear(ClearBufferMask.ColorBufferBit);
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadIdentity();
@@ -82,6 +83,14 @@ namespace Bonsai.Vision.Design
             if (handler != null)
             {
                 handler(this, e);
+            }
+        }
+
+        public void MakeCurrent()
+        {
+            if (GraphicsContext.CurrentContext != canvas.Context)
+            {
+                canvas.MakeCurrent();
             }
         }
 

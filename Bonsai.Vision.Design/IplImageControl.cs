@@ -45,7 +45,7 @@ namespace Bonsai.Vision.Design
 
         protected virtual void SetImage(IplImage image)
         {
-            Canvas.MakeCurrent();
+            MakeCurrent();
             texture.Update(image);
             Canvas.Invalidate();
             canvasInvalidated = true;
