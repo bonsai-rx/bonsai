@@ -62,8 +62,10 @@ namespace Bonsai.Design
                 visualizerContext.AddService(typeof(ITypeVisualizerContext), this);
                 visualizerContext.AddService(typeof(TypeVisualizerDialog), visualizerDialog);
                 visualizerContext.AddService(typeof(IDialogTypeVisualizerService), visualizerDialog);
+                visualizerContext.AddService(typeof(ExpressionBuilderGraph), viewModel.Workflow);
                 visualizer.Load(visualizerContext);
                 var visualizerOutput = visualizer.Visualize(source.Output, visualizerContext);
+                visualizerContext.RemoveService(typeof(ExpressionBuilderGraph));
                 visualizerContext.RemoveService(typeof(IDialogTypeVisualizerService));
                 visualizerContext.RemoveService(typeof(TypeVisualizerDialog));
                 visualizerContext.RemoveService(typeof(ITypeVisualizerContext));
