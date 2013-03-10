@@ -7,7 +7,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.IO
 {
-    public class SerialStringWrite : Sink<string>
+    public class SerialStringWrite : Sink<object>
     {
         IEnumerable<Action<string>> writeLine;
         IEnumerator<Action<string>> iterator;
@@ -15,9 +15,12 @@ namespace Bonsai.IO
         [Editor("Bonsai.IO.Design.SerialPortConfigurationEditor, Bonsai.IO.Design", typeof(UITypeEditor))]
         public string SerialPort { get; set; }
 
-        public override void Process(string input)
+        public override void Process(object input)
         {
-            iterator.Current(input);
+            if (input != null)
+            {
+                iterator.Current(input.ToString());
+            }
         }
 
         public override IDisposable Load()
