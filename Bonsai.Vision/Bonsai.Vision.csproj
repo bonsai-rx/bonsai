@@ -63,6 +63,8 @@
     <Compile Include="ConvertColor.cs" />
     <Compile Include="ConvertScale.cs" />
     <Compile Include="Add.cs" />
+    <Compile Include="DistanceTransform.cs" />
+    <Compile Include="Laplace.cs" />
     <Compile Include="MaskImage.cs" />
     <Compile Include="DrawConnectedComponents.cs" />
     <Compile Include="Crop.cs" />
@@ -99,6 +101,7 @@
     <Compile Include="RunningAverage.cs" />
     <Compile Include="SaveImage.cs" />
     <Compile Include="SelectChannel.cs" />
+    <Compile Include="Skeletonization.cs" />
     <Compile Include="Smooth.cs" />
     <Compile Include="Sobel.cs" />
     <Compile Include="SortBinaryRegions.cs" />
