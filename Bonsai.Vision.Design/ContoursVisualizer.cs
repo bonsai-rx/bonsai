@@ -16,7 +16,6 @@ namespace Bonsai.Vision.Design
 {
     public class ContoursVisualizer : IplImageVisualizer
     {
-        int maxLevel;
         int thickness;
 
         public override void Show(object value)
@@ -27,7 +26,7 @@ namespace Bonsai.Vision.Design
 
             if (!contours.FirstContour.IsInvalid)
             {
-                Core.cvDrawContours(output, contours.FirstContour, CvScalar.All(255), CvScalar.All(128), maxLevel, thickness, 8, CvPoint.Zero);
+                Core.cvDrawContours(output, contours.FirstContour, CvScalar.All(255), CvScalar.All(128), 2, thickness, 8, CvPoint.Zero);
             }
 
             base.Show(output);
@@ -35,7 +34,6 @@ namespace Bonsai.Vision.Design
 
         public override void Load(IServiceProvider provider)
         {
-            maxLevel = 1;
             thickness = -1;
             base.Load(provider);
             StatusStripEnabled = false;
@@ -43,13 +41,7 @@ namespace Bonsai.Vision.Design
             {
                 if (e.Button == MouseButtons.Right)
                 {
-                    if (thickness < 0) thickness = 1;
-                    else maxLevel = (maxLevel + 1) % 3;
-                    if (maxLevel == 0)
-                    {
-                        maxLevel = 1;
-                        thickness = -1;
-                    }
+                    thickness *= -1;
                 }
             };
         }
