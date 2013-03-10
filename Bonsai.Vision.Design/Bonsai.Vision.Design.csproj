@@ -56,6 +56,7 @@
     <Compile Include="ConnectedComponentMashupVisualizer.cs" />
     <Compile Include="ConnectedComponentCollectionMashupVisualizer.cs" />
     <Compile Include="FileCaptureEditor.cs" />
+    <Compile Include="IplImageMashupVisualizer.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="VideoPlayerControl.cs">
       <SubType>UserControl</SubType>
