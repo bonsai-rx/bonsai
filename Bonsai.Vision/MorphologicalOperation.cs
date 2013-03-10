@@ -17,6 +17,7 @@ namespace Bonsai.Vision
         public MorphologicalOperation()
         {
             Size = new CvSize(3, 3);
+            Anchor = new CvPoint(1, 1);
             Iterations = 1;
         }
 
