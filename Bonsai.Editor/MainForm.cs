@@ -95,18 +95,20 @@ namespace Bonsai.Editor
                 Path.GetExtension(initialFileName) == BonsaiExtension &&
                 File.Exists(initialFileName);
 
-            directoryToolStripTextBox.Text = validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            var currentDirectory = Path.GetFullPath(Environment.CurrentDirectory).TrimEnd('\\');
+            var appDomainBaseDirectory = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\');
+            directoryToolStripTextBox.Text = currentDirectory != appDomainBaseDirectory ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
             ConfigurationHelper.SetAssemblyResolve();
-            Scheduler.Default.Schedule(InitializeToolbox);
-            Scheduler.Default.Schedule(InitializeTypeVisualizers);
+            var initialization = InitializeToolbox().Merge(InitializeTypeVisualizers()).TakeLast(1).ObserveOn(Scheduler.Default);
             InitializeExampleDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Examples"), examplesToolStripMenuItem);
 
             if (validFileName)
             {
-                OpenWorkflow(Path.GetFileName(initialFileName));
-                if (StartOnLoad) BeginInvoke((Action)(() => StartWorkflow()));
+                OpenWorkflow(initialFileName);
+                if (StartOnLoad) initialization = initialization.Do(xs => BeginInvoke((Action)(() => StartWorkflow())));
             }
 
+            initialization.Subscribe();
             base.OnLoad(e);
         }
 
@@ -124,24 +126,26 @@ namespace Bonsai.Editor
 
         #region Toolbox
 
-        void InitializeTypeVisualizers()
+        IObservable<Unit> InitializeTypeVisualizers()
         {
             var visualizerMapping = TypeVisualizerLoader.GetTypeVisualizerDictionary();
-            visualizerMapping
+            return visualizerMapping
                 .ObserveOn(this)
                 .Do(typeMapping => typeVisualizers.Add(typeMapping.Item1, typeMapping.Item2))
                 .SubscribeOn(Scheduler.Default)
-                .Subscribe();
+                .TakeLast(1)
+                .Select(xs => Unit.Default);
         }
 
-        void InitializeToolbox()
+        IObservable<Unit> InitializeToolbox()
         {
             var packages = WorkflowElementLoader.GetWorkflowElementTypes();
-            var packageInitialization = packages
+            return packages
                 .ObserveOn(this)
                 .Do(package => InitializeToolboxCategory(package.Key, package))
                 .SubscribeOn(Scheduler.Default)
-                .Subscribe();
+                .TakeLast(1)
+                .Select(xs => Unit.Default);
         }
 
         string GetPackageDisplayName(string packageKey)
