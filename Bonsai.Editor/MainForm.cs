@@ -97,7 +97,10 @@ namespace Bonsai.Editor
 
             var currentDirectory = Path.GetFullPath(Environment.CurrentDirectory).TrimEnd('\\');
             var appDomainBaseDirectory = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\');
-            directoryToolStripTextBox.Text = currentDirectory != appDomainBaseDirectory ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+            var systemPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.System)).TrimEnd('\\');
+            var systemX86Path = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86)).TrimEnd('\\');
+            var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory || currentDirectory == systemPath || currentDirectory == systemX86Path;
+            directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
             ConfigurationHelper.SetAssemblyResolve();
             var initialization = InitializeToolbox().Merge(InitializeTypeVisualizers()).TakeLast(1).ObserveOn(Scheduler.Default);
             InitializeExampleDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Examples"), examplesToolStripMenuItem);
