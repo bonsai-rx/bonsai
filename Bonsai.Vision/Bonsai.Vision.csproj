@@ -86,6 +86,7 @@
     <Compile Include="LargestBinaryRegion.cs" />
     <Compile Include="LoadImage.cs" />
     <Compile Include="Mask.cs" />
+    <Compile Include="ImageWriter.cs" />
     <Compile Include="MergeBinaryRegions.cs" />
     <Compile Include="MorphologicalOperation.cs" />
     <Compile Include="MotionSegmentation.cs" />

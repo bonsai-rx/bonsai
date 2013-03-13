@@ -11,15 +11,13 @@ using System.Runtime.InteropServices;
 
 namespace Bonsai.Dsp
 {
-    public class MatrixWriter : FileSink<CvMat, BinaryWriter>
+    public class MatrixWriter : StreamSink<CvMat, BinaryWriter>
     {
         public MatrixLayout Layout { get; set; }
 
-        protected override BinaryWriter CreateWriter(string fileName, CvMat input)
+        protected override BinaryWriter CreateWriter(Stream stream)
         {
-            var stream = new FileStream(fileName, FileMode.Create);
-            var writer = new BinaryWriter(stream);
-            return writer;
+            return new BinaryWriter(stream);
         }
 
         protected override void Write(BinaryWriter writer, CvMat input)

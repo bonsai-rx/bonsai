@@ -48,6 +48,7 @@
     <Compile Include="ContinuationScheduler.cs" />
     <Compile Include="ArrayConvert.cs" />
     <Compile Include="ConditionAttribute.cs" />
+    <Compile Include="IO\StreamSink.cs" />
     <Compile Include="SinkAttribute.cs" />
     <Compile Include="TransformAttribute.cs" />
     <Compile Include="UnidimensionalArrayConverter.cs" />
