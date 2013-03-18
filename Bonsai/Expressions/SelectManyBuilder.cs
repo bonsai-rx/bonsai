@@ -12,16 +12,9 @@ using System.Reflection;
 namespace Bonsai.Expressions
 {
     [XmlType("SelectMany", Namespace = Constants.XmlNamespace)]
-    [Description("Processes each input window using the encapsulated workflow logic.")]
-    public class SelectManyBuilder : WorkflowExpressionBuilder
+    [Description("Processes each input window using the nested workflow and merges the result into a single sequence.")]
+    public class SelectManyBuilder : WindowCombinatorExpressionBuilder
     {
-        static readonly MethodInfo usingMethod = (from method in typeof(Observable).GetMethods()
-                                                  where method.Name == "Using"
-                                                  let parameters = method.GetParameters()
-                                                  let resourceFactoryType = parameters[0].ParameterType
-                                                  where resourceFactoryType.GetGenericTypeDefinition() == typeof(Func<>)
-                                                  select method)
-                                                  .Single();
         static readonly MethodInfo selectManyMethod = (from method in typeof(Observable).GetMethods()
                                                        where method.Name == "SelectMany"
                                                        let parameters = method.GetParameters()
@@ -49,30 +42,9 @@ namespace Bonsai.Expressions
                 throw new InvalidWorkflowException("SelectMany operator takes as input an observable sequence of windows.");
             }
 
-            // Assign input
-            var selectorParameter = Expression.Parameter(sourceType);
-            var workflowInput = Workflow.Select(node => node.Value as WorkflowInputBuilder)
-                                        .Single(builder => builder != null);
-            workflowInput.Source = selectorParameter;
-
-            // Build selector workflow
-            var runtimeWorkflow = Workflow.Build();
-            var workflowExpression = Expression.Constant(runtimeWorkflow);
-            var loadWorkflowExpression = Expression.Call(workflowExpression, "Load", null);
-            var resourceFactoryExpression = Expression.Lambda(loadWorkflowExpression);
-            var resourceParameter = Expression.Parameter(typeof(IDisposable));
-
-            // Assign output
-            var workflowOutput = Workflow.Select(node => node.Value as WorkflowOutputBuilder)
-                                         .Single(builder => builder != null);
-            var workflowObservableExpression = BuildOutput(workflowOutput, runtimeWorkflow.Connections);
-
-            var workflowObservableType = workflowObservableExpression.Type.GetGenericArguments()[0];
-            var observableFactoryExpression = Expression.Lambda(workflowObservableExpression, resourceParameter);
-            var usingExpression = Expression.Call(usingMethod.MakeGenericMethod(workflowObservableType, typeof(IDisposable)), resourceFactoryExpression, observableFactoryExpression);
-
-            var selectorExpression = Expression.Lambda(usingExpression, selectorParameter);
-            var selectManyGenericMethod = selectManyMethod.MakeGenericMethod(sourceType, workflowObservableType);
+            var selectorExpression = BuildSourceSelector(sourceType);
+            var selectorObservableType = selectorExpression.ReturnType.GetGenericArguments()[0];
+            var selectManyGenericMethod = selectManyMethod.MakeGenericMethod(sourceType, selectorObservableType);
             return Expression.Call(selectManyGenericMethod, Source, selectorExpression);
         }
     }
