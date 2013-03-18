@@ -82,6 +82,12 @@ namespace Bonsai.Design
             if (!viewModel.Workflow.Any(n => n.Value is WorkflowInputBuilder) && workflow.Predecessors(builderNode).Any())
             {
                 viewModel.CreateGraphNode(typeof(WorkflowInputBuilder).AssemblyQualifiedName, WorkflowElementType.Combinator, null, CreateGraphNodeType.Successor, false);
+                if (builderNode.Value is WindowCombinatorExpressionBuilder)
+                {
+                    var workflowInput = viewModel.Workflow.Single(n => n.Value is WorkflowInputBuilder);
+                    viewModel.CreateGraphNode(typeof(WorkflowOutputBuilder).AssemblyQualifiedName, WorkflowElementType.Combinator, viewModel.FindGraphNode(workflowInput.Value), CreateGraphNodeType.Successor, false);
+                    viewModel.WorkflowGraphView.SelectedNode = viewModel.FindGraphNode(workflowInput.Value);
+                }
             }
         }
     }
