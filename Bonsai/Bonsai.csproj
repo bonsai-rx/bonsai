@@ -48,6 +48,8 @@
     <Compile Include="ContinuationScheduler.cs" />
     <Compile Include="ArrayConvert.cs" />
     <Compile Include="ConditionAttribute.cs" />
+    <Compile Include="Expressions\WindowCombinatorExpressionBuilder.cs" />
+    <Compile Include="Expressions\WindowWorkflowBuilder.cs" />
     <Compile Include="IO\StreamSink.cs" />
     <Compile Include="SinkAttribute.cs" />
     <Compile Include="TransformAttribute.cs" />

@@ -46,6 +46,7 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(AmbBuilder))]
     [XmlInclude(typeof(MergeBuilder))]
     [XmlInclude(typeof(SelectManyBuilder))]
+    [XmlInclude(typeof(WindowWorkflowBuilder))]
     [XmlInclude(typeof(TimeSpanWindowBuilder))]
     [XmlInclude(typeof(ElementCountWindowBuilder))]
     [XmlType("Expression", Namespace = Constants.XmlNamespace)]
