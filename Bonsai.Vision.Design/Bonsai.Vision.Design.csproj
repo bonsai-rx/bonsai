@@ -55,6 +55,7 @@
     <Compile Include="ConnectedComponentVisualizer.cs" />
     <Compile Include="ConnectedComponentMashupVisualizer.cs" />
     <Compile Include="ConnectedComponentCollectionMashupVisualizer.cs" />
+    <Compile Include="BinaryRegionExtremesMashupVisualizer.cs" />
     <Compile Include="FileCaptureEditor.cs" />
     <Compile Include="IplImageMashupVisualizer.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
