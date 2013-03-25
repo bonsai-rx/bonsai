@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using OpenCV.Net;
+using System.Globalization;
 
 namespace Bonsai.Vision.Design
 {
@@ -18,7 +19,9 @@ namespace Bonsai.Vision.Design
         bool canvasInvalidated;
         ToolStripButton loopButton;
         ToolStripStatusLabel statusLabel;
+        ToolStripStatusLabel frameNumberHeaderLabel;
         ToolStripStatusLabel frameNumberLabel;
+        ToolStripTextBox frameNumberTextBox;
 
         public VideoPlayerControl()
         {
@@ -32,12 +35,20 @@ namespace Bonsai.Vision.Design
             loopButton = new ToolStripButton("loop");
             loopButton.CheckOnClick = true;
             statusLabel = new ToolStripStatusLabel();
+            frameNumberHeaderLabel = new ToolStripStatusLabel("Frame:");
             frameNumberLabel = new ToolStripStatusLabel();
+            frameNumberLabel.DoubleClickEnabled = true;
+            frameNumberLabel.DoubleClick += new EventHandler(frameNumberIndicator_DoubleClick);
+            frameNumberTextBox = new ToolStripTextBox();
+            frameNumberTextBox.GotFocus += (sender, e) => frameNumberTextBox.SelectAll();
+            frameNumberTextBox.LostFocus += new EventHandler(frameNumberTextBox_LostFocus);
+            frameNumberTextBox.KeyDown += new KeyEventHandler(frameNumberTextBox_KeyDown);
             statusStrip.Items.Add(playButton);
             statusStrip.Items.Add(pauseButton);
             statusStrip.Items.Add(slowerButton);
             statusStrip.Items.Add(fasterButton);
             statusStrip.Items.Add(loopButton);
+            statusStrip.Items.Add(frameNumberHeaderLabel);
             statusStrip.Items.Add(frameNumberLabel);
             statusStrip.Items.Add(statusLabel);
 
@@ -72,6 +83,47 @@ namespace Bonsai.Vision.Design
                     Parent.ClientSize = new Size(image.Width, image.Height);
                 }
             };
+
+            seekBar.Scroll += (sender, e) =>
+            {
+                if (e.Type != ScrollEventType.EndScroll)
+                {
+                    OnSeek(new SeekEventArgs(e.NewValue));
+                }
+            };
+        }
+
+        void frameNumberTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Return)
+            {
+                statusStrip.Select();
+            }
+        }
+
+        void frameNumberTextBox_LostFocus(object sender, EventArgs e)
+        {
+            int frameNumber;
+            statusStrip.SuspendLayout();
+            statusStrip.Items.Remove(frameNumberTextBox);
+            statusStrip.Items.Insert(statusStrip.Items.Count - 1, frameNumberLabel);
+            if (frameNumberTextBox.Text != frameNumberLabel.Text &&
+                int.TryParse(frameNumberTextBox.Text, out frameNumber))
+            {
+                OnSeek(new SeekEventArgs(frameNumber));
+            }
+            statusStrip.ResumeLayout();
+        }
+
+        void frameNumberIndicator_DoubleClick(object sender, EventArgs e)
+        {
+            statusStrip.SuspendLayout();
+            statusStrip.Items.Remove(frameNumberLabel);
+            statusStrip.Items.Insert(statusStrip.Items.Count - 1, frameNumberTextBox);
+            frameNumberTextBox.Size = frameNumberLabel.Size;
+            frameNumberTextBox.Text = frameNumberLabel.Text;
+            statusStrip.ResumeLayout();
+            frameNumberTextBox.Focus();
         }
 
         private void SwapBuffers()
@@ -115,6 +167,8 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        public event EventHandler<SeekEventArgs> Seek;
+
         public event EventHandler PlaybackRateChanged;
 
         public event EventHandler PlayingChanged;
@@ -125,10 +179,13 @@ namespace Bonsai.Vision.Design
             remove { loopButton.CheckStateChanged -= value; }
         }
 
-        public event ScrollEventHandler Seek
+        protected virtual void OnSeek(SeekEventArgs e)
         {
-            add { seekBar.Scroll += value; }
-            remove { seekBar.Scroll -= value; }
+            var handler = Seek;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
         }
 
         protected virtual void OnPlayingChanged(EventArgs e)
@@ -160,7 +217,7 @@ namespace Bonsai.Vision.Design
                     imageControl.Image = frame;
                     seekBar.Value = frameNumber;
                     if (frame == null) statusLabel.Text = string.Empty;
-                    frameNumberLabel.Text = string.Format("Frame: {0}", frameNumber);
+                    frameNumberLabel.Text = frameNumber.ToString(CultureInfo.CurrentCulture);
                     canvasInvalidated = true;
                 }));
             }
@@ -168,13 +225,17 @@ namespace Bonsai.Vision.Design
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (keyData == Keys.Space)
+            if (!frameNumberTextBox.Focused)
             {
-                Playing = !Playing;
+                if (keyData == Keys.Space)
+                {
+                    Playing = !Playing;
+                }
+
+                if (keyData == Keys.Add) IncreasePlaybackRate();
+                if (keyData == Keys.Subtract) DecreasePlaybackRate();
             }
 
-            if (keyData == Keys.Add) IncreasePlaybackRate();
-            if (keyData == Keys.Subtract) DecreasePlaybackRate();
             return base.ProcessCmdKey(ref msg, keyData);
         }
 

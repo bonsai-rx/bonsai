@@ -65,14 +65,7 @@ namespace Bonsai.Vision.Design
                         videoPlayer.LoopChanged += (sender, e) => capture.Loop = videoPlayer.Loop;
                         videoPlayer.PlayingChanged += (sender, e) => capture.Playing = videoPlayer.Playing;
                         videoPlayer.PlaybackRateChanged += (sender, e) => capture.PlaybackRate = videoPlayer.PlaybackRate == frameRate ? 0 : Math.Max(1, videoPlayer.PlaybackRate);
-                        videoPlayer.Seek += (sender, e) =>
-                        {
-                            if (e.Type != ScrollEventType.EndScroll)
-                            {
-                                capture.Seek(e.NewValue);
-                            }
-                        };
-
+                        videoPlayer.Seek += (sender, e) => capture.Seek(e.FrameNumber);
                         editorForm.Show(owner);
                     }
 

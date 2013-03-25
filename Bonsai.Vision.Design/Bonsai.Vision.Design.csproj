@@ -59,6 +59,7 @@
     <Compile Include="FileCaptureEditor.cs" />
     <Compile Include="IplImageMashupVisualizer.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
+    <Compile Include="SeekEventArgs.cs" />
     <Compile Include="VideoPlayerControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
