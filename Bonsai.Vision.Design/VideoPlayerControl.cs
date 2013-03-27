@@ -14,6 +14,7 @@ namespace Bonsai.Vision.Design
     public partial class VideoPlayerControl : UserControl
     {
         bool playing;
+        int frameCount;
         double playbackRate;
         bool allowUpdate;
         bool canvasInvalidated;
@@ -137,8 +138,12 @@ namespace Bonsai.Vision.Design
 
         public int FrameCount
         {
-            get { return seekBar.Maximum; }
-            set { seekBar.Maximum = value; }
+            get { return frameCount; }
+            set
+            {
+                frameCount = value;
+                seekBar.Maximum = frameCount + seekBar.LargeChange - 2;
+            }
         }
 
         public double PlaybackRate
