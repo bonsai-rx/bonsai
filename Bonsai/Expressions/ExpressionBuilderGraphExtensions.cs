@@ -65,10 +65,15 @@ namespace Bonsai.Expressions
 
             foreach (var node in source.TopologicalSort())
             {
+                Expression expression;
                 if (node.Value == buildTarget) break;
-                var expression = node.Value.Build();
-                loadableElements.AddRange(node.Value.GetLoadableElements());
+                try { expression = node.Value.Build(); }
+                catch (Exception e)
+                {
+                    throw new WorkflowBuildException(e.Message, node.Value, e);
+                }
 
+                loadableElements.AddRange(node.Value.GetLoadableElements());
                 if (node.Successors.Count > 1)
                 {
                     // Publish workflow result to avoid repeating operations
