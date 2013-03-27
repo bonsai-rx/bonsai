@@ -77,35 +77,31 @@ namespace Bonsai.Vision
                     var currentFrame = (int)capture.GetProperty(CaptureProperty.POS_FRAMES) - 1;
                     if (target != currentFrame)
                     {
-                        if (target > currentFrame) // seek forward
+                        capture.SetProperty(CaptureProperty.POS_FRAMES, target);
+                        if (target < currentFrame) // seek backward
                         {
-                            capture.SetProperty(CaptureProperty.POS_FRAMES, target);
-                            // continue seeking frame-by-frame until target is reached
-                            while (target > currentFrame)
-                            {
-                                currentFrame = (int)capture.GetProperty(CaptureProperty.POS_FRAMES);
-                                image = capture.QueryFrame();
-                            }
-                        }
-                        else // seek backward
-                        {
-                            capture.SetProperty(CaptureProperty.POS_FRAMES, target);
                             currentFrame = (int)capture.GetProperty(CaptureProperty.POS_FRAMES);
                             image = capture.QueryFrame();
 
                             int skip = 1;
                             while (target < currentFrame)
                             {
+                                // try to seek back to the nearest key frame in multiples of two
                                 capture.SetProperty(CaptureProperty.POS_FRAMES, target - skip);
                                 currentFrame = (int)capture.GetProperty(CaptureProperty.POS_FRAMES);
                                 skip *= 2;
                             }
+                        }
 
-                            while (target > currentFrame)
-                            {
-                                currentFrame = (int)capture.GetProperty(CaptureProperty.POS_FRAMES);
-                                image = capture.QueryFrame();
-                            }
+                        // continue seeking frame-by-frame until target is reached
+                        while (target > currentFrame)
+                        {
+                            currentFrame = (int)capture.GetProperty(CaptureProperty.POS_FRAMES);
+                            var nextFrame = capture.QueryFrame();
+
+                            // if next frame is null we tried to seek past the end of the file
+                            if (nextFrame == null) break;
+                            image = nextFrame;
                         }
                     }
 
