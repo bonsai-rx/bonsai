@@ -14,7 +14,7 @@ namespace Bonsai.Vision.Design
 {
     public class FileCaptureEditor : WorkflowComponentEditor
     {
-        TypeVisualizerDialog editorForm;
+        readonly List<TypeVisualizerDialog> editorForms = new List<TypeVisualizerDialog>();
 
         public override bool EditComponent(ITypeDescriptorContext context, object component, IServiceProvider provider, IWin32Window owner)
         {
@@ -24,6 +24,7 @@ namespace Bonsai.Vision.Design
                 var editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
                 if (workflow != null && editorService != null && editorService.WorkflowRunning)
                 {
+                    var editorForm = editorForms.FirstOrDefault(form => form.Tag == component);
                     if (editorForm == null)
                     {
                         editorForm = new TypeVisualizerDialog();
@@ -66,7 +67,10 @@ namespace Bonsai.Vision.Design
                         videoPlayer.PlayingChanged += (sender, e) => capture.Playing = videoPlayer.Playing;
                         videoPlayer.PlaybackRateChanged += (sender, e) => capture.PlaybackRate = videoPlayer.PlaybackRate == frameRate ? 0 : Math.Max(1, videoPlayer.PlaybackRate);
                         videoPlayer.Seek += (sender, e) => capture.Seek(e.FrameNumber);
+                        editorForm.Tag = capture;
+                        editorForm.Text = capture.FileName;
                         editorForm.Show(owner);
+                        editorForms.Add(editorForm);
                     }
 
                     editorForm.Activate();
