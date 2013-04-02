@@ -12,8 +12,7 @@ namespace Bonsai.IO
     public abstract class StreamSink<TSource, TWriter> : Sink<TSource> where TWriter : class, IDisposable
     {
         const string PipeServerPrefix = @"\\.\pipe\";
-        Task writerTask;
-        TWriter writer;
+        Task<TWriter> writerTask;
 
         [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public string Path { get; set; }
@@ -27,9 +26,11 @@ namespace Bonsai.IO
         public override void Process(TSource input)
         {
             if (writerTask == null) return;
-
-            var runningWriter = writer;
-            writerTask = writerTask.ContinueWith(task => Write(runningWriter, input));
+            writerTask = writerTask.ContinueWith(task =>
+            {
+                Write(task.Result, input);
+                return task.Result;
+            });
         }
 
         static Stream CreateStream(string path)
@@ -49,13 +50,14 @@ namespace Bonsai.IO
             var path = Path;
             if (!string.IsNullOrEmpty(path))
             {
-                writerTask = new Task(() => { });
+                writerTask = new Task<TWriter>(() =>
+                {
+                    if (!path.StartsWith(@"\\")) PathHelper.EnsureDirectory(path);
+                    path = PathHelper.AppendSuffix(path, Suffix);
+                    var stream = CreateStream(path);
+                    return CreateWriter(stream);
+                });
                 writerTask.Start();
-
-                if (!path.StartsWith(@"\\")) PathHelper.EnsureDirectory(path);
-                path = PathHelper.AppendSuffix(path, Suffix);
-                var stream = CreateStream(path);
-                writer = CreateWriter(stream);
             }
 
             return base.Load();
@@ -63,17 +65,12 @@ namespace Bonsai.IO
 
         protected override void Unload()
         {
-            var closingWriter = writer;
             writerTask.ContinueWith(task =>
             {
-                if (closingWriter != null)
-                {
-                    closingWriter.Dispose();
-                }
+                task.Result.Dispose();
             });
 
             writerTask = null;
-            writer = null;
             base.Unload();
         }
     }
