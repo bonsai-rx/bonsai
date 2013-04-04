@@ -11,11 +11,17 @@ namespace Bonsai.Expressions
 {
     public class InspectBuilder : CombinatorBuilder
     {
-        Subject<object> subject = new Subject<object>();
+        ObservableHandle handle = new ObservableHandle();
+        ReplaySubject<IObservable<object>> subject = new ReplaySubject<IObservable<object>>(1);
 
         public Type ObservableType { get; private set; }
 
-        public IObservable<object> Output { get; private set; }
+        public IObservable<IObservable<object>> Output { get; private set; }
+
+        public LoadableElement PublishHandle
+        {
+            get { return handle; }
+        }
 
         public override Expression Build()
         {
@@ -44,7 +50,24 @@ namespace Bonsai.Expressions
 
         protected override IObservable<TSource> Combine<TSource>(IObservable<TSource> source)
         {
-            return source.Do(xs => subject.OnNext(xs));
+            if (handle.ObservableCache == null)
+            {
+                var sourceInspector = new Subject<object>();
+                subject.OnNext(sourceInspector);
+                handle.ObservableCache = source.Do(xs => sourceInspector.OnNext(xs), () => sourceInspector.OnCompleted());
+            }
+            return (IObservable<TSource>)handle.ObservableCache;
+        }
+
+        class ObservableHandle : LoadableElement
+        {
+            public object ObservableCache { get; set; }
+
+            protected override void Unload()
+            {
+                ObservableCache = null;
+                base.Unload();
+            }
         }
     }
 }

@@ -8,6 +8,7 @@ using System.Drawing;
 using OpenCV.Net;
 using Bonsai.Expressions;
 using Bonsai.Dag;
+using System.Reactive.Linq;
 
 namespace Bonsai.Vision.Design
 {
@@ -59,7 +60,7 @@ namespace Bonsai.Vision.Design
                 if (predecessorNode != null)
                 {
                     var inputInspector = (InspectBuilder)predecessorNode.Value;
-                    inputHandle = inputInspector.Output.Subscribe(value => connectedComponent = (ConnectedComponent)value);
+                    inputHandle = inputInspector.Output.Merge().Subscribe(value => connectedComponent = (ConnectedComponent)value);
                 }
             }
 
