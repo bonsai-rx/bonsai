@@ -36,7 +36,7 @@ namespace Bonsai.Vision.Design
                                            select node)
                                            .FirstOrDefault();
 
-                        var captureOutput = ((InspectBuilder)workflow.Successors(captureNode).First().Value).Output;
+                        var captureOutput = ((InspectBuilder)workflow.Successors(captureNode).First().Value).Output.Merge();
                         var capture = (FileCapture)component;
                         var captureFrame = captureOutput
                             .Select(image => Tuple.Create((IplImage)image, (int)capture.Capture.GetProperty(CaptureProperty.POS_FRAMES)))

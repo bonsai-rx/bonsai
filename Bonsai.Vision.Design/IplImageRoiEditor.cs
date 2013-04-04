@@ -78,8 +78,8 @@ namespace Bonsai.Vision.Design
                     IObservable<object> source;
                     switch (Source)
                     {
-                        case RectangleSource.Input: source = ((InspectBuilder)workflow.Predecessors(workflowNode).First().Value).Output; break;
-                        case RectangleSource.Output: source = ((InspectBuilder)workflow.Successors(workflowNode).First().Value).Output; break;
+                        case RectangleSource.Input: source = ((InspectBuilder)workflow.Predecessors(workflowNode).First().Value).Output.Merge(); break;
+                        case RectangleSource.Output: source = ((InspectBuilder)workflow.Successors(workflowNode).First().Value).Output.Merge(); break;
                         default: return base.EditValue(context, provider, value);
                     }
 

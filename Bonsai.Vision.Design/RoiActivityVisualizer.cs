@@ -11,6 +11,7 @@ using OpenCV.Net;
 using Bonsai.Vision;
 using OpenTK.Graphics.OpenGL;
 using System.Drawing;
+using System.Reactive.Linq;
 
 [assembly: TypeVisualizer(typeof(RoiActivityVisualizer), Target = typeof(RoiActivity))]
 
@@ -88,7 +89,7 @@ namespace Bonsai.Vision.Design
                 if (predecessorNode != null)
                 {
                     var inputInspector = (InspectBuilder)predecessorNode.Value;
-                    inputHandle = inputInspector.Output.Subscribe(value => input = (IplImage)value);
+                    inputHandle = inputInspector.Output.Merge().Subscribe(value => input = (IplImage)value);
                 }
             }
 

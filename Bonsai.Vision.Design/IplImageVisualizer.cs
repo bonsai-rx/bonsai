@@ -53,6 +53,11 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        IObservable<T> MergeCompleted<T>(IObservable<IObservable<T>> source, Action onCompleted)
+        {
+            return source.SelectMany(xs => xs.Do(ys => { }, () => visualizerCanvas.BeginInvoke(onCompleted)));
+        }
+
         protected virtual void ShowMashup(IList<object> values)
         {
             foreach (var mashupValue in values.Zip(EnumerableMashup(this, Mashups.Select(xs => xs.Visualizer)), (value, visualizer) => new { value, visualizer }))
@@ -140,18 +145,20 @@ namespace Bonsai.Vision.Design
             base.Load(provider);
         }
 
-        public override IObservable<object> Visualize(IObservable<object> source, IServiceProvider provider)
+        public override IObservable<object> Visualize(IObservable<IObservable<object>> source, IServiceProvider provider)
         {
             canvasInvalidated = true;
             IObservable<IList<object>> dataSource;
+            var mergedSource = MergeCompleted(source, SequenceCompleted);
             if (Mashups.Count > 0)
             {
+                var mergedMashups = Mashups.Select(xs => MergeCompleted(xs.Source, xs.Visualizer.SequenceCompleted).Publish().RefCount());
                 dataSource = Observable
-                    .CombineLatest(EnumerableMashup(source, Mashups.Select(xs => xs.Source)).ToArray())
-                    .Window(Mashups.Last().Source)
+                    .CombineLatest(EnumerableMashup(mergedSource, mergedMashups).ToArray())
+                    .Window(mergedMashups.Last())
                     .SelectMany(window => window.TakeLast(1));
             }
-            else dataSource = source.Select(xs => new[] { xs });
+            else dataSource = mergedSource.Select(xs => new[] { xs });
 
             return dataSource
                 .Where(xs => allowUpdate)
