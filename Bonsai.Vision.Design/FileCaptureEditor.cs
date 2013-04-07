@@ -60,7 +60,7 @@ namespace Bonsai.Vision.Design
                         {
                             captureFrameHandle.Dispose();
                             editorService.WorkflowStopped -= workflowStoppedHandler;
-                            editorForm = null;
+                            editorForms.Remove(editorForm);
                         };
 
                         videoPlayer.LoopChanged += (sender, e) => capture.Loop = videoPlayer.Loop;
