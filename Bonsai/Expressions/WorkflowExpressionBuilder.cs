@@ -65,7 +65,7 @@ namespace Bonsai.Expressions
 
         static IObservable<TSource> MergeOutput<TSource>(IObservable<TSource> source, params IObservable<Unit>[] connections)
         {
-            return source.Merge(Observable.Merge(connections).Select(xs => default(TSource)).TakeUntil(source.TakeLast(1)));
+            return source.Publish(ps => ps.Merge(Observable.Merge(connections).Select(xs => default(TSource)).TakeUntil(ps.TakeLast(1))));
         }
 
         protected Expression BuildOutput(WorkflowOutputBuilder workflowOutput, IEnumerable<Expression> connections)
