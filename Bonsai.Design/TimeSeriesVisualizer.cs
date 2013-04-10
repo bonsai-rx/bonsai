@@ -15,9 +15,11 @@ namespace Bonsai.Design
     public class TimeSeriesVisualizer : DialogTypeVisualizer
     {
         const double TimeWindow = 7.5;
+        static readonly TimeSpan TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 30);
         TimeSeriesControl chart;
         List<DateTime> valuesX;
         List<object>[] valuesY;
+        DateTimeOffset updateTime;
 
         public TimeSeriesVisualizer()
             : this(1)
@@ -41,11 +43,6 @@ namespace Bonsai.Design
 
         protected void AddValue(DateTime time, params object[] value)
         {
-            AddValue(true, time, value);
-        }
-
-        protected void AddValue(bool dataBind, DateTime time, params object[] value)
-        {
             var excess = valuesX.Where(x => (time - x).TotalSeconds > TimeWindow).Count();
             if (excess > 0)
             {
@@ -57,7 +54,12 @@ namespace Bonsai.Design
             for (int i = 0; i < valuesY.Length; i++)
             {
                 valuesY[i].Add(value[i]);
-                if (dataBind) chart.TimeSeries[i].Points.DataBindXY(valuesX, valuesY[i]);
+            }
+
+            if ((time - updateTime) > TargetElapsedTime)
+            {
+                DataBindValues();
+                updateTime = time;
             }
         }
 
