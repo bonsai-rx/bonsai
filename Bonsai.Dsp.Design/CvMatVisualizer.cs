@@ -15,6 +15,7 @@ namespace Bonsai.Dsp.Design
     public class CvMatVisualizer : DialogTypeVisualizer
     {
         const int DefaultBufferSize = 640;
+        static readonly TimeSpan TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 20);
 
         int bufferSize;
         CvMatControl chart;
@@ -25,7 +26,6 @@ namespace Bonsai.Dsp.Design
         double channelOffset;
         int blockSize = 100;
         DateTimeOffset updateTime;
-        static readonly TimeSpan targetElapsedTime = TimeSpan.FromSeconds(1.0 / 20);
 
         public CvMatVisualizer()
         {
@@ -162,7 +162,7 @@ namespace Bonsai.Dsp.Design
                 AddValue(blockSize, maxValues);
             }
 
-            if ((now - updateTime) > targetElapsedTime)
+            if ((now - updateTime) > TargetElapsedTime)
             {
                 DataBindValues();
                 updateTime = now;
