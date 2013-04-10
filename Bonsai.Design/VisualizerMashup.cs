@@ -7,7 +7,7 @@ namespace Bonsai.Design
 {
     public class VisualizerMashup
     {
-        public VisualizerMashup(IObservable<IObservable<object>> source, DialogTypeVisualizer visualizer)
+        public VisualizerMashup(IObservable<IObservable<object>> source, MashupTypeVisualizer visualizer)
         {
             if (source == null)
             {
@@ -25,7 +25,7 @@ namespace Bonsai.Design
 
         public IObservable<IObservable<object>> Source { get; private set; }
 
-        public DialogTypeVisualizer Visualizer { get; private set; }
+        public MashupTypeVisualizer Visualizer { get; private set; }
     }
 
     public static class VisualizerMashup<TMashupVisualizer, TVisualizer>

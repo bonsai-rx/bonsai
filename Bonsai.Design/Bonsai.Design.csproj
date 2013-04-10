@@ -57,6 +57,7 @@
     <Compile Include="DialogMashupVisualizer.cs" />
     <Compile Include="DynamicTypeDescriptionProvider.cs" />
     <Compile Include="FolderNameEditor.cs" />
+    <Compile Include="MashupTypeVisualizer.cs" />
     <Compile Include="NumericTupleVisualizer.cs" />
     <Compile Include="PlotControl.cs">
       <SubType>UserControl</SubType>

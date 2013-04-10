@@ -11,7 +11,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision.Design
 {
-    public class IplImageMashupVisualizer : DialogTypeVisualizer
+    public class IplImageMashupVisualizer : MashupTypeVisualizer
     {
         IplImage color;
         IplImageVisualizer visualizer;

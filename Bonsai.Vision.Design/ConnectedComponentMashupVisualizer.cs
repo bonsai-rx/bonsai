@@ -12,7 +12,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision.Design
 {
-    public class ConnectedComponentMashupVisualizer : DialogTypeVisualizer
+    public class ConnectedComponentMashupVisualizer : MashupTypeVisualizer
     {
         IplImageVisualizer visualizer;
 

@@ -11,7 +11,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision.Design
 {
-    public class ContoursMashupVisualizer : DialogTypeVisualizer
+    public class ContoursMashupVisualizer : MashupTypeVisualizer
     {
         IplImageVisualizer visualizer;
 

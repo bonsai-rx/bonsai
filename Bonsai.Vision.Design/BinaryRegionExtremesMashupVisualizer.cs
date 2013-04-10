@@ -15,7 +15,7 @@ using Bonsai.Vision.Design;
 
 namespace Bonsai.Vision.Design
 {
-    public class BinaryRegionExtremesMashupVisualizer : DialogTypeVisualizer
+    public class BinaryRegionExtremesMashupVisualizer : MashupTypeVisualizer
     {
         IplImageVisualizer visualizer;
 
