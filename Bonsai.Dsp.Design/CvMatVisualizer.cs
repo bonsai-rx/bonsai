@@ -15,9 +15,11 @@ namespace Bonsai.Dsp.Design
     public class CvMatVisualizer : DialogTypeVisualizer
     {
         const int DefaultBufferSize = 640;
+        const int SequenceBufferSize = 100;
         static readonly TimeSpan TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 20);
 
         int bufferSize;
+        int sequenceIndex;
         CvMatControl chart;
         List<object> valuesX;
         List<object>[] valuesY;
@@ -47,12 +49,16 @@ namespace Bonsai.Dsp.Design
                 valuesY[i] = new List<object>();
             }
 
-            for (int i = 1; i < valuesY.Length; i++)
+            if (sequenceIndex * valuesY.Length >= chart.TimeSeries.Count)
             {
-                var series = chart.TimeSeries.Add(chart.TimeSeries[0].Name + i);
-                series.ChartType = chart.TimeSeries[0].ChartType;
-                series.XValueType = chart.TimeSeries[0].XValueType;
-                series.ChartArea = chart.TimeSeries[0].ChartArea;
+                var startIndex = sequenceIndex == 0 ? 1 : 0;
+                for (int i = startIndex; i < valuesY.Length; i++)
+                {
+                    var series = chart.TimeSeries.Add(chart.TimeSeries[0].Name + (i + valuesY.Length * sequenceIndex));
+                    series.ChartType = chart.TimeSeries[0].ChartType;
+                    series.XValueType = chart.TimeSeries[0].XValueType;
+                    series.ChartArea = chart.TimeSeries[0].ChartArea;
+                }
             }
         }
 
@@ -91,7 +97,7 @@ namespace Bonsai.Dsp.Design
 
             for (int i = 0; i < valuesY.Length; i++)
             {
-                chart.TimeSeries[i].Points.DataBindXY(valuesX, valuesY[i]);
+                chart.TimeSeries[i + sequenceIndex * valuesY.Length].Points.DataBindXY(valuesX, valuesY[i]);
             }
         }
 
@@ -121,6 +127,7 @@ namespace Bonsai.Dsp.Design
             ClearValues();
             chart.Dispose();
             chart = null;
+            sequenceIndex = 0;
         }
 
         public override void Show(object value)
@@ -167,6 +174,13 @@ namespace Bonsai.Dsp.Design
                 DataBindValues();
                 updateTime = now;
             }
+        }
+
+        public override void SequenceCompleted()
+        {
+            ClearValues();
+            sequenceIndex = (sequenceIndex + 1) % SequenceBufferSize;
+            base.SequenceCompleted();
         }
     }
 }
