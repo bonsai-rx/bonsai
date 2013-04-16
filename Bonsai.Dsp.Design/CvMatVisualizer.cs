@@ -7,8 +7,10 @@ using Bonsai.Dsp.Design;
 using Bonsai.Design;
 using OpenCV.Net;
 using System.Runtime.InteropServices;
+using System.Reactive.Linq;
 
 [assembly: TypeVisualizer(typeof(CvMatVisualizer), Target = typeof(CvMat))]
+[assembly: TypeVisualizer(typeof(CvMatVisualizer), Target = typeof(IObservable<CvMat>))]
 
 namespace Bonsai.Dsp.Design
 {
@@ -174,6 +176,29 @@ namespace Bonsai.Dsp.Design
                 DataBindValues();
                 updateTime = now;
             }
+        }
+
+        public override IObservable<object> Visualize(IObservable<IObservable<object>> source, IServiceProvider provider)
+        {
+            var visualizerDialog = (TypeVisualizerDialog)provider.GetService(typeof(TypeVisualizerDialog));
+            var visualizerContext = (ITypeVisualizerContext)provider.GetService(typeof(ITypeVisualizerContext));
+            if (visualizerDialog != null && visualizerContext != null)
+            {
+                var observableType = visualizerContext.Source.ObservableType;
+                if (observableType == typeof(IObservable<CvMat>))
+                {
+                    return source.SelectMany(xs => xs.Select(ws => ws as IObservable<CvMat>)
+                                                     .Where(ws => ws != null)
+                                                     .SelectMany(ws => ws.ObserveOn(visualizerDialog)
+                                                                         .Do(Show, SequenceCompleted)));
+                }
+                else
+                {
+                    return source.SelectMany(xs => xs.ObserveOn(visualizerDialog).Do(Show, SequenceCompleted));
+                }
+            }
+
+            return source;
         }
 
         public override void SequenceCompleted()
