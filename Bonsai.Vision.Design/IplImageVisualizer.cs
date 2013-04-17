@@ -13,6 +13,7 @@ using System.Threading;
 using System.ComponentModel.Design;
 
 [assembly: TypeVisualizer(typeof(IplImageVisualizer), Target = typeof(IplImage))]
+[assembly: TypeVisualizer(typeof(IplImageVisualizer), Target = typeof(IObservable<IplImage>))]
 
 namespace Bonsai.Vision.Design
 {
@@ -140,11 +141,19 @@ namespace Bonsai.Vision.Design
             base.Load(provider);
         }
 
-        public override IObservable<object> Visualize(IObservable<IObservable<object>> source, IServiceProvider provider)
+        protected IObservable<object> Visualize<T>(IObservable<IObservable<object>> source, IServiceProvider provider)
         {
             canvasInvalidated = true;
+            IObservable<object> mergedSource;
             IObservable<IList<object>> dataSource;
-            var mergedSource = source.SelectMany(xs => xs.Do(ys => { }, () => visualizerCanvas.BeginInvoke((Action)SequenceCompleted)));
+            var visualizerContext = (ITypeVisualizerContext)provider.GetService(typeof(ITypeVisualizerContext));
+            if (visualizerContext != null && typeof(IObservable<T>).IsAssignableFrom(visualizerContext.Source.ObservableType))
+            {
+                mergedSource = source.SelectMany(xs => xs.Select(ws => ws as IObservable<T>)
+                                                         .Where(ws => ws != null)
+                                                         .SelectMany(ws => ws.Select(vs => (object)vs).Do(ys => { }, () => visualizerCanvas.BeginInvoke((Action)SequenceCompleted))));
+            }
+            else mergedSource = source.SelectMany(xs => xs.Do(ys => { }, () => visualizerCanvas.BeginInvoke((Action)SequenceCompleted)));
 
             if (Mashups.Count > 0)
             {
@@ -161,6 +170,11 @@ namespace Bonsai.Vision.Design
                 .Do(xs => allowUpdate = false)
                 .ObserveOn(visualizerCanvas.Canvas)
                 .Do(ShowMashup);
+        }
+
+        public override IObservable<object> Visualize(IObservable<IObservable<object>> source, IServiceProvider provider)
+        {
+            return Visualize<IplImage>(source, provider);
         }
 
         public override void Unload()
