@@ -51,7 +51,7 @@ namespace Bonsai.Dsp.Design
                 valuesY[i] = new List<object>();
             }
 
-            if (sequenceIndex * valuesY.Length >= chart.TimeSeries.Count)
+            if (sequenceIndex * valuesY.Length >= chart.TimeSeries.Count || valuesY.Length >= chart.TimeSeries.Count)
             {
                 var startIndex = sequenceIndex == 0 ? 1 : 0;
                 for (int i = startIndex; i < valuesY.Length; i++)
@@ -187,6 +187,7 @@ namespace Bonsai.Dsp.Design
                 var observableType = visualizerContext.Source.ObservableType;
                 if (observableType == typeof(IObservable<CvMat>))
                 {
+                    SetBlockSize(1);
                     return source.SelectMany(xs => xs.Select(ws => ws as IObservable<CvMat>)
                                                      .Where(ws => ws != null)
                                                      .SelectMany(ws => ws.ObserveOn(visualizerDialog)
@@ -203,8 +204,11 @@ namespace Bonsai.Dsp.Design
 
         public override void SequenceCompleted()
         {
-            ClearValues();
-            sequenceIndex = (sequenceIndex + 1) % SequenceBufferSize;
+            if (valuesY != null)
+            {
+                ClearValues();
+                sequenceIndex = (sequenceIndex + 1) % SequenceBufferSize;
+            }
             base.SequenceCompleted();
         }
     }
