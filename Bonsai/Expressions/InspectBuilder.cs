@@ -12,7 +12,7 @@ namespace Bonsai.Expressions
     public class InspectBuilder : CombinatorBuilder
     {
         ObservableHandle handle = new ObservableHandle();
-        ReplaySubject<IObservable<object>> subject = new ReplaySubject<IObservable<object>>(1);
+        ReplaySubject<IObservable<object>> subject;
 
         public Type ObservableType { get; private set; }
 
@@ -25,6 +25,7 @@ namespace Bonsai.Expressions
 
         public override Expression Build()
         {
+            subject = new ReplaySubject<IObservable<object>>(1);
             ObservableType = Source.Type.GetGenericArguments()[0];
 
             // If source is a publish node, unwrap it to check for inspect nodes
