@@ -4,27 +4,27 @@ using System.Linq;
 using System.Text;
 using Bonsai;
 using Bonsai.Design;
-using System.Windows.Forms.DataVisualization.Charting;
+using ZedGraph;
+using System.Drawing;
 
 namespace Bonsai.Design
 {
     public class StateTimeVisualizer : DialogTypeVisualizer
     {
+        int stateIndex;
         const int StateColumns = 10;
-        StateTimeHistogram chart;
-        List<object> valuesX;
-        List<double> valuesY;
+        ChartControl chart;
+        RollingPointPairList values;
 
         object state;
         DateTime stateEnter;
 
         public StateTimeVisualizer()
         {
-            valuesX = new List<object>();
-            valuesY = new List<double>();
+            values = new RollingPointPairList(StateColumns);
         }
 
-        protected StateTimeHistogram Chart
+        protected ChartControl Chart
         {
             get { return chart; }
         }
@@ -32,28 +32,28 @@ namespace Bonsai.Design
         protected void AddValue(DateTime time, object value)
         {
             if (value == null) return;
-            if (valuesY.Count > 0)
+            if (values.Count > 0)
             {
                 var diff = time - stateEnter;
-                valuesY[valuesY.Count - 1] = diff.TotalSeconds;
+                values[values.Count - 1].Y = diff.TotalSeconds;
             }
 
             if (!value.Equals(state))
             {
                 state = value;
                 stateEnter = time;
-                var excess = valuesX.Count - StateColumns;
-                if (excess > 0)
-                {
-                    valuesX.RemoveRange(0, excess);
-                    valuesY.RemoveRange(0, excess);
-                }
+                values.Add(stateIndex++, 0, value.ToString());
 
-                valuesX.Add(state.ToString());
-                valuesY.Add(0);
+                var textLabels = new string[values.Count];
+                for (int i = 0; i < textLabels.Length; i++)
+                {
+                    textLabels[i] = (string)values[i].Tag;
+                }
+                chart.GraphPane.XAxis.Scale.TextLabels = textLabels;
             }
 
-            chart.StateTimes[0].Points.DataBindXY(valuesX, valuesY);
+            chart.AxisChange();
+            chart.Invalidate();
         }
 
         public override void Show(object value)
@@ -63,7 +63,15 @@ namespace Bonsai.Design
 
         public override void Load(IServiceProvider provider)
         {
-            chart = new StateTimeHistogram();
+            chart = new ChartControl();
+            chart.GraphPane.YAxis.Title.IsVisible = true;
+            chart.GraphPane.YAxis.Title.Text = "Time (s)";
+            chart.GraphPane.XAxis.Type = AxisType.Text;
+            chart.GraphPane.XAxis.Scale.FontSpec.Angle = 90;
+            var barSeries = new BarItem(string.Empty, values, Color.Navy);
+            barSeries.Bar.Fill.Brush = new SolidBrush(chart.GetNextColor());
+            barSeries.Bar.Border.IsVisible = false;
+            chart.GraphPane.CurveList.Add(barSeries);
 
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
             if (visualizerService != null)
@@ -74,8 +82,7 @@ namespace Bonsai.Design
 
         public override void Unload()
         {
-            valuesX.Clear();
-            valuesY.Clear();
+            values.Clear();
             state = null;
 
             chart.Dispose();

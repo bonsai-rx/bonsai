@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Bonsai;
 using Bonsai.Design;
+using ZedGraph;
 
 [assembly: TypeVisualizer(typeof(BooleanTimeSeriesVisualizer), Target = typeof(bool))]
 
@@ -28,7 +29,7 @@ namespace Bonsai.Design
         public override void Load(IServiceProvider provider)
         {
             base.Load(provider);
-            Chart.TimeSeries[0].BorderWidth = 2;
+            ((LineItem)Chart.GraphPane.CurveList[0]).Line.Width = 2;
         }
 
         public override void Unload()

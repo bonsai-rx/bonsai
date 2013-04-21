@@ -72,7 +72,6 @@
     <Compile Include="VisualizerCanvasControl.designer.cs">
       <DependentUpon>VisualizerCanvasControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="CvPointVisualizer.cs" />
     <Compile Include="DrawingHelper.cs" />
     <Compile Include="IplImageInputRoiEditor.cs" />
     <Compile Include="IplImageOutputRectangleEditor.cs" />

@@ -8,6 +8,8 @@ using Bonsai.Design;
 using OpenCV.Net;
 using System.Runtime.InteropServices;
 using System.Reactive.Linq;
+using ZedGraph;
+using System.Windows.Forms;
 
 [assembly: TypeVisualizer(typeof(CvMatVisualizer), Target = typeof(CvMat))]
 [assembly: TypeVisualizer(typeof(CvMatVisualizer), Target = typeof(IObservable<CvMat>))]
@@ -19,101 +21,92 @@ namespace Bonsai.Dsp.Design
         const int DefaultBufferSize = 640;
         const int SequenceBufferSize = 100;
         static readonly TimeSpan TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 20);
+        static readonly TimeSpan WindowedTargetElapsedTime = TimeSpan.FromSeconds(1.0 / 10.0);
 
-        int bufferSize;
         int sequenceIndex;
-        CvMatControl chart;
-        List<object> valuesX;
-        List<object>[] valuesY;
-        List<object> sampleIntervals;
+        ChartControl chart;
+        RollingPointPairList[] values;
 
         double channelOffset;
         int blockSize = 100;
         DateTimeOffset updateTime;
+        TimeSpan targetElapsedTime;
 
-        public CvMatVisualizer()
-        {
-            this.bufferSize = DefaultBufferSize;
-            valuesX = new List<object>();
-            sampleIntervals = new List<object>();
-        }
-
-        protected CvMatControl Chart
+        protected ChartControl Chart
         {
             get { return chart; }
         }
 
         protected void ResetNumericSeries(int numSeries)
         {
-            valuesY = new List<object>[numSeries];
-            for (int i = 0; i < valuesY.Length; i++)
+            var timeSeries = chart.GraphPane.CurveList;
+            values = new RollingPointPairList[numSeries];
+            for (int i = 0; i < values.Length; i++)
             {
-                valuesY[i] = new List<object>();
+                var seriesIndex = sequenceIndex * values.Length + i;
+                if (seriesIndex < timeSeries.Count)
+                {
+                    values[i] = (RollingPointPairList)timeSeries[seriesIndex].Points;
+                    values[i].Clear();
+                }
+                else values[i] = new RollingPointPairList(DefaultBufferSize);
             }
 
-            if (sequenceIndex * valuesY.Length >= chart.TimeSeries.Count || valuesY.Length >= chart.TimeSeries.Count)
+            if (sequenceIndex * values.Length >= timeSeries.Count || values.Length >= timeSeries.Count)
             {
-                var startIndex = sequenceIndex == 0 ? 1 : 0;
-                for (int i = startIndex; i < valuesY.Length; i++)
+                for (int i = 0; i < values.Length; i++)
                 {
-                    var series = chart.TimeSeries.Add(chart.TimeSeries[0].Name + (i + valuesY.Length * sequenceIndex));
-                    series.ChartType = chart.TimeSeries[0].ChartType;
-                    series.XValueType = chart.TimeSeries[0].XValueType;
-                    series.ChartArea = chart.TimeSeries[0].ChartArea;
+                    var series = new LineItem(string.Empty, values[i], chart.GetNextColor(), SymbolType.None);
+                    series.Line.IsAntiAlias = true;
+                    series.Line.IsOptimizedDraw = true;
+                    series.Label.IsVisible = false;
+                    timeSeries.Add(series);
                 }
             }
         }
 
-        protected void AddValue(object xValue, params double[] value)
+        protected void AddValue(double xValue, params double[] value)
         {
-            var excess = sampleIntervals.Count - bufferSize;
-            if (excess > 0)
+            for (int i = 0; i < values.Length; i++)
             {
-                sampleIntervals.RemoveRange(0, excess);
-                Array.ForEach(valuesY, y => y.RemoveRange(0, excess));
-            }
-
-            sampleIntervals.Add(xValue);
-            for (int i = 0; i < valuesY.Length; i++)
-            {
-                valuesY[i].Add(value[i]);
+                values[i].Add(0, value[i]);
             }
         }
 
         protected void ClearValues()
         {
-            valuesX.Clear();
-            sampleIntervals.Clear();
-            valuesY = null;
+            values = null;
         }
 
         protected void DataBindValues()
         {
-            var sum = 0.0;
-            valuesX.Clear();
-            foreach (var time in sampleIntervals)
-            {
-                sum += Convert.ToDouble(time);
-                valuesX.Add(sum);
-            }
-
-            for (int i = 0; i < valuesY.Length; i++)
-            {
-                chart.TimeSeries[i + sequenceIndex * valuesY.Length].Points.DataBindXY(valuesX, valuesY[i]);
-            }
+            chart.AxisChange();
+            chart.Invalidate();
         }
 
         private void SetBlockSize(int size)
         {
+            var xlabelText = "Samples";
             blockSize = Math.Max(1, size);
-            chart.Chart.Titles["Scale"].Text = string.Format("Scale: 1/{0}", blockSize);
+            chart.GraphPane.Title.IsVisible = true;
+            chart.GraphPane.Title.Text = string.Format("Scale: 1/{0}", blockSize);
+            chart.GraphPane.XAxis.Title.Text = blockSize > 1 ? string.Format(xlabelText + " (10^{0})", Math.Log10(blockSize)) : xlabelText;
         }
 
         public override void Load(IServiceProvider provider)
         {
             channelOffset = 0;
-            chart = new CvMatControl();
-            chart.Chart.MouseDoubleClick += (sender, e) => SetBlockSize((int)(blockSize * ((e.Button == System.Windows.Forms.MouseButtons.Left) ? 10 : 0.1)));
+            chart = new ChartControl();
+            chart.GraphPane.XAxis.Type = AxisType.Ordinal;
+            chart.GraphPane.XAxis.MinorTic.IsAllTics = false;
+            chart.GraphPane.XAxis.Title.IsVisible = true;
+            chart.GraphPane.XAxis.Scale.BaseTic = 0;
+            chart.KeyDown += (sender, e) =>
+            {
+                if (e.KeyCode == Keys.PageUp) SetBlockSize((int)(blockSize * 10));
+                if (e.KeyCode == Keys.PageDown) SetBlockSize((int)(blockSize * 0.1));
+            };
+
             updateTime = HighResolutionScheduler.Now;
             SetBlockSize(blockSize);
 
@@ -139,7 +132,7 @@ namespace Bonsai.Dsp.Design
 
             var rows = buffer.Rows;
             var columns = buffer.Cols;
-            if (valuesY == null || valuesY.Length != rows)
+            if (values == null || values.Length != rows)
             {
                 ResetNumericSeries(rows);
             }
@@ -171,7 +164,7 @@ namespace Bonsai.Dsp.Design
                 AddValue(blockSize, maxValues);
             }
 
-            if ((now - updateTime) > TargetElapsedTime)
+            if ((now - updateTime) > targetElapsedTime)
             {
                 DataBindValues();
                 updateTime = now;
@@ -188,6 +181,7 @@ namespace Bonsai.Dsp.Design
                 if (observableType == typeof(IObservable<CvMat>))
                 {
                     SetBlockSize(1);
+                    targetElapsedTime = WindowedTargetElapsedTime;
                     return source.SelectMany(xs => xs.Select(ws => ws as IObservable<CvMat>)
                                                      .Where(ws => ws != null)
                                                      .SelectMany(ws => ws.ObserveOn(visualizerDialog)
@@ -195,6 +189,7 @@ namespace Bonsai.Dsp.Design
                 }
                 else
                 {
+                    targetElapsedTime = TargetElapsedTime;
                     return source.SelectMany(xs => xs.ObserveOn(visualizerDialog).Do(Show, SequenceCompleted));
                 }
             }
@@ -204,7 +199,7 @@ namespace Bonsai.Dsp.Design
 
         public override void SequenceCompleted()
         {
-            if (valuesY != null)
+            if (values != null)
             {
                 ClearValues();
                 sequenceIndex = (sequenceIndex + 1) % SequenceBufferSize;
