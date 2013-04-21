@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Bonsai;
 using Bonsai.Design;
-using System.Windows.Forms.DataVisualization.Charting;
+using ZedGraph;
 
 [assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(int))]
 [assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(float))]
@@ -14,11 +14,11 @@ namespace Bonsai.Design
 {
     public class TimeSeriesVisualizer : DialogTypeVisualizer
     {
-        const double TimeWindow = 7.5;
+        const int DefaultBufferSize = 640;
         static readonly TimeSpan TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 30);
-        TimeSeriesControl chart;
-        List<DateTime> valuesX;
-        List<object>[] valuesY;
+
+        ChartControl chart;
+        RollingPointPairList[] values;
         DateTimeOffset updateTime;
 
         public TimeSeriesVisualizer()
@@ -28,46 +28,31 @@ namespace Bonsai.Design
 
         public TimeSeriesVisualizer(int numSeries)
         {
-            valuesX = new List<DateTime>();
-            valuesY = new List<object>[numSeries];
-            for (int i = 0; i < valuesY.Length; i++)
+            values = new RollingPointPairList[numSeries];
+            for (int i = 0; i < values.Length; i++)
             {
-                valuesY[i] = new List<object>();
+                values[i] = new RollingPointPairList(DefaultBufferSize);
             }
         }
 
-        protected TimeSeriesControl Chart
+        protected ChartControl Chart
         {
             get { return chart; }
         }
 
         protected void AddValue(DateTime time, params object[] value)
         {
-            var excess = valuesX.Where(x => (time - x).TotalSeconds > TimeWindow).Count();
-            if (excess > 0)
+            var ordinalTime = new XDate(time);
+            for (int i = 0; i < values.Length; i++)
             {
-                valuesX.RemoveRange(0, excess);
-                Array.ForEach(valuesY, y => y.RemoveRange(0, excess));
-            }
-
-            valuesX.Add(time);
-            for (int i = 0; i < valuesY.Length; i++)
-            {
-                valuesY[i].Add(value[i]);
+                values[i].Add(ordinalTime, Convert.ToDouble(value[i]));
             }
 
             if ((time - updateTime) > TargetElapsedTime)
             {
-                DataBindValues();
+                chart.AxisChange();
+                chart.Invalidate();
                 updateTime = time;
-            }
-        }
-
-        protected void DataBindValues()
-        {
-            for (int i = 0; i < valuesY.Length; i++)
-            {
-                chart.TimeSeries[i].Points.DataBindXY(valuesX, valuesY[i]);
             }
         }
 
@@ -78,13 +63,20 @@ namespace Bonsai.Design
 
         public override void Load(IServiceProvider provider)
         {
-            chart = new TimeSeriesControl();
-            for (int i = 1; i < valuesY.Length; i++)
+            chart = new ChartControl();
+            chart.GraphPane.XAxis.Type = AxisType.Date;
+            chart.GraphPane.XAxis.Title.Text = "Samples";
+            chart.GraphPane.XAxis.Scale.Format = "HH:mm:ss";
+            chart.GraphPane.XAxis.Scale.MajorUnit = DateUnit.Second;
+            chart.GraphPane.XAxis.Scale.MinorUnit = DateUnit.Millisecond;
+
+            for (int i = 0; i < values.Length; i++)
             {
-                var series = chart.TimeSeries.Add(chart.TimeSeries[0].Name + i);
-                series.ChartType = chart.TimeSeries[0].ChartType;
-                series.XValueType = chart.TimeSeries[0].XValueType;
-                series.ChartArea = chart.TimeSeries[0].ChartArea;
+                var series = new LineItem(string.Empty, values[i], chart.GetNextColor(), SymbolType.None);
+                series.Line.IsAntiAlias = true;
+                series.Line.IsOptimizedDraw = true;
+                series.Label.IsVisible = false;
+                chart.GraphPane.CurveList.Add(series);
             }
 
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
@@ -96,9 +88,7 @@ namespace Bonsai.Design
 
         public override void Unload()
         {
-            valuesX.Clear();
-            Array.ForEach(valuesY, y => y.Clear());
-
+            Array.ForEach(values, y => y.Clear());
             chart.Dispose();
             chart = null;
         }

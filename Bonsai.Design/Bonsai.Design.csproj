@@ -39,12 +39,15 @@
     <Reference Include="System.Reactive.Interfaces, Version=2.0.20823.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Reactive.Linq, Version=2.0.20823.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="ZedGraph, Version=5.1.5.34946, Culture=neutral, PublicKeyToken=02a83cbd123fcd60, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Externals\ZedGraph\ZedGraph.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BooleanTimeSeriesVisualizer.cs" />
@@ -53,29 +56,18 @@
     </Compile>
     <Compile Include="ControlObservable.cs" />
     <Compile Include="ControlScheduler.cs" />
+    <Compile Include="ChartControl.cs" />
+    <Compile Include="StateTimeVisualizer.cs" />
+    <Compile Include="TimeSeriesVisualizer.cs" />
     <Compile Include="DescriptiveCollectionEditor.cs" />
     <Compile Include="DialogMashupVisualizer.cs" />
     <Compile Include="DynamicTypeDescriptionProvider.cs" />
     <Compile Include="FolderNameEditor.cs" />
     <Compile Include="MashupTypeVisualizer.cs" />
-    <Compile Include="NumericTupleVisualizer.cs" />
-    <Compile Include="PlotControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="PlotControl.Designer.cs">
-      <DependentUpon>PlotControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="ITypeVisualizerContext.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="SeekBar.cs">
       <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="StateTimeVisualizer.cs" />
-    <Compile Include="StateTimeHistogram.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="StateTimeHistogram.Designer.cs">
-      <DependentUpon>StateTimeHistogram.cs</DependentUpon>
     </Compile>
     <Compile Include="DialogLauncher.cs" />
     <Compile Include="FileNameEditor.cs" />
@@ -109,13 +101,6 @@
     <Compile Include="ObjectTextVisualizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SaveFileNameEditor.cs" />
-    <Compile Include="TimeSeriesControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="TimeSeriesControl.Designer.cs">
-      <DependentUpon>TimeSeriesControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="TimeSeriesVisualizer.cs" />
     <Compile Include="TimestampedTimeSeriesVisualizer.cs" />
     <Compile Include="TrackBarEditor.cs" />
     <Compile Include="TypeVisualizerDialog.cs">
@@ -142,20 +127,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="PlotControl.resx">
-      <DependentUpon>PlotControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="StateTimeHistogram.resx">
-      <DependentUpon>StateTimeHistogram.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="GraphView.resx">
       <DependentUpon>GraphView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MemberSelectorEditorDialog.resx">
       <DependentUpon>MemberSelectorEditorDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TimeSeriesControl.resx">
-      <DependentUpon>TimeSeriesControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TypeVisualizerDialog.resx">
       <DependentUpon>TypeVisualizerDialog.cs</DependentUpon>
