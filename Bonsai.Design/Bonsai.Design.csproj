@@ -56,7 +56,9 @@
     </Compile>
     <Compile Include="ControlObservable.cs" />
     <Compile Include="ControlScheduler.cs" />
-    <Compile Include="ChartControl.cs" />
+    <Compile Include="ChartControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="StateTimeVisualizer.cs" />
     <Compile Include="TimeSeriesVisualizer.cs" />
     <Compile Include="DescriptiveCollectionEditor.cs" />
