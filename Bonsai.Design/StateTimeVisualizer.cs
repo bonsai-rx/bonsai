@@ -64,10 +64,19 @@ namespace Bonsai.Design
         public override void Load(IServiceProvider provider)
         {
             chart = new ChartControl();
+            chart.GraphPane.Chart.Border.IsVisible = true;
+            chart.GraphPane.YAxis.MajorGrid.IsVisible = true;
+            chart.GraphPane.YAxis.MajorGrid.DashOff = 0;
             chart.GraphPane.YAxis.Title.IsVisible = true;
             chart.GraphPane.YAxis.Title.Text = "Time (s)";
             chart.GraphPane.XAxis.Type = AxisType.Text;
             chart.GraphPane.XAxis.Scale.FontSpec.Angle = 90;
+            chart.GraphPane.XAxis.MajorTic.IsInside = false;
+            chart.GraphPane.XAxis.MinorTic.IsAllTics = false;
+            chart.GraphPane.XAxis.MajorGrid.IsVisible = true;
+            chart.GraphPane.XAxis.MajorGrid.DashOff = 0;
+            Chart.GraphPane.XAxis.Title.IsVisible = true;
+            Chart.GraphPane.XAxis.Title.Text = "State";
             var barSeries = new BarItem(string.Empty, values, Color.Navy);
             barSeries.Bar.Fill.Brush = new SolidBrush(chart.GetNextColor());
             barSeries.Bar.Border.IsVisible = false;

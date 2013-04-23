@@ -38,6 +38,7 @@ namespace Bonsai.Design
 
             GraphPane.Title.IsVisible = false;
             GraphPane.Border.IsVisible = false;
+            GraphPane.Chart.Border.IsVisible = false;
             GraphPane.YAxis.Scale.MaxGrace = 0.05;
             GraphPane.YAxis.Scale.MinGrace = 0;
             GraphPane.XAxis.Scale.MaxGrace = 0;
