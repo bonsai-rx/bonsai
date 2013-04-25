@@ -64,11 +64,13 @@ namespace Bonsai.Design
         public override void Load(IServiceProvider provider)
         {
             chart = new ChartControl();
-            chart.GraphPane.XAxis.Type = AxisType.Date;
-            chart.GraphPane.XAxis.Title.Text = "Samples";
+            chart.GraphPane.XAxis.Type = AxisType.DateAsOrdinal;
+            chart.GraphPane.XAxis.Title.Text = "Time";
+            chart.GraphPane.XAxis.Title.IsVisible = true;
             chart.GraphPane.XAxis.Scale.Format = "HH:mm:ss";
             chart.GraphPane.XAxis.Scale.MajorUnit = DateUnit.Second;
             chart.GraphPane.XAxis.Scale.MinorUnit = DateUnit.Millisecond;
+            chart.GraphPane.XAxis.MinorTic.IsAllTics = false;
 
             for (int i = 0; i < values.Length; i++)
             {
