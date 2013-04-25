@@ -63,6 +63,7 @@
     <Compile Include="ConvertColor.cs" />
     <Compile Include="ConvertScale.cs" />
     <Compile Include="Add.cs" />
+    <Compile Include="CountNonZero.cs" />
     <Compile Include="DistanceTransform.cs" />
     <Compile Include="Laplace.cs" />
     <Compile Include="MaskImage.cs" />
