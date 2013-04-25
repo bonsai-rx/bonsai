@@ -35,6 +35,7 @@ namespace Bonsai.Design
         public ChartControl()
         {
             Dock = DockStyle.Fill;
+            Size = new Size(320, 240);
 
             GraphPane.Title.IsVisible = false;
             GraphPane.Border.IsVisible = false;
