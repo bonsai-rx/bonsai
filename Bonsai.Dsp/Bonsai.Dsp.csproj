@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConvertScale.cs" />
+    <Compile Include="CountNonZero.cs" />
     <Compile Include="Delay.cs" />
     <Compile Include="FilterType.cs" />
     <Compile Include="FirFilter.cs" />
