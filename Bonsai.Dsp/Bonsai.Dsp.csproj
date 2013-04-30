@@ -61,6 +61,9 @@
     <Compile Include="Threshold.cs" />
     <Compile Include="Transpose.cs" />
     <Compile Include="TriggeredWindow.cs" />
+    <Compile Include="WindowStatistics.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai\Bonsai.csproj">
