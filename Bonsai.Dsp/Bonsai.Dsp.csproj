@@ -47,6 +47,7 @@
     <Compile Include="ConvertScale.cs" />
     <Compile Include="CountNonZero.cs" />
     <Compile Include="Delay.cs" />
+    <Compile Include="Difference.cs" />
     <Compile Include="FilterType.cs" />
     <Compile Include="FirFilter.cs" />
     <Compile Include="FrequencyFilter.cs" />
