@@ -53,8 +53,12 @@ namespace Bonsai.Dsp
                     if (anchor == -1) anchor = kernel.Cols / 2;
                     overlap = new CvMat(input.Rows, input.Cols + kernel.Cols - 1, input.Depth, input.NumChannels);
                     overlapInput = overlap.GetSubRect(new CvRect(kernel.Cols - 1, 0, input.Cols, input.Rows));
-                    overlapEnd = overlap.GetSubRect(new CvRect(overlap.Cols - kernel.Cols + 1, 0, kernel.Cols - 1, input.Rows));
-                    overlapStart = overlap.GetSubRect(new CvRect(0, 0, kernel.Cols - 1, input.Rows));
+                    if (kernel.Cols > 1)
+                    {
+                        overlapEnd = overlap.GetSubRect(new CvRect(overlap.Cols - kernel.Cols + 1, 0, kernel.Cols - 1, input.Rows));
+                        overlapStart = overlap.GetSubRect(new CvRect(0, 0, kernel.Cols - 1, input.Rows));
+                    }
+
                     overlapOutput = new CvRect(kernel.Cols - anchor - 1, 0, input.Cols, input.Rows);
                     overlap.SetZero();
                 }
@@ -66,7 +70,7 @@ namespace Bonsai.Dsp
                 var output = new CvMat(overlap.Rows, overlap.Cols, overlap.Depth, overlap.NumChannels);
                 Core.cvCopy(input, overlapInput);
                 ImgProc.cvFilter2D(overlap, output, kernel, new CvPoint(Anchor, -1));
-                Core.cvCopy(overlapEnd, overlapStart);
+                if (overlapEnd != null) Core.cvCopy(overlapEnd, overlapStart);
                 return output.GetSubRect(overlapOutput);
             }
         }
@@ -80,8 +84,12 @@ namespace Bonsai.Dsp
                 currentKernel = null;
 
                 overlapInput.Close();
-                overlapEnd.Close();
-                overlapStart.Close();
+                if (overlapEnd != null)
+                {
+                    overlapEnd.Close();
+                    overlapStart.Close();
+                }
+
                 overlap.Close();
                 overlap = overlapInput = null;
                 overlapEnd = overlapStart = null;
