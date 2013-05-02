@@ -100,7 +100,7 @@ namespace Bonsai.Dsp
                                         Core.cvPow(result, result, 0.5); // s <- sqrt(s2)
                                     }
                                     return result;
-                                }));
+                                }).Publish().RefCount());
                     });
             });
         }
