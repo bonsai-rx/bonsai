@@ -81,7 +81,7 @@ namespace Bonsai.Vision.Design
                     }
 
                     IDisposable subscription = null;
-                    imageControl.HandleCreated += delegate { subscription = source.Subscribe(image => imageControl.Image = (IplImage)image); };
+                    imageControl.Load += delegate { subscription = source.Subscribe(image => imageControl.Image = (IplImage)image); };
                     imageControl.HandleDestroyed += delegate { subscription.Dispose(); };
                     editorService.ShowDialog(visualizerDialog);
 
