@@ -35,6 +35,7 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(SkipBuilder))]
     [XmlInclude(typeof(SkipLastBuilder))]
     [XmlInclude(typeof(SkipUntilBuilder))]
+    [XmlInclude(typeof(SliceBuilder))]
     [XmlInclude(typeof(SubscribeWhenBuilder))]
     [XmlInclude(typeof(TakeBuilder))]
     [XmlInclude(typeof(TakeLastBuilder))]
