@@ -21,7 +21,7 @@ namespace Bonsai.Expressions
         {
             var sourceType = Source.Type.GetGenericArguments()[0];
             var otherType = Other.Type.GetGenericArguments()[0];
-            return Expression.Call(concatMethod.MakeGenericMethod(sourceType, otherType), Source, Other);
+            return Expression.Call(concatMethod.MakeGenericMethod(sourceType), Source, Other);
         }
     }
 }
