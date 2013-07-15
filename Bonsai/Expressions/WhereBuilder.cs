@@ -10,6 +10,7 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
 {
+    [WorkflowElementCategory(ElementCategory.Condition)]
     [XmlType("Where", Namespace = Constants.XmlNamespace)]
     public class WhereBuilder : CombinatorExpressionBuilder
     {

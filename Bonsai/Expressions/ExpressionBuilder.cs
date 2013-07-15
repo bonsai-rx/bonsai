@@ -73,17 +73,17 @@ namespace Bonsai.Expressions
             return builder.GetType();
         }
 
-        public static ExpressionBuilder FromLoadableElement(LoadableElement element, WorkflowElementType elementType)
+        public static ExpressionBuilder FromLoadableElement(LoadableElement element, ElementCategory elementType)
         {
             if (element == null)
             {
                 throw new ArgumentNullException("element");
             }
 
-            if (elementType == WorkflowElementType.Source) return new SourceBuilder { Source = element };
-            if (elementType == WorkflowElementType.Condition) return new WhereBuilder { Condition = element };
-            if (elementType == WorkflowElementType.Transform) return new SelectBuilder { Transform = element };
-            if (elementType == WorkflowElementType.Sink) return new DoBuilder { Sink = element };
+            if (elementType == ElementCategory.Source) return new SourceBuilder { Source = element };
+            if (elementType == ElementCategory.Condition) return new WhereBuilder { Condition = element };
+            if (elementType == ElementCategory.Transform) return new SelectBuilder { Transform = element };
+            if (elementType == ElementCategory.Sink) return new DoBuilder { Sink = element };
             throw new InvalidOperationException("Invalid loadable element type.");
         }
 

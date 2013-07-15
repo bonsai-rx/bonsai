@@ -153,6 +153,6 @@ namespace Bonsai.Editor
 
         public string Description { get; set; }
 
-        public WorkflowElementType[] ElementTypes { get; set; }
+        public ElementCategory[] ElementTypes { get; set; }
     }
 }

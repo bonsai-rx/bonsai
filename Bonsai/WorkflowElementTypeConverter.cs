@@ -3,18 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Bonsai.Expressions;
+using System.ComponentModel;
 
 namespace Bonsai
 {
     public static class WorkflowElementTypeConverter
     {
-        static bool MatchType(Type type, WorkflowElementType elementType)
+        static bool MatchType(Type type, ElementCategory elementType)
         {
-            if (elementType == WorkflowElementType.Source) return MatchGenericType(type, typeof(Source<>));
-            if (elementType == WorkflowElementType.Condition) return type.GetCustomAttributes(typeof(ConditionAttribute), true).Length > 0;
-            if (elementType == WorkflowElementType.Sink) return type.IsSubclassOf(typeof(DynamicSink)) || type.GetCustomAttributes(typeof(SinkAttribute), true).Length > 0;
-            if (elementType == WorkflowElementType.Combinator) return type.IsSubclassOf(typeof(ExpressionBuilder));
-            if (elementType == WorkflowElementType.Transform) return type.GetCustomAttributes(typeof(TransformAttribute), true).Length > 0;
+            if (elementType == ElementCategory.Source) return MatchGenericType(type, typeof(Source<>));
+            if (elementType == ElementCategory.Condition) return type.GetCustomAttributes(typeof(ConditionAttribute), true).Length > 0;
+            if (elementType == ElementCategory.Sink) return type.IsSubclassOf(typeof(DynamicSink)) || type.GetCustomAttributes(typeof(SinkAttribute), true).Length > 0;
+            if (elementType == ElementCategory.Combinator) return type.IsSubclassOf(typeof(ExpressionBuilder));
+            if (elementType == ElementCategory.Transform) return type.GetCustomAttributes(typeof(TransformAttribute), true).Length > 0;
             return false;
         }
 
@@ -48,14 +49,27 @@ namespace Bonsai
             return false;
         }
 
-        public static IEnumerable<WorkflowElementType> FromType(Type type)
+        static bool MatchAttributeType(Type type, Type attributeType)
+        {
+            return type.GetCustomAttributes(attributeType, true).Length > 0;
+        }
+
+        public static IEnumerable<ElementCategory> FromType(Type type)
         {
             if (MatchIgnoredTypes(type)) yield break;
-            if (MatchType(type, WorkflowElementType.Source)) yield return WorkflowElementType.Source;
-            if (MatchType(type, WorkflowElementType.Condition)) yield return WorkflowElementType.Condition;
-            if (MatchType(type, WorkflowElementType.Transform)) yield return WorkflowElementType.Transform;
-            if (MatchType(type, WorkflowElementType.Sink)) yield return WorkflowElementType.Sink;
-            if (MatchType(type, WorkflowElementType.Combinator)) yield return WorkflowElementType.Combinator;
+            if (type.IsSubclassOf(typeof(ExpressionBuilder)))
+            {
+                var attributes = TypeDescriptor.GetAttributes(type);
+                var elementCategoryAttribute = (WorkflowElementCategoryAttribute)attributes[typeof(WorkflowElementCategoryAttribute)];
+                yield return elementCategoryAttribute.Category;
+            }
+            else
+            {
+                if (MatchType(type, ElementCategory.Source)) yield return ElementCategory.Source;
+                if (MatchAttributeType(type, typeof(ConditionAttribute))) yield return ElementCategory.Condition;
+                if (MatchAttributeType(type, typeof(TransformAttribute))) yield return ElementCategory.Transform;
+                if (MatchAttributeType(type, typeof(SinkAttribute))) yield return ElementCategory.Sink;
+            }
         }
     }
 }

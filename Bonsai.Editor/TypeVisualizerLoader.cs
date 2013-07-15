@@ -44,16 +44,19 @@ namespace Bonsai.Editor
             for (int i = 0; i < types.Length; i++)
             {
                 var type = types[i];
-                var visualizerAttributes = Array.ConvertAll(type.GetCustomAttributes(attributeType, true), attribute =>
+                if (type.IsPublic && !type.IsAbstract && !type.ContainsGenericParameters)
                 {
-                    var visualizerAttribute = (TypeVisualizerAttribute)attribute;
-                    visualizerAttribute.TargetTypeName = type.AssemblyQualifiedName;
-                    return visualizerAttribute;
-                });
+                    var visualizerAttributes = Array.ConvertAll(type.GetCustomAttributes(attributeType, true), attribute =>
+                    {
+                        var visualizerAttribute = (TypeVisualizerAttribute)attribute;
+                        visualizerAttribute.TargetTypeName = type.AssemblyQualifiedName;
+                        return visualizerAttribute;
+                    });
 
-                if (visualizerAttributes.Length > 0)
-                {
-                    typeVisualizers = typeVisualizers.Concat(visualizerAttributes);
+                    if (visualizerAttributes.Length > 0)
+                    {
+                        typeVisualizers = typeVisualizers.Concat(visualizerAttributes);
+                    }
                 }
             }
 

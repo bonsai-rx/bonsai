@@ -52,23 +52,24 @@ namespace Bonsai.Design
             if (destinationType == typeof(Brush))
             {
                 var expressionBuilder = (ExpressionBuilder)value;
-
-                var sourceBuilder = expressionBuilder as SourceBuilder;
-                if (sourceBuilder != null) return Brushes.Violet;
-
-                var whereBuilder = expressionBuilder as WhereBuilder;
-                if (whereBuilder != null) return Brushes.LightGreen;
-
-                var selectBuilder = expressionBuilder as SelectBuilder;
-                if (selectBuilder != null) return Brushes.White;
-
-                var doBuilder = expressionBuilder as DoBuilder;
-                if (doBuilder != null) return Brushes.Gray;
-
-                var workflowExpressionBuilder = expressionBuilder as WorkflowExpressionBuilder;
-                if (workflowExpressionBuilder != null) return Brushes.Goldenrod;
-
-                return Brushes.LightBlue;
+                var elementAttributes = TypeDescriptor.GetAttributes(expressionBuilder);
+                var elementCategoryAttribute = (WorkflowElementCategoryAttribute)elementAttributes[typeof(WorkflowElementCategoryAttribute)];
+                switch (elementCategoryAttribute.Category)
+                {
+                    case ElementCategory.Source:
+                        return Brushes.Violet;
+                    case ElementCategory.Condition:
+                        return Brushes.LightGreen;
+                    case ElementCategory.Transform:
+                        return Brushes.White;
+                    case ElementCategory.Sink:
+                        return Brushes.Gray;
+                    case ElementCategory.Nested:
+                        return Brushes.Goldenrod;
+                    case ElementCategory.Combinator:
+                    default:
+                        return Brushes.LightBlue;
+                }
             }
 
             return base.ConvertTo(context, culture, value, destinationType);

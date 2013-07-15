@@ -61,6 +61,7 @@
     <Compile Include="IO\FileSink.cs" />
     <Compile Include="MultidimensionalArrayConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
+    <Compile Include="WorkflowElementCategoryAttribute.cs" />
     <Compile Include="WorkflowRuntimeException.cs" />
     <Compile Include="WorkflowException.cs" />
     <Compile Include="Expressions\BinaryCombinatorBuilder.cs" />
@@ -137,7 +138,7 @@
     <Compile Include="LoadableElement.cs" />
     <Compile Include="ReactiveWorkflowExtensions.cs" />
     <Compile Include="WorkflowBuildException.cs" />
-    <Compile Include="WorkflowElementType.cs" />
+    <Compile Include="ElementCategory.cs" />
     <Compile Include="ObservableSink.cs" />
     <Compile Include="PrecisionAttribute.cs" />
     <Compile Include="Transform.cs" />
