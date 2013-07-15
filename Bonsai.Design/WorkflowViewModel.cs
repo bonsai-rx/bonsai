@@ -219,11 +219,11 @@ namespace Bonsai.Design
         public void CreateGraphNode(TreeNode typeNode, GraphNode closestGraphViewNode, CreateGraphNodeType nodeType, bool branch)
         {
             var typeName = typeNode.Name;
-            var elementType = (WorkflowElementType)typeNode.Tag;
+            var elementType = (ElementCategory)typeNode.Tag;
             CreateGraphNode(typeName, elementType, closestGraphViewNode, nodeType, branch);
         }
 
-        public void CreateGraphNode(string typeName, WorkflowElementType elementType, GraphNode closestGraphViewNode, CreateGraphNodeType nodeType, bool branch)
+        public void CreateGraphNode(string typeName, ElementCategory elementType, GraphNode closestGraphViewNode, CreateGraphNodeType nodeType, bool branch)
         {
             var type = Type.GetType(typeName);
             if (type != null)
@@ -239,7 +239,7 @@ namespace Bonsai.Design
             }
         }
 
-        public void CreateGraphNode(ExpressionBuilder builder, WorkflowElementType elementType, GraphNode closestGraphViewNode, CreateGraphNodeType nodeType, bool branch)
+        public void CreateGraphNode(ExpressionBuilder builder, ElementCategory elementType, GraphNode closestGraphViewNode, CreateGraphNodeType nodeType, bool branch)
         {
             if (builder == null)
             {
@@ -256,7 +256,7 @@ namespace Bonsai.Design
             Action removeConnection = () => { };
 
             var closestNode = closestGraphViewNode != null ? GetGraphNodeTag(closestGraphViewNode) : null;
-            if (elementType == WorkflowElementType.Source)
+            if (elementType == ElementCategory.Source)
             {
                 if (closestNode != null && !(closestNode.Value is SourceBuilder) && !workflow.Predecessors(closestNode).Any())
                 {
@@ -613,7 +613,7 @@ namespace Bonsai.Design
                     var path = (string[])e.Data.GetData(DataFormats.FileDrop, true);
                     var workflowBuilder = editorService.LoadWorkflow(path[0]);
                     var workflowExpressionBuilder = new NestedWorkflowExpressionBuilder(workflowBuilder.Workflow);
-                    CreateGraphNode(workflowExpressionBuilder, WorkflowElementType.Combinator, linkNode, predecessor, branch);
+                    CreateGraphNode(workflowExpressionBuilder, ElementCategory.Combinator, linkNode, predecessor, branch);
                 }
                 else
                 {
@@ -701,7 +701,7 @@ namespace Bonsai.Design
                 {
                     var branch = e.Modifiers.HasFlag(BranchModifier);
                     var predecessor = e.Modifiers.HasFlag(PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
-                    CreateGraphNode(expressionBuilder, expressionBuilder.GetType() == typeof(SourceBuilder) ? WorkflowElementType.Source : WorkflowElementType.Combinator, workflowGraphView.SelectedNode, predecessor, branch);
+                    CreateGraphNode(expressionBuilder, expressionBuilder.GetType() == typeof(SourceBuilder) ? ElementCategory.Source : ElementCategory.Combinator, workflowGraphView.SelectedNode, predecessor, branch);
                 }
             }
         }

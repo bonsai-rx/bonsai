@@ -10,6 +10,7 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
 {
+    [WorkflowElementCategory(ElementCategory.Transform)]
     [XmlType("Select", Namespace = Constants.XmlNamespace)]
     public class SelectBuilder : CombinatorExpressionBuilder
     {

@@ -6,12 +6,13 @@ using Bonsai.Expressions;
 
 namespace Bonsai
 {
-    public enum WorkflowElementType
+    public enum ElementCategory
     {
         Source,
         Condition,
         Transform,
         Sink,
+        Nested,
         Combinator
     }
 }

@@ -10,6 +10,7 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
 {
+    [WorkflowElementCategory(ElementCategory.Sink)]
     [XmlType("Do", Namespace = Constants.XmlNamespace)]
     public class DoBuilder : CombinatorExpressionBuilder
     {

@@ -160,10 +160,10 @@ namespace Bonsai.Editor
         int GetElementTypeIndex(string typeName)
         {
             return
-                typeName == WorkflowElementType.Source.ToString() ? 0 :
-                typeName == WorkflowElementType.Condition.ToString() ? 1 :
-                typeName == WorkflowElementType.Transform.ToString() ? 2 :
-                typeName == WorkflowElementType.Sink.ToString() ? 3 : 4;
+                typeName == ElementCategory.Source.ToString() ? 0 :
+                typeName == ElementCategory.Condition.ToString() ? 1 :
+                typeName == ElementCategory.Transform.ToString() ? 2 :
+                typeName == ElementCategory.Sink.ToString() ? 3 : 4;
         }
 
         int CompareLoadableElementType(string left, string right)
@@ -177,7 +177,8 @@ namespace Bonsai.Editor
             {
                 foreach (var elementType in type.ElementTypes)
                 {
-                    var elementTypeNode = toolboxTreeView.Nodes[elementType.ToString()];
+                    var typeCategory = elementType == ElementCategory.Nested ? ElementCategory.Combinator : elementType;
+                    var elementTypeNode = toolboxTreeView.Nodes[typeCategory.ToString()];
                     var category = elementTypeNode.Nodes[categoryName];
                     if (category == null)
                     {
@@ -712,7 +713,7 @@ namespace Bonsai.Editor
                     {
                         var branch = Control.ModifierKeys.HasFlag(WorkflowViewModel.BranchModifier);
                         var predecessor = Control.ModifierKeys.HasFlag(WorkflowViewModel.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
-                        model.CreateGraphNode(expressionBuilder, expressionBuilder.GetType() == typeof(SourceBuilder) ? WorkflowElementType.Source : WorkflowElementType.Combinator, selectionModel.SelectedNode, predecessor, branch);
+                        model.CreateGraphNode(expressionBuilder, expressionBuilder.GetType() == typeof(SourceBuilder) ? ElementCategory.Source : ElementCategory.Combinator, selectionModel.SelectedNode, predecessor, branch);
                     }
                 }
             }

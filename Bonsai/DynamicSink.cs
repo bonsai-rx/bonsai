@@ -6,6 +6,7 @@ using System.Reactive.Disposables;
 
 namespace Bonsai
 {
+    [Sink]
     public abstract class DynamicSink : LoadableElement
     {
         LoadableElement sink;
