@@ -10,16 +10,18 @@ namespace Bonsai.Dsp
     {
         public SelectChannels()
         {
-            Length = 1;
+            Step = 1;
         }
 
-        public int StartIndex { get; set; }
+        public int Start { get; set; }
 
-        public int Length { get; set; }
+        public int Stop { get; set; }
+
+        public int Step { get; set; }
 
         public override CvMat Process(CvMat input)
         {
-            return input.GetSubRect(new CvRect(0, StartIndex, input.Cols, Length));
+            return input.GetRows(Start, Stop, Step);
         }
     }
 }
