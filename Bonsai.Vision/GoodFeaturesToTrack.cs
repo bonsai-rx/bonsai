@@ -26,6 +26,11 @@ namespace Bonsai.Vision
 
         public override KeyPointCollection Process(IplImage input)
         {
+            return Process(input);
+        }
+
+        public KeyPointCollection Process(IplImage input, IplImage mask = null)
+        {
             var result = new KeyPointCollection(input);
             temp = IplImageHelper.EnsureImageFormat(temp, input.Size, 32, 1);
             eigen = IplImageHelper.EnsureImageFormat(eigen, input.Size, 32, 1);
@@ -35,7 +40,7 @@ namespace Bonsai.Vision
             }
 
             int cornerCount = corners.Length;
-            ImgProc.cvGoodFeaturesToTrack(input, eigen, temp, corners, ref cornerCount, QualityLevel, MinDistance, CvArr.Null, 3, 0, 0.04);
+            ImgProc.cvGoodFeaturesToTrack(input, eigen, temp, corners, ref cornerCount, QualityLevel, MinDistance, mask ?? CvArr.Null, 3, 0, 0.04);
             for (int i = 0; i < cornerCount; i++)
             {
                 result.Add(new KeyPoint(corners[i]));
