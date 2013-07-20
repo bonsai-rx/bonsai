@@ -89,8 +89,9 @@
     <Compile Include="Mask.cs" />
     <Compile Include="ImageWriter.cs" />
     <Compile Include="MergeBinaryRegions.cs" />
-    <Compile Include="MorphologicalOperation.cs" />
+    <Compile Include="MorphologicalOperator.cs" />
     <Compile Include="MotionSegmentation.cs" />
+    <Compile Include="Normalize.cs" />
     <Compile Include="Not.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
