@@ -29,7 +29,7 @@ namespace Bonsai.Dsp
                     () => Disposable.Create(() =>
                     {
                         if (temp != null) temp.Close();
-                        if (temp2 != null) temp.Close();
+                        if (temp2 != null) temp2.Close();
                         accumulatorBuffer.ForEach(image => image.Close());
                         accumulatorBufferSquared.ForEach(image => image.Close());
                     }),
