@@ -27,11 +27,11 @@ namespace Bonsai.Design
             var loadableElement = instance as LoadableElement;
             if (loadableElement != null)
             {
-                var doBuilder = builder as DoBuilder;
-                if (doBuilder != null) return doBuilder.Sink == loadableElement;
+                var sinkBuilder = builder as SinkBuilder;
+                if (sinkBuilder != null) return sinkBuilder.Sink == loadableElement;
 
-                var whereBuilder = builder as WhereBuilder;
-                if (whereBuilder != null) return whereBuilder.Condition == loadableElement;
+                var conditionBuilder = builder as ConditionBuilder;
+                if (conditionBuilder != null) return conditionBuilder.Condition == loadableElement;
             }
 
             return false;

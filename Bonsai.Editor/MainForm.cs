@@ -568,7 +568,7 @@ namespace Bonsai.Editor
                 if (loadableElement != null)
                 {
                     var element = loadableElement.GetValue(node.Value, null);
-                    var builder = node.Value as WhereBuilder;
+                    var builder = node.Value as ConditionBuilder;
                     if (builder != null)
                     {
                         var builderProperties = TypeDescriptor.GetProperties(builder);

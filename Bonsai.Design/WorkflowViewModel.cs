@@ -194,7 +194,12 @@ namespace Bonsai.Design
                     var binaryCombinator = combinator as BinaryCombinatorExpressionBuilder;
                     if (binaryCombinator != null && binaryCombinator.Other == null)
                     {
-                        connection = "Other";
+                        var combinatorBuilder = binaryCombinator as CombinatorBuilder;
+                        if (combinatorBuilder == null ||
+                            combinatorBuilder.Combinator.GetType().GetCustomAttributes(typeof(BinaryCombinatorAttribute), true).Length > 0)
+                        {
+                            connection = "Other";
+                        }
                     }
                 }
             }

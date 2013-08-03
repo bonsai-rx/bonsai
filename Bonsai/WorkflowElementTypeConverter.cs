@@ -22,9 +22,10 @@ namespace Bonsai
         static bool MatchIgnoredTypes(Type type)
         {
             return type == typeof(SourceBuilder) ||
-                   type == typeof(SelectBuilder) ||
-                   type == typeof(WhereBuilder) ||
-                   type == typeof(DoBuilder) ||
+                   type == typeof(TransformBuilder) ||
+                   type == typeof(ConditionBuilder) ||
+                   type == typeof(SinkBuilder) ||
+                   type == typeof(CombinatorBuilder) ||
                    type == typeof(PublishBuilder) ||
                    type == typeof(InspectBuilder);
         }
@@ -69,6 +70,8 @@ namespace Bonsai
                 if (MatchAttributeType(type, typeof(ConditionAttribute))) yield return ElementCategory.Condition;
                 if (MatchAttributeType(type, typeof(TransformAttribute))) yield return ElementCategory.Transform;
                 if (MatchAttributeType(type, typeof(SinkAttribute))) yield return ElementCategory.Sink;
+                if (MatchAttributeType(type, typeof(CombinatorAttribute))) yield return ElementCategory.Combinator;
+                else if (MatchAttributeType(type, typeof(BinaryCombinatorAttribute))) yield return ElementCategory.Combinator;
             }
         }
     }

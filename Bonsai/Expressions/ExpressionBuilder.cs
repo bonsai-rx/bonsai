@@ -14,42 +14,14 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(WorkflowInputBuilder))]
     [XmlInclude(typeof(WorkflowOutputBuilder))]
     [XmlInclude(typeof(SourceBuilder))]
-    [XmlInclude(typeof(SelectBuilder))]
-    [XmlInclude(typeof(WhereBuilder))]
-    [XmlInclude(typeof(DoBuilder))]
+    [XmlInclude(typeof(TransformBuilder))]
+    [XmlInclude(typeof(ConditionBuilder))]
+    [XmlInclude(typeof(SinkBuilder))]
+    [XmlInclude(typeof(CombinatorBuilder))]
     [XmlInclude(typeof(NullSinkBuilder))]
-    [XmlInclude(typeof(UnitBuilder))]
     [XmlInclude(typeof(MemberSelectorBuilder))]
-    [XmlInclude(typeof(DistinctUntilChangedBuilder))]
-    [XmlInclude(typeof(TimestampBuilder))]
-    [XmlInclude(typeof(CombineTimestampBuilder))]
-    [XmlInclude(typeof(RepeatBuilder))]
-    [XmlInclude(typeof(RepeatCountBuilder))]
-    [XmlInclude(typeof(TimeIntervalBuilder))]
-    [XmlInclude(typeof(ThrottleBuilder))]
-    [XmlInclude(typeof(SampleBuilder))]
-    [XmlInclude(typeof(SampleIntervalBuilder))]
-    [XmlInclude(typeof(GateBuilder))]
-    [XmlInclude(typeof(GateIntervalBuilder))]
-    [XmlInclude(typeof(TimedGateBuilder))]
-    [XmlInclude(typeof(SkipBuilder))]
-    [XmlInclude(typeof(SkipLastBuilder))]
-    [XmlInclude(typeof(SkipUntilBuilder))]
-    [XmlInclude(typeof(SliceBuilder))]
-    [XmlInclude(typeof(SubscribeWhenBuilder))]
-    [XmlInclude(typeof(TakeBuilder))]
-    [XmlInclude(typeof(TakeLastBuilder))]
-    [XmlInclude(typeof(TakeUntilBuilder))]
-    [XmlInclude(typeof(CombineLatestBuilder))]
-    [XmlInclude(typeof(ConcatBuilder))]
-    [XmlInclude(typeof(DelayBuilder))]
-    [XmlInclude(typeof(ZipBuilder))]
-    [XmlInclude(typeof(AmbBuilder))]
-    [XmlInclude(typeof(MergeBuilder))]
     [XmlInclude(typeof(SelectManyBuilder))]
     [XmlInclude(typeof(WindowWorkflowBuilder))]
-    [XmlInclude(typeof(TimeSpanWindowBuilder))]
-    [XmlInclude(typeof(ElementCountWindowBuilder))]
     [XmlType("Expression", Namespace = Constants.XmlNamespace)]
     [TypeConverter("Bonsai.Design.ExpressionBuilderTypeConverter, Bonsai.Design")]
     public abstract class ExpressionBuilder
@@ -61,14 +33,17 @@ namespace Bonsai.Expressions
             var sourceBuilder = builder as SourceBuilder;
             if (sourceBuilder != null) return sourceBuilder.Source.GetType();
 
-            var selectBuilder = builder as SelectBuilder;
+            var selectBuilder = builder as TransformBuilder;
             if (selectBuilder != null) return selectBuilder.Transform.GetType();
 
-            var whereBuilder = builder as WhereBuilder;
+            var whereBuilder = builder as ConditionBuilder;
             if (whereBuilder != null) return whereBuilder.Condition.GetType();
 
-            var doBuilder = builder as DoBuilder;
+            var doBuilder = builder as SinkBuilder;
             if (doBuilder != null) return doBuilder.Sink.GetType();
+
+            var combinatorBuilder = builder as CombinatorBuilder;
+            if (combinatorBuilder != null) return combinatorBuilder.Combinator.GetType();
 
             return builder.GetType();
         }
@@ -81,9 +56,10 @@ namespace Bonsai.Expressions
             }
 
             if (elementType == ElementCategory.Source) return new SourceBuilder { Source = element };
-            if (elementType == ElementCategory.Condition) return new WhereBuilder { Condition = element };
-            if (elementType == ElementCategory.Transform) return new SelectBuilder { Transform = element };
-            if (elementType == ElementCategory.Sink) return new DoBuilder { Sink = element };
+            if (elementType == ElementCategory.Condition) return new ConditionBuilder { Condition = element };
+            if (elementType == ElementCategory.Transform) return new TransformBuilder { Transform = element };
+            if (elementType == ElementCategory.Combinator) return new CombinatorBuilder { Combinator = element };
+            if (elementType == ElementCategory.Sink) return new SinkBuilder { Sink = element };
             throw new InvalidOperationException("Invalid loadable element type.");
         }
 
@@ -184,23 +160,28 @@ namespace Bonsai.Expressions
             return Enumerable.Empty<Tuple<Type, int>>();
         }
 
-        internal static Expression BuildProcessExpression(Expression parameter, object processor, MethodInfo processMethod)
+        internal static Expression BuildProcessExpression(object processor, MethodInfo processMethod, params Expression[] parameters)
         {
             if (processMethod.IsGenericMethodDefinition)
             {
-                var typeArguments = GetMethodBindings(processMethod, parameter.Type);
-                processMethod = processMethod.MakeGenericMethod(typeArguments.ToArray());
+                var typeArguments = GetMethodBindings(processMethod, Array.ConvertAll(parameters, xs => xs.Type));
+                processMethod = processMethod.MakeGenericMethod(typeArguments);
             }
 
+            int i = 0;
             var processorExpression = Expression.Constant(processor);
-            var parameterType = processMethod.GetParameters()[0].ParameterType;
-            var processParameter = (Expression)parameter;
-            if (parameter.Type != parameterType)
+            var processParameters = processMethod.GetParameters();
+            parameters = Array.ConvertAll(parameters, parameter =>
             {
-                processParameter = Expression.Convert(processParameter, parameterType);
-            }
+                var parameterType = processParameters[i++].ParameterType;
+                if (parameter.Type != parameterType)
+                {
+                    return Expression.Convert(parameter, parameterType);
+                }
+                return parameter;
+            });
 
-            return Expression.Call(processorExpression, processMethod, processParameter);
+            return Expression.Call(processorExpression, processMethod, parameters);
         }
     }
 }

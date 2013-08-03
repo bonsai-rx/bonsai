@@ -3,41 +3,35 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Linq.Expressions;
+using System.Reflection;
+using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
 {
-    public abstract class CombinatorBuilder : CombinatorExpressionBuilder
+    [XmlType("Combinator", Namespace = Constants.XmlNamespace)]
+    public class CombinatorBuilder : BinaryCombinatorExpressionBuilder
     {
+        public LoadableElement Combinator { get; set; }
+
         public override Expression Build()
         {
-            var observableType = Source.Type.GetGenericArguments();
-            var combinatorExpression = Expression.Constant(this);
-            return Expression.Call(combinatorExpression, "Combine", observableType, Source);
+            var combinatorType = Combinator.GetType();
+            if (Other != null)
+            {
+                var combinatorAttributes = combinatorType.GetCustomAttributes(typeof(BinaryCombinatorAttribute), true);
+                var methodName = ((BinaryCombinatorAttribute)combinatorAttributes.Single()).MethodName;
+                var processMethod = combinatorType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                                                       .Single(m => m.Name == methodName && m.GetParameters().Length == 2);
+                return BuildProcessExpression(Combinator, processMethod, Source, Other);
+            }
+            else
+            {
+                var combinatorAttributes = combinatorType.GetCustomAttributes(typeof(CombinatorAttribute), true);
+                var methodName = ((CombinatorAttribute)combinatorAttributes.Single()).MethodName;
+                var processMethod = combinatorType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                                                       .Single(m => m.Name == methodName && m.GetParameters().Length == 1);
+                return BuildProcessExpression(Combinator, processMethod, Source);
+            }
         }
-
-        protected abstract IObservable<TSource> Combine<TSource>(IObservable<TSource> source);
-    }
-
-    public abstract class CombinatorBuilder<TResult> : CombinatorExpressionBuilder
-    {
-        public override Expression Build()
-        {
-            var observableType = Source.Type.GetGenericArguments();
-            var combinatorExpression = Expression.Constant(this);
-            return Expression.Call(combinatorExpression, "Combine", observableType, Source);
-        }
-
-        protected abstract IObservable<TResult> Combine<TSource>(IObservable<TSource> source);
-    }
-
-    public abstract class CombinatorBuilder<TSource, TResult> : CombinatorExpressionBuilder
-    {
-        public override Expression Build()
-        {
-            var combinatorExpression = Expression.Constant(this);
-            return Expression.Call(combinatorExpression, "Combine", null, Source);
-        }
-
-        protected abstract IObservable<TResult> Combine(IObservable<TSource> source);
     }
 }

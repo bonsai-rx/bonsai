@@ -7,11 +7,11 @@ using System.Reactive.Linq;
 
 namespace Bonsai.IO
 {
-    public class StringConstant : CombinatorBuilder<string>
+    public class StringConstant : Combinator<string>
     {
         public string Literal { get; set; }
 
-        protected override IObservable<string> Combine<TSource>(IObservable<TSource> source)
+        public override IObservable<string> Process<TSource>(IObservable<TSource> source)
         {
             return source.Select(input => Literal);
         }
