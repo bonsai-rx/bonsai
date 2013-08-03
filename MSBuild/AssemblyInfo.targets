@@ -25,9 +25,9 @@
       <Output TaskParameter="Lines" ItemName="GeneratedAssemblyInfoLines" />
     </ReadLinesFromFile>
     <PropertyGroup>
-      <AssemblyFileVersionPattern>\[assembly: AssemblyFileVersion\(.(\d+)\.(\d+)\.(\d+)</AssemblyFileVersionPattern>
+      <AssemblyFileVersionPattern>\[assembly: AssemblyFileVersion\(.(\d+)\.(\d+)\.(\d+)\.(\d+)</AssemblyFileVersionPattern>
       <GeneratedAssemblyInfoInput>@(GeneratedAssemblyInfoLines)</GeneratedAssemblyInfoInput>
-      <GeneratedAssemblyFileVersion>$([System.Text.RegularExpressions.Regex]::Match($(GeneratedAssemblyInfoInput), $(AssemblyFileVersionPattern)).Result("$1.$2.$3.0"))</GeneratedAssemblyFileVersion>
+      <GeneratedAssemblyFileVersion>$([System.Text.RegularExpressions.Regex]::Match($(GeneratedAssemblyInfoInput), $(AssemblyFileVersionPattern)).Result("$1.$2.$3.$4"))</GeneratedAssemblyFileVersion>
     </PropertyGroup>
   </Target>
 
@@ -46,7 +46,7 @@
     <PropertyGroup>
       <AssemblyVersionPattern>\[assembly: AssemblyVersion\(.(\d+)\.(\d+)\.(\d+)</AssemblyVersionPattern>
       <AssemblyInfoInput>@(AssemblyInfoLines)</AssemblyInfoInput>
-      <MajorMinor>$([System.Text.RegularExpressions.Regex]::Match($(AssemblyInfoInput), $(AssemblyVersionPattern)).Result("$1.$2"))</MajorMinor>
+      <MajorMinorPatch>$([System.Text.RegularExpressions.Regex]::Match($(AssemblyInfoInput), $(AssemblyVersionPattern)).Result("$1.$2.$3"))</MajorMinorPatch>
     </PropertyGroup>
 
     <HgVersion LocalPath="$(MSBuildProjectDirectory)" ContinueOnError="True">
@@ -54,7 +54,7 @@
     </HgVersion>
 
     <PropertyGroup>
-      <AssemblyFileVersion>$(MajorMinor).$(HgRevisionNumber).0</AssemblyFileVersion>
+      <AssemblyFileVersion>$(MajorMinorPatch).$(HgRevisionNumber)</AssemblyFileVersion>
     </PropertyGroup>
   </Target>
   
