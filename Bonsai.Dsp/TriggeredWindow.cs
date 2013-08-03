@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 
 namespace Bonsai.Dsp
 {
-    public class TriggeredWindow : CombinatorBuilder<Tuple<CvMat, CvMat>, IObservable<CvMat>>
+    public class TriggeredWindow : Combinator<Tuple<CvMat, CvMat>, IObservable<CvMat>>
     {
         public int Count { get; set; }
 
@@ -39,7 +39,7 @@ namespace Bonsai.Dsp
             return windowIndex + windowElements;
         }
 
-        protected override IObservable<IObservable<CvMat>> Combine(IObservable<Tuple<CvMat, CvMat>> source)
+        public override IObservable<IObservable<CvMat>> Process(IObservable<Tuple<CvMat, CvMat>> source)
         {
             return Observable.Create<IObservable<CvMat>>(observer =>
             {

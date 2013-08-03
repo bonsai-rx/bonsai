@@ -69,7 +69,7 @@ namespace Bonsai.Vision.Design
                     if (workflow == null) return base.EditValue(context, provider, value);
 
                     var workflowNode = (from node in workflow
-                                        let builder = node.Value as SelectBuilder
+                                        let builder = node.Value as TransformBuilder
                                         where builder != null && builder.Transform == context.Instance
                                         select node)
                                         .FirstOrDefault();

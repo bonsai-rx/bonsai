@@ -9,13 +9,13 @@ using System.Reactive.Disposables;
 
 namespace Bonsai.Dsp
 {
-    public abstract class WindowStatistics<TArray> : CombinatorBuilder<IObservable<TArray>, IObservable<TArray>> where TArray : CvArr
+    public abstract class WindowStatistics<TArray> : Combinator<IObservable<TArray>, IObservable<TArray>> where TArray : CvArr
     {
         public ProjectionType ProjectionType { get; set; }
 
         protected abstract TArray CreateArray(TArray source, CvMatDepth depth);
 
-        protected override IObservable<IObservable<TArray>> Combine(IObservable<IObservable<TArray>> source)
+        public override IObservable<IObservable<TArray>> Process(IObservable<IObservable<TArray>> source)
         {
             return Observable.Defer(() =>
             {

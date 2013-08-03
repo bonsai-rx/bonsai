@@ -11,7 +11,7 @@ using System.ComponentModel;
 
 namespace Bonsai.Expressions
 {
-    public class PublishBuilder : CombinatorBuilder
+    public class PublishBuilder : CombinatorExpressionBuilder
     {
         ObservableHandle handle = new ObservableHandle();
 
@@ -20,7 +20,14 @@ namespace Bonsai.Expressions
             get { return handle; }
         }
 
-        protected override IObservable<TSource> Combine<TSource>(IObservable<TSource> source)
+        public override Expression Build()
+        {
+            var observableType = Source.Type.GetGenericArguments();
+            var combinatorExpression = Expression.Constant(this);
+            return Expression.Call(combinatorExpression, "Process", observableType, Source);
+        }
+
+        IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
             handle.ObservableCache = handle.ObservableCache ?? source.Publish().RefCount();
             return (IObservable<TSource>)handle.ObservableCache;

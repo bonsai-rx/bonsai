@@ -9,7 +9,7 @@ using System.Reactive.Subjects;
 
 namespace Bonsai.Expressions
 {
-    public class InspectBuilder : CombinatorBuilder
+    public class InspectBuilder : CombinatorExpressionBuilder
     {
         ObservableHandle handle = new ObservableHandle();
         ReplaySubject<IObservable<object>> subject;
@@ -45,11 +45,12 @@ namespace Bonsai.Expressions
             else
             {
                 Output = subject;
-                return base.Build();
+                var combinatorExpression = Expression.Constant(this);
+                return Expression.Call(combinatorExpression, "Process", new[] { ObservableType }, Source);
             }
         }
 
-        protected override IObservable<TSource> Combine<TSource>(IObservable<TSource> source)
+        IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
             if (handle.ObservableCache == null)
             {

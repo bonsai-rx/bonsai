@@ -7,11 +7,11 @@ using System.Reactive.Linq;
 
 namespace Bonsai.IO
 {
-    public class ToggleSwitch : CombinatorBuilder
+    public class ToggleSwitch : Combinator
     {
         public bool Enabled { get; set; }
 
-        protected override IObservable<TSource> Combine<TSource>(IObservable<TSource> source)
+        public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
             return source.Where(xs => Enabled);
         }
