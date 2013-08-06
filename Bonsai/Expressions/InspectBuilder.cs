@@ -56,7 +56,10 @@ namespace Bonsai.Expressions
             {
                 var sourceInspector = new ReplaySubject<object>(1);
                 subject.OnNext(sourceInspector);
-                handle.ObservableCache = source.Do(xs => sourceInspector.OnNext(xs), () => sourceInspector.OnCompleted());
+                handle.ObservableCache = source.Do(
+                    xs => sourceInspector.OnNext(xs),
+                    ex => sourceInspector.OnError(ex),
+                    () => sourceInspector.OnCompleted());
             }
             return (IObservable<TSource>)handle.ObservableCache;
         }
