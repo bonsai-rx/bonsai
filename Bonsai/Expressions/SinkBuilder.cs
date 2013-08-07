@@ -36,11 +36,12 @@ namespace Bonsai.Expressions
             }
 
             var sinkType = sink.GetType();
+            var sinkExpression = Expression.Constant(sink);
             var sinkAttributes = sinkType.GetCustomAttributes(typeof(SinkAttribute), true);
             var methodName = ((SinkAttribute)sinkAttributes.Single()).MethodName;
             var parameter = Expression.Parameter(observableType);
             var processMethod = sinkType.GetMethod(methodName);
-            var process = BuildProcessExpression(sink, processMethod, parameter);
+            var process = ExpressionBuilder.Call(sinkExpression, processMethod, parameter);
 
             var exception = Expression.Parameter(typeof(Exception));
             var exceptionText = Expression.Property(exception, "Message");

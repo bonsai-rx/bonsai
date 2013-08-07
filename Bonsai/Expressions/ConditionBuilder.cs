@@ -29,6 +29,7 @@ namespace Bonsai.Expressions
         public override Expression Build()
         {
             var conditionType = Condition.GetType();
+            var conditionExpression = Expression.Constant(Condition);
             var conditionAttributes = conditionType.GetCustomAttributes(typeof(ConditionAttribute), true);
             var methodName = ((ConditionAttribute)conditionAttributes.Single()).MethodName;
 
@@ -36,7 +37,7 @@ namespace Bonsai.Expressions
             var parameter = Expression.Parameter(observableType);
             var processMethod = conditionType.GetMethod(methodName);
             var processParameter = ExpressionHelper.MemberAccess(parameter, Selector);
-            var process = BuildProcessExpression(Condition, processMethod, processParameter);
+            var process = ExpressionBuilder.Call(conditionExpression, processMethod, processParameter);
 
             var exception = Expression.Parameter(typeof(Exception));
             var exceptionText = Expression.Property(exception, "Message");
