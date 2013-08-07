@@ -160,7 +160,7 @@ namespace Bonsai.Expressions
             return Enumerable.Empty<Tuple<Type, int>>();
         }
 
-        internal static Expression Call(Expression instance, MethodInfo method, params Expression[] arguments)
+        internal static Expression BuildCall(Expression instance, MethodInfo method, params Expression[] arguments)
         {
             if (method.IsGenericMethodDefinition)
             {

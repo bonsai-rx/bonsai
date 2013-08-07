@@ -37,7 +37,7 @@ namespace Bonsai.Expressions
             var parameter = Expression.Parameter(observableType);
             var processMethod = conditionType.GetMethod(methodName);
             var processParameter = ExpressionHelper.MemberAccess(parameter, Selector);
-            var process = ExpressionBuilder.Call(conditionExpression, processMethod, processParameter);
+            var process = BuildCall(conditionExpression, processMethod, processParameter);
 
             var exception = Expression.Parameter(typeof(Exception));
             var exceptionText = Expression.Property(exception, "Message");
