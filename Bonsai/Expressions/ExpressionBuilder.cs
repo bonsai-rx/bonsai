@@ -160,18 +160,17 @@ namespace Bonsai.Expressions
             return Enumerable.Empty<Tuple<Type, int>>();
         }
 
-        internal static Expression BuildProcessExpression(object processor, MethodInfo processMethod, params Expression[] parameters)
+        internal static Expression Call(Expression instance, MethodInfo method, params Expression[] arguments)
         {
-            if (processMethod.IsGenericMethodDefinition)
+            if (method.IsGenericMethodDefinition)
             {
-                var typeArguments = GetMethodBindings(processMethod, Array.ConvertAll(parameters, xs => xs.Type));
-                processMethod = processMethod.MakeGenericMethod(typeArguments);
+                var typeArguments = GetMethodBindings(method, Array.ConvertAll(arguments, xs => xs.Type));
+                method = method.MakeGenericMethod(typeArguments);
             }
 
             int i = 0;
-            var processorExpression = Expression.Constant(processor);
-            var processParameters = processMethod.GetParameters();
-            parameters = Array.ConvertAll(parameters, parameter =>
+            var processParameters = method.GetParameters();
+            arguments = Array.ConvertAll(arguments, parameter =>
             {
                 var parameterType = processParameters[i++].ParameterType;
                 if (parameter.Type != parameterType)
@@ -181,7 +180,7 @@ namespace Bonsai.Expressions
                 return parameter;
             });
 
-            return Expression.Call(processorExpression, processMethod, parameters);
+            return Expression.Call(instance, method, arguments);
         }
     }
 }
