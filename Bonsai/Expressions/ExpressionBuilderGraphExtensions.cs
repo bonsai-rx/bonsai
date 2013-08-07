@@ -14,6 +14,48 @@ namespace Bonsai.Expressions
 {
     public static class ExpressionBuilderGraphExtensions
     {
+        static WorkflowException BuildRuntimeExceptionStack(string message, ExpressionBuilder builder, Exception innerException, IEnumerable<ExpressionBuilder> callStack)
+        {
+            var exception = new WorkflowRuntimeException(message, builder, innerException);
+            foreach (var caller in callStack)
+            {
+                exception = new WorkflowRuntimeException(message, caller, exception);
+            }
+
+            return exception;
+        }
+
+        public static IObservable<Unit> InspectErrors(this ExpressionBuilderGraph source)
+        {
+            return InspectErrors(source, Enumerable.Empty<ExpressionBuilder>()).Merge();
+        }
+
+        static IEnumerable<IObservable<Unit>> InspectErrors(this ExpressionBuilderGraph source, IEnumerable<ExpressionBuilder> callStack)
+        {
+            foreach (var mapping in from node in source
+                                    where !(node.Value is InspectBuilder)
+                                    let inspectBuilder = node.Successors.Single().Node.Value as InspectBuilder
+                                    where inspectBuilder != null
+                                    select new { node.Value, inspectBuilder })
+            {
+                var builder = mapping.Value;
+                yield return mapping.inspectBuilder.Output
+                    .Merge()
+                    .IgnoreElements()
+                    .Select(xs => Unit.Default)
+                    .Catch<Unit, Exception>(xs => Observable.Throw<Unit>(BuildRuntimeExceptionStack(xs.Message, builder, xs, callStack)));
+
+                var workflowExpression = mapping.Value as WorkflowExpressionBuilder;
+                if (workflowExpression != null)
+                {
+                    foreach (var error in workflowExpression.Workflow.InspectErrors(Enumerable.Repeat(workflowExpression, 1).Concat(callStack)))
+                    {
+                        yield return error;
+                    }
+                }
+            }
+        }
+
         public static Type ExpressionType(this ExpressionBuilderGraph source, Node<ExpressionBuilder, ExpressionBuilderParameter> node)
         {
             if (!source.Contains(node))

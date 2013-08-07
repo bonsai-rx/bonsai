@@ -448,10 +448,11 @@ namespace Bonsai.Editor
                         editorSite.OnWorkflowStarted(EventArgs.Empty);
 
                         var shutdown = ShutdownSequence();
-                        return new ReactiveWorkflowDisposable(runtimeWorkflow, shutdown);
+                        var errorHandler = workflowBuilder.Workflow.InspectErrors().Subscribe(xs => { }, HandleWorkflowError);
+                        return new ReactiveWorkflowDisposable(runtimeWorkflow, new CompositeDisposable(shutdown, errorHandler));
                     },
                     resource => resource.Workflow.Run().SubscribeOn(NewThreadScheduler.Default))
-                    .Subscribe(unit => { }, HandleWorkflowError, () => { });
+                    .Subscribe(unit => { }, ex => { }, () => { });
             }
         }
 
@@ -469,10 +470,12 @@ namespace Bonsai.Editor
             if (graphNode != null)
             {
                 viewModel.WorkflowGraphView.SelectedNode = graphNode;
+                var selectionBrush = viewModel.WorkflowGraphView.UnfocusedSelectionBrush;
                 var buildException = e.InnerException as WorkflowException;
                 if (buildException != null)
                 {
                     viewModel.LaunchWorkflowView(graphNode);
+                    viewModel.WorkflowGraphView.UnfocusedSelectionBrush = Brushes.DarkRed;
                     var editorLauncher = viewModel.GetWorkflowEditorLauncher(graphNode);
                     if (editorLauncher != null)
                     {
@@ -483,11 +486,11 @@ namespace Bonsai.Editor
                 {
                     viewModel.WorkflowGraphView.Select();
                     var errorCaption = e is WorkflowBuildException ? "Build Error" : "Runtime Error";
-                    var selectionBrush = viewModel.WorkflowGraphView.UnfocusedSelectionBrush;
                     viewModel.WorkflowGraphView.UnfocusedSelectionBrush = Brushes.Red;
                     MessageBox.Show(e.Message, errorCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    viewModel.WorkflowGraphView.UnfocusedSelectionBrush = selectionBrush;
                 }
+
+                viewModel.WorkflowGraphView.UnfocusedSelectionBrush = selectionBrush;
             }
         }
 
