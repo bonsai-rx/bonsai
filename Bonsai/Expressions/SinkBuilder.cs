@@ -41,7 +41,7 @@ namespace Bonsai.Expressions
             var methodName = ((SinkAttribute)sinkAttributes.Single()).MethodName;
             var parameter = Expression.Parameter(observableType);
             var processMethod = sinkType.GetMethod(methodName);
-            var process = ExpressionBuilder.Call(sinkExpression, processMethod, parameter);
+            var process = BuildCall(sinkExpression, processMethod, parameter);
 
             var exception = Expression.Parameter(typeof(Exception));
             var exceptionText = Expression.Property(exception, "Message");
