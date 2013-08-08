@@ -28,24 +28,24 @@ namespace Bonsai.Expressions
     {
         public abstract Expression Build();
 
-        public static Type GetWorkflowElementType(ExpressionBuilder builder)
+        public static object GetWorkflowElement(ExpressionBuilder builder)
         {
             var sourceBuilder = builder as SourceBuilder;
-            if (sourceBuilder != null) return sourceBuilder.Source.GetType();
+            if (sourceBuilder != null) return sourceBuilder.Source;
 
             var selectBuilder = builder as TransformBuilder;
-            if (selectBuilder != null) return selectBuilder.Transform.GetType();
+            if (selectBuilder != null) return selectBuilder.Transform;
 
             var whereBuilder = builder as ConditionBuilder;
-            if (whereBuilder != null) return whereBuilder.Condition.GetType();
+            if (whereBuilder != null) return whereBuilder.Condition;
 
             var doBuilder = builder as SinkBuilder;
-            if (doBuilder != null) return doBuilder.Sink.GetType();
+            if (doBuilder != null) return doBuilder.Sink;
 
             var combinatorBuilder = builder as CombinatorBuilder;
-            if (combinatorBuilder != null) return combinatorBuilder.Combinator.GetType();
+            if (combinatorBuilder != null) return combinatorBuilder.Combinator;
 
-            return builder.GetType();
+            return builder;
         }
 
         public static ExpressionBuilder FromLoadableElement(LoadableElement element, ElementCategory elementType)

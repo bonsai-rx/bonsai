@@ -19,24 +19,6 @@ namespace Bonsai.Design
             return UITypeEditorEditStyle.Modal;
         }
 
-        bool MatchBuilder(ExpressionBuilder builder, object instance)
-        {
-            var expression = instance as ExpressionBuilder;
-            if (expression != null) return builder == expression;
-
-            var loadableElement = instance as LoadableElement;
-            if (loadableElement != null)
-            {
-                var sinkBuilder = builder as SinkBuilder;
-                if (sinkBuilder != null) return sinkBuilder.Sink == loadableElement;
-
-                var conditionBuilder = builder as ConditionBuilder;
-                if (conditionBuilder != null) return conditionBuilder.Condition == loadableElement;
-            }
-
-            return false;
-        }
-
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
         {
             var selector = value as string ?? string.Empty;
@@ -52,7 +34,7 @@ namespace Bonsai.Design
                 var workflow = workflowBuilder.Workflow;
                 var predecessorNode = (from node in nodeBuilderGraph
                                        let builder = node.Value
-                                       where MatchBuilder(builder, context.Instance)
+                                       where ExpressionBuilder.GetWorkflowElement(builder) == context.Instance
                                        select nodeBuilderGraph.Predecessors(node).SingleOrDefault()).SingleOrDefault();
 
                 if (predecessorNode == null) return base.EditValue(context, provider, value);
