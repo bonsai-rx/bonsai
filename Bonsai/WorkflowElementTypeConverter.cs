@@ -52,13 +52,16 @@ namespace Bonsai
 
         static bool MatchAttributeType(Type type, Type attributeType)
         {
-            return type.GetCustomAttributes(attributeType, true).Length > 0;
+            return type.IsDefined(attributeType, true);
         }
 
         public static IEnumerable<ElementCategory> FromType(Type type)
         {
             if (MatchIgnoredTypes(type)) yield break;
-            if (type.IsSubclassOf(typeof(ExpressionBuilder)))
+
+            if (type.IsSubclassOf(typeof(ExpressionBuilder)) ||
+                MatchAttributeType(type, typeof(CombinatorAttribute)) ||
+                MatchAttributeType(type, typeof(BinaryCombinatorAttribute)))
             {
                 var attributes = TypeDescriptor.GetAttributes(type);
                 var elementCategoryAttribute = (WorkflowElementCategoryAttribute)attributes[typeof(WorkflowElementCategoryAttribute)];
@@ -70,8 +73,6 @@ namespace Bonsai
                 if (MatchAttributeType(type, typeof(ConditionAttribute))) yield return ElementCategory.Condition;
                 if (MatchAttributeType(type, typeof(TransformAttribute))) yield return ElementCategory.Transform;
                 if (MatchAttributeType(type, typeof(SinkAttribute))) yield return ElementCategory.Sink;
-                if (MatchAttributeType(type, typeof(CombinatorAttribute))) yield return ElementCategory.Combinator;
-                else if (MatchAttributeType(type, typeof(BinaryCombinatorAttribute))) yield return ElementCategory.Combinator;
             }
         }
     }

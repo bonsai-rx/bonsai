@@ -54,7 +54,10 @@ namespace Bonsai.Design
 
             if (destinationType == typeof(Brush))
             {
-                var expressionBuilder = (ExpressionBuilder)value;
+                var expressionBuilder = value;
+                var combinatorBuilder = expressionBuilder as CombinatorBuilder;
+                if (combinatorBuilder != null) expressionBuilder = combinatorBuilder.Combinator;
+
                 var elementAttributes = TypeDescriptor.GetAttributes(expressionBuilder);
                 var elementCategoryAttribute = (WorkflowElementCategoryAttribute)elementAttributes[typeof(WorkflowElementCategoryAttribute)];
                 switch (elementCategoryAttribute.Category)
