@@ -42,12 +42,7 @@ namespace Bonsai.Expressions
             var parameter = Expression.Parameter(observableType);
             var processMethod = sinkType.GetMethod(methodName);
             var process = BuildCall(sinkExpression, processMethod, parameter);
-
-            var exception = Expression.Parameter(typeof(Exception));
-            var exceptionText = Expression.Property(exception, "Message");
-            var runtimeException = Expression.New(runtimeExceptionConstructor, exceptionText, Expression.Constant(this), exception);
-            var action = Expression.TryCatch(process, Expression.Catch(exception, Expression.Throw(runtimeException, process.Type)));
-            return Expression.Call(doMethod.MakeGenericMethod(observableType), Source, Expression.Lambda(action, parameter));
+            return Expression.Call(doMethod.MakeGenericMethod(observableType), Source, Expression.Lambda(process, parameter));
         }
     }
 }

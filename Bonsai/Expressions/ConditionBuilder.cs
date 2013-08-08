@@ -38,12 +38,7 @@ namespace Bonsai.Expressions
             var processMethod = conditionType.GetMethod(methodName);
             var processParameter = ExpressionHelper.MemberAccess(parameter, Selector);
             var process = BuildCall(conditionExpression, processMethod, processParameter);
-
-            var exception = Expression.Parameter(typeof(Exception));
-            var exceptionText = Expression.Property(exception, "Message");
-            var runtimeException = Expression.New(runtimeExceptionConstructor, exceptionText, Expression.Constant(this), exception);
-            var predicate = Expression.TryCatch(process, Expression.Catch(exception, Expression.Throw(runtimeException, process.Type)));
-            return Expression.Call(whereMethod.MakeGenericMethod(observableType), Source, Expression.Lambda(predicate, parameter));
+            return Expression.Call(whereMethod.MakeGenericMethod(observableType), Source, Expression.Lambda(process, parameter));
         }
     }
 }
