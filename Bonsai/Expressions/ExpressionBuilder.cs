@@ -48,18 +48,24 @@ namespace Bonsai.Expressions
             return builder;
         }
 
-        public static ExpressionBuilder FromLoadableElement(LoadableElement element, ElementCategory elementType)
+        public static ExpressionBuilder FromLoadableElement(LoadableElement element, ElementCategory elementCategory)
         {
             if (element == null)
             {
                 throw new ArgumentNullException("element");
             }
 
-            if (elementType == ElementCategory.Source) return new SourceBuilder { Source = element };
-            if (elementType == ElementCategory.Condition) return new ConditionBuilder { Condition = element };
-            if (elementType == ElementCategory.Transform) return new TransformBuilder { Transform = element };
-            if (elementType == ElementCategory.Combinator) return new CombinatorBuilder { Combinator = element };
-            if (elementType == ElementCategory.Sink) return new SinkBuilder { Sink = element };
+            var elementType = element.GetType();
+            if (elementType.IsDefined(typeof(CombinatorAttribute), true) ||
+                elementType.IsDefined(typeof(BinaryCombinatorAttribute), true))
+            {
+                return new CombinatorBuilder { Combinator = element };
+            }
+
+            if (elementCategory == ElementCategory.Source) return new SourceBuilder { Source = element };
+            if (elementCategory == ElementCategory.Condition) return new ConditionBuilder { Condition = element };
+            if (elementCategory == ElementCategory.Transform) return new TransformBuilder { Transform = element };
+            if (elementCategory == ElementCategory.Sink) return new SinkBuilder { Sink = element };
             throw new InvalidOperationException("Invalid loadable element type.");
         }
 
