@@ -118,7 +118,7 @@ namespace Bonsai.Design
                                  .ToDictionary(mapping => mapping.key,
                                                mapping =>
                                                {
-                                                   var workflowElementType = ExpressionBuilder.GetWorkflowElementType(mapping.node.Value);
+                                                   var workflowElementType = ExpressionBuilder.GetWorkflowElement(mapping.node.Value).GetType();
                                                    var visualizerType = editorService.GetTypeVisualizer(workflowElementType) ??
                                                                         editorService.GetTypeVisualizer(mapping.inspectBuilder.ObservableType) ??
                                                                         editorService.GetTypeVisualizer(typeof(object));
