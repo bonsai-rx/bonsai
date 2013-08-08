@@ -32,12 +32,7 @@ namespace Bonsai.Expressions
                                                    .Single(m => m.Name == methodName && m.GetParameters().Length == 1);
             var parameter = Expression.Parameter(Source.Type.GetGenericArguments()[0]);
             var process = BuildCall(transformExpression, processMethod, parameter);
-
-            var exception = Expression.Parameter(typeof(Exception));
-            var exceptionText = Expression.Property(exception, "Message");
-            var runtimeException = Expression.New(runtimeExceptionConstructor, exceptionText, Expression.Constant(this), exception);
-            var selector = Expression.TryCatch(process, Expression.Catch(exception, Expression.Throw(runtimeException, process.Type)));
-            return Expression.Call(selectMethod.MakeGenericMethod(parameter.Type, process.Type), Source, Expression.Lambda(selector, parameter));
+            return Expression.Call(selectMethod.MakeGenericMethod(parameter.Type, process.Type), Source, Expression.Lambda(process, parameter));
         }
     }
 }
