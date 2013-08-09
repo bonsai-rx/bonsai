@@ -35,7 +35,7 @@ namespace Bonsai.IO
             set { Period = XmlConvert.ToTimeSpan(value); }
         }
 
-        protected override IObservable<long> Generate()
+        public override IObservable<long> Generate()
         {
             return Observable.Timer(DueTime, Period);
         }

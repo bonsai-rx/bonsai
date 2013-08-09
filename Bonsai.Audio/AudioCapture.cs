@@ -51,7 +51,7 @@ namespace Bonsai.Audio
             base.Unload();
         }
 
-        protected override IObservable<CvMat> Generate()
+        public override IObservable<CvMat> Generate()
         {
             return Observable.Using(
                 () =>

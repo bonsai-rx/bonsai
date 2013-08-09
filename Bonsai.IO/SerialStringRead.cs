@@ -13,7 +13,7 @@ namespace Bonsai.IO
         [Editor("Bonsai.IO.Design.SerialPortConfigurationEditor, Bonsai.IO.Design", typeof(UITypeEditor))]
         public string SerialPort { get; set; }
 
-        protected override IObservable<string> Generate()
+        public override IObservable<string> Generate()
         {
             return ObservableSerialPort.ReadLine(SerialPort);
         }

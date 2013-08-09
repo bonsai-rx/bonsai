@@ -18,7 +18,7 @@ namespace Bonsai.Arduino
         [Description("The analog input pin number from which to take readings.")]
         public int Pin { get; set; }
 
-        protected override IObservable<int> Generate()
+        public override IObservable<int> Generate()
         {
             return ObservableArduino.AnalogInput(SerialPort, Pin);
         }

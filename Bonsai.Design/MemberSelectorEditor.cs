@@ -38,9 +38,8 @@ namespace Bonsai.Design
                                        select nodeBuilderGraph.Predecessors(node).SingleOrDefault()).SingleOrDefault();
 
                 if (predecessorNode == null) return base.EditValue(context, provider, value);
-                workflow.Build(predecessorNode.Value);
+                var expressionType = workflow.Build(predecessorNode.Value).Type.GetGenericArguments()[0];
 
-                var expressionType = predecessorNode.Value.Build().Type.GetGenericArguments()[0];
                 var editorDialog = new MemberSelectorEditorDialog(expressionType, selector);
                 if (editorService.ShowDialog(editorDialog) == DialogResult.OK)
                 {

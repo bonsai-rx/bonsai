@@ -66,7 +66,7 @@ namespace Bonsai.Vision
             base.Unload();
         }
 
-        protected override IObservable<IplImage> Generate()
+        public override IObservable<IplImage> Generate()
         {
             return ObservableCombinators.GenerateWithThread<IplImage>(observer =>
             {

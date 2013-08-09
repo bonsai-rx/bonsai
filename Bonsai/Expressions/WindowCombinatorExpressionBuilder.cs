@@ -39,19 +39,7 @@ namespace Bonsai.Expressions
             workflowInput.Source = selectorParameter;
 
             // Build selector workflow
-            var runtimeWorkflow = Workflow.Build();
-            var workflowExpression = Expression.Constant(runtimeWorkflow);
-            var loadWorkflowExpression = Expression.Call(workflowExpression, "Load", null);
-            var resourceFactoryExpression = Expression.Lambda(loadWorkflowExpression);
-            var resourceParameter = Expression.Parameter(typeof(IDisposable));
-
-            // Assign output
-            var workflowObservableExpression = runtimeWorkflow.Output;
-
-            var workflowObservableType = workflowObservableExpression.Type.GetGenericArguments()[0];
-            var observableFactoryExpression = Expression.Lambda(workflowObservableExpression, resourceParameter);
-            var usingExpression = Expression.Call(usingMethod.MakeGenericMethod(workflowObservableType, typeof(IDisposable)), resourceFactoryExpression, observableFactoryExpression);
-            return Expression.Lambda(usingExpression, selectorParameter);
+            return Expression.Lambda(Workflow.Build(), selectorParameter);
         }
     }
 }

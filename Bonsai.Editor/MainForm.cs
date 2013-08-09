@@ -442,17 +442,17 @@ namespace Bonsai.Editor
                 running = Observable.Using(
                     () =>
                     {
-                        var runtimeWorkflow = workflowBuilder.Workflow.Build();
+                        var runtimeWorkflow = workflowBuilder.Workflow.BuildObservable();
                         runningStatusLabel.Text = Resources.RunningStatus;
                         runningStatusLabel.Image = Resources.RunningStatusImage;
                         editorSite.OnWorkflowStarted(EventArgs.Empty);
 
                         var shutdown = ShutdownSequence();
-                        var errorHandler = workflowBuilder.Workflow.InspectErrors().Subscribe(xs => { }, HandleWorkflowError);
-                        return new ReactiveWorkflowDisposable(runtimeWorkflow, new CompositeDisposable(shutdown, errorHandler));
+                        return new WorkflowDisposable(runtimeWorkflow, shutdown);
                     },
-                    resource => resource.Workflow.Run().SubscribeOn(NewThreadScheduler.Default))
-                    .Subscribe(unit => { }, ex => { }, () => { });
+                    resource => resource.Workflow.SubscribeOn(NewThreadScheduler.Default))
+                    .Merge(workflowBuilder.Workflow.InspectErrors())
+                    .Subscribe(unit => { }, HandleWorkflowError, () => { });
             }
         }
 

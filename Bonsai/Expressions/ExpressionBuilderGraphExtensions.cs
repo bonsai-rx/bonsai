@@ -95,31 +95,29 @@ namespace Bonsai.Expressions
             }
         }
 
-        public static ReactiveWorkflow Build(this ExpressionBuilderGraph source)
+        public static Expression Build(this ExpressionBuilderGraph source)
         {
             return Build(source, null);
         }
 
-        public static ReactiveWorkflow Build(this ExpressionBuilderGraph source, ExpressionBuilder buildTarget)
+        public static Expression Build(this ExpressionBuilderGraph source, ExpressionBuilder buildTarget)
         {
             WorkflowOutputBuilder workflowOutput = null;
             var publishMap = new List<PublishScope>();
-            var loadableElements = new List<ILoadable>();
             var connections = new List<Expression>();
 
             foreach (var node in source.TopologicalSort())
             {
                 Expression expression;
                 var builder = node.Value;
-                if (builder == buildTarget) break;
                 try { expression = builder.Build(); }
                 catch (Exception e)
                 {
                     throw new WorkflowBuildException(e.Message, builder, e);
                 }
 
+                if (builder == buildTarget) return expression;
                 PublishScope publishScope = null;
-                loadableElements.AddRange(builder.GetLoadableElements());
                 if (node.Successors.Count > 1)
                 {
                     // Start a new publish scope
@@ -157,13 +155,21 @@ namespace Bonsai.Expressions
                 workflowOutput = builder as WorkflowOutputBuilder;
             }
 
-            var workflowExpression = ExpressionBuilder.BuildOutput(workflowOutput, connections);
+            var output = ExpressionBuilder.BuildOutput(workflowOutput, connections);
             publishMap.RemoveAll(scope =>
             {
-                workflowExpression = scope.Close(workflowExpression);
+                output = scope.Close(output);
                 return true;
             });
-            return new ReactiveWorkflow(loadableElements, workflowExpression);
+            return output;
+        }
+
+        public static IObservable<Unit> BuildObservable(this ExpressionBuilderGraph source)
+        {
+            var workflow = source.Build();
+            var unitConversion = new UnitBuilder { Source = workflow }.Build();
+            var observableFactory = Expression.Lambda<Func<IObservable<Unit>>>(unitConversion).Compile();
+            return observableFactory();
         }
 
         public static ExpressionBuilderGraph ToInspectableGraph(this ExpressionBuilderGraph source)
