@@ -28,7 +28,7 @@ namespace Bonsai.Dsp
 
         public MatrixLayout Layout { get; set; }
 
-        protected override IObservable<CvMat> Generate()
+        public override IObservable<CvMat> Generate()
         {
             var stopwatch = new Stopwatch();
             return Observable.Using(

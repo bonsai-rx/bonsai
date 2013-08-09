@@ -52,7 +52,6 @@
     <Compile Include="Combinators\Skip.cs" />
     <Compile Include="Combinators\SkipLast.cs" />
     <Compile Include="Combinators\SkipUntil.cs" />
-    <Compile Include="Combinators\Unit.cs" />
     <Compile Include="Configuration\ConfigurationHelper.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="ContinuationScheduler.cs" />
@@ -60,7 +59,9 @@
     <Compile Include="ConditionAttribute.cs" />
     <Compile Include="CombinatorAttribute.cs" />
     <Compile Include="BinaryCombinatorAttribute.cs" />
+    <Compile Include="SourceAttribute.cs" />
     <Compile Include="Expressions\PublishScope.cs" />
+    <Compile Include="Expressions\UnitBuilder.cs" />
     <Compile Include="WindowCombinator.cs" />
     <Compile Include="Expressions\CombinatorBuilder.cs" />
     <Compile Include="Combinators\Slice.cs" />
@@ -138,7 +139,6 @@
     <Compile Include="DynamicSink.cs" />
     <Compile Include="ILoadable.cs" />
     <Compile Include="LoadableElement.cs" />
-    <Compile Include="ReactiveWorkflowExtensions.cs" />
     <Compile Include="WorkflowBuildException.cs" />
     <Compile Include="ElementCategory.cs" />
     <Compile Include="ObservableSink.cs" />
@@ -146,7 +146,6 @@
     <Compile Include="Transform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RangeAttribute.cs" />
-    <Compile Include="ReactiveWorkflow.cs" />
     <Compile Include="Sink.cs" />
     <Compile Include="Source.cs" />
     <Compile Include="TypeVisualizerAttribute.cs" />

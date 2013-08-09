@@ -46,7 +46,7 @@ namespace Bonsai.IO
             }
         }
 
-        protected override IObservable<Point> Generate()
+        public override IObservable<Point> Generate()
         {
             return Observable.Using(
                 () => new MouseMessageFilter(),

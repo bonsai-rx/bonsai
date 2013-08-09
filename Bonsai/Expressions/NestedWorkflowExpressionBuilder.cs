@@ -23,10 +23,6 @@ namespace Bonsai.Expressions
         {
         }
 
-        [XmlIgnore]
-        [Browsable(false)]
-        public ReactiveWorkflow RuntimeWorkflow { get; private set; }
-
         public override Expression Build()
         {
             // Assign source if available
@@ -37,10 +33,7 @@ namespace Bonsai.Expressions
                 workflowInput.Source = Source;
             }
 
-            RuntimeWorkflow = Workflow.Build();
-
-            // Assign output if available
-            return RuntimeWorkflow.Output;
+            return Workflow.Build();
         }
     }
 }

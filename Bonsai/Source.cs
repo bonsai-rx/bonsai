@@ -10,24 +10,9 @@ using System.Xml.Serialization;
 
 namespace Bonsai
 {
+    [Source]
     public abstract class Source<TSource> : LoadableElement
     {
-        [XmlIgnore]
-        [Browsable(false)]
-        public IObservable<TSource> Output { get; private set; }
-
-        protected abstract IObservable<TSource> Generate();
-
-        public override IDisposable Load()
-        {
-            Output = Generate();
-            return base.Load();
-        }
-
-        protected override void Unload()
-        {
-            Output = null;
-            base.Unload();
-        }
+        public abstract IObservable<TSource> Generate();
     }
 }

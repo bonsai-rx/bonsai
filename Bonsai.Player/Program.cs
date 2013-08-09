@@ -37,8 +37,7 @@ namespace Bonsai.Player
             }
 
             var workflowCompleted = new ManualResetEvent(false);
-            var runtimeWorkflow = workflowBuilder.Workflow.Build();
-            runtimeWorkflow.Run().Subscribe(
+            workflowBuilder.Workflow.BuildObservable().Subscribe(
                 unit => { },
                 ex => { Console.WriteLine(ex); workflowCompleted.Set(); },
                 () => workflowCompleted.Set());

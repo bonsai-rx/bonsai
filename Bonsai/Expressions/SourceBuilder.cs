@@ -5,6 +5,7 @@ using System.Text;
 using System.Linq.Expressions;
 using System.ComponentModel;
 using System.Xml.Serialization;
+using System.Reflection;
 
 namespace Bonsai.Expressions
 {
@@ -16,8 +17,11 @@ namespace Bonsai.Expressions
 
         public override Expression Build()
         {
-            var source = Expression.Constant(Source);
-            return Expression.Property(source, "Output");
+            var sourceType = Source.GetType();
+            var sourceExpression = Expression.Constant(Source);
+            var sourceAttributes = sourceType.GetCustomAttributes(typeof(SourceAttribute), true);
+            var methodName = ((SourceAttribute)sourceAttributes.Single()).MethodName;
+            return Expression.Call(sourceExpression, methodName, null);
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Bonsai.IO
 {
     public class Keyboard : Source<Keys>
     {
-        protected override IObservable<Keys> Generate()
+        public override IObservable<Keys> Generate()
         {
             var mainForm = Application.OpenForms.Cast<Form>().FirstOrDefault();
             if (mainForm != null)

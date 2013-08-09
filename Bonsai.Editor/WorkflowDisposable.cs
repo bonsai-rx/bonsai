@@ -1,23 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
 using System.Text;
 using System.Threading;
 
 namespace Bonsai.Editor
 {
-    class ReactiveWorkflowDisposable : IDisposable
+    class WorkflowDisposable : IDisposable
     {
         int disposed;
         IDisposable disposable;
 
-        public ReactiveWorkflowDisposable(ReactiveWorkflow workflow, IDisposable disposable)
+        public WorkflowDisposable(IObservable<Unit> workflow, IDisposable disposable)
         {
             Workflow = workflow;
             this.disposable = disposable;
         }
 
-        public ReactiveWorkflow Workflow { get; private set; }
+        public IObservable<Unit> Workflow { get; private set; }
 
         public void Dispose()
         {

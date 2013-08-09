@@ -41,7 +41,7 @@ namespace Bonsai.Vision
             base.Unload();
         }
 
-        protected override IObservable<IplImage> Generate()
+        public override IObservable<IplImage> Generate()
         {
             return Observable.Return(image);
         }
