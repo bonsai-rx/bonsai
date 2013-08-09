@@ -26,7 +26,6 @@ namespace Bonsai
                    type == typeof(ConditionBuilder) ||
                    type == typeof(SinkBuilder) ||
                    type == typeof(CombinatorBuilder) ||
-                   type == typeof(PublishBuilder) ||
                    type == typeof(InspectBuilder);
         }
 

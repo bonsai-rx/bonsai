@@ -52,16 +52,16 @@ namespace Bonsai
                 throw new ArgumentNullException("onNext");
             }
 
-            int connectionIndex = -1;
-            var connections = from expression in source.Connections
-                              let observableType = expression.Type.GetGenericArguments()[0]
-                              let onNextParameter = Expression.Parameter(observableType)
-                              let onNextExpression = ++connectionIndex < onNext.Length ? onNext[connectionIndex] : Expression.Lambda(Expression.Empty(), onNextParameter)
-                              select Expression.Call(typeof(ReactiveWorkflowExtensions), "Connection", new[] { observableType }, expression, onNextExpression);
+            //int connectionIndex = -1;
+            //var connections = from expression in source.Connections
+            //                  let observableType = expression.Type.GetGenericArguments()[0]
+            //                  let onNextParameter = Expression.Parameter(observableType)
+            //                  let onNextExpression = ++connectionIndex < onNext.Length ? onNext[connectionIndex] : Expression.Lambda(Expression.Empty(), onNextParameter)
+            //                  select Expression.Call(typeof(ReactiveWorkflowExtensions), "Connection", new[] { observableType }, expression, onNextExpression);
 
-            var connectionArrayExpression = Expression.NewArrayInit(typeof(IObservable<Unit>), connections.ToArray());
-            var observableExpression = Expression.Call(null, mergeMethod.MakeGenericMethod(typeof(Unit)), connectionArrayExpression);
-            return Expression.Lambda<Func<IObservable<Unit>>>(observableExpression);
+            //var connectionArrayExpression = Expression.NewArrayInit(typeof(IObservable<Unit>), connections.ToArray());
+            //var observableExpression = Expression.Call(null, mergeMethod.MakeGenericMethod(typeof(Unit)), connectionArrayExpression);
+            return Expression.Lambda<Func<IObservable<Unit>>>(source.Output);
         }
     }
 }

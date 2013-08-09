@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Reactive.Linq;
 using System.Linq.Expressions;
 using System.ComponentModel;
 using System.Xml.Serialization;
 using System.Reflection;
+using System.Reactive;
 
 namespace Bonsai.Expressions
 {
@@ -187,6 +189,38 @@ namespace Bonsai.Expressions
             });
 
             return Expression.Call(instance, method, arguments);
+        }
+
+        static IObservable<Unit> IgnoreConnection<TSource>(IObservable<TSource> source)
+        {
+            return source.IgnoreElements().Select(xs => Unit.Default);
+        }
+
+        static IObservable<Unit> MergeOutput(params IObservable<Unit>[] connections)
+        {
+            return Observable.Merge(connections);
+        }
+
+        static IObservable<TSource> MergeOutput<TSource>(IObservable<TSource> source, params IObservable<Unit>[] connections)
+        {
+            return source.Publish(ps => ps.Merge(Observable.Merge(connections).Select(xs => default(TSource)).TakeUntil(ps.TakeLast(1))));
+        }
+
+        protected internal static Expression BuildOutput(WorkflowOutputBuilder workflowOutput, IEnumerable<Expression> connections)
+        {
+            var output = workflowOutput != null ? connections.FirstOrDefault(connection => connection == workflowOutput.Output) : null;
+            var ignoredConnections = from connection in connections
+                                     where connection != output
+                                     let observableType = connection.Type.GetGenericArguments()[0]
+                                     select Expression.Call(typeof(ExpressionBuilder), "IgnoreConnection", new[] { observableType }, connection);
+
+            var connectionArrayExpression = Expression.NewArrayInit(typeof(IObservable<Unit>), ignoredConnections.ToArray());
+            if (output != null)
+            {
+                var outputType = output.Type.GetGenericArguments()[0];
+                return Expression.Call(typeof(ExpressionBuilder), "MergeOutput", new[] { outputType }, output, connectionArrayExpression);
+            }
+            else return Expression.Call(typeof(ExpressionBuilder), "MergeOutput", null, connectionArrayExpression);
         }
     }
 }

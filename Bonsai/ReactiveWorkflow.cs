@@ -11,10 +11,10 @@ namespace Bonsai
     {
         IEnumerable<ILoadable> elements;
 
-        public ReactiveWorkflow(IEnumerable<ILoadable> loadableElements, IEnumerable<Expression> connections)
+        public ReactiveWorkflow(IEnumerable<ILoadable> loadableElements, Expression output)
         {
             elements = loadableElements;
-            Connections = connections;
+            Output = output;
         }
 
         public override IDisposable Load()
@@ -22,6 +22,6 @@ namespace Bonsai
             return new CompositeDisposable(elements.Select(element => element.Load()));
         }
 
-        public IEnumerable<Expression> Connections { get; private set; }
+        public Expression Output { get; private set; }
     }
 }
