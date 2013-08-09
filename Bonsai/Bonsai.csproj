@@ -60,6 +60,7 @@
     <Compile Include="ConditionAttribute.cs" />
     <Compile Include="CombinatorAttribute.cs" />
     <Compile Include="BinaryCombinatorAttribute.cs" />
+    <Compile Include="Expressions\PublishScope.cs" />
     <Compile Include="WindowCombinator.cs" />
     <Compile Include="Expressions\CombinatorBuilder.cs" />
     <Compile Include="Combinators\Slice.cs" />
@@ -128,7 +129,6 @@
     <Compile Include="Expressions\ExpressionBuilderGraph.cs" />
     <Compile Include="Expressions\ExpressionBuilderGraphExtensions.cs" />
     <Compile Include="Expressions\InspectBuilder.cs" />
-    <Compile Include="Expressions\PublishBuilder.cs" />
     <Compile Include="Expressions\TransformBuilder.cs" />
     <Compile Include="Expressions\SourceBuilder.cs" />
     <Compile Include="Combinators\Sample.cs" />

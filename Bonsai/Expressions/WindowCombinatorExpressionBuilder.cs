@@ -46,9 +46,7 @@ namespace Bonsai.Expressions
             var resourceParameter = Expression.Parameter(typeof(IDisposable));
 
             // Assign output
-            var workflowOutput = Workflow.Select(node => node.Value as WorkflowOutputBuilder)
-                                         .Single(builder => builder != null);
-            var workflowObservableExpression = BuildOutput(workflowOutput, runtimeWorkflow.Connections);
+            var workflowObservableExpression = runtimeWorkflow.Output;
 
             var workflowObservableType = workflowObservableExpression.Type.GetGenericArguments()[0];
             var observableFactoryExpression = Expression.Lambda(workflowObservableExpression, resourceParameter);

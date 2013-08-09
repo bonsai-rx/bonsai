@@ -102,27 +102,46 @@ namespace Bonsai.Expressions
 
         public static ReactiveWorkflow Build(this ExpressionBuilderGraph source, ExpressionBuilder buildTarget)
         {
-            List<ILoadable> loadableElements = new List<ILoadable>();
-            List<Expression> connections = new List<Expression>();
+            WorkflowOutputBuilder workflowOutput = null;
+            var publishMap = new List<PublishScope>();
+            var loadableElements = new List<ILoadable>();
+            var connections = new List<Expression>();
 
             foreach (var node in source.TopologicalSort())
             {
                 Expression expression;
-                if (node.Value == buildTarget) break;
-                try { expression = node.Value.Build(); }
+                var builder = node.Value;
+                if (builder == buildTarget) break;
+                try { expression = builder.Build(); }
                 catch (Exception e)
                 {
-                    throw new WorkflowBuildException(e.Message, node.Value, e);
+                    throw new WorkflowBuildException(e.Message, builder, e);
                 }
 
-                loadableElements.AddRange(node.Value.GetLoadableElements());
+                PublishScope publishScope = null;
+                loadableElements.AddRange(builder.GetLoadableElements());
                 if (node.Successors.Count > 1)
                 {
-                    // Publish workflow result to avoid repeating operations
-                    var publishBuilder = new PublishBuilder { Source = expression };
-                    loadableElements.Add(publishBuilder.PublishHandle);
-                    expression = publishBuilder.Build();
+                    // Start a new publish scope
+                    publishScope = new PublishScope(expression);
+                    expression = publishScope.PublishedSource;
+                    publishMap.Insert(0, publishScope);
                 }
+
+                // Remove all closing scopes
+                publishMap.RemoveAll(scope =>
+                {
+                    scope.References.RemoveAll(reference => reference == builder);
+                    if (scope != publishScope && scope.References.Count == 0)
+                    {
+                        expression = scope.Close(expression);
+                        return true;
+                    }
+
+                    if (node.Successors.Count == 0) scope.References.Add(null);
+                    else scope.References.AddRange(node.Successors.Select(successor => successor.Node.Value));
+                    return false;
+                });
 
                 foreach (var successor in node.Successors)
                 {
@@ -134,9 +153,17 @@ namespace Bonsai.Expressions
                 {
                     connections.Add(expression);
                 }
+
+                workflowOutput = builder as WorkflowOutputBuilder;
             }
 
-            return new ReactiveWorkflow(loadableElements, connections);
+            var workflowExpression = ExpressionBuilder.BuildOutput(workflowOutput, connections);
+            publishMap.RemoveAll(scope =>
+            {
+                workflowExpression = scope.Close(workflowExpression);
+                return true;
+            });
+            return new ReactiveWorkflow(loadableElements, workflowExpression);
         }
 
         public static ExpressionBuilderGraph ToInspectableGraph(this ExpressionBuilderGraph source)
