@@ -20,7 +20,7 @@ namespace Bonsai.Expressions
 
         public override Expression Build()
         {
-            subject = new ReplaySubject<IObservable<object>>(1);
+            subject = new ReplaySubject<IObservable<object>>(1, Scheduler.Immediate);
             ObservableType = Source.Type.GetGenericArguments()[0];
 
             // If source is already an inspect node, use it
