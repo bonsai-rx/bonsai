@@ -14,7 +14,7 @@ namespace Bonsai.Arduino
     {
         [Editor("Bonsai.Arduino.Design.ArduinoConfigurationEditor, Bonsai.Arduino.Design", typeof(UITypeEditor))]
         [Description("The name of the serial port used to communicate with the Arduino.")]
-        public string SerialPort { get; set; }
+        public string PortName { get; set; }
 
         [Description("The digital output pin number to which the servo is connected.")]
         public int Pin { get; set; }
@@ -24,7 +24,7 @@ namespace Bonsai.Arduino
             return Observable.Using(
                 () =>
                 {
-                    var analogOutput = ObservableArduino.AnalogOutput(SerialPort, Pin, PinMode.Servo);
+                    var analogOutput = ObservableArduino.AnalogOutput(PortName, Pin, PinMode.Servo);
                     var iterator = analogOutput.GetEnumerator();
                     iterator.MoveNext();
                     return iterator;

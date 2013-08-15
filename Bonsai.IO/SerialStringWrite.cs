@@ -4,38 +4,26 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using System.Drawing.Design;
+using System.Reactive.Linq;
 
 namespace Bonsai.IO
 {
     public class SerialStringWrite : Sink<object>
     {
-        IEnumerable<Action<string>> writeLine;
-        IEnumerator<Action<string>> iterator;
-
         [Editor("Bonsai.IO.Design.SerialPortConfigurationEditor, Bonsai.IO.Design", typeof(UITypeEditor))]
-        public string SerialPort { get; set; }
+        public string PortName { get; set; }
 
-        public override void Process(object input)
+        public override IObservable<object> Process(IObservable<object> source)
         {
-            if (input != null)
-            {
-                iterator.Current(input.ToString());
-            }
-        }
-
-        public override IDisposable Load()
-        {
-            writeLine = ObservableSerialPort.WriteLine(SerialPort);
-            iterator = writeLine.GetEnumerator();
-            iterator.MoveNext();
-            return base.Load();
-        }
-
-        protected override void Unload()
-        {
-            iterator.Dispose();
-            writeLine = null;
-            base.Unload();
+            return Observable.Using(
+                () =>
+                {
+                    var writeLine = ObservableSerialPort.WriteLine(PortName);
+                    var iterator = writeLine.GetEnumerator();
+                    iterator.MoveNext();
+                    return iterator;
+                },
+                iterator => source.Do(input => iterator.Current(input.ToString())));
         }
     }
 }

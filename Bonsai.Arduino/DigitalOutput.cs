@@ -14,7 +14,7 @@ namespace Bonsai.Arduino
     {
         [Editor("Bonsai.Arduino.Design.ArduinoConfigurationEditor, Bonsai.Arduino.Design", typeof(UITypeEditor))]
         [Description("The name of the serial port used to communicate with the Arduino.")]
-        public string SerialPort { get; set; }
+        public string PortName { get; set; }
 
         [Description("The digital output pin number for which to write values.")]
         public int Pin { get; set; }
@@ -24,7 +24,7 @@ namespace Bonsai.Arduino
             return Observable.Using(
                 () =>
                 {
-                    var digitalOutput = ObservableArduino.DigitalOutput(SerialPort, Pin);
+                    var digitalOutput = ObservableArduino.DigitalOutput(PortName, Pin);
                     var iterator = digitalOutput.GetEnumerator();
                     iterator.MoveNext();
                     return iterator;
