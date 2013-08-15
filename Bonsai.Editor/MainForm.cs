@@ -450,8 +450,10 @@ namespace Bonsai.Editor
                         var shutdown = ShutdownSequence();
                         return new WorkflowDisposable(runtimeWorkflow, shutdown);
                     },
-                    resource => resource.Workflow.SubscribeOn(NewThreadScheduler.Default))
-                    .Merge(workflowBuilder.Workflow.InspectErrors())
+                    resource =>
+                        workflowBuilder.Workflow.InspectErrors()
+                        .Merge(resource.Workflow)
+                        .SubscribeOn(NewThreadScheduler.Default))
                     .Subscribe(unit => { }, HandleWorkflowError, () => { });
             }
         }
