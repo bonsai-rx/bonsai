@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Threading;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Concurrency;
 
 namespace Bonsai.Expressions
 {
@@ -27,7 +28,7 @@ namespace Bonsai.Expressions
 
         public static IObservable<Unit> InspectErrors(this ExpressionBuilderGraph source)
         {
-            return InspectErrors(source, Enumerable.Empty<ExpressionBuilder>()).Merge();
+            return InspectErrors(source, Enumerable.Empty<ExpressionBuilder>()).Merge(Scheduler.Immediate);
         }
 
         static IEnumerable<IObservable<Unit>> InspectErrors(this ExpressionBuilderGraph source, IEnumerable<ExpressionBuilder> callStack)
