@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Reactive.Subjects;
+using System.Reactive.Concurrency;
 
 namespace Bonsai.Expressions
 {
@@ -40,7 +41,7 @@ namespace Bonsai.Expressions
 
         IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
-            var sourceInspector = new ReplaySubject<object>(1);
+            var sourceInspector = new ReplaySubject<object>(1, Scheduler.Immediate);
             subject.OnNext(sourceInspector);
             return source.Do(
                 xs => sourceInspector.OnNext(xs),
