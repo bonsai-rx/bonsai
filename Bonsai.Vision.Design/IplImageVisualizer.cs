@@ -90,6 +90,7 @@ namespace Bonsai.Vision.Design
 
         public override void Load(IServiceProvider provider)
         {
+            allowUpdate = true;
             StatusStripEnabled = true;
             visualizerCanvas = new VisualizerCanvasControl { Dock = DockStyle.Fill };
             statusStrip = new StatusStrip { Visible = false };
