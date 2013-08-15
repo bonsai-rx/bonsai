@@ -13,8 +13,6 @@ namespace Bonsai.Vision
     [Description("Produces a sequence with a single image loaded from the specified file.")]
     public class LoadImage : Source<IplImage>
     {
-        IplImage image;
-
         public LoadImage()
         {
             Mode = LoadImageMode.Unchanged;
@@ -28,22 +26,20 @@ namespace Bonsai.Vision
         [Description("Specifies optional conversions applied to the loaded image.")]
         public LoadImageMode Mode { get; set; }
 
-        public override IDisposable Load()
-        {
-            image = HighGui.cvLoadImage(FileName, Mode);
-            return base.Load();
-        }
-
-        protected override void Unload()
-        {
-            image.Dispose();
-            image = null;
-            base.Unload();
-        }
-
         public override IObservable<IplImage> Generate()
         {
-            return Observable.Return(image);
+            return Observable.Defer(() => Observable.Start(() =>
+            {
+                var fileName = FileName;
+                if (string.IsNullOrEmpty(fileName))
+                {
+                    throw new InvalidOperationException("A valid image file path was not specified.");
+                }
+
+                var image = HighGui.cvLoadImage(FileName, Mode);
+                if (image.IsInvalid) throw new InvalidOperationException("Failed to load an image from the specified path.");
+                return image;
+            }));
         }
     }
 }
