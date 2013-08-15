@@ -59,6 +59,7 @@
     <Compile Include="ConditionAttribute.cs" />
     <Compile Include="CombinatorAttribute.cs" />
     <Compile Include="BinaryCombinatorAttribute.cs" />
+    <Compile Include="ReconnectableObservable.cs" />
     <Compile Include="SourceAttribute.cs" />
     <Compile Include="Expressions\PublishScope.cs" />
     <Compile Include="Expressions\UnitBuilder.cs" />
