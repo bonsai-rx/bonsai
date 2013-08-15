@@ -13,14 +13,14 @@ namespace Bonsai.Arduino
     {
         [Editor("Bonsai.Arduino.Design.ArduinoConfigurationEditor, Bonsai.Arduino.Design", typeof(UITypeEditor))]
         [Description("The name of the serial port used to communicate with the Arduino.")]
-        public string SerialPort { get; set; }
+        public string PortName { get; set; }
 
         [Description("The analog input pin number from which to take readings.")]
         public int Pin { get; set; }
 
         public override IObservable<int> Generate()
         {
-            return ObservableArduino.AnalogInput(SerialPort, Pin);
+            return ObservableArduino.AnalogInput(PortName, Pin);
         }
     }
 }
