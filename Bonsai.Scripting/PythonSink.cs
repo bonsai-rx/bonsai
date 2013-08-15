@@ -14,13 +14,8 @@ using System.Threading.Tasks;
 namespace Bonsai.Scripting
 {
     [Description("A Python script used to operate on individual elements of the input sequence.")]
-    public class PythonSink : Sink<object>
+    public class PythonSink : Sink
     {
-        Action load;
-        Action unload;
-        Action<object> process;
-        Task scriptTask;
-
         public PythonSink()
         {
             Script = "def process(input):\n";
@@ -30,57 +25,59 @@ namespace Bonsai.Scripting
         [Description("The script that determines the operation of the sink.")]
         public string Script { get; set; }
 
-        public override void Process(object input)
-        {
-            if (scriptTask == null) return;
-
-            var processAction = process;
-            if (processAction != null)
-            {
-                scriptTask = scriptTask.ContinueWith(task =>
-                {
-                    processAction(input);
-                });
-            }
-        }
-
         protected virtual ScriptEngine CreateEngine()
         {
             return IronPython.Hosting.Python.CreateEngine();
         }
 
-        public override IDisposable Load()
+        public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
-            scriptTask = new Task(() => { });
-            scriptTask.Start();
-
-            var engine = CreateEngine();
-            var scope = engine.CreateScope();
-            engine.Execute(Script, scope);
-            scope.TryGetVariable<Action>("load", out load);
-            scope.TryGetVariable<Action>("unload", out unload);
-            process = scope.GetVariable<Action<object>>("process");
-
-            if (load != null)
+            return Observable.Create<TSource>(observer =>
             {
-                load();
-            }
-            return base.Load();
-        }
+                var scriptTask = new Task(() => { });
+                scriptTask.Start();
 
-        protected override void Unload()
-        {
-            var unloadAction = unload;
-            if (unloadAction != null)
-            {
-                scriptTask = scriptTask.ContinueWith(task => unloadAction());
-            }
+                Action load;
+                Action unload;
+                var engine = CreateEngine();
+                var scope = engine.CreateScope();
+                engine.Execute(Script, scope);
+                scope.TryGetVariable<Action>("load", out load);
+                scope.TryGetVariable<Action>("unload", out unload);
+                var processAction = scope.GetVariable<Action<object>>("process");
 
-            load = null;
-            unload = null;
-            process = null;
-            scriptTask.Wait();
-            base.Unload();
+                if (load != null)
+                {
+                    load();
+                }
+
+                var close = Disposable.Create(() =>
+                {
+                    var unloadAction = unload;
+                    if (unloadAction != null)
+                    {
+                        scriptTask = scriptTask.ContinueWith(task => unloadAction());
+                    }
+
+                    engine.Runtime.IO.OutputWriter.Close();
+                    scriptTask.Wait();
+                });
+
+                var process = source.Do(input =>
+                {
+                    if (scriptTask == null) return;
+
+                    if (processAction != null)
+                    {
+                        scriptTask = scriptTask.ContinueWith(task =>
+                        {
+                            processAction(input);
+                        });
+                    }
+                }).Subscribe(observer);
+
+                return new CompositeDisposable(process, close);
+            });
         }
     }
 }

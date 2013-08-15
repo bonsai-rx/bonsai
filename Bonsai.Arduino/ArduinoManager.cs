@@ -16,6 +16,11 @@ namespace Bonsai.Arduino
 
         public static ArduinoDisposable ReserveConnection(string portName)
         {
+            if (string.IsNullOrEmpty(portName))
+            {
+                throw new ArgumentException("A serial port name must be specified.", "portName");
+            }
+
             Tuple<Arduino, RefCountDisposable> connection;
             if (!openConnections.TryGetValue(portName, out connection))
             {
