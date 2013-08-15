@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Drawing.Design;
 using System.IO;
 using Bonsai.IO;
+using System.Reactive.Linq;
 
 namespace Bonsai.Vision
 {
@@ -20,14 +21,18 @@ namespace Bonsai.Vision
 
         public PathSuffix Suffix { get; set; }
 
-        public override void Process(IplImage input)
+        public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            if (!string.IsNullOrEmpty(FileName))
+            return source.Do(input =>
             {
-                PathHelper.EnsureDirectory(FileName);
-                var fileName = PathHelper.AppendSuffix(FileName, Suffix);
-                HighGui.cvSaveImage(fileName, input);
-            }
+                var fileName = FileName;
+                if (!string.IsNullOrEmpty(fileName))
+                {
+                    PathHelper.EnsureDirectory(fileName);
+                    fileName = PathHelper.AppendSuffix(FileName, Suffix);
+                    HighGui.cvSaveImage(fileName, input);
+                }
+            });
         }
     }
 }

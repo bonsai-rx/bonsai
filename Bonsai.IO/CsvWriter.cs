@@ -9,11 +9,14 @@ using System.Reflection;
 using System.ComponentModel;
 using System.Xml.Serialization;
 using System.Globalization;
+using System.Reactive.Linq;
+using System.Reactive.Disposables;
 
 namespace Bonsai.IO
 {
+    [WorkflowElementCategory(ElementCategory.Sink)]
     [Description("Sinks individual elements of the input sequence to a text file.")]
-    public class CsvWriter : DynamicSink
+    public class CsvWriter : Combinator
     {
         static readonly MethodInfo writeLineMethod = typeof(StreamWriter).GetMethods().First(m => m.Name == "WriteLine" && m.GetParameters().Length == 0);
         static readonly MethodInfo writeMethod = typeof(StreamWriter).GetMethods().First(m => m.Name == "Write" &&
@@ -38,12 +41,7 @@ namespace Bonsai.IO
         [Editor("Bonsai.Design.MemberSelectorEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public string Selector { get; set; }
 
-        protected override Sink<T> CreateProcessor<T>()
-        {
-            return new CsvProcessor<T>(this);
-        }
-
-        class CsvProcessor<T> : Sink<T>
+        class CsvProcessor<T>
         {
             Task writerTask;
             StreamWriter writer;
@@ -55,7 +53,7 @@ namespace Bonsai.IO
                 this.parent = owner;
             }
 
-            public override void Process(T input)
+            public void Process(T input)
             {
                 writerTask = writerTask.ContinueWith(task => writeAction(input));
             }
@@ -130,7 +128,7 @@ namespace Bonsai.IO
                 }
             }
 
-            public override IDisposable Load()
+            public IDisposable Load()
             {
                 const string ParameterName = "input";
                 const string EntryFormat = "{0} ";
@@ -174,10 +172,10 @@ namespace Bonsai.IO
                     writerTask.Start();
                 }
 
-                return base.Load();
+                return Disposable.Create(Unload);
             }
 
-            protected override void Unload()
+            protected void Unload()
             {
                 var closingWriter = writer;
                 if (closingWriter != null)
@@ -187,8 +185,18 @@ namespace Bonsai.IO
 
                 writerTask = null;
                 writer = null;
-                base.Unload();
             }
+        }
+
+        public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
+        {
+            return Observable.Defer(() =>
+            {
+                var processor = new CsvProcessor<TSource>(this);
+                return Observable.Using(
+                    () => processor.Load(),
+                    resource => source.Do(input => processor.Process(input)));
+            });
         }
     }
 }

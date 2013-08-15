@@ -4,14 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
+using System.Reactive.Linq;
+using System.Reactive.Disposables;
 
 namespace Bonsai.IO
 {
     public abstract class FileSink<TSource, TWriter> : Sink<TSource> where TWriter : class, IDisposable
     {
-        Task writerTask;
-        TWriter writer;
-
         protected FileSink()
         {
             Buffered = true;
@@ -28,55 +27,58 @@ namespace Bonsai.IO
 
         protected abstract void Write(TWriter writer, TSource input);
 
-        public override void Process(TSource input)
+        public override IObservable<TSource> Process(IObservable<TSource> source)
         {
-            var runningWriter = writer;
-            Action writeTask = () =>
+            return Observable.Create<TSource>(observer =>
             {
-                if (runningWriter == null)
-                {
-                    var fileName = FileName;
-                    if (string.IsNullOrEmpty(fileName)) return;
+                Task writerTask = null;
+                TWriter writer = null;
 
-                    PathHelper.EnsureDirectory(fileName);
-                    fileName = PathHelper.AppendSuffix(fileName, Suffix);
-                    runningWriter = writer = CreateWriter(fileName, input);
+                if (Buffered)
+                {
+                    writerTask = new Task(() => { });
+                    writerTask.Start();
                 }
 
-                Write(runningWriter, input);
-            };
-
-            if (writerTask == null) writeTask();
-            else writerTask = writerTask.ContinueWith(task => writeTask());
-        }
-
-        public override IDisposable Load()
-        {
-            if (Buffered)
-            {
-                writerTask = new Task(() => { });
-                writerTask.Start();
-            }
-
-            return base.Load();
-        }
-
-        protected override void Unload()
-        {
-            var closingWriter = writer;
-            Action closingTask = () =>
-            {
-                if (closingWriter != null)
+                var close = Disposable.Create(() =>
                 {
-                    closingWriter.Dispose();
-                }
-            };
+                    var closingWriter = writer;
+                    Action closingTask = () =>
+                    {
+                        if (closingWriter != null)
+                        {
+                            closingWriter.Dispose();
+                        }
+                    };
 
-            if (writerTask == null) closingTask();
-            else writerTask.ContinueWith(task => closingTask());
-            writerTask = null;
-            writer = null;
-            base.Unload();
+                    if (writerTask == null) closingTask();
+                    else writerTask.ContinueWith(task => closingTask());
+                });
+
+                var process = source.Do(input =>
+                {
+                    var runningWriter = writer;
+                    Action writeTask = () =>
+                    {
+                        if (runningWriter == null)
+                        {
+                            var fileName = FileName;
+                            if (string.IsNullOrEmpty(fileName)) return;
+
+                            PathHelper.EnsureDirectory(fileName);
+                            fileName = PathHelper.AppendSuffix(fileName, Suffix);
+                            runningWriter = writer = CreateWriter(fileName, input);
+                        }
+
+                        Write(runningWriter, input);
+                    };
+
+                    if (writerTask == null) writeTask();
+                    else writerTask = writerTask.ContinueWith(task => writeTask());
+                }).Subscribe(observer);
+
+                return new CompositeDisposable(process, close);
+            });
         }
     }
 }

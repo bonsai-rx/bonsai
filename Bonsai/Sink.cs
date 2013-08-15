@@ -5,9 +5,13 @@ using System.Text;
 
 namespace Bonsai
 {
-    [Sink]
-    public abstract class Sink<TSource> : LoadableElement
+    [WorkflowElementCategory(ElementCategory.Sink)]
+    public abstract class Sink : Combinator
     {
-        public abstract void Process(TSource input);
+    }
+
+    [WorkflowElementCategory(ElementCategory.Sink)]
+    public abstract class Sink<TSource> : Combinator<TSource, TSource>
+    {
     }
 }

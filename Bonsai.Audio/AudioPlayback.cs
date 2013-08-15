@@ -8,15 +8,14 @@ using OpenTK;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using OpenCV.Net;
+using System.Reactive.Linq;
+using System.Reactive.Disposables;
 
 namespace Bonsai.Audio
 {
     [Description("Plays the sequence of buffered samples to the specified audio output device.")]
     public class AudioPlayback : Sink<CvMat>
     {
-        int source;
-        AudioContext context;
-
         public AudioPlayback()
         {
             Frequency = 44100;
@@ -29,21 +28,7 @@ namespace Bonsai.Audio
         [Description("The playback frequency (Hz) used by the output device.")]
         public int Frequency { get; set; }
 
-        public override void Process(CvMat input)
-        {
-            var buffer = AL.GenBuffer();
-            AL.BufferData(buffer, ALFormat.Mono16, input.Data, input.Rows * input.Step, Frequency);
-
-            AL.SourceQueueBuffer(source, buffer);
-            if (AL.GetSourceState(source) != ALSourceState.Playing)
-            {
-                AL.SourcePlay(source);
-            }
-
-            ClearBuffers(0);
-        }
-
-        void ClearBuffers(int input)
+        static void ClearBuffers(int source, int input)
         {
             int[] freeBuffers;
             if (input == 0)
@@ -63,22 +48,39 @@ namespace Bonsai.Audio
             AL.DeleteBuffers(freeBuffers);
         }
 
-        public override IDisposable Load()
+        public override IObservable<CvMat> Process(IObservable<CvMat> source)
         {
-            context = new AudioContext(DeviceName);
-            source = AL.GenSource();
-            return base.Load();
-        }
+            return Observable.Create<CvMat>(observer =>
+            {
+                var context = new AudioContext(DeviceName);
+                var sourceId = AL.GenSource();
 
-        protected override void Unload()
-        {
-            int queuedBuffers;
-            AL.GetSource(source, ALGetSourcei.BuffersQueued, out queuedBuffers);
-            ClearBuffers(queuedBuffers);
+                var close = Disposable.Create(() =>
+                {
+                    int queuedBuffers;
+                    AL.GetSource(sourceId, ALGetSourcei.BuffersQueued, out queuedBuffers);
+                    ClearBuffers(sourceId, queuedBuffers);
 
-            AL.DeleteSource(source);
-            context.Dispose();
-            base.Unload();
+                    AL.DeleteSource(sourceId);
+                    context.Dispose();
+                });
+
+                var process = source.Do(input =>
+                {
+                    var buffer = AL.GenBuffer();
+                    AL.BufferData(buffer, ALFormat.Mono16, input.Data, input.Rows * input.Step, Frequency);
+
+                    AL.SourceQueueBuffer(sourceId, buffer);
+                    if (AL.GetSourceState(sourceId) != ALSourceState.Playing)
+                    {
+                        AL.SourcePlay(sourceId);
+                    }
+
+                    ClearBuffers(sourceId,0);
+                }).Subscribe(observer);
+
+                return new CompositeDisposable(process, close);
+            });
         }
     }
 }

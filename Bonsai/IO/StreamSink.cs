@@ -6,13 +6,14 @@ using System.Threading.Tasks;
 using System.ComponentModel;
 using System.IO;
 using System.IO.Pipes;
+using System.Reactive.Linq;
+using System.Reactive.Disposables;
 
 namespace Bonsai.IO
 {
     public abstract class StreamSink<TSource, TWriter> : Sink<TSource> where TWriter : class, IDisposable
     {
         const string PipeServerPrefix = @"\\.\pipe\";
-        Task<TWriter> writerTask;
 
         [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public string Path { get; set; }
@@ -22,16 +23,6 @@ namespace Bonsai.IO
         protected abstract TWriter CreateWriter(Stream stream);
 
         protected abstract void Write(TWriter writer, TSource input);
-
-        public override void Process(TSource input)
-        {
-            if (writerTask == null) return;
-            writerTask = writerTask.ContinueWith(task =>
-            {
-                Write(task.Result, input);
-                return task.Result;
-            });
-        }
 
         static Stream CreateStream(string path)
         {
@@ -45,33 +36,44 @@ namespace Bonsai.IO
             else return new FileStream(path, FileMode.Create);
         }
 
-        public override IDisposable Load()
+        public override IObservable<TSource> Process(IObservable<TSource> source)
         {
-            var path = Path;
-            if (!string.IsNullOrEmpty(path))
+            return Observable.Create<TSource>(observer =>
             {
-                writerTask = new Task<TWriter>(() =>
+                var path = Path;
+                Task<TWriter> writerTask = null;
+                if (!string.IsNullOrEmpty(path))
                 {
-                    if (!path.StartsWith(@"\\")) PathHelper.EnsureDirectory(path);
-                    path = PathHelper.AppendSuffix(path, Suffix);
-                    var stream = CreateStream(path);
-                    return CreateWriter(stream);
+                    writerTask = new Task<TWriter>(() =>
+                    {
+                        if (!path.StartsWith(@"\\")) PathHelper.EnsureDirectory(path);
+                        path = PathHelper.AppendSuffix(path, Suffix);
+                        var stream = CreateStream(path);
+                        return CreateWriter(stream);
+                    });
+                    writerTask.Start();
+                }
+
+                var close = Disposable.Create(() =>
+                {
+                    writerTask.ContinueWith(task =>
+                    {
+                        task.Result.Dispose();
+                    });
                 });
-                writerTask.Start();
-            }
 
-            return base.Load();
-        }
+                var process = source.Do(input =>
+                {
+                    if (writerTask == null) return;
+                    writerTask = writerTask.ContinueWith(task =>
+                    {
+                        Write(task.Result, input);
+                        return task.Result;
+                    });
+                }).Subscribe(observer);
 
-        protected override void Unload()
-        {
-            writerTask.ContinueWith(task =>
-            {
-                task.Result.Dispose();
+                return new CompositeDisposable(process, close);
             });
-
-            writerTask = null;
-            base.Unload();
         }
     }
 }
