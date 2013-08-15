@@ -98,14 +98,13 @@ namespace Bonsai.Vision
                         }
                     }
 
+                    observer.OnNext(image.Clone());
                     var targetFps = PlaybackRate > 0 ? PlaybackRate : captureFps;
                     var dueTime = Math.Max(0, (1000.0 / targetFps) - stopwatch.Elapsed.TotalMilliseconds);
                     if (dueTime > 0)
                     {
                         Thread.Sleep(TimeSpan.FromMilliseconds(dueTime));
                     }
-
-                    observer.OnNext(image.Clone());
                 }))
                 .PublishReconnectable()
                 .RefCount();
