@@ -452,7 +452,7 @@ namespace Bonsai.Editor
                     },
                     resource =>
                         workflowBuilder.Workflow.InspectErrors()
-                        .Merge(resource.Workflow)
+                        .TakeUntil(resource.Workflow.Concat(Observable.Return(Unit.Default)))
                         .SubscribeOn(NewThreadScheduler.Default))
                     .Subscribe(unit => { }, HandleWorkflowError, () => { });
             }
