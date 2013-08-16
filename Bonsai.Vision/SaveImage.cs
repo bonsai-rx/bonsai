@@ -29,7 +29,7 @@ namespace Bonsai.Vision
                 if (!string.IsNullOrEmpty(fileName))
                 {
                     PathHelper.EnsureDirectory(fileName);
-                    fileName = PathHelper.AppendSuffix(FileName, Suffix);
+                    fileName = PathHelper.AppendSuffix(fileName, Suffix);
                     HighGui.cvSaveImage(fileName, input);
                 }
             });
