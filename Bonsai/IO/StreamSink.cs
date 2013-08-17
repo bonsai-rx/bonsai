@@ -46,20 +46,31 @@ namespace Bonsai.IO
                 {
                     writerTask = new Task<TWriter>(() =>
                     {
-                        if (!path.StartsWith(@"\\")) PathHelper.EnsureDirectory(path);
-                        path = PathHelper.AppendSuffix(path, Suffix);
-                        var stream = CreateStream(path);
-                        return CreateWriter(stream);
+                        try
+                        {
+                            if (!path.StartsWith(@"\\")) PathHelper.EnsureDirectory(path);
+                            path = PathHelper.AppendSuffix(path, Suffix);
+                            var stream = CreateStream(path);
+                            return CreateWriter(stream);
+                        }
+                        catch (Exception ex)
+                        {
+                            observer.OnError(ex);
+                            return null;
+                        }
                     });
                     writerTask.Start();
                 }
 
                 var close = Disposable.Create(() =>
                 {
-                    writerTask.ContinueWith(task =>
+                    if (writerTask != null)
                     {
-                        task.Result.Dispose();
-                    });
+                        writerTask.ContinueWith(task =>
+                        {
+                            task.Result.Dispose();
+                        });
+                    }
                 });
 
                 var process = source.Do(input =>
@@ -67,7 +78,16 @@ namespace Bonsai.IO
                     if (writerTask == null) return;
                     writerTask = writerTask.ContinueWith(task =>
                     {
-                        Write(task.Result, input);
+                        if (task.Result != null)
+                        {
+                            try { Write(task.Result, input); }
+                            catch (Exception ex)
+                            {
+                                observer.OnError(ex);
+                                return null;
+                            }
+                        }
+
                         return task.Result;
                     });
                 }).Subscribe(observer);

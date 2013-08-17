@@ -60,17 +60,24 @@ namespace Bonsai.IO
                     var runningWriter = writer;
                     Action writeTask = () =>
                     {
-                        if (runningWriter == null)
+                        try
                         {
-                            var fileName = FileName;
-                            if (string.IsNullOrEmpty(fileName)) return;
+                            if (runningWriter == null)
+                            {
+                                var fileName = FileName;
+                                if (string.IsNullOrEmpty(fileName)) return;
 
-                            PathHelper.EnsureDirectory(fileName);
-                            fileName = PathHelper.AppendSuffix(fileName, Suffix);
-                            runningWriter = writer = CreateWriter(fileName, input);
+                                PathHelper.EnsureDirectory(fileName);
+                                fileName = PathHelper.AppendSuffix(fileName, Suffix);
+                                runningWriter = writer = CreateWriter(fileName, input);
+                            }
+
+                            Write(runningWriter, input);
                         }
-
-                        Write(runningWriter, input);
+                        catch (Exception ex)
+                        {
+                            observer.OnError(ex);
+                        }
                     };
 
                     if (writerTask == null) writeTask();
