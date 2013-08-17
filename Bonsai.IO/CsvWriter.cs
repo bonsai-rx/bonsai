@@ -55,7 +55,10 @@ namespace Bonsai.IO
 
             public void Process(T input)
             {
-                writerTask = writerTask.ContinueWith(task => writeAction(input));
+                if (writerTask != null)
+                {
+                    writerTask = writerTask.ContinueWith(task => writeAction(input));
+                }
             }
 
             class ExpressionNode
@@ -190,12 +193,12 @@ namespace Bonsai.IO
 
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
-            return Observable.Defer(() =>
+            return Observable.Create<TSource>(observer =>
             {
                 var processor = new CsvProcessor<TSource>(this);
-                return Observable.Using(
-                    () => processor.Load(),
-                    resource => source.Do(input => processor.Process(input)));
+                var close = processor.Load();
+                var process = source.Do(input => processor.Process(input)).Subscribe(observer);
+                return new CompositeDisposable(process, close);
             });
         }
     }
