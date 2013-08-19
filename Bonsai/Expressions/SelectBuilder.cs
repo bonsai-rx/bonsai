@@ -28,10 +28,10 @@ namespace Bonsai.Expressions
             var transformExpression = Expression.Constant(Transform);
             var transformAttributes = transformType.GetCustomAttributes(typeof(TransformAttribute), true);
             var methodName = ((TransformAttribute)transformAttributes.Single()).MethodName;
-            var processMethod = transformType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                                             .Single(m => m.Name == methodName && m.GetParameters().Length == 1);
+            var processMethods = transformType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                                              .Where(m => m.Name == methodName && m.GetParameters().Length == 1);
             var parameter = Expression.Parameter(Source.Type.GetGenericArguments()[0]);
-            var process = BuildCall(transformExpression, processMethod, parameter);
+            var process = BuildCall(transformExpression, processMethods, parameter);
             return Expression.Call(selectMethod.MakeGenericMethod(parameter.Type, process.Type), Source, Expression.Lambda(process, parameter));
         }
     }

@@ -22,17 +22,17 @@ namespace Bonsai.Expressions
             {
                 var combinatorAttributes = combinatorType.GetCustomAttributes(typeof(BinaryCombinatorAttribute), true);
                 var methodName = ((BinaryCombinatorAttribute)combinatorAttributes.Single()).MethodName;
-                var processMethod = combinatorType.GetMethods(bindingAttributes)
-                                                  .Single(m => m.Name == methodName && m.GetParameters().Length == 2);
-                return BuildCall(combinatorExpression, processMethod, Source, Other);
+                var processMethods = combinatorType.GetMethods(bindingAttributes)
+                                                   .Where(m => m.Name == methodName && m.GetParameters().Length == 2);
+                return BuildCall(combinatorExpression, processMethods, Source, Other);
             }
             else
             {
                 var combinatorAttributes = combinatorType.GetCustomAttributes(typeof(CombinatorAttribute), true);
                 var methodName = ((CombinatorAttribute)combinatorAttributes.Single()).MethodName;
-                var processMethod = combinatorType.GetMethods(bindingAttributes)
-                                                  .Single(m => m.Name == methodName && m.GetParameters().Length == 1);
-                return BuildCall(combinatorExpression, processMethod, Source);
+                var processMethods = combinatorType.GetMethods(bindingAttributes)
+                                                   .Where(m => m.Name == methodName && m.GetParameters().Length == 1);
+                return BuildCall(combinatorExpression, processMethods, Source);
             }
         }
     }
