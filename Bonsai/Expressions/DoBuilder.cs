@@ -11,8 +11,8 @@ using System.Xml.Serialization;
 namespace Bonsai.Expressions
 {
     [WorkflowElementCategory(ElementCategory.Sink)]
-    [XmlType("Sink", Namespace = Constants.XmlNamespace)]
-    public class SinkBuilder : CombinatorExpressionBuilder
+    [XmlType("Do", Namespace = Constants.XmlNamespace)]
+    public class DoBuilder : CombinatorExpressionBuilder
     {
         static readonly ConstructorInfo runtimeExceptionConstructor = typeof(WorkflowRuntimeException).GetConstructor(new[] { typeof(string), typeof(ExpressionBuilder), typeof(Exception) });
         static readonly MethodInfo doMethod = typeof(Observable).GetMethods()
@@ -25,24 +25,14 @@ namespace Bonsai.Expressions
 
         public override Expression Build()
         {
-            var sink = Sink;
-            var dynamicSink = sink as DynamicSink;
-            var observableType = Source.Type.GetGenericArguments()[0];
-            if (dynamicSink != null)
-            {
-                var createMethod = dynamicSink.GetType().GetMethod("Create");
-                createMethod = createMethod.MakeGenericMethod(observableType);
-                sink = (LoadableElement)createMethod.Invoke(dynamicSink, null);
-            }
-
-            var sinkType = sink.GetType();
-            var sinkExpression = Expression.Constant(sink);
+            var sinkType = Sink.GetType();
+            var sinkExpression = Expression.Constant(Sink);
             var sinkAttributes = sinkType.GetCustomAttributes(typeof(SinkAttribute), true);
             var methodName = ((SinkAttribute)sinkAttributes.Single()).MethodName;
-            var parameter = Expression.Parameter(observableType);
+            var parameter = Expression.Parameter(Source.Type.GetGenericArguments()[0]);
             var processMethod = sinkType.GetMethod(methodName);
             var process = BuildCall(sinkExpression, processMethod, parameter);
-            return Expression.Call(doMethod.MakeGenericMethod(observableType), Source, Expression.Lambda(process, parameter));
+            return Expression.Call(doMethod.MakeGenericMethod(parameter.Type), Source, Expression.Lambda(process, parameter));
         }
     }
 }
