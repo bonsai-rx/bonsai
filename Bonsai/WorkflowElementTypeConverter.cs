@@ -13,7 +13,7 @@ namespace Bonsai
         {
             if (elementType == ElementCategory.Source) return MatchGenericType(type, typeof(Source<>));
             if (elementType == ElementCategory.Condition) return type.GetCustomAttributes(typeof(ConditionAttribute), true).Length > 0;
-            if (elementType == ElementCategory.Sink) return type.IsSubclassOf(typeof(DynamicSink)) || type.GetCustomAttributes(typeof(SinkAttribute), true).Length > 0;
+            if (elementType == ElementCategory.Sink) return type.GetCustomAttributes(typeof(SinkAttribute), true).Length > 0;
             if (elementType == ElementCategory.Combinator) return type.IsSubclassOf(typeof(ExpressionBuilder));
             if (elementType == ElementCategory.Transform) return type.GetCustomAttributes(typeof(TransformAttribute), true).Length > 0;
             return false;
@@ -22,9 +22,9 @@ namespace Bonsai
         static bool MatchIgnoredTypes(Type type)
         {
             return type == typeof(SourceBuilder) ||
-                   type == typeof(TransformBuilder) ||
-                   type == typeof(ConditionBuilder) ||
-                   type == typeof(SinkBuilder) ||
+                   type == typeof(SelectBuilder) ||
+                   type == typeof(WhereBuilder) ||
+                   type == typeof(DoBuilder) ||
                    type == typeof(CombinatorBuilder) ||
                    type == typeof(InspectBuilder);
         }

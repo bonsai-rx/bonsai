@@ -11,8 +11,8 @@ using System.Xml.Serialization;
 namespace Bonsai.Expressions
 {
     [WorkflowElementCategory(ElementCategory.Condition)]
-    [XmlType("Condition", Namespace = Constants.XmlNamespace)]
-    public class ConditionBuilder : CombinatorExpressionBuilder
+    [XmlType("Where", Namespace = Constants.XmlNamespace)]
+    public class WhereBuilder : CombinatorExpressionBuilder
     {
         static readonly ConstructorInfo runtimeExceptionConstructor = typeof(WorkflowRuntimeException).GetConstructor(new[] { typeof(string), typeof(ExpressionBuilder), typeof(Exception) });
         static readonly MethodInfo whereMethod = typeof(Observable).GetMethods()

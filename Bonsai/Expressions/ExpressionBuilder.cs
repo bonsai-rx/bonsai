@@ -16,9 +16,9 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(WorkflowInputBuilder))]
     [XmlInclude(typeof(WorkflowOutputBuilder))]
     [XmlInclude(typeof(SourceBuilder))]
-    [XmlInclude(typeof(TransformBuilder))]
-    [XmlInclude(typeof(ConditionBuilder))]
-    [XmlInclude(typeof(SinkBuilder))]
+    [XmlInclude(typeof(SelectBuilder))]
+    [XmlInclude(typeof(WhereBuilder))]
+    [XmlInclude(typeof(DoBuilder))]
     [XmlInclude(typeof(CombinatorBuilder))]
     [XmlInclude(typeof(NullSinkBuilder))]
     [XmlInclude(typeof(MemberSelectorBuilder))]
@@ -35,13 +35,13 @@ namespace Bonsai.Expressions
             var sourceBuilder = builder as SourceBuilder;
             if (sourceBuilder != null) return sourceBuilder.Source;
 
-            var selectBuilder = builder as TransformBuilder;
+            var selectBuilder = builder as SelectBuilder;
             if (selectBuilder != null) return selectBuilder.Transform;
 
-            var whereBuilder = builder as ConditionBuilder;
+            var whereBuilder = builder as WhereBuilder;
             if (whereBuilder != null) return whereBuilder.Condition;
 
-            var doBuilder = builder as SinkBuilder;
+            var doBuilder = builder as DoBuilder;
             if (doBuilder != null) return doBuilder.Sink;
 
             var combinatorBuilder = builder as CombinatorBuilder;
@@ -65,9 +65,9 @@ namespace Bonsai.Expressions
             }
 
             if (elementCategory == ElementCategory.Source) return new SourceBuilder { Source = element };
-            if (elementCategory == ElementCategory.Condition) return new ConditionBuilder { Condition = element };
-            if (elementCategory == ElementCategory.Transform) return new TransformBuilder { Transform = element };
-            if (elementCategory == ElementCategory.Sink) return new SinkBuilder { Sink = element };
+            if (elementCategory == ElementCategory.Condition) return new WhereBuilder { Condition = element };
+            if (elementCategory == ElementCategory.Transform) return new SelectBuilder { Transform = element };
+            if (elementCategory == ElementCategory.Sink) return new DoBuilder { Sink = element };
             throw new InvalidOperationException("Invalid loadable element type.");
         }
 
