@@ -30,8 +30,8 @@ namespace Bonsai.Expressions
             var sinkAttributes = sinkType.GetCustomAttributes(typeof(SinkAttribute), true);
             var methodName = ((SinkAttribute)sinkAttributes.Single()).MethodName;
             var parameter = Expression.Parameter(Source.Type.GetGenericArguments()[0]);
-            var processMethod = sinkType.GetMethod(methodName);
-            var process = BuildCall(sinkExpression, processMethod, parameter);
+            var processMethods = sinkType.GetMethods().Where(m => m.Name == methodName);
+            var process = BuildCall(sinkExpression, processMethods, parameter);
             return Expression.Call(doMethod.MakeGenericMethod(parameter.Type), Source, Expression.Lambda(process, parameter));
         }
     }

@@ -84,6 +84,8 @@ namespace Bonsai.Expressions
                          .GetGenericArguments()[0];
         }
 
+        #region Type Inference
+
         internal static Type[] GetMethodBindings(MethodInfo methodInfo, params Type[] parameters)
         {
             if (methodInfo == null)
@@ -168,7 +170,7 @@ namespace Bonsai.Expressions
             return Enumerable.Empty<Tuple<Type, int>>();
         }
 
-        internal static Expression BuildCall(Expression instance, MethodInfo method, params Expression[] arguments)
+        internal static MethodCallExpression BuildCall(Expression instance, MethodInfo method, params Expression[] arguments)
         {
             if (method.IsGenericMethodDefinition)
             {
@@ -191,6 +193,164 @@ namespace Bonsai.Expressions
             return Expression.Call(instance, method, arguments);
         }
 
+        #endregion
+
+        #region Overload Resolution
+
+        static readonly Dictionary<Type, Type[]> ImplicitNumericConversions = new Dictionary<Type, Type[]>
+        {
+            { typeof(sbyte), new[] { typeof(short), typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) } },
+            { typeof(byte), new[] { typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) } },
+            { typeof(short), new[] { typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) } },
+            { typeof(ushort), new[] { typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) } },
+            { typeof(int), new[] { typeof(long), typeof(float), typeof(double), typeof(decimal) } },
+            { typeof(uint), new[] { typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) } },
+            { typeof(long), new[] { typeof(float), typeof(double), typeof(decimal) } },
+            { typeof(char), new[] { typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) } },
+            { typeof(float), new[] { typeof(double) } },
+            { typeof(ulong), new[] { typeof(float), typeof(double), typeof(decimal) } }
+        };
+
+        static bool HasImplicitConversion(Type from, Type to)
+        {
+            if (to.IsAssignableFrom(from)) return true;
+
+            Type[] conversions;
+            if (ImplicitNumericConversions.TryGetValue(from, out conversions))
+            {
+                return Array.Exists(conversions, type => type == to);
+            }
+
+            return from.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                       .Any(m => m.ReturnType == to && m.Name == "op_Implicit");
+        }
+
+        static int CompareConversion(Type t1, Type t2, Type s)
+        {
+            if (t1 == t2) return 0;
+            if (s == t1) return -1;
+            if (s == t2) return 1;
+
+            var implicitT1T2 = HasImplicitConversion(t1, t2);
+            var implicitT2T1 = HasImplicitConversion(t2, t1);
+            if (implicitT1T2 && !implicitT2T1) return -1;
+            if (implicitT2T1 && !implicitT1T2) return 1;
+
+            var t1Code = Type.GetTypeCode(t1);
+            var t2Code = Type.GetTypeCode(t2);
+            if (t1Code == TypeCode.SByte &&
+                (t2Code == TypeCode.Byte || t2Code == TypeCode.UInt16 ||
+                 t2Code == TypeCode.UInt32 || t2Code == TypeCode.UInt64)) return -1;
+
+            if (t2Code == TypeCode.SByte &&
+                (t1Code == TypeCode.Byte || t1Code == TypeCode.UInt16 ||
+                 t1Code == TypeCode.UInt32 || t1Code == TypeCode.UInt64)) return 1;
+
+            if (t1Code == TypeCode.Int16 &&
+                (t2Code == TypeCode.UInt16 || t2Code == TypeCode.UInt32 || t2Code == TypeCode.UInt64)) return -1;
+            if (t2Code == TypeCode.Int16 &&
+                (t1Code == TypeCode.UInt16 || t1Code == TypeCode.UInt32 || t1Code == TypeCode.UInt64)) return 1;
+
+            if (t1Code == TypeCode.Int32 && (t2Code == TypeCode.UInt32 || t2Code == TypeCode.UInt64)) return -1;
+            if (t2Code == TypeCode.Int32 && (t1Code == TypeCode.UInt32 || t1Code == TypeCode.UInt64)) return 1;
+            if (t1Code == TypeCode.Int64 && t2Code == TypeCode.UInt64) return -1;
+            if (t2Code == TypeCode.Int64 && t1Code == TypeCode.UInt64) return 1;
+            return 0;
+        }
+
+        static int CompareFunctionMember(Type[] parametersA, Type[] parametersB, Type[] arguments)
+        {
+            bool? betterA = null;
+            bool? betterB = null;
+            for (int i = 0; i < arguments.Length; i++)
+            {
+                var comparison = CompareConversion(parametersA[i], parametersB[i], arguments[i]);
+                if (comparison < 0)
+                {
+                    if (!betterA.HasValue) betterA = true;
+                    betterB = false;
+                }
+                else if (comparison > 0)
+                {
+                    if (!betterB.HasValue) betterB = true;
+                    betterA = false;
+                }
+            }
+
+            if (betterA.GetValueOrDefault()) return -1;
+            if (betterB.GetValueOrDefault()) return 1;
+            return 0;
+        }
+
+        internal static Expression BuildCall(Expression instance, IEnumerable<MethodInfo> methods, params Expression[] arguments)
+        {
+            var candidates = methods
+                .Where(method => method.GetParameters().Length == arguments.Length)
+                .Select(method =>
+                {
+                    MethodCallExpression call;
+                    try { call = BuildCall(instance, method, arguments); }
+                    catch (InvalidOperationException) { call = null; }
+                    return new { call, generic = call.Method != method };
+                })
+                .Where(candidate => candidate.call != null)
+                .ToArray();
+
+            if (candidates.Length == 0)
+            {
+                throw new InvalidOperationException("No method overload found for the given arguments.");
+            }
+
+            if (candidates.Length == 1) return candidates[0].call;
+
+            int best = -1;
+            var argumentTypes = Array.ConvertAll(arguments, argument => argument.Type);
+            var candidateParameters = Array.ConvertAll(
+                candidates,
+                candidate => Array.ConvertAll(candidate.call.Method.GetParameters(), parameter => parameter.ParameterType));
+
+            for (int i = 0; i < candidateParameters.Length;)
+            {
+                for (int j = 0; j < candidateParameters.Length; j++)
+                {
+                    if (i == j) continue;
+                    var comparison = CompareFunctionMember(
+                        candidateParameters[i],
+                        candidateParameters[j],
+                        argumentTypes);
+
+                    int oldBest = -1;
+                    if (best >= 0) oldBest = best;
+                    if (comparison < 0) best = i;
+                    if (comparison > 0) best = j;
+                    if (comparison == 0)
+                    {
+                        if (!candidates[i].generic && candidates[j].generic) best = i;
+                        if (!candidates[j].generic && candidates[i].generic) best = j;
+                    }
+
+                    if (best != oldBest && oldBest > 0)
+                    {
+                        best = -1;
+                        break;
+                    }
+
+                    if (best == j) break;
+                }
+
+                if (best < 0) break;
+                if (best == i) break;
+                i = best;
+            }
+
+            if (best < 0) throw new InvalidOperationException("The method overload call is ambiguous.");
+            return candidates[best].call;
+        }
+
+        #endregion
+
+        #region Nested Workflow Output
+
         static IObservable<Unit> IgnoreConnection<TSource>(IObservable<TSource> source)
         {
             return source.IgnoreElements().Select(xs => Unit.Default);
@@ -206,7 +366,7 @@ namespace Bonsai.Expressions
             return source.Publish(ps => ps.Merge(Observable.Merge(connections).Select(xs => default(TSource)).TakeUntil(ps.TakeLast(1))));
         }
 
-        protected internal static Expression BuildOutput(WorkflowOutputBuilder workflowOutput, IEnumerable<Expression> connections)
+        internal static Expression BuildOutput(WorkflowOutputBuilder workflowOutput, IEnumerable<Expression> connections)
         {
             var output = workflowOutput != null ? connections.FirstOrDefault(connection => connection == workflowOutput.Output) : null;
             var ignoredConnections = from connection in connections
@@ -222,5 +382,7 @@ namespace Bonsai.Expressions
             }
             else return Expression.Call(typeof(ExpressionBuilder), "MergeOutput", null, connectionArrayExpression);
         }
+
+        #endregion
     }
 }

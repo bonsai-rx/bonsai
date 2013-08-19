@@ -35,9 +35,9 @@ namespace Bonsai.Expressions
 
             var observableType = Source.Type.GetGenericArguments()[0];
             var parameter = Expression.Parameter(observableType);
-            var processMethod = conditionType.GetMethod(methodName);
+            var processMethods = conditionType.GetMethods().Where(m => m.Name == methodName);
             var processParameter = ExpressionHelper.MemberAccess(parameter, Selector);
-            var process = BuildCall(conditionExpression, processMethod, processParameter);
+            var process = BuildCall(conditionExpression, processMethods, processParameter);
             return Expression.Call(whereMethod.MakeGenericMethod(observableType), Source, Expression.Lambda(process, parameter));
         }
     }
