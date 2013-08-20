@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace Bonsai.IO
 {
-    public class KeyPressed : Condition<Keys>
+    public class KeyPressed : Predicate<Keys>
     {
         public Keys Key { get; set; }
 

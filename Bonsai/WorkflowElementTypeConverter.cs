@@ -12,7 +12,7 @@ namespace Bonsai
         static bool MatchType(Type type, ElementCategory elementType)
         {
             if (elementType == ElementCategory.Source) return MatchGenericType(type, typeof(Source<>));
-            if (elementType == ElementCategory.Condition) return type.GetCustomAttributes(typeof(ConditionAttribute), true).Length > 0;
+            if (elementType == ElementCategory.Condition) return type.GetCustomAttributes(typeof(PredicateAttribute), true).Length > 0;
             if (elementType == ElementCategory.Sink) return type.GetCustomAttributes(typeof(SinkAttribute), true).Length > 0;
             if (elementType == ElementCategory.Combinator) return type.IsSubclassOf(typeof(ExpressionBuilder));
             if (elementType == ElementCategory.Transform) return type.GetCustomAttributes(typeof(SelectorAttribute), true).Length > 0;
@@ -69,7 +69,7 @@ namespace Bonsai
             else
             {
                 if (MatchType(type, ElementCategory.Source)) yield return ElementCategory.Source;
-                if (MatchAttributeType(type, typeof(ConditionAttribute))) yield return ElementCategory.Condition;
+                if (MatchAttributeType(type, typeof(PredicateAttribute))) yield return ElementCategory.Condition;
                 if (MatchAttributeType(type, typeof(SelectorAttribute))) yield return ElementCategory.Transform;
                 if (MatchAttributeType(type, typeof(SinkAttribute))) yield return ElementCategory.Sink;
             }

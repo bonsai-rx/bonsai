@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Bonsai.Vision
 {
-    public class RoiActivityDetected : Condition<RegionActivityCollection>
+    public class RoiActivityDetected : Predicate<RegionActivityCollection>
     {
         public int? Index { get; set; }
 

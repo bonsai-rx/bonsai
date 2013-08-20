@@ -52,11 +52,12 @@
     <Compile Include="Combinators\Skip.cs" />
     <Compile Include="Combinators\SkipLast.cs" />
     <Compile Include="Combinators\SkipUntil.cs" />
+    <Compile Include="Condition.cs" />
     <Compile Include="Configuration\ConfigurationHelper.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="ContinuationScheduler.cs" />
     <Compile Include="ArrayConvert.cs" />
-    <Compile Include="ConditionAttribute.cs" />
+    <Compile Include="PredicateAttribute.cs" />
     <Compile Include="CombinatorAttribute.cs" />
     <Compile Include="BinaryCombinatorAttribute.cs" />
     <Compile Include="ReconnectableObservable.cs" />
@@ -137,7 +138,7 @@
     <Compile Include="Combinators\Sample.cs" />
     <Compile Include="Combinators\Timestamp.cs" />
     <Compile Include="Expressions\WhereBuilder.cs" />
-    <Compile Include="Condition.cs" />
+    <Compile Include="Predicate.cs" />
     <Compile Include="ILoadable.cs" />
     <Compile Include="LoadableElement.cs" />
     <Compile Include="WorkflowBuildException.cs" />
