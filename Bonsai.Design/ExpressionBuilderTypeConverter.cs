@@ -33,17 +33,17 @@ namespace Bonsai.Design
                 var sourceBuilder = expressionBuilder as SourceBuilder;
                 if (sourceBuilder != null) return sourceBuilder.Source.GetType().Name;
 
-                var conditionBuilder = expressionBuilder as WhereBuilder;
-                if (conditionBuilder != null) return conditionBuilder.Condition.GetType().Name;
+                var whereBuilder = expressionBuilder as WhereBuilder;
+                if (whereBuilder != null) return whereBuilder.Condition.GetType().Name;
 
-                var transformBuilder = expressionBuilder as SelectBuilder;
-                if (transformBuilder != null) return transformBuilder.Transform.GetType().Name;
+                var selectBuilder = expressionBuilder as SelectBuilder;
+                if (selectBuilder != null) return selectBuilder.Selector.GetType().Name;
 
                 var combinatorBuilder = expressionBuilder as CombinatorBuilder;
                 if (combinatorBuilder != null) return combinatorBuilder.Combinator.GetType().Name;
 
-                var sinkBuilder = expressionBuilder as DoBuilder;
-                if (sinkBuilder != null) return sinkBuilder.Sink.GetType().Name;
+                var doBuilder = expressionBuilder as DoBuilder;
+                if (doBuilder != null) return doBuilder.Sink.GetType().Name;
 
                 var workflowExpressionBuilder = expressionBuilder as WorkflowExpressionBuilder;
                 if (workflowExpressionBuilder != null && !string.IsNullOrWhiteSpace(workflowExpressionBuilder.Name)) return workflowExpressionBuilder.Name;

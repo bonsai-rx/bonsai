@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class DrawContours : Transform<Contours, IplImage>
+    public class DrawContours : Selector<Contours, IplImage>
     {
         public DrawContours()
         {

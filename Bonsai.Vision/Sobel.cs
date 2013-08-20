@@ -8,7 +8,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
-    public class Sobel : Transform<IplImage, IplImage>
+    public class Sobel : Selector<IplImage, IplImage>
     {
         public Sobel()
         {

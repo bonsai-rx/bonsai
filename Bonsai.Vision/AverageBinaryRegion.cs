@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class AverageBinaryRegion : Transform<ConnectedComponentCollection, ConnectedComponent>
+    public class AverageBinaryRegion : Selector<ConnectedComponentCollection, ConnectedComponent>
     {
         public override ConnectedComponent Process(ConnectedComponentCollection input)
         {

@@ -3,15 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OpenCV.Net;
+using System.Reactive.Linq;
+using System.Reactive.Disposables;
 
 namespace Bonsai.Vision
 {
     public class GoodFeaturesToTrack : Transform<IplImage, KeyPointCollection>
     {
-        IplImage temp;
-        IplImage eigen;
-        CvPoint2D32f[] corners;
-
         public GoodFeaturesToTrack()
         {
             MaxFeatures = 100;
@@ -24,40 +22,45 @@ namespace Bonsai.Vision
 
         public double MinDistance { get; set; }
 
-        public override KeyPointCollection Process(IplImage input)
+        public override IObservable<KeyPointCollection> Process(IObservable<IplImage> source)
         {
-            return Process(input);
-        }
-
-        public KeyPointCollection Process(IplImage input, IplImage mask = null)
-        {
-            var result = new KeyPointCollection(input);
-            temp = IplImageHelper.EnsureImageFormat(temp, input.Size, 32, 1);
-            eigen = IplImageHelper.EnsureImageFormat(eigen, input.Size, 32, 1);
-            if (corners == null || corners.Length != MaxFeatures)
+            return Observable.Create<KeyPointCollection>(observer =>
             {
-                corners = new CvPoint2D32f[MaxFeatures];
-            }
+                IplImage temp = null;
+                IplImage eigen = null;
+                CvPoint2D32f[] corners = null;
 
-            int cornerCount = corners.Length;
-            ImgProc.cvGoodFeaturesToTrack(input, eigen, temp, corners, ref cornerCount, QualityLevel, MinDistance, mask ?? CvArr.Null, 3, 0, 0.04);
-            for (int i = 0; i < cornerCount; i++)
-            {
-                result.Add(new KeyPoint(corners[i]));
-            }
+                var process = source.Select(input =>
+                {
+                    var result = new KeyPointCollection(input);
+                    temp = IplImageHelper.EnsureImageFormat(temp, input.Size, 32, 1);
+                    eigen = IplImageHelper.EnsureImageFormat(eigen, input.Size, 32, 1);
+                    if (corners == null || corners.Length != MaxFeatures)
+                    {
+                        corners = new CvPoint2D32f[MaxFeatures];
+                    }
 
-            return result;
-        }
+                    int cornerCount = corners.Length;
+                    ImgProc.cvGoodFeaturesToTrack(input, eigen, temp, corners, ref cornerCount, QualityLevel, MinDistance, CvArr.Null, 3, 0, 0.04);
+                    for (int i = 0; i < cornerCount; i++)
+                    {
+                        result.Add(new KeyPoint(corners[i]));
+                    }
 
-        protected override void Unload()
-        {
-            if (temp != null)
-            {
-                temp.Close();
-                eigen.Close();
-                temp = eigen = null;
-            }
-            base.Unload();
+                    return result;
+                }).Subscribe(observer);
+
+                var close = Disposable.Create(() =>
+                {
+                    if (temp != null)
+                    {
+                        temp.Close();
+                        eigen.Close();
+                    }
+                });
+
+                return new CompositeDisposable(process, close);
+            });
         }
     }
 }

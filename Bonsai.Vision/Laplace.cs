@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class Laplace : Transform<IplImage, IplImage>
+    public class Laplace : Selector<IplImage, IplImage>
     {
         public Laplace()
         {

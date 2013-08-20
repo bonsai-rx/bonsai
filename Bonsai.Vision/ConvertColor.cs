@@ -8,7 +8,7 @@ using System.ComponentModel;
 namespace Bonsai.Vision
 {
     [Description("Converts an image from one color space to another.")]
-    public class ConvertColor : Transform<IplImage, IplImage>
+    public class ConvertColor : Selector<IplImage, IplImage>
     {
         int depth;
         int numChannels;

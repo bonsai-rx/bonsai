@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Bonsai.Vision
 {
-    public class SortBinaryRegions : Transform<ConnectedComponentCollection, ConnectedComponentCollection>
+    public class SortBinaryRegions : Selector<ConnectedComponentCollection, ConnectedComponentCollection>
     {
         public override ConnectedComponentCollection Process(ConnectedComponentCollection input)
         {

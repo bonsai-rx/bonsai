@@ -6,12 +6,21 @@ using System.Text;
 namespace Bonsai
 {
     [Condition]
-    public abstract class Condition<TSource> : Transform<TSource, bool>
+    [Selector]
+    public abstract class Condition<TSource> : LoadableElement
     {
+        public abstract bool Process(TSource input);
     }
 
     [Condition]
-    public abstract class Condition<TFirst, TSecond> : Transform<TFirst, TSecond, bool>
+    [Selector]
+    public abstract class Condition<TFirst, TSecond> : LoadableElement
     {
+        internal bool Process(Tuple<TFirst, TSecond> input)
+        {
+            return Process(input.Item1, input.Item2);
+        }
+
+        public abstract bool Process(TFirst first, TSecond second);
     }
 }

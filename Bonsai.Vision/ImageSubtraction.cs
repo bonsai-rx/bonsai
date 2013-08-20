@@ -5,13 +5,12 @@ using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
 using System.Drawing.Design;
+using System.Reactive.Linq;
 
 namespace Bonsai.Vision
 {
     public class ImageSubtraction : Transform<IplImage, IplImage>
     {
-        CvArr image;
-
         public ImageSubtraction()
         {
             Format = LoadImageMode.Grayscale;
@@ -23,24 +22,16 @@ namespace Bonsai.Vision
 
         public LoadImageMode Format { get; set; }
 
-        public override IplImage Process(IplImage input)
+        public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            var output = new IplImage(input.Size, input.Depth, input.NumChannels);
-            Core.cvAbsDiff(input, image, output);
-            return output;
-        }
-
-        public override IDisposable Load()
-        {
-            image = HighGui.cvLoadImage(FileName, Format);
-            return base.Load();
-        }
-
-        protected override void Unload()
-        {
-            image.Close();
-            image = null;
-            base.Unload();
+            return Observable.Using(
+                () => HighGui.cvLoadImage(FileName, Format),
+                image => source.Select(input =>
+                {
+                    var output = new IplImage(input.Size, input.Depth, input.NumChannels);
+                    Core.cvAbsDiff(input, image, output);
+                    return output;
+                }));
         }
     }
 }

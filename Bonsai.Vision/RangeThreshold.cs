@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
-    public class RangeThreshold : Transform<IplImage, IplImage>
+    public class RangeThreshold : Selector<IplImage, IplImage>
     {
         public RangeThreshold()
         {

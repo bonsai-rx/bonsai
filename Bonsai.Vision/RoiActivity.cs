@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 
 namespace Bonsai.Vision
 {
-    public class RoiActivity : Transform<IplImage, RegionActivityCollection>
+    public class RoiActivity : Selector<IplImage, RegionActivityCollection>
     {
         IplImage roi;
         IplImage mask;

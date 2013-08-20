@@ -8,7 +8,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
-    public class Skeletonization : Transform<IplImage, IplImage>
+    public class Skeletonization : Selector<IplImage, IplImage>
     {
         IplImage distance;
         IplImage laplacian;

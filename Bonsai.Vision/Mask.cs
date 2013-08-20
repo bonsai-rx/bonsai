@@ -8,7 +8,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
-    public class Mask : Transform<IplImage, IplImage, IplImage>
+    public class Mask : Selector<IplImage, IplImage, IplImage>
     {
         public override IplImage Process(IplImage first, IplImage second)
         {

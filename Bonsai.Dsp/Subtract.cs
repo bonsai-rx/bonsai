@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Dsp
 {
-    public class Subtract : Transform<CvMat, CvMat, CvMat>
+    public class Subtract : Selector<CvMat, CvMat, CvMat>
     {
         public override CvMat Process(CvMat first, CvMat second)
         {

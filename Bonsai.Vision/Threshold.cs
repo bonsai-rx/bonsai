@@ -9,7 +9,7 @@ using System.Drawing.Design;
 namespace Bonsai.Vision
 {
     [Description("Applies a fixed threshold to the input image.")]
-    public class Threshold : Transform<IplImage, IplImage>
+    public class Threshold : Selector<IplImage, IplImage>
     {
         public Threshold()
         {

@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Dsp
 {
-    public class Transpose : Transform<CvMat, CvMat>
+    public class Transpose : Selector<CvMat, CvMat>
     {
         public override CvMat Process(CvMat input)
         {

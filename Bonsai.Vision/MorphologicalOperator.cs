@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OpenCV.Net;
+using System.Reactive.Linq;
+using System.Reactive.Disposables;
 
 namespace Bonsai.Vision
 {
@@ -11,9 +13,7 @@ namespace Bonsai.Vision
         CvSize size;
         CvPoint anchor;
         StructuringElementShape shape;
-        IplConvKernel strel;
-        bool propertyChanged;
-        IplImage temp;
+        event EventHandler PropertyChanged;
 
         public MorphologicalOperator()
         {
@@ -28,7 +28,7 @@ namespace Bonsai.Vision
             set
             {
                 size = value;
-                propertyChanged = true;
+                OnPropertyChanged(EventArgs.Empty);
             }
         }
 
@@ -38,7 +38,7 @@ namespace Bonsai.Vision
             set
             {
                 anchor = value;
-                propertyChanged = true;
+                OnPropertyChanged(EventArgs.Empty);
             }
         }
 
@@ -48,7 +48,16 @@ namespace Bonsai.Vision
             set
             {
                 shape = value;
-                propertyChanged = true;
+                OnPropertyChanged(EventArgs.Empty);
+            }
+        }
+
+        void OnPropertyChanged(EventArgs e)
+        {
+            var handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, e);
             }
         }
 
@@ -56,43 +65,49 @@ namespace Bonsai.Vision
 
         public OpenCV.Net.MorphologicalOperation Operation { get; set; }
 
-        protected IplConvKernel StructuringElement
+        public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            get
+            var propertyChanged = Observable.FromEventPattern<EventArgs>(
+                handler => PropertyChanged += new EventHandler(handler),
+                handler => PropertyChanged -= new EventHandler(handler));
+
+            return Observable.Create<IplImage>(observer =>
             {
-                if (strel == null || propertyChanged)
+                IplImage temp = null;
+                IplConvKernel strel = null;
+                bool updateStrel = false;
+                var update = propertyChanged.Do(xs => updateStrel = true).Subscribe();
+
+                var process = source.Select(input =>
                 {
-                    propertyChanged = false;
-                    if (strel != null) strel.Close();
-                    strel = new IplConvKernel(Size.Width, Size.Height, Anchor.X, Anchor.Y, Shape);
-                }
+                    if (strel == null || updateStrel)
+                    {
+                        updateStrel = false;
+                        if (strel != null) strel.Close();
+                        strel = new IplConvKernel(Size.Width, Size.Height, Anchor.X, Anchor.Y, Shape);
+                    }
 
-                return strel;
-            }
-        }
+                    var output = new IplImage(input.Size, input.Depth, input.NumChannels);
+                    temp = IplImageHelper.EnsureImageFormat(temp, input.Size, input.Depth, input.NumChannels);
+                    ImgProc.cvMorphologyEx(input, output, temp, strel, Operation, Iterations);
+                    return output;
+                }).Subscribe(observer);
 
-        public override IplImage Process(IplImage input)
-        {
-            var output = new IplImage(input.Size, input.Depth, input.NumChannels);
-            temp = IplImageHelper.EnsureImageFormat(temp, input.Size, input.Depth, input.NumChannels);
-            ImgProc.cvMorphologyEx(input, output, temp, StructuringElement, Operation, Iterations);
-            return output;
-        }
+                var close = Disposable.Create(() =>
+                {
+                    if (strel != null)
+                    {
+                        strel.Close();
+                    }
 
-        protected override void Unload()
-        {
-            if (strel != null)
-            {
-                strel.Close();
-                strel = null;
-            }
+                    if (temp != null)
+                    {
+                        temp.Close();
+                    }
+                });
 
-            if (temp != null)
-            {
-                temp.Close();
-                temp = null;
-            }
-            base.Unload();
+                return new CompositeDisposable(update, process, close);
+            });
         }
     }
 }

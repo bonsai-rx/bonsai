@@ -5,20 +5,8 @@ using System.Text;
 
 namespace Bonsai
 {
-    [Transform]
-    public abstract class Transform<TSource, TResult> : LoadableElement
+    [WorkflowElementCategory(ElementCategory.Transform)]
+    public abstract class Transform<TSource, TResult> : Combinator<TSource, TResult>
     {
-        public abstract TResult Process(TSource input);
-    }
-
-    [Transform]
-    public abstract class Transform<TFirst, TSecond, TResult> : LoadableElement
-    {
-        internal TResult Process(Tuple<TFirst, TSecond> input)
-        {
-            return Process(input.Item1, input.Item2);
-        }
-
-        public abstract TResult Process(TFirst first, TSecond second);
     }
 }

@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 namespace Bonsai.Vision
 {
     [TypeVisualizer("Bonsai.Vision.Design.BinaryRegionExtremesVisualizer, Bonsai.Vision.Design")]
-    public class BinaryRegionExtremes : Transform<ConnectedComponent, Tuple<CvPoint2D32f, CvPoint2D32f>>
+    public class BinaryRegionExtremes : Selector<ConnectedComponent, Tuple<CvPoint2D32f, CvPoint2D32f>>
     {
         public FindExtremesMethod Method { get; set; }
 
