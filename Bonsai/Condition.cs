@@ -9,4 +9,10 @@ namespace Bonsai
     public abstract class Condition : Combinator
     {
     }
+
+    [WorkflowElementCategory(ElementCategory.Condition)]
+    public abstract class Condition<TSource>
+    {
+        public abstract IObservable<TSource> Process(IObservable<TSource> source);
+    }
 }
