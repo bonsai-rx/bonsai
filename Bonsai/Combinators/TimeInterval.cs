@@ -13,7 +13,7 @@ namespace Bonsai.Combinators
     [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Records the time interval between consecutive values produced by the sequence.")]
-    public class TimeInterval : LoadableElement
+    public class TimeInterval
     {
         public IObservable<System.Reactive.TimeInterval<TSource>> Process<TSource>(IObservable<TSource> source)
         {

@@ -13,7 +13,7 @@ namespace Bonsai.Combinators
     [BinaryCombinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Propagates the sequence that responds first and ignores the other.")]
-    public class Amb : LoadableElement
+    public class Amb
     {
         public IObservable<TSource> Process<TSource>(IObservable<TSource> source, IObservable<TSource> other)
         {

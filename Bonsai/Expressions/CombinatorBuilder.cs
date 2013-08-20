@@ -11,7 +11,7 @@ namespace Bonsai.Expressions
     [XmlType("Combinator", Namespace = Constants.XmlNamespace)]
     public class CombinatorBuilder : BinaryCombinatorExpressionBuilder
     {
-        public LoadableElement Combinator { get; set; }
+        public object Combinator { get; set; }
 
         public override Expression Build()
         {

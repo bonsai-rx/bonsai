@@ -234,10 +234,10 @@ namespace Bonsai.Design
             if (type != null)
             {
                 ExpressionBuilder builder;
-                if (type.IsSubclassOf(typeof(LoadableElement)))
+                if (!type.IsSubclassOf(typeof(ExpressionBuilder)))
                 {
-                    var element = (LoadableElement)Activator.CreateInstance(type);
-                    builder = ExpressionBuilder.FromLoadableElement(element, elementType);
+                    var element = Activator.CreateInstance(type);
+                    builder = ExpressionBuilder.FromWorkflowElement(element, elementType);
                 }
                 else builder = (ExpressionBuilder)Activator.CreateInstance(type);
                 CreateGraphNode(builder, elementType, closestGraphViewNode, nodeType, branch);

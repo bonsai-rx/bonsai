@@ -13,7 +13,7 @@ namespace Bonsai.Combinators
     [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Removes timestamp information from the elements of the sequence.")]
-    public class RemoveTimestamp : LoadableElement
+    public class RemoveTimestamp
     {
         public IObservable<TSource> Process<TSource>(IObservable<Timestamped<TSource>> source)
         {

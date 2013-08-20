@@ -11,7 +11,7 @@ using System.Xml.Serialization;
 namespace Bonsai
 {
     [Source]
-    public abstract class Source<TSource> : LoadableElement
+    public abstract class Source<TSource>
     {
         public abstract IObservable<TSource> Generate();
     }

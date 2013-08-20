@@ -20,7 +20,7 @@ namespace Bonsai.Expressions
                                                                             m.GetParameters().Length == 2 &&
                                                                             m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
 
-        public LoadableElement Selector { get; set; }
+        public object Selector { get; set; }
 
         public override Expression Build()
         {

@@ -14,7 +14,7 @@ namespace Bonsai.Combinators
     [BinaryCombinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Merges two sequences or a sequence of windows into a single sequence of elements.")]
-    public class Merge : LoadableElement
+    public class Merge
     {
         public IObservable<TSource> Process<TSource>(IObservable<IObservable<TSource>> source)
         {

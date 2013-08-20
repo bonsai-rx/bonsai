@@ -13,7 +13,7 @@ namespace Bonsai.Expressions
     [XmlType("Source", Namespace = Constants.XmlNamespace)]
     public class SourceBuilder : ExpressionBuilder
     {
-        public LoadableElement Source { get; set; }
+        public object Source { get; set; }
 
         public override Expression Build()
         {

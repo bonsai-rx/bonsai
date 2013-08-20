@@ -13,7 +13,7 @@ namespace Bonsai.Combinators
     [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Converts a tuple of element and timestamp into a proper timestamped type.")]
-    public class CombineTimestamp : LoadableElement
+    public class CombineTimestamp
     {
         public IObservable<Timestamped<TSource>> Process<TSource>(IObservable<Tuple<TSource, DateTimeOffset>> source)
         {

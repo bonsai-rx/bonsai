@@ -46,7 +46,7 @@ namespace Bonsai.Expressions
             return builder;
         }
 
-        public static ExpressionBuilder FromLoadableElement(LoadableElement element, ElementCategory elementCategory)
+        public static ExpressionBuilder FromWorkflowElement(object element, ElementCategory elementCategory)
         {
             if (element == null)
             {

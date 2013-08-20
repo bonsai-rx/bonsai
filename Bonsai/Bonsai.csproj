@@ -138,7 +138,6 @@
     <Compile Include="Expressions\WhereBuilder.cs" />
     <Compile Include="Predicate.cs" />
     <Compile Include="ILoadable.cs" />
-    <Compile Include="LoadableElement.cs" />
     <Compile Include="WorkflowBuildException.cs" />
     <Compile Include="ElementCategory.cs" />
     <Compile Include="PrecisionAttribute.cs" />
