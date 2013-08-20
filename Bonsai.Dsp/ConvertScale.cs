@@ -8,7 +8,7 @@ using System.ComponentModel;
 namespace Bonsai.Dsp
 {
     [Description("Converts the input matrix into the specified bit depth, with optional linear transformation.")]
-    public class ConvertScale : Transform<CvMat, CvMat>
+    public class ConvertScale : Selector<CvMat, CvMat>
     {
         public ConvertScale()
         {

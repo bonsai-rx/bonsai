@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
+using System.Reactive.Linq;
+using System.Reactive.Disposables;
 
 namespace Bonsai.Vision
 {
     [Description("Finds the contours of connected components in the input binary image.")]
     public class FindContours : Transform<IplImage, Contours>
     {
-        IplImage temp;
-
         public FindContours()
         {
             Method = ContourApproximation.CHAIN_APPROX_NONE;
@@ -29,33 +29,41 @@ namespace Bonsai.Vision
         [Description("The minimum area for individual contours to be accepted.")]
         public double MinArea { get; set; }
 
-        public override Contours Process(IplImage input)
+        public override IObservable<Contours> Process(IObservable<IplImage> source)
         {
-            CvSeq currentContour;
-            temp = IplImageHelper.EnsureImageFormat(temp, input.Size, 8, 1);
-            Core.cvCopy(input, temp);
-
-            var storage = new CvMemStorage();
-            var scanner = ImgProc.cvStartFindContours(temp, storage, CvContour.HeaderSize, Mode, Method, Offset);
-            while (!(currentContour = scanner.FindNextContour()).IsInvalid)
+            return Observable.Create<Contours>(observer =>
             {
-                if (MinArea > 0 && ImgProc.cvContourArea(currentContour, CvSlice.WholeSeq, 0) < MinArea)
+                IplImage temp = null;
+
+                var process = source.Select(input =>
                 {
-                    scanner.SubstituteContour(CvSeq.Null);
-                }
-            }
+                    CvSeq currentContour;
+                    temp = IplImageHelper.EnsureImageFormat(temp, input.Size, 8, 1);
+                    Core.cvCopy(input, temp);
 
-            return new Contours(scanner.EndFindContours(), input.Size);
-        }
+                    var storage = new CvMemStorage();
+                    var scanner = ImgProc.cvStartFindContours(temp, storage, CvContour.HeaderSize, Mode, Method, Offset);
+                    while (!(currentContour = scanner.FindNextContour()).IsInvalid)
+                    {
+                        if (MinArea > 0 && ImgProc.cvContourArea(currentContour, CvSlice.WholeSeq, 0) < MinArea)
+                        {
+                            scanner.SubstituteContour(CvSeq.Null);
+                        }
+                    }
 
-        protected override void Unload()
-        {
-            if (temp != null)
-            {
-                temp.Close();
-                temp = null;
-            }
-            base.Unload();
+                    return new Contours(scanner.EndFindContours(), input.Size);
+                }).Subscribe(observer);
+
+                var close = Disposable.Create(() =>
+                {
+                    if (temp != null)
+                    {
+                        temp.Close();
+                    }
+                });
+
+                return new CompositeDisposable(process, close);
+            });
         }
     }
 }

@@ -8,7 +8,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
-    public class Crop : Transform<IplImage, IplImage>
+    public class Crop : Selector<IplImage, IplImage>
     {
         [Editor("Bonsai.Vision.Design.IplImageInputRectangleEditor, Bonsai.Vision.Design", typeof(UITypeEditor))]
         public CvRect RegionOfInterest { get; set; }

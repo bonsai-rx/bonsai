@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Dsp
 {
-    public class SelectChannels : Transform<CvMat, CvMat>
+    public class SelectChannels : Selector<CvMat, CvMat>
     {
         public SelectChannels()
         {

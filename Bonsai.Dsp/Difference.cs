@@ -55,14 +55,9 @@ namespace Bonsai.Dsp
             filter.Anchor = kernel.Length - 1;
         }
 
-        public override CvMat Process(CvMat input)
+        public override IObservable<CvMat> Process(IObservable<CvMat> source)
         {
-            return filter.Process(input);
-        }
-
-        public override IDisposable Load()
-        {
-            return filter.Load();
+            return filter.Process(source);
         }
     }
 }

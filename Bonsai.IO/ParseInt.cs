@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.IO
 {
-    public class ParseInt : Transform<string, CvMat>
+    public class ParseInt : Selector<string, CvMat>
     {
         public override CvMat Process(string input)
         {

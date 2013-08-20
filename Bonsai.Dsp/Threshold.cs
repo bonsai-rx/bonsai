@@ -9,7 +9,7 @@ using System.Drawing.Design;
 namespace Bonsai.Dsp
 {
     [Description("Applies a fixed threshold to the input signal.")]
-    public class Threshold : Transform<CvMat, CvMat>
+    public class Threshold : Selector<CvMat, CvMat>
     {
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
         [Description("The threshold value used to test individual samples.")]

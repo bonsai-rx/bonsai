@@ -146,14 +146,9 @@ namespace Bonsai.Dsp
             return result;
         }
 
-        public override CvMat Process(CvMat input)
+        public override IObservable<CvMat> Process(IObservable<CvMat> source)
         {
-            return filter.Process(input);
-        }
-
-        public override IDisposable Load()
-        {
-            return filter.Load();
+            return filter.Process(source);
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Bonsai.Vision
 {
-    public class Normalize : Transform<IplImage, IplImage>
+    public class Normalize : Selector<IplImage, IplImage>
     {
         public override IplImage Process(IplImage input)
         {

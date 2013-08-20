@@ -5,16 +5,13 @@ using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
 using System.Drawing.Design;
+using System.Reactive.Linq;
+using System.Reactive.Disposables;
 
 namespace Bonsai.Vision
 {
     public class BackgroundSubtraction : Transform<IplImage, IplImage>
     {
-        IplImage image;
-        IplImage difference;
-        IplImage background;
-        int averageCount;
-
         public BackgroundSubtraction()
         {
             BackgroundFrames = 1;
@@ -36,68 +33,6 @@ namespace Bonsai.Vision
 
         public SubtractionMethod SubtractionMethod { get; set; }
 
-        public override IplImage Process(IplImage input)
-        {
-            if (averageCount == 0)
-            {
-                image = new IplImage(input.Size, 32, input.NumChannels);
-                difference = new IplImage(input.Size, 32, input.NumChannels);
-                background = new IplImage(input.Size, 32, input.NumChannels);
-                background.SetZero();
-            }
-
-            var output = new IplImage(input.Size, 8, input.NumChannels);
-            if (averageCount < BackgroundFrames)
-            {
-                averageCount++;
-                output.SetZero();
-                ImgProc.cvAcc(input, background, CvArr.Null);
-                if (averageCount == BackgroundFrames)
-                {
-                    Core.cvConvertScale(background, background, 1.0 / averageCount, 0);
-                }
-            }
-            else
-            {
-                Core.cvConvert(input, image);
-                switch (SubtractionMethod)
-                {
-                    case SubtractionMethod.Bright:
-                        Core.cvSub(image, background, difference, CvArr.Null);
-                        break;
-                    case SubtractionMethod.Dark:
-                        Core.cvSub(background, image, difference, CvArr.Null);
-                        break;
-                    case SubtractionMethod.Absolute:
-                    default:
-                        Core.cvAbsDiff(image, background, difference);
-                        break;
-                }
-
-                if (AdaptationRate > 0)
-                {
-                    ImgProc.cvRunningAvg(image, background, AdaptationRate, CvArr.Null);
-                }
-
-                ImgProc.cvThreshold(difference, output, ThresholdValue, 255, ThresholdType);
-            }
-
-            return output;
-        }
-
-        protected override void Unload()
-        {
-            averageCount = 0;
-            if (background != null)
-            {
-                image.Close();
-                difference.Close();
-                background.Close();
-                background = image = difference = null;
-            }
-            base.Unload();
-        }
-
         class ThresholdTypeConverter : EnumConverter
         {
             public ThresholdTypeConverter(Type type)
@@ -113,6 +48,79 @@ namespace Bonsai.Vision
                     .Where(type => type != ThresholdType.Otsu)
                     .ToArray());
             }
+        }
+
+        public override IObservable<IplImage> Process(IObservable<IplImage> source)
+        {
+            return Observable.Create<IplImage>(observer =>
+            {
+                IplImage image = null;
+                IplImage difference = null;
+                IplImage background = null;
+                int averageCount = 0;
+
+                var process = source.Select(input =>
+                {
+                    if (averageCount == 0)
+                    {
+                        image = new IplImage(input.Size, 32, input.NumChannels);
+                        difference = new IplImage(input.Size, 32, input.NumChannels);
+                        background = new IplImage(input.Size, 32, input.NumChannels);
+                        background.SetZero();
+                    }
+
+                    var output = new IplImage(input.Size, 8, input.NumChannels);
+                    if (averageCount < BackgroundFrames)
+                    {
+                        averageCount++;
+                        output.SetZero();
+                        ImgProc.cvAcc(input, background, CvArr.Null);
+                        if (averageCount == BackgroundFrames)
+                        {
+                            Core.cvConvertScale(background, background, 1.0 / averageCount, 0);
+                        }
+                    }
+                    else
+                    {
+                        Core.cvConvert(input, image);
+                        switch (SubtractionMethod)
+                        {
+                            case SubtractionMethod.Bright:
+                                Core.cvSub(image, background, difference, CvArr.Null);
+                                break;
+                            case SubtractionMethod.Dark:
+                                Core.cvSub(background, image, difference, CvArr.Null);
+                                break;
+                            case SubtractionMethod.Absolute:
+                            default:
+                                Core.cvAbsDiff(image, background, difference);
+                                break;
+                        }
+
+                        if (AdaptationRate > 0)
+                        {
+                            ImgProc.cvRunningAvg(image, background, AdaptationRate, CvArr.Null);
+                        }
+
+                        ImgProc.cvThreshold(difference, output, ThresholdValue, 255, ThresholdType);
+                    }
+
+                    return output;
+                }).Subscribe(observer);
+
+                var close = Disposable.Create(() =>
+                {
+                    averageCount = 0;
+                    if (background != null)
+                    {
+                        image.Close();
+                        difference.Close();
+                        background.Close();
+                    }
+                });
+
+                return new CompositeDisposable(process, close);
+            });
         }
     }
 

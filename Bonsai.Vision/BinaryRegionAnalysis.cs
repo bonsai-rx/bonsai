@@ -8,7 +8,7 @@ using System.ComponentModel;
 namespace Bonsai.Vision
 {
     [Description("Computes image moments of connected component contours to extract binary region properties.")]
-    public class BinaryRegionAnalysis : Transform<Contours, ConnectedComponentCollection>
+    public class BinaryRegionAnalysis : Selector<Contours, ConnectedComponentCollection>
     {
         public override ConnectedComponentCollection Process(Contours input)
         {

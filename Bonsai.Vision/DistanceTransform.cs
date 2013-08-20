@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class DistanceTransform : Transform<IplImage, IplImage>
+    public class DistanceTransform : Selector<IplImage, IplImage>
     {
         public DistanceTransform()
         {

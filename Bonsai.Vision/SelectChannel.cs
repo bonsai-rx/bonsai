@@ -8,7 +8,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
-    public class SelectChannel : Transform<IplImage, IplImage>
+    public class SelectChannel : Selector<IplImage, IplImage>
     {
         [Range(0, 3)]
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]

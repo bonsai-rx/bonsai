@@ -8,7 +8,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
-    public class Canny : Transform<IplImage, IplImage>
+    public class Canny : Selector<IplImage, IplImage>
     {
         public Canny()
         {

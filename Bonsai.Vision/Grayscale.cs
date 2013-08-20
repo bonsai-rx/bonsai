@@ -8,7 +8,7 @@ using System.ComponentModel;
 namespace Bonsai.Vision
 {
     [Description("Converts a BGR color image to grayscale.")]
-    public class Grayscale : Transform<IplImage, IplImage>
+    public class Grayscale : Selector<IplImage, IplImage>
     {
         public override IplImage Process(IplImage input)
         {

@@ -63,6 +63,7 @@
     <Compile Include="SourceAttribute.cs" />
     <Compile Include="Expressions\PublishScope.cs" />
     <Compile Include="Expressions\UnitBuilder.cs" />
+    <Compile Include="Transform.cs" />
     <Compile Include="WindowCombinator.cs" />
     <Compile Include="Expressions\CombinatorBuilder.cs" />
     <Compile Include="Combinators\Slice.cs" />
@@ -70,7 +71,7 @@
     <Compile Include="Expressions\WindowWorkflowBuilder.cs" />
     <Compile Include="IO\StreamSink.cs" />
     <Compile Include="SinkAttribute.cs" />
-    <Compile Include="TransformAttribute.cs" />
+    <Compile Include="SelectorAttribute.cs" />
     <Compile Include="UnidimensionalArrayConverter.cs" />
     <Compile Include="ExpressionHelper.cs" />
     <Compile Include="Expressions\WorkflowOutputBuilder.cs" />
@@ -142,7 +143,7 @@
     <Compile Include="WorkflowBuildException.cs" />
     <Compile Include="ElementCategory.cs" />
     <Compile Include="PrecisionAttribute.cs" />
-    <Compile Include="Transform.cs" />
+    <Compile Include="Selector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RangeAttribute.cs" />
     <Compile Include="Sink.cs" />

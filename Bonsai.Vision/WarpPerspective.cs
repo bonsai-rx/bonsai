@@ -5,15 +5,13 @@ using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
 using System.Drawing.Design;
+using System.Reactive.Linq;
+using System.Reactive.Disposables;
 
 namespace Bonsai.Vision
 {
     public class WarpPerspective : Transform<IplImage, IplImage>
     {
-        CvMat mapMatrix;
-        CvPoint2D32f[] currentSource;
-        CvPoint2D32f[] currentDestination;
-
         [Editor("Bonsai.Vision.Design.IplImageInputQuadrangleEditor, Bonsai.Vision.Design", typeof(UITypeEditor))]
         public CvPoint2D32f[] Source { get; set; }
 
@@ -31,36 +29,35 @@ namespace Bonsai.Vision
             };
         }
 
-        public override IplImage Process(IplImage input)
+        public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            var output = new IplImage(input.Size, input.Depth, input.NumChannels);
-            Source = Source ?? InitializeQuadrangle(output);
-            Destination = Destination ?? InitializeQuadrangle(output);
-
-            if (Source != currentSource || Destination != currentDestination)
+            return Observable.Create<IplImage>(observer =>
             {
-                currentSource = Source;
-                currentDestination = Destination;
-                ImgProc.cvGetPerspectiveTransform(currentSource, currentDestination, mapMatrix);
-            }
+                CvPoint2D32f[] currentSource = null;
+                CvPoint2D32f[] currentDestination = null;
+                var mapMatrix = new CvMat(3, 3, CvMatDepth.CV_32F, 1);
 
-            ImgProc.cvWarpPerspective(input, output, mapMatrix, WarpFlags.Linear | WarpFlags.FillOutliers, CvScalar.All(0));
-            return output;
-        }
+                var process = source.Select(input =>
+                {
+                    var output = new IplImage(input.Size, input.Depth, input.NumChannels);
+                    Source = Source ?? InitializeQuadrangle(output);
+                    Destination = Destination ?? InitializeQuadrangle(output);
 
-        public override IDisposable Load()
-        {
-            mapMatrix = new CvMat(3, 3, CvMatDepth.CV_32F, 1);
-            return base.Load();
-        }
+                    if (Source != currentSource || Destination != currentDestination)
+                    {
+                        currentSource = Source;
+                        currentDestination = Destination;
+                        ImgProc.cvGetPerspectiveTransform(currentSource, currentDestination, mapMatrix);
+                    }
 
-        protected override void Unload()
-        {
-            mapMatrix.Close();
-            mapMatrix = null;
-            currentSource = null;
-            currentDestination = null;
-            base.Unload();
+                    ImgProc.cvWarpPerspective(input, output, mapMatrix, WarpFlags.Linear | WarpFlags.FillOutliers, CvScalar.All(0));
+                    return output;
+                }).Subscribe(observer);
+
+                var close = Disposable.Create(mapMatrix.Close);
+
+                return new CompositeDisposable(process, close);
+            });
         }
     }
 }

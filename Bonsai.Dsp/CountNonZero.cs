@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Dsp
 {
-    public class CountNonZero : Transform<CvMat, int>
+    public class CountNonZero : Selector<CvMat, int>
     {
         public override int Process(CvMat input)
         {

@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class Add : Transform<IplImage, IplImage, IplImage>
+    public class Add : Selector<IplImage, IplImage, IplImage>
     {
         public override IplImage Process(IplImage first, IplImage second)
         {

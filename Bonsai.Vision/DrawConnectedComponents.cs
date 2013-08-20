@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class DrawConnectedComponents : Transform<ConnectedComponentCollection, IplImage>
+    public class DrawConnectedComponents : Selector<ConnectedComponentCollection, IplImage>
     {
         public override IplImage Process(ConnectedComponentCollection input)
         {

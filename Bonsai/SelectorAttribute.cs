@@ -6,14 +6,14 @@ using System.Text;
 namespace Bonsai
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public sealed class TransformAttribute : Attribute
+    public sealed class SelectorAttribute : Attribute
     {
-        public TransformAttribute()
+        public SelectorAttribute()
             : this("Process")
         {
         }
 
-        public TransformAttribute(string methodName)
+        public SelectorAttribute(string methodName)
         {
             MethodName = methodName;
         }
