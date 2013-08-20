@@ -41,12 +41,15 @@ namespace Bonsai.Expressions
 
         IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
-            var sourceInspector = new ReplaySubject<object>(1, Scheduler.Immediate);
-            subject.OnNext(sourceInspector);
-            return source.Do(
-                xs => sourceInspector.OnNext(xs),
-                ex => sourceInspector.OnError(ex),
-                () => sourceInspector.OnCompleted());
+            return Observable.Defer(() =>
+            {
+                var sourceInspector = new ReplaySubject<object>(1, Scheduler.Immediate);
+                subject.OnNext(sourceInspector);
+                return source.Do(
+                    xs => sourceInspector.OnNext(xs),
+                    ex => sourceInspector.OnError(ex),
+                    () => sourceInspector.OnCompleted());
+            });
         }
     }
 }
