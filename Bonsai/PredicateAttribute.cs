@@ -6,14 +6,14 @@ using System.Text;
 namespace Bonsai
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public sealed class ConditionAttribute : Attribute
+    public sealed class PredicateAttribute : Attribute
     {
-        public ConditionAttribute()
+        public PredicateAttribute()
             : this("Process")
         {
         }
 
-        public ConditionAttribute(string methodName)
+        public PredicateAttribute(string methodName)
         {
             MethodName = methodName;
         }

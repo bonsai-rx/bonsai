@@ -39,7 +39,7 @@ namespace Bonsai.Expressions
             if (selectBuilder != null) return selectBuilder.Selector;
 
             var whereBuilder = builder as WhereBuilder;
-            if (whereBuilder != null) return whereBuilder.Condition;
+            if (whereBuilder != null) return whereBuilder.Predicate;
 
             var doBuilder = builder as DoBuilder;
             if (doBuilder != null) return doBuilder.Sink;
@@ -65,7 +65,7 @@ namespace Bonsai.Expressions
             }
 
             if (elementCategory == ElementCategory.Source) return new SourceBuilder { Source = element };
-            if (elementCategory == ElementCategory.Condition) return new WhereBuilder { Condition = element };
+            if (elementCategory == ElementCategory.Condition) return new WhereBuilder { Predicate = element };
             if (elementCategory == ElementCategory.Transform) return new SelectBuilder { Selector = element };
             if (elementCategory == ElementCategory.Sink) return new DoBuilder { Sink = element };
             throw new InvalidOperationException("Invalid loadable element type.");

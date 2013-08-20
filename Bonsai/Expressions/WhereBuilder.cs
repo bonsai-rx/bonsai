@@ -20,7 +20,7 @@ namespace Bonsai.Expressions
                                                                            m.GetParameters().Length == 2 &&
                                                                            m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
 
-        public LoadableElement Condition { get; set; }
+        public LoadableElement Predicate { get; set; }
 
         [Description("The inner property on which to apply the condition.")]
         [Editor("Bonsai.Design.MemberSelectorEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
@@ -28,16 +28,16 @@ namespace Bonsai.Expressions
 
         public override Expression Build()
         {
-            var conditionType = Condition.GetType();
-            var conditionExpression = Expression.Constant(Condition);
-            var conditionAttributes = conditionType.GetCustomAttributes(typeof(ConditionAttribute), true);
-            var methodName = ((ConditionAttribute)conditionAttributes.Single()).MethodName;
+            var predicateType = Predicate.GetType();
+            var predicateExpression = Expression.Constant(Predicate);
+            var predicateAttributes = predicateType.GetCustomAttributes(typeof(PredicateAttribute), true);
+            var methodName = ((PredicateAttribute)predicateAttributes.Single()).MethodName;
 
             var observableType = Source.Type.GetGenericArguments()[0];
             var parameter = Expression.Parameter(observableType);
-            var processMethods = conditionType.GetMethods().Where(m => m.Name == methodName);
+            var processMethods = predicateType.GetMethods().Where(m => m.Name == methodName);
             var processParameter = ExpressionHelper.MemberAccess(parameter, Selector);
-            var process = BuildCall(conditionExpression, processMethods, processParameter);
+            var process = BuildCall(predicateExpression, processMethods, processParameter);
             return Expression.Call(whereMethod.MakeGenericMethod(observableType), Source, Expression.Lambda(process, parameter));
         }
     }
