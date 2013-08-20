@@ -6,7 +6,7 @@ using System.Text;
 namespace Bonsai
 {
     [Combinator]
-    public abstract class WindowCombinator : LoadableElement
+    public abstract class WindowCombinator
     {
         public abstract IObservable<IObservable<TSource>> Process<TSource>(IObservable<TSource> source);
     }

@@ -14,7 +14,7 @@ namespace Bonsai.Combinators
     [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Records the timestamp for each value produced by the sequence.")]
-    public class Timestamp : LoadableElement
+    public class Timestamp
     {
         public IObservable<Timestamped<TSource>> Process<TSource>(IObservable<TSource> source)
         {

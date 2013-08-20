@@ -42,11 +42,5 @@ namespace Bonsai.Scripting
             }
             return engine;
         }
-
-        protected override void Unload()
-        {
-            base.Unload();
-            writer.Close();
-        }
     }
 }

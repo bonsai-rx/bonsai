@@ -20,7 +20,7 @@ namespace Bonsai.Expressions
                                                                            m.GetParameters().Length == 2 &&
                                                                            m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
 
-        public LoadableElement Predicate { get; set; }
+        public object Predicate { get; set; }
 
         [Description("The inner property on which to apply the condition.")]
         [Editor("Bonsai.Design.MemberSelectorEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]

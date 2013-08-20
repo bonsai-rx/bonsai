@@ -8,19 +8,19 @@ namespace Bonsai
 {
     [Combinator]
     [XmlType("CombinatorBase")]
-    public abstract class Combinator : LoadableElement
+    public abstract class Combinator
     {
         public abstract IObservable<TSource> Process<TSource>(IObservable<TSource> source);
     }
 
     [Combinator]
-    public abstract class Combinator<TResult> : LoadableElement
+    public abstract class Combinator<TResult>
     {
         public abstract IObservable<TResult> Process<TSource>(IObservable<TSource> source);
     }
 
     [Combinator]
-    public abstract class Combinator<TSource, TResult> : LoadableElement
+    public abstract class Combinator<TSource, TResult>
     {
         public abstract IObservable<TResult> Process(IObservable<TSource> source);
     }

@@ -12,7 +12,7 @@ namespace Bonsai.Combinators
     [BinaryCombinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Projects the sequence into non-overlapping windows. A window is closed when the second sequence produces an element.")]
-    public class TriggeredWindow : LoadableElement
+    public class TriggeredWindow
     {
         public IObservable<IObservable<TSource>> Process<TSource, TTrigger>(IObservable<TSource> source, IObservable<TTrigger> trigger)
         {

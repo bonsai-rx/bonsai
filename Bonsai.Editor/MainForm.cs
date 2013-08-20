@@ -554,49 +554,35 @@ namespace Bonsai.Editor
             var node = selectionModel.SelectedNode;
             if (node != null && node.Value != null)
             {
-                var loadableElement = node.Value.GetType().GetProperties().FirstOrDefault(property =>
-                {
-                    var browsable = typeof(LoadableElement).IsAssignableFrom(property.PropertyType);
-                    if (browsable)
-                    {
-                        var browsableAttributes = property.GetCustomAttributes(typeof(BrowsableAttribute), true);
-                        if (browsableAttributes != null && browsableAttributes.Length > 0)
-                        {
-                            var browsableAttribute = (BrowsableAttribute)browsableAttributes[0];
-                            browsable = browsableAttribute.Browsable;
-                        }
-                    }
+                var builder = node.Value as ExpressionBuilder;
+                var workflowElement = builder != null ? ExpressionBuilder.GetWorkflowElement(builder) : null;
 
-                    return browsable;
-                });
-
-                if (loadableElement != null)
+                if (workflowElement != null)
                 {
-                    var element = loadableElement.GetValue(node.Value, null);
-                    var builder = node.Value as WhereBuilder;
-                    if (builder != null)
+                    var whereBuilder = node.Value as WhereBuilder;
+                    if (whereBuilder != null)
                     {
-                        var builderProperties = TypeDescriptor.GetProperties(builder);
+                        var builderProperties = TypeDescriptor.GetProperties(whereBuilder);
                         var provider = new DynamicTypeDescriptionProvider();
                         foreach (PropertyDescriptor builderProperty in builderProperties)
                         {
                             var property = builderProperty;
-                            if (property.PropertyType == typeof(LoadableElement)) continue;
+                            if (builderProperty.GetValue(node.Value) == workflowElement) continue;
                             var attributes = new Attribute[property.Attributes.Count];
                             property.Attributes.CopyTo(attributes, 0);
                             var dynamicProperty = new DynamicPropertyDescriptor(
                                 property.Name, property.PropertyType,
-                                xs => property.GetValue(builder),
-                                (xs, value) => property.SetValue(builder, value),
+                                xs => property.GetValue(whereBuilder),
+                                (xs, value) => property.SetValue(whereBuilder, value),
                                 attributes);
                             provider.Properties.Add(dynamicProperty);
                         }
 
-                        TypeDescriptor.AddProvider(provider, element);
+                        TypeDescriptor.AddProvider(provider, workflowElement);
                         selectionTypeDescriptor = provider;
                     }
 
-                    propertyGrid.SelectedObject = element;
+                    propertyGrid.SelectedObject = workflowElement;
                 }
                 else propertyGrid.SelectedObject = node.Value;
             }

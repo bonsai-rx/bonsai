@@ -13,7 +13,7 @@ namespace Bonsai.Combinators
     [BinaryCombinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Ensures that values of the second sequence are propagated only after the first sequence terminates.")]
-    public class Concat : LoadableElement
+    public class Concat
     {
         public IObservable<TSource> Process<TSource>(IObservable<TSource> source, IObservable<TSource> other)
         {

@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Reflection;
 using Bonsai.Design;
+using Bonsai.Expressions;
 
 namespace Bonsai.Editor
 {
@@ -29,7 +30,7 @@ namespace Bonsai.Editor
                                Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\'),
                                StringComparison.InvariantCultureIgnoreCase))
             {
-                var bonsaiAssemblyName = typeof(LoadableElement).Assembly.GetName();
+                var bonsaiAssemblyName = typeof(ExpressionBuilder).Assembly.GetName();
                 var bonsaiDesignAssemblyName = typeof(DialogTypeVisualizer).Assembly.GetName();
                 return from fileName in Directory.GetFiles(path, "*.dll")
                        let assemblyName = GetAssemblyName(fileName)

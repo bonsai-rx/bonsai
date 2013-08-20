@@ -16,15 +16,23 @@ namespace Bonsai.Editor
     {
         const string ExpressionBuilderSuffix = "Builder";
 
-        Type loadableElementType;
+        Type sourceAttributeType;
+        Type combinatorAttributeType;
+        Type binaryCombinatorAttributeType;
+        Type selectorAttributeType;
+        Type predicateAttributeType;
         Type expressionBuilderType;
 
         public WorkflowElementLoader()
         {
             ConfigurationHelper.SetAssemblyResolve();
-            var loadableElementAssembly = Assembly.Load(typeof(LoadableElement).Assembly.FullName);
-            loadableElementType = loadableElementAssembly.GetType(typeof(LoadableElement).FullName);
-            expressionBuilderType = loadableElementAssembly.GetType(typeof(ExpressionBuilder).FullName);
+            var expressionBuilderAssembly = Assembly.Load(typeof(ExpressionBuilder).Assembly.FullName);
+            sourceAttributeType = expressionBuilderAssembly.GetType(typeof(SourceAttribute).FullName);
+            combinatorAttributeType = expressionBuilderAssembly.GetType(typeof(CombinatorAttribute).FullName);
+            binaryCombinatorAttributeType = expressionBuilderAssembly.GetType(typeof(BinaryCombinatorAttribute).FullName);
+            selectorAttributeType = expressionBuilderAssembly.GetType(typeof(SelectorAttribute).FullName);
+            predicateAttributeType = expressionBuilderAssembly.GetType(typeof(PredicateAttribute).FullName);
+            expressionBuilderType = expressionBuilderAssembly.GetType(typeof(ExpressionBuilder).FullName);
         }
 
         //TODO: Remove duplicate method from ExpressionBuilderTypeConverter.cs
@@ -44,7 +52,17 @@ namespace Bonsai.Editor
             else return type.IsSubclassOf(typeof(ExpressionBuilder)) ? RemoveSuffix(type.Name, ExpressionBuilderSuffix) : type.Name;
         }
 
-        IEnumerable<WorkflowElementDescriptor> GetSubclassElementTypes(Assembly assembly, Type baseClass)
+        bool IsWorkflowElement(Type type)
+        {
+            return type.IsSubclassOf(expressionBuilderType) ||
+                type.IsDefined(selectorAttributeType, true) ||
+                type.IsDefined(predicateAttributeType, true) ||
+                type.IsDefined(combinatorAttributeType, true) ||
+                type.IsDefined(binaryCombinatorAttributeType, true) ||
+                type.IsDefined(sourceAttributeType, true);
+        }
+
+        IEnumerable<WorkflowElementDescriptor> GetWorkflowElements(Assembly assembly)
         {
             Type[] types;
 
@@ -54,7 +72,7 @@ namespace Bonsai.Editor
             for (int i = 0; i < types.Length; i++)
             {
                 var type = types[i];
-                if (!type.IsAbstract && !type.ContainsGenericParameters && type.IsSubclassOf(baseClass))
+                if (!type.IsAbstract && !type.ContainsGenericParameters && IsWorkflowElement(type))
                 {
                     var descriptionAttribute = (DescriptionAttribute)TypeDescriptor.GetAttributes(type)[typeof(DescriptionAttribute)];
                     yield return new WorkflowElementDescriptor
@@ -75,8 +93,7 @@ namespace Bonsai.Editor
             try
             {
                 var assembly = Assembly.LoadFrom(fileName);
-                types = types.Concat(GetSubclassElementTypes(assembly, loadableElementType))
-                             .Concat(GetSubclassElementTypes(assembly, expressionBuilderType));
+                types = types.Concat(GetWorkflowElements(assembly));
             }
             catch (FileLoadException) { }
             catch (FileNotFoundException) { }

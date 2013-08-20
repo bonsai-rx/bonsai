@@ -13,7 +13,7 @@ namespace Bonsai.Combinators
     [BinaryCombinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Combines pairwise values from both input sequences only when both sequences produce a new element.")]
-    public class Zip : LoadableElement
+    public class Zip
     {
         public IObservable<Tuple<TSource, TOther>> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
         {
