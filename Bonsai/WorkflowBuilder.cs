@@ -165,19 +165,19 @@ namespace Bonsai
             return serializerCache;
         }
 
-        static IEnumerable<Type> GetLoadableElementTypes(ExpressionBuilder builder)
+        static IEnumerable<Type> GetWorkflowElementTypes(ExpressionBuilder builder)
         {
             var workflowExpressionBuilder = builder as WorkflowExpressionBuilder;
             if (workflowExpressionBuilder != null)
             {
                 return GetExtensionTypes(workflowExpressionBuilder.Workflow);
             }
-            else return builder.GetLoadableElements().Select(element => element.GetType());
+            else return builder.GetWorkflowElements().Select(element => element.GetType());
         }
 
         static IEnumerable<Type> GetExtensionTypes(ExpressionBuilderGraph workflow)
         {
-            return workflow.SelectMany(node => GetLoadableElementTypes(node.Value)
+            return workflow.SelectMany(node => GetWorkflowElementTypes(node.Value)
                 .Concat(Enumerable.Repeat(node.Value.GetType(), 1)))
                 .Except(GetDefaultSerializerTypes());
         }
