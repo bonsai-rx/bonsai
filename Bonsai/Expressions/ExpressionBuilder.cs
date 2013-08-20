@@ -18,7 +18,6 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(SourceBuilder))]
     [XmlInclude(typeof(SelectBuilder))]
     [XmlInclude(typeof(WhereBuilder))]
-    [XmlInclude(typeof(DoBuilder))]
     [XmlInclude(typeof(CombinatorBuilder))]
     [XmlInclude(typeof(NullSinkBuilder))]
     [XmlInclude(typeof(MemberSelectorBuilder))]
@@ -40,9 +39,6 @@ namespace Bonsai.Expressions
 
             var whereBuilder = builder as WhereBuilder;
             if (whereBuilder != null) return whereBuilder.Predicate;
-
-            var doBuilder = builder as DoBuilder;
-            if (doBuilder != null) return doBuilder.Sink;
 
             var combinatorBuilder = builder as CombinatorBuilder;
             if (combinatorBuilder != null) return combinatorBuilder.Combinator;
@@ -67,7 +63,6 @@ namespace Bonsai.Expressions
             if (elementCategory == ElementCategory.Source) return new SourceBuilder { Source = element };
             if (elementCategory == ElementCategory.Condition) return new WhereBuilder { Predicate = element };
             if (elementCategory == ElementCategory.Transform) return new SelectBuilder { Selector = element };
-            if (elementCategory == ElementCategory.Sink) return new DoBuilder { Sink = element };
             throw new InvalidOperationException("Invalid loadable element type.");
         }
 

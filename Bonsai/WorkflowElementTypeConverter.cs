@@ -9,22 +9,11 @@ namespace Bonsai
 {
     public static class WorkflowElementTypeConverter
     {
-        static bool MatchType(Type type, ElementCategory elementType)
-        {
-            if (elementType == ElementCategory.Source) return MatchGenericType(type, typeof(Source<>));
-            if (elementType == ElementCategory.Condition) return type.GetCustomAttributes(typeof(PredicateAttribute), true).Length > 0;
-            if (elementType == ElementCategory.Sink) return type.GetCustomAttributes(typeof(SinkAttribute), true).Length > 0;
-            if (elementType == ElementCategory.Combinator) return type.IsSubclassOf(typeof(ExpressionBuilder));
-            if (elementType == ElementCategory.Transform) return type.GetCustomAttributes(typeof(SelectorAttribute), true).Length > 0;
-            return false;
-        }
-
         static bool MatchIgnoredTypes(Type type)
         {
             return type == typeof(SourceBuilder) ||
                    type == typeof(SelectBuilder) ||
                    type == typeof(WhereBuilder) ||
-                   type == typeof(DoBuilder) ||
                    type == typeof(CombinatorBuilder) ||
                    type == typeof(InspectBuilder);
         }
@@ -68,10 +57,9 @@ namespace Bonsai
             }
             else
             {
-                if (MatchType(type, ElementCategory.Source)) yield return ElementCategory.Source;
+                if (MatchGenericType(type, typeof(Source<>))) yield return ElementCategory.Source;
                 if (MatchAttributeType(type, typeof(PredicateAttribute))) yield return ElementCategory.Condition;
                 if (MatchAttributeType(type, typeof(SelectorAttribute))) yield return ElementCategory.Transform;
-                if (MatchAttributeType(type, typeof(SinkAttribute))) yield return ElementCategory.Sink;
             }
         }
     }

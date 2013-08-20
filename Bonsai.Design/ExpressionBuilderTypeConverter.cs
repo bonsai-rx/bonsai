@@ -42,9 +42,6 @@ namespace Bonsai.Design
                 var combinatorBuilder = expressionBuilder as CombinatorBuilder;
                 if (combinatorBuilder != null) return combinatorBuilder.Combinator.GetType().Name;
 
-                var doBuilder = expressionBuilder as DoBuilder;
-                if (doBuilder != null) return doBuilder.Sink.GetType().Name;
-
                 var workflowExpressionBuilder = expressionBuilder as WorkflowExpressionBuilder;
                 if (workflowExpressionBuilder != null && !string.IsNullOrWhiteSpace(workflowExpressionBuilder.Name)) return workflowExpressionBuilder.Name;
 

@@ -71,7 +71,6 @@
     <Compile Include="Expressions\WindowCombinatorExpressionBuilder.cs" />
     <Compile Include="Expressions\WindowWorkflowBuilder.cs" />
     <Compile Include="IO\StreamSink.cs" />
-    <Compile Include="SinkAttribute.cs" />
     <Compile Include="SelectorAttribute.cs" />
     <Compile Include="UnidimensionalArrayConverter.cs" />
     <Compile Include="ExpressionHelper.cs" />
@@ -128,7 +127,6 @@
     <Compile Include="Expressions\ExpressionBuilderParameter.cs" />
     <Compile Include="Combinators\SampleInterval.cs" />
     <Compile Include="Combinators\TakeUntil.cs" />
-    <Compile Include="Expressions\DoBuilder.cs" />
     <Compile Include="Expressions\ExpressionBuilder.cs" />
     <Compile Include="Expressions\ExpressionBuilderGraph.cs" />
     <Compile Include="Expressions\ExpressionBuilderGraphExtensions.cs" />
