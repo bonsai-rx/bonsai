@@ -81,19 +81,11 @@ namespace Bonsai.Expressions
             throw new ArgumentException("Cannot infer expression type on cyclic graphs.", "source");
         }
 
-        internal static IEnumerable<ILoadable> GetLoadableElements(this ExpressionBuilder expressionBuilder)
+        internal static IEnumerable<object> GetWorkflowElements(this ExpressionBuilder expressionBuilder)
         {
-            foreach (var property in expressionBuilder.GetType().GetProperties())
-            {
-                if (typeof(ILoadable).IsAssignableFrom(property.PropertyType))
-                {
-                    var value = (ILoadable)property.GetValue(expressionBuilder, null);
-                    if (value != null)
-                    {
-                        yield return value;
-                    }
-                }
-            }
+            yield return expressionBuilder;
+            var element = ExpressionBuilder.GetWorkflowElement(expressionBuilder);
+            if (element != expressionBuilder) yield return element;
         }
 
         public static Expression Build(this ExpressionBuilderGraph source)
