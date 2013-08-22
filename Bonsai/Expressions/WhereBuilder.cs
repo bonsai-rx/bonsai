@@ -14,7 +14,6 @@ namespace Bonsai.Expressions
     [XmlType("Where", Namespace = Constants.XmlNamespace)]
     public class WhereBuilder : CombinatorExpressionBuilder
     {
-        static readonly ConstructorInfo runtimeExceptionConstructor = typeof(WorkflowRuntimeException).GetConstructor(new[] { typeof(string), typeof(ExpressionBuilder), typeof(Exception) });
         static readonly MethodInfo whereMethod = typeof(Observable).GetMethods()
                                                                    .Single(m => m.Name == "Where" &&
                                                                            m.GetParameters().Length == 2 &&

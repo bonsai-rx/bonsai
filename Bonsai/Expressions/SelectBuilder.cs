@@ -14,7 +14,6 @@ namespace Bonsai.Expressions
     [XmlType("Select", Namespace = Constants.XmlNamespace)]
     public class SelectBuilder : CombinatorExpressionBuilder
     {
-        static readonly ConstructorInfo runtimeExceptionConstructor = typeof(WorkflowRuntimeException).GetConstructor(new[] { typeof(string), typeof(ExpressionBuilder), typeof(Exception) });
         static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()
                                                                     .Single(m => m.Name == "Select" &&
                                                                             m.GetParameters().Length == 2 &&
