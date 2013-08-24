@@ -992,5 +992,30 @@ namespace Bonsai.Editor
         }
 
         #endregion
+
+        #region PropertyGrid Context Menu
+
+        private void propertyGridContextMenuStrip_Opening(object sender, CancelEventArgs e)
+        {
+            var item = propertyGrid.SelectedGridItem;
+            resetToolStripMenuItem.Enabled = item != null && item.PropertyDescriptor.CanResetValue(item.Parent.Value);
+        }
+
+        private void resetToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var item = propertyGrid.SelectedGridItem;
+            if (item != null && item.PropertyDescriptor.CanResetValue(item.Parent.Value))
+            {
+                propertyGrid.ResetSelectedProperty();
+            }
+        }
+
+        private void descriptionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            propertyGrid.HelpVisible = descriptionToolStripMenuItem.Checked;
+        }
+
+        #endregion
+
     }
 }

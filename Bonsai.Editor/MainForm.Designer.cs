@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Source");
             System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Condition");
@@ -85,13 +86,17 @@
             this.toolboxDescriptionPanel = new System.Windows.Forms.Panel();
             this.toolboxDescriptionTextBox = new System.Windows.Forms.RichTextBox();
             this.workflowGroupBox = new System.Windows.Forms.GroupBox();
+            this.workflowGraphView = new Bonsai.Design.GraphView();
             this.propertiesGroupBox = new System.Windows.Forms.GroupBox();
             this.propertyGrid = new System.Windows.Forms.PropertyGrid();
             this.panelSplitContainer = new System.Windows.Forms.SplitContainer();
             this.workflowSplitContainer = new System.Windows.Forms.SplitContainer();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
-            this.workflowGraphView = new Bonsai.Design.GraphView();
             this.commandExecutor = new Bonsai.Design.CommandExecutor();
+            this.propertyGridContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.resetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
+            this.descriptionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -111,6 +116,7 @@
             this.workflowSplitContainer.Panel1.SuspendLayout();
             this.workflowSplitContainer.Panel2.SuspendLayout();
             this.workflowSplitContainer.SuspendLayout();
+            this.propertyGridContextMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip
@@ -588,6 +594,17 @@
             this.workflowGroupBox.TabStop = false;
             this.workflowGroupBox.Text = "Workflow";
             // 
+            // workflowGraphView
+            // 
+            this.workflowGraphView.AllowDrop = true;
+            this.workflowGraphView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.workflowGraphView.Location = new System.Drawing.Point(3, 16);
+            this.workflowGraphView.Name = "workflowGraphView";
+            this.workflowGraphView.Nodes = null;
+            this.workflowGraphView.SelectedNode = null;
+            this.workflowGraphView.Size = new System.Drawing.Size(294, 272);
+            this.workflowGraphView.TabIndex = 0;
+            // 
             // propertiesGroupBox
             // 
             this.propertiesGroupBox.Controls.Add(this.propertyGrid);
@@ -601,6 +618,7 @@
             // 
             // propertyGrid
             // 
+            this.propertyGrid.ContextMenuStrip = this.propertyGridContextMenuStrip;
             this.propertyGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.propertyGrid.Location = new System.Drawing.Point(3, 16);
             this.propertyGrid.Name = "propertyGrid";
@@ -645,20 +663,41 @@
             this.workflowSplitContainer.TabIndex = 0;
             this.workflowSplitContainer.TabStop = false;
             // 
-            // workflowGraphView
-            // 
-            this.workflowGraphView.AllowDrop = true;
-            this.workflowGraphView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.workflowGraphView.Location = new System.Drawing.Point(3, 16);
-            this.workflowGraphView.Name = "workflowGraphView";
-            this.workflowGraphView.Nodes = null;
-            this.workflowGraphView.SelectedNode = null;
-            this.workflowGraphView.Size = new System.Drawing.Size(294, 272);
-            this.workflowGraphView.TabIndex = 0;
-            // 
             // commandExecutor
             // 
             this.commandExecutor.StatusChanged += new System.EventHandler(this.commandExecutor_StatusChanged);
+            // 
+            // propertyGridContextMenuStrip
+            // 
+            this.propertyGridContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.resetToolStripMenuItem,
+            this.toolStripSeparator7,
+            this.descriptionToolStripMenuItem});
+            this.propertyGridContextMenuStrip.Name = "propertyGridContextMenuStrip";
+            this.propertyGridContextMenuStrip.Size = new System.Drawing.Size(153, 76);
+            this.propertyGridContextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.propertyGridContextMenuStrip_Opening);
+            // 
+            // resetToolStripMenuItem
+            // 
+            this.resetToolStripMenuItem.Name = "resetToolStripMenuItem";
+            this.resetToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.resetToolStripMenuItem.Text = "&Reset";
+            this.resetToolStripMenuItem.Click += new System.EventHandler(this.resetToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator7
+            // 
+            this.toolStripSeparator7.Name = "toolStripSeparator7";
+            this.toolStripSeparator7.Size = new System.Drawing.Size(149, 6);
+            // 
+            // descriptionToolStripMenuItem
+            // 
+            this.descriptionToolStripMenuItem.Checked = true;
+            this.descriptionToolStripMenuItem.CheckOnClick = true;
+            this.descriptionToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.descriptionToolStripMenuItem.Name = "descriptionToolStripMenuItem";
+            this.descriptionToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.descriptionToolStripMenuItem.Text = "&Description";
+            this.descriptionToolStripMenuItem.Click += new System.EventHandler(this.descriptionToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -696,6 +735,7 @@
             this.workflowSplitContainer.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.workflowSplitContainer)).EndInit();
             this.workflowSplitContainer.ResumeLayout(false);
+            this.propertyGridContextMenuStrip.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -761,6 +801,10 @@
         private System.Windows.Forms.RichTextBox toolboxDescriptionTextBox;
         private System.Windows.Forms.ToolStripMenuItem welcomeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem examplesToolStripMenuItem;
+        private System.Windows.Forms.ContextMenuStrip propertyGridContextMenuStrip;
+        private System.Windows.Forms.ToolStripMenuItem resetToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
+        private System.Windows.Forms.ToolStripMenuItem descriptionToolStripMenuItem;
     }
 }
 
