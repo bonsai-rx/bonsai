@@ -840,7 +840,7 @@ namespace Bonsai.Editor
                         var inspectNode = new Node<ExpressionBuilder, ExpressionBuilderParameter>(new InspectBuilder());
                         builder.Workflow.Add(builderNode);
                         builder.Workflow.Add(inspectNode);
-                        builder.Workflow.AddEdge(builderNode, inspectNode, new ExpressionBuilderParameter("Source"));
+                        builder.Workflow.AddEdge(builderNode, inspectNode, new ExpressionBuilderParameter());
                         builder = new WorkflowBuilder(builder.Workflow.FromInspectableGraph());
                         siteForm.serializer.Serialize(writer, builder);
                     }
