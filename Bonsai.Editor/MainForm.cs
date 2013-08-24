@@ -585,6 +585,7 @@ namespace Bonsai.Editor
                     propertyGrid.SelectedObject = workflowElement;
                 }
                 else propertyGrid.SelectedObject = node.Value;
+                propertyGrid.PropertyTabs.AddTabType(typeof(PropertyMappingTab), PropertyTabScope.Component);
             }
             else propertyGrid.SelectedObject = null;
         }

@@ -32,7 +32,7 @@ namespace Bonsai.Vision.Design
                         editorForm.AddControl(videoPlayer);
                         var captureNode = (from node in workflow
                                            let builder = node.Value as SourceBuilder
-                                           where builder != null && builder.Source == component
+                                           where builder != null && builder.Generator == component
                                            select node)
                                            .FirstOrDefault();
 

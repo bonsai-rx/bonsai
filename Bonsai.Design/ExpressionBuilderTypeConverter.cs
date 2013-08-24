@@ -31,7 +31,7 @@ namespace Bonsai.Design
                 var expressionBuilder = (ExpressionBuilder)value;
 
                 var sourceBuilder = expressionBuilder as SourceBuilder;
-                if (sourceBuilder != null) return sourceBuilder.Source.GetType().Name;
+                if (sourceBuilder != null) return sourceBuilder.Generator.GetType().Name;
 
                 var whereBuilder = expressionBuilder as WhereBuilder;
                 if (whereBuilder != null) return whereBuilder.Predicate.GetType().Name;

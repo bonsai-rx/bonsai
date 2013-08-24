@@ -32,7 +32,7 @@ namespace Bonsai.Expressions
         public static object GetWorkflowElement(ExpressionBuilder builder)
         {
             var sourceBuilder = builder as SourceBuilder;
-            if (sourceBuilder != null) return sourceBuilder.Source;
+            if (sourceBuilder != null) return sourceBuilder.Generator;
 
             var selectBuilder = builder as SelectBuilder;
             if (selectBuilder != null) return selectBuilder.Selector;
@@ -60,7 +60,7 @@ namespace Bonsai.Expressions
                 return new CombinatorBuilder { Combinator = element };
             }
 
-            if (elementCategory == ElementCategory.Source) return new SourceBuilder { Source = element };
+            if (elementCategory == ElementCategory.Source) return new SourceBuilder { Generator = element };
             if (elementCategory == ElementCategory.Condition) return new WhereBuilder { Predicate = element };
             if (elementCategory == ElementCategory.Transform) return new SelectBuilder { Selector = element };
             throw new InvalidOperationException("Invalid loadable element type.");
@@ -376,6 +376,111 @@ namespace Bonsai.Expressions
                 return Expression.Call(typeof(ExpressionBuilder), "MergeOutput", new[] { outputType }, output, connectionArrayExpression);
             }
             else return Expression.Call(typeof(ExpressionBuilder), "MergeOutput", null, connectionArrayExpression);
+        }
+
+        #endregion
+
+        #region Dynamic Properties
+
+        static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()
+                                                            .Single(m => m.Name == "Select" &&
+                                                                    m.GetParameters().Length == 2 &&
+                                                                    m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
+        static readonly MethodInfo deferMethod = typeof(Observable).GetMethods()
+                                                                   .Single(m => m.Name == "Defer" &&
+                                                                           m.GetParameters().Length == 1 &&
+                                                                           m.GetParameters()[0].ParameterType.GetGenericArguments()[0].GetGenericTypeDefinition() == typeof(IObservable<>));
+
+        static IObservable<TSource> IgnoreSourceConnection<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> connection)
+        {
+            return connection.IgnoreElements().Select(xs => default(TSource)).Merge(source);
+        }
+
+        internal static Expression BuildCallRemapping(Expression combinator, MethodInfo processMethod, Expression source, string inputSelector, PropertyMappingCollection propertyMappings, bool hot = false)
+        {
+            var sourceSelect = source;
+            var combinatorType = combinator.Type;
+            var processParameters = processMethod.GetParameters();
+
+            Expression initializer = null;
+            ParameterExpression combinatorCopy = null;
+
+            // If there is no input, there is nothing to do but call the process method
+            if (source != null)
+            {
+                var sourceType = source.Type.GetGenericArguments()[0];
+
+                // If there is a property map, we need to define a closure for
+                // dynamic property assignments
+                if (propertyMappings != null && propertyMappings.Count > 0)
+                {
+                    // If the observable is cold, we need to copy the node parameters to allow for reentrant subscriptions;
+                    // if it is hot, we keep the same instance and hope for the best
+                    combinatorCopy = Expression.Variable(combinatorType);
+                    initializer = Expression.Assign(combinatorCopy, hot ? combinator : Expression.New(combinatorType));
+                }
+
+                // Remapping input and properties only makes sense if the combinator is a generator or in
+                // case a selector is specified for the input
+                if (!string.IsNullOrEmpty(inputSelector) || processParameters.Length == 0)
+                {
+                    var selectorParameter = Expression.Parameter(sourceType);
+                    var selectorExpression = Enumerable.Repeat(string.IsNullOrEmpty(inputSelector) ? selectorParameter : ExpressionHelper.MemberAccess(selectorParameter, inputSelector), 1);
+
+                    // Only specify dynamic assignments if necessary
+                    if (combinatorCopy != null)
+                    {
+                        // For each property, lookup the mapping if there is an assignment selector;
+                        // if true, evaluate and convert the selector, otherwise, just pick the original property value
+                        var propertyAssignments = combinatorType.GetProperties()
+                            .Where(propertyInfo => propertyInfo.CanWrite && !propertyInfo.IsDefined(typeof(XmlIgnoreAttribute), true))
+                            .Select(propertyInfo =>
+                            {
+                                Expression propertyValue;
+                                var property = Expression.Property(combinatorCopy, propertyInfo);
+                                if (propertyMappings.Contains(propertyInfo.Name))
+                                {
+                                    propertyValue = ExpressionHelper.MemberAccess(selectorParameter, propertyMappings[propertyInfo.Name].Selector);
+                                    if (propertyValue.Type != property.Type)
+                                    {
+                                        propertyValue = Expression.Convert(propertyValue, property.Type);
+                                    }
+                                }
+                                else propertyValue = Expression.Property(combinator, propertyInfo);
+
+                                return Expression.Assign(property, propertyValue);
+                            });
+                        selectorExpression = propertyAssignments.Concat(selectorExpression);
+                    }
+
+                    var selectorBlock = Expression.Block(selectorExpression);
+                    var selector = Expression.Lambda(selectorBlock, selectorParameter);
+                    sourceSelect = Expression.Call(selectMethod.MakeGenericMethod(selectorParameter.Type, selectorBlock.Type), source, selector);
+                }
+            }
+
+            Expression decoratedSource;
+            if (processParameters.Length == 0)
+            {
+                // If combinator is a generator, check if we need to subscribe to source for assignment side effects
+                decoratedSource = Expression.Call(combinatorCopy ?? combinator, processMethod);
+                if (sourceSelect != null)
+                {
+                    var selectorType = sourceSelect.Type.GetGenericArguments()[0];
+                    var decoratedSourceType = decoratedSource.Type.GetGenericArguments()[0];
+                    decoratedSource = Expression.Call(typeof(ExpressionBuilder), "IgnoreSourceConnection", new[] { decoratedSourceType, selectorType }, decoratedSource, sourceSelect);
+                }
+            }
+            else decoratedSource = BuildCall(combinatorCopy ?? combinator, processMethod, sourceSelect);
+
+            // If a closure was created, enforce "cold" subscription side-effects
+            if (combinatorCopy != null)
+            {
+                var deferBlock = Expression.Block(new[] { combinatorCopy }, initializer, decoratedSource);
+                var observableFactory = Expression.Lambda(deferBlock);
+                return Expression.Call(deferMethod.MakeGenericMethod(decoratedSource.Type.GetGenericArguments()), observableFactory);
+            }
+            else return decoratedSource;
         }
 
         #endregion
