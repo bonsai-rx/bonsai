@@ -68,6 +68,8 @@
     <Compile Include="Constants.cs" />
     <Compile Include="ContinuationScheduler.cs" />
     <Compile Include="ArrayConvert.cs" />
+    <Compile Include="Expressions\PropertyMappingCollection.cs" />
+    <Compile Include="Expressions\PropertyMapping.cs" />
     <Compile Include="PredicateAttribute.cs" />
     <Compile Include="CombinatorAttribute.cs" />
     <Compile Include="BinaryCombinatorAttribute.cs" />

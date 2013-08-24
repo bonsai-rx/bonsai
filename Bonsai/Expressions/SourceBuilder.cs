@@ -11,17 +11,27 @@ namespace Bonsai.Expressions
 {
     [WorkflowElementCategory(ElementCategory.Source)]
     [XmlType("Source", Namespace = Constants.XmlNamespace)]
-    public class SourceBuilder : ExpressionBuilder
+    public class SourceBuilder : CombinatorExpressionBuilder
     {
-        public object Source { get; set; }
+        readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
+
+        public object Generator { get; set; }
+
+        public PropertyMappingCollection PropertyMappings
+        {
+            get { return propertyMappings; }
+        }
 
         public override Expression Build()
         {
-            var sourceType = Source.GetType();
-            var sourceExpression = Expression.Constant(Source);
+            const BindingFlags bindingAttributes = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            var sourceType = Generator.GetType();
+            var sourceExpression = Expression.Constant(Generator);
             var sourceAttributes = sourceType.GetCustomAttributes(typeof(SourceAttribute), true);
             var methodName = ((SourceAttribute)sourceAttributes.Single()).MethodName;
-            return Expression.Call(sourceExpression, methodName, null);
+            var generateMethod = sourceType.GetMethods(bindingAttributes)
+                                           .Single(m => m.Name == methodName && m.GetParameters().Length == 0);
+            return BuildCallRemapping(sourceExpression, generateMethod, Source, null, propertyMappings, true);
         }
     }
 }
