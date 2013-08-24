@@ -136,7 +136,7 @@ namespace Bonsai.Expressions
 
                 foreach (var successor in node.Successors)
                 {
-                    var target = successor.Node.Value.GetType().GetProperty(successor.Label.Value);
+                    var target = successor.Node.Value.GetType().GetProperty(successor.Label.Value, BindingFlags.NonPublic | BindingFlags.Instance);
                     target.SetValue(successor.Node.Value, expression, null);
                 }
 
@@ -186,7 +186,7 @@ namespace Bonsai.Expressions
                 var expressionNode = new Node<ExpressionBuilder, ExpressionBuilderParameter>(nodeValue);
                 observableGraph.Add(expressionNode);
                 observableGraph.Add(observableNode);
-                observableGraph.AddEdge(expressionNode, observableNode, new ExpressionBuilderParameter("Source"));
+                observableGraph.AddEdge(expressionNode, observableNode, new ExpressionBuilderParameter());
                 observableMapping.Add(node, Tuple.Create(expressionNode, observableNode));
             }
 

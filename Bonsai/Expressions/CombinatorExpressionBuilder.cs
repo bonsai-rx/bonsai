@@ -12,6 +12,6 @@ namespace Bonsai.Expressions
     {
         [XmlIgnore]
         [Browsable(false)]
-        public Expression Source { get; set; }
+        protected internal Expression Source { get; set; }
     }
 }

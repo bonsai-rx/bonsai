@@ -10,7 +10,11 @@ namespace Bonsai.Expressions
     [TypeConverter("Bonsai.Design.ExpressionBuilderParameterTypeConverter, Bonsai.Design")]
     public class ExpressionBuilderParameter
     {
-        internal ExpressionBuilderParameter()
+        public const string Source = "Source";
+        public const string Other = "Other";
+
+        public ExpressionBuilderParameter()
+            : this(Source)
         {
         }
 

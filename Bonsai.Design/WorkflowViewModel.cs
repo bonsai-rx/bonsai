@@ -188,17 +188,17 @@ namespace Bonsai.Design
             var combinator = target.Value as CombinatorExpressionBuilder;
             if (combinator != null)
             {
-                if (!workflow.Predecessors(target).Any()) connection = "Source";
+                if (!workflow.Predecessors(target).Any()) connection = ExpressionBuilderParameter.Source;
                 else
                 {
                     var binaryCombinator = combinator as BinaryCombinatorExpressionBuilder;
-                    if (binaryCombinator != null && binaryCombinator.Other == null)
+                    if (binaryCombinator != null && workflow.Predecessors(target).SingleOrDefault() != null)
                     {
                         var combinatorBuilder = binaryCombinator as CombinatorBuilder;
                         if (combinatorBuilder == null ||
-                            combinatorBuilder.Combinator.GetType().GetCustomAttributes(typeof(BinaryCombinatorAttribute), true).Length > 0)
+                            combinatorBuilder.Combinator.GetType().IsDefined(typeof(BinaryCombinatorAttribute), true))
                         {
-                            connection = "Other";
+                            connection = ExpressionBuilderParameter.Other;
                         }
                     }
                 }
@@ -254,7 +254,7 @@ namespace Bonsai.Design
             var inspectBuilder = new InspectBuilder();
             var sourceNode = new Node<ExpressionBuilder, ExpressionBuilderParameter>(builder);
             var inspectNode = new Node<ExpressionBuilder, ExpressionBuilderParameter>(inspectBuilder);
-            var inspectParameter = new ExpressionBuilderParameter("Source");
+            var inspectParameter = new ExpressionBuilderParameter();
             Action addNode = () => { workflow.Add(sourceNode); workflow.Add(inspectNode); workflow.AddEdge(sourceNode, inspectNode, inspectParameter); };
             Action removeNode = () => { workflow.Remove(inspectNode); workflow.Remove(sourceNode); };
             Action addConnection = () => { };
@@ -265,7 +265,7 @@ namespace Bonsai.Design
             {
                 if (closestNode != null && !(closestNode.Value is SourceBuilder) && !workflow.Predecessors(closestNode).Any())
                 {
-                    var parameter = new ExpressionBuilderParameter("Source");
+                    var parameter = new ExpressionBuilderParameter();
                     addConnection = () => workflow.AddEdge(inspectNode, closestNode, parameter);
                     removeConnection = () => workflow.RemoveEdge(inspectNode, closestNode, parameter);
                 }
@@ -274,7 +274,7 @@ namespace Bonsai.Design
             {
                 var edgeIndex = 0;
                 var closestInspectNode = closestNode.Successors.Single().Node;
-                var parameter = new ExpressionBuilderParameter("Source");
+                var parameter = new ExpressionBuilderParameter();
                 if (nodeType == CreateGraphNodeType.Predecessor)
                 {
                     var closestPredecessorNode = workflow.Predecessors(closestNode).FirstOrDefault();
@@ -371,7 +371,7 @@ namespace Bonsai.Design
                 var inspectNode = workflowNode.Successors.Single().Node;
 
                 var predecessorEdges = workflow.PredecessorEdges(workflowNode).ToArray();
-                var sourcePredecessor = Array.Find(predecessorEdges, edge => edge.Item2.Label.Value == "Source");
+                var sourcePredecessor = Array.Find(predecessorEdges, edge => edge.Item2.Label.Value == ExpressionBuilderParameter.Source);
                 if (sourcePredecessor != null)
                 {
                     addEdge = () =>
@@ -397,7 +397,7 @@ namespace Bonsai.Design
                 {
                     workflow.Add(workflowNode);
                     workflow.Add(inspectNode);
-                    workflow.AddEdge(workflowNode, inspectNode, new ExpressionBuilderParameter("Source"));
+                    workflow.AddEdge(workflowNode, inspectNode, new ExpressionBuilderParameter());
                     foreach (var edge in predecessorEdges)
                     {
                         edge.Item1.Successors.Insert(edge.Item3, edge.Item2);

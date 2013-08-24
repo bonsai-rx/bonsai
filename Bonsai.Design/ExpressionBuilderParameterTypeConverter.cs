@@ -31,8 +31,8 @@ namespace Bonsai.Design
                 if (destinationType == typeof(Pen))
                 {
                     var parameter = (ExpressionBuilderParameter)value;
-                    if (parameter.Value == "Source") return Pens.Black;
-                    if (parameter.Value == "Other") return Pens.Red;
+                    if (parameter.Value == ExpressionBuilderParameter.Source) return Pens.Black;
+                    if (parameter.Value == ExpressionBuilderParameter.Other) return Pens.Red;
                 }
             }
 
