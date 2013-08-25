@@ -46,7 +46,7 @@ namespace Bonsai.Expressions
                                                    .Single(m => m.Name == methodName && m.GetParameters().Length == 1);
                 return BuildCallRemapping(
                     combinatorExpression,
-                    (combinator, sourceSelect) => BuildCall(combinator, processMethod, sourceSelect),
+                    (combinator, sourceSelect) => HandleBuildException(BuildCall(combinator, processMethod, sourceSelect), this),
                     Source,
                     MemberSelector,
                     propertyMappings);

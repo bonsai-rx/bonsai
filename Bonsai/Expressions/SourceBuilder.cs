@@ -37,7 +37,7 @@ namespace Bonsai.Expressions
                     sourceExpression,
                     (combinator, sourceSelect) =>
                     {
-                        var decoratedSource = Expression.Call(combinator, generateMethod);
+                        var decoratedSource = HandleBuildException(Expression.Call(combinator, generateMethod), this);
                         if (sourceSelect != null)
                         {
                             var selectorType = sourceSelect.Type.GetGenericArguments()[0];
