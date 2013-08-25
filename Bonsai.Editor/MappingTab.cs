@@ -12,11 +12,8 @@ using System.Windows.Forms.Design;
 
 namespace Bonsai.Editor
 {
-    public class PropertyMappingTab : PropertyTab
+    public class MappingTab : PropertyTab
     {
-        const string PropertyMappingsProperty = "PropertyMappings";
-        const string SelectorProperty = "Selector";
-
         public override PropertyDescriptorCollection GetProperties(object component)
         {
             return new PropertyDescriptorCollection(new PropertyDescriptor[0]);
@@ -35,9 +32,17 @@ namespace Bonsai.Editor
             {
                 var builder = selectionModel.SelectedNode.Value;
                 var builderProperties = TypeDescriptor.GetProperties(builder);
-                var propertyMapProperty = builderProperties[PropertyMappingsProperty];
-                if (propertyMapProperty != null && propertyMapProperty.PropertyType == typeof(PropertyMappingCollection))
+                var builderAttributes = TypeDescriptor.GetAttributes(builder);
+
+                var propertyMapAttribute = (PropertyMappingAttribute)builderAttributes[typeof(PropertyMappingAttribute)];
+                if (propertyMapAttribute != null)
                 {
+                    var propertyMapProperty = builderProperties[propertyMapAttribute.PropertyName];
+                    if (propertyMapProperty == null || propertyMapProperty.PropertyType != typeof(PropertyMappingCollection))
+                    {
+                        throw new InvalidOperationException("The property name specified in PropertyMappingAttribute does not exist or has an invalid type.");
+                    }
+
                     var propertyMappings = (PropertyMappingCollection)propertyMapProperty.GetValue(builder);
                     var componentProperties = TypeDescriptor.GetProperties(component);
                     foreach (var descriptor in componentProperties.Cast<PropertyDescriptor>()
@@ -55,17 +60,23 @@ namespace Bonsai.Editor
                     }
                 }
 
-                var builderType = builder.GetType();
-                var selectorProperty = builderProperties[SelectorProperty];
-                if (selectorProperty != null && builderType == typeof(CombinatorBuilder))
+                var sourceMappingAttribute = (SourceMappingAttribute)builderAttributes[typeof(SourceMappingAttribute)];
+                if (sourceMappingAttribute != null)
                 {
+                    var sourceMappingProperty = builderProperties[sourceMappingAttribute.PropertyName];
+                    if (sourceMappingProperty == null || sourceMappingProperty.PropertyType != typeof(string))
+                    {
+                        throw new InvalidOperationException("The property name specified in SourceMappingAttribute does not exist or has an invalid type.");
+                    }
+
                     var propertyAttributes = new Attribute[]
                         {
                             new EditorAttribute(typeof(MemberSelectorEditor), typeof(UITypeEditor)),
                             new CategoryAttribute("Source"),
+                            new DescriptionAttribute("The inner properties that will be selected for each element of the sequence."),
                             new TypeConverterAttribute(typeof(MappingConverter))
                         };
-                    properties.Add(new SelectorPropertyDescriptor(selectorProperty, builder, propertyAttributes));
+                    properties.Add(new SelectorPropertyDescriptor(sourceMappingProperty, builder, propertyAttributes));
                 }
             }
 
