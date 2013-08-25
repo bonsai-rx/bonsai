@@ -6,9 +6,11 @@ using System.Linq.Expressions;
 using System.ComponentModel;
 using System.Xml.Serialization;
 using System.Reflection;
+using System.Reactive.Linq;
 
 namespace Bonsai.Expressions
 {
+    [PropertyMapping]
     [WorkflowElementCategory(ElementCategory.Source)]
     [XmlType("Source", Namespace = Constants.XmlNamespace)]
     public class SourceBuilder : CombinatorExpressionBuilder
@@ -31,7 +33,27 @@ namespace Bonsai.Expressions
             var methodName = ((SourceAttribute)sourceAttributes.Single()).MethodName;
             var generateMethod = sourceType.GetMethods(bindingAttributes)
                                            .Single(m => m.Name == methodName && m.GetParameters().Length == 0);
-            return BuildCallRemapping(sourceExpression, generateMethod, Source, null, propertyMappings, true);
+            return BuildCallRemapping(
+                    sourceExpression,
+                    (combinator, sourceSelect) =>
+                    {
+                        var decoratedSource = Expression.Call(combinator, generateMethod);
+                        if (sourceSelect != null)
+                        {
+                            var selectorType = sourceSelect.Type.GetGenericArguments()[0];
+                            var decoratedSourceType = decoratedSource.Type.GetGenericArguments()[0];
+                            decoratedSource = Expression.Call(typeof(ExpressionBuilder), "IgnoreSourceConnection", new[] { decoratedSourceType, selectorType }, decoratedSource, sourceSelect);
+                        }
+                        return decoratedSource;
+                    },
+                    Source,
+                    null,
+                    propertyMappings);
+        }
+
+        static IObservable<TSource> IgnoreSourceConnection<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> connection)
+        {
+            return connection.IgnoreElements().Select(xs => default(TSource)).Merge(source);
         }
     }
 }

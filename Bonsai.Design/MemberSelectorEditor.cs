@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using Bonsai.Expressions;
 using Bonsai.Dag;
 using System.Collections.ObjectModel;
+using System.Linq.Expressions;
 
 namespace Bonsai.Design
 {
@@ -32,13 +33,30 @@ namespace Bonsai.Design
                 if (nodeBuilderGraph == null) return base.EditValue(context, provider, value);
 
                 var workflow = workflowBuilder.Workflow;
-                var predecessorNode = (from node in nodeBuilderGraph
-                                       let builder = node.Value
-                                       where ExpressionBuilder.GetWorkflowElement(builder) == context.Instance
-                                       select nodeBuilderGraph.Predecessors(node).SingleOrDefault()).SingleOrDefault();
+                var builderNode = (from node in nodeBuilderGraph
+                                   let builder = node.Value
+                                   where ExpressionBuilder.GetWorkflowElement(builder) == context.Instance
+                                   select node).SingleOrDefault();
+
+                if (builderNode == null) return base.EditValue(context, provider, value);
+                var predecessorNode = nodeBuilderGraph.Predecessors(builderNode).SingleOrDefault();
 
                 if (predecessorNode == null) return base.EditValue(context, provider, value);
-                var expressionType = workflow.Build(predecessorNode.Value).Type.GetGenericArguments()[0];
+                var expression = workflow.Build(predecessorNode.Value);
+                var expressionType = expression.Type.GetGenericArguments()[0];
+
+                var instanceAttributes = TypeDescriptor.GetAttributes(context.Instance);
+                var sourceMappingAttribute = (SourceMappingAttribute)instanceAttributes[typeof(SourceMappingAttribute)];
+                if (sourceMappingAttribute != null && context.PropertyDescriptor.Name != sourceMappingAttribute.PropertyName)
+                {
+                    var memberSelectorProperty = builderNode.Value.GetType().GetProperty(sourceMappingAttribute.PropertyName);
+                    if (memberSelectorProperty != null && memberSelectorProperty.PropertyType == typeof(string))
+                    {
+                        var memberPath = (string)memberSelectorProperty.GetValue(builderNode.Value, null);
+                        var parameter = Expression.Parameter(expressionType);
+                        expressionType = ExpressionHelper.MemberAccess(parameter, memberPath).Type;
+                    }
+                }
 
                 var editorDialog = new MemberSelectorEditorDialog(expressionType, selector);
                 if (editorService.ShowDialog(editorDialog) == DialogResult.OK)

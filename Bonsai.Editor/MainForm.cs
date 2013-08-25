@@ -564,19 +564,16 @@ namespace Bonsai.Editor
                     {
                         var builderProperties = TypeDescriptor.GetProperties(whereBuilder);
                         var provider = new DynamicTypeDescriptionProvider();
-                        foreach (PropertyDescriptor builderProperty in builderProperties)
-                        {
-                            var property = builderProperty;
-                            if (builderProperty.GetValue(node.Value) == workflowElement) continue;
-                            var attributes = new Attribute[property.Attributes.Count];
-                            property.Attributes.CopyTo(attributes, 0);
-                            var dynamicProperty = new DynamicPropertyDescriptor(
-                                property.Name, property.PropertyType,
-                                xs => property.GetValue(whereBuilder),
-                                (xs, value) => property.SetValue(whereBuilder, value),
-                                attributes);
-                            provider.Properties.Add(dynamicProperty);
-                        }
+
+                        var selectorProperty = builderProperties["Selector"];
+                        var attributes = new Attribute[selectorProperty.Attributes.Count];
+                        selectorProperty.Attributes.CopyTo(attributes, 0);
+                        var dynamicProperty = new DynamicPropertyDescriptor(
+                            selectorProperty.Name, selectorProperty.PropertyType,
+                            xs => selectorProperty.GetValue(whereBuilder),
+                            (xs, value) => selectorProperty.SetValue(whereBuilder, value),
+                            attributes);
+                        provider.Properties.Add(dynamicProperty);
 
                         TypeDescriptor.AddProvider(provider, workflowElement);
                         selectionTypeDescriptor = provider;
@@ -585,7 +582,7 @@ namespace Bonsai.Editor
                     propertyGrid.SelectedObject = workflowElement;
                 }
                 else propertyGrid.SelectedObject = node.Value;
-                propertyGrid.PropertyTabs.AddTabType(typeof(PropertyMappingTab), PropertyTabScope.Component);
+                propertyGrid.PropertyTabs.AddTabType(typeof(MappingTab), PropertyTabScope.Component);
             }
             else propertyGrid.SelectedObject = null;
         }

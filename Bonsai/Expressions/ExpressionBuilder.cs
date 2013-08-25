@@ -391,16 +391,10 @@ namespace Bonsai.Expressions
                                                                            m.GetParameters().Length == 1 &&
                                                                            m.GetParameters()[0].ParameterType.GetGenericArguments()[0].GetGenericTypeDefinition() == typeof(IObservable<>));
 
-        static IObservable<TSource> IgnoreSourceConnection<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> connection)
-        {
-            return connection.IgnoreElements().Select(xs => default(TSource)).Merge(source);
-        }
-
-        internal static Expression BuildCallRemapping(Expression combinator, MethodInfo processMethod, Expression source, string inputSelector, PropertyMappingCollection propertyMappings, bool hot = false)
+        internal static Expression BuildCallRemapping(Expression combinator, Func<Expression, Expression, Expression> callFactory, Expression source, string memberSelector, PropertyMappingCollection propertyMappings, bool hot = false)
         {
             var sourceSelect = source;
             var combinatorType = combinator.Type;
-            var processParameters = processMethod.GetParameters();
 
             Expression initializer = null;
             ParameterExpression combinatorCopy = null;
@@ -420,12 +414,12 @@ namespace Bonsai.Expressions
                     initializer = Expression.Assign(combinatorCopy, hot ? combinator : Expression.New(combinatorType));
                 }
 
-                // Remapping input and properties only makes sense if the combinator is a generator or in
-                // case a selector is specified for the input
-                if (!string.IsNullOrEmpty(inputSelector) || processParameters.Length == 0)
+                // Remapping input and properties only makes sense if there is either a property or
+                // an input reassignment
+                if (!string.IsNullOrEmpty(memberSelector) || combinatorCopy != null)
                 {
                     var selectorParameter = Expression.Parameter(sourceType);
-                    var selectorExpression = Enumerable.Repeat(string.IsNullOrEmpty(inputSelector) ? selectorParameter : ExpressionHelper.MemberAccess(selectorParameter, inputSelector), 1);
+                    var selectorExpression = Enumerable.Repeat(string.IsNullOrEmpty(memberSelector) ? selectorParameter : ExpressionHelper.MemberAccess(selectorParameter, memberSelector), 1);
 
                     // Only specify dynamic assignments if necessary
                     if (combinatorCopy != null)
@@ -459,19 +453,8 @@ namespace Bonsai.Expressions
                 }
             }
 
-            Expression decoratedSource;
-            if (processParameters.Length == 0)
-            {
-                // If combinator is a generator, check if we need to subscribe to source for assignment side effects
-                decoratedSource = Expression.Call(combinatorCopy ?? combinator, processMethod);
-                if (sourceSelect != null)
-                {
-                    var selectorType = sourceSelect.Type.GetGenericArguments()[0];
-                    var decoratedSourceType = decoratedSource.Type.GetGenericArguments()[0];
-                    decoratedSource = Expression.Call(typeof(ExpressionBuilder), "IgnoreSourceConnection", new[] { decoratedSourceType, selectorType }, decoratedSource, sourceSelect);
-                }
-            }
-            else decoratedSource = BuildCall(combinatorCopy ?? combinator, processMethod, sourceSelect);
+            // Generate decorator expression using the current parameter assignment selector
+            var decoratedSource = callFactory(combinatorCopy ?? combinator, sourceSelect);
 
             // If a closure was created, enforce "cold" subscription side-effects
             if (combinatorCopy != null)

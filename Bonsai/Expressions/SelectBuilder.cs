@@ -10,16 +10,26 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
 {
+    [SourceMapping]
+    [PropertyMapping]
     [WorkflowElementCategory(ElementCategory.Transform)]
     [XmlType("Select", Namespace = Constants.XmlNamespace)]
     public class SelectBuilder : CombinatorExpressionBuilder
     {
+        readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
         static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()
                                                                     .Single(m => m.Name == "Select" &&
                                                                             m.GetParameters().Length == 2 &&
                                                                             m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
 
         public object Selector { get; set; }
+
+        public string MemberSelector { get; set; }
+
+        public PropertyMappingCollection PropertyMappings
+        {
+            get { return propertyMappings; }
+        }
 
         public override Expression Build()
         {
@@ -29,9 +39,17 @@ namespace Bonsai.Expressions
             var methodName = ((SelectorAttribute)selectorAttributes.Single()).MethodName;
             var processMethods = selectorType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                                               .Where(m => m.Name == methodName && m.GetParameters().Length == 1);
-            var parameter = Expression.Parameter(Source.Type.GetGenericArguments()[0]);
-            var process = BuildCall(selectorExpression, processMethods, parameter);
-            return Expression.Call(selectMethod.MakeGenericMethod(parameter.Type, process.Type), Source, Expression.Lambda(process, parameter));
+            return BuildCallRemapping(
+                selectorExpression,
+                (selector, sourceSelect) =>
+                {
+                    var parameter = Expression.Parameter(sourceSelect.Type.GetGenericArguments()[0]);
+                    var process = BuildCall(selector, processMethods, parameter);
+                    return Expression.Call(selectMethod.MakeGenericMethod(parameter.Type, process.Type), sourceSelect, Expression.Lambda(process, parameter));
+                },
+                Source,
+                MemberSelector,
+                propertyMappings);
         }
     }
 }
