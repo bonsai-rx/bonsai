@@ -6,6 +6,7 @@ using Bonsai.Design;
 using OpenCV.Net;
 using Bonsai;
 using Bonsai.Vision.Design;
+using Bonsai.Design.Visualizers;
 
 [assembly: TypeVisualizer(typeof(CvScalarVisualizer), Target = typeof(CvScalar))]
 

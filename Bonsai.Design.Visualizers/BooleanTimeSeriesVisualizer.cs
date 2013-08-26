@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Bonsai;
-using Bonsai.Design;
+using Bonsai.Design.Visualizers;
 using ZedGraph;
 
 [assembly: TypeVisualizer(typeof(BooleanTimeSeriesVisualizer), Target = typeof(bool))]
 
-namespace Bonsai.Design
+namespace Bonsai.Design.Visualizers
 {
     public class BooleanTimeSeriesVisualizer : TimeSeriesVisualizer
     {

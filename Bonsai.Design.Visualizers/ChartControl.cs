@@ -8,7 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using ZedGraph;
 
-namespace Bonsai.Design
+namespace Bonsai.Design.Visualizers
 {
     public class ChartControl : ZedGraphControl
     {
