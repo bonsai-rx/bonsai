@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Reactive.Linq;
 using ZedGraph;
 using System.Windows.Forms;
+using Bonsai.Design.Visualizers;
 
 [assembly: TypeVisualizer(typeof(CvMatVisualizer), Target = typeof(CvMat))]
 [assembly: TypeVisualizer(typeof(CvMatVisualizer), Target = typeof(IObservable<CvMat>))]

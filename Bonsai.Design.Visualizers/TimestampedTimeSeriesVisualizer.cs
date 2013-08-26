@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Reactive;
 using Bonsai;
-using Bonsai.Design;
+using Bonsai.Design.Visualizers;
 
 [assembly: TypeVisualizer(typeof(TimestampedTimeSeriesVisualizer<int>), Target = typeof(Timestamped<int>))]
 [assembly: TypeVisualizer(typeof(TimestampedTimeSeriesVisualizer<float>), Target = typeof(Timestamped<float>))]
 [assembly: TypeVisualizer(typeof(TimestampedTimeSeriesVisualizer<double>), Target = typeof(Timestamped<double>))]
 
-namespace Bonsai.Design
+namespace Bonsai.Design.Visualizers
 {
     public class TimestampedTimeSeriesVisualizer<T> : TimeSeriesVisualizer
     {

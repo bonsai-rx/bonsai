@@ -125,6 +125,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Bonsai.Design.Visualizers\Bonsai.Design.Visualizers.csproj">
+      <Project>{2db4f295-ab4c-4642-beb4-16e9d751b16a}</Project>
+      <Name>Bonsai.Design.Visualizers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj">
       <Project>{765D928A-B147-46FF-8A59-BDE73F88A844}</Project>
       <Name>Bonsai.Design</Name>

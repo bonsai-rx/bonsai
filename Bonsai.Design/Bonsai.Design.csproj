@@ -55,23 +55,13 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="ZedGraph, Version=5.1.6.417, Culture=neutral, PublicKeyToken=02a83cbd123fcd60, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ZedGraph.5.1.6\lib\net35-Client\ZedGraph.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BooleanTimeSeriesVisualizer.cs" />
     <Compile Include="CommandExecutor.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ControlObservable.cs" />
     <Compile Include="ControlScheduler.cs" />
-    <Compile Include="ChartControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="StateTimeVisualizer.cs" />
-    <Compile Include="TimeSeriesVisualizer.cs" />
     <Compile Include="DescriptiveCollectionEditor.cs" />
     <Compile Include="DialogMashupVisualizer.cs" />
     <Compile Include="DynamicTypeDescriptionProvider.cs" />
@@ -114,7 +104,6 @@
     <Compile Include="ObjectTextVisualizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SaveFileNameEditor.cs" />
-    <Compile Include="TimestampedTimeSeriesVisualizer.cs" />
     <Compile Include="TrackBarEditor.cs" />
     <Compile Include="TypeVisualizerDialog.cs">
       <SubType>Form</SubType>

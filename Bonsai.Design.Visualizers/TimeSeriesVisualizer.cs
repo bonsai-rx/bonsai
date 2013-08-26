@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Bonsai;
-using Bonsai.Design;
+using Bonsai.Design.Visualizers;
 using ZedGraph;
 
 [assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(int))]
 [assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(float))]
 [assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(double))]
 
-namespace Bonsai.Design
+namespace Bonsai.Design.Visualizers
 {
     public class TimeSeriesVisualizer : DialogTypeVisualizer
     {

@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Bonsai;
-using Bonsai.Design;
 using ZedGraph;
 using System.Drawing;
 
-namespace Bonsai.Design
+namespace Bonsai.Design.Visualizers
 {
     public class StateTimeVisualizer : DialogTypeVisualizer
     {
