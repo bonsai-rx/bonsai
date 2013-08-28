@@ -42,13 +42,14 @@ namespace Bonsai.Expressions
                         {
                             var selectorType = sourceSelect.Type.GetGenericArguments()[0];
                             var decoratedSourceType = decoratedSource.Type.GetGenericArguments()[0];
-                            decoratedSource = Expression.Call(typeof(ExpressionBuilder), "IgnoreSourceConnection", new[] { decoratedSourceType, selectorType }, decoratedSource, sourceSelect);
+                            decoratedSource = Expression.Call(typeof(SourceBuilder), "IgnoreSourceConnection", new[] { decoratedSourceType, selectorType }, decoratedSource, sourceSelect);
                         }
                         return decoratedSource;
                     },
                     Source,
                     null,
-                    propertyMappings);
+                    propertyMappings,
+                    hot:true);
         }
 
         static IObservable<TSource> IgnoreSourceConnection<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> connection)
