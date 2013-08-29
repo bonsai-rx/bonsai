@@ -21,11 +21,10 @@ namespace Bonsai.Dsp
 
         public override IObservable<TArray> Process(IObservable<TArray> source)
         {
-            return Observable.Create<TArray>(observer =>
+            return Observable.Defer(() =>
             {
                 TArray accumulator = null;
-
-                var process = source.Select(input =>
+                return source.Select(input =>
                 {
                     if (accumulator == null)
                     {
@@ -40,17 +39,7 @@ namespace Bonsai.Dsp
                         Core.cvConvertScale(accumulator, output, 1, 0);
                         return output;
                     }
-                }).Subscribe(observer);
-
-                var close = Disposable.Create(() =>
-                {
-                    if (accumulator != null)
-                    {
-                        accumulator.Close();
-                    }
                 });
-
-                return new CompositeDisposable(process, close);
             });
         }
     }

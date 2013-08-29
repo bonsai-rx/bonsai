@@ -23,7 +23,7 @@ namespace Bonsai.Vision
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            return Observable.Create<IplImage>(observer =>
+            return Observable.Defer(() =>
             {
                 var intrinsics = new double[] { FocalLength.X, 0, PrincipalPoint.X, 0, FocalLength.Y, PrincipalPoint.Y, 0, 0, 1 };
                 var cameraMatrix = new CvMat(3, 3, CvMatDepth.CV_64F, 1);
@@ -32,14 +32,12 @@ namespace Bonsai.Vision
                 var distortionCoefficients = new CvMat(5, 1, CvMatDepth.CV_64F, 1);
                 Marshal.Copy(Distortion, 0, distortionCoefficients.Data, Distortion.Length);
 
-                var process = source.Select(input =>
+                return source.Select(input =>
                 {
                     var output = new IplImage(input.Size, input.Depth, input.NumChannels);
                     ImgProc.cvUndistort2(input, output, cameraMatrix, distortionCoefficients, CvMat.Null);
                     return output;
-                }).Subscribe(observer);
-
-                return process;
+                });
             });
         }
     }

@@ -42,7 +42,13 @@ namespace Bonsai.Scripting
                     load();
                 }
 
-                return source.Where(input => process(input)).Finally(unload);
+                var result = source.Where(input => process(input));
+                if (unload != null)
+                {
+                    result = result.Finally(unload);
+                }
+
+                return result;
             });
         }
     }

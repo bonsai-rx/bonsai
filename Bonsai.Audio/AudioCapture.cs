@@ -26,32 +26,30 @@ namespace Bonsai.Audio
             Frequency = 44100;
 
             var bufferSize = 0;
-            source = Observable.Using(
-                () =>
-                {
-                    var frequency = Frequency;
-                    bufferSize = (int)Math.Ceiling(frequency * 0.01);
-                    var captureBufferSize = (int)(BufferLength * frequency * 0.001 / BlittableValueType.StrideOf(short.MinValue));
-                    return new OpenTK.Audio.AudioCapture(DeviceName, frequency, ALFormat.Mono16, captureBufferSize);
-                },
-                capture => Observable.Create<CvMat>(observer =>
-                {
-                    capture.Start();
-                    return new CompositeDisposable(
-                        HighResolutionScheduler.Default.Schedule<int>((int)(BufferLength / 2 + 0.5), TimeSpan.Zero, (interval, self) =>
+            source = Observable.Create<CvMat>(observer =>
+            {
+                var frequency = Frequency;
+                bufferSize = (int)Math.Ceiling(frequency * 0.01);
+                var captureBufferSize = (int)(BufferLength * frequency * 0.001 / BlittableValueType.StrideOf(short.MinValue));
+                var capture = new OpenTK.Audio.AudioCapture(DeviceName, frequency, ALFormat.Mono16, captureBufferSize);
+
+                capture.Start();
+                return new CompositeDisposable(
+                    HighResolutionScheduler.Default.Schedule<int>((int)(BufferLength / 2 + 0.5), TimeSpan.Zero, (interval, self) =>
+                    {
+                        while (capture.AvailableSamples > bufferSize)
                         {
-                            while (capture.AvailableSamples > bufferSize)
-                            {
-                                var buffer = new CvMat(1, bufferSize, CvMatDepth.CV_16S, 1);
-                                capture.ReadSamples(buffer.Data, bufferSize);
-                                observer.OnNext(buffer);
-                            }
-                            self(interval, TimeSpan.FromMilliseconds(interval));
-                        }),
-                        Disposable.Create(capture.Stop));
-                }))
-                .PublishReconnectable()
-                .RefCount();
+                            var buffer = new CvMat(1, bufferSize, CvMatDepth.CV_16S, 1);
+                            capture.ReadSamples(buffer.Data, bufferSize);
+                            observer.OnNext(buffer);
+                        }
+                        self(interval, TimeSpan.FromMilliseconds(interval));
+                    }),
+                    Disposable.Create(capture.Stop),
+                    Disposable.Create(capture.Dispose));
+            })
+            .PublishReconnectable()
+            .RefCount();
         }
 
         [Description("The name of the capture device from which to acquire samples.")]

@@ -19,11 +19,11 @@ namespace Bonsai.Vision
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            return Observable.Create<IplImage>(observer =>
+            return Observable.Defer(() =>
             {
                 IplImage temp = null;
                 IplImage accumulator = null;
-                var process = source.Select(input =>
+                return source.Select(input =>
                 {
                     if (accumulator == null)
                     {
@@ -36,18 +36,7 @@ namespace Bonsai.Vision
                     ImgProc.cvRunningAvg(input, accumulator, Alpha, CvArr.Null);
                     Core.cvConvertScale(temp, output, 1, 0);
                     return output;
-                }).Subscribe(observer);
-
-                var close = Disposable.Create(() =>
-                {
-                    if (accumulator != null)
-                    {
-                        accumulator.Close();
-                        temp.Close();
-                    }
                 });
-
-                return new CompositeDisposable(process, close);
             });
         }
     }

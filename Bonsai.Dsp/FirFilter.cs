@@ -34,7 +34,7 @@ namespace Bonsai.Dsp
 
         public override IObservable<CvMat> Process(IObservable<CvMat> source)
         {
-            return Observable.Create<CvMat>(observer =>
+            return Observable.Defer(() =>
             {
                 CvMat kernel = null;
                 CvMat overlap = null;
@@ -43,33 +43,10 @@ namespace Bonsai.Dsp
                 CvMat overlapStart = null;
                 CvRect overlapOutput = default(CvRect);
                 float[] currentKernel = null;
-
-                Action unloadKernel = () =>
-                {
-                    if (kernel != null)
-                    {
-                        kernel.Dispose();
-                        kernel = null;
-                        currentKernel = null;
-
-                        overlapInput.Close();
-                        if (overlapEnd != null)
-                        {
-                            overlapEnd.Close();
-                            overlapStart.Close();
-                        }
-
-                        overlap.Close();
-                        overlap = overlapInput = null;
-                        overlapEnd = overlapStart = null;
-                    }
-                };
-
-                var process = source.Select(input =>
+                return source.Select(input =>
                 {
                     if (Kernel != currentKernel)
                     {
-                        unloadKernel();
                         currentKernel = Kernel;
                         if (currentKernel != null && currentKernel.Length > 0)
                         {
@@ -100,10 +77,7 @@ namespace Bonsai.Dsp
                         if (overlapEnd != null) Core.cvCopy(overlapEnd, overlapStart);
                         return output.GetSubRect(overlapOutput);
                     }
-                }).Subscribe(observer);
-
-                var close = Disposable.Create(unloadKernel);
-                return new CompositeDisposable(process, close);
+                });
             });
         }
     }

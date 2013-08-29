@@ -50,22 +50,11 @@ namespace Bonsai.Audio
 
         public override IObservable<CvMat> Process(IObservable<CvMat> source)
         {
-            return Observable.Create<CvMat>(observer =>
+            return Observable.Defer(() =>
             {
                 var context = new AudioContext(DeviceName);
                 var sourceId = AL.GenSource();
-
-                var close = Disposable.Create(() =>
-                {
-                    int queuedBuffers;
-                    AL.GetSource(sourceId, ALGetSourcei.BuffersQueued, out queuedBuffers);
-                    ClearBuffers(sourceId, queuedBuffers);
-
-                    AL.DeleteSource(sourceId);
-                    context.Dispose();
-                });
-
-                var process = source.Do(input =>
+                return source.Do(input =>
                 {
                     var buffer = AL.GenBuffer();
                     AL.BufferData(buffer, ALFormat.Mono16, input.Data, input.Rows * input.Step, Frequency);
@@ -77,9 +66,15 @@ namespace Bonsai.Audio
                     }
 
                     ClearBuffers(sourceId,0);
-                }).Subscribe(observer);
+                }).Finally(() =>
+                {
+                    int queuedBuffers;
+                    AL.GetSource(sourceId, ALGetSourcei.BuffersQueued, out queuedBuffers);
+                    ClearBuffers(sourceId, queuedBuffers);
 
-                return new CompositeDisposable(process, close);
+                    AL.DeleteSource(sourceId);
+                    context.Dispose();
+                });
             });
         }
     }

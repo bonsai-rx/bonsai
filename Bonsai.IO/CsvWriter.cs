@@ -193,12 +193,12 @@ namespace Bonsai.IO
 
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
-            return Observable.Create<TSource>(observer =>
+            return Observable.Defer(() =>
             {
                 var processor = new CsvProcessor<TSource>(this);
-                var close = processor.Load();
-                var process = source.Do(input => processor.Process(input)).Subscribe(observer);
-                return new CompositeDisposable(process, close);
+                return Observable.Using(
+                    () => processor.Load(),
+                    resource => source.Do(input => processor.Process(input)));
             });
         }
     }

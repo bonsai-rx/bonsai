@@ -32,7 +32,7 @@ namespace Bonsai.Scripting
 
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
-            return Observable.Create<TSource>(observer =>
+            return Observable.Defer(() =>
             {
                 var scriptTask = new Task(() => { });
                 scriptTask.Start();
@@ -51,19 +51,7 @@ namespace Bonsai.Scripting
                     load();
                 }
 
-                var close = Disposable.Create(() =>
-                {
-                    var unloadAction = unload;
-                    if (unloadAction != null)
-                    {
-                        scriptTask = scriptTask.ContinueWith(task => unloadAction());
-                    }
-
-                    engine.Runtime.IO.OutputWriter.Close();
-                    scriptTask.Wait();
-                });
-
-                var process = source.Do(input =>
+                return source.Do(input =>
                 {
                     if (scriptTask == null) return;
 
@@ -74,9 +62,17 @@ namespace Bonsai.Scripting
                             processAction(input);
                         });
                     }
-                }).Subscribe(observer);
+                }).Finally(() =>
+                {
+                    var unloadAction = unload;
+                    if (unloadAction != null)
+                    {
+                        scriptTask = scriptTask.ContinueWith(task => unloadAction());
+                    }
 
-                return new CompositeDisposable(process, close);
+                    engine.Runtime.IO.OutputWriter.Close();
+                    scriptTask.Wait();
+                });
             });
         }
     }
