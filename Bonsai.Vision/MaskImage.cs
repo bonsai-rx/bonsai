@@ -18,7 +18,7 @@ namespace Bonsai.Vision
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            return Observable.Create<IplImage>(observer =>
+            return Observable.Defer(() =>
             {
                 CvArr mask;
                 if (string.IsNullOrEmpty(FileName))
@@ -26,24 +26,13 @@ namespace Bonsai.Vision
                     mask = CvArr.Null;
                 }
                 else mask = HighGui.cvLoadImage(FileName, LoadImageMode.Grayscale);
-
-                var process = source.Select(input =>
+                return source.Select(input =>
                 {
                     var output = new IplImage(input.Size, input.Depth, input.NumChannels);
                     output.SetZero();
                     Core.cvCopy(input, output, mask);
                     return output;
-                }).Subscribe(observer);
-
-                var close = Disposable.Create(() =>
-                {
-                    if (mask != null && mask != CvArr.Null)
-                    {
-                        mask.Close();
-                    }
                 });
-
-                return new CompositeDisposable(process, close);
             });
         }
     }

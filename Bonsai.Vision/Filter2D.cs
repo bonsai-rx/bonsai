@@ -34,26 +34,14 @@ namespace Bonsai.Vision
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            return Observable.Create<IplImage>(observer =>
+            return Observable.Defer(() =>
             {
                 CvMat kernel = null;
                 float[,] currentKernel = null;
-
-                Action unloadKernel = () =>
-                {
-                    if (kernel != null)
-                    {
-                        kernel.Dispose();
-                        kernel = null;
-                        currentKernel = null;
-                    }
-                };
-
-                var process = source.Select(input =>
+                return source.Select(input =>
                 {
                     if (Kernel != currentKernel)
                     {
-                        unloadKernel();
                         currentKernel = Kernel;
                         if (currentKernel != null && currentKernel.Length > 0)
                         {
@@ -79,10 +67,7 @@ namespace Bonsai.Vision
                         ImgProc.cvFilter2D(input, output, kernel, Anchor);
                         return output;
                     }
-                }).Subscribe(observer);
-
-                var close = Disposable.Create(unloadKernel);
-                return new CompositeDisposable(process, close);
+                });
             });
         }
     }

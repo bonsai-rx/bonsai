@@ -23,14 +23,13 @@ namespace Bonsai.Vision
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            return Observable.Create<IplImage>(observer =>
+            return Observable.Defer(() =>
             {
                 IplImage channel1 = null;
                 IplImage channel2 = null;
                 IplImage channel3 = null;
                 IplImage channel4 = null;
-
-                var process = source.Select(input =>
+                return source.Select(input =>
                 {
                     channel1 = IplImageHelper.EnsureImageFormat(channel1, input.Size, 8, 1);
                     if (input.NumChannels > 1) channel2 = IplImageHelper.EnsureImageFormat(channel2, input.Size, 8, 1);
@@ -46,32 +45,7 @@ namespace Bonsai.Vision
                     if (channel4 != null) Core.cvConvertScale(channel4, channel4, Scale.Val3, 0);
                     Core.cvMerge(channel1, channel2 ?? CvArr.Null, channel3 ?? CvArr.Null, channel4 ?? CvArr.Null, output);
                     return output;
-                }).Subscribe(observer);
-
-                var close = Disposable.Create(() =>
-                {
-                    if (channel1 != null)
-                    {
-                        channel1.Close();
-                    }
-
-                    if (channel2 != null)
-                    {
-                        channel2.Close();
-                    }
-
-                    if (channel3 != null)
-                    {
-                        channel3.Close();
-                    }
-
-                    if (channel4 != null)
-                    {
-                        channel4.Close();
-                    }
                 });
-
-                return new CompositeDisposable(process, close);
             });
         }
     }

@@ -12,11 +12,10 @@ namespace Bonsai.Vision
     {
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            return Observable.Create<IplImage>(observer =>
+            return Observable.Defer(() =>
             {
                 IplImage sum = null;
-
-                var process = source.Select(input =>
+                return source.Select(input =>
                 {
                     var output = new IplImage(input.Size, input.Depth, input.NumChannels);
                     sum = IplImageHelper.EnsureImageFormat(sum, input.Size, 32, input.NumChannels);
@@ -24,17 +23,7 @@ namespace Bonsai.Vision
                     if (sum.Depth == input.Depth) Core.cvCopy(sum, output);
                     else Core.cvConvert(sum, output);
                     return output;
-                }).Subscribe(observer);
-
-                var close = Disposable.Create(() =>
-                {
-                    if (sum != null)
-                    {
-                        sum.Dispose();
-                    }
                 });
-
-                return new CompositeDisposable(process, close);
             });
         }
     }

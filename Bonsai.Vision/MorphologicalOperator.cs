@@ -71,14 +71,13 @@ namespace Bonsai.Vision
                 handler => PropertyChanged += new EventHandler(handler),
                 handler => PropertyChanged -= new EventHandler(handler));
 
-            return Observable.Create<IplImage>(observer =>
+            return Observable.Defer(() =>
             {
                 IplImage temp = null;
                 IplConvKernel strel = null;
                 bool updateStrel = false;
-                var update = propertyChanged.Do(xs => updateStrel = true).Subscribe();
-
-                var process = source.Select(input =>
+                var update = propertyChanged.Subscribe(xs => updateStrel = true);
+                return source.Select(input =>
                 {
                     if (strel == null || updateStrel)
                     {
@@ -91,22 +90,7 @@ namespace Bonsai.Vision
                     temp = IplImageHelper.EnsureImageFormat(temp, input.Size, input.Depth, input.NumChannels);
                     ImgProc.cvMorphologyEx(input, output, temp, strel, Operation, Iterations);
                     return output;
-                }).Subscribe(observer);
-
-                var close = Disposable.Create(() =>
-                {
-                    if (strel != null)
-                    {
-                        strel.Close();
-                    }
-
-                    if (temp != null)
-                    {
-                        temp.Close();
-                    }
-                });
-
-                return new CompositeDisposable(update, process, close);
+                }).Finally(update.Dispose);
             });
         }
     }

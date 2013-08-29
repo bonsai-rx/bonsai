@@ -12,12 +12,11 @@ namespace Bonsai.Vision
     {
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            return Observable.Create<IplImage>(observer =>
+            return Observable.Defer(() =>
             {
                 var count = 0;
                 IplImage mean = null;
-
-                var process = source.Select(input =>
+                return source.Select(input =>
                 {
                     if (mean == null)
                     {
@@ -31,17 +30,7 @@ namespace Bonsai.Vision
                     Core.cvAdd(mean, output, mean, CvArr.Null);
                     Core.cvCopy(mean, output, CvArr.Null);
                     return output;
-                }).Subscribe(observer);
-
-                var close = Disposable.Create(() =>
-                {
-                    if (mean != null)
-                    {
-                        mean.Close();
-                    }
                 });
-
-                return new CompositeDisposable(process, close);
             });
         }
     }

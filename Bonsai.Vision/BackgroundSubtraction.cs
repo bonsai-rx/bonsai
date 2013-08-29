@@ -52,14 +52,13 @@ namespace Bonsai.Vision
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            return Observable.Create<IplImage>(observer =>
+            return Observable.Defer(() =>
             {
                 IplImage image = null;
                 IplImage difference = null;
                 IplImage background = null;
                 int averageCount = 0;
-
-                var process = source.Select(input =>
+                return source.Select(input =>
                 {
                     if (averageCount == 0)
                     {
@@ -106,20 +105,7 @@ namespace Bonsai.Vision
                     }
 
                     return output;
-                }).Subscribe(observer);
-
-                var close = Disposable.Create(() =>
-                {
-                    averageCount = 0;
-                    if (background != null)
-                    {
-                        image.Close();
-                        difference.Close();
-                        background.Close();
-                    }
                 });
-
-                return new CompositeDisposable(process, close);
             });
         }
     }

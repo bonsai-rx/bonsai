@@ -31,13 +31,12 @@ namespace Bonsai.Vision
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            return Observable.Create<IplImage>(observer =>
+            return Observable.Defer(() =>
             {
                 CvPoint2D32f[] currentSource = null;
                 CvPoint2D32f[] currentDestination = null;
                 var mapMatrix = new CvMat(3, 3, CvMatDepth.CV_32F, 1);
-
-                var process = source.Select(input =>
+                return source.Select(input =>
                 {
                     var output = new IplImage(input.Size, input.Depth, input.NumChannels);
                     Source = Source ?? InitializeQuadrangle(output);
@@ -52,11 +51,7 @@ namespace Bonsai.Vision
 
                     ImgProc.cvWarpPerspective(input, output, mapMatrix, WarpFlags.Linear | WarpFlags.FillOutliers, CvScalar.All(0));
                     return output;
-                }).Subscribe(observer);
-
-                var close = Disposable.Create(mapMatrix.Close);
-
-                return new CompositeDisposable(process, close);
+                });
             });
         }
     }

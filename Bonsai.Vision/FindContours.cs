@@ -31,11 +31,10 @@ namespace Bonsai.Vision
 
         public override IObservable<Contours> Process(IObservable<IplImage> source)
         {
-            return Observable.Create<Contours>(observer =>
+            return Observable.Defer(() =>
             {
                 IplImage temp = null;
-
-                var process = source.Select(input =>
+                return source.Select(input =>
                 {
                     CvSeq currentContour;
                     temp = IplImageHelper.EnsureImageFormat(temp, input.Size, 8, 1);
@@ -52,17 +51,7 @@ namespace Bonsai.Vision
                     }
 
                     return new Contours(scanner.EndFindContours(), input.Size);
-                }).Subscribe(observer);
-
-                var close = Disposable.Create(() =>
-                {
-                    if (temp != null)
-                    {
-                        temp.Close();
-                    }
                 });
-
-                return new CompositeDisposable(process, close);
             });
         }
     }

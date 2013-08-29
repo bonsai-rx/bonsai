@@ -24,13 +24,12 @@ namespace Bonsai.Vision
 
         public override IObservable<KeyPointCollection> Process(IObservable<IplImage> source)
         {
-            return Observable.Create<KeyPointCollection>(observer =>
+            return Observable.Defer(() =>
             {
                 IplImage temp = null;
                 IplImage eigen = null;
                 CvPoint2D32f[] corners = null;
-
-                var process = source.Select(input =>
+                return source.Select(input =>
                 {
                     var result = new KeyPointCollection(input);
                     temp = IplImageHelper.EnsureImageFormat(temp, input.Size, 32, 1);
@@ -48,18 +47,7 @@ namespace Bonsai.Vision
                     }
 
                     return result;
-                }).Subscribe(observer);
-
-                var close = Disposable.Create(() =>
-                {
-                    if (temp != null)
-                    {
-                        temp.Close();
-                        eigen.Close();
-                    }
                 });
-
-                return new CompositeDisposable(process, close);
             });
         }
     }

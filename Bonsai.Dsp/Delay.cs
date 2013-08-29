@@ -14,12 +14,11 @@ namespace Bonsai.Dsp
 
         public override IObservable<CvMat> Process(IObservable<CvMat> source)
         {
-            return Observable.Create<CvMat>(observer =>
+            return Observable.Defer(() =>
             {
                 int bufferIndex = 0;
                 Queue<CvMat> buffer = null;
-
-                var process = source.Select(input =>
+                return source.Select(input =>
                 {
                     if (buffer == null)
                     {
@@ -50,9 +49,7 @@ namespace Bonsai.Dsp
                     }
 
                     return output;
-                }).Subscribe(observer);
-
-                return process;
+                });
             });
         }
     }
