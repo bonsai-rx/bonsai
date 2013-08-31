@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -14,6 +15,11 @@ namespace Bonsai.Design
         const int WM_MOUSELEAVE = 0x02a3;
         const int WM_NOTIFY = 0x004e;
         const int TVS_NOHSCROLL = 0x8000;
+
+        public PackageView()
+        {
+            DrawMode = TreeViewDrawMode.OwnerDrawText;
+        }
 
         protected override CreateParams CreateParams
         {
@@ -38,6 +44,25 @@ namespace Bonsai.Design
             }
 
             base.WndProc(ref m);
+        }
+
+        protected override void OnDrawNode(DrawTreeNodeEventArgs e)
+        {
+            var color = (e.State & TreeNodeStates.Focused) != 0 ? SystemColors.HighlightText : SystemColors.WindowText;
+            var bounds = e.Bounds;
+            bounds.Width = Width - bounds.X;
+            var bold = new Font(Font, FontStyle.Bold);
+
+            var lines = e.Node.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            TextRenderer.DrawText(e.Graphics, lines[0], bold, bounds, color, TextFormatFlags.WordBreak);
+
+            if (lines.Length > 1)
+            {
+                bounds.Y += TextRenderer.MeasureText(lines[0], bold, bounds.Size, TextFormatFlags.WordBreak).Height;
+                TextRenderer.DrawText(e.Graphics, lines[1], Font, bounds, color, TextFormatFlags.WordBreak);
+            }
+
+            base.OnDrawNode(e);
         }
     }
 }
