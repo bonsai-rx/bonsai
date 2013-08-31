@@ -90,6 +90,12 @@
     <Compile Include="PackageManagerDialog.Designer.cs">
       <DependentUpon>PackageManagerDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="PackagePageSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PackagePageSelector.Designer.cs">
+      <DependentUpon>PackagePageSelector.cs</DependentUpon>
+    </Compile>
     <Compile Include="PackageView.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -165,6 +171,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="PackageManagerDialog.resx">
       <DependentUpon>PackageManagerDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PackagePageSelector.resx">
+      <DependentUpon>PackagePageSelector.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TypeVisualizerDialog.resx">
       <DependentUpon>TypeVisualizerDialog.cs</DependentUpon>

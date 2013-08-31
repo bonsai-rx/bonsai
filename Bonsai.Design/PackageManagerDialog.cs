@@ -16,6 +16,8 @@ namespace Bonsai.Design
 {
     public partial class PackageManagerDialog : Form
     {
+        bool loaded;
+        const int PackagesPerPage = 10;
         static readonly Uri PackageDefaultIconUrl = new Uri("https://www.nuget.org/Content/Images/packageDefaultIcon.png");
         readonly IPackageRepository packageRepository;
         readonly IPackageManager packageManager;
@@ -31,7 +33,34 @@ namespace Bonsai.Design
         {
             releaseFilterComboBox.SelectedIndex = 0;
             sortComboBox.SelectedIndex = 0;
+            UpdatePackageFeed();
+            Observable.FromEventPattern<EventArgs>(
+                handler => searchComboBox.TextChanged += new EventHandler(handler),
+                handler => searchComboBox.TextChanged -= new EventHandler(handler))
+                .Throttle(TimeSpan.FromSeconds(1))
+                .ObserveOn(this)
+                .Subscribe(evt => UpdatePackageFeed());
+
+            loaded = true;
             base.OnLoad(e);
+        }
+
+        IQueryable<IPackage> GetPackageFeed()
+        {
+            var stableOnly = releaseFilterComboBox.SelectedIndex == 0;
+            var packages = packageRepository
+                .Search(searchComboBox.Text, stableOnly)
+                .Where(p => p.IsLatestVersion);
+            switch (sortComboBox.SelectedIndex)
+            {
+                case 0: packages = packages.OrderByDescending(p => p.DownloadCount); break;
+                case 1: packages = packages.OrderByDescending(p => p.Published); break;
+                case 2: packages = packages.OrderBy(p => p.Title); break;
+                case 3: packages = packages.OrderByDescending(p => p.Title); break;
+                default: throw new InvalidOperationException("Invalid sort option");
+            }
+
+            return packages;
         }
 
         IObservable<Image> GetPackageIcon(Uri iconUrl)
@@ -71,21 +100,31 @@ namespace Bonsai.Design
             }
         }
 
-        private void packageView_DrawNode(object sender, DrawTreeNodeEventArgs e)
+        private void UpdatePackagePage()
         {
-            var color = (e.State & TreeNodeStates.Focused) != 0 ? SystemColors.HighlightText : SystemColors.WindowText;
-            var bounds = e.Bounds;
-            bounds.Width = packageView.Width - bounds.X;
-            var bold = new Font(packageView.Font, FontStyle.Bold);
+            packageView.Nodes.Clear();
+            packageIcons.Images.Clear();
 
-            var lines = e.Node.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-            TextRenderer.DrawText(e.Graphics, lines[0], bold, bounds, color, TextFormatFlags.WordBreak);
-
-            if (lines.Length > 1)
+            if (packagePageSelector.PageCount > 0)
             {
-                bounds.Y += TextRenderer.MeasureText(lines[0], bold).Height;
-                TextRenderer.DrawText(e.Graphics, lines[1], packageView.Font, bounds, color, TextFormatFlags.WordBreak);
+                var packages = GetPackageFeed()
+                    .Skip(packagePageSelector.SelectedIndex * PackagesPerPage)
+                    .Take(PackagesPerPage);
+
+                packages.ToObservable()
+                        .SubscribeOn(NewThreadScheduler.Default)
+                        .ObserveOn(this)
+                        .Subscribe(package => AddPackage(package));
             }
+            else packageView.Nodes.Add("No items found.");
+        }
+
+        private void UpdatePackageFeed()
+        {
+            var packages = GetPackageFeed();
+            Observable.Start(() => packages.Count())
+                .ObserveOn(this)
+                .Subscribe(count => packagePageSelector.PageCount = count / PackagesPerPage);
         }
 
         protected override void OnResizeBegin(EventArgs e)
@@ -108,28 +147,15 @@ namespace Bonsai.Design
 
         private void filterComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var packages = packageRepository.GetPackages();
-            switch (sortComboBox.SelectedIndex)
+            if (loaded)
             {
-                case 0: packages = packages.OrderByDescending(p => p.DownloadCount); break;
-                case 1: packages = packages.OrderByDescending(p => p.Published); break;
-                case 2: packages = packages.OrderBy(p => p.Title); break;
-                case 3: packages = packages.OrderByDescending(p => p.Title); break;
-                default: return;
+                UpdatePackageFeed();
             }
+        }
 
-            packageView.Nodes.Clear();
-            packageIcons.Images.Clear();
-
-            var running = true;
-            var stableOnly = releaseFilterComboBox.SelectedIndex == 0;
-            packages.ToObservable()
-                    .TakeWhile(p => running)
-                    .Where(p => p.IsListed() && (!stableOnly || p.IsReleaseVersion()))
-                    .SubscribeOn(NewThreadScheduler.Default)
-                    .ObserveOn(this)
-                    .TakeWhile(p => packageView.Nodes.Count < 10)
-                    .Subscribe(package => AddPackage(package), () => running = false);
+        private void packagePageSelector_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            UpdatePackagePage();
         }
     }
 }
