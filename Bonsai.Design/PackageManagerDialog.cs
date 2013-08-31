@@ -16,9 +16,15 @@ namespace Bonsai.Design
 {
     public partial class PackageManagerDialog : Form
     {
-        bool loaded;
         const int PackagesPerPage = 10;
+        const string SortByMostDownloads = "Most Downloads";
+        const string SortByPublishedDate = "Published Date";
+        const string SortByNameAscending = "Name: Ascending";
+        const string SortByNameDescending = "Name: Descending";
+        const string SortByRelevance = "Relevance";
         static readonly Uri PackageDefaultIconUrl = new Uri("https://www.nuget.org/Content/Images/packageDefaultIcon.png");
+
+        bool loaded;
         readonly IPackageRepository packageRepository;
         readonly IPackageManager packageManager;
 
@@ -31,6 +37,10 @@ namespace Bonsai.Design
 
         protected override void OnLoad(EventArgs e)
         {
+            sortComboBox.Items.Add(SortByMostDownloads);
+            sortComboBox.Items.Add(SortByPublishedDate);
+            sortComboBox.Items.Add(SortByNameAscending);
+            sortComboBox.Items.Add(SortByNameDescending);
             releaseFilterComboBox.SelectedIndex = 0;
             sortComboBox.SelectedIndex = 0;
             UpdatePackageFeed();
@@ -39,7 +49,16 @@ namespace Bonsai.Design
                 handler => searchComboBox.TextChanged -= new EventHandler(handler))
                 .Throttle(TimeSpan.FromSeconds(1))
                 .ObserveOn(this)
-                .Subscribe(evt => UpdatePackageFeed());
+                .Subscribe(evt =>
+                {
+                    if (!string.IsNullOrWhiteSpace(searchComboBox.Text))
+                    {
+                        sortComboBox.Items.Insert(0, SortByRelevance);
+                    }
+                    else sortComboBox.Items.Remove(SortByRelevance);
+                    sortComboBox.SelectedIndex = 0;
+                    UpdatePackageFeed();
+                });
 
             loaded = true;
             base.OnLoad(e);
@@ -51,12 +70,13 @@ namespace Bonsai.Design
             var packages = packageRepository
                 .Search(searchComboBox.Text, stableOnly)
                 .Where(p => p.IsLatestVersion);
-            switch (sortComboBox.SelectedIndex)
+            switch ((string)sortComboBox.SelectedItem)
             {
-                case 0: packages = packages.OrderByDescending(p => p.DownloadCount); break;
-                case 1: packages = packages.OrderByDescending(p => p.Published); break;
-                case 2: packages = packages.OrderBy(p => p.Title); break;
-                case 3: packages = packages.OrderByDescending(p => p.Title); break;
+                case SortByRelevance: break;
+                case SortByMostDownloads: packages = packages.OrderByDescending(p => p.DownloadCount); break;
+                case SortByPublishedDate: packages = packages.OrderByDescending(p => p.Published); break;
+                case SortByNameAscending: packages = packages.OrderBy(p => p.Title); break;
+                case SortByNameDescending: packages = packages.OrderByDescending(p => p.Title); break;
                 default: throw new InvalidOperationException("Invalid sort option");
             }
 
@@ -75,7 +95,8 @@ namespace Bonsai.Design
                         () => iconUrl == null ||
                               response.ContentType.StartsWith("image/") ||
                               response.ContentType.StartsWith("application/octet-stream"),
-                        Observable.Defer(() => Observable.Return(Image.FromStream(response.GetResponseStream()))),
+                        Observable.Defer(() =>
+                            Observable.Return(new Bitmap(Image.FromStream(response.GetResponseStream()), packageIcons.ImageSize))),
                         GetPackageIcon(null))
                     select image)
                     .Catch<Image, WebException>(ex => GetPackageIcon(null));
