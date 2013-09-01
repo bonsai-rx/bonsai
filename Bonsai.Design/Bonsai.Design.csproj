@@ -33,12 +33,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Web.XmlTransform">
-      <HintPath>..\packages\Microsoft.Web.Xdt.1.0.0\lib\net40\Microsoft.Web.XmlTransform.dll</HintPath>
-    </Reference>
-    <Reference Include="NuGet.Core">
-      <HintPath>..\packages\NuGet.Core.2.7.0\lib\net40-Client\NuGet.Core.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Design" />
@@ -54,10 +48,6 @@
     <Reference Include="System.Reactive.Linq, Version=2.1.30214.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Rx-Linq.2.1.30214.0\lib\Net40\System.Reactive.Linq.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.PlatformServices, Version=2.1.30214.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Rx-PlatformServices.2.1.30214.0\lib\Net40\System.Reactive.PlatformServices.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
@@ -78,27 +68,6 @@
     <Compile Include="FolderNameEditor.cs" />
     <Compile Include="MashupTypeVisualizer.cs" />
     <Compile Include="ITypeVisualizerContext.cs" />
-    <Compile Include="PackageDetails.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="PackageDetails.Designer.cs">
-      <DependentUpon>PackageDetails.cs</DependentUpon>
-    </Compile>
-    <Compile Include="PackageManagerDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="PackageManagerDialog.Designer.cs">
-      <DependentUpon>PackageManagerDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="PackagePageSelector.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="PackagePageSelector.Designer.cs">
-      <DependentUpon>PackagePageSelector.cs</DependentUpon>
-    </Compile>
-    <Compile Include="PackageView.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="SeekBar.cs">
       <SubType>Component</SubType>
@@ -165,15 +134,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="MemberSelectorEditorDialog.resx">
       <DependentUpon>MemberSelectorEditorDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="PackageDetails.resx">
-      <DependentUpon>PackageDetails.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="PackageManagerDialog.resx">
-      <DependentUpon>PackageManagerDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="PackagePageSelector.resx">
-      <DependentUpon>PackagePageSelector.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TypeVisualizerDialog.resx">
       <DependentUpon>TypeVisualizerDialog.cs</DependentUpon>
