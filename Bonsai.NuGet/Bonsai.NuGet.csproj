@@ -72,6 +72,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EventLogger.cs" />
+    <Compile Include="LogEventArgs.cs" />
     <Compile Include="PackageDetails.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -109,8 +111,14 @@
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="LicenseAcceptanceDialog.resx">
+      <DependentUpon>LicenseAcceptanceDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="PackageDetails.resx">
       <DependentUpon>PackageDetails.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PackageInstallDialog.resx">
+      <DependentUpon>PackageInstallDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="PackageManagerDialog.resx">
       <DependentUpon>PackageManagerDialog.cs</DependentUpon>
