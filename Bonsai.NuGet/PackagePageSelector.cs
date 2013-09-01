@@ -8,7 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Collections.ObjectModel;
 
-namespace Bonsai.Design
+namespace Bonsai.NuGet
 {
     partial class PackagePageSelector : UserControl
     {

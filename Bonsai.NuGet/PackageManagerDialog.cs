@@ -8,11 +8,12 @@ using System.Linq;
 using System.Net;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Bonsai.Design
+namespace Bonsai.NuGet
 {
     public partial class PackageManagerDialog : Form
     {
@@ -64,11 +65,15 @@ namespace Bonsai.Design
             base.OnLoad(e);
         }
 
+        bool AllowPrereleaseVersions
+        {
+            get { return releaseFilterComboBox.SelectedIndex == 1; }
+        }
+
         IQueryable<IPackage> GetPackageFeed()
         {
-            var stableOnly = releaseFilterComboBox.SelectedIndex == 0;
             var packages = packageRepository
-                .Search(searchComboBox.Text, stableOnly)
+                .Search(searchComboBox.Text, AllowPrereleaseVersions)
                 .Where(p => p.IsLatestVersion);
             switch ((string)sortComboBox.SelectedItem)
             {
@@ -107,7 +112,11 @@ namespace Bonsai.Design
             if (!packageView.Nodes.ContainsKey(package.Id))
             {
                 var nodeTitle = !string.IsNullOrWhiteSpace(package.Title) ? package.Title : package.Id;
-                var nodeText = string.Join(Environment.NewLine, nodeTitle, package.Description);
+                var nodeText = string.Join(
+                    Environment.NewLine, nodeTitle,
+                    package.Summary ?? package.Description.Split(
+                        new[] { Environment.NewLine, "\n", "\r" },
+                        StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
                 var node = packageView.Nodes.Add(package.Id, nodeText);
                 node.Tag = package;
 
@@ -148,6 +157,28 @@ namespace Bonsai.Design
                 .Subscribe(count => packagePageSelector.PageCount = count / PackagesPerPage);
         }
 
+        private bool IsPackageLicenseAcceptanceRequired(IPackage package)
+        {
+            return package.RequireLicenseAcceptance;
+        }
+
+        private IEnumerable<IPackage> GetPackageLicenseRequirements(IPackage package, bool allowPrereleaseVersions)
+        {
+            if (IsPackageLicenseAcceptanceRequired(package))
+            {
+                yield return package;
+            }
+
+            foreach (var dependency in package.GetCompatiblePackageDependencies(new FrameworkName("net40")))
+            {
+                var dependencyPackage = packageRepository.FindPackage(dependency.Id, dependency.VersionSpec, allowPrereleaseVersions, false);
+                foreach (var requirement in GetPackageLicenseRequirements(dependencyPackage, allowPrereleaseVersions))
+                {
+                    yield return requirement;
+                }
+            }
+        }
+
         protected override void OnResizeBegin(EventArgs e)
         {
             packageView.BeginUpdate();
@@ -177,6 +208,15 @@ namespace Bonsai.Design
         private void packagePageSelector_SelectedIndexChanged(object sender, EventArgs e)
         {
             UpdatePackagePage();
+        }
+
+        private void packageView_InstallClick(object sender, TreeViewEventArgs e)
+        {
+            var package = (IPackage)e.Node.Tag;
+            if (package != null)
+            {
+                packageManager.InstallPackage(package, false, AllowPrereleaseVersions, false);
+            }
         }
     }
 }

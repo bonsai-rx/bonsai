@@ -1,4 +1,4 @@
-﻿namespace Bonsai.Design
+﻿namespace Bonsai.NuGet
 {
     partial class PackageManagerDialog
     {
@@ -30,19 +30,19 @@
         {
             this.mainLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.packageViewLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.packageView = new Bonsai.Design.PackageView();
             this.packageIcons = new System.Windows.Forms.ImageList();
             this.filterLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.releaseFilterComboBox = new System.Windows.Forms.ComboBox();
             this.sortLabel = new System.Windows.Forms.Label();
             this.sortComboBox = new System.Windows.Forms.ComboBox();
             this.pageSelectorPanel = new System.Windows.Forms.Panel();
-            this.packagePageSelector = new Bonsai.Design.PackagePageSelector();
             this.detailsLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.searchLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.searchComboBox = new System.Windows.Forms.ComboBox();
-            this.packageDetails = new Bonsai.Design.PackageDetails();
             this.repositoriesView = new System.Windows.Forms.TreeView();
+            this.packageView = new Bonsai.NuGet.PackageView();
+            this.packagePageSelector = new Bonsai.NuGet.PackagePageSelector();
+            this.packageDetails = new Bonsai.NuGet.PackageDetails();
             this.mainLayoutPanel.SuspendLayout();
             this.packageViewLayoutPanel.SuspendLayout();
             this.filterLayoutPanel.SuspendLayout();
@@ -54,9 +54,9 @@
             // mainLayoutPanel
             // 
             this.mainLayoutPanel.ColumnCount = 3;
-            this.mainLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 31.72269F));
-            this.mainLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 68.27731F));
-            this.mainLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 306F));
+            this.mainLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 225F));
+            this.mainLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.mainLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 253F));
             this.mainLayoutPanel.Controls.Add(this.packageViewLayoutPanel, 1, 0);
             this.mainLayoutPanel.Controls.Add(this.detailsLayoutPanel, 2, 0);
             this.mainLayoutPanel.Controls.Add(this.repositoriesView, 0, 0);
@@ -65,7 +65,7 @@
             this.mainLayoutPanel.Name = "mainLayoutPanel";
             this.mainLayoutPanel.RowCount = 1;
             this.mainLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.mainLayoutPanel.Size = new System.Drawing.Size(784, 361);
+            this.mainLayoutPanel.Size = new System.Drawing.Size(804, 546);
             this.mainLayoutPanel.TabIndex = 0;
             // 
             // packageViewLayoutPanel
@@ -76,31 +76,14 @@
             this.packageViewLayoutPanel.Controls.Add(this.filterLayoutPanel, 0, 0);
             this.packageViewLayoutPanel.Controls.Add(this.pageSelectorPanel, 0, 2);
             this.packageViewLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.packageViewLayoutPanel.Location = new System.Drawing.Point(154, 3);
+            this.packageViewLayoutPanel.Location = new System.Drawing.Point(228, 3);
             this.packageViewLayoutPanel.Name = "packageViewLayoutPanel";
             this.packageViewLayoutPanel.RowCount = 3;
             this.packageViewLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.packageViewLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.packageViewLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-            this.packageViewLayoutPanel.Size = new System.Drawing.Size(320, 355);
+            this.packageViewLayoutPanel.Size = new System.Drawing.Size(320, 540);
             this.packageViewLayoutPanel.TabIndex = 2;
-            // 
-            // packageView
-            // 
-            this.packageView.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(246)))), ((int)(((byte)(246)))));
-            this.packageView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.packageView.DrawMode = System.Windows.Forms.TreeViewDrawMode.OwnerDrawText;
-            this.packageView.FullRowSelect = true;
-            this.packageView.ImageIndex = 0;
-            this.packageView.ImageList = this.packageIcons;
-            this.packageView.ItemHeight = 64;
-            this.packageView.Location = new System.Drawing.Point(3, 33);
-            this.packageView.Name = "packageView";
-            this.packageView.SelectedImageIndex = 0;
-            this.packageView.ShowRootLines = false;
-            this.packageView.Size = new System.Drawing.Size(314, 279);
-            this.packageView.TabIndex = 0;
-            this.packageView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.packageView_AfterSelect);
             // 
             // packageIcons
             // 
@@ -155,10 +138,71 @@
             // 
             this.pageSelectorPanel.Controls.Add(this.packagePageSelector);
             this.pageSelectorPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pageSelectorPanel.Location = new System.Drawing.Point(3, 318);
+            this.pageSelectorPanel.Location = new System.Drawing.Point(3, 503);
             this.pageSelectorPanel.Name = "pageSelectorPanel";
             this.pageSelectorPanel.Size = new System.Drawing.Size(314, 34);
             this.pageSelectorPanel.TabIndex = 2;
+            // 
+            // detailsLayoutPanel
+            // 
+            this.detailsLayoutPanel.ColumnCount = 1;
+            this.detailsLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.detailsLayoutPanel.Controls.Add(this.searchLayoutPanel, 0, 0);
+            this.detailsLayoutPanel.Controls.Add(this.packageDetails, 0, 1);
+            this.detailsLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.detailsLayoutPanel.Location = new System.Drawing.Point(554, 3);
+            this.detailsLayoutPanel.Name = "detailsLayoutPanel";
+            this.detailsLayoutPanel.RowCount = 2;
+            this.detailsLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.detailsLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.detailsLayoutPanel.Size = new System.Drawing.Size(247, 540);
+            this.detailsLayoutPanel.TabIndex = 3;
+            // 
+            // searchLayoutPanel
+            // 
+            this.searchLayoutPanel.Controls.Add(this.searchComboBox);
+            this.searchLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.searchLayoutPanel.Location = new System.Drawing.Point(3, 3);
+            this.searchLayoutPanel.Name = "searchLayoutPanel";
+            this.searchLayoutPanel.Size = new System.Drawing.Size(241, 24);
+            this.searchLayoutPanel.TabIndex = 0;
+            // 
+            // searchComboBox
+            // 
+            this.searchComboBox.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+            this.searchComboBox.FormattingEnabled = true;
+            this.searchComboBox.Location = new System.Drawing.Point(3, 3);
+            this.searchComboBox.Name = "searchComboBox";
+            this.searchComboBox.Size = new System.Drawing.Size(147, 21);
+            this.searchComboBox.TabIndex = 0;
+            // 
+            // repositoriesView
+            // 
+            this.repositoriesView.BackColor = System.Drawing.SystemColors.Control;
+            this.repositoriesView.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.repositoriesView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.repositoriesView.Location = new System.Drawing.Point(3, 3);
+            this.repositoriesView.Name = "repositoriesView";
+            this.repositoriesView.Size = new System.Drawing.Size(219, 540);
+            this.repositoriesView.TabIndex = 4;
+            // 
+            // packageView
+            // 
+            this.packageView.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(246)))), ((int)(((byte)(246)))));
+            this.packageView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.packageView.DrawMode = System.Windows.Forms.TreeViewDrawMode.OwnerDrawText;
+            this.packageView.FullRowSelect = true;
+            this.packageView.ImageIndex = 0;
+            this.packageView.ImageList = this.packageIcons;
+            this.packageView.ItemHeight = 64;
+            this.packageView.Location = new System.Drawing.Point(3, 33);
+            this.packageView.Name = "packageView";
+            this.packageView.SelectedImageIndex = 0;
+            this.packageView.ShowRootLines = false;
+            this.packageView.Size = new System.Drawing.Size(314, 464);
+            this.packageView.TabIndex = 0;
+            this.packageView.InstallClick += new System.Windows.Forms.TreeViewEventHandler(this.packageView_InstallClick);
+            this.packageView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.packageView_AfterSelect);
             // 
             // packagePageSelector
             // 
@@ -171,64 +215,21 @@
             this.packagePageSelector.TabIndex = 0;
             this.packagePageSelector.SelectedIndexChanged += new System.EventHandler(this.packagePageSelector_SelectedIndexChanged);
             // 
-            // detailsLayoutPanel
-            // 
-            this.detailsLayoutPanel.ColumnCount = 1;
-            this.detailsLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.detailsLayoutPanel.Controls.Add(this.searchLayoutPanel, 0, 0);
-            this.detailsLayoutPanel.Controls.Add(this.packageDetails, 0, 1);
-            this.detailsLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.detailsLayoutPanel.Location = new System.Drawing.Point(480, 3);
-            this.detailsLayoutPanel.Name = "detailsLayoutPanel";
-            this.detailsLayoutPanel.RowCount = 2;
-            this.detailsLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.detailsLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.detailsLayoutPanel.Size = new System.Drawing.Size(301, 355);
-            this.detailsLayoutPanel.TabIndex = 3;
-            // 
-            // searchLayoutPanel
-            // 
-            this.searchLayoutPanel.Controls.Add(this.searchComboBox);
-            this.searchLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.searchLayoutPanel.Location = new System.Drawing.Point(3, 3);
-            this.searchLayoutPanel.Name = "searchLayoutPanel";
-            this.searchLayoutPanel.Size = new System.Drawing.Size(295, 24);
-            this.searchLayoutPanel.TabIndex = 0;
-            // 
-            // searchComboBox
-            // 
-            this.searchComboBox.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-            this.searchComboBox.FormattingEnabled = true;
-            this.searchComboBox.Location = new System.Drawing.Point(3, 3);
-            this.searchComboBox.Name = "searchComboBox";
-            this.searchComboBox.Size = new System.Drawing.Size(147, 21);
-            this.searchComboBox.TabIndex = 0;
-            // 
             // packageDetails
             // 
             this.packageDetails.Dock = System.Windows.Forms.DockStyle.Fill;
             this.packageDetails.Location = new System.Drawing.Point(3, 33);
             this.packageDetails.Name = "packageDetails";
-            this.packageDetails.Size = new System.Drawing.Size(295, 319);
+            this.packageDetails.Size = new System.Drawing.Size(241, 504);
             this.packageDetails.TabIndex = 1;
-            // 
-            // repositoriesView
-            // 
-            this.repositoriesView.BackColor = System.Drawing.SystemColors.Control;
-            this.repositoriesView.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.repositoriesView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.repositoriesView.Location = new System.Drawing.Point(3, 3);
-            this.repositoriesView.Name = "repositoriesView";
-            this.repositoriesView.Size = new System.Drawing.Size(145, 355);
-            this.repositoriesView.TabIndex = 4;
             // 
             // PackageManagerDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 361);
+            this.ClientSize = new System.Drawing.Size(804, 546);
             this.Controls.Add(this.mainLayoutPanel);
-            this.MinimumSize = new System.Drawing.Size(800, 400);
+            this.MinimumSize = new System.Drawing.Size(820, 585);
             this.Name = "PackageManagerDialog";
             this.ShowIcon = false;
             this.Text = "PackageManagerDialog";

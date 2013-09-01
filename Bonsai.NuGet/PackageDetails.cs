@@ -10,7 +10,7 @@ using NuGet;
 using System.Globalization;
 using System.Diagnostics;
 
-namespace Bonsai.Design
+namespace Bonsai.NuGet
 {
     public partial class PackageDetails : UserControl
     {
@@ -43,7 +43,7 @@ namespace Bonsai.Design
             tagsLabel.Text = package.Tags;
             dependenciesTextBox.Lines = (from dependencySet in package.DependencySets
                                          from dependency in dependencySet.Dependencies
-                                         select PackageDependencyString(dependency)).ToArray();
+                                         select GetPackageDependencyString(dependency)).ToArray();
             if (dependenciesTextBox.Lines.Length > 0)
             {
                 dependenciesTextBox.Visible = true;
@@ -63,7 +63,7 @@ namespace Bonsai.Design
             linkLabel.Visible = !hideEmptyLink || linkLabel.Links[0].LinkData != null;
         }
 
-        static string PackageDependencyString(PackageDependency dependency)
+        public static string GetPackageDependencyString(PackageDependency dependency)
         {
             var versionSpecText = VersionSpecString(dependency.VersionSpec);
             return dependency.Id + versionSpecText;

@@ -1,4 +1,4 @@
-﻿namespace Bonsai.Design
+﻿namespace Bonsai.NuGet
 {
     partial class PackagePageSelector
     {
