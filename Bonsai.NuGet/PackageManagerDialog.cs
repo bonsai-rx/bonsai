@@ -33,6 +33,7 @@ namespace Bonsai.NuGet
         {
             packageRepository = repository;
             packageManager = manager;
+            packageManager.Logger = new EventLogger();
             InitializeComponent();
         }
 
@@ -215,7 +216,12 @@ namespace Bonsai.NuGet
             var package = (IPackage)e.Node.Tag;
             if (package != null)
             {
-                packageManager.InstallPackage(package, false, AllowPrereleaseVersions, false);
+                var dialog = new PackageInstallDialog();
+                dialog.RegisterEventLogger((EventLogger)packageManager.Logger);
+                var allowPrereleaseVersions = AllowPrereleaseVersions;
+                var installation = Observable.Start(() => packageManager.InstallPackage(package, false, allowPrereleaseVersions, false));
+                installation.Subscribe();
+                dialog.ShowDialog();
             }
         }
     }
