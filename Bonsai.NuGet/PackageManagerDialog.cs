@@ -220,7 +220,7 @@ namespace Bonsai.NuGet
                 dialog.RegisterEventLogger((EventLogger)packageManager.Logger);
                 var allowPrereleaseVersions = AllowPrereleaseVersions;
                 var installation = Observable.Start(() => packageManager.InstallPackage(package, false, allowPrereleaseVersions, false));
-                installation.Subscribe();
+                installation.ObserveOn(this).Subscribe(xs => dialog.Close());
                 dialog.ShowDialog();
             }
         }
