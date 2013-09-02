@@ -233,26 +233,30 @@ namespace Bonsai.NuGet
             var package = (IPackage)e.Node.Tag;
             if (package != null)
             {
-                var dialog = new PackageInstallDialog();
-                var logger = packageManager.Logger;
-                dialog.RegisterEventLogger((EventLogger)logger, packageManager);
-
-                IObservable<Unit> operation;
-                if (selectedRepository == packageManager.LocalRepository)
+                using (var dialog = new PackageOperationDialog())
                 {
-                    operation = Observable.Start(() => packageManager.UninstallPackage(package, false, false));
-                }
-                else
-                {
-                    var allowPrereleaseVersions = AllowPrereleaseVersions;
-                    operation = Observable.Start(() => packageManager.InstallPackage(package, false, allowPrereleaseVersions, false));
-                }
+                    var logger = packageManager.Logger;
+                    dialog.RegisterEventLogger((EventLogger)logger, packageManager);
 
-                operation.ObserveOn(this).Subscribe(
-                    xs => { },
-                    ex => logger.Log(MessageLevel.Error, ex.Message),
-                    () => dialog.Close());
-                dialog.ShowDialog();
+                    IObservable<Unit> operation;
+                    if (selectedRepository == packageManager.LocalRepository)
+                    {
+                        operation = Observable.Start(() => packageManager.UninstallPackage(package, false, false));
+                        dialog.Text = Resources.UninstallOperationLabel;
+                    }
+                    else
+                    {
+                        var allowPrereleaseVersions = AllowPrereleaseVersions;
+                        operation = Observable.Start(() => packageManager.InstallPackage(package, false, allowPrereleaseVersions, false));
+                        dialog.Text = Resources.InstallOperationLabel;
+                    }
+
+                    operation.ObserveOn(this).Subscribe(
+                        xs => { },
+                        ex => logger.Log(MessageLevel.Error, ex.Message),
+                        () => dialog.Close());
+                    dialog.ShowDialog();
+                }
             }
         }
 

@@ -80,11 +80,11 @@
     <Compile Include="PackageDetails.Designer.cs">
       <DependentUpon>PackageDetails.cs</DependentUpon>
     </Compile>
-    <Compile Include="PackageInstallDialog.cs">
+    <Compile Include="PackageOperationDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="PackageInstallDialog.Designer.cs">
-      <DependentUpon>PackageInstallDialog.cs</DependentUpon>
+    <Compile Include="PackageOperationDialog.Designer.cs">
+      <DependentUpon>PackageOperationDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="LicenseAcceptanceDialog.cs">
       <SubType>Form</SubType>
@@ -122,8 +122,8 @@
     <EmbeddedResource Include="PackageDetails.resx">
       <DependentUpon>PackageDetails.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="PackageInstallDialog.resx">
-      <DependentUpon>PackageInstallDialog.cs</DependentUpon>
+    <EmbeddedResource Include="PackageOperationDialog.resx">
+      <DependentUpon>PackageOperationDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="PackageManagerDialog.resx">
       <DependentUpon>PackageManagerDialog.cs</DependentUpon>

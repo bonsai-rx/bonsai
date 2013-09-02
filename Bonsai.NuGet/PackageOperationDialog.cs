@@ -13,13 +13,23 @@ using System.Windows.Forms;
 
 namespace Bonsai.NuGet
 {
-    public partial class PackageInstallDialog : Form
+    public partial class PackageOperationDialog : Form
     {
         IDisposable logHandler;
 
-        public PackageInstallDialog()
+        public PackageOperationDialog()
         {
             InitializeComponent();
+        }
+
+        public override string Text
+        {
+            get { return base.Text; }
+            set
+            {
+                base.Text = value;
+                SetOperationLabel(value);
+            }
         }
 
         private void SetOperationLabel(string text)
@@ -48,7 +58,7 @@ namespace Bonsai.NuGet
                     {
                         progressBar.ForeColor = Color.Red;
                         progressBar.Style = ProgressBarStyle.Blocks;
-                        SetOperationLabel(Resources.OperationFailedLabel);
+                        SetOperationLabel(Resources.FailedOperationLabel);
                     }
                 });
         }

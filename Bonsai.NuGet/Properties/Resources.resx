@@ -120,8 +120,14 @@
   <data name="AllNodeName" xml:space="preserve">
     <value>All</value>
   </data>
+  <data name="FailedOperationLabel" xml:space="preserve">
+    <value>Operation failed.</value>
+  </data>
   <data name="InstalledPackagesNodeName" xml:space="preserve">
     <value>Installed packages</value>
+  </data>
+  <data name="InstallOperationLabel" xml:space="preserve">
+    <value>Installing...</value>
   </data>
   <data name="InstallOperationName" xml:space="preserve">
     <value>Install</value>
@@ -129,8 +135,8 @@
   <data name="OnlineNodeName" xml:space="preserve">
     <value>Online</value>
   </data>
-  <data name="OperationFailedLabel" xml:space="preserve">
-    <value>Operation failed.</value>
+  <data name="UninstallOperationLabel" xml:space="preserve">
+    <value>Uninstalling...</value>
   </data>
   <data name="UninstallOperationName" xml:space="preserve">
     <value>Uninstall</value>
