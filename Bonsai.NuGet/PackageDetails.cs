@@ -26,6 +26,7 @@ namespace Bonsai.NuGet
 
         public void SetPackage(IPackage package)
         {
+            SuspendLayout();
             detailsLayoutPanel.Visible = package != null;
             if (package == null) return;
 
@@ -33,7 +34,10 @@ namespace Bonsai.NuGet
             idLinkLabel.Text = package.Id;
             var packageUri = new Uri(NugetPackageRepository, package.Id + "/" + package.Version.ToString());
             SetLinkLabelUri(idLinkLabel, packageUri, false);
-            versionLabel.Text = package.Version.ToString();
+            versionLabel.Text = string.Format(
+                "{0}{1}",
+                package.Version.ToString(),
+                package.IsReleaseVersion() ? string.Empty : " (Prerelease)");
             lastPublishedLabel.Text = package.Published.HasValue ? package.Published.Value.Date.ToShortDateString() : "(unpublished)";
             downloadsLabel.Text = package.DownloadCount.ToString();
             SetLinkLabelUri(licenseLinkLabel, package.LicenseUrl, true);
@@ -54,6 +58,7 @@ namespace Bonsai.NuGet
                 dependenciesTextBox.Visible = false;
                 dependencyWarningLabel.Text = NoDependenciesText;
             }
+            ResumeLayout();
         }
 
         static void SetLinkLabelUri(LinkLabel linkLabel, Uri uri, bool hideEmptyLink)

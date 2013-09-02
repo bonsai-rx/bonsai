@@ -117,7 +117,7 @@ namespace Bonsai.NuGet
                 {
                     packages = selectedRepository
                         .Search(searchTerm, allowPrereleaseVersions)
-                        .Where(p => p.IsLatestVersion);
+                        .Where(p => p.IsAbsoluteLatestVersion);
                 }
                 switch (sortMode)
                 {
