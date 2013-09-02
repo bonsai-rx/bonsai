@@ -76,12 +76,15 @@
             // loggerListBox
             // 
             this.loggerListBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.loggerListBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
             this.loggerListBox.FormattingEnabled = true;
             this.loggerListBox.Location = new System.Drawing.Point(20, 64);
             this.loggerListBox.Margin = new System.Windows.Forms.Padding(20, 3, 20, 3);
             this.loggerListBox.Name = "loggerListBox";
             this.loggerListBox.Size = new System.Drawing.Size(294, 108);
             this.loggerListBox.TabIndex = 2;
+            this.loggerListBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.loggerListBox_DrawItem);
+            this.loggerListBox.MeasureItem += new System.Windows.Forms.MeasureItemEventHandler(this.loggerListBox_MeasureItem);
             // 
             // closeButtonLayoutPanel
             // 
