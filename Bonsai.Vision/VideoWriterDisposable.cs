@@ -12,7 +12,7 @@ namespace Bonsai.Vision
     {
         IDisposable resource;
 
-        public VideoWriterDisposable(CvVideoWriter writer, IDisposable disposable)
+        public VideoWriterDisposable(OpenCV.Net.VideoWriter writer, IDisposable disposable)
         {
             if (writer == null)
             {
@@ -23,7 +23,7 @@ namespace Bonsai.Vision
             resource = disposable;
         }
 
-        public CvVideoWriter Writer { get; private set; }
+        public OpenCV.Net.VideoWriter Writer { get; private set; }
 
         public bool IsDisposed
         {

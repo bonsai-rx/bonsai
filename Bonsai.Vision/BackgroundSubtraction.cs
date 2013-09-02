@@ -29,7 +29,7 @@ namespace Bonsai.Vision
         public double ThresholdValue { get; set; }
 
         [TypeConverter(typeof(ThresholdTypeConverter))]
-        public ThresholdType ThresholdType { get; set; }
+        public ThresholdTypes ThresholdType { get; set; }
 
         public SubtractionMethod SubtractionMethod { get; set; }
 
@@ -44,8 +44,8 @@ namespace Bonsai.Vision
             {
                 return new StandardValuesCollection(
                     base.GetStandardValues(context)
-                    .Cast<ThresholdType>()
-                    .Where(type => type != ThresholdType.Otsu)
+                    .Cast<ThresholdTypes>()
+                    .Where(type => type != ThresholdTypes.Otsu)
                     .ToArray());
             }
         }
@@ -62,46 +62,46 @@ namespace Bonsai.Vision
                 {
                     if (averageCount == 0)
                     {
-                        image = new IplImage(input.Size, 32, input.NumChannels);
-                        difference = new IplImage(input.Size, 32, input.NumChannels);
-                        background = new IplImage(input.Size, 32, input.NumChannels);
+                        image = new IplImage(input.Size, IplDepth.F32, input.Channels);
+                        difference = new IplImage(input.Size, IplDepth.F32, input.Channels);
+                        background = new IplImage(input.Size, IplDepth.F32, input.Channels);
                         background.SetZero();
                     }
 
-                    var output = new IplImage(input.Size, 8, input.NumChannels);
+                    var output = new IplImage(input.Size, IplDepth.U8, input.Channels);
                     if (averageCount < BackgroundFrames)
                     {
                         averageCount++;
                         output.SetZero();
-                        ImgProc.cvAcc(input, background, CvArr.Null);
+                        CV.Acc(input, background);
                         if (averageCount == BackgroundFrames)
                         {
-                            Core.cvConvertScale(background, background, 1.0 / averageCount, 0);
+                            CV.ConvertScale(background, background, 1.0 / averageCount, 0);
                         }
                     }
                     else
                     {
-                        Core.cvConvert(input, image);
+                        CV.Convert(input, image);
                         switch (SubtractionMethod)
                         {
                             case SubtractionMethod.Bright:
-                                Core.cvSub(image, background, difference, CvArr.Null);
+                                CV.Sub(image, background, difference);
                                 break;
                             case SubtractionMethod.Dark:
-                                Core.cvSub(background, image, difference, CvArr.Null);
+                                CV.Sub(background, image, difference);
                                 break;
                             case SubtractionMethod.Absolute:
                             default:
-                                Core.cvAbsDiff(image, background, difference);
+                                CV.AbsDiff(image, background, difference);
                                 break;
                         }
 
                         if (AdaptationRate > 0)
                         {
-                            ImgProc.cvRunningAvg(image, background, AdaptationRate, CvArr.Null);
+                            CV.RunningAvg(image, background, AdaptationRate);
                         }
 
-                        ImgProc.cvThreshold(difference, output, ThresholdValue, 255, ThresholdType);
+                        CV.Threshold(difference, output, ThresholdValue, 255, ThresholdType);
                     }
 
                     return output;

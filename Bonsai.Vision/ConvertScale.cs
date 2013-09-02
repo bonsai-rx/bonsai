@@ -12,12 +12,12 @@ namespace Bonsai.Vision
     {
         public ConvertScale()
         {
-            Depth = 8;
+            Depth = IplDepth.U8;
             Scale = 1;
         }
 
         [Description("The target bit depth of individual image elements.")]
-        public int Depth { get; set; }
+        public IplDepth Depth { get; set; }
 
         [Description("The optional scale factor to apply to individual image elements.")]
         public double Scale { get; set; }
@@ -27,8 +27,8 @@ namespace Bonsai.Vision
 
         public override IplImage Process(IplImage input)
         {
-            var output = new IplImage(input.Size, Depth, input.NumChannels);
-            Core.cvConvertScale(input, output, Scale, Shift);
+            var output = new IplImage(input.Size, Depth, input.Channels);
+            CV.ConvertScale(input, output, Scale, Shift);
             return output;
         }
     }

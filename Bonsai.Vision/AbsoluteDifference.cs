@@ -12,8 +12,8 @@ namespace Bonsai.Vision
     {
         public override IplImage Process(IplImage first, IplImage second)
         {
-            var output = new IplImage(first.Size, first.Depth, first.NumChannels);
-            Core.cvAbsDiff(first, second, output);
+            var output = new IplImage(first.Size, first.Depth, first.Channels);
+            CV.AbsDiff(first, second, output);
             return output;
         }
     }

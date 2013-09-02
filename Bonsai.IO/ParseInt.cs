@@ -6,12 +6,12 @@ using OpenCV.Net;
 
 namespace Bonsai.IO
 {
-    public class ParseInt : Selector<string, CvMat>
+    public class ParseInt : Selector<string, Mat>
     {
-        public override CvMat Process(string input)
+        public override Mat Process(string input)
         {
-            var output = new CvMat(1, 1, CvMatDepth.CV_32S, 1);
-            Core.cvSet2D(output, 0, 0, CvScalar.Real(int.Parse(input)));
+            var output = new Mat(1, 1, Depth.S32, 1);
+            output[0, 0] = Scalar.Real(int.Parse(input));
             return output;
         }
     }

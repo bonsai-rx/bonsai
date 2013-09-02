@@ -13,19 +13,19 @@ namespace Bonsai.Vision
     public class WarpPerspective : Transform<IplImage, IplImage>
     {
         [Editor("Bonsai.Vision.Design.IplImageInputQuadrangleEditor, Bonsai.Vision.Design", typeof(UITypeEditor))]
-        public CvPoint2D32f[] Source { get; set; }
+        public Point2f[] Source { get; set; }
 
         [Editor("Bonsai.Vision.Design.IplImageOutputQuadrangleEditor, Bonsai.Vision.Design", typeof(UITypeEditor))]
-        public CvPoint2D32f[] Destination { get; set; }
+        public Point2f[] Destination { get; set; }
 
-        static CvPoint2D32f[] InitializeQuadrangle(IplImage image)
+        static Point2f[] InitializeQuadrangle(IplImage image)
         {
             return new[]
             {
-                new CvPoint2D32f(0, 0),
-                new CvPoint2D32f(0, image.Height),
-                new CvPoint2D32f(image.Width, image.Height),
-                new CvPoint2D32f(image.Width, 0)
+                new Point2f(0, 0),
+                new Point2f(0, image.Height),
+                new Point2f(image.Width, image.Height),
+                new Point2f(image.Width, 0)
             };
         }
 
@@ -33,12 +33,12 @@ namespace Bonsai.Vision
         {
             return Observable.Defer(() =>
             {
-                CvPoint2D32f[] currentSource = null;
-                CvPoint2D32f[] currentDestination = null;
-                var mapMatrix = new CvMat(3, 3, CvMatDepth.CV_32F, 1);
+                Point2f[] currentSource = null;
+                Point2f[] currentDestination = null;
+                var mapMatrix = new Mat(3, 3, Depth.F32, 1);
                 return source.Select(input =>
                 {
-                    var output = new IplImage(input.Size, input.Depth, input.NumChannels);
+                    var output = new IplImage(input.Size, input.Depth, input.Channels);
                     Source = Source ?? InitializeQuadrangle(output);
                     Destination = Destination ?? InitializeQuadrangle(output);
 
@@ -46,10 +46,10 @@ namespace Bonsai.Vision
                     {
                         currentSource = Source;
                         currentDestination = Destination;
-                        ImgProc.cvGetPerspectiveTransform(currentSource, currentDestination, mapMatrix);
+                        CV.GetPerspectiveTransform(currentSource, currentDestination, mapMatrix);
                     }
 
-                    ImgProc.cvWarpPerspective(input, output, mapMatrix, WarpFlags.Linear | WarpFlags.FillOutliers, CvScalar.All(0));
+                    CV.WarpPerspective(input, output, mapMatrix, WarpFlags.Linear | WarpFlags.FillOutliers, Scalar.All(0));
                     return output;
                 });
             });

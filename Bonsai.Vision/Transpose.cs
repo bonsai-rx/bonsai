@@ -10,8 +10,8 @@ namespace Bonsai.Vision
     {
         public override IplImage Process(IplImage input)
         {
-            var output = new IplImage(new CvSize(input.Height, input.Width), input.Depth, input.NumChannels);
-            Core.cvTranspose(input, output);
+            var output = new IplImage(new Size(input.Height, input.Width), input.Depth, input.Channels);
+            CV.Transpose(input, output);
             return output;
         }
     }

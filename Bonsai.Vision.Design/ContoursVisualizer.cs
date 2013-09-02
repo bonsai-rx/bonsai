@@ -21,12 +21,12 @@ namespace Bonsai.Vision.Design
         public override void Show(object value)
         {
             var contours = (Contours)value;
-            var output = new IplImage(contours.ImageSize, 8, 1);
+            var output = new IplImage(contours.ImageSize, IplDepth.U8, 1);
             output.SetZero();
 
             if (!contours.FirstContour.IsInvalid)
             {
-                Core.cvDrawContours(output, contours.FirstContour, CvScalar.All(255), CvScalar.All(128), 2, thickness, 8, CvPoint.Zero);
+                CV.DrawContours(output, contours.FirstContour, Scalar.All(255), Scalar.All(128), 2, thickness);
             }
 
             base.Show(output);

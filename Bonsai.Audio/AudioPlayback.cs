@@ -14,7 +14,7 @@ using System.Reactive.Disposables;
 namespace Bonsai.Audio
 {
     [Description("Plays the sequence of buffered samples to the specified audio output device.")]
-    public class AudioPlayback : Sink<CvMat>
+    public class AudioPlayback : Sink<Mat>
     {
         public AudioPlayback()
         {
@@ -48,7 +48,7 @@ namespace Bonsai.Audio
             AL.DeleteBuffers(freeBuffers);
         }
 
-        public override IObservable<CvMat> Process(IObservable<CvMat> source)
+        public override IObservable<Mat> Process(IObservable<Mat> source)
         {
             return Observable.Defer(() =>
             {

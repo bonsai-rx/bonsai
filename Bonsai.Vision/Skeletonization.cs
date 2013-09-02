@@ -29,13 +29,13 @@ namespace Bonsai.Vision
 
         public override IplImage Process(IplImage input)
         {
-            var output = new IplImage(input.Size, 8, 1);
-            distance = IplImageHelper.EnsureImageFormat(distance, input.Size, 32, 1);
-            laplacian = IplImageHelper.EnsureImageFormat(laplacian, input.Size, 32, 1);
+            var output = new IplImage(input.Size, IplDepth.U8, 1);
+            distance = IplImageHelper.EnsureImageFormat(distance, input.Size, IplDepth.F32, 1);
+            laplacian = IplImageHelper.EnsureImageFormat(laplacian, input.Size, IplDepth.F32, 1);
 
-            ImgProc.cvDistTransform(input, distance, DistanceType, 3, null, CvArr.Null, DistanceLabel.ConnectedComponent);
-            ImgProc.cvLaplace(distance, laplacian, LaplacianAperture);
-            ImgProc.cvThreshold(laplacian, output, RidgeThreshold, 255, ThresholdType.BinaryInv);
+            CV.DistTransform(input, distance, DistanceType);
+            CV.Laplace(distance, laplacian, LaplacianAperture);
+            CV.Threshold(laplacian, output, RidgeThreshold, 255, ThresholdTypes.BinaryInv);
             return output;
         }
     }

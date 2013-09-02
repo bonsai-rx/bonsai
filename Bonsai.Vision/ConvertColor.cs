@@ -10,14 +10,14 @@ namespace Bonsai.Vision
     [Description("Converts an image from one color space to another.")]
     public class ConvertColor : Selector<IplImage, IplImage>
     {
-        int depth;
+        IplDepth depth;
         int numChannels;
         bool conversionChanged;
         ColorConversion conversion;
 
         public ConvertColor()
         {
-            Conversion = ColorConversion.BGR2HSV;
+            Conversion = ColorConversion.Bgr2Hsv;
         }
 
         [Description("The color conversion to apply to individual image elements.")]
@@ -41,7 +41,7 @@ namespace Bonsai.Vision
             }
 
             var output = new IplImage(input.Size, depth, numChannels);
-            ImgProc.cvCvtColor(input, output, conversion);
+            CV.CvtColor(input, output, conversion);
             return output;
         }
     }

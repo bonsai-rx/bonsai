@@ -9,17 +9,17 @@ namespace Bonsai.Vision
 {
     public class ConnectedComponentCollection : Collection<ConnectedComponent>
     {
-        public ConnectedComponentCollection(CvSize imageSize)
+        public ConnectedComponentCollection(Size imageSize)
         {
             ImageSize = imageSize;
         }
 
-        public ConnectedComponentCollection(IList<ConnectedComponent> components, CvSize imageSize)
+        public ConnectedComponentCollection(IList<ConnectedComponent> components, Size imageSize)
             : base(components)
         {
             ImageSize = imageSize;
         }
 
-        public CvSize ImageSize { get; private set; }
+        public Size ImageSize { get; private set; }
     }
 }

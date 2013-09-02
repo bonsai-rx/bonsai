@@ -11,6 +11,7 @@ using System.Drawing;
 using System.Reactive.Linq;
 using System.Threading;
 using System.ComponentModel.Design;
+using Size = System.Drawing.Size;
 
 [assembly: TypeVisualizer(typeof(IplImageVisualizer), Target = typeof(IplImage))]
 [assembly: TypeVisualizer(typeof(IplImageVisualizer), Target = typeof(IObservable<IplImage>))]
@@ -70,8 +71,8 @@ namespace Bonsai.Vision.Design
         public override void Show(object value)
         {
             var inputImage = (IplImage)value;
-            visualizerImage = IplImageHelper.EnsureImageFormat(visualizerImage, inputImage.Size, inputImage.Depth, inputImage.NumChannels);
-            Core.cvCopy(inputImage, visualizerImage);
+            visualizerImage = IplImageHelper.EnsureImageFormat(visualizerImage, inputImage.Size, inputImage.Depth, inputImage.Channels);
+            CV.Copy(inputImage, visualizerImage);
         }
 
         protected virtual void RenderFrame()
@@ -123,7 +124,7 @@ namespace Bonsai.Vision.Design
                     {
                         var imageX = (int)(cursorPosition.X * ((float)visualizerImage.Width / visualizerCanvas.Width));
                         var imageY = (int)(cursorPosition.Y * ((float)visualizerImage.Height / visualizerCanvas.Height));
-                        var cursorColor = Core.cvGet2D(visualizerImage, imageY, imageX);
+                        var cursorColor = visualizerImage[imageY, imageX];
                         statusLabel.Text = string.Format("Cursor: ({0},{1}) Value: ({2},{3},{4})", imageX, imageY, cursorColor.Val0, cursorColor.Val1, cursorColor.Val2);
                     }
                 }

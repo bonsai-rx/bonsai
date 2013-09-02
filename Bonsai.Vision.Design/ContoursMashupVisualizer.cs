@@ -21,7 +21,7 @@ namespace Bonsai.Vision.Design
             var image = visualizer.VisualizerImage;
             if (image != null && !contours.FirstContour.IsInvalid)
             {
-                Core.cvDrawContours(image, contours.FirstContour, CvScalar.All(255), CvScalar.All(128), 2, 1, 8, CvPoint.Zero);
+                CV.DrawContours(image, contours.FirstContour, Scalar.All(255), Scalar.All(128), 2);
             }
         }
 

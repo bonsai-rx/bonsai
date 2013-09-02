@@ -12,9 +12,9 @@ namespace Bonsai.Vision
     {
         public override IplImage Process(IplImage first, IplImage second)
         {
-            var output = new IplImage(first.Size, first.Depth, first.NumChannels);
+            var output = new IplImage(first.Size, first.Depth, first.Channels);
             output.SetZero();
-            Core.cvCopy(first, output, second ?? CvArr.Null);
+            CV.Copy(first, output, second);
             return output;
         }
     }

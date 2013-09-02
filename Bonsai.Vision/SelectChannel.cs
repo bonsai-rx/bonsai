@@ -18,15 +18,15 @@ namespace Bonsai.Vision
         {
             var output = new IplImage(input.Size, input.Depth, 1);
             var channel = Channel;
-            if (channel < 0 || channel >= input.NumChannels) output.SetZero();
+            if (channel < 0 || channel >= input.Channels) output.SetZero();
             else
             {
                 switch (channel)
                 {
-                    case 0: Core.cvSplit(input, output, CvArr.Null, CvArr.Null, CvArr.Null); break;
-                    case 1: Core.cvSplit(input, CvArr.Null, output, CvArr.Null, CvArr.Null); break;
-                    case 2: Core.cvSplit(input, CvArr.Null, CvArr.Null, output, CvArr.Null); break;
-                    case 3: Core.cvSplit(input, CvArr.Null, CvArr.Null, CvArr.Null, output); break;
+                    case 0: CV.Split(input, output, null, null, null); break;
+                    case 1: CV.Split(input, null, output, null, null); break;
+                    case 2: CV.Split(input, null, null, output, null); break;
+                    case 3: CV.Split(input, null, null, null, output); break;
                     default: throw new InvalidOperationException("Invalid channel number.");
                 }
             }

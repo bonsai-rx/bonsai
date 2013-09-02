@@ -10,14 +10,14 @@ using System.Reactive.Disposables;
 
 namespace Bonsai.Dsp
 {
-    public abstract class RunningAverage<TArray> : Transform<TArray, TArray> where TArray : CvArr
+    public abstract class RunningAverage<TArray> : Transform<TArray, TArray> where TArray : Arr
     {
         [Range(0, 1)]
         [Precision(2, .01)]
         [Editor(DesignTypes.TrackbarEditor, typeof(UITypeEditor))]
         public double Alpha { get; set; }
 
-        protected abstract TArray CreateArray(TArray source, CvMatDepth depth);
+        protected abstract TArray CreateArray(TArray source, Depth depth);
 
         public override IObservable<TArray> Process(IObservable<TArray> source)
         {
@@ -28,15 +28,15 @@ namespace Bonsai.Dsp
                 {
                     if (accumulator == null)
                     {
-                        accumulator = CreateArray(input, CvMatDepth.CV_32F);
-                        Core.cvConvertScale(input, accumulator, 1, 0);
+                        accumulator = CreateArray(input, Depth.F32);
+                        CV.ConvertScale(input, accumulator, 1, 0);
                         return input;
                     }
                     else
                     {
                         var output = CreateArray(input, 0);
-                        ImgProc.cvRunningAvg(input, accumulator, Alpha, CvArr.Null);
-                        Core.cvConvertScale(accumulator, output, 1, 0);
+                        CV.RunningAvg(input, accumulator, Alpha);
+                        CV.ConvertScale(accumulator, output, 1, 0);
                         return output;
                     }
                 });
@@ -44,12 +44,12 @@ namespace Bonsai.Dsp
         }
     }
 
-    public class RunningAverage : RunningAverage<CvMat>
+    public class RunningAverage : RunningAverage<Mat>
     {
-        protected override CvMat CreateArray(CvMat source, CvMatDepth depth)
+        protected override Mat CreateArray(Mat source, Depth depth)
         {
             depth = depth > 0 ? depth : source.Depth;
-            return new CvMat(source.Rows, source.Cols, depth, source.NumChannels);
+            return new Mat(source.Rows, source.Cols, depth, source.Channels);
         }
     }
 }

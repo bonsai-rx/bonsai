@@ -9,7 +9,7 @@ namespace Bonsai.Vision
 {
     public class ConnectedComponent
     {
-        public CvPoint2D32f Centroid { get; set; }
+        public Point2f Centroid { get; set; }
 
         public double Orientation { get; set; }
 
@@ -20,29 +20,27 @@ namespace Bonsai.Vision
         public double Area { get; set; }
 
         [XmlIgnore]
-        public CvContour Contour { get; set; }
+        public Contour Contour { get; set; }
 
-        public static ConnectedComponent FromContour(CvSeq currentContour)
+        public static ConnectedComponent FromContour(Seq currentContour)
         {
-            CvMoments moments;
-            ImgProc.cvMoments(currentContour, out moments, 0);
-
+            var moments = new Moments(currentContour);
             var component = new ConnectedComponent();
-            component.Area = moments.m00;
-            component.Contour = CvContour.FromCvSeq(currentContour);
+            component.Area = moments.M00;
+            component.Contour = Contour.FromSeq(currentContour);
 
             // Cemtral moments can only be computed for components with non-zero area
-            if (moments.m00 > 0)
+            if (moments.M00 > 0)
             {
                 // Compute centroid components
-                var x = moments.m10 / moments.m00;
-                var y = moments.m01 / moments.m00;
-                component.Centroid = new CvPoint2D32f((float)x, (float)y);
+                var x = moments.M10 / moments.M00;
+                var y = moments.M01 / moments.M00;
+                component.Centroid = new Point2f((float)x, (float)y);
 
                 // Compute second-order central moments
-                var miu20 = moments.m20 / moments.m00 - x * x;
-                var miu02 = moments.m02 / moments.m00 - y * y;
-                var miu11 = moments.m11 / moments.m00 - x * y;
+                var miu20 = moments.M20 / moments.M00 - x * x;
+                var miu02 = moments.M02 / moments.M00 - y * y;
+                var miu11 = moments.M11 / moments.M00 - x * y;
 
                 // Compute orientation and major/minor axis length
                 var b = 2 * miu11;

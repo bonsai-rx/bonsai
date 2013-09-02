@@ -16,9 +16,9 @@ using OpenCV.Net;
 namespace Bonsai.Audio
 {
     [Description("Produces a sequence of buffered samples acquired from the specified audio capture device.")]
-    public class AudioCapture : Source<CvMat>
+    public class AudioCapture : Source<Mat>
     {
-        IObservable<CvMat> source;
+        IObservable<Mat> source;
 
         public AudioCapture()
         {
@@ -26,7 +26,7 @@ namespace Bonsai.Audio
             Frequency = 44100;
 
             var bufferSize = 0;
-            source = Observable.Create<CvMat>(observer =>
+            source = Observable.Create<Mat>(observer =>
             {
                 var frequency = Frequency;
                 bufferSize = (int)Math.Ceiling(frequency * 0.01);
@@ -39,7 +39,7 @@ namespace Bonsai.Audio
                     {
                         while (capture.AvailableSamples > bufferSize)
                         {
-                            var buffer = new CvMat(1, bufferSize, CvMatDepth.CV_16S, 1);
+                            var buffer = new Mat(1, bufferSize, Depth.S16, 1);
                             capture.ReadSamples(buffer.Data, bufferSize);
                             observer.OnNext(buffer);
                         }
@@ -62,7 +62,7 @@ namespace Bonsai.Audio
         [Description("The length of the sample buffer (ms).")]
         public double BufferLength { get; set; }
 
-        public override IObservable<CvMat> Generate()
+        public override IObservable<Mat> Generate()
         {
             return source;
         }

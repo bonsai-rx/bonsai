@@ -12,14 +12,14 @@ namespace Bonsai.Vision
 {
     public class VideoWriter : FileSink<IplImage, VideoWriterDisposable>
     {
-        CvSize writerFrameSize;
+        Size writerFrameSize;
         static readonly object SyncRoot = new object();
 
         public string FourCC { get; set; }
 
         public double FrameRate { get; set; }
 
-        public CvSize FrameSize { get; set; }
+        public Size FrameSize { get; set; }
 
         public SubPixelInterpolation ResizeInterpolation { get; set; }
 
@@ -27,11 +27,11 @@ namespace Bonsai.Vision
         {
             var frameSize = FrameSize.Width > 0 && FrameSize.Height > 0 ? FrameSize : input.Size;
             var fourCCText = FourCC;
-            var fourCC = fourCCText.Length != 4 ? 0 : CvVideoWriter.FourCC(fourCCText[0], fourCCText[1], fourCCText[2], fourCCText[3]);
+            var fourCC = fourCCText.Length != 4 ? 0 : OpenCV.Net.VideoWriter.FourCC(fourCCText[0], fourCCText[1], fourCCText[2], fourCCText[3]);
             writerFrameSize = frameSize;
             lock (SyncRoot)
             {
-                var writer = new CvVideoWriter(fileName, fourCC, FrameRate, frameSize, input.NumChannels > 1);
+                var writer = new OpenCV.Net.VideoWriter(fileName, fourCC, FrameRate, frameSize, input.Channels > 1);
                 return new VideoWriterDisposable(writer, Disposable.Create(() =>
                 {
                     lock (SyncRoot)
@@ -46,8 +46,8 @@ namespace Bonsai.Vision
         {
             if (input.Width != writerFrameSize.Width || input.Height != writerFrameSize.Height)
             {
-                var resized = new IplImage(new CvSize(writerFrameSize.Width, writerFrameSize.Height), input.Depth, input.NumChannels);
-                ImgProc.cvResize(input, resized, ResizeInterpolation);
+                var resized = new IplImage(new Size(writerFrameSize.Width, writerFrameSize.Height), input.Depth, input.Channels);
+                CV.Resize(input, resized, ResizeInterpolation);
                 input = resized;
             }
 

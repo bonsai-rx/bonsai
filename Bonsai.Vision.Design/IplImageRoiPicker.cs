@@ -13,19 +13,21 @@ using Bonsai.Vision;
 using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
 using OpenTK;
+using Point = OpenCV.Net.Point;
+using Size = OpenCV.Net.Size;
 
 namespace Bonsai.Vision.Design
 {
     class IplImageRoiPicker : IplImageControl
     {
         int? selectedRoi;
-        Collection<CvPoint[]> regions;
+        Collection<Point[]> regions;
         const float LineWidth = 1;
         const float PointSize = 2;
 
         public IplImageRoiPicker()
         {
-            regions = new Collection<CvPoint[]>();
+            regions = new Collection<Point[]>();
 
             this.Canvas.KeyDown += new KeyEventHandler(PictureBox_KeyDown);
             var mouseDoubleClick = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseDoubleClick").Select(e => e.EventArgs);
@@ -70,9 +72,9 @@ namespace Bonsai.Vision.Design
                                   select new[]
                                   {
                                       origin,
-                                      new CvPoint(location.X, origin.Y),
+                                      new Point(location.X, origin.Y),
                                       location,
-                                      new CvPoint(origin.X, location.Y)
+                                      new Point(origin.X, location.Y)
                                   };
 
             var pointInsertion = from clickEvt in mouseDoubleClick
@@ -85,7 +87,7 @@ namespace Bonsai.Vision.Design
                                      var resizeRegion = region;
                                      var line0 = region[nearestLine.Item1];
                                      var line1 = region[nearestLine.Item2];
-                                     var midPoint = new CvPoint((line0.X + line1.X) / 2, (line0.Y + line1.Y) / 2);
+                                     var midPoint = new Point((line0.X + line1.X) / 2, (line0.Y + line1.Y) / 2);
                                      Array.Resize(ref resizeRegion, resizeRegion.Length + 1);
                                      for (int i = resizeRegion.Length - 1; i > nearestLine.Item2; i--)
                                      {
@@ -104,7 +106,7 @@ namespace Bonsai.Vision.Design
                                 let nearestPoint = NearestPoint(region, location)
                                 select new Action(() =>
                                 {
-                                    var resizeRegion = new CvPoint[region.Length - 1];
+                                    var resizeRegion = new Point[region.Length - 1];
                                     Array.Copy(region, resizeRegion, nearestPoint);
                                     Array.Copy(region, nearestPoint + 1, resizeRegion, nearestPoint, region.Length - nearestPoint - 1);
                                     regions[selectedRoi.Value] = resizeRegion;
@@ -127,7 +129,7 @@ namespace Bonsai.Vision.Design
             });
         }
 
-        static float PointLineSegmentDistance(CvPoint point, CvPoint line0, CvPoint line1)
+        static float PointLineSegmentDistance(Point point, Point line0, Point line1)
         {
             return PointLineSegmentDistance(new Vector2(point.X, point.Y), new Vector2(line0.X, line0.Y), new Vector2(line1.X, line1.Y));
         }
@@ -168,20 +170,20 @@ namespace Bonsai.Vision.Design
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
-        double TestIntersection(CvPoint[] region, CvPoint point)
+        double TestIntersection(Point[] region, Point point)
         {
             var regionHandle = GCHandle.Alloc(region, GCHandleType.Pinned);
             try
             {
-                using (var mat = new CvMat(region.Length, 1, CvMatDepth.CV_32S, 2, regionHandle.AddrOfPinnedObject()))
+                using (var mat = new Mat(region.Length, 1, Depth.S32, 2, regionHandle.AddrOfPinnedObject()))
                 {
-                    return ImgProc.cvPointPolygonTest(mat, new CvPoint2D32f(point.X, point.Y), 1);
+                    return CV.PointPolygonTest(mat, new Point2f(point.X, point.Y), true);
                 }
             }
             finally { regionHandle.Free(); }
         }
 
-        CvRect ClipRectangle(CvRect rect)
+        Rect ClipRectangle(Rect rect)
         {
             var clipX = rect.X < 0 ? -rect.X : 0;
             var clipY = rect.Y < 0 ? -rect.Y : 0;
@@ -195,23 +197,23 @@ namespace Bonsai.Vision.Design
             return rect;
         }
 
-        CvPoint NormalizedLocation(int x, int y)
+        Point NormalizedLocation(int x, int y)
         {
-            return new CvPoint(
+            return new Point(
                 (int)(x * Image.Width / (float)Canvas.Width),
                 (int)(y * Image.Height / (float)Canvas.Height));
         }
 
-        CvRect NormalizedRectangle(CvRect rect)
+        Rect NormalizedRectangle(Rect rect)
         {
-            return new CvRect(
+            return new Rect(
                 (int)(rect.X * Image.Width / (float)Canvas.Width),
                 (int)(rect.Y * Image.Height / (float)Canvas.Height),
                 (int)(rect.Width * Image.Width / (float)Canvas.Width),
                 (int)(rect.Height * Image.Width / (float)Canvas.Width));
         }
 
-        Tuple<int, int> NearestLine(CvPoint[] region, CvPoint location)
+        Tuple<int, int> NearestLine(Point[] region, Point location)
         {
             var pointIndex = region
                 .Concat(Enumerable.Repeat(region[0], 1))
@@ -224,7 +226,7 @@ namespace Bonsai.Vision.Design
                     .FirstOrDefault();
         }
 
-        int NearestPoint(CvPoint[] region, CvPoint location)
+        int NearestPoint(Point[] region, Point location)
         {
             return (from point in region.Select((p, i) => new { p, i })
                     let distanceX = location.X - point.p.X
@@ -240,7 +242,7 @@ namespace Bonsai.Vision.Design
             set { selectedRoi = value; }
         }
 
-        public Collection<CvPoint[]> Regions
+        public Collection<Point[]> Regions
         {
             get { return regions; }
         }
@@ -256,7 +258,7 @@ namespace Bonsai.Vision.Design
             }
         }
 
-        void RenderRegion(CvPoint[] region, BeginMode mode, Color color, CvSize imageSize)
+        void RenderRegion(Point[] region, BeginMode mode, Color color, Size imageSize)
         {
             GL.Color3(color);
             GL.Begin(mode);

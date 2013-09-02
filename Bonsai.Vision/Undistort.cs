@@ -15,9 +15,9 @@ namespace Bonsai.Vision
             Distortion = new double[5];
         }
 
-        public CvPoint2D64f FocalLength { get; set; }
+        public Point2d FocalLength { get; set; }
 
-        public CvPoint2D64f PrincipalPoint { get; set; }
+        public Point2d PrincipalPoint { get; set; }
 
         public double[] Distortion { get; set; }
 
@@ -26,16 +26,16 @@ namespace Bonsai.Vision
             return Observable.Defer(() =>
             {
                 var intrinsics = new double[] { FocalLength.X, 0, PrincipalPoint.X, 0, FocalLength.Y, PrincipalPoint.Y, 0, 0, 1 };
-                var cameraMatrix = new CvMat(3, 3, CvMatDepth.CV_64F, 1);
+                var cameraMatrix = new Mat(3, 3, Depth.F64, 1);
                 Marshal.Copy(intrinsics, 0, cameraMatrix.Data, intrinsics.Length);
 
-                var distortionCoefficients = new CvMat(5, 1, CvMatDepth.CV_64F, 1);
+                var distortionCoefficients = new Mat(5, 1, Depth.F64, 1);
                 Marshal.Copy(Distortion, 0, distortionCoefficients.Data, Distortion.Length);
 
                 return source.Select(input =>
                 {
-                    var output = new IplImage(input.Size, input.Depth, input.NumChannels);
-                    ImgProc.cvUndistort2(input, output, cameraMatrix, distortionCoefficients, CvMat.Null);
+                    var output = new IplImage(input.Size, input.Depth, input.Channels);
+                    CV.Undistort2(input, output, cameraMatrix, distortionCoefficients);
                     return output;
                 });
             });

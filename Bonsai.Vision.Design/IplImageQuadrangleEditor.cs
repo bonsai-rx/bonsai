@@ -41,7 +41,7 @@ namespace Bonsai.Vision.Design
             var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
             if (context != null && editorService != null)
             {
-                var quadrangle = ((CvPoint2D32f[])value);
+                var quadrangle = ((Point2f[])value);
                 if (quadrangle == null) return base.EditValue(context, provider, value);
 
                 var propertyDescriptor = context.PropertyDescriptor;
@@ -58,7 +58,9 @@ namespace Bonsai.Vision.Design
                     {
                         if (imageControl.Image != null)
                         {
-                            visualizerDialog.ClientSize = new Size(imageControl.Image.Width, imageControl.Image.Height);
+                            visualizerDialog.ClientSize = new System.Drawing.Size(
+                                imageControl.Image.Width,
+                                imageControl.Image.Height);
                         }
                     };
 

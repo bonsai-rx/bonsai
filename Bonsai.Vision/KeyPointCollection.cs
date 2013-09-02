@@ -7,7 +7,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class KeyPointCollection : Collection<KeyPoint>
+    public class KeyPointCollection : Collection<Point2f>
     {
         public KeyPointCollection(IplImage image)
         {

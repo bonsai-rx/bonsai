@@ -47,32 +47,32 @@ namespace Bonsai.Vision.Design
         public void Update(IplImage image)
         {
             if (image == null) throw new ArgumentNullException("image");
-            if (image.Depth > 8 && image.NumChannels == 1)
+            if (image.Depth > IplDepth.U8 && image.Channels == 1)
             {
                 double min, max;
-                CvPoint minLoc, maxLoc;
-                normalizedImage = IplImageHelper.EnsureImageFormat(normalizedImage, image.Size, 8, image.NumChannels);
-                Core.cvMinMaxLoc(image, out min, out max, out minLoc, out maxLoc, CvArr.Null);
+                Point minLoc, maxLoc;
+                normalizedImage = IplImageHelper.EnsureImageFormat(normalizedImage, image.Size, IplDepth.U8, image.Channels);
+                CV.MinMaxLoc(image, out min, out max, out minLoc, out maxLoc);
 
                 var range = max - min;
                 var scale = range > 0 ? 255.0 / range : 0;
                 var shift = range > 0 ? -min : 0;
-                Core.cvConvertScale(image, normalizedImage, scale, shift);
+                CV.ConvertScale(image, normalizedImage, scale, shift);
                 image = normalizedImage;
             }
 
-            if (image.Depth != 8) throw new ArgumentException("Multi-channel floating point or non 8-bit depth images are not supported by the control.", "image");
+            if (image.Depth != IplDepth.U8) throw new ArgumentException("Multi-channel floating point or non 8-bit depth images are not supported by the control.", "image");
             if (!nonPowerOfTwo || image.Width > maxTextureSize || image.Height > maxTextureSize)
             {
                 var textureWidth = Math.Min(maxTextureSize, NearestPowerOfTwo(image.Width));
                 var textureHeight = Math.Min(maxTextureSize, NearestPowerOfTwo(image.Height));
-                textureImage = IplImageHelper.EnsureImageFormat(textureImage, new CvSize(textureWidth, textureHeight), image.Depth, image.NumChannels);
-                ImgProc.cvResize(image, textureImage, SubPixelInterpolation.Linear);
+                textureImage = IplImageHelper.EnsureImageFormat(textureImage, new Size(textureWidth, textureHeight), image.Depth, image.Channels);
+                CV.Resize(image, textureImage, SubPixelInterpolation.Linear);
                 image = textureImage;
             }
 
             OpenTK.Graphics.OpenGL.PixelFormat pixelFormat;
-            switch (image.NumChannels)
+            switch (image.Channels)
             {
                 case 1: pixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Luminance; break;
                 case 3: pixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Bgr; break;
@@ -81,7 +81,7 @@ namespace Bonsai.Vision.Design
             }
 
             GL.BindTexture(TextureTarget.Texture2D, texture);
-            GL.PixelStore(PixelStoreParameter.UnpackRowLength, image.WidthStep / image.NumChannels);
+            GL.PixelStore(PixelStoreParameter.UnpackRowLength, image.WidthStep / image.Channels);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0, pixelFormat, PixelType.UnsignedByte, image.ImageData);
         }
 

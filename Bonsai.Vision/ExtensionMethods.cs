@@ -8,21 +8,21 @@ namespace Bonsai.Vision
 {
     public static class ExtensionMethods
     {
-        public static int GetConversionDepth(this ColorConversion conversion)
+        public static IplDepth GetConversionDepth(this ColorConversion conversion)
         {
             switch (conversion)
             {
-                case ColorConversion.BGR2BGR565:
-                case ColorConversion.RGB2BGR565:
-                case ColorConversion.BGRA2BGR565:
-                case ColorConversion.RGBA2BGR565:
-                case ColorConversion.GRAY2BGR565:
-                case ColorConversion.BGR2BGR555:
-                case ColorConversion.RGB2BGR555:
-                case ColorConversion.BGRA2BGR555:
-                case ColorConversion.RGBA2BGR555:
-                case ColorConversion.GRAY2BGR555: return 16;
-                default: return 8;
+                case ColorConversion.Bgr2Bgr565:
+                case ColorConversion.Rgb2Bgr565:
+                case ColorConversion.Bgra2Bgr565:
+                case ColorConversion.Rgba2Bgr565:
+                case ColorConversion.Gray2Bgr565:
+                case ColorConversion.Bgr2Bgr555:
+                case ColorConversion.Rgb2Bgr555:
+                case ColorConversion.Bgra2Bgr555:
+                case ColorConversion.Rgba2Bgr555:
+                case ColorConversion.Gray2Bgr555: return IplDepth.U16;
+                default: return IplDepth.U8;
             }
         }
 
@@ -30,90 +30,90 @@ namespace Bonsai.Vision
         {
             switch (conversion)
             {
-                case ColorConversion.BGR2RGBA:
-                case ColorConversion.BGRA2RGBA:
-                case ColorConversion.GRAY2BGRA:
-                case ColorConversion.BGR5652BGRA:
-                case ColorConversion.BGR5652RGBA:
-                case ColorConversion.BGR5552BGRA:
-                case ColorConversion.BGR5552RGBA:
-                case ColorConversion.Lab2LBGR:
-                case ColorConversion.Lab2LRGB:
-                case ColorConversion.Luv2LBGR:
-                case ColorConversion.Luv2LRGB:
-                case ColorConversion.BGR2BGRA: return 4;
-                case ColorConversion.RGBA2BGR:
-                case ColorConversion.BGR2RGB:
-                case ColorConversion.GRAY2BGR:
-                case ColorConversion.BGR5652BGR:
-                case ColorConversion.BGR5652RGB:
-                case ColorConversion.BGR2XYZ:
-                case ColorConversion.RGB2XYZ:
-                case ColorConversion.XYZ2BGR:
-                case ColorConversion.XYZ2RGB:
-                case ColorConversion.BGR2YCrCb:
-                case ColorConversion.RGB2YCrCb:
-                case ColorConversion.YCrCb2BGR:
-                case ColorConversion.YCrCb2RGB:
-                case ColorConversion.BGR2HSV:
-                case ColorConversion.RGB2HSV:
-                case ColorConversion.BayerBG2BGR:
-                case ColorConversion.BayerGB2BGR:
-                case ColorConversion.BayerRG2BGR:
-                case ColorConversion.BayerGR2BGR:
-                case ColorConversion.BGR5552BGR:
-                case ColorConversion.BGR5552RGB:
-                case ColorConversion.HSV2BGR:
-                case ColorConversion.HSV2RGB:
-                case ColorConversion.Lab2BGR:
-                case ColorConversion.Lab2RGB:
-                case ColorConversion.Luv2BGR:
-                case ColorConversion.Luv2RGB:
-                case ColorConversion.HLS2BGR:
-                case ColorConversion.HLS2RGB:
-                case ColorConversion.BGR2HLS:
-                case ColorConversion.RGB2HLS:
-                case ColorConversion.BGR2HSV_FULL:
-                case ColorConversion.RGB2HSV_FULL:
-                case ColorConversion.BGR2HLS_FULL:
-                case ColorConversion.RGB2HLS_FULL:
-                case ColorConversion.HSV2BGR_FULL:
-                case ColorConversion.HSV2RGB_FULL:
-                case ColorConversion.HLS2BGR_FULL:
-                case ColorConversion.HLS2RGB_FULL:
-                case ColorConversion.BGR2YUV:
-                case ColorConversion.RGB2YUV:
-                case ColorConversion.YUV2BGR:
-                case ColorConversion.YUV2RGB:
-                case ColorConversion.BayerBG2BGR_VNG:
-                case ColorConversion.BayerGB2BGR_VNG:
-                case ColorConversion.BayerRG2BGR_VNG:
-                case ColorConversion.BayerGR2BGR_VNG:
-                case ColorConversion.BGR2Lab:
-                case ColorConversion.RGB2Lab:
-                case ColorConversion.LBGR2Lab:
-                case ColorConversion.LRGB2Lab:
-                case ColorConversion.BGR2Luv:
-                case ColorConversion.RGB2Luv:
-                case ColorConversion.LBGR2Luv:
-                case ColorConversion.LRGB2Luv:
-                case ColorConversion.BGRA2BGR: return 3;
-                case ColorConversion.RGB2GRAY:
-                case ColorConversion.BGRA2GRAY:
-                case ColorConversion.RGBA2GRAY:
-                case ColorConversion.BGR5652GRAY:
-                case ColorConversion.BGR5552GRAY:
-                case ColorConversion.BGR2BGR565:
-                case ColorConversion.RGB2BGR565:
-                case ColorConversion.BGRA2BGR565:
-                case ColorConversion.RGBA2BGR565:
-                case ColorConversion.GRAY2BGR565:
-                case ColorConversion.BGR2BGR555:
-                case ColorConversion.RGB2BGR555:
-                case ColorConversion.BGRA2BGR555:
-                case ColorConversion.RGBA2BGR555:
-                case ColorConversion.GRAY2BGR555:
-                case ColorConversion.BGR2GRAY: return 1;
+                case ColorConversion.Bgr2Rgba:
+                case ColorConversion.Bgra2Rgba:
+                case ColorConversion.Gray2Bgra:
+                case ColorConversion.Bgr5652Bgra:
+                case ColorConversion.Bgr5652Rgba:
+                case ColorConversion.Bgr5552Bgra:
+                case ColorConversion.Bgr5552Rgba:
+                case ColorConversion.Lab2LBgr:
+                case ColorConversion.Lab2LRgb:
+                case ColorConversion.Luv2LBgr:
+                case ColorConversion.Luv2LRgb:
+                case ColorConversion.Bgr2Bgra: return 4;
+                case ColorConversion.Rgba2Bgr:
+                case ColorConversion.Bgr2Rgb:
+                case ColorConversion.Gray2Bgr:
+                case ColorConversion.Bgr5652Bgr:
+                case ColorConversion.Bgr5652Rgb:
+                case ColorConversion.Bgr2Xyz:
+                case ColorConversion.Rgb2Xyz:
+                case ColorConversion.Xyz2Bgr:
+                case ColorConversion.Xyz2Rgb:
+                case ColorConversion.Bgr2YCrCb:
+                case ColorConversion.Rgb2YCrCb:
+                case ColorConversion.YCrCb2Bgr:
+                case ColorConversion.YCrCb2Rgb:
+                case ColorConversion.Bgr2Hsv:
+                case ColorConversion.Rgb2Hsv:
+                case ColorConversion.BayerBG2Bgr:
+                case ColorConversion.BayerGB2Bgr:
+                case ColorConversion.BayerRG2Bgr:
+                case ColorConversion.BayerGR2Bgr:
+                case ColorConversion.Bgr5552Bgr:
+                case ColorConversion.Bgr5552Rgb:
+                case ColorConversion.Hsv2Bgr:
+                case ColorConversion.Hsv2Rgb:
+                case ColorConversion.Lab2Bgr:
+                case ColorConversion.Lab2Rgb:
+                case ColorConversion.Luv2Bgr:
+                case ColorConversion.Luv2Rgb:
+                case ColorConversion.Hls2Bgr:
+                case ColorConversion.Hls2Rgb:
+                case ColorConversion.Bgr2Hls:
+                case ColorConversion.Rgb2Hls:
+                case ColorConversion.Bgr2HsvFull:
+                case ColorConversion.Rgb2HsvFull:
+                case ColorConversion.Bgr2HlsFull:
+                case ColorConversion.Rgb2HlsFull:
+                case ColorConversion.Hsv2BgrFull:
+                case ColorConversion.Hsv2RgbFull:
+                case ColorConversion.Hls2BgrFull:
+                case ColorConversion.Hls2RgbFull:
+                case ColorConversion.Bgr2Yuv:
+                case ColorConversion.Rgb2Yuv:
+                case ColorConversion.Yuv2Bgr:
+                case ColorConversion.Yuv2Rgb:
+                case ColorConversion.BayerBG2BgrVng:
+                case ColorConversion.BayerGB2BgrVng:
+                case ColorConversion.BayerRG2BgrVng:
+                case ColorConversion.BayerGR2BgrVng:
+                case ColorConversion.Bgr2Lab:
+                case ColorConversion.Rgb2Lab:
+                case ColorConversion.LBgr2Lab:
+                case ColorConversion.LRgb2Lab:
+                case ColorConversion.Bgr2Luv:
+                case ColorConversion.Rgb2Luv:
+                case ColorConversion.LBgr2Luv:
+                case ColorConversion.LRgb2Luv:
+                case ColorConversion.Bgra2Bgr: return 3;
+                case ColorConversion.Rgb2Gray:
+                case ColorConversion.Bgra2Gray:
+                case ColorConversion.Rgba2Gray:
+                case ColorConversion.Bgr5652Gray:
+                case ColorConversion.Bgr5552Gray:
+                case ColorConversion.Bgr2Bgr565:
+                case ColorConversion.Rgb2Bgr565:
+                case ColorConversion.Bgra2Bgr565:
+                case ColorConversion.Rgba2Bgr565:
+                case ColorConversion.Gray2Bgr565:
+                case ColorConversion.Bgr2Bgr555:
+                case ColorConversion.Rgb2Bgr555:
+                case ColorConversion.Bgra2Bgr555:
+                case ColorConversion.Rgba2Bgr555:
+                case ColorConversion.Gray2Bgr555:
+                case ColorConversion.Bgr2Gray: return 1;
                 default: throw new ArgumentException("Unsupported color conversion code.");
             }
         }
@@ -121,7 +121,7 @@ namespace Bonsai.Vision
         public static bool FormatEquals(this IplImage image, IplImage other)
         {
             return image.Width == other.Width && image.Height == other.Height &&
-                   image.Depth == other.Depth && image.NumChannels == other.NumChannels;
+                   image.Depth == other.Depth && image.Channels == other.Channels;
         }
     }
 }

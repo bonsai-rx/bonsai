@@ -15,10 +15,10 @@ namespace Bonsai.Vision
     {
         public Filter2D()
         {
-            Anchor = new CvPoint(-1, -1);
+            Anchor = new Point(-1, -1);
         }
 
-        public CvPoint Anchor { get; set; }
+        public Point Anchor { get; set; }
 
         [XmlIgnore]
         [TypeConverter(typeof(MultidimensionalArrayConverter))]
@@ -36,7 +36,7 @@ namespace Bonsai.Vision
         {
             return Observable.Defer(() =>
             {
-                CvMat kernel = null;
+                Mat kernel = null;
                 float[,] currentKernel = null;
                 return source.Select(input =>
                 {
@@ -50,7 +50,7 @@ namespace Bonsai.Vision
                             var kernelHandle = GCHandle.Alloc(currentKernel, GCHandleType.Pinned);
                             try
                             {
-                                using (var kernelHeader = new CvMat(rows, columns, CvMatDepth.CV_32F, 1, kernelHandle.AddrOfPinnedObject()))
+                                using (var kernelHeader = new Mat(rows, columns, Depth.F32, 1, kernelHandle.AddrOfPinnedObject()))
                                 {
                                     kernel = kernelHeader.Clone();
                                 }
@@ -63,8 +63,8 @@ namespace Bonsai.Vision
                     if (kernel == null) return input;
                     else
                     {
-                        var output = new IplImage(input.Size, input.Depth, input.NumChannels);
-                        ImgProc.cvFilter2D(input, output, kernel, Anchor);
+                        var output = new IplImage(input.Size, input.Depth, input.Channels);
+                        CV.Filter2D(input, output, kernel, Anchor);
                         return output;
                     }
                 });

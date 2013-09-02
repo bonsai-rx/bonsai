@@ -17,8 +17,8 @@ namespace Bonsai.Vision
 
         public override IplImage Process(IplImage input)
         {
-            var output = new IplImage(input.Size, input.Depth, input.NumChannels);
-            ImgProc.cvLaplace(input, output, ApertureSize);
+            var output = new IplImage(input.Size, input.Depth, input.Channels);
+            CV.Laplace(input, output, ApertureSize);
             return output;
         }
     }

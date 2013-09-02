@@ -20,15 +20,15 @@ namespace Bonsai.Vision
                 {
                     if (mean == null)
                     {
-                        mean = new IplImage(input.Size, input.Depth, input.NumChannels);
+                        mean = new IplImage(input.Size, input.Depth, input.Channels);
                         mean.SetZero();
                     }
 
-                    var output = new IplImage(input.Size, input.Depth, input.NumChannels);
-                    Core.cvSub(input, mean, output, CvArr.Null);
-                    Core.cvConvertScale(output, output, 1f / count++, 0);
-                    Core.cvAdd(mean, output, mean, CvArr.Null);
-                    Core.cvCopy(mean, output, CvArr.Null);
+                    var output = new IplImage(input.Size, input.Depth, input.Channels);
+                    CV.Sub(input, mean, output);
+                    CV.ConvertScale(output, output, 1f / count++, 0);
+                    CV.Add(mean, output, mean);
+                    CV.Copy(mean, output);
                     return output;
                 });
             });

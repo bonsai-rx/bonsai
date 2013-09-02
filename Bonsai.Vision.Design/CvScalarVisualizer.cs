@@ -8,7 +8,7 @@ using Bonsai;
 using Bonsai.Vision.Design;
 using Bonsai.Design.Visualizers;
 
-[assembly: TypeVisualizer(typeof(CvScalarVisualizer), Target = typeof(CvScalar))]
+[assembly: TypeVisualizer(typeof(CvScalarVisualizer), Target = typeof(Scalar))]
 
 namespace Bonsai.Vision.Design
 {
@@ -21,7 +21,7 @@ namespace Bonsai.Vision.Design
 
         public override void Show(object value)
         {
-            var scalar = (CvScalar)value;
+            var scalar = (Scalar)value;
             AddValue(DateTime.Now, scalar.Val0, scalar.Val1, scalar.Val2, scalar.Val3);
         }
     }

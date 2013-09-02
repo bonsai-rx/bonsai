@@ -6,12 +6,12 @@ using OpenCV.Net;
 
 namespace Bonsai.Dsp
 {
-    public class Subtract : Selector<CvMat, CvMat, CvMat>
+    public class Subtract : Selector<Mat, Mat, Mat>
     {
-        public override CvMat Process(CvMat first, CvMat second)
+        public override Mat Process(Mat first, Mat second)
         {
-            var output = new CvMat(first.Rows, first.Cols, first.Depth, first.NumChannels);
-            Core.cvSub(first, second, output, CvArr.Null);
+            var output = new Mat(first.Rows, first.Cols, first.Depth, first.Channels);
+            CV.Sub(first, second, output);
             return output;
         }
     }

@@ -27,14 +27,14 @@ namespace Bonsai.Vision
                 {
                     if (accumulator == null)
                     {
-                        accumulator = new IplImage(input.Size, 32, input.NumChannels);
-                        temp = new IplImage(accumulator.Size, accumulator.Depth, accumulator.NumChannels);
+                        accumulator = new IplImage(input.Size, IplDepth.F32, input.Channels);
+                        temp = new IplImage(accumulator.Size, accumulator.Depth, accumulator.Channels);
                     }
 
-                    var output = new IplImage(input.Size, input.Depth, input.NumChannels);
-                    Core.cvSub(input, accumulator, temp, CvArr.Null);
-                    ImgProc.cvRunningAvg(input, accumulator, Alpha, CvArr.Null);
-                    Core.cvConvertScale(temp, output, 1, 0);
+                    var output = new IplImage(input.Size, input.Depth, input.Channels);
+                    CV.Sub(input, accumulator, temp);
+                    CV.RunningAvg(input, accumulator, Alpha);
+                    CV.ConvertScale(temp, output, 1, 0);
                     return output;
                 });
             });

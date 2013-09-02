@@ -70,7 +70,7 @@ namespace Bonsai.Vision.Design
                     {
                         var imageX = (int)(cursorPosition.X * ((float)image.Width / imageControl.Width));
                         var imageY = (int)(cursorPosition.Y * ((float)image.Height / imageControl.Height));
-                        var cursorColor = Core.cvGet2D(image, imageY, imageX);
+                        var cursorColor = image[imageY, imageX];
                         statusLabel.Text = string.Format("Cursor: ({0},{1}) Value: ({2},{3},{4})", imageX, imageY, cursorColor.Val0, cursorColor.Val1, cursorColor.Val2);
                     }
                 }
@@ -81,7 +81,7 @@ namespace Bonsai.Vision.Design
                 var image = imageControl.Image;
                 if (image != null)
                 {
-                    Parent.ClientSize = new Size(image.Width, image.Height);
+                    Parent.ClientSize = new System.Drawing.Size(image.Width, image.Height);
                 }
             };
 

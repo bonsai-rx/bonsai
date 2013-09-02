@@ -20,17 +20,17 @@ namespace Bonsai.Vision
         {
             return Observable.Defer(() =>
             {
-                CvArr mask;
+                Arr mask;
                 if (string.IsNullOrEmpty(FileName))
                 {
-                    mask = CvArr.Null;
+                    mask = null;
                 }
-                else mask = HighGui.cvLoadImage(FileName, LoadImageMode.Grayscale);
+                else mask = CV.LoadImage(FileName, LoadImageFlags.Grayscale);
                 return source.Select(input =>
                 {
-                    var output = new IplImage(input.Size, input.Depth, input.NumChannels);
+                    var output = new IplImage(input.Size, input.Depth, input.Channels);
                     output.SetZero();
-                    Core.cvCopy(input, output, mask);
+                    CV.Copy(input, output, mask);
                     return output;
                 });
             });

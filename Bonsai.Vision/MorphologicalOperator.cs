@@ -10,19 +10,19 @@ namespace Bonsai.Vision
 {
     public class MorphologicalOperator : Transform<IplImage, IplImage>
     {
-        CvSize size;
-        CvPoint anchor;
+        Size size;
+        Point anchor;
         StructuringElementShape shape;
         event EventHandler PropertyChanged;
 
         public MorphologicalOperator()
         {
-            Size = new CvSize(3, 3);
-            Anchor = new CvPoint(1, 1);
+            Size = new Size(3, 3);
+            Anchor = new Point(1, 1);
             Iterations = 1;
         }
 
-        public CvSize Size
+        public Size Size
         {
             get { return size; }
             set
@@ -32,7 +32,7 @@ namespace Bonsai.Vision
             }
         }
 
-        public CvPoint Anchor
+        public Point Anchor
         {
             get { return anchor; }
             set
@@ -86,9 +86,9 @@ namespace Bonsai.Vision
                         strel = new IplConvKernel(Size.Width, Size.Height, Anchor.X, Anchor.Y, Shape);
                     }
 
-                    var output = new IplImage(input.Size, input.Depth, input.NumChannels);
-                    temp = IplImageHelper.EnsureImageFormat(temp, input.Size, input.Depth, input.NumChannels);
-                    ImgProc.cvMorphologyEx(input, output, temp, strel, Operation, Iterations);
+                    var output = new IplImage(input.Size, input.Depth, input.Channels);
+                    temp = IplImageHelper.EnsureImageFormat(temp, input.Size, input.Depth, input.Channels);
+                    CV.MorphologyEx(input, output, temp, strel, Operation, Iterations);
                     return output;
                 }).Finally(update.Dispose);
             });

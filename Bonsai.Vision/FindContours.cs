@@ -14,7 +14,7 @@ namespace Bonsai.Vision
     {
         public FindContours()
         {
-            Method = ContourApproximation.CHAIN_APPROX_NONE;
+            Method = ContourApproximation.ChainApproxNone;
         }
 
         [Description("Specifies the contour retrieval strategy.")]
@@ -24,7 +24,7 @@ namespace Bonsai.Vision
         public ContourApproximation Method { get; set; }
 
         [Description("The optional offset to apply to individual contour points.")]
-        public CvPoint Offset { get; set; }
+        public Point Offset { get; set; }
 
         [Description("The minimum area for individual contours to be accepted.")]
         public double MinArea { get; set; }
@@ -36,17 +36,17 @@ namespace Bonsai.Vision
                 IplImage temp = null;
                 return source.Select(input =>
                 {
-                    CvSeq currentContour;
-                    temp = IplImageHelper.EnsureImageFormat(temp, input.Size, 8, 1);
-                    Core.cvCopy(input, temp);
+                    Seq currentContour;
+                    temp = IplImageHelper.EnsureImageFormat(temp, input.Size, IplDepth.U8, 1);
+                    CV.Copy(input, temp);
 
-                    var storage = new CvMemStorage();
-                    var scanner = ImgProc.cvStartFindContours(temp, storage, CvContour.HeaderSize, Mode, Method, Offset);
+                    var storage = new MemStorage();
+                    var scanner = CV.StartFindContours(temp, storage, Contour.HeaderSize, Mode, Method, Offset);
                     while (!(currentContour = scanner.FindNextContour()).IsInvalid)
                     {
-                        if (MinArea > 0 && ImgProc.cvContourArea(currentContour, CvSlice.WholeSeq, 0) < MinArea)
+                        if (MinArea > 0 && CV.ContourArea(currentContour, SeqSlice.WholeSeq) < MinArea)
                         {
-                            scanner.SubstituteContour(CvSeq.Null);
+                            scanner.SubstituteContour(null);
                         }
                     }
 
