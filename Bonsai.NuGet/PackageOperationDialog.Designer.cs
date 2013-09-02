@@ -1,6 +1,6 @@
 ﻿namespace Bonsai.NuGet
 {
-    partial class PackageInstallDialog
+    partial class PackageOperationDialog
     {
         /// <summary>
         /// Required designer variable.
@@ -58,9 +58,9 @@
             this.actionNameLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.actionNameLabel.Location = new System.Drawing.Point(117, 6);
             this.actionNameLabel.Name = "actionNameLabel";
-            this.actionNameLabel.Size = new System.Drawing.Size(70, 13);
+            this.actionNameLabel.Size = new System.Drawing.Size(75, 13);
             this.actionNameLabel.TabIndex = 0;
-            this.actionNameLabel.Text = "Installing...";
+            this.actionNameLabel.Text = "Executing...";
             // 
             // progressBar
             // 
@@ -127,7 +127,7 @@
             this.tableLayoutPanel.Size = new System.Drawing.Size(334, 211);
             this.tableLayoutPanel.TabIndex = 1;
             // 
-            // PackageInstallDialog
+            // PackageOperationDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -135,10 +135,10 @@
             this.Controls.Add(this.tableLayoutPanel);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "PackageInstallDialog";
+            this.Name = "PackageOperationDialog";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
-            this.Text = "PackageInstallDialog";
+            this.Text = "Operation";
             this.actionNamePanel.ResumeLayout(false);
             this.actionNamePanel.PerformLayout();
             this.closeButtonLayoutPanel.ResumeLayout(false);

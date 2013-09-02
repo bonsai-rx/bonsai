@@ -70,11 +70,29 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Operation failed..
+        /// </summary>
+        internal static string FailedOperationLabel {
+            get {
+                return ResourceManager.GetString("FailedOperationLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Installed packages.
         /// </summary>
         internal static string InstalledPackagesNodeName {
             get {
                 return ResourceManager.GetString("InstalledPackagesNodeName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Installing....
+        /// </summary>
+        internal static string InstallOperationLabel {
+            get {
+                return ResourceManager.GetString("InstallOperationLabel", resourceCulture);
             }
         }
         
@@ -97,11 +115,11 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Operation failed..
+        ///   Looks up a localized string similar to Uninstalling....
         /// </summary>
-        internal static string OperationFailedLabel {
+        internal static string UninstallOperationLabel {
             get {
-                return ResourceManager.GetString("OperationFailedLabel", resourceCulture);
+                return ResourceManager.GetString("UninstallOperationLabel", resourceCulture);
             }
         }
         
