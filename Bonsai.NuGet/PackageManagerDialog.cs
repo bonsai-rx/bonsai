@@ -92,35 +92,45 @@ namespace Bonsai.NuGet
             get { return releaseFilterComboBox.SelectedIndex == 1 || selectedRepository == packageManager.LocalRepository; }
         }
 
-        IQueryable<IPackage> GetPackageFeed()
+        Func<IQueryable<IPackage>> GetPackageFeed()
         {
-            if (selectedRepository == null)
+            var searchTerm = searchComboBox.Text;
+            var allowPrereleaseVersions = AllowPrereleaseVersions;
+            var sortMode = (string)sortComboBox.SelectedItem;
+            var updateFeed = updatesNode.IsExpanded;
+            return () =>
             {
-                return Enumerable.Empty<IPackage>().AsQueryable();
-            }
+                if (selectedRepository == null)
+                {
+                    return Enumerable.Empty<IPackage>().AsQueryable();
+                }
 
-            IQueryable<IPackage> packages;
-            if (updatesNode.IsExpanded)
-            {
-                packages = selectedRepository.GetUpdates(packageManager.LocalRepository.GetPackages(), AllowPrereleaseVersions, false).AsQueryable();
-            }
-            else
-            {
-                packages = selectedRepository
-                   .Search(searchComboBox.Text, AllowPrereleaseVersions)
-                   .Where(p => p.IsLatestVersion);
-            }
-            switch ((string)sortComboBox.SelectedItem)
-            {
-                case SortByRelevance: break;
-                case SortByMostDownloads: packages = packages.OrderByDescending(p => p.DownloadCount); break;
-                case SortByPublishedDate: packages = packages.OrderByDescending(p => p.Published); break;
-                case SortByNameAscending: packages = packages.OrderBy(p => p.Title); break;
-                case SortByNameDescending: packages = packages.OrderByDescending(p => p.Title); break;
-                default: throw new InvalidOperationException("Invalid sort option");
-            }
+                IQueryable<IPackage> packages;
+                if (updateFeed)
+                {
+                    packages = selectedRepository.GetUpdates(
+                        packageManager.LocalRepository.GetPackages(),
+                        allowPrereleaseVersions,
+                        false).AsQueryable();
+                }
+                else
+                {
+                    packages = selectedRepository
+                        .Search(searchTerm, allowPrereleaseVersions)
+                        .Where(p => p.IsLatestVersion);
+                }
+                switch (sortMode)
+                {
+                    case SortByRelevance: break;
+                    case SortByMostDownloads: packages = packages.OrderByDescending(p => p.DownloadCount); break;
+                    case SortByPublishedDate: packages = packages.OrderByDescending(p => p.Published); break;
+                    case SortByNameAscending: packages = packages.OrderBy(p => p.Title); break;
+                    case SortByNameDescending: packages = packages.OrderByDescending(p => p.Title); break;
+                    default: throw new InvalidOperationException("Invalid sort option");
+                }
 
-            return packages;
+                return packages;
+            };
         }
 
         IObservable<Image> GetPackageIcon(Uri iconUrl)
@@ -172,22 +182,24 @@ namespace Bonsai.NuGet
 
             if (packagePageSelector.PageCount > 0)
             {
-                var packages = GetPackageFeed()
-                    .Skip(packagePageSelector.SelectedIndex * PackagesPerPage)
-                    .Take(PackagesPerPage);
-
-                packages.ToObservable()
-                        .SubscribeOn(NewThreadScheduler.Default)
-                        .ObserveOn(this)
-                        .Subscribe(package => AddPackage(package));
+                var packageFeed = GetPackageFeed();
+                var pageIndex = packagePageSelector.SelectedIndex;
+                Observable.Defer(() =>
+                    packageFeed()
+                    .Skip(pageIndex * PackagesPerPage)
+                    .Take(PackagesPerPage)
+                    .ToObservable())
+                    .SubscribeOn(NewThreadScheduler.Default)
+                    .ObserveOn(this)
+                    .Subscribe(package => AddPackage(package));
             }
             else packageView.Nodes.Add("No items found.");
         }
 
         private void UpdatePackageFeed()
         {
-            var packages = GetPackageFeed();
-            Observable.Start(() => packages.Count())
+            var packageFeed = GetPackageFeed();
+            Observable.Start(() => packageFeed().Count())
                 .ObserveOn(this)
                 .Subscribe(count =>
                 {
