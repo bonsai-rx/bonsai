@@ -11,8 +11,7 @@ namespace Bonsai.NuGet
 {
     class PackageView : TreeView
     {
-        const string InstallButtonText = "Install";
-        static readonly Rectangle InstallButtonBounds = new Rectangle(10, 2, 75, 23);
+        static readonly Rectangle OperationButtonBounds = new Rectangle(10, 2, 75, 23);
         const int WM_NCMOUSEHOVER = 0x02a0;
         const int WM_MOUSEHOVER = 0x02a1;
         const int WM_NCMOUSELEAVE = 0x02a2;
@@ -26,11 +25,13 @@ namespace Bonsai.NuGet
         }
 
         [Category("Action")]
-        public event TreeViewEventHandler InstallClick;
+        public event TreeViewEventHandler OperationClick;
 
-        private void OnInstallClick(TreeViewEventArgs e)
+        public string OperationText { get; set; }
+
+        private void OnOperationClick(TreeViewEventArgs e)
         {
-            var handler = InstallClick;
+            var handler = OperationClick;
             if (handler != null)
             {
                 handler(this, e);
@@ -69,19 +70,19 @@ namespace Bonsai.NuGet
 
         protected override void OnMouseClick(MouseEventArgs e)
         {
-            if (InstallHitTest(e.Location) && e.Button == MouseButtons.Left)
+            if (OperationHitTest(e.Location) && e.Button == MouseButtons.Left)
             {
-                OnInstallClick(new TreeViewEventArgs(SelectedNode, TreeViewAction.ByMouse));
+                OnOperationClick(new TreeViewEventArgs(SelectedNode, TreeViewAction.ByMouse));
             }
             base.OnMouseClick(e);
         }
 
-        private bool InstallHitTest(Point pt)
+        private bool OperationHitTest(Point pt)
         {
             var hitTestInfo = HitTest(pt);
             if (hitTestInfo.Node != null && hitTestInfo.Node == SelectedNode)
             {
-                var buttonBounds = GetInstallButtonBounds(hitTestInfo.Node.Bounds);
+                var buttonBounds = GetOperationButtonBounds(hitTestInfo.Node.Bounds);
                 return buttonBounds.Contains(pt);
             }
 
@@ -93,11 +94,11 @@ namespace Bonsai.NuGet
             get { return Width - SystemInformation.VerticalScrollBarWidth; }
         }
 
-        private Rectangle GetInstallButtonBounds(Rectangle nodeBounds)
+        private Rectangle GetOperationButtonBounds(Rectangle nodeBounds)
         {
-            nodeBounds.X = RightMargin - InstallButtonBounds.Width - InstallButtonBounds.X;
-            nodeBounds.Y += InstallButtonBounds.Y;
-            nodeBounds.Size = InstallButtonBounds.Size;
+            nodeBounds.X = RightMargin - OperationButtonBounds.Width - OperationButtonBounds.X;
+            nodeBounds.Y += OperationButtonBounds.Y;
+            nodeBounds.Size = OperationButtonBounds.Size;
             return nodeBounds;
         }
 
@@ -111,21 +112,21 @@ namespace Bonsai.NuGet
             if ((e.State & TreeNodeStates.Selected) != 0)
             {
                 var font = Font;
-                var buttonBounds = GetInstallButtonBounds(bounds);
+                var buttonBounds = GetOperationButtonBounds(bounds);
                 bounds.Width -= buttonBounds.Width;
 
                 if (VisualStyleRenderer.IsSupported)
                 {
-                    ButtonRenderer.DrawButton(e.Graphics, buttonBounds, InstallButtonText, font, false, PushButtonState.Normal);
+                    ButtonRenderer.DrawButton(e.Graphics, buttonBounds, OperationText, font, false, PushButtonState.Normal);
                 }
                 else
                 {
-                    var buttonTextSize = TextRenderer.MeasureText(InstallButtonText, font);
+                    var buttonTextSize = TextRenderer.MeasureText(OperationText, font);
                     var buttonTextOffset = new Point(
                         buttonBounds.Location.X + (buttonBounds.Size.Width - buttonTextSize.Width) / 2,
                         buttonBounds.Location.Y + (buttonBounds.Size.Height - buttonTextSize.Height) / 2);
                     ControlPaint.DrawButton(e.Graphics, buttonBounds, ButtonState.Normal);
-                    TextRenderer.DrawText(e.Graphics, InstallButtonText, font, buttonTextOffset, SystemColors.ControlText);
+                    TextRenderer.DrawText(e.Graphics, OperationText, font, buttonTextOffset, SystemColors.ControlText);
                 }
             }
 

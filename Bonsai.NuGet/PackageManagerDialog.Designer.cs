@@ -28,9 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.mainLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.packageViewLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.packageIcons = new System.Windows.Forms.ImageList();
+            this.packageIcons = new System.Windows.Forms.ImageList(this.components);
             this.filterLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.releaseFilterComboBox = new System.Windows.Forms.ComboBox();
             this.sortLabel = new System.Windows.Forms.Label();
@@ -40,6 +41,10 @@
             this.searchLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.searchComboBox = new System.Windows.Forms.ComboBox();
             this.repositoriesView = new System.Windows.Forms.TreeView();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.closeButton = new System.Windows.Forms.Button();
+            this.settingsButton = new System.Windows.Forms.Button();
             this.packageView = new Bonsai.NuGet.PackageView();
             this.packagePageSelector = new Bonsai.NuGet.PackagePageSelector();
             this.packageDetails = new Bonsai.NuGet.PackageDetails();
@@ -49,22 +54,27 @@
             this.pageSelectorPanel.SuspendLayout();
             this.detailsLayoutPanel.SuspendLayout();
             this.searchLayoutPanel.SuspendLayout();
+            this.panel1.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // mainLayoutPanel
             // 
             this.mainLayoutPanel.ColumnCount = 3;
             this.mainLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 225F));
-            this.mainLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.mainLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.mainLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 253F));
             this.mainLayoutPanel.Controls.Add(this.packageViewLayoutPanel, 1, 0);
             this.mainLayoutPanel.Controls.Add(this.detailsLayoutPanel, 2, 0);
             this.mainLayoutPanel.Controls.Add(this.repositoriesView, 0, 0);
+            this.mainLayoutPanel.Controls.Add(this.panel1, 2, 1);
+            this.mainLayoutPanel.Controls.Add(this.panel2, 0, 1);
             this.mainLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mainLayoutPanel.Location = new System.Drawing.Point(0, 0);
             this.mainLayoutPanel.Name = "mainLayoutPanel";
-            this.mainLayoutPanel.RowCount = 1;
+            this.mainLayoutPanel.RowCount = 2;
             this.mainLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.mainLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.mainLayoutPanel.Size = new System.Drawing.Size(804, 546);
             this.mainLayoutPanel.TabIndex = 0;
             // 
@@ -82,7 +92,7 @@
             this.packageViewLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.packageViewLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.packageViewLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-            this.packageViewLayoutPanel.Size = new System.Drawing.Size(320, 540);
+            this.packageViewLayoutPanel.Size = new System.Drawing.Size(320, 490);
             this.packageViewLayoutPanel.TabIndex = 2;
             // 
             // packageIcons
@@ -138,7 +148,7 @@
             // 
             this.pageSelectorPanel.Controls.Add(this.packagePageSelector);
             this.pageSelectorPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pageSelectorPanel.Location = new System.Drawing.Point(3, 503);
+            this.pageSelectorPanel.Location = new System.Drawing.Point(3, 453);
             this.pageSelectorPanel.Name = "pageSelectorPanel";
             this.pageSelectorPanel.Size = new System.Drawing.Size(314, 34);
             this.pageSelectorPanel.TabIndex = 2;
@@ -155,7 +165,7 @@
             this.detailsLayoutPanel.RowCount = 2;
             this.detailsLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.detailsLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.detailsLayoutPanel.Size = new System.Drawing.Size(247, 540);
+            this.detailsLayoutPanel.Size = new System.Drawing.Size(247, 490);
             this.detailsLayoutPanel.TabIndex = 3;
             // 
             // searchLayoutPanel
@@ -181,10 +191,52 @@
             this.repositoriesView.BackColor = System.Drawing.SystemColors.Control;
             this.repositoriesView.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.repositoriesView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.repositoriesView.FullRowSelect = true;
+            this.repositoriesView.ItemHeight = 25;
             this.repositoriesView.Location = new System.Drawing.Point(3, 3);
             this.repositoriesView.Name = "repositoriesView";
-            this.repositoriesView.Size = new System.Drawing.Size(219, 540);
+            this.repositoriesView.ShowLines = false;
+            this.repositoriesView.Size = new System.Drawing.Size(219, 490);
             this.repositoriesView.TabIndex = 4;
+            this.repositoriesView.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.repositoriesView_BeforeSelect);
+            this.repositoriesView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.repositoriesView_AfterSelect);
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.closeButton);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Location = new System.Drawing.Point(554, 499);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(247, 44);
+            this.panel1.TabIndex = 5;
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.settingsButton);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel2.Location = new System.Drawing.Point(3, 499);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(219, 44);
+            this.panel2.TabIndex = 6;
+            // 
+            // closeButton
+            // 
+            this.closeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.closeButton.Location = new System.Drawing.Point(163, 12);
+            this.closeButton.Name = "closeButton";
+            this.closeButton.Size = new System.Drawing.Size(75, 23);
+            this.closeButton.TabIndex = 0;
+            this.closeButton.Text = "Close";
+            this.closeButton.UseVisualStyleBackColor = true;
+            // 
+            // settingsButton
+            // 
+            this.settingsButton.Location = new System.Drawing.Point(9, 12);
+            this.settingsButton.Name = "settingsButton";
+            this.settingsButton.Size = new System.Drawing.Size(75, 23);
+            this.settingsButton.TabIndex = 0;
+            this.settingsButton.Text = "Settings";
+            this.settingsButton.UseVisualStyleBackColor = true;
             // 
             // packageView
             // 
@@ -199,9 +251,9 @@
             this.packageView.Name = "packageView";
             this.packageView.SelectedImageIndex = 0;
             this.packageView.ShowRootLines = false;
-            this.packageView.Size = new System.Drawing.Size(314, 464);
+            this.packageView.Size = new System.Drawing.Size(314, 414);
             this.packageView.TabIndex = 0;
-            this.packageView.InstallClick += new System.Windows.Forms.TreeViewEventHandler(this.packageView_InstallClick);
+            this.packageView.OperationClick += new System.Windows.Forms.TreeViewEventHandler(this.packageView_OperationClick);
             this.packageView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.packageView_AfterSelect);
             // 
             // packagePageSelector
@@ -220,7 +272,7 @@
             this.packageDetails.Dock = System.Windows.Forms.DockStyle.Fill;
             this.packageDetails.Location = new System.Drawing.Point(3, 33);
             this.packageDetails.Name = "packageDetails";
-            this.packageDetails.Size = new System.Drawing.Size(241, 504);
+            this.packageDetails.Size = new System.Drawing.Size(241, 454);
             this.packageDetails.TabIndex = 1;
             // 
             // PackageManagerDialog
@@ -239,6 +291,8 @@
             this.pageSelectorPanel.ResumeLayout(false);
             this.detailsLayoutPanel.ResumeLayout(false);
             this.searchLayoutPanel.ResumeLayout(false);
+            this.panel1.ResumeLayout(false);
+            this.panel2.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -260,5 +314,9 @@
         private PackageDetails packageDetails;
         private System.Windows.Forms.Panel pageSelectorPanel;
         private PackagePageSelector packagePageSelector;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Button closeButton;
+        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Button settingsButton;
     }
 }
