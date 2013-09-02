@@ -16,12 +16,12 @@ namespace Bonsai.Vision.Design
         public override void Show(object value)
         {
             var keyPoints = (KeyPointCollection)value;
-            var output = new IplImage(keyPoints.Image.Size, 8, 3);
-            ImgProc.cvCvtColor(keyPoints.Image, output, ColorConversion.GRAY2BGR);
+            var output = new IplImage(keyPoints.Image.Size, IplDepth.U8, 3);
+            CV.CvtColor(keyPoints.Image, output, ColorConversion.Gray2Bgr);
 
             foreach (var keyPoint in keyPoints)
             {
-                Core.cvCircle(output, new CvPoint(keyPoint.Point), 2, CvScalar.Rgb(255, 0, 0), -1, 8, 0);
+                CV.Circle(output, new Point(keyPoint), 2, Scalar.Rgb(255, 0, 0), -1);
             }
 
             base.Show(output);

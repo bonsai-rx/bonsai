@@ -12,8 +12,8 @@ using ZedGraph;
 using System.Windows.Forms;
 using Bonsai.Design.Visualizers;
 
-[assembly: TypeVisualizer(typeof(CvMatVisualizer), Target = typeof(CvMat))]
-[assembly: TypeVisualizer(typeof(CvMatVisualizer), Target = typeof(IObservable<CvMat>))]
+[assembly: TypeVisualizer(typeof(CvMatVisualizer), Target = typeof(Mat))]
+[assembly: TypeVisualizer(typeof(CvMatVisualizer), Target = typeof(IObservable<Mat>))]
 
 namespace Bonsai.Dsp.Design
 {
@@ -128,7 +128,7 @@ namespace Bonsai.Dsp.Design
 
         public override void Show(object value)
         {
-            var buffer = (CvMat)value;
+            var buffer = (Mat)value;
             var now = HighResolutionScheduler.Now;
 
             var rows = buffer.Rows;
@@ -140,9 +140,9 @@ namespace Bonsai.Dsp.Design
 
             var samples = new double[rows, columns];
             var sampleHandle = GCHandle.Alloc(samples, GCHandleType.Pinned);
-            using (var sampleHeader = new CvMat(rows, columns, CvMatDepth.CV_64F, 1, sampleHandle.AddrOfPinnedObject()))
+            using (var sampleHeader = new Mat(rows, columns, Depth.F64, 1, sampleHandle.AddrOfPinnedObject()))
             {
-                Core.cvConvert(buffer, sampleHeader);
+                CV.Convert(buffer, sampleHeader);
             }
             sampleHandle.Free();
 
@@ -179,11 +179,11 @@ namespace Bonsai.Dsp.Design
             if (visualizerDialog != null && visualizerContext != null)
             {
                 var observableType = visualizerContext.Source.ObservableType;
-                if (observableType == typeof(IObservable<CvMat>))
+                if (observableType == typeof(IObservable<Mat>))
                 {
                     SetBlockSize(1);
                     targetElapsedTime = WindowedTargetElapsedTime;
-                    return source.SelectMany(xs => xs.Select(ws => ws as IObservable<CvMat>)
+                    return source.SelectMany(xs => xs.Select(ws => ws as IObservable<Mat>)
                                                      .Where(ws => ws != null)
                                                      .SelectMany(ws => ws.ObserveOn(visualizerDialog)
                                                                          .Do(Show, SequenceCompleted)));

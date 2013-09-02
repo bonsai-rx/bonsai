@@ -15,7 +15,7 @@ namespace Bonsai.Vision
     {
         public LoadImage()
         {
-            Mode = LoadImageMode.Unchanged;
+            Mode = LoadImageFlags.Unchanged;
         }
 
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
@@ -24,7 +24,7 @@ namespace Bonsai.Vision
         public string FileName { get; set; }
 
         [Description("Specifies optional conversions applied to the loaded image.")]
-        public LoadImageMode Mode { get; set; }
+        public LoadImageFlags Mode { get; set; }
 
         public override IObservable<IplImage> Generate()
         {
@@ -36,7 +36,7 @@ namespace Bonsai.Vision
                     throw new InvalidOperationException("A valid image file path was not specified.");
                 }
 
-                var image = HighGui.cvLoadImage(FileName, Mode);
+                var image = CV.LoadImage(FileName, Mode);
                 if (image.IsInvalid) throw new InvalidOperationException("Failed to load an image from the specified path.");
                 return image;
             }));

@@ -14,7 +14,7 @@ namespace Bonsai.Vision
 
             double angle = 0;
             double area = 0;
-            CvPoint2D32f centroid = new CvPoint2D32f();
+            Point2f centroid = new Point2f();
             for (int i = 0; i < input.Count; i++)
             {
                 var component = input[i];
@@ -31,7 +31,7 @@ namespace Bonsai.Vision
                 result.Centroid = centroid;
                 result.Orientation = angle / input.Count;
                 result.Area = area;
-                result.Contour = CvContour.FromCvSeq(CvSeq.Null);
+                result.Contour = Contour.FromSeq(null);
             }
 
             return result;

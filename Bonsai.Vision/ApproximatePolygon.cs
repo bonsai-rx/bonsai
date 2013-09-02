@@ -12,14 +12,14 @@ namespace Bonsai.Vision
 
         public double Eps { get; set; }
 
-        public int Recursive { get; set; }
+        public bool Recursive { get; set; }
 
         public override Contours Process(Contours input)
         {
-            CvSeq output = input.FirstContour;
+            Seq output = input.FirstContour;
             if (!input.FirstContour.IsInvalid)
             {
-                output = ImgProc.cvApproxPoly(input.FirstContour, CvContour.HeaderSize, input.FirstContour.Storage, Method, Eps, Recursive);
+                output = CV.ApproxPoly(input.FirstContour, Contour.HeaderSize, input.FirstContour.Storage, Method, Eps, Recursive);
             }
 
             return new Contours(output, input.ImageSize);

@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Dsp
 {
-    public class FrequencyFilter : Transform<CvMat, CvMat>
+    public class FrequencyFilter : Transform<Mat, Mat>
     {
         int filterOrder;
         FilterType filterType;
@@ -146,7 +146,7 @@ namespace Bonsai.Dsp
             return result;
         }
 
-        public override IObservable<CvMat> Process(IObservable<CvMat> source)
+        public override IObservable<Mat> Process(IObservable<Mat> source)
         {
             return filter.Process(source);
         }

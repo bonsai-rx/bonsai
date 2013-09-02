@@ -8,11 +8,11 @@ using System.ComponentModel;
 namespace Bonsai.Vision
 {
     [Description("Calculates the average (mean) of the image elements for each color channel.")]
-    public class Average : Selector<IplImage, CvScalar>
+    public class Average : Selector<IplImage, Scalar>
     {
-        public override CvScalar Process(IplImage input)
+        public override Scalar Process(IplImage input)
         {
-            return Core.cvAvg(input);
+            return CV.Avg(input);
         }
     }
 }

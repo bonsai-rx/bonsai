@@ -30,7 +30,7 @@ namespace Bonsai.Vision
                 {
                     PathHelper.EnsureDirectory(fileName);
                     fileName = PathHelper.AppendSuffix(fileName, Suffix);
-                    HighGui.cvSaveImage(fileName, input);
+                    CV.SaveImage(fileName, input);
                 }
             });
         }

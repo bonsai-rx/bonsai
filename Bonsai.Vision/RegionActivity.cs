@@ -8,10 +8,10 @@ namespace Bonsai.Vision
 {
     public class RegionActivity
     {
-        public CvPoint[] Roi { get; set; }
+        public Point[] Roi { get; set; }
 
-        public CvRect Rect { get; set; }
+        public Rect Rect { get; set; }
 
-        public CvScalar Activity { get; set; }
+        public Scalar Activity { get; set; }
     }
 }

@@ -24,8 +24,8 @@ namespace Bonsai.Vision
             var dataHandle = GCHandle.Alloc(data, GCHandleType.Pinned);
             try
             {
-                var dataHeader = new IplImage(input.Size, input.Depth, input.NumChannels, dataHandle.AddrOfPinnedObject());
-                Core.cvCopy(input, dataHeader);
+                var dataHeader = new IplImage(input.Size, input.Depth, input.Channels, dataHandle.AddrOfPinnedObject());
+                CV.Copy(input, dataHeader);
             }
             finally { dataHandle.Free(); }
             writer.Write(data);

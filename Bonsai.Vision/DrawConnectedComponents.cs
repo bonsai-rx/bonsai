@@ -10,12 +10,12 @@ namespace Bonsai.Vision
     {
         public override IplImage Process(ConnectedComponentCollection input)
         {
-            var output = new IplImage(input.ImageSize, 8, 1);
+            var output = new IplImage(input.ImageSize, IplDepth.U8, 1);
             output.SetZero();
 
             foreach (var component in input)
             {
-                Core.cvDrawContours(output, component.Contour, CvScalar.All(255), CvScalar.All(0), 0, -1, 8, CvPoint.Zero);
+                CV.DrawContours(output, component.Contour, Scalar.All(255), Scalar.All(0), 0, -1);
             }
 
             return output;

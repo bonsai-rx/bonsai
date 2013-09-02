@@ -28,22 +28,22 @@ namespace Bonsai.Vision
             {
                 IplImage temp = null;
                 IplImage eigen = null;
-                CvPoint2D32f[] corners = null;
+                Point2f[] corners = null;
                 return source.Select(input =>
                 {
                     var result = new KeyPointCollection(input);
-                    temp = IplImageHelper.EnsureImageFormat(temp, input.Size, 32, 1);
-                    eigen = IplImageHelper.EnsureImageFormat(eigen, input.Size, 32, 1);
+                    temp = IplImageHelper.EnsureImageFormat(temp, input.Size, IplDepth.F32, 1);
+                    eigen = IplImageHelper.EnsureImageFormat(eigen, input.Size, IplDepth.F32, 1);
                     if (corners == null || corners.Length != MaxFeatures)
                     {
-                        corners = new CvPoint2D32f[MaxFeatures];
+                        corners = new Point2f[MaxFeatures];
                     }
 
                     int cornerCount = corners.Length;
-                    ImgProc.cvGoodFeaturesToTrack(input, eigen, temp, corners, ref cornerCount, QualityLevel, MinDistance, CvArr.Null, 3, 0, 0.04);
+                    CV.GoodFeaturesToTrack(input, eigen, temp, corners, out cornerCount, QualityLevel, MinDistance);
                     for (int i = 0; i < cornerCount; i++)
                     {
-                        result.Add(new KeyPoint(corners[i]));
+                        result.Add(corners[i]);
                     }
 
                     return result;

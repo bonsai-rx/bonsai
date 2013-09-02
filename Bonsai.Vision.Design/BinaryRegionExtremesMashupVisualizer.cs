@@ -10,6 +10,7 @@ using Bonsai.Expressions;
 using Bonsai.Dag;
 using Bonsai;
 using Bonsai.Vision.Design;
+using Point = OpenCV.Net.Point;
 
 [assembly: TypeVisualizer(typeof(BinaryRegionExtremesMashupVisualizer), Target = typeof(VisualizerMashup<IplImageVisualizer, BinaryRegionExtremesVisualizer>))]
 
@@ -22,9 +23,9 @@ namespace Bonsai.Vision.Design
         public override void Show(object value)
         {
             var image = visualizer.VisualizerImage;
-            var extremes = (Tuple<CvPoint2D32f, CvPoint2D32f>)value;
-            Core.cvCircle(image, new CvPoint(extremes.Item1), 3, CvScalar.Rgb(255, 0, 0), -1, 8, 0);
-            Core.cvCircle(image, new CvPoint(extremes.Item2), 3, CvScalar.Rgb(0, 255, 0), -1, 8, 0);
+            var extremes = (Tuple<Point2f, Point2f>)value;
+            CV.Circle(image, new Point(extremes.Item1), 3, Scalar.Rgb(255, 0, 0), -1);
+            CV.Circle(image, new Point(extremes.Item2), 3, Scalar.Rgb(0, 255, 0), -1);
         }
 
         public override void Load(IServiceProvider provider)

@@ -17,7 +17,7 @@ namespace Bonsai.Vision.Design
         public override void Show(object value)
         {
             var connectedComponents = (ConnectedComponentCollection)value;
-            var output = new IplImage(connectedComponents.ImageSize, 8, 3);
+            var output = new IplImage(connectedComponents.ImageSize, IplDepth.U8, 3);
             output.SetZero();
 
             foreach (var component in connectedComponents)

@@ -18,13 +18,13 @@ namespace Bonsai.Vision.Design
         {
             var connectedComponent = (ConnectedComponent)value;
             var validContour = connectedComponent.Contour != null && !connectedComponent.Contour.IsInvalid;
-            var boundingBox = validContour ? connectedComponent.Contour.Rect : new CvRect(0, 0, 1, 1);
-            var output = new IplImage(new CvSize(boundingBox.Width, boundingBox.Height), 8, 3);
+            var boundingBox = validContour ? connectedComponent.Contour.Rect : new Rect(0, 0, 1, 1);
+            var output = new IplImage(new Size(boundingBox.Width, boundingBox.Height), IplDepth.U8, 3);
             output.SetZero();
 
             if (validContour)
             {
-                DrawingHelper.DrawConnectedComponent(output, connectedComponent, new CvPoint2D32f(-boundingBox.X, -boundingBox.Y));
+                DrawingHelper.DrawConnectedComponent(output, connectedComponent, new Point2f(-boundingBox.X, -boundingBox.Y));
             }
             base.Show(output);
         }

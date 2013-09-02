@@ -16,7 +16,7 @@ namespace Bonsai.Vision
     public class FileCapture : Source<IplImage>
     {
         int? targetFrame;
-        CvCapture capture;
+        Capture capture;
         double captureFps;
         IplImage image;
         IObservable<IplImage> source;
@@ -36,9 +36,9 @@ namespace Bonsai.Vision
                     }
 
                     image = null;
-                    capture = CvCapture.CreateFileCapture(fileName);
+                    capture = Capture.CreateFileCapture(fileName);
                     if (capture.IsInvalid) throw new InvalidOperationException("Failed to open the video at the specified path.");
-                    captureFps = capture.GetProperty(CaptureProperty.FPS);
+                    captureFps = capture.GetProperty(CaptureProperty.Fps);
                     return capture;
                 },
                 capture => ObservableCombinators.GenerateWithThread<IplImage>(observer =>
@@ -47,21 +47,21 @@ namespace Bonsai.Vision
                     if (targetFrame.HasValue)
                     {
                         var target = targetFrame.Value;
-                        var currentFrame = (int)capture.GetProperty(CaptureProperty.POS_FRAMES) - 1;
+                        var currentFrame = (int)capture.GetProperty(CaptureProperty.PosFrames) - 1;
                         if (target != currentFrame)
                         {
-                            capture.SetProperty(CaptureProperty.POS_FRAMES, target);
+                            capture.SetProperty(CaptureProperty.PosFrames, target);
                             if (target < currentFrame) // seek backward
                             {
-                                currentFrame = (int)capture.GetProperty(CaptureProperty.POS_FRAMES);
+                                currentFrame = (int)capture.GetProperty(CaptureProperty.PosFrames);
                                 image = capture.QueryFrame();
 
                                 int skip = 1;
                                 while (target < currentFrame)
                                 {
                                     // try to seek back to the nearest key frame in multiples of two
-                                    capture.SetProperty(CaptureProperty.POS_FRAMES, target - skip);
-                                    currentFrame = (int)capture.GetProperty(CaptureProperty.POS_FRAMES);
+                                    capture.SetProperty(CaptureProperty.PosFrames, target - skip);
+                                    currentFrame = (int)capture.GetProperty(CaptureProperty.PosFrames);
                                     skip *= 2;
                                 }
                             }
@@ -69,7 +69,7 @@ namespace Bonsai.Vision
                             // continue seeking frame-by-frame until target is reached
                             while (target > currentFrame)
                             {
-                                currentFrame = (int)capture.GetProperty(CaptureProperty.POS_FRAMES);
+                                currentFrame = (int)capture.GetProperty(CaptureProperty.PosFrames);
                                 var nextFrame = capture.QueryFrame();
 
                                 // if next frame is null we tried to seek past the end of the file
@@ -87,7 +87,7 @@ namespace Bonsai.Vision
                         {
                             if (Loop)
                             {
-                                capture.SetProperty(CaptureProperty.POS_FRAMES, 0);
+                                capture.SetProperty(CaptureProperty.PosFrames, 0);
                                 image = capture.QueryFrame();
                             }
                             else
@@ -111,7 +111,7 @@ namespace Bonsai.Vision
         }
 
         [Browsable(false)]
-        public CvCapture Capture
+        public Capture Capture
         {
             get { return capture; }
         }

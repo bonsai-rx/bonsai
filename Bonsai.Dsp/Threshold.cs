@@ -9,7 +9,7 @@ using System.Drawing.Design;
 namespace Bonsai.Dsp
 {
     [Description("Applies a fixed threshold to the input signal.")]
-    public class Threshold : Selector<CvMat, CvMat>
+    public class Threshold : Selector<Mat, Mat>
     {
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
         [Description("The threshold value used to test individual samples.")]
@@ -19,12 +19,12 @@ namespace Bonsai.Dsp
         public double MaxValue { get; set; }
 
         [Description("The type of threshold to apply to individual samples.")]
-        public ThresholdType ThresholdType { get; set; }
+        public ThresholdTypes ThresholdType { get; set; }
 
-        public override CvMat Process(CvMat input)
+        public override Mat Process(Mat input)
         {
-            var output = new CvMat(input.Rows, input.Cols, input.Depth, input.NumChannels);
-            ImgProc.cvThreshold(input, output, ThresholdValue, MaxValue, ThresholdType);
+            var output = new Mat(input.Rows, input.Cols, input.Depth, input.Channels);
+            CV.Threshold(input, output, ThresholdValue, MaxValue, ThresholdType);
             return output;
         }
     }

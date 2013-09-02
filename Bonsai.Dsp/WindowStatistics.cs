@@ -9,11 +9,11 @@ using System.Reactive.Disposables;
 
 namespace Bonsai.Dsp
 {
-    public abstract class WindowStatistics<TArray> : Combinator<IObservable<TArray>, IObservable<TArray>> where TArray : CvArr
+    public abstract class WindowStatistics<TArray> : Combinator<IObservable<TArray>, IObservable<TArray>> where TArray : Arr
     {
         public ProjectionType ProjectionType { get; set; }
 
-        protected abstract TArray CreateArray(TArray source, CvMatDepth depth);
+        protected abstract TArray CreateArray(TArray source, Depth depth);
 
         public override IObservable<IObservable<TArray>> Process(IObservable<IObservable<TArray>> source)
         {
@@ -46,13 +46,13 @@ namespace Bonsai.Dsp
                                         {
                                             accumulator = CreateArray(frame, 0);
                                         }
-                                        else accumulator = CreateArray(frame, CvMatDepth.CV_32F);
+                                        else accumulator = CreateArray(frame, Depth.F32);
 
-                                        Core.cvConvert(frame, accumulator);
+                                        CV.Convert(frame, accumulator);
                                         accumulatorBuffer.Add(accumulator);
                                         if (projectionType == ProjectionType.StandardDeviation)
                                         {
-                                            var accumulatorSquared = CreateArray(frame, CvMatDepth.CV_32F);
+                                            var accumulatorSquared = CreateArray(frame, Depth.F32);
                                             accumulatorSquared.SetZero();
                                             accumulatorBufferSquared.Add(accumulatorSquared);
                                         }
@@ -66,26 +66,26 @@ namespace Bonsai.Dsp
                                             case ProjectionType.StandardDeviation:
                                                 // Ak = Ak-1 + (xk - Ak-1) / k
                                                 temp = temp ?? CreateArray(accumulator, 0);
-                                                Core.cvSub(frame, accumulator, temp, CvArr.Null); // temp <- xk - Ak-1
-                                                Core.cvScaleAdd(temp, CvScalar.All(1.0 / n), accumulator, accumulator); // Ak-1 + temp / k
+                                                CV.Sub(frame, accumulator, temp); // temp <- xk - Ak-1
+                                                CV.ScaleAdd(temp, Scalar.All(1.0 / n), accumulator, accumulator); // Ak-1 + temp / k
                                                 if (projectionType == ProjectionType.StandardDeviation)
                                                 {
                                                     // Qk = Qk-1 + (xk - Ak-1)*(xk - Ak)
                                                     var accumulatorSquared = accumulatorBufferSquared[j];
                                                     temp2 = temp2 ?? CreateArray(accumulator, 0);
-                                                    Core.cvSub(frame, accumulator, temp2, CvArr.Null); // xk - Ak
-                                                    Core.cvMul(temp, temp2, temp, 1); // temp <- (xk - Ak-1)*(xk - Ak)
-                                                    Core.cvAdd(accumulatorSquared, temp, accumulatorSquared, CvArr.Null); // Qk-1 + temp
+                                                    CV.Sub(frame, accumulator, temp2); // xk - Ak
+                                                    CV.Mul(temp, temp2, temp, 1); // temp <- (xk - Ak-1)*(xk - Ak)
+                                                    CV.Add(accumulatorSquared, temp, accumulatorSquared); // Qk-1 + temp
                                                 }
                                                 break;
                                             case ProjectionType.Min:
-                                                Core.cvMin(accumulator, frame, accumulator);
+                                                CV.Min(accumulator, frame, accumulator);
                                                 break;
                                             case ProjectionType.Max:
-                                                Core.cvMax(accumulator, frame, accumulator);
+                                                CV.Max(accumulator, frame, accumulator);
                                                 break;
                                             case ProjectionType.Sum:
-                                                Core.cvAdd(accumulator, frame, accumulator, CvArr.Null);
+                                                CV.Add(accumulator, frame, accumulator);
                                                 break;
                                             default:
                                                 throw new InvalidOperationException("Specified projection type is invalid.");
@@ -93,11 +93,11 @@ namespace Bonsai.Dsp
                                     }
 
                                     var result = CreateArray(accumulator, 0);
-                                    Core.cvCopy(accumulator, result);
+                                    CV.Copy(accumulator, result);
                                     if (projectionType == ProjectionType.StandardDeviation)
                                     {
-                                        Core.cvConvertScale(result, result, 1.0 / (n - 1), 0); // s2 <- Qn / n-1
-                                        Core.cvPow(result, result, 0.5); // s <- sqrt(s2)
+                                        CV.ConvertScale(result, result, 1.0 / (n - 1), 0); // s2 <- Qn / n-1
+                                        CV.Pow(result, result, 0.5); // s <- sqrt(s2)
                                     }
                                     return result;
                                 }).Publish().RefCount());
@@ -106,12 +106,12 @@ namespace Bonsai.Dsp
         }
     }
 
-    public class WindowStatistics : WindowStatistics<CvMat>
+    public class WindowStatistics : WindowStatistics<Mat>
     {
-        protected override CvMat CreateArray(CvMat source, CvMatDepth depth)
+        protected override Mat CreateArray(Mat source, Depth depth)
         {
             depth = depth > 0 ? depth : source.Depth;
-            return new CvMat(source.Rows, source.Cols, depth, source.NumChannels);
+            return new Mat(source.Rows, source.Cols, depth, source.Channels);
         }
     }
 

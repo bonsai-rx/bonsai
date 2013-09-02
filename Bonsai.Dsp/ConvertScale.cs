@@ -8,16 +8,16 @@ using System.ComponentModel;
 namespace Bonsai.Dsp
 {
     [Description("Converts the input matrix into the specified bit depth, with optional linear transformation.")]
-    public class ConvertScale : Selector<CvMat, CvMat>
+    public class ConvertScale : Selector<Mat, Mat>
     {
         public ConvertScale()
         {
-            Depth = CvMatDepth.CV_8U;
+            Depth = Depth.U8;
             Scale = 1;
         }
 
         [Description("The target bit depth of individual matrix elements.")]
-        public CvMatDepth Depth { get; set; }
+        public Depth Depth { get; set; }
 
         [Description("The optional scale factor to apply to individual matrix elements.")]
         public double Scale { get; set; }
@@ -25,10 +25,10 @@ namespace Bonsai.Dsp
         [Description("The optional value to be added to individual matrix elements.")]
         public double Shift { get; set; }
 
-        public override CvMat Process(CvMat input)
+        public override Mat Process(Mat input)
         {
-            var output = new CvMat(input.Rows, input.Cols, Depth, input.NumChannels);
-            Core.cvConvertScale(input, output, Scale, Shift);
+            var output = new Mat(input.Rows, input.Cols, Depth, input.Channels);
+            CV.ConvertScale(input, output, Scale, Shift);
             return output;
         }
     }

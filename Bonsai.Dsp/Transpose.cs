@@ -6,12 +6,12 @@ using OpenCV.Net;
 
 namespace Bonsai.Dsp
 {
-    public class Transpose : Selector<CvMat, CvMat>
+    public class Transpose : Selector<Mat, Mat>
     {
-        public override CvMat Process(CvMat input)
+        public override Mat Process(Mat input)
         {
-            var output = new CvMat(input.Rows, input.Cols, input.Depth, input.NumChannels);
-            Core.cvTranspose(input, output);
+            var output = new Mat(input.Rows, input.Cols, input.Depth, input.Channels);
+            CV.Transpose(input, output);
             return output;
         }
     }

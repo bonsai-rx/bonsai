@@ -30,8 +30,8 @@ namespace Bonsai.Vision
 
         public override IplImage Process(IplImage input)
         {
-            var output = new IplImage(input.Size, 8, 1);
-            ImgProc.cvCanny(input, output, Threshold1, Threshold2, ApertureSize);
+            var output = new IplImage(input.Size, IplDepth.U8, 1);
+            CV.Canny(input, output, Threshold1, Threshold2, ApertureSize);
             return output;
         }
     }

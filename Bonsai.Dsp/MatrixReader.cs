@@ -13,7 +13,7 @@ using System.Threading;
 
 namespace Bonsai.Dsp
 {
-    public class MatrixReader : Source<CvMat>
+    public class MatrixReader : Source<Mat>
     {
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
         public string FileName { get; set; }
@@ -24,41 +24,41 @@ namespace Bonsai.Dsp
 
         public int BufferLength { get; set; }
 
-        public CvMatDepth Depth { get; set; }
+        public Depth Depth { get; set; }
 
         public MatrixLayout Layout { get; set; }
 
-        public override IObservable<CvMat> Generate()
+        public override IObservable<Mat> Generate()
         {
             var stopwatch = new Stopwatch();
             return Observable.Using(
                 () => new BinaryReader(new FileStream(FileName, FileMode.Open)),
-                reader => ObservableCombinators.GenerateWithThread<CvMat>(observer =>
+                reader => ObservableCombinators.GenerateWithThread<Mat>(observer =>
                 {
                     stopwatch.Restart();
                     var channelCount = ChannelCount;
                     var bufferLength = BufferLength;
-                    var output = new CvMat(channelCount, bufferLength, Depth, 1);
+                    var output = new Mat(channelCount, bufferLength, Depth, 1);
                     var depthSize = output.Step / bufferLength;
                     var buffer = new byte[bufferLength * channelCount * depthSize];
                     var bytesRead = reader.Read(buffer, 0, buffer.Length);
                     if (bytesRead == 0) observer.OnCompleted();
                     else
                     {
-                        CvMat bufferHeader;
+                        Mat bufferHeader;
                         var bufferHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
                         try
                         {
                             switch (Layout)
                             {
                                 case MatrixLayout.ColumnMajor:
-                                    bufferHeader = new CvMat(bufferLength, channelCount, Depth, 1, bufferHandle.AddrOfPinnedObject());
-                                    Core.cvTranspose(bufferHeader, output);
+                                    bufferHeader = new Mat(bufferLength, channelCount, Depth, 1, bufferHandle.AddrOfPinnedObject());
+                                    CV.Transpose(bufferHeader, output);
                                     break;
                                 default:
                                 case MatrixLayout.RowMajor:
-                                    bufferHeader = new CvMat(channelCount, bufferLength, Depth, 1, bufferHandle.AddrOfPinnedObject());
-                                    Core.cvCopy(bufferHeader, output);
+                                    bufferHeader = new Mat(channelCount, bufferLength, Depth, 1, bufferHandle.AddrOfPinnedObject());
+                                    CV.Copy(bufferHeader, output);
                                     break;
                             }
                         }

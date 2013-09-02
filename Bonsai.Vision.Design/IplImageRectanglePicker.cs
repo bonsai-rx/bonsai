@@ -14,7 +14,7 @@ namespace Bonsai.Vision.Design
 {
     class IplImageRectanglePicker : IplImageControl
     {
-        CvRect rectangle;
+        Rect rectangle;
         const float LineWidth = 2;
 
         public IplImageRectanglePicker()
@@ -25,9 +25,9 @@ namespace Bonsai.Vision.Design
 
             var mousePick = (from downEvt in mouseDown
                              where Image != null && downEvt.Button.HasFlag(MouseButtons.Left)
-                             let origin = new CvPoint(downEvt.X, downEvt.Y)
+                             let origin = new OpenCV.Net.Point(downEvt.X, downEvt.Y)
                              select from moveEvt in mouseMove.TakeUntil(mouseUp)
-                                    select new CvRect(origin.X, origin.Y, moveEvt.X - origin.X, moveEvt.Y - origin.Y)).Switch();
+                                    select new Rect(origin.X, origin.Y, moveEvt.X - origin.X, moveEvt.Y - origin.Y)).Switch();
 
             mousePick.Subscribe(rect => rectangle = NormalizedRectangle(rect));
             mouseUp.Subscribe(evt =>
@@ -41,7 +41,7 @@ namespace Bonsai.Vision.Design
             });
         }
 
-        CvRect ClipRectangle(CvRect rect)
+        Rect ClipRectangle(Rect rect)
         {
             var clipX = rect.X < 0 ? -rect.X : 0;
             var clipY = rect.Y < 0 ? -rect.Y : 0;
@@ -55,16 +55,16 @@ namespace Bonsai.Vision.Design
             return rect;
         }
 
-        CvRect NormalizedRectangle(CvRect rect)
+        Rect NormalizedRectangle(Rect rect)
         {
-            return new CvRect(
+            return new Rect(
                 (int)(rect.X * Image.Width / (float)Canvas.Width),
                 (int)(rect.Y * Image.Height / (float)Canvas.Height),
                 (int)(rect.Width * Image.Width / (float)Canvas.Width),
                 (int)(rect.Height * Image.Height / (float)Canvas.Height));
         }
 
-        Box2 DrawingRectangle(CvRect rect)
+        Box2 DrawingRectangle(Rect rect)
         {
             var image = Image;
             if (image == null) return new Box2(0, 0, 0, 0);
@@ -75,7 +75,7 @@ namespace Bonsai.Vision.Design
                 -(((rect.Y + rect.Height) * 2 / (float)image.Height) - 1));
         }
 
-        public CvRect Rectangle
+        public Rect Rectangle
         {
             get { return rectangle; }
             set { rectangle = value; }

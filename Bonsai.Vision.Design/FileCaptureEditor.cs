@@ -39,7 +39,7 @@ namespace Bonsai.Vision.Design
                         var captureOutput = ((InspectBuilder)workflow.Successors(captureNode).First().Value).Output.Merge();
                         var capture = (FileCapture)component;
                         var captureFrame = captureOutput
-                            .Select(image => Tuple.Create((IplImage)image, (int)capture.Capture.GetProperty(CaptureProperty.POS_FRAMES)))
+                            .Select(image => Tuple.Create((IplImage)image, (int)capture.Capture.GetProperty(CaptureProperty.PosFrames)))
                             .Do(frame => videoPlayer.Update(frame.Item1, frame.Item2 - 1));
 
                         var frameRate = 0.0;
@@ -50,9 +50,9 @@ namespace Bonsai.Vision.Design
                         {
                             videoPlayer.Loop = capture.Loop;
                             videoPlayer.Playing = capture.Playing;
-                            frameRate = capture.Capture.GetProperty(CaptureProperty.FPS);
+                            frameRate = capture.Capture.GetProperty(CaptureProperty.Fps);
                             videoPlayer.PlaybackRate = capture.PlaybackRate == 0 ? frameRate : capture.PlaybackRate;
-                            videoPlayer.FrameCount = (int)capture.Capture.GetProperty(CaptureProperty.FRAME_COUNT);
+                            videoPlayer.FrameCount = (int)capture.Capture.GetProperty(CaptureProperty.FrameCount);
                             captureFrameHandle = captureFrame.Subscribe();
                         };
 

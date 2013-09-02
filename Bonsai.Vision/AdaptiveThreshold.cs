@@ -25,7 +25,7 @@ namespace Bonsai.Vision
         public AdaptiveThresholdMethod AdaptiveMethod { get; set; }
 
         [Description("The type of binary threshold to apply to individual pixels.")]
-        public ThresholdType ThresholdType { get; set; }
+        public ThresholdTypes ThresholdType { get; set; }
 
         [Precision(0, 2)]
         [Range(3, int.MaxValue)]
@@ -38,8 +38,8 @@ namespace Bonsai.Vision
 
         public override IplImage Process(IplImage input)
         {
-            var output = new IplImage(input.Size, 8, 1);
-            ImgProc.cvAdaptiveThreshold(input, output, MaxValue, AdaptiveMethod, ThresholdType, BlockSize, Parameter);
+            var output = new IplImage(input.Size, IplDepth.U8, 1);
+            CV.AdaptiveThreshold(input, output, MaxValue, AdaptiveMethod, ThresholdType, BlockSize, Parameter);
             return output;
         }
     }

@@ -10,7 +10,7 @@ namespace Bonsai.Vision
     {
         public override int Process(IplImage input)
         {
-            return Core.cvCountNonZero(input);
+            return CV.CountNonZero(input);
         }
     }
 }

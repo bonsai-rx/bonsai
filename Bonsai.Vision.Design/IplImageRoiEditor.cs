@@ -42,7 +42,7 @@ namespace Bonsai.Vision.Design
             var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
             if (context != null && editorService != null)
             {
-                var regions = (CvPoint[][])value;
+                var regions = (OpenCV.Net.Point[][])value;
                 var propertyDescriptor = context.PropertyDescriptor;
 
                 using (var visualizerDialog = new TypeVisualizerDialog())
@@ -61,7 +61,9 @@ namespace Bonsai.Vision.Design
                     {
                         if (e.Button == MouseButtons.Left && imageControl.Image != null && !imageControl.SelectedRegion.HasValue)
                         {
-                            visualizerDialog.ClientSize = new Size(imageControl.Image.Width, imageControl.Image.Height);
+                            visualizerDialog.ClientSize = new System.Drawing.Size(
+                                imageControl.Image.Width,
+                                imageControl.Image.Height);
                         }
                     };
 

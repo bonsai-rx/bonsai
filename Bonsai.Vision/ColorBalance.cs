@@ -13,13 +13,13 @@ namespace Bonsai.Vision
     {
         public ColorBalance()
         {
-            Scale = CvScalar.All(1);
+            Scale = Scalar.All(1);
         }
 
         [Precision(2, .01)]
         [Range(0, int.MaxValue)]
         [TypeConverter("Bonsai.Vision.Design.BgraScalarConverter, Bonsai.Vision.Design")]
-        public CvScalar Scale { get; set; }
+        public Scalar Scale { get; set; }
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
@@ -31,19 +31,19 @@ namespace Bonsai.Vision
                 IplImage channel4 = null;
                 return source.Select(input =>
                 {
-                    channel1 = IplImageHelper.EnsureImageFormat(channel1, input.Size, 8, 1);
-                    if (input.NumChannels > 1) channel2 = IplImageHelper.EnsureImageFormat(channel2, input.Size, 8, 1);
-                    if (input.NumChannels > 2) channel3 = IplImageHelper.EnsureImageFormat(channel3, input.Size, 8, 1);
-                    if (input.NumChannels > 3) channel4 = IplImageHelper.EnsureImageFormat(channel4, input.Size, 8, 1);
+                    channel1 = IplImageHelper.EnsureImageFormat(channel1, input.Size, IplDepth.U8, 1);
+                    if (input.Channels > 1) channel2 = IplImageHelper.EnsureImageFormat(channel2, input.Size, IplDepth.U8, 1);
+                    if (input.Channels > 2) channel3 = IplImageHelper.EnsureImageFormat(channel3, input.Size, IplDepth.U8, 1);
+                    if (input.Channels > 3) channel4 = IplImageHelper.EnsureImageFormat(channel4, input.Size, IplDepth.U8, 1);
 
-                    var output = new IplImage(input.Size, input.Depth, input.NumChannels);
-                    Core.cvSplit(input, channel1, channel2 ?? CvArr.Null, channel3 ?? CvArr.Null, channel4 ?? CvArr.Null);
+                    var output = new IplImage(input.Size, input.Depth, input.Channels);
+                    CV.Split(input, channel1, channel2, channel3, channel4);
 
-                    if (channel1 != null) Core.cvConvertScale(channel1, channel1, Scale.Val0, 0);
-                    if (channel2 != null) Core.cvConvertScale(channel2, channel2, Scale.Val1, 0);
-                    if (channel3 != null) Core.cvConvertScale(channel3, channel3, Scale.Val2, 0);
-                    if (channel4 != null) Core.cvConvertScale(channel4, channel4, Scale.Val3, 0);
-                    Core.cvMerge(channel1, channel2 ?? CvArr.Null, channel3 ?? CvArr.Null, channel4 ?? CvArr.Null, output);
+                    if (channel1 != null) CV.ConvertScale(channel1, channel1, Scale.Val0, 0);
+                    if (channel2 != null) CV.ConvertScale(channel2, channel2, Scale.Val1, 0);
+                    if (channel3 != null) CV.ConvertScale(channel3, channel3, Scale.Val2, 0);
+                    if (channel4 != null) CV.ConvertScale(channel4, channel4, Scale.Val3, 0);
+                    CV.Merge(channel1, channel2, channel3, channel4, output);
                     return output;
                 });
             });

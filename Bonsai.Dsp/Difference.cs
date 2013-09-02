@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Dsp
 {
-    public class Difference : Transform<CvMat, CvMat>
+    public class Difference : Transform<Mat, Mat>
     {
         int order;
         FirFilter filter = new FirFilter();
@@ -55,7 +55,7 @@ namespace Bonsai.Dsp
             filter.Anchor = kernel.Length - 1;
         }
 
-        public override IObservable<CvMat> Process(IObservable<CvMat> source)
+        public override IObservable<Mat> Process(IObservable<Mat> source)
         {
             return filter.Process(source);
         }

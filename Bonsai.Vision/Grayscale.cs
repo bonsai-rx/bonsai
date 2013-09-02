@@ -12,14 +12,14 @@ namespace Bonsai.Vision
     {
         public override IplImage Process(IplImage input)
         {
-            if (input.NumChannels == 1)
+            if (input.Channels == 1)
             {
                 return input;
             }
             else
             {
-                var output = new IplImage(input.Size, 8, 1);
-                ImgProc.cvCvtColor(input, output, ColorConversion.BGR2GRAY);
+                var output = new IplImage(input.Size, IplDepth.U8, 1);
+                CV.CvtColor(input, output, ColorConversion.Bgr2Gray);
                 return output;
             }
         }

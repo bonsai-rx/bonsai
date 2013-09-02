@@ -26,12 +26,12 @@ namespace Bonsai.Vision
         public double MaxValue { get; set; }
 
         [Description("The type of threshold to apply to individual pixels.")]
-        public ThresholdType ThresholdType { get; set; }
+        public ThresholdTypes ThresholdType { get; set; }
 
         public override IplImage Process(IplImage input)
         {
-            var output = new IplImage(input.Size, 8, input.NumChannels);
-            ImgProc.cvThreshold(input, output, ThresholdValue, MaxValue, ThresholdType);
+            var output = new IplImage(input.Size, IplDepth.U8, input.Channels);
+            CV.Threshold(input, output, ThresholdValue, MaxValue, ThresholdType);
             return output;
         }
     }

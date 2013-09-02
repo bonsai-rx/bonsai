@@ -12,6 +12,9 @@ using Bonsai.Vision;
 using OpenTK.Graphics.OpenGL;
 using System.Drawing;
 using System.Reactive.Linq;
+using Font = OpenCV.Net.Font;
+using Point = OpenCV.Net.Point;
+using Size = OpenCV.Net.Size;
 
 [assembly: TypeVisualizer(typeof(RoiActivityVisualizer), Target = typeof(RoiActivity))]
 
@@ -20,10 +23,10 @@ namespace Bonsai.Vision.Design
     public class RoiActivityVisualizer : IplImageVisualizer
     {
         const int RoiThickness = 1;
-        static readonly CvScalar InactiveRoi = CvScalar.Rgb(255, 0, 0);
-        static readonly CvScalar ActiveRoi = CvScalar.Rgb(0, 255, 0);
+        static readonly Scalar InactiveRoi = Scalar.Rgb(255, 0, 0);
+        static readonly Scalar ActiveRoi = Scalar.Rgb(0, 255, 0);
 
-        CvFont font;
+        Font font;
         IplImage input;
         IplImage canvas;
         IDisposable inputHandle;
@@ -41,11 +44,11 @@ namespace Bonsai.Vision.Design
                     var color = regions[i].Activity.Val0 > 0 ? ActiveRoi : InactiveRoi;
 
                     int baseline;
-                    CvSize labelSize;
+                    Size labelSize;
                     var label = i.ToString();
-                    Core.cvGetTextSize(label, font, out labelSize, out baseline);
-                    Core.cvPutText(canvas, i.ToString(), new CvPoint(rectangle.X + RoiThickness, rectangle.Y + labelSize.Height + RoiThickness), font, color);
-                    Core.cvPutText(canvas, regions[i].Activity.Val0.ToString(), new CvPoint(rectangle.X + RoiThickness, rectangle.Y - labelSize.Height - RoiThickness), font, color);
+                    CV.GetTextSize(label, font, out labelSize, out baseline);
+                    CV.PutText(canvas, i.ToString(), new Point(rectangle.X + RoiThickness, rectangle.Y + labelSize.Height + RoiThickness), font, color);
+                    CV.PutText(canvas, regions[i].Activity.Val0.ToString(), new Point(rectangle.X + RoiThickness, rectangle.Y - labelSize.Height - RoiThickness), font, color);
                 }
 
                 base.Show(canvas);
@@ -93,7 +96,7 @@ namespace Bonsai.Vision.Design
                 }
             }
 
-            font = new CvFont(1);
+            font = new Font(1);
             base.Load(provider);
         }
 

@@ -20,8 +20,8 @@ namespace Bonsai.Vision
 
         public override IplImage Process(IplImage input)
         {
-            var output = new IplImage(input.Size, input.Depth, input.NumChannels);
-            ImgProc.cvSmooth(input, output, SmoothType, Size1, Size2, Sigma1, Sigma2);
+            var output = new IplImage(input.Size, input.Depth, input.Channels);
+            CV.Smooth(input, output, SmoothType, Size1, Size2, Sigma1, Sigma2);
             return output;
         }
     }

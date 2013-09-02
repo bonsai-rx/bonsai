@@ -18,7 +18,7 @@ namespace Bonsai.Vision
         {
             source = Observable
                 .Using(
-                    () => CvCapture.CreateCameraCapture(Index),
+                    () => Capture.CreateCameraCapture(Index),
                     capture => ObservableCombinators.GenerateWithThread<IplImage>(observer =>
                     {
                         var image = capture.QueryFrame();

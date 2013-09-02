@@ -6,11 +6,11 @@ using OpenCV.Net;
 
 namespace Bonsai.Dsp
 {
-    public class CountNonZero : Selector<CvMat, int>
+    public class CountNonZero : Selector<Mat, int>
     {
-        public override int Process(CvMat input)
+        public override int Process(Mat input)
         {
-            return Core.cvCountNonZero(input);
+            return CV.CountNonZero(input);
         }
     }
 }

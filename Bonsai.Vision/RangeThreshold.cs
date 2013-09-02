@@ -11,19 +11,19 @@ namespace Bonsai.Vision
     {
         public RangeThreshold()
         {
-            Upper = new CvScalar(255, 255, 255, 255);
+            Upper = new Scalar(255, 255, 255, 255);
         }
 
         [TypeConverter("Bonsai.Vision.Design.RangeScalarConverter, Bonsai.Vision.Design")]
-        public CvScalar Lower { get; set; }
+        public Scalar Lower { get; set; }
 
         [TypeConverter("Bonsai.Vision.Design.RangeScalarConverter, Bonsai.Vision.Design")]
-        public CvScalar Upper { get; set; }
+        public Scalar Upper { get; set; }
 
         public override IplImage Process(IplImage input)
         {
-            var output = new IplImage(input.Size, 8, 1);
-            Core.cvInRangeS(input, Lower, Upper, output);
+            var output = new IplImage(input.Size, IplDepth.U8, 1);
+            CV.InRangeS(input, Lower, Upper, output);
             return output;
         }
     }

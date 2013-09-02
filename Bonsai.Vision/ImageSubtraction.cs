@@ -13,23 +13,23 @@ namespace Bonsai.Vision
     {
         public ImageSubtraction()
         {
-            Format = LoadImageMode.Grayscale;
+            Format = LoadImageFlags.Grayscale;
         }
 
         [FileNameFilter("PNG Files|*.png|BMP Files|*.bmp|JPEG Files|*.jpg;*.jpeg")]
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
         public string FileName { get; set; }
 
-        public LoadImageMode Format { get; set; }
+        public LoadImageFlags Format { get; set; }
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
             return Observable.Using(
-                () => HighGui.cvLoadImage(FileName, Format),
+                () => CV.LoadImage(FileName, Format),
                 image => source.Select(input =>
                 {
-                    var output = new IplImage(input.Size, input.Depth, input.NumChannels);
-                    Core.cvAbsDiff(input, image, output);
+                    var output = new IplImage(input.Size, input.Depth, input.Channels);
+                    CV.AbsDiff(input, image, output);
                     return output;
                 }));
         }

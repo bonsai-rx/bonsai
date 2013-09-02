@@ -15,8 +15,8 @@ namespace Bonsai.Vision
 
         public override IplImage Process(IplImage input)
         {
-            var output = new IplImage(input.Size, input.Depth, input.NumChannels);
-            Core.cvFlip(input, output, Mode);
+            var output = new IplImage(input.Size, input.Depth, input.Channels);
+            CV.Flip(input, output, Mode);
             return output;
         }
     }

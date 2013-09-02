@@ -20,12 +20,12 @@ namespace Bonsai.Vision
 
         public override IplImage Process(Contours input)
         {
-            var output = new IplImage(input.ImageSize, 8, 1);
+            var output = new IplImage(input.ImageSize, IplDepth.U8, 1);
             output.SetZero();
 
             if (!input.FirstContour.IsInvalid)
             {
-                Core.cvDrawContours(output, input.FirstContour, CvScalar.All(255), CvScalar.All(0), MaxLevel, Thickness, 8, CvPoint.Zero);
+                CV.DrawContours(output, input.FirstContour, Scalar.All(255), Scalar.All(0), MaxLevel, Thickness);
             }
 
             return output;

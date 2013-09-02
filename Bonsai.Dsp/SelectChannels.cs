@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Dsp
 {
-    public class SelectChannels : Selector<CvMat, CvMat>
+    public class SelectChannels : Selector<Mat, Mat>
     {
         public SelectChannels()
         {
@@ -19,7 +19,7 @@ namespace Bonsai.Dsp
 
         public int Step { get; set; }
 
-        public override CvMat Process(CvMat input)
+        public override Mat Process(Mat input)
         {
             return input.GetRows(Start, Stop, Step);
         }

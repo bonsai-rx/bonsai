@@ -30,8 +30,8 @@ namespace Bonsai.Vision
 
         public override IplImage Process(IplImage input)
         {
-            var output = new IplImage(input.Size, 32, input.NumChannels);
-            ImgProc.cvSobel(input, output, XOrder, YOrder, ApertureSize);
+            var output = new IplImage(input.Size, IplDepth.F32, input.Channels);
+            CV.Sobel(input, output, XOrder, YOrder, ApertureSize);
             return output;
         }
     }

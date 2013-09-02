@@ -17,11 +17,11 @@ namespace Bonsai.Vision
                 IplImage sum = null;
                 return source.Select(input =>
                 {
-                    var output = new IplImage(input.Size, input.Depth, input.NumChannels);
-                    sum = IplImageHelper.EnsureImageFormat(sum, input.Size, 32, input.NumChannels);
-                    ImgProc.cvAcc(input, sum, CvArr.Null);
-                    if (sum.Depth == input.Depth) Core.cvCopy(sum, output);
-                    else Core.cvConvert(sum, output);
+                    var output = new IplImage(input.Size, input.Depth, input.Channels);
+                    sum = IplImageHelper.EnsureImageFormat(sum, input.Size, IplDepth.F32, input.Channels);
+                    CV.Acc(input, sum);
+                    if (sum.Depth == input.Depth) CV.Copy(sum, output);
+                    else CV.Convert(sum, output);
                     return output;
                 });
             });

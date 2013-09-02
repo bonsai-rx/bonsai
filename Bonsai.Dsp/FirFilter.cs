@@ -11,7 +11,7 @@ using System.Reactive.Disposables;
 
 namespace Bonsai.Dsp
 {
-    public class FirFilter : Transform<CvMat, CvMat>
+    public class FirFilter : Transform<Mat, Mat>
     {
         public FirFilter()
         {
@@ -32,16 +32,16 @@ namespace Bonsai.Dsp
             set { Kernel = (float[])ArrayConvert.ToArray(value, 1, typeof(float)); }
         }
 
-        public override IObservable<CvMat> Process(IObservable<CvMat> source)
+        public override IObservable<Mat> Process(IObservable<Mat> source)
         {
             return Observable.Defer(() =>
             {
-                CvMat kernel = null;
-                CvMat overlap = null;
-                CvMat overlapInput = null;
-                CvMat overlapEnd = null;
-                CvMat overlapStart = null;
-                CvRect overlapOutput = default(CvRect);
+                Mat kernel = null;
+                Mat overlap = null;
+                Mat overlapInput = null;
+                Mat overlapEnd = null;
+                Mat overlapStart = null;
+                Rect overlapOutput = default(Rect);
                 float[] currentKernel = null;
                 return source.Select(input =>
                 {
@@ -50,20 +50,20 @@ namespace Bonsai.Dsp
                         currentKernel = Kernel;
                         if (currentKernel != null && currentKernel.Length > 0)
                         {
-                            kernel = new CvMat(1, currentKernel.Length, CvMatDepth.CV_32F, 1);
+                            kernel = new Mat(1, currentKernel.Length, Depth.F32, 1);
                             Marshal.Copy(currentKernel, 0, kernel.Data, currentKernel.Length);
 
                             var anchor = Anchor;
                             if (anchor == -1) anchor = kernel.Cols / 2;
-                            overlap = new CvMat(input.Rows, input.Cols + kernel.Cols - 1, input.Depth, input.NumChannels);
-                            overlapInput = overlap.GetSubRect(new CvRect(kernel.Cols - 1, 0, input.Cols, input.Rows));
+                            overlap = new Mat(input.Rows, input.Cols + kernel.Cols - 1, input.Depth, input.Channels);
+                            overlapInput = overlap.GetSubRect(new Rect(kernel.Cols - 1, 0, input.Cols, input.Rows));
                             if (kernel.Cols > 1)
                             {
-                                overlapEnd = overlap.GetSubRect(new CvRect(overlap.Cols - kernel.Cols + 1, 0, kernel.Cols - 1, input.Rows));
-                                overlapStart = overlap.GetSubRect(new CvRect(0, 0, kernel.Cols - 1, input.Rows));
+                                overlapEnd = overlap.GetSubRect(new Rect(overlap.Cols - kernel.Cols + 1, 0, kernel.Cols - 1, input.Rows));
+                                overlapStart = overlap.GetSubRect(new Rect(0, 0, kernel.Cols - 1, input.Rows));
                             }
 
-                            overlapOutput = new CvRect(kernel.Cols - anchor - 1, 0, input.Cols, input.Rows);
+                            overlapOutput = new Rect(kernel.Cols - anchor - 1, 0, input.Cols, input.Rows);
                             overlap.SetZero();
                         }
                     }
@@ -71,10 +71,10 @@ namespace Bonsai.Dsp
                     if (kernel == null) return input;
                     else
                     {
-                        var output = new CvMat(overlap.Rows, overlap.Cols, overlap.Depth, overlap.NumChannels);
-                        Core.cvCopy(input, overlapInput);
-                        ImgProc.cvFilter2D(overlap, output, kernel, new CvPoint(Anchor, -1));
-                        if (overlapEnd != null) Core.cvCopy(overlapEnd, overlapStart);
+                        var output = new Mat(overlap.Rows, overlap.Cols, overlap.Depth, overlap.Channels);
+                        CV.Copy(input, overlapInput);
+                        CV.Filter2D(overlap, output, kernel, new Point(Anchor, -1));
+                        if (overlapEnd != null) CV.Copy(overlapEnd, overlapStart);
                         return output.GetSubRect(overlapOutput);
                     }
                 });

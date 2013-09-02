@@ -13,7 +13,7 @@ namespace Bonsai.Vision.Design
 {
     class IplImageQuadranglePicker : IplImageControl
     {
-        CvPoint2D32f[] quadrangle = new CvPoint2D32f[4];
+        Point2f[] quadrangle = new Point2f[4];
         const float LineWidth = 2;
 
         public IplImageQuadranglePicker()
@@ -21,7 +21,7 @@ namespace Bonsai.Vision.Design
             var mouseMove = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseMove").Select(e => e.EventArgs);
             var mouseDrag = from evt in mouseMove
                             where Image != null && evt.Button.HasFlag(MouseButtons.Left)
-                            select new CvPoint2D32f(
+                            select new Point2f(
                                 evt.X * Image.Width / (float)Canvas.Width,
                                 evt.Y * Image.Height / (float)Canvas.Height);
 
@@ -44,7 +44,7 @@ namespace Bonsai.Vision.Design
             });
         }
 
-        public CvPoint2D32f[] Quadrangle
+        public Point2f[] Quadrangle
         {
             get { return quadrangle; }
         }
@@ -60,7 +60,7 @@ namespace Bonsai.Vision.Design
             }
         }
 
-        Vector2 NormalizePoint(CvPoint2D32f point)
+        Vector2 NormalizePoint(Point2f point)
         {
             return new Vector2(
                 (point.X * 2 / Image.Width) - 1,

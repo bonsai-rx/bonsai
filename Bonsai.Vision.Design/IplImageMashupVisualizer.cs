@@ -23,18 +23,18 @@ namespace Bonsai.Vision.Design
             if (visualizerImage != null && image != null)
             {
                 // Treat image as mask and overlay it
-                if (image.NumChannels == 1)
+                if (image.Channels == 1)
                 {
                     var overlay = image;
                     // If target is a color image, convert before overlay
-                    if (visualizerImage.NumChannels == 3)
+                    if (visualizerImage.Channels == 3)
                     {
-                        color = IplImageHelper.EnsureImageFormat(color, visualizerImage.Size, visualizerImage.Depth, visualizerImage.NumChannels);
-                        ImgProc.cvCvtColor(image, color, ColorConversion.GRAY2BGR);
+                        color = IplImageHelper.EnsureImageFormat(color, visualizerImage.Size, visualizerImage.Depth, visualizerImage.Channels);
+                        CV.CvtColor(image, color, ColorConversion.Gray2Bgr);
                         overlay = color;
                     }
 
-                    Core.cvCopy(overlay, visualizerImage, image);
+                    CV.Copy(overlay, visualizerImage, image);
                 }
             }
         }

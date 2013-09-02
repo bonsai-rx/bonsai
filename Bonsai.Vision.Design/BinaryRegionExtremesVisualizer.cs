@@ -9,6 +9,8 @@ using OpenCV.Net;
 using Bonsai.Expressions;
 using Bonsai.Dag;
 using System.Reactive.Linq;
+using Point = OpenCV.Net.Point;
+using Size = OpenCV.Net.Size;
 
 namespace Bonsai.Vision.Design
 {
@@ -19,27 +21,27 @@ namespace Bonsai.Vision.Design
 
         public override void Show(object value)
         {
-            var tuple = (Tuple<CvPoint2D32f, CvPoint2D32f>)value;
+            var tuple = (Tuple<Point2f, Point2f>)value;
             if (connectedComponent != null)
             {
                 var validContour = connectedComponent.Contour != null && !connectedComponent.Contour.IsInvalid;
-                var boundingBox = validContour ? connectedComponent.Contour.Rect : new CvRect(0, 0, 1, 1);
-                var output = new IplImage(new CvSize(boundingBox.Width, boundingBox.Height), 8, 3);
+                var boundingBox = validContour ? connectedComponent.Contour.Rect : new Rect(0, 0, 1, 1);
+                var output = new IplImage(new Size(boundingBox.Width, boundingBox.Height), IplDepth.U8, 3);
                 output.SetZero();
 
                 if (validContour)
                 {
-                    DrawingHelper.DrawConnectedComponent(output, connectedComponent, new CvPoint2D32f(-boundingBox.X, -boundingBox.Y));
+                    DrawingHelper.DrawConnectedComponent(output, connectedComponent, new Point2f(-boundingBox.X, -boundingBox.Y));
                     if (tuple.Item1.X > 0 && tuple.Item1.Y > 0)
                     {
-                        var projectedPoint = tuple.Item1 - new CvPoint2D32f(boundingBox.X, boundingBox.Y);
-                        Core.cvCircle(output, new CvPoint(projectedPoint), 3, CvScalar.Rgb(255, 0, 0), -1, 8, 0);
+                        var projectedPoint = tuple.Item1 - new Point2f(boundingBox.X, boundingBox.Y);
+                        CV.Circle(output, new Point(projectedPoint), 3, Scalar.Rgb(255, 0, 0), -1);
                     }
 
                     if (tuple.Item2.X > 0 && tuple.Item2.Y > 0)
                     {
-                        var projectedPoint = tuple.Item2 - new CvPoint2D32f(boundingBox.X, boundingBox.Y);
-                        Core.cvCircle(output, new CvPoint(projectedPoint), 3, CvScalar.Rgb(0, 255, 0), -1, 8, 0);
+                        var projectedPoint = tuple.Item2 - new Point2f(boundingBox.X, boundingBox.Y);
+                        CV.Circle(output, new Point(projectedPoint), 3, Scalar.Rgb(0, 255, 0), -1);
                     }
                 }
 

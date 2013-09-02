@@ -16,7 +16,7 @@ namespace Bonsai.Vision
         }
 
         [Description("The size of the output image.")]
-        public CvSize Size { get; set; }
+        public Size Size { get; set; }
 
         [Description("The interpolation method used to transform individual image elements.")]
         public SubPixelInterpolation Interpolation { get; set; }
@@ -25,8 +25,8 @@ namespace Bonsai.Vision
         {
             if (input.Size != Size)
             {
-                var output = new IplImage(Size, input.Depth, input.NumChannels);
-                ImgProc.cvResize(input, output, Interpolation);
+                var output = new IplImage(Size, input.Depth, input.Channels);
+                CV.Resize(input, output, Interpolation);
                 return output;
             }
             else return input;

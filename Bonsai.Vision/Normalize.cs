@@ -11,14 +11,14 @@ namespace Bonsai.Vision
         public override IplImage Process(IplImage input)
         {
             double min, max;
-            CvPoint minLoc, maxLoc;
-            var output = new IplImage(input.Size, 8, input.NumChannels);
-            Core.cvMinMaxLoc(input, out min, out max, out minLoc, out maxLoc, CvArr.Null);
+            Point minLoc, maxLoc;
+            var output = new IplImage(input.Size, IplDepth.U8, input.Channels);
+            CV.MinMaxLoc(input, out min, out max, out minLoc, out maxLoc);
 
             var range = max - min;
             var scale = range > 0 ? 255.0 / range : 0;
             var shift = range > 0 ? -min : 0;
-            Core.cvConvertScale(input, output, scale, shift);
+            CV.ConvertScale(input, output, scale, shift);
             return output;
         }
     }

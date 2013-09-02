@@ -14,31 +14,29 @@ namespace Bonsai.Vision
     {
         IplImage roi;
         IplImage mask;
-        int[] polygonLength;
-        CvPoint[][] currentRegions;
-        CvRect[] boundingRegions;
+        Point[][] currentRegions;
+        Rect[] boundingRegions;
 
         [Editor("Bonsai.Vision.Design.IplImageInputRoiEditor, Bonsai.Vision.Design", typeof(UITypeEditor))]
-        public CvPoint[][] Regions { get; set; }
+        public Point[][] Regions { get; set; }
 
         public override RegionActivityCollection Process(IplImage input)
         {
             var output = new RegionActivityCollection();
-            mask = IplImageHelper.EnsureImageFormat(mask, input.Size, 8, 1);
-            roi = IplImageHelper.EnsureImageFormat(roi, input.Size, input.Depth, input.NumChannels);
+            mask = IplImageHelper.EnsureImageFormat(mask, input.Size, IplDepth.U8, 1);
+            roi = IplImageHelper.EnsureImageFormat(roi, input.Size, input.Depth, input.Channels);
             if (Regions != currentRegions)
             {
                 mask.SetZero();
                 currentRegions = Regions;
-                polygonLength = currentRegions.Select(polygon => polygon.Length).ToArray();
-                Core.cvFillPoly(mask, currentRegions, polygonLength, currentRegions.Length, CvScalar.All(255), 8, 0);
+                CV.FillPoly(mask, currentRegions, Scalar.All(255));
                 boundingRegions = currentRegions.Select(polygon =>
                 {
                     var points = polygon.SelectMany(point => new[] { point.X, point.Y }).ToArray();
-                    using (var mat = new CvMat(1, polygon.Length, CvMatDepth.CV_32S, 2))
+                    using (var mat = new Mat(1, polygon.Length, Depth.S32, 2))
                     {
                         Marshal.Copy(points, 0, mat.Data, points.Length);
-                        return ImgProc.cvBoundingRect(mat, 0);
+                        return CV.BoundingRect(mat);
                     }
                 }).ToArray();
             }
@@ -46,20 +44,20 @@ namespace Bonsai.Vision
             if (currentRegions != null)
             {
                 roi.SetZero();
-                Core.cvCopy(input, roi, mask);
+                CV.Copy(input, roi, mask);
                 for (int i = 0; i < boundingRegions.Length; i++)
                 {
                     var region = boundingRegions[i];
                     var polygon = currentRegions[i];
-                    roi.ImageROI = region;
+                    roi.RegionOfInterest = region;
                     output.Add(new RegionActivity
                     {
                         Roi = polygon,
                         Rect = region,
-                        Activity = Core.cvSum(roi)
+                        Activity = CV.Sum(roi)
                     });
                 }
-                roi.ResetImageROI();
+                roi.ResetRegionOfInterest();
             }
 
             return output;
