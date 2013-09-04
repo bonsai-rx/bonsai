@@ -25,37 +25,73 @@ namespace Bonsai.NuGet
         const string SortByNameAscending = "Name: Ascending";
         const string SortByNameDescending = "Name: Descending";
         const string SortByRelevance = "Relevance";
+        const string PackageSourceSectionName = "packageSources";
         static readonly Uri PackageDefaultIconUrl = new Uri("https://www.nuget.org/Content/Images/packageDefaultIcon.png");
 
         bool loaded;
+        readonly ISettings settings;
+        readonly string packageManagerPath;
+        readonly Dictionary<string, PackageManager> packageManagers;
+        IPackageManager selectedManager;
         IPackageRepository selectedRepository;
-        readonly IPackageManager packageManager;
 
         TreeNode installedPackagesNode;
         TreeNode onlineNode;
         TreeNode updatesNode;
 
-        public PackageManagerDialog(IPackageManager manager)
+        public PackageManagerDialog(string path)
         {
-            packageManager = manager;
-            packageManager.Logger = new EventLogger();
+            packageManagerPath = path;
+            settings = Settings.LoadDefaultSettings(null, null, null);
+            packageManagers = CreatePackageManagers();
             InitializeComponent();
             InitializeRepositoryViewNodes();
+        }
+
+        private Dictionary<string, PackageManager> CreatePackageManagers()
+        {
+            var packageSources = (from settingValue in settings.GetSettingValues(PackageSourceSectionName, false)
+                                  select new
+                                  {
+                                      name = settingValue.Key,
+                                      source = PackageRepositoryFactory.Default.CreateRepository(settingValue.Value)
+                                  }).ToList();
+
+            var allPackageSource = new AggregateRepository(packageSources.Select(xs => xs.source));
+            var aggregateSources =
+                Enumerable.Repeat(new { name = Resources.AllNodeName, source = (IPackageRepository)allPackageSource }, 1)
+                .Concat(packageSources);
+
+            var managers = new Dictionary<string, PackageManager>();
+            foreach (var packageSource in aggregateSources)
+            {
+                var packageManager = new PackageManager(packageSource.source, packageManagerPath);
+                packageManager.Logger = new EventLogger();
+                managers.Add(packageSource.name, packageManager);
+            }
+            return managers;
+        }
+
+        private void InitializeRepositoryViewNode(TreeNode rootNode)
+        {
+            foreach (var pair in packageManagers)
+            {
+                var node = rootNode.Nodes.Add(pair.Key);
+                node.Tag = pair.Value;
+            }
         }
 
         private void InitializeRepositoryViewNodes()
         {
             installedPackagesNode = repositoriesView.Nodes.Add(Resources.InstalledPackagesNodeName);
             var allInstalledNode = installedPackagesNode.Nodes.Add(Resources.AllNodeName);
-            allInstalledNode.Tag = packageManager.LocalRepository;
+            allInstalledNode.Tag = packageManagers[Resources.AllNodeName];
 
             onlineNode = repositoriesView.Nodes.Add(Resources.OnlineNodeName);
-            var allOnlineNode = onlineNode.Nodes.Add(Resources.AllNodeName);
-            allOnlineNode.Tag = packageManager.SourceRepository;
+            InitializeRepositoryViewNode(onlineNode);
 
             updatesNode = repositoriesView.Nodes.Add(Resources.UpdatesNodeName);
-            var allUpdatesNode = updatesNode.Nodes.Add(Resources.AllNodeName);
-            allUpdatesNode.Tag = packageManager.SourceRepository;
+            InitializeRepositoryViewNode(updatesNode);
         }
 
         protected override void OnLoad(EventArgs e)
@@ -89,7 +125,11 @@ namespace Bonsai.NuGet
 
         bool AllowPrereleaseVersions
         {
-            get { return releaseFilterComboBox.SelectedIndex == 1 || selectedRepository == packageManager.LocalRepository; }
+            get
+            {
+                return releaseFilterComboBox.SelectedIndex == 1 ||
+                    selectedRepository == packageManagers[Resources.AllNodeName].LocalRepository;
+            }
         }
 
         Func<IQueryable<IPackage>> GetPackageFeed()
@@ -109,7 +149,7 @@ namespace Bonsai.NuGet
                 if (updateFeed)
                 {
                     packages = selectedRepository.GetUpdates(
-                        packageManager.LocalRepository.GetPackages(),
+                        selectedManager.LocalRepository.GetPackages(),
                         allowPrereleaseVersions,
                         false).AsQueryable();
                 }
@@ -247,19 +287,19 @@ namespace Bonsai.NuGet
             {
                 using (var dialog = new PackageOperationDialog())
                 {
-                    var logger = packageManager.Logger;
-                    dialog.RegisterEventLogger((EventLogger)logger, packageManager);
+                    var logger = selectedManager.Logger;
+                    dialog.RegisterEventLogger((EventLogger)logger, selectedManager);
 
                     IObservable<Unit> operation;
-                    if (selectedRepository == packageManager.LocalRepository)
+                    if (selectedRepository == selectedManager.LocalRepository)
                     {
-                        operation = Observable.Start(() => packageManager.UninstallPackage(package, false, false));
+                        operation = Observable.Start(() => selectedManager.UninstallPackage(package, false, false));
                         dialog.Text = Resources.UninstallOperationLabel;
                     }
                     else
                     {
                         var allowPrereleaseVersions = AllowPrereleaseVersions;
-                        operation = Observable.Start(() => packageManager.InstallPackage(package, false, allowPrereleaseVersions, false));
+                        operation = Observable.Start(() => selectedManager.InstallPackage(package, false, allowPrereleaseVersions, false));
                         dialog.Text = Resources.InstallOperationLabel;
                     }
 
@@ -274,19 +314,21 @@ namespace Bonsai.NuGet
 
         private void repositoriesView_AfterSelect(object sender, TreeViewEventArgs e)
         {
+            selectedManager = e.Node.Tag as IPackageManager;
             if (e.Node == installedPackagesNode || e.Node.Parent == installedPackagesNode)
             {
                 releaseFilterComboBox.Visible = false;
                 packageView.OperationText = Resources.UninstallOperationName;
+                selectedRepository = selectedManager.LocalRepository;
             }
             else
             {
                 releaseFilterComboBox.Visible = true;
                 packageView.OperationText = Resources.InstallOperationName;
+                selectedRepository = selectedManager.SourceRepository;
             }
 
             searchComboBox.Text = string.Empty;
-            selectedRepository = e.Node.Tag as IPackageRepository;
             UpdatePackageFeed();
         }
 
