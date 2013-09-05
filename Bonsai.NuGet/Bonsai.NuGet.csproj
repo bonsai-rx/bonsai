@@ -104,6 +104,12 @@
     <Compile Include="PackagePageSelector.Designer.cs">
       <DependentUpon>PackagePageSelector.cs</DependentUpon>
     </Compile>
+    <Compile Include="PackageSourceConfigurationDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PackageSourceConfigurationDialog.Designer.cs">
+      <DependentUpon>PackageSourceConfigurationDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="PackageView.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -130,6 +136,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="PackagePageSelector.resx">
       <DependentUpon>PackagePageSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PackageSourceConfigurationDialog.resx">
+      <DependentUpon>PackageSourceConfigurationDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
