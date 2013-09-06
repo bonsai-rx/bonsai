@@ -41,9 +41,10 @@
             this.sourceEditorButton = new System.Windows.Forms.Button();
             this.bottomLine = new System.Windows.Forms.Label();
             this.packageSourceListLabel = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
+            this.updateButton = new System.Windows.Forms.Button();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.packageSourceListView = new System.Windows.Forms.ListView();
+            this.padHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SuspendLayout();
             // 
             // moveDownButton
@@ -54,6 +55,7 @@
             this.moveDownButton.TabIndex = 2;
             this.moveDownButton.Text = "v";
             this.moveDownButton.UseVisualStyleBackColor = true;
+            this.moveDownButton.Click += new System.EventHandler(this.moveDownButton_Click);
             // 
             // moveUpButton
             // 
@@ -63,6 +65,7 @@
             this.moveUpButton.TabIndex = 3;
             this.moveUpButton.Text = "^";
             this.moveUpButton.UseVisualStyleBackColor = true;
+            this.moveUpButton.Click += new System.EventHandler(this.moveUpButton_Click);
             // 
             // removeButton
             // 
@@ -72,6 +75,7 @@
             this.removeButton.TabIndex = 4;
             this.removeButton.Text = "x";
             this.removeButton.UseVisualStyleBackColor = true;
+            this.removeButton.Click += new System.EventHandler(this.removeButton_Click);
             // 
             // addButton
             // 
@@ -81,6 +85,7 @@
             this.addButton.TabIndex = 5;
             this.addButton.Text = "+";
             this.addButton.UseVisualStyleBackColor = true;
+            this.addButton.Click += new System.EventHandler(this.addButton_Click);
             // 
             // cancelButton
             // 
@@ -143,6 +148,7 @@
             this.sourceEditorButton.TabIndex = 12;
             this.sourceEditorButton.Text = "...";
             this.sourceEditorButton.UseVisualStyleBackColor = true;
+            this.sourceEditorButton.Click += new System.EventHandler(this.sourceEditorButton_Click);
             // 
             // bottomLine
             // 
@@ -161,32 +167,43 @@
             this.packageSourceListLabel.TabIndex = 14;
             this.packageSourceListLabel.Text = "Available package sources:";
             // 
-            // button1
+            // updateButton
             // 
-            this.button1.Location = new System.Drawing.Point(397, 334);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 15;
-            this.button1.Text = "Update";
-            this.button1.UseVisualStyleBackColor = true;
+            this.updateButton.Location = new System.Drawing.Point(397, 334);
+            this.updateButton.Name = "updateButton";
+            this.updateButton.Size = new System.Drawing.Size(75, 23);
+            this.updateButton.TabIndex = 15;
+            this.updateButton.Text = "Update";
+            this.updateButton.UseVisualStyleBackColor = true;
+            this.updateButton.Click += new System.EventHandler(this.updateButton_Click);
             // 
             // packageSourceListView
             // 
             this.packageSourceListView.CheckBoxes = true;
+            this.packageSourceListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.padHeader});
             this.packageSourceListView.FullRowSelect = true;
+            this.packageSourceListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
             this.packageSourceListView.Location = new System.Drawing.Point(12, 43);
+            this.packageSourceListView.MultiSelect = false;
             this.packageSourceListView.Name = "packageSourceListView";
             this.packageSourceListView.Size = new System.Drawing.Size(460, 262);
             this.packageSourceListView.TabIndex = 1;
             this.packageSourceListView.UseCompatibleStateImageBehavior = false;
-            this.packageSourceListView.View = System.Windows.Forms.View.List;
+            this.packageSourceListView.View = System.Windows.Forms.View.Details;
+            this.packageSourceListView.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.packageSourceListView_ItemChecked);
+            this.packageSourceListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.packageSourceListView_ItemSelectionChanged);
+            // 
+            // padHeader
+            // 
+            this.padHeader.Width = 526;
             // 
             // PackageSourceConfigurationDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(484, 411);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.updateButton);
             this.Controls.Add(this.packageSourceListLabel);
             this.Controls.Add(this.bottomLine);
             this.Controls.Add(this.sourceEditorButton);
@@ -227,8 +244,9 @@
         private System.Windows.Forms.Button sourceEditorButton;
         private System.Windows.Forms.Label bottomLine;
         private System.Windows.Forms.Label packageSourceListLabel;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button updateButton;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
         private System.Windows.Forms.ListView packageSourceListView;
+        private System.Windows.Forms.ColumnHeader padHeader;
     }
 }
