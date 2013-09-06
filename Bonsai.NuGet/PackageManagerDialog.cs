@@ -347,5 +347,13 @@ namespace Bonsai.NuGet
                 repositoriesView.SelectedNode = selectedChild;
             }
         }
+
+        private void settingsButton_Click(object sender, EventArgs e)
+        {
+            using (var dialog = new PackageSourceConfigurationDialog(packageSourceProvider))
+            {
+                dialog.ShowDialog(this);
+            }
+        }
     }
 }
