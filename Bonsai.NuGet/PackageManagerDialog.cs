@@ -285,7 +285,7 @@ namespace Bonsai.NuGet
                 using (var dialog = new PackageOperationDialog())
                 {
                     var logger = selectedManager.Logger;
-                    dialog.RegisterEventLogger((EventLogger)logger, selectedManager);
+                    dialog.RegisterEventLogger((EventLogger)logger);
 
                     IObservable<Unit> operation;
                     if (selectedRepository == selectedManager.LocalRepository)

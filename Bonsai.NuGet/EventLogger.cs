@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Bonsai.NuGet
 {
-    class EventLogger : ILogger
+    public class EventLogger : ILogger
     {
         public event EventHandler<LogEventArgs> Log;
 
