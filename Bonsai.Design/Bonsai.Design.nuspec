@@ -14,5 +14,8 @@
     <releaseNotes>First public prerelease of API for editor and visualizer infrastructure.</releaseNotes>
     <copyright>Gonçalo Lopes © 2013</copyright>
     <tags>Bonsai Design Rx Reactive Extensions Events Data Processing</tags>
+    <dependencies>
+      <dependency id="Bonsai" version="2.0.0-alpha" />
+    </dependencies>
   </metadata>
 </package>
