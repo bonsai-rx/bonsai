@@ -352,5 +352,10 @@ namespace Bonsai.NuGet
                 dialog.ShowDialog(this);
             }
         }
+
+        private void closeButton_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
     }
 }
