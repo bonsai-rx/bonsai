@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Bonsai.NuGet
 {
-    class LogEventArgs : EventArgs
+    public class LogEventArgs : EventArgs
     {
         public LogEventArgs(MessageLevel level, string message, object[] args)
         {

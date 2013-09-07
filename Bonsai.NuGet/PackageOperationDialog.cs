@@ -6,7 +6,6 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -15,7 +14,7 @@ namespace Bonsai.NuGet
 {
     public partial class PackageOperationDialog : Form
     {
-        IDisposable logHandler;
+        EventLogger eventLogger;
 
         public PackageOperationDialog()
         {
@@ -42,33 +41,33 @@ namespace Bonsai.NuGet
             }
         }
 
-        internal void RegisterEventLogger(EventLogger logger, IPackageManager packageManager)
+        public void RegisterEventLogger(EventLogger logger)
         {
-            var logEvent = Observable.FromEventPattern<LogEventArgs>(
-                handler => logger.Log += new EventHandler<LogEventArgs>(handler),
-                handler => logger.Log -= new EventHandler<LogEventArgs>(handler));
+            logger.Log += logger_Log;
+            eventLogger = logger;
+        }
 
-            logHandler = logEvent
-                .ObserveOn(this)
-                .Subscribe(evt =>
+        void logger_Log(object sender, LogEventArgs e)
+        {
+            if (InvokeRequired) BeginInvoke((EventHandler<LogEventArgs>)logger_Log, sender, e);
+            else
+            {
+                loggerListBox.Items.Add(e);
+                if (e.Level == MessageLevel.Error)
                 {
-                    var eventArgs = evt.EventArgs;
-                    loggerListBox.Items.Add(eventArgs);
-                    if (eventArgs.Level == MessageLevel.Error)
-                    {
-                        progressBar.ForeColor = Color.Red;
-                        progressBar.Style = ProgressBarStyle.Blocks;
-                        SetOperationLabel(Resources.FailedOperationLabel);
-                    }
-                });
+                    progressBar.ForeColor = Color.Red;
+                    progressBar.Style = ProgressBarStyle.Blocks;
+                    SetOperationLabel(Resources.FailedOperationLabel);
+                }
+            }
         }
 
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
-            if (logHandler != null)
+            if (eventLogger != null)
             {
-                logHandler.Dispose();
-                logHandler = null;
+                eventLogger.Log -= logger_Log;
+                eventLogger = null;
             }
             base.OnFormClosed(e);
         }
