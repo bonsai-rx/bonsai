@@ -25,12 +25,11 @@ namespace Bonsai.NuGet
         const string SortByNameAscending = "Name: Ascending";
         const string SortByNameDescending = "Name: Descending";
         const string SortByRelevance = "Relevance";
-        const string PackageSourceSectionName = "packageSources";
         static readonly Uri PackageDefaultIconUrl = new Uri("https://www.nuget.org/Content/Images/packageDefaultIcon.png");
 
         bool loaded;
-        readonly ISettings settings;
         readonly string packageManagerPath;
+        readonly PackageSourceProvider packageSourceProvider;
         readonly Dictionary<string, PackageManager> packageManagers;
         IPackageManager selectedManager;
         IPackageRepository selectedRepository;
@@ -42,7 +41,8 @@ namespace Bonsai.NuGet
         public PackageManagerDialog(string path)
         {
             packageManagerPath = path;
-            settings = Settings.LoadDefaultSettings(null, null, null);
+            var settings = Settings.LoadDefaultSettings(null, null, null);
+            packageSourceProvider = new PackageSourceProvider(settings);
             packageManagers = CreatePackageManagers();
             InitializeComponent();
             InitializeRepositoryViewNodes();
@@ -50,24 +50,21 @@ namespace Bonsai.NuGet
 
         private Dictionary<string, PackageManager> CreatePackageManagers()
         {
-            var packageSources = (from settingValue in settings.GetSettingValues(PackageSourceSectionName, false)
-                                  select new
-                                  {
-                                      name = settingValue.Key,
-                                      source = PackageRepositoryFactory.Default.CreateRepository(settingValue.Value)
-                                  }).ToList();
-
-            var allPackageSource = new AggregateRepository(packageSources.Select(xs => xs.source));
-            var aggregateSources =
-                Enumerable.Repeat(new { name = Resources.AllNodeName, source = (IPackageRepository)allPackageSource }, 1)
-                .Concat(packageSources);
-
+            var logger = new EventLogger();
             var managers = new Dictionary<string, PackageManager>();
-            foreach (var packageSource in aggregateSources)
+            var aggregateRepository = packageSourceProvider.GetAggregate(PackageRepositoryFactory.Default);
+            managers.Add(Resources.AllNodeName, new PackageManager(aggregateRepository, packageManagerPath) { Logger = logger });
+            var packageRepositories = packageSourceProvider
+                .GetEnabledPackageSources()
+                .Zip(aggregateRepository.Repositories, (source, repository) => new
+                {
+                    name = source.Name,
+                    manager = new PackageManager(repository, packageManagerPath) { Logger = logger }
+                });
+
+            foreach (var repository in packageRepositories)
             {
-                var packageManager = new PackageManager(packageSource.source, packageManagerPath);
-                packageManager.Logger = new EventLogger();
-                managers.Add(packageSource.name, packageManager);
+                managers.Add(repository.name, repository.manager);
             }
             return managers;
         }
