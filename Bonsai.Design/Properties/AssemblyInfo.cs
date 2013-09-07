@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Bonsai.Design")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Bonsai - Design Library")]
+[assembly: AssemblyDescription("Bonsai Design Library containing base visualizer classes and editor infrastructure.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Gonçalo Lopes")]
 [assembly: AssemblyProduct("Bonsai.Design")]
-[assembly: AssemblyCopyright("Copyright © Gonçalo C. Lopes 2011-2013")]
+[assembly: AssemblyCopyright("Copyright © Gonçalo Lopes 2011-2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
