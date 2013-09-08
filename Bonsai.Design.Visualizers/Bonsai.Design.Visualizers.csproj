@@ -31,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <BuildPackage>true</BuildPackage>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -71,6 +72,7 @@
     <Compile Include="TimestampedTimeSeriesVisualizer.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Bonsai.Design.Visualizers.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
