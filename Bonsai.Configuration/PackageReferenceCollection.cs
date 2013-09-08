@@ -8,6 +8,11 @@ namespace Bonsai.Configuration
 {
     public class PackageReferenceCollection : KeyedCollection<string, PackageReference>
     {
+        public void Add(string name)
+        {
+            Add(new PackageReference(name));
+        }
+
         protected override string GetKeyForItem(PackageReference item)
         {
             return item.Name;
