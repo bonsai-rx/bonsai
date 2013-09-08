@@ -144,4 +144,7 @@
   <data name="UpdatesNodeName" xml:space="preserve">
     <value>Updates</value>
   </data>
+  <data name="NoItemsFoundLabel" xml:space="preserve">
+    <value>No items found.</value>
+  </data>
 </root>

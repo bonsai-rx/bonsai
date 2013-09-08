@@ -30,9 +30,10 @@ namespace Bonsai.NuGet
         bool loaded;
         readonly string packageManagerPath;
         readonly PackageSourceProvider packageSourceProvider;
-        readonly Dictionary<string, PackageManager> packageManagers;
+        Dictionary<string, PackageManager> packageManagers;
         IPackageManager selectedManager;
         IPackageRepository selectedRepository;
+        string feedExceptionMessage;
 
         TreeNode installedPackagesNode;
         TreeNode onlineNode;
@@ -80,6 +81,7 @@ namespace Bonsai.NuGet
 
         private void InitializeRepositoryViewNodes()
         {
+            repositoriesView.Nodes.Clear();
             installedPackagesNode = repositoriesView.Nodes.Add(Resources.InstalledPackagesNodeName);
             var allInstalledNode = installedPackagesNode.Nodes.Add(Resources.AllNodeName);
             allInstalledNode.Tag = packageManagers[Resources.AllNodeName];
@@ -225,18 +227,25 @@ namespace Bonsai.NuGet
                     packageFeed()
                     .Skip(pageIndex * PackagesPerPage)
                     .Take(PackagesPerPage)
-                    .ToObservable())
+                    .ToObservable()
+                    .Catch<IPackage, WebException>(ex => Observable.Empty<IPackage>()))
                     .SubscribeOn(NewThreadScheduler.Default)
                     .ObserveOn(this)
                     .Subscribe(package => AddPackage(package));
             }
-            else packageView.Nodes.Add("No items found.");
+            else packageView.Nodes.Add(feedExceptionMessage ?? Resources.NoItemsFoundLabel);
         }
 
         private void UpdatePackageFeed()
         {
+            feedExceptionMessage = null;
             var packageFeed = GetPackageFeed();
             Observable.Start(() => packageFeed().Count())
+                .Catch<int, WebException>(ex =>
+                {
+                    feedExceptionMessage = ex.Message;
+                    return Observable.Return(0);
+                })
                 .ObserveOn(this)
                 .Subscribe(count =>
                 {
@@ -347,10 +356,20 @@ namespace Bonsai.NuGet
 
         private void settingsButton_Click(object sender, EventArgs e)
         {
+            Hide();
             using (var dialog = new PackageSourceConfigurationDialog(packageSourceProvider))
             {
-                dialog.ShowDialog(this);
+                if (dialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    selectedManager = null;
+                    selectedRepository = null;
+                    feedExceptionMessage = null;
+                    packageManagers = CreatePackageManagers();
+                    InitializeRepositoryViewNodes();
+                    UpdatePackageFeed();
+                }
             }
+            Show();
         }
 
         private void closeButton_Click(object sender, EventArgs e)
