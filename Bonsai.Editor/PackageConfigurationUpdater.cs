@@ -35,7 +35,7 @@ namespace Bonsai.Editor
 
         static bool IsTaggedPackage(IPackage package)
         {
-            return package.Tags.Contains(Constants.PackageTagFilter);
+            return package.Tags != null && package.Tags.Contains(Constants.PackageTagFilter);
         }
 
         static IEnumerable<string> GetLibraryFolders(IPackage package, string installPath)
