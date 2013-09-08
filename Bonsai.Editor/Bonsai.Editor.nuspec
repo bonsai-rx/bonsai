@@ -17,6 +17,7 @@
     <dependencies>
       <dependency id="Bonsai.Design" version="2.0.0-alpha" />
       <dependency id="Bonsai" version="2.0.0-alpha" />
+      <dependency id="Rx-WinForms" version="2.1.30214.0" />
     </dependencies>
   </metadata>
 </package>

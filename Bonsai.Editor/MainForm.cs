@@ -101,7 +101,6 @@ namespace Bonsai.Editor
             var systemX86Path = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86)).TrimEnd('\\');
             var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory || currentDirectory == systemPath || currentDirectory == systemX86Path;
             directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
-            ConfigurationHelper.SetAssemblyResolve();
             var initialization = InitializeToolbox().Merge(InitializeTypeVisualizers()).TakeLast(1).ObserveOn(Scheduler.Default);
             InitializeExampleDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Examples"), examplesToolStripMenuItem);
 
@@ -731,6 +730,16 @@ namespace Bonsai.Editor
 
         #endregion
 
+        #region Package Manager
+
+        private void packageManagerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
+            AppDomain.CurrentDomain.SetData(Constants.AppDomainLaunchPackageManagerData, "true");
+        }
+
+        #endregion
+
         #region Help Menu
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1013,6 +1022,5 @@ namespace Bonsai.Editor
         }
 
         #endregion
-
     }
 }

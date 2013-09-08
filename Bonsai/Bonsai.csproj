@@ -65,7 +65,6 @@
     <Compile Include="Combinators\SkipLast.cs" />
     <Compile Include="Combinators\SkipUntil.cs" />
     <Compile Include="Condition.cs" />
-    <Compile Include="Configuration\ConfigurationHelper.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="ContinuationScheduler.cs" />
     <Compile Include="ArrayConvert.cs" />
