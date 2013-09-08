@@ -68,12 +68,12 @@ namespace Bonsai.Editor
             return typeVisualizers;
         }
 
-        TypeVisualizerInfo[] GetReflectionTypeVisualizerAttributes(string fileName)
+        TypeVisualizerInfo[] GetReflectionTypeVisualizerAttributes(string assemblyRef)
         {
             var typeVisualizers = Enumerable.Empty<TypeVisualizerAttribute>();
             try
             {
-                var assembly = Assembly.LoadFrom(fileName);
+                var assembly = Assembly.Load(assemblyRef);
                 var visualizerAttributes = assembly.GetCustomAttributes(typeVisualizerAttributeType, true).Cast<TypeVisualizerAttribute>();
                 typeVisualizers = typeVisualizers.Concat(visualizerAttributes);
                 typeVisualizers = typeVisualizers.Concat(GetCustomAttributeTypes(assembly, typeVisualizerAttributeType));
@@ -109,11 +109,12 @@ namespace Bonsai.Editor
 
         public static IObservable<Tuple<Type, Type>> GetTypeVisualizerDictionary()
         {
-            var files = PackageHelper.GetPackageFiles();
+            var configuration = ConfigurationHelper.Load();
+            var assemblies = configuration.Packages.Select(reference => reference.Name);
             return Observable.Using(
                 () => new LoaderResource(),
-                resource => from fileName in files.ToObservable()
-                            let typeVisualizers = resource.Loader.GetReflectionTypeVisualizerAttributes(fileName)
+                resource => from assemblyRef in assemblies.ToObservable()
+                            let typeVisualizers = resource.Loader.GetReflectionTypeVisualizerAttributes(assemblyRef)
                             from typeVisualizer in typeVisualizers
                             let targetType = Type.GetType(typeVisualizer.TargetTypeName)
                             let visualizerType = Type.GetType(typeVisualizer.VisualizerTypeName)

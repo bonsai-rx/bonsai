@@ -92,12 +92,12 @@ namespace Bonsai.Editor
             }
         }
 
-        WorkflowElementDescriptor[] GetReflectionWorkflowElementTypes(string fileName)
+        WorkflowElementDescriptor[] GetReflectionWorkflowElementTypes(string assemblyRef)
         {
             var types = Enumerable.Empty<WorkflowElementDescriptor>();
             try
             {
-                var assembly = Assembly.LoadFrom(fileName);
+                var assembly = Assembly.Load(assemblyRef);
                 types = types.Concat(GetWorkflowElements(assembly));
             }
             catch (FileLoadException) { }
@@ -154,12 +154,13 @@ namespace Bonsai.Editor
 
         public static IObservable<IGrouping<string, WorkflowElementDescriptor>> GetWorkflowElementTypes()
         {
-            var files = PackageHelper.GetPackageFiles();
+            var configuration = ConfigurationHelper.Load();
+            var assemblies = configuration.Packages.Select(reference => reference.Name);
             return Observable.Using(
                 () => new LoaderResource(),
-                resource => from fileName in files.ToObservable()
+                resource => from assemblyRef in assemblies.ToObservable()
                             from package in resource.Loader
-                                .GetReflectionWorkflowElementTypes(fileName)
+                                .GetReflectionWorkflowElementTypes(assemblyRef)
                                 .GroupBy(element => element.Namespace)
                             select package);
         }
