@@ -13,7 +13,13 @@ namespace Bonsai.Editor
     {
         IPackageManager packageManager;
         PackageConfiguration packageConfiguration;
-        static readonly FrameworkName CompatibleFrameworkName = new FrameworkName(".NETFramework,Version=v4.0");
+        static readonly IEnumerable<FrameworkName> SupportedFrameworks = new[]
+        {
+            new FrameworkName(".NETFramework,Version=v4.0"),
+            new FrameworkName(".NETFramework,Version=v4.0,Profile=Client"),
+            new FrameworkName(".NETFramework,Version=v3.5"),
+            new FrameworkName(".NETFramework,Version=v3.5,Profile=Client")
+        };
 
         public PackageConfigurationUpdater(PackageConfiguration configuration, IPackageManager manager)
         {
@@ -46,13 +52,13 @@ namespace Bonsai.Editor
                     .Distinct();
         }
 
-        static IEnumerable<IPackageAssemblyReference> GetCompatibleAssemblyReferences(IPackage package, FrameworkName name)
+        static IEnumerable<IPackageAssemblyReference> GetCompatibleAssemblyReferences(IPackage package)
         {
-            foreach (var reference in package.AssemblyReferences)
-            {
-                if (!reference.SupportedFrameworks.Contains(name)) continue;
-                yield return reference;
-            }
+            return from reference in package.AssemblyReferences
+                   where reference.SupportedFrameworks.Intersect(SupportedFrameworks).Any()
+                   group reference by reference.Name into referenceGroups
+                   from reference in referenceGroups.OrderByDescending(reference => reference.TargetFramework.FullName).Take(1)
+                   select reference;
         }
 
         void packageManager_PackageInstalled(object sender, PackageOperationEventArgs e)
@@ -65,7 +71,7 @@ namespace Bonsai.Editor
                 packageConfiguration.LibraryFolders.Add(path);
             }
 
-            foreach (var reference in GetCompatibleAssemblyReferences(package, CompatibleFrameworkName))
+            foreach (var reference in GetCompatibleAssemblyReferences(package))
             {
                 var referencePath = Path.Combine(installPath, reference.Path);
                 var referenceName = Path.GetFileNameWithoutExtension(reference.Name);
@@ -89,7 +95,7 @@ namespace Bonsai.Editor
                 packageConfiguration.LibraryFolders.Remove(path);
             }
 
-            foreach (var reference in GetCompatibleAssemblyReferences(package, CompatibleFrameworkName))
+            foreach (var reference in GetCompatibleAssemblyReferences(package))
             {
                 var referenceName = Path.GetFileNameWithoutExtension(reference.Name);
                 packageConfiguration.AssemblyLocations.Remove(referenceName);
