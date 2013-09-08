@@ -50,7 +50,7 @@ namespace Bonsai.Editor
                 var logger = new EventLogger();
                 var settings = Settings.LoadDefaultSettings(null, null, null);
                 var sourceProvider = new PackageSourceProvider(settings);
-                var sourceRepository = sourceProvider.GetAggregate(PackageRepositoryFactory.Default);
+                var sourceRepository = sourceProvider.GetAggregate(PackageRepositoryFactory.Default, true);
                 var packageManager = new PackageManager(sourceRepository, Constants.RepositoryPath) { Logger = logger };
 
                 var editorPackageId = typeof(Program).Assembly.GetName().Name;
@@ -79,7 +79,7 @@ namespace Bonsai.Editor
                     launchPackageManager = true;
                 }
 
-                var exit = false;
+                var exit = editorPackage == null;
                 while (!exit)
                 {
                     var editorArgs = new string[args.Length + 1];
