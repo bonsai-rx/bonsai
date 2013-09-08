@@ -197,19 +197,20 @@
       <ILMergeInternalizeExcludeFile>$(MsBuildProjectDirectory)\ilmerge.internalize.exclude.txt</ILMergeInternalizeExcludeFile>
       <ILMergeOutputFile>Bonsai.Editor.exe</ILMergeOutputFile>
       <ILMergeOutputFilePath>$(OutputPath)Merged\$(ILMergeOutputFile)</ILMergeOutputFilePath>
-      <ILMergeCommandArgs>/internalize:"$(ILMergeInternalizeExcludeFile)" /target:exe /out:"Merged\$(ILMergeOutputFile)" /log:"Merged\ilmerge.msbuild.log" /ndebug /allowDup $(ILMergeOutputFile) Bonsai.Configuration.dll Bonsai.NuGet.dll NuGet.Core.dll Microsoft.Web.XmlTransform.dll</ILMergeCommandArgs>
+      <ILMergeCommandArgs>/internalize:"$(ILMergeInternalizeExcludeFile)" /target:exe /out:"Merged\$(ILMergeOutputFile)" /log:"Merged\ilmerge.msbuild.log" /allowDup $(ILMergeOutputFile) Bonsai.Configuration.dll Bonsai.NuGet.dll NuGet.Core.dll Microsoft.Web.XmlTransform.dll</ILMergeCommandArgs>
       <ILMergeCommandArgs Condition=" '$(SignAssembly)' == 'true' ">/keyfile:"$(AssemblyOriginatorKeyFile)" /delaysign $(ILMergeCommandArgs)</ILMergeCommandArgs>
     </PropertyGroup>
     <ItemGroup>
       <ILMergeOutputs Include="$(ILMergeOutputFilePath)" />
+      <ILMergeOutputs Include="$(OutputPath)Merged\Bonsai.Editor.pdb" />
     </ItemGroup>
     <MakeDir Directories="$(OutputPath)Merged" Condition="!Exists('$(OutputPath)Merged')" />
-    <Delete Files="$(ILMergeOutputFilePath)" Condition="Exists($(ILMergeOutputFilePath))" />
+    <Delete Files="@(ILMergeOutputs)" Condition="Exists($(ILMergeOutputFilePath))" />
     <Exec Command="&quot;$(ILMergeExe)&quot; $(ILMergeCommandArgs)" WorkingDirectory="$(OutputPath)" />
     <Copy SourceFiles="@(ILMergeOutputs)" DestinationFolder="$(OutputPath)" />
   </Target>
   <PropertyGroup>
-    <BuildDependsOn Condition="$(BuildPackage) == 'true'">
+    <BuildDependsOn>
       $(BuildDependsOn);
       MergeExecutable;
     </BuildDependsOn>
