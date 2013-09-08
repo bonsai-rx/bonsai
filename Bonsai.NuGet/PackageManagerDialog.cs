@@ -233,7 +233,11 @@ namespace Bonsai.NuGet
                     .ObserveOn(this)
                     .Subscribe(package => AddPackage(package));
             }
-            else packageView.Nodes.Add(feedExceptionMessage ?? Resources.NoItemsFoundLabel);
+            else
+            {
+                packageView.Nodes.Add(feedExceptionMessage ?? Resources.NoItemsFoundLabel);
+                packageDetails.SetPackage(null);
+            }
         }
 
         private void UpdatePackageFeed()
@@ -299,7 +303,7 @@ namespace Bonsai.NuGet
                     IObservable<Unit> operation;
                     if (selectedRepository == selectedManager.LocalRepository)
                     {
-                        operation = Observable.Start(() => selectedManager.UninstallPackage(package, false, false));
+                        operation = Observable.Start(() => selectedManager.UninstallPackage(package, false, true));
                         dialog.Text = Resources.UninstallOperationLabel;
                     }
                     else
@@ -314,6 +318,7 @@ namespace Bonsai.NuGet
                         ex => logger.Log(MessageLevel.Error, ex.Message),
                         () => dialog.Close());
                     dialog.ShowDialog();
+                    UpdatePackageFeed();
                 }
             }
         }
@@ -321,6 +326,7 @@ namespace Bonsai.NuGet
         private void repositoriesView_AfterSelect(object sender, TreeViewEventArgs e)
         {
             selectedManager = e.Node.Tag as IPackageManager;
+            if (selectedManager == null) return;
             if (e.Node == installedPackagesNode || e.Node.Parent == installedPackagesNode)
             {
                 releaseFilterComboBox.Visible = false;
