@@ -61,7 +61,6 @@ namespace Bonsai.Editor
                     using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager))
                     {
                         dialog.RegisterEventLogger(logger);
-                        dialog.Text = "Installing";
                         var operation = Task.Factory.StartNew(() =>
                         {
                             try
