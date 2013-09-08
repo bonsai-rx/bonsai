@@ -17,7 +17,7 @@ using System.Windows.Forms;
 
 namespace Bonsai.NuGet
 {
-    public partial class PackageManagerDialog : Form
+    public partial class PackageManagerDialog : Form, IPackageManager
     {
         const int PackagesPerPage = 10;
         const string SortByMostDownloads = "Most Downloads";
@@ -30,7 +30,7 @@ namespace Bonsai.NuGet
         bool loaded;
         readonly string packageManagerPath;
         readonly PackageSourceProvider packageSourceProvider;
-        Dictionary<string, PackageManager> packageManagers;
+        Dictionary<string, IPackageManager> packageManagers;
         IPackageManager selectedManager;
         IPackageRepository selectedRepository;
         string feedExceptionMessage;
@@ -49,18 +49,29 @@ namespace Bonsai.NuGet
             InitializeRepositoryViewNodes();
         }
 
-        private Dictionary<string, PackageManager> CreatePackageManagers()
+        IPackageManager CreatePackageManager(IPackageRepository sourceRepository, EventLogger logger)
+        {
+            var packageManager = new PackageManager(sourceRepository, packageManagerPath);
+            packageManager.Logger = logger;
+            packageManager.PackageInstalled += (sender, e) => OnPackageInstalled(e);
+            packageManager.PackageInstalling += (sender, e) => OnPackageInstalling(e);
+            packageManager.PackageUninstalled += (sender, e) => OnPackageUninstalled(e);
+            packageManager.PackageUninstalling += (sender, e) => OnPackageUninstalling(e);
+            return packageManager;
+        }
+
+        private Dictionary<string, IPackageManager> CreatePackageManagers()
         {
             var logger = new EventLogger();
-            var managers = new Dictionary<string, PackageManager>();
+            var managers = new Dictionary<string, IPackageManager>();
             var aggregateRepository = packageSourceProvider.GetAggregate(PackageRepositoryFactory.Default);
-            managers.Add(Resources.AllNodeName, new PackageManager(aggregateRepository, packageManagerPath) { Logger = logger });
+            managers.Add(Resources.AllNodeName, CreatePackageManager(aggregateRepository, logger));
             var packageRepositories = packageSourceProvider
                 .GetEnabledPackageSources()
                 .Zip(aggregateRepository.Repositories, (source, repository) => new
                 {
                     name = source.Name,
-                    manager = new PackageManager(repository, packageManagerPath) { Logger = logger }
+                    manager = CreatePackageManager(repository, logger)
                 });
 
             foreach (var repository in packageRepositories)
@@ -382,5 +393,152 @@ namespace Bonsai.NuGet
         {
             Close();
         }
+
+        #region IPackageManager Members
+
+        public IFileSystem FileSystem
+        {
+            get { return selectedManager != null ? selectedManager.FileSystem : null; }
+            set { if (selectedManager != null)selectedManager.FileSystem = value; }
+        }
+
+        public void InstallPackage(string packageId, SemanticVersion version, bool ignoreDependencies, bool allowPrereleaseVersions)
+        {
+            var manager = selectedManager;
+            if (manager != null)
+            {
+                manager.InstallPackage(packageId, version, ignoreDependencies, allowPrereleaseVersions);
+            }
+        }
+
+        public void InstallPackage(IPackage package, bool ignoreDependencies, bool allowPrereleaseVersions, bool ignoreWalkInfo)
+        {
+            var manager = selectedManager;
+            if (manager != null)
+            {
+                manager.InstallPackage(package, ignoreDependencies, allowPrereleaseVersions, ignoreWalkInfo);
+            }
+        }
+
+        public void InstallPackage(IPackage package, bool ignoreDependencies, bool allowPrereleaseVersions)
+        {
+            var manager = selectedManager;
+            if (manager != null)
+            {
+                manager.InstallPackage(package, ignoreDependencies, allowPrereleaseVersions);
+            }
+        }
+
+        public IPackageRepository LocalRepository
+        {
+            get { return selectedManager != null ? selectedManager.LocalRepository : null; }
+        }
+
+        public ILogger Logger
+        {
+            get { return selectedManager != null ? selectedManager.Logger : null; }
+            set { if (selectedManager != null)selectedManager.Logger = value; }
+        }
+
+        public event EventHandler<PackageOperationEventArgs> PackageInstalled;
+
+        public event EventHandler<PackageOperationEventArgs> PackageInstalling;
+
+        public event EventHandler<PackageOperationEventArgs> PackageUninstalled;
+
+        public event EventHandler<PackageOperationEventArgs> PackageUninstalling;
+
+        private void OnPackageInstalled(PackageOperationEventArgs e)
+        {
+            var handler = PackageInstalled;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        private void OnPackageInstalling(PackageOperationEventArgs e)
+        {
+            var handler = PackageInstalling;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        private void OnPackageUninstalled(PackageOperationEventArgs e)
+        {
+            var handler = PackageUninstalled;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        private void OnPackageUninstalling(PackageOperationEventArgs e)
+        {
+            var handler = PackageUninstalling;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        public IPackagePathResolver PathResolver
+        {
+            get { return selectedManager != null ? selectedManager.PathResolver : null; }
+        }
+
+        public IPackageRepository SourceRepository
+        {
+            get { return selectedManager != null ? selectedManager.SourceRepository : null; }
+        }
+
+        public void UninstallPackage(string packageId, SemanticVersion version, bool forceRemove, bool removeDependencies)
+        {
+            var manager = selectedManager;
+            if (manager != null)
+            {
+                manager.UninstallPackage(packageId, version, forceRemove, removeDependencies);
+            }
+        }
+
+        public void UninstallPackage(IPackage package, bool forceRemove, bool removeDependencies)
+        {
+            var manager = selectedManager;
+            if (manager != null)
+            {
+                manager.UninstallPackage(package, forceRemove, removeDependencies);
+            }
+        }
+
+        public void UpdatePackage(string packageId, IVersionSpec versionSpec, bool updateDependencies, bool allowPrereleaseVersions)
+        {
+            var manager = selectedManager;
+            if (manager != null)
+            {
+                manager.UpdatePackage(packageId, versionSpec, updateDependencies, allowPrereleaseVersions);
+            }
+        }
+
+        public void UpdatePackage(string packageId, SemanticVersion version, bool updateDependencies, bool allowPrereleaseVersions)
+        {
+            var manager = selectedManager;
+            if (manager != null)
+            {
+                manager.UpdatePackage(packageId, version, updateDependencies, allowPrereleaseVersions);
+            }
+        }
+
+        public void UpdatePackage(IPackage newPackage, bool updateDependencies, bool allowPrereleaseVersions)
+        {
+            var manager = selectedManager;
+            if (manager != null)
+            {
+                manager.UpdatePackage(newPackage, updateDependencies, allowPrereleaseVersions);
+            }
+        }
+
+        #endregion
     }
 }
