@@ -11,11 +11,11 @@ namespace Bonsai.Editor
 {
     class PackageConfigurationUpdater : IDisposable
     {
-        PackageManager packageManager;
+        IPackageManager packageManager;
         PackageConfiguration packageConfiguration;
         static readonly FrameworkName CompatibleFrameworkName = new FrameworkName(".NETFramework,Version=v4.0");
 
-        public PackageConfigurationUpdater(PackageConfiguration configuration, PackageManager manager)
+        public PackageConfigurationUpdater(PackageConfiguration configuration, IPackageManager manager)
         {
             if (configuration == null)
             {
@@ -31,6 +31,11 @@ namespace Bonsai.Editor
             packageConfiguration = configuration;
             packageManager.PackageInstalled += packageManager_PackageInstalled;
             packageManager.PackageUninstalling += packageManager_PackageUninstalling;
+        }
+
+        static bool IsTaggedPackage(IPackage package)
+        {
+            return package.Tags.Contains(Constants.PackageTagFilter);
         }
 
         static IEnumerable<string> GetLibraryFolders(IPackage package, string installPath)
@@ -54,6 +59,7 @@ namespace Bonsai.Editor
         {
             var package = e.Package;
             var installPath = e.InstallPath;
+            var taggedPackage = IsTaggedPackage(package);
             foreach (var path in GetLibraryFolders(package, installPath))
             {
                 packageConfiguration.LibraryFolders.Add(path);
@@ -64,13 +70,20 @@ namespace Bonsai.Editor
                 var referencePath = Path.Combine(installPath, reference.Path);
                 var referenceName = Path.GetFileNameWithoutExtension(reference.Name);
                 packageConfiguration.AssemblyLocations.Add(referenceName, referencePath);
+                if (taggedPackage)
+                {
+                    packageConfiguration.Packages.Add(referenceName);
+                }
             }
+
+            packageConfiguration.Save();
         }
 
         void packageManager_PackageUninstalling(object sender, PackageOperationEventArgs e)
         {
             var package = e.Package;
             var installPath = e.InstallPath;
+            var taggedPackage = IsTaggedPackage(package);
             foreach (var path in GetLibraryFolders(package, installPath))
             {
                 packageConfiguration.LibraryFolders.Remove(path);
@@ -80,7 +93,13 @@ namespace Bonsai.Editor
             {
                 var referenceName = Path.GetFileNameWithoutExtension(reference.Name);
                 packageConfiguration.AssemblyLocations.Remove(referenceName);
+                if (taggedPackage)
+                {
+                    packageConfiguration.Packages.Remove(referenceName);
+                }
             }
+
+            packageConfiguration.Save();
         }
 
         public void Dispose()

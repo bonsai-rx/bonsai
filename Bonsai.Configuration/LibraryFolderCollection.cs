@@ -10,7 +10,7 @@ namespace Bonsai.Configuration
     {
         public void Add(string path)
         {
-            Add(new LibraryFolder { Path = path });
+            Add(new LibraryFolder(path));
         }
 
         protected override string GetKeyForItem(LibraryFolder item)

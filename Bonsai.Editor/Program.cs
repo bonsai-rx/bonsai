@@ -41,7 +41,11 @@ namespace Bonsai.Editor
                 Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
                 if (launchPackageManager)
                 {
-                    Application.Run(new PackageManagerDialog(Constants.RepositoryPath));
+                    var packageManagerDialog = new PackageManagerDialog(Constants.RepositoryPath);
+                    using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManagerDialog))
+                    {
+                        Application.Run(packageManagerDialog);
+                    }
                 }
                 else Application.Run(new MainForm { InitialFileName = initialFileName, StartOnLoad = start });
             }
@@ -74,7 +78,6 @@ namespace Bonsai.Editor
                         });
                         dialog.ShowDialog();
                     }
-                    Configuration.ConfigurationHelper.Save(packageConfiguration);
                     launchPackageManager = true;
                 }
 
