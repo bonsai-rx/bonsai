@@ -16,6 +16,11 @@ namespace Bonsai.Editor
         public TypeVisualizerLoader()
         {
             ConfigurationHelper.SetAssemblyResolve();
+            InitializeReflectionTypes();
+        }
+
+        void InitializeReflectionTypes()
+        {
             var typeVisualizerAttributeAssembly = Assembly.Load(typeof(TypeVisualizerAttribute).Assembly.FullName);
             typeVisualizerAttributeType = typeVisualizerAttributeAssembly.GetType(typeof(TypeVisualizerAttribute).FullName);
         }
@@ -71,7 +76,6 @@ namespace Bonsai.Editor
                 var assembly = Assembly.LoadFrom(fileName);
                 var visualizerAttributes = assembly.GetCustomAttributes(typeVisualizerAttributeType, true).Cast<TypeVisualizerAttribute>();
                 typeVisualizers = typeVisualizers.Concat(visualizerAttributes);
-
                 typeVisualizers = typeVisualizers.Concat(GetCustomAttributeTypes(assembly, typeVisualizerAttributeType));
             }
             catch (FileLoadException) { }
@@ -90,7 +94,9 @@ namespace Bonsai.Editor
                 AppDomainSetup setup = AppDomain.CurrentDomain.SetupInformation;
                 setup.LoaderOptimization = LoaderOptimization.MultiDomainHost;
                 reflectionDomain = AppDomain.CreateDomain("ReflectionOnly", AppDomain.CurrentDomain.Evidence, setup);
-                Loader = (TypeVisualizerLoader)reflectionDomain.CreateInstanceAndUnwrap(typeof(TypeVisualizerLoader).Assembly.FullName, typeof(TypeVisualizerLoader).FullName);
+                Loader = (TypeVisualizerLoader)reflectionDomain.CreateInstanceAndUnwrap(
+                    typeof(TypeVisualizerLoader).Assembly.FullName,
+                    typeof(TypeVisualizerLoader).FullName);
             }
 
             public TypeVisualizerLoader Loader { get; private set; }

@@ -26,6 +26,11 @@ namespace Bonsai.Editor
         public WorkflowElementLoader()
         {
             ConfigurationHelper.SetAssemblyResolve();
+            InitializeReflectionTypes();
+        }
+
+        void InitializeReflectionTypes()
+        {
             var expressionBuilderAssembly = Assembly.Load(typeof(ExpressionBuilder).Assembly.FullName);
             sourceAttributeType = expressionBuilderAssembly.GetType(typeof(SourceAttribute).FullName);
             combinatorAttributeType = expressionBuilderAssembly.GetType(typeof(CombinatorAttribute).FullName);
@@ -111,7 +116,9 @@ namespace Bonsai.Editor
                 AppDomainSetup setup = AppDomain.CurrentDomain.SetupInformation;
                 setup.LoaderOptimization = LoaderOptimization.MultiDomainHost;
                 reflectionDomain = AppDomain.CreateDomain("ReflectionOnly", AppDomain.CurrentDomain.Evidence, setup);
-                Loader = (WorkflowElementLoader)reflectionDomain.CreateInstanceAndUnwrap(typeof(WorkflowElementLoader).Assembly.FullName, typeof(WorkflowElementLoader).FullName);
+                Loader = (WorkflowElementLoader)reflectionDomain.CreateInstanceAndUnwrap(
+                    typeof(WorkflowElementLoader).Assembly.FullName,
+                    typeof(WorkflowElementLoader).FullName);
             }
 
             public WorkflowElementLoader Loader { get; private set; }

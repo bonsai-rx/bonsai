@@ -12,7 +12,7 @@ using System.Windows.Forms.Design;
 
 namespace Bonsai.Editor
 {
-    public class MappingTab : PropertyTab
+    class MappingTab : PropertyTab
     {
         public override PropertyDescriptorCollection GetProperties(object component)
         {
