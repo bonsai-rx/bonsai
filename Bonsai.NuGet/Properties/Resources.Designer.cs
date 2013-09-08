@@ -106,6 +106,15 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No items found..
+        /// </summary>
+        internal static string NoItemsFoundLabel {
+            get {
+                return ResourceManager.GetString("NoItemsFoundLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Online.
         /// </summary>
         internal static string OnlineNodeName {
