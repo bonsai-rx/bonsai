@@ -19,6 +19,7 @@ namespace Bonsai.NuGet
         public PackageOperationDialog()
         {
             InitializeComponent();
+            Text = Resources.InstallOperationLabel;
         }
 
         public override string Text
