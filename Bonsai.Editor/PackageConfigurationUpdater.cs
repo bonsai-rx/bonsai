@@ -44,20 +44,33 @@ namespace Bonsai.Editor
             return package.Tags != null && package.Tags.Contains(Constants.PackageTagFilter);
         }
 
-        static IEnumerable<string> GetLibraryFolders(IPackage package, string installPath)
+        static string GetLibraryFolderPlatform(string path)
         {
-            return (from file in package.GetContentFiles()
-                    where Path.GetExtension(file.EffectivePath) == ".dll"
-                    select Path.GetDirectoryName(Path.Combine(installPath, file.Path)))
-                    .Distinct();
+            var components = path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            if (components.Length > 3 && components[2] == "bin")
+            {
+                return components[3];
+            }
+
+            return string.Empty;
+        }
+
+        static IEnumerable<LibraryFolder> GetLibraryFolders(IPackage package, string installPath)
+        {
+            return from file in package.GetFiles()
+                   where file.Path.StartsWith("build") && file.SupportedFrameworks.Intersect(SupportedFrameworks).Any()
+                   group file by Path.GetDirectoryName(file.Path) into folder
+                   let platform = GetLibraryFolderPlatform(folder.Key)
+                   where !string.IsNullOrWhiteSpace(platform)
+                   select new LibraryFolder(Path.Combine(installPath, folder.Key), platform);
         }
 
         static IEnumerable<IPackageAssemblyReference> GetCompatibleAssemblyReferences(IPackage package)
         {
             return from reference in package.AssemblyReferences
                    where reference.SupportedFrameworks.Intersect(SupportedFrameworks).Any()
-                   group reference by reference.Name into referenceGroups
-                   from reference in referenceGroups.OrderByDescending(reference => reference.TargetFramework.FullName).Take(1)
+                   group reference by reference.Name into referenceGroup
+                   from reference in referenceGroup.OrderByDescending(reference => reference.TargetFramework.FullName).Take(1)
                    select reference;
         }
 

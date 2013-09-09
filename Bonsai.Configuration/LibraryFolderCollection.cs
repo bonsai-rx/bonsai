@@ -8,9 +8,9 @@ namespace Bonsai.Configuration
 {
     public class LibraryFolderCollection : KeyedCollection<string, LibraryFolder>
     {
-        public void Add(string path)
+        public void Add(string path, string platform)
         {
-            Add(new LibraryFolder(path));
+            Add(new LibraryFolder(path, platform));
         }
 
         protected override string GetKeyForItem(LibraryFolder item)

@@ -12,12 +12,16 @@ namespace Bonsai.Configuration
         {
         }
 
-        public LibraryFolder(string path)
+        public LibraryFolder(string path, string platform)
         {
             Path = path;
+            Platform = platform;
         }
 
         [XmlAttribute("path")]
         public string Path { get; set; }
+
+        [XmlAttribute("platform")]
+        public string Platform { get; set; }
     }
 }
