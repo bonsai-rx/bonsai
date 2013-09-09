@@ -39,8 +39,14 @@ namespace Bonsai.Configuration
 
             foreach (var libraryFolder in configuration.LibraryFolders)
             {
-                var libraryPath = Path.Combine(configurationRoot, libraryFolder.Path);
-                AddLibraryPath(libraryPath);
+                var platformSupported = Environment.Is64BitProcess
+                    ? libraryFolder.Platform == "x64"
+                    : libraryFolder.Platform == "x86";
+                if (platformSupported)
+                {
+                    var libraryPath = Path.Combine(configurationRoot, libraryFolder.Path);
+                    AddLibraryPath(libraryPath);
+                }
             }
 
             ResolveEventHandler assemblyResolveHandler = (sender, args) =>
