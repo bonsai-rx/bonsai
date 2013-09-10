@@ -13,13 +13,10 @@ namespace Bonsai.Expressions
 {
     public abstract class WindowCombinatorExpressionBuilder : WorkflowExpressionBuilder
     {
-        static readonly MethodInfo usingMethod = (from method in typeof(Observable).GetMethods()
-                                                  where method.Name == "Using"
-                                                  let parameters = method.GetParameters()
-                                                  let resourceFactoryType = parameters[0].ParameterType
-                                                  where resourceFactoryType.GetGenericTypeDefinition() == typeof(Func<>)
-                                                  select method)
-                                                  .Single();
+        static readonly MethodInfo returnMethod = (from method in typeof(Observable).GetMethods()
+                                                   where method.Name == "Return" && method.GetParameters().Length == 1
+                                                   select method)
+                                                   .Single();
 
         protected WindowCombinatorExpressionBuilder()
         {
@@ -33,10 +30,17 @@ namespace Bonsai.Expressions
         protected LambdaExpression BuildSourceSelector(Type sourceType)
         {
             // Assign input
+            Expression inputParameter;
             var selectorParameter = Expression.Parameter(sourceType);
+            if (!sourceType.IsGenericType || sourceType.GetGenericTypeDefinition() != typeof(IObservable<>))
+            {
+                inputParameter = Expression.Call(returnMethod.MakeGenericMethod(sourceType), selectorParameter);
+            }
+            else inputParameter = selectorParameter;
+
             var workflowInput = Workflow.Select(node => node.Value as WorkflowInputBuilder)
                                         .Single(builder => builder != null);
-            workflowInput.Source = selectorParameter;
+            workflowInput.Source = inputParameter;
 
             // Build selector workflow
             return Expression.Lambda(Workflow.Build(), selectorParameter);
