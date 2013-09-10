@@ -37,11 +37,6 @@ namespace Bonsai.Expressions
         public override Expression Build()
         {
             var sourceType = Source.Type.GetGenericArguments()[0];
-            if (!sourceType.IsGenericType || sourceType.GetGenericTypeDefinition() != typeof(IObservable<>))
-            {
-                throw new InvalidWorkflowException("SelectMany operator takes as input an observable sequence of windows.");
-            }
-
             var selectorExpression = BuildSourceSelector(sourceType);
             var selectorObservableType = selectorExpression.ReturnType.GetGenericArguments()[0];
             var selectManyGenericMethod = selectManyMethod.MakeGenericMethod(sourceType, selectorObservableType);
