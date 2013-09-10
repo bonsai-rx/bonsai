@@ -49,7 +49,7 @@ namespace Bonsai.Arduino
         readonly byte[] commandBuffer;
         readonly byte[] sysexBuffer;
         readonly byte[] readBuffer;
-        readonly byte[] analogInput;
+        readonly int[] analogInput;
         readonly byte[] digitalInput;
         readonly byte[] digitalOutput;
 
@@ -69,7 +69,7 @@ namespace Bonsai.Arduino
             commandBuffer = new byte[MaxDataBytes];
             sysexBuffer = new byte[MaxDataBytes];
             readBuffer = new byte[serialPort.ReadBufferSize];
-            analogInput = new byte[AnalogPins];
+            analogInput = new int[AnalogPins];
             digitalInput = new byte[DigitalPorts];
             digitalOutput = new byte[DigitalPorts];
             serialPort.DataReceived += new SerialDataReceivedEventHandler(serialPort_DataReceived);
@@ -227,7 +227,7 @@ namespace Bonsai.Arduino
 
         void SetAnalogInput(int pin, int value)
         {
-            analogInput[pin] = (byte)value;
+            analogInput[pin] = value;
             OnAnalogInputReceived(new AnalogInputReceivedEventArgs(pin, value));
         }
 
