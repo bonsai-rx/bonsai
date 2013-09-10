@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Bonsai.IO.Design")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Bonsai - IO Design Library")]
+[assembly: AssemblyDescription("Bonsai Design Library containing editor classes for IO configuration.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Gonçalo Lopes")]
 [assembly: AssemblyProduct("Bonsai.IO.Design")]
-[assembly: AssemblyCopyright("Copyright © Gonçalo C. Lopes 2011-2013")]
+[assembly: AssemblyCopyright("Copyright © Gonçalo Lopes 2011-2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -33,3 +33,4 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("2.0.0.0")]
+[assembly: AssemblyInformationalVersion("2.0.0-alpha")]
