@@ -79,16 +79,6 @@ namespace Bonsai.Design
             viewModel = new WorkflowViewModel(graphView, provider);
             viewModel.VisualizerLayout = VisualizerLayout;
             viewModel.Workflow = workflowExpressionBuilder.Workflow;
-            if (!viewModel.Workflow.Any(n => n.Value is WorkflowInputBuilder) && workflow.Predecessors(builderNode).Any())
-            {
-                viewModel.CreateGraphNode(typeof(WorkflowInputBuilder).AssemblyQualifiedName, ElementCategory.Combinator, null, CreateGraphNodeType.Successor, false);
-                if (builderNode.Value is WindowCombinatorExpressionBuilder)
-                {
-                    var workflowInput = viewModel.Workflow.Single(n => n.Value is WorkflowInputBuilder);
-                    viewModel.CreateGraphNode(typeof(WorkflowOutputBuilder).AssemblyQualifiedName, ElementCategory.Combinator, viewModel.FindGraphNode(workflowInput.Value), CreateGraphNodeType.Successor, false);
-                    viewModel.WorkflowGraphView.SelectedNode = viewModel.FindGraphNode(workflowInput.Value);
-                }
-            }
         }
     }
 }
