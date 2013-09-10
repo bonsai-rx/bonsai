@@ -39,8 +39,11 @@ namespace Bonsai.Expressions
             else inputParameter = selectorParameter;
 
             var workflowInput = Workflow.Select(node => node.Value as WorkflowInputBuilder)
-                                        .Single(builder => builder != null);
-            workflowInput.Source = inputParameter;
+                                        .SingleOrDefault(builder => builder != null);
+            if (workflowInput != null)
+            {
+                workflowInput.Source = inputParameter;
+            }
 
             // Build selector workflow
             return Expression.Lambda(Workflow.Build(), selectorParameter);
