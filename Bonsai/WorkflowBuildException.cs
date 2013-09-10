@@ -24,6 +24,11 @@ namespace Bonsai
         {
         }
 
+        public WorkflowBuildException(string message, ExpressionBuilder builder)
+            : base(message, builder)
+        {
+        }
+
         public WorkflowBuildException(string message, ExpressionBuilder builder, Exception innerException)
             : base(message, builder, innerException)
         {

@@ -145,7 +145,15 @@ namespace Bonsai.Expressions
                     connections.Add(expression);
                 }
 
-                workflowOutput = builder as WorkflowOutputBuilder;
+                var outputBuilder = builder as WorkflowOutputBuilder;
+                if (outputBuilder != null)
+                {
+                    if (workflowOutput != null)
+                    {
+                        throw new WorkflowBuildException("Workflows cannot have more than one output.", builder);
+                    }
+                    workflowOutput = outputBuilder;
+                }
             }
 
             var output = ExpressionBuilder.BuildOutput(workflowOutput, connections);
