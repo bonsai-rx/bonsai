@@ -44,6 +44,7 @@ namespace Bonsai.Arduino
         int multiByteCommand;
         int multiByteChannel;
         int sysexBytesRead;
+        readonly Dictionary<int, PinMode> pinModes;
         readonly SerialPort serialPort;
         readonly byte[] responseBuffer;
         readonly byte[] commandBuffer;
@@ -65,6 +66,7 @@ namespace Bonsai.Arduino
             serialPort.Parity = Parity.None;
             serialPort.StopBits = StopBits.One;
 
+            pinModes = new Dictionary<int, PinMode>();
             responseBuffer = new byte[2];
             commandBuffer = new byte[MaxDataBytes];
             sysexBuffer = new byte[MaxDataBytes];
@@ -149,10 +151,15 @@ namespace Bonsai.Arduino
 
         public void PinMode(int pin, PinMode mode)
         {
-            commandBuffer[0] = SET_PIN_MODE;
-            commandBuffer[1] = (byte)pin;
-            commandBuffer[2] = (byte)mode;
-            serialPort.Write(commandBuffer, 0, 3);
+            PinMode previousMode;
+            if (!pinModes.TryGetValue(pin, out previousMode) || previousMode != mode)
+            {
+                commandBuffer[0] = SET_PIN_MODE;
+                commandBuffer[1] = (byte)pin;
+                commandBuffer[2] = (byte)mode;
+                serialPort.Write(commandBuffer, 0, 3);
+                pinModes[pin] = mode;
+            }
         }
 
         public int DigitalRead(int pin)
