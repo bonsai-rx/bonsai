@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Bonsai.Expressions;
+using Bonsai.Dag;
 
 namespace Bonsai.Design
 {
@@ -12,9 +13,9 @@ namespace Bonsai.Design
 
         void OpenWorkflow(string fileName);
 
-        void StoreWorkflowElement(ExpressionBuilder element);
+        void StoreWorkflowElements(WorkflowBuilder builder);
 
-        ExpressionBuilder RetrieveWorkflowElement();
+        WorkflowBuilder RetrieveWorkflowElements();
 
         Type GetTypeVisualizer(Type targetType);
 

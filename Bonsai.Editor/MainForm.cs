@@ -56,13 +56,13 @@ namespace Bonsai.Editor
             layoutSerializer = new XmlSerializer(typeof(VisualizerLayout));
             regularFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Regular);
             selectionFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Bold);
-            selectionModel = new WorkflowSelectionModel();
             typeVisualizers = new Dictionary<Type, Type>();
+            selectionModel = new WorkflowSelectionModel();
             workflowViewModel = new WorkflowViewModel(workflowGraphView, editorSite);
             workflowViewModel.Workflow = workflowBuilder.Workflow;
             propertyGrid.Site = editorSite;
 
-            selectionModel.SetSelectedNode(workflowViewModel, null);
+            selectionModel.UpdateSelection(workflowViewModel);
             selectionModel.SelectionChanged += new EventHandler(selectionModel_SelectionChanged);
         }
 
@@ -516,10 +516,9 @@ namespace Bonsai.Editor
         private void DeleteSelectedNode()
         {
             var model = selectionModel.SelectedModel;
-            if (model != null && model.WorkflowGraphView.Focused)
+            if (model.WorkflowGraphView.Focused)
             {
-                var node = selectionModel.SelectedNode;
-                model.DeleteGraphNode(node);
+                model.DeleteGraphNodes(selectionModel.SelectedNodes);
             }
         }
 
@@ -549,8 +548,7 @@ namespace Bonsai.Editor
                 selectionTypeDescriptor = null;
             }
 
-            var node = selectionModel.SelectedNode;
-            if (node != null && node.Value != null)
+            var selectedObjects = selectionModel.SelectedNodes.Select(node =>
             {
                 var builder = node.Value as ExpressionBuilder;
                 var workflowElement = builder != null ? ExpressionBuilder.GetWorkflowElement(builder) : null;
@@ -577,12 +575,18 @@ namespace Bonsai.Editor
                         selectionTypeDescriptor = provider;
                     }
 
-                    propertyGrid.SelectedObject = workflowElement;
+                    return workflowElement;
                 }
-                else propertyGrid.SelectedObject = node.Value;
+                return node.Value;
+            }).ToArray();
+
+            if (selectedObjects.Length == 0) propertyGrid.SelectedObject = null;
+            else if (selectedObjects.Length == 1)
+            {
                 propertyGrid.PropertyTabs.AddTabType(typeof(MappingTab), PropertyTabScope.Component);
+                propertyGrid.SelectedObject = selectedObjects[0];
             }
-            else propertyGrid.SelectedObject = null;
+            else propertyGrid.SelectedObjects = selectedObjects;
         }
 
         private void startToolStripMenuItem_Click(object sender, EventArgs e)
@@ -606,12 +610,9 @@ namespace Bonsai.Editor
             {
                 var typeNode = toolboxTreeView.SelectedNode;
                 var model = selectionModel.SelectedModel;
-                if (model != null)
-                {
-                    var branch = e.Modifiers.HasFlag(WorkflowViewModel.BranchModifier);
-                    var predecessor = e.Modifiers.HasFlag(WorkflowViewModel.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
-                    model.CreateGraphNode(typeNode, selectionModel.SelectedNode, predecessor, branch);
-                }
+                var branch = e.Modifiers.HasFlag(WorkflowViewModel.BranchModifier);
+                var predecessor = e.Modifiers.HasFlag(WorkflowViewModel.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
+                model.CreateGraphNode(typeNode, selectionModel.SelectedNodes.FirstOrDefault(), predecessor, branch);
             }
         }
 
@@ -621,12 +622,9 @@ namespace Bonsai.Editor
             {
                 var typeNode = e.Node;
                 var model = selectionModel.SelectedModel;
-                if (model != null)
-                {
-                    var branch = Control.ModifierKeys.HasFlag(WorkflowViewModel.BranchModifier);
-                    var predecessor = Control.ModifierKeys.HasFlag(WorkflowViewModel.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
-                    model.CreateGraphNode(typeNode, selectionModel.SelectedNode, predecessor, branch);
-                }
+                var branch = Control.ModifierKeys.HasFlag(WorkflowViewModel.BranchModifier);
+                var predecessor = Control.ModifierKeys.HasFlag(WorkflowViewModel.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
+                model.CreateGraphNode(typeNode, selectionModel.SelectedNodes.FirstOrDefault(), predecessor, branch);
             }
         }
 
@@ -675,11 +673,10 @@ namespace Bonsai.Editor
             }
             else
             {
-                var node = selectionModel.SelectedNode;
                 var model = selectionModel.SelectedModel;
-                if (node != null && model != null && model.WorkflowGraphView.Focused)
+                if (model.WorkflowGraphView.Focused)
                 {
-                    editorSite.StoreWorkflowElement((ExpressionBuilder)node.Value);
+                    editorSite.StoreWorkflowElements(selectionModel.SelectedNodes.ToWorkflowBuilder());
                 }
             }
         }
@@ -693,15 +690,12 @@ namespace Bonsai.Editor
             else
             {
                 var model = selectionModel.SelectedModel;
-                if (model != null)
+                var builder = editorSite.RetrieveWorkflowElements();
+                if (builder.Workflow.Count > 0)
                 {
-                    var expressionBuilder = editorSite.RetrieveWorkflowElement();
-                    if (expressionBuilder != null)
-                    {
-                        var branch = Control.ModifierKeys.HasFlag(WorkflowViewModel.BranchModifier);
-                        var predecessor = Control.ModifierKeys.HasFlag(WorkflowViewModel.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
-                        model.CreateGraphNode(expressionBuilder, expressionBuilder.GetType() == typeof(SourceBuilder) ? ElementCategory.Source : ElementCategory.Combinator, selectionModel.SelectedNode, predecessor, branch);
-                    }
+                    var branch = Control.ModifierKeys.HasFlag(WorkflowViewModel.BranchModifier);
+                    var predecessor = Control.ModifierKeys.HasFlag(WorkflowViewModel.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
+                    model.InsertGraphElements(builder.Workflow, predecessor, branch);
                 }
             }
         }
@@ -791,8 +785,7 @@ namespace Bonsai.Editor
             {
                 if (serviceType == typeof(ExpressionBuilderGraph))
                 {
-                    var selectedModel = siteForm.selectionModel.SelectedModel;
-                    return selectedModel != null ? selectedModel.Workflow : null;
+                    return siteForm.selectionModel.SelectedModel.Workflow;
                 }
 
                 if (serviceType == typeof(WorkflowBuilder))
@@ -833,20 +826,18 @@ namespace Bonsai.Editor
                 siteForm.OpenWorkflow(fileName);
             }
 
-            public void StoreWorkflowElement(ExpressionBuilder expressionBuilder)
+            public void StoreWorkflowElements(WorkflowBuilder builder)
             {
-                if (expressionBuilder != null)
+                if (builder == null)
+                {
+                    throw new ArgumentNullException("builder");
+                }
+
+                if (builder.Workflow.Count > 0)
                 {
                     var stringBuilder = new StringBuilder();
                     using (var writer = XmlWriter.Create(stringBuilder, new XmlWriterSettings { Indent = true }))
                     {
-                        var builder = new WorkflowBuilder();
-                        var builderNode = new Node<ExpressionBuilder, ExpressionBuilderParameter>(expressionBuilder);
-                        var inspectNode = new Node<ExpressionBuilder, ExpressionBuilderParameter>(new InspectBuilder());
-                        builder.Workflow.Add(builderNode);
-                        builder.Workflow.Add(inspectNode);
-                        builder.Workflow.AddEdge(builderNode, inspectNode, new ExpressionBuilderParameter());
-                        builder = new WorkflowBuilder(builder.Workflow.FromInspectableGraph());
                         siteForm.serializer.Serialize(writer, builder);
                     }
 
@@ -854,7 +845,7 @@ namespace Bonsai.Editor
                 }
             }
 
-            public ExpressionBuilder RetrieveWorkflowElement()
+            public WorkflowBuilder RetrieveWorkflowElements()
             {
                 if (Clipboard.ContainsText())
                 {
@@ -866,16 +857,14 @@ namespace Bonsai.Editor
                         {
                             if (siteForm.serializer.CanDeserialize(reader))
                             {
-                                var builder = (WorkflowBuilder)siteForm.serializer.Deserialize(reader);
-                                builder = new WorkflowBuilder(builder.Workflow.ToInspectableGraph());
-                                return builder.Workflow.First().Value;
+                                return (WorkflowBuilder)siteForm.serializer.Deserialize(reader);
                             }
                         }
                         catch (XmlException) { }
                     }
                 }
 
-                return null;
+                return new WorkflowBuilder();
             }
 
             public Type GetTypeVisualizer(Type targetType)

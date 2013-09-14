@@ -22,6 +22,9 @@ namespace Bonsai.Design
         static readonly Size TextOffset = new Size(9, 9);
         static readonly Size EntryOffset = new Size(-PenWidth / 2, NodeSize / 2);
         static readonly Size ExitOffset = new Size(NodeSize + PenWidth / 2, NodeSize / 2);
+        static readonly Pen RubberBandPen = new Pen(Color.FromArgb(51, 153, 255));
+        static readonly Brush RubberBandBrush = new SolidBrush(Color.FromArgb(128, 170, 204, 238));
+        static readonly Pen CursorPen = new Pen(Brushes.Gray, PenWidth);
         static readonly Pen WhitePen = new Pen(Brushes.White, PenWidth);
         static readonly Pen BlackPen = new Pen(Brushes.Black, PenWidth);
 
@@ -30,10 +33,15 @@ namespace Bonsai.Design
         static readonly object EventNodeMouseDoubleClick = new object();
         static readonly object EventNodeMouseHover = new object();
         static readonly object EventSelectedNodeChanged = new object();
-        LayoutNodeCollection layoutNodes = new LayoutNodeCollection();
 
-        GraphNode selectedNode;
+        Rectangle rubberBand;
+        Rectangle previousRectangle;
+        GraphNode[] previousSelection;
+        LayoutNodeCollection layoutNodes = new LayoutNodeCollection();
+        HashSet<GraphNode> selectedNodes = new HashSet<GraphNode>();
         IEnumerable<GraphNodeGrouping> nodes;
+        GraphNode pivot;
+        GraphNode cursor;
 
         public GraphView()
         {
@@ -48,28 +56,50 @@ namespace Bonsai.Design
             var mouseDownEvent = Observable.FromEventPattern<MouseEventHandler, MouseEventArgs>(
                 handler => canvas.MouseDown += handler,
                 handler => canvas.MouseDown -= handler)
-                .Select(evt => evt.EventArgs);
+                .Select(evt => evt.EventArgs)
+                .Where(mouseDown => mouseDown.Button == MouseButtons.Left);
 
             var mouseUpEvent = Observable.FromEventPattern<MouseEventHandler, MouseEventArgs>(
                 handler => canvas.MouseUp += handler,
                 handler => canvas.MouseUp -= handler)
-                .Select(evt => evt.EventArgs);
+                .Select(evt => evt.EventArgs)
+                .Where(mouseUp => mouseUp.Button == MouseButtons.Left);
 
             var mouseMoveEvent = Observable.FromEventPattern<MouseEventHandler, MouseEventArgs>(
                 handler => canvas.MouseMove += handler,
                 handler => canvas.MouseMove -= handler)
                 .Select(evt => evt.EventArgs);
 
-            var itemDrag = (from mouseDown in mouseDownEvent
-                            where mouseDown.Button == MouseButtons.Left
-                            let node = GetNodeAt(mouseDown.Location)
-                            where node != null
+            var canvasDrag = (from mouseDown in mouseDownEvent
+                              let node = GetNodeAt(mouseDown.Location)
+                              select new { mouseDown, node })
+                              .Publish()
+                              .RefCount();
+
+            var selectionDrag = (from drag in canvasDrag
+                                 where drag.node == null
+                                 select (from mouseMove in mouseMoveEvent.TakeUntil(mouseUpEvent)
+                                         let displacementX = mouseMove.X - drag.mouseDown.X
+                                         let displacementY = mouseMove.Y - drag.mouseDown.Y
+                                         where mouseMove.Button == MouseButtons.Left &&
+                                               displacementX * displacementX + displacementY * displacementY > 16
+                                         select (Rectangle?)GetNormalizedRectangle(drag.mouseDown.Location, mouseMove.Location))
+                                         .Concat(Observable.Return<Rectangle?>(null)))
+                                         .SelectMany(selection => selection.Select((rect, i) =>
+                                         {
+                                             if (i == 0) previousSelection = selectedNodes.ToArray();
+                                             return rect;
+                                         }).Finally(() => previousSelection = null));
+
+            var itemDrag = (from drag in canvasDrag
+                            where drag.node != null
                             select from mouseMove in mouseMoveEvent.TakeUntil(mouseUpEvent)
-                                   let displacementX = mouseMove.X - mouseDown.X
-                                   let displacementY = mouseMove.Y - mouseDown.Y
+                                   let displacementX = mouseMove.X - drag.mouseDown.X
+                                   let displacementY = mouseMove.Y - drag.mouseDown.Y
                                    where mouseMove.Button == MouseButtons.Left &&
                                          displacementX * displacementX + displacementY * displacementY > 16
-                                   select new { node, mouseMove.Button }).Switch();
+                                   select new { drag.node, mouseMove.Button })
+                                   .Switch();
 
             var tooltipTimerTickEvent = Observable.FromEventPattern<EventHandler, EventArgs>(
                 handler => tooltipTimer.Tick += handler,
@@ -90,6 +120,7 @@ namespace Bonsai.Design
                               where node != null
                               select new { node, mousePosition };
 
+            selectionDrag.Subscribe(ProcessRubberBand);
             itemDrag.Subscribe(drag => OnItemDrag(new ItemDragEventArgs(drag.Button, drag.node)));
             showTooltip.Subscribe(show => { toolTip.Show(show.node.Text, canvas, show.mousePosition); tooltipShown = true; });
             mouseMoveEvent.Subscribe(mouseMove =>
@@ -145,6 +176,7 @@ namespace Bonsai.Design
             get { return nodes; }
             set
             {
+                pivot = null;
                 nodes = value;
                 SelectedNode = null;
                 UpdateModelLayout();
@@ -153,30 +185,54 @@ namespace Bonsai.Design
 
         public GraphNode SelectedNode
         {
-            get { return selectedNode; }
+            get { return selectedNodes.FirstOrDefault(); }
             set
             {
+                var selectedNode = SelectedNode;
                 if (selectedNode != value)
                 {
-                    InvalidateNode(selectedNode);
-                    selectedNode = value;
-                    InvalidateNode(selectedNode);
+                    InvalidateSelection();
+                    selectedNodes.Clear();
+                    if (value != null) selectedNodes.Add(value);
+                    InvalidateSelection();
                     OnSelectedNodeChanged(EventArgs.Empty);
                 }
             }
         }
 
+        public IEnumerable<GraphNode> SelectedNodes
+        {
+            get { return selectedNodes; }
+        }
+
+        void UpdateSelection(Action update)
+        {
+            InvalidateSelection();
+            update();
+            InvalidateSelection();
+            OnSelectedNodeChanged(EventArgs.Empty);
+        }
+
+        void InvalidateSelection()
+        {
+            foreach (var selectedNode in selectedNodes)
+            {
+                InvalidateNode(selectedNode);
+            }
+        }
+
         void InvalidateNode(GraphNode node)
         {
-            if (selectedNode != null)
-            {
-                var nodeLayout = layoutNodes[selectedNode];
-                var boundingRectangle = nodeLayout.BoundingRectangle;
-                boundingRectangle.X -= canvas.HorizontalScroll.Value;
-                boundingRectangle.Y -= canvas.VerticalScroll.Value;
+            canvas.Invalidate(GetBoundingRectangle(node));
+        }
 
-                canvas.Invalidate(boundingRectangle);
-            }
+        Rectangle GetBoundingRectangle(GraphNode node)
+        {
+            var nodeLayout = layoutNodes[node];
+            var boundingRectangle = nodeLayout.BoundingRectangle;
+            boundingRectangle.X -= canvas.HorizontalScroll.Value;
+            boundingRectangle.Y -= canvas.VerticalScroll.Value;
+            return boundingRectangle;
         }
 
         protected virtual void OnItemDrag(ItemDragEventArgs e)
@@ -226,13 +282,13 @@ namespace Bonsai.Design
 
         protected override void OnGotFocus(EventArgs e)
         {
-            InvalidateNode(selectedNode);
+            InvalidateSelection();
             base.OnGotFocus(e);
         }
 
         protected override void OnLostFocus(EventArgs e)
         {
-            InvalidateNode(selectedNode);
+            InvalidateSelection();
             base.OnLostFocus(e);
         }
 
@@ -245,6 +301,11 @@ namespace Bonsai.Design
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             Size selectionOffset;
+            var shift = keyData.HasFlag(Keys.Shift);
+            if (shift) keyData &= ~Keys.Shift;
+            var control = keyData.HasFlag(Keys.Control);
+            if (control) keyData &= ~Keys.Control;
+
             switch (keyData)
             {
                 case Keys.Up: selectionOffset = new Size(0, -NodeAirspace); break;
@@ -257,11 +318,85 @@ namespace Bonsai.Design
             if (selectionOffset != Size.Empty)
             {
                 selectionOffset -= new Size(canvas.HorizontalScroll.Value, canvas.VerticalScroll.Value);
-                SelectedNode = SelectedNode == null
-                    ? layoutNodes.Select(layoutNode => layoutNode.Node).FirstOrDefault()
-                    : GetClosestNodeTo(Point.Add(layoutNodes[SelectedNode].Location, selectionOffset));
+                SetCursor(GetClosestNodeTo(Point.Add(layoutNodes[cursor].Location, selectionOffset)));
+                if (shift)
+                {
+                    SelectRange(cursor, control);
+                }
+                else
+                {
+                    pivot = cursor;
+                    if (!control) SelectNode(cursor, false);
+                }
             }
             return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        IEnumerable<GraphNode> GetRubberBandSelection(Rectangle rect)
+        {
+            var offset = new Size(canvas.HorizontalScroll.Value, canvas.VerticalScroll.Value);
+            var selectionRect = new Rectangle(Point.Add(rect.Location, offset), rect.Size);
+            foreach (var layout in layoutNodes)
+            {
+                if (layout.Node.Value != null)
+                {
+                    var nodeCenter = new Point(
+                        layout.Location.X + offset.Width,
+                        layout.Location.Y + offset.Height);
+                    var selected = CircleIntersect(layout.Center, HalfSize, selectionRect);
+                    if (selected)
+                    {
+                        yield return layout.Node;
+                    }
+                }
+            }
+        }
+
+        void ProcessRubberBand(Rectangle? rect)
+        {
+            if (!Focused) Select();
+            var selectionRect = Rectangle.Empty;
+            if (rect.HasValue)
+            {
+                var selection = new HashSet<GraphNode>(GetRubberBandSelection(rect.Value));
+                if (Control.ModifierKeys.HasFlag(Keys.Control))
+                {
+                    selection.SymmetricExceptWith(previousSelection);
+                }
+                else if (Control.ModifierKeys.HasFlag(Keys.Shift))
+                {
+                    selection.UnionWith(previousSelection);
+                }
+
+                var selectionChanged = !selection.SetEquals(selectedNodes);
+                if (selectionChanged)
+                {
+                    foreach (var node in selectedNodes) selectionRect = Rectangle.Union(selectionRect, GetBoundingRectangle(node));
+                    selectedNodes.Clear();
+                    foreach (var node in selection)
+                    {
+                        selectedNodes.Add(node);
+                        selectionRect = Rectangle.Union(selectionRect, GetBoundingRectangle(node));
+                    }
+                    OnSelectedNodeChanged(EventArgs.Empty);
+                }
+            }
+
+            rubberBand = rect.GetValueOrDefault();
+            var invalidateRect = rubberBand;
+            invalidateRect.Inflate(PenWidth, PenWidth);
+            invalidateRect = (selectionRect.Width > 0 || selectionRect.Height > 0) ? Rectangle.Union(invalidateRect, selectionRect) : invalidateRect;
+            canvas.Invalidate(Rectangle.Union(invalidateRect, previousRectangle));
+            previousRectangle = invalidateRect;
+        }
+
+        Rectangle GetNormalizedRectangle(Point p1, Point p2)
+        {
+            return new Rectangle(
+                Math.Min(p1.X, p2.X),
+                Math.Min(p1.Y, p2.Y),
+                Math.Abs(p2.X - p1.X),
+                Math.Abs(p2.Y - p1.Y));
         }
 
         float SquaredDistance(ref Point point, ref Point center)
@@ -271,9 +406,19 @@ namespace Bonsai.Design
             return xdiff * xdiff + ydiff * ydiff;
         }
 
-        bool CircleIntersect(Point point, Point center, int radius)
+        bool CircleIntersect(Point center, int radius, Point point)
         {
             return SquaredDistance(ref point, ref center) <= radius * radius;
+        }
+
+        bool CircleIntersect(Point center, int radius, Rectangle rect)
+        {
+            float closestX = Math.Max(rect.Left, Math.Min(center.X, rect.Right));
+            float closestY = Math.Max(rect.Top, Math.Min(center.Y, rect.Bottom));
+            float distanceX = center.X - closestX;
+            float distanceY = center.Y - closestY;
+            float distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
+            return distanceSquared < (radius * radius);
         }
 
         public Point GetNodeLocation(GraphNode node)
@@ -290,7 +435,7 @@ namespace Bonsai.Design
             {
                 if (layout.Node.Value == null) continue;
 
-                if (CircleIntersect(point, layout.Center, HalfSize))
+                if (CircleIntersect(layout.Center, HalfSize, point))
                 {
                     return layout.Node;
                 }
@@ -335,6 +480,7 @@ namespace Bonsai.Design
                     var column = layerCount - layer.Key - 1;
                     foreach (var node in layer)
                     {
+                        if (pivot == null) pivot = cursor = node;
                         var row = node.LayerIndex;
                         var location = new Point(column * NodeAirspace + PenWidth, row * NodeAirspace + PenWidth);
                         layoutNodes.Add(new LayoutNode(node, location));
@@ -350,6 +496,91 @@ namespace Bonsai.Design
             canvas.AutoScrollMinSize = size;
         }
 
+        private static IEnumerable<GraphNode> GetAllPaths(GraphNode from, GraphNode to)
+        {
+            if (from == to) yield return from;
+            else foreach (var successor in from.Successors)
+            {
+                var inPath = false;
+                var successorPaths = GetAllPaths(successor.Node, to);
+                foreach (var node in successorPaths)
+                {
+                    inPath = true;
+                    yield return node;
+                }
+
+                if (inPath) yield return from;
+            }
+        }
+
+        private static IEnumerable<TSource> ConcatEmpty<TSource>(IEnumerable<TSource> first, IEnumerable<TSource> second)
+        {
+            var any = false;
+            foreach (var xs in first)
+            {
+                any = true;
+                yield return xs;
+            }
+
+            if (!any) foreach (var xs in second) yield return xs;
+        }
+
+        private IEnumerable<GraphNode> GetSelectionRange(GraphNode from, GraphNode to)
+        {
+            return ConcatEmpty(
+                ConcatEmpty(GetAllPaths(from, to), GetAllPaths(to, from)),
+                selectedNodes);
+        }
+
+        private void SelectRange(GraphNode node, bool unionUpdate)
+        {
+            var path = GetSelectionRange(pivot, node);
+            if (unionUpdate)
+            {
+                UpdateSelection(() => selectedNodes.UnionWith(path));
+            }
+            else
+            {
+                UpdateSelection(() =>
+                {
+                    selectedNodes.Clear();
+                    foreach (var element in path) selectedNodes.Add(element);
+                });
+            }
+        }
+
+        private void SelectNode(GraphNode node, bool toggle)
+        {
+            if (toggle)
+            {
+                UpdateSelection(() =>
+                {
+                    var found = selectedNodes.Remove(node);
+                    if (!found) selectedNodes.Add(node);
+                });
+            }
+            else
+            {
+                UpdateSelection(() =>
+                {
+                    selectedNodes.Clear();
+                    selectedNodes.Add(node);
+                });
+            }
+        }
+
+        private void ClearSelection()
+        {
+            UpdateSelection(() => selectedNodes.Clear());
+        }
+
+        private void SetCursor(GraphNode node)
+        {
+            InvalidateNode(cursor);
+            cursor = node;
+            InvalidateNode(node);
+        }
+
         private void canvas_Paint(object sender, PaintEventArgs e)
         {
             var offset = new Size(-canvas.HorizontalScroll.Value, -canvas.VerticalScroll.Value);
@@ -359,13 +590,13 @@ namespace Bonsai.Design
             {
                 if (layout.Node.Value != null)
                 {
-                    var selected = layout.Node == SelectedNode;
+                    var selected = selectedNodes.Contains(layout.Node);
                     var nodeRectangle = new Rectangle(
                         layout.Location.X + offset.Width,
                         layout.Location.Y + offset.Height,
                         NodeSize, NodeSize);
 
-                    var pen = selected ? WhitePen : BlackPen;
+                    var pen = cursor == layout.Node ? CursorPen : selected ? WhitePen : BlackPen;
                     var brush = selected ? (Focused ? FocusedSelectionBrush : UnfocusedSelectionBrush) : layout.Node.Brush;
                     var textBrush = selected ? Brushes.White : Brushes.Black;
 
@@ -384,14 +615,38 @@ namespace Bonsai.Design
                     e.Graphics.DrawLine(successor.Pen, Point.Add(layout.ExitPoint, offset), Point.Add(successorLayout.EntryPoint, offset));
                 }
             }
+
+            if (rubberBand.Width > 0 && rubberBand.Height > 0)
+            {
+                e.Graphics.FillRectangle(RubberBandBrush, rubberBand);
+                e.Graphics.DrawRectangle(RubberBandPen, rubberBand);
+            }
         }
 
         private void canvas_MouseClick(object sender, MouseEventArgs e)
         {
+            if (previousSelection != null) return;
             if (!Focused) Select();
 
             var node = GetNodeAt(e.Location);
-            SelectedNode = node;
+            if (node != null)
+            {
+                if (Control.ModifierKeys.HasFlag(Keys.Shift))
+                {
+                    SelectRange(node, Control.ModifierKeys.HasFlag(Keys.Control));
+                }
+                else
+                {
+                    SetCursor(node);
+                    pivot = cursor;
+                    SelectNode(node, Control.ModifierKeys.HasFlag(Keys.Control));
+                }
+            }
+            else if (Control.ModifierKeys == Keys.None)
+            {
+                ClearSelection();
+            }
+
             if (node != null)
             {
                 OnNodeMouseClick(new GraphNodeMouseClickEventArgs(node, e.Button, e.Clicks, e.X, e.Y, e.Delta));
