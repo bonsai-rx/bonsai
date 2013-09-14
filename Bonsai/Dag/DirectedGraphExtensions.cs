@@ -63,6 +63,28 @@ namespace Bonsai.Dag
             }
         }
 
+        public static IEnumerable<Node<TValue, TLabel>> Sources<TValue, TLabel>(this DirectedGraph<TValue, TLabel> source)
+        {
+            foreach (var node in source)
+            {
+                if (!source.Predecessors(node).Any())
+                {
+                    yield return node;
+                }
+            }
+        }
+
+        public static IEnumerable<Node<TValue, TLabel>> Sinks<TValue, TLabel>(this DirectedGraph<TValue, TLabel> source)
+        {
+            foreach (var node in source)
+            {
+                if (node.Successors.Count == 0)
+                {
+                    yield return node;
+                }
+            }
+        }
+
         public static IEnumerable<Node<TValue, TLabel>> DepthFirstSearch<TValue, TLabel>(this DirectedGraph<TValue, TLabel> source)
         {
             var visited = new HashSet<Node<TValue, TLabel>>();
