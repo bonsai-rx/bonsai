@@ -186,13 +186,7 @@ namespace Bonsai.Dag
 
         public static void AddDescriptor<TValue, TLabel>(this DirectedGraph<TValue, TLabel> source, DirectedGraphDescriptor<TValue, TLabel> descriptor)
         {
-            var nodes = descriptor.Nodes.Select(value => new Node<TValue, TLabel>(value)).ToArray();
-
-            foreach (var node in nodes)
-            {
-                source.Add(node);
-            }
-
+            var nodes = descriptor.Nodes.Select(value => source.Add(value)).ToArray();
             foreach (var edge in descriptor.Edges)
             {
                 source.AddEdge(nodes[edge.From], nodes[edge.To], edge.Label);
