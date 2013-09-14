@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.canvas = new System.Windows.Forms.Panel();
+            this.canvas = new Bonsai.Design.GraphViewPanel();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.tooltipTimer = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
@@ -70,7 +70,7 @@
 
         #endregion
 
-        private System.Windows.Forms.Panel canvas;
+        private Bonsai.Design.GraphViewPanel canvas;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.Timer tooltipTimer;
     }

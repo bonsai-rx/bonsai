@@ -67,6 +67,9 @@
     <Compile Include="DialogMashupVisualizer.cs" />
     <Compile Include="DynamicTypeDescriptionProvider.cs" />
     <Compile Include="FolderNameEditor.cs" />
+    <Compile Include="GraphViewPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="MashupTypeVisualizer.cs" />
     <Compile Include="ITypeVisualizerContext.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
