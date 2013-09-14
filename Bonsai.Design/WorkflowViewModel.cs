@@ -690,6 +690,16 @@ namespace Bonsai.Design
                 }
             }
 
+            if (e.KeyCode == Keys.Z && e.Modifiers.HasFlag(Keys.Control))
+            {
+                editorService.Undo();
+            }
+
+            if (e.KeyCode == Keys.Y && e.Modifiers.HasFlag(Keys.Control))
+            {
+                editorService.Redo();
+            }
+
             if (e.KeyCode == Keys.C && e.Modifiers.HasFlag(Keys.Control))
             {
                 var node = workflowGraphView.SelectedNode;

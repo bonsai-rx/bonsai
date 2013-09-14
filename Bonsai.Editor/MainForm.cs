@@ -719,13 +719,12 @@ namespace Bonsai.Editor
 
         private void undoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            version -= 2;
-            commandExecutor.Undo();
+            editorSite.Undo();
         }
 
         private void redoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            commandExecutor.Redo();
+            editorSite.Redo();
         }
 
         #endregion
@@ -911,6 +910,17 @@ namespace Bonsai.Editor
                 {
                     handler(this, e);
                 }
+            }
+
+            public void Undo()
+            {
+                siteForm.version -= 2;
+                siteForm.commandExecutor.Undo();
+            }
+
+            public void Redo()
+            {
+                siteForm.commandExecutor.Redo();
             }
 
             public bool CanShowComponentEditor(object component)

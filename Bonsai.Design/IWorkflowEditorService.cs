@@ -23,5 +23,9 @@ namespace Bonsai.Design
         event EventHandler WorkflowStarted;
 
         event EventHandler WorkflowStopped;
+
+        void Undo();
+
+        void Redo();
     }
 }
