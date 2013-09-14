@@ -179,9 +179,6 @@ namespace Bonsai.Expressions
             var observableGraph = new ExpressionBuilderGraph();
             foreach (var node in source)
             {
-                var observableExpression = new InspectBuilder();
-                var observableNode = new Node<ExpressionBuilder, ExpressionBuilderParameter>(observableExpression);
-
                 ExpressionBuilder nodeValue = node.Value;
                 var workflowExpression = nodeValue as WorkflowExpressionBuilder;
                 if (workflowExpression != null)
@@ -191,9 +188,8 @@ namespace Bonsai.Expressions
                     nodeValue = observableWorkflowExpression;
                 }
 
-                var expressionNode = new Node<ExpressionBuilder, ExpressionBuilderParameter>(nodeValue);
-                observableGraph.Add(expressionNode);
-                observableGraph.Add(observableNode);
+                var expressionNode = observableGraph.Add(nodeValue);
+                var observableNode = observableGraph.Add(new InspectBuilder());
                 observableGraph.AddEdge(expressionNode, observableNode, new ExpressionBuilderParameter());
                 observableMapping.Add(node, Tuple.Create(expressionNode, observableNode));
             }
@@ -235,8 +231,7 @@ namespace Bonsai.Expressions
                     nodeValue = workflowExpression;
                 }
 
-                var sourceNode = new Node<ExpressionBuilder, ExpressionBuilderParameter>(nodeValue);
-                workflow.Add(sourceNode);
+                var sourceNode = workflow.Add(nodeValue);
                 nodeMapping.Add(node, sourceNode);
             }
 

@@ -14,9 +14,21 @@ namespace Bonsai.Dag
             get { return nodes.Count; }
         }
 
+        public Node<TValue, TLabel> Add(TValue value)
+        {
+            var node = new Node<TValue, TLabel>(value);
+            Add(node);
+            return node;
+        }
+
         public void Add(Node<TValue, TLabel> node)
         {
             nodes.Add(node);
+            foreach (var successor in node.Successors)
+            {
+                if (nodes.Contains(successor.Node)) continue;
+                Add(successor.Node);
+            }
         }
 
         public void AddEdge(Node<TValue, TLabel> from, Node<TValue, TLabel> to, TLabel label)
