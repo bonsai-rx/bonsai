@@ -4,11 +4,45 @@ using System.Linq;
 using System.Text;
 using Bonsai.Dag;
 using System.Globalization;
+using Bonsai.Expressions;
 
 namespace Bonsai.Design
 {
     public static class LayeredGraphExtensions
     {
+        public static WorkflowBuilder ToWorkflowBuilder(this IEnumerable<GraphNode> source)
+        {
+            var builder = new WorkflowBuilder();
+            var workflowNodes = source.Select(node => (Node<ExpressionBuilder, ExpressionBuilderParameter>)node.Tag);
+            var nodeMapping = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderParameter>, Node<ExpressionBuilder, ExpressionBuilderParameter>>();
+            foreach (var node in workflowNodes)
+            {
+                var builderNode = builder.Workflow.Add(node.Value);
+                nodeMapping.Add(node, builderNode);
+            }
+
+            foreach (var element in workflowNodes)
+            {
+                var node = element;
+                var builderNode = nodeMapping[node];
+                if (node.Successors.Count == 1 && node.Successors[0].Node.Value is InspectBuilder)
+                {
+                    node = node.Successors[0].Node;
+                }
+
+                foreach (var successor in node.Successors)
+                {
+                    Node<ExpressionBuilder, ExpressionBuilderParameter> successorNode;
+                    if (nodeMapping.TryGetValue(successor.Node, out successorNode))
+                    {
+                        builder.Workflow.AddEdge(builderNode, successorNode, successor.Label);
+                    }
+                }
+            }
+
+            return builder;
+        }
+
         static IEnumerable<GraphEdge> GetLayeredSuccessors<TValue, TLabel>(Node<TValue, TLabel> node, int layer, Dictionary<Node<TValue, TLabel>, GraphNode> layerMap)
         {
             foreach (var successor in node.Successors)

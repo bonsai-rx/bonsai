@@ -8,11 +8,16 @@ namespace Bonsai.Design
 {
     public class WorkflowSelectionModel
     {
+        public WorkflowSelectionModel()
+        {
+            SelectedNodes = Enumerable.Empty<GraphNode>();
+        }
+
         public event EventHandler SelectionChanged;
 
         public WorkflowViewModel SelectedModel { get; private set; }
 
-        public GraphNode SelectedNode { get; private set; }
+        public IEnumerable<GraphNode> SelectedNodes { get; private set; }
 
         protected virtual void OnSelectionChanged(EventArgs e)
         {
@@ -23,10 +28,15 @@ namespace Bonsai.Design
             }
         }
 
-        public void SetSelectedNode(WorkflowViewModel workflowViewModel, GraphNode selectedNode)
+        public void UpdateSelection(WorkflowViewModel selectedModel)
         {
-            SelectedModel = workflowViewModel;
-            SelectedNode = selectedNode;
+            if (selectedModel == null)
+            {
+                throw new ArgumentNullException("selectedModel");
+            }
+
+            SelectedModel = selectedModel;
+            SelectedNodes = selectedModel.WorkflowGraphView.SelectedNodes;
             OnSelectionChanged(EventArgs.Empty);
         }
     }
