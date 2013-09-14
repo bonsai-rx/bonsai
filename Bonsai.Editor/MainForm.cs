@@ -40,6 +40,7 @@ namespace Bonsai.Editor
         WorkflowViewModel workflowViewModel;
         WorkflowSelectionModel selectionModel;
         TypeDescriptionProvider selectionTypeDescriptor;
+        List<TreeNode> treeCache;
 
         XmlSerializer serializer;
         XmlSerializer layoutSerializer;
@@ -50,6 +51,7 @@ namespace Bonsai.Editor
         {
             InitializeComponent();
 
+            treeCache = new List<TreeNode>();
             editorSite = new EditorSite(this);
             workflowBuilder = new WorkflowBuilder();
             serializer = new XmlSerializer(typeof(WorkflowBuilder));
@@ -513,6 +515,21 @@ namespace Bonsai.Editor
 
         #region Workflow Controller
 
+        IEnumerable<TreeNode> GetTreeViewLeafNodes(System.Collections.IEnumerable nodes)
+        {
+            foreach (TreeNode node in nodes)
+            {
+                if (node.Nodes.Count == 0) yield return node;
+                else
+                {
+                    foreach (var child in GetTreeViewLeafNodes(node.Nodes))
+                    {
+                        yield return child;
+                    }
+                }
+            }
+        }
+
         private void DeleteSelectedNode()
         {
             var model = selectionModel.SelectedModel;
@@ -604,15 +621,84 @@ namespace Bonsai.Editor
             DeleteSelectedNode();
         }
 
+        private void searchTextBox_TextChanged(object sender, EventArgs e)
+        {
+            toolboxTreeView.BeginUpdate();
+            if (string.IsNullOrWhiteSpace(searchTextBox.Text))
+            {
+                if (treeCache.Count > 0)
+                {
+                    toolboxTreeView.Nodes.Clear();
+                    foreach (var node in treeCache)
+                    {
+                        toolboxTreeView.Nodes.Add(node);
+                    }
+                    treeCache.Clear();
+                    toolboxTreeView.ShowRootLines = true;
+                    toolboxTreeView.SelectedNode = null;
+                }
+            }
+            else
+            {
+                if (treeCache.Count == 0)
+                {
+                    toolboxTreeView.ShowRootLines = false;
+                    foreach (TreeNode node in toolboxTreeView.Nodes)
+                    {
+                        treeCache.Add(node);
+                    }
+                }
+
+                toolboxTreeView.Nodes.Clear();
+                var searchFilter = searchTextBox.Text.Trim();
+                foreach (var node in from node in GetTreeViewLeafNodes(treeCache)
+                                     where node.Tag != null && node.Text.IndexOf(searchFilter, StringComparison.OrdinalIgnoreCase) >= 0
+                                     orderby node.Text ascending
+                                     select node)
+                {
+                    toolboxTreeView.Nodes.Add(node);
+                }
+
+                if (toolboxTreeView.Nodes.Count > 0)
+                {
+                    toolboxTreeView.SelectedNode = toolboxTreeView.Nodes[0];
+                }
+            }
+            toolboxTreeView.EndUpdate();
+        }
+
+        private void searchTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (toolboxTreeView.SelectedNode != null)
+            {
+                switch (e.KeyCode)
+                {
+                    case Keys.Up:
+                        toolboxTreeView.SelectedNode = toolboxTreeView.SelectedNode.PrevVisibleNode ?? toolboxTreeView.SelectedNode;
+                        e.Handled = true;
+                        break;
+                    case Keys.Down:
+                        toolboxTreeView.SelectedNode = toolboxTreeView.SelectedNode.NextVisibleNode ?? toolboxTreeView.SelectedNode;
+                        e.Handled = true;
+                        break;
+                    case Keys.Return:
+                        toolboxTreeView_KeyDown(sender, e);
+                        break;
+                }
+            }
+        }
+
         private void toolboxTreeView_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Return && toolboxTreeView.SelectedNode != null && toolboxTreeView.SelectedNode.GetNodeCount(false) == 0)
+            if (e.KeyCode == Keys.Return && toolboxTreeView.SelectedNode != null && toolboxTreeView.SelectedNode.Tag != null)
             {
                 var typeNode = toolboxTreeView.SelectedNode;
                 var model = selectionModel.SelectedModel;
                 var branch = e.Modifiers.HasFlag(WorkflowViewModel.BranchModifier);
                 var predecessor = e.Modifiers.HasFlag(WorkflowViewModel.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
                 model.CreateGraphNode(typeNode, selectionModel.SelectedNodes.FirstOrDefault(), predecessor, branch);
+                e.Handled = true;
+                e.SuppressKeyPress = true;
             }
         }
 
