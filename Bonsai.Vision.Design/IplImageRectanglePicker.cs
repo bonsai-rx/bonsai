@@ -24,9 +24,9 @@ namespace Bonsai.Vision.Design
             var mouseUp = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseUp").Select(e => e.EventArgs);
 
             var mousePick = (from downEvt in mouseDown
-                             where Image != null && downEvt.Button.HasFlag(MouseButtons.Left)
+                             where Image != null && downEvt.Button == MouseButtons.Left
                              let origin = new OpenCV.Net.Point(downEvt.X, downEvt.Y)
-                             select from moveEvt in mouseMove.TakeUntil(mouseUp)
+                             select from moveEvt in mouseMove.TakeUntil(mouseUp).Where(upEvt => upEvt.Button == MouseButtons.Left)
                                     select new Rect(origin.X, origin.Y, moveEvt.X - origin.X, moveEvt.Y - origin.Y)).Switch();
 
             mousePick.Subscribe(rect => rectangle = NormalizedRectangle(rect));
