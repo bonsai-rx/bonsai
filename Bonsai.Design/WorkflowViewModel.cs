@@ -9,11 +9,19 @@ using System.Reactive.Disposables;
 using System.Drawing;
 using System.ComponentModel;
 using System.IO;
+using System.Xml.Serialization;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace Bonsai.Design
 {
     public class WorkflowViewModel
     {
+        static readonly XName XsdAttributeName = ((XNamespace)"http://www.w3.org/2000/xmlns/") + "xsd";
+        static readonly XName XsiAttributeName = ((XNamespace)"http://www.w3.org/2000/xmlns/") + "xsi";
+        const string XsdAttributeValue = "http://www.w3.org/2001/XMLSchema";
+        const string XsiAttributeValue = "http://www.w3.org/2001/XMLSchema-instance";
+
         const int ShiftModifier = 0x4;
         const int CtrlModifier = 0x8;
         const int AltModifier = 0x20;
@@ -103,61 +111,67 @@ namespace Bonsai.Design
             workflowEditorMapping.Clear();
         }
 
+        private VisualizerDialogLauncher CreateVisualizerLauncher(ExpressionBuilder builder, InspectBuilder inspectBuilder, GraphNode key)
+        {
+            var workflowElementType = ExpressionBuilder.GetWorkflowElement(builder).GetType();
+            var visualizerType = editorService.GetTypeVisualizer(workflowElementType) ??
+                                 editorService.GetTypeVisualizer(inspectBuilder.ObservableType) ??
+                                 editorService.GetTypeVisualizer(typeof(object));
+
+            DialogTypeVisualizer visualizer = null;
+            var layoutSettings = visualizerLayout != null ? visualizerLayout.DialogSettings.FirstOrDefault(xs => xs.Tag == key) : null;
+            if (layoutSettings != null && layoutSettings.VisualizerSettings != null)
+            {
+                var root = layoutSettings.VisualizerSettings;
+                root.SetAttributeValue(XsdAttributeName, XsdAttributeValue);
+                root.SetAttributeValue(XsiAttributeName, XsiAttributeValue);
+                var serializer = new XmlSerializer(visualizerType);
+                using (var reader = layoutSettings.VisualizerSettings.CreateReader())
+                {
+                    if (serializer.CanDeserialize(reader))
+                    {
+                        visualizer = (DialogTypeVisualizer)serializer.Deserialize(reader);
+                    }
+                }
+            }
+            
+            visualizer = visualizer ?? (DialogTypeVisualizer)Activator.CreateInstance(visualizerType);
+            var launcher = new VisualizerDialogLauncher(inspectBuilder, visualizer, this);
+            if (layoutSettings != null)
+            {
+                var mashupVisualizer = launcher.Visualizer as DialogMashupVisualizer;
+                if (mashupVisualizer != null)
+                {
+                    foreach (var mashup in layoutSettings.Mashups)
+                    {
+                        if (mashup < 0 || mashup >= visualizerLayout.DialogSettings.Count) continue;
+                        var mashupNode = (GraphNode)visualizerLayout.DialogSettings[mashup].Tag;
+                        launcher.CreateMashup(mashupNode, editorService);
+                    }
+                }
+
+                launcher.Bounds = layoutSettings.Bounds;
+                if (layoutSettings.Visible)
+                {
+                    launcher.Show(workflowGraphView, serviceProvider);
+                }
+            }
+
+            launcher.Text = builderConverter.ConvertToString(builder);
+            return launcher;
+        }
+
         private void InitializeVisualizerMapping()
         {
             if (workflow == null) return;
-
-            Action setLayout = null;
             visualizerMapping = (from node in workflow
                                  where !(node.Value is InspectBuilder)
                                  let inspectBuilder = node.Successors.Single().Node.Value as InspectBuilder
                                  where inspectBuilder != null
-                                 let nodeName = builderConverter.ConvertToString(node.Value)
                                  let key = workflowGraphView.Nodes.SelectMany(layer => layer).First(n => n.Value == node.Value)
-                                 select new { node, nodeName, inspectBuilder, key })
+                                 select new { node, inspectBuilder, key })
                                  .ToDictionary(mapping => mapping.key,
-                                               mapping =>
-                                               {
-                                                   var workflowElementType = ExpressionBuilder.GetWorkflowElement(mapping.node.Value).GetType();
-                                                   var visualizerType = editorService.GetTypeVisualizer(workflowElementType) ??
-                                                                        editorService.GetTypeVisualizer(mapping.inspectBuilder.ObservableType) ??
-                                                                        editorService.GetTypeVisualizer(typeof(object));
-
-                                                   var visualizer = (DialogTypeVisualizer)Activator.CreateInstance(visualizerType);
-                                                   var launcher = new VisualizerDialogLauncher(mapping.inspectBuilder, visualizer, this);
-                                                   launcher.Text = mapping.nodeName;
-                                                   return launcher;
-                                               });
-
-            foreach (var mapping in visualizerMapping)
-            {
-                var layoutSettings = visualizerLayout != null ? visualizerLayout.DialogSettings.FirstOrDefault(xs => xs.Tag == mapping.Key) : null;
-                if (layoutSettings != null)
-                {
-                    var launcher = mapping.Value;
-                    var mashupVisualizer = launcher.Visualizer as DialogMashupVisualizer;
-                    if (mashupVisualizer != null)
-                    {
-                        foreach (var mashup in layoutSettings.Mashups)
-                        {
-                            if (mashup < 0 || mashup >= visualizerLayout.DialogSettings.Count) continue;
-                            var mashupNode = (GraphNode)visualizerLayout.DialogSettings[mashup].Tag;
-                            launcher.CreateMashup(mashupNode, editorService);
-                        }
-                    }
-
-                    launcher.Bounds = layoutSettings.Bounds;
-                    if (layoutSettings.Visible)
-                    {
-                        setLayout += () => launcher.Show(workflowGraphView, serviceProvider);
-                    }
-                }
-            }
-
-            if (setLayout != null)
-            {
-                setLayout();
-            }
+                                               mapping => CreateVisualizerLauncher(mapping.node.Value, mapping.inspectBuilder, mapping.key));
         }
 
         private Node<ExpressionBuilder, ExpressionBuilderParameter> GetGraphNodeTag(GraphNode node)
@@ -631,6 +645,21 @@ namespace Bonsai.Design
                     dialogSettings.Visible = visible;
                     dialogSettings.Bounds = visualizerDialog.Bounds;
                     dialogSettings.Tag = mapping.Key;
+
+                    var visualizer = visualizerDialog.Visualizer;
+                    var visualizerSettings = new XDocument();
+                    var serializer = new XmlSerializer(visualizer.GetType());
+                    using (var writer = visualizerSettings.CreateWriter())
+                    {
+                        serializer.Serialize(writer, visualizer);
+                    }
+                    var root = visualizerSettings.Root;
+                    root.Remove();
+                    var xsdAttribute = root.Attribute(XsdAttributeName);
+                    if (xsdAttribute != null) xsdAttribute.Remove();
+                    var xsiAttribute = root.Attribute(XsiAttributeName);
+                    if (xsiAttribute != null) xsiAttribute.Remove();
+                    dialogSettings.VisualizerSettings = root;
                     visualizerLayout.DialogSettings.Add(dialogSettings);
                 }
             }

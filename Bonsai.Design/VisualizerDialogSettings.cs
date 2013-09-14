@@ -5,6 +5,7 @@ using System.Text;
 using System.Drawing;
 using System.Xml.Serialization;
 using System.Collections.ObjectModel;
+using System.Xml.Linq;
 
 namespace Bonsai.Design
 {
@@ -37,5 +38,7 @@ namespace Bonsai.Design
         {
             get { return mashups; }
         }
+
+        public XElement VisualizerSettings { get; set; }
     }
 }
