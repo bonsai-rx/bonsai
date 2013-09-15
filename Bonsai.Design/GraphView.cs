@@ -315,7 +315,7 @@ namespace Bonsai.Design
                 default: selectionOffset = Size.Empty; break;
             }
 
-            if (selectionOffset != Size.Empty)
+            if (cursor != null && selectionOffset != Size.Empty)
             {
                 selectionOffset -= new Size(canvas.HorizontalScroll.Value, canvas.VerticalScroll.Value);
                 SetCursor(GetClosestNodeTo(Point.Add(layoutNodes[cursor].Location, selectionOffset)));
