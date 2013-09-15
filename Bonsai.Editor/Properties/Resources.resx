@@ -149,6 +149,6 @@
     <value>The library folder '{0}' has already been assigned to a different platform. Consider uninstalling the conflicting package.</value>
   </data>
   <data name="SearchModuleCueBanner" xml:space="preserve">
-    <value>Search Modules (Ctrl+M)</value>
+    <value>Search Modules (Ctrl+E)</value>
   </data>
 </root>
