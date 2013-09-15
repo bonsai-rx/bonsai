@@ -1,4 +1,5 @@
 ﻿using Bonsai.Configuration;
+using Bonsai.Editor.Properties;
 using NuGet;
 using System;
 using System.Collections.Generic;
@@ -79,17 +80,32 @@ namespace Bonsai.Editor
             var package = e.Package;
             var installPath = e.InstallPath;
             var taggedPackage = IsTaggedPackage(package);
-            foreach (var path in GetLibraryFolders(package, installPath))
+            foreach (var folder in GetLibraryFolders(package, installPath))
             {
-                packageConfiguration.LibraryFolders.Add(path);
+                if (!packageConfiguration.LibraryFolders.Contains(folder.Path))
+                {
+                    packageConfiguration.LibraryFolders.Add(folder);
+                }
+                else if(packageConfiguration.LibraryFolders[folder.Path].Platform != folder.Platform)
+                {
+                    throw new InvalidOperationException(string.Format(Resources.LibraryFolderPlatformMismatchException, folder.Path));
+                }
             }
 
             foreach (var reference in GetCompatibleAssemblyReferences(package))
             {
                 var referencePath = Path.Combine(installPath, reference.Path);
                 var referenceName = Path.GetFileNameWithoutExtension(reference.Name);
-                packageConfiguration.AssemblyLocations.Add(referenceName, referencePath);
-                if (taggedPackage)
+                if (!packageConfiguration.AssemblyLocations.Contains(referenceName))
+                {
+                    packageConfiguration.AssemblyLocations.Add(referenceName, referencePath);
+                }
+                else if (packageConfiguration.AssemblyLocations[referenceName].Path != referencePath)
+                {
+                    throw new InvalidOperationException(string.Format(Resources.AssemblyReferenceLocationMismatchException, referenceName));
+                }
+
+                if (taggedPackage && !packageConfiguration.Packages.Contains(referenceName))
                 {
                     packageConfiguration.Packages.Add(referenceName);
                 }
