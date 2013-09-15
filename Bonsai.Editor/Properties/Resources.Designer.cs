@@ -128,7 +128,7 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Search Modules.
+        ///   Looks up a localized string similar to Search Modules (Ctrl+M).
         /// </summary>
         internal static string SearchModuleCueBanner {
             get {

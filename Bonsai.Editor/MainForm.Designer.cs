@@ -85,7 +85,7 @@
             this.toolboxGroupBox = new System.Windows.Forms.GroupBox();
             this.toolboxSplitContainer = new System.Windows.Forms.SplitContainer();
             this.toolboxTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.searchTextBox = new System.Windows.Forms.TextBox();
+            this.searchTextBox = new Bonsai.Design.CueBannerTextBox();
             this.toolboxTreeView = new System.Windows.Forms.TreeView();
             this.toolboxDescriptionPanel = new System.Windows.Forms.Panel();
             this.toolboxDescriptionTextBox = new System.Windows.Forms.RichTextBox();
@@ -572,6 +572,7 @@
             // 
             // searchTextBox
             // 
+            this.searchTextBox.CueBanner = null;
             this.searchTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.searchTextBox.Location = new System.Drawing.Point(0, 3);
             this.searchTextBox.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
@@ -758,6 +759,7 @@
             this.Controls.Add(this.toolStrip);
             this.Controls.Add(this.menuStrip);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip;
             this.Name = "MainForm";
             this.Text = "Bonsai";
@@ -859,7 +861,7 @@
         private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem packageManagerToolStripMenuItem;
         private System.Windows.Forms.TableLayoutPanel toolboxTableLayoutPanel;
-        private System.Windows.Forms.TextBox searchTextBox;
+        private Bonsai.Design.CueBannerTextBox searchTextBox;
     }
 }
 
