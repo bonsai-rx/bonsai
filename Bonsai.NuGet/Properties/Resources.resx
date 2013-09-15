@@ -147,4 +147,8 @@
   <data name="NoItemsFoundLabel" xml:space="preserve">
     <value>No items found.</value>
   </data>
+  <data name="PackageDependencyNotice" xml:space="preserve">
+    <value>Package '{0}' depends on the following packages. Do you want to uninstall them too?
+</value>
+  </data>
 </root>

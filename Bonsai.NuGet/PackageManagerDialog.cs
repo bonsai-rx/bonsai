@@ -303,9 +303,32 @@ namespace Bonsai.NuGet
 
         private void packageView_OperationClick(object sender, TreeViewEventArgs e)
         {
+            bool removeDependencies = false;
             var package = (IPackage)e.Node.Tag;
             if (package != null)
             {
+                if (selectedRepository == selectedManager.LocalRepository)
+                {
+                    var dependencies = (from dependency in package.GetCompatiblePackageDependencies(null)
+                                        let dependencyPackage = selectedRepository.ResolveDependency(dependency, true, true)
+                                        where dependencyPackage != null
+                                        select dependencyPackage)
+                                        .ToArray();
+                    if (dependencies.Length > 0)
+                    {
+                        var dependencyNotice = new StringBuilder();
+                        dependencyNotice.AppendLine(string.Format(Resources.PackageDependencyNotice, package));
+                        foreach (var dependency in dependencies)
+                        {
+                            dependencyNotice.AppendLine(dependency.ToString());
+                        }
+
+                        var result = MessageBox.Show(this, dependencyNotice.ToString(), Text, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
+                        if (result == DialogResult.Cancel) return;
+                        if (result == DialogResult.Yes) removeDependencies = true;
+                    }
+                }
+
                 using (var dialog = new PackageOperationDialog())
                 {
                     var logger = selectedManager.Logger;
@@ -314,7 +337,7 @@ namespace Bonsai.NuGet
                     IObservable<Unit> operation;
                     if (selectedRepository == selectedManager.LocalRepository)
                     {
-                        operation = Observable.Start(() => selectedManager.UninstallPackage(package, false, true));
+                        operation = Observable.Start(() => selectedManager.UninstallPackage(package, false, removeDependencies));
                         dialog.Text = Resources.UninstallOperationLabel;
                     }
                     else

@@ -124,6 +124,16 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Package &apos;{0}&apos; depends on the following packages. Do you want to uninstall them too?
+        ///.
+        /// </summary>
+        internal static string PackageDependencyNotice {
+            get {
+                return ResourceManager.GetString("PackageDependencyNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Uninstalling....
         /// </summary>
         internal static string UninstallOperationLabel {
