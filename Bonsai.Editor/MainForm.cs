@@ -655,7 +655,7 @@ namespace Bonsai.Editor
                 foreach (var node in from node in GetTreeViewLeafNodes(treeCache)
                                      where node.Tag != null && node.Text.IndexOf(searchFilter, StringComparison.OrdinalIgnoreCase) >= 0
                                      orderby node.Text ascending
-                                     select node)
+                                     select (TreeNode)node.Clone())
                 {
                     toolboxTreeView.Nodes.Add(node);
                 }
