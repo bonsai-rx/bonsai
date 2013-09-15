@@ -61,6 +61,15 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The assembly reference &apos;{0}&apos; has already been assigned to a different location. Consider uninstalling the conflicting package..
+        /// </summary>
+        internal static string AssemblyReferenceLocationMismatchException {
+            get {
+                return ResourceManager.GetString("AssemblyReferenceLocationMismatchException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap BonsaiCommands {
@@ -77,6 +86,15 @@ namespace Bonsai.Editor.Properties {
             get {
                 object obj = ResourceManager.GetObject("BonsaiWelcome", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The library folder &apos;{0}&apos; has already been assigned to a different platform. Consider uninstalling the conflicting package..
+        /// </summary>
+        internal static string LibraryFolderPlatformMismatchException {
+            get {
+                return ResourceManager.GetString("LibraryFolderPlatformMismatchException", resourceCulture);
             }
         }
         
@@ -106,6 +124,15 @@ namespace Bonsai.Editor.Properties {
             get {
                 object obj = ResourceManager.GetObject("RunningStatusImage", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search Modules.
+        /// </summary>
+        internal static string SearchModuleCueBanner {
+            get {
+                return ResourceManager.GetString("SearchModuleCueBanner", resourceCulture);
             }
         }
         
