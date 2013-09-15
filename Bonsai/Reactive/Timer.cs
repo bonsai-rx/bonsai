@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Reactive;
-using System.Threading;
 using System.ComponentModel;
-using System.Xml.Serialization;
-using System.Xml;
+using System.Linq;
 using System.Reactive.Linq;
+using System.Text;
+using System.Xml;
+using System.Xml.Serialization;
 
-namespace Bonsai.IO
+namespace Bonsai.Reactive
 {
     public class Timer : Source<long>
     {
@@ -37,7 +35,10 @@ namespace Bonsai.IO
 
         public override IObservable<long> Generate()
         {
-            return Observable.Timer(DueTime, Period);
+            var period = Period;
+            return period > TimeSpan.Zero
+                ? Observable.Timer(DueTime, period)
+                : Observable.Timer(DueTime);
         }
     }
 }
