@@ -142,6 +142,9 @@
   <data name="AssemblyReferenceLocationMismatchException" xml:space="preserve">
     <value>The assembly reference '{0}' has already been assigned to a different location. Consider uninstalling the conflicting package.</value>
   </data>
+  <data name="BootstrapperMissingFromPackage" xml:space="preserve">
+    <value>Fatal error: no bootstrapper file was found in editor package.</value>
+  </data>
   <data name="LibraryFolderPlatformMismatchException" xml:space="preserve">
     <value>The library folder '{0}' has already been assigned to a different platform. Consider uninstalling the conflicting package.</value>
   </data>
