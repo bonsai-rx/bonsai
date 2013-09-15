@@ -2,21 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Linq.Expressions;
 using System.Reactive.Linq;
-using System.Reflection;
 using System.Xml.Serialization;
 using System.ComponentModel;
 
-namespace Bonsai.Combinators
+namespace Bonsai.Reactive
 {
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Repeats the sequence indefinitely.")]
-    public class Repeat : Combinator
+    [Description("Propagates only the specified number of contiguous elements from the start of the sequence.")]
+    public class Take : Combinator
     {
+        [Description("The number of elements to propagate.")]
+        public int Count { get; set; }
+
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
-            return source.Repeat();
+            return source.Take(Count);
         }
     }
 }

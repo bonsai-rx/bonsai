@@ -10,7 +10,7 @@ using System.Xml;
 using System.Reflection;
 using System.Reactive.Concurrency;
 
-namespace Bonsai.Combinators
+namespace Bonsai.Reactive
 {
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Projects the sequence into non-overlapping windows of elements corresponding to the specified time interval.")]

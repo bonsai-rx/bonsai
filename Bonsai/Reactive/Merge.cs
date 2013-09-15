@@ -3,21 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Reactive.Linq;
 using System.Xml.Serialization;
 using System.ComponentModel;
-using System.Reflection;
 
-namespace Bonsai.Combinators
+namespace Bonsai.Reactive
 {
+    [Combinator]
     [BinaryCombinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Propagates the sequence that responds first and ignores the other.")]
-    public class Amb
+    [Description("Merges two sequences or a sequence of windows into a single sequence of elements.")]
+    public class Merge
     {
+        public IObservable<TSource> Process<TSource>(IObservable<IObservable<TSource>> source)
+        {
+            return source.Merge();
+        }
+
         public IObservable<TSource> Process<TSource>(IObservable<TSource> source, IObservable<TSource> other)
         {
-            return source.Amb(other);
+            return source.Merge(other);
         }
     }
 }

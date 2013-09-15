@@ -8,16 +8,16 @@ using System.Xml.Serialization;
 using System.ComponentModel;
 using System.Reflection;
 
-namespace Bonsai.Combinators
+namespace Bonsai.Reactive
 {
     [BinaryCombinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Combines values from both input sequences whenever one of the sequences produces an element.")]
-    public class CombineLatest
+    [Description("Combines pairwise values from both input sequences only when both sequences produce a new element.")]
+    public class Zip
     {
         public IObservable<Tuple<TSource, TOther>> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
         {
-            return source.CombineLatest(other, (xs, ys) => Tuple.Create(xs, ys));
+            return source.Zip(other, (xs, ys) => Tuple.Create(xs, ys));
         }
     }
 }

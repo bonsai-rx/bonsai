@@ -2,19 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Linq.Expressions;
 using System.Reactive.Linq;
+using System.Reflection;
 using System.Xml.Serialization;
 using System.ComponentModel;
 
-namespace Bonsai.Combinators
+namespace Bonsai.Reactive
 {
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Subscribes to the first sequence of values only when the second sequence produces an element.")]
-    public class SubscribeWhen : BinaryCombinator
+    [Description("Propagates values from the first sequence only until the second sequence produces a value.")]
+    public class TakeUntil : BinaryCombinator
     {
         public override IObservable<TSource> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
         {
-            return other.Take(1).SelectMany(x => source);
+            return source.TakeUntil(other);
         }
     }
 }

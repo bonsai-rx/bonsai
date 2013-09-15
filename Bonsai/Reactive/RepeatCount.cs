@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Xml.Serialization;
 using System.ComponentModel;
 
-namespace Bonsai.Combinators
+namespace Bonsai.Reactive
 {
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Repeats the sequence a definite number of times.")]

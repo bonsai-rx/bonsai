@@ -7,7 +7,7 @@ using System.Reactive.Linq;
 using System.Xml.Serialization;
 using System.ComponentModel;
 
-namespace Bonsai.Combinators
+namespace Bonsai.Reactive
 {
     [BinaryCombinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
