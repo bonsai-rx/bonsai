@@ -50,6 +50,7 @@ namespace Bonsai.Editor
         public MainForm()
         {
             InitializeComponent();
+            searchTextBox.CueBanner = Resources.SearchModuleCueBanner;
 
             treeCache = new List<TreeNode>();
             editorSite = new EditorSite(this);
@@ -742,6 +743,13 @@ namespace Bonsai.Editor
             if (e.KeyCode == Keys.Delete)
             {
                 DeleteSelectedNode();
+            }
+
+            if (e.Modifiers == Keys.Control && e.KeyCode == Keys.M)
+            {
+                searchTextBox.Focus();
+                e.Handled = true;
+                e.SuppressKeyPress = true;
             }
         }
 
