@@ -147,8 +147,20 @@
   <data name="NoItemsFoundLabel" xml:space="preserve">
     <value>No items found.</value>
   </data>
+  <data name="DependencyLicenseWarningLabel" xml:space="preserve">
+    <value>Each item above may have sub-dependencies subject to additional license agreements.</value>
+  </data>
+  <data name="NoDependenciesLabel" xml:space="preserve">
+    <value>No Dependencies</value>
+  </data>
   <data name="PackageDependencyNotice" xml:space="preserve">
     <value>Package '{0}' depends on the following packages. Do you want to uninstall them too?
 </value>
+  </data>
+  <data name="PrereleaseLabel" xml:space="preserve">
+    <value> (Prerelease)</value>
+  </data>
+  <data name="UnpublishedLabel" xml:space="preserve">
+    <value>(unpublished)</value>
   </data>
 </root>

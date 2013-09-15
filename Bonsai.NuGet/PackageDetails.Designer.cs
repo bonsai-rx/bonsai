@@ -70,8 +70,9 @@
             this.flowLayoutPanel9.SuspendLayout();
             this.SuspendLayout();
             // 
-            // flowLayoutPanel1
+            // detailsLayoutPanel
             // 
+            this.detailsLayoutPanel.AutoScroll = true;
             this.detailsLayoutPanel.Controls.Add(this.createdByLayoutPanel);
             this.detailsLayoutPanel.Controls.Add(this.flowLayoutPanel2);
             this.detailsLayoutPanel.Controls.Add(this.flowLayoutPanel3);
@@ -88,9 +89,10 @@
             this.detailsLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.detailsLayoutPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.detailsLayoutPanel.Location = new System.Drawing.Point(0, 0);
-            this.detailsLayoutPanel.Name = "flowLayoutPanel1";
-            this.detailsLayoutPanel.Size = new System.Drawing.Size(188, 247);
+            this.detailsLayoutPanel.Name = "detailsLayoutPanel";
+            this.detailsLayoutPanel.Size = new System.Drawing.Size(240, 450);
             this.detailsLayoutPanel.TabIndex = 0;
+            this.detailsLayoutPanel.WrapContents = false;
             // 
             // createdByLayoutPanel
             // 
@@ -388,7 +390,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.detailsLayoutPanel);
             this.Name = "PackageDetails";
-            this.Size = new System.Drawing.Size(188, 247);
+            this.Size = new System.Drawing.Size(240, 450);
             this.detailsLayoutPanel.ResumeLayout(false);
             this.detailsLayoutPanel.PerformLayout();
             this.createdByLayoutPanel.ResumeLayout(false);

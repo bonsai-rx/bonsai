@@ -70,6 +70,15 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Each item above may have sub-dependencies subject to additional license agreements..
+        /// </summary>
+        internal static string DependencyLicenseWarningLabel {
+            get {
+                return ResourceManager.GetString("DependencyLicenseWarningLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Operation failed..
         /// </summary>
         internal static string FailedOperationLabel {
@@ -106,6 +115,15 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No Dependencies.
+        /// </summary>
+        internal static string NoDependenciesLabel {
+            get {
+                return ResourceManager.GetString("NoDependenciesLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No items found..
         /// </summary>
         internal static string NoItemsFoundLabel {
@@ -134,6 +152,15 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to  (Prerelease).
+        /// </summary>
+        internal static string PrereleaseLabel {
+            get {
+                return ResourceManager.GetString("PrereleaseLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Uninstalling....
         /// </summary>
         internal static string UninstallOperationLabel {
@@ -148,6 +175,15 @@ namespace Bonsai.NuGet.Properties {
         internal static string UninstallOperationName {
             get {
                 return ResourceManager.GetString("UninstallOperationName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (unpublished).
+        /// </summary>
+        internal static string UnpublishedLabel {
+            get {
+                return ResourceManager.GetString("UnpublishedLabel", resourceCulture);
             }
         }
         

@@ -9,14 +9,13 @@ using System.Windows.Forms;
 using NuGet;
 using System.Globalization;
 using System.Diagnostics;
+using Bonsai.NuGet.Properties;
 
 namespace Bonsai.NuGet
 {
     public partial class PackageDetails : UserControl
     {
         static readonly Uri NugetPackageRepository = new Uri("https://packages.nuget.org/api/v2");
-        const string NoDependenciesText = "No Dependencies";
-        const string DependencyWarningText = "Each item above may have sub-dependencies subject to additional license agreements.";
 
         public PackageDetails()
         {
@@ -37,8 +36,8 @@ namespace Bonsai.NuGet
             versionLabel.Text = string.Format(
                 "{0}{1}",
                 package.Version.ToString(),
-                package.IsReleaseVersion() ? string.Empty : " (Prerelease)");
-            lastPublishedLabel.Text = package.Published.HasValue ? package.Published.Value.Date.ToShortDateString() : "(unpublished)";
+                package.IsReleaseVersion() ? string.Empty : Resources.PrereleaseLabel);
+            lastPublishedLabel.Text = package.Published.HasValue ? package.Published.Value.Date.ToShortDateString() : Resources.UnpublishedLabel;
             downloadsLabel.Text = package.DownloadCount.ToString();
             SetLinkLabelUri(licenseLinkLabel, package.LicenseUrl, true);
             SetLinkLabelUri(projectLinkLabel, package.ProjectUrl, true);
@@ -47,16 +46,16 @@ namespace Bonsai.NuGet
             tagsLabel.Text = package.Tags;
             dependenciesTextBox.Lines = (from dependencySet in package.DependencySets
                                          from dependency in dependencySet.Dependencies
-                                         select GetPackageDependencyString(dependency)).ToArray();
+                                         select dependency.ToString()).ToArray();
             if (dependenciesTextBox.Lines.Length > 0)
             {
                 dependenciesTextBox.Visible = true;
-                dependencyWarningLabel.Text = DependencyWarningText;
+                dependencyWarningLabel.Text = Resources.DependencyLicenseWarningLabel;
             }
             else
             {
                 dependenciesTextBox.Visible = false;
-                dependencyWarningLabel.Text = NoDependenciesText;
+                dependencyWarningLabel.Text = Resources.NoDependenciesLabel;
             }
             ResumeLayout();
         }
@@ -66,44 +65,6 @@ namespace Bonsai.NuGet
             linkLabel.Links[0].Description = uri != null && uri.IsAbsoluteUri ? uri.AbsoluteUri : null;
             linkLabel.Links[0].LinkData = uri;
             linkLabel.Visible = !hideEmptyLink || linkLabel.Links[0].LinkData != null;
-        }
-
-        public static string GetPackageDependencyString(PackageDependency dependency)
-        {
-            var versionSpecText = VersionSpecString(dependency.VersionSpec);
-            return dependency.Id + versionSpecText;
-        }
-
-        static string VersionSpecString(IVersionSpec versionSpec)
-        {
-            if (versionSpec == null) return string.Empty;
-            var versionText = new StringBuilder();
-            if (versionSpec.MinVersion != null)
-            {
-                if (versionSpec.MaxVersion == versionSpec.MinVersion)
-                {
-                    versionText.Append("= ");
-                }
-                else versionText.Append(versionSpec.IsMinInclusive ? "≥ " : "> ");
-                versionText.Append(versionSpec.MinVersion);
-            }
-
-            if (versionSpec.MaxVersion != null && versionSpec.MaxVersion != versionSpec.MinVersion)
-            {
-                if (versionSpec.MinVersion != null)
-                {
-                    versionText.Append(" && ");
-                }
-
-                versionText.Append(versionSpec.IsMaxInclusive ? "≤ " : "< ");
-                versionText.Append(versionSpec.MaxVersion);
-            }
-
-            if (versionText.Length > 0)
-            {
-                return string.Format(" ({0})", versionText);
-            }
-            else return string.Empty;
         }
 
         private void linkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
