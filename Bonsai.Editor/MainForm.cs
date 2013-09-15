@@ -745,7 +745,7 @@ namespace Bonsai.Editor
                 DeleteSelectedNode();
             }
 
-            if (e.Modifiers == Keys.Control && e.KeyCode == Keys.M)
+            if (e.Modifiers == Keys.Control && e.KeyCode == Keys.E)
             {
                 searchTextBox.Focus();
                 e.Handled = true;
