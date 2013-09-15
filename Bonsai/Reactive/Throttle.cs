@@ -9,7 +9,7 @@ using System.Reflection;
 using System.ComponentModel;
 using System.Xml;
 
-namespace Bonsai.Combinators
+namespace Bonsai.Reactive
 {
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Bypasses values from the sequence which are followed by other values before the specified time elapses.")]

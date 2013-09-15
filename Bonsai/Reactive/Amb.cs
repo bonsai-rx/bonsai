@@ -4,20 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
-using System.Reflection;
 using System.Xml.Serialization;
 using System.ComponentModel;
+using System.Reflection;
 
-namespace Bonsai.Combinators
+namespace Bonsai.Reactive
 {
     [BinaryCombinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Ensures that values of the second sequence are propagated only after the first sequence terminates.")]
-    public class Concat
+    [Description("Propagates the sequence that responds first and ignores the other.")]
+    public class Amb
     {
         public IObservable<TSource> Process<TSource>(IObservable<TSource> source, IObservable<TSource> other)
         {
-            return source.Concat(other);
+            return source.Amb(other);
         }
     }
 }

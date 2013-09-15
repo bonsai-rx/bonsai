@@ -8,15 +8,15 @@ using System.Reflection;
 using System.Xml.Serialization;
 using System.ComponentModel;
 
-namespace Bonsai.Combinators
+namespace Bonsai.Reactive
 {
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Ensures that only distinct contiguous values are propagated.")]
-    public class DistinctUntilChanged : Combinator
+    [Description("Repeats the sequence indefinitely.")]
+    public class Repeat : Combinator
     {
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
-            return source.DistinctUntilChanged();
+            return source.Repeat();
         }
     }
 }

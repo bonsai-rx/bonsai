@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 using System.ComponentModel;
 using System.Xml;
 
-namespace Bonsai.Combinators
+namespace Bonsai.Reactive
 {
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Samples values of the sequence each time the specified interval elapses.")]

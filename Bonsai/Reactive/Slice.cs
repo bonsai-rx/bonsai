@@ -5,7 +5,7 @@ using System.Text;
 using System.Reactive.Linq;
 using System.Xml.Serialization;
 
-namespace Bonsai.Combinators
+namespace Bonsai.Reactive
 {
     [XmlType(Namespace = Constants.XmlNamespace)]
     public class Slice : Combinator

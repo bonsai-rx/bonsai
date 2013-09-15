@@ -9,7 +9,7 @@ using System.Reactive.Linq;
 using System.Xml;
 using System.Linq.Expressions;
 
-namespace Bonsai.Combinators
+namespace Bonsai.Reactive
 {
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Projects the sequence into non-overlapping windows with the specified maximum number of elements.")]

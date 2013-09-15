@@ -9,7 +9,7 @@ using System.Reactive.Linq;
 using System.Xml;
 using System.ComponentModel;
 
-namespace Bonsai.Combinators
+namespace Bonsai.Reactive
 {
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Delays the propagation of values by the specified time interval.")]

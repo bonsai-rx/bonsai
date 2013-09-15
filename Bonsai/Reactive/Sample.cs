@@ -3,20 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Linq.Expressions;
-using System.Reactive.Linq;
 using System.Reflection;
+using System.Reactive.Linq;
 using System.Xml.Serialization;
 using System.ComponentModel;
 
-namespace Bonsai.Combinators
+namespace Bonsai.Reactive
 {
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Propagates values from the first sequence only until the second sequence produces a value.")]
-    public class TakeUntil : BinaryCombinator
+    [Description("Samples values of the first sequence only when the second sequence produces an element.")]
+    public class Sample : BinaryCombinator
     {
         public override IObservable<TSource> Process<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> other)
         {
-            return source.TakeUntil(other);
+            return source.Sample(other);
         }
     }
 }

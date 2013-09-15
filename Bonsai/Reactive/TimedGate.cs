@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 using System.ComponentModel;
 using System.Xml;
 
-namespace Bonsai.Combinators
+namespace Bonsai.Reactive
 {
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Allows a value of the first sequence to propagate if it is produced no more than the specified interval after the second sequence produces an element.")]
