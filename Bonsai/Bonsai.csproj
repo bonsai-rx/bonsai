@@ -75,6 +75,7 @@
     <Compile Include="PredicateAttribute.cs" />
     <Compile Include="CombinatorAttribute.cs" />
     <Compile Include="BinaryCombinatorAttribute.cs" />
+    <Compile Include="Reactive\Timer.cs" />
     <Compile Include="ReconnectableObservable.cs" />
     <Compile Include="SourceAttribute.cs" />
     <Compile Include="Expressions\PublishScope.cs" />
