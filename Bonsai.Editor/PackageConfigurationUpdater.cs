@@ -12,8 +12,10 @@ namespace Bonsai.Editor
 {
     class PackageConfigurationUpdater : IDisposable
     {
-        IPackageManager packageManager;
-        PackageConfiguration packageConfiguration;
+        readonly string bootstrapperExePath;
+        readonly string bootstrapperPackageId;
+        readonly IPackageManager packageManager;
+        readonly PackageConfiguration packageConfiguration;
         static readonly IEnumerable<FrameworkName> SupportedFrameworks = new[]
         {
             new FrameworkName(".NETFramework,Version=v4.0"),
@@ -22,7 +24,7 @@ namespace Bonsai.Editor
             new FrameworkName(".NETFramework,Version=v3.5,Profile=Client")
         };
 
-        public PackageConfigurationUpdater(PackageConfiguration configuration, IPackageManager manager)
+        public PackageConfigurationUpdater(PackageConfiguration configuration, IPackageManager manager, string bootstrapperPath = null, string bootstrapperId = null)
         {
             if (configuration == null)
             {
@@ -36,6 +38,8 @@ namespace Bonsai.Editor
 
             packageManager = manager;
             packageConfiguration = configuration;
+            bootstrapperExePath = bootstrapperPath ?? string.Empty;
+            bootstrapperPackageId = bootstrapperId ?? string.Empty;
             packageManager.PackageInstalled += packageManager_PackageInstalled;
             packageManager.PackageUninstalling += packageManager_PackageUninstalling;
         }
@@ -112,6 +116,20 @@ namespace Bonsai.Editor
             }
 
             packageConfiguration.Save();
+
+            if (package.Id == bootstrapperPackageId)
+            {
+                var bootstrapperFileName = Path.GetFileName(bootstrapperExePath);
+                var bootstrapperFile = package.GetFiles().FirstOrDefault(file => Path.GetFileName(file.Path).Equals(bootstrapperFileName, StringComparison.OrdinalIgnoreCase));
+                if (bootstrapperFile == null)
+                {
+                    throw new InvalidOperationException(Resources.BootstrapperMissingFromPackage);
+                }
+
+                string backupExePath = bootstrapperExePath + ".old";
+                MoveFile(bootstrapperExePath, backupExePath);
+                UpdateFile(bootstrapperExePath, bootstrapperFile);
+            }
         }
 
         void packageManager_PackageUninstalling(object sender, PackageOperationEventArgs e)
@@ -135,6 +153,30 @@ namespace Bonsai.Editor
             }
 
             packageConfiguration.Save();
+        }
+
+        void UpdateFile(string path, IPackageFile file)
+        {
+            using (Stream fromStream = file.GetStream(), toStream = File.Create(path))
+            {
+                fromStream.CopyTo(toStream);
+            }
+        }
+
+        void MoveFile(string sourceFileName, string destinationFileName)
+        {
+            try
+            {
+                if (File.Exists(destinationFileName))
+                {
+                    File.Delete(destinationFileName);
+                }
+            }
+            catch (FileNotFoundException)
+            {
+            }
+
+            File.Move(sourceFileName, destinationFileName);
         }
 
         public void Dispose()

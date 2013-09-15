@@ -90,6 +90,15 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Fatal error: no bootstrapper file was found in editor package..
+        /// </summary>
+        internal static string BootstrapperMissingFromPackage {
+            get {
+                return ResourceManager.GetString("BootstrapperMissingFromPackage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The library folder &apos;{0}&apos; has already been assigned to a different platform. Consider uninstalling the conflicting package..
         /// </summary>
         internal static string LibraryFolderPlatformMismatchException {

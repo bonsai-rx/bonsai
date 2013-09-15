@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -33,6 +34,11 @@ namespace Bonsai.Editor
             parser.RegisterCommand(command => initialFileName = command);
             parser.Parse(args);
 
+            var editorAssembly = typeof(Program).Assembly;
+            var editorPath = editorAssembly.Location;
+            var editorPackageId = editorAssembly.GetName().Name;
+            var editorPackageVersion = SemanticVersion.Parse(editorAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion);
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             var packageConfiguration = Configuration.ConfigurationHelper.Load();
@@ -42,7 +48,7 @@ namespace Bonsai.Editor
                 if (launchPackageManager)
                 {
                     var packageManagerDialog = new PackageManagerDialog(Constants.RepositoryPath);
-                    using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManagerDialog))
+                    using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManagerDialog, editorPath, editorPackageId))
                     {
                         Application.Run(packageManagerDialog);
                     }
@@ -57,12 +63,11 @@ namespace Bonsai.Editor
                 var sourceRepository = sourceProvider.GetAggregate(PackageRepositoryFactory.Default, true);
                 var packageManager = new PackageManager(sourceRepository, Constants.RepositoryPath) { Logger = logger };
 
-                var editorPackageId = typeof(Program).Assembly.GetName().Name;
-                var editorPackage = packageManager.LocalRepository.FindPackage(editorPackageId);
+                var editorPackage = packageManager.LocalRepository.FindPackage(editorPackageId, editorPackageVersion);
                 if (editorPackage == null)
                 {
                     using (var dialog = new PackageOperationDialog())
-                    using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager))
+                    using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageId))
                     {
                         dialog.RegisterEventLogger(logger);
                         var operation = Task.Factory.StartNew(() =>
