@@ -107,7 +107,7 @@ namespace Bonsai.Design
                     layers.Add(layer.Key, layer);
                 }
 
-                layer.Add(layeredNode);
+                layer.Insert(0, layeredNode);
             }
 
             return layers.Values;
