@@ -249,9 +249,8 @@ namespace Bonsai.Design
                 {
                     var node = layer[k];
                     var neighbor = layer[k + 1];
-                    var tmp = node.LayerIndex;
-                    layer[neighbor.LayerIndex] = node;
-                    layer[tmp] = neighbor;
+                    layer[k + 1] = node;
+                    layer[k] = neighbor;
 
                     var crossings = NumberOfCrossings(layer, nextLayer);
                     if (crossings < minCrossings)
@@ -260,9 +259,8 @@ namespace Bonsai.Design
                     }
                     else
                     {
-                        tmp = node.LayerIndex;
-                        layer[neighbor.LayerIndex] = node;
-                        layer[tmp] = neighbor;
+                        layer[k] = node;
+                        layer[k + 1] = neighbor;
                     }
                 }
             }
