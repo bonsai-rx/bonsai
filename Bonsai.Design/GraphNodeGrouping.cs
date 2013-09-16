@@ -17,14 +17,18 @@ namespace Bonsai.Design
 
         protected override void InsertItem(int index, GraphNode item)
         {
-            item.LayerIndex = index;
             base.InsertItem(index, item);
+            item.LayerIndex = index;
+            for (int i = index + 1; i < Count; i++)
+            {
+                Items[i].LayerIndex = i;
+            }
         }
 
         protected override void SetItem(int index, GraphNode item)
         {
-            item.LayerIndex = index;
             base.SetItem(index, item);
+            item.LayerIndex = index;
         }
 
         protected override void RemoveItem(int index)
