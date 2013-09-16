@@ -93,13 +93,13 @@ namespace Bonsai.Design
 
             var itemDrag = (from drag in canvasDrag
                             where drag.node != null
-                            select from mouseMove in mouseMoveEvent.TakeUntil(mouseUpEvent)
-                                   let displacementX = mouseMove.X - drag.mouseDown.X
-                                   let displacementY = mouseMove.Y - drag.mouseDown.Y
-                                   where mouseMove.Button == MouseButtons.Left &&
-                                         displacementX * displacementX + displacementY * displacementY > 16
-                                   select new { drag.node, mouseMove.Button })
-                                   .Switch();
+                            select (from mouseMove in mouseMoveEvent.TakeUntil(mouseUpEvent)
+                                    let displacementX = mouseMove.X - drag.mouseDown.X
+                                    let displacementY = mouseMove.Y - drag.mouseDown.Y
+                                    where mouseMove.Button == MouseButtons.Left &&
+                                          displacementX * displacementX + displacementY * displacementY > 16
+                                    select new { drag.node, mouseMove.Button })
+                                    .Take(1)).Switch();
 
             var tooltipTimerTickEvent = Observable.FromEventPattern<EventHandler, EventArgs>(
                 handler => tooltipTimer.Tick += handler,
