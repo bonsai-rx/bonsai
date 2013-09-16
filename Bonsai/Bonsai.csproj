@@ -138,7 +138,6 @@
     <Compile Include="Reactive\DistinctUntilChanged.cs" />
     <Compile Include="Reactive\Throttle.cs" />
     <Compile Include="Reactive\TimeInterval.cs" />
-    <Compile Include="Expressions\MemberSelectorBuilder.cs" />
     <Compile Include="Reactive\Zip.cs" />
     <Compile Include="Expressions\ExpressionBuilderParameter.cs" />
     <Compile Include="Reactive\SampleInterval.cs" />
