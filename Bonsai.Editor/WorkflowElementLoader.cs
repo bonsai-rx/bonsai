@@ -18,7 +18,6 @@ namespace Bonsai.Editor
 
         Type sourceAttributeType;
         Type combinatorAttributeType;
-        Type binaryCombinatorAttributeType;
         Type selectorAttributeType;
         Type predicateAttributeType;
         Type expressionBuilderType;
@@ -34,7 +33,6 @@ namespace Bonsai.Editor
             var expressionBuilderAssembly = Assembly.Load(typeof(ExpressionBuilder).Assembly.FullName);
             sourceAttributeType = expressionBuilderAssembly.GetType(typeof(SourceAttribute).FullName);
             combinatorAttributeType = expressionBuilderAssembly.GetType(typeof(CombinatorAttribute).FullName);
-            binaryCombinatorAttributeType = expressionBuilderAssembly.GetType(typeof(BinaryCombinatorAttribute).FullName);
             selectorAttributeType = expressionBuilderAssembly.GetType(typeof(SelectorAttribute).FullName);
             predicateAttributeType = expressionBuilderAssembly.GetType(typeof(PredicateAttribute).FullName);
             expressionBuilderType = expressionBuilderAssembly.GetType(typeof(ExpressionBuilder).FullName);
@@ -63,7 +61,6 @@ namespace Bonsai.Editor
                 type.IsDefined(selectorAttributeType, true) ||
                 type.IsDefined(predicateAttributeType, true) ||
                 type.IsDefined(combinatorAttributeType, true) ||
-                type.IsDefined(binaryCombinatorAttributeType, true) ||
                 type.IsDefined(sourceAttributeType, true);
         }
 

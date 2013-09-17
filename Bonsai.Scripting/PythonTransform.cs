@@ -39,13 +39,14 @@ namespace Bonsai.Scripting
             }
             else outputType = typeof(object);
 
-            var observableType = Source.Type.GetGenericArguments()[0];
+            var source = Arguments.Values.Single();
+            var observableType = source.Type.GetGenericArguments()[0];
             var scopeExpression = Expression.Constant(scope);
             var selectorType = Expression.GetFuncType(observableType, outputType);
             var processExpression = Expression.Call(scopeExpression, "GetVariable", new[] { selectorType }, Expression.Constant("process"));
 
             var combinatorExpression = Expression.Constant(this);
-            return Expression.Call(combinatorExpression, "Combine", new[] { observableType, outputType }, Source, processExpression);
+            return Expression.Call(combinatorExpression, "Combine", new[] { observableType, outputType }, source, processExpression);
         }
 
         IObservable<TResult> Combine<TSource, TResult>(IObservable<TSource> source, Func<TSource, TResult> selector)

@@ -88,6 +88,14 @@ namespace Bonsai.Expressions
             if (element != expressionBuilder) yield return element;
         }
 
+        internal static void ClearArguments(this ExpressionBuilderGraph source)
+        {
+            foreach (var node in source)
+            {
+                node.Value.Arguments.Clear();
+            }
+        }
+
         public static Expression Build(this ExpressionBuilderGraph source)
         {
             return Build(source, null);
@@ -103,9 +111,20 @@ namespace Bonsai.Expressions
             {
                 Expression expression;
                 var builder = node.Value;
-                try { expression = builder.Build(); }
+                var argumentRange = builder.ArgumentRange;
+                if (argumentRange == null || !argumentRange.Contains(builder.Arguments.Count))
+                {
+                    throw new WorkflowBuildException("Unsupported number of arguments. Check the number of connections into node.", builder);
+                }
+
+                try
+                {
+                    expression = builder.Build();
+                    builder.Arguments.Clear();
+                }
                 catch (Exception e)
                 {
+                    source.ClearArguments();
                     throw new WorkflowBuildException(e.Message, builder, e);
                 }
 
@@ -136,8 +155,7 @@ namespace Bonsai.Expressions
 
                 foreach (var successor in node.Successors)
                 {
-                    var target = successor.Node.Value.GetType().GetProperty(successor.Label.Value, BindingFlags.NonPublic | BindingFlags.Instance);
-                    target.SetValue(successor.Node.Value, expression, null);
+                    successor.Node.Value.Arguments.Add(successor.Label.Value, expression);
                 }
 
                 if (node.Successors.Count == 0)
@@ -168,7 +186,7 @@ namespace Bonsai.Expressions
         public static IObservable<Unit> BuildObservable(this ExpressionBuilderGraph source)
         {
             var workflow = source.Build();
-            var unitConversion = new UnitBuilder { Source = workflow }.Build();
+            var unitConversion = new UnitBuilder { Arguments = { { "Source", workflow } } }.Build();
             var observableFactory = Expression.Lambda<Func<IObservable<Unit>>>(unitConversion).Compile();
             return observableFactory();
         }

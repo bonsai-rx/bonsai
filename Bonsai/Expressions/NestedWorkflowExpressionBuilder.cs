@@ -14,6 +14,8 @@ namespace Bonsai.Expressions
     [Description("Encapsulates complex workflow logic into a single workflow element.")]
     public class NestedWorkflowExpressionBuilder : WorkflowExpressionBuilder
     {
+        static readonly Range<int> argumentRange = Range.Create(0, 2);
+
         public NestedWorkflowExpressionBuilder()
         {
         }
@@ -23,6 +25,11 @@ namespace Bonsai.Expressions
         {
         }
 
+        public override Range<int> ArgumentRange
+        {
+            get { return argumentRange; }
+        }
+
         public override Expression Build()
         {
             // Assign source if available
@@ -30,7 +37,7 @@ namespace Bonsai.Expressions
                                         .SingleOrDefault(builder => builder != null);
             if (workflowInput != null)
             {
-                workflowInput.Source = Source;
+                workflowInput.Source = Arguments.Values.Single();
             }
 
             return Workflow.Build();

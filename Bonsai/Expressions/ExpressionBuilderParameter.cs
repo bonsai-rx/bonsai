@@ -11,7 +11,6 @@ namespace Bonsai.Expressions
     public class ExpressionBuilderParameter
     {
         public const string Source = "Source";
-        public const string Other = "Other";
 
         public ExpressionBuilderParameter()
             : this(Source)

@@ -18,7 +18,7 @@ namespace Bonsai.Expressions
 
         public override Expression Build()
         {
-            return Output = Source;
+            return Output = Arguments.Values.Single();
         }
     }
 }

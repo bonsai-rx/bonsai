@@ -48,8 +48,7 @@ namespace Bonsai
             if (MatchIgnoredTypes(type)) yield break;
 
             if (type.IsSubclassOf(typeof(ExpressionBuilder)) ||
-                MatchAttributeType(type, typeof(CombinatorAttribute)) ||
-                MatchAttributeType(type, typeof(BinaryCombinatorAttribute)))
+                MatchAttributeType(type, typeof(CombinatorAttribute)))
             {
                 var attributes = TypeDescriptor.GetAttributes(type);
                 var elementCategoryAttribute = (WorkflowElementCategoryAttribute)attributes[typeof(WorkflowElementCategoryAttribute)];

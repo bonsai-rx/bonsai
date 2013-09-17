@@ -10,7 +10,7 @@ using System.ComponentModel;
 
 namespace Bonsai.Reactive
 {
-    [BinaryCombinator]
+    [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Ensures that values of the second sequence are propagated only after the first sequence terminates.")]
     public class Concat

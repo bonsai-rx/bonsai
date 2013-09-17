@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace Bonsai.Reactive
 {
-    [BinaryCombinator]
+    [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Combines values from both input sequences whenever one of the sequences produces an element.")]
     public class CombineLatest

@@ -20,22 +20,23 @@ namespace Bonsai.Expressions
 
         public override Expression Build()
         {
+            var source = Arguments.Values.Single();
             subject = new ReplaySubject<IObservable<object>>(1, Scheduler.Immediate);
-            ObservableType = Source.Type.GetGenericArguments()[0];
+            ObservableType = source.Type.GetGenericArguments()[0];
 
             // If source is already an inspect node, use it
-            var methodCall = Source as MethodCallExpression;
+            var methodCall = source as MethodCallExpression;
             if (methodCall != null && methodCall.Object != null && methodCall.Object.Type == typeof(InspectBuilder))
             {
                 var inspectBuilder = (InspectBuilder)((ConstantExpression)methodCall.Object).Value;
                 Output = inspectBuilder.Output;
-                return Source;
+                return source;
             }
             else
             {
                 Output = subject;
                 var combinatorExpression = Expression.Constant(this);
-                return Expression.Call(combinatorExpression, "Process", new[] { ObservableType }, Source);
+                return Expression.Call(combinatorExpression, "Process", new[] { ObservableType }, source);
             }
         }
 

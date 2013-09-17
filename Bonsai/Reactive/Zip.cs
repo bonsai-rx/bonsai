@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace Bonsai.Reactive
 {
-    [BinaryCombinator]
+    [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Combines pairwise values from both input sequences only when both sequences produce a new element.")]
     public class Zip

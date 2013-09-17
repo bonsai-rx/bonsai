@@ -11,7 +11,6 @@ using System.ComponentModel;
 namespace Bonsai.Reactive
 {
     [Combinator]
-    [BinaryCombinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Merges two sequences or a sequence of windows into a single sequence of elements.")]
     public class Merge

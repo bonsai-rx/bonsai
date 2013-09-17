@@ -57,6 +57,8 @@
   <ItemGroup>
     <Compile Include="BinaryCombinator.cs" />
     <Compile Include="Combinator.cs" />
+    <Compile Include="Expressions\CombinatorExpressionBuilder.cs" />
+    <Compile Include="Range.cs" />
     <Compile Include="Reactive\Concat.cs" />
     <Compile Include="Reactive\Delay.cs" />
     <Compile Include="Reactive\Repeat.cs" />
@@ -74,7 +76,6 @@
     <Compile Include="Expressions\SourceMappingAttribute.cs" />
     <Compile Include="PredicateAttribute.cs" />
     <Compile Include="CombinatorAttribute.cs" />
-    <Compile Include="BinaryCombinatorAttribute.cs" />
     <Compile Include="Reactive\Timer.cs" />
     <Compile Include="ReconnectableObservable.cs" />
     <Compile Include="SourceAttribute.cs" />
@@ -131,9 +132,7 @@
     <Compile Include="Dag\LayeredNodeGrouping.cs" />
     <Compile Include="Dag\Node.cs" />
     <Compile Include="DesignTypes.cs" />
-    <Compile Include="Expressions\CombinatorExpressionBuilder.cs" />
     <Compile Include="Reactive\CombineLatest.cs" />
-    <Compile Include="Expressions\BinaryCombinatorExpressionBuilder.cs" />
     <Compile Include="Reactive\Amb.cs" />
     <Compile Include="Reactive\DistinctUntilChanged.cs" />
     <Compile Include="Reactive\Throttle.cs" />
