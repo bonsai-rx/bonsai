@@ -47,7 +47,7 @@ namespace Bonsai.Expressions
                     var process = BuildCall(selector, processMethods, parameter);
                     return Expression.Call(selectMethod.MakeGenericMethod(parameter.Type, process.Type), sourceSelect, Expression.Lambda(process, parameter));
                 },
-                Source,
+                Arguments.Values.Single(),
                 MemberSelector,
                 propertyMappings);
         }

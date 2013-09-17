@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace Bonsai.Reactive
 {
-    [BinaryCombinator]
+    [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Propagates the sequence that responds first and ignores the other.")]
     public class Amb

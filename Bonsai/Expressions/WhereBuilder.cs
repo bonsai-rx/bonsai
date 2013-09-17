@@ -21,7 +21,6 @@ namespace Bonsai.Expressions
                                                                    .Single(m => m.Name == "Where" &&
                                                                            m.GetParameters().Length == 2 &&
                                                                            m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
-
         public object Predicate { get; set; }
 
         [Description("The inner property on which to apply the condition.")]
@@ -52,7 +51,7 @@ namespace Bonsai.Expressions
                     var process = BuildCall(predicate, processMethods, processParameter);
                     return Expression.Call(whereMethod.MakeGenericMethod(observableType), sourceSelect, Expression.Lambda(process, parameter));
                 },
-                Source,
+                Arguments.Values.Single(),
                 MemberSelector,
                 propertyMappings);
         }

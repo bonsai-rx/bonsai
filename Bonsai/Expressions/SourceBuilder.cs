@@ -17,6 +17,11 @@ namespace Bonsai.Expressions
     {
         readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
 
+        public SourceBuilder()
+            : base(0, 1)
+        {
+        }
+
         public object Generator { get; set; }
 
         public PropertyMappingCollection PropertyMappings
@@ -46,7 +51,7 @@ namespace Bonsai.Expressions
                         }
                         return decoratedSource;
                     },
-                    Source,
+                    Arguments.Values.SingleOrDefault(),
                     null,
                     propertyMappings,
                     hot:true);

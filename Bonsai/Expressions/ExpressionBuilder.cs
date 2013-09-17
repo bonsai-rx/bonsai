@@ -11,7 +11,6 @@ using System.Reactive;
 
 namespace Bonsai.Expressions
 {
-    [XmlInclude(typeof(CombinatorExpressionBuilder))]
     [XmlInclude(typeof(WorkflowExpressionBuilder))]
     [XmlInclude(typeof(WorkflowInputBuilder))]
     [XmlInclude(typeof(WorkflowOutputBuilder))]
@@ -26,6 +25,17 @@ namespace Bonsai.Expressions
     [TypeConverter("Bonsai.Design.ExpressionBuilderTypeConverter, Bonsai.Design")]
     public abstract class ExpressionBuilder
     {
+        readonly SortedList<string, Expression> arguments = new SortedList<string, Expression>();
+
+        [XmlIgnore]
+        [Browsable(false)]
+        public abstract Range<int> ArgumentRange { get; }
+
+        protected internal IDictionary<string, Expression> Arguments
+        {
+            get { return arguments; }
+        }
+
         public abstract Expression Build();
 
         public static object GetWorkflowElement(ExpressionBuilder builder)
@@ -53,8 +63,7 @@ namespace Bonsai.Expressions
             }
 
             var elementType = element.GetType();
-            if (elementType.IsDefined(typeof(CombinatorAttribute), true) ||
-                elementType.IsDefined(typeof(BinaryCombinatorAttribute), true))
+            if (elementType.IsDefined(typeof(CombinatorAttribute), true))
             {
                 return new CombinatorBuilder { Combinator = element };
             }

@@ -2,16 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Linq.Expressions;
-using System.Xml.Serialization;
-using System.ComponentModel;
 
 namespace Bonsai.Expressions
 {
     public abstract class CombinatorExpressionBuilder : ExpressionBuilder
     {
-        [XmlIgnore]
-        [Browsable(false)]
-        protected internal Expression Source { get; set; }
+        readonly Range<int> argumentRange;
+
+        protected CombinatorExpressionBuilder()
+            : this(1, 1)
+        {
+        }
+
+        protected CombinatorExpressionBuilder(int lowerBound, int upperBound)
+        {
+            argumentRange = Range.Create(lowerBound, upperBound);
+        }
+
+        public override Range<int> ArgumentRange
+        {
+            get { return argumentRange; }
+        }
     }
 }

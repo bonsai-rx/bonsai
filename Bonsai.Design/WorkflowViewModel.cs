@@ -294,23 +294,12 @@ namespace Bonsai.Design
             if (workflow.Successors(source).Contains(target)) return;
             var connection = string.Empty;
 
-            var combinator = target.Value as CombinatorExpressionBuilder;
+            var combinator = target.Value;
             if (combinator != null)
             {
-                if (!workflow.Predecessors(target).Any()) connection = ExpressionBuilderParameter.Source;
-                else
-                {
-                    var binaryCombinator = combinator as BinaryCombinatorExpressionBuilder;
-                    if (binaryCombinator != null && workflow.Predecessors(target).SingleOrDefault() != null)
-                    {
-                        var combinatorBuilder = binaryCombinator as CombinatorBuilder;
-                        if (combinatorBuilder == null ||
-                            combinatorBuilder.Combinator.GetType().IsDefined(typeof(BinaryCombinatorAttribute), true))
-                        {
-                            connection = ExpressionBuilderParameter.Other;
-                        }
-                    }
-                }
+                var connectionIndex = workflow.Predecessors(target).Count();
+                connection = ExpressionBuilderParameter.Source;
+                if (connectionIndex > 0) connection += connectionIndex;
             }
 
             if (!string.IsNullOrEmpty(connection))

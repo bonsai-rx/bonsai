@@ -15,6 +15,7 @@ namespace Bonsai.Expressions
     [Description("Processes each input window using the nested workflow and merges the result into a single sequence.")]
     public class SelectManyBuilder : WindowCombinatorExpressionBuilder
     {
+        static readonly Range<int> argumentRange = Range.Create(1, 1);
         static readonly MethodInfo selectManyMethod = (from method in typeof(Observable).GetMethods()
                                                        where method.Name == "SelectMany"
                                                        let parameters = method.GetParameters()
@@ -34,13 +35,19 @@ namespace Bonsai.Expressions
         {
         }
 
+        public override Range<int> ArgumentRange
+        {
+            get { return argumentRange; }
+        }
+
         public override Expression Build()
         {
-            var sourceType = Source.Type.GetGenericArguments()[0];
+            var source = Arguments.Values.Single();
+            var sourceType = source.Type.GetGenericArguments()[0];
             var selectorExpression = BuildSourceSelector(sourceType);
             var selectorObservableType = selectorExpression.ReturnType.GetGenericArguments()[0];
             var selectManyGenericMethod = selectManyMethod.MakeGenericMethod(sourceType, selectorObservableType);
-            return Expression.Call(selectManyGenericMethod, Source, selectorExpression);
+            return Expression.Call(selectManyGenericMethod, source, selectorExpression);
         }
     }
 }

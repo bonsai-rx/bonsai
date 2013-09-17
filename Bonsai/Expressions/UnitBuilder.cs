@@ -17,7 +17,8 @@ namespace Bonsai.Expressions
     {
         public override Expression Build()
         {
-            return Expression.Call(typeof(UnitBuilder), "Process", Source.Type.GetGenericArguments(), Source);
+            var source = Arguments.Values.Single();
+            return Expression.Call(typeof(UnitBuilder), "Process", source.Type.GetGenericArguments(), source);
         }
 
         static IObservable<Unit> Process<TSource>(IObservable<TSource> source)

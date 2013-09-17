@@ -23,7 +23,7 @@ namespace Bonsai.IO
         static readonly MethodInfo writeMethod = typeof(StreamWriter).GetMethods().First(m => m.Name == "Write" &&
                                                                                               m.GetParameters().Length == 2 &&
                                                                                               m.GetParameters()[1].ParameterType == typeof(object));
-
+        
         [Description("The name of the output file.")]
         [FileNameFilter("CSV (Comma delimited)|*.csv|All Files|*.*")]
         [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
@@ -117,7 +117,8 @@ namespace Bonsai.IO
             const string ParameterName = "input";
             const string EntryFormat = "{0} ";
 
-            var parameterType = Source.Type.GetGenericArguments()[0];
+            var source = Arguments.Values.Single();
+            var parameterType = source.Type.GetGenericArguments()[0];
             var inputParameter = Expression.Parameter(parameterType, ParameterName);
             var writerParameter = Expression.Parameter(typeof(StreamWriter));
             var memberExpression = ExpressionHelper.MemberAccess(inputParameter, Selector);
@@ -151,7 +152,7 @@ namespace Bonsai.IO
 
             var csvWriter = Expression.Constant(this);
             var headerExpression = Expression.Constant(header);
-            return Expression.Call(csvWriter, "Process", new[] { parameterType }, Source, headerExpression, writeAction);
+            return Expression.Call(csvWriter, "Process", new[] { parameterType }, source, headerExpression, writeAction);
         }
 
         IObservable<TSource> Process<TSource>(IObservable<TSource> source, string header, Action<TSource, StreamWriter> writeAction)

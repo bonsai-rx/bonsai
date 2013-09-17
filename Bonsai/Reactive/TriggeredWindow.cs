@@ -9,7 +9,7 @@ using System.ComponentModel;
 
 namespace Bonsai.Reactive
 {
-    [BinaryCombinator]
+    [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Projects the sequence into non-overlapping windows. A window is closed when the second sequence produces an element.")]
     public class TriggeredWindow
