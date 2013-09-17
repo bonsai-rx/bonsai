@@ -81,16 +81,16 @@ namespace Bonsai.Expressions
 
         #region Type Inference
 
-        internal static Type[] GetMethodBindings(MethodInfo methodInfo, params Type[] parameters)
+        internal static Type[] GetMethodBindings(MethodInfo methodInfo, params Type[] arguments)
         {
             if (methodInfo == null)
             {
                 throw new ArgumentNullException("methodInfo");
             }
 
-            if (parameters == null)
+            if (arguments == null)
             {
-                throw new ArgumentNullException("parameters");
+                throw new ArgumentNullException("arguments");
             }
 
             var methodParameters = methodInfo.GetParameters();
@@ -98,7 +98,7 @@ namespace Bonsai.Expressions
 
             // The binding candidates are the distinct results from matching parameters with input
             // Matches for the same generic parameter position should be identical
-            var bindingCandidates = (from bindings in methodParameters.Zip(parameters, (methodParameter, parameter) => GetParameterBindings(methodParameter.ParameterType, parameter))
+            var bindingCandidates = (from bindings in methodParameters.Zip(arguments, (methodParameter, parameter) => GetParameterBindings(methodParameter.ParameterType, parameter))
                                      from binding in bindings
                                      group binding by binding.Item2 into matches
                                      orderby matches.Key ascending
@@ -108,22 +108,22 @@ namespace Bonsai.Expressions
             return methodGenericArguments.Zip(bindingCandidates, (argument, match) => match).Concat(methodGenericArguments.Skip(bindingCandidates.Length)).ToArray();
         }
 
-        internal static IEnumerable<Tuple<Type, int>> GetParameterBindings(Type parameterType, Type inputType)
+        internal static IEnumerable<Tuple<Type, int>> GetParameterBindings(Type parameterType, Type argumentType)
         {
             // If parameter is a generic parameter, just bind it to the input type
             if (parameterType.IsGenericParameter)
             {
-                return Enumerable.Repeat(Tuple.Create(inputType, parameterType.GenericParameterPosition), 1);
+                return Enumerable.Repeat(Tuple.Create(argumentType, parameterType.GenericParameterPosition), 1);
             }
             // If parameter contains generic parameters, we may have possible bindings
             else if (parameterType.ContainsGenericParameters)
             {
                 // Check if we have a straight type match
-                var bindings = MatchTypeBindings(parameterType, inputType).ToArray();
+                var bindings = MatchTypeBindings(parameterType, argumentType).ToArray();
                 if (bindings.Length > 0) return bindings;
 
                 // Direct match didn't produce any bindings, so we need to check inheritance chain
-                Type currentType = inputType;
+                Type currentType = argumentType;
                 while (currentType != typeof(object))
                 {
                     currentType = currentType.BaseType;
@@ -132,7 +132,7 @@ namespace Bonsai.Expressions
                 }
 
                 // Inheritance chain match didn't produce any bindings, so we need to check interface set
-                var interfaces = inputType.GetInterfaces();
+                var interfaces = argumentType.GetInterfaces();
                 foreach (var interfaceType in interfaces)
                 {
                     bindings = MatchTypeBindings(parameterType, interfaceType).ToArray();
@@ -144,20 +144,35 @@ namespace Bonsai.Expressions
             return Enumerable.Empty<Tuple<Type, int>>();
         }
 
-        internal static IEnumerable<Tuple<Type, int>> MatchTypeBindings(Type parameterType, Type inputType)
+        internal static IEnumerable<Tuple<Type, int>> MatchTypeBindings(Type parameterType, Type argumentType)
         {
+            // If both types have element types, try to recurse into them
+            if (parameterType.HasElementType && argumentType.HasElementType)
+            {
+                if (parameterType.IsArray && !argumentType.IsArray ||
+                    parameterType.IsPointer && !argumentType.IsPointer ||
+                    parameterType.IsByRef && !argumentType.IsByRef)
+                {
+                    return Enumerable.Empty<Tuple<Type, int>>();
+                }
+
+                var parameterElementType = parameterType.GetElementType();
+                var argumentElementType = argumentType.GetElementType();
+                return MatchTypeBindings(parameterElementType, argumentElementType);
+            }
+
             // Match bindings can only be obtained if both types are generic types
-            if (parameterType.IsGenericType && inputType.IsGenericType)
+            if (parameterType.IsGenericType && argumentType.IsGenericType)
             {
                 var parameterTypeDefinition = parameterType.GetGenericTypeDefinition();
-                var inputTypeDefinition = parameterType.GetGenericTypeDefinition();
+                var argumentTypeDefinition = parameterType.GetGenericTypeDefinition();
                 // Match bindings can only be obtained if both types share the same type definition
-                if (parameterTypeDefinition == inputTypeDefinition)
+                if (parameterTypeDefinition == argumentTypeDefinition)
                 {
                     var parameterGenericArguments = parameterType.GetGenericArguments();
-                    var inputGenericArguments = inputType.GetGenericArguments();
+                    var argumentGenericArguments = argumentType.GetGenericArguments();
                     return parameterGenericArguments
-                        .Zip(inputGenericArguments, (parameter, input) => GetParameterBindings(parameter, input))
+                        .Zip(argumentGenericArguments, (parameter, argument) => GetParameterBindings(parameter, argument))
                         .SelectMany(xs => xs);
                 }
             }
@@ -165,24 +180,74 @@ namespace Bonsai.Expressions
             return Enumerable.Empty<Tuple<Type, int>>();
         }
 
+        internal static bool MatchParamArrayTypeReferences(Type parameter, Type argument)
+        {
+            if (parameter.HasElementType && argument.HasElementType)
+            {
+                return MatchParamArrayTypeReferences(parameter.GetElementType(), argument.GetElementType());
+            }
+
+            return parameter.HasElementType == argument.HasElementType;
+        }
+
+        internal static bool ParamExpansionRequired(ParameterInfo[] parameters, Type[] arguments)
+        {
+            var offset = parameters.Length - 1;
+            var paramArray = parameters.Length > 0 &&
+                parameters[offset].ParameterType.IsArray &&
+                Attribute.IsDefined(parameters[offset], typeof(ParamArrayAttribute));
+
+            return paramArray &&
+                (parameters.Length != arguments.Length ||
+                 !MatchParamArrayTypeReferences(parameters[offset].ParameterType, arguments[arguments.Length - 1]));
+        }
+
         internal static MethodCallExpression BuildCall(Expression instance, MethodInfo method, params Expression[] arguments)
         {
+            var argumentTypes = Array.ConvertAll(arguments, xs => xs.Type);
             if (method.IsGenericMethodDefinition)
             {
-                var typeArguments = GetMethodBindings(method, Array.ConvertAll(arguments, xs => xs.Type));
+                var methodCallArgumentTypes = argumentTypes;
+                var methodParameters = method.GetParameters();
+                if (ParamExpansionRequired(methodParameters, methodCallArgumentTypes))
+                {
+                    var arrayType = methodCallArgumentTypes[methodCallArgumentTypes.Length - 1].MakeArrayType();
+                    Array.Resize(ref methodCallArgumentTypes, methodParameters.Length);
+                    methodCallArgumentTypes[methodCallArgumentTypes.Length - 1] = arrayType;
+                }
+
+                var typeArguments = GetMethodBindings(method, methodCallArgumentTypes);
                 method = method.MakeGenericMethod(typeArguments);
             }
 
-            int i = 0;
-            var processParameters = method.GetParameters();
-            arguments = Array.ConvertAll(arguments, parameter =>
+            var parameters = method.GetParameters();
+            if (ParamExpansionRequired(parameters, argumentTypes))
             {
-                var parameterType = processParameters[i++].ParameterType;
-                if (parameter.Type != parameterType)
+                var offset = parameters.Length - 1;
+                var arrayType = parameters[offset].ParameterType.GetElementType();
+                var initializers = new Expression[arguments.Length - offset];
+                for (int k = 0; k < initializers.Length; k++)
                 {
-                    return Expression.Convert(parameter, parameterType);
+                    if (arguments[k + offset].Type != arrayType)
+                    {
+                        throw new InvalidOperationException(string.Format("The type arguments for method '{0}' cannot be inferred from the usage.", method));
+                    }
+                    initializers[k] = arguments[k + offset];
                 }
-                return parameter;
+                var paramArray = Expression.NewArrayInit(arrayType, initializers);
+                Array.Resize(ref arguments, parameters.Length);
+                arguments[arguments.Length - 1] = paramArray;
+            }
+
+            int i = 0;
+            arguments = Array.ConvertAll(arguments, argument =>
+            {
+                var parameterType = parameters[i++].ParameterType;
+                if (argument.Type != parameterType)
+                {
+                    return Expression.Convert(argument, parameterType);
+                }
+                return argument;
             });
 
             return Expression.Call(instance, method, arguments);
@@ -277,16 +342,47 @@ namespace Bonsai.Expressions
             return 0;
         }
 
+        internal static Type[] ExpandCallParameterTypes(ParameterInfo[] parameters, Type[] arguments, bool expansion)
+        {
+            var expandedParameters = new Type[arguments.Length];
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                expandedParameters[i] = parameters[i].ParameterType;
+            }
+
+            if (expansion)
+            {
+                for (int i = parameters.Length-1; i < expandedParameters.Length; i++)
+                {
+                    expandedParameters[i] = parameters[parameters.Length - 1].ParameterType.GetElementType();
+                }
+            }
+
+            return expandedParameters;
+        }
+
         internal static Expression BuildCall(Expression instance, IEnumerable<MethodInfo> methods, params Expression[] arguments)
         {
+            var argumentTypes = Array.ConvertAll(arguments, argument => argument.Type);
             var candidates = methods
-                .Where(method => method.GetParameters().Length == arguments.Length)
+                .Where(method =>
+                {
+                    var parameters = method.GetParameters();
+                    return parameters.Length == arguments.Length ||
+                        parameters.Length > 0 && arguments.Length >= (parameters.Length - 1) &&
+                        Attribute.IsDefined(parameters[parameters.Length - 1], typeof(ParamArrayAttribute));
+                })
                 .Select(method =>
                 {
                     MethodCallExpression call;
                     try { call = BuildCall(instance, method, arguments); }
                     catch (InvalidOperationException) { call = null; }
-                    return new { call, generic = call.Method != method };
+                    return new
+                    {
+                        call,
+                        generic = call.Method != method,
+                        expansion = ParamExpansionRequired(call.Method.GetParameters(), argumentTypes) 
+                    };
                 })
                 .Where(candidate => candidate.call != null)
                 .ToArray();
@@ -299,10 +395,9 @@ namespace Bonsai.Expressions
             if (candidates.Length == 1) return candidates[0].call;
 
             int best = -1;
-            var argumentTypes = Array.ConvertAll(arguments, argument => argument.Type);
             var candidateParameters = Array.ConvertAll(
                 candidates,
-                candidate => Array.ConvertAll(candidate.call.Method.GetParameters(), parameter => parameter.ParameterType));
+                candidate => ExpandCallParameterTypes(candidate.call.Method.GetParameters(), argumentTypes, candidate.expansion));
 
             for (int i = 0; i < candidateParameters.Length;)
             {
@@ -320,8 +415,15 @@ namespace Bonsai.Expressions
                     if (comparison > 0) best = j;
                     if (comparison == 0)
                     {
-                        if (!candidates[i].generic && candidates[j].generic) best = i;
-                        if (!candidates[j].generic && candidates[i].generic) best = j;
+                        var tie = true;
+                        if (!candidates[i].generic && candidates[j].generic) { best = i; tie = false; }
+                        if (!candidates[j].generic && candidates[i].generic) { best = j; tie = false; }
+
+                        if (tie)
+                        {
+                            if (!candidates[i].expansion && candidates[j].expansion) best = i;
+                            if (!candidates[j].expansion && candidates[i].expansion) best = j;
+                        }
                     }
 
                     if (best != oldBest && oldBest > 0)
