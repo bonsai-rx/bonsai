@@ -29,6 +29,8 @@ namespace Bonsai.Design
         public const Keys PredecessorModifier = Keys.Shift;
         public const string BonsaiExtension = ".bonsai";
 
+        GraphNode dragNode;
+        GraphNode dragHighlight;
         CommandExecutor commandExecutor;
         ExpressionBuilderGraph workflow;
         GraphView workflowGraphView;
@@ -63,6 +65,7 @@ namespace Bonsai.Design
             workflowGraphView.DragEnter += new DragEventHandler(workflowGraphView_DragEnter);
             workflowGraphView.DragOver += new DragEventHandler(workflowGraphView_DragOver);
             workflowGraphView.DragDrop += new DragEventHandler(workflowGraphView_DragDrop);
+            workflowGraphView.DragLeave += new EventHandler(workflowGraphView_DragLeave);
             workflowGraphView.ItemDrag += new ItemDragEventHandler(workflowGraphView_ItemDrag);
             workflowGraphView.KeyDown += new KeyEventHandler(workflowGraphView_KeyDown);
             workflowGraphView.SelectedNodeChanged += new EventHandler(workflowGraphView_SelectedNodeChanged);
@@ -666,42 +669,80 @@ namespace Bonsai.Design
 
         #region Controller
 
+        private void OnDragFileDrop(DragEventArgs e)
+        {
+            if (workflowGraphView.ParentForm.Owner == null &&
+                        (e.KeyState & AltModifier) == 0)
+            {
+                e.Effect = DragDropEffects.Link;
+            }
+            else e.Effect = DragDropEffects.Copy;
+        }
+
         private void workflowGraphView_DragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(typeof(TreeNode)))
             {
                 e.Effect = DragDropEffects.Copy;
             }
-            else if (e.Data.GetDataPresent(typeof(GraphNode)))
-            {
-                var graphViewSource = (GraphNode)e.Data.GetData(typeof(GraphNode));
-                var node = GetGraphNodeTag(graphViewSource, false);
-                if (node != null && workflow.Contains(node))
-                {
-                    e.Effect = DragDropEffects.Link;
-                }
-            }
-            else e.Effect = DragDropEffects.None;
-        }
-
-        void workflowGraphView_DragOver(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop, true))
+            else if (e.Data.GetDataPresent(DataFormats.FileDrop, true))
             {
                 var path = (string[])e.Data.GetData(DataFormats.FileDrop, true);
                 if (path != null && path.Length > 0 &&
                     Path.GetExtension(path[0]) == BonsaiExtension &&
                     File.Exists(path[0]))
                 {
-                    if (workflowGraphView.ParentForm.Owner == null &&
-                        (e.KeyState & AltModifier) == 0)
-                    {
-                        e.Effect = DragDropEffects.Link;
-                    }
-                    else e.Effect = DragDropEffects.Copy;
+                    OnDragFileDrop(e);
                 }
-                else e.Effect = DragDropEffects.None;
             }
+            else if (e.Data.GetDataPresent(typeof(GraphNode)))
+            {
+                var graphViewNode = (GraphNode)e.Data.GetData(typeof(GraphNode));
+                var node = GetGraphNodeTag(graphViewNode, false);
+                if (node != null && workflow.Contains(node))
+                {
+                    dragNode = graphViewNode;
+                    dragHighlight = graphViewNode;
+                }
+            }
+        }
+
+        void workflowGraphView_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.Effect != DragDropEffects.None && e.Data.GetDataPresent(DataFormats.FileDrop, true))
+            {
+                OnDragFileDrop(e);
+            }
+
+            if (dragNode != null)
+            {
+                var dragLocation = workflowGraphView.PointToClient(new Point(e.X, e.Y));
+                var highlight = workflowGraphView.GetNodeAt(dragLocation);
+                if (highlight != dragHighlight)
+                {
+                    if (highlight != null &&
+                        highlight != dragNode &&
+                        !dragNode.Successors.Any(edge => edge.Node == highlight))
+                    {
+                        var node = GetGraphNodeTag(dragNode, false);
+                        var target = GetGraphNodeTag(highlight, false);
+                        if (target != null &&
+                            workflow.Predecessors(target).Count() < target.Value.ArgumentRange.UpperBound &&
+                            !target.DepthFirstSearch().Contains(node))
+                        {
+                            e.Effect = DragDropEffects.Link;
+                        }
+                    }
+                    else e.Effect = DragDropEffects.None;
+                    dragHighlight = highlight;
+                }
+            }
+        }
+
+        void workflowGraphView_DragLeave(object sender, EventArgs e)
+        {
+            dragNode = null;
+            dragHighlight = null;
         }
 
         private void workflowGraphView_DragDrop(object sender, DragEventArgs e)
