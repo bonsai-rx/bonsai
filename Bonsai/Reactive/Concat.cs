@@ -19,5 +19,15 @@ namespace Bonsai.Reactive
         {
             return source.Concat(other);
         }
+
+        public IObservable<TSource> Process<TSource>(IObservable<IObservable<TSource>> sources)
+        {
+            return sources.Concat();
+        }
+
+        public IObservable<TSource> Process<TSource>(params IObservable<TSource>[] sources)
+        {
+            return Observable.Concat(sources);
+        }
     }
 }
