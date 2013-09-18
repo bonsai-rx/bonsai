@@ -70,7 +70,7 @@ namespace Bonsai.Design
             workflowGraphView.KeyDown += new KeyEventHandler(workflowGraphView_KeyDown);
             workflowGraphView.SelectedNodeChanged += new EventHandler(workflowGraphView_SelectedNodeChanged);
             workflowGraphView.GotFocus += new EventHandler(workflowGraphView_SelectedNodeChanged);
-            workflowGraphView.NodeMouseDoubleClick += new EventHandler<GraphNodeMouseClickEventArgs>(workflowGraphView_NodeMouseDoubleClick);
+            workflowGraphView.NodeMouseDoubleClick += new EventHandler<GraphNodeMouseEventArgs>(workflowGraphView_NodeMouseDoubleClick);
             workflowGraphView.HandleDestroyed += new EventHandler(workflowGraphView_HandleDestroyed);
             editorService.WorkflowStarted += new EventHandler(editorService_WorkflowStarted);
         }
@@ -862,7 +862,7 @@ namespace Bonsai.Design
             selectionModel.UpdateSelection(this);
         }
 
-        private void workflowGraphView_NodeMouseDoubleClick(object sender, GraphNodeMouseClickEventArgs e)
+        private void workflowGraphView_NodeMouseDoubleClick(object sender, GraphNodeMouseEventArgs e)
         {
             if (Control.ModifierKeys == Keys.Control)
             {

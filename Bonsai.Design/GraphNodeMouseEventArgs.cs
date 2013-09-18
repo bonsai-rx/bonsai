@@ -6,9 +6,9 @@ using System.Windows.Forms;
 
 namespace Bonsai.Design
 {
-    public class GraphNodeMouseClickEventArgs : MouseEventArgs
+    public class GraphNodeMouseEventArgs : MouseEventArgs
     {
-        public GraphNodeMouseClickEventArgs(GraphNode node, MouseButtons button, int clicks, int x, int y, int delta)
+        public GraphNodeMouseEventArgs(GraphNode node, MouseButtons button, int clicks, int x, int y, int delta)
             : base(button, clicks, x, y, delta)
         {
             Node = node;

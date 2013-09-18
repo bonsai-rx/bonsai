@@ -24,6 +24,7 @@ namespace Bonsai.Design
         static readonly Size ExitOffset = new Size(NodeSize + PenWidth / 2, NodeSize / 2);
         static readonly Pen RubberBandPen = new Pen(Color.FromArgb(51, 153, 255));
         static readonly Brush RubberBandBrush = new SolidBrush(Color.FromArgb(128, 170, 204, 238));
+        static readonly Brush HighlightBrush = new SolidBrush(Color.FromArgb(128, 229, 243, 251));
         static readonly Pen CursorPen = new Pen(Brushes.Gray, PenWidth);
         static readonly Pen WhitePen = new Pen(Brushes.White, PenWidth);
         static readonly Pen BlackPen = new Pen(Brushes.Black, PenWidth);
@@ -31,6 +32,8 @@ namespace Bonsai.Design
         static readonly object EventItemDrag = new object();
         static readonly object EventNodeMouseClick = new object();
         static readonly object EventNodeMouseDoubleClick = new object();
+        static readonly object EventNodeMouseEnter = new object();
+        static readonly object EventNodeMouseLeave = new object();
         static readonly object EventNodeMouseHover = new object();
         static readonly object EventSelectedNodeChanged = new object();
 
@@ -42,6 +45,7 @@ namespace Bonsai.Design
         IEnumerable<GraphNodeGrouping> nodes;
         GraphNode pivot;
         GraphNode cursor;
+        GraphNode highlight;
 
         public GraphView()
         {
@@ -70,20 +74,14 @@ namespace Bonsai.Design
                 handler => canvas.MouseMove -= handler)
                 .Select(evt => evt.EventArgs);
 
-            var canvasDrag = (from mouseDown in mouseDownEvent
-                              let node = GetNodeAt(mouseDown.Location)
-                              select new { mouseDown, node })
-                              .Publish()
-                              .RefCount();
-
-            var selectionDrag = (from drag in canvasDrag
-                                 where drag.node == null
+            var selectionDrag = (from mouseDown in mouseDownEvent
+                                 where highlight == null
                                  select (from mouseMove in mouseMoveEvent.TakeUntil(mouseUpEvent)
-                                         let displacementX = mouseMove.X - drag.mouseDown.X
-                                         let displacementY = mouseMove.Y - drag.mouseDown.Y
+                                         let displacementX = mouseMove.X - mouseDown.X
+                                         let displacementY = mouseMove.Y - mouseDown.Y
                                          where mouseMove.Button == MouseButtons.Left &&
                                                displacementX * displacementX + displacementY * displacementY > 16
-                                         select (Rectangle?)GetNormalizedRectangle(drag.mouseDown.Location, mouseMove.Location))
+                                         select (Rectangle?)GetNormalizedRectangle(mouseDown.Location, mouseMove.Location))
                                          .Concat(Observable.Return<Rectangle?>(null)))
                                          .SelectMany(selection => selection.Select((rect, i) =>
                                          {
@@ -91,14 +89,15 @@ namespace Bonsai.Design
                                              return rect;
                                          }).Finally(() => previousSelection = null));
 
-            var itemDrag = (from drag in canvasDrag
-                            where drag.node != null
+            var itemDrag = (from mouseDown in mouseDownEvent
+                            let node = highlight
+                            where node != null
                             select (from mouseMove in mouseMoveEvent.TakeUntil(mouseUpEvent)
-                                    let displacementX = mouseMove.X - drag.mouseDown.X
-                                    let displacementY = mouseMove.Y - drag.mouseDown.Y
+                                    let displacementX = mouseMove.X - mouseDown.X
+                                    let displacementY = mouseMove.Y - mouseDown.Y
                                     where mouseMove.Button == MouseButtons.Left &&
                                           displacementX * displacementX + displacementY * displacementY > 16
-                                    select new { drag.node, mouseMove.Button })
+                                    select new { node, mouseMove.Button })
                                     .Take(1)).Switch();
 
             var tooltipTimerTickEvent = Observable.FromEventPattern<EventHandler, EventArgs>(
@@ -116,13 +115,43 @@ namespace Bonsai.Design
             var showTooltip = from tick in tooltipTimerTickEvent
                               where !tooltipShown
                               let mousePosition = PointToClient(MousePosition)
-                              let node = GetNodeAt(mousePosition)
-                              where node != null
-                              select new { node, mousePosition };
+                              where highlight != null
+                              select new { highlight, mousePosition };
+
+            mouseMoveEvent.Subscribe(mouseMove =>
+            {
+                var node = GetNodeAt(mouseMove.Location);
+                if (node != highlight)
+                {
+                    if (highlight != null)
+                    {
+                        InvalidateNode(highlight);
+                        OnNodeMouseLeave(new GraphNodeMouseEventArgs(
+                            highlight,
+                            mouseMove.Button,
+                            mouseMove.Clicks,
+                            mouseMove.X,
+                            mouseMove.Y,
+                            mouseMove.Delta));
+                    }
+                    if (node != null)
+                    {
+                        InvalidateNode(node);
+                        OnNodeMouseEnter(new GraphNodeMouseEventArgs(
+                            node,
+                            mouseMove.Button,
+                            mouseMove.Clicks,
+                            mouseMove.X,
+                            mouseMove.Y,
+                            mouseMove.Delta));
+                    }
+                    highlight = node;
+                }
+            });
 
             selectionDrag.Subscribe(ProcessRubberBand);
             itemDrag.Subscribe(drag => OnItemDrag(new ItemDragEventArgs(drag.Button, drag.node)));
-            showTooltip.Subscribe(show => { toolTip.Show(show.node.Text, canvas, show.mousePosition); tooltipShown = true; });
+            showTooltip.Subscribe(show => { toolTip.Show(show.highlight.Text, canvas, show.mousePosition); tooltipShown = true; });
             mouseMoveEvent.Subscribe(mouseMove =>
             {
                 if (hideTooltip)
@@ -143,16 +172,28 @@ namespace Bonsai.Design
             remove { Events.RemoveHandler(EventItemDrag, value); }
         }
 
-        public event EventHandler<GraphNodeMouseClickEventArgs> NodeMouseClick
+        public event EventHandler<GraphNodeMouseEventArgs> NodeMouseClick
         {
             add { Events.AddHandler(EventNodeMouseClick, value); }
             remove { Events.RemoveHandler(EventNodeMouseClick, value); }
         }
 
-        public event EventHandler<GraphNodeMouseClickEventArgs> NodeMouseDoubleClick
+        public event EventHandler<GraphNodeMouseEventArgs> NodeMouseDoubleClick
         {
             add { Events.AddHandler(EventNodeMouseDoubleClick, value); }
             remove { Events.RemoveHandler(EventNodeMouseDoubleClick, value); }
+        }
+
+        public event EventHandler<GraphNodeMouseEventArgs> NodeMouseEnter
+        {
+            add { Events.AddHandler(EventNodeMouseEnter, value); }
+            remove { Events.RemoveHandler(EventNodeMouseEnter, value); }
+        }
+
+        public event EventHandler<GraphNodeMouseEventArgs> NodeMouseLeave
+        {
+            add { Events.AddHandler(EventNodeMouseLeave, value); }
+            remove { Events.RemoveHandler(EventNodeMouseLeave, value); }
         }
 
         public event EventHandler<GraphNodeMouseHoverEventArgs> NodeMouseHover
@@ -178,6 +219,7 @@ namespace Bonsai.Design
             {
                 pivot = null;
                 nodes = value;
+                highlight = null;
                 SelectedNode = null;
                 UpdateModelLayout();
             }
@@ -244,18 +286,36 @@ namespace Bonsai.Design
             }
         }
 
-        protected virtual void OnNodeMouseClick(GraphNodeMouseClickEventArgs e)
+        protected virtual void OnNodeMouseClick(GraphNodeMouseEventArgs e)
         {
-            var handler = Events[EventNodeMouseClick] as EventHandler<GraphNodeMouseClickEventArgs>;
+            var handler = Events[EventNodeMouseClick] as EventHandler<GraphNodeMouseEventArgs>;
             if (handler != null)
             {
                 handler(this, e);
             }
         }
 
-        protected virtual void OnNodeMouseDoubleClick(GraphNodeMouseClickEventArgs e)
+        protected virtual void OnNodeMouseDoubleClick(GraphNodeMouseEventArgs e)
         {
-            var handler = Events[EventNodeMouseDoubleClick] as EventHandler<GraphNodeMouseClickEventArgs>;
+            var handler = Events[EventNodeMouseDoubleClick] as EventHandler<GraphNodeMouseEventArgs>;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        protected virtual void OnNodeMouseEnter(GraphNodeMouseEventArgs e)
+        {
+            var handler = Events[EventNodeMouseEnter] as EventHandler<GraphNodeMouseEventArgs>;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        protected virtual void OnNodeMouseLeave(GraphNodeMouseEventArgs e)
+        {
+            var handler = Events[EventNodeMouseLeave] as EventHandler<GraphNodeMouseEventArgs>;
             if (handler != null)
             {
                 handler(this, e);
@@ -602,6 +662,7 @@ namespace Bonsai.Design
 
                     e.Graphics.DrawEllipse(pen, nodeRectangle);
                     e.Graphics.FillEllipse(brush, nodeRectangle);
+                    if (layout.Node == highlight) e.Graphics.FillEllipse(HighlightBrush, nodeRectangle);
                     e.Graphics.DrawString(
                         layout.Node.Text.Substring(0, 1),
                         Font, textBrush,
@@ -628,18 +689,17 @@ namespace Bonsai.Design
             if (previousSelection != null) return;
             if (!Focused) Select();
 
-            var node = GetNodeAt(e.Location);
-            if (node != null)
+            if (highlight != null)
             {
                 if (Control.ModifierKeys.HasFlag(Keys.Shift))
                 {
-                    SelectRange(node, Control.ModifierKeys.HasFlag(Keys.Control));
+                    SelectRange(highlight, Control.ModifierKeys.HasFlag(Keys.Control));
                 }
                 else
                 {
-                    SetCursor(node);
+                    SetCursor(highlight);
                     pivot = cursor;
-                    SelectNode(node, Control.ModifierKeys.HasFlag(Keys.Control));
+                    SelectNode(highlight, Control.ModifierKeys.HasFlag(Keys.Control));
                 }
             }
             else if (Control.ModifierKeys == Keys.None)
@@ -647,27 +707,25 @@ namespace Bonsai.Design
                 ClearSelection();
             }
 
-            if (node != null)
+            if (highlight != null)
             {
-                OnNodeMouseClick(new GraphNodeMouseClickEventArgs(node, e.Button, e.Clicks, e.X, e.Y, e.Delta));
+                OnNodeMouseClick(new GraphNodeMouseEventArgs(highlight, e.Button, e.Clicks, e.X, e.Y, e.Delta));
             }
         }
 
         private void canvas_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            var node = GetNodeAt(e.Location);
-            if (node != null)
+            if (highlight != null)
             {
-                OnNodeMouseDoubleClick(new GraphNodeMouseClickEventArgs(node, e.Button, e.Clicks, e.X, e.Y, e.Delta));
+                OnNodeMouseDoubleClick(new GraphNodeMouseEventArgs(highlight, e.Button, e.Clicks, e.X, e.Y, e.Delta));
             }
         }
 
         private void canvas_MouseHover(object sender, EventArgs e)
         {
-            var node = GetNodeAt(PointToClient(MousePosition));
-            if (node != null)
+            if (highlight != null)
             {
-                OnNodeMouseHover(new GraphNodeMouseHoverEventArgs(node));
+                OnNodeMouseHover(new GraphNodeMouseHoverEventArgs(highlight));
             }
         }
 
