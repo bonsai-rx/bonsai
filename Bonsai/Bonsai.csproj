@@ -59,7 +59,13 @@
     <Compile Include="Combinator.cs" />
     <Compile Include="Expressions\CombinatorExpressionBuilder.cs" />
     <Compile Include="Range.cs" />
+    <Compile Include="Reactive\Buffer.cs" />
     <Compile Include="Reactive\Concat.cs" />
+    <Compile Include="Reactive\BufferTriggered.cs" />
+    <Compile Include="Reactive\Range.cs" />
+    <Compile Include="Reactive\IgnoreElements.cs" />
+    <Compile Include="Reactive\Distinct.cs" />
+    <Compile Include="Reactive\Count.cs" />
     <Compile Include="Reactive\Delay.cs" />
     <Compile Include="Reactive\Repeat.cs" />
     <Compile Include="Reactive\RepeatCount.cs" />

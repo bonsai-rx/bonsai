@@ -9,6 +9,8 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Reactive
 {
+    [XmlType(Namespace = Constants.XmlNamespace)]
+    [Description("Returns an observable sequence that periodically produces a value starting at the specified initial relative due time.")]
     public class Timer : Source<long>
     {
         [XmlIgnore]

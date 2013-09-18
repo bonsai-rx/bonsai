@@ -15,14 +15,19 @@ namespace Bonsai.Reactive
     [Description("Merges two sequences or a sequence of windows into a single sequence of elements.")]
     public class Merge
     {
+        public IObservable<TSource> Process<TSource>(IObservable<TSource> source, IObservable<TSource> other)
+        {
+            return source.Merge(other);
+        }
+
         public IObservable<TSource> Process<TSource>(IObservable<IObservable<TSource>> source)
         {
             return source.Merge();
         }
 
-        public IObservable<TSource> Process<TSource>(IObservable<TSource> source, IObservable<TSource> other)
+        public IObservable<TSource> Process<TSource>(params IObservable<TSource>[] sources)
         {
-            return source.Merge(other);
+            return Observable.Merge(sources);
         }
     }
 }
