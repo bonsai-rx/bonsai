@@ -85,30 +85,41 @@ namespace Bonsai.Dag
             }
         }
 
+        static IEnumerable<Node<TValue, TLabel>> DepthFirstSearch<TValue, TLabel>(Node<TValue, TLabel> node, HashSet<Node<TValue, TLabel>> visited, Stack<Node<TValue, TLabel>> stack)
+        {
+            if (visited.Contains(node)) yield break;
+            stack.Push(node);
+
+            while (stack.Count > 0)
+            {
+                var current = stack.Peek();
+                if (!visited.Contains(current))
+                {
+                    visited.Add(current);
+                    foreach (var successor in current.Successors)
+                    {
+                        if (visited.Contains(successor.Node)) continue;
+                        stack.Push(successor.Node);
+                    }
+                }
+                else yield return stack.Pop();
+            }
+        }
+
+        public static IEnumerable<Node<TValue, TLabel>> DepthFirstSearch<TValue, TLabel>(this Node<TValue, TLabel> node)
+        {
+            var visited = new HashSet<Node<TValue, TLabel>>();
+            var stack = new Stack<Node<TValue, TLabel>>();
+            return DepthFirstSearch(node, visited, stack);
+        }
+
         public static IEnumerable<Node<TValue, TLabel>> DepthFirstSearch<TValue, TLabel>(this DirectedGraph<TValue, TLabel> source)
         {
             var visited = new HashSet<Node<TValue, TLabel>>();
             var stack = new Stack<Node<TValue, TLabel>>();
-            foreach (var node in source)
-            {
-                if (visited.Contains(node)) continue;
-                stack.Push(node);
-
-                while (stack.Count > 0)
-                {
-                    var current = stack.Peek();
-                    if (!visited.Contains(current))
-                    {
-                        visited.Add(current);
-                        foreach (var successor in current.Successors)
-                        {
-                            if (visited.Contains(successor.Node)) continue;
-                            stack.Push(successor.Node);
-                        }
-                    }
-                    else yield return stack.Pop();
-                }
-            }
+            return from root in source
+                   from node in DepthFirstSearch(root, visited, stack)
+                   select node;
         }
 
         public static IEnumerable<Node<TValue, TLabel>> TopologicalSort<TValue, TLabel>(this DirectedGraph<TValue, TLabel> source)
