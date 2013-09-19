@@ -601,8 +601,8 @@ namespace Bonsai.Editor
             if (selectedObjects.Length == 0) propertyGrid.SelectedObject = null;
             else if (selectedObjects.Length == 1)
             {
-                propertyGrid.PropertyTabs.AddTabType(typeof(MappingTab), PropertyTabScope.Component);
                 propertyGrid.SelectedObject = selectedObjects[0];
+                propertyGrid.PropertyTabs.AddTabType(typeof(MappingTab), PropertyTabScope.Component);
             }
             else propertyGrid.SelectedObjects = selectedObjects;
         }
