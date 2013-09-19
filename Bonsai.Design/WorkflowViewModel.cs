@@ -29,8 +29,8 @@ namespace Bonsai.Design
         public const Keys PredecessorModifier = Keys.Shift;
         public const string BonsaiExtension = ".bonsai";
 
-        GraphNode dragNode;
         GraphNode dragHighlight;
+        IEnumerable<GraphNode> dragSelection;
         CommandExecutor commandExecutor;
         ExpressionBuilderGraph workflow;
         GraphView workflowGraphView;
@@ -290,36 +290,35 @@ namespace Bonsai.Design
             return Tuple.Create(addConnection, removeConnection);
         }
 
-        public void ConnectGraphNodes(GraphNode graphViewSource, GraphNode graphViewTarget)
+        public void ConnectGraphNodes(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget)
         {
-            var source = GetGraphNodeTag(graphViewSource).Successors.Single().Node;
+            Action addConnection = () => { };
+            Action removeConnection = () => { };
             var target = GetGraphNodeTag(graphViewTarget);
-            if (workflow.Successors(source).Contains(target)) return;
-            var connection = string.Empty;
-
-            var combinator = target.Value;
-            if (combinator != null)
+            foreach (var graphViewSource in graphViewSources)
             {
+                var source = GetGraphNodeTag(graphViewSource).Successors.Single().Node;
+                var connection = string.Empty;
                 var connectionIndex = workflow.Predecessors(target).Count();
                 connection = ExpressionBuilderParameter.Source;
                 if (connectionIndex > 0) connection += connectionIndex;
+
+                var parameter = new ExpressionBuilderParameter(connection);
+                addConnection += () => workflow.AddEdge(source, target, parameter);
+                removeConnection += () => workflow.RemoveEdge(source, target, parameter);
             }
 
-            if (!string.IsNullOrEmpty(connection))
+            commandExecutor.Execute(
+            () =>
             {
-                var parameter = new ExpressionBuilderParameter(connection);
-                commandExecutor.Execute(
-                () =>
-                {
-                    workflow.AddEdge(source, target, parameter);
-                    UpdateGraphLayout();
-                },
-                () =>
-                {
-                    workflow.RemoveEdge(source, target, parameter);
-                    UpdateGraphLayout();
-                });
-            }
+                addConnection();
+                UpdateGraphLayout();
+            },
+            () =>
+            {
+                removeConnection();
+                UpdateGraphLayout();
+            });
         }
 
         public void CreateGraphNode(TreeNode typeNode, GraphNode closestGraphViewNode, CreateGraphNodeType nodeType, bool branch)
@@ -701,7 +700,7 @@ namespace Bonsai.Design
                 var node = GetGraphNodeTag(graphViewNode, false);
                 if (node != null && workflow.Contains(node))
                 {
-                    dragNode = graphViewNode;
+                    dragSelection = workflowGraphView.SelectedNodes;
                     dragHighlight = graphViewNode;
                 }
             }
@@ -714,24 +713,35 @@ namespace Bonsai.Design
                 OnDragFileDrop(e);
             }
 
-            if (dragNode != null)
+            if (dragSelection != null)
             {
                 var dragLocation = workflowGraphView.PointToClient(new Point(e.X, e.Y));
                 var highlight = workflowGraphView.GetNodeAt(dragLocation);
                 if (highlight != dragHighlight)
                 {
-                    if (highlight != null &&
-                        highlight != dragNode &&
-                        !dragNode.Successors.Any(edge => edge.Node == highlight))
+                    if (highlight != null)
                     {
-                        var node = GetGraphNodeTag(dragNode, false);
+                        var reject = false;
                         var target = GetGraphNodeTag(highlight, false);
-                        if (target != null &&
-                            workflow.Predecessors(target).Count() < target.Value.ArgumentRange.UpperBound &&
-                            !target.DepthFirstSearch().Contains(node))
+                        var connectionCount = workflow.Predecessors(target).Count();
+                        foreach (var dragNode in dragSelection)
                         {
-                            e.Effect = DragDropEffects.Link;
+                            if (highlight == dragNode || dragNode.Successors.Any(edge => edge.Node == highlight))
+                            {
+                                reject = true;
+                                break;
+                            }
+
+                            var node = GetGraphNodeTag(dragNode, false);
+                            if (connectionCount++ >= target.Value.ArgumentRange.UpperBound ||
+                                target.DepthFirstSearch().Contains(node))
+                            {
+                                reject = true;
+                                break;
+                            }
                         }
+
+                        e.Effect = reject ? DragDropEffects.None : DragDropEffects.Link;
                     }
                     else e.Effect = DragDropEffects.None;
                     dragHighlight = highlight;
@@ -741,7 +751,7 @@ namespace Bonsai.Design
 
         void workflowGraphView_DragLeave(object sender, EventArgs e)
         {
-            dragNode = null;
+            dragSelection = null;
             dragHighlight = null;
         }
 
@@ -779,8 +789,7 @@ namespace Bonsai.Design
                     var linkNode = workflowGraphView.GetNodeAt(dropLocation);
                     if (linkNode != null)
                     {
-                        var node = (GraphNode)e.Data.GetData(typeof(GraphNode));
-                        ConnectGraphNodes(node, linkNode);
+                        ConnectGraphNodes(dragSelection, linkNode);
                     }
                 }
             }
