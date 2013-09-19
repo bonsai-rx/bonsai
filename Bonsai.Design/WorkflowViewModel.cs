@@ -290,6 +290,31 @@ namespace Bonsai.Design
             return Tuple.Create(addConnection, removeConnection);
         }
 
+        bool ValidConnection(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget)
+        {
+            var reject = false;
+            var target = GetGraphNodeTag(graphViewTarget, false);
+            var connectionCount = workflow.Predecessors(target).Count();
+            foreach (var sourceNode in graphViewSources)
+            {
+                if (graphViewTarget == sourceNode || sourceNode.Successors.Any(edge => edge.Node == graphViewTarget))
+                {
+                    reject = true;
+                    break;
+                }
+
+                var node = GetGraphNodeTag(sourceNode, false);
+                if (connectionCount++ >= target.Value.ArgumentRange.UpperBound ||
+                    target.DepthFirstSearch().Contains(node))
+                {
+                    reject = true;
+                    break;
+                }
+            }
+
+            return !reject;
+        }
+
         public void ConnectGraphNodes(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget)
         {
             Action addConnection = () => { };
@@ -721,27 +746,9 @@ namespace Bonsai.Design
                 {
                     if (highlight != null)
                     {
-                        var reject = false;
-                        var target = GetGraphNodeTag(highlight, false);
-                        var connectionCount = workflow.Predecessors(target).Count();
-                        foreach (var dragNode in dragSelection)
-                        {
-                            if (highlight == dragNode || dragNode.Successors.Any(edge => edge.Node == highlight))
-                            {
-                                reject = true;
-                                break;
-                            }
-
-                            var node = GetGraphNodeTag(dragNode, false);
-                            if (connectionCount++ >= target.Value.ArgumentRange.UpperBound ||
-                                target.DepthFirstSearch().Contains(node))
-                            {
-                                reject = true;
-                                break;
-                            }
-                        }
-
-                        e.Effect = reject ? DragDropEffects.None : DragDropEffects.Link;
+                        e.Effect = ValidConnection(dragSelection, highlight)
+                            ? DragDropEffects.Link
+                            : DragDropEffects.None;
                     }
                     else e.Effect = DragDropEffects.None;
                     dragHighlight = highlight;
@@ -824,9 +831,14 @@ namespace Bonsai.Design
                 {
                     LaunchWorkflowView(workflowGraphView.SelectedNode);
                 }
-                else
+                else if (editorService.WorkflowRunning)
                 {
                     LaunchVisualizer(workflowGraphView.SelectedNode);
+                }
+                else if (selectionModel.SelectedNodes.Any() && workflowGraphView.CursorNode != null &&
+                         ValidConnection(selectionModel.SelectedNodes, workflowGraphView.CursorNode))
+                {
+                    ConnectGraphNodes(selectionModel.SelectedNodes, workflowGraphView.CursorNode);
                 }
             }
 
