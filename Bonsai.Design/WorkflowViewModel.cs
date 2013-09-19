@@ -320,17 +320,18 @@ namespace Bonsai.Design
             Action addConnection = () => { };
             Action removeConnection = () => { };
             var target = GetGraphNodeTag(graphViewTarget);
+            var connectionIndex = workflow.Predecessors(target).Count();
             foreach (var graphViewSource in graphViewSources)
             {
                 var source = GetGraphNodeTag(graphViewSource).Successors.Single().Node;
                 var connection = string.Empty;
-                var connectionIndex = workflow.Predecessors(target).Count();
                 connection = ExpressionBuilderParameter.Source;
                 if (connectionIndex > 0) connection += connectionIndex;
 
                 var parameter = new ExpressionBuilderParameter(connection);
                 addConnection += () => workflow.AddEdge(source, target, parameter);
                 removeConnection += () => workflow.RemoveEdge(source, target, parameter);
+                connectionIndex++;
             }
 
             commandExecutor.Execute(
