@@ -372,6 +372,12 @@ namespace Bonsai.Design
             var control = keyData.HasFlag(Keys.Control);
             if (control) keyData &= ~Keys.Control;
 
+            if (keyData == Keys.Space && control && cursor != null)
+            {
+                if (selectedNodes.Contains(cursor)) ClearNode(cursor);
+                else SelectNode(cursor, true);
+            }
+
             switch (keyData)
             {
                 case Keys.Up: selectionOffset = new Size(0, -NodeAirspace); break;
