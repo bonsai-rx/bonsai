@@ -384,15 +384,15 @@ namespace Bonsai.Expressions
                 {
                     MethodCallExpression call;
                     try { call = BuildCall(instance, method, arguments); }
-                    catch (InvalidOperationException) { call = null; }
+                    catch (InvalidOperationException) { return null; }
                     return new
                     {
                         call,
                         generic = call.Method != method,
-                        expansion = ParamExpansionRequired(call.Method.GetParameters(), argumentTypes) 
+                        expansion = ParamExpansionRequired(call.Method.GetParameters(), argumentTypes)
                     };
                 })
-                .Where(candidate => candidate.call != null)
+                .Where(candidate => candidate != null)
                 .ToArray();
 
             if (candidates.Length == 0)
