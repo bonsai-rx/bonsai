@@ -19,6 +19,7 @@ namespace Bonsai.Design
         const int NodeAirspace = 80;
         const int NodeSize = 30;
         const int HalfSize = NodeSize / 2;
+        const int LabelTextOffset = 5;
         static readonly Size TextOffset = new Size(9, 9);
         static readonly Size EntryOffset = new Size(-PenWidth / 2, NodeSize / 2);
         static readonly Size ExitOffset = new Size(NodeSize + PenWidth / 2, NodeSize / 2);
@@ -101,24 +102,6 @@ namespace Bonsai.Design
                                     select new { node, mouseMove.Button })
                                     .Take(1)).Switch();
 
-            var tooltipTimerTickEvent = Observable.FromEventPattern<EventHandler, EventArgs>(
-                handler => tooltipTimer.Tick += handler,
-                handler => tooltipTimer.Tick -= handler);
-
-            var hideTooltip = false;
-            var tooltipShown = false;
-            tooltipTimerTickEvent.Subscribe(tick =>
-            {
-                if (tooltipShown) hideTooltip = true;
-                tooltipTimer.Stop();
-            });
-
-            var showTooltip = from tick in tooltipTimerTickEvent
-                              where !tooltipShown
-                              let mousePosition = PointToClient(MousePosition)
-                              where highlight != null
-                              select new { highlight, mousePosition };
-
             mouseMoveEvent.Subscribe(mouseMove =>
             {
                 var node = GetNodeAt(mouseMove.Location);
@@ -152,19 +135,6 @@ namespace Bonsai.Design
 
             selectionDrag.Subscribe(ProcessRubberBand);
             itemDrag.Subscribe(drag => OnItemDrag(new ItemDragEventArgs(drag.Button, drag.node)));
-            showTooltip.Subscribe(show => { toolTip.Show(show.highlight.Text, canvas, show.mousePosition); tooltipShown = true; });
-            mouseMoveEvent.Subscribe(mouseMove =>
-            {
-                if (hideTooltip)
-                {
-                    toolTip.Hide(canvas);
-                    hideTooltip = false;
-                    tooltipShown = false;
-                }
-
-                tooltipTimer.Stop();
-                tooltipTimer.Start();
-            });
         }
 
         public event ItemDragEventHandler ItemDrag
@@ -276,11 +246,13 @@ namespace Bonsai.Design
 
         Rectangle GetBoundingRectangle(GraphNode node)
         {
+            var offset = new Point(-canvas.HorizontalScroll.Value, -canvas.VerticalScroll.Value);
             var nodeLayout = layoutNodes[node];
             var boundingRectangle = nodeLayout.BoundingRectangle;
-            boundingRectangle.X -= canvas.HorizontalScroll.Value;
-            boundingRectangle.Y -= canvas.VerticalScroll.Value;
-            return boundingRectangle;
+            boundingRectangle.Offset(offset);
+            var labelRectangle = nodeLayout.LabelRectangle;
+            labelRectangle.Offset(offset);
+            return Rectangle.Union(boundingRectangle, Rectangle.Truncate(labelRectangle));
         }
 
         protected virtual void OnItemDrag(ItemDragEventArgs e)
@@ -539,6 +511,15 @@ namespace Bonsai.Design
             return closest;
         }
 
+        RectangleF GetNodeLabelRectangle(string text, Point location, Graphics graphics)
+        {
+            var labelSize = graphics.MeasureString(text, Font);
+            var labelLocation = new PointF(HalfSize - labelSize.Width / 2, NodeSize + LabelTextOffset);
+            labelLocation.X += location.X;
+            labelLocation.Y += location.Y;
+            return new RectangleF(labelLocation, labelSize);
+        }
+
         private void UpdateModelLayout()
         {
             layoutNodes.Clear();
@@ -546,23 +527,27 @@ namespace Bonsai.Design
             Size size = Size.Empty;
             if (model != null)
             {
-                var layerCount = model.Count();
-                foreach (var layer in model)
+                using (var graphics = CreateGraphics())
                 {
-                    var column = layerCount - layer.Key - 1;
-                    foreach (var node in layer)
+                    var layerCount = model.Count();
+                    foreach (var layer in model)
                     {
-                        if (pivot == null) pivot = cursor = node;
-                        var row = node.LayerIndex;
-                        var location = new Point(column * NodeAirspace + PenWidth, row * NodeAirspace + PenWidth);
-                        layoutNodes.Add(new LayoutNode(node, location));
+                        var column = layerCount - layer.Key - 1;
+                        foreach (var node in layer)
+                        {
+                            if (pivot == null) pivot = cursor = node;
+                            var row = node.LayerIndex;
+                            var location = new Point(column * NodeAirspace + PenWidth, row * NodeAirspace + PenWidth);
+                            var labelRectangle = GetNodeLabelRectangle(node.Text, location, graphics);
+                            layoutNodes.Add(new LayoutNode(node, location, labelRectangle));
+                        }
+
+                        var rowHeight = layer.Count * NodeAirspace;
+                        size.Height = Math.Max(rowHeight, size.Height);
                     }
 
-                    var rowHeight = layer.Count * NodeAirspace;
-                    size.Height = Math.Max(rowHeight, size.Height);
+                    size.Width = layerCount * NodeAirspace;
                 }
-
-                size.Width = layerCount * NodeAirspace;
             }
 
             canvas.AutoScrollMinSize = size;
@@ -675,6 +660,18 @@ namespace Bonsai.Design
                         layout.Node.Text.Substring(0, 1),
                         Font, textBrush,
                         Point.Add(layout.Location, Size.Add(offset, TextOffset)));
+
+                    if (layout.Node == highlight)
+                    {
+                        var labelRect = layout.LabelRectangle;
+                        labelRect.Location = new PointF(
+                            labelRect.Location.X + offset.Width,
+                            labelRect.Location.Y + offset.Height);
+                        e.Graphics.DrawString(
+                            layout.Node.Text,
+                            Font, Brushes.Black,
+                            labelRect);
+                    }
                 }
                 else e.Graphics.DrawLine(((GraphEdge)layout.Node.Tag).Pen, Point.Add(layout.EntryPoint, offset), Point.Add(layout.ExitPoint, offset));
 
@@ -776,15 +773,18 @@ namespace Bonsai.Design
 
         class LayoutNode
         {
-            public LayoutNode(GraphNode node, Point location)
+            public LayoutNode(GraphNode node, Point location, RectangleF labelRectangle)
             {
                 Node = node;
                 Location = location;
+                LabelRectangle = labelRectangle;
             }
 
-            public GraphNode Node { get; set; }
+            public GraphNode Node { get; private set; }
 
-            public Point Location { get; set; }
+            public Point Location { get; private set; }
+
+            public RectangleF LabelRectangle { get; private set; }
 
             public Point Center
             {
