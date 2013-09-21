@@ -26,6 +26,7 @@ namespace Bonsai.NuGet
         const string SortByNameDescending = "Name: Descending";
         const string SortByRelevance = "Relevance";
         static readonly Uri PackageDefaultIconUrl = new Uri("https://www.nuget.org/Content/Images/packageDefaultIcon.png");
+        readonly IObservable<Image> defaultIcon;
 
         bool loaded;
         readonly string packageManagerPath;
@@ -42,6 +43,10 @@ namespace Bonsai.NuGet
         public PackageManagerDialog(string path)
         {
             packageManagerPath = path;
+            var defaultIconRequest = GetPackageIcon(PackageDefaultIconUrl).PublishLast();
+            defaultIcon = defaultIconRequest;
+            defaultIconRequest.Connect();
+
             var settings = Settings.LoadDefaultSettings(null, null, null);
             packageSourceProvider = new PackageSourceProvider(settings);
             packageManagers = CreatePackageManagers();
@@ -185,7 +190,9 @@ namespace Bonsai.NuGet
 
         IObservable<Image> GetPackageIcon(Uri iconUrl)
         {
-            var imageRequest = WebRequest.Create(iconUrl == null ? PackageDefaultIconUrl : iconUrl);
+            if (iconUrl == null) return defaultIcon;
+
+            var imageRequest = WebRequest.Create(iconUrl);
             var requestAsync = Observable.FromAsyncPattern(
                 (callback, state) => imageRequest.BeginGetResponse(callback, state),
                 asyncResult => imageRequest.EndGetResponse(asyncResult));
@@ -197,9 +204,9 @@ namespace Bonsai.NuGet
                               response.ContentType.StartsWith("application/octet-stream"),
                         Observable.Defer(() =>
                             Observable.Return(new Bitmap(Image.FromStream(response.GetResponseStream()), packageIcons.ImageSize))),
-                        GetPackageIcon(null))
+                        defaultIcon)
                     select image)
-                    .Catch<Image, WebException>(ex => GetPackageIcon(null));
+                    .Catch<Image, WebException>(ex => defaultIcon);
         }
 
         private void AddPackage(IPackage package)
