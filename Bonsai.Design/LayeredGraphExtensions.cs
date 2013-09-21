@@ -188,6 +188,44 @@ namespace Bonsai.Design
             }
         }
 
+        public static IEnumerable<GraphNodeGrouping> SortLayeringByConnectionKey(this IEnumerable<GraphNodeGrouping> source)
+        {
+            Tuple<GraphNode, string>[] ordering = null;
+            var priorityMapping = new Dictionary<GraphNode, string>();
+            foreach (var layer in source)
+            {
+                if (ordering != null)
+                {
+                    for (int i = 0; i < ordering.Length; i++)
+                    {
+                        var entry = ordering[i];
+                        var successorPriority = 0;
+                        var entryPriority = string.IsNullOrEmpty(entry.Item2) ? i.ToString(CultureInfo.InvariantCulture) : entry.Item2;
+                        foreach (var predecessor in layer.SelectMany(node =>
+                            node.Successors.Where(edge => edge.Node == entry.Item1)
+                            .Select(edge => new { label = (ExpressionBuilderParameter)edge.Label, node }))
+                            .OrderBy(edge => edge.label.Value))
+                        {
+                            priorityMapping[predecessor.node] = entryPriority + successorPriority++;
+                        }
+                    }
+                }
+
+                ordering = (from node in layer
+                            let priority = priorityMapping.ContainsKey(node) ? priorityMapping[node] : string.Empty
+                            select Tuple.Create(node, priority))
+                            .OrderBy(entry => entry.Item2, LayerPriorityComparer.Default)
+                            .ToArray();
+
+                for (int i = 0; i < ordering.Length; i++)
+                {
+                    layer[i] = ordering[i].Item1;
+                }
+            }
+
+            return source;
+        }
+
         public static IEnumerable<GraphNodeGrouping> EnsureLayerPriority(this IEnumerable<GraphNodeGrouping> source)
         {
             var priorityMapping = new Dictionary<GraphNode, string>();

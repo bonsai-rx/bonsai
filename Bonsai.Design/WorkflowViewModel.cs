@@ -686,7 +686,11 @@ namespace Bonsai.Design
 
         private void UpdateGraphLayout()
         {
-            workflowGraphView.Nodes = workflow.FromInspectableGraph(false).LongestPathLayering().EnsureLayerPriority().ToList();
+            workflowGraphView.Nodes = workflow.FromInspectableGraph(false)
+                .LongestPathLayering()
+                .EnsureLayerPriority()
+                .SortLayeringByConnectionKey()
+                .ToList();
             workflowGraphView.Invalidate();
         }
 
