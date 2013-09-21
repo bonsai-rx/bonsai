@@ -6,22 +6,18 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Configuration
 {
-    public sealed class AssemblyLocation
+    public sealed class AssemblyReference
     {
-        public AssemblyLocation()
+        public AssemblyReference()
         {
         }
 
-        public AssemblyLocation(string assemblyName, string path)
+        public AssemblyReference(string assemblyName)
         {
             AssemblyName = assemblyName;
-            Location = path;
         }
 
         [XmlAttribute("assemblyName")]
         public string AssemblyName { get; set; }
-
-        [XmlAttribute("location")]
-        public string Location { get; set; }
     }
 }

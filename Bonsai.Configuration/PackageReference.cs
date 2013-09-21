@@ -12,12 +12,16 @@ namespace Bonsai.Configuration
         {
         }
 
-        public PackageReference(string name)
+        public PackageReference(string id, string version)
         {
-            Name = name;
+            Id = id;
+            Version = version;
         }
 
-        [XmlAttribute("name")]
-        public string Name { get; set; }
+        [XmlAttribute("id")]
+        public string Id { get; set; }
+
+        [XmlAttribute("version")]
+        public string Version { get; set; }
     }
 }

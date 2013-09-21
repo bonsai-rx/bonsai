@@ -110,7 +110,7 @@ namespace Bonsai.Editor
         public static IObservable<Tuple<Type, Type>> GetTypeVisualizerDictionary()
         {
             var configuration = ConfigurationHelper.Load();
-            var assemblies = configuration.Packages.Select(reference => reference.Name);
+            var assemblies = configuration.AssemblyReferences.Select(reference => reference.AssemblyName);
             return Observable.Using(
                 () => new LoaderResource(),
                 resource => from assemblyRef in assemblies.ToObservable()
