@@ -6,14 +6,14 @@ using System.Text;
 
 namespace Bonsai.Configuration
 {
-    public class AssemblyLocationCollection : KeyedCollection<string, AssemblyLocation>
+    public class AssemblyReferenceCollection : KeyedCollection<string, AssemblyReference>
     {
-        public void Add(string name, string path)
+        public void Add(string name)
         {
-            Add(new AssemblyLocation(name, path));
+            Add(new AssemblyReference(name));
         }
 
-        protected override string GetKeyForItem(AssemblyLocation item)
+        protected override string GetKeyForItem(AssemblyReference item)
         {
             return item.AssemblyName;
         }

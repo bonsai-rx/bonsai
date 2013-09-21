@@ -84,6 +84,12 @@ namespace Bonsai.Editor
             var package = e.Package;
             var installPath = e.InstallPath;
             var taggedPackage = IsTaggedPackage(package);
+            if (!packageConfiguration.Packages.Contains(package.Id))
+            {
+                packageConfiguration.Packages.Add(package.Id, package.Version.ToString());
+            }
+            else packageConfiguration.Packages[package.Id].Version = package.Version.ToString();
+
             foreach (var folder in GetLibraryFolders(package, installPath))
             {
                 if (!packageConfiguration.LibraryFolders.Contains(folder.Path))
@@ -104,14 +110,14 @@ namespace Bonsai.Editor
                 {
                     packageConfiguration.AssemblyLocations.Add(referenceName, referencePath);
                 }
-                else if (packageConfiguration.AssemblyLocations[referenceName].Path != referencePath)
+                else if (packageConfiguration.AssemblyLocations[referenceName].Location != referencePath)
                 {
                     throw new InvalidOperationException(string.Format(Resources.AssemblyReferenceLocationMismatchException, referenceName));
                 }
 
-                if (taggedPackage && !packageConfiguration.Packages.Contains(referenceName))
+                if (taggedPackage && !packageConfiguration.AssemblyReferences.Contains(referenceName))
                 {
-                    packageConfiguration.Packages.Add(referenceName);
+                    packageConfiguration.AssemblyReferences.Add(referenceName);
                 }
             }
 
@@ -137,6 +143,7 @@ namespace Bonsai.Editor
             var package = e.Package;
             var installPath = e.InstallPath;
             var taggedPackage = IsTaggedPackage(package);
+            packageConfiguration.Packages.Remove(package.Id);
             foreach (var path in GetLibraryFolders(package, installPath))
             {
                 packageConfiguration.LibraryFolders.Remove(path);
@@ -148,7 +155,7 @@ namespace Bonsai.Editor
                 packageConfiguration.AssemblyLocations.Remove(referenceName);
                 if (taggedPackage)
                 {
-                    packageConfiguration.Packages.Remove(referenceName);
+                    packageConfiguration.AssemblyReferences.Remove(referenceName);
                 }
             }
 

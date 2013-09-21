@@ -12,15 +12,22 @@ namespace Bonsai.Configuration
     public class PackageConfiguration
     {
         readonly PackageReferenceCollection packages = new PackageReferenceCollection();
+        readonly AssemblyReferenceCollection assemblyReferences = new AssemblyReferenceCollection();
         readonly AssemblyLocationCollection assemblyLocations = new AssemblyLocationCollection();
         readonly LibraryFolderCollection libraryFolders = new LibraryFolderCollection();
 
         [XmlIgnore]
         internal string ConfigurationFile { get; set; }
 
+        [XmlArrayItem("Package")]
         public PackageReferenceCollection Packages
         {
             get { return packages; }
+        }
+
+        public AssemblyReferenceCollection AssemblyReferences
+        {
+            get { return assemblyReferences; }
         }
 
         public AssemblyLocationCollection AssemblyLocations
