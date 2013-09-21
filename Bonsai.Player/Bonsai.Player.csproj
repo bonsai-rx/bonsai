@@ -32,10 +32,10 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
+    <BuildPackage>true</BuildPackage>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Reactive.Core, Version=2.1.30214.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -74,10 +74,38 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Bonsai.Player.nuspec" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ilmerge.internalize.exclude.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\MSBuild\AssemblyInfo.targets" />
+  <Target Name="MergeExecutable" Inputs="$(OutputPath)\Bonsai.Configuration.dll;$(OutputPath)\Bonsai.Player.exe" Outputs="$(OutputPath)Merged\Bonsai.Player.exe" Condition=" '$(OS)' == 'Windows_NT'">
+    <PropertyGroup>
+      <ILMergeExe>$(MsBuildProjectDirectory)\..\packages\ilmerge.2.13.0307\ILMerge.exe</ILMergeExe>
+      <ILMergeInternalizeExcludeFile>$(MsBuildProjectDirectory)\ilmerge.internalize.exclude.txt</ILMergeInternalizeExcludeFile>
+      <ILMergeOutputFile>Bonsai.Player.exe</ILMergeOutputFile>
+      <ILMergeOutputFilePath>$(OutputPath)Merged\$(ILMergeOutputFile)</ILMergeOutputFilePath>
+      <ILMergeCommandArgs>/internalize:"$(ILMergeInternalizeExcludeFile)" /target:exe /out:"Merged\$(ILMergeOutputFile)" /log:"Merged\ilmerge.msbuild.log" /allowDup $(ILMergeOutputFile) Bonsai.Configuration.dll</ILMergeCommandArgs>
+      <ILMergeCommandArgs Condition=" '$(SignAssembly)' == 'true' ">/keyfile:"$(AssemblyOriginatorKeyFile)" /delaysign $(ILMergeCommandArgs)</ILMergeCommandArgs>
+    </PropertyGroup>
+    <ItemGroup>
+      <ILMergeOutputs Include="$(ILMergeOutputFilePath)" />
+      <ILMergeOutputs Include="$(OutputPath)Merged\Bonsai.Player.pdb" />
+    </ItemGroup>
+    <MakeDir Directories="$(OutputPath)Merged" Condition="!Exists('$(OutputPath)Merged')" />
+    <Delete Files="@(ILMergeOutputs)" Condition="Exists($(ILMergeOutputFilePath))" />
+    <Exec Command="&quot;$(ILMergeExe)&quot; $(ILMergeCommandArgs)" WorkingDirectory="$(OutputPath)" />
+    <Copy SourceFiles="@(ILMergeOutputs)" DestinationFolder="$(OutputPath)" />
+  </Target>
+  <PropertyGroup>
+    <BuildDependsOn>
+      $(BuildDependsOn);
+      MergeExecutable;
+    </BuildDependsOn>
+  </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
