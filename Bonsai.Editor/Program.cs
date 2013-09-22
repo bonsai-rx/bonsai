@@ -66,24 +66,35 @@ namespace Bonsai.Editor
                 var editorPackage = packageManager.LocalRepository.FindPackage(editorPackageId, editorPackageVersion);
                 if (editorPackage == null)
                 {
-                    using (var dialog = new PackageOperationDialog())
                     using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageId))
                     {
-                        dialog.RegisterEventLogger(logger);
-                        var operation = Task.Factory.StartNew(() =>
-                        {
-                            try
-                            {
-                                ((ILogger)logger).Log(MessageLevel.Info, "Checking for latest version of {0}.", editorPackageId);
-                                editorPackage = packageManager.SourceRepository.FindPackage(editorPackageId);
-                                packageManager.InstallPackage(editorPackage, false, true);
-                                dialog.BeginInvoke((Action)dialog.Close);
-                            }
-                            catch (Exception ex) { ((ILogger)logger).Log(MessageLevel.Error, ex.Message); }
-                        });
-                        dialog.ShowDialog();
+                        PackageHelper.RunPackageOperation(
+                            logger,
+                            () => packageManager
+                                .StartInstallPackage(editorPackageId, null)
+                                .ContinueWith(task => editorPackage = task.Result));
+                        launchPackageManager = true;
                     }
-                    launchPackageManager = true;
+                }
+
+                var missingPackages = PackageHelper.GetMissingPackages(packageConfiguration.Packages, packageManager.LocalRepository).ToList();
+                if (missingPackages.Count > 0)
+                {
+                    using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageId))
+                    {
+                        PackageHelper.RunPackageOperation(logger, () =>
+                            Task.Factory.ContinueWhenAll(packageManager.StartRestorePackages(missingPackages).ToArray(), operations =>
+                            {
+                                foreach (var task in operations)
+                                {
+                                    packageManager.InstallPackage(
+                                        task.Result,
+                                        ignoreDependencies: true,
+                                        allowPrereleaseVersions: true,
+                                        ignoreWalkInfo: true);
+                                }
+                            }));
+                    }
                 }
 
                 var exit = editorPackage == null;
