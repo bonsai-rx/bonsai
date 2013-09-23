@@ -216,34 +216,30 @@ namespace Bonsai.Design
             }
             else if (closestNode != null)
             {
-                var edgeIndex = 0;
-                var closestInspectNode = closestNode.Successors.Single().Node;
                 var parameter = new ExpressionBuilderParameter();
                 if (nodeType == CreateGraphNodeType.Predecessor)
                 {
-                    var closestPredecessorNode = workflow.Predecessors(closestNode).FirstOrDefault();
-                    if (closestPredecessorNode != null)
+                    var predecessors = workflow.PredecessorEdges(closestNode).ToList();
+                    if (predecessors.Count > 0)
                     {
-                        // If we have a predecessor, we need to insert the new node in the right branch
-                        closestInspectNode = closestPredecessorNode;
-                        foreach (var edge in closestInspectNode.Successors)
+                        // If we have predecessors, we need to connect the new node in the right branches
+                        foreach (var predecessor in predecessors)
                         {
-                            if (edge.Node == closestNode) break;
-                            edgeIndex++;
+                            var edge = predecessor.Item2;
+                            var predecessorNode = predecessor.Item1;
+                            var edgeIndex = predecessor.Item3;
+                            addConnection += () =>
+                            {
+                                workflow.SetEdge(predecessorNode, edgeIndex, sourceNode, edge.Label);
+                                workflow.AddEdge(sinkNode, edge.Node, edge.Label);
+                            };
+
+                            removeConnection += () =>
+                            {
+                                workflow.RemoveEdge(sinkNode, edge.Node, edge.Label);
+                                workflow.SetEdge(predecessorNode, edgeIndex, edge.Node, edge.Label);
+                            };
                         }
-
-                        var oldSuccessor = closestInspectNode.Successors[edgeIndex];
-                        addConnection = () =>
-                        {
-                            workflow.SetEdge(closestInspectNode, edgeIndex, sourceNode, parameter);
-                            workflow.AddEdge(sinkNode, oldSuccessor.Node, oldSuccessor.Label);
-                        };
-
-                        removeConnection = () =>
-                        {
-                            workflow.RemoveEdge(sinkNode, oldSuccessor.Node, oldSuccessor.Label);
-                            workflow.SetEdge(closestInspectNode, edgeIndex, oldSuccessor.Node, oldSuccessor.Label);
-                        };
                     }
                     else
                     {
@@ -254,6 +250,7 @@ namespace Bonsai.Design
                 }
                 else
                 {
+                    var closestInspectNode = closestNode.Successors.Single().Node;
                     if (!branch && closestInspectNode.Successors.Count > 0)
                     {
                         // If we are not creating a new branch, the new node will inherit all branches of selected node
