@@ -514,7 +514,7 @@ namespace Bonsai.Design
         RectangleF GetNodeLabelRectangle(string text, Point location, Graphics graphics)
         {
             var labelSize = graphics.MeasureString(text, Font);
-            var labelLocation = new PointF(HalfSize - labelSize.Width / 2, NodeSize + LabelTextOffset);
+            var labelLocation = new PointF(0, NodeSize + LabelTextOffset);
             labelLocation.X += location.X;
             labelLocation.Y += location.Y;
             return new RectangleF(labelLocation, labelSize);
