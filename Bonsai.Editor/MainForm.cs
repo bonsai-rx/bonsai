@@ -740,11 +740,6 @@ namespace Bonsai.Editor
 
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Delete)
-            {
-                DeleteSelectedNode();
-            }
-
             if (e.Modifiers == Keys.Control && e.KeyCode == Keys.E)
             {
                 searchTextBox.Focus();
