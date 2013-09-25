@@ -748,6 +748,12 @@ namespace Bonsai.Design
             else e.Effect = DragDropEffects.Copy;
         }
 
+        private void ClearDragDrop()
+        {
+            dragSelection = null;
+            dragHighlight = null;
+        }
+
         private void workflowGraphView_DragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(typeof(TreeNode)))
@@ -803,8 +809,7 @@ namespace Bonsai.Design
 
         void workflowGraphView_DragLeave(object sender, EventArgs e)
         {
-            dragSelection = null;
-            dragHighlight = null;
+            ClearDragDrop();
         }
 
         private void workflowGraphView_DragDrop(object sender, DragEventArgs e)
@@ -852,6 +857,8 @@ namespace Bonsai.Design
                 if (parentForm != null && !parentForm.Focused) parentForm.Activate();
                 workflowGraphView.Select();
             }
+
+            ClearDragDrop();
         }
 
         private void workflowGraphView_ItemDrag(object sender, ItemDragEventArgs e)
