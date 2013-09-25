@@ -913,6 +913,12 @@ namespace Bonsai.Design
                 editorService.Redo();
             }
 
+            if (e.KeyCode == Keys.X && e.Modifiers.HasFlag(Keys.Control))
+            {
+                editorService.StoreWorkflowElements(selectionModel.SelectedNodes.ToWorkflowBuilder());
+                DeleteGraphNodes(selectionModel.SelectedNodes);
+            }
+
             if (e.KeyCode == Keys.C && e.Modifiers.HasFlag(Keys.Control))
             {
                 editorService.StoreWorkflowElements(selectionModel.SelectedNodes.ToWorkflowBuilder());
