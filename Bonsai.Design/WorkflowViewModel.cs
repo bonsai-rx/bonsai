@@ -490,7 +490,7 @@ namespace Bonsai.Design
                             {
                                 if (workflow.Successors(predecessor.Item1).Contains(successor.Node)) continue;
                                 if (simplePredecessor) workflow.AddEdge(predecessor.Item1, successor.Node, successor.Label);
-                                else workflow.SetEdge(predecessor.Item1, predecessor.Item3, successor.Node, successor.Label);
+                                else workflow.SetEdge(predecessor.Item1, predecessor.Item3, successor.Node, predecessor.Item2.Label);
                             }
                         }
                     };
@@ -501,7 +501,8 @@ namespace Bonsai.Design
                         {
                             foreach (var successor in inspectNode.Successors)
                             {
-                                workflow.RemoveEdge(predecessor.Item1, successor.Node, successor.Label);
+                                if (simplePredecessor) workflow.RemoveEdge(predecessor.Item1, successor.Node, successor.Label);
+                                else workflow.RemoveEdge(predecessor.Item1, successor.Node, predecessor.Item2.Label);
                             }
                         }
                     };
