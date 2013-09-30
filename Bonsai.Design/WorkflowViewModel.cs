@@ -228,25 +228,14 @@ namespace Bonsai.Design
                             var edge = predecessor.Item2;
                             var predecessorNode = predecessor.Item1;
                             var edgeIndex = predecessor.Item3;
-                            addConnection += () =>
-                            {
-                                workflow.SetEdge(predecessorNode, edgeIndex, sourceNode, edge.Label);
-                                workflow.AddEdge(sinkNode, edge.Node, edge.Label);
-                            };
-
-                            removeConnection += () =>
-                            {
-                                workflow.RemoveEdge(sinkNode, edge.Node, edge.Label);
-                                workflow.SetEdge(predecessorNode, edgeIndex, edge.Node, edge.Label);
-                            };
+                            addConnection += () => { workflow.SetEdge(predecessorNode, edgeIndex, sourceNode, edge.Label); };
+                            removeConnection += () => { workflow.SetEdge(predecessorNode, edgeIndex, edge.Node, edge.Label); };
                         }
                     }
-                    else
-                    {
-                        // If there is no predecessor, we just create an edge to the selected node
-                        addConnection = () => { workflow.AddEdge(sinkNode, closestNode, parameter); };
-                        removeConnection = () => { workflow.RemoveEdge(sinkNode, closestNode, parameter); };
-                    }
+
+                    // After dealing with predecessors, we just create an edge to the selected node
+                    addConnection += () => { workflow.AddEdge(sinkNode, closestNode, parameter); };
+                    removeConnection += () => { workflow.RemoveEdge(sinkNode, closestNode, parameter); };
                 }
                 else
                 {
