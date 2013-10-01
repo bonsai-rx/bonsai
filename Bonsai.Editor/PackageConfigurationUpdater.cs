@@ -21,7 +21,8 @@ namespace Bonsai.Editor
             new FrameworkName(".NETFramework,Version=v4.0"),
             new FrameworkName(".NETFramework,Version=v4.0,Profile=Client"),
             new FrameworkName(".NETFramework,Version=v3.5"),
-            new FrameworkName(".NETFramework,Version=v3.5,Profile=Client")
+            new FrameworkName(".NETFramework,Version=v3.5,Profile=Client"),
+            new FrameworkName("native,Version=v0.0")
         };
 
         public PackageConfigurationUpdater(PackageConfiguration configuration, IPackageManager manager, string bootstrapperPath = null, string bootstrapperId = null)
