@@ -87,12 +87,15 @@ namespace Bonsai.Editor
                             {
                                 foreach (var task in operations)
                                 {
+                                    if (task.IsFaulted || task.IsCanceled) continue;
                                     packageManager.InstallPackage(
                                         task.Result,
                                         ignoreDependencies: true,
                                         allowPrereleaseVersions: true,
                                         ignoreWalkInfo: true);
                                 }
+
+                                Task.WaitAll(operations);
                             }));
                     }
                 }
