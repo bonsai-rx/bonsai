@@ -350,8 +350,16 @@ namespace Bonsai.NuGet
                     else
                     {
                         var allowPrereleaseVersions = AllowPrereleaseVersions;
-                        operation = Observable.Start(() => selectedManager.InstallPackage(package, false, allowPrereleaseVersions, false));
-                        dialog.Text = Resources.InstallOperationLabel;
+                        if (packageView.OperationText == Resources.UpdateOperationName)
+                        {
+                            operation = Observable.Start(() => selectedManager.UpdatePackage(package, false, allowPrereleaseVersions));
+                            dialog.Text = Resources.UpdateOperationLabel;
+                        }
+                        else
+                        {
+                            operation = Observable.Start(() => selectedManager.InstallPackage(package, false, allowPrereleaseVersions, false));
+                            dialog.Text = Resources.InstallOperationLabel;
+                        }
                     }
 
                     operation.ObserveOn(this).Subscribe(
@@ -377,8 +385,12 @@ namespace Bonsai.NuGet
             else
             {
                 releaseFilterComboBox.Visible = true;
-                packageView.OperationText = Resources.InstallOperationName;
                 selectedRepository = selectedManager.SourceRepository;
+                if (e.Node == updatesNode || e.Node.Parent == updatesNode)
+                {
+                    packageView.OperationText = Resources.UpdateOperationName;
+                }
+                else packageView.OperationText = Resources.InstallOperationName;
             }
 
             searchComboBox.Text = string.Empty;
