@@ -22,7 +22,13 @@ namespace Bonsai.Editor
             {
                 dialog.RegisterEventLogger(logger);
                 var operation = operationFactory();
-                operation.ContinueWith(task => dialog.BeginInvoke((Action)dialog.Close));
+                operation.ContinueWith(task =>
+                {
+                    if (!task.IsFaulted)
+                    {
+                        dialog.BeginInvoke((Action)dialog.Close);
+                    }
+                });
                 dialog.ShowDialog();
             }
         }
@@ -47,7 +53,7 @@ namespace Bonsai.Editor
                 catch (Exception ex)
                 {
                     packageManager.Logger.Log(MessageLevel.Error, ex.Message);
-                    return null;
+                    throw;
                 }
             });
         }
@@ -77,12 +83,18 @@ namespace Bonsai.Editor
                 try
                 {
                     packageManager.Logger.Log(MessageLevel.Info, "Restoring '{0}' package.", id);
-                    return packageManager.SourceRepository.FindPackage(id, version);
+                    var package = packageManager.SourceRepository.FindPackage(id, version);
+                    if (package == null)
+                    {
+                        var errorMessage = string.Format("Unable to find version '{1}' of package '{0}'.", id, version);
+                        throw new InvalidOperationException(errorMessage);
+                    }
+                    return package;
                 }
                 catch (Exception ex)
                 {
                     packageManager.Logger.Log(MessageLevel.Error, ex.Message);
-                    return null;
+                    throw;
                 }
             });
         }
