@@ -188,6 +188,24 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Updating....
+        /// </summary>
+        internal static string UpdateOperationLabel {
+            get {
+                return ResourceManager.GetString("UpdateOperationLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update.
+        /// </summary>
+        internal static string UpdateOperationName {
+            get {
+                return ResourceManager.GetString("UpdateOperationName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Updates.
         /// </summary>
         internal static string UpdatesNodeName {

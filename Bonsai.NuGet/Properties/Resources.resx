@@ -163,4 +163,10 @@
   <data name="UnpublishedLabel" xml:space="preserve">
     <value>(unpublished)</value>
   </data>
+  <data name="UpdateOperationLabel" xml:space="preserve">
+    <value>Updating...</value>
+  </data>
+  <data name="UpdateOperationName" xml:space="preserve">
+    <value>Update</value>
+  </data>
 </root>
