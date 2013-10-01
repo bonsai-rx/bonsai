@@ -50,12 +50,33 @@ namespace Bonsai.Editor
             return package.Tags != null && package.Tags.Contains(Constants.PackageTagFilter);
         }
 
+        static string ResolvePlatformNameAlias(string name)
+        {
+            if (string.IsNullOrEmpty(name)) return name;
+            switch (name.ToLower())
+            {
+                case "x64":
+                case "amd64":
+                case "em64t":
+                case "intel64":
+                case "x86-64":
+                case "x86_64":
+                    return "x64";
+                case "win32":
+                case "x86":
+                case "ia32":
+                case "386":
+                default:
+                    return "x86";
+            }
+        }
+
         static string GetLibraryFolderPlatform(string path)
         {
             var components = path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
             if (components.Length > 3 && components[2] == "bin")
             {
-                return components[3];
+                return ResolvePlatformNameAlias(components[3]);
             }
 
             return string.Empty;
