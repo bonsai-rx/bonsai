@@ -8,7 +8,7 @@ namespace Bonsai.Vision.Design
     public class IplImageInputQuadrangleEditor : IplImageQuadrangleEditor
     {
         public IplImageInputQuadrangleEditor()
-            : base(QuadrangleSource.Input)
+            : base(DataSource.Input)
         {
         }
     }

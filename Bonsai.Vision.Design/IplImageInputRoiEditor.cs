@@ -8,7 +8,7 @@ namespace Bonsai.Vision.Design
     public class IplImageInputRoiEditor : IplImageRoiEditor
     {
         public IplImageInputRoiEditor()
-            : base(RectangleSource.Input)
+            : base(DataSource.Input)
         {
         }
     }

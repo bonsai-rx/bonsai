@@ -17,19 +17,11 @@ using System.Windows.Forms;
 
 namespace Bonsai.Vision.Design
 {
-    public abstract class IplImageRoiEditor : UITypeEditor
+    public abstract class IplImageRoiEditor : DataSourceTypeEditor
     {
-        protected IplImageRoiEditor(RectangleSource source)
+        protected IplImageRoiEditor(DataSource source)
+            : base(source)
         {
-            Source = source;
-        }
-
-        private RectangleSource Source { get; set; }
-
-        protected enum RectangleSource
-        {
-            Input,
-            Output
         }
 
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
@@ -67,29 +59,11 @@ namespace Bonsai.Vision.Design
                         }
                     };
 
-                    var workflow = (ExpressionBuilderGraph)provider.GetService(typeof(ExpressionBuilderGraph));
-                    if (workflow == null) return base.EditValue(context, provider, value);
-
-                    var workflowNode = (from node in workflow
-                                        let builder = node.Value as SelectBuilder
-                                        where builder != null && builder.Selector == context.Instance
-                                        select node)
-                                        .FirstOrDefault();
-                    if (workflowNode == null) return base.EditValue(context, provider, value);
-
-                    IObservable<object> source;
-                    switch (Source)
-                    {
-                        case RectangleSource.Input: source = ((InspectBuilder)workflow.Predecessors(workflowNode).First().Value).Output.Merge(); break;
-                        case RectangleSource.Output: source = ((InspectBuilder)workflow.Successors(workflowNode).First().Value).Output.Merge(); break;
-                        default: return base.EditValue(context, provider, value);
-                    }
-
                     IDisposable subscription = null;
+                    var source = GetDataSource(context, provider);
                     imageControl.Load += delegate { subscription = source.Subscribe(image => imageControl.Image = (IplImage)image); };
                     imageControl.HandleDestroyed += delegate { subscription.Dispose(); };
                     editorService.ShowDialog(visualizerDialog);
-
                     return imageControl.Regions.ToArray();
                 }
             }
