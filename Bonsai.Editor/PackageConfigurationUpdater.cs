@@ -52,8 +52,7 @@ namespace Bonsai.Editor
 
         static string ResolvePlatformNameAlias(string name)
         {
-            if (string.IsNullOrEmpty(name)) return name;
-            switch (name.ToLower())
+            switch (name)
             {
                 case "x64":
                 case "amd64":
@@ -66,20 +65,31 @@ namespace Bonsai.Editor
                 case "x86":
                 case "ia32":
                 case "386":
-                default:
                     return "x86";
+                default:
+                    return string.Empty;
             }
         }
 
         static string GetLibraryFolderPlatform(string path)
         {
-            var components = path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-            if (components.Length > 3 && components[2] == "bin")
+            var platformName = string.Empty;
+            var components = path.Split(
+                new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar },
+                StringSplitOptions.RemoveEmptyEntries);
+            components = Array.ConvertAll(components, name => name.ToLower());
+
+            if (components.Length > 3 && components[2] == "bin" &&
+                Array.FindIndex(components, name => name == "debug") < 0)
             {
-                return ResolvePlatformNameAlias(components[3]);
+                for (int i = 3; i < components.Length; i++)
+                {
+                    platformName = ResolvePlatformNameAlias(components[i]);
+                    if (!string.IsNullOrEmpty(platformName)) break;
+                }
             }
 
-            return string.Empty;
+            return platformName;
         }
 
         static IEnumerable<LibraryFolder> GetLibraryFolders(IPackage package, string installPath)
