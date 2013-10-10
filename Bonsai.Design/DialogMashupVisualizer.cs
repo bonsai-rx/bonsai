@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Collections.ObjectModel;
 using System.ComponentModel.Design;
+using System.Xml.Serialization;
 
 namespace Bonsai.Design
 {
@@ -11,6 +12,7 @@ namespace Bonsai.Design
     {
         readonly Collection<VisualizerMashup> mashups = new Collection<VisualizerMashup>();
 
+        [XmlIgnore]
         public Collection<VisualizerMashup> Mashups
         {
             get { return mashups; }
