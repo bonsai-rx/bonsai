@@ -16,19 +16,11 @@ using System.Windows.Forms;
 
 namespace Bonsai.Vision.Design
 {
-    public abstract class IplImageQuadrangleEditor : UITypeEditor
+    public abstract class IplImageQuadrangleEditor : DataSourceTypeEditor
     {
-        protected IplImageQuadrangleEditor(QuadrangleSource source)
+        protected IplImageQuadrangleEditor(DataSource source)
+            : base(source)
         {
-            Source = source;
-        }
-
-        private QuadrangleSource Source { get; set; }
-
-        protected enum QuadrangleSource
-        {
-            Input,
-            Output
         }
 
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
@@ -64,29 +56,11 @@ namespace Bonsai.Vision.Design
                         }
                     };
 
-                    var workflow = (ExpressionBuilderGraph)provider.GetService(typeof(ExpressionBuilderGraph));
-                    if (workflow == null) return base.EditValue(context, provider, value);
-
-                    var workflowNode = (from node in workflow
-                                        let builder = node.Value as SelectBuilder
-                                        where builder != null && builder.Selector == context.Instance
-                                        select node)
-                                        .FirstOrDefault();
-                    if (workflowNode == null) return base.EditValue(context, provider, value);
-
-                    IObservable<object> source;
-                    switch (Source)
-                    {
-                        case QuadrangleSource.Input: source = ((InspectBuilder)workflow.Predecessors(workflowNode).First().Value).Output.Merge(); break;
-                        case QuadrangleSource.Output: source = ((InspectBuilder)workflow.Successors(workflowNode).First().Value).Output.Merge(); break;
-                        default: return base.EditValue(context, provider, value);
-                    }
-
                     IDisposable subscription = null;
+                    var source = GetDataSource(context, provider);
                     imageControl.Load += delegate { subscription = source.Subscribe(image => imageControl.Image = (IplImage)image); };
                     imageControl.HandleDestroyed += delegate { subscription.Dispose(); };
                     editorService.ShowDialog(visualizerDialog);
-
                     return imageControl.Quadrangle;
                 }
             }
