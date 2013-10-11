@@ -598,13 +598,16 @@ namespace Bonsai.Editor
                 return node.Value;
             }).ToArray();
 
-            if (selectedObjects.Length == 0) propertyGrid.SelectedObject = null;
-            else if (selectedObjects.Length == 1)
+            if (selectedObjects.Length == 1)
             {
+                propertyGrid.PropertyTabs.AddTabType(typeof(MappingTab), PropertyTabScope.Document);
                 propertyGrid.SelectedObject = selectedObjects[0];
-                propertyGrid.PropertyTabs.AddTabType(typeof(MappingTab), PropertyTabScope.Component);
             }
-            else propertyGrid.SelectedObjects = selectedObjects;
+            else
+            {
+                propertyGrid.RefreshTabs(PropertyTabScope.Document);
+                propertyGrid.SelectedObjects = selectedObjects;
+            }
         }
 
         private void startToolStripMenuItem_Click(object sender, EventArgs e)
