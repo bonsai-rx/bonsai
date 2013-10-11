@@ -15,7 +15,7 @@ namespace Bonsai.Vision
     [Editor("Bonsai.Vision.Design.FileCaptureEditor, Bonsai.Vision.Design", typeof(ComponentEditor))]
     public class FileCapture : Source<IplImage>
     {
-        int? targetFrame;
+        int? targetPosition;
         Capture capture;
         double captureFps;
         IplImage image;
@@ -44,51 +44,55 @@ namespace Bonsai.Vision
                 capture => ObservableCombinators.GenerateWithThread<IplImage>(observer =>
                 {
                     stopwatch.Restart();
-                    if (targetFrame.HasValue)
+                    if (targetPosition.HasValue)
                     {
-                        var target = targetFrame.Value;
-                        var currentFrame = (int)capture.GetProperty(CaptureProperty.PosFrames) - 1;
-                        if (target != currentFrame)
+                        var target = targetPosition.Value;
+                        var currentPosition = (int)capture.GetProperty(CaptureProperty.PosFrames) - 1;
+                        if (target != currentPosition)
                         {
+                            IplImage targetFrame = null;
                             capture.SetProperty(CaptureProperty.PosFrames, target);
-                            if (target < currentFrame) // seek backward
+                            if (target < currentPosition) // seek backward
                             {
-                                currentFrame = (int)capture.GetProperty(CaptureProperty.PosFrames);
-                                image = capture.QueryFrame();
+                                currentPosition = (int)capture.GetProperty(CaptureProperty.PosFrames);
+                                targetFrame = capture.QueryFrame();
 
                                 int skip = 1;
-                                while (target < currentFrame)
+                                while (target < currentPosition)
                                 {
                                     // try to seek back to the nearest key frame in multiples of two
                                     capture.SetProperty(CaptureProperty.PosFrames, target - skip);
-                                    currentFrame = (int)capture.GetProperty(CaptureProperty.PosFrames);
+                                    currentPosition = (int)capture.GetProperty(CaptureProperty.PosFrames);
                                     skip *= 2;
                                 }
                             }
 
                             // continue seeking frame-by-frame until target is reached
-                            while (target > currentFrame)
+                            while (target > currentPosition)
                             {
-                                currentFrame = (int)capture.GetProperty(CaptureProperty.PosFrames);
+                                currentPosition = (int)capture.GetProperty(CaptureProperty.PosFrames);
                                 var nextFrame = capture.QueryFrame();
 
                                 // if next frame is null we tried to seek past the end of the file
                                 if (nextFrame == null) break;
-                                image = nextFrame;
+                                targetFrame = nextFrame;
                             }
+
+                            // successfully switched frame; clone it for cache
+                            image = targetFrame.Clone();
                         }
 
-                        targetFrame = null;
+                        targetPosition = null;
                     }
                     else if (Playing || image == null)
                     {
-                        image = capture.QueryFrame();
-                        if (image == null)
+                        var currentFrame = capture.QueryFrame();
+                        if (currentFrame == null)
                         {
                             if (Loop)
                             {
                                 capture.SetProperty(CaptureProperty.PosFrames, 0);
-                                image = capture.QueryFrame();
+                                currentFrame = capture.QueryFrame();
                             }
                             else
                             {
@@ -96,9 +100,12 @@ namespace Bonsai.Vision
                                 return;
                             }
                         }
+
+                        // successfully switched frame; clone it for cache
+                        image = currentFrame.Clone();
                     }
 
-                    observer.OnNext(image.Clone());
+                    observer.OnNext(image);
                     var targetFps = PlaybackRate > 0 ? PlaybackRate : captureFps;
                     var dueTime = Math.Max(0, (1000.0 / targetFps) - stopwatch.Elapsed.TotalMilliseconds);
                     if (dueTime > 0)
@@ -133,7 +140,7 @@ namespace Bonsai.Vision
 
         public void Seek(int frameNumber)
         {
-            targetFrame = frameNumber;
+            targetPosition = frameNumber;
         }
 
         public override IObservable<IplImage> Generate()
