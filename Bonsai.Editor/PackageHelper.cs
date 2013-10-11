@@ -18,7 +18,7 @@ namespace Bonsai.Editor
     {
         internal static void RunPackageOperation(EventLogger logger, Func<Task> operationFactory)
         {
-            using (var dialog = new PackageOperationDialog())
+            using (var dialog = new PackageOperationDialog { ShowInTaskbar = true })
             {
                 dialog.RegisterEventLogger(logger);
                 var operation = operationFactory();
@@ -45,8 +45,9 @@ namespace Bonsai.Editor
             {
                 try
                 {
-                    packageManager.Logger.Log(MessageLevel.Info, "Checking for latest version of {0}.", packageId);
+                    packageManager.Logger.Log(MessageLevel.Info, "Checking for latest version of '{0}'.", packageId);
                     var package = packageManager.SourceRepository.FindPackage(packageId);
+                    if (package == null) throw new InvalidOperationException(string.Format("The package '{0}' could not be found.", packageId));
                     packageManager.InstallPackage(package, false, true);
                     return package;
                 }
