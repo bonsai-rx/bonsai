@@ -480,7 +480,8 @@ namespace Bonsai.Design
 
                 var simplePredecessor = (predecessorEdges.Length == 1 && predecessorEdges[0].Item1.Successors.Count == 1);
                 var simpleSuccessor = (inspectNode.Successors.Count == 1 && workflow.Predecessors(inspectNode.Successors[0].Node).Count() == 1);
-                if (simplePredecessor || simpleSuccessor)
+                var replaceEdge = simplePredecessor || simpleSuccessor;
+                if (replaceEdge)
                 {
                     addEdge = () =>
                     {
@@ -512,9 +513,12 @@ namespace Bonsai.Design
                 {
                     workflow.Remove(inspectNode);
                     workflow.Remove(workflowNode);
-                    foreach (var sibling in siblingEdgesAfter)
+                    if (!replaceEdge)
                     {
-                        DecrementEdgeValue(sibling.Label);
+                        foreach (var sibling in siblingEdgesAfter)
+                        {
+                            DecrementEdgeValue(sibling.Label);
+                        }
                     }
                 };
 
@@ -528,9 +532,12 @@ namespace Bonsai.Design
                         edge.Item1.Successors.Insert(edge.Item3, edge.Item2);
                     }
 
-                    foreach (var sibling in siblingEdgesAfter)
+                    if (!replaceEdge)
                     {
-                        IncrementEdgeValue(sibling.Label);
+                        foreach (var sibling in siblingEdgesAfter)
+                        {
+                            IncrementEdgeValue(sibling.Label);
+                        }
                     }
                 };
 
