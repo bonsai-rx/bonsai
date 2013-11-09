@@ -283,13 +283,13 @@ namespace Bonsai.Design
             var connectionCount = workflow.Predecessors(target).Count();
             foreach (var sourceNode in graphViewSources)
             {
-                if (graphViewTarget == sourceNode || sourceNode.Successors.Any(edge => edge.Node == graphViewTarget))
+                var node = GetGraphNodeTag(sourceNode, false).Successors.Single().Node;
+                if (target == node || node.Successors.Any(edge => edge.Node == target))
                 {
                     reject = true;
                     break;
                 }
 
-                var node = GetGraphNodeTag(sourceNode, false);
                 if (connectionCount++ >= target.Value.ArgumentRange.UpperBound ||
                     target.DepthFirstSearch().Contains(node))
                 {
