@@ -8,6 +8,7 @@ namespace Bonsai.Design
 {
     public class CommandExecutor : Component
     {
+        Command composite;
         private int currentCommand = -1;
         private readonly List<Command> history = new List<Command>();
 
@@ -25,9 +26,24 @@ namespace Bonsai.Design
 
         public void Clear()
         {
+            if (composite != null)
+            {
+                throw new InvalidOperationException("EndComposite must be called before clearing the command history.");
+            }
+
             history.Clear();
             currentCommand = -1;
             OnStatusChanged(EventArgs.Empty);
+        }
+
+        public void BeginComposite()
+        {
+            if (composite != null)
+            {
+                throw new InvalidOperationException("EndComposite must be called before creating a new composite command.");
+            }
+
+            composite = new Command(null, () => { });
         }
 
         public void Execute(Action command, Action undo)
@@ -38,20 +54,59 @@ namespace Bonsai.Design
             }
 
             command();
-            if (undo != null)
+            if (composite != null)
+            {
+                composite.Execute += command;
+                if (composite.Undo != null && undo != null)
+                {
+                    var previousUndo = composite.Undo;
+                    composite.Undo = () =>
+                    {
+                        undo();
+                        previousUndo();
+                    };
+                }
+                else composite.Undo = null;
+            }
+            else
+            {
+                composite = new Command(command, undo);
+                EndComposite();
+            }
+        }
+
+        public void EndComposite()
+        {
+            if (composite == null)
+            {
+                throw new InvalidOperationException("BeginComposite must be called before this operation.");
+            }
+
+            if (composite.Execute == null)
+            {
+                throw new InvalidOperationException("A composite command must have at least one action defined.");
+            }
+
+            if (composite.Undo != null)
             {
                 history.RemoveRange(
-                  ++currentCommand,
-                  history.Count - currentCommand
+                    ++currentCommand,
+                    history.Count - currentCommand
                 );
-                history.Add(new Command(command, undo));
+                history.Add(composite);
                 OnStatusChanged(EventArgs.Empty);
             }
             else Clear();
+            composite = null;
         }
 
         public void Undo()
         {
+            if (composite != null)
+            {
+                throw new InvalidOperationException("EndComposite must be called before any undo/redo operations.");
+            }
+
             if (CanUndo)
             {
                 history[currentCommand--].Undo();
@@ -61,6 +116,11 @@ namespace Bonsai.Design
 
         public void Redo()
         {
+            if (composite != null)
+            {
+                throw new InvalidOperationException("EndComposite must be called before any undo/redo operations.");
+            }
+
             if (CanRedo)
             {
                 history[++currentCommand].Execute();
@@ -79,24 +139,15 @@ namespace Bonsai.Design
 
         private class Command
         {
-            private readonly Action execute;
-            private readonly Action undo;
-
             public Command(Action execute, Action undo)
             {
-                this.execute = execute;
-                this.undo = undo;
+                Execute = execute;
+                Undo = undo;
             }
 
-            public Action Execute
-            {
-                get { return this.execute; }
-            }
+            public Action Execute { get; set; }
 
-            public Action Undo
-            {
-                get { return this.undo; }
-            }
+            public Action Undo { get; set; }
         }
     }
 }
