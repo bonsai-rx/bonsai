@@ -454,6 +454,101 @@ namespace Bonsai.Design
             if (connectionIndex > 0) parameter.Value += connectionIndex;
         }
 
+        void DeleteGraphNode(GraphNode node)
+        {
+            if (node == null)
+            {
+                throw new ArgumentNullException("node");
+            }
+
+            Action addEdge = () => { };
+            Action removeEdge = () => { };
+
+            var workflowNode = GetGraphNodeTag(node);
+            var inspectNode = workflowNode.Successors.Single().Node;
+
+            var predecessorEdges = workflow.PredecessorEdges(workflowNode).ToArray();
+            var siblingEdgesAfter = (from edge in inspectNode.Successors
+                                     from siblingEdge in workflow.PredecessorEdges(edge.Node)
+                                     where siblingEdge.Item2.Label.Value.CompareTo(edge.Label.Value) > 0
+                                     select siblingEdge.Item2)
+                                     .ToArray();
+
+            var simplePredecessor = (predecessorEdges.Length == 1 && predecessorEdges[0].Item1.Successors.Count == 1);
+            var simpleSuccessor = (inspectNode.Successors.Count == 1 && workflow.Predecessors(inspectNode.Successors[0].Node).Count() == 1);
+            var replaceEdge = simplePredecessor || simpleSuccessor;
+            if (replaceEdge)
+            {
+                addEdge = () =>
+                {
+                    foreach (var predecessor in predecessorEdges)
+                    {
+                        foreach (var successor in inspectNode.Successors)
+                        {
+                            if (workflow.Successors(predecessor.Item1).Contains(successor.Node)) continue;
+                            if (simplePredecessor) workflow.AddEdge(predecessor.Item1, successor.Node, successor.Label);
+                            else workflow.SetEdge(predecessor.Item1, predecessor.Item3, successor.Node, predecessor.Item2.Label);
+                        }
+                    }
+                };
+
+                removeEdge = () =>
+                {
+                    foreach (var predecessor in predecessorEdges)
+                    {
+                        foreach (var successor in inspectNode.Successors)
+                        {
+                            if (simplePredecessor) workflow.RemoveEdge(predecessor.Item1, successor.Node, successor.Label);
+                            else workflow.RemoveEdge(predecessor.Item1, successor.Node, predecessor.Item2.Label);
+                        }
+                    }
+                };
+            }
+
+            Action removeNode = () =>
+            {
+                workflow.Remove(inspectNode);
+                workflow.Remove(workflowNode);
+                if (!replaceEdge)
+                {
+                    foreach (var sibling in siblingEdgesAfter)
+                    {
+                        DecrementEdgeValue(sibling.Label);
+                    }
+                }
+            };
+
+            Action addNode = () =>
+            {
+                workflow.Add(workflowNode);
+                workflow.Add(inspectNode);
+                workflow.AddEdge(workflowNode, inspectNode, new ExpressionBuilderParameter());
+                foreach (var edge in predecessorEdges)
+                {
+                    edge.Item1.Successors.Insert(edge.Item3, edge.Item2);
+                }
+
+                if (!replaceEdge)
+                {
+                    foreach (var sibling in siblingEdgesAfter)
+                    {
+                        IncrementEdgeValue(sibling.Label);
+                    }
+                }
+            };
+
+            commandExecutor.Execute(() =>
+            {
+                addEdge();
+                removeNode();
+            },
+            () =>
+            {
+                addNode();
+                removeEdge();
+            });
+        }
+
         public void DeleteGraphNodes(IEnumerable<GraphNode> nodes)
         {
             if (nodes == null)
@@ -461,114 +556,16 @@ namespace Bonsai.Design
                 throw new ArgumentNullException("nodes");
             }
 
-            Action command = () => { };
-            Action undo = () => { };
+            if (!nodes.Any()) return;
+            commandExecutor.BeginComposite();
+            commandExecutor.Execute(() => { }, UpdateGraphLayout);
             foreach (var node in nodes)
             {
-                Action addEdge = () => { };
-                Action removeEdge = () => { };
-
-                var workflowNode = GetGraphNodeTag(node);
-                var inspectNode = workflowNode.Successors.Single().Node;
-
-                var predecessorEdges = workflow.PredecessorEdges(workflowNode).ToArray();
-                var siblingEdgesAfter = (from edge in inspectNode.Successors
-                                         from siblingEdge in workflow.PredecessorEdges(edge.Node)
-                                         where siblingEdge.Item2.Label.Value.CompareTo(edge.Label.Value) > 0
-                                         select siblingEdge.Item2)
-                                         .ToArray();
-
-                var simplePredecessor = (predecessorEdges.Length == 1 && predecessorEdges[0].Item1.Successors.Count == 1);
-                var simpleSuccessor = (inspectNode.Successors.Count == 1 && workflow.Predecessors(inspectNode.Successors[0].Node).Count() == 1);
-                var replaceEdge = simplePredecessor || simpleSuccessor;
-                if (replaceEdge)
-                {
-                    addEdge = () =>
-                    {
-                        foreach (var predecessor in predecessorEdges)
-                        {
-                            foreach (var successor in inspectNode.Successors)
-                            {
-                                if (workflow.Successors(predecessor.Item1).Contains(successor.Node)) continue;
-                                if (simplePredecessor) workflow.AddEdge(predecessor.Item1, successor.Node, successor.Label);
-                                else workflow.SetEdge(predecessor.Item1, predecessor.Item3, successor.Node, predecessor.Item2.Label);
-                            }
-                        }
-                    };
-
-                    removeEdge = () =>
-                    {
-                        foreach (var predecessor in predecessorEdges)
-                        {
-                            foreach (var successor in inspectNode.Successors)
-                            {
-                                if (simplePredecessor) workflow.RemoveEdge(predecessor.Item1, successor.Node, successor.Label);
-                                else workflow.RemoveEdge(predecessor.Item1, successor.Node, predecessor.Item2.Label);
-                            }
-                        }
-                    };
-                }
-
-                Action removeNode = () =>
-                {
-                    workflow.Remove(inspectNode);
-                    workflow.Remove(workflowNode);
-                    if (!replaceEdge)
-                    {
-                        foreach (var sibling in siblingEdgesAfter)
-                        {
-                            DecrementEdgeValue(sibling.Label);
-                        }
-                    }
-                };
-
-                Action addNode = () =>
-                {
-                    workflow.Add(workflowNode);
-                    workflow.Add(inspectNode);
-                    workflow.AddEdge(workflowNode, inspectNode, new ExpressionBuilderParameter());
-                    foreach (var edge in predecessorEdges)
-                    {
-                        edge.Item1.Successors.Insert(edge.Item3, edge.Item2);
-                    }
-
-                    if (!replaceEdge)
-                    {
-                        foreach (var sibling in siblingEdgesAfter)
-                        {
-                            IncrementEdgeValue(sibling.Label);
-                        }
-                    }
-                };
-
-                var previousCommand = command;
-                command = () =>
-                {
-                    previousCommand();
-                    addEdge();
-                    removeNode();
-                };
-
-                var previousUndo = undo;
-                undo = () =>
-                {
-                    addNode();
-                    removeEdge();
-                    previousUndo();
-                };
+                DeleteGraphNode(node);
             }
 
-            commandExecutor.Execute(
-            () =>
-            {
-                command();
-                UpdateGraphLayout();
-            },
-            () =>
-            {
-                undo();
-                UpdateGraphLayout();
-            });
+            commandExecutor.Execute(UpdateGraphLayout, () => { });
+            commandExecutor.EndComposite();
         }
 
         public GraphNode FindGraphNode(object value)
