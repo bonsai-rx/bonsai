@@ -36,7 +36,7 @@ namespace Bonsai.Design
             OnStatusChanged(EventArgs.Empty);
         }
 
-        public void BeginComposite()
+        public void BeginCompositeCommand()
         {
             if (composite != null)
             {
@@ -71,11 +71,11 @@ namespace Bonsai.Design
             else
             {
                 composite = new Command(command, undo);
-                EndComposite();
+                EndCompositeCommand();
             }
         }
 
-        public void EndComposite()
+        public void EndCompositeCommand()
         {
             if (composite == null)
             {

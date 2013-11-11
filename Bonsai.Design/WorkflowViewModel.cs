@@ -557,7 +557,7 @@ namespace Bonsai.Design
             }
 
             if (!nodes.Any()) return;
-            commandExecutor.BeginComposite();
+            commandExecutor.BeginCompositeCommand();
             commandExecutor.Execute(() => { }, UpdateGraphLayout);
             foreach (var node in nodes)
             {
@@ -565,7 +565,7 @@ namespace Bonsai.Design
             }
 
             commandExecutor.Execute(UpdateGraphLayout, () => { });
-            commandExecutor.EndComposite();
+            commandExecutor.EndCompositeCommand();
         }
 
         public GraphNode FindGraphNode(object value)
