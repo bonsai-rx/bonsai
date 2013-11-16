@@ -13,8 +13,6 @@ namespace Bonsai
         {
             return type == typeof(SourceBuilder) ||
                    type == typeof(ConditionBuilder) ||
-                   type == typeof(SelectBuilder) ||
-                   type == typeof(WhereBuilder) ||
                    type == typeof(CombinatorBuilder) ||
                    type == typeof(InspectBuilder);
         }
@@ -62,8 +60,6 @@ namespace Bonsai
             else
             {
                 if (MatchGenericType(type, typeof(Source<>))) yield return ElementCategory.Source;
-                if (MatchAttributeType(type, typeof(PredicateAttribute))) yield return ElementCategory.Condition;
-                if (MatchAttributeType(type, typeof(SelectorAttribute))) yield return ElementCategory.Transform;
             }
         }
     }
