@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 
 namespace Bonsai.Vision
 {
-    public class ConnectedComponentCheck : Predicate<ConnectedComponentCollection>
+    public class ConnectedComponentCheck : Condition<ConnectedComponentCollection>
     {
-        public override bool Process(ConnectedComponentCollection input)
+        public override IObservable<bool> Process(IObservable<ConnectedComponentCollection> source)
         {
-            return input.Count > 0;
+            return source.Select(input => input.Count > 0);
         }
     }
 }

@@ -61,9 +61,6 @@
     <Compile Include="Expressions\CombinatorExpressionBuilder.cs" />
     <Compile Include="Expressions\ConditionBuilder.cs" />
     <Compile Include="Expressions\SelectBuilder.cs" />
-    <Compile Include="Expressions\WhereBuilder.cs" />
-    <Compile Include="Predicate.cs" />
-    <Compile Include="PredicateAttribute.cs" />
     <Compile Include="Range.cs" />
     <Compile Include="Reactive\Buffer.cs" />
     <Compile Include="Reactive\Concat.cs" />

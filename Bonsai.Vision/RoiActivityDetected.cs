@@ -1,23 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 
 namespace Bonsai.Vision
 {
-    public class RoiActivityDetected : Predicate<RegionActivityCollection>
+    public class RoiActivityDetected : Condition<RegionActivityCollection>
     {
         public int? Index { get; set; }
 
         public double Threshold { get; set; }
 
-        public override bool Process(RegionActivityCollection input)
+        public override IObservable<bool> Process(IObservable<RegionActivityCollection> source)
         {
-            if (Index.HasValue && Index >= 0 && Index < input.Count)
+            return source.Select(input =>
             {
-                return input[Index.Value].Activity.Val0 > Threshold;
-            }
-            else return input.Where(region => region.Activity.Val0 > 0).Count() > 0;
+                if (Index.HasValue && Index >= 0 && Index < input.Count)
+                {
+                    return input[Index.Value].Activity.Val0 > Threshold;
+                }
+                else return input.Where(region => region.Activity.Val0 > 0).Count() > 0;
+            });
         }
     }
 }
