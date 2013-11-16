@@ -36,12 +36,6 @@ namespace Bonsai.Design
                 var conditionBuilder = expressionBuilder as ConditionBuilder;
                 if (conditionBuilder != null) return conditionBuilder.Condition.GetType().Name;
 
-                var whereBuilder = expressionBuilder as WhereBuilder;
-                if (whereBuilder != null) return whereBuilder.Predicate.GetType().Name;
-
-                var selectBuilder = expressionBuilder as SelectBuilder;
-                if (selectBuilder != null) return selectBuilder.Selector.GetType().Name;
-
                 var combinatorBuilder = expressionBuilder as CombinatorBuilder;
                 if (combinatorBuilder != null) return combinatorBuilder.Combinator.GetType().Name;
 

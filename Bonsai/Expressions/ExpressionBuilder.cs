@@ -15,8 +15,6 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(WorkflowInputBuilder))]
     [XmlInclude(typeof(WorkflowOutputBuilder))]
     [XmlInclude(typeof(SourceBuilder))]
-    [XmlInclude(typeof(SelectBuilder))]
-    [XmlInclude(typeof(WhereBuilder))]
     [XmlInclude(typeof(ConditionBuilder))]
     [XmlInclude(typeof(CombinatorBuilder))]
     [XmlInclude(typeof(NullSinkBuilder))]
@@ -46,12 +44,6 @@ namespace Bonsai.Expressions
 
             var conditionBuilder = builder as ConditionBuilder;
             if (conditionBuilder != null) return conditionBuilder.Condition;
-            
-            var selectBuilder = builder as SelectBuilder;
-            if (selectBuilder != null) return selectBuilder.Selector;
-
-            var whereBuilder = builder as WhereBuilder;
-            if (whereBuilder != null) return whereBuilder.Predicate;
 
             var combinatorBuilder = builder as CombinatorBuilder;
             if (combinatorBuilder != null) return combinatorBuilder.Combinator;
@@ -79,8 +71,6 @@ namespace Bonsai.Expressions
             }
 
             if (elementCategory == ElementCategory.Source) return new SourceBuilder { Generator = element };
-            if (elementCategory == ElementCategory.Condition) return new WhereBuilder { Predicate = element };
-            if (elementCategory == ElementCategory.Transform) return new SelectBuilder { Selector = element };
             throw new InvalidOperationException("Invalid loadable element type.");
         }
 
