@@ -17,6 +17,7 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(SourceBuilder))]
     [XmlInclude(typeof(SelectBuilder))]
     [XmlInclude(typeof(WhereBuilder))]
+    [XmlInclude(typeof(ConditionBuilder))]
     [XmlInclude(typeof(CombinatorBuilder))]
     [XmlInclude(typeof(NullSinkBuilder))]
     [XmlInclude(typeof(SelectManyBuilder))]
@@ -43,6 +44,9 @@ namespace Bonsai.Expressions
             var sourceBuilder = builder as SourceBuilder;
             if (sourceBuilder != null) return sourceBuilder.Generator;
 
+            var conditionBuilder = builder as ConditionBuilder;
+            if (conditionBuilder != null) return conditionBuilder.Condition;
+            
             var selectBuilder = builder as SelectBuilder;
             if (selectBuilder != null) return selectBuilder.Selector;
 
@@ -63,6 +67,12 @@ namespace Bonsai.Expressions
             }
 
             var elementType = element.GetType();
+            if (elementCategory == ElementCategory.Condition &&
+                elementType.IsDefined(typeof(ConditionAttribute), true))
+            {
+                return new ConditionBuilder { Condition = element };
+            }
+
             if (elementType.IsDefined(typeof(CombinatorAttribute), true))
             {
                 return new CombinatorBuilder { Combinator = element };

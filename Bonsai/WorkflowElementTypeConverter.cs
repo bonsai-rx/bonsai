@@ -12,6 +12,7 @@ namespace Bonsai
         static bool MatchIgnoredTypes(Type type)
         {
             return type == typeof(SourceBuilder) ||
+                   type == typeof(ConditionBuilder) ||
                    type == typeof(SelectBuilder) ||
                    type == typeof(WhereBuilder) ||
                    type == typeof(CombinatorBuilder) ||
@@ -53,6 +54,10 @@ namespace Bonsai
                 var attributes = TypeDescriptor.GetAttributes(type);
                 var elementCategoryAttribute = (WorkflowElementCategoryAttribute)attributes[typeof(WorkflowElementCategoryAttribute)];
                 yield return elementCategoryAttribute.Category;
+                if (type.IsDefined(typeof(ConditionAttribute), true))
+                {
+                    yield return ElementCategory.Condition;
+                }
             }
             else
             {

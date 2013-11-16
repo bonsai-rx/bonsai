@@ -573,10 +573,10 @@ namespace Bonsai.Editor
 
                 if (workflowElement != null)
                 {
-                    var whereBuilder = node.Value as WhereBuilder;
-                    if (whereBuilder != null)
+                    var conditionBuilder = node.Value as ConditionBuilder;
+                    if (conditionBuilder != null)
                     {
-                        var builderProperties = TypeDescriptor.GetProperties(whereBuilder);
+                        var builderProperties = TypeDescriptor.GetProperties(conditionBuilder);
                         var provider = new DynamicTypeDescriptionProvider();
 
                         var selectorProperty = builderProperties["Selector"];
@@ -584,8 +584,8 @@ namespace Bonsai.Editor
                         selectorProperty.Attributes.CopyTo(attributes, 0);
                         var dynamicProperty = new DynamicPropertyDescriptor(
                             selectorProperty.Name, selectorProperty.PropertyType,
-                            xs => selectorProperty.GetValue(whereBuilder),
-                            (xs, value) => selectorProperty.SetValue(whereBuilder, value),
+                            xs => selectorProperty.GetValue(conditionBuilder),
+                            (xs, value) => selectorProperty.SetValue(conditionBuilder, value),
                             attributes);
                         provider.Properties.Add(dynamicProperty);
 
