@@ -10,9 +10,8 @@ namespace Bonsai
     {
     }
 
-    [WorkflowElementCategory(ElementCategory.Condition)]
-    public abstract class Condition<TSource>
+    [Condition]
+    public abstract class Condition<TSource> : Transform<TSource, bool>
     {
-        public abstract IObservable<TSource> Process(IObservable<TSource> source);
     }
 }
