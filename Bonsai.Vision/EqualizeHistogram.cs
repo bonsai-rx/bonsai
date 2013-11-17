@@ -1,18 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class EqualizeHistogram : Selector<IplImage, IplImage>
+    public class EqualizeHistogram : Transform<IplImage, IplImage>
     {
-        public override IplImage Process(IplImage input)
+        public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            var output = new IplImage(input.Size, input.Depth, input.Channels);
-            CV.EqualizeHist(input, output);
-            return output;
+            return source.Select(input =>
+            {
+                var output = new IplImage(input.Size, input.Depth, input.Channels);
+                CV.EqualizeHist(input, output);
+                return output;
+            });
         }
     }
 }

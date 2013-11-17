@@ -27,9 +27,6 @@ namespace Bonsai.Design
 
         bool NodeSelector(ExpressionBuilder builder, object instance)
         {
-            var selectBuilder = builder as SelectBuilder;
-            if (selectBuilder != null) return selectBuilder.Selector == instance;
-
             var combinatorBuilder = builder as CombinatorBuilder;
             if (combinatorBuilder != null) return combinatorBuilder.Combinator == instance;
             return false;

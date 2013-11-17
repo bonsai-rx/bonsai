@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
@@ -8,7 +9,7 @@ using System.ComponentModel;
 namespace Bonsai.Vision
 {
     [Description("Converts an image from one color space to another.")]
-    public class ConvertColor : Selector<IplImage, IplImage>
+    public class ConvertColor : Transform<IplImage, IplImage>
     {
         IplDepth depth;
         int numChannels;
@@ -31,18 +32,21 @@ namespace Bonsai.Vision
             }
         }
 
-        public override IplImage Process(IplImage input)
+        public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            if (conversionChanged)
+            return source.Select(input =>
             {
-                depth = Conversion.GetConversionDepth();
-                numChannels = Conversion.GetConversionNumChannels();
-                conversionChanged = false;
-            }
+                if (conversionChanged)
+                {
+                    depth = Conversion.GetConversionDepth();
+                    numChannels = Conversion.GetConversionNumChannels();
+                    conversionChanged = false;
+                }
 
-            var output = new IplImage(input.Size, depth, numChannels);
-            CV.CvtColor(input, output, conversion);
-            return output;
+                var output = new IplImage(input.Size, depth, numChannels);
+                CV.CvtColor(input, output, conversion);
+                return output;
+            });
         }
     }
 }

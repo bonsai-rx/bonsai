@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
@@ -9,7 +10,7 @@ using System.Drawing.Design;
 namespace Bonsai.Vision
 {
     [Description("Applies an adaptive threshold to the input image.")]
-    public class AdaptiveThreshold : Selector<IplImage, IplImage>
+    public class AdaptiveThreshold : Transform<IplImage, IplImage>
     {
         public AdaptiveThreshold()
         {
@@ -36,11 +37,14 @@ namespace Bonsai.Vision
         [Description("An algorithm dependent constant subtracted from the mean or weighted mean.")]
         public double Parameter { get; set; }
 
-        public override IplImage Process(IplImage input)
+        public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            var output = new IplImage(input.Size, IplDepth.U8, 1);
-            CV.AdaptiveThreshold(input, output, MaxValue, AdaptiveMethod, ThresholdType, BlockSize, Parameter);
-            return output;
+            return source.Select(input =>
+            {
+                var output = new IplImage(input.Size, IplDepth.U8, 1);
+                CV.AdaptiveThreshold(input, output, MaxValue, AdaptiveMethod, ThresholdType, BlockSize, Parameter);
+                return output;
+            });
         }
     }
 }

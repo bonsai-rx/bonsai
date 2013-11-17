@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
@@ -9,7 +10,7 @@ using System.Drawing.Design;
 namespace Bonsai.Dsp
 {
     [Description("Applies a fixed threshold to the input signal.")]
-    public class Threshold : Selector<Mat, Mat>
+    public class Threshold : Transform<Mat, Mat>
     {
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
         [Description("The threshold value used to test individual samples.")]
@@ -21,11 +22,14 @@ namespace Bonsai.Dsp
         [Description("The type of threshold to apply to individual samples.")]
         public ThresholdTypes ThresholdType { get; set; }
 
-        public override Mat Process(Mat input)
+        public override IObservable<Mat> Process(IObservable<Mat> source)
         {
-            var output = new Mat(input.Rows, input.Cols, input.Depth, input.Channels);
-            CV.Threshold(input, output, ThresholdValue, MaxValue, ThresholdType);
-            return output;
+            return source.Select(input =>
+            {
+                var output = new Mat(input.Rows, input.Cols, input.Depth, input.Channels);
+                CV.Threshold(input, output, ThresholdValue, MaxValue, ThresholdType);
+                return output;
+            });
         }
     }
 }

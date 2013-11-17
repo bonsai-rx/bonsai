@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.Collections.ObjectModel;
@@ -10,7 +11,7 @@ using System.Runtime.InteropServices;
 
 namespace Bonsai.Vision
 {
-    public class RoiActivity : Selector<IplImage, RegionActivityCollection>
+    public class RoiActivity : Transform<IplImage, RegionActivityCollection>
     {
         IplImage roi;
         IplImage mask;
@@ -20,47 +21,50 @@ namespace Bonsai.Vision
         [Editor("Bonsai.Vision.Design.IplImageInputRoiEditor, Bonsai.Vision.Design", typeof(UITypeEditor))]
         public Point[][] Regions { get; set; }
 
-        public override RegionActivityCollection Process(IplImage input)
+        public override IObservable<RegionActivityCollection> Process(IObservable<IplImage> source)
         {
-            var output = new RegionActivityCollection();
-            mask = IplImageHelper.EnsureImageFormat(mask, input.Size, IplDepth.U8, 1);
-            roi = IplImageHelper.EnsureImageFormat(roi, input.Size, input.Depth, input.Channels);
-            if (Regions != currentRegions)
+            return source.Select(input =>
             {
-                mask.SetZero();
-                currentRegions = Regions;
-                CV.FillPoly(mask, currentRegions, Scalar.All(255));
-                boundingRegions = currentRegions.Select(polygon =>
+                var output = new RegionActivityCollection();
+                mask = IplImageHelper.EnsureImageFormat(mask, input.Size, IplDepth.U8, 1);
+                roi = IplImageHelper.EnsureImageFormat(roi, input.Size, input.Depth, input.Channels);
+                if (Regions != currentRegions)
                 {
-                    var points = polygon.SelectMany(point => new[] { point.X, point.Y }).ToArray();
-                    using (var mat = new Mat(1, polygon.Length, Depth.S32, 2))
+                    mask.SetZero();
+                    currentRegions = Regions;
+                    CV.FillPoly(mask, currentRegions, Scalar.All(255));
+                    boundingRegions = currentRegions.Select(polygon =>
                     {
-                        Marshal.Copy(points, 0, mat.Data, points.Length);
-                        return CV.BoundingRect(mat);
-                    }
-                }).ToArray();
-            }
-
-            if (currentRegions != null)
-            {
-                roi.SetZero();
-                CV.Copy(input, roi, mask);
-                for (int i = 0; i < boundingRegions.Length; i++)
-                {
-                    var region = boundingRegions[i];
-                    var polygon = currentRegions[i];
-                    roi.RegionOfInterest = region;
-                    output.Add(new RegionActivity
-                    {
-                        Roi = polygon,
-                        Rect = region,
-                        Activity = CV.Sum(roi)
-                    });
+                        var points = polygon.SelectMany(point => new[] { point.X, point.Y }).ToArray();
+                        using (var mat = new Mat(1, polygon.Length, Depth.S32, 2))
+                        {
+                            Marshal.Copy(points, 0, mat.Data, points.Length);
+                            return CV.BoundingRect(mat);
+                        }
+                    }).ToArray();
                 }
-                roi.ResetRegionOfInterest();
-            }
 
-            return output;
+                if (currentRegions != null)
+                {
+                    roi.SetZero();
+                    CV.Copy(input, roi, mask);
+                    for (int i = 0; i < boundingRegions.Length; i++)
+                    {
+                        var region = boundingRegions[i];
+                        var polygon = currentRegions[i];
+                        roi.RegionOfInterest = region;
+                        output.Add(new RegionActivity
+                        {
+                            Roi = polygon,
+                            Rect = region,
+                            Activity = CV.Sum(roi)
+                        });
+                    }
+                    roi.ResetRegionOfInterest();
+                }
+
+                return output;
+            });
         }
     }
 }

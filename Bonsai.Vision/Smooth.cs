@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class Smooth : Selector<IplImage, IplImage>
+    public class Smooth : Transform<IplImage, IplImage>
     {
         public SmoothMethod SmoothType { get; set; }
 
@@ -18,11 +19,14 @@ namespace Bonsai.Vision
 
         public double Sigma2 { get; set; }
 
-        public override IplImage Process(IplImage input)
+        public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            var output = new IplImage(input.Size, input.Depth, input.Channels);
-            CV.Smooth(input, output, SmoothType, Size1, Size2, Sigma1, Sigma2);
-            return output;
+            return source.Select(input =>
+            {
+                var output = new IplImage(input.Size, input.Depth, input.Channels);
+                CV.Smooth(input, output, SmoothType, Size1, Size2, Sigma1, Sigma2);
+                return output;
+            });
         }
     }
 }

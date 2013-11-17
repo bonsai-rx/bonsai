@@ -60,7 +60,6 @@
     <Compile Include="ConditionAttribute.cs" />
     <Compile Include="Expressions\CombinatorExpressionBuilder.cs" />
     <Compile Include="Expressions\ConditionBuilder.cs" />
-    <Compile Include="Expressions\SelectBuilder.cs" />
     <Compile Include="Range.cs" />
     <Compile Include="Reactive\Buffer.cs" />
     <Compile Include="Reactive\Concat.cs" />
@@ -86,8 +85,6 @@
     <Compile Include="CombinatorAttribute.cs" />
     <Compile Include="Reactive\Timer.cs" />
     <Compile Include="ReconnectableObservable.cs" />
-    <Compile Include="Selector.cs" />
-    <Compile Include="SelectorAttribute.cs" />
     <Compile Include="SourceAttribute.cs" />
     <Compile Include="Expressions\PublishScope.cs" />
     <Compile Include="Expressions\UnitBuilder.cs" />

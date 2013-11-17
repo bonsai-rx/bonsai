@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 
 namespace Bonsai.Dsp
 {
-    public class SelectChannels : Selector<Mat, Mat>
+    public class SelectChannels : Transform<Mat, Mat>
     {
         public SelectChannels()
         {
@@ -19,9 +20,9 @@ namespace Bonsai.Dsp
 
         public int Step { get; set; }
 
-        public override Mat Process(Mat input)
+        public override IObservable<Mat> Process(IObservable<Mat> source)
         {
-            return input.GetRows(Start, Stop, Step);
+            return source.Select(input => input.GetRows(Start, Stop, Step));
         }
     }
 }

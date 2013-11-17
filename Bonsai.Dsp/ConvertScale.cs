@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
@@ -8,7 +9,7 @@ using System.ComponentModel;
 namespace Bonsai.Dsp
 {
     [Description("Converts the input matrix into the specified bit depth, with optional linear transformation.")]
-    public class ConvertScale : Selector<Mat, Mat>
+    public class ConvertScale : Transform<Mat, Mat>
     {
         public ConvertScale()
         {
@@ -25,11 +26,14 @@ namespace Bonsai.Dsp
         [Description("The optional value to be added to individual matrix elements.")]
         public double Shift { get; set; }
 
-        public override Mat Process(Mat input)
+        public override IObservable<Mat> Process(IObservable<Mat> source)
         {
-            var output = new Mat(input.Rows, input.Cols, Depth, input.Channels);
-            CV.ConvertScale(input, output, Scale, Shift);
-            return output;
+            return source.Select(input =>
+            {
+                var output = new Mat(input.Rows, input.Cols, Depth, input.Channels);
+                CV.ConvertScale(input, output, Scale, Shift);
+                return output;
+            });
         }
     }
 }

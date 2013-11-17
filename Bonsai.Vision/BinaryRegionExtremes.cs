@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.Runtime.InteropServices;
@@ -8,7 +9,7 @@ using System.Runtime.InteropServices;
 namespace Bonsai.Vision
 {
     [TypeVisualizer("Bonsai.Vision.Design.BinaryRegionExtremesVisualizer, Bonsai.Vision.Design")]
-    public class BinaryRegionExtremes : Selector<ConnectedComponent, Tuple<Point2f, Point2f>>
+    public class BinaryRegionExtremes : Transform<ConnectedComponent, Tuple<Point2f, Point2f>>
     {
         public FindExtremesMethod Method { get; set; }
 
@@ -40,46 +41,49 @@ namespace Bonsai.Vision
             return extremePoint;
         }
 
-        public override Tuple<Point2f, Point2f> Process(ConnectedComponent input)
+        public override IObservable<Tuple<Point2f, Point2f>> Process(IObservable<ConnectedComponent> source)
         {
-            int[] points;
-            var contour = input.Contour;
-            var centroid = input.Centroid;
-            var orientation = input.Orientation;
-            if (contour != null)
+            return source.Select(input =>
             {
-                points = new int[contour.Count * 2];
-                contour.CopyTo(points);
-            }
-            else points = new int[0];
+                int[] points;
+                var contour = input.Contour;
+                var centroid = input.Centroid;
+                var orientation = input.Orientation;
+                if (contour != null)
+                {
+                    points = new int[contour.Count * 2];
+                    contour.CopyTo(points);
+                }
+                else points = new int[0];
 
-            Point2f? extremePoint1 = null;
-            Point2f? extremePoint2 = null;
-            switch (Method)
-            {
-                case FindExtremesMethod.Horizontal:
-                    extremePoint1 = FindExtremity(points, point => point.X);
-                    extremePoint2 = FindExtremity(points, point => -point.X);
-                    break;
-                case FindExtremesMethod.Vertical:
-                    extremePoint1 = FindExtremity(points, point => point.Y);
-                    extremePoint2 = FindExtremity(points, point => -point.Y);
-                    break;
-                case FindExtremesMethod.MajorAxis:
-                    var directionVector1 = new Point2f((float)Math.Cos(orientation), (float)Math.Sin(orientation));
-                    var directionVector2 = new Point2f((float)Math.Cos(orientation + Math.PI), (float)Math.Sin(orientation + Math.PI));
-                    extremePoint1 = FindExtremity(points, point => Dot(point, directionVector1));
-                    extremePoint2 = FindExtremity(points, point => Dot(point, directionVector2));
-                    break;
-                case FindExtremesMethod.Radial:
-                    extremePoint1 = FindExtremity(points, point => Norm(point - centroid));
-                    extremePoint2 = FindExtremity(points, point => Norm(point - extremePoint1.Value));
-                    break;
-                default:
-                    break;
-            }
+                Point2f? extremePoint1 = null;
+                Point2f? extremePoint2 = null;
+                switch (Method)
+                {
+                    case FindExtremesMethod.Horizontal:
+                        extremePoint1 = FindExtremity(points, point => point.X);
+                        extremePoint2 = FindExtremity(points, point => -point.X);
+                        break;
+                    case FindExtremesMethod.Vertical:
+                        extremePoint1 = FindExtremity(points, point => point.Y);
+                        extremePoint2 = FindExtremity(points, point => -point.Y);
+                        break;
+                    case FindExtremesMethod.MajorAxis:
+                        var directionVector1 = new Point2f((float)Math.Cos(orientation), (float)Math.Sin(orientation));
+                        var directionVector2 = new Point2f((float)Math.Cos(orientation + Math.PI), (float)Math.Sin(orientation + Math.PI));
+                        extremePoint1 = FindExtremity(points, point => Dot(point, directionVector1));
+                        extremePoint2 = FindExtremity(points, point => Dot(point, directionVector2));
+                        break;
+                    case FindExtremesMethod.Radial:
+                        extremePoint1 = FindExtremity(points, point => Norm(point - centroid));
+                        extremePoint2 = FindExtremity(points, point => Norm(point - extremePoint1.Value));
+                        break;
+                    default:
+                        break;
+                }
 
-            return Tuple.Create(extremePoint1 ?? new Point2f(-1, -1), extremePoint2 ?? new Point2f(-1, -1));
+                return Tuple.Create(extremePoint1 ?? new Point2f(-1, -1), extremePoint2 ?? new Point2f(-1, -1));
+            });
         }
     }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
@@ -8,7 +9,7 @@ using System.ComponentModel;
 namespace Bonsai.Vision
 {
     [Description("Resizes the input image.")]
-    public class Resize : Selector<IplImage, IplImage>
+    public class Resize : Transform<IplImage, IplImage>
     {
         public Resize()
         {
@@ -21,15 +22,18 @@ namespace Bonsai.Vision
         [Description("The interpolation method used to transform individual image elements.")]
         public SubPixelInterpolation Interpolation { get; set; }
 
-        public override IplImage Process(IplImage input)
+        public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            if (input.Size != Size)
+            return source.Select(input =>
             {
-                var output = new IplImage(Size, input.Depth, input.Channels);
-                CV.Resize(input, output, Interpolation);
-                return output;
-            }
-            else return input;
+                if (input.Size != Size)
+                {
+                    var output = new IplImage(Size, input.Depth, input.Channels);
+                    CV.Resize(input, output, Interpolation);
+                    return output;
+                }
+                else return input;
+            });
         }
     }
 }

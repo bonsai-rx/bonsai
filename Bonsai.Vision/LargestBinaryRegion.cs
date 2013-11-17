@@ -1,26 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class LargestBinaryRegion : Selector<ConnectedComponentCollection, ConnectedComponent>
+    public class LargestBinaryRegion : Transform<ConnectedComponentCollection, ConnectedComponent>
     {
-        public override ConnectedComponent Process(ConnectedComponentCollection input)
+        public override IObservable<ConnectedComponent> Process(IObservable<ConnectedComponentCollection> source)
         {
-            ConnectedComponent largest = new ConnectedComponent();
-            for (int i = 0; i < input.Count; i++)
+            return source.Select(input =>
             {
-                var component = input[i];
-                if (component.Area > largest.Area)
+                ConnectedComponent largest = new ConnectedComponent();
+                for (int i = 0; i < input.Count; i++)
                 {
-                    largest = component;
+                    var component = input[i];
+                    if (component.Area > largest.Area)
+                    {
+                        largest = component;
+                    }
                 }
-            }
 
-            return largest;
+                return largest;
+            });
         }
     }
 }

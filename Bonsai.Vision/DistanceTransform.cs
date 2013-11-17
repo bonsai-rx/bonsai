@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class DistanceTransform : Selector<IplImage, IplImage>
+    public class DistanceTransform : Transform<IplImage, IplImage>
     {
         public DistanceTransform()
         {
@@ -15,11 +16,14 @@ namespace Bonsai.Vision
 
         public DistanceType DistanceType { get; set; }
 
-        public override IplImage Process(IplImage input)
+        public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            var output = new IplImage(input.Size, IplDepth.F32, 1);
-            CV.DistTransform(input, output, DistanceType);
-            return output;
+            return source.Select(input =>
+            {
+                var output = new IplImage(input.Size, IplDepth.F32, 1);
+                CV.DistTransform(input, output, DistanceType);
+                return output;
+            });
         }
     }
 }
