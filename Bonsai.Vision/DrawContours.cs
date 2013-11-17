@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class DrawContours : Selector<Contours, IplImage>
+    public class DrawContours : Transform<Contours, IplImage>
     {
         public DrawContours()
         {
@@ -18,17 +19,20 @@ namespace Bonsai.Vision
 
         public int Thickness { get; set; }
 
-        public override IplImage Process(Contours input)
+        public override IObservable<IplImage> Process(IObservable<Contours> source)
         {
-            var output = new IplImage(input.ImageSize, IplDepth.U8, 1);
-            output.SetZero();
-
-            if (!input.FirstContour.IsInvalid)
+            return source.Select(input =>
             {
-                CV.DrawContours(output, input.FirstContour, Scalar.All(255), Scalar.All(0), MaxLevel, Thickness);
-            }
+                var output = new IplImage(input.ImageSize, IplDepth.U8, 1);
+                output.SetZero();
 
-            return output;
+                if (!input.FirstContour.IsInvalid)
+                {
+                    CV.DrawContours(output, input.FirstContour, Scalar.All(255), Scalar.All(0), MaxLevel, Thickness);
+                }
+
+                return output;
+            });
         }
     }
 }

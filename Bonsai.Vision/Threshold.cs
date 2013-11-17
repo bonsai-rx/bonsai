@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
@@ -9,7 +10,7 @@ using System.Drawing.Design;
 namespace Bonsai.Vision
 {
     [Description("Applies a fixed threshold to the input image.")]
-    public class Threshold : Selector<IplImage, IplImage>
+    public class Threshold : Transform<IplImage, IplImage>
     {
         public Threshold()
         {
@@ -28,11 +29,14 @@ namespace Bonsai.Vision
         [Description("The type of threshold to apply to individual pixels.")]
         public ThresholdTypes ThresholdType { get; set; }
 
-        public override IplImage Process(IplImage input)
+        public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            var output = new IplImage(input.Size, IplDepth.U8, input.Channels);
-            CV.Threshold(input, output, ThresholdValue, MaxValue, ThresholdType);
-            return output;
+            return source.Select(input =>
+            {
+                var output = new IplImage(input.Size, IplDepth.U8, input.Channels);
+                CV.Threshold(input, output, ThresholdValue, MaxValue, ThresholdType);
+                return output;
+            });
         }
     }
 }

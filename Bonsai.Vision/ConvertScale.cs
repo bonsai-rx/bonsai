@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
@@ -8,7 +9,7 @@ using System.ComponentModel;
 namespace Bonsai.Vision
 {
     [Description("Converts the input image into the specified bit depth, with optional linear transformation.")]
-    public class ConvertScale : Selector<IplImage, IplImage>
+    public class ConvertScale : Transform<IplImage, IplImage>
     {
         public ConvertScale()
         {
@@ -25,11 +26,14 @@ namespace Bonsai.Vision
         [Description("The optional value to be added to individual image elements.")]
         public double Shift { get; set; }
 
-        public override IplImage Process(IplImage input)
+        public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            var output = new IplImage(input.Size, Depth, input.Channels);
-            CV.ConvertScale(input, output, Scale, Shift);
-            return output;
+            return source.Select(input =>
+            {
+                var output = new IplImage(input.Size, Depth, input.Channels);
+                CV.ConvertScale(input, output, Scale, Shift);
+                return output;
+            });
         }
     }
 }

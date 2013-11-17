@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class Laplace : Selector<IplImage, IplImage>
+    public class Laplace : Transform<IplImage, IplImage>
     {
         public Laplace()
         {
@@ -15,11 +16,14 @@ namespace Bonsai.Vision
 
         public int ApertureSize { get; set; }
 
-        public override IplImage Process(IplImage input)
+        public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            var output = new IplImage(input.Size, input.Depth, input.Channels);
-            CV.Laplace(input, output, ApertureSize);
-            return output;
+            return source.Select(input =>
+            {
+                var output = new IplImage(input.Size, input.Depth, input.Channels);
+                CV.Laplace(input, output, ApertureSize);
+                return output;
+            });
         }
     }
 }

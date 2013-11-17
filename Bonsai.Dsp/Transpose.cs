@@ -1,18 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 
 namespace Bonsai.Dsp
 {
-    public class Transpose : Selector<Mat, Mat>
+    public class Transpose : Transform<Mat, Mat>
     {
-        public override Mat Process(Mat input)
+        public override IObservable<Mat> Process(IObservable<Mat> source)
         {
-            var output = new Mat(input.Rows, input.Cols, input.Depth, input.Channels);
-            CV.Transpose(input, output);
-            return output;
+            return source.Select(input =>
+            {
+                var output = new Mat(input.Rows, input.Cols, input.Depth, input.Channels);
+                CV.Transpose(input, output);
+                return output;
+            });
         }
     }
 }

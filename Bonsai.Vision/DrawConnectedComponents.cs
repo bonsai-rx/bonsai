@@ -1,24 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public class DrawConnectedComponents : Selector<ConnectedComponentCollection, IplImage>
+    public class DrawConnectedComponents : Transform<ConnectedComponentCollection, IplImage>
     {
-        public override IplImage Process(ConnectedComponentCollection input)
+        public override IObservable<IplImage> Process(IObservable<ConnectedComponentCollection> source)
         {
-            var output = new IplImage(input.ImageSize, IplDepth.U8, 1);
-            output.SetZero();
-
-            foreach (var component in input)
+            return source.Select(input =>
             {
-                CV.DrawContours(output, component.Contour, Scalar.All(255), Scalar.All(0), 0, -1);
-            }
+                var output = new IplImage(input.ImageSize, IplDepth.U8, 1);
+                output.SetZero();
 
-            return output;
+                foreach (var component in input)
+                {
+                    CV.DrawContours(output, component.Contour, Scalar.All(255), Scalar.All(0), 0, -1);
+                }
+
+                return output;
+            });
         }
     }
 }

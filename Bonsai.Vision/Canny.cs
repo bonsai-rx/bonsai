@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
@@ -8,7 +9,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
-    public class Canny : Selector<IplImage, IplImage>
+    public class Canny : Transform<IplImage, IplImage>
     {
         public Canny()
         {
@@ -28,11 +29,14 @@ namespace Bonsai.Vision
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
         public int ApertureSize { get; set; }
 
-        public override IplImage Process(IplImage input)
+        public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            var output = new IplImage(input.Size, IplDepth.U8, 1);
-            CV.Canny(input, output, Threshold1, Threshold2, ApertureSize);
-            return output;
+            return source.Select(input =>
+            {
+                var output = new IplImage(input.Size, IplDepth.U8, 1);
+                CV.Canny(input, output, Threshold1, Threshold2, ApertureSize);
+                return output;
+            });
         }
     }
 }

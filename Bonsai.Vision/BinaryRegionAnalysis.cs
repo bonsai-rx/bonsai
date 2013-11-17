@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
@@ -8,21 +9,24 @@ using System.ComponentModel;
 namespace Bonsai.Vision
 {
     [Description("Computes image moments of connected component contours to extract binary region properties.")]
-    public class BinaryRegionAnalysis : Selector<Contours, ConnectedComponentCollection>
+    public class BinaryRegionAnalysis : Transform<Contours, ConnectedComponentCollection>
     {
-        public override ConnectedComponentCollection Process(Contours input)
+        public override IObservable<ConnectedComponentCollection> Process(IObservable<Contours> source)
         {
-            var currentContour = input.FirstContour;
-            var output = new ConnectedComponentCollection(input.ImageSize);
-
-            while (currentContour != null && !currentContour.IsInvalid)
+            return source.Select(input =>
             {
-                var contour = ConnectedComponent.FromContour(currentContour);
-                currentContour = currentContour.HNext;
-                output.Add(contour);
-            }
+                var currentContour = input.FirstContour;
+                var output = new ConnectedComponentCollection(input.ImageSize);
 
-            return output;
+                while (currentContour != null && !currentContour.IsInvalid)
+                {
+                    var contour = ConnectedComponent.FromContour(currentContour);
+                    currentContour = currentContour.HNext;
+                    output.Add(contour);
+                }
+
+                return output;
+            });
         }
     }
 }

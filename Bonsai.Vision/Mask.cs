@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
@@ -8,14 +9,19 @@ using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
-    public class Mask : Selector<IplImage, IplImage, IplImage>
+    public class Mask : Transform<Tuple<IplImage, IplImage>, IplImage>
     {
-        public override IplImage Process(IplImage first, IplImage second)
+        public override IObservable<IplImage> Process(IObservable<Tuple<IplImage, IplImage>> source)
         {
-            var output = new IplImage(first.Size, first.Depth, first.Channels);
-            output.SetZero();
-            CV.Copy(first, output, second);
-            return output;
+            return source.Select(input =>
+            {
+                var image = input.Item1;
+                var mask = input.Item2;
+                var output = new IplImage(image.Size, image.Depth, image.Channels);
+                output.SetZero();
+                CV.Copy(image, output, mask);
+                return output;
+            });
         }
     }
 }
