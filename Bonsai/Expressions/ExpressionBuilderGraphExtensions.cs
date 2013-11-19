@@ -35,7 +35,7 @@ namespace Bonsai.Expressions
         {
             foreach (var mapping in from node in source
                                     where !(node.Value is InspectBuilder)
-                                    let inspectBuilder = node.Successors.Single().Node.Value as InspectBuilder
+                                    let inspectBuilder = node.Successors.Single().Target.Value as InspectBuilder
                                     where inspectBuilder != null
                                     select new { node.Value, inspectBuilder })
             {
@@ -72,8 +72,8 @@ namespace Bonsai.Expressions
                 {
                     foreach (var successor in expressionNode.Successors)
                     {
-                        var target = successor.Node.Value.GetType().GetProperty(successor.Label.Value);
-                        target.SetValue(successor.Node.Value, expression, null);
+                        var target = successor.Target.Value.GetType().GetProperty(successor.Label.Value);
+                        target.SetValue(successor.Target.Value, expression, null);
                     }
                 }
             }
@@ -149,13 +149,13 @@ namespace Bonsai.Expressions
                     }
 
                     if (node.Successors.Count == 0) scope.References.Add(null);
-                    else scope.References.AddRange(node.Successors.Select(successor => successor.Node.Value));
+                    else scope.References.AddRange(node.Successors.Select(successor => successor.Target.Value));
                     return false;
                 });
 
                 foreach (var successor in node.Successors)
                 {
-                    successor.Node.Value.Arguments.Add(successor.Label.Value, expression);
+                    successor.Target.Value.Arguments.Add(successor.Label.Value, expression);
                 }
 
                 if (node.Successors.Count == 0)
@@ -217,7 +217,7 @@ namespace Bonsai.Expressions
                 var observableNode = observableMapping[node].Item2;
                 foreach (var successor in node.Successors)
                 {
-                    var successorNode = observableMapping[successor.Node].Item1;
+                    var successorNode = observableMapping[successor.Target].Item1;
                     var parameter = new ExpressionBuilderParameter(successor.Label.Value);
                     observableGraph.AddEdge(observableNode, successorNode, parameter);
                 }
@@ -237,7 +237,7 @@ namespace Bonsai.Expressions
             var nodeMapping = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderParameter>, Node<ExpressionBuilder, ExpressionBuilderParameter>>();
             foreach (var node in source.Where(node => !(node.Value is InspectBuilder)))
             {
-                var inspectNode = node.Successors.Single().Node;
+                var inspectNode = node.Successors.Single().Target;
 
                 ExpressionBuilder nodeValue = node.Value;
                 var workflowExpression = recurse ? nodeValue as WorkflowExpressionBuilder : null;
@@ -255,11 +255,11 @@ namespace Bonsai.Expressions
 
             foreach (var node in source.Where(node => !(node.Value is InspectBuilder)))
             {
-                var inspectNode = node.Successors.Single().Node;
+                var inspectNode = node.Successors.Single().Target;
                 foreach (var successor in inspectNode.Successors)
                 {
                     var sourceNode = nodeMapping[node];
-                    var targetNode = nodeMapping[successor.Node];
+                    var targetNode = nodeMapping[successor.Target];
                     var parameter = new ExpressionBuilderParameter(successor.Label.Value);
                     workflow.AddEdge(sourceNode, targetNode, parameter);
                 }

@@ -5,17 +5,61 @@ using System.Text;
 
 namespace Bonsai.Dag
 {
-    public struct Edge<TValue, TLabel>
+    /// <summary>
+    /// Provides static methods for creating edge objects.
+    /// </summary>
+    public static class Edge
     {
-        public Edge(TLabel label, Node<TValue, TLabel> successor)
-            : this()
+        /// <summary>
+        /// Creates a new directed graph labeled edge.
+        /// </summary>
+        /// <typeparam name="TNodeValue">The type of the labels associated with graph nodes.</typeparam>
+        /// <typeparam name="TEdgeLabel">The type of the labels associated with graph edges.</typeparam>
+        /// <param name="target">The node instance that is the target of the edge.</param>
+        /// <param name="label">The value of the edge label.</param>
+        /// <returns>A labeled edge targeting the specified node.</returns>
+        public static Edge<TNodeValue, TEdgeLabel> Create<TNodeValue, TEdgeLabel>(Node<TNodeValue, TEdgeLabel> target, TEdgeLabel label)
         {
+            return new Edge<TNodeValue, TEdgeLabel>(target, label);
+        }
+    }
+
+    /// <summary>
+    /// Represents an outgoing labeled edge in a directed graph.
+    /// </summary>
+    /// <typeparam name="TNodeValue">The type of the labels associated with graph nodes.</typeparam>
+    /// <typeparam name="TEdgeLabel">The type of the labels associated with graph edges.</typeparam>
+    public class Edge<TNodeValue, TEdgeLabel>
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:Bonsai.Dag.Edge`2{T,U}"/> class with
+        /// the specified <paramref name="target"/> node and <paramref name="label"/>.
+        /// </summary>
+        /// <param name="target">
+        /// The <see cref="T:Bonsai.Dag.Node`2{T,U}"/> instance that is the target
+        /// of the edge.
+        /// </param>
+        /// <param name="label">The value of the edge label.</param>
+        public Edge(Node<TNodeValue, TEdgeLabel> target, TEdgeLabel label)
+        {
+            if (target == null)
+            {
+                throw new ArgumentNullException("target");
+            }
+
             Label = label;
-            Node = successor;
+            Target = target;
         }
 
-        public TLabel Label { get; private set; }
+        /// <summary>
+        /// Gets the value of the <see cref="T:Bonsai.Dag.Edge`2{T,U}"/> label.
+        /// </summary>
+        public TEdgeLabel Label { get; private set; }
 
-        public Node<TValue, TLabel> Node { get; private set; }
+        /// <summary>
+        /// Gets the <see cref="T:Bonsai.Dag.Node`2{T,U}"/> instance that is the
+        /// target of the <see cref="T:Bonsai.Dag.Edge`2{T,U}"/>.
+        /// </summary>
+        public Node<TNodeValue, TEdgeLabel> Target { get; private set; }
     }
 }

@@ -25,15 +25,15 @@ namespace Bonsai.Design
             {
                 var node = element;
                 var builderNode = nodeMapping[node];
-                if (node.Successors.Count == 1 && node.Successors[0].Node.Value is InspectBuilder)
+                if (node.Successors.Count == 1 && node.Successors[0].Target.Value is InspectBuilder)
                 {
-                    node = node.Successors[0].Node;
+                    node = node.Successors[0].Target;
                 }
 
                 foreach (var successor in node.Successors)
                 {
                     Node<ExpressionBuilder, ExpressionBuilderParameter> successorNode;
-                    if (nodeMapping.TryGetValue(successor.Node, out successorNode))
+                    if (nodeMapping.TryGetValue(successor.Target, out successorNode))
                     {
                         builder.Workflow.AddEdge(builderNode, successorNode, successor.Label);
                     }
@@ -43,11 +43,11 @@ namespace Bonsai.Design
             return builder;
         }
 
-        static IEnumerable<GraphEdge> GetLayeredSuccessors<TValue, TLabel>(Node<TValue, TLabel> node, int layer, Dictionary<Node<TValue, TLabel>, GraphNode> layerMap)
+        static IEnumerable<GraphEdge> GetLayeredSuccessors<TNodeValue, TEdgeLabel>(Node<TNodeValue, TEdgeLabel> node, int layer, Dictionary<Node<TNodeValue, TEdgeLabel>, GraphNode> layerMap)
         {
             foreach (var successor in node.Successors)
             {
-                var layeredSuccessor = layerMap[successor.Node];
+                var layeredSuccessor = layerMap[successor.Target];
                 var currentSuccessor = layeredSuccessor;
 
                 for (int i = layeredSuccessor.Layer + 1; i < layer; i++)
@@ -62,15 +62,15 @@ namespace Bonsai.Design
             }
         }
 
-        static IEnumerable<GraphNode> ComputeLongestPathLayering<TValue, TLabel>(this DirectedGraph<TValue, TLabel> source)
+        static IEnumerable<GraphNode> ComputeLongestPathLayering<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source)
         {
-            var layerMap = new Dictionary<Node<TValue, TLabel>, GraphNode>();
+            var layerMap = new Dictionary<Node<TNodeValue, TEdgeLabel>, GraphNode>();
             foreach (var node in source.TopologicalSort().Reverse())
             {
                 var layer = 0;
                 foreach (var successor in node.Successors)
                 {
-                    layer = Math.Max(layer, layerMap[successor.Node].Layer);
+                    layer = Math.Max(layer, layerMap[successor.Target].Layer);
                 }
 
                 if (node.Successors.Count > 0) layer++;
@@ -95,7 +95,7 @@ namespace Bonsai.Design
             }
         }
 
-        public static IEnumerable<GraphNodeGrouping> LongestPathLayering<TValue, TLabel>(this DirectedGraph<TValue, TLabel> source)
+        public static IEnumerable<GraphNodeGrouping> LongestPathLayering<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source)
         {
             Dictionary<int, GraphNodeGrouping> layers = new Dictionary<int, GraphNodeGrouping>();
             foreach (var layeredNode in ComputeLongestPathLayering(source))

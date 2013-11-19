@@ -169,7 +169,7 @@ namespace Bonsai.Design
             if (workflow == null) return;
             visualizerMapping = (from node in workflow
                                  where !(node.Value is InspectBuilder)
-                                 let inspectBuilder = node.Successors.Single().Node.Value as InspectBuilder
+                                 let inspectBuilder = node.Successors.Single().Target.Value as InspectBuilder
                                  where inspectBuilder != null
                                  let key = workflowGraphView.Nodes.SelectMany(layer => layer).First(n => n.Value == node.Value)
                                  select new { node, inspectBuilder, key })
@@ -210,8 +210,9 @@ namespace Bonsai.Design
                 if (closestNode != null && !(closestNode.Value is SourceBuilder) && !workflow.Predecessors(closestNode).Any())
                 {
                     var parameter = new ExpressionBuilderParameter();
-                    addConnection = () => workflow.AddEdge(sinkNode, closestNode, parameter);
-                    removeConnection = () => workflow.RemoveEdge(sinkNode, closestNode, parameter);
+                    var edge = Edge.Create(closestNode, parameter);
+                    addConnection = () => workflow.AddEdge(sinkNode, edge);
+                    removeConnection = () => workflow.RemoveEdge(sinkNode, edge);
                 }
             }
             else if (closestNode != null)
@@ -225,50 +226,53 @@ namespace Bonsai.Design
                         // If we have predecessors, we need to connect the new node in the right branches
                         foreach (var predecessor in predecessors)
                         {
-                            var edge = predecessor.Item2;
+                            var predecessorEdge = predecessor.Item2;
                             var predecessorNode = predecessor.Item1;
                             var edgeIndex = predecessor.Item3;
-                            addConnection += () => { workflow.SetEdge(predecessorNode, edgeIndex, sourceNode, edge.Label); };
-                            removeConnection += () => { workflow.SetEdge(predecessorNode, edgeIndex, edge.Node, edge.Label); };
+                            addConnection += () => { workflow.SetEdge(predecessorNode, edgeIndex, sourceNode, predecessorEdge.Label); };
+                            removeConnection += () => { workflow.SetEdge(predecessorNode, edgeIndex, predecessorEdge.Target, predecessorEdge.Label); };
                         }
                     }
 
                     // After dealing with predecessors, we just create an edge to the selected node
-                    addConnection += () => { workflow.AddEdge(sinkNode, closestNode, parameter); };
-                    removeConnection += () => { workflow.RemoveEdge(sinkNode, closestNode, parameter); };
+                    var edge = Edge.Create(closestNode, parameter);
+                    addConnection += () => { workflow.AddEdge(sinkNode, edge); };
+                    removeConnection += () => { workflow.RemoveEdge(sinkNode, edge); };
                 }
                 else
                 {
-                    var closestInspectNode = closestNode.Successors.Single().Node;
+                    var closestInspectNode = closestNode.Successors.Single().Target;
                     if (!branch && closestInspectNode.Successors.Count > 0)
                     {
                         // If we are not creating a new branch, the new node will inherit all branches of selected node
+                        var edge = Edge.Create(sourceNode, parameter);
                         var oldSuccessors = closestInspectNode.Successors.ToArray();
                         addConnection = () =>
                         {
                             foreach (var successor in oldSuccessors)
                             {
-                                workflow.RemoveEdge(closestInspectNode, successor.Node, successor.Label);
-                                workflow.AddEdge(sinkNode, successor.Node, successor.Label);
+                                workflow.RemoveEdge(closestInspectNode, successor);
+                                workflow.AddEdge(sinkNode, successor);
                             }
-                            workflow.AddEdge(closestInspectNode, sourceNode, parameter);
+                            workflow.AddEdge(closestInspectNode, edge);
                         };
 
                         removeConnection = () =>
                         {
                             foreach (var successor in oldSuccessors)
                             {
-                                workflow.RemoveEdge(sinkNode, successor.Node, successor.Label);
-                                workflow.AddEdge(closestInspectNode, successor.Node, successor.Label);
+                                workflow.RemoveEdge(sinkNode, successor);
+                                workflow.AddEdge(closestInspectNode, successor);
                             }
-                            workflow.RemoveEdge(closestInspectNode, sourceNode, parameter);
+                            workflow.RemoveEdge(closestInspectNode, edge);
                         };
                     }
                     else
                     {
                         // Otherwise, just create the new branch
-                        addConnection = () => { workflow.AddEdge(closestInspectNode, sourceNode, parameter); };
-                        removeConnection = () => { workflow.RemoveEdge(closestInspectNode, sourceNode, parameter); };
+                        var edge = Edge.Create(sourceNode, parameter);
+                        addConnection = () => { workflow.AddEdge(closestInspectNode, edge); };
+                        removeConnection = () => { workflow.RemoveEdge(closestInspectNode, edge); };
                     }
                 }
             }
@@ -283,8 +287,8 @@ namespace Bonsai.Design
             var connectionCount = workflow.Predecessors(target).Count();
             foreach (var sourceNode in graphViewSources)
             {
-                var node = GetGraphNodeTag(sourceNode, false).Successors.Single().Node;
-                if (target == node || node.Successors.Any(edge => edge.Node == target))
+                var node = GetGraphNodeTag(sourceNode, false).Successors.Single().Target;
+                if (target == node || node.Successors.Any(edge => edge.Target == target))
                 {
                     reject = true;
                     break;
@@ -309,14 +313,15 @@ namespace Bonsai.Design
             var connectionIndex = workflow.Predecessors(target).Count();
             foreach (var graphViewSource in graphViewSources)
             {
-                var source = GetGraphNodeTag(graphViewSource).Successors.Single().Node;
+                var source = GetGraphNodeTag(graphViewSource).Successors.Single().Target;
                 var connection = string.Empty;
                 connection = ExpressionBuilderParameter.Source;
                 if (connectionIndex > 0) connection += connectionIndex;
 
                 var parameter = new ExpressionBuilderParameter(connection);
-                addConnection += () => workflow.AddEdge(source, target, parameter);
-                removeConnection += () => workflow.RemoveEdge(source, target, parameter);
+                var edge = Edge.Create(target, parameter);
+                addConnection += () => workflow.AddEdge(source, edge);
+                removeConnection += () => workflow.RemoveEdge(source, edge);
                 connectionIndex++;
             }
 
@@ -465,43 +470,48 @@ namespace Bonsai.Design
             Action removeEdge = () => { };
 
             var workflowNode = GetGraphNodeTag(node);
-            var inspectNode = workflowNode.Successors.Single().Node;
+            var inspectNode = workflowNode.Successors.Single().Target;
 
             var predecessorEdges = workflow.PredecessorEdges(workflowNode).ToArray();
             var siblingEdgesAfter = (from edge in inspectNode.Successors
-                                     from siblingEdge in workflow.PredecessorEdges(edge.Node)
+                                     from siblingEdge in workflow.PredecessorEdges(edge.Target)
                                      where siblingEdge.Item2.Label.Value.CompareTo(edge.Label.Value) > 0
                                      select siblingEdge.Item2)
                                      .ToArray();
 
             var simplePredecessor = (predecessorEdges.Length == 1 && predecessorEdges[0].Item1.Successors.Count == 1);
-            var simpleSuccessor = (inspectNode.Successors.Count == 1 && workflow.Predecessors(inspectNode.Successors[0].Node).Count() == 1);
+            var simpleSuccessor = (inspectNode.Successors.Count == 1 && workflow.Predecessors(inspectNode.Successors[0].Target).Count() == 1);
             var replaceEdge = simplePredecessor || simpleSuccessor;
             if (replaceEdge)
             {
+                var replacedEdges = (from predecessor in predecessorEdges
+                                     from successor in inspectNode.Successors
+                                     where !workflow.Successors(predecessor.Item1).Contains(successor.Target)
+                                     select new
+                                     {
+                                         predecessor = predecessor.Item1,
+                                         edgeIndex = predecessor.Item3,
+                                         edge = simplePredecessor
+                                            ? successor
+                                            : Edge.Create(successor.Target, predecessor.Item2.Label)
+                                     })
+                                     .ToArray();
+
                 addEdge = () =>
                 {
-                    foreach (var predecessor in predecessorEdges)
+                    Array.ForEach(replacedEdges, replacedEdge =>
                     {
-                        foreach (var successor in inspectNode.Successors)
-                        {
-                            if (workflow.Successors(predecessor.Item1).Contains(successor.Node)) continue;
-                            if (simplePredecessor) workflow.AddEdge(predecessor.Item1, successor.Node, successor.Label);
-                            else workflow.SetEdge(predecessor.Item1, predecessor.Item3, successor.Node, predecessor.Item2.Label);
-                        }
-                    }
+                        if (simplePredecessor) workflow.AddEdge(replacedEdge.predecessor, replacedEdge.edge);
+                        else workflow.SetEdge(replacedEdge.predecessor, replacedEdge.edgeIndex, replacedEdge.edge);
+                    });
                 };
 
                 removeEdge = () =>
                 {
-                    foreach (var predecessor in predecessorEdges)
+                    Array.ForEach(replacedEdges, replacedEdge =>
                     {
-                        foreach (var successor in inspectNode.Successors)
-                        {
-                            if (simplePredecessor) workflow.RemoveEdge(predecessor.Item1, successor.Node, successor.Label);
-                            else workflow.RemoveEdge(predecessor.Item1, successor.Node, predecessor.Item2.Label);
-                        }
-                    }
+                        workflow.RemoveEdge(replacedEdge.predecessor, replacedEdge.edge);
+                    });
                 };
             }
 
