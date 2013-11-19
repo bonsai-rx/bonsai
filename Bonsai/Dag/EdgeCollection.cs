@@ -6,7 +6,12 @@ using System.Collections.ObjectModel;
 
 namespace Bonsai.Dag
 {
-    public class EdgeCollection<TValue, TLabel> : Collection<Edge<TValue, TLabel>>
+    /// <summary>
+    /// Represents a collection of outgoing labeled edges in a directed graph.
+    /// </summary>
+    /// <typeparam name="TNodeValue">The type of the labels associated with graph nodes.</typeparam>
+    /// <typeparam name="TEdgeLabel">The type of the labels associated with graph edges.</typeparam>
+    public class EdgeCollection<TNodeValue, TEdgeLabel> : Collection<Edge<TNodeValue, TEdgeLabel>>
     {
     }
 }
