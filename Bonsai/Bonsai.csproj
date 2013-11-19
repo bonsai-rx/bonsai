@@ -134,8 +134,6 @@
     <Compile Include="Dag\Edge.cs" />
     <Compile Include="Dag\EdgeCollection.cs" />
     <Compile Include="Dag\EdgeDescriptor.cs" />
-    <Compile Include="Dag\LayeredNode.cs" />
-    <Compile Include="Dag\LayeredNodeGrouping.cs" />
     <Compile Include="Dag\Node.cs" />
     <Compile Include="DesignTypes.cs" />
     <Compile Include="Reactive\CombineLatest.cs" />
