@@ -106,9 +106,13 @@ namespace Bonsai.Editor
                     var editorArgs = new string[args.Length + 1];
                     Array.Copy(args, editorArgs, args.Length);
 
+                    var setupInfo = new AppDomainSetup();
                     var editorLocation = packageConfiguration.AssemblyLocations[editorPackageId];
                     var editorBasePath = Path.GetDirectoryName(editorLocation.Location);
-                    var editorDomain = AppDomain.CreateDomain(EditorDomainName, null, editorBasePath, editorBasePath, false);
+                    setupInfo.ApplicationBase = editorBasePath;
+                    setupInfo.PrivateBinPath = editorBasePath;
+                    setupInfo.ConfigurationFile = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
+                    var editorDomain = AppDomain.CreateDomain(EditorDomainName, null, setupInfo);
                     editorArgs[editorArgs.Length - 1] = launchPackageManager ? PackageManagerCommand : SuppressBootstrapCommand;
                     editorDomain.ExecuteAssembly(editorLocation.Location, editorArgs);
 
