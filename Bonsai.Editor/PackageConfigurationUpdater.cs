@@ -16,8 +16,9 @@ namespace Bonsai.Editor
         readonly string bootstrapperPackageId;
         readonly IPackageManager packageManager;
         readonly PackageConfiguration packageConfiguration;
-        static readonly IEnumerable<FrameworkName> SupportedFrameworks = new[]
+        public static readonly IEnumerable<FrameworkName> SupportedFrameworks = new[]
         {
+            new FrameworkName(".NETFramework,Version=v4.5"),
             new FrameworkName(".NETFramework,Version=v4.0"),
             new FrameworkName(".NETFramework,Version=v4.0,Profile=Client"),
             new FrameworkName(".NETFramework,Version=v3.5"),
@@ -41,6 +42,7 @@ namespace Bonsai.Editor
             packageConfiguration = configuration;
             bootstrapperExePath = bootstrapperPath ?? string.Empty;
             bootstrapperPackageId = bootstrapperId ?? string.Empty;
+            packageManager.PackageInstalling += packageManager_PackageInstalling;
             packageManager.PackageInstalled += packageManager_PackageInstalled;
             packageManager.PackageUninstalling += packageManager_PackageUninstalling;
         }
@@ -111,6 +113,44 @@ namespace Bonsai.Editor
                    select reference;
         }
 
+        void RegisterLibraryFolders(IPackage package, string installPath)
+        {
+            foreach (var folder in GetLibraryFolders(package, installPath))
+            {
+                if (!packageConfiguration.LibraryFolders.Contains(folder.Path))
+                {
+                    packageConfiguration.LibraryFolders.Add(folder);
+                }
+                else if (packageConfiguration.LibraryFolders[folder.Path].Platform != folder.Platform)
+                {
+                    throw new InvalidOperationException(string.Format(Resources.LibraryFolderPlatformMismatchException, folder.Path));
+                }
+            }
+        }
+
+        void RemoveLibraryFolders(IPackage package, string installPath)
+        {
+            foreach (var folder in GetLibraryFolders(package, installPath))
+            {
+                packageConfiguration.LibraryFolders.Remove(folder.Path);
+            }
+        }
+
+        void packageManager_PackageInstalling(object sender, PackageOperationEventArgs e)
+        {
+            var installPath = e.InstallPath;
+            var pivots = OverlayHelper.FindPivots(e.Package, installPath).ToArray();
+            if (pivots.Length > 0)
+            {
+                var overlayManager = OverlayHelper.CreateOverlayManager(packageManager.SourceRepository, installPath);
+                overlayManager.Logger = packageManager.Logger;
+                foreach (var pivot in pivots)
+                {
+                    overlayManager.InstallPackage(pivot);
+                }
+            }
+        }
+
         void packageManager_PackageInstalled(object sender, PackageOperationEventArgs e)
         {
             var package = e.Package;
@@ -122,15 +162,15 @@ namespace Bonsai.Editor
             }
             else packageConfiguration.Packages[package.Id].Version = package.Version.ToString();
 
-            foreach (var folder in GetLibraryFolders(package, installPath))
+            RegisterLibraryFolders(package, installPath);
+            var pivots = OverlayHelper.FindPivots(package, installPath).ToArray();
+            if (pivots.Length > 0)
             {
-                if (!packageConfiguration.LibraryFolders.Contains(folder.Path))
+                var overlayManager = OverlayHelper.CreateOverlayManager(packageManager.SourceRepository, installPath);
+                foreach (var pivot in pivots)
                 {
-                    packageConfiguration.LibraryFolders.Add(folder);
-                }
-                else if(packageConfiguration.LibraryFolders[folder.Path].Platform != folder.Platform)
-                {
-                    throw new InvalidOperationException(string.Format(Resources.LibraryFolderPlatformMismatchException, folder.Path));
+                    var pivotPackage = overlayManager.LocalRepository.FindPackage(pivot);
+                    RegisterLibraryFolders(pivotPackage, installPath);
                 }
             }
 
@@ -176,9 +216,17 @@ namespace Bonsai.Editor
             var installPath = e.InstallPath;
             var taggedPackage = IsTaggedPackage(package);
             packageConfiguration.Packages.Remove(package.Id);
-            foreach (var path in GetLibraryFolders(package, installPath))
+
+            RemoveLibraryFolders(package, installPath);
+            var pivots = OverlayHelper.FindPivots(package, installPath).ToArray();
+            if (pivots.Length > 0)
             {
-                packageConfiguration.LibraryFolders.Remove(path);
+                var overlayManager = OverlayHelper.CreateOverlayManager(packageManager.SourceRepository, installPath);
+                foreach (var pivot in pivots)
+                {
+                    var pivotPackage = overlayManager.LocalRepository.FindPackage(pivot);
+                    RemoveLibraryFolders(pivotPackage, installPath);
+                }
             }
 
             foreach (var reference in GetCompatibleAssemblyReferences(package))
@@ -192,6 +240,15 @@ namespace Bonsai.Editor
             }
 
             packageConfiguration.Save();
+            if (pivots.Length > 0)
+            {
+                var overlayManager = OverlayHelper.CreateOverlayManager(packageManager.SourceRepository, installPath);
+                overlayManager.Logger = packageManager.Logger;
+                foreach (var pivot in pivots)
+                {
+                    overlayManager.UninstallPackage(pivot);
+                }
+            }
         }
 
         void UpdateFile(string path, IPackageFile file)
