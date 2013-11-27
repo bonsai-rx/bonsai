@@ -31,52 +31,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Development.wxs" />
-    <Compile Include="Packages.wxs" />
     <Compile Include="Product.wxs" />
     <Compile Include="Runtime.wxs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="opencv" />
-    <Folder Include="opencv\x64" />
-    <Folder Include="opencv\x86" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="opencv\x64\opencv_calib3d243.dll" />
-    <Content Include="opencv\x64\opencv_contrib243.dll" />
-    <Content Include="opencv\x64\opencv_core243.dll" />
-    <Content Include="opencv\x64\opencv_features2d243.dll" />
-    <Content Include="opencv\x64\opencv_ffmpeg243_64.dll" />
-    <Content Include="opencv\x64\opencv_flann243.dll" />
-    <Content Include="opencv\x64\opencv_gpu243.dll" />
-    <Content Include="opencv\x64\opencv_highgui243.dll" />
-    <Content Include="opencv\x64\opencv_imgproc243.dll" />
-    <Content Include="opencv\x64\opencv_legacy243.dll" />
-    <Content Include="opencv\x64\opencv_ml243.dll" />
-    <Content Include="opencv\x64\opencv_nonfree243.dll" />
-    <Content Include="opencv\x64\opencv_objdetect243.dll" />
-    <Content Include="opencv\x64\opencv_photo243.dll" />
-    <Content Include="opencv\x64\opencv_stitching243.dll" />
-    <Content Include="opencv\x64\opencv_ts243.dll" />
-    <Content Include="opencv\x64\opencv_video243.dll" />
-    <Content Include="opencv\x64\opencv_videostab243.dll" />
-    <Content Include="opencv\x86\opencv_calib3d243.dll" />
-    <Content Include="opencv\x86\opencv_contrib243.dll" />
-    <Content Include="opencv\x86\opencv_core243.dll" />
-    <Content Include="opencv\x86\opencv_features2d243.dll" />
-    <Content Include="opencv\x86\opencv_ffmpeg243.dll" />
-    <Content Include="opencv\x86\opencv_flann243.dll" />
-    <Content Include="opencv\x86\opencv_gpu243.dll" />
-    <Content Include="opencv\x86\opencv_highgui243.dll" />
-    <Content Include="opencv\x86\opencv_imgproc243.dll" />
-    <Content Include="opencv\x86\opencv_legacy243.dll" />
-    <Content Include="opencv\x86\opencv_ml243.dll" />
-    <Content Include="opencv\x86\opencv_nonfree243.dll" />
-    <Content Include="opencv\x86\opencv_objdetect243.dll" />
-    <Content Include="opencv\x86\opencv_photo243.dll" />
-    <Content Include="opencv\x86\opencv_stitching243.dll" />
-    <Content Include="opencv\x86\opencv_ts243.dll" />
-    <Content Include="opencv\x86\opencv_video243.dll" />
-    <Content Include="opencv\x86\opencv_videostab243.dll" />
+    <WixExtension Include="WixVSExtension">
+      <HintPath>$(WixExtDir)\WixVSExtension.dll</HintPath>
+      <Name>WixVSExtension</Name>
+    </WixExtension>
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <!--

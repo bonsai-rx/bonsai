@@ -15,7 +15,7 @@
     <?define ProgramFilesFolder="ProgramFilesFolder"?>
   <?endif?>
   
-	<Product Id="*" Name="$(var.ProductDisplayName)" Language="1033" Version="!(bind.FileVersion.BonsaiDLL)" Manufacturer="Goncalo Lopes" UpgradeCode="$(var.ProductUpgradeCode)">
+	<Product Id="*" Name="$(var.ProductDisplayName)" Language="1033" Version="!(bind.FileVersion.BonsaiEditorEXE)" Manufacturer="Goncalo Lopes" UpgradeCode="$(var.ProductUpgradeCode)">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
@@ -24,58 +24,15 @@
     <Icon Id="Bonsai.ico" SourceFile="$(var.EditorProjectPath)\Bonsai.ico" />
     <Icon Id="BonsaiWorkflow.ico" SourceFile="$(var.ResourcesPath)\BonsaiWorkflow.ico" />
     <Property Id="ARPPRODUCTICON" Value="Bonsai.ico" />
-    <Property Id="PROJECTTEMPLATESLOCATION">
-      <RegistrySearch Id="ProjectTemplatesLocationVCSExpressRegistry" Type="directory" Root="HKCU" Key="Software\Microsoft\VCSExpress\10.0" Name="UserProjectTemplatesLocation" />
-      <RegistrySearch Id="ProjectTemplatesLocationVSRegistry" Type="directory" Root="HKCU" Key="Software\Microsoft\VisualStudio\10.0" Name="UserProjectTemplatesLocation" />
-    </Property>
-    <Property Id="ITEMTEMPLATESLOCATION">
-      <RegistrySearch Id="ItemTemplatesLocationVCSExpressRegistry" Type="directory" Root="HKCU" Key="Software\Microsoft\VCSExpress\10.0" Name="UserItemTemplatesLocation" />
-      <RegistrySearch Id="ItemTemplatesLocationVSRegistry" Type="directory" Root="HKCU" Key="Software\Microsoft\VisualStudio\10.0" Name="UserItemTemplatesLocation" />
-    </Property>
-
+    
 		<Feature Id="ProductFeature" Title="Bonsai" Level="1" ConfigurableDirectory="INSTALLFOLDER">
       <Feature Id="RuntimeFeature" Title="Runtime" Level="1">
         <ComponentGroupRef Id="ProductComponents" />
         <ComponentRef Id='ProgramMenuDir' />
       </Feature>
 
-      <Feature Id='DevelopmentFeature' Title='Development' Level='1'>
-        <Feature Id='ProjectTemplatesFeature' Title='ProjectTemplates' Level='1'>
-          <Condition Level='1'>PROJECTTEMPLATESLOCATION</Condition>
-          <ComponentGroupRef Id='ProductProjectTemplates'/>
-        </Feature>
-
-        <Feature Id='ItemTemplatesFeature' Title='ItemTemplates' Level='1'>
-          <Condition Level='1'>ITEMTEMPLATESLOCATION</Condition>
-          <ComponentGroupRef Id='ProductItemTemplates'/>
-        </Feature>
-      </Feature>
-
-      <Feature Id='PackagesFeature' Title='Packages' Level='1'>
-        <Feature Id='IOPackage' Title='IO' Level='1'>
-          <ComponentGroupRef Id='IOPackageComponents'/>
-        </Feature>
-        <Feature Id='ArduinoPackage' Title='Arduino' Level='1'>
-          <ComponentGroupRef Id='ArduinoPackageComponents'/>
-        </Feature>
-        <Feature Id='DspPackage' Title='Dsp' Level='1'>
-          <ComponentGroupRef Id='DspPackageComponents'/>
-        </Feature>
-        <Feature Id='AudioPackage' Title='Audio' Level='1'>
-          <ComponentGroupRef Id='AudioPackageComponents'/>
-        </Feature>
-        <Feature Id='VisionPackage' Title='Vision' Level='1'>
-          <ComponentGroupRef Id='VisionPackageComponents'/>
-        </Feature>
-        <Feature Id='ScriptingPackage' Title='Scripting' Level='1'>
-          <ComponentGroupRef Id='ScriptingPackageComponents'/>
-        </Feature>
-      </Feature>
-
-      <Feature Id='ExamplesFeature' Title='Examples' Level='1'>
-        <Feature Id='VisionExamples' Title='Vision' Level='1'>
-          <ComponentGroupRef Id='VisionPackageExamples'/>
-        </Feature>
+      <Feature Id="DevelopmentFeature" Title="Development" Level="1">
+        <ComponentGroupRef Id="BonsaiVsExtensions" />
       </Feature>
 		</Feature>
 	</Product>
@@ -85,19 +42,7 @@
 			<Directory Id="$(var.ProgramFilesFolder)">
         <Directory Id="INSTALLFOLDER" Name="Bonsai">
           <Directory Id="PACKAGESFOLDER" Name="Packages"/>
-          
-          <Directory Id="EXAMPLESFOLDER" Name="Examples">
-            <Directory Id="VISIONEXAMPLESFOLDER" Name="Vision">
-              <Directory Id="CAMERATRIGGERFOLDER" Name="CameraTrigger"/>
-              <Directory Id="COLORSEGMENTATIONFOLDER" Name="ColorSegmentation"/>
-              <Directory Id="CONTRASTSEGMENTATIONFOLDER" Name="ContrastSegmentation"/>
-            </Directory>
-          </Directory>
-            
-          <Directory Id="TemplatesFolder" Name="Templates">
-            <Directory Id="PROJECTTEMPLATESFOLDER" Name="ProjectTemplates"/>
-            <Directory Id="ITEMTEMPLATESFOLDER" Name="ItemTemplates"/>
-          </Directory>
+          <Directory Id="VSEXTENSIONSFOLDER" Name="Extensions"/>
         </Directory>
 			</Directory>
 
@@ -110,8 +55,5 @@
         </Directory>
       </Directory>
 		</Directory>
-
-    <SetProperty Id="PROJECTTEMPLATESFOLDER" Value="[PROJECTTEMPLATESLOCATION]\Bonsai" After="AppSearch">PROJECTTEMPLATESLOCATION</SetProperty>
-    <SetProperty Id="ITEMTEMPLATESFOLDER" Value="[ITEMTEMPLATESLOCATION]\Bonsai" After="AppSearch">ITEMTEMPLATESLOCATION</SetProperty>
 	</Fragment>
 </Wix>
