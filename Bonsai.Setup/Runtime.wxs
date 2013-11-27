@@ -1,57 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?define EditorBuildPath="..\Bonsai.Editor\bin\Release"?>
+  <?define PlayerBuildPath="..\Bonsai.Player\bin\Release"?>
   <?if $(var.Platform) = x64?>
     <?define Win64="yes"?>
-    <?define EditorBuildPath="..\Bonsai.Editor\bin\x64\Release"?>
-    <?define PlayerBuildPath="..\Bonsai.Player\bin\x64\Release"?>
+    <?define ProductDisplayName="Bonsai (64-bit)"?>
   <?else?>
     <?define Win64="no"?>
-    <?define EditorBuildPath="..\Bonsai.Editor\bin\x86\Release"?>
-    <?define PlayerBuildPath="..\Bonsai.Player\bin\x86\Release"?>
+    <?define ProductDisplayName="Bonsai"?>
   <?endif?>
   
   <Fragment>
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
-      <Component Id="BonsaiLibrary" Guid="*" Win64="$(var.Win64)">
-        <File Id="BonsaiDLL" Name="Bonsai.dll" Source="$(var.EditorBuildPath)\Bonsai.dll" KeyPath="yes"/>
-        <File Id="BonsaiPDB" Name="Bonsai.pdb" Source="$(var.EditorBuildPath)\Bonsai.pdb"/>
-      </Component>
-
-      <Component Id="BonsaiDesignLibrary" Guid="*" Win64="$(var.Win64)">
-        <File Id="BonsaiDesignDLL" Name="Bonsai.Design.dll" Source="$(var.EditorBuildPath)\Bonsai.Design.dll" KeyPath="yes"/>
-        <File Id="BonsaiDesignPDB" Name="Bonsai.Design.pdb" Source="$(var.EditorBuildPath)\Bonsai.Design.pdb"/>
-      </Component>
-
-      <Component Id="ReactiveCoreLibrary" Guid="*" Win64="$(var.Win64)">
-        <File Id="SystemReactiveCoreDLL" Name="System.Reactive.Core.dll" Source="$(var.EditorBuildPath)\System.Reactive.Core.dll" KeyPath="yes"/>
-        <File Id="SystemReactiveCoreXML" Name="System.Reactive.Core.xml" Source="$(var.EditorBuildPath)\System.Reactive.Core.xml"/>
-      </Component>
-
-      <Component Id="ReactiveInterfacesLibrary" Guid="*" Win64="$(var.Win64)">
-        <File Id="SystemReactiveInterfacesDLL" Name="System.Reactive.Interfaces.dll" Source="$(var.EditorBuildPath)\System.Reactive.Interfaces.dll" KeyPath="yes"/>
-        <File Id="SystemReactiveInterfacesXML" Name="System.Reactive.Interfaces.xml" Source="$(var.EditorBuildPath)\System.Reactive.Interfaces.xml"/>
-      </Component>
-
-      <Component Id="ReactiveLinqLibrary" Guid="*" Win64="$(var.Win64)">
-        <File Id="SystemReactiveLinqDLL" Name="System.Reactive.Linq.dll" Source="$(var.EditorBuildPath)\System.Reactive.Linq.dll" KeyPath="yes"/>
-        <File Id="SystemReactiveLinqXML" Name="System.Reactive.Linq.xml" Source="$(var.EditorBuildPath)\System.Reactive.Linq.xml"/>
-      </Component>
-
-      <Component Id="ReactivePlatformServicesLibrary" Guid="*" Win64="$(var.Win64)">
-        <File Id="SystemReactivePlatformServicesDLL" Name="System.Reactive.PlatformServices.dll" Source="$(var.EditorBuildPath)\System.Reactive.PlatformServices.dll" KeyPath="yes"/>
-        <File Id="SystemReactivePlatformServicesXML" Name="System.Reactive.PlatformServices.xml" Source="$(var.EditorBuildPath)\System.Reactive.PlatformServices.xml"/>
-      </Component>
-
-      <Component Id="BonsaiPlayerExecutable" Guid="*" Win64="$(var.Win64)">
-        <File Id="BonsaiPlayerEXE" Name="Bonsai.Player.exe" Source="$(var.PlayerBuildPath)\Bonsai.Player.exe" KeyPath="yes"/>
-        <File Id="BonsaiPlayerPDB" Name="Bonsai.Player.pdb" Source="$(var.PlayerBuildPath)\Bonsai.Player.pdb"/>
-      </Component>
-
       <Component Id="BonsaiEditorExecutable" Guid="*" Win64="$(var.Win64)">
         <File Id="BonsaiEditorEXE" Name="Bonsai.Editor.exe" Source="$(var.EditorBuildPath)\Bonsai.Editor.exe" KeyPath="yes">
-          <Shortcut Id="startmenuBonsaiEditor" Directory="ProgramMenuDir" WorkingDirectory="INSTALLFOLDER" Name="Bonsai Editor" Icon="Bonsai.ico" Advertise="yes"/>
+          <Shortcut Id="startmenuBonsaiEditor" Directory="ProgramMenuDir" WorkingDirectory="INSTALLFOLDER" Name="$(var.ProductDisplayName)" Icon="Bonsai.ico" Advertise="yes"/>
         </File>
-        <File Id="BonsaiEditorPDB" Name="Bonsai.Editor.pdb" Source="$(var.EditorBuildPath)\Bonsai.Editor.pdb"/>
         <File Id="BonsaiEditorCONFIG" Name="Bonsai.Editor.exe.config" Source="$(var.EditorBuildPath)\Bonsai.Editor.exe.config"/>
         <ProgId Id='Bonsai.workflow' Description='Bonsai workflow file' Icon='BonsaiWorkflow.ico' Advertise='yes'>
           <Extension Id='bonsai' ContentType='application/xml'>
@@ -62,18 +26,6 @@
 
       <Component Id='BonsaiInstallDir' Guid='*' Win64="$(var.Win64)">
         <RegistryValue Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' Name='InstallDir' Type='string' Value='[INSTALLFOLDER]' KeyPath='yes'/>
-      </Component>
-
-      <Component Id='BonsaiAssemblyFolders' Guid='*' Win64="$(var.Win64)">
-        <RegistryKey Root='HKCU' Key='Software\Microsoft\.NETFramework\v4.0.30319\AssemblyFoldersEx\Bonsai'>
-          <RegistryValue Type='string' Value='[INSTALLFOLDER]' KeyPath='yes'/>
-        </RegistryKey>
-      </Component>
-
-      <Component Id='BonsaiPackageAssemblyFolders' Guid='*' Win64="$(var.Win64)">
-        <RegistryKey Root='HKCU' Key='Software\Microsoft\.NETFramework\v4.0.30319\AssemblyFoldersEx\BonsaiPackages'>
-          <RegistryValue Type='string' Value='[PACKAGESFOLDER]' KeyPath='yes'/>
-        </RegistryKey>
       </Component>
     </ComponentGroup>
   </Fragment>

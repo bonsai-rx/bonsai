@@ -3,6 +3,7 @@
      xmlns:bal="http://schemas.microsoft.com/wix/BalExtension"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
   <?define EditorProjectPath="..\Bonsai.Editor"?>
+  
   <?if $(var.Platform) = x64?>
     <?define VCRTSource="vcredist_x64.exe"?>
     <?define ProductDisplayName="Bonsai (64-bit)"?>
@@ -18,14 +19,11 @@
       <bal:WixStandardBootstrapperApplication LicenseFile="License.rtf" LogoFile="Bonsai.png" SuppressOptionsUI="yes"/>
     </BootstrapperApplicationRef>
 
-    <util:RegistrySearch Root="HKCU" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenTK" Value="InstallDir" Variable="OpenTKInstalled"/>
-    <util:RegistrySearch Root="HKLM" Key="Software\Microsoft\VisualStudio\10.0\VC\VCRedist\$(var.Platform)" Value="Installed" Variable="VCRTInstalled"/>
+    <util:RegistrySearch Root="HKLM" Key="HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\DevDiv\vc\Servicing\11.0\RuntimeMinimum" Value="Install" Variable="VCRTInstalled"/>
 
 		<Chain>
       <PackageGroupRef Id="NetFx45Web"/>
       <ExePackage Id="VCRT" SourceFile="Dependencies\$(var.VCRTSource)" InstallCommand="/q /norestart" Permanent="yes" DetectCondition="VCRTInstalled"/>
-      <ExePackage Id="OpenTK" SourceFile="Dependencies\opentk-2010-10-06.exe" Permanent="yes" DetectCondition="OpenTKInstalled"/>
-      <MsiPackage Id="IronPython" SourceFile="Dependencies\IronPython-2.7.3.msi" DisplayInternalUI="yes" Permanent="yes"/>
       <MsiPackage Id="Bonsai" SourceFile="$(var.Bonsai.Setup.TargetPath)"/>
 		</Chain>
 	</Bundle>
