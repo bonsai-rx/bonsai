@@ -1,0 +1,70 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2012 for Windows Desktop
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.SourceItemTemplate", "Bonsai.SourceItemTemplate\Bonsai.SourceItemTemplate.csproj", "{D177A47A-2B6E-429F-8692-BFEAFBE61E62}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{E2928FC1-9049-4295-A78F-35BAF2D44D97}"
+	ProjectSection(SolutionItems) = preProject
+		Build.proj = Build.proj
+		.build\MSBuild.Community.Tasks.dll = .build\MSBuild.Community.Tasks.dll
+		.build\MSBuild.Community.Tasks.targets = .build\MSBuild.Community.Tasks.targets
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Templates", "Bonsai.Templates\Bonsai.Templates.csproj", "{37676E90-A510-4260-A777-CCC1BDBC86D0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1A74AD68-6339-44C9-BBE6-2F76F0537A1C} = {1A74AD68-6339-44C9-BBE6-2F76F0537A1C}
+		{D177A47A-2B6E-429F-8692-BFEAFBE61E62} = {D177A47A-2B6E-429F-8692-BFEAFBE61E62}
+		{E9382F93-F085-4E94-880E-9BDBEC6B24AD} = {E9382F93-F085-4E94-880E-9BDBEC6B24AD}
+		{42D1DFF5-75C5-4346-9368-9D0D22B5FD37} = {42D1DFF5-75C5-4346-9368-9D0D22B5FD37}
+		{D12B33FB-7BB3-4D7A-8162-A80070898775} = {D12B33FB-7BB3-4D7A-8162-A80070898775}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.SinkItemTemplate", "Bonsai.SinkItemTemplate\Bonsai.SinkItemTemplate.csproj", "{E9382F93-F085-4E94-880E-9BDBEC6B24AD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.TransformItemTemplate", "Bonsai.TransformItemTemplate\Bonsai.TransformItemTemplate.csproj", "{1A74AD68-6339-44C9-BBE6-2F76F0537A1C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.ConditionItemTemplate", "Bonsai.ConditionItemTemplate\Bonsai.ConditionItemTemplate.csproj", "{D12B33FB-7BB3-4D7A-8162-A80070898775}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.TemplateWizards", "Bonsai.TemplateWizards\Bonsai.TemplateWizards.csproj", "{42D1DFF5-75C5-4346-9368-9D0D22B5FD37}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.PackageProjectTemplate", "Bonsai.PackageProjectTemplate\Bonsai.PackageProjectTemplate.csproj", "{C65A3F2D-EB8F-46D8-B783-24A90F907D78}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D177A47A-2B6E-429F-8692-BFEAFBE61E62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D177A47A-2B6E-429F-8692-BFEAFBE61E62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D177A47A-2B6E-429F-8692-BFEAFBE61E62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D177A47A-2B6E-429F-8692-BFEAFBE61E62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37676E90-A510-4260-A777-CCC1BDBC86D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37676E90-A510-4260-A777-CCC1BDBC86D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37676E90-A510-4260-A777-CCC1BDBC86D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37676E90-A510-4260-A777-CCC1BDBC86D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9382F93-F085-4E94-880E-9BDBEC6B24AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9382F93-F085-4E94-880E-9BDBEC6B24AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9382F93-F085-4E94-880E-9BDBEC6B24AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9382F93-F085-4E94-880E-9BDBEC6B24AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A74AD68-6339-44C9-BBE6-2F76F0537A1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A74AD68-6339-44C9-BBE6-2F76F0537A1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A74AD68-6339-44C9-BBE6-2F76F0537A1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A74AD68-6339-44C9-BBE6-2F76F0537A1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D12B33FB-7BB3-4D7A-8162-A80070898775}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D12B33FB-7BB3-4D7A-8162-A80070898775}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D12B33FB-7BB3-4D7A-8162-A80070898775}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D12B33FB-7BB3-4D7A-8162-A80070898775}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42D1DFF5-75C5-4346-9368-9D0D22B5FD37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42D1DFF5-75C5-4346-9368-9D0D22B5FD37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42D1DFF5-75C5-4346-9368-9D0D22B5FD37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42D1DFF5-75C5-4346-9368-9D0D22B5FD37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C65A3F2D-EB8F-46D8-B783-24A90F907D78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C65A3F2D-EB8F-46D8-B783-24A90F907D78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C65A3F2D-EB8F-46D8-B783-24A90F907D78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C65A3F2D-EB8F-46D8-B783-24A90F907D78}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

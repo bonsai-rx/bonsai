@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{37676E90-A510-4260-A777-CCC1BDBC86D0}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Bonsai.Templates</RootNamespace>
+    <AssemblyName>Bonsai.Templates</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>..\packages\ICSharpCode.SharpZipLib.dll.0.85.4.369\lib\net20\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Reactive.Core">
+      <HintPath>..\packages\Rx-Core.2.1.30214.0\lib\Net45\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces">
+      <HintPath>..\packages\Rx-Interfaces.2.1.30214.0\lib\Net45\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Linq">
+      <HintPath>..\packages\Rx-Linq.2.1.30214.0\lib\Net45\System.Reactive.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\Bonsai.TemplateWizards\bin\Release\Bonsai.TemplateWizards.dll">
+      <Link>Assemblies\Bonsai.TemplateWizards.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="eula.rtf" />
+    <None Include="..\..\bin\Bonsai.2.0.0-alpha.nupkg">
+      <Link>Packages\Bonsai.2.0.0-alpha.nupkg</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\Bonsai.ConditionItemTemplate\bin\Release\BonsaiCondition.zip">
+      <Link>ItemTemplates\Bonsai\BonsaiCondition.zip</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\Bonsai.PackageProjectTemplate\bin\Release\BonsaiPackage.zip">
+      <Link>ProjectTemplates\Bonsai\BonsaiPackage.zip</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\Bonsai.SinkItemTemplate\bin\Release\BonsaiSink.zip">
+      <Link>ItemTemplates\Bonsai\BonsaiSink.zip</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\Bonsai.SourceItemTemplate\bin\Release\BonsaiSource.zip">
+      <Link>ItemTemplates\Bonsai\BonsaiSource.zip</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\Bonsai.TransformItemTemplate\bin\Release\BonsaiTransform.zip">
+      <Link>ItemTemplates\Bonsai\BonsaiTransform.zip</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\packages\Rx-Core.2.1.30214.0\Rx-Core.2.1.30214.0.nupkg">
+      <Link>Packages\Rx-Core.2.1.30214.0.nupkg</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\packages\Rx-Interfaces.2.1.30214.0\Rx-Interfaces.2.1.30214.0.nupkg">
+      <Link>Packages\Rx-Interfaces.2.1.30214.0.nupkg</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\packages\Rx-Linq.2.1.30214.0\Rx-Linq.2.1.30214.0.nupkg">
+      <Link>Packages\Rx-Linq.2.1.30214.0.nupkg</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Images\preview.png" />
+    <Content Include="Images\icon.png" />
+    <Content Include="[Content_Types].xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="extension.vsixmanifest">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <MSBuildCommunityTasksPath>$(SolutionDir)\.build</MSBuildCommunityTasksPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.targets" />
+  <Target Name="BuildTemplate" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <ZipContent Include="$(TargetDir)Assemblies\*.dll" />
+      <ZipContent Include="$(TargetDir)Packages\*.nupkg" />
+      <ZipContent Include="$(TargetDir)ItemTemplates\**\*.zip" />
+      <ZipContent Include="$(TargetDir)ProjectTemplates\**\*.zip" />
+    </ItemGroup>
+    <Zip Files="@(Content);@(ZipContent)" WorkingDirectory="$(TargetDir)" ZipFileName="$(TargetDir)\BonsaiTemplates.vsix" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
