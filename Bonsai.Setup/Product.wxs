@@ -16,16 +16,19 @@
   <?endif?>
   
 	<Product Id="*" Name="$(var.ProductDisplayName)" Language="1033" Version="!(bind.FileVersion.BonsaiEditorEXE)" Manufacturer="Goncalo Lopes" UpgradeCode="$(var.ProductUpgradeCode)">
-		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perUser" />
 
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 		<MediaTemplate EmbedCab="yes"/>
+    <UIRef Id="WixUI_Advanced"/>
+    <Property Id="ApplicationFolderName" Value="$(var.ProductDisplayName)" />
+    <Property Id="WixAppFolder" Value="WixPerUserFolder" />
 
     <Icon Id="Bonsai.ico" SourceFile="$(var.EditorProjectPath)\Bonsai.ico" />
     <Icon Id="BonsaiWorkflow.ico" SourceFile="$(var.ResourcesPath)\BonsaiWorkflow.ico" />
     <Property Id="ARPPRODUCTICON" Value="Bonsai.ico" />
     
-		<Feature Id="ProductFeature" Title="Bonsai" Level="1" ConfigurableDirectory="INSTALLFOLDER">
+		<Feature Id="ProductFeature" Title="Bonsai" Level="1" ConfigurableDirectory="APPLICATIONFOLDER">
       <Feature Id="RuntimeFeature" Title="Runtime" Level="1">
         <ComponentGroupRef Id="ProductComponents" />
         <ComponentRef Id='ProgramMenuDir' />
@@ -40,8 +43,7 @@
 	<Fragment>
     <Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="$(var.ProgramFilesFolder)">
-        <Directory Id="INSTALLFOLDER" Name="Bonsai">
-          <Directory Id="PACKAGESFOLDER" Name="Packages"/>
+        <Directory Id="APPLICATIONFOLDER" Name="Bonsai">
           <Directory Id="VSEXTENSIONSFOLDER" Name="Extensions"/>
         </Directory>
 			</Directory>
