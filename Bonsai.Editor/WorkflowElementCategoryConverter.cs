@@ -5,9 +5,9 @@ using System.Text;
 using Bonsai.Expressions;
 using System.ComponentModel;
 
-namespace Bonsai
+namespace Bonsai.Editor
 {
-    public static class WorkflowElementTypeConverter
+    static class WorkflowElementCategoryConverter
     {
         static bool MatchIgnoredTypes(Type type)
         {

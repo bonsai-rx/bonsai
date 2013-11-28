@@ -111,6 +111,7 @@
       <DependentUpon>WelcomeDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="WorkflowElementLoader.cs" />
+    <Compile Include="WorkflowElementCategoryConverter.cs" />
     <EmbeddedResource Include="AboutBox.resx">
       <DependentUpon>AboutBox.cs</DependentUpon>
     </EmbeddedResource>

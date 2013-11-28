@@ -77,7 +77,7 @@ namespace Bonsai.Editor
                         Namespace = type.Namespace,
                         AssemblyQualifiedName = type.AssemblyQualifiedName,
                         Description = descriptionAttribute.Description,
-                        ElementTypes = WorkflowElementTypeConverter.FromType(type).ToArray()
+                        ElementTypes = WorkflowElementCategoryConverter.FromType(type).ToArray()
                     };
                 }
             }
