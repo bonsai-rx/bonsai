@@ -6,6 +6,7 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Configuration
 {
+    [Serializable]
     public sealed class PackageReference
     {
         public PackageReference()

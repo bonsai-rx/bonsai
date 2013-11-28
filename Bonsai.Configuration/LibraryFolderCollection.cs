@@ -6,6 +6,7 @@ using System.Text;
 
 namespace Bonsai.Configuration
 {
+    [Serializable]
     public class LibraryFolderCollection : KeyedCollection<string, LibraryFolder>
     {
         public void Add(string path, string platform)
