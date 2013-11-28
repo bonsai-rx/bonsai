@@ -6,6 +6,7 @@ using System.Text;
 
 namespace Bonsai.Configuration
 {
+    [Serializable]
     public class PackageReferenceCollection : KeyedCollection<string, PackageReference>
     {
         public void Add(string id, string version)

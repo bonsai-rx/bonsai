@@ -6,6 +6,7 @@ using System.Text;
 
 namespace Bonsai.Configuration
 {
+    [Serializable]
     public class AssemblyLocationCollection : KeyedCollection<string, AssemblyLocation>
     {
         public void Add(string name, string path)

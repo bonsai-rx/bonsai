@@ -9,6 +9,7 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Configuration
 {
+    [Serializable]
     public class PackageConfiguration
     {
         readonly PackageReferenceCollection packages = new PackageReferenceCollection();

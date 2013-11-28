@@ -6,6 +6,7 @@ using System.Text;
 
 namespace Bonsai.Configuration
 {
+    [Serializable]
     public class AssemblyReferenceCollection : KeyedCollection<string, AssemblyReference>
     {
         public void Add(string name)
