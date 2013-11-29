@@ -71,6 +71,8 @@ namespace Bonsai.Editor
 
         #region Loading
 
+        internal bool LaunchPackageManager { get; set; }
+
         public PackageConfiguration PackageConfiguration { get; set; }
 
         public string InitialFileName { get; set; }
@@ -823,7 +825,7 @@ namespace Bonsai.Editor
         private void packageManagerToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
-            AppDomain.CurrentDomain.SetData(Constants.AppDomainLaunchPackageManagerData, "true");
+            LaunchPackageManager = true;
         }
 
         #endregion
