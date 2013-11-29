@@ -104,9 +104,9 @@ namespace Bonsai.Editor
 
             public LoaderResource(PackageConfiguration configuration)
             {
-                AppDomainSetup setup = AppDomain.CurrentDomain.SetupInformation;
-                setup.LoaderOptimization = LoaderOptimization.MultiDomainHost;
-                reflectionDomain = AppDomain.CreateDomain("ReflectionOnly", AppDomain.CurrentDomain.Evidence, setup);
+                var currentEvidence = AppDomain.CurrentDomain.Evidence;
+                var setupInfo = AppDomain.CurrentDomain.SetupInformation;
+                reflectionDomain = AppDomain.CreateDomain("ReflectionOnly", currentEvidence, setupInfo);
                 Loader = (WorkflowElementLoader)reflectionDomain.CreateInstanceAndUnwrap(
                     typeof(WorkflowElementLoader).Assembly.FullName,
                     typeof(WorkflowElementLoader).FullName,
