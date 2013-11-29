@@ -71,6 +71,8 @@ namespace Bonsai.Editor
 
         #region Loading
 
+        public PackageConfiguration PackageConfiguration { get; set; }
+
         public string InitialFileName { get; set; }
 
         public bool StartOnLoad { get; set; }
@@ -98,13 +100,14 @@ namespace Bonsai.Editor
                 Path.GetExtension(initialFileName) == BonsaiExtension &&
                 File.Exists(initialFileName);
 
+            var configuration = PackageConfiguration ?? ConfigurationHelper.Load();
             var currentDirectory = Path.GetFullPath(Environment.CurrentDirectory).TrimEnd('\\');
             var appDomainBaseDirectory = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\');
             var systemPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.System)).TrimEnd('\\');
             var systemX86Path = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86)).TrimEnd('\\');
             var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory || currentDirectory == systemPath || currentDirectory == systemX86Path;
             directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
-            var initialization = InitializeToolbox().Merge(InitializeTypeVisualizers()).TakeLast(1).ObserveOn(Scheduler.Default);
+            var initialization = InitializeToolbox(configuration).Merge(InitializeTypeVisualizers(configuration)).TakeLast(1).ObserveOn(Scheduler.Default);
             InitializeExampleDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Examples"), examplesToolStripMenuItem);
 
             if (validFileName)
@@ -131,9 +134,9 @@ namespace Bonsai.Editor
 
         #region Toolbox
 
-        IObservable<Unit> InitializeTypeVisualizers()
+        IObservable<Unit> InitializeTypeVisualizers(PackageConfiguration configuration)
         {
-            var visualizerMapping = TypeVisualizerLoader.GetTypeVisualizerDictionary();
+            var visualizerMapping = TypeVisualizerLoader.GetTypeVisualizerDictionary(configuration);
             return visualizerMapping
                 .ObserveOn(this)
                 .Do(typeMapping => typeVisualizers.Add(typeMapping.Item1, typeMapping.Item2))
@@ -142,9 +145,9 @@ namespace Bonsai.Editor
                 .Select(xs => Unit.Default);
         }
 
-        IObservable<Unit> InitializeToolbox()
+        IObservable<Unit> InitializeToolbox(PackageConfiguration configuration)
         {
-            var packages = WorkflowElementLoader.GetWorkflowElementTypes();
+            var packages = WorkflowElementLoader.GetWorkflowElementTypes(configuration);
             return packages
                 .ObserveOn(this)
                 .Do(package => InitializeToolboxCategory(package.Key, package))

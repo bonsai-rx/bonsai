@@ -109,9 +109,13 @@ namespace Bonsai.Editor
             }
         }
 
-        public static IObservable<Tuple<Type, Type>> GetTypeVisualizerDictionary()
+        public static IObservable<Tuple<Type, Type>> GetTypeVisualizerDictionary(PackageConfiguration configuration)
         {
-            var configuration = ConfigurationHelper.Load();
+            if (configuration == null)
+            {
+                throw new ArgumentNullException("configuration");
+            }
+
             var assemblies = configuration.AssemblyReferences.Select(reference => reference.AssemblyName);
             return Observable.Using(
                 () => new LoaderResource(configuration),

@@ -44,6 +44,12 @@ namespace Bonsai.Editor
             var packageConfiguration = Configuration.ConfigurationHelper.Load();
             if (!bootstrap)
             {
+                if (!string.IsNullOrEmpty(initialFileName))
+                {
+                    var initialPath = Path.GetDirectoryName(initialFileName);
+                    Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, initialPath);
+                }
+
                 Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
                 if (launchPackageManager)
                 {
@@ -53,7 +59,12 @@ namespace Bonsai.Editor
                         Application.Run(packageManagerDialog);
                     }
                 }
-                else Application.Run(new MainForm { InitialFileName = initialFileName, StartOnLoad = start });
+                else Application.Run(new MainForm
+                {
+                    PackageConfiguration = packageConfiguration,
+                    InitialFileName = initialFileName,
+                    StartOnLoad = start
+                });
             }
             else
             {
