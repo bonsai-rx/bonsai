@@ -72,6 +72,16 @@ namespace Bonsai.Editor.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Bonsai {
+            get {
+                object obj = ResourceManager.GetObject("Bonsai", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap BonsaiCommands {
             get {
                 object obj = ResourceManager.GetObject("BonsaiCommands", resourceCulture);
