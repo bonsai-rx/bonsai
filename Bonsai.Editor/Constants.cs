@@ -9,6 +9,5 @@ namespace Bonsai.Editor
     {
         public const string PackageTagFilter = "Bonsai";
         public const string RepositoryPath = "Packages";
-        public const string AppDomainLaunchPackageManagerData = "LAUNCH_PACKAGE_MANAGER";
     }
 }

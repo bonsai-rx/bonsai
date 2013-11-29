@@ -16,12 +16,15 @@ namespace Bonsai.Editor
         const string SuppressBootstrapCommand = "--noboot";
         const string PackageManagerCommand = "--packagemanager";
         const string EditorDomainName = "EditorDomain";
+        const int NormalExitCode = 0;
+        const int RequirePackageManagerExitCode = 1;
 
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main(string[] args)
+        [LoaderOptimization(LoaderOptimization.MultiDomainHost)]
+        static int Main(string[] args)
         {
             var start = false;
             var bootstrap = true;
@@ -61,12 +64,17 @@ namespace Bonsai.Editor
                         Application.Run(packageManagerDialog);
                     }
                 }
-                else Application.Run(new MainForm
+                else
                 {
-                    PackageConfiguration = packageConfiguration,
-                    InitialFileName = initialFileName,
-                    StartOnLoad = start
-                });
+                    var mainForm = new MainForm
+                    {
+                        PackageConfiguration = packageConfiguration,
+                        InitialFileName = initialFileName,
+                        StartOnLoad = start
+                    };
+                    Application.Run(mainForm);
+                    return mainForm.LaunchPackageManager ? RequirePackageManagerExitCode : NormalExitCode;
+                }
             }
             else
             {
@@ -117,17 +125,16 @@ namespace Bonsai.Editor
                 while (!exit)
                 {
                     var editorArgs = new string[args.Length + 1];
+                    editorArgs[editorArgs.Length - 1] = launchPackageManager ? PackageManagerCommand : SuppressBootstrapCommand;
                     Array.Copy(args, editorArgs, args.Length);
 
                     var setupInfo = new AppDomainSetup();
-                    var editorLocation = Path.Combine(editorFolder, packageConfiguration.AssemblyLocations[editorPackageId].Location);
-                    var editorBasePath = Path.GetDirectoryName(editorLocation);
-                    setupInfo.ApplicationBase = editorBasePath;
-                    setupInfo.PrivateBinPath = editorBasePath;
+                    setupInfo.ApplicationBase = editorFolder;
+                    setupInfo.PrivateBinPath = editorFolder;
                     setupInfo.ConfigurationFile = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
+                    setupInfo.LoaderOptimization = LoaderOptimization.MultiDomainHost;
                     var editorDomain = AppDomain.CreateDomain(EditorDomainName, null, setupInfo);
-                    editorArgs[editorArgs.Length - 1] = launchPackageManager ? PackageManagerCommand : SuppressBootstrapCommand;
-                    editorDomain.ExecuteAssembly(editorLocation, editorArgs);
+                    var exitCode = editorDomain.ExecuteAssembly(editorPath, editorArgs);
 
                     if (launchPackageManager)
                     {
@@ -136,12 +143,15 @@ namespace Bonsai.Editor
                     }
                     else
                     {
-                        launchPackageManager = (string)editorDomain.GetData(Constants.AppDomainLaunchPackageManagerData) == "true";
+                        launchPackageManager = exitCode == RequirePackageManagerExitCode;
                         exit = !launchPackageManager;
                     }
+
                     AppDomain.Unload(editorDomain);
                 }
             }
+
+            return NormalExitCode;
         }
     }
 }
