@@ -287,6 +287,7 @@
             this.MinimumSize = new System.Drawing.Size(820, 585);
             this.Name = "PackageManagerDialog";
             this.ShowIcon = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "PackageManagerDialog";
             this.mainLayoutPanel.ResumeLayout(false);
             this.packageViewLayoutPanel.ResumeLayout(false);
