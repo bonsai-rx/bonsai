@@ -47,6 +47,15 @@ namespace Bonsai.Editor
             packageManager.PackageUninstalling += packageManager_PackageUninstalling;
         }
 
+        string GetRelativePath(string path)
+        {
+            var editorRoot = packageManager.FileSystem.Root;
+            var rootUri = new Uri(editorRoot);
+            var pathUri = new Uri(path);
+            var relativeUri = rootUri.MakeRelativeUri(pathUri);
+            return relativeUri.ToString().Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+        }
+
         static bool IsTaggedPackage(IPackage package)
         {
             return package.Tags != null && package.Tags.Contains(Constants.PackageTagFilter);
@@ -154,8 +163,8 @@ namespace Bonsai.Editor
         void packageManager_PackageInstalled(object sender, PackageOperationEventArgs e)
         {
             var package = e.Package;
-            var installPath = e.InstallPath;
             var taggedPackage = IsTaggedPackage(package);
+            var installPath = GetRelativePath(e.InstallPath);
             if (!packageConfiguration.Packages.Contains(package.Id))
             {
                 packageConfiguration.Packages.Add(package.Id, package.Version.ToString());
@@ -213,8 +222,8 @@ namespace Bonsai.Editor
         void packageManager_PackageUninstalling(object sender, PackageOperationEventArgs e)
         {
             var package = e.Package;
-            var installPath = e.InstallPath;
             var taggedPackage = IsTaggedPackage(package);
+            var installPath = GetRelativePath(e.InstallPath);
             packageConfiguration.Packages.Remove(package.Id);
 
             RemoveLibraryFolders(package, installPath);

@@ -57,7 +57,12 @@ namespace Bonsai.Configuration
                 var assemblyName = new AssemblyName(args.Name).Name;
                 if (configuration.AssemblyLocations.Contains(assemblyName))
                 {
-                    var assemblyLocation = Path.Combine(configurationRoot, configuration.AssemblyLocations[assemblyName].Location);
+                    var assemblyLocation = configuration.AssemblyLocations[assemblyName].Location;
+                    if (!Path.IsPathRooted(assemblyLocation))
+                    {
+                        assemblyLocation = Path.Combine(configurationRoot, assemblyLocation);
+                    }
+
                     if (File.Exists(assemblyLocation))
                     {
                         return Assembly.LoadFrom(assemblyLocation);
