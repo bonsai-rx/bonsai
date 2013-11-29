@@ -12,6 +12,8 @@ namespace Bonsai.Editor
 {
     class PackageConfigurationUpdater : IDisposable
     {
+        const string PackageTagFilter = "Bonsai";
+
         readonly string bootstrapperExePath;
         readonly string bootstrapperPackageId;
         readonly IPackageManager packageManager;
@@ -58,7 +60,7 @@ namespace Bonsai.Editor
 
         static bool IsTaggedPackage(IPackage package)
         {
-            return package.Tags != null && package.Tags.Contains(Constants.PackageTagFilter);
+            return package.Tags != null && package.Tags.Contains(PackageTagFilter);
         }
 
         static string ResolvePlatformNameAlias(string name)
