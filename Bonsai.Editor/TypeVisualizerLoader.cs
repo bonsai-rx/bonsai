@@ -13,9 +13,9 @@ namespace Bonsai.Editor
     {
         Type typeVisualizerAttributeType;
 
-        public TypeVisualizerLoader()
+        public TypeVisualizerLoader(PackageConfiguration configuration)
         {
-            ConfigurationHelper.SetAssemblyResolve();
+            ConfigurationHelper.SetAssemblyResolve(configuration);
             InitializeReflectionTypes();
         }
 
@@ -89,14 +89,16 @@ namespace Bonsai.Editor
         {
             AppDomain reflectionDomain;
 
-            public LoaderResource()
+            public LoaderResource(PackageConfiguration configuration)
             {
                 AppDomainSetup setup = AppDomain.CurrentDomain.SetupInformation;
                 setup.LoaderOptimization = LoaderOptimization.MultiDomainHost;
                 reflectionDomain = AppDomain.CreateDomain("ReflectionOnly", AppDomain.CurrentDomain.Evidence, setup);
                 Loader = (TypeVisualizerLoader)reflectionDomain.CreateInstanceAndUnwrap(
                     typeof(TypeVisualizerLoader).Assembly.FullName,
-                    typeof(TypeVisualizerLoader).FullName);
+                    typeof(TypeVisualizerLoader).FullName,
+                    false, (BindingFlags)0, null,
+                    new[] { configuration }, null, null);
             }
 
             public TypeVisualizerLoader Loader { get; private set; }
@@ -112,7 +114,7 @@ namespace Bonsai.Editor
             var configuration = ConfigurationHelper.Load();
             var assemblies = configuration.AssemblyReferences.Select(reference => reference.AssemblyName);
             return Observable.Using(
-                () => new LoaderResource(),
+                () => new LoaderResource(configuration),
                 resource => from assemblyRef in assemblies.ToObservable()
                             let typeVisualizers = resource.Loader.GetReflectionTypeVisualizerAttributes(assemblyRef)
                             from typeVisualizer in typeVisualizers
