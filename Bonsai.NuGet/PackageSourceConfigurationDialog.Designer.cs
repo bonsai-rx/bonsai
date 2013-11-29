@@ -223,6 +223,7 @@
             this.Name = "PackageSourceConfigurationDialog";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "PackageSourceConfigurationDialog";
             this.ResumeLayout(false);
             this.PerformLayout();

@@ -138,6 +138,7 @@
             this.Name = "PackageOperationDialog";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Operation";
             this.actionNamePanel.ResumeLayout(false);
             this.actionNamePanel.PerformLayout();
