@@ -145,9 +145,13 @@ namespace Bonsai.Editor
             }
         }
 
-        public static IObservable<IGrouping<string, WorkflowElementDescriptor>> GetWorkflowElementTypes()
+        public static IObservable<IGrouping<string, WorkflowElementDescriptor>> GetWorkflowElementTypes(PackageConfiguration configuration)
         {
-            var configuration = ConfigurationHelper.Load();
+            if (configuration == null)
+            {
+                throw new ArgumentNullException("configuration");
+            }
+
             var assemblies = configuration.AssemblyReferences.Select(reference => reference.AssemblyName);
             return Observable.Using(
                 () => new LoaderResource(configuration),
