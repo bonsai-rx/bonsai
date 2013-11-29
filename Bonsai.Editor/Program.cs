@@ -16,6 +16,7 @@ namespace Bonsai.Editor
         const string SuppressBootstrapCommand = "--noboot";
         const string PackageManagerCommand = "--packagemanager";
         const string EditorDomainName = "EditorDomain";
+        const string RepositoryPath = "Packages";
         const int NormalExitCode = 0;
         const int RequirePackageManagerExitCode = 1;
 
@@ -42,7 +43,7 @@ namespace Bonsai.Editor
             var editorFolder = Path.GetDirectoryName(editorPath);
             var editorPackageId = editorAssembly.GetName().Name;
             var editorPackageVersion = SemanticVersion.Parse(editorAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion);
-            var editorRepositoryPath = Path.Combine(editorFolder, Constants.RepositoryPath);
+            var editorRepositoryPath = Path.Combine(editorFolder, RepositoryPath);
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

@@ -87,7 +87,6 @@
       <DependentUpon>AboutBox.cs</DependentUpon>
     </Compile>
     <Compile Include="CommandLineParser.cs" />
-    <Compile Include="Constants.cs" />
     <Compile Include="OverlayHelper.cs" />
     <Compile Include="OverlayPackagePathResolver.cs" />
     <Compile Include="PackageConfigurationUpdater.cs" />
