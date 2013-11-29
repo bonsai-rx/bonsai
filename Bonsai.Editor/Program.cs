@@ -131,9 +131,10 @@ namespace Bonsai.Editor
                     var setupInfo = new AppDomainSetup();
                     setupInfo.ApplicationBase = editorFolder;
                     setupInfo.PrivateBinPath = editorFolder;
+                    var currentEvidence = AppDomain.CurrentDomain.Evidence;
                     setupInfo.ConfigurationFile = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
                     setupInfo.LoaderOptimization = LoaderOptimization.MultiDomainHost;
-                    var editorDomain = AppDomain.CreateDomain(EditorDomainName, null, setupInfo);
+                    var editorDomain = AppDomain.CreateDomain(EditorDomainName, currentEvidence, setupInfo);
                     var exitCode = editorDomain.ExecuteAssembly(editorPath, editorArgs);
 
                     if (launchPackageManager)
