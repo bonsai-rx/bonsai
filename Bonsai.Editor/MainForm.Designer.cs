@@ -835,7 +835,7 @@
         private System.Windows.Forms.GroupBox toolboxGroupBox;
         private System.Windows.Forms.TreeView toolboxTreeView;
         private System.Windows.Forms.GroupBox workflowGroupBox;
-        private Design.GraphView workflowGraphView;
+        private Bonsai.Design.GraphView workflowGraphView;
         private System.Windows.Forms.GroupBox propertiesGroupBox;
         private System.Windows.Forms.PropertyGrid propertyGrid;
         private System.Windows.Forms.ToolStripMenuItem startToolStripMenuItem;

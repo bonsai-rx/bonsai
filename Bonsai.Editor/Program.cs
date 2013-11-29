@@ -36,8 +36,10 @@ namespace Bonsai.Editor
 
             var editorAssembly = typeof(Program).Assembly;
             var editorPath = editorAssembly.Location;
+            var editorFolder = Path.GetDirectoryName(editorPath);
             var editorPackageId = editorAssembly.GetName().Name;
             var editorPackageVersion = SemanticVersion.Parse(editorAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion);
+            var editorRepositoryPath = Path.Combine(editorFolder, Constants.RepositoryPath);
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -53,7 +55,7 @@ namespace Bonsai.Editor
                 Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
                 if (launchPackageManager)
                 {
-                    var packageManagerDialog = new PackageManagerDialog(Constants.RepositoryPath);
+                    var packageManagerDialog = new PackageManagerDialog(editorRepositoryPath);
                     using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManagerDialog, editorPath, editorPackageId))
                     {
                         Application.Run(packageManagerDialog);
@@ -72,7 +74,7 @@ namespace Bonsai.Editor
                 var settings = Settings.LoadDefaultSettings(null, null, null);
                 var sourceProvider = new PackageSourceProvider(settings);
                 var sourceRepository = sourceProvider.GetAggregate(PackageRepositoryFactory.Default, true);
-                var packageManager = new PackageManager(sourceRepository, Constants.RepositoryPath) { Logger = logger };
+                var packageManager = new PackageManager(sourceRepository, editorRepositoryPath) { Logger = logger };
 
                 var editorPackage = packageManager.LocalRepository.FindPackage(editorPackageId, editorPackageVersion);
                 if (editorPackage == null)
@@ -118,14 +120,14 @@ namespace Bonsai.Editor
                     Array.Copy(args, editorArgs, args.Length);
 
                     var setupInfo = new AppDomainSetup();
-                    var editorLocation = packageConfiguration.AssemblyLocations[editorPackageId];
-                    var editorBasePath = Path.GetDirectoryName(editorLocation.Location);
+                    var editorLocation = Path.Combine(editorFolder, packageConfiguration.AssemblyLocations[editorPackageId].Location);
+                    var editorBasePath = Path.GetDirectoryName(editorLocation);
                     setupInfo.ApplicationBase = editorBasePath;
                     setupInfo.PrivateBinPath = editorBasePath;
                     setupInfo.ConfigurationFile = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
                     var editorDomain = AppDomain.CreateDomain(EditorDomainName, null, setupInfo);
                     editorArgs[editorArgs.Length - 1] = launchPackageManager ? PackageManagerCommand : SuppressBootstrapCommand;
-                    editorDomain.ExecuteAssembly(editorLocation.Location, editorArgs);
+                    editorDomain.ExecuteAssembly(editorLocation, editorArgs);
 
                     if (launchPackageManager)
                     {
