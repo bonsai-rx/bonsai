@@ -16,6 +16,11 @@ namespace Bonsai.Configuration
         const string DefaultProbingPath = "Packages";
         const string DefaultConfigurationFileName = "Bonsai.config";
 
+        static string GetEnvironmentPlatform()
+        {
+            return Environment.Is64BitProcess ? "x64" : "x86";
+        }
+
         static string GetDefaultConfigurationFilePath()
         {
             var configurationRoot = Path.GetDirectoryName(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
@@ -37,12 +42,10 @@ namespace Bonsai.Configuration
                 ? string.Empty
                 : Path.GetDirectoryName(configuration.ConfigurationFile);
 
+            var platform = GetEnvironmentPlatform();
             foreach (var libraryFolder in configuration.LibraryFolders)
             {
-                var platformSupported = Environment.Is64BitProcess
-                    ? libraryFolder.Platform == "x64"
-                    : libraryFolder.Platform == "x86";
-                if (platformSupported)
+                if (libraryFolder.Platform == platform)
                 {
                     var libraryPath = Path.Combine(configurationRoot, libraryFolder.Path);
                     AddLibraryPath(libraryPath);
@@ -94,6 +97,21 @@ namespace Bonsai.Configuration
             {
                 serializer.Serialize(writer, configuration);
                 configuration.ConfigurationFile = fileName;
+            }
+        }
+
+        public static void RegisterPath(this PackageConfiguration configuration, string path)
+        {
+            var platform = GetEnvironmentPlatform();
+            configuration.LibraryFolders.Add(path, platform);
+            foreach (var assemblyFile in Directory.GetFiles(path, "*.dll"))
+            {
+                var assemblyName = Path.GetFileNameWithoutExtension(assemblyFile);
+                if (!configuration.AssemblyLocations.Contains(assemblyName))
+                {
+                    configuration.AssemblyReferences.Add(assemblyName);
+                    configuration.AssemblyLocations.Add(assemblyName, assemblyFile);
+                }
             }
         }
     }
