@@ -165,6 +165,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Bonsai.ico" />
+    <None Include="Resources\Bonsai.png" />
     <None Include="ilmerge.internalize.exclude.txt" />
     <None Include="Resources\PropertyMappingIcon.bmp" />
     <None Include="Resources\RunningStatusImage.png" />
