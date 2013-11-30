@@ -46,7 +46,7 @@ namespace Bonsai.Editor
             for (int i = 0; i < args.Length; i++)
             {
                 Action<string> handler;
-                var options = args[i].Split(new[] { OptionSeparator }, StringSplitOptions.RemoveEmptyEntries);
+                var options = args[i].Split(new[] { OptionSeparator }, 2, StringSplitOptions.RemoveEmptyEntries);
                 if (commands.TryGetValue(options[0], out handler))
                 {
                     handler(options.Length > 1 ? options[1] : string.Empty);
