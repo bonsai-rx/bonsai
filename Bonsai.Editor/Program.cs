@@ -13,6 +13,7 @@ namespace Bonsai.Editor
     static class Program
     {
         const string StartCommand = "--start";
+        const string LibraryCommand = "--lib";
         const string SuppressBootstrapCommand = "--noboot";
         const string PackageManagerCommand = "--packagemanager";
         const string EditorDomainName = "EditorDomain";
@@ -31,8 +32,10 @@ namespace Bonsai.Editor
             var bootstrap = true;
             var launchPackageManager = false;
             string initialFileName = null;
+            var libFolders = new List<string>();
             var parser = new CommandLineParser();
             parser.RegisterCommand(StartCommand, () => start = true);
+            parser.RegisterCommand(LibraryCommand, path => libFolders.Add(path));
             parser.RegisterCommand(SuppressBootstrapCommand, () => bootstrap = false);
             parser.RegisterCommand(PackageManagerCommand, () => { launchPackageManager = true; bootstrap = false; });
             parser.RegisterCommand(command => initialFileName = command);
@@ -56,6 +59,7 @@ namespace Bonsai.Editor
                     Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, initialPath);
                 }
 
+                libFolders.ForEach(path => Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, path));
                 Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
                 if (launchPackageManager)
                 {
