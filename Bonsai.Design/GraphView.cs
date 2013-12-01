@@ -338,7 +338,6 @@ namespace Bonsai.Design
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            Size selectionOffset;
             var shift = keyData.HasFlag(Keys.Shift);
             if (shift) keyData &= ~Keys.Shift;
             var control = keyData.HasFlag(Keys.Control);
@@ -350,19 +349,20 @@ namespace Bonsai.Design
                 else SelectNode(cursor, true);
             }
 
+            var stepCursor = false;
             switch (keyData)
             {
-                case Keys.Up: selectionOffset = new Size(0, -NodeAirspace); break;
-                case Keys.Down: selectionOffset = new Size(0, NodeAirspace); break;
-                case Keys.Left: selectionOffset = new Size(-NodeAirspace, 0); break;
-                case Keys.Right: selectionOffset = new Size(NodeAirspace, 0); break;
-                default: selectionOffset = Size.Empty; break;
+                case Keys.Up:
+                case Keys.Down:
+                case Keys.Left:
+                case Keys.Right:
+                    stepCursor = true;
+                    break;
             }
 
-            if (cursor != null && selectionOffset != Size.Empty)
+            if (cursor != null && stepCursor)
             {
-                selectionOffset -= new Size(canvas.HorizontalScroll.Value, canvas.VerticalScroll.Value);
-                SetCursor(GetClosestNodeTo(Point.Add(layoutNodes[cursor].Location, selectionOffset)));
+                StepCursor(keyData);
                 if (shift)
                 {
                     SelectRange(cursor, control);
@@ -486,6 +486,128 @@ namespace Bonsai.Design
             }
 
             return null;
+        }
+
+        IEnumerable<GraphNode> GetPredecessors(GraphNode node)
+        {
+            return from layer in nodes
+                   where layer.Key > node.Layer
+                   from predecessor in layer
+                   where predecessor.Successors.Any(edge => edge.Node == node)
+                   select predecessor;
+        }
+
+        GraphNode ResolveDummyPredecessor(GraphNode source)
+        {
+            while (source.Value == null)
+            {
+                source = GetPredecessors(source).First();
+            }
+
+            return source;
+        }
+
+        GraphNode ResolveDummySuccessor(GraphNode source)
+        {
+            while (source.Value == null)
+            {
+                source = source.Successors.First().Node;
+            }
+
+            return source;
+        }
+
+        GraphNode GetDefaultSuccessor(GraphNode node)
+        {
+            return (from successor in node.Successors
+                    orderby successor.Node.LayerIndex ascending
+                    select ResolveDummySuccessor(successor.Node))
+                   .FirstOrDefault();
+        }
+
+        GraphNode GetDefaultPredecessor(GraphNode node)
+        {
+            return (from predecessor in GetPredecessors(node)
+                    orderby predecessor.LayerIndex ascending
+                    select ResolveDummyPredecessor(predecessor))
+                   .FirstOrDefault();
+        }
+
+        IEnumerable<GraphNode> GetSiblings(GraphNode node)
+        {
+            return (from predecessor in GetPredecessors(node)
+                    orderby predecessor.LayerIndex ascending
+                    let predecessorNode = ResolveDummyPredecessor(predecessor)
+                    from successor in predecessorNode.Successors
+                    orderby successor.Node.LayerIndex ascending
+                    select ResolveDummySuccessor(successor.Node))
+                   .Distinct();
+        }
+
+        void StepCursor(Keys step)
+        {
+            if (cursor == null) return;
+            var layer = cursor.Layer;
+            var layerIndex = cursor.LayerIndex;
+            if (step == Keys.Right) layer--;
+            if (step == Keys.Left) layer++;
+            if (step == Keys.Up) layerIndex--;
+            if (step == Keys.Down) layerIndex++;
+
+            GraphNode selection = null;
+            if (selection == null)
+            {
+                if (layer != cursor.Layer)
+                {
+                    selection = (from layout in layoutNodes
+                                 where layout.Node.Value != null &&
+                                       layout.Node.LayerIndex == layerIndex && (layer > cursor.Layer
+                                     ? layout.Node.Layer >= layer
+                                     : layout.Node.Layer <= layer)
+                                 orderby Math.Abs(layout.Node.Layer - layer) ascending
+                                 select layout.Node)
+                                .FirstOrDefault();
+                }
+                else
+                {
+                    selection = (from layout in layoutNodes
+                                 where layout.Node.Value != null &&
+                                       layout.Node.Layer == layer && (layerIndex > cursor.LayerIndex
+                                     ? layout.Node.LayerIndex >= layerIndex
+                                     : layout.Node.LayerIndex <= layerIndex)
+                                 orderby Math.Abs(layout.Node.LayerIndex - layerIndex) ascending
+                                 select layout.Node)
+                                .FirstOrDefault();
+                }
+            }
+
+            if (selection == null)
+            {
+                if (step == Keys.Right)
+                {
+                    selection = GetDefaultSuccessor(cursor);
+                }
+
+                if (step == Keys.Left)
+                {
+                    selection = GetDefaultPredecessor(cursor);
+                }
+
+                if (step == Keys.Down)
+                {
+                    selection = GetSiblings(cursor).SkipWhile(node => node != cursor).Skip(1).FirstOrDefault();
+                }
+
+                if (step == Keys.Up)
+                {
+                    selection = GetSiblings(cursor).TakeWhile(node => node != cursor).LastOrDefault();
+                }
+            }
+
+            if (selection != null)
+            {
+                SetCursor(selection);
+            }
         }
 
         public GraphNode GetClosestNodeTo(Point point)
