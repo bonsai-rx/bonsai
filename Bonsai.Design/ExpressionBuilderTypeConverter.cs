@@ -20,6 +20,7 @@ namespace Bonsai.Design
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
             if (destinationType == typeof(Brush)) return true;
+            if (destinationType == typeof(Image)) return true;
 
             return base.CanConvertTo(context, destinationType);
         }
@@ -70,6 +71,20 @@ namespace Bonsai.Design
                     default:
                         return Brushes.LightBlue;
                 }
+            }
+
+            if (destinationType == typeof(Image))
+            {
+                var expressionBuilder = (ExpressionBuilder)value;
+                var workflowElement = ExpressionBuilder.GetWorkflowElement(expressionBuilder);
+                var attributes = TypeDescriptor.GetAttributes(workflowElement);
+                var bitmapAttribute = (ToolboxBitmapAttribute)attributes[typeof(ToolboxBitmapAttribute)];
+                if (bitmapAttribute != ToolboxBitmapAttribute.Default)
+                {
+                    return bitmapAttribute.GetImage(value);
+                }
+
+                return null;
             }
 
             return base.ConvertTo(context, culture, value, destinationType);

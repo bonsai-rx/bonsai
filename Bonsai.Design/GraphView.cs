@@ -18,7 +18,9 @@ namespace Bonsai.Design
         const int PenWidth = 3;
         const int NodeAirspace = 80;
         const int NodeSize = 30;
+        const int IconSize = 16;
         const int HalfSize = NodeSize / 2;
+        const int IconOffset = HalfSize - (IconSize / 2);
         const int LabelTextOffset = 5;
         static readonly Size TextOffset = new Size(9, 9);
         static readonly Size EntryOffset = new Size(-PenWidth / 2, NodeSize / 2);
@@ -778,10 +780,21 @@ namespace Bonsai.Design
                     e.Graphics.DrawEllipse(pen, nodeRectangle);
                     e.Graphics.FillEllipse(brush, nodeRectangle);
                     if (layout.Node == highlight) e.Graphics.FillEllipse(HighlightBrush, nodeRectangle);
-                    e.Graphics.DrawString(
-                        layout.Node.Text.Substring(0, 1),
-                        Font, textBrush,
-                        Point.Add(layout.Location, Size.Add(offset, TextOffset)));
+                    if (layout.Node.Image != null)
+                    {
+                        var imageRect = new Rectangle(
+                            nodeRectangle.X + IconOffset,
+                            nodeRectangle.Y + IconOffset,
+                            IconSize, IconSize);
+                        e.Graphics.DrawImage(layout.Node.Image, imageRect);
+                    }
+                    else
+                    {
+                        e.Graphics.DrawString(
+                            layout.Node.Text.Substring(0, 1),
+                            Font, textBrush,
+                            Point.Add(layout.Location, Size.Add(offset, TextOffset)));
+                    }
 
                     if (layout.Node == highlight)
                     {
