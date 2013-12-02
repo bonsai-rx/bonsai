@@ -53,16 +53,9 @@ namespace Bonsai.Editor
             var packageConfiguration = Configuration.ConfigurationHelper.Load();
             if (!bootstrap)
             {
-                if (!string.IsNullOrEmpty(initialFileName))
-                {
-                    var initialPath = Path.GetDirectoryName(initialFileName);
-                    Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, initialPath);
-                }
-
-                libFolders.ForEach(path => Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, path));
-                Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
                 if (launchPackageManager)
                 {
+                    Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
                     var packageManagerDialog = new PackageManagerDialog(editorRepositoryPath);
                     using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManagerDialog, editorPath, editorPackageId))
                     {
@@ -71,6 +64,15 @@ namespace Bonsai.Editor
                 }
                 else
                 {
+                    if (!string.IsNullOrEmpty(initialFileName))
+                    {
+                        var initialPath = Path.GetDirectoryName(initialFileName);
+                        Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, initialPath);
+                    }
+
+                    libFolders.ForEach(path => Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, path));
+                    Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
+
                     var mainForm = new MainForm
                     {
                         PackageConfiguration = packageConfiguration,
