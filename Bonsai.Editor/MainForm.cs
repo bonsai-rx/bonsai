@@ -479,15 +479,15 @@ namespace Bonsai.Editor
             {
                 viewModel.WorkflowGraphView.SelectedNode = graphNode;
                 var selectionBrush = viewModel.WorkflowGraphView.UnfocusedSelectionBrush;
-                var buildException = e.InnerException as WorkflowException;
-                if (buildException != null)
+                var nestedException = e.InnerException as WorkflowRuntimeException;
+                if (nestedException != null)
                 {
                     viewModel.LaunchWorkflowView(graphNode);
                     viewModel.WorkflowGraphView.UnfocusedSelectionBrush = Brushes.DarkRed;
                     var editorLauncher = viewModel.GetWorkflowEditorLauncher(graphNode);
                     if (editorLauncher != null)
                     {
-                        SelectExceptionBuilderNode(editorLauncher.ViewModel, buildException);
+                        SelectExceptionBuilderNode(editorLauncher.ViewModel, nestedException);
                     }
                 }
                 else
