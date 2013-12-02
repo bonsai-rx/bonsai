@@ -177,7 +177,7 @@ namespace Bonsai.Editor
             var pivots = OverlayHelper.FindPivots(package, installPath).ToArray();
             if (pivots.Length > 0)
             {
-                var overlayManager = OverlayHelper.CreateOverlayManager(packageManager.SourceRepository, installPath);
+                var overlayManager = OverlayHelper.CreateOverlayManager(packageManager.SourceRepository, e.InstallPath);
                 foreach (var pivot in pivots)
                 {
                     var pivotPackage = overlayManager.LocalRepository.FindPackage(pivot);
