@@ -293,7 +293,7 @@ namespace Bonsai.Expressions
                        .Any(m => m.ReturnType == to && m.Name == "op_Implicit");
         }
 
-        static int CompareConversion(Type t1, Type t2, Type s)
+        internal static int CompareConversion(Type t1, Type t2, Type s)
         {
             if (t1 == t2) return 0;
             if (s == t1) return -1;
