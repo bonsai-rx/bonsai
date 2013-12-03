@@ -69,6 +69,14 @@
     <Compile Include="Expressions\BitwiseAndBuilder.cs" />
     <Compile Include="Expressions\BitwiseOrBuilder.cs" />
     <Compile Include="Expressions\BitwiseNotBuilder.cs" />
+    <Compile Include="Expressions\LogicalAndBuilder.cs" />
+    <Compile Include="Expressions\LogicalOrBuilder.cs" />
+    <Compile Include="Expressions\NotEqualBuilder.cs" />
+    <Compile Include="Expressions\EqualBuilder.cs" />
+    <Compile Include="Expressions\LessThanOrEqualBuilder.cs" />
+    <Compile Include="Expressions\LessThanBuilder.cs" />
+    <Compile Include="Expressions\GreaterThanOrEqualBuilder.cs" />
+    <Compile Include="Expressions\GreaterThanBuilder.cs" />
     <Compile Include="Expressions\XorBuilder.cs" />
     <Compile Include="Expressions\ModBuilder.cs" />
     <Compile Include="Expressions\DivideBuilder.cs" />
