@@ -4,17 +4,17 @@
   <?define PlayerBuildPath="..\Bonsai.Player\bin\Release"?>
   <?if $(var.Platform) = x64?>
     <?define Win64="yes"?>
-    <?define ProductDisplayName="Bonsai (64-bit)"?>
+    <?define ProductDisplayName="Bonsai"?>
   <?else?>
     <?define Win64="no"?>
     <?define ProductDisplayName="Bonsai"?>
   <?endif?>
   
   <Fragment>
-    <ComponentGroup Id="ProductComponents" Directory="APPLICATIONFOLDER">
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
       <Component Id="BonsaiEditorExecutable" Guid="*" Win64="$(var.Win64)">
         <File Id="BonsaiEditorEXE" Name="Bonsai.Editor.exe" Source="$(var.EditorBuildPath)\Bonsai.Editor.exe" KeyPath="yes">
-          <Shortcut Id="startmenuBonsaiEditor" Directory="ProgramMenuDir" WorkingDirectory="APPLICATIONFOLDER" Name="$(var.ProductDisplayName)" Icon="Bonsai.ico" Advertise="yes"/>
+          <Shortcut Id="startmenuBonsaiEditor" Directory="ProgramMenuDir" WorkingDirectory="INSTALLFOLDER" Name="$(var.ProductDisplayName)" Icon="Bonsai.ico" Advertise="yes"/>
         </File>
         <File Id="BonsaiEditorCONFIG" Name="Bonsai.Editor.exe.config" Source="$(var.EditorBuildPath)\Bonsai.Editor.exe.config"/>
         <ProgId Id='Bonsai.workflow' Description='Bonsai workflow file' Icon='BonsaiWorkflow.ico' Advertise='yes'>
@@ -25,7 +25,7 @@
       </Component>
 
       <Component Id='BonsaiInstallDir' Guid='*' Win64="$(var.Win64)">
-        <RegistryValue Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' Name='InstallDir' Type='string' Value='[APPLICATIONFOLDER]' KeyPath='yes'/>
+        <RegistryValue Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' Name='InstallDir' Type='string' Value='[INSTALLFOLDER]' KeyPath='yes'/>
       </Component>
     </ComponentGroup>
   </Fragment>

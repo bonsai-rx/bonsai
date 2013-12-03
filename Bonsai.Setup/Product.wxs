@@ -5,7 +5,7 @@
   
   <?if $(var.Platform) = x64?>
     <?define Win64="yes"?>
-    <?define ProductDisplayName="Bonsai (64-bit)"?>
+    <?define ProductDisplayName="Bonsai"?>
     <?define ProductUpgradeCode="4ba318de-f0ce-4c8a-9898-0ac27ef0d0e3"?>
     <?define ProgramFilesFolder="ProgramFiles64Folder"?>
   <?else?>
@@ -28,7 +28,7 @@
     <Icon Id="BonsaiWorkflow.ico" SourceFile="$(var.ResourcesPath)\BonsaiWorkflow.ico" />
     <Property Id="ARPPRODUCTICON" Value="Bonsai.ico" />
     
-		<Feature Id="ProductFeature" Title="Bonsai" Level="1" ConfigurableDirectory="APPLICATIONFOLDER">
+		<Feature Id="ProductFeature" Title="Bonsai" Level="1" ConfigurableDirectory="INSTALLFOLDER">
       <Feature Id="RuntimeFeature" Title="Runtime" Level="1">
         <ComponentGroupRef Id="ProductComponents" />
         <ComponentRef Id='ProgramMenuDir' />
@@ -43,7 +43,7 @@
 	<Fragment>
     <Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="$(var.ProgramFilesFolder)">
-        <Directory Id="APPLICATIONFOLDER" Name="Bonsai">
+        <Directory Id="INSTALLFOLDER" Name="$(var.ProductDisplayName)">
           <Directory Id="VSEXTENSIONSFOLDER" Name="Extensions"/>
         </Directory>
 			</Directory>
