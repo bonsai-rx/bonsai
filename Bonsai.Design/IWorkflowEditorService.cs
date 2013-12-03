@@ -19,6 +19,10 @@ namespace Bonsai.Design
 
         Type GetTypeVisualizer(Type targetType);
 
+        void StartWorkflow();
+
+        void StopWorkflow();
+
         bool WorkflowRunning { get; }
 
         event EventHandler WorkflowStarted;

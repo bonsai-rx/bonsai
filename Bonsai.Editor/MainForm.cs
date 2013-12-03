@@ -748,7 +748,7 @@ namespace Bonsai.Editor
 
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Modifiers == Keys.Control && e.KeyCode == Keys.E)
+            if (e.KeyCode == Keys.E && e.Control)
             {
                 searchTextBox.Focus();
                 e.Handled = true;
@@ -969,6 +969,16 @@ namespace Bonsai.Editor
                 Type visualizerType;
                 siteForm.typeVisualizers.TryGetValue(targetType, out visualizerType);
                 return visualizerType;
+            }
+
+            public void StartWorkflow()
+            {
+                siteForm.StartWorkflow();
+            }
+
+            public void StopWorkflow()
+            {
+                siteForm.StopWorkflow();
             }
 
             public bool WorkflowRunning
