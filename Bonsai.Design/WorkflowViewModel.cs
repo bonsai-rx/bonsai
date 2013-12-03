@@ -938,6 +938,16 @@ namespace Bonsai.Design
                     InsertGraphElements(builder.Workflow, predecessor, branch);
                 }
             }
+
+            if (e.KeyCode == Keys.R && e.Control)
+            {
+                editorService.StartWorkflow();
+            }
+
+            if (e.KeyCode == Keys.T && e.Control)
+            {
+                editorService.StopWorkflow();
+            }
         }
 
         private void workflowGraphView_SelectedNodeChanged(object sender, EventArgs e)
