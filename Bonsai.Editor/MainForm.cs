@@ -85,10 +85,10 @@ namespace Bonsai.Editor
             {
                 if (welcome.ShowDialog(this) == DialogResult.OK)
                 {
-                    if (welcome.ShowWelcomeDialog != Settings.Default.ShowWelcomeDialog)
+                    if (welcome.ShowWelcomeDialog != EditorSettings.Instance.ShowWelcomeDialog)
                     {
-                        Settings.Default.ShowWelcomeDialog = welcome.ShowWelcomeDialog;
-                        Settings.Default.Save();
+                        EditorSettings.Instance.ShowWelcomeDialog = welcome.ShowWelcomeDialog;
+                        EditorSettings.Instance.Save();
                     }
                 }
             }
@@ -124,7 +124,7 @@ namespace Bonsai.Editor
 
         protected override void OnShown(EventArgs e)
         {
-            if (Settings.Default.ShowWelcomeDialog)
+            if (EditorSettings.Instance.ShowWelcomeDialog)
             {
                 ShowWelcomeDialog();
             }

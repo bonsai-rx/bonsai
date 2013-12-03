@@ -18,7 +18,7 @@ namespace Bonsai.Editor
         public WelcomeDialog()
         {
             InitializeComponent();
-            showWelcomeDialogCheckBox.Checked = Settings.Default.ShowWelcomeDialog;
+            showWelcomeDialogCheckBox.Checked = EditorSettings.Instance.ShowWelcomeDialog;
             screens = new[] { Resources.BonsaiWelcome, Resources.BonsaiCommands };
             UpdateStatus();
         }
