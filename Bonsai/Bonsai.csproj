@@ -71,6 +71,7 @@
     <Compile Include="Expressions\BitwiseNotBuilder.cs" />
     <Compile Include="Expressions\LogicalAndBuilder.cs" />
     <Compile Include="Expressions\LogicalOrBuilder.cs" />
+    <Compile Include="Expressions\MemberSelectorBuilder.cs" />
     <Compile Include="Expressions\NotEqualBuilder.cs" />
     <Compile Include="Expressions\EqualBuilder.cs" />
     <Compile Include="Expressions\LessThanOrEqualBuilder.cs" />
