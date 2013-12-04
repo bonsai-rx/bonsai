@@ -16,7 +16,6 @@
         <File Id="BonsaiEditorEXE" Name="Bonsai.Editor.exe" Source="$(var.EditorBuildPath)\Bonsai.Editor.exe" KeyPath="yes">
           <Shortcut Id="startmenuBonsaiEditor" Directory="ProgramMenuDir" WorkingDirectory="INSTALLFOLDER" Name="$(var.ProductDisplayName)" Icon="Bonsai.ico" Advertise="yes"/>
         </File>
-        <File Id="BonsaiEditorCONFIG" Name="Bonsai.Editor.exe.config" Source="$(var.EditorBuildPath)\Bonsai.Editor.exe.config"/>
         <ProgId Id='Bonsai.workflow' Description='Bonsai workflow file' Icon='BonsaiWorkflow.ico' Advertise='yes'>
           <Extension Id='bonsai' ContentType='application/xml'>
             <Verb Id='open' Command='Open' Argument='"%1"' />
