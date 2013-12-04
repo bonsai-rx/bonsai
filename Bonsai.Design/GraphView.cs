@@ -795,18 +795,6 @@ namespace Bonsai.Design
                             Font, textBrush,
                             Point.Add(layout.Location, Size.Add(offset, TextOffset)));
                     }
-
-                    if (layout.Node == highlight)
-                    {
-                        var labelRect = layout.LabelRectangle;
-                        labelRect.Location = new PointF(
-                            labelRect.Location.X + offset.Width,
-                            labelRect.Location.Y + offset.Height);
-                        e.Graphics.DrawString(
-                            layout.Node.Text,
-                            Font, Brushes.Black,
-                            labelRect);
-                    }
                 }
                 else e.Graphics.DrawLine(((GraphEdge)layout.Node.Tag).Pen, Point.Add(layout.EntryPoint, offset), Point.Add(layout.ExitPoint, offset));
 
@@ -815,6 +803,19 @@ namespace Bonsai.Design
                     var successorLayout = layoutNodes[successor.Node];
                     e.Graphics.DrawLine(successor.Pen, Point.Add(layout.ExitPoint, offset), Point.Add(successorLayout.EntryPoint, offset));
                 }
+            }
+
+            if (highlight != null)
+            {
+                var layout = layoutNodes[highlight];
+                var labelRect = layout.LabelRectangle;
+                labelRect.Location = new PointF(
+                    labelRect.Location.X + offset.Width,
+                    labelRect.Location.Y + offset.Height);
+                e.Graphics.DrawString(
+                    layout.Node.Text,
+                    Font, Brushes.Black,
+                    labelRect);
             }
 
             if (rubberBand.Width > 0 && rubberBand.Height > 0)
