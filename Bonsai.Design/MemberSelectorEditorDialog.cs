@@ -13,22 +13,46 @@ namespace Bonsai.Design
 {
     public partial class MemberSelectorEditorDialog : Form
     {
-        public MemberSelectorEditorDialog(Type componentType, string selector)
+        public MemberSelectorEditorDialog()
         {
-            if (componentType == null)
-            {
-                throw new ArgumentNullException("componentType");
-            }
-
-            if (selector == null)
-            {
-                throw new ArgumentNullException("selector");
-            }
-
             InitializeComponent();
-            InitializeMemberTree(treeView.Nodes, componentType);
-            InitializeSelection(selector.Split(new[] { ExpressionHelper.MemberSeparator }, StringSplitOptions.RemoveEmptyEntries));
-            Text = string.Format("{0} {1}", componentType.Name, Text);
+        }
+
+        public string Selector
+        {
+            get
+            {
+                var memberChain = GetSelectedMembers().Reverse();
+                return string.Join(ExpressionHelper.MemberSeparator, memberChain.ToArray());
+            }
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    var memberChain = value.Split(new[] { ExpressionHelper.MemberSeparator }, StringSplitOptions.RemoveEmptyEntries);
+                    InitializeSelection(memberChain);
+                }
+                else
+                {
+                    treeView.CollapseAll();
+                    treeView.SelectedNode = null;
+                }
+            }
+        }
+
+        public void AddMember(string name, Type type)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+
+            if (type == null)
+            {
+                throw new ArgumentNullException("type");
+            }
+
+            EnsureNode(treeView.Nodes, name, type);
         }
 
         void InitializeSelection(IEnumerable<string> memberChain)
@@ -54,13 +78,19 @@ namespace Bonsai.Design
             }
         }
 
+        TreeNode CreateNode(TreeNodeCollection nodes, string name, Type type)
+        {
+            var node = nodes.Add(name, name + string.Format(" ({0})", type.FullName));
+            node.Tag = type;
+            return node;
+        }
+
         TreeNode EnsureNode(TreeNodeCollection nodes, string name, Type type)
         {
             var node = nodes[name];
             if (node == null)
             {
-                node = nodes.Add(name, name);
-                node.Tag = type;
+                node = CreateNode(nodes, name, type);
             }
 
             if (node.Nodes.Count == 0)
@@ -93,14 +123,12 @@ namespace Bonsai.Design
         {
             foreach (var field in componentType.GetFields(BindingFlags.Instance | BindingFlags.Public))
             {
-                var node = nodes.Add(field.Name, field.Name);
-                node.Tag = field.FieldType;
+                CreateNode(nodes, field.Name, field.FieldType);
             }
 
             foreach (var property in componentType.GetProperties(BindingFlags.Instance | BindingFlags.Public))
             {
-                var node = nodes.Add(property.Name, property.Name);
-                node.Tag = property.PropertyType;
+                CreateNode(nodes, property.Name, property.PropertyType);
             }
         }
 
@@ -116,12 +144,12 @@ namespace Bonsai.Design
             var node = treeView.SelectedNode;
             while (node != null)
             {
-                yield return node.Text;
+                yield return node.Name;
                 node = node.Parent;
             }
         }
 
-        public IEnumerable<string> GetMemberChain()
+        IEnumerable<string> GetMemberChain()
         {
             return GetSelectedMembers().Reverse();
         }

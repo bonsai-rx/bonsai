@@ -112,7 +112,7 @@ namespace Bonsai.Expressions
                 Expression expression;
                 var builder = node.Value;
                 var argumentRange = builder.ArgumentRange;
-                if (argumentRange == null || !argumentRange.Contains(builder.Arguments.Count))
+                if (argumentRange == null || builder.Arguments.Count < argumentRange.LowerBound)
                 {
                     throw new WorkflowBuildException("Unsupported number of arguments. Check the number of connections into node.", builder);
                 }
@@ -179,7 +179,7 @@ namespace Bonsai.Expressions
                 }
             }
 
-            var output = ExpressionBuilder.BuildOutput(workflowOutput, connections);
+            var output = ExpressionBuilder.BuildWorkflowOutput(workflowOutput, connections);
             publishMap.RemoveAll(scope =>
             {
                 output = scope.Close(output);

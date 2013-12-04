@@ -471,9 +471,8 @@ namespace Bonsai.Expressions
             return source.Publish(ps => ps.Merge(Observable.Merge(connections).Select(xs => default(TSource)).TakeUntil(ps.TakeLast(1))));
         }
 
-        internal static Expression BuildOutput(WorkflowOutputBuilder workflowOutput, IEnumerable<Expression> connections)
+        internal static Expression BuildOutput(Expression output, IEnumerable<Expression> connections)
         {
-            var output = workflowOutput != null ? connections.FirstOrDefault(connection => connection == workflowOutput.Output) : null;
             var ignoredConnections = from connection in connections
                                      where connection != output
                                      let observableType = connection.Type.GetGenericArguments()[0]
@@ -486,6 +485,12 @@ namespace Bonsai.Expressions
                 return Expression.Call(typeof(ExpressionBuilder), "MergeOutput", new[] { outputType }, output, connectionArrayExpression);
             }
             else return Expression.Call(typeof(ExpressionBuilder), "MergeOutput", null, connectionArrayExpression);
+        }
+
+        internal static Expression BuildWorkflowOutput(WorkflowOutputBuilder workflowOutput, IEnumerable<Expression> connections)
+        {
+            var output = workflowOutput != null ? connections.FirstOrDefault(connection => connection == workflowOutput.Output) : null;
+            return BuildOutput(output, connections);
         }
 
         #endregion
@@ -518,14 +523,50 @@ namespace Bonsai.Expressions
 
         #region Dynamic Properties
 
+        static readonly MethodInfo doMethod = typeof(Observable).GetMethods()
+                                                                .Single(m => m.Name == "Do" &&
+                                                                        m.GetParameters().Length == 2 &&
+                                                                        m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Action<>));
         static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()
-                                                            .Single(m => m.Name == "Select" &&
-                                                                    m.GetParameters().Length == 2 &&
-                                                                    m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
+                                                                    .Single(m => m.Name == "Select" &&
+                                                                            m.GetParameters().Length == 2 &&
+                                                                            m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
         static readonly MethodInfo deferMethod = typeof(Observable).GetMethods()
                                                                    .Single(m => m.Name == "Defer" &&
                                                                            m.GetParameters().Length == 1 &&
                                                                            m.GetParameters()[0].ParameterType.GetGenericArguments()[0].GetGenericTypeDefinition() == typeof(IObservable<>));
+
+        internal Expression BuildPropertyMapping(Expression instance, PropertyMapping mapping)
+        {
+            var selector = mapping.Selector.Split(new[] { ExpressionHelper.MemberSeparator }, 2, StringSplitOptions.RemoveEmptyEntries);
+            var sourceName = selector[0];
+
+            var source = Arguments[sourceName];
+            var sourceType = source.Type.GetGenericArguments()[0];
+            var parameter = Expression.Parameter(sourceType);
+            Expression body = parameter;
+            if (selector.Length > 1)
+            {
+                var sourceSelector = selector[1];
+                body = ExpressionHelper.MemberAccess(parameter, sourceSelector);
+            }
+
+            var actionType = Expression.GetActionType(parameter.Type);
+            var property = Expression.Property(instance, mapping.Name);
+            body = Expression.Assign(property, body);
+            var action = Expression.Lambda(actionType, body, parameter);
+            return Expression.Call(doMethod.MakeGenericMethod(sourceType), source, action);
+        }
+
+        internal Expression BuildMappingOutput(Expression instance, Expression output, PropertyMappingCollection propertyMappings)
+        {
+            if (propertyMappings.Count > 0)
+            {
+                return BuildOutput(output, propertyMappings.Select(mapping => BuildPropertyMapping(instance, mapping)));
+            }
+
+            return output;
+        }
 
         internal static Expression BuildCallRemapping(Expression combinator, Func<Expression, Expression, Expression> callFactory, Expression source, string memberSelector, PropertyMappingCollection propertyMappings, bool hot = false)
         {
