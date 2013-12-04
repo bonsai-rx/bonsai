@@ -49,12 +49,8 @@ namespace Bonsai.Design
                     {
                         var expression = workflow.Build(predecessor.Item1.Value);
                         var expressionType = expression.Type.GetGenericArguments()[0];
-                        if (predecessorEdges.Length > 1)
-                        {
-                            var edgeLabel = predecessor.Item2.Label;
-                            editorDialog.AddMember(edgeLabel.Value, expressionType);
-                        }
-                        else editorDialog.AddMember(expressionType);
+                        var label = predecessorEdges.Length > 1 ? predecessor.Item2.Label.Value : ExpressionBuilderParameter.Source;
+                        editorDialog.AddMember(label, expressionType);
                     }
 
                     editorDialog.Selector = selector;
