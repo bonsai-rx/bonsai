@@ -1,7 +1,9 @@
 ﻿using Bonsai.Design;
 using Bonsai.Editor.Properties;
 using Bonsai.Expressions;
+using Microsoft.CSharp;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -39,30 +41,35 @@ namespace Bonsai.Editor
                     var propertyMapAttribute = (PropertyMappingAttribute)builderAttributes[typeof(PropertyMappingAttribute)];
                     if (propertyMapAttribute != null)
                     {
-                        var propertyMapProperty = builderProperties[propertyMapAttribute.PropertyName];
-                        if (propertyMapProperty == null || propertyMapProperty.PropertyType != typeof(PropertyMappingCollection))
+                        using (var provider = new CSharpCodeProvider())
                         {
-                            throw new InvalidOperationException("The property name specified in PropertyMappingAttribute does not exist or has an invalid type.");
-                        }
-
-                        var propertyMappings = (PropertyMappingCollection)propertyMapProperty.GetValue(builder);
-                        var componentProperties = TypeDescriptor.GetProperties(component);
-                        foreach (var descriptor in componentProperties.Cast<PropertyDescriptor>()
-                                                                      .Where(descriptor => descriptor.IsBrowsable &&
-                                                                                           !descriptor.IsReadOnly))
-                        {
-                            var propertyAttributes = new Attribute[]
+                            var propertyMapProperty = builderProperties[propertyMapAttribute.PropertyName];
+                            if (propertyMapProperty == null || propertyMapProperty.PropertyType != typeof(PropertyMappingCollection))
                             {
-                                new EditorAttribute(typeof(MemberSelectorEditor), typeof(UITypeEditor)),
-                                new CategoryAttribute("Property"),
-                                new DescriptionAttribute(descriptor.Description),
-                                new TypeConverterAttribute(typeof(MappingConverter))
-                            };
-                            properties.Add(new PropertyMappingDescriptor(
-                                descriptor.Name + string.Format(" ({0})", descriptor.PropertyType),
-                                descriptor,
-                                propertyMappings,
-                                propertyAttributes));
+                                throw new InvalidOperationException("The property name specified in PropertyMappingAttribute does not exist or has an invalid type.");
+                            }
+
+                            var propertyMappings = (PropertyMappingCollection)propertyMapProperty.GetValue(builder);
+                            var componentProperties = TypeDescriptor.GetProperties(component);
+                            foreach (var descriptor in componentProperties.Cast<PropertyDescriptor>()
+                                                                          .Where(descriptor => descriptor.IsBrowsable &&
+                                                                                               !descriptor.IsReadOnly))
+                            {
+                                var propertyAttributes = new Attribute[]
+                                {
+                                    new EditorAttribute(typeof(MemberSelectorEditor), typeof(UITypeEditor)),
+                                    new CategoryAttribute("Property"),
+                                    new DescriptionAttribute(descriptor.Description),
+                                    new TypeConverterAttribute(typeof(MappingConverter))
+                                };
+
+                                var typeRef = new CodeTypeReference(descriptor.PropertyType);
+                                properties.Add(new PropertyMappingDescriptor(
+                                    descriptor.Name + string.Format(" ({0})", provider.GetTypeOutput(typeRef)),
+                                    descriptor,
+                                    propertyMappings,
+                                    propertyAttributes));
+                            }
                         }
                     }
                 }
