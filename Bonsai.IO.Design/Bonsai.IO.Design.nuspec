@@ -15,8 +15,8 @@
     <copyright>Gonçalo Lopes © 2013</copyright>
     <tags>Bonsai IO Design</tags>
     <dependencies>
-      <dependency id="Bonsai.IO" version="2.0.0-alpha" />
-      <dependency id="Bonsai.Design" version="2.0.0-alpha" />
+      <dependency id="Bonsai.IO" version="2.0.0-beta" />
+      <dependency id="Bonsai.Design" version="2.0.0-beta" />
     </dependencies>
   </metadata>
 </package>
