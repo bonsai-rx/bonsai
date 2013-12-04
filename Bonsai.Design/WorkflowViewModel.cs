@@ -317,7 +317,7 @@ namespace Bonsai.Design
                 var source = GetGraphNodeTag(graphViewSource).Successors.Single().Target;
                 var connection = string.Empty;
                 connection = ExpressionBuilderParameter.Source;
-                if (connectionIndex > 0) connection += connectionIndex;
+                connection += connectionIndex + 1;
 
                 var parameter = new ExpressionBuilderParameter(connection);
                 var edge = Edge.Create(target, parameter);
