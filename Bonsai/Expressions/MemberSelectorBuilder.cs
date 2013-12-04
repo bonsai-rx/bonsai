@@ -21,7 +21,8 @@ namespace Bonsai.Expressions
 
         protected override Expression BuildSelector(Expression expression)
         {
-            return ExpressionHelper.MemberAccess(expression, Selector);
+            var memberAccess = FindMemberAccess(Selector);
+            return ExpressionHelper.MemberAccess(expression, memberAccess.Item2);
         }
     }
 }

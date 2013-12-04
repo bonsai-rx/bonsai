@@ -536,20 +536,37 @@ namespace Bonsai.Expressions
                                                                            m.GetParameters().Length == 1 &&
                                                                            m.GetParameters()[0].ParameterType.GetGenericArguments()[0].GetGenericTypeDefinition() == typeof(IObservable<>));
 
+        internal Tuple<Expression, string> FindMemberAccess(string memberPath)
+        {
+            Expression source;
+            if (string.IsNullOrEmpty(memberPath))
+            {
+                memberPath = ExpressionBuilderParameter.Source;
+            }
+
+            var selector = memberPath.Split(new[] { ExpressionHelper.MemberSeparator }, 2, StringSplitOptions.None);
+            var sourceName = selector[0];
+            if (sourceName == ExpressionBuilderParameter.Source)
+            {
+                source = Arguments.Values.SingleOrDefault();
+            }
+            else if (!Arguments.TryGetValue(sourceName, out source))
+            {
+                throw new InvalidOperationException(string.Format("Unable to find source with name '{0}'.", sourceName));
+            }
+
+            memberPath = selector.Length > 1 ? selector[1] : string.Empty;
+            return Tuple.Create(source, memberPath);
+        }
+
         internal Expression BuildPropertyMapping(Expression instance, PropertyMapping mapping)
         {
-            var selector = mapping.Selector.Split(new[] { ExpressionHelper.MemberSeparator }, 2, StringSplitOptions.RemoveEmptyEntries);
-            var sourceName = selector[0];
-
-            var source = Arguments[sourceName];
+            var memberAccess = FindMemberAccess(mapping.Selector);
+            var source = memberAccess.Item1;
+            var sourceSelector = memberAccess.Item2;
             var sourceType = source.Type.GetGenericArguments()[0];
             var parameter = Expression.Parameter(sourceType);
-            Expression body = parameter;
-            if (selector.Length > 1)
-            {
-                var sourceSelector = selector[1];
-                body = ExpressionHelper.MemberAccess(parameter, sourceSelector);
-            }
+            var body = ExpressionHelper.MemberAccess(parameter, sourceSelector);
 
             var actionType = Expression.GetActionType(parameter.Type);
             var property = Expression.Property(instance, mapping.Name);
