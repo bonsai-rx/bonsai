@@ -553,6 +553,11 @@ namespace Bonsai.Expressions
 
             var actionType = Expression.GetActionType(parameter.Type);
             var property = Expression.Property(instance, mapping.Name);
+            if (body.Type != property.Type)
+            {
+                body = Expression.Convert(body, property.Type);
+            }
+
             body = Expression.Assign(property, body);
             var action = Expression.Lambda(actionType, body, parameter);
             return Expression.Call(doMethod.MakeGenericMethod(sourceType), source, action);
