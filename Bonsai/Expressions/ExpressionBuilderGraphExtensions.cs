@@ -128,7 +128,12 @@ namespace Bonsai.Expressions
                     throw new WorkflowBuildException(e.Message, builder, e);
                 }
 
-                if (builder == buildTarget) return expression;
+                if (builder == buildTarget)
+                {
+                    source.ClearArguments();
+                    return expression;
+                }
+
                 PublishScope publishScope = null;
                 if (node.Successors.Count > 1)
                 {
