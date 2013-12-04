@@ -13,7 +13,7 @@ namespace Bonsai.Expressions
         public const string Source = "Source";
 
         public ExpressionBuilderParameter()
-            : this(Source)
+            : this(Source + 1)
         {
         }
 

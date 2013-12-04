@@ -24,7 +24,7 @@ namespace Bonsai.Design
         {
             var connectionIndex = GetEdgeConnectionIndex(parameter) - 1;
             parameter.Value = ExpressionBuilderParameter.Source;
-            if (connectionIndex > 0) parameter.Value += connectionIndex;
+            parameter.Value += connectionIndex;
         }
     }
 }

@@ -41,7 +41,7 @@ namespace Bonsai.Design
                         }
 
                         var builder = (ExpressionBuilder)builderNode.Value;
-                        var connectionIndex = parameter.GetEdgeConnectionIndex();
+                        var connectionIndex = parameter.GetEdgeConnectionIndex() - 1;
                         if (connectionIndex >= builder.ArgumentRange.UpperBound)
                         {
                             return Pens.Red;
