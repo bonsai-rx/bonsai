@@ -8,14 +8,19 @@ using System.Text;
 using System.Windows.Forms;
 using System.Reflection;
 using System.Collections.ObjectModel;
+using Microsoft.CSharp;
+using System.CodeDom;
 
 namespace Bonsai.Design
 {
     public partial class MemberSelectorEditorDialog : Form
     {
+        CSharpCodeProvider provider;
+
         public MemberSelectorEditorDialog()
         {
             InitializeComponent();
+            provider = new CSharpCodeProvider();
         }
 
         public string Selector
@@ -96,12 +101,13 @@ namespace Bonsai.Design
 
         TreeNode CreateNode(TreeNodeCollection nodes, string name, Type type)
         {
-            var node = nodes.Add(name, name + string.Format(" ({0})", type.FullName));
+            var typeRef = new CodeTypeReference(type);
+            var node = nodes.Add(name, name + string.Format(" ({0})", provider.GetTypeOutput(typeRef)));
             node.Tag = type;
             return node;
         }
 
-        TreeNode EnsureNode(TreeNodeCollection nodes, string name, Type type)
+        TreeNode EnsureNode(TreeNodeCollection nodes, string name, Type type, bool recurse = true)
         {
             var node = nodes[name];
             if (node == null)
@@ -109,7 +115,7 @@ namespace Bonsai.Design
                 node = CreateNode(nodes, name, type);
             }
 
-            if (node.Nodes.Count == 0)
+            if (node.Nodes.Count == 0 && recurse)
             {
                 InitializeDummyMembers(node.Nodes, type);
             }
@@ -139,12 +145,12 @@ namespace Bonsai.Design
         {
             foreach (var field in componentType.GetFields(BindingFlags.Instance | BindingFlags.Public))
             {
-                CreateNode(nodes, field.Name, field.FieldType);
+                EnsureNode(nodes, field.Name, field.FieldType, recurse: false);
             }
 
             foreach (var property in componentType.GetProperties(BindingFlags.Instance | BindingFlags.Public))
             {
-                CreateNode(nodes, property.Name, property.PropertyType);
+                EnsureNode(nodes, property.Name, property.PropertyType, recurse: false);
             }
         }
 
@@ -168,6 +174,12 @@ namespace Bonsai.Design
         IEnumerable<string> GetMemberChain()
         {
             return GetSelectedMembers().Reverse();
+        }
+
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            provider.Dispose();
+            base.OnFormClosed(e);
         }
     }
 }
