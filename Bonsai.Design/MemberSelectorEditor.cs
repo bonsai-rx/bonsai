@@ -41,12 +41,20 @@ namespace Bonsai.Design
                 if (builderNode == null) return base.EditValue(context, provider, value);
                 using (var editorDialog = new MemberSelectorEditorDialog())
                 {
-                    foreach (var predecessor in nodeBuilderGraph.PredecessorEdges(builderNode))
+                    var predecessorEdges = nodeBuilderGraph.PredecessorEdges(builderNode)
+                                                           .OrderBy(edge => edge.Item2.Label.Value)
+                                                           .ToArray();
+
+                    foreach (var predecessor in predecessorEdges)
                     {
-                        var edgeLabel = predecessor.Item2.Label;
                         var expression = workflow.Build(predecessor.Item1.Value);
                         var expressionType = expression.Type.GetGenericArguments()[0];
-                        editorDialog.AddMember(edgeLabel.Value, expressionType);
+                        if (predecessorEdges.Length > 1)
+                        {
+                            var edgeLabel = predecessor.Item2.Label;
+                            editorDialog.AddMember(edgeLabel.Value, expressionType);
+                        }
+                        else editorDialog.AddMember(expressionType);
                     }
 
                     editorDialog.Selector = selector;

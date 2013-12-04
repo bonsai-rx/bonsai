@@ -40,6 +40,16 @@ namespace Bonsai.Design
             }
         }
 
+        public void AddMember(Type type)
+        {
+            if (type == null)
+            {
+                throw new ArgumentNullException("type");
+            }
+
+            InitializeMemberTree(treeView.Nodes, type);
+        }
+
         public void AddMember(string name, Type type)
         {
             if (name == null)
