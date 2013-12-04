@@ -294,7 +294,8 @@ namespace Bonsai.Design
                     break;
                 }
 
-                if (connectionCount++ >= target.Value.ArgumentRange.UpperBound ||
+                if (connectionCount++ >= target.Value.ArgumentRange.UpperBound &&
+                    !Attribute.IsDefined(target.Value.GetType(), typeof(PropertyMappingAttribute), true) ||
                     target.DepthFirstSearch().Contains(node))
                 {
                     reject = true;
