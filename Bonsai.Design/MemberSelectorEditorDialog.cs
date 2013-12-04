@@ -64,6 +64,12 @@ namespace Bonsai.Design
                 var indexBegin = nodeName.IndexOf(ExpressionHelper.IndexBegin);
                 if (indexBegin >= 0) nodeName = nodeName.Substring(0, indexBegin);
                 var node = nodes[nodeName];
+                if (node == null)
+                {
+                    treeView.SelectedNode = node;
+                    break;
+                }
+
                 ExpandNode(node);
                 nodes = node.Nodes;
                 treeView.SelectedNode = node;
