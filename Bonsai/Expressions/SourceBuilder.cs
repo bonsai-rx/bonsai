@@ -38,28 +38,9 @@ namespace Bonsai.Expressions
             var methodName = ((SourceAttribute)sourceAttributes.Single()).MethodName;
             var generateMethod = sourceType.GetMethods(bindingAttributes)
                                            .Single(m => m.Name == methodName && m.GetParameters().Length == 0);
-            return BuildCallRemapping(
-                    sourceExpression,
-                    (combinator, sourceSelect) =>
-                    {
-                        var decoratedSource = HandleBuildException(Expression.Call(combinator, generateMethod), this);
-                        if (sourceSelect != null)
-                        {
-                            var selectorType = sourceSelect.Type.GetGenericArguments()[0];
-                            var decoratedSourceType = decoratedSource.Type.GetGenericArguments()[0];
-                            decoratedSource = Expression.Call(typeof(SourceBuilder), "IgnoreSourceConnection", new[] { decoratedSourceType, selectorType }, decoratedSource, sourceSelect);
-                        }
-                        return decoratedSource;
-                    },
-                    Arguments.Values.SingleOrDefault(),
-                    null,
-                    propertyMappings,
-                    hot:true);
-        }
 
-        static IObservable<TSource> IgnoreSourceConnection<TSource, TOther>(IObservable<TSource> source, IObservable<TOther> connection)
-        {
-            return connection.IgnoreElements().Select(xs => default(TSource)).Merge(source);
+            var output = HandleBuildException(Expression.Call(sourceExpression, generateMethod), this);
+            return BuildMappingOutput(sourceExpression, output, propertyMappings);
         }
     }
 }

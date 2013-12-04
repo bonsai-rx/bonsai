@@ -9,7 +9,6 @@ using System.ComponentModel;
 
 namespace Bonsai.Expressions
 {
-    [SourceMapping]
     [PropertyMapping]
     [XmlType("Combinator", Namespace = Constants.XmlNamespace)]
     public class CombinatorBuilder : ExpressionBuilder
@@ -38,8 +37,6 @@ namespace Bonsai.Expressions
                 argumentRange = GetArgumentRange();
             }
         }
-
-        public string MemberSelector { get; set; }
 
         public PropertyMappingCollection PropertyMappings
         {
@@ -72,16 +69,8 @@ namespace Bonsai.Expressions
         {
             var combinatorExpression = Expression.Constant(Combinator);
             var processMethods = GetProcessMethods(combinatorExpression.Type);
-            if (Arguments.Count == 1)
-            {
-                return BuildCallRemapping(
-                    combinatorExpression,
-                    (combinator, sourceSelect) => HandleBuildException(BuildCall(combinator, processMethods, sourceSelect), this),
-                    Arguments.Values.Single(),
-                    MemberSelector,
-                    propertyMappings);
-            }
-            else return BuildCall(combinatorExpression, processMethods, Arguments.Values.ToArray());
+            var output = BuildCall(combinatorExpression, processMethods, Arguments.Values.Take(ArgumentRange.UpperBound).ToArray());
+            return BuildMappingOutput(combinatorExpression, output, propertyMappings);
         }
     }
 }

@@ -52,33 +52,18 @@ namespace Bonsai.Editor
                                                                                            !descriptor.IsReadOnly))
                         {
                             var propertyAttributes = new Attribute[]
-                        {
-                            new EditorAttribute(typeof(MemberSelectorEditor), typeof(UITypeEditor)),
-                            new CategoryAttribute("Property"),
-                            new DescriptionAttribute(descriptor.Description),
-                            new TypeConverterAttribute(typeof(MappingConverter))
-                        };
-                            properties.Add(new PropertyMappingDescriptor(descriptor.Name, propertyMappings, propertyAttributes));
+                            {
+                                new EditorAttribute(typeof(MemberSelectorEditor), typeof(UITypeEditor)),
+                                new CategoryAttribute("Property"),
+                                new DescriptionAttribute(descriptor.Description),
+                                new TypeConverterAttribute(typeof(MappingConverter))
+                            };
+                            properties.Add(new PropertyMappingDescriptor(
+                                descriptor.Name + string.Format(" ({0})", descriptor.PropertyType),
+                                descriptor,
+                                propertyMappings,
+                                propertyAttributes));
                         }
-                    }
-
-                    var sourceMappingAttribute = (SourceMappingAttribute)builderAttributes[typeof(SourceMappingAttribute)];
-                    if (sourceMappingAttribute != null)
-                    {
-                        var sourceMappingProperty = builderProperties[sourceMappingAttribute.PropertyName];
-                        if (sourceMappingProperty == null || sourceMappingProperty.PropertyType != typeof(string))
-                        {
-                            throw new InvalidOperationException("The property name specified in SourceMappingAttribute does not exist or has an invalid type.");
-                        }
-
-                        var propertyAttributes = new Attribute[]
-                        {
-                            new EditorAttribute(typeof(MemberSelectorEditor), typeof(UITypeEditor)),
-                            new CategoryAttribute("Source"),
-                            new DescriptionAttribute("The inner properties that will be selected for each element of the sequence."),
-                            new TypeConverterAttribute(typeof(MappingConverter))
-                        };
-                        properties.Add(new SelectorPropertyDescriptor(sourceMappingProperty, builder, propertyAttributes));
                     }
                 }
             }
@@ -108,66 +93,15 @@ namespace Bonsai.Editor
             }
         }
 
-        class SelectorPropertyDescriptor : PropertyDescriptor
-        {
-            object builder;
-            PropertyDescriptor selectorProperty;
-
-            public SelectorPropertyDescriptor(PropertyDescriptor descriptor, object component, Attribute[] attributes)
-                : base(descriptor, attributes)
-            {
-                selectorProperty = descriptor;
-                builder = component;
-            }
-
-            public override bool CanResetValue(object component)
-            {
-                return ShouldSerializeValue(component);
-            }
-
-            public override Type ComponentType
-            {
-                get { return selectorProperty.ComponentType; }
-            }
-
-            public override object GetValue(object component)
-            {
-                return selectorProperty.GetValue(builder);
-            }
-
-            public override bool IsReadOnly
-            {
-                get { return false; }
-            }
-
-            public override Type PropertyType
-            {
-                get { return typeof(string); }
-            }
-
-            public override void ResetValue(object component)
-            {
-                selectorProperty.SetValue(builder, null);
-            }
-
-            public override void SetValue(object component, object value)
-            {
-                selectorProperty.SetValue(builder, value);
-            }
-
-            public override bool ShouldSerializeValue(object component)
-            {
-                return selectorProperty.GetValue(builder) != null;
-            }
-        }
-
         class PropertyMappingDescriptor : PropertyDescriptor
         {
+            MemberDescriptor member;
             PropertyMappingCollection owner;
 
-            public PropertyMappingDescriptor(string name, PropertyMappingCollection propertyMappings, Attribute[] attributes)
+            public PropertyMappingDescriptor(string name, MemberDescriptor descriptor, PropertyMappingCollection propertyMappings, Attribute[] attributes)
                 : base(name, attributes)
             {
+                member = descriptor;
                 owner = propertyMappings;
             }
 
@@ -183,9 +117,9 @@ namespace Bonsai.Editor
 
             public override object GetValue(object component)
             {
-                if (owner.Contains(Name))
+                if (owner.Contains(member.Name))
                 {
-                    return owner[Name].Selector;
+                    return owner[member.Name].Selector;
                 }
 
                 return null;
@@ -203,25 +137,25 @@ namespace Bonsai.Editor
 
             public override void ResetValue(object component)
             {
-                owner.Remove(Name);
+                owner.Remove(member.Name);
             }
 
             public override void SetValue(object component, object value)
             {
                 PropertyMapping mapping;
-                if (!owner.Contains(Name))
+                if (!owner.Contains(member.Name))
                 {
-                    mapping = new PropertyMapping { Name = Name };
+                    mapping = new PropertyMapping { Name = member.Name };
                     owner.Add(mapping);
                 }
-                else mapping = owner[Name];
+                else mapping = owner[member.Name];
 
                 mapping.Selector = (string)value;
             }
 
             public override bool ShouldSerializeValue(object component)
             {
-                return owner.Contains(Name);
+                return owner.Contains(member.Name);
             }
         }
     }

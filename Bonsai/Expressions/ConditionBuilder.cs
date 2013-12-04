@@ -37,25 +37,20 @@ namespace Bonsai.Expressions
             var conditionExpression = Expression.Constant(Condition);
             var conditionAttributes = conditionType.GetCustomAttributes(typeof(CombinatorAttribute), true);
             var methodName = ((CombinatorAttribute)conditionAttributes.Single()).MethodName;
-            return BuildCallRemapping(
+
+            var sourceSelect = Arguments.Values.First();
+            var observableType = sourceSelect.Type.GetGenericArguments()[0];
+            var parameter = Expression.Parameter(observableType);
+            var processMethods = conditionType.GetMethods().Where(m => m.Name == methodName);
+            var processParameter = ExpressionHelper.MemberAccess(parameter, Selector);
+            var output = (Expression)Expression.Call(
+                typeof(ConditionBuilder),
+                "Process",
+                new[] { observableType, processParameter.Type },
                 conditionExpression,
-                (condition, sourceSelect) =>
-                {
-                    var observableType = sourceSelect.Type.GetGenericArguments()[0];
-                    var parameter = Expression.Parameter(observableType);
-                    var processMethods = conditionType.GetMethods().Where(m => m.Name == methodName);
-                    var processParameter = ExpressionHelper.MemberAccess(parameter, Selector);
-                    return Expression.Call(
-                        typeof(ConditionBuilder),
-                        "Process",
-                        new[] { observableType, processParameter.Type },
-                        condition,
-                        sourceSelect,
-                        Expression.Lambda(processParameter, parameter));
-                },
-                Arguments.Values.Single(),
-                null,
-                propertyMappings);
+                sourceSelect,
+                Expression.Lambda(processParameter, parameter));
+            return BuildMappingOutput(conditionExpression, output, propertyMappings);
         }
 
         static IObservable<TSource> Process<TSource, TMember>(Condition<TMember> condition, IObservable<TSource> source, Func<TSource, TMember> selector)

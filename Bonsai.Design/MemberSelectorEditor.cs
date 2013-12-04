@@ -39,29 +39,21 @@ namespace Bonsai.Design
                                    select node).SingleOrDefault();
 
                 if (builderNode == null) return base.EditValue(context, provider, value);
-                var predecessorNode = nodeBuilderGraph.Predecessors(builderNode).SingleOrDefault();
-
-                if (predecessorNode == null) return base.EditValue(context, provider, value);
-                var expression = workflow.Build(predecessorNode.Value);
-                var expressionType = expression.Type.GetGenericArguments()[0];
-
-                var instanceAttributes = TypeDescriptor.GetAttributes(context.Instance);
-                var sourceMappingAttribute = (SourceMappingAttribute)instanceAttributes[typeof(SourceMappingAttribute)];
-                if (sourceMappingAttribute != null && context.PropertyDescriptor.Name != sourceMappingAttribute.PropertyName)
+                using (var editorDialog = new MemberSelectorEditorDialog())
                 {
-                    var memberSelectorProperty = builderNode.Value.GetType().GetProperty(sourceMappingAttribute.PropertyName);
-                    if (memberSelectorProperty != null && memberSelectorProperty.PropertyType == typeof(string))
+                    foreach (var predecessor in nodeBuilderGraph.PredecessorEdges(builderNode))
                     {
-                        var memberPath = (string)memberSelectorProperty.GetValue(builderNode.Value, null);
-                        var parameter = Expression.Parameter(expressionType);
-                        expressionType = ExpressionHelper.MemberAccess(parameter, memberPath).Type;
+                        var edgeLabel = predecessor.Item2.Label;
+                        var expression = workflow.Build(predecessor.Item1.Value);
+                        var expressionType = expression.Type.GetGenericArguments()[0];
+                        editorDialog.AddMember(edgeLabel.Value, expressionType);
                     }
-                }
 
-                var editorDialog = new MemberSelectorEditorDialog(expressionType, selector);
-                if (editorService.ShowDialog(editorDialog) == DialogResult.OK)
-                {
-                    return string.Join(ExpressionHelper.MemberSeparator, editorDialog.GetMemberChain().ToArray());
+                    editorDialog.Selector = selector;
+                    if (editorService.ShowDialog(editorDialog) == DialogResult.OK)
+                    {
+                        return editorDialog.Selector;
+                    }
                 }
             }
 
