@@ -30,6 +30,24 @@ namespace Bonsai.Design
 
                 if (destinationType == typeof(Pen))
                 {
+                    var parameter = (ExpressionBuilderParameter)value;
+                    var edge = context != null ? context.Instance as GraphEdge : null;
+                    if (edge != null)
+                    {
+                        var builderNode = edge.Node;
+                        while (builderNode.Value == null)
+                        {
+                            builderNode = builderNode.Successors.First().Node;
+                        }
+
+                        var builder = (ExpressionBuilder)builderNode.Value;
+                        var connectionIndex = parameter.GetEdgeConnectionIndex();
+                        if (connectionIndex >= builder.ArgumentRange.UpperBound)
+                        {
+                            return Pens.Red;
+                        }
+                    }
+
                     return Pens.Black;
                 }
             }

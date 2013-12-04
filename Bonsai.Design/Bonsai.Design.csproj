@@ -72,6 +72,7 @@
     <Compile Include="DescriptiveCollectionEditor.cs" />
     <Compile Include="DialogMashupVisualizer.cs" />
     <Compile Include="DynamicTypeDescriptionProvider.cs" />
+    <Compile Include="ExpressionBuilderParameterExtensions.cs" />
     <Compile Include="FolderNameEditor.cs" />
     <Compile Include="GraphViewPanel.cs">
       <SubType>Component</SubType>
@@ -116,6 +117,7 @@
     <Compile Include="SaveFileNameEditor.cs" />
     <Compile Include="DataSourceTypeEditor.cs" />
     <Compile Include="TrackBarEditor.cs" />
+    <Compile Include="TypeDescriptorContext.cs" />
     <Compile Include="TypeVisualizerDialog.cs">
       <SubType>Form</SubType>
     </Compile>

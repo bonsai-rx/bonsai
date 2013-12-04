@@ -18,11 +18,13 @@ namespace Bonsai.Design
             Pen = Pens.Black;
             if (label != null)
             {
+                var property = TypeDescriptor.CreateProperty(typeof(GraphEdge), "Label", typeof(object));
+                var context = new TypeDescriptorContext(this, property);
                 var typeConverter = TypeDescriptor.GetConverter(label);
-                Text = typeConverter.ConvertToString(label);
-                if (typeConverter.CanConvertTo(typeof(Pen)))
+                Text = typeConverter.ConvertToString(context, label);
+                if (typeConverter.CanConvertTo(context, typeof(Pen)))
                 {
-                    Pen = (Pen)typeConverter.ConvertTo(label, typeof(Pen));
+                    Pen = (Pen)typeConverter.ConvertTo(context, null, label, typeof(Pen));
                 }
             }
         }

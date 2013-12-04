@@ -442,24 +442,6 @@ namespace Bonsai.Design
             });
         }
 
-        int GetEdgeConnectionIndex(ExpressionBuilderParameter parameter)
-        {
-            var connectionIndexString = parameter.Value.Substring(ExpressionBuilderParameter.Source.Length);
-            return string.IsNullOrEmpty(connectionIndexString) ? 0 : int.Parse(connectionIndexString);
-        }
-
-        void IncrementEdgeValue(ExpressionBuilderParameter parameter)
-        {
-            parameter.Value = ExpressionBuilderParameter.Source + (GetEdgeConnectionIndex(parameter) + 1);
-        }
-
-        void DecrementEdgeValue(ExpressionBuilderParameter parameter)
-        {
-            var connectionIndex = GetEdgeConnectionIndex(parameter) - 1;
-            parameter.Value = ExpressionBuilderParameter.Source;
-            if (connectionIndex > 0) parameter.Value += connectionIndex;
-        }
-
         void DeleteGraphNode(GraphNode node)
         {
             if (node == null)
@@ -524,7 +506,7 @@ namespace Bonsai.Design
                 {
                     foreach (var sibling in siblingEdgesAfter)
                     {
-                        DecrementEdgeValue(sibling.Label);
+                        sibling.Label.DecrementEdgeValue();
                     }
                 }
             };
@@ -543,7 +525,7 @@ namespace Bonsai.Design
                 {
                     foreach (var sibling in siblingEdgesAfter)
                     {
-                        IncrementEdgeValue(sibling.Label);
+                        sibling.Label.IncrementEdgeValue();
                     }
                 }
             };
