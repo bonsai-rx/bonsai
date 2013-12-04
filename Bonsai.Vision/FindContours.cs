@@ -42,7 +42,7 @@ namespace Bonsai.Vision
 
                     var storage = new MemStorage();
                     var scanner = CV.StartFindContours(temp, storage, Contour.HeaderSize, Mode, Method, Offset);
-                    while (!(currentContour = scanner.FindNextContour()).IsInvalid)
+                    while ((currentContour = scanner.FindNextContour()) != null)
                     {
                         if (MinArea > 0 && CV.ContourArea(currentContour, SeqSlice.WholeSeq) < MinArea)
                         {
