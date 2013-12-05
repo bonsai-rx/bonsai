@@ -11,7 +11,7 @@ namespace Bonsai.Expressions
 {
     [PropertyMapping]
     [XmlType("Combinator", Namespace = Constants.XmlNamespace)]
-    public class CombinatorBuilder : ExpressionBuilder
+    public class CombinatorBuilder : ExpressionBuilder, INamedElement
     {
         object combinator;
         Range<int> argumentRange;
@@ -21,6 +21,11 @@ namespace Bonsai.Expressions
         {
             argumentRange = Range.Create(0, 0);
             propertyMappings = new PropertyMappingCollection();
+        }
+
+        public string Name
+        {
+            get { return GetElementName(combinator); }
         }
 
         public override Range<int> ArgumentRange

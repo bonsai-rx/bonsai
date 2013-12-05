@@ -13,13 +13,18 @@ namespace Bonsai.Expressions
     [PropertyMapping]
     [WorkflowElementCategory(ElementCategory.Source)]
     [XmlType("Source", Namespace = Constants.XmlNamespace)]
-    public class SourceBuilder : CombinatorExpressionBuilder
+    public class SourceBuilder : CombinatorExpressionBuilder, INamedElement
     {
         readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
 
         public SourceBuilder()
             : base(0, 1)
         {
+        }
+
+        public string Name
+        {
+            get { return GetElementName(Generator); }
         }
 
         public object Generator { get; set; }
