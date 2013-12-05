@@ -13,13 +13,18 @@ namespace Bonsai.Expressions
     [PropertyMapping]
     [WorkflowElementCategory(ElementCategory.Condition)]
     [XmlType("Condition", Namespace = Constants.XmlNamespace)]
-    public class ConditionBuilder : CombinatorExpressionBuilder
+    public class ConditionBuilder : CombinatorExpressionBuilder, INamedElement
     {
         readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
         static readonly MethodInfo whereMethod = typeof(Observable).GetMethods()
                                                                    .Single(m => m.Name == "Where" &&
                                                                            m.GetParameters().Length == 2 &&
                                                                            m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
+        public string Name
+        {
+            get { return GetElementName(Condition); }
+        }
+        
         public object Condition { get; set; }
 
         [Description("The inner property on which to apply the condition.")]

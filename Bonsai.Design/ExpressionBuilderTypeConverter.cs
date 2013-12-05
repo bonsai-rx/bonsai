@@ -30,18 +30,12 @@ namespace Bonsai.Design
             if (destinationType == typeof(string))
             {
                 var expressionBuilder = (ExpressionBuilder)value;
-
-                var sourceBuilder = expressionBuilder as SourceBuilder;
-                if (sourceBuilder != null) return sourceBuilder.Generator.GetType().Name;
-
-                var conditionBuilder = expressionBuilder as ConditionBuilder;
-                if (conditionBuilder != null) return conditionBuilder.Condition.GetType().Name;
-
-                var combinatorBuilder = expressionBuilder as CombinatorBuilder;
-                if (combinatorBuilder != null) return combinatorBuilder.Combinator.GetType().Name;
-
-                var workflowExpressionBuilder = expressionBuilder as WorkflowExpressionBuilder;
-                if (workflowExpressionBuilder != null && !string.IsNullOrWhiteSpace(workflowExpressionBuilder.Name)) return workflowExpressionBuilder.Name;
+                var namedElement = expressionBuilder as INamedElement;
+                if (namedElement != null)
+                {
+                    var name = namedElement.Name;
+                    if (!string.IsNullOrEmpty(name)) return name;
+                }
 
                 var type = expressionBuilder.GetType();
                 return RemoveSuffix(type.Name, "Builder");

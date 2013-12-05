@@ -85,6 +85,7 @@
     <Compile Include="Expressions\NegateBuilder.cs" />
     <Compile Include="Expressions\SelectBuilder.cs" />
     <Compile Include="Expressions\SubtractBuilder.cs" />
+    <Compile Include="INamedElement.cs" />
     <Compile Include="Range.cs" />
     <Compile Include="Reactive\Buffer.cs" />
     <Compile Include="Reactive\Concat.cs" />

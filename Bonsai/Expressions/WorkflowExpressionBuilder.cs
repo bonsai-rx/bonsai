@@ -13,7 +13,7 @@ namespace Bonsai.Expressions
 {
     [WorkflowElementCategory(ElementCategory.Nested)]
     [XmlType("Workflow", Namespace = Constants.XmlNamespace)]
-    public abstract class WorkflowExpressionBuilder : ExpressionBuilder
+    public abstract class WorkflowExpressionBuilder : ExpressionBuilder, INamedElement
     {
         readonly ExpressionBuilderGraph workflow;
 

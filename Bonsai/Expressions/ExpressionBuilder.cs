@@ -87,6 +87,23 @@ namespace Bonsai.Expressions
                          .GetGenericArguments()[0];
         }
 
+        internal static string GetElementName(object component)
+        {
+            if (component == null)
+            {
+                throw new ArgumentNullException("component");
+            }
+
+            var namedElement = component as INamedElement;
+            if (namedElement != null)
+            {
+                var name = namedElement.Name;
+                if (!string.IsNullOrEmpty(name)) return name;
+            }
+
+            return component.GetType().Name;
+        }
+
         #region Type Inference
 
         internal static Type[] GetMethodBindings(MethodInfo methodInfo, params Type[] arguments)
