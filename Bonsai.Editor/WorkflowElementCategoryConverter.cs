@@ -59,7 +59,7 @@ namespace Bonsai.Editor
             }
             else
             {
-                if (MatchGenericType(type, typeof(Source<>))) yield return ElementCategory.Source;
+                if (type.IsDefined(typeof(SourceAttribute), true)) yield return ElementCategory.Source;
             }
         }
     }
