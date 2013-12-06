@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Xml.Serialization;
 using System.Reflection;
 using System.Reactive;
+using System.Reactive.Disposables;
 
 namespace Bonsai.Expressions
 {
@@ -561,18 +562,17 @@ namespace Bonsai.Expressions
 
         #region Dynamic Properties
 
-        static readonly MethodInfo doMethod = typeof(Observable).GetMethods()
-                                                                .Single(m => m.Name == "Do" &&
-                                                                        m.GetParameters().Length == 2 &&
-                                                                        m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Action<>));
-        static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()
-                                                                    .Single(m => m.Name == "Select" &&
-                                                                            m.GetParameters().Length == 2 &&
-                                                                            m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
-        static readonly MethodInfo deferMethod = typeof(Observable).GetMethods()
-                                                                   .Single(m => m.Name == "Defer" &&
-                                                                           m.GetParameters().Length == 1 &&
-                                                                           m.GetParameters()[0].ParameterType.GetGenericArguments()[0].GetGenericTypeDefinition() == typeof(IObservable<>));
+        static readonly ConstructorInfo compositeDisposableConstructor = typeof(CompositeDisposable).GetConstructor(new[] { typeof(IDisposable[]) });
+        static readonly MethodInfo subscribeMethod = typeof(ObservableExtensions).GetMethods()
+                                                                                 .Single(m => m.Name == "Subscribe" &&
+                                                                                         m.GetParameters().Length == 2 &&
+                                                                                         m.GetParameters()[1].ParameterType.IsGenericType &&
+                                                                                         m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Action<>));
+        static readonly MethodInfo usingMethod = typeof(Observable).GetMethods()
+                                                                   .Single(m => m.Name == "Using" &&
+                                                                           m.GetParameters().Length == 2 &&
+                                                                           m.GetParameters()[0].ParameterType.GetGenericTypeDefinition() == typeof(Func<>) &&
+                                                                           m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
 
         internal Tuple<Expression, string> FindMemberAccess(string memberPath)
         {
@@ -615,14 +615,20 @@ namespace Bonsai.Expressions
 
             body = Expression.Assign(property, body);
             var action = Expression.Lambda(actionType, body, parameter);
-            return Expression.Call(doMethod.MakeGenericMethod(sourceType), source, action);
+            return Expression.Call(subscribeMethod.MakeGenericMethod(sourceType), source, action);
         }
 
         internal Expression BuildMappingOutput(Expression instance, Expression output, PropertyMappingCollection propertyMappings)
         {
             if (propertyMappings.Count > 0)
             {
-                return BuildOutput(output, propertyMappings.Select(mapping => BuildPropertyMapping(instance, mapping)));
+                var outputType = output.Type.GetGenericArguments()[0];
+                var subscriptions = propertyMappings.Select(mapping => BuildPropertyMapping(instance, mapping)).ToArray();
+                var resource = Expression.New(compositeDisposableConstructor, Expression.NewArrayInit(typeof(IDisposable), subscriptions));
+                var resourceFactory = Expression.Lambda(resource);
+                var resourceParameter = Expression.Parameter(resource.Type);
+                var observableFactory = Expression.Lambda(output, resourceParameter);
+                return Expression.Call(usingMethod.MakeGenericMethod(outputType, resource.Type), resourceFactory, observableFactory);
             }
 
             return output;

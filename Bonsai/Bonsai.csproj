@@ -78,6 +78,7 @@
     <Compile Include="Expressions\LessThanBuilder.cs" />
     <Compile Include="Expressions\GreaterThanOrEqualBuilder.cs" />
     <Compile Include="Expressions\GreaterThanBuilder.cs" />
+    <Compile Include="Expressions\WorkflowTypeDescriptionProvider.cs" />
     <Compile Include="Expressions\XorBuilder.cs" />
     <Compile Include="Expressions\ModBuilder.cs" />
     <Compile Include="Expressions\DivideBuilder.cs" />
@@ -90,6 +91,14 @@
     <Compile Include="Reactive\Buffer.cs" />
     <Compile Include="Reactive\Concat.cs" />
     <Compile Include="Reactive\BufferTriggered.cs" />
+    <Compile Include="Reactive\Properties\BooleanProperty.cs" />
+    <Compile Include="Reactive\Properties\DateTimeOffsetProperty.cs" />
+    <Compile Include="Reactive\Properties\DateTimeProperty.cs" />
+    <Compile Include="Reactive\Properties\FloatProperty.cs" />
+    <Compile Include="Reactive\Properties\IntProperty.cs" />
+    <Compile Include="Reactive\Properties\StringProperty.cs" />
+    <Compile Include="Reactive\Properties\TimeSpanProperty.cs" />
+    <Compile Include="Reactive\Properties\WorkflowProperty.cs" />
     <Compile Include="Reactive\Range.cs" />
     <Compile Include="Reactive\IgnoreElements.cs" />
     <Compile Include="Reactive\Distinct.cs" />
