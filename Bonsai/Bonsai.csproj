@@ -88,9 +88,13 @@
     <Compile Include="Expressions\SubtractBuilder.cs" />
     <Compile Include="INamedElement.cs" />
     <Compile Include="Range.cs" />
+    <Compile Include="Reactive\Average.cs" />
     <Compile Include="Reactive\Buffer.cs" />
     <Compile Include="Reactive\Concat.cs" />
     <Compile Include="Reactive\BufferTriggered.cs" />
+    <Compile Include="Reactive\Max.cs" />
+    <Compile Include="Reactive\Min.cs" />
+    <Compile Include="Reactive\Sum.cs" />
     <Compile Include="Reactive\Properties\BooleanProperty.cs" />
     <Compile Include="Reactive\Properties\DateTimeOffsetProperty.cs" />
     <Compile Include="Reactive\Properties\DateTimeProperty.cs" />
