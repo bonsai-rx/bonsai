@@ -660,12 +660,13 @@ namespace Bonsai.Editor
 
                 toolboxTreeView.Nodes.Clear();
                 var searchFilter = searchTextBox.Text.Trim();
-                foreach (var node in from node in GetTreeViewLeafNodes(treeCache)
-                                     where node.Tag != null && node.Text.IndexOf(searchFilter, StringComparison.OrdinalIgnoreCase) >= 0
-                                     orderby node.Text ascending
-                                     select (TreeNode)node.Clone())
+                foreach (var entry in from node in GetTreeViewLeafNodes(treeCache)
+                                      where node.Tag != null && node.Text.IndexOf(searchFilter, StringComparison.OrdinalIgnoreCase) >= 0
+                                      orderby node.Text ascending
+                                      select new { category = node.Parent.Text, node = (TreeNode)node.Clone() })
                 {
-                    toolboxTreeView.Nodes.Add(node);
+                    entry.node.Text += string.Format(" ({0})", entry.category);
+                    toolboxTreeView.Nodes.Add(entry.node);
                 }
 
                 if (toolboxTreeView.Nodes.Count > 0)
