@@ -22,7 +22,7 @@ namespace Bonsai.Expressions
                                                                            m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
         public string Name
         {
-            get { return GetElementName(Condition); }
+            get { return GetElementDisplayName(Condition); }
         }
         
         public object Condition { get; set; }

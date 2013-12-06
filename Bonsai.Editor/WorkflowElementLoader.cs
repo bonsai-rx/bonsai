@@ -14,8 +14,6 @@ namespace Bonsai.Editor
 {
     sealed class WorkflowElementLoader : MarshalByRefObject
     {
-        const string ExpressionBuilderSuffix = "Builder";
-
         Type sourceAttributeType;
         Type combinatorAttributeType;
         Type expressionBuilderType;
@@ -32,23 +30,6 @@ namespace Bonsai.Editor
             sourceAttributeType = expressionBuilderAssembly.GetType(typeof(SourceAttribute).FullName);
             combinatorAttributeType = expressionBuilderAssembly.GetType(typeof(CombinatorAttribute).FullName);
             expressionBuilderType = expressionBuilderAssembly.GetType(typeof(ExpressionBuilder).FullName);
-        }
-
-        //TODO: Remove duplicate method from ExpressionBuilderTypeConverter.cs
-        string RemoveSuffix(string source, string suffix)
-        {
-            var suffixStart = source.LastIndexOf(suffix);
-            return suffixStart >= 0 ? source.Remove(suffixStart) : source;
-        }
-
-        string GetElementDisplayName(Type type)
-        {
-            var displayNameAttribute = (DisplayNameAttribute)TypeDescriptor.GetAttributes(type)[typeof(DisplayNameAttribute)];
-            if (displayNameAttribute != null && !string.IsNullOrEmpty(displayNameAttribute.DisplayName))
-            {
-                return displayNameAttribute.DisplayName;
-            }
-            else return type.IsSubclassOf(typeof(ExpressionBuilder)) ? RemoveSuffix(type.Name, ExpressionBuilderSuffix) : type.Name;
         }
 
         bool IsWorkflowElement(Type type)
@@ -73,7 +54,7 @@ namespace Bonsai.Editor
                     var descriptionAttribute = (DescriptionAttribute)TypeDescriptor.GetAttributes(type)[typeof(DescriptionAttribute)];
                     yield return new WorkflowElementDescriptor
                     {
-                        Name = GetElementDisplayName(type),
+                        Name = ExpressionBuilder.GetElementDisplayName(type),
                         Namespace = type.Namespace,
                         AssemblyQualifiedName = type.AssemblyQualifiedName,
                         Description = descriptionAttribute.Description,

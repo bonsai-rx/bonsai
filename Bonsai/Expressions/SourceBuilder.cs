@@ -24,7 +24,7 @@ namespace Bonsai.Expressions
 
         public string Name
         {
-            get { return GetElementName(Generator); }
+            get { return GetElementDisplayName(Generator); }
         }
 
         public object Generator { get; set; }

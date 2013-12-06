@@ -24,6 +24,7 @@ namespace Bonsai.Expressions
     [TypeConverter("Bonsai.Design.ExpressionBuilderTypeConverter, Bonsai.Design")]
     public abstract class ExpressionBuilder
     {
+        const string ExpressionBuilderSuffix = "Builder";
         readonly SortedList<string, Expression> arguments = new SortedList<string, Expression>();
 
         [XmlIgnore]
@@ -74,20 +75,26 @@ namespace Bonsai.Expressions
             throw new InvalidOperationException("Invalid loadable element type.");
         }
 
-        protected static Type GetObservableType(object source)
+        static string RemoveSuffix(string source, string suffix)
         {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-
-            return source.GetType()
-                         .FindInterfaces((t, m) => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IObservable<>), null)
-                         .First()
-                         .GetGenericArguments()[0];
+            var suffixStart = source.LastIndexOf(suffix);
+            return suffixStart >= 0 ? source.Remove(suffixStart) : source;
         }
 
-        internal static string GetElementName(object component)
+        public static string GetElementDisplayName(Type type)
+        {
+            var displayNameAttribute = (DisplayNameAttribute)Attribute.GetCustomAttribute(type, typeof(DisplayNameAttribute));
+            if (displayNameAttribute != null)
+            {
+                return displayNameAttribute.DisplayName;
+            }
+
+            return type.IsSubclassOf(typeof(ExpressionBuilder))
+                ? RemoveSuffix(type.Name, ExpressionBuilderSuffix)
+                : type.Name;
+        }
+
+        public static string GetElementDisplayName(object component)
         {
             if (component == null)
             {
@@ -101,7 +108,21 @@ namespace Bonsai.Expressions
                 if (!string.IsNullOrEmpty(name)) return name;
             }
 
-            return component.GetType().Name;
+            var componentType = component.GetType();
+            return GetElementDisplayName(componentType);
+        }
+
+        protected static Type GetObservableType(object source)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+
+            return source.GetType()
+                         .FindInterfaces((t, m) => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IObservable<>), null)
+                         .First()
+                         .GetGenericArguments()[0];
         }
 
         #region Type Inference
