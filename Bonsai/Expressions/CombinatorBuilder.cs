@@ -25,7 +25,7 @@ namespace Bonsai.Expressions
 
         public string Name
         {
-            get { return GetElementName(combinator); }
+            get { return GetElementDisplayName(combinator); }
         }
 
         public override Range<int> ArgumentRange
