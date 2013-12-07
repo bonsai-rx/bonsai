@@ -15,7 +15,7 @@ namespace Bonsai.Design
 
         public event EventHandler SelectionChanged;
 
-        public WorkflowViewModel SelectedModel { get; private set; }
+        public WorkflowGraphView SelectedView { get; private set; }
 
         public IEnumerable<GraphNode> SelectedNodes { get; private set; }
 
@@ -28,15 +28,15 @@ namespace Bonsai.Design
             }
         }
 
-        public void UpdateSelection(WorkflowViewModel selectedModel)
+        public void UpdateSelection(WorkflowGraphView selectedView)
         {
-            if (selectedModel == null)
+            if (selectedView == null)
             {
-                throw new ArgumentNullException("selectedModel");
+                throw new ArgumentNullException("selectedView");
             }
 
-            SelectedModel = selectedModel;
-            SelectedNodes = selectedModel.WorkflowGraphView.SelectedNodes;
+            SelectedView = selectedView;
+            SelectedNodes = selectedView.GraphView.SelectedNodes;
             OnSelectionChanged(EventArgs.Empty);
         }
     }

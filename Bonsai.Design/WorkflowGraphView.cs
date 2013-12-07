@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Data;
 using System.Linq;
 using System.Text;
-using Bonsai.Dag;
-using Bonsai.Expressions;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Reactive.Disposables;
-using System.Drawing;
-using System.ComponentModel;
-using System.IO;
-using System.Xml.Serialization;
-using System.Xml;
+using Bonsai.Expressions;
 using System.Xml.Linq;
+using System.IO;
+using Bonsai.Dag;
+using System.Xml.Serialization;
 
 namespace Bonsai.Design
 {
-    public class WorkflowViewModel
+    public partial class WorkflowGraphView : UserControl
     {
         static readonly XName XsdAttributeName = ((XNamespace)"http://www.w3.org/2000/xmlns/") + "xsd";
         static readonly XName XsiAttributeName = ((XNamespace)"http://www.w3.org/2000/xmlns/") + "xsi";
@@ -33,7 +33,6 @@ namespace Bonsai.Design
         IEnumerable<GraphNode> dragSelection;
         CommandExecutor commandExecutor;
         ExpressionBuilderGraph workflow;
-        GraphView workflowGraphView;
         WorkflowSelectionModel selectionModel;
         IWorkflowEditorService editorService;
         Dictionary<GraphNode, VisualizerDialogLauncher> visualizerMapping;
@@ -42,42 +41,23 @@ namespace Bonsai.Design
         VisualizerLayout visualizerLayout;
         IServiceProvider serviceProvider;
 
-        public WorkflowViewModel(GraphView graphView, IServiceProvider provider)
+        public WorkflowGraphView(IServiceProvider provider)
         {
-            if (graphView == null)
-            {
-                throw new ArgumentNullException("graphView");
-            }
-
-            if (provider == null)
-            {
-                throw new ArgumentNullException("provider");
-            }
-
+            InitializeComponent();
             serviceProvider = provider;
-            workflowGraphView = graphView;
             commandExecutor = (CommandExecutor)provider.GetService(typeof(CommandExecutor));
             selectionModel = (WorkflowSelectionModel)provider.GetService(typeof(WorkflowSelectionModel));
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
             builderConverter = new ExpressionBuilderTypeConverter();
             workflowEditorMapping = new Dictionary<GraphNode, WorkflowEditorLauncher>();
 
-            workflowGraphView.DragEnter += new DragEventHandler(workflowGraphView_DragEnter);
-            workflowGraphView.DragOver += new DragEventHandler(workflowGraphView_DragOver);
-            workflowGraphView.DragDrop += new DragEventHandler(workflowGraphView_DragDrop);
-            workflowGraphView.DragLeave += new EventHandler(workflowGraphView_DragLeave);
-            workflowGraphView.ItemDrag += new ItemDragEventHandler(workflowGraphView_ItemDrag);
-            workflowGraphView.KeyDown += new KeyEventHandler(workflowGraphView_KeyDown);
-            workflowGraphView.SelectedNodeChanged += new EventHandler(workflowGraphView_SelectedNodeChanged);
-            workflowGraphView.GotFocus += new EventHandler(workflowGraphView_SelectedNodeChanged);
-            workflowGraphView.NodeMouseDoubleClick += new EventHandler<GraphNodeMouseEventArgs>(workflowGraphView_NodeMouseDoubleClick);
-            workflowGraphView.HandleDestroyed += new EventHandler(workflowGraphView_HandleDestroyed);
-            editorService.WorkflowStarted += new EventHandler(editorService_WorkflowStarted);
+            graphView.HandleDestroyed += graphView_HandleDestroyed;
+            editorService.WorkflowStarted += editorService_WorkflowStarted;
         }
 
-        public GraphView WorkflowGraphView
+        public GraphView GraphView
         {
-            get { return workflowGraphView; }
+            get { return graphView; }
         }
 
         public VisualizerLayout VisualizerLayout
@@ -137,7 +117,7 @@ namespace Bonsai.Design
                     }
                 }
             }
-            
+
             visualizer = visualizer ?? (DialogTypeVisualizer)Activator.CreateInstance(visualizerType);
             var launcher = new VisualizerDialogLauncher(inspectBuilder, visualizer, this);
             if (layoutSettings != null)
@@ -156,7 +136,7 @@ namespace Bonsai.Design
                 launcher.Bounds = layoutSettings.Bounds;
                 if (layoutSettings.Visible)
                 {
-                    launcher.Show(workflowGraphView, serviceProvider);
+                    launcher.Show(graphView, serviceProvider);
                 }
             }
 
@@ -171,7 +151,7 @@ namespace Bonsai.Design
                                  where !(node.Value is InspectBuilder)
                                  let inspectBuilder = node.Successors.Single().Target.Value as InspectBuilder
                                  where inspectBuilder != null
-                                 let key = workflowGraphView.Nodes.SelectMany(layer => layer).First(n => n.Value == node.Value)
+                                 let key = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == node.Value)
                                  select new { node, inspectBuilder, key })
                                  .ToDictionary(mapping => mapping.key,
                                                mapping => CreateVisualizerLauncher(mapping.node.Value, mapping.inspectBuilder, mapping.key));
@@ -386,14 +366,14 @@ namespace Bonsai.Design
                 addNode();
                 addConnection();
                 UpdateGraphLayout();
-                workflowGraphView.SelectedNode = workflowGraphView.Nodes.SelectMany(layer => layer).First(n => GetGraphNodeTag(n).Value == sourceNode.Value);
+                graphView.SelectedNode = graphView.Nodes.SelectMany(layer => layer).First(n => GetGraphNodeTag(n).Value == sourceNode.Value);
             },
             () =>
             {
                 removeConnection();
                 removeNode();
                 UpdateGraphLayout();
-                workflowGraphView.SelectedNode = workflowGraphView.Nodes.SelectMany(layer => layer).FirstOrDefault(n => closestNode != null ? GetGraphNodeTag(n).Value == closestNode.Value : false);
+                graphView.SelectedNode = graphView.Nodes.SelectMany(layer => layer).FirstOrDefault(n => closestNode != null ? GetGraphNodeTag(n).Value == closestNode.Value : false);
             });
         }
 
@@ -563,7 +543,7 @@ namespace Bonsai.Design
 
         public GraphNode FindGraphNode(object value)
         {
-            return workflowGraphView.Nodes.SelectMany(layer => layer).FirstOrDefault(n => n.Value == value);
+            return graphView.Nodes.SelectMany(layer => layer).FirstOrDefault(n => n.Value == value);
         }
 
         public void LaunchVisualizer(GraphNode node)
@@ -571,7 +551,7 @@ namespace Bonsai.Design
             var visualizerDialog = GetVisualizerDialogLauncher(node);
             if (visualizerDialog != null)
             {
-                visualizerDialog.Show(workflowGraphView, serviceProvider);
+                visualizerDialog.Show(graphView, serviceProvider);
             }
         }
 
@@ -580,7 +560,7 @@ namespace Bonsai.Design
             var editorLauncher = GetWorkflowEditorLauncher(node);
             if (editorLauncher != null)
             {
-                editorLauncher.Show(workflowGraphView, serviceProvider);
+                editorLauncher.Show(graphView, serviceProvider);
             }
         }
 
@@ -622,7 +602,7 @@ namespace Bonsai.Design
             foreach (var node in workflow.Where(n => !(n.Value is InspectBuilder)))
             {
                 if (!layoutSettings.MoveNext()) break;
-                var graphNode = workflowGraphView.Nodes.SelectMany(layer => layer).First(n => n.Value == node.Value);
+                var graphNode = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == node.Value);
                 layoutSettings.Current.Tag = graphNode;
 
                 var workflowEditorSettings = layoutSettings.Current as WorkflowEditorSettings;
@@ -713,12 +693,12 @@ namespace Bonsai.Design
 
         private void UpdateGraphLayout()
         {
-            workflowGraphView.Nodes = workflow.FromInspectableGraph(false)
+            graphView.Nodes = workflow.FromInspectableGraph(false)
                 .LongestPathLayering()
                 .EnsureLayerPriority()
                 .SortLayeringByConnectionKey()
                 .ToList();
-            workflowGraphView.Invalidate();
+            graphView.Invalidate();
         }
 
         #endregion
@@ -727,7 +707,7 @@ namespace Bonsai.Design
 
         private void OnDragFileDrop(DragEventArgs e)
         {
-            if (workflowGraphView.ParentForm.Owner == null &&
+            if (graphView.ParentForm.Owner == null &&
                         (e.KeyState & AltModifier) == 0)
             {
                 e.Effect = DragDropEffects.Link;
@@ -741,7 +721,7 @@ namespace Bonsai.Design
             dragHighlight = null;
         }
 
-        private void workflowGraphView_DragEnter(object sender, DragEventArgs e)
+        private void graphView_DragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(typeof(TreeNode)))
             {
@@ -763,13 +743,15 @@ namespace Bonsai.Design
                 var node = GetGraphNodeTag(graphViewNode, false);
                 if (node != null && workflow.Contains(node))
                 {
-                    dragSelection = workflowGraphView.SelectedNodes;
+                    dragSelection = graphView.SelectedNodes;
                     dragHighlight = graphViewNode;
                 }
             }
         }
 
-        void workflowGraphView_DragOver(object sender, DragEventArgs e)
+        #endregion
+
+        private void graphView_DragOver(object sender, DragEventArgs e)
         {
             if (e.Effect != DragDropEffects.None && e.Data.GetDataPresent(DataFormats.FileDrop, true))
             {
@@ -778,8 +760,8 @@ namespace Bonsai.Design
 
             if (dragSelection != null)
             {
-                var dragLocation = workflowGraphView.PointToClient(new Point(e.X, e.Y));
-                var highlight = workflowGraphView.GetNodeAt(dragLocation);
+                var dragLocation = graphView.PointToClient(new Point(e.X, e.Y));
+                var highlight = graphView.GetNodeAt(dragLocation);
                 if (highlight != dragHighlight)
                 {
                     if (highlight != null)
@@ -794,19 +776,19 @@ namespace Bonsai.Design
             }
         }
 
-        void workflowGraphView_DragLeave(object sender, EventArgs e)
+        private void graphView_DragLeave(object sender, EventArgs e)
         {
             ClearDragDrop();
         }
 
-        private void workflowGraphView_DragDrop(object sender, DragEventArgs e)
+        private void graphView_DragDrop(object sender, DragEventArgs e)
         {
-            var dropLocation = workflowGraphView.PointToClient(new Point(e.X, e.Y));
+            var dropLocation = graphView.PointToClient(new Point(e.X, e.Y));
             if (e.Effect == DragDropEffects.Copy)
             {
                 var branch = (e.KeyState & AltModifier) != 0;
                 var predecessor = (e.KeyState & ShiftModifier) != 0 ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
-                var linkNode = workflowGraphView.GetNodeAt(dropLocation) ?? workflowGraphView.SelectedNode;
+                var linkNode = graphView.GetNodeAt(dropLocation) ?? graphView.SelectedNode;
                 if (e.Data.GetDataPresent(DataFormats.FileDrop, true))
                 {
                     var path = (string[])e.Data.GetData(DataFormats.FileDrop, true);
@@ -830,7 +812,7 @@ namespace Bonsai.Design
                 }
                 else
                 {
-                    var linkNode = workflowGraphView.GetNodeAt(dropLocation);
+                    var linkNode = graphView.GetNodeAt(dropLocation);
                     if (linkNode != null)
                     {
                         ConnectGraphNodes(dragSelection, linkNode);
@@ -840,24 +822,24 @@ namespace Bonsai.Design
 
             if (e.Effect != DragDropEffects.None)
             {
-                var parentForm = workflowGraphView.ParentForm;
+                var parentForm = graphView.ParentForm;
                 if (parentForm != null && !parentForm.Focused) parentForm.Activate();
-                workflowGraphView.Select();
+                graphView.Select();
             }
 
             ClearDragDrop();
         }
 
-        private void workflowGraphView_ItemDrag(object sender, ItemDragEventArgs e)
+        private void graphView_ItemDrag(object sender, ItemDragEventArgs e)
         {
             var selectedNode = e.Item as GraphNode;
             if (selectedNode != null)
             {
-                workflowGraphView.DoDragDrop(selectedNode, DragDropEffects.Link);
+                graphView.DoDragDrop(selectedNode, DragDropEffects.Link);
             }
         }
 
-        void workflowGraphView_KeyDown(object sender, KeyEventArgs e)
+        private void graphView_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Delete)
             {
@@ -868,22 +850,22 @@ namespace Bonsai.Design
             {
                 if (e.Modifiers == Keys.Control)
                 {
-                    LaunchWorkflowView(workflowGraphView.SelectedNode);
+                    LaunchWorkflowView(graphView.SelectedNode);
                 }
                 else if (editorService.WorkflowRunning)
                 {
-                    LaunchVisualizer(workflowGraphView.SelectedNode);
+                    LaunchVisualizer(graphView.SelectedNode);
                 }
-                else if (selectionModel.SelectedNodes.Any() && workflowGraphView.CursorNode != null &&
-                         ValidConnection(selectionModel.SelectedNodes, workflowGraphView.CursorNode))
+                else if (selectionModel.SelectedNodes.Any() && graphView.CursorNode != null &&
+                         ValidConnection(selectionModel.SelectedNodes, graphView.CursorNode))
                 {
-                    ConnectGraphNodes(selectionModel.SelectedNodes, workflowGraphView.CursorNode);
+                    ConnectGraphNodes(selectionModel.SelectedNodes, graphView.CursorNode);
                 }
             }
 
             if (e.KeyCode == Keys.Back && e.Modifiers == Keys.Control)
             {
-                var owner = workflowGraphView.ParentForm.Owner;
+                var owner = graphView.ParentForm.Owner;
                 if (owner != null)
                 {
                     owner.Activate();
@@ -933,12 +915,12 @@ namespace Bonsai.Design
             }
         }
 
-        private void workflowGraphView_SelectedNodeChanged(object sender, EventArgs e)
+        private void graphView_SelectedNodeChanged(object sender, EventArgs e)
         {
             selectionModel.UpdateSelection(this);
         }
 
-        private void workflowGraphView_NodeMouseDoubleClick(object sender, GraphNodeMouseEventArgs e)
+        private void graphView_NodeMouseDoubleClick(object sender, GraphNodeMouseEventArgs e)
         {
             if (Control.ModifierKeys == Keys.Control)
             {
@@ -950,17 +932,15 @@ namespace Bonsai.Design
             }
         }
 
-        void workflowGraphView_HandleDestroyed(object sender, EventArgs e)
+        private void graphView_HandleDestroyed(object sender, EventArgs e)
         {
             editorService.WorkflowStarted -= editorService_WorkflowStarted;
         }
 
-        void editorService_WorkflowStarted(object sender, EventArgs e)
+        private void editorService_WorkflowStarted(object sender, EventArgs e)
         {
             InitializeVisualizerMapping();
         }
-
-        #endregion
     }
 
     public enum CreateGraphNodeType

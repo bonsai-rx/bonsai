@@ -132,8 +132,13 @@
     <Compile Include="WorkflowComponentEditor.cs" />
     <Compile Include="WorkflowEditorLauncher.cs" />
     <Compile Include="WorkflowEditorSettings.cs" />
+    <Compile Include="WorkflowGraphView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="WorkflowGraphView.Designer.cs">
+      <DependentUpon>WorkflowGraphView.cs</DependentUpon>
+    </Compile>
     <Compile Include="WorkflowSelectionModel.cs" />
-    <Compile Include="WorkflowViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai\Bonsai.csproj">
@@ -150,6 +155,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="TypeVisualizerDialog.resx">
       <DependentUpon>TypeVisualizerDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WorkflowGraphView.resx">
+      <DependentUpon>WorkflowGraphView.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

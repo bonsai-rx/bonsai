@@ -13,7 +13,7 @@ namespace Bonsai.Design
     public class WorkflowEditorLauncher : DialogLauncher
     {
         ExpressionBuilderGraph workflow;
-        WorkflowViewModel viewModel;
+        WorkflowGraphView workflowGraphView;
         Node<ExpressionBuilder, ExpressionBuilderParameter> builderNode;
 
         public WorkflowEditorLauncher(ExpressionBuilderGraph workflow, Node<ExpressionBuilder, ExpressionBuilderParameter> builderNode)
@@ -34,17 +34,17 @@ namespace Bonsai.Design
 
         public VisualizerLayout VisualizerLayout { get; set; }
 
-        public WorkflowViewModel ViewModel
+        public WorkflowGraphView WorkflowGraphView
         {
-            get { return viewModel; }
+            get { return workflowGraphView; }
         }
 
         public void UpdateEditorLayout()
         {
-            if (viewModel != null)
+            if (workflowGraphView != null)
             {
-                viewModel.UpdateVisualizerLayout();
-                VisualizerLayout = viewModel.VisualizerLayout;
+                workflowGraphView.UpdateVisualizerLayout();
+                VisualizerLayout = workflowGraphView.VisualizerLayout;
                 if (VisualizerDialog != null)
                 {
                     Bounds = VisualizerDialog.DesktopBounds;
@@ -72,13 +72,13 @@ namespace Bonsai.Design
                 }
             };
 
-            var graphView = new GraphView { AllowDrop = true, Dock = DockStyle.Fill, Size = new Size(300, 200) };
+            workflowGraphView = new WorkflowGraphView(provider);
+            workflowGraphView.Dock = DockStyle.Fill;
+            workflowGraphView.Size = new Size(300, 200);
+            workflowGraphView.VisualizerLayout = VisualizerLayout;
+            workflowGraphView.Workflow = workflowExpressionBuilder.Workflow;
             visualizerDialog.Padding = new Padding(10);
-            visualizerDialog.AddControl(graphView);
-
-            viewModel = new WorkflowViewModel(graphView, provider);
-            viewModel.VisualizerLayout = VisualizerLayout;
-            viewModel.Workflow = workflowExpressionBuilder.Workflow;
+            visualizerDialog.AddControl(workflowGraphView);
         }
     }
 }
