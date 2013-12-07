@@ -12,35 +12,9 @@ namespace Bonsai.Design
     {
         public static WorkflowBuilder ToWorkflowBuilder(this IEnumerable<GraphNode> source)
         {
-            var builder = new WorkflowBuilder();
-            var workflowNodes = source.Select(node => (Node<ExpressionBuilder, ExpressionBuilderParameter>)node.Tag);
-            var nodeMapping = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderParameter>, Node<ExpressionBuilder, ExpressionBuilderParameter>>();
-            foreach (var node in workflowNodes)
-            {
-                var builderNode = builder.Workflow.Add(node.Value);
-                nodeMapping.Add(node, builderNode);
-            }
-
-            foreach (var element in workflowNodes)
-            {
-                var node = element;
-                var builderNode = nodeMapping[node];
-                if (node.Successors.Count == 1 && node.Successors[0].Target.Value is InspectBuilder)
-                {
-                    node = node.Successors[0].Target;
-                }
-
-                foreach (var successor in node.Successors)
-                {
-                    Node<ExpressionBuilder, ExpressionBuilderParameter> successorNode;
-                    if (nodeMapping.TryGetValue(successor.Target, out successorNode))
-                    {
-                        builder.Workflow.AddEdge(builderNode, successorNode, successor.Label);
-                    }
-                }
-            }
-
-            return builder;
+            var workflow = source.Select(node => (Node<ExpressionBuilder, ExpressionBuilderParameter>)node.Tag)
+                                 .FromInspectableGraph(true);
+            return new WorkflowBuilder(workflow);
         }
 
         static IEnumerable<GraphEdge> GetLayeredSuccessors<TNodeValue, TEdgeLabel>(Node<TNodeValue, TEdgeLabel> node, int layer, Dictionary<Node<TNodeValue, TEdgeLabel>, GraphNode> layerMap)
