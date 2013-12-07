@@ -552,6 +552,7 @@
             this.toolboxSplitContainer.Size = new System.Drawing.Size(194, 272);
             this.toolboxSplitContainer.SplitterDistance = 209;
             this.toolboxSplitContainer.TabIndex = 1;
+            this.toolboxSplitContainer.TabStop = false;
             // 
             // toolboxTableLayoutPanel
             // 
@@ -629,6 +630,7 @@
             this.toolboxDescriptionTextBox.ReadOnly = true;
             this.toolboxDescriptionTextBox.Size = new System.Drawing.Size(192, 57);
             this.toolboxDescriptionTextBox.TabIndex = 0;
+            this.toolboxDescriptionTextBox.TabStop = false;
             this.toolboxDescriptionTextBox.Text = "";
             // 
             // workflowGroupBox
