@@ -236,14 +236,12 @@ namespace Bonsai.Expressions
             return FromInspectableGraph(source, true);
         }
 
-        public static ExpressionBuilderGraph FromInspectableGraph(this ExpressionBuilderGraph source, bool recurse)
+        public static ExpressionBuilderGraph FromInspectableGraph(this IEnumerable<Node<ExpressionBuilder, ExpressionBuilderParameter>> source, bool recurse)
         {
             var workflow = new ExpressionBuilderGraph();
             var nodeMapping = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderParameter>, Node<ExpressionBuilder, ExpressionBuilderParameter>>();
             foreach (var node in source.Where(node => !(node.Value is InspectBuilder)))
             {
-                var inspectNode = node.Successors.Single().Target;
-
                 ExpressionBuilder nodeValue = node.Value;
                 var workflowExpression = recurse ? nodeValue as WorkflowExpressionBuilder : null;
                 if (workflowExpression != null)
@@ -254,19 +252,26 @@ namespace Bonsai.Expressions
                     nodeValue = workflowExpression;
                 }
 
-                var sourceNode = workflow.Add(nodeValue);
-                nodeMapping.Add(node, sourceNode);
+                var builderNode = workflow.Add(nodeValue);
+                nodeMapping.Add(node, builderNode);
             }
 
             foreach (var node in source.Where(node => !(node.Value is InspectBuilder)))
             {
-                var inspectNode = node.Successors.Single().Target;
-                foreach (var successor in inspectNode.Successors)
+                var sourceNode = node;
+                var builderNode = nodeMapping[sourceNode];
+                if (sourceNode.Successors.Count == 1 && sourceNode.Successors[0].Target.Value is InspectBuilder)
                 {
-                    var sourceNode = nodeMapping[node];
-                    var targetNode = nodeMapping[successor.Target];
-                    var parameter = new ExpressionBuilderParameter(successor.Label.Value);
-                    workflow.AddEdge(sourceNode, targetNode, parameter);
+                    sourceNode = sourceNode.Successors[0].Target;
+                }
+
+                foreach (var successor in sourceNode.Successors)
+                {
+                    Node<ExpressionBuilder, ExpressionBuilderParameter> targetNode;
+                    if (nodeMapping.TryGetValue(successor.Target, out targetNode))
+                    {
+                        workflow.AddEdge(builderNode, targetNode, successor.Label);
+                    }
                 }
             }
 
