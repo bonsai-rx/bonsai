@@ -37,7 +37,7 @@ namespace Bonsai.Editor
         Font selectionFont;
         EditorSite editorSite;
         WorkflowBuilder workflowBuilder;
-        WorkflowViewModel workflowViewModel;
+        WorkflowGraphView workflowGraphView;
         WorkflowSelectionModel selectionModel;
         TypeDescriptionProvider selectionTypeDescriptor;
         List<TreeNode> treeCache;
@@ -61,11 +61,13 @@ namespace Bonsai.Editor
             selectionFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Bold);
             typeVisualizers = new Dictionary<Type, Type>();
             selectionModel = new WorkflowSelectionModel();
-            workflowViewModel = new WorkflowViewModel(workflowGraphView, editorSite);
-            workflowViewModel.Workflow = workflowBuilder.Workflow;
+            workflowGraphView = new WorkflowGraphView(editorSite);
+            workflowGraphView.Workflow = workflowBuilder.Workflow;
+            workflowGraphView.Dock = DockStyle.Fill;
+            workflowGroupBox.Controls.Add(workflowGraphView);
             propertyGrid.Site = editorSite;
 
-            selectionModel.UpdateSelection(workflowViewModel);
+            selectionModel.UpdateSelection(workflowGraphView);
             selectionModel.SelectionChanged += new EventHandler(selectionModel_SelectionChanged);
         }
 
@@ -294,17 +296,17 @@ namespace Bonsai.Editor
             ResetProjectStatus();
 
             var layoutPath = GetLayoutPath(fileName);
-            workflowViewModel.VisualizerLayout = null;
+            workflowGraphView.VisualizerLayout = null;
             if (File.Exists(layoutPath))
             {
                 using (var reader = XmlReader.Create(layoutPath))
                 {
-                    try { workflowViewModel.VisualizerLayout = (VisualizerLayout)layoutSerializer.Deserialize(reader); }
+                    try { workflowGraphView.VisualizerLayout = (VisualizerLayout)layoutSerializer.Deserialize(reader); }
                     catch (InvalidOperationException) { }
                 }
             }
 
-            workflowViewModel.Workflow = workflowBuilder.Workflow;
+            workflowGraphView.Workflow = workflowBuilder.Workflow;
             if (string.IsNullOrEmpty(directoryToolStripTextBox.Text))
             {
                 directoryToolStripTextBox.Text = Path.GetDirectoryName(fileName);
@@ -357,8 +359,8 @@ namespace Bonsai.Editor
 
             saveWorkflowDialog.FileName = null;
             workflowBuilder.Workflow.Clear();
-            workflowViewModel.VisualizerLayout = null;
-            workflowViewModel.Workflow = workflowBuilder.Workflow;
+            workflowGraphView.VisualizerLayout = null;
+            workflowGraphView.Workflow = workflowBuilder.Workflow;
             ResetProjectStatus();
         }
 
@@ -390,12 +392,12 @@ namespace Bonsai.Editor
                     saveVersion = version;
                 }
 
-                if (workflowViewModel.VisualizerLayout != null)
+                if (workflowGraphView.VisualizerLayout != null)
                 {
                     var layoutPath = GetLayoutPath(saveWorkflowDialog.FileName);
                     using (var writer = XmlWriter.Create(layoutPath, new XmlWriterSettings { Indent = true }))
                     {
-                        layoutSerializer.Serialize(writer, workflowViewModel.VisualizerLayout);
+                        layoutSerializer.Serialize(writer, workflowGraphView.VisualizerLayout);
                     }
                 }
 
@@ -435,7 +437,7 @@ namespace Bonsai.Editor
             return new ScheduledDisposable(new ControlScheduler(this), Disposable.Create(() =>
             {
                 editorSite.OnWorkflowStopped(EventArgs.Empty);
-                workflowViewModel.UpdateVisualizerLayout();
+                workflowGraphView.UpdateVisualizerLayout();
                 runningStatusLabel.Text = Resources.StoppedStatus;
                 runningStatusLabel.Image = Resources.StoppedStatusImage;
                 running = null;
@@ -472,33 +474,33 @@ namespace Bonsai.Editor
             }
         }
 
-        void SelectExceptionBuilderNode(WorkflowViewModel viewModel, WorkflowException e)
+        void SelectExceptionBuilderNode(WorkflowGraphView workflowView, WorkflowException e)
         {
-            var graphNode = viewModel.FindGraphNode(e.Builder);
+            var graphNode = workflowView.FindGraphNode(e.Builder);
             if (graphNode != null)
             {
-                viewModel.WorkflowGraphView.SelectedNode = graphNode;
-                var selectionBrush = viewModel.WorkflowGraphView.UnfocusedSelectionBrush;
+                workflowView.GraphView.SelectedNode = graphNode;
+                var selectionBrush = workflowView.GraphView.UnfocusedSelectionBrush;
                 var nestedException = e.InnerException as WorkflowRuntimeException;
                 if (nestedException != null)
                 {
-                    viewModel.LaunchWorkflowView(graphNode);
-                    viewModel.WorkflowGraphView.UnfocusedSelectionBrush = Brushes.DarkRed;
-                    var editorLauncher = viewModel.GetWorkflowEditorLauncher(graphNode);
+                    workflowView.LaunchWorkflowView(graphNode);
+                    workflowView.GraphView.UnfocusedSelectionBrush = Brushes.DarkRed;
+                    var editorLauncher = workflowView.GetWorkflowEditorLauncher(graphNode);
                     if (editorLauncher != null)
                     {
-                        SelectExceptionBuilderNode(editorLauncher.ViewModel, nestedException);
+                        SelectExceptionBuilderNode(editorLauncher.WorkflowGraphView, nestedException);
                     }
                 }
                 else
                 {
-                    viewModel.WorkflowGraphView.Select();
+                    workflowView.GraphView.Select();
                     var errorCaption = e is WorkflowBuildException ? "Build Error" : "Runtime Error";
-                    viewModel.WorkflowGraphView.UnfocusedSelectionBrush = Brushes.Red;
+                    workflowView.GraphView.UnfocusedSelectionBrush = Brushes.Red;
                     MessageBox.Show(e.Message, errorCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
-                viewModel.WorkflowGraphView.UnfocusedSelectionBrush = selectionBrush;
+                workflowView.GraphView.UnfocusedSelectionBrush = selectionBrush;
             }
         }
 
@@ -507,7 +509,7 @@ namespace Bonsai.Editor
             var workflowException = e as WorkflowException;
             if (workflowException != null)
             {
-                Action selectExceptionNode = () => SelectExceptionBuilderNode(workflowViewModel, workflowException);
+                Action selectExceptionNode = () => SelectExceptionBuilderNode(workflowGraphView, workflowException);
                 if (InvokeRequired) BeginInvoke(selectExceptionNode);
                 else selectExceptionNode();
 
@@ -538,8 +540,8 @@ namespace Bonsai.Editor
 
         private void DeleteSelectedNode()
         {
-            var model = selectionModel.SelectedModel;
-            if (model.WorkflowGraphView.Focused)
+            var model = selectionModel.SelectedView;
+            if (model.GraphView.Focused)
             {
                 model.DeleteGraphNodes(selectionModel.SelectedNodes);
             }
@@ -703,9 +705,9 @@ namespace Bonsai.Editor
             if (e.KeyCode == Keys.Return && toolboxTreeView.SelectedNode != null && toolboxTreeView.SelectedNode.Tag != null)
             {
                 var typeNode = toolboxTreeView.SelectedNode;
-                var model = selectionModel.SelectedModel;
-                var branch = e.Modifiers.HasFlag(WorkflowViewModel.BranchModifier);
-                var predecessor = e.Modifiers.HasFlag(WorkflowViewModel.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
+                var model = selectionModel.SelectedView;
+                var branch = e.Modifiers.HasFlag(WorkflowGraphView.BranchModifier);
+                var predecessor = e.Modifiers.HasFlag(WorkflowGraphView.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
                 model.CreateGraphNode(typeNode, selectionModel.SelectedNodes.FirstOrDefault(), predecessor, branch);
                 e.Handled = true;
                 e.SuppressKeyPress = true;
@@ -717,9 +719,9 @@ namespace Bonsai.Editor
             if (e.Button == MouseButtons.Left && e.Node.GetNodeCount(false) == 0)
             {
                 var typeNode = e.Node;
-                var model = selectionModel.SelectedModel;
-                var branch = Control.ModifierKeys.HasFlag(WorkflowViewModel.BranchModifier);
-                var predecessor = Control.ModifierKeys.HasFlag(WorkflowViewModel.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
+                var model = selectionModel.SelectedView;
+                var branch = Control.ModifierKeys.HasFlag(WorkflowGraphView.BranchModifier);
+                var predecessor = Control.ModifierKeys.HasFlag(WorkflowGraphView.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
                 model.CreateGraphNode(typeNode, selectionModel.SelectedNodes.FirstOrDefault(), predecessor, branch);
             }
         }
@@ -771,8 +773,8 @@ namespace Bonsai.Editor
             }
             else
             {
-                var model = selectionModel.SelectedModel;
-                if (model.WorkflowGraphView.Focused)
+                var model = selectionModel.SelectedView;
+                if (model.GraphView.Focused)
                 {
                     editorSite.StoreWorkflowElements(selectionModel.SelectedNodes.ToWorkflowBuilder());
                 }
@@ -787,12 +789,12 @@ namespace Bonsai.Editor
             }
             else
             {
-                var model = selectionModel.SelectedModel;
+                var model = selectionModel.SelectedView;
                 var builder = editorSite.RetrieveWorkflowElements();
                 if (builder.Workflow.Count > 0)
                 {
-                    var branch = Control.ModifierKeys.HasFlag(WorkflowViewModel.BranchModifier);
-                    var predecessor = Control.ModifierKeys.HasFlag(WorkflowViewModel.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
+                    var branch = Control.ModifierKeys.HasFlag(WorkflowGraphView.BranchModifier);
+                    var predecessor = Control.ModifierKeys.HasFlag(WorkflowGraphView.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
                     model.InsertGraphElements(builder.Workflow, predecessor, branch);
                 }
             }
@@ -883,7 +885,7 @@ namespace Bonsai.Editor
             {
                 if (serviceType == typeof(ExpressionBuilderGraph))
                 {
-                    return siteForm.selectionModel.SelectedModel.Workflow;
+                    return siteForm.selectionModel.SelectedView.Workflow;
                 }
 
                 if (serviceType == typeof(WorkflowBuilder))

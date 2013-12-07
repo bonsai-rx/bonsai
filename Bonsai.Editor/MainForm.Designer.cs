@@ -90,7 +90,6 @@
             this.toolboxDescriptionPanel = new System.Windows.Forms.Panel();
             this.toolboxDescriptionTextBox = new System.Windows.Forms.RichTextBox();
             this.workflowGroupBox = new System.Windows.Forms.GroupBox();
-            this.workflowGraphView = new Bonsai.Design.GraphView();
             this.propertiesGroupBox = new System.Windows.Forms.GroupBox();
             this.propertyGrid = new System.Windows.Forms.PropertyGrid();
             this.propertyGridContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -111,7 +110,6 @@
             this.toolboxSplitContainer.SuspendLayout();
             this.toolboxTableLayoutPanel.SuspendLayout();
             this.toolboxDescriptionPanel.SuspendLayout();
-            this.workflowGroupBox.SuspendLayout();
             this.propertiesGroupBox.SuspendLayout();
             this.propertyGridContextMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelSplitContainer)).BeginInit();
@@ -635,7 +633,6 @@
             // 
             // workflowGroupBox
             // 
-            this.workflowGroupBox.Controls.Add(this.workflowGraphView);
             this.workflowGroupBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.workflowGroupBox.Location = new System.Drawing.Point(0, 0);
             this.workflowGroupBox.Name = "workflowGroupBox";
@@ -643,17 +640,6 @@
             this.workflowGroupBox.TabIndex = 1;
             this.workflowGroupBox.TabStop = false;
             this.workflowGroupBox.Text = "Workflow";
-            // 
-            // workflowGraphView
-            // 
-            this.workflowGraphView.AllowDrop = true;
-            this.workflowGraphView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.workflowGraphView.Location = new System.Drawing.Point(3, 16);
-            this.workflowGraphView.Name = "workflowGraphView";
-            this.workflowGraphView.Nodes = null;
-            this.workflowGraphView.SelectedNode = null;
-            this.workflowGraphView.Size = new System.Drawing.Size(294, 272);
-            this.workflowGraphView.TabIndex = 0;
             // 
             // propertiesGroupBox
             // 
@@ -779,7 +765,6 @@
             this.toolboxTableLayoutPanel.ResumeLayout(false);
             this.toolboxTableLayoutPanel.PerformLayout();
             this.toolboxDescriptionPanel.ResumeLayout(false);
-            this.workflowGroupBox.ResumeLayout(false);
             this.propertiesGroupBox.ResumeLayout(false);
             this.propertyGridContextMenuStrip.ResumeLayout(false);
             this.panelSplitContainer.Panel1.ResumeLayout(false);
@@ -836,7 +821,6 @@
         private System.Windows.Forms.GroupBox toolboxGroupBox;
         private System.Windows.Forms.TreeView toolboxTreeView;
         private System.Windows.Forms.GroupBox workflowGroupBox;
-        private Bonsai.Design.GraphView workflowGraphView;
         private System.Windows.Forms.GroupBox propertiesGroupBox;
         private System.Windows.Forms.PropertyGrid propertyGrid;
         private System.Windows.Forms.ToolStripMenuItem startToolStripMenuItem;
