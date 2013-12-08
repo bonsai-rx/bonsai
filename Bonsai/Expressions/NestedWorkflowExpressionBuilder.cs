@@ -32,15 +32,8 @@ namespace Bonsai.Expressions
 
         public override Expression Build()
         {
-            // Assign source if available
-            var workflowInput = Workflow.Select(node => node.Value as WorkflowInputBuilder)
-                                        .SingleOrDefault(builder => builder != null);
-            if (workflowInput != null)
-            {
-                workflowInput.Source = Arguments.Values.Single();
-            }
-
-            return Workflow.Build();
+            var source = Arguments.Values.SingleOrDefault();
+            return BuildWorflow(source, expression => expression);
         }
     }
 }

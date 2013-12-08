@@ -64,6 +64,7 @@
     <Compile Include="ConditionAttribute.cs" />
     <Compile Include="Expressions\AddBuilder.cs" />
     <Compile Include="Expressions\BinaryOperatorBuilder.cs" />
+    <Compile Include="Expressions\BuildContext.cs" />
     <Compile Include="Expressions\CombinatorExpressionBuilder.cs" />
     <Compile Include="Expressions\ConditionBuilder.cs" />
     <Compile Include="Expressions\BitwiseAndBuilder.cs" />
@@ -130,7 +131,6 @@
     <Compile Include="WindowCombinator.cs" />
     <Compile Include="Expressions\CombinatorBuilder.cs" />
     <Compile Include="Reactive\Slice.cs" />
-    <Compile Include="Expressions\WindowCombinatorExpressionBuilder.cs" />
     <Compile Include="Expressions\WindowWorkflowBuilder.cs" />
     <Compile Include="IO\StreamSink.cs" />
     <Compile Include="UnidimensionalArrayConverter.cs" />
