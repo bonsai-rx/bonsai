@@ -102,7 +102,9 @@ namespace Bonsai.Design
                                  editorService.GetTypeVisualizer(typeof(object));
 
             DialogTypeVisualizer visualizer = null;
-            var layoutSettings = visualizerLayout != null ? visualizerLayout.DialogSettings.FirstOrDefault(xs => xs.Tag == key) : null;
+            var layoutSettings = visualizerLayout != null
+                ? visualizerLayout.DialogSettings.FirstOrDefault(xs => xs.Tag == key.Value)
+                : null;
             if (layoutSettings != null && layoutSettings.VisualizerSettings != null)
             {
                 var root = layoutSettings.VisualizerSettings;
@@ -129,8 +131,13 @@ namespace Bonsai.Design
                     foreach (var mashup in layoutSettings.Mashups)
                     {
                         if (mashup < 0 || mashup >= visualizerLayout.DialogSettings.Count) continue;
-                        var mashupNode = (GraphNode)visualizerLayout.DialogSettings[mashup].Tag;
-                        launcher.CreateMashup(mashupNode, editorService);
+                        var mashupNode = graphView.Nodes
+                            .SelectMany(xs => xs)
+                            .FirstOrDefault(node => node.Value == visualizerLayout.DialogSettings[mashup].Tag);
+                        if (mashupNode != null)
+                        {
+                            launcher.CreateMashup(mashupNode, editorService);
+                        }
                     }
                 }
 
@@ -149,8 +156,7 @@ namespace Bonsai.Design
             if (workflow == null) return;
             visualizerMapping = (from node in workflow
                                  where !(node.Value is InspectBuilder)
-                                 let inspectBuilder = node.Successors.Single().Target.Value as InspectBuilder
-                                 where inspectBuilder != null
+                                 let inspectBuilder = (InspectBuilder)node.Successors.Single().Target.Value
                                  let key = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == node.Value)
                                  select new { node, inspectBuilder, key })
                                  .ToDictionary(mapping => mapping.key,
@@ -603,7 +609,7 @@ namespace Bonsai.Design
             {
                 if (!layoutSettings.MoveNext()) break;
                 var graphNode = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == node.Value);
-                layoutSettings.Current.Tag = graphNode;
+                layoutSettings.Current.Tag = graphNode.Value;
 
                 var workflowEditorSettings = layoutSettings.Current as WorkflowEditorSettings;
                 if (workflowEditorSettings != null)
@@ -668,7 +674,7 @@ namespace Bonsai.Design
 
                     dialogSettings.Visible = visible;
                     dialogSettings.Bounds = visualizerDialog.Bounds;
-                    dialogSettings.Tag = mapping.Key;
+                    dialogSettings.Tag = mapping.Key.Value;
 
                     var visualizer = visualizerDialog.Visualizer;
                     var visualizerSettings = new XDocument();
