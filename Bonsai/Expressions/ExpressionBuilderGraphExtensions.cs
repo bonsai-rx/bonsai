@@ -98,10 +98,22 @@ namespace Bonsai.Expressions
 
         public static Expression Build(this ExpressionBuilderGraph source)
         {
-            return Build(source, null);
+            return Build(source, (BuildContext)null);
         }
 
         public static Expression Build(this ExpressionBuilderGraph source, ExpressionBuilder buildTarget)
+        {
+            if (buildTarget == null)
+            {
+                throw new ArgumentNullException("buildTarget");
+            }
+
+            var buildContext = new BuildContext(buildTarget);
+            Build(source, buildContext);
+            return buildContext.BuildResult;
+        }
+
+        internal static Expression Build(this ExpressionBuilderGraph source, BuildContext buildContext)
         {
             WorkflowOutputBuilder workflowOutput = null;
             var publishMap = new List<PublishScope>();
@@ -117,6 +129,13 @@ namespace Bonsai.Expressions
                     throw new WorkflowBuildException("Unsupported number of arguments. Check the number of connections into node.", builder);
                 }
 
+                // Propagate build target in case of a nested workflow
+                var workflowBuilder = builder as WorkflowExpressionBuilder;
+                if (workflowBuilder != null)
+                {
+                    workflowBuilder.BuildContext = buildContext;
+                }
+
                 try
                 {
                     expression = builder.Build();
@@ -127,11 +146,27 @@ namespace Bonsai.Expressions
                     source.ClearArguments();
                     throw new WorkflowBuildException(e.Message, builder, e);
                 }
-
-                if (builder == buildTarget)
+                finally
                 {
-                    source.ClearArguments();
-                    return expression;
+                    if (workflowBuilder != null)
+                    {
+                        workflowBuilder.BuildContext = null;
+                    }
+                }
+
+                // Check if build target was reached
+                if (buildContext != null)
+                {
+                    if (builder == buildContext.BuildTarget)
+                    {
+                        buildContext.BuildResult = expression;
+                    }
+
+                    if (buildContext.BuildResult != null)
+                    {
+                        source.ClearArguments();
+                        return expression;
+                    }
                 }
 
                 PublishScope publishScope = null;

@@ -13,9 +13,13 @@ namespace Bonsai.Expressions
 {
     [XmlType("SelectMany", Namespace = Constants.XmlNamespace)]
     [Description("Processes each input window using the nested workflow and merges the result into a single sequence.")]
-    public class SelectManyBuilder : WindowCombinatorExpressionBuilder
+    public class SelectManyBuilder : WorkflowExpressionBuilder
     {
         static readonly Range<int> argumentRange = Range.Create(1, 1);
+        static readonly MethodInfo returnMethod = (from method in typeof(Observable).GetMethods()
+                                                   where method.Name == "Return" && method.GetParameters().Length == 1
+                                                   select method)
+                                                   .Single();
         static readonly MethodInfo selectManyMethod = (from method in typeof(Observable).GetMethods()
                                                        where method.Name == "SelectMany"
                                                        let parameters = method.GetParameters()
@@ -44,10 +48,23 @@ namespace Bonsai.Expressions
         {
             var source = Arguments.Values.Single();
             var sourceType = source.Type.GetGenericArguments()[0];
-            var selectorExpression = BuildSourceSelector(sourceType);
-            var selectorObservableType = selectorExpression.ReturnType.GetGenericArguments()[0];
-            var selectManyGenericMethod = selectManyMethod.MakeGenericMethod(sourceType, selectorObservableType);
-            return Expression.Call(selectManyGenericMethod, source, selectorExpression);
+
+            // Assign input
+            Expression inputParameter;
+            var selectorParameter = Expression.Parameter(sourceType);
+            if (!sourceType.IsGenericType || sourceType.GetGenericTypeDefinition() != typeof(IObservable<>))
+            {
+                inputParameter = Expression.Call(returnMethod.MakeGenericMethod(sourceType), selectorParameter);
+            }
+            else inputParameter = selectorParameter;
+
+            return BuildWorflow(inputParameter, selectorBody =>
+            {
+                var selector = Expression.Lambda(selectorBody, selectorParameter);
+                var selectorObservableType = selector.ReturnType.GetGenericArguments()[0];
+                var selectManyGenericMethod = selectManyMethod.MakeGenericMethod(sourceType, selectorObservableType);
+                return Expression.Call(selectManyGenericMethod, source, selector);
+            });
         }
     }
 }

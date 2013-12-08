@@ -12,7 +12,7 @@ namespace Bonsai.Expressions
 {
     [XmlType("WindowWorkflow", Namespace = Constants.XmlNamespace)]
     [Description("Processes each input window using the nested workflow.")]
-    public class WindowWorkflowBuilder : WindowCombinatorExpressionBuilder
+    public class WindowWorkflowBuilder : WorkflowExpressionBuilder
     {
         static readonly Range<int> argumentRange = Range.Create(1, 2);
         static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()
@@ -43,8 +43,12 @@ namespace Bonsai.Expressions
                 throw new InvalidWorkflowException("WindowWorkflow operator takes as input an observable sequence of windows.");
             }
 
-            var selectorExpression = BuildSourceSelector(sourceType);
-            return Expression.Call(selectMethod.MakeGenericMethod(sourceType, selectorExpression.ReturnType), source, selectorExpression);
+            var selectorParameter = Expression.Parameter(sourceType);
+            return BuildWorflow(selectorParameter, selectorBody =>
+            {
+                var selector = Expression.Lambda(selectorBody, selectorParameter);
+                return Expression.Call(selectMethod.MakeGenericMethod(sourceType, selector.ReturnType), source, selector);
+            });
         }
     }
 }
