@@ -120,6 +120,7 @@ namespace Bonsai.Design
 
             visualizer = visualizer ?? (DialogTypeVisualizer)Activator.CreateInstance(visualizerType);
             var launcher = new VisualizerDialogLauncher(inspectBuilder, visualizer, this);
+            launcher.Text = builderConverter.ConvertToString(builder);
             if (layoutSettings != null)
             {
                 var mashupVisualizer = launcher.Visualizer as DialogMashupVisualizer;
@@ -140,7 +141,6 @@ namespace Bonsai.Design
                 }
             }
 
-            launcher.Text = builderConverter.ConvertToString(builder);
             return launcher;
         }
 
