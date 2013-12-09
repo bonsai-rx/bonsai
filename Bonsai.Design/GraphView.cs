@@ -252,7 +252,19 @@ namespace Bonsai.Design
             var nodeLayout = layoutNodes[node];
             var boundingRectangle = nodeLayout.BoundingRectangle;
             boundingRectangle.Offset(offset);
+
+            var nodeText = node.Text;
             var labelRectangle = nodeLayout.LabelRectangle;
+            if (nodeText != nodeLayout.Label)
+            {
+                using (var graphics = CreateGraphics())
+                {
+                    nodeLayout.Label = nodeText;
+                    labelRectangle = GetNodeLabelRectangle(nodeText, nodeLayout.Location, graphics);
+                    nodeLayout.LabelRectangle = labelRectangle;
+                }
+            }
+
             labelRectangle.Offset(offset);
             return Rectangle.Union(boundingRectangle, Rectangle.Truncate(labelRectangle));
         }
@@ -663,7 +675,7 @@ namespace Bonsai.Design
                             var row = node.LayerIndex;
                             var location = new Point(column * NodeAirspace + PenWidth, row * NodeAirspace + PenWidth);
                             var labelRectangle = GetNodeLabelRectangle(node.Text, location, graphics);
-                            layoutNodes.Add(new LayoutNode(node, location, labelRectangle));
+                            layoutNodes.Add(new LayoutNode(node, location, node.Text, labelRectangle));
                         }
 
                         var rowHeight = layer.Count * NodeAirspace;
@@ -791,7 +803,7 @@ namespace Bonsai.Design
                     else
                     {
                         e.Graphics.DrawString(
-                            layout.Node.Text.Substring(0, 1),
+                            layout.Label.Substring(0, 1),
                             Font, textBrush,
                             Point.Add(layout.Location, Size.Add(offset, TextOffset)));
                     }
@@ -813,7 +825,7 @@ namespace Bonsai.Design
                     labelRect.Location.X + offset.Width,
                     labelRect.Location.Y + offset.Height);
                 e.Graphics.DrawString(
-                    layout.Node.Text,
+                    layout.Label,
                     Font, Brushes.Black,
                     labelRect);
             }
@@ -909,10 +921,11 @@ namespace Bonsai.Design
 
         class LayoutNode
         {
-            public LayoutNode(GraphNode node, Point location, RectangleF labelRectangle)
+            public LayoutNode(GraphNode node, Point location, string label, RectangleF labelRectangle)
             {
                 Node = node;
                 Location = location;
+                Label = label;
                 LabelRectangle = labelRectangle;
             }
 
@@ -920,7 +933,9 @@ namespace Bonsai.Design
 
             public Point Location { get; private set; }
 
-            public RectangleF LabelRectangle { get; private set; }
+            public string Label { get; set; }
+
+            public RectangleF LabelRectangle { get; set; }
 
             public Point Center
             {
