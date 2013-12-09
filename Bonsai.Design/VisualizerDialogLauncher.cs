@@ -75,7 +75,15 @@ namespace Bonsai.Design
                 visualizerObserver = visualizerOutput.Subscribe();
             };
 
-            visualizerDialog.FormClosing += delegate { visualizerObserver.Dispose(); visualizerObserver = null; };
+            visualizerDialog.FormClosing += delegate
+            {
+                if (visualizerObserver != null)
+                {
+                    visualizerObserver.Dispose();
+                    visualizerObserver = null;
+                }
+            };
+
             visualizerDialog.FormClosed += delegate
             {
                 visualizer.Unload();
