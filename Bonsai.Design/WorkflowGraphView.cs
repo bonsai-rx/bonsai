@@ -35,8 +35,8 @@ namespace Bonsai.Design
         ExpressionBuilderGraph workflow;
         WorkflowSelectionModel selectionModel;
         IWorkflowEditorService editorService;
-        Dictionary<GraphNode, VisualizerDialogLauncher> visualizerMapping;
-        Dictionary<GraphNode, WorkflowEditorLauncher> workflowEditorMapping;
+        Dictionary<ExpressionBuilder, VisualizerDialogLauncher> visualizerMapping;
+        Dictionary<WorkflowExpressionBuilder, WorkflowEditorLauncher> workflowEditorMapping;
         ExpressionBuilderTypeConverter builderConverter;
         VisualizerLayout visualizerLayout;
         IServiceProvider serviceProvider;
@@ -49,7 +49,7 @@ namespace Bonsai.Design
             selectionModel = (WorkflowSelectionModel)provider.GetService(typeof(WorkflowSelectionModel));
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
             builderConverter = new ExpressionBuilderTypeConverter();
-            workflowEditorMapping = new Dictionary<GraphNode, WorkflowEditorLauncher>();
+            workflowEditorMapping = new Dictionary<WorkflowExpressionBuilder, WorkflowEditorLauncher>();
 
             graphView.HandleDestroyed += graphView_HandleDestroyed;
             editorService.WorkflowStarted += editorService_WorkflowStarted;
@@ -94,7 +94,7 @@ namespace Bonsai.Design
             workflowEditorMapping.Clear();
         }
 
-        private VisualizerDialogLauncher CreateVisualizerLauncher(ExpressionBuilder builder, InspectBuilder inspectBuilder, GraphNode key)
+        private VisualizerDialogLauncher CreateVisualizerLauncher(ExpressionBuilder builder, InspectBuilder inspectBuilder, GraphNode graphNode)
         {
             var workflowElementType = ExpressionBuilder.GetWorkflowElement(builder).GetType();
             var visualizerType = editorService.GetTypeVisualizer(workflowElementType) ??
@@ -103,7 +103,7 @@ namespace Bonsai.Design
 
             DialogTypeVisualizer visualizer = null;
             var layoutSettings = visualizerLayout != null
-                ? visualizerLayout.DialogSettings.FirstOrDefault(xs => xs.Tag == key.Value)
+                ? visualizerLayout.DialogSettings.FirstOrDefault(xs => xs.Tag == graphNode.Value)
                 : null;
             if (layoutSettings != null && layoutSettings.VisualizerSettings != null)
             {
@@ -157,10 +157,10 @@ namespace Bonsai.Design
             visualizerMapping = (from node in workflow
                                  where !(node.Value is InspectBuilder)
                                  let inspectBuilder = (InspectBuilder)node.Successors.Single().Target.Value
-                                 let key = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == node.Value)
-                                 select new { node, inspectBuilder, key })
-                                 .ToDictionary(mapping => mapping.key,
-                                               mapping => CreateVisualizerLauncher(mapping.node.Value, mapping.inspectBuilder, mapping.key));
+                                 let graphNode = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == node.Value)
+                                 select new { node, inspectBuilder, graphNode })
+                                 .ToDictionary(mapping => mapping.node.Value,
+                                               mapping => CreateVisualizerLauncher(mapping.node.Value, mapping.inspectBuilder, mapping.graphNode));
         }
 
         private Node<ExpressionBuilder, ExpressionBuilderParameter> GetGraphNodeTag(GraphNode node)
@@ -575,7 +575,11 @@ namespace Bonsai.Design
             VisualizerDialogLauncher visualizerDialog = null;
             if (visualizerMapping != null && node != null)
             {
-                visualizerMapping.TryGetValue(node, out visualizerDialog);
+                var expressionBuilder = node.Value as ExpressionBuilder;
+                if (expressionBuilder != null)
+                {
+                    visualizerMapping.TryGetValue(expressionBuilder, out visualizerDialog);
+                }
             }
 
             return visualizerDialog;
@@ -588,10 +592,10 @@ namespace Bonsai.Design
             if (workflowExpressionBuilder != null)
             {
                 WorkflowEditorLauncher editorLauncher;
-                if (!workflowEditorMapping.TryGetValue(node, out editorLauncher))
+                if (!workflowEditorMapping.TryGetValue(workflowExpressionBuilder, out editorLauncher))
                 {
-                    editorLauncher = new WorkflowEditorLauncher(workflow, builderNode);
-                    workflowEditorMapping.Add(node, editorLauncher);
+                    editorLauncher = new WorkflowEditorLauncher(workflow, workflowExpressionBuilder);
+                    workflowEditorMapping.Add(workflowExpressionBuilder, editorLauncher);
                 }
 
                 return editorLauncher;
@@ -643,7 +647,9 @@ namespace Bonsai.Design
 
                     VisualizerDialogSettings dialogSettings;
                     WorkflowEditorLauncher editorLauncher;
-                    if (workflowEditorMapping.TryGetValue(mapping.Key, out editorLauncher))
+                    var workflowExpressionBuilder = mapping.Key as WorkflowExpressionBuilder;
+                    if (workflowExpressionBuilder != null &&
+                        workflowEditorMapping.TryGetValue(workflowExpressionBuilder, out editorLauncher))
                     {
                         if (editorLauncher.Visible) editorLauncher.UpdateEditorLayout();
                         dialogSettings = new WorkflowEditorSettings
@@ -674,7 +680,7 @@ namespace Bonsai.Design
 
                     dialogSettings.Visible = visible;
                     dialogSettings.Bounds = visualizerDialog.Bounds;
-                    dialogSettings.Tag = mapping.Key.Value;
+                    dialogSettings.Tag = mapping.Key;
 
                     var visualizer = visualizerDialog.Visualizer;
                     var visualizerSettings = new XDocument();
