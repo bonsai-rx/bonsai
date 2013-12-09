@@ -40,6 +40,7 @@ namespace Bonsai.Editor
         WorkflowGraphView workflowGraphView;
         WorkflowSelectionModel selectionModel;
         TypeDescriptionProvider selectionTypeDescriptor;
+        Dictionary<string, string> propertyAssignments;
         List<TreeNode> treeCache;
 
         XmlSerializer serializer;
@@ -51,6 +52,7 @@ namespace Bonsai.Editor
         {
             InitializeComponent();
             searchTextBox.CueBanner = Resources.SearchModuleCueBanner;
+            propertyAssignments = new Dictionary<string, string>();
 
             treeCache = new List<TreeNode>();
             editorSite = new EditorSite(this);
@@ -80,6 +82,11 @@ namespace Bonsai.Editor
         public string InitialFileName { get; set; }
 
         public bool StartOnLoad { get; set; }
+
+        public IDictionary<string, string> PropertyAssignments
+        {
+            get { return propertyAssignments; }
+        }
 
         void ShowWelcomeDialog()
         {
@@ -117,6 +124,11 @@ namespace Bonsai.Editor
             if (validFileName)
             {
                 OpenWorkflow(initialFileName);
+                foreach (var assignment in propertyAssignments)
+                {
+                    workflowGraphView.SetWorkflowProperty(assignment.Key, assignment.Value);
+                }
+
                 if (StartOnLoad) initialization = initialization.Do(xs => BeginInvoke((Action)(() => StartWorkflow())));
             }
 
