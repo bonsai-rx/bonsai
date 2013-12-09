@@ -14,6 +14,8 @@ namespace Bonsai.Editor
     {
         const string StartCommand = "--start";
         const string LibraryCommand = "--lib";
+        const string PropertyCommand = "-p";
+        const string PropertyAssignmentSeparator = "=";
         const string SuppressBootstrapCommand = "--noboot";
         const string PackageManagerCommand = "--packagemanager";
         const string EditorDomainName = "EditorDomain";
@@ -33,12 +35,21 @@ namespace Bonsai.Editor
             var launchPackageManager = false;
             string initialFileName = null;
             var libFolders = new List<string>();
+            var propertyAssignments = new Dictionary<string, string>();
             var parser = new CommandLineParser();
             parser.RegisterCommand(StartCommand, () => start = true);
             parser.RegisterCommand(LibraryCommand, path => libFolders.Add(path));
             parser.RegisterCommand(SuppressBootstrapCommand, () => bootstrap = false);
             parser.RegisterCommand(PackageManagerCommand, () => { launchPackageManager = true; bootstrap = false; });
             parser.RegisterCommand(command => initialFileName = command);
+            parser.RegisterCommand(PropertyCommand, property =>
+            {
+                var assignment = property.Split(new[] { PropertyAssignmentSeparator }, 2, StringSplitOptions.None);
+                if (assignment.Length == 2)
+                {
+                    propertyAssignments.Add(assignment[0], assignment[1]);
+                }
+            });
             parser.Parse(args);
 
             var editorAssembly = typeof(Program).Assembly;
@@ -79,6 +90,7 @@ namespace Bonsai.Editor
                         InitialFileName = initialFileName,
                         StartOnLoad = start
                     };
+                    mainForm.PropertyAssignments.AddRange(propertyAssignments);
                     Application.Run(mainForm);
                     return mainForm.LaunchPackageManager ? RequirePackageManagerExitCode : NormalExitCode;
                 }
