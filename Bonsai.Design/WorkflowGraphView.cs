@@ -84,6 +84,19 @@ namespace Bonsai.Design
 
         #region Model
 
+        private void UpdateEditorMapping()
+        {
+            var missingEditors = (from mapping in workflowEditorMapping
+                                  where !workflow.Any(node => node.Value == mapping.Key)
+                                  select mapping)
+                                  .ToArray();
+            foreach (var mapping in missingEditors)
+            {
+                mapping.Value.Hide();
+                workflowEditorMapping.Remove(mapping.Key);
+            }
+        }
+
         private void ClearEditorMapping()
         {
             foreach (var mapping in workflowEditorMapping)
@@ -711,6 +724,7 @@ namespace Bonsai.Design
                 .SortLayeringByConnectionKey()
                 .ToList();
             graphView.Invalidate();
+            UpdateEditorMapping();
         }
 
         #endregion
