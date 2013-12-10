@@ -220,6 +220,21 @@ namespace Bonsai.Design
         public IEnumerable<GraphNode> SelectedNodes
         {
             get { return selectedNodes; }
+            set
+            {
+                if (selectedNodes != value)
+                {
+                    InvalidateSelection();
+                    var selection = value.ToArray();
+                    selectedNodes.Clear();
+                    foreach (var node in selection)
+                    {
+                        selectedNodes.Add(node);
+                    }
+                    InvalidateSelection();
+                    OnSelectedNodeChanged(EventArgs.Empty);
+                }
+            }
         }
 
         void UpdateSelection(Action update)
