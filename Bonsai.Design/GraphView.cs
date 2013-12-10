@@ -91,7 +91,6 @@ namespace Bonsai.Design
                                          }).Finally(() => selectionBeforeDrag = null));
 
             var itemDrag = (from mouseDown in mouseDownEvent
-                            where mouseDown.Button == MouseButtons.Left
                             let node = highlight
                             where node != null
                             select (from mouseMove in mouseMoveEvent.TakeUntil(mouseUpEvent)
