@@ -339,30 +339,45 @@ namespace Bonsai.Design
             });
         }
 
-        public void CreateGraphNode(TreeNode typeNode, GraphNode closestGraphViewNode, CreateGraphNodeType nodeType, bool branch)
+        ExpressionBuilder CreateBuilder(TreeNode typeNode)
         {
             var typeName = typeNode.Name;
-            var elementType = (ElementCategory)typeNode.Tag;
-            CreateGraphNode(typeName, elementType, closestGraphViewNode, nodeType, branch);
+            var elementCategory = (ElementCategory)typeNode.Tag;
+            return CreateBuilder(typeName, elementCategory);
         }
 
-        public void CreateGraphNode(string typeName, ElementCategory elementType, GraphNode closestGraphViewNode, CreateGraphNodeType nodeType, bool branch)
+        ExpressionBuilder CreateBuilder(string typeName, ElementCategory elementCategory)
         {
             var type = Type.GetType(typeName);
-            if (type != null)
+            if (type == null)
             {
-                ExpressionBuilder builder;
-                if (!type.IsSubclassOf(typeof(ExpressionBuilder)))
-                {
-                    var element = Activator.CreateInstance(type);
-                    builder = ExpressionBuilder.FromWorkflowElement(element, elementType);
-                }
-                else builder = (ExpressionBuilder)Activator.CreateInstance(type);
-                CreateGraphNode(builder, elementType, closestGraphViewNode, nodeType, branch);
+                throw new ArgumentException("The specified type could not be found.", "typeName");
             }
+
+            ExpressionBuilder builder;
+            if (!type.IsSubclassOf(typeof(ExpressionBuilder)))
+            {
+                var element = Activator.CreateInstance(type);
+                builder = ExpressionBuilder.FromWorkflowElement(element, elementCategory);
+            }
+            else builder = (ExpressionBuilder)Activator.CreateInstance(type);
+            return builder;
         }
 
-        public void CreateGraphNode(ExpressionBuilder builder, ElementCategory elementType, GraphNode closestGraphViewNode, CreateGraphNodeType nodeType, bool branch)
+        public void CreateGraphNode(TreeNode typeNode, GraphNode closestGraphViewNode, CreateGraphNodeType nodeType, bool branch)
+        {
+            var builder = CreateBuilder(typeNode);
+            var elementCategory = (ElementCategory)typeNode.Tag;
+            CreateGraphNode(builder, elementCategory, closestGraphViewNode, nodeType, branch);
+        }
+
+        public void CreateGraphNode(string typeName, ElementCategory elementCategory, GraphNode closestGraphViewNode, CreateGraphNodeType nodeType, bool branch)
+        {
+            var builder = CreateBuilder(typeName, elementCategory);
+            CreateGraphNode(builder, elementCategory, closestGraphViewNode, nodeType, branch);
+        }
+
+        public void CreateGraphNode(ExpressionBuilder builder, ElementCategory elementCategory, GraphNode closestGraphViewNode, CreateGraphNodeType nodeType, bool branch)
         {
             if (builder == null)
             {
@@ -377,7 +392,7 @@ namespace Bonsai.Design
             Action removeNode = () => { workflow.Remove(inspectNode); workflow.Remove(sourceNode); };
 
             var closestNode = closestGraphViewNode != null ? GetGraphNodeTag(closestGraphViewNode) : null;
-            var insertCommands = GetInsertGraphNodeCommands(sourceNode, inspectNode, elementType, closestNode, nodeType, branch);
+            var insertCommands = GetInsertGraphNodeCommands(sourceNode, inspectNode, elementCategory, closestNode, nodeType, branch);
             var addConnection = insertCommands.Item1;
             var removeConnection = insertCommands.Item2;
             commandExecutor.Execute(
