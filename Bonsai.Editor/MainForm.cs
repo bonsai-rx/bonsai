@@ -773,8 +773,11 @@ namespace Bonsai.Editor
 
         private void cutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            copyToolStripMenuItem_Click(sender, e);
-            DeleteSelectedNode();
+            var model = selectionModel.SelectedView;
+            if (model.GraphView.Focused)
+            {
+                model.CutToClipboard();
+            }
         }
 
         private void copyToolStripMenuItem_Click(object sender, EventArgs e)
@@ -788,7 +791,7 @@ namespace Bonsai.Editor
                 var model = selectionModel.SelectedView;
                 if (model.GraphView.Focused)
                 {
-                    editorSite.StoreWorkflowElements(selectionModel.SelectedNodes.ToWorkflowBuilder());
+                    model.CopyToClipboard();
                 }
             }
         }
@@ -802,12 +805,9 @@ namespace Bonsai.Editor
             else
             {
                 var model = selectionModel.SelectedView;
-                var builder = editorSite.RetrieveWorkflowElements();
-                if (builder.Workflow.Count > 0)
+                if (model.GraphView.Focused)
                 {
-                    var branch = Control.ModifierKeys.HasFlag(WorkflowGraphView.BranchModifier);
-                    var predecessor = Control.ModifierKeys.HasFlag(WorkflowGraphView.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
-                    model.InsertGraphElements(builder.Workflow, predecessor, branch);
+                    model.PasteFromClipboard();
                 }
             }
         }

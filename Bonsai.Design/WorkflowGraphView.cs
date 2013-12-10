@@ -561,6 +561,28 @@ namespace Bonsai.Design
             commandExecutor.EndCompositeCommand();
         }
 
+        public void CutToClipboard()
+        {
+            editorService.StoreWorkflowElements(selectionModel.SelectedNodes.ToWorkflowBuilder());
+            DeleteGraphNodes(selectionModel.SelectedNodes);
+        }
+
+        public void CopyToClipboard()
+        {
+            editorService.StoreWorkflowElements(selectionModel.SelectedNodes.ToWorkflowBuilder());
+        }
+
+        public void PasteFromClipboard()
+        {
+            var builder = editorService.RetrieveWorkflowElements();
+            if (builder.Workflow.Count > 0)
+            {
+                var branch = Control.ModifierKeys.HasFlag(BranchModifier);
+                var predecessor = Control.ModifierKeys.HasFlag(PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
+                InsertGraphElements(builder.Workflow, predecessor, branch);
+            }
+        }
+
         public void SetWorkflowProperty(string name, string value)
         {
             var property = (from node in workflow
@@ -794,8 +816,6 @@ namespace Bonsai.Design
             }
         }
 
-        #endregion
-
         private void graphView_DragOver(object sender, DragEventArgs e)
         {
             if (e.Effect != DragDropEffects.None && e.Data.GetDataPresent(DataFormats.FileDrop, true))
@@ -929,24 +949,17 @@ namespace Bonsai.Design
 
             if (e.KeyCode == Keys.X && e.Modifiers.HasFlag(Keys.Control))
             {
-                editorService.StoreWorkflowElements(selectionModel.SelectedNodes.ToWorkflowBuilder());
-                DeleteGraphNodes(selectionModel.SelectedNodes);
+                CutToClipboard();
             }
 
             if (e.KeyCode == Keys.C && e.Modifiers.HasFlag(Keys.Control))
             {
-                editorService.StoreWorkflowElements(selectionModel.SelectedNodes.ToWorkflowBuilder());
+                CopyToClipboard();
             }
 
             if (e.KeyCode == Keys.V && e.Modifiers.HasFlag(Keys.Control))
             {
-                var builder = editorService.RetrieveWorkflowElements();
-                if (builder.Workflow.Count > 0)
-                {
-                    var branch = e.Modifiers.HasFlag(BranchModifier);
-                    var predecessor = e.Modifiers.HasFlag(PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
-                    InsertGraphElements(builder.Workflow, predecessor, branch);
-                }
+                PasteFromClipboard();
             }
 
             if (e.KeyCode == Keys.R && e.Control)
@@ -986,6 +999,27 @@ namespace Bonsai.Design
         {
             InitializeVisualizerMapping();
         }
+
+        #endregion
+
+        #region Context Menu
+
+        private void cutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CutToClipboard();
+        }
+
+        private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CopyToClipboard();
+        }
+
+        private void pasteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            PasteFromClipboard();
+        }
+
+        #endregion
     }
 
     public enum CreateGraphNodeType
