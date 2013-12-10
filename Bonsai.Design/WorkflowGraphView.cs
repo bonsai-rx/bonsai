@@ -23,6 +23,7 @@ namespace Bonsai.Design
         const string XsdAttributeValue = "http://www.w3.org/2001/XMLSchema";
         const string XsiAttributeValue = "http://www.w3.org/2001/XMLSchema-instance";
 
+        const int RightMouseButton = 0x2;
         const int ShiftModifier = 0x4;
         const int CtrlModifier = 0x8;
         const int AltModifier = 0x20;
@@ -30,6 +31,7 @@ namespace Bonsai.Design
         public const Keys PredecessorModifier = Keys.Shift;
         public const string BonsaiExtension = ".bonsai";
 
+        int dragKeyState;
         GraphNode dragHighlight;
         IEnumerable<GraphNode> dragSelection;
         CommandExecutor commandExecutor;
@@ -799,12 +801,14 @@ namespace Bonsai.Design
 
         private void ClearDragDrop()
         {
+            dragKeyState = 0;
             dragSelection = null;
             dragHighlight = null;
         }
 
         private void graphView_DragEnter(object sender, DragEventArgs e)
         {
+            dragKeyState = e.KeyState;
             if (e.Data.GetDataPresent(typeof(TreeNode)))
             {
                 e.Effect = DragDropEffects.Copy;
@@ -833,6 +837,7 @@ namespace Bonsai.Design
 
         private void graphView_DragOver(object sender, DragEventArgs e)
         {
+            dragKeyState = e.KeyState;
             if (e.Effect != DragDropEffects.None && e.Data.GetDataPresent(DataFormats.FileDrop, true))
             {
                 OnDragFileDrop(e);
@@ -863,39 +868,46 @@ namespace Bonsai.Design
 
         private void graphView_DragDrop(object sender, DragEventArgs e)
         {
-            var dropLocation = graphView.PointToClient(new Point(e.X, e.Y));
-            if (e.Effect == DragDropEffects.Copy)
+            if (((dragKeyState ^ e.KeyState) & RightMouseButton) != 0)
             {
-                var branch = (e.KeyState & AltModifier) != 0;
-                var predecessor = (e.KeyState & ShiftModifier) != 0 ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
-                var linkNode = graphView.GetNodeAt(dropLocation) ?? graphView.SelectedNode;
-                if (e.Data.GetDataPresent(DataFormats.FileDrop, true))
-                {
-                    var path = (string[])e.Data.GetData(DataFormats.FileDrop, true);
-                    var workflowBuilder = editorService.LoadWorkflow(path[0]);
-                    var workflowExpressionBuilder = new NestedWorkflowExpressionBuilder(workflowBuilder.Workflow);
-                    CreateGraphNode(workflowExpressionBuilder, ElementCategory.Combinator, linkNode, predecessor, branch);
-                }
-                else
-                {
-                    var typeNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
-                    CreateGraphNode(typeNode, linkNode, predecessor, branch);
-                }
+                contextMenuStrip.Show(e.X, e.Y);
             }
-
-            if (e.Effect == DragDropEffects.Link)
+            else
             {
-                if (e.Data.GetDataPresent(DataFormats.FileDrop, true))
+                var dropLocation = graphView.PointToClient(new Point(e.X, e.Y));
+                if (e.Effect == DragDropEffects.Copy)
                 {
-                    var path = (string[])e.Data.GetData(DataFormats.FileDrop, true);
-                    editorService.OpenWorkflow(path[0]);
-                }
-                else
-                {
-                    var linkNode = graphView.GetNodeAt(dropLocation);
-                    if (linkNode != null)
+                    var branch = (e.KeyState & AltModifier) != 0;
+                    var predecessor = (e.KeyState & ShiftModifier) != 0 ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
+                    var linkNode = graphView.GetNodeAt(dropLocation) ?? graphView.SelectedNode;
+                    if (e.Data.GetDataPresent(DataFormats.FileDrop, true))
                     {
-                        ConnectGraphNodes(dragSelection, linkNode);
+                        var path = (string[])e.Data.GetData(DataFormats.FileDrop, true);
+                        var workflowBuilder = editorService.LoadWorkflow(path[0]);
+                        var workflowExpressionBuilder = new NestedWorkflowExpressionBuilder(workflowBuilder.Workflow);
+                        CreateGraphNode(workflowExpressionBuilder, ElementCategory.Combinator, linkNode, predecessor, branch);
+                    }
+                    else
+                    {
+                        var typeNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
+                        CreateGraphNode(typeNode, linkNode, predecessor, branch);
+                    }
+                }
+
+                if (e.Effect == DragDropEffects.Link)
+                {
+                    if (e.Data.GetDataPresent(DataFormats.FileDrop, true))
+                    {
+                        var path = (string[])e.Data.GetData(DataFormats.FileDrop, true);
+                        editorService.OpenWorkflow(path[0]);
+                    }
+                    else
+                    {
+                        var linkNode = graphView.GetNodeAt(dropLocation);
+                        if (linkNode != null)
+                        {
+                            ConnectGraphNodes(dragSelection, linkNode);
+                        }
                     }
                 }
             }
