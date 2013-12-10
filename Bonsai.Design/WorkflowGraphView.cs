@@ -578,6 +578,72 @@ namespace Bonsai.Design
             commandExecutor.EndCompositeCommand();
         }
 
+        public void GroupGraphNodes(IEnumerable<GraphNode> nodes)
+        {
+            if (nodes == null)
+            {
+                throw new ArgumentNullException("nodes");
+            }
+
+            if (!nodes.Any()) return;
+            GraphNode linkNode = null;
+            GraphNode replacementNode = null;
+            var nodeType = CreateGraphNodeType.Successor;
+            var workflowBuilder = nodes.ToWorkflowBuilder();
+            var source = workflowBuilder.Workflow.Sources().First();
+            var sourceNode = graphView.Nodes.SelectMany(layer => layer).Single(node => node.Value == source.Value);
+            var predecessors = graphView.Nodes
+                .SelectMany(layer => layer)
+                .Where(node => node.Value != null && node.Successors.Any(edge => edge.Node.Value == sourceNode.Value))
+                .ToArray();
+            if (predecessors.Length == 1)
+            {
+                var workflowInput = new WorkflowInputBuilder();
+                var inputNode = workflowBuilder.Workflow.Add(workflowInput);
+                workflowBuilder.Workflow.AddEdge(inputNode, source, new ExpressionBuilderParameter());
+                linkNode = predecessors[0];
+                replacementNode = sourceNode;
+            }
+
+            var sink = workflowBuilder.Workflow.Sinks().First();
+            var sinkNode = graphView.Nodes.SelectMany(layer => layer).Single(node => node.Value == sink.Value);
+            var successors = sinkNode.Successors.Select(edge => edge.Node).ToArray();
+            if (successors.Length == 1)
+            {
+                var workflowOutput = new WorkflowOutputBuilder();
+                var outputNode = workflowBuilder.Workflow.Add(workflowOutput);
+                workflowBuilder.Workflow.AddEdge(sink, outputNode, new ExpressionBuilderParameter());
+                if (linkNode == null)
+                {
+                    linkNode = successors[0];
+                    replacementNode = sinkNode;
+                    nodeType = CreateGraphNodeType.Predecessor;
+                }
+            }
+
+            var workflowExpressionBuilder = new NestedWorkflowExpressionBuilder(workflowBuilder.Workflow.ToInspectableGraph());
+            commandExecutor.BeginCompositeCommand();
+            commandExecutor.Execute(() => { }, UpdateGraphLayout);
+            foreach (var node in nodes.Where(n => n != replacementNode))
+            {
+                DeleteGraphNode(node);
+            }
+
+            CreateGraphNode(workflowExpressionBuilder,
+                            ElementCategory.Nested,
+                            replacementNode,
+                            nodeType,
+                            branch: false);
+            if (replacementNode != null) DeleteGraphNode(replacementNode);
+            commandExecutor.Execute(() =>
+            {
+                UpdateGraphLayout();
+                graphView.SelectedNode = graphView.Nodes.SelectMany(layer => layer).First(n => GetGraphNodeTag(n).Value == workflowExpressionBuilder);
+            },
+            () => { });
+            commandExecutor.EndCompositeCommand();
+        }
+
         public void CutToClipboard()
         {
             CopyToClipboard();
@@ -1047,6 +1113,11 @@ namespace Bonsai.Design
         }
 
         #endregion
+
+        private void groupToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            GroupGraphNodes(selectionModel.SelectedNodes);
+        }
     }
 
     public enum CreateGraphNodeType
