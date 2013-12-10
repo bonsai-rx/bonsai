@@ -64,14 +64,12 @@ namespace Bonsai.Design
             var mouseDownEvent = Observable.FromEventPattern<MouseEventHandler, MouseEventArgs>(
                 handler => canvas.MouseDown += handler,
                 handler => canvas.MouseDown -= handler)
-                .Select(evt => evt.EventArgs)
-                .Where(mouseDown => mouseDown.Button == MouseButtons.Left);
+                .Select(evt => evt.EventArgs);
 
             var mouseUpEvent = Observable.FromEventPattern<MouseEventHandler, MouseEventArgs>(
                 handler => canvas.MouseUp += handler,
                 handler => canvas.MouseUp -= handler)
-                .Select(evt => evt.EventArgs)
-                .Where(mouseUp => mouseUp.Button == MouseButtons.Left);
+                .Select(evt => evt.EventArgs);
 
             var mouseMoveEvent = Observable.FromEventPattern<MouseEventHandler, MouseEventArgs>(
                 handler => canvas.MouseMove += handler,
@@ -83,8 +81,7 @@ namespace Bonsai.Design
                                  select (from mouseMove in mouseMoveEvent.TakeUntil(mouseUpEvent)
                                          let displacementX = mouseMove.X - mouseDown.X
                                          let displacementY = mouseMove.Y - mouseDown.Y
-                                         where mouseMove.Button == MouseButtons.Left &&
-                                               displacementX * displacementX + displacementY * displacementY > 16
+                                         where displacementX * displacementX + displacementY * displacementY > 16
                                          select (Rectangle?)GetNormalizedRectangle(mouseDown.Location, mouseMove.Location))
                                          .Concat(Observable.Return<Rectangle?>(null)))
                                          .SelectMany(selection => selection.Select((rect, i) =>
@@ -94,13 +91,13 @@ namespace Bonsai.Design
                                          }).Finally(() => selectionBeforeDrag = null));
 
             var itemDrag = (from mouseDown in mouseDownEvent
+                            where mouseDown.Button == MouseButtons.Left
                             let node = highlight
                             where node != null
                             select (from mouseMove in mouseMoveEvent.TakeUntil(mouseUpEvent)
                                     let displacementX = mouseMove.X - mouseDown.X
                                     let displacementY = mouseMove.Y - mouseDown.Y
-                                    where mouseMove.Button == MouseButtons.Left &&
-                                          displacementX * displacementX + displacementY * displacementY > 16
+                                    where displacementX * displacementX + displacementY * displacementY > 16
                                     select new { node, mouseMove.Button })
                                     .Take(1)).Switch();
 
@@ -840,25 +837,21 @@ namespace Bonsai.Design
         private void canvas_MouseDown(object sender, MouseEventArgs e)
         {
             if (!Focused) Select();
-
-            if (e.Button == MouseButtons.Left)
+            if (highlight != null)
             {
-                if (highlight != null)
+                SetCursor(highlight);
+                if (Control.ModifierKeys.HasFlag(Keys.Shift))
                 {
-                    SetCursor(highlight);
-                    if (Control.ModifierKeys.HasFlag(Keys.Shift))
+                    mouseDownHandled = true;
+                    SelectRange(highlight, Control.ModifierKeys.HasFlag(Keys.Control));
+                }
+                else
+                {
+                    pivot = cursor;
+                    if (!selectedNodes.Contains(highlight))
                     {
                         mouseDownHandled = true;
-                        SelectRange(highlight, Control.ModifierKeys.HasFlag(Keys.Control));
-                    }
-                    else
-                    {
-                        pivot = cursor;
-                        if (!selectedNodes.Contains(highlight))
-                        {
-                            mouseDownHandled = true;
-                            SelectNode(highlight, Control.ModifierKeys.HasFlag(Keys.Control));
-                        }
+                        SelectNode(highlight, Control.ModifierKeys.HasFlag(Keys.Control));
                     }
                 }
             }
@@ -867,21 +860,17 @@ namespace Bonsai.Design
         private void canvas_MouseUp(object sender, MouseEventArgs e)
         {
             if (selectionBeforeDrag != null) return;
-
-            if (e.Button == MouseButtons.Left)
+            if (highlight != null)
             {
-                if (highlight != null)
+                if (!mouseDownHandled)
                 {
-                    if (!mouseDownHandled)
-                    {
-                        if (Control.ModifierKeys.HasFlag(Keys.Control)) ClearNode(highlight);
-                        else SelectNode(highlight, false);
-                    }
+                    if (Control.ModifierKeys.HasFlag(Keys.Control)) ClearNode(highlight);
+                    else SelectNode(highlight, false);
                 }
-                else if (Control.ModifierKeys == Keys.None)
-                {
-                    ClearSelection();
-                }
+            }
+            else if (Control.ModifierKeys == Keys.None)
+            {
+                ClearSelection();
             }
 
             mouseDownHandled = false;
