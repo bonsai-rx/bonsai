@@ -563,7 +563,7 @@ namespace Bonsai.Design
 
         public void CutToClipboard()
         {
-            editorService.StoreWorkflowElements(selectionModel.SelectedNodes.ToWorkflowBuilder());
+            CopyToClipboard();
             DeleteGraphNodes(selectionModel.SelectedNodes);
         }
 
