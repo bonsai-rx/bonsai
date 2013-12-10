@@ -775,7 +775,7 @@ namespace Bonsai.Design
         private void OnDragFileDrop(DragEventArgs e)
         {
             if (graphView.ParentForm.Owner == null &&
-                        (e.KeyState & AltModifier) == 0)
+                (e.KeyState & CtrlModifier) != 0)
             {
                 e.Effect = DragDropEffects.Link;
             }
