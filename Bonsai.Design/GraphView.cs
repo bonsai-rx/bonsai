@@ -200,6 +200,8 @@ namespace Bonsai.Design
             get { return cursor; }
         }
 
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public GraphNode SelectedNode
         {
             get { return selectedNodes.FirstOrDefault(); }
@@ -217,6 +219,8 @@ namespace Bonsai.Design
             }
         }
 
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public IEnumerable<GraphNode> SelectedNodes
         {
             get { return selectedNodes; }
