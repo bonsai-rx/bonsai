@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bonsai.Properties
+namespace Bonsai.Expressions
 {
     [DisplayName("Float")]
     public class FloatProperty : WorkflowProperty<float>

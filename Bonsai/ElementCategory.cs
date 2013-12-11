@@ -13,6 +13,7 @@ namespace Bonsai
         Transform,
         Sink,
         Nested,
-        Combinator
+        Property,
+        Combinator,
     }
 }

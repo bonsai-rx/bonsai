@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bonsai.Properties
+namespace Bonsai.Expressions
 {
-    [DisplayName("Boolean")]
-    public class BooleanProperty : WorkflowProperty<bool>
+    [DisplayName("String")]
+    public class StringProperty : WorkflowProperty<string>
     {
     }
 }

@@ -8,7 +8,6 @@ using System.ComponentModel;
 using Bonsai.Dag;
 using System.Reactive;
 using System.Reactive.Linq;
-using Bonsai.Properties;
 
 namespace Bonsai.Expressions
 {

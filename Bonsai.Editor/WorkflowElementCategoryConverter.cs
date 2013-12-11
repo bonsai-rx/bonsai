@@ -47,7 +47,8 @@ namespace Bonsai.Editor
             if (MatchIgnoredTypes(type)) yield break;
 
             if (type.IsSubclassOf(typeof(ExpressionBuilder)) ||
-                MatchAttributeType(type, typeof(CombinatorAttribute)))
+                MatchAttributeType(type, typeof(CombinatorAttribute)) ||
+                MatchAttributeType(type, typeof(SourceAttribute)))
             {
                 var attributes = TypeDescriptor.GetAttributes(type);
                 var elementCategoryAttribute = (WorkflowElementCategoryAttribute)attributes[typeof(WorkflowElementCategoryAttribute)];
@@ -56,10 +57,6 @@ namespace Bonsai.Editor
                 {
                     yield return ElementCategory.Condition;
                 }
-            }
-            else
-            {
-                if (type.IsDefined(typeof(SourceAttribute), true)) yield return ElementCategory.Source;
             }
         }
     }

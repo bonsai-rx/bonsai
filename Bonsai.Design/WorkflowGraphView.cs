@@ -12,7 +12,6 @@ using System.Xml.Linq;
 using System.IO;
 using Bonsai.Dag;
 using System.Xml.Serialization;
-using Bonsai.Properties;
 
 namespace Bonsai.Design
 {
