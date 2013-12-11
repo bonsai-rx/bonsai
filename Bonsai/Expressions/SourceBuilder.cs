@@ -10,15 +10,12 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Expressions
 {
-    [PropertyMapping]
     [WorkflowElementCategory(ElementCategory.Source)]
     [XmlType("Source", Namespace = Constants.XmlNamespace)]
     public class SourceBuilder : CombinatorExpressionBuilder, INamedElement
     {
-        readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
-
         public SourceBuilder()
-            : base(0, 1)
+            : base(minArguments: 0, maxArguments: 0)
         {
         }
 
@@ -29,12 +26,14 @@ namespace Bonsai.Expressions
 
         public object Generator { get; set; }
 
-        public PropertyMappingCollection PropertyMappings
+        public override Expression Build()
         {
-            get { return propertyMappings; }
+            var output = BuildCombinator();
+            var sourceExpression = Expression.Constant(Generator);
+            return BuildMappingOutput(sourceExpression, output, PropertyMappings);
         }
 
-        public override Expression Build()
+        protected override Expression BuildCombinator()
         {
             const BindingFlags bindingAttributes = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
             var sourceType = Generator.GetType();
@@ -43,9 +42,7 @@ namespace Bonsai.Expressions
             var methodName = ((SourceAttribute)sourceAttributes.Single()).MethodName;
             var generateMethod = sourceType.GetMethods(bindingAttributes)
                                            .Single(m => m.Name == methodName && m.GetParameters().Length == 0);
-
-            var output = HandleBuildException(Expression.Call(sourceExpression, generateMethod), this);
-            return BuildMappingOutput(sourceExpression, output, propertyMappings);
+            return HandleBuildException(Expression.Call(sourceExpression, generateMethod), this);
         }
     }
 }

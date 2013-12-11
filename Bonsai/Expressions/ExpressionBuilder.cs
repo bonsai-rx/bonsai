@@ -28,9 +28,14 @@ namespace Bonsai.Expressions
         const string ExpressionBuilderSuffix = "Builder";
         readonly SortedList<string, Expression> arguments = new SortedList<string, Expression>();
 
+        protected ExpressionBuilder(int minArguments, int maxArguments)
+        {
+            ArgumentRange = Range.Create(minArguments, maxArguments);
+        }
+
         [XmlIgnore]
         [Browsable(false)]
-        public abstract Range<int> ArgumentRange { get; }
+        public Range<int> ArgumentRange { get; protected set; }
 
         protected internal IDictionary<string, Expression> Arguments
         {

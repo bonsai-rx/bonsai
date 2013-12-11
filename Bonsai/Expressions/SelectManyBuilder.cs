@@ -15,7 +15,6 @@ namespace Bonsai.Expressions
     [Description("Processes each input window using the nested workflow and merges the result into a single sequence.")]
     public class SelectManyBuilder : WorkflowExpressionBuilder
     {
-        static readonly Range<int> argumentRange = Range.Create(1, 1);
         static readonly MethodInfo returnMethod = (from method in typeof(Observable).GetMethods()
                                                    where method.Name == "Return" && method.GetParameters().Length == 1
                                                    select method)
@@ -31,17 +30,13 @@ namespace Bonsai.Expressions
                                                       .Single();
 
         public SelectManyBuilder()
+            : this(new ExpressionBuilderGraph())
         {
         }
 
         public SelectManyBuilder(ExpressionBuilderGraph workflow)
-            : base(workflow)
+            : base(workflow, minArguments: 1, maxArguments: 1)
         {
-        }
-
-        public override Range<int> ArgumentRange
-        {
-            get { return argumentRange; }
         }
 
         public override Expression Build()

@@ -14,24 +14,19 @@ namespace Bonsai.Expressions
     [Description("Processes each input window using the nested workflow.")]
     public class WindowWorkflowBuilder : WorkflowExpressionBuilder
     {
-        static readonly Range<int> argumentRange = Range.Create(1, 2);
         static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()
                                                                     .Single(m => m.Name == "Select" &&
                                                                             m.GetParameters().Length == 2 &&
                                                                             m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
 
         public WindowWorkflowBuilder()
+            : this(new ExpressionBuilderGraph())
         {
         }
 
         public WindowWorkflowBuilder(ExpressionBuilderGraph workflow)
-            : base(workflow)
+            : base(workflow, minArguments: 1, maxArguments: 1)
         {
-        }
-
-        public override Range<int> ArgumentRange
-        {
-            get { return argumentRange; }
         }
 
         public override Expression Build()

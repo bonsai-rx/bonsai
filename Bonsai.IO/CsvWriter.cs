@@ -23,6 +23,11 @@ namespace Bonsai.IO
         static readonly MethodInfo writeMethod = typeof(StreamWriter).GetMethods().First(m => m.Name == "Write" &&
                                                                                               m.GetParameters().Length == 2 &&
                                                                                               m.GetParameters()[1].ParameterType == typeof(object));
+
+        public CsvWriter()
+            : base(minArguments: 1, maxArguments: 1)
+        {
+        }
         
         [Description("The name of the output file.")]
         [FileNameFilter("CSV (Comma delimited)|*.csv|All Files|*.*")]
@@ -112,12 +117,12 @@ namespace Bonsai.IO
             }
         }
 
-        public override Expression Build()
+        protected override Expression BuildCombinator()
         {
             const string ParameterName = "input";
             const string EntryFormat = "{0} ";
 
-            var source = Arguments.Values.Single();
+            var source = Arguments.Values.First();
             var parameterType = source.Type.GetGenericArguments()[0];
             var inputParameter = Expression.Parameter(parameterType, ParameterName);
             var writerParameter = Expression.Parameter(typeof(StreamWriter));

@@ -9,28 +9,19 @@ using System.ComponentModel;
 
 namespace Bonsai.Expressions
 {
-    [PropertyMapping]
     [XmlType("Combinator", Namespace = Constants.XmlNamespace)]
-    public class CombinatorBuilder : ExpressionBuilder, INamedElement
+    public class CombinatorBuilder : CombinatorExpressionBuilder, INamedElement
     {
         object combinator;
-        Range<int> argumentRange;
-        readonly PropertyMappingCollection propertyMappings;
 
         public CombinatorBuilder()
+            : base(minArguments: 0, maxArguments: 0)
         {
-            argumentRange = Range.Create(0, 0);
-            propertyMappings = new PropertyMappingCollection();
         }
 
         public string Name
         {
             get { return GetElementDisplayName(combinator); }
-        }
-
-        public override Range<int> ArgumentRange
-        {
-            get { return argumentRange; }
         }
 
         public object Combinator
@@ -39,13 +30,8 @@ namespace Bonsai.Expressions
             set
             {
                 combinator = value;
-                argumentRange = GetArgumentRange();
+                ArgumentRange = GetArgumentRange();
             }
-        }
-
-        public PropertyMappingCollection PropertyMappings
-        {
-            get { return propertyMappings; }
         }
 
         Range<int> GetArgumentRange()
@@ -72,10 +58,16 @@ namespace Bonsai.Expressions
 
         public override Expression Build()
         {
+            var output = BuildCombinator();
+            var combinatorExpression = Expression.Constant(Combinator);
+            return BuildMappingOutput(combinatorExpression, output, PropertyMappings);
+        }
+
+        protected override Expression BuildCombinator()
+        {
             var combinatorExpression = Expression.Constant(Combinator);
             var processMethods = GetProcessMethods(combinatorExpression.Type);
-            var output = BuildCall(combinatorExpression, processMethods, Arguments.Values.Take(ArgumentRange.UpperBound).ToArray());
-            return BuildMappingOutput(combinatorExpression, output, propertyMappings);
+            return BuildCall(combinatorExpression, processMethods, Arguments.Values.Take(ArgumentRange.UpperBound).ToArray());
         }
     }
 }

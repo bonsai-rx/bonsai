@@ -10,16 +10,20 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
 {
-    [PropertyMapping]
     [WorkflowElementCategory(ElementCategory.Condition)]
     [XmlType("Condition", Namespace = Constants.XmlNamespace)]
     public class ConditionBuilder : CombinatorExpressionBuilder, INamedElement
     {
-        readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
         static readonly MethodInfo whereMethod = typeof(Observable).GetMethods()
                                                                    .Single(m => m.Name == "Where" &&
                                                                            m.GetParameters().Length == 2 &&
                                                                            m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
+
+        public ConditionBuilder()
+            : base(minArguments: 1, maxArguments: 1)
+        {
+        }
+
         public string Name
         {
             get { return GetElementDisplayName(Condition); }
@@ -31,12 +35,14 @@ namespace Bonsai.Expressions
         [Editor("Bonsai.Design.MemberSelectorEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public string Selector { get; set; }
 
-        public PropertyMappingCollection PropertyMappings
+        public override Expression Build()
         {
-            get { return propertyMappings; }
+            var output = BuildCombinator();
+            var conditionExpression = Expression.Constant(Condition);
+            return BuildMappingOutput(conditionExpression, output, PropertyMappings);
         }
 
-        public override Expression Build()
+        protected override Expression BuildCombinator()
         {
             var conditionType = Condition.GetType();
             var conditionExpression = Expression.Constant(Condition);
@@ -48,14 +54,13 @@ namespace Bonsai.Expressions
             var parameter = Expression.Parameter(observableType);
             var processMethods = conditionType.GetMethods().Where(m => m.Name == methodName);
             var processParameter = ExpressionHelper.MemberAccess(parameter, Selector);
-            var output = (Expression)Expression.Call(
+            return (Expression)Expression.Call(
                 typeof(ConditionBuilder),
                 "Process",
                 new[] { observableType, processParameter.Type },
                 conditionExpression,
                 sourceSelect,
                 Expression.Lambda(processParameter, parameter));
-            return BuildMappingOutput(conditionExpression, output, propertyMappings);
         }
 
         static IObservable<TSource> Process<TSource, TMember>(Condition<TMember> condition, IObservable<TSource> source, Func<TSource, TMember> selector)
