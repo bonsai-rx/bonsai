@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bonsai.Properties
+namespace Bonsai.Expressions
 {
-    [DisplayName("String")]
-    public class StringProperty : WorkflowProperty<string>
+    [DisplayName("DateTime")]
+    public class DateTimeProperty : WorkflowProperty<DateTime>
     {
     }
 }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace Bonsai.Properties
+namespace Bonsai.Expressions
 {
     [DisplayName("TimeSpan")]
     public class TimeSpanProperty : WorkflowProperty

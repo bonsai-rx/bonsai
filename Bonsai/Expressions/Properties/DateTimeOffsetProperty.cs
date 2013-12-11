@@ -5,26 +5,18 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
-namespace Bonsai.Properties
+namespace Bonsai.Expressions
 {
-    [Source]
-    public abstract class WorkflowProperty : INamedElement
+    [DisplayName("DateTimeOffset")]
+    public class DateTimeOffsetProperty : WorkflowProperty
     {
-        internal WorkflowProperty()
-        {
-        }
+        DateTimeOffset value;
+        event Action<DateTimeOffset> ValueChanged;
 
-        public string Name { get; set; }
-    }
-
-    [DefaultProperty("Value")]
-    public class WorkflowProperty<TValue> : WorkflowProperty
-    {
-        TValue value;
-        event Action<TValue> ValueChanged;
-
-        public TValue Value
+        [XmlIgnore]
+        public DateTimeOffset Value
         {
             get { return value; }
             set
@@ -34,7 +26,15 @@ namespace Bonsai.Properties
             }
         }
 
-        void OnValueChanged(TValue value)
+        [Browsable(false)]
+        [XmlElement("Value")]
+        public string ValueXml
+        {
+            get { return Value.ToString("o"); }
+            set { Value = DateTimeOffset.Parse(value); }
+        }
+
+        void OnValueChanged(DateTimeOffset value)
         {
             var handler = ValueChanged;
             if (handler != null)
@@ -43,11 +43,11 @@ namespace Bonsai.Properties
             }
         }
 
-        public virtual IObservable<TValue> Generate()
+        public virtual IObservable<DateTimeOffset> Generate()
         {
             return Observable
                 .Return(value)
-                .Concat(Observable.FromEvent<TValue>(
+                .Concat(Observable.FromEvent<DateTimeOffset>(
                     handler => ValueChanged += handler,
                     handler => ValueChanged -= handler));
         }

@@ -11,6 +11,7 @@ using System.Xml.Serialization;
 namespace Bonsai
 {
     [Source]
+    [WorkflowElementCategory(ElementCategory.Source)]
     public abstract class Source<TSource>
     {
         public abstract IObservable<TSource> Generate();

@@ -31,10 +31,11 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Source");
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Condition");
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Transform");
-            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Sink");
-            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Combinator");
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Property");
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Condition");
+            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Transform");
+            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Sink");
+            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Combinator");
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -590,20 +591,23 @@
             this.toolboxTreeView.Name = "toolboxTreeView";
             treeNode1.Name = "Source";
             treeNode1.Text = "Source";
-            treeNode2.Name = "Condition";
-            treeNode2.Text = "Condition";
-            treeNode3.Name = "Transform";
-            treeNode3.Text = "Transform";
-            treeNode4.Name = "Sink";
-            treeNode4.Text = "Sink";
-            treeNode5.Name = "Combinator";
-            treeNode5.Text = "Combinator";
+            treeNode2.Name = "Property";
+            treeNode2.Text = "Property";
+            treeNode3.Name = "Condition";
+            treeNode3.Text = "Condition";
+            treeNode4.Name = "Transform";
+            treeNode4.Text = "Transform";
+            treeNode5.Name = "Sink";
+            treeNode5.Text = "Sink";
+            treeNode6.Name = "Combinator";
+            treeNode6.Text = "Combinator";
             this.toolboxTreeView.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode1,
             treeNode2,
             treeNode3,
             treeNode4,
-            treeNode5});
+            treeNode5,
+            treeNode6});
             this.toolboxTreeView.Size = new System.Drawing.Size(194, 183);
             this.toolboxTreeView.TabIndex = 0;
             this.toolboxTreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.toolboxTreeView_ItemDrag);
