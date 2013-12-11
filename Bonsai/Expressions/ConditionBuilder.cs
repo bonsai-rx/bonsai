@@ -53,7 +53,8 @@ namespace Bonsai.Expressions
             var observableType = sourceSelect.Type.GetGenericArguments()[0];
             var parameter = Expression.Parameter(observableType);
             var processMethods = conditionType.GetMethods().Where(m => m.Name == methodName);
-            var processParameter = ExpressionHelper.MemberAccess(parameter, Selector);
+            var memberAccess = FindMemberAccess(Selector);
+            var processParameter = ExpressionHelper.MemberAccess(parameter, memberAccess.Item2);
             return (Expression)Expression.Call(
                 typeof(ConditionBuilder),
                 "Process",
