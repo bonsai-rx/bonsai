@@ -579,7 +579,7 @@ namespace Bonsai.Expressions
                                                                            m.GetParameters()[0].ParameterType.GetGenericTypeDefinition() == typeof(Func<>) &&
                                                                            m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
 
-        internal Tuple<Expression, string> FindMemberAccess(string memberPath)
+        protected Tuple<Expression, string> FindMemberAccess(string memberPath)
         {
             Expression source;
             if (string.IsNullOrEmpty(memberPath))
