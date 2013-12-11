@@ -9,6 +9,16 @@ namespace Bonsai.Expressions
 {
     public sealed class PropertyMapping
     {
+        public PropertyMapping()
+        {
+        }
+
+        public PropertyMapping(string name, string selector)
+        {
+            Name = name;
+            Selector = selector;
+        }
+
         [XmlAttribute("name")]
         public string Name { get; set; }
 

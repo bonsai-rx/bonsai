@@ -8,15 +8,18 @@ using System.ComponentModel;
 using Bonsai.Dag;
 using System.Reactive;
 using System.Reactive.Linq;
+using Bonsai.Properties;
 
 namespace Bonsai.Expressions
 {
+    [PropertyMapping]
     [WorkflowElementCategory(ElementCategory.Nested)]
     [XmlType("Workflow", Namespace = Constants.XmlNamespace)]
     [TypeDescriptionProvider(typeof(WorkflowTypeDescriptionProvider))]
     public abstract class WorkflowExpressionBuilder : ExpressionBuilder, INamedElement
     {
         readonly ExpressionBuilderGraph workflow;
+        readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
 
         protected WorkflowExpressionBuilder()
             : this(new ExpressionBuilderGraph())
@@ -55,6 +58,12 @@ namespace Bonsai.Expressions
             }
         }
 
+        [Browsable(false)]
+        public PropertyMappingCollection PropertyMappings
+        {
+            get { return propertyMappings; }
+        }
+
         internal BuildContext BuildContext { get; set; }
 
         protected Expression BuildWorflow(Expression source, Func<Expression, Expression> selector)
@@ -75,7 +84,19 @@ namespace Bonsai.Expressions
             var buildContext = BuildContext;
             var expression = Workflow.Build(buildContext);
             if (buildContext != null && buildContext.BuildResult != null) return buildContext.BuildResult;
-            return selector(expression);
+            var output = selector(expression);
+
+            var subscriptions = propertyMappings.Select(mapping =>
+            {
+                var inputBuilder = (from node in Workflow
+                                    let property = GetWorkflowElement(node.Value) as WorkflowProperty
+                                    where property != null && property.Name == mapping.Name
+                                    select property).First();
+                var inputExpression = Expression.Constant(inputBuilder);
+                var inputMapping = new PropertyMapping("Value", mapping.Selector);
+                return BuildPropertyMapping(inputExpression, inputMapping);
+            });
+            return BuildMappingOutput(output, subscriptions.ToArray());
         }
     }
 }
