@@ -620,11 +620,16 @@ namespace Bonsai.Expressions
 
         internal Expression BuildMappingOutput(Expression instance, Expression output, PropertyMappingCollection propertyMappings)
         {
-            if (propertyMappings.Count > 0)
+            var subscriptions = propertyMappings.Select(mapping => BuildPropertyMapping(instance, mapping)).ToArray();
+            return BuildMappingOutput(output, subscriptions);
+        }
+
+        internal Expression BuildMappingOutput(Expression output, params Expression[] mappings)
+        {
+            if (mappings.Length > 0)
             {
                 var outputType = output.Type.GetGenericArguments()[0];
-                var subscriptions = propertyMappings.Select(mapping => BuildPropertyMapping(instance, mapping)).ToArray();
-                var resource = Expression.New(compositeDisposableConstructor, Expression.NewArrayInit(typeof(IDisposable), subscriptions));
+                var resource = Expression.New(compositeDisposableConstructor, Expression.NewArrayInit(typeof(IDisposable), mappings));
                 var resourceFactory = Expression.Lambda(resource);
                 var resourceParameter = Expression.Parameter(resource.Type);
                 var observableFactory = Expression.Lambda(output, resourceParameter);

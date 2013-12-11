@@ -231,6 +231,18 @@ namespace Bonsai.Expressions
             return observableFactory();
         }
 
+        static WorkflowExpressionBuilder Clone(this WorkflowExpressionBuilder builder, ExpressionBuilderGraph workflow)
+        {
+            var propertyMappings = builder.PropertyMappings;
+            var workflowExpression = (WorkflowExpressionBuilder)Activator.CreateInstance(builder.GetType(), workflow);
+            workflowExpression.Name = builder.Name;
+            foreach (var mapping in builder.PropertyMappings)
+            {
+                workflowExpression.PropertyMappings.Add(mapping);
+            }
+            return workflowExpression;
+        }
+
         public static ExpressionBuilderGraph ToInspectableGraph(this ExpressionBuilderGraph source)
         {
             var observableMapping = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderParameter>, Tuple<Node<ExpressionBuilder, ExpressionBuilderParameter>, Node<ExpressionBuilder, ExpressionBuilderParameter>>>();
@@ -241,9 +253,7 @@ namespace Bonsai.Expressions
                 var workflowExpression = nodeValue as WorkflowExpressionBuilder;
                 if (workflowExpression != null)
                 {
-                    var observableWorkflowExpression = (WorkflowExpressionBuilder)Activator.CreateInstance(workflowExpression.GetType(), workflowExpression.Workflow.ToInspectableGraph());
-                    observableWorkflowExpression.Name = workflowExpression.Name;
-                    nodeValue = observableWorkflowExpression;
+                    nodeValue = workflowExpression.Clone(workflowExpression.Workflow.ToInspectableGraph());
                 }
 
                 var expressionNode = observableGraph.Add(nodeValue);
@@ -281,10 +291,7 @@ namespace Bonsai.Expressions
                 var workflowExpression = recurse ? nodeValue as WorkflowExpressionBuilder : null;
                 if (workflowExpression != null)
                 {
-                    var workflowName = workflowExpression.Name;
-                    workflowExpression = (WorkflowExpressionBuilder)Activator.CreateInstance(workflowExpression.GetType(), workflowExpression.Workflow.FromInspectableGraph());
-                    workflowExpression.Name = workflowName;
-                    nodeValue = workflowExpression;
+                    nodeValue = workflowExpression.Clone(workflowExpression.Workflow.FromInspectableGraph());
                 }
 
                 var builderNode = workflow.Add(nodeValue);
