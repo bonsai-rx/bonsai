@@ -1,27 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Bonsai.Expressions
 {
+    [PropertyMapping]
     public abstract class CombinatorExpressionBuilder : ExpressionBuilder
     {
-        readonly Range<int> argumentRange;
+        readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
 
-        protected CombinatorExpressionBuilder()
-            : this(1, 1)
+        protected CombinatorExpressionBuilder(int minArguments, int maxArguments)
+            : base(minArguments, maxArguments)
         {
         }
 
-        protected CombinatorExpressionBuilder(int lowerBound, int upperBound)
+        [Browsable(false)]
+        public PropertyMappingCollection PropertyMappings
         {
-            argumentRange = Range.Create(lowerBound, upperBound);
+            get { return propertyMappings; }
         }
 
-        public override Range<int> ArgumentRange
+        public override Expression Build()
         {
-            get { return argumentRange; }
+            var output = BuildCombinator();
+            var combinatorExpression = Expression.Constant(this);
+            return BuildMappingOutput(combinatorExpression, output, propertyMappings);
         }
+
+        protected abstract Expression BuildCombinator();
     }
 }

@@ -14,20 +14,14 @@ namespace Bonsai.Expressions
     [Description("Encapsulates complex workflow logic into a single workflow element.")]
     public class NestedWorkflowExpressionBuilder : WorkflowExpressionBuilder
     {
-        static readonly Range<int> argumentRange = Range.Create(0, 2);
-
         public NestedWorkflowExpressionBuilder()
+            : this(new ExpressionBuilderGraph())
         {
         }
 
         public NestedWorkflowExpressionBuilder(ExpressionBuilderGraph workflow)
-            : base(workflow)
+            : base(workflow, minArguments: 0, maxArguments: 1)
         {
-        }
-
-        public override Range<int> ArgumentRange
-        {
-            get { return argumentRange; }
         }
 
         public override Expression Build()

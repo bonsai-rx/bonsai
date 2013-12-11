@@ -21,12 +21,13 @@ namespace Bonsai.Expressions
         readonly ExpressionBuilderGraph workflow;
         readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
 
-        protected WorkflowExpressionBuilder()
-            : this(new ExpressionBuilderGraph())
+        protected WorkflowExpressionBuilder(int minArguments, int maxArguments)
+            : this(new ExpressionBuilderGraph(), minArguments, maxArguments)
         {
         }
 
-        protected WorkflowExpressionBuilder(ExpressionBuilderGraph workflow)
+        protected WorkflowExpressionBuilder(ExpressionBuilderGraph workflow, int minArguments, int maxArguments)
+            : base(minArguments, maxArguments)
         {
             if (workflow == null)
             {
