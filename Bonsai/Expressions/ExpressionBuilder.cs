@@ -77,7 +77,12 @@ namespace Bonsai.Expressions
                 return new CombinatorBuilder { Combinator = element };
             }
 
-            if (elementCategory == ElementCategory.Source) return new SourceBuilder { Generator = element };
+            if (elementCategory == ElementCategory.Source ||
+                elementCategory == ElementCategory.Property)
+            {
+                return new SourceBuilder { Generator = element };
+            }
+
             throw new InvalidOperationException("Invalid loadable element type.");
         }
 
