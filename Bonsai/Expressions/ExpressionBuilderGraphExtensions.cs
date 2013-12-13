@@ -57,30 +57,6 @@ namespace Bonsai.Expressions
             }
         }
 
-        public static Type ExpressionType(this ExpressionBuilderGraph source, Node<ExpressionBuilder, ExpressionBuilderParameter> node)
-        {
-            if (!source.Contains(node))
-            {
-                throw new ArgumentException("The specified node is not a member of the graph.", "node");
-            }
-
-            foreach (var expressionNode in source.TopologicalSort())
-            {
-                var expression = expressionNode.Value.Build();
-                if (expressionNode == node) return expression.Type;
-                else
-                {
-                    foreach (var successor in expressionNode.Successors)
-                    {
-                        var target = successor.Target.Value.GetType().GetProperty(successor.Label.Value);
-                        target.SetValue(successor.Target.Value, expression, null);
-                    }
-                }
-            }
-
-            throw new ArgumentException("Cannot infer expression type on cyclic graphs.", "source");
-        }
-
         internal static IEnumerable<object> GetWorkflowElements(this ExpressionBuilder expressionBuilder)
         {
             yield return expressionBuilder;
