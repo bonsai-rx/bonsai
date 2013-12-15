@@ -33,20 +33,19 @@ namespace Bonsai.Expressions
 
         static IEnumerable<IObservable<Unit>> InspectErrors(this ExpressionBuilderGraph source, IEnumerable<ExpressionBuilder> callStack)
         {
-            foreach (var mapping in from node in source
-                                    where !(node.Value is InspectBuilder)
-                                    let inspectBuilder = node.Successors.Single().Target.Value as InspectBuilder
+            foreach (var builder in from node in source
+                                    let inspectBuilder = node.Value as InspectBuilder
                                     where inspectBuilder != null
-                                    select new { node.Value, inspectBuilder })
+                                    select inspectBuilder)
             {
-                var builder = mapping.Value;
-                yield return mapping.inspectBuilder.Output
+                var inspectBuilder = builder;
+                yield return inspectBuilder.Output
                     .Merge()
                     .IgnoreElements()
                     .Select(xs => Unit.Default)
-                    .Catch<Unit, Exception>(xs => Observable.Throw<Unit>(BuildRuntimeExceptionStack(xs.Message, builder, xs, callStack)));
+                    .Catch<Unit, Exception>(xs => Observable.Throw<Unit>(BuildRuntimeExceptionStack(xs.Message, inspectBuilder, xs, callStack)));
 
-                var workflowExpression = mapping.Value as WorkflowExpressionBuilder;
+                var workflowExpression = inspectBuilder.Builder as WorkflowExpressionBuilder;
                 if (workflowExpression != null)
                 {
                     foreach (var error in workflowExpression.Workflow.InspectErrors(Enumerable.Repeat(workflowExpression, 1).Concat(callStack)))
@@ -106,7 +105,8 @@ namespace Bonsai.Expressions
                 }
 
                 // Propagate build target in case of a nested workflow
-                var workflowBuilder = builder as WorkflowExpressionBuilder;
+                var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
+                var workflowBuilder = workflowElement as WorkflowExpressionBuilder;
                 if (workflowBuilder != null)
                 {
                     workflowBuilder.BuildContext = buildContext;
@@ -179,7 +179,7 @@ namespace Bonsai.Expressions
                     connections.Add(expression);
                 }
 
-                var outputBuilder = builder as WorkflowOutputBuilder;
+                var outputBuilder = workflowElement as WorkflowOutputBuilder;
                 if (outputBuilder != null)
                 {
                     if (workflowOutput != null)
@@ -221,7 +221,7 @@ namespace Bonsai.Expressions
 
         public static ExpressionBuilderGraph ToInspectableGraph(this ExpressionBuilderGraph source)
         {
-            var observableMapping = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderParameter>, Tuple<Node<ExpressionBuilder, ExpressionBuilderParameter>, Node<ExpressionBuilder, ExpressionBuilderParameter>>>();
+            var observableMapping = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderParameter>, Node<ExpressionBuilder, ExpressionBuilderParameter>>();
             var observableGraph = new ExpressionBuilderGraph();
             foreach (var node in source)
             {
@@ -232,18 +232,16 @@ namespace Bonsai.Expressions
                     nodeValue = workflowExpression.Clone(workflowExpression.Workflow.ToInspectableGraph());
                 }
 
-                var expressionNode = observableGraph.Add(nodeValue);
-                var observableNode = observableGraph.Add(new InspectBuilder());
-                observableGraph.AddEdge(expressionNode, observableNode, new ExpressionBuilderParameter());
-                observableMapping.Add(node, Tuple.Create(expressionNode, observableNode));
+                var observableNode = observableGraph.Add(new InspectBuilder(nodeValue));
+                observableMapping.Add(node, observableNode);
             }
 
             foreach (var node in source)
             {
-                var observableNode = observableMapping[node].Item2;
+                var observableNode = observableMapping[node];
                 foreach (var successor in node.Successors)
                 {
-                    var successorNode = observableMapping[successor.Target].Item1;
+                    var successorNode = observableMapping[successor.Target];
                     var parameter = new ExpressionBuilderParameter(successor.Label.Value);
                     observableGraph.AddEdge(observableNode, successorNode, parameter);
                 }
@@ -261,9 +259,10 @@ namespace Bonsai.Expressions
         {
             var workflow = new ExpressionBuilderGraph();
             var nodeMapping = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderParameter>, Node<ExpressionBuilder, ExpressionBuilderParameter>>();
-            foreach (var node in source.Where(node => !(node.Value is InspectBuilder)))
+            foreach (var node in source)
             {
-                ExpressionBuilder nodeValue = node.Value;
+                InspectBuilder inspectBuilder = (InspectBuilder)node.Value;
+                ExpressionBuilder nodeValue = inspectBuilder.Builder;
                 var workflowExpression = recurse ? nodeValue as WorkflowExpressionBuilder : null;
                 if (workflowExpression != null)
                 {
@@ -274,15 +273,10 @@ namespace Bonsai.Expressions
                 nodeMapping.Add(node, builderNode);
             }
 
-            foreach (var node in source.Where(node => !(node.Value is InspectBuilder)))
+            foreach (var node in source)
             {
                 var sourceNode = node;
                 var builderNode = nodeMapping[sourceNode];
-                if (sourceNode.Successors.Count == 1 && sourceNode.Successors[0].Target.Value is InspectBuilder)
-                {
-                    sourceNode = sourceNode.Successors[0].Target;
-                }
-
                 foreach (var successor in sourceNode.Successors)
                 {
                     Node<ExpressionBuilder, ExpressionBuilderParameter> targetNode;

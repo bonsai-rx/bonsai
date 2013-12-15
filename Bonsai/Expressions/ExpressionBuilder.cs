@@ -49,6 +49,9 @@ namespace Bonsai.Expressions
             var combinatorBuilder = builder as CombinatorBuilder;
             if (combinatorBuilder != null) return combinatorBuilder.Combinator;
 
+            var inspectBuilder = builder as InspectBuilder;
+            if (inspectBuilder != null) return GetWorkflowElement(inspectBuilder.Builder);
+
             return builder;
         }
 

@@ -69,7 +69,7 @@ namespace Bonsai.Expressions
         protected Expression BuildWorflow(Expression source, Func<Expression, Expression> selector)
         {
             // Assign source if available
-            var workflowInput = Workflow.Select(node => node.Value as WorkflowInputBuilder)
+            var workflowInput = Workflow.Select(node => GetWorkflowElement(node.Value) as WorkflowInputBuilder)
                                         .SingleOrDefault(builder => builder != null);
             if (workflowInput != null)
             {

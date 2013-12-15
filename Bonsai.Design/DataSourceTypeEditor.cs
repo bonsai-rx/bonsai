@@ -25,13 +25,6 @@ namespace Bonsai.Design
             Output
         }
 
-        bool NodeSelector(ExpressionBuilder builder, object instance)
-        {
-            var combinatorBuilder = builder as CombinatorBuilder;
-            if (combinatorBuilder != null) return combinatorBuilder.Combinator == instance;
-            return false;
-        }
-
         protected IObservable<object> GetDataSource(ITypeDescriptorContext context, IServiceProvider provider)
         {
             if (provider == null)
@@ -41,7 +34,7 @@ namespace Bonsai.Design
 
             var workflow = (ExpressionBuilderGraph)provider.GetService(typeof(ExpressionBuilderGraph));
             var workflowNode = (from node in workflow
-                                where NodeSelector(node.Value, context.Instance)
+                                where ExpressionBuilder.GetWorkflowElement(node.Value) == context.Instance
                                 select node)
                                 .FirstOrDefault();
             if (workflowNode == null)
@@ -52,7 +45,7 @@ namespace Bonsai.Design
             switch (Source)
             {
                 case DataSource.Input: return ((InspectBuilder)workflow.Predecessors(workflowNode).First().Value).Output.Merge();
-                case DataSource.Output: return ((InspectBuilder)workflow.Successors(workflowNode).First().Value).Output.Merge();
+                case DataSource.Output: return ((InspectBuilder)workflowNode.Value).Output.Merge();
                 default: throw new InvalidOperationException("The specified data source is not supported.");
             }
         }
