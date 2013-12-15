@@ -167,7 +167,7 @@ namespace Bonsai
 
         static IEnumerable<Type> GetWorkflowElementTypes(ExpressionBuilder builder)
         {
-            var workflowExpressionBuilder = builder as WorkflowExpressionBuilder;
+            var workflowExpressionBuilder = ExpressionBuilder.GetWorkflowElement(builder) as WorkflowExpressionBuilder;
             if (workflowExpressionBuilder != null)
             {
                 return GetExtensionTypes(workflowExpressionBuilder.Workflow);

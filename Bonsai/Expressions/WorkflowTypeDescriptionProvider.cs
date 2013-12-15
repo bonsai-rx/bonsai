@@ -45,9 +45,7 @@ namespace Bonsai.Expressions
             public override PropertyDescriptorCollection GetProperties(Attribute[] attributes)
             {
                 var properties = from node in builder.Workflow
-                                 let sourceBuilder = node.Value as SourceBuilder
-                                 where sourceBuilder != null
-                                 let property = sourceBuilder.Generator as WorkflowProperty
+                                 let property = ExpressionBuilder.GetWorkflowElement(node.Value) as WorkflowProperty
                                  where property != null
                                  let name = property.Name
                                  where !string.IsNullOrEmpty(name)

@@ -170,12 +170,17 @@ namespace Bonsai.Design
         {
             if (workflow == null) return;
             visualizerMapping = (from node in workflow
-                                 where !(node.Value is InspectBuilder)
-                                 let inspectBuilder = (InspectBuilder)node.Successors.Single().Target.Value
-                                 let graphNode = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == node.Value)
-                                 select new { node, inspectBuilder, graphNode })
-                                 .ToDictionary(mapping => mapping.node.Value,
-                                               mapping => CreateVisualizerLauncher(mapping.node.Value, mapping.inspectBuilder, mapping.graphNode));
+                                 let inspectBuilder = (InspectBuilder)node.Value
+                                 let graphNode = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == inspectBuilder)
+                                 let key = (ExpressionBuilder)graphNode.Value
+                                 select new { key, inspectBuilder, graphNode })
+                                 .ToDictionary(mapping => mapping.key,
+                                               mapping => CreateVisualizerLauncher(mapping.key, mapping.inspectBuilder, mapping.graphNode));
+        }
+
+        private ExpressionBuilder GetGraphNodeBuilder(GraphNode node)
+        {
+            return ((InspectBuilder)node.Value).Builder;
         }
 
         private Node<ExpressionBuilder, ExpressionBuilderParameter> GetGraphNodeTag(GraphNode node)
@@ -208,7 +213,9 @@ namespace Bonsai.Design
             Action removeConnection = () => { };
             if (elementType == ElementCategory.Source)
             {
-                if (closestNode != null && !(closestNode.Value is SourceBuilder) && !workflow.Predecessors(closestNode).Any())
+                if (closestNode != null &&
+                    !(((InspectBuilder)closestNode.Value).Builder is SourceBuilder) &&
+                    !workflow.Predecessors(closestNode).Any())
                 {
                     var parameter = new ExpressionBuilderParameter();
                     var edge = Edge.Create(closestNode, parameter);
@@ -242,20 +249,19 @@ namespace Bonsai.Design
                 }
                 else
                 {
-                    var closestInspectNode = closestNode.Successors.Single().Target;
-                    if (!branch && closestInspectNode.Successors.Count > 0)
+                    if (!branch && closestNode.Successors.Count > 0)
                     {
                         // If we are not creating a new branch, the new node will inherit all branches of selected node
                         var edge = Edge.Create(sourceNode, parameter);
-                        var oldSuccessors = closestInspectNode.Successors.ToArray();
+                        var oldSuccessors = closestNode.Successors.ToArray();
                         addConnection = () =>
                         {
                             foreach (var successor in oldSuccessors)
                             {
-                                workflow.RemoveEdge(closestInspectNode, successor);
+                                workflow.RemoveEdge(closestNode, successor);
                                 workflow.AddEdge(sinkNode, successor);
                             }
-                            workflow.AddEdge(closestInspectNode, edge);
+                            workflow.AddEdge(closestNode, edge);
                         };
 
                         removeConnection = () =>
@@ -263,17 +269,17 @@ namespace Bonsai.Design
                             foreach (var successor in oldSuccessors)
                             {
                                 workflow.RemoveEdge(sinkNode, successor);
-                                workflow.AddEdge(closestInspectNode, successor);
+                                workflow.AddEdge(closestNode, successor);
                             }
-                            workflow.RemoveEdge(closestInspectNode, edge);
+                            workflow.RemoveEdge(closestNode, edge);
                         };
                     }
                     else
                     {
                         // Otherwise, just create the new branch
                         var edge = Edge.Create(sourceNode, parameter);
-                        addConnection = () => { workflow.AddEdge(closestInspectNode, edge); };
-                        removeConnection = () => { workflow.RemoveEdge(closestInspectNode, edge); };
+                        addConnection = () => { workflow.AddEdge(closestNode, edge); };
+                        removeConnection = () => { workflow.RemoveEdge(closestNode, edge); };
                     }
                 }
             }
@@ -288,15 +294,16 @@ namespace Bonsai.Design
             var connectionCount = workflow.Predecessors(target).Count();
             foreach (var sourceNode in graphViewSources)
             {
-                var node = GetGraphNodeTag(sourceNode, false).Successors.Single().Target;
+                var node = GetGraphNodeTag(sourceNode, false);
                 if (target == node || node.Successors.Any(edge => edge.Target == target))
                 {
                     reject = true;
                     break;
                 }
 
+                var builder = GetGraphNodeBuilder(graphViewTarget);
                 if (connectionCount++ >= target.Value.ArgumentRange.UpperBound &&
-                    !Attribute.IsDefined(target.Value.GetType(), typeof(PropertyMappingAttribute), true) ||
+                    !Attribute.IsDefined(builder.GetType(), typeof(PropertyMappingAttribute), true) ||
                     target.DepthFirstSearch().Contains(node))
                 {
                     reject = true;
@@ -315,7 +322,7 @@ namespace Bonsai.Design
             var connectionIndex = workflow.Predecessors(target).Count();
             foreach (var graphViewSource in graphViewSources)
             {
-                var source = GetGraphNodeTag(graphViewSource).Successors.Single().Target;
+                var source = GetGraphNodeTag(graphViewSource);
                 var connection = string.Empty;
                 connection = ExpressionBuilderParameter.Source;
                 connection += connectionIndex + 1;
@@ -385,15 +392,14 @@ namespace Bonsai.Design
                 throw new ArgumentNullException("builder");
             }
 
-            var inspectBuilder = new InspectBuilder();
-            var sourceNode = new Node<ExpressionBuilder, ExpressionBuilderParameter>(builder);
+            var inspectBuilder = new InspectBuilder(builder);
             var inspectNode = new Node<ExpressionBuilder, ExpressionBuilderParameter>(inspectBuilder);
             var inspectParameter = new ExpressionBuilderParameter();
-            Action addNode = () => { workflow.Add(sourceNode); workflow.Add(inspectNode); workflow.AddEdge(sourceNode, inspectNode, inspectParameter); };
-            Action removeNode = () => { workflow.Remove(inspectNode); workflow.Remove(sourceNode); };
+            Action addNode = () => { workflow.Add(inspectNode); };
+            Action removeNode = () => { workflow.Remove(inspectNode); };
 
             var closestNode = closestGraphViewNode != null ? GetGraphNodeTag(closestGraphViewNode) : null;
-            var insertCommands = GetInsertGraphNodeCommands(sourceNode, inspectNode, elementCategory, closestNode, nodeType, branch);
+            var insertCommands = GetInsertGraphNodeCommands(inspectNode, inspectNode, elementCategory, closestNode, nodeType, branch);
             var addConnection = insertCommands.Item1;
             var removeConnection = insertCommands.Item2;
             commandExecutor.Execute(
@@ -402,7 +408,7 @@ namespace Bonsai.Design
                 addNode();
                 addConnection();
                 UpdateGraphLayout();
-                graphView.SelectedNode = graphView.Nodes.SelectMany(layer => layer).First(n => GetGraphNodeTag(n).Value == sourceNode.Value);
+                graphView.SelectedNode = graphView.Nodes.SelectMany(layer => layer).First(n => GetGraphNodeTag(n).Value == inspectBuilder);
             },
             () =>
             {
@@ -469,22 +475,20 @@ namespace Bonsai.Design
             Action removeEdge = () => { };
 
             var workflowNode = GetGraphNodeTag(node);
-            var inspectNode = workflowNode.Successors.Single().Target;
-
             var predecessorEdges = workflow.PredecessorEdges(workflowNode).ToArray();
-            var siblingEdgesAfter = (from edge in inspectNode.Successors
+            var siblingEdgesAfter = (from edge in workflowNode.Successors
                                      from siblingEdge in workflow.PredecessorEdges(edge.Target)
                                      where siblingEdge.Item2.Label.Value.CompareTo(edge.Label.Value) > 0
                                      select siblingEdge.Item2)
                                      .ToArray();
 
             var simplePredecessor = (predecessorEdges.Length == 1 && predecessorEdges[0].Item1.Successors.Count == 1);
-            var simpleSuccessor = (inspectNode.Successors.Count == 1 && workflow.Predecessors(inspectNode.Successors[0].Target).Count() == 1);
+            var simpleSuccessor = (workflowNode.Successors.Count == 1 && workflow.Predecessors(workflowNode.Successors[0].Target).Count() == 1);
             var replaceEdge = simplePredecessor || simpleSuccessor;
             if (replaceEdge)
             {
                 var replacedEdges = (from predecessor in predecessorEdges
-                                     from successor in inspectNode.Successors
+                                     from successor in workflowNode.Successors
                                      where !workflow.Successors(predecessor.Item1).Contains(successor.Target)
                                      select new
                                      {
@@ -516,7 +520,6 @@ namespace Bonsai.Design
 
             Action removeNode = () =>
             {
-                workflow.Remove(inspectNode);
                 workflow.Remove(workflowNode);
                 if (!replaceEdge)
                 {
@@ -530,8 +533,6 @@ namespace Bonsai.Design
             Action addNode = () =>
             {
                 workflow.Add(workflowNode);
-                workflow.Add(inspectNode);
-                workflow.AddEdge(workflowNode, inspectNode, new ExpressionBuilderParameter());
                 foreach (var edge in predecessorEdges)
                 {
                     edge.Item1.Successors.Insert(edge.Item3, edge.Item2);
@@ -590,7 +591,7 @@ namespace Bonsai.Design
             var nodeType = CreateGraphNodeType.Successor;
             var workflowBuilder = nodes.ToWorkflowBuilder();
             var source = workflowBuilder.Workflow.Sources().First();
-            var sourceNode = graphView.Nodes.SelectMany(layer => layer).Single(node => node.Value == source.Value);
+            var sourceNode = graphView.Nodes.SelectMany(layer => layer).Single(node => GetGraphNodeBuilder(node) == source.Value);
             var predecessors = graphView.Nodes
                 .SelectMany(layer => layer)
                 .Where(node => node.Value != null && node.Successors.Any(edge => edge.Node.Value == sourceNode.Value))
@@ -605,7 +606,7 @@ namespace Bonsai.Design
             }
 
             var sink = workflowBuilder.Workflow.Sinks().First();
-            var sinkNode = graphView.Nodes.SelectMany(layer => layer).Single(node => node.Value == sink.Value);
+            var sinkNode = graphView.Nodes.SelectMany(layer => layer).Single(node => GetGraphNodeBuilder(node) == sink.Value);
             var successors = sinkNode.Successors.Select(edge => edge.Node).ToArray();
             if (successors.Length == 1)
             {
@@ -637,7 +638,7 @@ namespace Bonsai.Design
             commandExecutor.Execute(() =>
             {
                 UpdateGraphLayout();
-                graphView.SelectedNode = graphView.Nodes.SelectMany(layer => layer).First(n => GetGraphNodeTag(n).Value == workflowExpressionBuilder);
+                graphView.SelectedNode = graphView.Nodes.SelectMany(layer => layer).First(n => GetGraphNodeBuilder(n) == workflowExpressionBuilder);
             },
             () => { });
             commandExecutor.EndCompositeCommand();
@@ -723,8 +724,7 @@ namespace Bonsai.Design
 
         public WorkflowEditorLauncher GetWorkflowEditorLauncher(GraphNode node)
         {
-            var builderNode = node != null ? GetGraphNodeTag(node) : null;
-            var workflowExpressionBuilder = builderNode != null ? builderNode.Value as WorkflowExpressionBuilder : null;
+            var workflowExpressionBuilder = GetGraphNodeBuilder(node) as WorkflowExpressionBuilder;
             if (workflowExpressionBuilder != null)
             {
                 WorkflowEditorLauncher editorLauncher;
@@ -783,7 +783,7 @@ namespace Bonsai.Design
 
                     VisualizerDialogSettings dialogSettings;
                     WorkflowEditorLauncher editorLauncher;
-                    var workflowExpressionBuilder = mapping.Key as WorkflowExpressionBuilder;
+                    var workflowExpressionBuilder = ExpressionBuilder.GetWorkflowElement(mapping.Key) as WorkflowExpressionBuilder;
                     if (workflowExpressionBuilder != null &&
                         workflowEditorMapping.TryGetValue(workflowExpressionBuilder, out editorLauncher))
                     {
@@ -841,7 +841,7 @@ namespace Bonsai.Design
 
         private void UpdateGraphLayout()
         {
-            graphView.Nodes = workflow.FromInspectableGraph(false)
+            graphView.Nodes = workflow
                 .LongestPathLayering()
                 .EnsureLayerPriority()
                 .SortLayeringByConnectionKey()
