@@ -13,10 +13,9 @@ namespace Bonsai.Scripting
 {
     [WorkflowElementCategory(ElementCategory.Transform)]
     [Description("A Python script used to process and convert individual elements of the input sequence.")]
-    public class PythonTransform : ExpressionBuilder
+    public class PythonTransform : SingleArgumentExpressionBuilder
     {
         public PythonTransform()
-            : base(minArguments: 1, maxArguments: 1)
         {
             Script = "import clr\n\ndef getOutputType():\n    return clr.GetClrType(bool)\n\ndef process(input):\n    return True";
         }

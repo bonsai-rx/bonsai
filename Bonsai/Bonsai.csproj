@@ -70,6 +70,8 @@
     <Compile Include="Expressions\BitwiseAndBuilder.cs" />
     <Compile Include="Expressions\BitwiseOrBuilder.cs" />
     <Compile Include="Expressions\BitwiseNotBuilder.cs" />
+    <Compile Include="Expressions\VariableArgumentExpressionBuilder.cs" />
+    <Compile Include="Expressions\ZeroArgumentExpressionBuilder.cs" />
     <Compile Include="Expressions\LogicalAndBuilder.cs" />
     <Compile Include="Expressions\LogicalOrBuilder.cs" />
     <Compile Include="Expressions\MemberSelectorBuilder.cs" />
@@ -79,6 +81,8 @@
     <Compile Include="Expressions\LessThanBuilder.cs" />
     <Compile Include="Expressions\GreaterThanOrEqualBuilder.cs" />
     <Compile Include="Expressions\GreaterThanBuilder.cs" />
+    <Compile Include="Expressions\PublishScope.cs" />
+    <Compile Include="Expressions\SingleArgumentExpressionBuilder.cs" />
     <Compile Include="Expressions\WorkflowTypeDescriptionProvider.cs" />
     <Compile Include="Expressions\XorBuilder.cs" />
     <Compile Include="Expressions\ModBuilder.cs" />
@@ -125,7 +129,6 @@
     <Compile Include="Reactive\Timer.cs" />
     <Compile Include="ReconnectableObservable.cs" />
     <Compile Include="SourceAttribute.cs" />
-    <Compile Include="Expressions\PublishScope.cs" />
     <Compile Include="Expressions\UnitBuilder.cs" />
     <Compile Include="Transform.cs" />
     <Compile Include="WindowCombinator.cs" />

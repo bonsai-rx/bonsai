@@ -13,13 +13,8 @@ namespace Bonsai.Expressions
 {
     [XmlType("Unit", Namespace = Constants.XmlNamespace)]
     [Description("Converts a sequence of any type into a sequence of Unit type elements.")]
-    public class UnitBuilder : ExpressionBuilder
+    public class UnitBuilder : SingleArgumentExpressionBuilder
     {
-        public UnitBuilder()
-            : base(minArguments: 1, maxArguments: 1)
-        {
-        }
-
         public override Expression Build()
         {
             var source = Arguments.Values.Single();
