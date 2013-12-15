@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Bonsai.Expressions
 {
     [PropertyMapping]
-    public abstract class CombinatorExpressionBuilder : ExpressionBuilder
+    public abstract class CombinatorExpressionBuilder : VariableArgumentExpressionBuilder
     {
         readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
 

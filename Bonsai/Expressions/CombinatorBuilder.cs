@@ -30,22 +30,28 @@ namespace Bonsai.Expressions
             set
             {
                 combinator = value;
-                ArgumentRange = GetArgumentRange();
+                UpdateArgumentRange();                
             }
         }
 
-        Range<int> GetArgumentRange()
+        void UpdateArgumentRange()
         {
-            if (combinator == null) return Range.Create(0, 0);
-            var combinatorType = combinator.GetType();
-            var processMethodParameters = GetProcessMethods(combinatorType).Select(m => m.GetParameters()).ToArray();
-            var paramArray = processMethodParameters.Any(p =>
-                p.Length == 1 &&
-                Attribute.IsDefined(p[0], typeof(ParamArrayAttribute)));
+            if (combinator == null)
+            {
+                SetArgumentRange(0, 0);
+            }
+            else
+            {
+                var combinatorType = combinator.GetType();
+                var processMethodParameters = GetProcessMethods(combinatorType).Select(m => m.GetParameters()).ToArray();
+                var paramArray = processMethodParameters.Any(p =>
+                    p.Length == 1 &&
+                    Attribute.IsDefined(p[0], typeof(ParamArrayAttribute)));
 
-            var min = processMethodParameters.Min(p => p.Length);
-            var max = paramArray ? int.MaxValue : processMethodParameters.Max(p => p.Length);
-            return Range.Create(min, max);
+                var min = processMethodParameters.Min(p => p.Length);
+                var max = paramArray ? int.MaxValue : processMethodParameters.Max(p => p.Length);
+                SetArgumentRange(min, max);
+            }
         }
 
         static IEnumerable<MethodInfo> GetProcessMethods(Type combinatorType)

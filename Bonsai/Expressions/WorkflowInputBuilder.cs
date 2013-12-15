@@ -10,13 +10,8 @@ namespace Bonsai.Expressions
 {
     [XmlType("WorkflowInput", Namespace = Constants.XmlNamespace)]
     [Description("Represents an input sequence inside a nested workflow.")]
-    public class WorkflowInputBuilder : ExpressionBuilder
+    public class WorkflowInputBuilder : ZeroArgumentExpressionBuilder
     {
-        public WorkflowInputBuilder()
-            : base(minArguments: 0, maxArguments: 0)
-        {
-        }
-
         [XmlIgnore]
         [Browsable(false)]
         public Expression Source { get; set; }

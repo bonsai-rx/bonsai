@@ -10,13 +10,8 @@ namespace Bonsai.Expressions
 {
     [XmlType("NullSink", Namespace = Constants.XmlNamespace)]
     [Description("A null operator to allow branching out intermediate workflow values.")]
-    public class NullSinkBuilder : ExpressionBuilder
+    public class NullSinkBuilder : SingleArgumentExpressionBuilder
     {
-        public NullSinkBuilder()
-            : base(minArguments: 1, maxArguments: 1)
-        {
-        }
-
         public override Expression Build()
         {
             return Arguments.Values.Single();

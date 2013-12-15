@@ -11,17 +11,12 @@ using System.Threading.Tasks;
 namespace Bonsai.Expressions
 {
     [WorkflowElementCategory(ElementCategory.Transform)]
-    public abstract class SelectBuilder : ExpressionBuilder
+    public abstract class SelectBuilder : SingleArgumentExpressionBuilder
     {
         static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()
                                                                     .Single(m => m.Name == "Select" &&
                                                                             m.GetParameters().Length == 2 &&
                                                                             m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
-
-        public SelectBuilder()
-            : base(minArguments: 1, maxArguments: 1)
-        {
-        }
 
         protected abstract Expression BuildSelector(Expression expression);
 

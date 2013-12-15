@@ -10,14 +10,9 @@ using System.Reactive.Concurrency;
 
 namespace Bonsai.Expressions
 {
-    public class InspectBuilder : ExpressionBuilder
+    public class InspectBuilder : SingleArgumentExpressionBuilder
     {
         ReplaySubject<IObservable<object>> subject;
-
-        public InspectBuilder()
-            : base(minArguments: 1, maxArguments: 1)
-        {
-        }
 
         public Type ObservableType { get; private set; }
 
