@@ -493,7 +493,7 @@ namespace Bonsai.Editor
             {
                 workflowView.GraphView.SelectedNode = graphNode;
                 var selectionBrush = workflowView.GraphView.UnfocusedSelectionBrush;
-                var nestedException = e.InnerException as WorkflowRuntimeException;
+                var nestedException = e.InnerException as WorkflowException;
                 if (nestedException != null)
                 {
                     workflowView.LaunchWorkflowView(graphNode);
