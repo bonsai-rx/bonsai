@@ -1112,12 +1112,17 @@ namespace Bonsai.Design
             PasteFromClipboard();
         }
 
-        #endregion
-
         private void groupToolStripMenuItem_Click(object sender, EventArgs e)
         {
             GroupGraphNodes(selectionModel.SelectedNodes);
         }
+
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DeleteGraphNodes(selectionModel.SelectedNodes);
+        }
+
+        #endregion
     }
 
     public enum CreateGraphNodeType
