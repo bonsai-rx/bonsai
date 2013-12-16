@@ -154,7 +154,6 @@
     <Compile Include="Reactive\ElementCountWindow.cs" />
     <Compile Include="Reactive\Merge.cs" />
     <Compile Include="Expressions\NestedWorkflowExpressionBuilder.cs" />
-    <Compile Include="Expressions\NullSinkBuilder.cs" />
     <Compile Include="Reactive\RemoveTimestamp.cs" />
     <Compile Include="Expressions\SelectManyBuilder.cs" />
     <Compile Include="Reactive\SubscribeWhen.cs" />
