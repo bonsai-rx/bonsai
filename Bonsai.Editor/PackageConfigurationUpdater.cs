@@ -157,7 +157,8 @@ namespace Bonsai.Editor
                 overlayManager.Logger = packageManager.Logger;
                 foreach (var pivot in pivots)
                 {
-                    overlayManager.InstallPackage(pivot);
+                    var package = overlayManager.SourceRepository.FindPackage(pivot);
+                    overlayManager.InstallPackage(package, false, false);
                 }
             }
         }
