@@ -211,7 +211,8 @@ namespace Bonsai.Design
         {
             Action addConnection = () => { };
             Action removeConnection = () => { };
-            if (elementType == ElementCategory.Source)
+            if (elementType == ElementCategory.Source ||
+                elementType == ElementCategory.Property)
             {
                 if (closestNode != null &&
                     !(((InspectBuilder)closestNode.Value).Builder is SourceBuilder) &&
