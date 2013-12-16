@@ -48,7 +48,7 @@ namespace Bonsai.Expressions
                 var workflowExpression = inspectBuilder.Builder as WorkflowExpressionBuilder;
                 if (workflowExpression != null)
                 {
-                    foreach (var error in workflowExpression.Workflow.InspectErrors(Enumerable.Repeat(workflowExpression, 1).Concat(callStack)))
+                    foreach (var error in workflowExpression.Workflow.InspectErrors(Enumerable.Repeat(inspectBuilder, 1).Concat(callStack)))
                     {
                         yield return error;
                     }
