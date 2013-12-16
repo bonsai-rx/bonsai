@@ -18,7 +18,6 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(SourceBuilder))]
     [XmlInclude(typeof(ConditionBuilder))]
     [XmlInclude(typeof(CombinatorBuilder))]
-    [XmlInclude(typeof(NullSinkBuilder))]
     [XmlInclude(typeof(SelectManyBuilder))]
     [XmlInclude(typeof(WindowWorkflowBuilder))]
     [XmlType("Expression", Namespace = Constants.XmlNamespace)]
