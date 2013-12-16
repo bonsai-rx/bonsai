@@ -1055,6 +1055,11 @@ namespace Bonsai.Design
                 PasteFromClipboard();
             }
 
+            if (e.KeyCode == Keys.G && e.Modifiers.HasFlag(Keys.Control))
+            {
+                GroupGraphNodes(selectionModel.SelectedNodes);
+            }
+
             if (e.KeyCode == Keys.R && e.Control)
             {
                 editorService.StartWorkflow();

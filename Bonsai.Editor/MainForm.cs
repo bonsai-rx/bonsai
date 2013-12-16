@@ -812,6 +812,15 @@ namespace Bonsai.Editor
             }
         }
 
+        private void groupToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var model = selectionModel.SelectedView;
+            if (model.GraphView.Focused)
+            {
+                model.GroupGraphNodes(selectionModel.SelectedNodes);
+            }
+        }
+
         #endregion
 
         #region Undo/Redo
