@@ -91,7 +91,7 @@ namespace Bonsai.Expressions
         internal static Expression Build(this ExpressionBuilderGraph source, BuildContext buildContext)
         {
             WorkflowOutputBuilder workflowOutput = null;
-            var publishMap = new List<PublishScope>();
+            var multicastMap = new List<MulticastScope>();
             var connections = new List<Expression>();
 
             foreach (var node in source.TopologicalSort())
@@ -145,20 +145,27 @@ namespace Bonsai.Expressions
                     }
                 }
 
-                PublishScope publishScope = null;
+                MulticastScope multicastScope = null;
                 if (node.Successors.Count > 1)
                 {
-                    // Start a new publish scope
-                    publishScope = new PublishScope(expression);
-                    expression = publishScope.PublishedSource;
-                    publishMap.Insert(0, publishScope);
+                    // Start a new multicast scope
+                    var multicastBuilder = workflowElement as MulticastExpressionBuilder;
+                    if (multicastBuilder == null)
+                    {
+                        multicastBuilder = new PublishBuilder();
+                        multicastBuilder.Arguments.Add(ExpressionBuilderParameter.Source, expression);
+                        expression = multicastBuilder.Build();
+                    }
+
+                    multicastScope = new MulticastScope(multicastBuilder);
+                    multicastMap.Insert(0, multicastScope);
                 }
 
                 // Remove all closing scopes
-                publishMap.RemoveAll(scope =>
+                multicastMap.RemoveAll(scope =>
                 {
                     scope.References.RemoveAll(reference => reference == builder);
-                    if (scope != publishScope && scope.References.Count == 0)
+                    if (scope != multicastScope && scope.References.Count == 0)
                     {
                         expression = scope.Close(expression);
                         return true;
@@ -191,7 +198,7 @@ namespace Bonsai.Expressions
             }
 
             var output = ExpressionBuilder.BuildWorkflowOutput(workflowOutput, connections);
-            publishMap.RemoveAll(scope =>
+            multicastMap.RemoveAll(scope =>
             {
                 output = scope.Close(output);
                 return true;
