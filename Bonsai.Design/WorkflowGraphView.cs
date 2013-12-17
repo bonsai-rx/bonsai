@@ -142,9 +142,7 @@ namespace Bonsai.Design
             Type visualizerType = null;
             var deserializeVisualizer = false;
             Func<DialogTypeVisualizer> visualizerFactory = null;
-            var layoutSettings = visualizerLayout != null
-                ? visualizerLayout.DialogSettings.FirstOrDefault(xs => (xs.Tag = xs.Tag ?? graphNode.Value) == graphNode.Value)
-                : null;
+            var layoutSettings = GetLayoutSettings(graphNode.Value);
             if (layoutSettings != null && !string.IsNullOrEmpty(layoutSettings.VisualizerTypeName))
             {
                 visualizerType = visualizerTypes.FirstOrDefault(type => type.FullName == layoutSettings.VisualizerTypeName);
@@ -197,10 +195,7 @@ namespace Bonsai.Design
             {
                 var key = mapping.Key;
                 var launcher = mapping.Value;
-                var layoutSettings = visualizerLayout != null
-                    ? visualizerLayout.DialogSettings.FirstOrDefault(xs => xs.Tag == key)
-                    : null;
-
+                var layoutSettings = GetLayoutSettings(key);
                 if (layoutSettings != null)
                 {
                     var visualizer = launcher.Visualizer;
@@ -791,6 +786,13 @@ namespace Bonsai.Design
             }
 
             return null;
+        }
+
+        private VisualizerDialogSettings GetLayoutSettings(object key)
+        {
+            return visualizerLayout != null
+                ? visualizerLayout.DialogSettings.FirstOrDefault(xs => xs.Tag == key)
+                : null;
         }
 
         private void InitializeVisualizerLayout()
