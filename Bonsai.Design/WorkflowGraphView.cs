@@ -1200,6 +1200,36 @@ namespace Bonsai.Design
         }
 
         #endregion
+
+        private void contextMenuStrip_Opening(object sender, CancelEventArgs e)
+        {
+            var selectedNodes = selectionModel.SelectedNodes.ToArray();
+            if (selectedNodes.Length == 1)
+            {
+                var selectedNode = selectedNodes[0];
+                var layoutSettings = GetLayoutSettings(selectedNode.Value);
+                if (layoutSettings != null)
+                {
+                    var visualizerTypes = GetTypeVisualizers(selectedNode);
+                    visualizerToolStripMenuItem.Enabled = true;
+                    foreach (var type in visualizerTypes)
+                    {
+                        var typeName = type.FullName;
+                        visualizerToolStripMenuItem.DropDownItems.Add(typeName, null, delegate
+                        {
+                            layoutSettings.VisualizerTypeName = typeName;
+                            layoutSettings.VisualizerSettings = null;
+                        });
+                    }
+                }
+            }
+        }
+
+        private void contextMenuStrip_Closed(object sender, ToolStripDropDownClosedEventArgs e)
+        {
+            visualizerToolStripMenuItem.Enabled = false;
+            visualizerToolStripMenuItem.DropDownItems.Clear();
+        }
     }
 
     public enum CreateGraphNodeType
