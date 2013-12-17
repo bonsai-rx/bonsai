@@ -800,7 +800,7 @@ namespace Bonsai.Design
             if (visualizerLayout == null) return;
 
             var layoutSettings = visualizerLayout.DialogSettings.GetEnumerator();
-            foreach (var node in workflow.Where(n => !(n.Value is InspectBuilder)))
+            foreach (var node in workflow)
             {
                 if (!layoutSettings.MoveNext()) break;
                 var graphNode = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == node.Value);
