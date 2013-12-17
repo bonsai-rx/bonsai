@@ -34,13 +34,13 @@ namespace Bonsai.Design
             }
         }
 
+        public string VisualizerTypeName { get; set; }
+
+        public XElement VisualizerSettings { get; set; }
+
         public Collection<int> Mashups
         {
             get { return mashups; }
         }
-
-        public string VisualizerTypeName { get; set; }
-
-        public XElement VisualizerSettings { get; set; }
     }
 }
