@@ -14,21 +14,21 @@ namespace Bonsai.Design
     public class VisualizerDialogLauncher : DialogLauncher, ITypeVisualizerContext
     {
         InspectBuilder source;
-        DialogTypeVisualizer visualizer;
         IDisposable visualizerObserver;
+        Lazy<DialogTypeVisualizer> visualizer;
         WorkflowGraphView workflowGraphView;
         ServiceContainer visualizerContext;
 
-        public VisualizerDialogLauncher(InspectBuilder source, DialogTypeVisualizer visualizer, WorkflowGraphView workflowGraphView)
+        public VisualizerDialogLauncher(InspectBuilder source, Func<DialogTypeVisualizer> visualizerFactory, WorkflowGraphView workflowGraphView)
         {
             if (source == null)
             {
                 throw new ArgumentNullException("source");
             }
 
-            if (visualizer == null)
+            if (visualizerFactory == null)
             {
-                throw new ArgumentNullException("visualizer");
+                throw new ArgumentNullException("visualizerFactory");
             }
 
             if (workflowGraphView == null)
@@ -37,7 +37,7 @@ namespace Bonsai.Design
             }
 
             this.source = source;
-            this.visualizer = visualizer;
+            this.visualizer = new Lazy<DialogTypeVisualizer>(visualizerFactory);
             this.workflowGraphView = workflowGraphView;
         }
 
@@ -48,7 +48,7 @@ namespace Bonsai.Design
             get { return source; }
         }
 
-        public DialogTypeVisualizer Visualizer
+        public Lazy<DialogTypeVisualizer> Visualizer
         {
             get { return visualizer; }
         }
@@ -61,8 +61,8 @@ namespace Bonsai.Design
             visualizerContext.AddService(typeof(TypeVisualizerDialog), visualizerDialog);
             visualizerContext.AddService(typeof(IDialogTypeVisualizerService), visualizerDialog);
             visualizerContext.AddService(typeof(ExpressionBuilderGraph), workflowGraphView.Workflow);
-            visualizer.Load(visualizerContext);
-            var visualizerOutput = visualizer.Visualize(source.Output, visualizerContext);
+            visualizer.Value.Load(visualizerContext);
+            var visualizerOutput = visualizer.Value.Visualize(source.Output, visualizerContext);
 
             visualizerDialog.AllowDrop = true;
             visualizerDialog.KeyPreview = true;
@@ -86,7 +86,7 @@ namespace Bonsai.Design
 
             visualizerDialog.FormClosed += delegate
             {
-                visualizer.Unload();
+                visualizer.Value.Unload();
                 visualizerContext.RemoveService(typeof(ExpressionBuilderGraph));
                 visualizerContext.RemoveService(typeof(IDialogTypeVisualizerService));
                 visualizerContext.RemoveService(typeof(TypeVisualizerDialog));
@@ -100,7 +100,7 @@ namespace Bonsai.Design
         {
             if (e.KeyCode == Keys.Back && e.Control)
             {
-                var dialogMashup = visualizer as DialogMashupVisualizer;
+                var dialogMashup = visualizer.Value as DialogMashupVisualizer;
                 if (dialogMashup != null && dialogMashup.Mashups.Count > 0)
                 {
                     UnloadMashups();
@@ -112,18 +112,18 @@ namespace Bonsai.Design
 
         void ReloadMashups()
         {
-            var dialogMashup = visualizer as DialogMashupVisualizer;
+            var dialogMashup = visualizer.Value as DialogMashupVisualizer;
             if (visualizerObserver != null && dialogMashup != null)
             {
                 dialogMashup.LoadMashups(visualizerContext);
-                var visualizerOutput = visualizer.Visualize(source.Output, visualizerContext);
+                var visualizerOutput = visualizer.Value.Visualize(source.Output, visualizerContext);
                 visualizerObserver = visualizerOutput.Subscribe();
             }
         }
 
         void UnloadMashups()
         {
-            var dialogMashup = visualizer as DialogMashupVisualizer;
+            var dialogMashup = visualizer.Value as DialogMashupVisualizer;
             if (visualizerObserver != null && dialogMashup != null)
             {
                 visualizerObserver.Dispose();
@@ -133,12 +133,12 @@ namespace Bonsai.Design
 
         public void CreateMashup(GraphNode graphNode, IWorkflowEditorService editorService)
         {
-            var dialogMashup = visualizer as DialogMashupVisualizer;
+            var dialogMashup = visualizer.Value as DialogMashupVisualizer;
             var visualizerDialog = workflowGraphView.GetVisualizerDialogLauncher(graphNode);
             if (dialogMashup != null && visualizerDialog != null)
             {
-                var mashup = typeof(VisualizerMashup<,>).MakeGenericType(visualizer.GetType(), visualizerDialog.Visualizer.GetType());
-                var mashupVisualizer = editorService.GetTypeVisualizer(mashup);
+                var mashup = typeof(VisualizerMashup<,>).MakeGenericType(visualizer.Value.GetType(), visualizerDialog.Visualizer.Value.GetType());
+                var mashupVisualizer = editorService.GetTypeVisualizers(mashup).SingleOrDefault();
                 if (mashupVisualizer != null)
                 {
                     UnloadMashups();
@@ -172,8 +172,8 @@ namespace Bonsai.Design
                 var editorService = (IWorkflowEditorService)visualizerContext.GetService(typeof(IWorkflowEditorService));
                 if (visualizerDialog != null)
                 {
-                    var mashup = typeof(VisualizerMashup<,>).MakeGenericType(visualizer.GetType(), visualizerDialog.Visualizer.GetType());
-                    var mashupVisualizer = editorService.GetTypeVisualizer(mashup);
+                    var mashup = typeof(VisualizerMashup<,>).MakeGenericType(visualizer.Value.GetType(), visualizerDialog.Visualizer.Value.GetType());
+                    var mashupVisualizer = editorService.GetTypeVisualizers(mashup);
                     if (mashupVisualizer != null)
                     {
                         e.Effect = DragDropEffects.Link;

@@ -39,6 +39,8 @@ namespace Bonsai.Design
             get { return mashups; }
         }
 
+        public string VisualizerTypeName { get; set; }
+
         public XElement VisualizerSettings { get; set; }
     }
 }
