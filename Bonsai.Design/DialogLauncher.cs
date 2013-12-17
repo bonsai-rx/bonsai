@@ -40,9 +40,11 @@ namespace Bonsai.Design
                 visualizerDialog = new TypeVisualizerDialog();
                 visualizerDialog.Load += delegate
                 {
-                    if (!Bounds.IsEmpty && SystemInformation.VirtualScreen.Contains(Bounds))
+                    var bounds = Bounds;
+                    if (!bounds.IsEmpty && SystemInformation.VirtualScreen.Contains(bounds))
                     {
-                        visualizerDialog.DesktopBounds = Bounds;
+                        if (bounds.Size.IsEmpty) visualizerDialog.DesktopLocation = bounds.Location;
+                        else visualizerDialog.DesktopBounds = bounds;
                     }
                 };
 
