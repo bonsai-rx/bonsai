@@ -119,10 +119,10 @@ namespace Bonsai.Design
                 .Concat(editorService.GetTypeVisualizers(typeof(object)));
 
             Type visualizerType = null;
+            var deserializeVisualizer = false;
             Func<DialogTypeVisualizer> visualizerFactory = null;
             var layoutSettings = visualizerLayout != null
-                ? visualizerLayout.DialogSettings.FirstOrDefault(xs => xs.Tag == graphNode.Value)
-                ?? visualizerLayout.DialogSettings.FirstOrDefault(xs => xs.Tag == null)
+                ? visualizerLayout.DialogSettings.FirstOrDefault(xs => (xs.Tag = xs.Tag ?? graphNode.Value) == graphNode.Value)
                 : null;
             if (layoutSettings != null && !string.IsNullOrEmpty(layoutSettings.VisualizerTypeName))
             {
@@ -139,6 +139,7 @@ namespace Bonsai.Design
                         {
                             var visualizer = (DialogTypeVisualizer)serializer.Deserialize(reader);
                             visualizerFactory = () => visualizer;
+                            deserializeVisualizer = true;
                         }
                     }
                 }
@@ -153,32 +154,10 @@ namespace Bonsai.Design
 
             var launcher = new VisualizerDialogLauncher(inspectBuilder, visualizerFactory, this);
             launcher.Text = builderConverter.ConvertToString(builder);
-            if (layoutSettings != null)
+            if (deserializeVisualizer)
             {
-                layoutSettings.Tag = graphNode.Value;
-                if (typeof(DialogMashupVisualizer).IsAssignableFrom(visualizerType))
-                {
-                    foreach (var mashup in layoutSettings.Mashups)
-                    {
-                        if (mashup < 0 || mashup >= visualizerLayout.DialogSettings.Count) continue;
-                        var dialogSettings = visualizerLayout.DialogSettings[mashup];
-                        var mashupNode = graphView.Nodes
-                            .SelectMany(xs => xs)
-                            .FirstOrDefault(node => node.Value == dialogSettings.Tag);
-                        if (mashupNode != null)
-                        {
-                            launcher.CreateMashup(mashupNode, editorService);
-                        }
-                    }
-                }
-
-                launcher.Bounds = layoutSettings.Bounds;
-                if (layoutSettings.Visible)
-                {
-                    launcher.Show(graphView, serviceProvider);
-                }
+                launcher = launcher.Visualizer.Value != null ? launcher : null;
             }
-
             return launcher;
         }
 
@@ -192,6 +171,42 @@ namespace Bonsai.Design
                                  select new { key, inspectBuilder, graphNode })
                                  .ToDictionary(mapping => mapping.key,
                                                mapping => CreateVisualizerLauncher(mapping.key, mapping.inspectBuilder, mapping.graphNode));
+
+            foreach (var mapping in visualizerMapping)
+            {
+                var key = mapping.Key;
+                var launcher = mapping.Value;
+                var layoutSettings = visualizerLayout != null
+                    ? visualizerLayout.DialogSettings.FirstOrDefault(xs => xs.Tag == key)
+                    : null;
+
+                if (layoutSettings != null)
+                {
+                    var visualizer = launcher.Visualizer;
+                    var mashupVisualizer = visualizer.IsValueCreated ? visualizer.Value as DialogMashupVisualizer : null;
+                    if (mashupVisualizer != null)
+                    {
+                        foreach (var mashup in layoutSettings.Mashups)
+                        {
+                            if (mashup < 0 || mashup >= visualizerLayout.DialogSettings.Count) continue;
+                            var dialogSettings = visualizerLayout.DialogSettings[mashup];
+                            var mashupNode = graphView.Nodes
+                                .SelectMany(xs => xs)
+                                .FirstOrDefault(node => node.Value == dialogSettings.Tag);
+                            if (mashupNode != null)
+                            {
+                                launcher.CreateMashup(mashupNode, editorService);
+                            }
+                        }
+                    }
+
+                    launcher.Bounds = layoutSettings.Bounds;
+                    if (layoutSettings.Visible)
+                    {
+                        launcher.Show(graphView, serviceProvider);
+                    }
+                }
+            }
         }
 
         private ExpressionBuilder GetGraphNodeBuilder(GraphNode node)
