@@ -39,7 +39,7 @@ namespace Bonsai.Design
         ExpressionBuilderGraph workflow;
         WorkflowSelectionModel selectionModel;
         IWorkflowEditorService editorService;
-        Dictionary<ExpressionBuilder, VisualizerDialogLauncher> visualizerMapping;
+        Dictionary<InspectBuilder, VisualizerDialogLauncher> visualizerMapping;
         Dictionary<WorkflowExpressionBuilder, WorkflowEditorLauncher> workflowEditorMapping;
         ExpressionBuilderTypeConverter builderConverter;
         VisualizerLayout visualizerLayout;
@@ -133,9 +133,9 @@ namespace Bonsai.Design
             }
         }
 
-        private VisualizerDialogLauncher CreateVisualizerLauncher(ExpressionBuilder builder, InspectBuilder inspectBuilder, GraphNode graphNode)
+        private VisualizerDialogLauncher CreateVisualizerLauncher(InspectBuilder inspectBuilder, GraphNode graphNode)
         {
-            var workflowElementType = ExpressionBuilder.GetWorkflowElement(builder).GetType();
+            var workflowElementType = ExpressionBuilder.GetWorkflowElement(inspectBuilder).GetType();
             var visualizerTypes = GetTypeVisualizers(graphNode);
 
             Type visualizerType = null;
@@ -171,7 +171,7 @@ namespace Bonsai.Design
             }
 
             var launcher = new VisualizerDialogLauncher(inspectBuilder, visualizerFactory, this);
-            launcher.Text = builderConverter.ConvertToString(builder);
+            launcher.Text = builderConverter.ConvertToString(inspectBuilder);
             if (deserializeVisualizer)
             {
                 launcher = launcher.Visualizer.Value != null ? launcher : null;
@@ -183,12 +183,11 @@ namespace Bonsai.Design
         {
             if (workflow == null) return;
             visualizerMapping = (from node in workflow
-                                 let inspectBuilder = (InspectBuilder)node.Value
-                                 let graphNode = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == inspectBuilder)
-                                 let key = (ExpressionBuilder)graphNode.Value
-                                 select new { key, inspectBuilder, graphNode })
+                                 let key = (InspectBuilder)node.Value
+                                 let graphNode = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == key)
+                                 select new { key, graphNode })
                                  .ToDictionary(mapping => mapping.key,
-                                               mapping => CreateVisualizerLauncher(mapping.key, mapping.inspectBuilder, mapping.graphNode));
+                                               mapping => CreateVisualizerLauncher(mapping.key, mapping.graphNode));
 
             foreach (var mapping in visualizerMapping)
             {
@@ -759,7 +758,7 @@ namespace Bonsai.Design
             VisualizerDialogLauncher visualizerDialog = null;
             if (visualizerMapping != null && node != null)
             {
-                var expressionBuilder = node.Value as ExpressionBuilder;
+                var expressionBuilder = node.Value as InspectBuilder;
                 if (expressionBuilder != null)
                 {
                     visualizerMapping.TryGetValue(expressionBuilder, out visualizerDialog);
@@ -1244,7 +1243,7 @@ namespace Bonsai.Design
                                         visualizerLauncher.Hide();
                                     }
 
-                                    visualizerLauncher = CreateVisualizerLauncher(inspectBuilder, inspectBuilder, selectedNode);
+                                    visualizerLauncher = CreateVisualizerLauncher(inspectBuilder, selectedNode);
                                     visualizerLauncher.Bounds = new Rectangle(visualizerBounds.Location, Size.Empty);
                                     visualizerMapping[inspectBuilder] = visualizerLauncher;
                                     if (visualizerVisible)
