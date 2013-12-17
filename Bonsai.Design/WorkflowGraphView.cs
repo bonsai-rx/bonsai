@@ -113,13 +113,31 @@ namespace Bonsai.Design
             workflowEditorMapping.Clear();
         }
 
+        private IEnumerable<Type> GetTypeVisualizers(GraphNode graphNode)
+        {
+            var inspectBuilder = (InspectBuilder)graphNode.Value;
+            var workflowElementType = ExpressionBuilder.GetWorkflowElement(inspectBuilder).GetType();
+            foreach (var type in editorService.GetTypeVisualizers(workflowElementType))
+            {
+                yield return type;
+            }
+
+            var observableType = inspectBuilder.ObservableType;
+            foreach (var type in editorService.GetTypeVisualizers(observableType))
+            {
+                yield return type;
+            }
+
+            foreach (var type in editorService.GetTypeVisualizers(typeof(object)))
+            {
+                yield return type;
+            }
+        }
+
         private VisualizerDialogLauncher CreateVisualizerLauncher(ExpressionBuilder builder, InspectBuilder inspectBuilder, GraphNode graphNode)
         {
             var workflowElementType = ExpressionBuilder.GetWorkflowElement(builder).GetType();
-            var visualizerTypes =
-                editorService.GetTypeVisualizers(workflowElementType)
-                .Concat(editorService.GetTypeVisualizers(inspectBuilder.ObservableType))
-                .Concat(editorService.GetTypeVisualizers(typeof(object)));
+            var visualizerTypes = GetTypeVisualizers(graphNode);
 
             Type visualizerType = null;
             var deserializeVisualizer = false;
