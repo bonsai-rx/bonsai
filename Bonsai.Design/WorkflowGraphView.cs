@@ -1222,10 +1222,37 @@ namespace Bonsai.Design
                     foreach (var type in visualizerTypes)
                     {
                         var typeName = type.FullName;
-                        var menuItem = new ToolStripMenuItem(typeName, null, delegate
+                        ToolStripMenuItem menuItem = null;
+                        menuItem = new ToolStripMenuItem(typeName, null, delegate
                         {
                             layoutSettings.VisualizerTypeName = typeName;
                             layoutSettings.VisualizerSettings = null;
+                            if (!menuItem.Checked)
+                            {
+                                if (!editorService.WorkflowRunning)
+                                {
+                                    layoutSettings.Size = Size.Empty;
+                                }
+                                else
+                                {
+                                    var inspectBuilder = (InspectBuilder)selectedNode.Value;
+                                    var visualizerLauncher = visualizerMapping[inspectBuilder];
+                                    var visualizerVisible = visualizerLauncher.Visible;
+                                    var visualizerBounds = visualizerLauncher.Bounds;
+                                    if (visualizerVisible)
+                                    {
+                                        visualizerLauncher.Hide();
+                                    }
+
+                                    visualizerLauncher = CreateVisualizerLauncher(inspectBuilder, inspectBuilder, selectedNode);
+                                    visualizerLauncher.Bounds = new Rectangle(visualizerBounds.Location, Size.Empty);
+                                    visualizerMapping[inspectBuilder] = visualizerLauncher;
+                                    if (visualizerVisible)
+                                    {
+                                        visualizerLauncher.Show(graphView, serviceProvider);
+                                    }
+                                }
+                            }
                         });
                         var index = visualizerToolStripMenuItem.DropDownItems.Add(menuItem);
                         menuItem.Checked = string.IsNullOrEmpty(layoutSettings.VisualizerTypeName)
