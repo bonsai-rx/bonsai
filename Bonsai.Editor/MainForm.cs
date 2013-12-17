@@ -528,7 +528,7 @@ namespace Bonsai.Editor
                 var shutdown = ShutdownSequence();
                 shutdown.Dispose();
             }
-            else MessageBox.Show(e.Message, "Processing Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            else MessageBox.Show(e.Message, Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         #endregion
@@ -1091,7 +1091,7 @@ namespace Bonsai.Editor
 
             public void ShowError(Exception ex)
             {
-                MessageBox.Show(ex.Message, siteForm.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                siteForm.HandleWorkflowError(ex);
             }
 
             public void ShowError(string message)
