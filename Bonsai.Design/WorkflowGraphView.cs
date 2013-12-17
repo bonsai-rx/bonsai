@@ -13,6 +13,7 @@ using System.IO;
 using Bonsai.Dag;
 using System.Xml.Serialization;
 using System.Linq.Expressions;
+using System.Windows.Forms.Design;
 
 namespace Bonsai.Design
 {
@@ -43,11 +44,13 @@ namespace Bonsai.Design
         ExpressionBuilderTypeConverter builderConverter;
         VisualizerLayout visualizerLayout;
         IServiceProvider serviceProvider;
+        IUIService uiService;
 
         public WorkflowGraphView(IServiceProvider provider)
         {
             InitializeComponent();
             serviceProvider = provider;
+            uiService = (IUIService)provider.GetService(typeof(IUIService));
             commandExecutor = (CommandExecutor)provider.GetService(typeof(CommandExecutor));
             selectionModel = (WorkflowSelectionModel)provider.GetService(typeof(WorkflowSelectionModel));
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
@@ -886,6 +889,18 @@ namespace Bonsai.Design
                 .ToList();
             graphView.Invalidate();
             UpdateEditorMapping();
+
+            var workflowBuilder = (WorkflowBuilder)serviceProvider.GetService(typeof(WorkflowBuilder));
+            if (workflowBuilder == null)
+            {
+                throw new InvalidOperationException("No workflow builder service available to validate the specified layout.");
+            }
+
+            try { workflowBuilder.Workflow.Build(); }
+            catch (WorkflowBuildException ex)
+            {
+                uiService.ShowError(ex);
+            }
         }
 
         #endregion

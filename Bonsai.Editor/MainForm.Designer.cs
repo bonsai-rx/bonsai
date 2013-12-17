@@ -683,6 +683,7 @@
             this.propertyGrid.Name = "propertyGrid";
             this.propertyGrid.Size = new System.Drawing.Size(170, 272);
             this.propertyGrid.TabIndex = 0;
+            this.propertyGrid.Leave += new System.EventHandler(this.propertyGrid_Leave);
             // 
             // propertyGridContextMenuStrip
             // 
