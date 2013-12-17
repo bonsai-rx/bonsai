@@ -80,7 +80,6 @@ namespace Bonsai.Design
                 ClearEditorMapping();
                 workflow = value;
                 UpdateGraphLayout();
-                InitializeVisualizerLayout();
                 if (editorService.WorkflowRunning)
                 {
                     InitializeVisualizerMapping();
@@ -746,10 +745,10 @@ namespace Bonsai.Design
             }
         }
 
-        public void LaunchWorkflowView(GraphNode node)
+        public void LaunchWorkflowView(GraphNode node, bool activate = true)
         {
             var editorLauncher = GetWorkflowEditorLauncher(node);
-            if (editorLauncher != null)
+            if (editorLauncher != null && (!editorLauncher.Visible || activate))
             {
                 editorLauncher.Show(graphView, serviceProvider);
             }
@@ -791,43 +790,71 @@ namespace Bonsai.Design
         private VisualizerDialogSettings GetLayoutSettings(object key)
         {
             return visualizerLayout != null
-                ? visualizerLayout.DialogSettings.FirstOrDefault(xs => xs.Tag == key)
+                ? visualizerLayout.DialogSettings.FirstOrDefault(xs => xs.Tag == key || xs.Tag == null)
                 : null;
         }
 
-        private void InitializeVisualizerLayout()
+        public VisualizerDialogSettings CreateLayoutSettings(ExpressionBuilder builder)
         {
-            if (visualizerLayout == null) return;
-
-            var layoutSettings = visualizerLayout.DialogSettings.GetEnumerator();
-            foreach (var node in workflow)
+            VisualizerDialogSettings dialogSettings;
+            WorkflowEditorLauncher editorLauncher;
+            var workflowExpressionBuilder = ExpressionBuilder.GetWorkflowElement(builder) as WorkflowExpressionBuilder;
+            if (workflowExpressionBuilder != null &&
+                workflowEditorMapping.TryGetValue(workflowExpressionBuilder, out editorLauncher))
             {
-                if (!layoutSettings.MoveNext()) break;
-                var graphNode = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == node.Value);
-                layoutSettings.Current.Tag = graphNode.Value;
-
-                var workflowEditorSettings = layoutSettings.Current as WorkflowEditorSettings;
-                if (workflowEditorSettings != null)
+                if (editorLauncher.Visible) editorLauncher.UpdateEditorLayout();
+                dialogSettings = new WorkflowEditorSettings
                 {
-                    var editorLauncher = GetWorkflowEditorLauncher(graphNode);
-                    editorLauncher.VisualizerLayout = workflowEditorSettings.EditorVisualizerLayout;
-                    editorLauncher.Bounds = workflowEditorSettings.EditorDialogSettings.Bounds;
-                    if (workflowEditorSettings.EditorDialogSettings.Visible)
+                    EditorVisualizerLayout = editorLauncher.VisualizerLayout,
+                    EditorDialogSettings = new VisualizerDialogSettings
                     {
-                        LaunchWorkflowView(graphNode);
+                        Visible = editorLauncher.Visible,
+                        Bounds = editorLauncher.Bounds,
+                        Tag = editorLauncher
                     }
-                }
+                };
             }
+            else dialogSettings = new VisualizerDialogSettings();
+            dialogSettings.Tag = builder;
+            return dialogSettings;
         }
 
         public void UpdateVisualizerLayout()
         {
-            if (visualizerMapping != null)
+            if (visualizerLayout == null)
             {
-                if (visualizerLayout == null)
+                visualizerLayout = new VisualizerLayout();
+            }
+
+            if (visualizerMapping == null)
+            {
+                var updatedLayout = new VisualizerLayout();
+                foreach (var node in workflow)
                 {
-                    visualizerLayout = new VisualizerLayout();
+                    var layoutSettings = GetLayoutSettings(node.Value);
+                    if (layoutSettings == null) layoutSettings = CreateLayoutSettings(node.Value);
+                    else layoutSettings.Tag = node.Value;
+
+                    var graphNode = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == node.Value);
+                    var workflowEditorSettings = layoutSettings as WorkflowEditorSettings;
+                    if (workflowEditorSettings != null)
+                    {
+                        var editorLauncher = GetWorkflowEditorLauncher(graphNode);
+                        editorLauncher.VisualizerLayout = workflowEditorSettings.EditorVisualizerLayout;
+                        editorLauncher.Bounds = workflowEditorSettings.EditorDialogSettings.Bounds;
+                        if (workflowEditorSettings.EditorDialogSettings.Visible)
+                        {
+                            LaunchWorkflowView(graphNode, activate: false);
+                        }
+                    }
+
+                    updatedLayout.DialogSettings.Add(layoutSettings);
                 }
+
+                visualizerLayout = updatedLayout;
+            }
+            else
+            {
                 visualizerLayout.DialogSettings.Clear();
 
                 foreach (var mapping in visualizerMapping)
@@ -836,27 +863,8 @@ namespace Bonsai.Design
                     var visible = visualizerDialog.Visible;
                     visualizerDialog.Hide();
 
-                    VisualizerDialogSettings dialogSettings;
-                    WorkflowEditorLauncher editorLauncher;
-                    var workflowExpressionBuilder = ExpressionBuilder.GetWorkflowElement(mapping.Key) as WorkflowExpressionBuilder;
-                    if (workflowExpressionBuilder != null &&
-                        workflowEditorMapping.TryGetValue(workflowExpressionBuilder, out editorLauncher))
-                    {
-                        if (editorLauncher.Visible) editorLauncher.UpdateEditorLayout();
-                        dialogSettings = new WorkflowEditorSettings
-                        {
-                            EditorVisualizerLayout = editorLauncher.VisualizerLayout,
-                            EditorDialogSettings = new VisualizerDialogSettings
-                            {
-                                Visible = editorLauncher.Visible,
-                                Bounds = editorLauncher.Bounds,
-                                Tag = editorLauncher
-                            }
-                        };
-                    }
-                    else dialogSettings = new VisualizerDialogSettings();
-
                     var visualizer = visualizerDialog.Visualizer;
+                    var dialogSettings = CreateLayoutSettings(mapping.Key);
                     var mashupVisualizer = visualizer.IsValueCreated ? visualizer.Value as DialogMashupVisualizer : null;
                     if (mashupVisualizer != null)
                     {
@@ -872,7 +880,6 @@ namespace Bonsai.Design
 
                     dialogSettings.Visible = visible;
                     dialogSettings.Bounds = visualizerDialog.Bounds;
-                    dialogSettings.Tag = mapping.Key;
 
                     if (visualizer.IsValueCreated)
                     {
@@ -921,6 +928,8 @@ namespace Bonsai.Design
             {
                 uiService.ShowError(ex);
             }
+
+            UpdateVisualizerLayout();
         }
 
         #endregion
@@ -1199,8 +1208,6 @@ namespace Bonsai.Design
             DeleteGraphNodes(selectionModel.SelectedNodes);
         }
 
-        #endregion
-
         private void contextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
             var selectedNodes = selectionModel.SelectedNodes.ToArray();
@@ -1215,11 +1222,15 @@ namespace Bonsai.Design
                     foreach (var type in visualizerTypes)
                     {
                         var typeName = type.FullName;
-                        visualizerToolStripMenuItem.DropDownItems.Add(typeName, null, delegate
+                        var menuItem = new ToolStripMenuItem(typeName, null, delegate
                         {
                             layoutSettings.VisualizerTypeName = typeName;
                             layoutSettings.VisualizerSettings = null;
                         });
+                        var index = visualizerToolStripMenuItem.DropDownItems.Add(menuItem);
+                        menuItem.Checked = string.IsNullOrEmpty(layoutSettings.VisualizerTypeName)
+                            ? index == 0
+                            : typeName == layoutSettings.VisualizerTypeName;
                     }
                 }
             }
@@ -1230,6 +1241,8 @@ namespace Bonsai.Design
             visualizerToolStripMenuItem.Enabled = false;
             visualizerToolStripMenuItem.DropDownItems.Clear();
         }
+
+        #endregion
     }
 
     public enum CreateGraphNodeType
