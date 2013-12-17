@@ -88,7 +88,6 @@
             this.toolboxGroupBox = new System.Windows.Forms.GroupBox();
             this.toolboxSplitContainer = new System.Windows.Forms.SplitContainer();
             this.toolboxTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.searchTextBox = new Bonsai.Design.CueBannerTextBox();
             this.toolboxTreeView = new System.Windows.Forms.TreeView();
             this.toolboxDescriptionPanel = new System.Windows.Forms.Panel();
             this.toolboxDescriptionTextBox = new System.Windows.Forms.RichTextBox();
@@ -102,6 +101,8 @@
             this.panelSplitContainer = new System.Windows.Forms.SplitContainer();
             this.workflowSplitContainer = new System.Windows.Forms.SplitContainer();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.errorStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.searchTextBox = new Bonsai.Design.CueBannerTextBox();
             this.commandExecutor = new Bonsai.Design.CommandExecutor();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
@@ -527,7 +528,8 @@
             // statusStrip
             // 
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.runningStatusLabel});
+            this.runningStatusLabel,
+            this.errorStatusLabel});
             this.statusStrip.Location = new System.Drawing.Point(0, 340);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size(684, 22);
@@ -586,18 +588,6 @@
             this.toolboxTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.toolboxTableLayoutPanel.Size = new System.Drawing.Size(194, 209);
             this.toolboxTableLayoutPanel.TabIndex = 2;
-            // 
-            // searchTextBox
-            // 
-            this.searchTextBox.CueBanner = null;
-            this.searchTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.searchTextBox.Location = new System.Drawing.Point(0, 3);
-            this.searchTextBox.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
-            this.searchTextBox.Name = "searchTextBox";
-            this.searchTextBox.Size = new System.Drawing.Size(194, 20);
-            this.searchTextBox.TabIndex = 1;
-            this.searchTextBox.TextChanged += new System.EventHandler(this.searchTextBox_TextChanged);
-            this.searchTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.searchTextBox_KeyDown);
             // 
             // toolboxTreeView
             // 
@@ -755,6 +745,25 @@
             this.workflowSplitContainer.TabIndex = 0;
             this.workflowSplitContainer.TabStop = false;
             // 
+            // errorStatusLabel
+            // 
+            this.errorStatusLabel.Name = "errorStatusLabel";
+            this.errorStatusLabel.Size = new System.Drawing.Size(602, 17);
+            this.errorStatusLabel.Spring = true;
+            this.errorStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // searchTextBox
+            // 
+            this.searchTextBox.CueBanner = null;
+            this.searchTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.searchTextBox.Location = new System.Drawing.Point(0, 3);
+            this.searchTextBox.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
+            this.searchTextBox.Name = "searchTextBox";
+            this.searchTextBox.Size = new System.Drawing.Size(194, 20);
+            this.searchTextBox.TabIndex = 1;
+            this.searchTextBox.TextChanged += new System.EventHandler(this.searchTextBox_TextChanged);
+            this.searchTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.searchTextBox_KeyDown);
+            // 
             // commandExecutor
             // 
             this.commandExecutor.StatusChanged += new System.EventHandler(this.commandExecutor_StatusChanged);
@@ -873,6 +882,7 @@
         private Bonsai.Design.CueBannerTextBox searchTextBox;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem groupToolStripMenuItem;
+        private System.Windows.Forms.ToolStripStatusLabel errorStatusLabel;
     }
 }
 

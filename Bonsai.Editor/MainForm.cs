@@ -47,6 +47,7 @@ namespace Bonsai.Editor
         XmlSerializer layoutSerializer;
         TypeVisualizerMap typeVisualizers;
         IDisposable running;
+        bool building;
 
         public MainForm()
         {
@@ -453,6 +454,7 @@ namespace Bonsai.Editor
                 runningStatusLabel.Text = Resources.StoppedStatus;
                 runningStatusLabel.Image = Resources.StoppedStatusImage;
                 running = null;
+                building = false;
             }));
         }
 
@@ -460,6 +462,7 @@ namespace Bonsai.Editor
         {
             if (running == null)
             {
+                building = true;
                 running = Observable.Using(
                     () =>
                     {
@@ -486,34 +489,85 @@ namespace Bonsai.Editor
             }
         }
 
-        void SelectExceptionBuilderNode(WorkflowGraphView workflowView, WorkflowException e)
+        IObservable<Unit> WaitForAction(WorkflowGraphView workflowView)
         {
-            var graphNode = workflowView.FindGraphNode(e.Builder);
-            if (graphNode != null)
-            {
-                workflowView.GraphView.SelectedNode = graphNode;
-                var selectionBrush = workflowView.GraphView.UnfocusedSelectionBrush;
-                var nestedException = e.InnerException as WorkflowException;
-                if (nestedException != null)
-                {
-                    workflowView.LaunchWorkflowView(graphNode);
-                    workflowView.GraphView.UnfocusedSelectionBrush = Brushes.DarkRed;
-                    var editorLauncher = workflowView.GetWorkflowEditorLauncher(graphNode);
-                    if (editorLauncher != null)
-                    {
-                        SelectExceptionBuilderNode(editorLauncher.WorkflowGraphView, nestedException);
-                    }
-                }
-                else
-                {
-                    workflowView.GraphView.Select();
-                    var errorCaption = e is WorkflowBuildException ? "Build Error" : "Runtime Error";
-                    workflowView.GraphView.UnfocusedSelectionBrush = Brushes.Red;
-                    MessageBox.Show(e.Message, errorCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+            var deactivate = Observable.FromEventPattern<EventArgs>(
+                handler => workflowView.ParentForm.Deactivate += new EventHandler(handler),
+                handler => workflowView.ParentForm.Deactivate += new EventHandler(handler))
+                .Select(xs => Unit.Default);
+            var leave = Observable.FromEventPattern<EventArgs>(
+                handler => workflowView.GraphView.Leave += new EventHandler(handler),
+                handler => workflowView.GraphView.Leave -= new EventHandler(handler))
+                .Select(xs => Unit.Default);
+            var click = Observable.FromEventPattern<MouseEventArgs>(
+                handler => workflowView.GraphView.MouseDown += new MouseEventHandler(handler),
+                handler => workflowView.GraphView.MouseDown -= new MouseEventHandler(handler))
+                .Select(xs => Unit.Default);
+            var keyDown = Observable.FromEventPattern<KeyEventArgs>(
+                handler => workflowView.GraphView.KeyDown += new KeyEventHandler(handler),
+                handler => workflowView.GraphView.KeyDown -= new KeyEventHandler(handler))
+                .Select(xs => Unit.Default);
+            var selectedNodeChanged = Observable.FromEventPattern<EventArgs>(
+                handler => workflowView.GraphView.SelectedNodeChanged += new EventHandler(handler),
+                handler => workflowView.GraphView.SelectedNodeChanged -= new EventHandler(handler))
+                .Select(xs => Unit.Default);
+            return Observable
+                .Merge(deactivate, leave, click, keyDown, selectedNodeChanged)
+                .Take(1)
+                .IgnoreElements();
+        }
 
-                workflowView.GraphView.UnfocusedSelectionBrush = selectionBrush;
+        IObservable<Unit> SelectExceptionBuilderNode(WorkflowGraphView workflowView, WorkflowException e)
+        {
+            var action = Observable.Empty<Unit>();
+            var graphNode = workflowView.FindGraphNode(e.Builder);
+            if (graphNode == null) return action;
+
+            workflowView.GraphView.Invalidate(graphNode);
+            workflowView.GraphView.SelectedNode = graphNode;
+            var focusedBrush = workflowView.GraphView.FocusedSelectionBrush;
+            var unfocusedBrush = workflowView.GraphView.UnfocusedSelectionBrush;
+            var nestedException = e.InnerException as WorkflowException;
+            if (nestedException != null)
+            {
+                workflowView.LaunchWorkflowView(graphNode);
+                workflowView.GraphView.UnfocusedSelectionBrush = Brushes.DarkRed;
+                var editorLauncher = workflowView.GetWorkflowEditorLauncher(graphNode);
+                if (editorLauncher != null)
+                {
+                    action = SelectExceptionBuilderNode(editorLauncher.WorkflowGraphView, nestedException);
+                }
             }
+            else
+            {
+                workflowView.GraphView.Select();
+                var errorCaption = e is WorkflowBuildException ? "Build Error" : "Runtime Error";
+                var showMessageBox = building;
+                action = action.Finally(() =>
+                {
+                    errorStatusLabel.Text = e.Message;
+                    errorStatusLabel.BorderSides = ToolStripStatusLabelBorderSides.Left;
+                    workflowView.GraphView.UnfocusedSelectionBrush = Brushes.Red;
+                    workflowView.GraphView.FocusedSelectionBrush = Brushes.Red;
+                    workflowView.GraphView.Invalidate(graphNode);
+                    if (showMessageBox)
+                    {
+                        MessageBox.Show(e.Message, errorCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }).Concat(WaitForAction(workflowView))
+                .Finally(() =>
+                {
+                    errorStatusLabel.Text = string.Empty;
+                    errorStatusLabel.BorderSides = ToolStripStatusLabelBorderSides.None;
+                });
+            }
+
+            return action.Finally(() =>
+            {
+                workflowView.GraphView.UnfocusedSelectionBrush = unfocusedBrush;
+                workflowView.GraphView.FocusedSelectionBrush = focusedBrush;
+                workflowView.GraphView.Invalidate(graphNode);
+            });
         }
 
         void HandleWorkflowError(Exception e)
@@ -521,7 +575,7 @@ namespace Bonsai.Editor
             var workflowException = e as WorkflowException;
             if (workflowException != null)
             {
-                Action selectExceptionNode = () => SelectExceptionBuilderNode(workflowGraphView, workflowException);
+                Action selectExceptionNode = () => SelectExceptionBuilderNode(workflowGraphView, workflowException).Subscribe();
                 if (InvokeRequired) BeginInvoke(selectExceptionNode);
                 else selectExceptionNode();
 
