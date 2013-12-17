@@ -296,7 +296,7 @@ namespace Bonsai.Expressions
             arguments = Array.ConvertAll(arguments, argument =>
             {
                 var parameterType = parameters[i++].ParameterType;
-                if (argument.Type != parameterType)
+                if (argument.Type != parameterType && argument.Type.IsPrimitive)
                 {
                     return Expression.Convert(argument, parameterType);
                 }
