@@ -12,6 +12,7 @@ using System.Xml.Linq;
 using System.IO;
 using Bonsai.Dag;
 using System.Xml.Serialization;
+using System.Linq.Expressions;
 
 namespace Bonsai.Design
 {
@@ -112,43 +113,58 @@ namespace Bonsai.Design
         private VisualizerDialogLauncher CreateVisualizerLauncher(ExpressionBuilder builder, InspectBuilder inspectBuilder, GraphNode graphNode)
         {
             var workflowElementType = ExpressionBuilder.GetWorkflowElement(builder).GetType();
-            var visualizerType = editorService.GetTypeVisualizer(workflowElementType) ??
-                                 editorService.GetTypeVisualizer(inspectBuilder.ObservableType) ??
-                                 editorService.GetTypeVisualizer(typeof(object));
+            var visualizerTypes =
+                editorService.GetTypeVisualizers(workflowElementType)
+                .Concat(editorService.GetTypeVisualizers(inspectBuilder.ObservableType))
+                .Concat(editorService.GetTypeVisualizers(typeof(object)));
 
-            DialogTypeVisualizer visualizer = null;
+            Type visualizerType = null;
+            Func<DialogTypeVisualizer> visualizerFactory = null;
             var layoutSettings = visualizerLayout != null
                 ? visualizerLayout.DialogSettings.FirstOrDefault(xs => xs.Tag == graphNode.Value)
+                ?? visualizerLayout.DialogSettings.FirstOrDefault(xs => xs.Tag == null)
                 : null;
-            if (layoutSettings != null && layoutSettings.VisualizerSettings != null)
+            if (layoutSettings != null && !string.IsNullOrEmpty(layoutSettings.VisualizerTypeName))
             {
-                var root = layoutSettings.VisualizerSettings;
-                root.SetAttributeValue(XsdAttributeName, XsdAttributeValue);
-                root.SetAttributeValue(XsiAttributeName, XsiAttributeValue);
-                var serializer = new XmlSerializer(visualizerType);
-                using (var reader = layoutSettings.VisualizerSettings.CreateReader())
+                visualizerType = visualizerTypes.FirstOrDefault(type => type.FullName == layoutSettings.VisualizerTypeName);
+                if (visualizerType != null && layoutSettings.VisualizerSettings != null)
                 {
-                    if (serializer.CanDeserialize(reader))
+                    var root = layoutSettings.VisualizerSettings;
+                    root.SetAttributeValue(XsdAttributeName, XsdAttributeValue);
+                    root.SetAttributeValue(XsiAttributeName, XsiAttributeValue);
+                    var serializer = new XmlSerializer(visualizerType);
+                    using (var reader = layoutSettings.VisualizerSettings.CreateReader())
                     {
-                        visualizer = (DialogTypeVisualizer)serializer.Deserialize(reader);
+                        if (serializer.CanDeserialize(reader))
+                        {
+                            var visualizer = (DialogTypeVisualizer)serializer.Deserialize(reader);
+                            visualizerFactory = () => visualizer;
+                        }
                     }
                 }
             }
 
-            visualizer = visualizer ?? (DialogTypeVisualizer)Activator.CreateInstance(visualizerType);
-            var launcher = new VisualizerDialogLauncher(inspectBuilder, visualizer, this);
+            visualizerType = visualizerType ?? visualizerTypes.First();
+            if (visualizerFactory == null)
+            {
+                var visualizerActivation = Expression.New(visualizerType);
+                visualizerFactory = Expression.Lambda<Func<DialogTypeVisualizer>>(visualizerActivation).Compile();
+            }
+
+            var launcher = new VisualizerDialogLauncher(inspectBuilder, visualizerFactory, this);
             launcher.Text = builderConverter.ConvertToString(builder);
             if (layoutSettings != null)
             {
-                var mashupVisualizer = launcher.Visualizer as DialogMashupVisualizer;
-                if (mashupVisualizer != null)
+                layoutSettings.Tag = graphNode.Value;
+                if (typeof(DialogMashupVisualizer).IsAssignableFrom(visualizerType))
                 {
                     foreach (var mashup in layoutSettings.Mashups)
                     {
                         if (mashup < 0 || mashup >= visualizerLayout.DialogSettings.Count) continue;
+                        var dialogSettings = visualizerLayout.DialogSettings[mashup];
                         var mashupNode = graphView.Nodes
                             .SelectMany(xs => xs)
-                            .FirstOrDefault(node => node.Value == visualizerLayout.DialogSettings[mashup].Tag);
+                            .FirstOrDefault(node => node.Value == dialogSettings.Tag);
                         if (mashupNode != null)
                         {
                             launcher.CreateMashup(mashupNode, editorService);
@@ -802,7 +818,8 @@ namespace Bonsai.Design
                     }
                     else dialogSettings = new VisualizerDialogSettings();
 
-                    var mashupVisualizer = visualizerDialog.Visualizer as DialogMashupVisualizer;
+                    var visualizer = visualizerDialog.Visualizer;
+                    var mashupVisualizer = visualizer.IsValueCreated ? visualizer.Value as DialogMashupVisualizer : null;
                     if (mashupVisualizer != null)
                     {
                         foreach (var mashup in mashupVisualizer.Mashups)
@@ -819,20 +836,25 @@ namespace Bonsai.Design
                     dialogSettings.Bounds = visualizerDialog.Bounds;
                     dialogSettings.Tag = mapping.Key;
 
-                    var visualizer = visualizerDialog.Visualizer;
-                    var visualizerSettings = new XDocument();
-                    var serializer = new XmlSerializer(visualizer.GetType());
-                    using (var writer = visualizerSettings.CreateWriter())
+                    if (visualizer.IsValueCreated)
                     {
-                        serializer.Serialize(writer, visualizer);
+                        var visualizerType = visualizer.Value.GetType();
+                        var visualizerSettings = new XDocument();
+                        var serializer = new XmlSerializer(visualizerType);
+                        using (var writer = visualizerSettings.CreateWriter())
+                        {
+                            serializer.Serialize(writer, visualizer.Value);
+                        }
+                        var root = visualizerSettings.Root;
+                        root.Remove();
+                        var xsdAttribute = root.Attribute(XsdAttributeName);
+                        if (xsdAttribute != null) xsdAttribute.Remove();
+                        var xsiAttribute = root.Attribute(XsiAttributeName);
+                        if (xsiAttribute != null) xsiAttribute.Remove();
+                        dialogSettings.VisualizerTypeName = visualizerType.FullName;
+                        dialogSettings.VisualizerSettings = root;
                     }
-                    var root = visualizerSettings.Root;
-                    root.Remove();
-                    var xsdAttribute = root.Attribute(XsdAttributeName);
-                    if (xsdAttribute != null) xsdAttribute.Remove();
-                    var xsiAttribute = root.Attribute(XsiAttributeName);
-                    if (xsiAttribute != null) xsiAttribute.Remove();
-                    dialogSettings.VisualizerSettings = root;
+
                     visualizerLayout.DialogSettings.Add(dialogSettings);
                 }
             }

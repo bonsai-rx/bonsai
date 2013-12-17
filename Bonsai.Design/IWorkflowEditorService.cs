@@ -17,7 +17,7 @@ namespace Bonsai.Design
 
         WorkflowBuilder RetrieveWorkflowElements();
 
-        Type GetTypeVisualizer(Type targetType);
+        IEnumerable<Type> GetTypeVisualizers(Type targetType);
 
         void StartWorkflow();
 

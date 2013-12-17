@@ -45,7 +45,7 @@ namespace Bonsai.Editor
 
         XmlSerializer serializer;
         XmlSerializer layoutSerializer;
-        Dictionary<Type, Type> typeVisualizers;
+        TypeVisualizerMap typeVisualizers;
         IDisposable running;
 
         public MainForm()
@@ -61,7 +61,7 @@ namespace Bonsai.Editor
             layoutSerializer = new XmlSerializer(typeof(VisualizerLayout));
             regularFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Regular);
             selectionFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Bold);
-            typeVisualizers = new Dictionary<Type, Type>();
+            typeVisualizers = new TypeVisualizerMap();
             selectionModel = new WorkflowSelectionModel();
             workflowGraphView = new WorkflowGraphView(editorSite);
             workflowGraphView.Workflow = workflowBuilder.Workflow;
@@ -988,11 +988,9 @@ namespace Bonsai.Editor
                 return new WorkflowBuilder();
             }
 
-            public Type GetTypeVisualizer(Type targetType)
+            public IEnumerable<Type> GetTypeVisualizers(Type targetType)
             {
-                Type visualizerType;
-                siteForm.typeVisualizers.TryGetValue(targetType, out visualizerType);
-                return visualizerType;
+                return siteForm.typeVisualizers.GetTypeVisualizers(targetType);
             }
 
             public void StartWorkflow()
