@@ -107,7 +107,7 @@ namespace Bonsai.Design
                 {
                     if (highlight != null)
                     {
-                        InvalidateNode(highlight);
+                        Invalidate(highlight);
                         OnNodeMouseLeave(new GraphNodeMouseEventArgs(
                             highlight,
                             mouseMove.Button,
@@ -118,7 +118,7 @@ namespace Bonsai.Design
                     }
                     if (node != null)
                     {
-                        InvalidateNode(node);
+                        Invalidate(node);
                         OnNodeMouseEnter(new GraphNodeMouseEventArgs(
                             node,
                             mouseMove.Button,
@@ -252,11 +252,11 @@ namespace Bonsai.Design
         {
             foreach (var selectedNode in selectedNodes)
             {
-                InvalidateNode(selectedNode);
+                Invalidate(selectedNode);
             }
         }
 
-        void InvalidateNode(GraphNode node)
+        public void Invalidate(GraphNode node)
         {
             canvas.Invalidate(GetBoundingRectangle(node));
         }
@@ -780,9 +780,9 @@ namespace Bonsai.Design
 
         private void SetCursor(GraphNode node)
         {
-            InvalidateNode(cursor);
+            Invalidate(cursor);
             cursor = node;
-            InvalidateNode(node);
+            Invalidate(node);
         }
 
         private void canvas_Paint(object sender, PaintEventArgs e)
