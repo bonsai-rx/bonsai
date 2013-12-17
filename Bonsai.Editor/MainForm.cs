@@ -1127,7 +1127,7 @@ namespace Bonsai.Editor
 
         #endregion
 
-        #region PropertyGrid Context Menu
+        #region PropertyGrid Controller
 
         private void propertyGridContextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
@@ -1147,6 +1147,18 @@ namespace Bonsai.Editor
         private void descriptionToolStripMenuItem_Click(object sender, EventArgs e)
         {
             propertyGrid.HelpVisible = descriptionToolStripMenuItem.Checked;
+        }
+
+        private void propertyGrid_Leave(object sender, EventArgs e)
+        {
+            if (running == null)
+            {
+                try { workflowBuilder.Workflow.Build(); }
+                catch (WorkflowBuildException ex)
+                {
+                    HandleWorkflowError(ex);
+                }
+            }
         }
 
         #endregion
