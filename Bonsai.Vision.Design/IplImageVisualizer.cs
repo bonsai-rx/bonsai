@@ -20,8 +20,8 @@ namespace Bonsai.Vision.Design
 {
     public class IplImageVisualizer : DialogMashupVisualizer
     {
-        bool allowUpdate;
-        bool canvasInvalidated;
+        volatile bool allowUpdate;
+        volatile bool canvasInvalidated;
         Panel imagePanel;
         StatusStrip statusStrip;
         ToolStripStatusLabel statusLabel;
