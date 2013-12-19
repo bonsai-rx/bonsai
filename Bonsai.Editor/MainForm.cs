@@ -491,28 +491,42 @@ namespace Bonsai.Editor
 
         void SelectExceptionBuilderNode(WorkflowGraphView workflowView, WorkflowException e)
         {
-            var graphNode = workflowView.FindGraphNode(e.Builder);
-            if (graphNode == null) return;
+            GraphNode graphNode = null;
+            if (workflowView != null)
+            {
+                graphNode = workflowView.FindGraphNode(e.Builder);
+                workflowView.GraphView.Invalidate(graphNode);
+                workflowView.GraphView.SelectedNode = graphNode;
+            }
 
-            workflowView.GraphView.Invalidate(graphNode);
-            workflowView.GraphView.SelectedNode = graphNode;
             var nestedException = e.InnerException as WorkflowException;
             if (nestedException != null)
             {
-                workflowView.LaunchWorkflowView(graphNode);
-                var editorLauncher = workflowView.GetWorkflowEditorLauncher(graphNode);
-                if (editorLauncher != null)
+                WorkflowGraphView nestedEditor = null;
+                if (workflowView != null)
                 {
-                    SelectExceptionBuilderNode(editorLauncher.WorkflowGraphView, nestedException);
+                    if (building)
+                    {
+                        workflowView.LaunchWorkflowView(graphNode);
+                    }
+
+                    var editorLauncher = workflowView.GetWorkflowEditorLauncher(graphNode);
+                    nestedEditor = editorLauncher != null ? editorLauncher.WorkflowGraphView : null;
                 }
+
+                SelectExceptionBuilderNode(nestedEditor, nestedException);
             }
             else
             {
-                workflowView.GraphView.Select();
+                if (workflowView != null)
+                {
+                    workflowView.GraphView.Select();
+                    workflowView.GraphView.Invalidate(graphNode);
+                }
+
                 var errorCaption = e is WorkflowBuildException ? "Build Error" : "Runtime Error";
                 errorStatusLabel.Text = e.Message;
                 errorStatusLabel.BorderSides = ToolStripStatusLabelBorderSides.Left;
-                workflowView.GraphView.Invalidate(graphNode);
                 if (building)
                 {
                     MessageBox.Show(e.Message, errorCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
