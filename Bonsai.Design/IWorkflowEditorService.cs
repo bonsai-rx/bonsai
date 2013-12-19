@@ -23,7 +23,7 @@ namespace Bonsai.Design
 
         void StopWorkflow();
 
-        void ValidateWorkflow();
+        bool ValidateWorkflow();
 
         bool WorkflowRunning { get; }
 

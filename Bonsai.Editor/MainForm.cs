@@ -1007,7 +1007,7 @@ namespace Bonsai.Editor
                 siteForm.StopWorkflow();
             }
 
-            public void ValidateWorkflow()
+            public bool ValidateWorkflow()
             {
                 if (siteForm.running == null)
                 {
@@ -1020,8 +1020,11 @@ namespace Bonsai.Editor
                     catch (WorkflowBuildException ex)
                     {
                         siteForm.HandleWorkflowError(ex);
+                        return false;
                     }
                 }
+
+                return true;
             }
 
             public bool WorkflowRunning

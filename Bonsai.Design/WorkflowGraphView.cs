@@ -950,7 +950,7 @@ namespace Bonsai.Design
             UpdateEditorMapping();
             if (validateWorkflow)
             {
-                editorService.ValidateWorkflow();
+                return editorService.ValidateWorkflow();
             }
 
             UpdateVisualizerLayout();
