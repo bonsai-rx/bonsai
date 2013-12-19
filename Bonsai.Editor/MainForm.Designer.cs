@@ -85,9 +85,11 @@
             this.browseDirectoryToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.runningStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.errorStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolboxGroupBox = new System.Windows.Forms.GroupBox();
             this.toolboxSplitContainer = new System.Windows.Forms.SplitContainer();
             this.toolboxTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.searchTextBox = new Bonsai.Design.CueBannerTextBox();
             this.toolboxTreeView = new System.Windows.Forms.TreeView();
             this.toolboxDescriptionPanel = new System.Windows.Forms.Panel();
             this.toolboxDescriptionTextBox = new System.Windows.Forms.RichTextBox();
@@ -101,8 +103,6 @@
             this.panelSplitContainer = new System.Windows.Forms.SplitContainer();
             this.workflowSplitContainer = new System.Windows.Forms.SplitContainer();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
-            this.errorStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.searchTextBox = new Bonsai.Design.CueBannerTextBox();
             this.commandExecutor = new Bonsai.Design.CommandExecutor();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
@@ -543,6 +543,13 @@
             this.runningStatusLabel.Size = new System.Drawing.Size(67, 17);
             this.runningStatusLabel.Text = "Stopped";
             // 
+            // errorStatusLabel
+            // 
+            this.errorStatusLabel.Name = "errorStatusLabel";
+            this.errorStatusLabel.Size = new System.Drawing.Size(602, 17);
+            this.errorStatusLabel.Spring = true;
+            this.errorStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
             // toolboxGroupBox
             // 
             this.toolboxGroupBox.Controls.Add(this.toolboxSplitContainer);
@@ -588,6 +595,18 @@
             this.toolboxTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.toolboxTableLayoutPanel.Size = new System.Drawing.Size(194, 209);
             this.toolboxTableLayoutPanel.TabIndex = 2;
+            // 
+            // searchTextBox
+            // 
+            this.searchTextBox.CueBanner = null;
+            this.searchTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.searchTextBox.Location = new System.Drawing.Point(0, 3);
+            this.searchTextBox.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
+            this.searchTextBox.Name = "searchTextBox";
+            this.searchTextBox.Size = new System.Drawing.Size(194, 20);
+            this.searchTextBox.TabIndex = 1;
+            this.searchTextBox.TextChanged += new System.EventHandler(this.searchTextBox_TextChanged);
+            this.searchTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.searchTextBox_KeyDown);
             // 
             // toolboxTreeView
             // 
@@ -673,7 +692,7 @@
             this.propertyGrid.Name = "propertyGrid";
             this.propertyGrid.Size = new System.Drawing.Size(170, 272);
             this.propertyGrid.TabIndex = 0;
-            this.propertyGrid.Leave += new System.EventHandler(this.propertyGrid_Leave);
+            this.propertyGrid.Validated += new System.EventHandler(this.propertyGrid_Validated);
             // 
             // propertyGridContextMenuStrip
             // 
@@ -744,25 +763,6 @@
             this.workflowSplitContainer.SplitterDistance = 300;
             this.workflowSplitContainer.TabIndex = 0;
             this.workflowSplitContainer.TabStop = false;
-            // 
-            // errorStatusLabel
-            // 
-            this.errorStatusLabel.Name = "errorStatusLabel";
-            this.errorStatusLabel.Size = new System.Drawing.Size(602, 17);
-            this.errorStatusLabel.Spring = true;
-            this.errorStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // searchTextBox
-            // 
-            this.searchTextBox.CueBanner = null;
-            this.searchTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.searchTextBox.Location = new System.Drawing.Point(0, 3);
-            this.searchTextBox.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
-            this.searchTextBox.Name = "searchTextBox";
-            this.searchTextBox.Size = new System.Drawing.Size(194, 20);
-            this.searchTextBox.TabIndex = 1;
-            this.searchTextBox.TextChanged += new System.EventHandler(this.searchTextBox_TextChanged);
-            this.searchTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.searchTextBox_KeyDown);
             // 
             // commandExecutor
             // 

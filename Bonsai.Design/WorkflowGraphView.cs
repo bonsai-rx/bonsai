@@ -47,7 +47,22 @@ namespace Bonsai.Design
         IUIService uiService;
 
         public WorkflowGraphView(IServiceProvider provider)
+            : this(provider, null, validateWorkflow: false)
         {
+        }
+
+        public WorkflowGraphView(IServiceProvider provider, ExpressionBuilderGraph editorWorkflow, bool validateWorkflow)
+        {
+            if (provider == null)
+            {
+                throw new ArgumentNullException("provider");
+            }
+
+            if (editorWorkflow == null && validateWorkflow)
+            {
+                throw new ArgumentNullException("editorWorkflow");
+            }
+
             InitializeComponent();
             serviceProvider = provider;
             uiService = (IUIService)provider.GetService(typeof(IUIService));
@@ -59,6 +74,11 @@ namespace Bonsai.Design
 
             graphView.HandleDestroyed += graphView_HandleDestroyed;
             editorService.WorkflowStarted += editorService_WorkflowStarted;
+            if (editorWorkflow != null)
+            {
+                workflow = editorWorkflow;
+                UpdateEditorWorkflow(validateWorkflow);
+            }
         }
 
         public GraphView GraphView
@@ -79,20 +99,25 @@ namespace Bonsai.Design
             {
                 ClearEditorMapping();
                 workflow = value;
-                UpdateGraphLayout();
-                if (editorService.WorkflowRunning)
-                {
-                    InitializeVisualizerMapping();
-                }
+                UpdateEditorWorkflow(validateWorkflow: true);
             }
         }
 
         #region Model
 
+        private void UpdateEditorWorkflow(bool validateWorkflow)
+        {
+            UpdateGraphLayout(validateWorkflow);
+            if (editorService.WorkflowRunning)
+            {
+                InitializeVisualizerMapping();
+            }
+        }
+
         private void UpdateEditorMapping()
         {
             var missingEditors = (from mapping in workflowEditorMapping
-                                  where !workflow.Any(node => node.Value == mapping.Key)
+                                  where !workflow.Any(node => ((InspectBuilder)node.Value).Builder == mapping.Key)
                                   select mapping)
                                   .ToArray();
             foreach (var mapping in missingEditors)
@@ -453,8 +478,11 @@ namespace Bonsai.Design
             {
                 addNode();
                 addConnection();
-                UpdateGraphLayout();
-                graphView.SelectedNode = graphView.Nodes.SelectMany(layer => layer).First(n => GetGraphNodeTag(n).Value == inspectBuilder);
+                var validation = UpdateGraphLayout(validateWorkflow: true);
+                if (validation)
+                {
+                    graphView.SelectedNode = graphView.Nodes.SelectMany(layer => layer).First(n => GetGraphNodeTag(n).Value == inspectBuilder);
+                }
             },
             () =>
             {
@@ -908,6 +936,11 @@ namespace Bonsai.Design
 
         private void UpdateGraphLayout()
         {
+            UpdateGraphLayout(validateWorkflow: true);
+        }
+
+        private bool UpdateGraphLayout(bool validateWorkflow)
+        {
             graphView.Nodes = workflow
                 .LongestPathLayering()
                 .EnsureLayerPriority()
@@ -915,20 +948,13 @@ namespace Bonsai.Design
                 .ToList();
             graphView.Invalidate();
             UpdateEditorMapping();
-
-            var workflowBuilder = (WorkflowBuilder)serviceProvider.GetService(typeof(WorkflowBuilder));
-            if (workflowBuilder == null)
+            if (validateWorkflow)
             {
-                throw new InvalidOperationException("No workflow builder service available to validate the specified layout.");
-            }
-
-            try { workflowBuilder.Workflow.Build(); }
-            catch (WorkflowBuildException ex)
-            {
-                uiService.ShowError(ex);
+                editorService.ValidateWorkflow();
             }
 
             UpdateVisualizerLayout();
+            return true;
         }
 
         #endregion
