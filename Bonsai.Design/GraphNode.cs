@@ -33,6 +33,8 @@ namespace Bonsai.Design
             }
         }
 
+        public bool Highlight { get; set; }
+
         public int Layer { get; private set; }
 
         public int LayerIndex { get; internal set; }
