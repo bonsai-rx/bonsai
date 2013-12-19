@@ -42,7 +42,7 @@ namespace Bonsai.Editor
         TypeDescriptionProvider selectionTypeDescriptor;
         Dictionary<string, string> propertyAssignments;
         List<TreeNode> treeCache;
-        WorkflowException validationError;
+        WorkflowException workflowError;
 
         XmlSerializer serializer;
         XmlSerializer layoutSerializer;
@@ -464,7 +464,7 @@ namespace Bonsai.Editor
             if (running == null)
             {
                 building = true;
-                ClearValidationError();
+                ClearWorkflowError();
                 running = Observable.Using(
                     () =>
                     {
@@ -491,21 +491,21 @@ namespace Bonsai.Editor
             }
         }
 
-        void ClearValidationError()
+        void ClearWorkflowError()
         {
-            if (validationError != null)
+            if (workflowError != null)
             {
-                ClearExceptionBuilderNode(workflowGraphView, validationError);
+                ClearExceptionBuilderNode(workflowGraphView, workflowError);
             }
 
-            validationError = null;
+            workflowError = null;
         }
 
-        void HighlightValidationError()
+        void HighlightWorkflowError()
         {
-            if (validationError != null)
+            if (workflowError != null)
             {
-                HighlightExceptionBuilderNode(workflowGraphView, validationError);
+                HighlightExceptionBuilderNode(workflowGraphView, workflowError);
             }
         }
 
@@ -596,7 +596,12 @@ namespace Bonsai.Editor
             var workflowException = e as WorkflowException;
             if (workflowException != null)
             {
-                Action selectExceptionNode = () => HighlightExceptionBuilderNode(workflowGraphView, workflowException);
+                Action selectExceptionNode = () =>
+                {
+                    HighlightExceptionBuilderNode(workflowGraphView, workflowException);
+                    workflowError = workflowException;
+                };
+
                 if (InvokeRequired) BeginInvoke(selectExceptionNode);
                 else selectExceptionNode();
 
@@ -1084,13 +1089,13 @@ namespace Bonsai.Editor
                 {
                     try
                     {
-                        siteForm.ClearValidationError();
+                        siteForm.ClearWorkflowError();
                         siteForm.workflowBuilder.Workflow.Build();
                     }
                     catch (WorkflowBuildException ex)
                     {
                         siteForm.HandleWorkflowError(ex);
-                        siteForm.validationError = ex;
+                        siteForm.workflowError = ex;
                         return false;
                     }
                 }
@@ -1100,7 +1105,7 @@ namespace Bonsai.Editor
 
             public void RefreshEditor()
             {
-                siteForm.HighlightValidationError();
+                siteForm.HighlightWorkflowError();
             }
 
             public bool WorkflowRunning
