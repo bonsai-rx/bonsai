@@ -760,7 +760,7 @@ namespace Bonsai.Design
 
         public GraphNode FindGraphNode(object value)
         {
-            return graphView.Nodes.SelectMany(layer => layer).FirstOrDefault(n => n.Value == value);
+            return graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == value);
         }
 
         public void LaunchVisualizer(GraphNode node)
