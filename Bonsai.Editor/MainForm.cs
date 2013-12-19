@@ -1007,6 +1007,23 @@ namespace Bonsai.Editor
                 siteForm.StopWorkflow();
             }
 
+            public void ValidateWorkflow()
+            {
+                if (siteForm.running == null)
+                {
+                    try
+                    {
+                        siteForm.workflowBuilder.Workflow.Build();
+                        siteForm.errorStatusLabel.Text = string.Empty;
+                        siteForm.errorStatusLabel.BorderSides = ToolStripStatusLabelBorderSides.None;
+                    }
+                    catch (WorkflowBuildException ex)
+                    {
+                        siteForm.HandleWorkflowError(ex);
+                    }
+                }
+            }
+
             public bool WorkflowRunning
             {
                 get { return siteForm.running != null; }
@@ -1153,16 +1170,9 @@ namespace Bonsai.Editor
             propertyGrid.HelpVisible = descriptionToolStripMenuItem.Checked;
         }
 
-        private void propertyGrid_Leave(object sender, EventArgs e)
+        private void propertyGrid_Validated(object sender, EventArgs e)
         {
-            if (running == null)
-            {
-                try { workflowBuilder.Workflow.Build(); }
-                catch (WorkflowBuildException ex)
-                {
-                    HandleWorkflowError(ex);
-                }
-            }
+            editorSite.ValidateWorkflow();
         }
 
         #endregion
