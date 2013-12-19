@@ -217,11 +217,11 @@ namespace Bonsai.Design
             foreach (var mapping in visualizerMapping)
             {
                 var key = mapping.Key;
-                var launcher = mapping.Value;
+                var visualizerLauncher = mapping.Value;
                 var layoutSettings = GetLayoutSettings(key);
                 if (layoutSettings != null)
                 {
-                    var visualizer = launcher.Visualizer;
+                    var visualizer = visualizerLauncher.Visualizer;
                     var mashupVisualizer = visualizer.IsValueCreated ? visualizer.Value as DialogMashupVisualizer : null;
                     if (mashupVisualizer != null)
                     {
@@ -234,15 +234,15 @@ namespace Bonsai.Design
                                 .FirstOrDefault(node => node.Value == dialogSettings.Tag);
                             if (mashupNode != null)
                             {
-                                launcher.CreateMashup(mashupNode, editorService);
+                                visualizerLauncher.CreateMashup(mashupNode, editorService);
                             }
                         }
                     }
 
-                    launcher.Bounds = layoutSettings.Bounds;
+                    visualizerLauncher.Bounds = layoutSettings.Bounds;
                     if (layoutSettings.Visible)
                     {
-                        launcher.Show(graphView, serviceProvider);
+                        visualizerLauncher.Show(graphView, serviceProvider);
                     }
                 }
             }
@@ -250,7 +250,12 @@ namespace Bonsai.Design
 
         private ExpressionBuilder GetGraphNodeBuilder(GraphNode node)
         {
-            return ((InspectBuilder)node.Value).Builder;
+            if (node != null)
+            {
+                return ((InspectBuilder)node.Value).Builder;
+            }
+
+            return null;
         }
 
         private Node<ExpressionBuilder, ExpressionBuilderParameter> GetGraphNodeTag(GraphNode node)
@@ -760,15 +765,15 @@ namespace Bonsai.Design
 
         public GraphNode FindGraphNode(object value)
         {
-            return graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == value);
+            return graphView.Nodes.SelectMany(layer => layer).FirstOrDefault(n => n.Value == value);
         }
 
         public void LaunchVisualizer(GraphNode node)
         {
-            var visualizerDialog = GetVisualizerDialogLauncher(node);
-            if (visualizerDialog != null)
+            var visualizerLauncher = GetVisualizerDialogLauncher(node);
+            if (visualizerLauncher != null)
             {
-                visualizerDialog.Show(graphView, serviceProvider);
+                visualizerLauncher.Show(graphView, serviceProvider);
             }
         }
 
@@ -778,6 +783,10 @@ namespace Bonsai.Design
             if (editorLauncher != null && (!editorLauncher.Visible || activate))
             {
                 editorLauncher.Show(graphView, serviceProvider);
+                if (node.Highlight)
+                {
+                    editorService.RefreshEditor();
+                }
             }
         }
 

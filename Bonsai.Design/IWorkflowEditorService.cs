@@ -25,6 +25,8 @@ namespace Bonsai.Design
 
         bool ValidateWorkflow();
 
+        void RefreshEditor();
+
         bool WorkflowRunning { get; }
 
         event EventHandler WorkflowStarted;

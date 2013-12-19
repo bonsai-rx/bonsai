@@ -42,6 +42,7 @@ namespace Bonsai.Editor
         TypeDescriptionProvider selectionTypeDescriptor;
         Dictionary<string, string> propertyAssignments;
         List<TreeNode> treeCache;
+        WorkflowException validationError;
 
         XmlSerializer serializer;
         XmlSerializer layoutSerializer;
@@ -463,6 +464,7 @@ namespace Bonsai.Editor
             if (running == null)
             {
                 building = true;
+                ClearValidationError();
                 running = Observable.Using(
                     () =>
                     {
@@ -489,14 +491,70 @@ namespace Bonsai.Editor
             }
         }
 
-        void SelectExceptionBuilderNode(WorkflowGraphView workflowView, WorkflowException e)
+        void ClearValidationError()
+        {
+            if (validationError != null)
+            {
+                ClearExceptionBuilderNode(workflowGraphView, validationError);
+            }
+
+            validationError = null;
+        }
+
+        void HighlightValidationError()
+        {
+            if (validationError != null)
+            {
+                HighlightExceptionBuilderNode(workflowGraphView, validationError);
+            }
+        }
+
+        void ClearExceptionBuilderNode(WorkflowGraphView workflowView, WorkflowException e)
         {
             GraphNode graphNode = null;
             if (workflowView != null)
             {
                 graphNode = workflowView.FindGraphNode(e.Builder);
+                if (graphNode != null)
+                {
+                    workflowView.GraphView.Invalidate(graphNode);
+                    graphNode.Highlight = false;
+                }
+            }
+
+            var nestedException = e.InnerException as WorkflowException;
+            if (nestedException != null)
+            {
+                WorkflowGraphView nestedEditor = null;
+                if (workflowView != null)
+                {
+                    var editorLauncher = workflowView.GetWorkflowEditorLauncher(graphNode);
+                    nestedEditor = editorLauncher != null ? editorLauncher.WorkflowGraphView : null;
+                }
+
+                ClearExceptionBuilderNode(nestedEditor, nestedException);
+            }
+            else
+            {
+                errorStatusLabel.Text = string.Empty;
+                errorStatusLabel.BorderSides = ToolStripStatusLabelBorderSides.None;
+            }
+        }
+
+        void HighlightExceptionBuilderNode(WorkflowGraphView workflowView, WorkflowException e)
+        {
+            GraphNode graphNode = null;
+            if (workflowView != null)
+            {
+                graphNode = workflowView.FindGraphNode(e.Builder);
+                if (graphNode == null)
+                {
+                    throw new InvalidOperationException("Exception builder node not found in active workflow editor.");
+                }
+
                 workflowView.GraphView.Invalidate(graphNode);
                 workflowView.GraphView.SelectedNode = graphNode;
+                graphNode.Highlight = true;
             }
 
             var nestedException = e.InnerException as WorkflowException;
@@ -514,14 +572,13 @@ namespace Bonsai.Editor
                     nestedEditor = editorLauncher != null ? editorLauncher.WorkflowGraphView : null;
                 }
 
-                SelectExceptionBuilderNode(nestedEditor, nestedException);
+                HighlightExceptionBuilderNode(nestedEditor, nestedException);
             }
             else
             {
                 if (workflowView != null)
                 {
                     workflowView.GraphView.Select();
-                    workflowView.GraphView.Invalidate(graphNode);
                 }
 
                 var errorCaption = e is WorkflowBuildException ? "Build Error" : "Runtime Error";
@@ -539,7 +596,7 @@ namespace Bonsai.Editor
             var workflowException = e as WorkflowException;
             if (workflowException != null)
             {
-                Action selectExceptionNode = () => SelectExceptionBuilderNode(workflowGraphView, workflowException);
+                Action selectExceptionNode = () => HighlightExceptionBuilderNode(workflowGraphView, workflowException);
                 if (InvokeRequired) BeginInvoke(selectExceptionNode);
                 else selectExceptionNode();
 
@@ -1027,18 +1084,23 @@ namespace Bonsai.Editor
                 {
                     try
                     {
+                        siteForm.ClearValidationError();
                         siteForm.workflowBuilder.Workflow.Build();
-                        siteForm.errorStatusLabel.Text = string.Empty;
-                        siteForm.errorStatusLabel.BorderSides = ToolStripStatusLabelBorderSides.None;
                     }
                     catch (WorkflowBuildException ex)
                     {
                         siteForm.HandleWorkflowError(ex);
+                        siteForm.validationError = ex;
                         return false;
                     }
                 }
 
                 return true;
+            }
+
+            public void RefreshEditor()
+            {
+                siteForm.HighlightValidationError();
             }
 
             public bool WorkflowRunning
