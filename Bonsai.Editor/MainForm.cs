@@ -321,6 +321,8 @@ namespace Bonsai.Editor
             }
 
             workflowGraphView.Workflow = workflowBuilder.Workflow;
+            editorSite.ValidateWorkflow();
+
             if (string.IsNullOrEmpty(directoryToolStripTextBox.Text))
             {
                 directoryToolStripTextBox.Text = Path.GetDirectoryName(fileName);
