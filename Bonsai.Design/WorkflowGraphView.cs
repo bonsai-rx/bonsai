@@ -1105,6 +1105,7 @@ namespace Bonsai.Design
 
         private void graphView_DragEnter(object sender, DragEventArgs e)
         {
+            if (editorService.WorkflowRunning) return;
             dragKeyState = e.KeyState;
             if (e.Data.GetDataPresent(typeof(TreeNode)))
             {
@@ -1134,6 +1135,7 @@ namespace Bonsai.Design
 
         private void graphView_DragOver(object sender, DragEventArgs e)
         {
+            if (editorService.WorkflowRunning) return;
             dragKeyState = e.KeyState;
             if (e.Effect != DragDropEffects.None && e.Data.GetDataPresent(DataFormats.FileDrop, true))
             {
@@ -1230,9 +1232,14 @@ namespace Bonsai.Design
 
         private void graphView_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Delete)
+            if (e.KeyCode == Keys.R && e.Control)
             {
-                DeleteGraphNodes(selectionModel.SelectedNodes);
+                editorService.StartWorkflow();
+            }
+
+            if (e.KeyCode == Keys.T && e.Control)
+            {
+                editorService.StopWorkflow();
             }
 
             if (e.KeyCode == Keys.Return)
@@ -1261,44 +1268,42 @@ namespace Bonsai.Design
                 }
             }
 
-            if (e.KeyCode == Keys.Z && e.Modifiers.HasFlag(Keys.Control))
+            if (!editorService.WorkflowRunning)
             {
-                editorService.Undo();
-            }
+                if (e.KeyCode == Keys.Delete)
+                {
+                    DeleteGraphNodes(selectionModel.SelectedNodes);
+                }
 
-            if (e.KeyCode == Keys.Y && e.Modifiers.HasFlag(Keys.Control))
-            {
-                editorService.Redo();
-            }
+                if (e.KeyCode == Keys.Z && e.Modifiers.HasFlag(Keys.Control))
+                {
+                    editorService.Undo();
+                }
 
-            if (e.KeyCode == Keys.X && e.Modifiers.HasFlag(Keys.Control))
-            {
-                CutToClipboard();
-            }
+                if (e.KeyCode == Keys.Y && e.Modifiers.HasFlag(Keys.Control))
+                {
+                    editorService.Redo();
+                }
 
-            if (e.KeyCode == Keys.C && e.Modifiers.HasFlag(Keys.Control))
-            {
-                CopyToClipboard();
-            }
+                if (e.KeyCode == Keys.X && e.Modifiers.HasFlag(Keys.Control))
+                {
+                    CutToClipboard();
+                }
 
-            if (e.KeyCode == Keys.V && e.Modifiers.HasFlag(Keys.Control))
-            {
-                PasteFromClipboard();
-            }
+                if (e.KeyCode == Keys.C && e.Modifiers.HasFlag(Keys.Control))
+                {
+                    CopyToClipboard();
+                }
 
-            if (e.KeyCode == Keys.G && e.Modifiers.HasFlag(Keys.Control))
-            {
-                GroupGraphNodes(selectionModel.SelectedNodes);
-            }
+                if (e.KeyCode == Keys.V && e.Modifiers.HasFlag(Keys.Control))
+                {
+                    PasteFromClipboard();
+                }
 
-            if (e.KeyCode == Keys.R && e.Control)
-            {
-                editorService.StartWorkflow();
-            }
-
-            if (e.KeyCode == Keys.T && e.Control)
-            {
-                editorService.StopWorkflow();
+                if (e.KeyCode == Keys.G && e.Modifiers.HasFlag(Keys.Control))
+                {
+                    GroupGraphNodes(selectionModel.SelectedNodes);
+                }
             }
         }
 
@@ -1360,7 +1365,19 @@ namespace Bonsai.Design
 
         private void contextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
+            copyToolStripMenuItem.Enabled = true;
             var selectedNodes = selectionModel.SelectedNodes.ToArray();
+            if (!editorService.WorkflowRunning)
+            {
+                pasteToolStripMenuItem.Enabled = true;
+                if (selectedNodes.Length > 0)
+                {
+                    cutToolStripMenuItem.Enabled = true;
+                    deleteToolStripMenuItem.Enabled = true;
+                    groupToolStripMenuItem.Enabled = true;
+                }
+            }
+
             if (selectedNodes.Length == 1)
             {
                 var selectedNode = selectedNodes[0];
@@ -1415,7 +1432,11 @@ namespace Bonsai.Design
 
         private void contextMenuStrip_Closed(object sender, ToolStripDropDownClosedEventArgs e)
         {
-            visualizerToolStripMenuItem.Enabled = false;
+            foreach (ToolStripItem item in contextMenuStrip.Items)
+            {
+                item.Enabled = false;
+            }
+
             visualizerToolStripMenuItem.DropDownItems.Clear();
         }
 

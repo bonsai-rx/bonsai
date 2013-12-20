@@ -456,6 +456,12 @@ namespace Bonsai.Editor
                 workflowGraphView.UpdateVisualizerLayout();
                 runningStatusLabel.Text = Resources.StoppedStatus;
                 runningStatusLabel.Image = Resources.StoppedStatusImage;
+                undoToolStripMenuItem.Enabled = commandExecutor.CanUndo;
+                redoToolStripMenuItem.Enabled = commandExecutor.CanRedo;
+                deleteToolStripMenuItem.Enabled = true;
+                groupToolStripMenuItem.Enabled = true;
+                cutToolStripButton.Enabled = cutToolStripMenuItem.Enabled = true;
+                pasteToolStripButton.Enabled = pasteToolStripMenuItem.Enabled = true;
                 running = null;
                 building = false;
             }));
@@ -483,6 +489,13 @@ namespace Bonsai.Editor
                         .SubscribeOn(NewThreadScheduler.Default))
                     .Subscribe(unit => { }, HandleWorkflowError, () => { });
             }
+
+            undoToolStripMenuItem.Enabled = false;
+            redoToolStripMenuItem.Enabled = false;
+            deleteToolStripMenuItem.Enabled = false;
+            groupToolStripMenuItem.Enabled = false;
+            cutToolStripButton.Enabled = cutToolStripMenuItem.Enabled = false;
+            pasteToolStripButton.Enabled = pasteToolStripMenuItem.Enabled = false;
         }
 
         void StopWorkflow()
@@ -796,7 +809,10 @@ namespace Bonsai.Editor
 
         private void toolboxTreeView_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Return && toolboxTreeView.SelectedNode != null && toolboxTreeView.SelectedNode.Tag != null)
+            if (e.KeyCode == Keys.Return &&
+                !editorSite.WorkflowRunning &&
+                toolboxTreeView.SelectedNode != null &&
+                toolboxTreeView.SelectedNode.Tag != null)
             {
                 var typeNode = toolboxTreeView.SelectedNode;
                 var model = selectionModel.SelectedView;
