@@ -180,6 +180,7 @@ namespace Bonsai.Expressions
                 while (currentType != typeof(object))
                 {
                     currentType = currentType.BaseType;
+                    if (currentType == null) break;
                     bindings = MatchTypeBindings(parameterType, currentType).ToArray();
                     if (bindings.Length > 0) return bindings;
                 }
