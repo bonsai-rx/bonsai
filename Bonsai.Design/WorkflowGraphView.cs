@@ -47,20 +47,10 @@ namespace Bonsai.Design
         IUIService uiService;
 
         public WorkflowGraphView(IServiceProvider provider)
-            : this(provider, null, validateWorkflow: false)
-        {
-        }
-
-        public WorkflowGraphView(IServiceProvider provider, ExpressionBuilderGraph editorWorkflow, bool validateWorkflow)
         {
             if (provider == null)
             {
                 throw new ArgumentNullException("provider");
-            }
-
-            if (editorWorkflow == null && validateWorkflow)
-            {
-                throw new ArgumentNullException("editorWorkflow");
             }
 
             InitializeComponent();
@@ -74,11 +64,6 @@ namespace Bonsai.Design
 
             graphView.HandleDestroyed += graphView_HandleDestroyed;
             editorService.WorkflowStarted += editorService_WorkflowStarted;
-            if (editorWorkflow != null)
-            {
-                workflow = editorWorkflow;
-                UpdateEditorWorkflow(validateWorkflow);
-            }
         }
 
         internal WorkflowEditorLauncher Launcher { get; set; }
@@ -101,7 +86,7 @@ namespace Bonsai.Design
             {
                 ClearEditorMapping();
                 workflow = value;
-                UpdateEditorWorkflow(validateWorkflow: true);
+                UpdateEditorWorkflow(validateWorkflow: false);
             }
         }
 
@@ -1010,7 +995,7 @@ namespace Bonsai.Design
                         {
                             LaunchWorkflowView(graphNode,
                                                workflowEditorSettings.EditorVisualizerLayout,
-                                               workflowEditorSettings.Bounds,
+                                               workflowEditorSettings.EditorDialogSettings.Bounds,
                                                activate: false);
                         }
                     }
@@ -1081,6 +1066,7 @@ namespace Bonsai.Design
 
         private bool UpdateGraphLayout(bool validateWorkflow)
         {
+            var result = true;
             graphView.Nodes = workflow
                 .LongestPathLayering()
                 .EnsureLayerPriority()
@@ -1089,11 +1075,11 @@ namespace Bonsai.Design
             graphView.Invalidate();
             if (validateWorkflow)
             {
-                return editorService.ValidateWorkflow();
+                result = editorService.ValidateWorkflow();
             }
 
             UpdateVisualizerLayout();
-            return true;
+            return result;
         }
 
         #endregion
