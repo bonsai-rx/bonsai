@@ -12,6 +12,7 @@ namespace Bonsai.Design
 {
     public class WorkflowEditorLauncher : DialogLauncher
     {
+        bool userClosing;
         ExpressionBuilderGraph workflow;
         WorkflowExpressionBuilder builder;
         WorkflowGraphView workflowGraphView;
@@ -30,6 +31,11 @@ namespace Bonsai.Design
 
             this.workflow = workflow;
             this.builder = builder;
+        }
+
+        internal IWin32Window Owner
+        {
+            get { return VisualizerDialog; }
         }
 
         public VisualizerLayout VisualizerLayout { get; set; }
@@ -52,8 +58,15 @@ namespace Bonsai.Design
             }
         }
 
+        public override void Hide()
+        {
+            userClosing = false;
+            base.Hide();
+        }
+
         protected override void InitializeComponents(TypeVisualizerDialog visualizerDialog, IServiceProvider provider)
         {
+            userClosing = true;
             visualizerDialog.Activated += delegate
             {
                 if (!string.IsNullOrWhiteSpace(builder.Name))
@@ -67,11 +80,17 @@ namespace Bonsai.Design
             {
                 if (e.CloseReason == CloseReason.UserClosing)
                 {
-                    UpdateEditorLayout();
+                    if (userClosing)
+                    {
+                        e.Cancel = true;
+                        workflowGraphView.CloseWorkflowEditorLauncher(this);
+                    }
+                    else UpdateEditorLayout();
                 }
             };
 
             workflowGraphView = new WorkflowGraphView(provider, builder.Workflow, validateWorkflow: false);
+            workflowGraphView.Launcher = this;
             workflowGraphView.Dock = DockStyle.Fill;
             workflowGraphView.Size = new Size(300, 200);
             workflowGraphView.VisualizerLayout = VisualizerLayout;
