@@ -456,12 +456,15 @@ namespace Bonsai.Editor
                 workflowGraphView.UpdateVisualizerLayout();
                 runningStatusLabel.Text = Resources.StoppedStatus;
                 runningStatusLabel.Image = Resources.StoppedStatusImage;
-                undoToolStripMenuItem.Enabled = commandExecutor.CanUndo;
-                redoToolStripMenuItem.Enabled = commandExecutor.CanRedo;
+                undoToolStripButton.Enabled = undoToolStripMenuItem.Enabled = commandExecutor.CanUndo;
+                redoToolStripButton.Enabled = redoToolStripMenuItem.Enabled = commandExecutor.CanRedo;
                 deleteToolStripMenuItem.Enabled = true;
                 groupToolStripMenuItem.Enabled = true;
-                cutToolStripButton.Enabled = cutToolStripMenuItem.Enabled = true;
-                pasteToolStripButton.Enabled = pasteToolStripMenuItem.Enabled = true;
+                cutToolStripMenuItem.Enabled = true;
+                pasteToolStripMenuItem.Enabled = true;
+                startToolStripButton.Visible = startToolStripMenuItem.Visible = true;
+                stopToolStripButton.Visible = stopToolStripMenuItem.Visible = false;
+                restartToolStripButton.Visible = restartToolStripMenuItem.Visible = false;
                 running = null;
                 building = false;
             }));
@@ -490,12 +493,15 @@ namespace Bonsai.Editor
                     .Subscribe(unit => { }, HandleWorkflowError, () => { });
             }
 
-            undoToolStripMenuItem.Enabled = false;
-            redoToolStripMenuItem.Enabled = false;
+            undoToolStripButton.Enabled = undoToolStripMenuItem.Enabled = false;
+            redoToolStripButton.Enabled = redoToolStripMenuItem.Enabled = false;
             deleteToolStripMenuItem.Enabled = false;
             groupToolStripMenuItem.Enabled = false;
-            cutToolStripButton.Enabled = cutToolStripMenuItem.Enabled = false;
-            pasteToolStripButton.Enabled = pasteToolStripMenuItem.Enabled = false;
+            cutToolStripMenuItem.Enabled = false;
+            pasteToolStripMenuItem.Enabled = false;
+            startToolStripButton.Visible = startToolStripMenuItem.Visible = false;
+            stopToolStripButton.Visible = stopToolStripMenuItem.Visible = true;
+            restartToolStripButton.Visible = restartToolStripMenuItem.Visible = true;
         }
 
         void StopWorkflow()
@@ -504,6 +510,19 @@ namespace Bonsai.Editor
             {
                 running.Dispose();
             }
+        }
+
+        void RestartWorkflow()
+        {
+            EventHandler startWorkflow = null;
+            startWorkflow = delegate
+            {
+                editorSite.WorkflowStopped -= startWorkflow;
+                BeginInvoke((Action)StartWorkflow);
+            };
+
+            editorSite.WorkflowStopped += startWorkflow;
+            StopWorkflow();
         }
 
         void ClearWorkflowError()
@@ -726,12 +745,22 @@ namespace Bonsai.Editor
 
         private void startToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (Control.ModifierKeys.HasFlag(Keys.Control))
+            {
+                if (Control.ModifierKeys.HasFlag(Keys.Shift)) RestartWorkflow();
+                else StopWorkflow();
+            }
             StartWorkflow();
         }
 
         private void stopToolStripMenuItem_Click(object sender, EventArgs e)
         {
             StopWorkflow();
+        }
+
+        private void restartToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            RestartWorkflow();
         }
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
@@ -925,8 +954,8 @@ namespace Bonsai.Editor
 
         private void commandExecutor_StatusChanged(object sender, EventArgs e)
         {
-            undoToolStripMenuItem.Enabled = commandExecutor.CanUndo;
-            redoToolStripMenuItem.Enabled = commandExecutor.CanRedo;
+            undoToolStripButton.Enabled = undoToolStripMenuItem.Enabled = commandExecutor.CanUndo;
+            redoToolStripButton.Enabled = redoToolStripMenuItem.Enabled = commandExecutor.CanRedo;
             version++;
         }
 
@@ -1099,6 +1128,11 @@ namespace Bonsai.Editor
             public void StopWorkflow()
             {
                 siteForm.StopWorkflow();
+            }
+
+            public void RestartWorkflow()
+            {
+                siteForm.RestartWorkflow();
             }
 
             public bool ValidateWorkflow()

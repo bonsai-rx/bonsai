@@ -23,6 +23,8 @@ namespace Bonsai.Design
 
         void StopWorkflow();
 
+        void RestartWorkflow();
+
         bool ValidateWorkflow();
 
         void RefreshEditor();
