@@ -220,7 +220,8 @@ namespace Bonsai.NuGet
         private void AddPackage(IPackage package)
         {
             var installCheck = false;
-            if (selectedRepository != selectedManager.LocalRepository)
+            if (selectedRepository != selectedManager.LocalRepository &&
+                packageView.OperationText != Resources.UpdateOperationName)
             {
                 IPackage installedPackage;
                 installCheck = selectedManager.LocalRepository.TryFindPackage(package.Id, package.Version, out installedPackage);
