@@ -1232,14 +1232,14 @@ namespace Bonsai.Design
 
         private void graphView_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.R && e.Control)
+            if (e.KeyCode == Keys.F5)
             {
-                editorService.StartWorkflow();
-            }
-
-            if (e.KeyCode == Keys.T && e.Control)
-            {
-                editorService.StopWorkflow();
+                if (e.Control)
+                {
+                    if (e.Shift) editorService.RestartWorkflow();
+                    else editorService.StopWorkflow();
+                }
+                else editorService.StartWorkflow();
             }
 
             if (e.KeyCode == Keys.Return)
@@ -1365,8 +1365,8 @@ namespace Bonsai.Design
 
         private void contextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
-            copyToolStripMenuItem.Enabled = true;
             var selectedNodes = selectionModel.SelectedNodes.ToArray();
+            if (selectedNodes.Length > 0) copyToolStripMenuItem.Enabled = true;
             if (!editorService.WorkflowRunning)
             {
                 pasteToolStripMenuItem.Enabled = true;
