@@ -69,7 +69,7 @@ namespace Bonsai.NuGet
                     button.Visible = i < pageCount;
                 }
 
-                SelectedIndex = 0;
+                RefreshLayout();
             }
         }
 
