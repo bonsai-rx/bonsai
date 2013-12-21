@@ -175,7 +175,7 @@
             // packagePageSelector
             // 
             this.packagePageSelector.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.packagePageSelector.Location = new System.Drawing.Point(69, 0);
+            this.packagePageSelector.Location = new System.Drawing.Point(56, 0);
             this.packagePageSelector.Name = "packagePageSelector";
             this.packagePageSelector.PageCount = 0;
             this.packagePageSelector.SelectedIndex = -1;
