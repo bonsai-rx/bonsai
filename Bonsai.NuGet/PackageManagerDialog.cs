@@ -172,7 +172,10 @@ namespace Bonsai.NuGet
                 {
                     packages = selectedRepository
                         .Search(searchTerm, allowPrereleaseVersions)
-                        .Where(p => p.IsAbsoluteLatestVersion);
+                        .GroupBy(package => package.Id)
+                        .SelectMany(group => group
+                            .OrderByDescending(package => package.Version)
+                            .Take(1));
                 }
                 switch (sortMode)
                 {
