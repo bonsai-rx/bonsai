@@ -169,4 +169,15 @@
   <data name="UpdateOperationName" xml:space="preserve">
     <value>Update</value>
   </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="PackageViewNodeCheckedImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADXSURBVDhPnVO5DcMwDNQo2cELaQQP4MKlV/AiqQIICOBa
+        I7hza8CFWoWXkIYe2nFywBUieUc9lCkRQrBER4wFEbNcVoOSN6Kf5im29zY2Y5MRMeRQg1qWfcDitXt0
+        lbDk8BxgsmYmtPBIaAKNbOJFbLE1rVDYuz4Cy7bsMT6OhYHTzpwSQgBGEoMGWhhkxSW17kJovxpo3YWq
+        QSo46w6qBqnorDsoBtUlihA46p5eYvWMsgvgqPv+jDwL/soUCrNBAmjxHuUr06iOMsAm/32mFJT84Tsb
+        8wJDtVgNNXCWjQAAAABJRU5ErkJggg==
+</value>
+  </data>
 </root>

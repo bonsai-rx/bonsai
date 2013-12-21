@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bonsai.NuGet.Properties;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -11,7 +12,9 @@ namespace Bonsai.NuGet
 {
     class PackageView : TreeView
     {
+        readonly Image packageViewNodeCheckedImage;
         static readonly Rectangle OperationButtonBounds = new Rectangle(10, 2, 75, 23);
+        const int PackageInstallCheckMargin = 5;
         const int WM_NCMOUSEHOVER = 0x02a0;
         const int WM_MOUSEHOVER = 0x02a1;
         const int WM_NCMOUSELEAVE = 0x02a2;
@@ -22,6 +25,7 @@ namespace Bonsai.NuGet
         public PackageView()
         {
             DrawMode = TreeViewDrawMode.OwnerDrawText;
+            packageViewNodeCheckedImage = Resources.PackageViewNodeCheckedImage;
         }
 
         [Category("Action")]
@@ -109,7 +113,14 @@ namespace Bonsai.NuGet
             bounds.Width = RightMargin - bounds.X;
             var bold = new Font(Font, FontStyle.Bold);
 
-            if ((e.State & TreeNodeStates.Selected) != 0)
+            if (e.Node.Checked)
+            {
+                var checkedImageX = RightMargin - packageViewNodeCheckedImage.Width - PackageInstallCheckMargin;
+                var checkedImageY = bounds.Y + OperationButtonBounds.Y;
+                e.Graphics.DrawImage(packageViewNodeCheckedImage, checkedImageX, checkedImageY);
+                bounds.Width -= packageViewNodeCheckedImage.Width;
+            }
+            else if ((e.State & TreeNodeStates.Selected) != 0)
             {
                 var font = Font;
                 var buttonBounds = GetOperationButtonBounds(bounds);

@@ -219,25 +219,30 @@ namespace Bonsai.NuGet
 
         private void AddPackage(IPackage package)
         {
-            if (!packageView.Nodes.ContainsKey(package.Id))
+            var installCheck = false;
+            if (selectedRepository != selectedManager.LocalRepository)
             {
-                var nodeTitle = !string.IsNullOrWhiteSpace(package.Title) ? package.Title : package.Id;
-                var nodeText = string.Join(
-                    Environment.NewLine, nodeTitle,
-                    package.Summary ?? package.Description.Split(
-                        new[] { Environment.NewLine, "\n", "\r" },
-                        StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
-                var node = packageView.Nodes.Add(package.Id, nodeText);
-                node.Tag = package;
-
-                var requestIcon = GetPackageIcon(package.IconUrl);
-                requestIcon.ObserveOn(this).Subscribe(image =>
-                {
-                    packageIcons.Images.Add(package.Id, image);
-                    node.ImageKey = package.Id;
-                    node.SelectedImageKey = package.Id;
-                });
+                IPackage installedPackage;
+                installCheck = selectedManager.LocalRepository.TryFindPackage(package.Id, package.Version, out installedPackage);
             }
+
+            var nodeTitle = !string.IsNullOrWhiteSpace(package.Title) ? package.Title : package.Id;
+            var nodeText = string.Join(
+                Environment.NewLine, nodeTitle,
+                package.Summary ?? package.Description.Split(
+                    new[] { Environment.NewLine, "\n", "\r" },
+                    StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
+            var node = packageView.Nodes.Add(package.Id, nodeText);
+            node.Checked = installCheck;
+            node.Tag = package;
+
+            var requestIcon = GetPackageIcon(package.IconUrl);
+            requestIcon.ObserveOn(this).Subscribe(image =>
+            {
+                packageIcons.Images.Add(package.Id, image);
+                node.ImageKey = package.Id;
+                node.SelectedImageKey = package.Id;
+            });
         }
 
         private void UpdatePackagePage()

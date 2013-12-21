@@ -152,6 +152,16 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PackageViewNodeCheckedImage {
+            get {
+                object obj = ResourceManager.GetObject("PackageViewNodeCheckedImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to  (Prerelease).
         /// </summary>
         internal static string PrereleaseLabel {
