@@ -175,11 +175,12 @@
             // packagePageSelector
             // 
             this.packagePageSelector.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.packagePageSelector.Location = new System.Drawing.Point(56, 0);
+            this.packagePageSelector.AutoSize = true;
+            this.packagePageSelector.Location = new System.Drawing.Point(64, 3);
             this.packagePageSelector.Name = "packagePageSelector";
             this.packagePageSelector.PageCount = 0;
             this.packagePageSelector.SelectedIndex = -1;
-            this.packagePageSelector.Size = new System.Drawing.Size(206, 32);
+            this.packagePageSelector.Size = new System.Drawing.Size(188, 26);
             this.packagePageSelector.TabIndex = 0;
             this.packagePageSelector.SelectedIndexChanged += new System.EventHandler(this.packagePageSelector_SelectedIndexChanged);
             // 
@@ -293,6 +294,7 @@
             this.packageViewLayoutPanel.ResumeLayout(false);
             this.filterLayoutPanel.ResumeLayout(false);
             this.pageSelectorPanel.ResumeLayout(false);
+            this.pageSelectorPanel.PerformLayout();
             this.detailsLayoutPanel.ResumeLayout(false);
             this.searchLayoutPanel.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
