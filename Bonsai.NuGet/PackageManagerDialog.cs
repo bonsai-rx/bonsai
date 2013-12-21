@@ -170,12 +170,9 @@ namespace Bonsai.NuGet
                 }
                 else
                 {
-                    packages = selectedRepository
-                        .Search(searchTerm, allowPrereleaseVersions)
-                        .GroupBy(package => package.Id)
-                        .SelectMany(group => group
-                            .OrderByDescending(package => package.Version)
-                            .Take(1));
+                    packages = selectedRepository.Search(searchTerm, allowPrereleaseVersions);
+                    if (allowPrereleaseVersions) packages = packages.Where(p => p.IsAbsoluteLatestVersion);
+                    else packages = packages.Where(p => p.IsLatestVersion);
                 }
                 switch (sortMode)
                 {
@@ -212,6 +209,14 @@ namespace Bonsai.NuGet
                     .Catch<Image, WebException>(ex => defaultIcon);
         }
 
+        private void AddPackageRange(IEnumerable<IPackage> packages)
+        {
+            foreach (var package in packages)
+            {
+                AddPackage(package);
+            }
+        }
+
         private void AddPackage(IPackage package)
         {
             if (!packageView.Nodes.ContainsKey(package.Id))
@@ -245,14 +250,25 @@ namespace Bonsai.NuGet
                 var packageFeed = GetPackageFeed();
                 var pageIndex = packagePageSelector.SelectedIndex;
                 Observable.Defer(() =>
-                    packageFeed()
+                    packageFeed().AsBufferedEnumerable(PackagesPerPage * 3)
+                    .Where(PackageExtensions.IsListed)
+                    .AsCollapsed()
                     .Skip(pageIndex * PackagesPerPage)
                     .Take(PackagesPerPage)
                     .ToObservable()
                     .Catch<IPackage, WebException>(ex => Observable.Empty<IPackage>()))
+                    .Buffer(PackagesPerPage)
                     .SubscribeOn(NewThreadScheduler.Default)
                     .ObserveOn(this)
-                    .Subscribe(package => AddPackage(package));
+                    .Do(packages => AddPackageRange(packages))
+                    .Sum(packages => packages.Count)
+                    .Subscribe(packageCount =>
+                    {
+                        if (packageCount < PackagesPerPage)
+                        {
+                            packagePageSelector.PageCount = pageIndex + (packageCount > 0 ? 1 : 0);
+                        }
+                    });
             }
             else
             {
@@ -277,6 +293,7 @@ namespace Bonsai.NuGet
                     var pageCount = count / PackagesPerPage;
                     if (count % PackagesPerPage != 0) pageCount++;
                     packagePageSelector.PageCount = pageCount;
+                    packagePageSelector.SelectedIndex = 0;
                 });
         }
 
