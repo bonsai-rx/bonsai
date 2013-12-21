@@ -24,16 +24,14 @@ namespace Bonsai.NuGet
         {
             InitializeComponent();
             buttons = new[] { button1, button2, button3, button4, button5 };
-            flowLayoutPanel.Controls.Add(previousButton);
             for (int i = 0; i < buttons.Length; i++)
             {
                 var buttonIndex = i;
                 var button = buttons[i];
-                flowLayoutPanel.Controls.Add(button);
+                button.Visible = false;
                 button.Click += delegate { SelectedIndex = indexOffset + buttonIndex; };
                 buttons[i] = button;
             }
-            flowLayoutPanel.Controls.Add(nextButton);
             previousButton.Visible = false;
             nextButton.Visible = false;
 

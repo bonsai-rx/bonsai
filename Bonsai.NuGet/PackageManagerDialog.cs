@@ -214,10 +214,12 @@ namespace Bonsai.NuGet
 
         private void AddPackageRange(IEnumerable<IPackage> packages)
         {
+            packageView.BeginUpdate();
             foreach (var package in packages)
             {
                 AddPackage(package);
             }
+            packageView.EndUpdate();
         }
 
         private void AddPackage(IPackage package)
