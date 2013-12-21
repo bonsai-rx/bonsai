@@ -104,6 +104,7 @@ namespace Bonsai.NuGet
 
             onlineNode = repositoriesView.Nodes.Add(Resources.OnlineNodeName);
             InitializeRepositoryViewNode(onlineNode);
+            onlineNode.Expand();
 
             updatesNode = repositoriesView.Nodes.Add(Resources.UpdatesNodeName);
             InitializeRepositoryViewNode(updatesNode);
@@ -135,6 +136,8 @@ namespace Bonsai.NuGet
                 });
 
             loaded = true;
+            repositoriesView.SelectedNode = onlineNode.FirstNode;
+            repositoriesView.Select();
             base.OnLoad(e);
         }
 
