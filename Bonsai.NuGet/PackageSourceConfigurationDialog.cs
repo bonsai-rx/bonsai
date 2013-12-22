@@ -102,6 +102,8 @@ namespace Bonsai.NuGet
                 nameTextBox.Enabled = !e.IsSelected;
                 sourceTextBox.Enabled = !e.IsSelected;
                 removeButton.Enabled = !e.IsSelected;
+                updateButton.Enabled = !e.IsSelected;
+                sourceEditorButton.Enabled = !e.IsSelected;
             }
 
             if (e.IsSelected)
