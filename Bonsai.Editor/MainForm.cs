@@ -749,9 +749,9 @@ namespace Bonsai.Editor
 
         private void startToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (Control.ModifierKeys.HasFlag(Keys.Control))
+            if (Control.ModifierKeys.HasFlag(Keys.Shift))
             {
-                if (Control.ModifierKeys.HasFlag(Keys.Shift)) RestartWorkflow();
+                if (Control.ModifierKeys.HasFlag(Keys.Control)) RestartWorkflow();
                 else StopWorkflow();
             }
             StartWorkflow();

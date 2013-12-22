@@ -1234,9 +1234,9 @@ namespace Bonsai.Design
         {
             if (e.KeyCode == Keys.F5)
             {
-                if (e.Control)
+                if (e.Shift)
                 {
-                    if (e.Shift) editorService.RestartWorkflow();
+                    if (e.Control) editorService.RestartWorkflow();
                     else editorService.StopWorkflow();
                 }
                 else editorService.StartWorkflow();
