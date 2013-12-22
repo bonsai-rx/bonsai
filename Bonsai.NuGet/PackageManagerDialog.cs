@@ -56,6 +56,15 @@ namespace Bonsai.NuGet
             InitializeRepositoryViewNodes();
         }
 
+        void ClearActiveRequests()
+        {
+            activeRequests.RemoveAll(request =>
+            {
+                request.Dispose();
+                return true;
+            });
+        }
+
         IPackageManager CreatePackageManager(IPackageRepository sourceRepository, EventLogger logger)
         {
             var packageManager = new PackageManager(sourceRepository, packageManagerPath);
@@ -120,7 +129,7 @@ namespace Bonsai.NuGet
             sortComboBox.Items.Add(SortByNameDescending);
             releaseFilterComboBox.SelectedIndex = 0;
             sortComboBox.SelectedIndex = 0;
-            Observable.FromEventPattern<EventArgs>(
+            activeRequests.Add(Observable.FromEventPattern<EventArgs>(
                 handler => searchComboBox.TextChanged += new EventHandler(handler),
                 handler => searchComboBox.TextChanged -= new EventHandler(handler))
                 .Throttle(TimeSpan.FromSeconds(1))
@@ -134,12 +143,18 @@ namespace Bonsai.NuGet
                     else sortComboBox.Items.Remove(SortByRelevance);
                     sortComboBox.SelectedIndex = 0;
                     UpdatePackageFeed();
-                });
+                }));
 
             loaded = true;
             repositoriesView.SelectedNode = onlineNode.FirstNode;
             repositoriesView.Select();
             base.OnLoad(e);
+        }
+
+        protected override void OnHandleDestroyed(EventArgs e)
+        {
+            ClearActiveRequests();
+            base.OnHandleDestroyed(e);
         }
 
         bool AllowPrereleaseVersions
@@ -256,12 +271,7 @@ namespace Bonsai.NuGet
 
         private void UpdatePackagePage()
         {
-            activeRequests.RemoveAll(request =>
-            {
-                request.Dispose();
-                return true;
-            });
-
+            ClearActiveRequests();
             packageView.Nodes.Clear();
             packageIcons.Images.Clear();
 
@@ -301,7 +311,7 @@ namespace Bonsai.NuGet
         {
             feedExceptionMessage = null;
             var packageFeed = GetPackageFeed();
-            Observable.Start(() => packageFeed().Count())
+            activeRequests.Add(Observable.Start(() => packageFeed().Count())
                 .Catch<int, WebException>(ex =>
                 {
                     feedExceptionMessage = ex.Message;
@@ -314,7 +324,7 @@ namespace Bonsai.NuGet
                     if (count % PackagesPerPage != 0) pageCount++;
                     packagePageSelector.PageCount = pageCount;
                     packagePageSelector.SelectedIndex = 0;
-                });
+                }));
         }
 
         protected override void OnResizeBegin(EventArgs e)
