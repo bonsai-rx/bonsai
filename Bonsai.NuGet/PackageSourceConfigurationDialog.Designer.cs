@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PackageSourceConfigurationDialog));
             this.moveDownButton = new System.Windows.Forms.Button();
             this.moveUpButton = new System.Windows.Forms.Button();
@@ -45,7 +46,9 @@
             this.updateButton = new System.Windows.Forms.Button();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.packageSourceListView = new System.Windows.Forms.ListView();
-            this.padHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.nameHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.sourceHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.checkBoxesImageList = new System.Windows.Forms.ImageList(this.components);
             this.SuspendLayout();
             // 
             // moveDownButton
@@ -180,29 +183,41 @@
             // 
             // packageSourceListView
             // 
-            this.packageSourceListView.CheckBoxes = true;
             this.packageSourceListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.padHeader});
+            this.nameHeader,
+            this.sourceHeader});
             this.packageSourceListView.FullRowSelect = true;
             this.packageSourceListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
+            this.packageSourceListView.LargeImageList = this.checkBoxesImageList;
             this.packageSourceListView.Location = new System.Drawing.Point(12, 43);
             this.packageSourceListView.MultiSelect = false;
             this.packageSourceListView.Name = "packageSourceListView";
             this.packageSourceListView.Size = new System.Drawing.Size(460, 262);
             this.packageSourceListView.TabIndex = 1;
+            this.packageSourceListView.TileSize = new System.Drawing.Size(445, 30);
             this.packageSourceListView.UseCompatibleStateImageBehavior = false;
-            this.packageSourceListView.View = System.Windows.Forms.View.Details;
+            this.packageSourceListView.View = System.Windows.Forms.View.Tile;
             this.packageSourceListView.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.packageSourceListView_ItemChecked);
             this.packageSourceListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.packageSourceListView_ItemSelectionChanged);
+            this.packageSourceListView.MouseClick += new System.Windows.Forms.MouseEventHandler(this.packageSourceListView_MouseClick);
             // 
-            // padHeader
+            // nameHeader
             // 
-            this.padHeader.Width = 526;
+            this.nameHeader.Width = 526;
+            // 
+            // checkBoxesImageList
+            // 
+            this.checkBoxesImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("checkBoxesImageList.ImageStream")));
+            this.checkBoxesImageList.TransparentColor = System.Drawing.Color.Transparent;
+            this.checkBoxesImageList.Images.SetKeyName(0, "unchecked");
+            this.checkBoxesImageList.Images.SetKeyName(1, "checked");
             // 
             // PackageSourceConfigurationDialog
             // 
+            this.AcceptButton = this.okButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.cancelButton;
             this.ClientSize = new System.Drawing.Size(484, 411);
             this.Controls.Add(this.updateButton);
             this.Controls.Add(this.packageSourceListLabel);
@@ -219,6 +234,7 @@
             this.Controls.Add(this.moveUpButton);
             this.Controls.Add(this.moveDownButton);
             this.Controls.Add(this.packageSourceListView);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "PackageSourceConfigurationDialog";
@@ -249,6 +265,8 @@
         private System.Windows.Forms.Button updateButton;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
         private System.Windows.Forms.ListView packageSourceListView;
-        private System.Windows.Forms.ColumnHeader padHeader;
+        private System.Windows.Forms.ColumnHeader nameHeader;
+        private System.Windows.Forms.ColumnHeader sourceHeader;
+        private System.Windows.Forms.ImageList checkBoxesImageList;
     }
 }

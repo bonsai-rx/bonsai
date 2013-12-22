@@ -28,11 +28,18 @@ namespace Bonsai.NuGet
             provider = sourceProvider;
         }
 
+        static int GetStateImageIndex(bool checkedState)
+        {
+            return checkedState ? 1 : 0;
+        }
+
         protected override void OnLoad(EventArgs e)
         {
             foreach (var packageSource in provider.LoadPackageSources())
             {
-                var item = packageSourceListView.Items.Add(packageSource.Name, packageSource.Source, 0);
+                var imageIndex = GetStateImageIndex(packageSource.IsEnabled);
+                var item = new ListViewItem(new[] { packageSource.Name, packageSource.Source }, imageIndex);
+                packageSourceListView.Items.Add(item);
                 item.Checked = packageSource.IsEnabled;
                 item.Tag = packageSource;
             }
@@ -59,7 +66,9 @@ namespace Bonsai.NuGet
                 source = DefaultPackageSource + i;
             }
 
-            var item = packageSourceListView.Items.Add(sourceName, source, 0);
+            var imageIndex = GetStateImageIndex(true);
+            var item = new ListViewItem(new[] { sourceName, source }, imageIndex);
+            packageSourceListView.Items.Add(item);
             item.Checked = true;
             item.Tag = new PackageSource(source, sourceName, true);
         }
@@ -97,7 +106,7 @@ namespace Bonsai.NuGet
 
         private void packageSourceListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
-            if (e.Item.Name == NuGetSourceName)
+            if (e.Item.Text == NuGetSourceName)
             {
                 nameTextBox.Enabled = !e.IsSelected;
                 sourceTextBox.Enabled = !e.IsSelected;
@@ -108,8 +117,8 @@ namespace Bonsai.NuGet
 
             if (e.IsSelected)
             {
-                nameTextBox.Text = e.Item.Name;
-                sourceTextBox.Text = e.Item.Text;
+                nameTextBox.Text = e.Item.SubItems[0].Text;
+                sourceTextBox.Text = e.Item.SubItems[1].Text;
                 moveUpButton.Enabled = e.ItemIndex > 0;
                 moveDownButton.Enabled = e.ItemIndex < packageSourceListView.Items.Count - 1;
             }
@@ -120,9 +129,9 @@ namespace Bonsai.NuGet
             if (packageSourceListView.SelectedItems.Count > 0)
             {
                 var selectedItem = packageSourceListView.SelectedItems[0];
-                selectedItem.Name = nameTextBox.Text;
-                selectedItem.Text = sourceTextBox.Text;
-                selectedItem.Tag = new PackageSource(selectedItem.Text, selectedItem.Name, selectedItem.Checked);
+                selectedItem.SubItems[0].Text = nameTextBox.Text;
+                selectedItem.SubItems[1].Text = sourceTextBox.Text;
+                selectedItem.Tag = new PackageSource(sourceTextBox.Text, nameTextBox.Text, selectedItem.Checked);
             }
         }
 
@@ -139,6 +148,17 @@ namespace Bonsai.NuGet
             if (e.Item.Tag != null)
             {
                 ((PackageSource)e.Item.Tag).IsEnabled = e.Item.Checked;
+            }
+        }
+
+        private void packageSourceListView_MouseClick(object sender, MouseEventArgs e)
+        {
+            var hit = packageSourceListView.HitTest(e.Location);
+            if (hit.Item != null && hit.Location == ListViewHitTestLocations.Image)
+            {
+                var item = hit.Item;
+                item.Checked = !item.Checked;
+                item.ImageIndex = GetStateImageIndex(item.Checked);
             }
         }
     }
