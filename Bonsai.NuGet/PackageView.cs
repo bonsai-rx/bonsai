@@ -14,7 +14,7 @@ namespace Bonsai.NuGet
     {
         readonly Image packageViewNodeCheckedImage;
         static readonly Rectangle OperationButtonBounds = new Rectangle(10, 2, 75, 23);
-        const int PackageInstallCheckMargin = 5;
+        const int BoundsMargin = 5;
         const int WM_NCMOUSEHOVER = 0x02a0;
         const int WM_MOUSEHOVER = 0x02a1;
         const int WM_NCMOUSELEAVE = 0x02a2;
@@ -115,7 +115,7 @@ namespace Bonsai.NuGet
 
             if (e.Node.Checked)
             {
-                var checkedImageX = RightMargin - packageViewNodeCheckedImage.Width - PackageInstallCheckMargin;
+                var checkedImageX = RightMargin - packageViewNodeCheckedImage.Width - BoundsMargin;
                 var checkedImageY = bounds.Y + OperationButtonBounds.Y;
                 e.Graphics.DrawImage(packageViewNodeCheckedImage, checkedImageX, checkedImageY);
                 bounds.Width -= packageViewNodeCheckedImage.Width;
@@ -124,7 +124,7 @@ namespace Bonsai.NuGet
             {
                 var font = Font;
                 var buttonBounds = GetOperationButtonBounds(bounds);
-                bounds.Width -= buttonBounds.Width;
+                bounds.Width -= buttonBounds.Width + BoundsMargin * 2;
 
                 if (VisualStyleRenderer.IsSupported)
                 {
@@ -142,11 +142,11 @@ namespace Bonsai.NuGet
             }
 
             var lines = e.Node.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-            TextRenderer.DrawText(e.Graphics, lines[0], bold, bounds, color, TextFormatFlags.WordBreak);
+            TextRenderer.DrawText(e.Graphics, lines[0], bold, bounds, color, TextFormatFlags.WordEllipsis);
 
             if (lines.Length > 1)
             {
-                bounds.Y += TextRenderer.MeasureText(lines[0], bold, bounds.Size, TextFormatFlags.WordBreak).Height;
+                bounds.Y += TextRenderer.MeasureText(lines[0], bold, bounds.Size, TextFormatFlags.WordEllipsis).Height;
                 TextRenderer.DrawText(e.Graphics, lines[1], Font, bounds, color, TextFormatFlags.WordBreak);
             }
 
