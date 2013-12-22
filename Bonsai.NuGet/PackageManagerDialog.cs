@@ -35,6 +35,7 @@ namespace Bonsai.NuGet
         IPackageManager selectedManager;
         IPackageRepository selectedRepository;
         string feedExceptionMessage;
+        List<IDisposable> activeRequests;
 
         TreeNode installedPackagesNode;
         TreeNode onlineNode;
@@ -47,6 +48,7 @@ namespace Bonsai.NuGet
             defaultIcon = defaultIconRequest;
             defaultIconRequest.Connect();
 
+            activeRequests = new List<IDisposable>();
             var settings = Settings.LoadDefaultSettings(null, null, null);
             packageSourceProvider = new PackageSourceProvider(settings);
             packageManagers = CreatePackageManagers();
@@ -118,7 +120,6 @@ namespace Bonsai.NuGet
             sortComboBox.Items.Add(SortByNameDescending);
             releaseFilterComboBox.SelectedIndex = 0;
             sortComboBox.SelectedIndex = 0;
-            UpdatePackageFeed();
             Observable.FromEventPattern<EventArgs>(
                 handler => searchComboBox.TextChanged += new EventHandler(handler),
                 handler => searchComboBox.TextChanged -= new EventHandler(handler))
@@ -243,49 +244,57 @@ namespace Bonsai.NuGet
             node.Tag = package;
 
             var requestIcon = GetPackageIcon(package.IconUrl);
-            requestIcon.ObserveOn(this).Subscribe(image =>
+            var iconRequest = requestIcon.ObserveOn(this).Subscribe(image =>
             {
                 packageIcons.Images.Add(package.Id, image);
                 node.ImageKey = package.Id;
                 node.SelectedImageKey = package.Id;
             });
+
+            activeRequests.Add(iconRequest);
         }
 
         private void UpdatePackagePage()
         {
+            activeRequests.RemoveAll(request =>
+            {
+                request.Dispose();
+                return true;
+            });
+
             packageView.Nodes.Clear();
             packageIcons.Images.Clear();
 
-            if (packagePageSelector.PageCount > 0)
-            {
-                var packageFeed = GetPackageFeed();
-                var pageIndex = packagePageSelector.SelectedIndex;
-                Observable.Defer(() =>
-                    packageFeed().AsBufferedEnumerable(PackagesPerPage * 3)
-                    .Where(PackageExtensions.IsListed)
-                    .AsCollapsed()
-                    .Skip(pageIndex * PackagesPerPage)
-                    .Take(PackagesPerPage)
-                    .ToObservable()
-                    .Catch<IPackage, WebException>(ex => Observable.Empty<IPackage>()))
-                    .Buffer(PackagesPerPage)
-                    .SubscribeOn(NewThreadScheduler.Default)
-                    .ObserveOn(this)
-                    .Do(packages => AddPackageRange(packages))
-                    .Sum(packages => packages.Count)
-                    .Subscribe(packageCount =>
+            var packageFeed = GetPackageFeed();
+            var pageIndex = packagePageSelector.SelectedIndex;
+            var feedRequest = Observable.Defer(() =>
+                packageFeed().AsBufferedEnumerable(PackagesPerPage * 3)
+                .Where(PackageExtensions.IsListed)
+                .AsCollapsed()
+                .Skip(pageIndex * PackagesPerPage)
+                .Take(PackagesPerPage)
+                .ToObservable()
+                .Catch<IPackage, WebException>(ex => Observable.Empty<IPackage>()))
+                .Buffer(PackagesPerPage)
+                .SubscribeOn(NewThreadScheduler.Default)
+                .ObserveOn(this)
+                .Do(packages => AddPackageRange(packages))
+                .Sum(packages => packages.Count)
+                .Subscribe(packageCount =>
+                {
+                    if (packageCount == 0)
                     {
-                        if (packageCount < PackagesPerPage)
-                        {
-                            packagePageSelector.PageCount = pageIndex + (packageCount > 0 ? 1 : 0);
-                        }
-                    });
-            }
-            else
-            {
-                packageView.Nodes.Add(feedExceptionMessage ?? Resources.NoItemsFoundLabel);
-                packageDetails.SetPackage(null);
-            }
+                        packagePageSelector.PageCount = pageIndex;
+                        packageView.Nodes.Add(feedExceptionMessage ?? Resources.NoItemsFoundLabel);
+                        packageDetails.SetPackage(null);
+                    }
+                    else if (packageCount < PackagesPerPage)
+                    {
+                        packagePageSelector.PageCount = pageIndex + 1;
+                    }
+                });
+
+            activeRequests.Add(feedRequest);
         }
 
         private void UpdatePackageFeed()
