@@ -1,4 +1,5 @@
-﻿using Bonsai.NuGet.Properties;
+﻿using Bonsai.Design;
+using Bonsai.NuGet.Properties;
 using NuGet;
 using System;
 using System.Collections.Generic;
