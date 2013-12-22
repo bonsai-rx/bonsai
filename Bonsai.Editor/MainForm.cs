@@ -454,8 +454,6 @@ namespace Bonsai.Editor
             {
                 editorSite.OnWorkflowStopped(EventArgs.Empty);
                 workflowGraphView.UpdateVisualizerLayout();
-                runningStatusLabel.Text = Resources.StoppedStatus;
-                runningStatusLabel.Image = Resources.StoppedStatusImage;
                 undoToolStripButton.Enabled = undoToolStripMenuItem.Enabled = commandExecutor.CanUndo;
                 redoToolStripButton.Enabled = redoToolStripMenuItem.Enabled = commandExecutor.CanRedo;
                 deleteToolStripMenuItem.Enabled = true;
@@ -465,6 +463,12 @@ namespace Bonsai.Editor
                 startToolStripButton.Visible = startToolStripMenuItem.Visible = true;
                 stopToolStripButton.Visible = stopToolStripMenuItem.Visible = false;
                 restartToolStripButton.Visible = restartToolStripMenuItem.Visible = false;
+                if (workflowError == null)
+                {
+                    statusTextLabel.Text = Resources.ReadyStatus;
+                    statusImageLabel.Image = Resources.StatusReadyImage;
+                }
+
                 running = null;
                 building = false;
             }));
@@ -480,8 +484,8 @@ namespace Bonsai.Editor
                     () =>
                     {
                         var runtimeWorkflow = workflowBuilder.Workflow.BuildObservable();
-                        runningStatusLabel.Text = Resources.RunningStatus;
-                        runningStatusLabel.Image = Resources.RunningStatusImage;
+                        statusTextLabel.Text = Resources.RunningStatus;
+                        statusImageLabel.Image = Resources.StatusReadyImage;
                         editorSite.OnWorkflowStarted(EventArgs.Empty);
 
                         var shutdown = ShutdownSequence();
@@ -570,8 +574,8 @@ namespace Bonsai.Editor
             }
             else
             {
-                errorStatusLabel.Text = string.Empty;
-                errorStatusLabel.BorderSides = ToolStripStatusLabelBorderSides.None;
+                statusTextLabel.Text = Resources.ReadyStatus;
+                statusImageLabel.Image = Resources.StatusReadyImage;
             }
         }
 
@@ -616,8 +620,8 @@ namespace Bonsai.Editor
                 }
 
                 var errorCaption = e is WorkflowBuildException ? "Build Error" : "Runtime Error";
-                errorStatusLabel.Text = e.Message;
-                errorStatusLabel.BorderSides = ToolStripStatusLabelBorderSides.Left;
+                statusTextLabel.Text = e.Message;
+                statusImageLabel.Image = Resources.StatusBlockedImage;
                 if (building)
                 {
                     MessageBox.Show(e.Message, errorCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);

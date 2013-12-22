@@ -118,12 +118,6 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="RunningStatusImage" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\RunningStatusImage.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="StoppedStatus" xml:space="preserve">
-    <value>Stopped</value>
-  </data>
   <data name="BonsaiWelcome" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\BonsaiWelcome.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -148,10 +142,30 @@
   <data name="LibraryFolderPlatformMismatchException" xml:space="preserve">
     <value>The library folder '{0}' has already been assigned to a different platform. Consider uninstalling the conflicting package.</value>
   </data>
-  <data name="StoppedStatusImage" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\StoppedStatusImage.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="Bonsai" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Bonsai.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="ReadyStatus" xml:space="preserve">
+    <value>Ready</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="StatusBlockedImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACuSURBVDhPY0AH3759SwDi/UD8Hw2DxBKgyjABUFIBiM9/
+        2rfz/6to3/9PRRhQMEgMJAdSA1IL1QYBUM3vX2fGYGhEx2/Kc0CGvEcxBMg5D5LApgEbhhpyHqY5AeQ0
+        bArxYah3EkAG7MfmZ0IYpAekF2QAVgXEYJBeFAOIBbQzgFQMM4DiQKQsGqFp4TwxqRCGURISCAA54KRM
+        TGrEmpRBAGoIeZkJGQAlScjODAwA+vVLzR+VgYgAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="StatusReadyImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADXSURBVDhPnVO5DcMwDNQo2cELaQQP4MKlV/AiqQIICOBa
+        I7hza8CFWoWXkIYe2nFywBUieUc9lCkRQrBER4wFEbNcVoOSN6Kf5im29zY2Y5MRMeRQg1qWfcDitXt0
+        lbDk8BxgsmYmtPBIaAKNbOJFbLE1rVDYuz4Cy7bsMT6OhYHTzpwSQgBGEoMGWhhkxSW17kJovxpo3YWq
+        QSo46w6qBqnorDsoBtUlihA46p5eYvWMsgvgqPv+jDwL/soUCrNBAmjxHuUr06iOMsAm/32mFJT84Tsb
+        8wJDtVgNNXCWjQAAAABJRU5ErkJggg==
+</value>
   </data>
 </root>
