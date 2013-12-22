@@ -128,21 +128,20 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Ready.
+        /// </summary>
+        internal static string ReadyStatus {
+            get {
+                return ResourceManager.GetString("ReadyStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Running.
         /// </summary>
         internal static string RunningStatus {
             get {
                 return ResourceManager.GetString("RunningStatus", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap RunningStatusImage {
-            get {
-                object obj = ResourceManager.GetObject("RunningStatusImage", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -156,20 +155,21 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Stopped.
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static string StoppedStatus {
+        internal static System.Drawing.Bitmap StatusBlockedImage {
             get {
-                return ResourceManager.GetString("StoppedStatus", resourceCulture);
+                object obj = ResourceManager.GetObject("StatusBlockedImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap StoppedStatusImage {
+        internal static System.Drawing.Bitmap StatusReadyImage {
             get {
-                object obj = ResourceManager.GetObject("StoppedStatusImage", resourceCulture);
+                object obj = ResourceManager.GetObject("StatusReadyImage", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

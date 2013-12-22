@@ -86,8 +86,8 @@
             this.directoryToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
             this.browseDirectoryToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
-            this.runningStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.errorStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusImageLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusTextLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolboxGroupBox = new System.Windows.Forms.GroupBox();
             this.toolboxSplitContainer = new System.Windows.Forms.SplitContainer();
             this.toolboxTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
@@ -567,27 +567,30 @@
             // statusStrip
             // 
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.runningStatusLabel,
-            this.errorStatusLabel});
+            this.statusImageLabel,
+            this.statusTextLabel});
             this.statusStrip.Location = new System.Drawing.Point(0, 340);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size(684, 22);
             this.statusStrip.TabIndex = 2;
             this.statusStrip.Text = "statusStrip";
             // 
-            // runningStatusLabel
+            // statusImageLabel
             // 
-            this.runningStatusLabel.Image = global::Bonsai.Editor.Properties.Resources.StoppedStatusImage;
-            this.runningStatusLabel.Name = "runningStatusLabel";
-            this.runningStatusLabel.Size = new System.Drawing.Size(67, 17);
-            this.runningStatusLabel.Text = "Stopped";
+            this.statusImageLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.statusImageLabel.Image = global::Bonsai.Editor.Properties.Resources.StatusReadyImage;
+            this.statusImageLabel.Name = "statusImageLabel";
+            this.statusImageLabel.Size = new System.Drawing.Size(16, 17);
+            this.statusImageLabel.Text = "statusImageLabel";
             // 
-            // errorStatusLabel
+            // statusTextLabel
             // 
-            this.errorStatusLabel.Name = "errorStatusLabel";
-            this.errorStatusLabel.Size = new System.Drawing.Size(602, 17);
-            this.errorStatusLabel.Spring = true;
-            this.errorStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.statusTextLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.statusTextLabel.Name = "statusTextLabel";
+            this.statusTextLabel.Size = new System.Drawing.Size(622, 17);
+            this.statusTextLabel.Spring = true;
+            this.statusTextLabel.Text = "Ready";
+            this.statusTextLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // toolboxGroupBox
             // 
@@ -894,7 +897,7 @@
         private System.Windows.Forms.ToolStripMenuItem startToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem stopToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
-        private System.Windows.Forms.ToolStripStatusLabel runningStatusLabel;
+        private System.Windows.Forms.ToolStripStatusLabel statusTextLabel;
         private System.Windows.Forms.SplitContainer panelSplitContainer;
         private System.Windows.Forms.SplitContainer workflowSplitContainer;
         private System.Windows.Forms.ToolStripSeparator editToolStripSeparator;
@@ -917,13 +920,13 @@
         private Bonsai.Design.CueBannerTextBox searchTextBox;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem groupToolStripMenuItem;
-        private System.Windows.Forms.ToolStripStatusLabel errorStatusLabel;
         private System.Windows.Forms.ToolStripButton undoToolStripButton;
         private System.Windows.Forms.ToolStripButton redoToolStripButton;
         private System.Windows.Forms.ToolStripButton startToolStripButton;
         private System.Windows.Forms.ToolStripButton stopToolStripButton;
         private System.Windows.Forms.ToolStripButton restartToolStripButton;
         private System.Windows.Forms.ToolStripMenuItem restartToolStripMenuItem;
+        private System.Windows.Forms.ToolStripStatusLabel statusImageLabel;
     }
 }
 
