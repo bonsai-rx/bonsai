@@ -878,7 +878,7 @@ namespace Bonsai.Design
             if (!workflowEditorMapping.TryGetValue(workflowExpressionBuilder, out editorLauncher))
             {
                 composite = true;
-                editorLauncher = new WorkflowEditorLauncher(workflow, workflowExpressionBuilder);
+                editorLauncher = new WorkflowEditorLauncher(workflowExpressionBuilder);
                 editorLauncher.VisualizerLayout = editorLayout;
                 editorLauncher.Bounds = bounds;
                 var addEditorMapping = CreateUpdateEditorMappingDelegate(editorMapping => editorMapping.Add(workflowExpressionBuilder, editorLauncher));

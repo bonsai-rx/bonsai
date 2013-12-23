@@ -13,23 +13,16 @@ namespace Bonsai.Design
     public class WorkflowEditorLauncher : DialogLauncher
     {
         bool userClosing;
-        ExpressionBuilderGraph workflow;
         WorkflowExpressionBuilder builder;
         WorkflowGraphView workflowGraphView;
 
-        public WorkflowEditorLauncher(ExpressionBuilderGraph workflow, WorkflowExpressionBuilder builder)
+        public WorkflowEditorLauncher(WorkflowExpressionBuilder builder)
         {
-            if (workflow == null)
-            {
-                throw new ArgumentNullException("workflow");
-            }
-
             if (builder == null)
             {
                 throw new ArgumentNullException("builder");
             }
 
-            this.workflow = workflow;
             this.builder = builder;
         }
 
