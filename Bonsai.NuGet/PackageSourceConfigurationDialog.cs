@@ -15,9 +15,9 @@ namespace Bonsai.NuGet
         const string NuGetSourceName = "nuget.org";
         const string DefaultPackageSourceName = "Package source";
         const string DefaultPackageSource = "http://packagesource";
-        readonly PackageSourceProvider provider;
+        readonly IPackageSourceProvider provider;
 
-        public PackageSourceConfigurationDialog(PackageSourceProvider sourceProvider)
+        public PackageSourceConfigurationDialog(IPackageSourceProvider sourceProvider)
         {
             if (sourceProvider == null)
             {
