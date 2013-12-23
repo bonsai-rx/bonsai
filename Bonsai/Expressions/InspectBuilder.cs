@@ -12,8 +12,6 @@ namespace Bonsai.Expressions
 {
     public class InspectBuilder : ExpressionBuilder, INamedElement
     {
-        ReplaySubject<IObservable<object>> subject;
-
         public InspectBuilder(ExpressionBuilder builder)
         {
             if (builder == null)
@@ -50,7 +48,7 @@ namespace Bonsai.Expressions
             try
             {
                 var source = Builder.Build();
-                subject = new ReplaySubject<IObservable<object>>(1, Scheduler.Immediate);
+                var subject = new ReplaySubject<IObservable<object>>(1, Scheduler.Immediate);
                 ObservableType = source.Type.GetGenericArguments()[0];
 
                 // If source is already an inspect node, use it
@@ -64,14 +62,14 @@ namespace Bonsai.Expressions
                 else
                 {
                     Output = subject;
-                    var combinatorExpression = Expression.Constant(this);
-                    return Expression.Call(combinatorExpression, "Process", new[] { ObservableType }, source);
+                    var subjectExpression = Expression.Constant(subject);
+                    return Expression.Call(typeof(InspectBuilder), "Process", new[] { ObservableType }, source, subjectExpression);
                 }
             }
             finally { Builder.Arguments.Clear(); }
         }
 
-        IObservable<TSource> Process<TSource>(IObservable<TSource> source)
+        static IObservable<TSource> Process<TSource>(IObservable<TSource> source, ReplaySubject<IObservable<object>> subject)
         {
             return Observable.Defer(() =>
             {
