@@ -28,6 +28,37 @@ namespace Bonsai.NuGet
             provider = sourceProvider;
         }
 
+        static PackageSource GetItemPackageSource(ListViewItem item)
+        {
+            if (item.Tag == null)
+            {
+                throw new InvalidOperationException("Package source list view items must have an associated tag set.");
+            }
+
+            return (PackageSource)item.Tag;
+        }
+
+        static void ToggleItemChecked(ListViewItem item)
+        {
+            item.Checked = !item.Checked;
+            item.ImageIndex = GetStateImageIndex(item.Checked);
+            GetItemPackageSource(item).IsEnabled = item.Checked;
+        }
+
+        static void OffsetItemIndex(ListViewItem item, int offset)
+        {
+            var listView = item.ListView;
+            listView.BeginUpdate();
+            listView.SuspendLayout();
+            var itemIndex = item.Index;
+            listView.Items.RemoveAt(itemIndex);
+            listView.Items.Insert(itemIndex + offset, item);
+            listView.Alignment = ListViewAlignment.Default;
+            listView.Alignment = ListViewAlignment.Top;
+            listView.ResumeLayout();
+            listView.EndUpdate();
+        }
+
         static int GetStateImageIndex(bool checkedState)
         {
             return checkedState ? 1 : 0;
@@ -39,7 +70,8 @@ namespace Bonsai.NuGet
             {
                 var imageIndex = GetStateImageIndex(packageSource.IsEnabled);
                 var item = new ListViewItem(new[] { packageSource.Name, packageSource.Source }, imageIndex);
-                packageSourceListView.Items.Add(item);
+                if (packageSource.IsMachineWide) machineWideListView.Items.Add(item);
+                else packageSourceListView.Items.Add(item);
                 item.Checked = packageSource.IsEnabled;
                 item.Tag = packageSource;
             }
@@ -50,10 +82,42 @@ namespace Bonsai.NuGet
         {
             if (DialogResult == DialogResult.OK)
             {
-                provider.SavePackageSources(from item in packageSourceListView.Items.Cast<ListViewItem>()
-                                            select (PackageSource)item.Tag);
+                provider.SavePackageSources(from item in packageSourceListView.Items.Cast<ListViewItem>().Concat(
+                                                         machineWideListView.Items.Cast<ListViewItem>())
+                                            select GetItemPackageSource(item));
             }
             base.OnClosed(e);
+        }
+
+        private void UpdateItemActionButtons(ListViewItem item)
+        {
+            var removed = item.ListView == null;
+            var editActive = item.Selected && !removed;
+            var isMachineWide = GetItemPackageSource(item).IsMachineWide;
+            if (item.Text == NuGetSourceName || isMachineWide)
+            {
+                editActive = !editActive;
+            }
+
+            nameTextBox.Enabled = editActive;
+            sourceTextBox.Enabled = editActive;
+            removeButton.Enabled = editActive;
+            updateButton.Enabled = editActive;
+            sourceEditorButton.Enabled = editActive;
+            if (item.Selected)
+            {
+                nameTextBox.Text = item.SubItems[0].Text;
+                sourceTextBox.Text = item.SubItems[1].Text;
+                moveUpButton.Enabled = !isMachineWide && !removed && item.Index > 0;
+                moveDownButton.Enabled = !isMachineWide && !removed && item.Index < item.ListView.Items.Count - 1;
+            }
+            else
+            {
+                nameTextBox.Clear();
+                sourceTextBox.Clear();
+                moveUpButton.Enabled = false;
+                moveDownButton.Enabled = false;
+            }
         }
 
         private void addButton_Click(object sender, EventArgs e)
@@ -71,6 +135,10 @@ namespace Bonsai.NuGet
             packageSourceListView.Items.Add(item);
             item.Checked = true;
             item.Tag = new PackageSource(source, sourceName, true);
+            item.Selected = true;
+            item.Focused = true;
+            packageSourceListView.EnsureVisible(item.Index);
+            packageSourceListView.Select();
         }
 
         private void removeButton_Click(object sender, EventArgs e)
@@ -79,6 +147,8 @@ namespace Bonsai.NuGet
             {
                 var selectedItem = packageSourceListView.SelectedItems[0];
                 packageSourceListView.Items.Remove(selectedItem);
+                nameTextBox.Clear();
+                sourceTextBox.Clear();
             }
         }
 
@@ -86,10 +156,7 @@ namespace Bonsai.NuGet
         {
             if (packageSourceListView.SelectedItems.Count > 0)
             {
-                var selectedItem = packageSourceListView.SelectedItems[0];
-                var index = selectedItem.Index;
-                selectedItem.Remove();
-                packageSourceListView.Items.Insert(index - 1, selectedItem);
+                OffsetItemIndex(packageSourceListView.SelectedItems[0], -1);
             }
         }
 
@@ -97,31 +164,13 @@ namespace Bonsai.NuGet
         {
             if (packageSourceListView.SelectedItems.Count > 0)
             {
-                var selectedItem = packageSourceListView.SelectedItems[0];
-                var index = selectedItem.Index;
-                selectedItem.Remove();
-                packageSourceListView.Items.Insert(index + 1, selectedItem);
+                OffsetItemIndex(packageSourceListView.SelectedItems[0], +1);
             }
         }
 
         private void packageSourceListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
-            if (e.Item.Text == NuGetSourceName)
-            {
-                nameTextBox.Enabled = !e.IsSelected;
-                sourceTextBox.Enabled = !e.IsSelected;
-                removeButton.Enabled = !e.IsSelected;
-                updateButton.Enabled = !e.IsSelected;
-                sourceEditorButton.Enabled = !e.IsSelected;
-            }
-
-            if (e.IsSelected)
-            {
-                nameTextBox.Text = e.Item.SubItems[0].Text;
-                sourceTextBox.Text = e.Item.SubItems[1].Text;
-                moveUpButton.Enabled = e.ItemIndex > 0;
-                moveDownButton.Enabled = e.ItemIndex < packageSourceListView.Items.Count - 1;
-            }
+            UpdateItemActionButtons(e.Item);
         }
 
         private void updateButton_Click(object sender, EventArgs e)
@@ -143,22 +192,33 @@ namespace Bonsai.NuGet
             }
         }
 
-        private void packageSourceListView_ItemChecked(object sender, ItemCheckedEventArgs e)
-        {
-            if (e.Item.Tag != null)
-            {
-                ((PackageSource)e.Item.Tag).IsEnabled = e.Item.Checked;
-            }
-        }
-
         private void packageSourceListView_MouseClick(object sender, MouseEventArgs e)
         {
-            var hit = packageSourceListView.HitTest(e.Location);
+            var selectedListView = (ListView)sender;
+            var hit = selectedListView.HitTest(e.Location);
             if (hit.Item != null && hit.Location == ListViewHitTestLocations.Image)
             {
                 var item = hit.Item;
-                item.Checked = !item.Checked;
-                item.ImageIndex = GetStateImageIndex(item.Checked);
+                ToggleItemChecked(item);
+            }
+        }
+
+        private void packageSourceListView_Enter(object sender, EventArgs e)
+        {
+            var selectedListView = (ListView)sender;
+            addButton.Enabled = selectedListView == packageSourceListView;
+            if (selectedListView.SelectedItems.Count > 0)
+            {
+                UpdateItemActionButtons(selectedListView.SelectedItems[0]);
+            }
+        }
+
+        private void packageSourceListView_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            var selectedListView = (ListView)sender;
+            if (selectedListView.SelectedItems.Count > 0)
+            {
+                ToggleItemChecked(selectedListView.SelectedItems[0]);
             }
         }
     }
