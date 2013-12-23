@@ -13,7 +13,7 @@ namespace Bonsai.NuGet
 
         public BonsaiMachineWideSettings()
         {
-            var baseDirectory = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+            var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
             settings = new Lazy<IEnumerable<Settings>>(() =>
             {
                 return global::NuGet.Settings.LoadMachineWideSettings(
