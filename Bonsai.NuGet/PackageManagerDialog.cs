@@ -50,7 +50,8 @@ namespace Bonsai.NuGet
             defaultIconRequest.Connect();
 
             activeRequests = new List<IDisposable>();
-            var settings = Settings.LoadDefaultSettings(null, null, null);
+            var machineWideSettings = new BonsaiMachineWideSettings();
+            var settings = Settings.LoadDefaultSettings(null, null, machineWideSettings);
             packageSourceProvider = new PackageSourceProvider(settings);
             packageManagers = CreatePackageManagers();
             InitializeComponent();
