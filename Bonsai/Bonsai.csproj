@@ -125,7 +125,6 @@
     <Compile Include="Reactive\SkipUntil.cs" />
     <Compile Include="Condition.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="ContinuationScheduler.cs" />
     <Compile Include="ArrayConvert.cs" />
     <Compile Include="Expressions\PropertyMappingAttribute.cs" />
     <Compile Include="Expressions\PropertyMappingCollection.cs" />
