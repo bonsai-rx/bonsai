@@ -619,9 +619,10 @@ namespace Bonsai.Editor
                     workflowView.GraphView.Select();
                 }
 
-                var errorCaption = e is WorkflowBuildException ? "Build Error" : "Runtime Error";
+                var buildException = e is WorkflowBuildException;
+                var errorCaption = buildException ? "Build Error" : "Runtime Error";
                 statusTextLabel.Text = e.Message;
-                statusImageLabel.Image = Resources.StatusBlockedImage;
+                statusImageLabel.Image = buildException ? Resources.StatusBlockedImage : Resources.StatusCriticalImage;
                 if (building)
                 {
                     MessageBox.Show(e.Message, errorCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -636,8 +637,8 @@ namespace Bonsai.Editor
             {
                 Action selectExceptionNode = () =>
                 {
-                    HighlightExceptionBuilderNode(workflowGraphView, workflowException);
                     workflowError = workflowException;
+                    HighlightExceptionBuilderNode(workflowGraphView, workflowException);
                 };
 
                 if (InvokeRequired) BeginInvoke(selectExceptionNode);
