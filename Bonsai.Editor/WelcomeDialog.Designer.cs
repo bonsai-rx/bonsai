@@ -110,6 +110,7 @@
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.Color.White;
+            this.CancelButton = this.closeButton;
             this.ClientSize = new System.Drawing.Size(640, 541);
             this.Controls.Add(this.controlPanel);
             this.Controls.Add(this.pictureBox);
