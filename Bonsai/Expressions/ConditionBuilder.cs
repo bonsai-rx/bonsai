@@ -14,11 +14,6 @@ namespace Bonsai.Expressions
     [XmlType("Condition", Namespace = Constants.XmlNamespace)]
     public class ConditionBuilder : CombinatorExpressionBuilder, INamedElement
     {
-        static readonly MethodInfo whereMethod = typeof(Observable).GetMethods()
-                                                                   .Single(m => m.Name == "Where" &&
-                                                                           m.GetParameters().Length == 2 &&
-                                                                           m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
-
         public ConditionBuilder()
             : base(minArguments: 1, maxArguments: 1)
         {
