@@ -148,7 +148,11 @@ namespace Bonsai.NuGet
                 }));
 
             loaded = true;
-            repositoriesView.SelectedNode = onlineNode.FirstNode;
+            var selectedNode = onlineNode.Nodes
+                .Cast<TreeNode>()
+                .FirstOrDefault(node => node.Text == BonsaiMachineWideSettings.SettingsName)
+                ?? onlineNode.FirstNode;
+            repositoriesView.SelectedNode = selectedNode;
             repositoriesView.Select();
             base.OnLoad(e);
         }

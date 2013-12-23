@@ -10,6 +10,7 @@ namespace Bonsai.NuGet
     public class BonsaiMachineWideSettings : IMachineWideSettings
     {
         Lazy<IEnumerable<Settings>> settings;
+        internal const string SettingsName = "Bonsai";
 
         public BonsaiMachineWideSettings()
         {
@@ -18,7 +19,7 @@ namespace Bonsai.NuGet
             {
                 return global::NuGet.Settings.LoadMachineWideSettings(
                     new PhysicalFileSystem(baseDirectory),
-                    "Bonsai");
+                    SettingsName);
             });
         }
 
