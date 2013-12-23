@@ -31,7 +31,7 @@ namespace Bonsai.NuGet
 
         bool loaded;
         readonly string packageManagerPath;
-        readonly PackageSourceProvider packageSourceProvider;
+        readonly IPackageSourceProvider packageSourceProvider;
         Dictionary<string, IPackageManager> packageManagers;
         IPackageManager selectedManager;
         IPackageRepository selectedRepository;
