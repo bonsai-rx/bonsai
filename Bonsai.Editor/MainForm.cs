@@ -43,6 +43,7 @@ namespace Bonsai.Editor
         Dictionary<string, string> propertyAssignments;
         List<TreeNode> treeCache;
         WorkflowException workflowError;
+        Label statusTextLabel;
 
         XmlSerializer serializer;
         XmlSerializer layoutSerializer;
@@ -53,8 +54,13 @@ namespace Bonsai.Editor
         public MainForm()
         {
             InitializeComponent();
+            statusTextLabel = new Label();
+            statusTextLabel.AutoSize = true;
+            statusTextLabel.Text = Resources.ReadyStatus;
             searchTextBox.CueBanner = Resources.SearchModuleCueBanner;
-            propertyAssignments = new Dictionary<string, string>();
+            statusStrip.Items.Add(new ToolStripControlHost(statusTextLabel));
+            statusStrip.SizeChanged += new EventHandler(statusStrip_SizeChanged);
+            UpdateStatusLabelSize();
 
             treeCache = new List<TreeNode>();
             editorSite = new EditorSite(this);
@@ -65,6 +71,7 @@ namespace Bonsai.Editor
             selectionFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Bold);
             typeVisualizers = new TypeVisualizerMap();
             selectionModel = new WorkflowSelectionModel();
+            propertyAssignments = new Dictionary<string, string>();
             workflowGraphView = new WorkflowGraphView(editorSite);
             workflowGraphView.Workflow = workflowBuilder.Workflow;
             workflowGraphView.Dock = DockStyle.Fill;
@@ -1314,6 +1321,21 @@ namespace Bonsai.Editor
         private void propertyGrid_Validated(object sender, EventArgs e)
         {
             editorSite.ValidateWorkflow();
+        }
+
+        #endregion
+
+        #region StatusStrip Controller
+
+        void UpdateStatusLabelSize()
+        {
+            var statusSize = statusStrip.Size;
+            statusTextLabel.MaximumSize = new Size(statusSize.Width - statusImageLabel.Width * 2, 0);
+        }
+
+        void statusStrip_SizeChanged(object sender, EventArgs e)
+        {
+            UpdateStatusLabelSize();
         }
 
         #endregion
