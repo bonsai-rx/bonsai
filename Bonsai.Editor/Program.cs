@@ -98,7 +98,8 @@ namespace Bonsai.Editor
             else
             {
                 var logger = new EventLogger();
-                var settings = Settings.LoadDefaultSettings(null, null, null);
+                var machineWideSettings = new BonsaiMachineWideSettings();
+                var settings = Settings.LoadDefaultSettings(null, null, machineWideSettings);
                 var sourceProvider = new PackageSourceProvider(settings);
                 var sourceRepository = sourceProvider.GetAggregate(PackageRepositoryFactory.Default, true);
                 var packageManager = new PackageManager(sourceRepository, editorRepositoryPath) { Logger = logger };

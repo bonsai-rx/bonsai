@@ -70,6 +70,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BonsaiMachineWideSettings.cs" />
     <Compile Include="EventLogger.cs" />
     <Compile Include="LogEventArgs.cs" />
     <Compile Include="PackageDetails.cs">
