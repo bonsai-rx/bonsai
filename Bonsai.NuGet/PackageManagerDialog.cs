@@ -148,12 +148,7 @@ namespace Bonsai.NuGet
                 }));
 
             loaded = true;
-            var selectedNode = onlineNode.Nodes
-                .Cast<TreeNode>()
-                .FirstOrDefault(node => node.Text == BonsaiMachineWideSettings.SettingsName)
-                ?? onlineNode.FirstNode;
-            repositoriesView.SelectedNode = selectedNode;
-            repositoriesView.Select();
+            SelectDefaultNode();
             base.OnLoad(e);
         }
 
@@ -170,6 +165,16 @@ namespace Bonsai.NuGet
                 return releaseFilterComboBox.SelectedIndex == 1 ||
                     selectedRepository == packageManagers[Resources.AllNodeName].LocalRepository;
             }
+        }
+
+        void SelectDefaultNode()
+        {
+            var selectedNode = onlineNode.Nodes
+                .Cast<TreeNode>()
+                .FirstOrDefault(node => node.Text == BonsaiMachineWideSettings.SettingsName)
+                ?? onlineNode.FirstNode;
+            repositoriesView.SelectedNode = selectedNode;
+            repositoriesView.Select();
         }
 
         Func<IQueryable<IPackage>> GetPackageFeed()
@@ -235,14 +240,38 @@ namespace Bonsai.NuGet
                     .Catch<Image, WebException>(ex => defaultIcon);
         }
 
-        private void AddPackageRange(IEnumerable<IPackage> packages)
+        private void SetPackageViewStatus(string text, Image image = null)
         {
+            if (packageView.Nodes.ContainsKey(text)) return;
+            packageView.CanSelectNodes = false;
             packageView.BeginUpdate();
-            foreach (var package in packages)
+            packageView.Nodes.Clear();
+            packageIcons.Images.Clear();
+            var imageIndex = -1;
+            if (image != null)
             {
-                AddPackage(package);
+                packageIcons.Images.Add(image);
+                imageIndex = 0;
             }
+            packageView.Nodes.Add(text, text, imageIndex, imageIndex);
+            packageDetails.SetPackage(null);
             packageView.EndUpdate();
+        }
+
+        private void AddPackageRange(IList<IPackage> packages)
+        {
+            if (packages.Count > 0)
+            {
+                packageView.BeginUpdate();
+                packageView.Nodes.Clear();
+                packageIcons.Images.Clear();
+                foreach (var package in packages)
+                {
+                    AddPackage(package);
+                }
+                packageView.EndUpdate();
+                packageView.CanSelectNodes = true;
+            }
         }
 
         private void AddPackage(IPackage package)
@@ -279,9 +308,7 @@ namespace Bonsai.NuGet
         private void UpdatePackagePage()
         {
             ClearActiveRequests();
-            packageView.Nodes.Clear();
-            packageIcons.Images.Clear();
-            packageView.CanSelectNodes = false;
+            SetPackageViewStatus(Resources.RetrievingInformationLabel, Resources.WaitImage);
 
             var packageFeed = GetPackageFeed();
             var pageIndex = packagePageSelector.SelectedIndex;
@@ -300,12 +327,10 @@ namespace Bonsai.NuGet
                 .Sum(packages => packages.Count)
                 .Subscribe(packageCount =>
                 {
-                    packageView.CanSelectNodes = packageCount > 0;
                     if (packageCount == 0)
                     {
                         packagePageSelector.PageCount = pageIndex;
-                        packageView.Nodes.Add(feedExceptionMessage ?? Resources.NoItemsFoundLabel);
-                        packageDetails.SetPackage(null);
+                        SetPackageViewStatus(feedExceptionMessage ?? Resources.NoItemsFoundLabel);
                     }
                     else if (packageCount < PackagesPerPage)
                     {
@@ -319,7 +344,7 @@ namespace Bonsai.NuGet
         private void UpdatePackageFeed()
         {
             feedExceptionMessage = null;
-            packageView.CanSelectNodes = false;
+            SetPackageViewStatus(Resources.RetrievingInformationLabel, Resources.WaitImage);
             var packageFeed = GetPackageFeed();
             activeRequests.Add(Observable.Start(() => packageFeed().Count())
                 .Catch<int, WebException>(ex =>
@@ -485,7 +510,7 @@ namespace Bonsai.NuGet
                     feedExceptionMessage = null;
                     packageManagers = CreatePackageManagers();
                     InitializeRepositoryViewNodes();
-                    UpdatePackageFeed();
+                    SelectDefaultNode();
                 }
             }
             Show();

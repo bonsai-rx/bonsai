@@ -139,8 +139,8 @@ namespace Bonsai.NuGet
 
             if (e.Node.Tag == null)
             {
-                bounds.Y += TextRenderer.MeasureText(e.Node.Text, Font).Height;
-                TextRenderer.DrawText(e.Graphics, e.Node.Text, Font, bounds, color, TextFormatFlags.WordBreak);
+                TextRenderer.DrawText(e.Graphics, e.Node.Text, Font, bounds, color,
+                                      TextFormatFlags.WordBreak | TextFormatFlags.VerticalCenter);
             }
             else
             {
