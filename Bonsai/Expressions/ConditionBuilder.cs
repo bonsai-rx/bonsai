@@ -39,6 +39,7 @@ namespace Bonsai.Expressions
 
         protected override Expression BuildCombinator()
         {
+            const BindingFlags bindingAttributes = BindingFlags.Instance | BindingFlags.Public;
             var conditionType = Condition.GetType();
             var conditionExpression = Expression.Constant(Condition);
             var conditionAttributes = conditionType.GetCustomAttributes(typeof(CombinatorAttribute), true);
@@ -51,7 +52,7 @@ namespace Bonsai.Expressions
             var memberSelector = ExpressionHelper.MemberAccess(parameter, memberAccess.Item2);
 
             var conditionParameter = Expression.Parameter(typeof(IObservable<>).MakeGenericType(memberSelector.Type));
-            var processMethods = conditionType.GetMethods().Where(m => m.Name == methodName);
+            var processMethods = conditionType.GetMethods(bindingAttributes).Where(m => m.Name == methodName);
             var processCall = BuildCall(conditionExpression, processMethods, conditionParameter);
             return (Expression)Expression.Call(
                 typeof(ConditionBuilder),

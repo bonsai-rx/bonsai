@@ -442,6 +442,7 @@ namespace Bonsai.Expressions
                 {
                     MethodCallExpression call;
                     try { call = BuildCall(instance, method, arguments); }
+                    catch (ArgumentException) { return null; }
                     catch (InvalidOperationException) { return null; }
                     return new
                     {
