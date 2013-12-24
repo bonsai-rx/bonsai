@@ -73,7 +73,6 @@
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="RunningAverage.cs" />
     <Compile Include="SelectChannels.cs" />
-    <Compile Include="Subtract.cs" />
     <Compile Include="Sum.cs" />
     <Compile Include="Threshold.cs" />
     <Compile Include="Transpose.cs" />
