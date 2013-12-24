@@ -134,7 +134,7 @@
       <Name>Bonsai</Name>
     </ProjectReference>
     <ProjectReference Include="..\Externals\OpenCV.Net\OpenCV.Net\OpenCV.Net.csproj">
-      <Project>{D07280E0-B436-4E29-956C-AC881E7C9A82}</Project>
+      <Project>{DAF4D704-2C86-4657-9210-DB5B847BA8BE}</Project>
       <Name>OpenCV.Net</Name>
     </ProjectReference>
   </ItemGroup>
