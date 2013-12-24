@@ -9,12 +9,18 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
 {
+    /// <summary>
+    /// Represents a workflow property containing a timestamp in Coordinated Universal Time (UTC).
+    /// </summary>
     [DisplayName("DateTimeOffset")]
     public class DateTimeOffsetProperty : WorkflowProperty
     {
         DateTimeOffset value;
         event Action<DateTimeOffset> ValueChanged;
 
+        /// <summary>
+        /// Gets or sets the value of the property.
+        /// </summary>
         [XmlIgnore]
         public DateTimeOffset Value
         {
@@ -26,6 +32,9 @@ namespace Bonsai.Expressions
             }
         }
 
+        /// <summary>
+        /// Gets or sets an XML representation of the property value for serialization.
+        /// </summary>
         [Browsable(false)]
         [XmlElement("Value")]
         public string ValueXml
@@ -43,6 +52,11 @@ namespace Bonsai.Expressions
             }
         }
 
+        /// <summary>
+        /// Generates an observable sequence that produces a value whenever the
+        /// workflow property changes, starting with the initial property value.
+        /// </summary>
+        /// <returns>An observable sequence of property values.</returns>
         public virtual IObservable<DateTimeOffset> Generate()
         {
             return Observable
