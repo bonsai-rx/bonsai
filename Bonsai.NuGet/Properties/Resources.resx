@@ -183,6 +183,9 @@
   <data name="RetrievingInformationLabel" xml:space="preserve">
     <value>Retrieving information...</value>
   </data>
+  <data name="SearchOnlineCueBanner" xml:space="preserve">
+    <value>Search Online (Ctrl+E)</value>
+  </data>
   <data name="WaitImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO

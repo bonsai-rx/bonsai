@@ -37,6 +37,7 @@ namespace Bonsai.NuGet
         IPackageRepository selectedRepository;
         string feedExceptionMessage;
         List<IDisposable> activeRequests;
+        IDisposable searchSubscription;
 
         TreeNode installedPackagesNode;
         TreeNode onlineNode;
@@ -56,6 +57,8 @@ namespace Bonsai.NuGet
             packageManagers = CreatePackageManagers();
             InitializeComponent();
             InitializeRepositoryViewNodes();
+            searchComboBox.CueBanner = Resources.SearchOnlineCueBanner;
+            searchComboBox.Select();
         }
 
         void ClearActiveRequests()
@@ -131,7 +134,7 @@ namespace Bonsai.NuGet
             sortComboBox.Items.Add(SortByNameDescending);
             releaseFilterComboBox.SelectedIndex = 0;
             sortComboBox.SelectedIndex = 0;
-            activeRequests.Add(Observable.FromEventPattern<EventArgs>(
+            searchSubscription = Observable.FromEventPattern<EventArgs>(
                 handler => searchComboBox.TextChanged += new EventHandler(handler),
                 handler => searchComboBox.TextChanged -= new EventHandler(handler))
                 .Throttle(TimeSpan.FromSeconds(1))
@@ -145,7 +148,7 @@ namespace Bonsai.NuGet
                     else sortComboBox.Items.Remove(SortByRelevance);
                     sortComboBox.SelectedIndex = 0;
                     UpdatePackageFeed();
-                }));
+                });
 
             loaded = true;
             SelectDefaultNode();
@@ -155,6 +158,7 @@ namespace Bonsai.NuGet
         protected override void OnHandleDestroyed(EventArgs e)
         {
             ClearActiveRequests();
+            searchSubscription.Dispose();
             base.OnHandleDestroyed(e);
         }
 
@@ -373,6 +377,14 @@ namespace Bonsai.NuGet
             packageView.EndUpdate();
             packageView.Refresh();
             base.OnResizeEnd(e);
+        }
+
+        private void PackageManagerDialog_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.E && e.Modifiers == Keys.Control && !searchComboBox.Focused)
+            {
+                searchComboBox.Select();
+            }
         }
 
         private void packageView_AfterSelect(object sender, TreeViewEventArgs e)
