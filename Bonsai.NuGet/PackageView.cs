@@ -21,6 +21,8 @@ namespace Bonsai.NuGet
         const int WM_MOUSELEAVE = 0x02a3;
         const int WM_NOTIFY = 0x004e;
         const int TVS_NOHSCROLL = 0x8000;
+        const int TVM_SETEXTENDEDSTYLE = 0x112C;
+        const int TVS_EX_DOUBLEBUFFER = 0x0004;
 
         public PackageView()
         {
@@ -50,6 +52,20 @@ namespace Bonsai.NuGet
                 parameters.Style |= TVS_NOHSCROLL;
                 return parameters;
             }
+        }
+
+        static bool IsRunningOnMono()
+        {
+            return Type.GetType("Mono.Runtime") != null;
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            if (!IsRunningOnMono())
+            {
+                NativeMethods.SendMessage(Handle, TVM_SETEXTENDEDSTYLE, (IntPtr)TVS_EX_DOUBLEBUFFER, (IntPtr)TVS_EX_DOUBLEBUFFER);
+            }
+            base.OnHandleCreated(e);
         }
 
         protected override void WndProc(ref Message m)

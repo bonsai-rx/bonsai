@@ -73,6 +73,7 @@
     <Compile Include="BonsaiMachineWideSettings.cs" />
     <Compile Include="EventLogger.cs" />
     <Compile Include="LogEventArgs.cs" />
+    <Compile Include="NativeMethods.cs" />
     <Compile Include="PackageDetails.cs">
       <SubType>UserControl</SubType>
     </Compile>
