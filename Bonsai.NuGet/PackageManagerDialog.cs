@@ -195,7 +195,8 @@ namespace Bonsai.NuGet
                 }
                 else
                 {
-                    packages = selectedRepository.Search(searchTerm, allowPrereleaseVersions);
+                    try { packages = selectedRepository.Search(searchTerm, allowPrereleaseVersions); }
+                    catch (WebException e) { return Observable.Throw<IPackage>(e).ToEnumerable().AsQueryable(); }
                     if (allowPrereleaseVersions) packages = packages.Where(p => p.IsAbsoluteLatestVersion);
                     else packages = packages.Where(p => p.IsLatestVersion);
                 }
@@ -280,6 +281,7 @@ namespace Bonsai.NuGet
             ClearActiveRequests();
             packageView.Nodes.Clear();
             packageIcons.Images.Clear();
+            packageView.CanSelectNodes = false;
 
             var packageFeed = GetPackageFeed();
             var pageIndex = packagePageSelector.SelectedIndex;
@@ -298,6 +300,7 @@ namespace Bonsai.NuGet
                 .Sum(packages => packages.Count)
                 .Subscribe(packageCount =>
                 {
+                    packageView.CanSelectNodes = packageCount > 0;
                     if (packageCount == 0)
                     {
                         packagePageSelector.PageCount = pageIndex;
@@ -316,6 +319,7 @@ namespace Bonsai.NuGet
         private void UpdatePackageFeed()
         {
             feedExceptionMessage = null;
+            packageView.CanSelectNodes = false;
             var packageFeed = GetPackageFeed();
             activeRequests.Add(Observable.Start(() => packageFeed().Count())
                 .Catch<int, WebException>(ex =>
