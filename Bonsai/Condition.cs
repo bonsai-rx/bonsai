@@ -11,7 +11,6 @@ namespace Bonsai
     }
 
     [Condition]
-    [WorkflowElementCategory(ElementCategory.Condition)]
     public abstract class Condition<TSource> : Transform<TSource, bool>
     {
     }

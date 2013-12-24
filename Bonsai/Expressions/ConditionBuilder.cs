@@ -47,26 +47,28 @@ namespace Bonsai.Expressions
             var sourceSelect = Arguments.Values.First();
             var observableType = sourceSelect.Type.GetGenericArguments()[0];
             var parameter = Expression.Parameter(observableType);
-            var processMethods = conditionType.GetMethods().Where(m => m.Name == methodName);
             var memberAccess = FindMemberAccess(Selector);
-            var processParameter = ExpressionHelper.MemberAccess(parameter, memberAccess.Item2);
+            var memberSelector = ExpressionHelper.MemberAccess(parameter, memberAccess.Item2);
+
+            var conditionParameter = Expression.Parameter(typeof(IObservable<>).MakeGenericType(memberSelector.Type));
+            var processMethods = conditionType.GetMethods().Where(m => m.Name == methodName);
+            var processCall = BuildCall(conditionExpression, processMethods, conditionParameter);
             return (Expression)Expression.Call(
                 typeof(ConditionBuilder),
                 "Process",
-                new[] { observableType, processParameter.Type },
-                conditionExpression,
+                new[] { observableType, memberSelector.Type },
                 sourceSelect,
-                Expression.Lambda(processParameter, parameter));
+                Expression.Lambda(memberSelector, parameter),
+                Expression.Lambda(processCall, conditionParameter));
         }
 
-        static IObservable<TSource> Process<TSource, TMember>(Condition<TMember> condition, IObservable<TSource> source, Func<TSource, TMember> selector)
+        static IObservable<TSource> Process<TSource, TMember>(IObservable<TSource> source, Func<TSource, TMember> selector, Func<IObservable<TMember>, IObservable<bool>> condition)
         {
             return Observable.Defer(() =>
             {
                 var filter = false;
                 TSource value = default(TSource);
-                return condition
-                    .Process(source.Select(xs => { value = xs; return selector(xs); }))
+                return condition(source.Select(xs => { value = xs; return selector(xs); }))
                     .Select(bs => { filter = bs; return value; })
                     .Where(xs => filter);
             });

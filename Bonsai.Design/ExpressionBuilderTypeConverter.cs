@@ -28,11 +28,19 @@ namespace Bonsai.Design
 
             if (destinationType == typeof(Brush))
             {
-                var expressionBuilder = (ExpressionBuilder)value;
-                var workflowElement = ExpressionBuilder.GetWorkflowElement(expressionBuilder);
-
-                var elementAttributes = TypeDescriptor.GetAttributes(workflowElement);
+                var expressionBuilder = ExpressionBuilder.Unwrap((ExpressionBuilder)value);
+                var elementAttributes = TypeDescriptor.GetAttributes(expressionBuilder);
                 var elementCategoryAttribute = (WorkflowElementCategoryAttribute)elementAttributes[typeof(WorkflowElementCategoryAttribute)];
+                if (elementCategoryAttribute == WorkflowElementCategoryAttribute.Default)
+                {
+                    var workflowElement = ExpressionBuilder.GetWorkflowElement(expressionBuilder);
+                    if (workflowElement != expressionBuilder)
+                    {
+                        elementAttributes = TypeDescriptor.GetAttributes(workflowElement);
+                        elementCategoryAttribute = (WorkflowElementCategoryAttribute)elementAttributes[typeof(WorkflowElementCategoryAttribute)];
+                    }
+                }
+
                 switch (elementCategoryAttribute.Category)
                 {
                     case ElementCategory.Source:
