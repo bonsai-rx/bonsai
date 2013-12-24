@@ -20,6 +20,10 @@ namespace Bonsai.NuGet
         const int WM_NCMOUSELEAVE = 0x02a2;
         const int WM_MOUSELEAVE = 0x02a3;
         const int WM_NOTIFY = 0x004e;
+        const int WM_LBUTTONDOWN = 0x0201;
+        const int WM_LBUTTONDBLCLK = 0x0203;
+        const int WM_RBUTTONDOWN = 0x0204;
+        const int WM_RBUTTONDBLCLK = 0x0206;
         const int TVS_NOHSCROLL = 0x8000;
         const int TVM_SETEXTENDEDSTYLE = 0x112C;
         const int TVS_EX_DOUBLEBUFFER = 0x0004;
@@ -34,6 +38,8 @@ namespace Bonsai.NuGet
         public event TreeViewEventHandler OperationClick;
 
         public string OperationText { get; set; }
+
+        public bool CanSelectNodes { get; set; }
 
         private void OnOperationClick(TreeViewEventArgs e)
         {
@@ -78,14 +84,15 @@ namespace Bonsai.NuGet
                 case WM_NCMOUSEHOVER:
                 case WM_NOTIFY:
                     return;
+                case WM_LBUTTONDOWN:
+                case WM_RBUTTONDOWN:
+                case WM_LBUTTONDBLCLK:
+                case WM_RBUTTONDBLCLK:
+                    if (!CanSelectNodes) return;
+                    break;
             }
 
             base.WndProc(ref m);
-        }
-
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
         }
 
         protected override void OnMouseClick(MouseEventArgs e)
@@ -102,6 +109,7 @@ namespace Bonsai.NuGet
             var hitTestInfo = HitTest(pt);
             if (hitTestInfo.Node != null && hitTestInfo.Node == SelectedNode)
             {
+                if (hitTestInfo.Node.Tag == null) return false;
                 var buttonBounds = GetOperationButtonBounds(hitTestInfo.Node.Bounds);
                 return buttonBounds.Contains(pt);
             }
@@ -129,41 +137,49 @@ namespace Bonsai.NuGet
             bounds.Width = RightMargin - bounds.X;
             var bold = new Font(Font, FontStyle.Bold);
 
-            if (e.Node.Checked)
+            if (e.Node.Tag == null)
             {
-                var checkedImageX = RightMargin - packageViewNodeCheckedImage.Width - BoundsMargin;
-                var checkedImageY = bounds.Y + OperationButtonBounds.Y;
-                e.Graphics.DrawImage(packageViewNodeCheckedImage, checkedImageX, checkedImageY);
-                bounds.Width -= packageViewNodeCheckedImage.Width;
+                bounds.Y += TextRenderer.MeasureText(e.Node.Text, Font).Height;
+                TextRenderer.DrawText(e.Graphics, e.Node.Text, Font, bounds, color, TextFormatFlags.WordBreak);
             }
-            else if ((e.State & TreeNodeStates.Selected) != 0)
+            else
             {
-                var font = Font;
-                var buttonBounds = GetOperationButtonBounds(bounds);
-                bounds.Width -= buttonBounds.Width + BoundsMargin * 2;
-
-                if (VisualStyleRenderer.IsSupported)
+                if (e.Node.Checked)
                 {
-                    ButtonRenderer.DrawButton(e.Graphics, buttonBounds, OperationText, font, false, PushButtonState.Normal);
+                    var checkedImageX = RightMargin - packageViewNodeCheckedImage.Width - BoundsMargin;
+                    var checkedImageY = bounds.Y + OperationButtonBounds.Y;
+                    e.Graphics.DrawImage(packageViewNodeCheckedImage, checkedImageX, checkedImageY);
+                    bounds.Width -= packageViewNodeCheckedImage.Width;
                 }
-                else
+                else if ((e.State & TreeNodeStates.Selected) != 0)
                 {
-                    var buttonTextSize = TextRenderer.MeasureText(OperationText, font);
-                    var buttonTextOffset = new Point(
-                        buttonBounds.Location.X + (buttonBounds.Size.Width - buttonTextSize.Width) / 2,
-                        buttonBounds.Location.Y + (buttonBounds.Size.Height - buttonTextSize.Height) / 2);
-                    ControlPaint.DrawButton(e.Graphics, buttonBounds, ButtonState.Normal);
-                    TextRenderer.DrawText(e.Graphics, OperationText, font, buttonTextOffset, SystemColors.ControlText);
+                    var font = Font;
+                    var buttonBounds = GetOperationButtonBounds(bounds);
+                    bounds.Width -= buttonBounds.Width + BoundsMargin * 2;
+
+                    if (VisualStyleRenderer.IsSupported)
+                    {
+                        ButtonRenderer.DrawButton(e.Graphics, buttonBounds, OperationText, font, false, PushButtonState.Normal);
+                    }
+                    else
+                    {
+                        var buttonTextSize = TextRenderer.MeasureText(OperationText, font);
+                        var buttonTextOffset = new Point(
+                            buttonBounds.Location.X + (buttonBounds.Size.Width - buttonTextSize.Width) / 2,
+                            buttonBounds.Location.Y + (buttonBounds.Size.Height - buttonTextSize.Height) / 2);
+                        ControlPaint.DrawButton(e.Graphics, buttonBounds, ButtonState.Normal);
+                        TextRenderer.DrawText(e.Graphics, OperationText, font, buttonTextOffset, SystemColors.ControlText);
+                    }
                 }
-            }
 
-            var lines = e.Node.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-            TextRenderer.DrawText(e.Graphics, lines[0], bold, bounds, color, TextFormatFlags.WordEllipsis);
+                var lines = e.Node.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                TextRenderer.DrawText(e.Graphics, lines[0], bold, bounds, color, TextFormatFlags.WordEllipsis);
 
-            if (lines.Length > 1)
-            {
-                bounds.Y += TextRenderer.MeasureText(lines[0], bold, bounds.Size, TextFormatFlags.WordEllipsis).Height;
-                TextRenderer.DrawText(e.Graphics, lines[1], Font, bounds, color, TextFormatFlags.WordBreak);
+                if (lines.Length > 1)
+                {
+                    bounds.Y += TextRenderer.MeasureText(lines[0], bold, bounds.Size, TextFormatFlags.WordEllipsis).Height;
+                    TextRenderer.DrawText(e.Graphics, lines[1], Font, bounds, color, TextFormatFlags.WordBreak);
+                }
             }
 
             base.OnDrawNode(e);
