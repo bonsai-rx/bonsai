@@ -171,6 +171,15 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Retrieving information....
+        /// </summary>
+        internal static string RetrievingInformationLabel {
+            get {
+                return ResourceManager.GetString("RetrievingInformationLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Uninstalling....
         /// </summary>
         internal static string UninstallOperationLabel {
@@ -221,6 +230,16 @@ namespace Bonsai.NuGet.Properties {
         internal static string UpdatesNodeName {
             get {
                 return ResourceManager.GetString("UpdatesNodeName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap WaitImage {
+            get {
+                object obj = ResourceManager.GetObject("WaitImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
     }
