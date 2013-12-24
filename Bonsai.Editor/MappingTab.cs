@@ -32,15 +32,9 @@ namespace Bonsai.Editor
             var selectionModel = (WorkflowSelectionModel)context.GetService(typeof(WorkflowSelectionModel));
             if (selectionModel != null)
             {
-                var builder = selectionModel.SelectedNodes.Select(node =>
-                {
-                    var inspectBuilder = node.Value as InspectBuilder;
-                    if (inspectBuilder != null)
-                    {
-                        return inspectBuilder.Builder;
-                    }
-                    return node.Value;
-                }).SingleOrDefault();
+                var builder = selectionModel.SelectedNodes
+                                            .Select(node => ExpressionBuilder.Unwrap((ExpressionBuilder)node.Value))
+                                            .SingleOrDefault();
 
                 if (builder != null)
                 {

@@ -37,8 +37,23 @@ namespace Bonsai.Expressions
 
         public abstract Expression Build();
 
+        public static ExpressionBuilder Unwrap(ExpressionBuilder builder)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException("builder");
+            }
+
+            var inspectBuilder = builder as InspectBuilder;
+            if (inspectBuilder != null) return Unwrap(inspectBuilder.Builder);
+
+            return builder;
+        }
+
         public static object GetWorkflowElement(ExpressionBuilder builder)
         {
+            builder = Unwrap(builder);
+
             var sourceBuilder = builder as SourceBuilder;
             if (sourceBuilder != null) return sourceBuilder.Generator;
 
@@ -47,9 +62,6 @@ namespace Bonsai.Expressions
 
             var combinatorBuilder = builder as CombinatorBuilder;
             if (combinatorBuilder != null) return combinatorBuilder.Combinator;
-
-            var inspectBuilder = builder as InspectBuilder;
-            if (inspectBuilder != null) return GetWorkflowElement(inspectBuilder.Builder);
 
             return builder;
         }

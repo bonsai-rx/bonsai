@@ -280,7 +280,7 @@ namespace Bonsai.Design
         {
             if (node != null)
             {
-                return ((InspectBuilder)node.Value).Builder;
+                return ExpressionBuilder.Unwrap((ExpressionBuilder)node.Value);
             }
 
             return null;
@@ -319,7 +319,7 @@ namespace Bonsai.Design
                 elementType == ElementCategory.Property)
             {
                 if (closestNode != null &&
-                    !(((InspectBuilder)closestNode.Value).Builder is SourceBuilder) &&
+                    !(ExpressionBuilder.Unwrap(closestNode.Value) is SourceBuilder) &&
                     !workflow.Predecessors(closestNode).Any())
                 {
                     var parameter = new ExpressionBuilderParameter();
@@ -700,8 +700,7 @@ namespace Bonsai.Design
                     var workflowGraphView = editorLauncher.WorkflowGraphView;
                     foreach (var node in workflowGraphView.workflow)
                     {
-                        var inspectBuilder = (InspectBuilder)node.Value;
-                        var nestedBuilder = inspectBuilder.Builder as WorkflowExpressionBuilder;
+                        var nestedBuilder = ExpressionBuilder.Unwrap(node.Value) as WorkflowExpressionBuilder;
                         if (nestedBuilder != null)
                         {
                             workflowGraphView.RemoveEditorMapping(nestedBuilder);
