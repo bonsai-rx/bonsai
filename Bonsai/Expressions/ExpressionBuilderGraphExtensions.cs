@@ -107,7 +107,7 @@ namespace Bonsai.Expressions
                     }
 
                     // Propagate build target in case of a nested workflow
-                    var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
+                    var workflowElement = ExpressionBuilder.Unwrap(builder);
                     var workflowBuilder = workflowElement as WorkflowExpressionBuilder;
                     if (workflowBuilder != null)
                     {
@@ -146,6 +146,21 @@ namespace Bonsai.Expressions
                         }
                     }
 
+                    // Remove all closing scopes
+                    multicastMap.RemoveAll(scope =>
+                    {
+                        scope.References.RemoveAll(reference => reference == builder);
+                        if (scope.References.Count == 0)
+                        {
+                            expression = scope.Close(expression);
+                            return true;
+                        }
+
+                        if (node.Successors.Count == 0) scope.References.Add(null);
+                        else scope.References.AddRange(node.Successors.Select(successor => successor.Target.Value));
+                        return false;
+                    });
+
                     MulticastScope multicastScope = null;
                     if (node.Successors.Count > 1)
                     {
@@ -159,23 +174,9 @@ namespace Bonsai.Expressions
                         }
 
                         multicastScope = new MulticastScope(multicastBuilder);
+                        multicastScope.References.AddRange(node.Successors.Select(successor => successor.Target.Value));
                         multicastMap.Insert(0, multicastScope);
                     }
-
-                    // Remove all closing scopes
-                    multicastMap.RemoveAll(scope =>
-                    {
-                        scope.References.RemoveAll(reference => reference == builder);
-                        if (scope != multicastScope && scope.References.Count == 0)
-                        {
-                            expression = scope.Close(expression);
-                            return true;
-                        }
-
-                        if (node.Successors.Count == 0) scope.References.Add(null);
-                        else scope.References.AddRange(node.Successors.Select(successor => successor.Target.Value));
-                        return false;
-                    });
 
                     foreach (var successor in node.Successors)
                     {
