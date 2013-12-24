@@ -180,6 +180,15 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Search Online (Ctrl+E).
+        /// </summary>
+        internal static string SearchOnlineCueBanner {
+            get {
+                return ResourceManager.GetString("SearchOnlineCueBanner", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Uninstalling....
         /// </summary>
         internal static string UninstallOperationLabel {

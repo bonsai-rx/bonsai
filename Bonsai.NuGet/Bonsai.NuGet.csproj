@@ -71,6 +71,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BonsaiMachineWideSettings.cs" />
+    <Compile Include="CueBannerComboBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="EventLogger.cs" />
     <Compile Include="LogEventArgs.cs" />
     <Compile Include="NativeMethods.cs" />
