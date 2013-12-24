@@ -35,7 +35,7 @@ namespace Bonsai.Expressions
 
         protected override Expression BuildCombinator()
         {
-            const BindingFlags bindingAttributes = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            const BindingFlags bindingAttributes = BindingFlags.Instance | BindingFlags.Public;
             var sourceType = Generator.GetType();
             var sourceExpression = Expression.Constant(Generator);
             var sourceAttributes = sourceType.GetCustomAttributes(typeof(SourceAttribute), true);

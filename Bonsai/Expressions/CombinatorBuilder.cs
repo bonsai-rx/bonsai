@@ -56,7 +56,7 @@ namespace Bonsai.Expressions
 
         static IEnumerable<MethodInfo> GetProcessMethods(Type combinatorType)
         {
-            const BindingFlags bindingAttributes = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            const BindingFlags bindingAttributes = BindingFlags.Instance | BindingFlags.Public;
             var combinatorAttributes = combinatorType.GetCustomAttributes(typeof(CombinatorAttribute), true);
             var methodName = ((CombinatorAttribute)combinatorAttributes.Single()).MethodName;
             return combinatorType.GetMethods(bindingAttributes).Where(m => m.Name == methodName);
