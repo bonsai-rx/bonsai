@@ -713,12 +713,12 @@ namespace Bonsai.Editor
 
             var selectedObjects = selectionModel.SelectedNodes.Select(node =>
             {
-                var builder = node.Value as ExpressionBuilder;
-                var workflowElement = builder != null ? ExpressionBuilder.GetWorkflowElement(builder) : null;
+                var builder = ExpressionBuilder.Unwrap((ExpressionBuilder)node.Value);
+                var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
 
                 if (workflowElement != null)
                 {
-                    var conditionBuilder = node.Value as ConditionBuilder;
+                    var conditionBuilder = builder as ConditionBuilder;
                     if (conditionBuilder != null)
                     {
                         var builderProperties = TypeDescriptor.GetProperties(conditionBuilder);
@@ -740,7 +740,7 @@ namespace Bonsai.Editor
 
                     return workflowElement;
                 }
-                return node.Value;
+                return builder;
             }).ToArray();
 
             if (selectedObjects.Length == 1)
