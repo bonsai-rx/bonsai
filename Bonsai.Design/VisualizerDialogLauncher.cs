@@ -72,7 +72,13 @@ namespace Bonsai.Design
             visualizerDialog.DragDrop += new DragEventHandler(visualizerDialog_DragDrop);
             visualizerDialog.Load += delegate
             {
-                visualizerObserver = visualizerOutput.Subscribe();
+                visualizerObserver = visualizerOutput.Subscribe(
+                    xs => { },
+                    ex => visualizerDialog.BeginInvoke((Action)(() =>
+                    {
+                        MessageBox.Show(visualizerDialog, ex.Message, visualizerDialog.Text);
+                        visualizerDialog.Close();
+                    })));
             };
 
             visualizerDialog.FormClosing += delegate
