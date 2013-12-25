@@ -116,7 +116,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SaveFileNameEditor.cs" />
     <Compile Include="DataSourceTypeEditor.cs" />
-    <Compile Include="TrackBarEditor.cs" />
+    <Compile Include="Slider.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Slider.Designer.cs">
+      <DependentUpon>Slider.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SliderEditor.cs" />
     <Compile Include="TypeDescriptorContext.cs" />
     <Compile Include="TypeVisualizerDialog.cs">
       <SubType>Form</SubType>
@@ -152,6 +158,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="MemberSelectorEditorDialog.resx">
       <DependentUpon>MemberSelectorEditorDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Slider.resx">
+      <DependentUpon>Slider.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TypeVisualizerDialog.resx">
       <DependentUpon>TypeVisualizerDialog.cs</DependentUpon>

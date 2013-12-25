@@ -17,11 +17,11 @@ namespace Bonsai.Vision
         }
 
         [Range(0, 255)]
-        [Editor(DesignTypes.TrackbarEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         public double Threshold1 { get; set; }
 
         [Range(0, 255)]
-        [Editor(DesignTypes.TrackbarEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         public double Threshold2 { get; set; }
 
         [Range(3, 7)]

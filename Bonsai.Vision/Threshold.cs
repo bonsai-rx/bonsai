@@ -19,7 +19,7 @@ namespace Bonsai.Vision
         }
 
         [Range(0, 255)]
-        [Editor(DesignTypes.TrackbarEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Description("The threshold value used to test individual pixels.")]
         public double ThresholdValue { get; set; }
 
