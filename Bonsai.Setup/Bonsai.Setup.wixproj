@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Bonsai.config" />
+    <Content Include="vsix.ico" />
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <!--

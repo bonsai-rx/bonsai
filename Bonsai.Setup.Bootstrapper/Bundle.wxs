@@ -22,6 +22,7 @@
       <bal:WixStandardBootstrapperApplication LicenseFile="License.rtf"
                                               LogoFile="Bonsai.png"
                                               SuppressOptionsUI="no"
+                                              ThemeFile="Theme\RtfTheme.xml"
                                               LaunchTarget="[InstallFolder]Bonsai.Editor.exe"/>
     </BootstrapperApplicationRef>
 
@@ -33,6 +34,7 @@
       <ExePackage Id="VCRT" SourceFile="Dependencies\$(var.VCRTSource)" InstallCommand="/q /norestart" Permanent="yes" DetectCondition="VCRTInstalled"/>
       <MsiPackage Id="Bonsai" SourceFile="$(var.Bonsai.Setup.TargetPath)">
         <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]"/>
+        <MsiProperty Name="INSTALLVSIX" Value="[InstallVsixCheckbox]"/>
       </MsiPackage>
 		</Chain>
 	</Bundle>

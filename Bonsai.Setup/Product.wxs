@@ -26,6 +26,7 @@
 
     <Icon Id="Bonsai.ico" SourceFile="$(var.EditorProjectPath)\Bonsai.ico" />
     <Icon Id="BonsaiWorkflow.ico" SourceFile="$(var.ResourcesPath)\BonsaiWorkflow.ico" />
+    <Icon Id="vsix.ico" SourceFile="vsix.ico"/>
     <Property Id="ARPPRODUCTICON" Value="Bonsai.ico" />
     
 		<Feature Id="ProductFeature" Title="Bonsai" Level="1" ConfigurableDirectory="INSTALLFOLDER">
