@@ -13,8 +13,19 @@
   <Fragment>
     <ComponentGroup Id="BonsaiVsExtensions" Directory="VSEXTENSIONSFOLDER">
       <Component Id='BonsaiVsTemplates' Guid='*' Win64="$(var.Win64)">
-        <vs:VsixPackage File="BonsaiTemplates.vsix" PackageId="BonsaiTemplatesVsix.ac37e8b9-5d6c-407c-b2ca-2e550a8ab918" Vital="yes"/>
-        <File Id="BonsaiTemplates.vsix" Source="$(var.VsixPath)\BonsaiTemplates.vsix" KeyPath="yes"/>
+        <File Id="BonsaiTemplates.vsix" Source="$(var.VsixPath)\BonsaiTemplates.vsix" KeyPath="yes">
+          <Shortcut Id="startmenuBonsaiTemplates"
+                    Directory="ProgramMenuDir"
+                    WorkingDirectory="VSEXTENSIONSFOLDER"
+                    Name="Register Visual Studio Extensions"
+                    Icon="vsix.ico"
+                    Advertise="yes"/>
+        </File>
+      </Component>
+      <Component Id='BonsaiVsixPackage' Guid='*' Win64="$(var.Win64)">
+        <Condition>(INSTALLVSIX="1")</Condition>
+        <vs:VsixPackage File="BonsaiTemplates.vsix" PackageId="BonsaiTemplatesVsix.ac37e8b9-5d6c-407c-b2ca-2e550a8ab918" Vital="no"/>
+        <RegistryValue Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' Name='InstallVsix' Type='integer' Value='1' KeyPath='yes' />
       </Component>
     </ComponentGroup>
   </Fragment>
