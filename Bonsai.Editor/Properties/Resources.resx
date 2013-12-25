@@ -152,7 +152,7 @@
   <data name="StatusBlockedImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wgAADsIBFShKgAAAAK5JREFUOE9jQAffvn1LAOL9QPwfDYPEEqDKMAFQUgGIz3/at/P/q2jf/09FGFAw
+        wQAADsEBuJFr7QAAAK5JREFUOE9jQAffvn1LAOL9QPwfDYPEEqDKMAFQUgGIz3/at/P/q2jf/09FGFAw
         SAwkB1IDUgvVBgFQze9fZ8ZgaETHb8pzQIa8RzEEyDkPksCmARuGGnIepjkB5DRsCvFhqHcSQAbsx+Zn
         QhikB6QXZABWBcRgkF4UA4gFtDOAVAwzgOJApCwaoWnhPDGpEIZREhIIADngpExMasSalEEAagh5mQkZ
         ACVJyM4MDAD69UvNH5WBiAAAAABJRU5ErkJggg==
@@ -161,7 +161,7 @@
   <data name="StatusReadyImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wgAADsIBFShKgAAAANdJREFUOE+dU7kNwzAM1CjZwQtpBA/gwqVX8CKpAggI4FojuHNrwIVahZeQhh7a
+        wQAADsEBuJFr7QAAANdJREFUOE+dU7kNwzAM1CjZwQtpBA/gwqVX8CKpAggI4FojuHNrwIVahZeQhh7a
         cXLAFSJ5Rz2UKRFCsERHjAURs1xWg5I3op/mKbb3NjZjkxEx5FCDWpZ9wOK1e3SVsOTwHGCyZia08Eho
         Ao1s4kVssTWtUNi7PgLLtuwxPo6FgdPOnBJCAEYSgwZaGGTFJbXuQmi/GmjdhapBKjjrDqoGqeisOygG
         1SWKEDjqnl5i9YyyC+Co+/6MPAv+yhQKs0ECaPEe5SvTqI4ywCb/faYUlPzhOxvzAkO1WA01cJaNAAAA
@@ -170,12 +170,18 @@
   </data>
   <data name="StatusCriticalImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADUSURBVDhPtVPBDcIwDMwQDMAIjMACTACPfJH4MxsfOkKm
-        4FOQgnjkh4Iv2JWTWEhQcdKpjX13bVrHtUgpeeJAzA1R8yzrQc0lMTzOpzxuN/mycBVRQw8aaNn2Bpvj
-        db/rjC1vxwNCYhVCi4AGBON6VdgadZ1Dgpg9Xk1Ez3ss1CFWnbfjETDInkUIiNiqFS154EXA9CQrxDIL
-        4e0CQB0CWGbwPwHajKu+b0MkYPZHnPcbeRaCTCEE2izU9WqQAFqUUZZp/ERzlAEO+e0waVDzi+Ps3Asy
-        H3yh8ZJJ/AAAAABJRU5ErkJggg==
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        wgAADsIBFShKgAAAANRJREFUOE+1U8ENwjAMzBAMwAiMwAJMAI98kfgzGx86QqbgU5CCeOSHgi/YlZNY
+        SFBx0qmNfXdtWse1SCl54kDMDVHzLOtBzSUxPM6nPG43+bJwFVFDDxpo2fYGm+N1v+uMLW/HA0JiFUKL
+        gAYE43pV2Bp1nUOCmD1eTUTPeyzUIVadt+MRMMieRQiI2KoVLXngRcD0JCvEMgvh7QJAHQJYZvA/AdqM
+        q75vQyRg9kec9xt5FoJMIQTaLNT1apAAWpRRlmn8RHOUAQ757TBpUPOL4+zcCzIffKHxkkn8AAAAAElF
+        TkSuQmCC
 </value>
+  </data>
+  <data name="AttributionNotices" xml:space="preserve">
+    <value>
+The Bonsai framework includes software from the NuGet Project developed at the Outercurve Foundation (http://www.outercurve.org/).
+
+Copyright 2010-2012 Outercurve Foundation</value>
   </data>
 </root>

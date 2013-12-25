@@ -70,6 +70,18 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 
+        ///The Bonsai framework includes software from the NuGet Project developed at the Outercurve Foundation (http://www.outercurve.org/).
+        ///
+        ///Copyright 2010-2012 Outercurve Foundation.
+        /// </summary>
+        internal static string AttributionNotices {
+            get {
+                return ResourceManager.GetString("AttributionNotices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap Bonsai {

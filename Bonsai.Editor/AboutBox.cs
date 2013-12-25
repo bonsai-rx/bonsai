@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using System.Diagnostics;
+using Bonsai.Editor.Properties;
 
 namespace Bonsai.Editor
 {
@@ -19,7 +20,7 @@ namespace Bonsai.Editor
             this.labelVersion.Text = String.Format("Version {0}", AssemblyVersion);
             this.labelCopyright.Text = AssemblyCopyright;
             this.labelCompanyName.Text = AssemblyCompany;
-            this.textBoxDescription.Text = AssemblyDescription;
+            this.textBoxDescription.Text = AssemblyDescription + Environment.NewLine + Resources.AttributionNotices;
         }
 
         #region Assembly Attribute Accessors
