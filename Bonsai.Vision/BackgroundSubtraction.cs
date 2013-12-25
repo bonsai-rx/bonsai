@@ -25,7 +25,7 @@ namespace Bonsai.Vision
         public double AdaptationRate { get; set; }
 
         [Range(0, 255)]
-        [Editor(DesignTypes.TrackbarEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         public double ThresholdValue { get; set; }
 
         [TypeConverter(typeof(ThresholdTypeConverter))]

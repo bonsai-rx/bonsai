@@ -14,7 +14,7 @@ namespace Bonsai.Dsp
     {
         [Range(0, 1)]
         [Precision(2, .01)]
-        [Editor(DesignTypes.TrackbarEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         public double Alpha { get; set; }
 
         protected abstract TArray CreateArray(TArray source, Depth depth);
