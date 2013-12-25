@@ -18,6 +18,7 @@ namespace $rootnamespace$
             {
                 // TODO: compute observable side-effects.
                 throw new NotImplementedException();
+                return false;
             });
         }
     }
