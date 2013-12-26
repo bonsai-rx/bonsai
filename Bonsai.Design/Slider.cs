@@ -13,51 +13,41 @@ namespace Bonsai.Design
 {
     public partial class Slider : UserControl
     {
+        const int TrackBarPadding = 16;
+        int decimalPlaces;
         string format;
-        double multiplier = 1;
-        double minimum = 0;
-        double maximum = 100;
-        int decimals;
 
         public Slider()
         {
             InitializeComponent();
         }
 
-        public double Minimum
-        {
-            get { return minimum; }
-            set
-            {
-                minimum = value;
-                UpdateTrackBarRange();
-            }
-        }
+        public double Minimum { get; set; }
 
-        public double Maximum
-        {
-            get { return maximum; }
-            set
-            {
-                maximum = value;
-                UpdateTrackBarRange();
-            }
-        }
+        public double Maximum { get; set; }
 
-        public int Decimals
+        public int DecimalPlaces
         {
-            get { return decimals; }
+            get { return decimalPlaces; }
             set
             {
-                decimals = value;
-                UpdateTrackBarRange();
+                decimalPlaces = value;
+                format = string.Format("F{0}", DecimalPlaces);
             }
         }
 
         public double Value
         {
-            get { return trackBar.Value / multiplier; }
-            set { trackBar.Value = (int)(Math.Max(minimum, Math.Min(value, maximum)) * multiplier); }
+            get { return Minimum + (Maximum - Minimum) * trackBar.Value / (double)trackBar.Maximum; }
+            set
+            {
+                if (value > Maximum || value < Minimum)
+                {
+                    throw new ArgumentOutOfRangeException("value");
+                }
+
+                trackBar.Value = (int)(trackBar.Maximum * (value - Minimum) / (Maximum - Minimum));
+            }
         }
 
         public event EventHandler Scroll
@@ -74,12 +64,10 @@ namespace Bonsai.Design
 
         private void UpdateTrackBarRange()
         {
-            var value = Value;
-            multiplier = Math.Pow(10, Decimals);
-            format = string.Format("F{0}", Decimals);
-            trackBar.Minimum = Math.Max(int.MinValue, (int)(minimum * multiplier));
-            trackBar.Maximum = Math.Min(int.MaxValue, (int)(maximum * multiplier));
-            Value = value;
+            var value = trackBar.Value / (double)trackBar.Maximum;
+            trackBar.Minimum = 0;
+            trackBar.Maximum = Width - TrackBarPadding;
+            trackBar.Value = (int)value * trackBar.Maximum;
             UpdateValueLabel();
         }
 
@@ -92,6 +80,12 @@ namespace Bonsai.Design
         {
             UpdateTrackBarRange();
             base.OnLoad(e);
+        }
+
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            UpdateTrackBarRange();
+            base.OnSizeChanged(e);
         }
 
         private void trackBar_ValueChanged(object sender, EventArgs e)

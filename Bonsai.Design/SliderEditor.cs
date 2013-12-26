@@ -28,6 +28,7 @@ namespace Bonsai.Design
                 var slider = new Slider();
                 slider.Minimum = Convert.ToDouble(range.Minimum);
                 slider.Maximum = Convert.ToDouble(range.Maximum);
+                slider.DecimalPlaces = precision.DecimalPlaces;
                 slider.Value = Convert.ToDouble(value);
                 slider.ValueChanged += (sender, e) => propertyDescriptor.SetValue(context.Instance, Convert.ChangeType(slider.Value, propertyDescriptor.PropertyType));
                 editorService.DropDownControl(slider);
