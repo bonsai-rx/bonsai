@@ -94,7 +94,6 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Layout\DialogLauncher.cs" />
-    <Compile Include="ExpressionBuilderParameterExtensions.cs" />
     <Compile Include="Layout\VisualizerDialogLauncher.cs" />
     <Compile Include="Layout\VisualizerDialogSettings.cs" />
     <Compile Include="Layout\VisualizerDialogSettingsCollection.cs" />

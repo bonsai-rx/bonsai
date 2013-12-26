@@ -25,12 +25,12 @@ namespace Bonsai.Expressions
     public abstract class ExpressionBuilder
     {
         const string ExpressionBuilderSuffix = "Builder";
-        readonly SortedList<string, Expression> arguments = new SortedList<string, Expression>();
+        readonly SortedList<int, Expression> arguments = new SortedList<int, Expression>();
 
         [Browsable(false)]
         public abstract Range<int> ArgumentRange { get; }
 
-        internal IDictionary<string, Expression> ArgumentList
+        internal IDictionary<int, Expression> ArgumentList
         {
             get { return arguments; }
         }
@@ -608,14 +608,11 @@ namespace Bonsai.Expressions
             }
 
             var selector = memberPath.Split(new[] { ExpressionHelper.MemberSeparator }, 2, StringSplitOptions.None);
-            var sourceName = selector[0];
-            if (sourceName == ExpressionBuilderArgument.Source)
+            var argumentName = selector[0];
+            var argument = new ExpressionBuilderArgument(argumentName);
+            if (!ArgumentList.TryGetValue(argument.Index, out source))
             {
-                source = Arguments.SingleOrDefault();
-            }
-            else if (!ArgumentList.TryGetValue(sourceName, out source))
-            {
-                throw new InvalidOperationException(string.Format("Unable to find source with name '{0}'.", sourceName));
+                throw new InvalidOperationException(string.Format("Unable to find source with name '{0}'.", argumentName));
             }
 
             memberPath = selector.Length > 1 ? selector[1] : string.Empty;

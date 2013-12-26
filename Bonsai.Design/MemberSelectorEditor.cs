@@ -42,7 +42,7 @@ namespace Bonsai.Design
                 using (var editorDialog = new MemberSelectorEditorDialog())
                 {
                     var predecessorEdges = nodeBuilderGraph.PredecessorEdges(builderNode)
-                                                           .OrderBy(edge => edge.Item2.Label.Name)
+                                                           .OrderBy(edge => edge.Item2.Label.Index)
                                                            .ToArray();
 
                     foreach (var predecessor in predecessorEdges)

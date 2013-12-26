@@ -36,8 +36,7 @@ namespace Bonsai.Design
                     if (edge != null)
                     {
                         var builder = edge.Target.Value;
-                        var connectionIndex = argument.GetEdgeConnectionIndex() - 1;
-                        if (connectionIndex >= builder.ArgumentRange.UpperBound)
+                        if (argument.Index >= builder.ArgumentRange.UpperBound)
                         {
                             return Pens.Red;
                         }
