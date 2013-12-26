@@ -17,7 +17,7 @@ using System.Windows.Forms.Design;
 
 namespace Bonsai.Design
 {
-    public partial class WorkflowGraphView : UserControl
+    partial class WorkflowGraphView : UserControl
     {
         static readonly XName XsdAttributeName = ((XNamespace)"http://www.w3.org/2000/xmlns/") + "xsd";
         static readonly XName XsiAttributeName = ((XNamespace)"http://www.w3.org/2000/xmlns/") + "xsi";

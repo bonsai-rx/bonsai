@@ -90,7 +90,41 @@
       <DependentUpon>AboutBox.cs</DependentUpon>
     </Compile>
     <Compile Include="CommandLineParser.cs" />
+    <Compile Include="CueBannerTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Layout\DialogLauncher.cs" />
+    <Compile Include="ExpressionBuilderParameterExtensions.cs" />
+    <Compile Include="Layout\VisualizerDialogLauncher.cs" />
+    <Compile Include="Layout\VisualizerDialogSettings.cs" />
+    <Compile Include="Layout\VisualizerDialogSettingsCollection.cs" />
+    <Compile Include="Layout\VisualizerLayout.cs" />
+    <Compile Include="Layout\WorkflowEditorLauncher.cs" />
+    <Compile Include="Layout\WorkflowEditorSettings.cs" />
+    <Compile Include="GraphView\WorkflowGraphView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="GraphView\WorkflowGraphView.Designer.cs">
+      <DependentUpon>WorkflowGraphView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GraphView\WorkflowSelectionModel.cs" />
     <Compile Include="EditorSettings.cs" />
+    <Compile Include="GraphView\GraphEdge.cs" />
+    <Compile Include="GraphView\GraphNode.cs" />
+    <Compile Include="GraphView\GraphNodeGrouping.cs" />
+    <Compile Include="GraphView\GraphNodeMouseEventArgs.cs" />
+    <Compile Include="GraphView\GraphNodeMouseHoverEventArgs.cs" />
+    <Compile Include="GraphView\GraphView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="GraphView\GraphView.Designer.cs">
+      <DependentUpon>GraphView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GraphView\GraphViewPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="GraphView\LayeredGraphExtensions.cs" />
+    <Compile Include="GraphView\TypeDescriptorContext.cs" />
     <Compile Include="OverlayHelper.cs" />
     <Compile Include="OverlayPackagePathResolver.cs" />
     <Compile Include="PackageConfigurationUpdater.cs" />
@@ -118,6 +152,12 @@
     <Compile Include="WorkflowElementCategoryConverter.cs" />
     <EmbeddedResource Include="AboutBox.resx">
       <DependentUpon>AboutBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GraphView\WorkflowGraphView.resx">
+      <DependentUpon>WorkflowGraphView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GraphView\GraphView.resx">
+      <DependentUpon>GraphView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
@@ -164,6 +204,7 @@
     <None Include="Resources\BonsaiCommands.png" />
     <None Include="Resources\BonsaiWelcome.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\MSBuild\AssemblyInfo.targets" />
   <PropertyGroup>

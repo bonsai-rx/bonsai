@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace Bonsai.Design
 {
-    public abstract class DialogLauncher
+    abstract class DialogLauncher
     {
         TypeVisualizerDialog visualizerDialog;
 

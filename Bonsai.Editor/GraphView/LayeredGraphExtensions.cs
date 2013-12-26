@@ -5,10 +5,11 @@ using System.Text;
 using Bonsai.Dag;
 using System.Globalization;
 using Bonsai.Expressions;
+using System.ComponentModel;
 
 namespace Bonsai.Design
 {
-    public static class LayeredGraphExtensions
+    static class LayeredGraphExtensions
     {
         public static WorkflowBuilder ToWorkflowBuilder(this IEnumerable<GraphNode> source)
         {
@@ -24,15 +25,17 @@ namespace Bonsai.Design
                 var layeredSuccessor = layerMap[successor.Target];
                 var currentSuccessor = layeredSuccessor;
 
+                var property = TypeDescriptor.CreateProperty(typeof(Edge<TNodeValue, TEdgeLabel>), "Label", typeof(TEdgeLabel));
+                var context = new TypeDescriptorContext(successor, property);
                 for (int i = layeredSuccessor.Layer + 1; i < layer; i++)
                 {
-                    var edge = new GraphEdge(successor.Label, currentSuccessor);
+                    var edge = new GraphEdge(context, successor.Label, currentSuccessor);
                     var dummyNode = new GraphNode(null, i, Enumerable.Repeat(edge, 1));
                     dummyNode.Tag = edge;
                     currentSuccessor = dummyNode;
                 }
 
-                yield return new GraphEdge(successor.Label, currentSuccessor);
+                yield return new GraphEdge(context, successor.Label, currentSuccessor);
             }
         }
 

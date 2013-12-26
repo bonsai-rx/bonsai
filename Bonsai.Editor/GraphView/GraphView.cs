@@ -13,7 +13,7 @@ using System.Reactive.Subjects;
 
 namespace Bonsai.Design
 {
-    public partial class GraphView : UserControl
+    partial class GraphView : UserControl
     {
         const int PenWidth = 3;
         const int NodeAirspace = 80;

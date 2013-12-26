@@ -10,7 +10,7 @@ using Bonsai.Dag;
 
 namespace Bonsai.Design
 {
-    public class WorkflowEditorLauncher : DialogLauncher
+    class WorkflowEditorLauncher : DialogLauncher
     {
         bool userClosing;
         WorkflowExpressionBuilder builder;

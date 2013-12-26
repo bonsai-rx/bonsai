@@ -11,7 +11,7 @@ using Bonsai.Dag;
 
 namespace Bonsai.Design
 {
-    public class VisualizerDialogLauncher : DialogLauncher, ITypeVisualizerContext
+    class VisualizerDialogLauncher : DialogLauncher, ITypeVisualizerContext
     {
         InspectBuilder source;
         IDisposable visualizerObserver;

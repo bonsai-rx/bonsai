@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace Bonsai.Design
 {
-    public class CueBannerTextBox : TextBox
+    class CueBannerTextBox : TextBox
     {
         bool cueBannerVisible;
         Color activeForeColor;
