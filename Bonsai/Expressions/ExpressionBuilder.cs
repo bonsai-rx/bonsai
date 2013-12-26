@@ -30,9 +30,14 @@ namespace Bonsai.Expressions
         [Browsable(false)]
         public abstract Range<int> ArgumentRange { get; }
 
-        protected internal IDictionary<string, Expression> Arguments
+        internal IDictionary<string, Expression> ArgumentList
         {
             get { return arguments; }
+        }
+
+        protected IEnumerable<Expression> Arguments
+        {
+            get { return arguments.Values; }
         }
 
         public abstract Expression Build();
@@ -606,9 +611,9 @@ namespace Bonsai.Expressions
             var sourceName = selector[0];
             if (sourceName == ExpressionBuilderArgument.Source)
             {
-                source = Arguments.Values.SingleOrDefault();
+                source = Arguments.SingleOrDefault();
             }
-            else if (!Arguments.TryGetValue(sourceName, out source))
+            else if (!ArgumentList.TryGetValue(sourceName, out source))
             {
                 throw new InvalidOperationException(string.Format("Unable to find source with name '{0}'.", sourceName));
             }

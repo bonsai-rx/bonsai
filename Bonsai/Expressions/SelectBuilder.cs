@@ -22,7 +22,7 @@ namespace Bonsai.Expressions
 
         public override Expression Build()
         {
-            var source = Arguments.Values.Single();
+            var source = Arguments.Single();
             var parameterType = source.Type.GetGenericArguments()[0];
             var parameter = Expression.Parameter(parameterType);
             var selectorBody = BuildSelector(parameter);

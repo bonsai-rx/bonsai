@@ -122,7 +122,7 @@ namespace Bonsai.IO
             const string ParameterName = "input";
             const string EntryFormat = "{0} ";
 
-            var source = Arguments.Values.First();
+            var source = Arguments.First();
             var parameterType = source.Type.GetGenericArguments()[0];
             var inputParameter = Expression.Parameter(parameterType, ParameterName);
             var writerParameter = Expression.Parameter(typeof(StreamWriter));

@@ -41,7 +41,7 @@ namespace Bonsai.Expressions
 
         public override Expression Build()
         {
-            var source = Arguments.Values.Single();
+            var source = Arguments.Single();
             var sourceType = source.Type.GetGenericArguments()[0];
 
             // Assign input

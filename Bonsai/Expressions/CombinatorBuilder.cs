@@ -73,7 +73,7 @@ namespace Bonsai.Expressions
         {
             var combinatorExpression = Expression.Constant(Combinator);
             var processMethods = GetProcessMethods(combinatorExpression.Type);
-            return BuildCall(combinatorExpression, processMethods, Arguments.Values.Take(ArgumentRange.UpperBound).ToArray());
+            return BuildCall(combinatorExpression, processMethods, Arguments.Take(ArgumentRange.UpperBound).ToArray());
         }
     }
 }

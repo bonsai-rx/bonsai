@@ -19,7 +19,7 @@ namespace Bonsai.Expressions
 
         public override Expression Build()
         {
-            Source = Arguments.Values.Single();
+            Source = Arguments.Single();
             return MulticastParameter = Expression.Parameter(Source.Type);
         }
 

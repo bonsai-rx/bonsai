@@ -40,9 +40,9 @@ namespace Bonsai.Expressions
 
         public override Expression Build()
         {
-            foreach (var argument in Arguments)
+            foreach (var argument in ArgumentList)
             {
-                Builder.Arguments.Add(argument);
+                Builder.ArgumentList.Add(argument);
             }
 
             try
@@ -66,7 +66,7 @@ namespace Bonsai.Expressions
                     return Expression.Call(typeof(InspectBuilder), "Process", new[] { ObservableType }, source, subjectExpression);
                 }
             }
-            finally { Builder.Arguments.Clear(); }
+            finally { Builder.ArgumentList.Clear(); }
         }
 
         static IObservable<TSource> Process<TSource>(IObservable<TSource> source, ReplaySubject<IObservable<object>> subject)
