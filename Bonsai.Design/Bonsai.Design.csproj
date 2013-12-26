@@ -69,7 +69,6 @@
     <Compile Include="DescriptiveCollectionEditor.cs" />
     <Compile Include="DialogMashupVisualizer.cs" />
     <Compile Include="DynamicTypeDescriptionProvider.cs" />
-    <Compile Include="ExpressionBuilderParameterExtensions.cs" />
     <Compile Include="FolderNameEditor.cs" />
     <Compile Include="MashupTypeVisualizer.cs" />
     <Compile Include="ITypeVisualizerContext.cs" />

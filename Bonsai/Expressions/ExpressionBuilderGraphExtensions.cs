@@ -169,7 +169,7 @@ namespace Bonsai.Expressions
                         if (multicastBuilder == null)
                         {
                             multicastBuilder = new PublishBuilder();
-                            multicastBuilder.ArgumentList.Add(ExpressionBuilderArgument.Source, expression);
+                            multicastBuilder.ArgumentList.Add(0, expression);
                             expression = multicastBuilder.Build();
                         }
 
@@ -180,7 +180,7 @@ namespace Bonsai.Expressions
 
                     foreach (var successor in node.Successors)
                     {
-                        successor.Target.Value.ArgumentList.Add(successor.Label.Name, expression);
+                        successor.Target.Value.ArgumentList.Add(successor.Label.Index, expression);
                     }
 
                     if (node.Successors.Count == 0)
@@ -217,7 +217,9 @@ namespace Bonsai.Expressions
         public static IObservable<Unit> BuildObservable(this ExpressionBuilderGraph source)
         {
             var workflow = source.Build();
-            var unitConversion = new UnitBuilder { ArgumentList = { { ExpressionBuilderArgument.Source, workflow } } }.Build();
+            var unitBuilder = new UnitBuilder();
+            unitBuilder.ArgumentList.Add(0, workflow);
+            var unitConversion = unitBuilder.Build();
             var observableFactory = Expression.Lambda<Func<IObservable<Unit>>>(unitConversion).Compile();
             return observableFactory();
         }
@@ -257,7 +259,7 @@ namespace Bonsai.Expressions
                 foreach (var successor in node.Successors)
                 {
                     var successorNode = observableMapping[successor.Target];
-                    var parameter = new ExpressionBuilderArgument(successor.Label.Name);
+                    var parameter = new ExpressionBuilderArgument(successor.Label.Index);
                     observableGraph.AddEdge(observableNode, successorNode, parameter);
                 }
             }

@@ -429,11 +429,7 @@ namespace Bonsai.Design
             foreach (var graphViewSource in graphViewSources)
             {
                 var source = GetGraphNodeTag(workflow, graphViewSource);
-                var connection = string.Empty;
-                connection = ExpressionBuilderArgument.Source;
-                connection += connectionIndex + 1;
-
-                var parameter = new ExpressionBuilderArgument(connection);
+                var parameter = new ExpressionBuilderArgument(connectionIndex);
                 var edge = Edge.Create(target, parameter);
                 addConnection += () => workflow.AddEdge(source, edge);
                 removeConnection += () => workflow.RemoveEdge(source, edge);
@@ -603,7 +599,7 @@ namespace Bonsai.Design
             var predecessorEdges = workflow.PredecessorEdges(workflowNode).ToArray();
             var siblingEdgesAfter = (from edge in workflowNode.Successors
                                      from siblingEdge in workflow.PredecessorEdges(edge.Target)
-                                     where siblingEdge.Item2.Label.Name.CompareTo(edge.Label.Name) > 0
+                                     where siblingEdge.Item2.Label.Index.CompareTo(edge.Label.Index) > 0
                                      select siblingEdge.Item2)
                                      .ToArray();
 
@@ -650,7 +646,7 @@ namespace Bonsai.Design
                 {
                     foreach (var sibling in siblingEdgesAfter)
                     {
-                        sibling.Label.DecrementEdgeValue();
+                        sibling.Label.Index--;
                     }
                 }
             };
@@ -667,7 +663,7 @@ namespace Bonsai.Design
                 {
                     foreach (var sibling in siblingEdgesAfter)
                     {
-                        sibling.Label.IncrementEdgeValue();
+                        sibling.Label.Index++;
                     }
                 }
             };

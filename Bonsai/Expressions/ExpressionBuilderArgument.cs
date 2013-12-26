@@ -13,8 +13,12 @@ namespace Bonsai.Expressions
         public const string Source = "Source";
 
         public ExpressionBuilderArgument()
-            : this(Source + 1)
         {
+        }
+
+        public ExpressionBuilderArgument(int index)
+        {
+            Index = index;
         }
 
         public ExpressionBuilderArgument(string name)
@@ -22,7 +26,30 @@ namespace Bonsai.Expressions
             Name = name;
         }
 
+        [XmlIgnore]
+        public int Index { get; set; }
+
         [XmlText]
-        public string Name { get; set; }
+        public string Name
+        {
+            get { return Source + Index + 1; }
+            set
+            {
+                if (!value.StartsWith(Source))
+                {
+                    throw new ArgumentException(string.Format("Argument name prefix must start with '{0}'.", Source), "value");
+                }
+
+                int index;
+                var indexString = value.Substring(Source.Length);
+                if (string.IsNullOrEmpty(indexString)) index = 1;
+                else if (!int.TryParse(indexString, out index))
+                {
+                    throw new ArgumentException("Argument name has an incorrect format.", "value");
+                }
+
+                Index = index - 1;
+            }
+        }
     }
 }

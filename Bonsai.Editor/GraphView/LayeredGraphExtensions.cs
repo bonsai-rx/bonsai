@@ -181,7 +181,7 @@ namespace Bonsai.Design
                         foreach (var predecessor in layer.SelectMany(node =>
                             node.Successors.Where(edge => edge.Node == entry.Item1)
                             .Select(edge => new { label = (ExpressionBuilderArgument)edge.Label, node }))
-                            .OrderBy(edge => edge.label.Name))
+                            .OrderBy(edge => edge.label.Index))
                         {
                             priorityMapping[predecessor.node] = entryPriority + successorPriority++;
                         }
