@@ -17,7 +17,7 @@ namespace Bonsai.Expressions
     {
         public override Expression Build()
         {
-            var source = Arguments.Values.Single();
+            var source = Arguments.Single();
             return Expression.Call(typeof(UnitBuilder), "Process", source.Type.GetGenericArguments(), source);
         }
 

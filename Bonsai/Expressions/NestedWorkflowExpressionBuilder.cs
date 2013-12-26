@@ -26,7 +26,7 @@ namespace Bonsai.Expressions
 
         public override Expression Build()
         {
-            var source = Arguments.Values.SingleOrDefault();
+            var source = Arguments.SingleOrDefault();
             return BuildWorflow(source, expression => expression);
         }
     }

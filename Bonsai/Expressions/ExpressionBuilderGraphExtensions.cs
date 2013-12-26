@@ -67,7 +67,7 @@ namespace Bonsai.Expressions
         {
             foreach (var node in source)
             {
-                node.Value.Arguments.Clear();
+                node.Value.ArgumentList.Clear();
             }
         }
 
@@ -101,7 +101,7 @@ namespace Bonsai.Expressions
                     Expression expression;
                     var builder = node.Value;
                     var argumentRange = builder.ArgumentRange;
-                    if (argumentRange == null || builder.Arguments.Count < argumentRange.LowerBound)
+                    if (argumentRange == null || builder.ArgumentList.Count < argumentRange.LowerBound)
                     {
                         throw new WorkflowBuildException("Unsupported number of arguments. Check the number of connections into node.", builder);
                     }
@@ -117,7 +117,7 @@ namespace Bonsai.Expressions
                     try
                     {
                         expression = builder.Build();
-                        builder.Arguments.Clear();
+                        builder.ArgumentList.Clear();
                     }
                     catch (Exception e)
                     {
@@ -169,7 +169,7 @@ namespace Bonsai.Expressions
                         if (multicastBuilder == null)
                         {
                             multicastBuilder = new PublishBuilder();
-                            multicastBuilder.Arguments.Add(ExpressionBuilderArgument.Source, expression);
+                            multicastBuilder.ArgumentList.Add(ExpressionBuilderArgument.Source, expression);
                             expression = multicastBuilder.Build();
                         }
 
@@ -180,7 +180,7 @@ namespace Bonsai.Expressions
 
                     foreach (var successor in node.Successors)
                     {
-                        successor.Target.Value.Arguments.Add(successor.Label.Name, expression);
+                        successor.Target.Value.ArgumentList.Add(successor.Label.Name, expression);
                     }
 
                     if (node.Successors.Count == 0)
@@ -217,7 +217,7 @@ namespace Bonsai.Expressions
         public static IObservable<Unit> BuildObservable(this ExpressionBuilderGraph source)
         {
             var workflow = source.Build();
-            var unitConversion = new UnitBuilder { Arguments = { { "Source", workflow } } }.Build();
+            var unitConversion = new UnitBuilder { ArgumentList = { { ExpressionBuilderArgument.Source, workflow } } }.Build();
             var observableFactory = Expression.Lambda<Func<IObservable<Unit>>>(unitConversion).Compile();
             return observableFactory();
         }

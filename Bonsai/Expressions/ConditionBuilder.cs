@@ -45,7 +45,7 @@ namespace Bonsai.Expressions
             var conditionAttributes = conditionType.GetCustomAttributes(typeof(CombinatorAttribute), true);
             var methodName = ((CombinatorAttribute)conditionAttributes.Single()).MethodName;
 
-            var sourceSelect = Arguments.Values.First();
+            var sourceSelect = Arguments.First();
             var observableType = sourceSelect.Type.GetGenericArguments()[0];
             var parameter = Expression.Parameter(observableType);
             var memberAccess = FindMemberAccess(Selector);

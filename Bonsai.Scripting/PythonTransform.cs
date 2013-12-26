@@ -39,7 +39,7 @@ namespace Bonsai.Scripting
             }
             else outputType = typeof(object);
 
-            var source = Arguments.Values.Single();
+            var source = Arguments.Single();
             var observableType = source.Type.GetGenericArguments()[0];
             var scopeExpression = Expression.Constant(scope);
             var selectorType = Expression.GetFuncType(observableType, outputType);
