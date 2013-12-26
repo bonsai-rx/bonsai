@@ -42,14 +42,14 @@ namespace Bonsai.Design
                 using (var editorDialog = new MemberSelectorEditorDialog())
                 {
                     var predecessorEdges = nodeBuilderGraph.PredecessorEdges(builderNode)
-                                                           .OrderBy(edge => edge.Item2.Label.Value)
+                                                           .OrderBy(edge => edge.Item2.Label.Name)
                                                            .ToArray();
 
                     foreach (var predecessor in predecessorEdges)
                     {
                         var expression = workflow.Build(predecessor.Item1.Value);
                         var expressionType = expression.Type.GetGenericArguments()[0];
-                        var label = predecessorEdges.Length > 1 ? predecessor.Item2.Label.Value : ExpressionBuilderParameter.Source;
+                        var label = predecessorEdges.Length > 1 ? predecessor.Item2.Label.Name : ExpressionBuilderArgument.Source;
                         editorDialog.AddMember(label, expressionType);
                     }
 

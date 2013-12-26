@@ -9,22 +9,22 @@ namespace Bonsai.Design
 {
     static class ExpressionBuilderParameterExtensions
     {
-        public static int GetEdgeConnectionIndex(this ExpressionBuilderParameter parameter)
+        public static int GetEdgeConnectionIndex(this ExpressionBuilderArgument argument)
         {
-            var connectionIndexString = parameter.Value.Substring(ExpressionBuilderParameter.Source.Length);
+            var connectionIndexString = argument.Name.Substring(ExpressionBuilderArgument.Source.Length);
             return string.IsNullOrEmpty(connectionIndexString) ? 0 : int.Parse(connectionIndexString);
         }
 
-        public static void IncrementEdgeValue(this ExpressionBuilderParameter parameter)
+        public static void IncrementEdgeValue(this ExpressionBuilderArgument argument)
         {
-            parameter.Value = ExpressionBuilderParameter.Source + (GetEdgeConnectionIndex(parameter) + 1);
+            argument.Name = ExpressionBuilderArgument.Source + (GetEdgeConnectionIndex(argument) + 1);
         }
 
-        public static void DecrementEdgeValue(this ExpressionBuilderParameter parameter)
+        public static void DecrementEdgeValue(this ExpressionBuilderArgument argument)
         {
-            var connectionIndex = GetEdgeConnectionIndex(parameter) - 1;
-            parameter.Value = ExpressionBuilderParameter.Source;
-            parameter.Value += connectionIndex;
+            var connectionIndex = GetEdgeConnectionIndex(argument) - 1;
+            argument.Name = ExpressionBuilderArgument.Source;
+            argument.Name += connectionIndex;
         }
     }
 }

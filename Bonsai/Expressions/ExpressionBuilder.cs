@@ -599,12 +599,12 @@ namespace Bonsai.Expressions
             Expression source;
             if (string.IsNullOrEmpty(memberPath))
             {
-                memberPath = ExpressionBuilderParameter.Source;
+                memberPath = ExpressionBuilderArgument.Source;
             }
 
             var selector = memberPath.Split(new[] { ExpressionHelper.MemberSeparator }, 2, StringSplitOptions.None);
             var sourceName = selector[0];
-            if (sourceName == ExpressionBuilderParameter.Source)
+            if (sourceName == ExpressionBuilderArgument.Source)
             {
                 source = Arguments.Values.SingleOrDefault();
             }

@@ -82,7 +82,7 @@
     <Compile Include="OpenFileNameEditor.cs" />
     <Compile Include="DialogTypeVisualizer.cs" />
     <Compile Include="DynamicPropertyDescriptor.cs" />
-    <Compile Include="ExpressionBuilderParameterTypeConverter.cs" />
+    <Compile Include="ExpressionBuilderArgumentTypeConverter.cs" />
     <Compile Include="ExpressionBuilderTypeConverter.cs" />
     <Compile Include="IDialogTypeVisualizerService.cs" />
     <Compile Include="MemberSelectorEditor.cs" />

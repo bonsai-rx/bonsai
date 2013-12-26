@@ -13,7 +13,7 @@ namespace Bonsai.Design
     {
         public static WorkflowBuilder ToWorkflowBuilder(this IEnumerable<GraphNode> source)
         {
-            var workflow = source.Select(node => (Node<ExpressionBuilder, ExpressionBuilderParameter>)node.Tag)
+            var workflow = source.Select(node => (Node<ExpressionBuilder, ExpressionBuilderArgument>)node.Tag)
                                  .FromInspectableGraph(true);
             return new WorkflowBuilder(workflow);
         }
@@ -180,8 +180,8 @@ namespace Bonsai.Design
                         var entryPriority = string.IsNullOrEmpty(entry.Item2) ? i.ToString(CultureInfo.InvariantCulture) : entry.Item2;
                         foreach (var predecessor in layer.SelectMany(node =>
                             node.Successors.Where(edge => edge.Node == entry.Item1)
-                            .Select(edge => new { label = (ExpressionBuilderParameter)edge.Label, node }))
-                            .OrderBy(edge => edge.label.Value))
+                            .Select(edge => new { label = (ExpressionBuilderArgument)edge.Label, node }))
+                            .OrderBy(edge => edge.label.Name))
                         {
                             priorityMapping[predecessor.node] = entryPriority + successorPriority++;
                         }
