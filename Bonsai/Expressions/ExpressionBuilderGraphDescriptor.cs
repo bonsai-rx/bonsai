@@ -6,7 +6,7 @@ using Bonsai.Dag;
 
 namespace Bonsai.Expressions
 {
-    public class ExpressionBuilderGraphDescriptor : DirectedGraphDescriptor<ExpressionBuilder, ExpressionBuilderParameter>
+    public class ExpressionBuilderGraphDescriptor : DirectedGraphDescriptor<ExpressionBuilder, ExpressionBuilderArgument>
     {
     }
 }

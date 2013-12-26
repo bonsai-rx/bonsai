@@ -10,7 +10,7 @@ using Bonsai.Dag;
 
 namespace Bonsai.Design
 {
-    public class ExpressionBuilderParameterTypeConverter : TypeConverter
+    public class ExpressionBuilderArgumentTypeConverter : TypeConverter
     {
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
@@ -25,18 +25,18 @@ namespace Bonsai.Design
             {
                 if (destinationType == typeof(string))
                 {
-                    var parameter = (ExpressionBuilderParameter)value;
-                    return parameter.Value;
+                    var argument = (ExpressionBuilderArgument)value;
+                    return argument.Name;
                 }
 
                 if (destinationType == typeof(Pen))
                 {
-                    var parameter = (ExpressionBuilderParameter)value;
-                    var edge = context != null ? context.Instance as Edge<ExpressionBuilder, ExpressionBuilderParameter> : null;
+                    var argument = (ExpressionBuilderArgument)value;
+                    var edge = context != null ? context.Instance as Edge<ExpressionBuilder, ExpressionBuilderArgument> : null;
                     if (edge != null)
                     {
                         var builder = edge.Target.Value;
-                        var connectionIndex = parameter.GetEdgeConnectionIndex() - 1;
+                        var connectionIndex = argument.GetEdgeConnectionIndex() - 1;
                         if (connectionIndex >= builder.ArgumentRange.UpperBound)
                         {
                             return Pens.Red;

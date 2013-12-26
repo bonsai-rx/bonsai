@@ -286,12 +286,12 @@ namespace Bonsai.Design
             return null;
         }
 
-        private static Node<ExpressionBuilder, ExpressionBuilderParameter> GetGraphNodeTag(ExpressionBuilderGraph workflow, GraphNode node)
+        private static Node<ExpressionBuilder, ExpressionBuilderArgument> GetGraphNodeTag(ExpressionBuilderGraph workflow, GraphNode node)
         {
             return GetGraphNodeTag(workflow, node, true);
         }
 
-        private static Node<ExpressionBuilder, ExpressionBuilderParameter> GetGraphNodeTag(ExpressionBuilderGraph workflow, GraphNode node, bool throwOnError)
+        private static Node<ExpressionBuilder, ExpressionBuilderArgument> GetGraphNodeTag(ExpressionBuilderGraph workflow, GraphNode node, bool throwOnError)
         {
             while (node.Value == null)
             {
@@ -299,16 +299,16 @@ namespace Bonsai.Design
                 node = edge.Node;
             }
 
-            var nodeTag = (Node<ExpressionBuilder, ExpressionBuilderParameter>)node.Tag;
+            var nodeTag = (Node<ExpressionBuilder, ExpressionBuilderArgument>)node.Tag;
             if (throwOnError) return workflow.First(ns => ns.Value == nodeTag.Value);
             else return workflow.FirstOrDefault(ns => ns.Value == nodeTag.Value);
         }
 
         Tuple<Action, Action> GetInsertGraphNodeCommands(
-            Node<ExpressionBuilder, ExpressionBuilderParameter> sourceNode,
-            Node<ExpressionBuilder, ExpressionBuilderParameter> sinkNode,
+            Node<ExpressionBuilder, ExpressionBuilderArgument> sourceNode,
+            Node<ExpressionBuilder, ExpressionBuilderArgument> sinkNode,
             ElementCategory elementType,
-            Node<ExpressionBuilder, ExpressionBuilderParameter> closestNode,
+            Node<ExpressionBuilder, ExpressionBuilderArgument> closestNode,
             CreateGraphNodeType nodeType,
             bool branch)
         {
@@ -322,7 +322,7 @@ namespace Bonsai.Design
                     !(ExpressionBuilder.Unwrap(closestNode.Value) is SourceBuilder) &&
                     !workflow.Predecessors(closestNode).Any())
                 {
-                    var parameter = new ExpressionBuilderParameter();
+                    var parameter = new ExpressionBuilderArgument();
                     var edge = Edge.Create(closestNode, parameter);
                     addConnection = () => workflow.AddEdge(sinkNode, edge);
                     removeConnection = () => workflow.RemoveEdge(sinkNode, edge);
@@ -330,7 +330,7 @@ namespace Bonsai.Design
             }
             else if (closestNode != null)
             {
-                var parameter = new ExpressionBuilderParameter();
+                var parameter = new ExpressionBuilderArgument();
                 if (nodeType == CreateGraphNodeType.Predecessor)
                 {
                     var predecessors = workflow.PredecessorEdges(closestNode).ToList();
@@ -430,10 +430,10 @@ namespace Bonsai.Design
             {
                 var source = GetGraphNodeTag(workflow, graphViewSource);
                 var connection = string.Empty;
-                connection = ExpressionBuilderParameter.Source;
+                connection = ExpressionBuilderArgument.Source;
                 connection += connectionIndex + 1;
 
-                var parameter = new ExpressionBuilderParameter(connection);
+                var parameter = new ExpressionBuilderArgument(connection);
                 var edge = Edge.Create(target, parameter);
                 addConnection += () => workflow.AddEdge(source, edge);
                 removeConnection += () => workflow.RemoveEdge(source, edge);
@@ -501,8 +501,8 @@ namespace Bonsai.Design
 
             var workflow = this.workflow;
             var inspectBuilder = new InspectBuilder(builder);
-            var inspectNode = new Node<ExpressionBuilder, ExpressionBuilderParameter>(inspectBuilder);
-            var inspectParameter = new ExpressionBuilderParameter();
+            var inspectNode = new Node<ExpressionBuilder, ExpressionBuilderArgument>(inspectBuilder);
+            var inspectParameter = new ExpressionBuilderArgument();
             Action addNode = () => { workflow.Add(inspectNode); };
             Action removeNode = () => { workflow.Remove(inspectNode); };
 
@@ -603,7 +603,7 @@ namespace Bonsai.Design
             var predecessorEdges = workflow.PredecessorEdges(workflowNode).ToArray();
             var siblingEdgesAfter = (from edge in workflowNode.Successors
                                      from siblingEdge in workflow.PredecessorEdges(edge.Target)
-                                     where siblingEdge.Item2.Label.Value.CompareTo(edge.Label.Value) > 0
+                                     where siblingEdge.Item2.Label.Name.CompareTo(edge.Label.Name) > 0
                                      select siblingEdge.Item2)
                                      .ToArray();
 
@@ -758,7 +758,7 @@ namespace Bonsai.Design
             {
                 var workflowInput = new WorkflowInputBuilder();
                 var inputNode = workflowBuilder.Workflow.Add(workflowInput);
-                workflowBuilder.Workflow.AddEdge(inputNode, source, new ExpressionBuilderParameter());
+                workflowBuilder.Workflow.AddEdge(inputNode, source, new ExpressionBuilderArgument());
                 linkNode = predecessors[0];
                 replacementNode = sourceNode;
             }
@@ -770,7 +770,7 @@ namespace Bonsai.Design
             {
                 var workflowOutput = new WorkflowOutputBuilder();
                 var outputNode = workflowBuilder.Workflow.Add(workflowOutput);
-                workflowBuilder.Workflow.AddEdge(sink, outputNode, new ExpressionBuilderParameter());
+                workflowBuilder.Workflow.AddEdge(sink, outputNode, new ExpressionBuilderArgument());
                 if (linkNode == null)
                 {
                     linkNode = successors[0];

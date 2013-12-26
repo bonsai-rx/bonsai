@@ -7,22 +7,22 @@ using System.ComponentModel;
 
 namespace Bonsai.Expressions
 {
-    [TypeConverter("Bonsai.Design.ExpressionBuilderParameterTypeConverter, Bonsai.Design")]
-    public class ExpressionBuilderParameter
+    [TypeConverter("Bonsai.Design.ExpressionBuilderArgumentTypeConverter, Bonsai.Design")]
+    public class ExpressionBuilderArgument
     {
         public const string Source = "Source";
 
-        public ExpressionBuilderParameter()
+        public ExpressionBuilderArgument()
             : this(Source + 1)
         {
         }
 
-        public ExpressionBuilderParameter(string value)
+        public ExpressionBuilderArgument(string name)
         {
-            Value = value;
+            Name = name;
         }
 
         [XmlText]
-        public string Value { get; set; }
+        public string Name { get; set; }
     }
 }

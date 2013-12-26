@@ -169,7 +169,7 @@ namespace Bonsai.Expressions
                         if (multicastBuilder == null)
                         {
                             multicastBuilder = new PublishBuilder();
-                            multicastBuilder.Arguments.Add(ExpressionBuilderParameter.Source, expression);
+                            multicastBuilder.Arguments.Add(ExpressionBuilderArgument.Source, expression);
                             expression = multicastBuilder.Build();
                         }
 
@@ -180,7 +180,7 @@ namespace Bonsai.Expressions
 
                     foreach (var successor in node.Successors)
                     {
-                        successor.Target.Value.Arguments.Add(successor.Label.Value, expression);
+                        successor.Target.Value.Arguments.Add(successor.Label.Name, expression);
                     }
 
                     if (node.Successors.Count == 0)
@@ -236,7 +236,7 @@ namespace Bonsai.Expressions
 
         public static ExpressionBuilderGraph ToInspectableGraph(this ExpressionBuilderGraph source)
         {
-            var observableMapping = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderParameter>, Node<ExpressionBuilder, ExpressionBuilderParameter>>();
+            var observableMapping = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderArgument>, Node<ExpressionBuilder, ExpressionBuilderArgument>>();
             var observableGraph = new ExpressionBuilderGraph();
             foreach (var node in source)
             {
@@ -257,7 +257,7 @@ namespace Bonsai.Expressions
                 foreach (var successor in node.Successors)
                 {
                     var successorNode = observableMapping[successor.Target];
-                    var parameter = new ExpressionBuilderParameter(successor.Label.Value);
+                    var parameter = new ExpressionBuilderArgument(successor.Label.Name);
                     observableGraph.AddEdge(observableNode, successorNode, parameter);
                 }
             }
@@ -270,10 +270,10 @@ namespace Bonsai.Expressions
             return FromInspectableGraph(source, true);
         }
 
-        public static ExpressionBuilderGraph FromInspectableGraph(this IEnumerable<Node<ExpressionBuilder, ExpressionBuilderParameter>> source, bool recurse)
+        public static ExpressionBuilderGraph FromInspectableGraph(this IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> source, bool recurse)
         {
             var workflow = new ExpressionBuilderGraph();
-            var nodeMapping = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderParameter>, Node<ExpressionBuilder, ExpressionBuilderParameter>>();
+            var nodeMapping = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderArgument>, Node<ExpressionBuilder, ExpressionBuilderArgument>>();
             foreach (var node in source)
             {
                 InspectBuilder inspectBuilder = (InspectBuilder)node.Value;
@@ -294,7 +294,7 @@ namespace Bonsai.Expressions
                 var builderNode = nodeMapping[sourceNode];
                 foreach (var successor in sourceNode.Successors)
                 {
-                    Node<ExpressionBuilder, ExpressionBuilderParameter> targetNode;
+                    Node<ExpressionBuilder, ExpressionBuilderArgument> targetNode;
                     if (nodeMapping.TryGetValue(successor.Target, out targetNode))
                     {
                         workflow.AddEdge(builderNode, targetNode, successor.Label);
