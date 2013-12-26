@@ -50,12 +50,6 @@ namespace Bonsai.Design
             }
         }
 
-        public event EventHandler Scroll
-        {
-            add { trackBar.Scroll += value; }
-            remove { trackBar.Scroll -= value; }
-        }
-
         public event EventHandler ValueChanged
         {
             add { trackBar.ValueChanged += value; }
