@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 
 namespace Bonsai.Design
 {
-    public class GraphNodeGrouping : Collection<GraphNode>, IGrouping<int, GraphNode>
+    class GraphNodeGrouping : Collection<GraphNode>, IGrouping<int, GraphNode>
     {
         public GraphNodeGrouping(int layer)
         {

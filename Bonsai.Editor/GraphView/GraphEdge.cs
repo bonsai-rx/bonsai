@@ -7,9 +7,14 @@ using System.ComponentModel;
 
 namespace Bonsai.Design
 {
-    public class GraphEdge
+    class GraphEdge
     {
         public GraphEdge(object label, GraphNode successor)
+            : this(null, label, successor)
+        {
+        }
+
+        public GraphEdge(ITypeDescriptorContext context, object label, GraphNode successor)
         {
             Label = label;
             Node = successor;
@@ -18,8 +23,6 @@ namespace Bonsai.Design
             Pen = Pens.Black;
             if (label != null)
             {
-                var property = TypeDescriptor.CreateProperty(typeof(GraphEdge), "Label", typeof(object));
-                var context = new TypeDescriptorContext(this, property);
                 var typeConverter = TypeDescriptor.GetConverter(label);
                 Text = typeConverter.ConvertToString(context, label);
                 if (typeConverter.CanConvertTo(context, typeof(Pen)))

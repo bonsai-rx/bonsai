@@ -7,7 +7,7 @@ using System.Drawing;
 
 namespace Bonsai.Design
 {
-    public class GraphNode
+    class GraphNode
     {
         readonly TypeConverter typeConverter;
 

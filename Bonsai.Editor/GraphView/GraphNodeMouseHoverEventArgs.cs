@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Bonsai.Design
 {
-    public class GraphNodeMouseHoverEventArgs : EventArgs
+    class GraphNodeMouseHoverEventArgs : EventArgs
     {
         public GraphNodeMouseHoverEventArgs(GraphNode node)
         {

@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
 using Bonsai.Expressions;
+using Bonsai.Dag;
 
 namespace Bonsai.Design
 {
@@ -31,16 +32,10 @@ namespace Bonsai.Design
                 if (destinationType == typeof(Pen))
                 {
                     var parameter = (ExpressionBuilderParameter)value;
-                    var edge = context != null ? context.Instance as GraphEdge : null;
+                    var edge = context != null ? context.Instance as Edge<ExpressionBuilder, ExpressionBuilderParameter> : null;
                     if (edge != null)
                     {
-                        var builderNode = edge.Node;
-                        while (builderNode.Value == null)
-                        {
-                            builderNode = builderNode.Successors.First().Node;
-                        }
-
-                        var builder = (ExpressionBuilder)builderNode.Value;
+                        var builder = edge.Target.Value;
                         var connectionIndex = parameter.GetEdgeConnectionIndex() - 1;
                         if (connectionIndex >= builder.ArgumentRange.UpperBound)
                         {

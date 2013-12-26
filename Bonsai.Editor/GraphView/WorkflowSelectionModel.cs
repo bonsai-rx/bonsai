@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace Bonsai.Design
 {
-    public class WorkflowSelectionModel
+    class WorkflowSelectionModel
     {
         public WorkflowSelectionModel()
         {

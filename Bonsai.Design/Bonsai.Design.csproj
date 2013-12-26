@@ -66,24 +66,17 @@
     </Compile>
     <Compile Include="ControlObservable.cs" />
     <Compile Include="ControlScheduler.cs" />
-    <Compile Include="CueBannerTextBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="DescriptiveCollectionEditor.cs" />
     <Compile Include="DialogMashupVisualizer.cs" />
     <Compile Include="DynamicTypeDescriptionProvider.cs" />
     <Compile Include="ExpressionBuilderParameterExtensions.cs" />
     <Compile Include="FolderNameEditor.cs" />
-    <Compile Include="GraphViewPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="MashupTypeVisualizer.cs" />
     <Compile Include="ITypeVisualizerContext.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="SeekBar.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="DialogLauncher.cs" />
     <Compile Include="FileNameEditor.cs" />
     <Compile Include="IWorkflowEditorService.cs" />
     <Compile Include="OpenFileNameEditor.cs" />
@@ -91,19 +84,7 @@
     <Compile Include="DynamicPropertyDescriptor.cs" />
     <Compile Include="ExpressionBuilderParameterTypeConverter.cs" />
     <Compile Include="ExpressionBuilderTypeConverter.cs" />
-    <Compile Include="GraphEdge.cs" />
-    <Compile Include="GraphNodeMouseEventArgs.cs" />
-    <Compile Include="GraphNodeMouseHoverEventArgs.cs" />
     <Compile Include="IDialogTypeVisualizerService.cs" />
-    <Compile Include="LayeredGraphExtensions.cs" />
-    <Compile Include="GraphView.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="GraphView.Designer.cs">
-      <DependentUpon>GraphView.cs</DependentUpon>
-    </Compile>
-    <Compile Include="GraphNode.cs" />
-    <Compile Include="GraphNodeGrouping.cs" />
     <Compile Include="MemberSelectorEditor.cs" />
     <Compile Include="MemberSelectorEditorDialog.cs">
       <SubType>Form</SubType>
@@ -123,28 +104,14 @@
       <DependentUpon>Slider.cs</DependentUpon>
     </Compile>
     <Compile Include="SliderEditor.cs" />
-    <Compile Include="TypeDescriptorContext.cs" />
     <Compile Include="TypeVisualizerDialog.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="TypeVisualizerDialog.designer.cs">
       <DependentUpon>TypeVisualizerDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="VisualizerDialogLauncher.cs" />
-    <Compile Include="VisualizerDialogSettings.cs" />
-    <Compile Include="VisualizerDialogSettingsCollection.cs" />
-    <Compile Include="VisualizerLayout.cs" />
     <Compile Include="VisualizerMashup.cs" />
     <Compile Include="WorkflowComponentEditor.cs" />
-    <Compile Include="WorkflowEditorLauncher.cs" />
-    <Compile Include="WorkflowEditorSettings.cs" />
-    <Compile Include="WorkflowGraphView.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="WorkflowGraphView.Designer.cs">
-      <DependentUpon>WorkflowGraphView.cs</DependentUpon>
-    </Compile>
-    <Compile Include="WorkflowSelectionModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai\Bonsai.csproj">
@@ -153,9 +120,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="GraphView.resx">
-      <DependentUpon>GraphView.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="MemberSelectorEditorDialog.resx">
       <DependentUpon>MemberSelectorEditorDialog.cs</DependentUpon>
     </EmbeddedResource>
@@ -164,9 +128,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="TypeVisualizerDialog.resx">
       <DependentUpon>TypeVisualizerDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="WorkflowGraphView.resx">
-      <DependentUpon>WorkflowGraphView.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
