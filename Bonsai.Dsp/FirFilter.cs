@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Xml.Serialization;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
+using System.Globalization;
 
 namespace Bonsai.Dsp
 {
@@ -28,8 +29,8 @@ namespace Bonsai.Dsp
         [XmlElement("Kernel")]
         public string KernelXml
         {
-            get { return ArrayConvert.ToString(Kernel); }
-            set { Kernel = (float[])ArrayConvert.ToArray(value, 1, typeof(float)); }
+            get { return ArrayConvert.ToString(Kernel, CultureInfo.InvariantCulture); }
+            set { Kernel = (float[])ArrayConvert.ToArray(value, 1, typeof(float), CultureInfo.InvariantCulture); }
         }
 
         public override IObservable<Mat> Process(IObservable<Mat> source)
