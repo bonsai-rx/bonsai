@@ -69,6 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BinaryRegionExtremesVisualizer.cs" />
+    <Compile Include="CapturePropertyCollectionConverter.cs" />
     <Compile Include="ConnectedComponentCollectionVisualizer.cs" />
     <Compile Include="ContoursMashupVisualizer.cs" />
     <Compile Include="ContoursVisualizer.cs" />
