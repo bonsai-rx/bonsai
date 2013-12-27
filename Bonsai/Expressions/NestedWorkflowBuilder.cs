@@ -12,14 +12,14 @@ namespace Bonsai.Expressions
     [DisplayName("NestedWorkflow")]
     [XmlType("NestedWorkflow", Namespace = Constants.XmlNamespace)]
     [Description("Encapsulates complex workflow logic into a single workflow element.")]
-    public class NestedWorkflowExpressionBuilder : WorkflowExpressionBuilder
+    public class NestedWorkflowBuilder : WorkflowExpressionBuilder
     {
-        public NestedWorkflowExpressionBuilder()
+        public NestedWorkflowBuilder()
             : this(new ExpressionBuilderGraph())
         {
         }
 
-        public NestedWorkflowExpressionBuilder(ExpressionBuilderGraph workflow)
+        public NestedWorkflowBuilder(ExpressionBuilderGraph workflow)
             : base(workflow, minArguments: 0, maxArguments: 1)
         {
         }
