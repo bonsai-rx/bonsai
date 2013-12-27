@@ -51,5 +51,10 @@ namespace Bonsai.Expressions
                 Index = index - 1;
             }
         }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }
