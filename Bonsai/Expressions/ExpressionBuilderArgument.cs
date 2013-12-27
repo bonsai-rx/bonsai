@@ -32,7 +32,7 @@ namespace Bonsai.Expressions
         [XmlText]
         public string Name
         {
-            get { return Source + Index + 1; }
+            get { return Source + (Index + 1); }
             set
             {
                 if (!value.StartsWith(Source))
