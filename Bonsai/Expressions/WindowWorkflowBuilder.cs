@@ -35,7 +35,7 @@ namespace Bonsai.Expressions
             var sourceType = source.Type.GetGenericArguments()[0];
             if (!sourceType.IsGenericType || sourceType.GetGenericTypeDefinition() != typeof(IObservable<>))
             {
-                throw new InvalidWorkflowException("WindowWorkflow operator takes as input an observable sequence of windows.");
+                throw new InvalidOperationException("WindowWorkflow operator takes as input an observable sequence of windows.");
             }
 
             var selectorParameter = Expression.Parameter(sourceType);
