@@ -16,6 +16,9 @@ using System.Diagnostics;
 
 namespace Bonsai
 {
+    /// <summary>
+    /// Represents an XML serializable expression builder workflow container.
+    /// </summary>
     public class WorkflowBuilder : IXmlSerializable
     {
         readonly ExpressionBuilderGraph workflow;
@@ -24,11 +27,21 @@ namespace Bonsai
         const string WorkflowNodeName = "Workflow";
         const string TypeNodeName = "Type";
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WorkflowBuilder"/> class.
+        /// </summary>
         public WorkflowBuilder()
             : this(new ExpressionBuilderGraph())
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WorkflowBuilder"/> class with the
+        /// specified workflow instance.
+        /// </summary>
+        /// <param name="workflow">
+        /// The <see cref="ExpressionBuilderGraph"/> that will be used by this builder.
+        /// </param>
         public WorkflowBuilder(ExpressionBuilderGraph workflow)
         {
             if (workflow == null)
@@ -39,6 +52,9 @@ namespace Bonsai
             this.workflow = workflow;
         }
 
+        /// <summary>
+        /// Gets the <see cref="ExpressionBuilderGraph"/> instance used by this builder.
+        /// </summary>
         public ExpressionBuilderGraph Workflow
         {
             get { return workflow; }
@@ -46,12 +62,12 @@ namespace Bonsai
 
         #region IXmlSerializable Members
 
-        public System.Xml.Schema.XmlSchema GetSchema()
+        System.Xml.Schema.XmlSchema IXmlSerializable.GetSchema()
         {
             return null;
         }
 
-        public void ReadXml(System.Xml.XmlReader reader)
+        void IXmlSerializable.ReadXml(System.Xml.XmlReader reader)
         {
             reader.ReadToFollowing(WorkflowNodeName);
 
@@ -80,7 +96,7 @@ namespace Bonsai
             reader.ReadEndElement();
         }
 
-        public void WriteXml(System.Xml.XmlWriter writer)
+        void IXmlSerializable.WriteXml(System.Xml.XmlWriter writer)
         {
             var assembly = Assembly.GetExecutingAssembly();
             var versionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);

@@ -6,16 +6,38 @@ using System.Threading;
 
 namespace Bonsai
 {
+    /// <summary>
+    /// Provides methods for converting between instances of the <see cref="Array"/> class
+    /// and <see cref="String"/>.
+    /// </summary>
     public static class ArrayConvert
     {
-        public const string RowSeparator = ";";
-        public const string ColumnSeparator = ",";
+        const string RowSeparator = ";";
+        const string ColumnSeparator = ",";
 
+        /// <summary>
+        /// Converts the <see cref="Array"/> to a <see cref="String"/>.
+        /// </summary>
+        /// <param name="array">The <see cref="Array"/> to be converted.</param>
+        /// <returns>
+        /// A string representation of the <see cref="Array"/> using the system's
+        /// current culture.
+        /// </returns>
         public static string ToString(Array array)
         {
             return ToString(array, Thread.CurrentThread.CurrentCulture);
         }
 
+        /// <summary>
+        /// Converts the <see cref="Array"/> to a <see cref="String"/> using the specified
+        /// culture-specific format information.
+        /// </summary>
+        /// <param name="array">The <see cref="Array"/> to be converted.</param>
+        /// <param name="provider">An object that supplies culture-specific formatting information.</param>
+        /// <returns>
+        /// A string representation of the <see cref="Array"/> using the specified
+        /// culture-specific format information.
+        /// </returns>
         public static string ToString(Array array, IFormatProvider provider)
         {
             if (array != null)
@@ -57,11 +79,29 @@ namespace Bonsai
             return null;
         }
 
+        /// <summary>
+        /// Converts the <see cref="String"/> to an <see cref="Array"/> equivalent with
+        /// the specified <paramref name="rank"/> and <paramref name="elementType"/>.
+        /// </summary>
+        /// <param name="value">The string to convert.</param>
+        /// <param name="rank">The rank of the result array; can be either one- or two-dimensional.</param>
+        /// <param name="elementType">The type of the elements in the array.</param>
+        /// <returns>An <see cref="Array"/> equivalent of the string.</returns>
         public static Array ToArray(string value, int rank, Type elementType)
         {
             return ToArray(value, rank, elementType, Thread.CurrentThread.CurrentCulture);
         }
 
+        /// <summary>
+        /// Converts the <see cref="String"/> to an <see cref="Array"/> equivalent with
+        /// the specified <paramref name="rank"/> and <paramref name="elementType"/> using
+        /// a <paramref name="provider"/> of culture-specific formatting information.
+        /// </summary>
+        /// <param name="value">The string to convert.</param>
+        /// <param name="rank">The rank of the result array; can be either one- or two-dimensional.</param>
+        /// <param name="elementType">The type of the elements in the array.</param>
+        /// <param name="provider">An object that supplies culture-specific formatting information.</param>
+        /// <returns>An <see cref="Array"/> equivalent of the string.</returns>
         public static Array ToArray(string value, int rank, Type elementType, IFormatProvider provider)
         {
             if (rank > 2)
