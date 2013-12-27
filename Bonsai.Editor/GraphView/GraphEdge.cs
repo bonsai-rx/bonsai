@@ -32,9 +32,17 @@ namespace Bonsai.Design
             }
         }
 
+        internal GraphEdge(GraphEdge edge, GraphNode successor)
+        {
+            Label = edge.Label;
+            Node = successor;
+            Text = edge.Text;
+            Pen = edge.Pen;
+        }
+
         public object Label { get; private set; }
 
-        public GraphNode Node { get; private set; }
+        public GraphNode Node { get; set; }
 
         public object Tag { get; set; }
 

@@ -776,7 +776,7 @@ namespace Bonsai.Design
             }
 
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
-            var workflowExpressionBuilder = new NestedWorkflowExpressionBuilder(workflowBuilder.Workflow.ToInspectableGraph());
+            var workflowExpressionBuilder = new NestedWorkflowBuilder(workflowBuilder.Workflow.ToInspectableGraph());
             var updateSelectedNode = CreateUpdateGraphViewDelegate(localGraphView =>
             {
                 localGraphView.SelectedNode = localGraphView.Nodes.SelectMany(layer => layer).First(n => GetGraphNodeBuilder(n) == workflowExpressionBuilder);
@@ -1065,7 +1065,7 @@ namespace Bonsai.Design
             graphView.Nodes = workflow
                 .LongestPathLayering()
                 .EnsureLayerPriority()
-                .SortLayeringByConnectionKey()
+                .EnsureEdgeLabelPriority()
                 .ToList();
             graphView.Invalidate();
             if (validateWorkflow)
@@ -1178,7 +1178,7 @@ namespace Bonsai.Design
                     {
                         var path = (string[])e.Data.GetData(DataFormats.FileDrop, true);
                         var workflowBuilder = editorService.LoadWorkflow(path[0]);
-                        var workflowExpressionBuilder = new NestedWorkflowExpressionBuilder(workflowBuilder.Workflow);
+                        var workflowExpressionBuilder = new NestedWorkflowBuilder(workflowBuilder.Workflow);
                         CreateGraphNode(workflowExpressionBuilder, ElementCategory.Combinator, linkNode, predecessor, branch);
                     }
                     else
