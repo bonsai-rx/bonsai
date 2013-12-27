@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
+using System.Globalization;
 
 namespace Bonsai.Vision
 {
@@ -28,8 +29,8 @@ namespace Bonsai.Vision
         [XmlElement("Kernel")]
         public string KernelXml
         {
-            get { return ArrayConvert.ToString(Kernel); }
-            set { Kernel = (float[,])ArrayConvert.ToArray(value, 2, typeof(float)); }
+            get { return ArrayConvert.ToString(Kernel, CultureInfo.InvariantCulture); }
+            set { Kernel = (float[,])ArrayConvert.ToArray(value, 2, typeof(float), CultureInfo.InvariantCulture); }
         }
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
