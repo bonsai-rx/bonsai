@@ -76,7 +76,6 @@
     <Compile Include="TextWriter.cs" />
     <Compile Include="SerialStringRead.cs" />
     <Compile Include="SerialStringWrite.cs" />
-    <Compile Include="StringConstant.cs" />
     <Compile Include="ToggleSwitch.cs" />
   </ItemGroup>
   <ItemGroup>
