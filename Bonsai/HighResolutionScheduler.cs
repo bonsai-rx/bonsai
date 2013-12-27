@@ -7,11 +7,18 @@ using System.Diagnostics;
 
 namespace Bonsai
 {
+    /// <summary>
+    /// Provides a set of static properties to access schedulers that use the
+    /// <see cref="Stopwatch"/> class for generating timestamps.
+    /// </summary>
     public static class HighResolutionScheduler
     {
         static readonly double Frequency = Stopwatch.IsHighResolution ? TimeSpan.TicksPerSecond / (double)Stopwatch.Frequency + .0001245 : 1;
         static readonly double NowOffset = Stopwatch.IsHighResolution ? DateTime.Now.Ticks - Stopwatch.GetTimestamp() * Frequency : 0;
 
+        /// <summary>
+        /// Gets the current time according to the timer used by the <see cref="Stopwatch"/> class.
+        /// </summary>
         public static DateTimeOffset Now
         {
             get
@@ -22,13 +29,17 @@ namespace Bonsai
             }
         }
 
+        /// <summary>
+        /// Gets a scheduler that schedules work on the platform's default scheduler
+        /// but provides high resolution timestamps.
+        /// </summary>
         public static IScheduler Default
         {
             get { return HighResolutionDefaultScheduler.Default; }
         }
     }
 
-    public abstract class StopwatchScheduler : LocalScheduler
+    abstract class StopwatchScheduler : LocalScheduler
     {
         IScheduler scheduler;
 

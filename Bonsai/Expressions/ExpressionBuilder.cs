@@ -12,15 +12,19 @@ using System.Reactive.Disposables;
 
 namespace Bonsai.Expressions
 {
-    [XmlInclude(typeof(WorkflowExpressionBuilder))]
-    [XmlInclude(typeof(WorkflowInputBuilder))]
-    [XmlInclude(typeof(WorkflowOutputBuilder))]
+    [XmlInclude(typeof(UnitBuilder))]
     [XmlInclude(typeof(SourceBuilder))]
     [XmlInclude(typeof(ConditionBuilder))]
     [XmlInclude(typeof(CombinatorBuilder))]
     [XmlInclude(typeof(SelectManyBuilder))]
+    [XmlInclude(typeof(PublishBuilder))]
+    [XmlInclude(typeof(ReplayBuilder))]
     [XmlInclude(typeof(WindowWorkflowBuilder))]
     [XmlInclude(typeof(NestedWorkflowBuilder))]
+    [XmlInclude(typeof(MemberSelectorBuilder))]
+    [XmlInclude(typeof(WorkflowInputBuilder))]
+    [XmlInclude(typeof(WorkflowOutputBuilder))]
+    [XmlInclude(typeof(WorkflowExpressionBuilder))]
     [XmlType("Expression", Namespace = Constants.XmlNamespace)]
     [TypeConverter("Bonsai.Design.ExpressionBuilderTypeConverter, Bonsai.Design")]
     public abstract class ExpressionBuilder

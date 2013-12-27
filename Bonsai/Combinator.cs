@@ -19,7 +19,7 @@ namespace Bonsai
         /// same element type.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
-        /// <param name="source">The observable sequence to process.</param>
+        /// <param name="source">The source sequence to process.</param>
         /// <returns>
         /// An observable sequence of the same data type as <paramref name="source"/>.
         /// </returns>
@@ -39,7 +39,7 @@ namespace Bonsai
         /// specified element type.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
-        /// <param name="source">The observable sequence to process.</param>
+        /// <param name="source">The source sequence to process.</param>
         /// <returns>
         /// An observable sequence with elements of type <typeparamref name="TResult"/>.
         /// </returns>
@@ -58,7 +58,7 @@ namespace Bonsai
         /// Processes the <paramref name="source"/> sequence into a new sequence of the
         /// specified element type.
         /// </summary>
-        /// <param name="source">The observable sequence to process.</param>
+        /// <param name="source">The source sequence to process.</param>
         /// <returns>
         /// An observable sequence with elements of type <typeparamref name="TResult"/>.
         /// </returns>

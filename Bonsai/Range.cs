@@ -5,29 +5,33 @@ using System.Text;
 
 namespace Bonsai
 {
-    public static class Range
+    /// <summary>
+    /// Represents a range of values defined by an inclusive lower and upper bounds.
+    /// </summary>
+    /// <typeparam name="TValue">The type of values in the range.</typeparam>
+    public sealed class Range<TValue>
     {
-        public static Range<T> Create<T>(T lowerBound, T upperBound)
-        {
-            return new Range<T>(lowerBound, upperBound);
-        }
+        readonly IComparer<TValue> valueComparer;
 
-        public static Range<T> Create<T>(T lowerBound, T upperBound, IComparer<T> comparer)
-        {
-            return new Range<T>(lowerBound, upperBound, comparer);
-        }
-    }
-
-    public sealed class Range<T>
-    {
-        readonly IComparer<T> valueComparer;
-
-        public Range(T lowerBound, T upperBound)
-            : this(lowerBound, upperBound, Comparer<T>.Default)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Range{TValue}"/> class with the specified
+        /// lower and upper bounds.
+        /// </summary>
+        /// <param name="lowerBound">The inclusive lower bound of the range.</param>
+        /// <param name="upperBound">The inclusive upper bound of the range.</param>
+        public Range(TValue lowerBound, TValue upperBound)
+            : this(lowerBound, upperBound, Comparer<TValue>.Default)
         {
         }
 
-        public Range(T lowerBound, T upperBound, IComparer<T> comparer)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Range{TValue}"/> class with the specified 
+        /// lower and upper bounds and using the specified comparer.
+        /// </summary>
+        /// <param name="lowerBound">The inclusive lower bound of the range.</param>
+        /// <param name="upperBound">The inclusive upper bound of the range.</param>
+        /// <param name="comparer">An <see cref="IComparer{TValue}"/> to use to compare values.</param>
+        public Range(TValue lowerBound, TValue upperBound, IComparer<TValue> comparer)
         {
             if (comparer == null)
             {
@@ -44,14 +48,60 @@ namespace Bonsai
             valueComparer = comparer;
         }
 
-        public T LowerBound { get; private set; }
+        /// <summary>
+        /// Gets the inclusive lower bound of the range.
+        /// </summary>
+        public TValue LowerBound { get; private set; }
 
-        public T UpperBound { get; private set; }
+        /// <summary>
+        /// Gets the inclusive upper bound of the range.
+        /// </summary>
+        public TValue UpperBound { get; private set; }
 
-        public bool Contains(T value)
+        /// <summary>
+        /// Tests whether a specified value falls within the range.
+        /// </summary>
+        /// <param name="value">The value to test.</param>
+        /// <returns>
+        /// <b>true</b> if <paramref name="value"/> is between or equal to <see cref="LowerBound"/>
+        /// and <see cref="UpperBound"/>; <b>false</b> otherwise.
+        /// </returns>
+        public bool Contains(TValue value)
         {
             return valueComparer.Compare(LowerBound, value) <= 0 &&
                 valueComparer.Compare(value, UpperBound) <= 0;
+        }
+    }
+
+    /// <summary>
+    /// Provides static methods for creating range objects.
+    /// </summary>
+    public static class Range
+    {
+        /// <summary>
+        /// Creates a new range with the specified lower and upper bounds.
+        /// </summary>
+        /// <typeparam name="TValue">The type of values in the range.</typeparam>
+        /// <param name="lowerBound">The inclusive lower bound of the range.</param>
+        /// <param name="upperBound">The inclusive lower bound of the range.</param>
+        /// <returns>A new instance of the <see cref="Range{TValue}"/> class.</returns>
+        public static Range<TValue> Create<TValue>(TValue lowerBound, TValue upperBound)
+        {
+            return new Range<TValue>(lowerBound, upperBound);
+        }
+
+        /// <summary>
+        /// Creates a new range with the specified lower and upper bounds and
+        /// using the specified comparer.
+        /// </summary>
+        /// <typeparam name="TValue">The type of values in the range.</typeparam>
+        /// <param name="lowerBound">The inclusive lower bound of the range.</param>
+        /// <param name="upperBound">The inclusive lower bound of the range.</param>
+        /// <param name="comparer">An <see cref="IComparer{TValue}"/> to use to compare values.</param>
+        /// <returns>A new instance of the <see cref="Range{TValue}"/> class.</returns>
+        public static Range<TValue> Create<TValue>(TValue lowerBound, TValue upperBound, IComparer<TValue> comparer)
+        {
+            return new Range<TValue>(lowerBound, upperBound, comparer);
         }
     }
 }

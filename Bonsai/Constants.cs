@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Bonsai
 {
-    public static class Constants
+    static class Constants
     {
         public const string XmlNamespace = "https://horizongir.org/bonsai";
     }
