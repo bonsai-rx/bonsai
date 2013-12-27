@@ -899,6 +899,7 @@ namespace Bonsai.Design
             if (selectionBeforeDrag != null) return;
             if (hot != null)
             {
+                if (e.Button == MouseButtons.Right && selectedNodes.Contains(hot)) return;
                 if (!mouseDownHandled)
                 {
                     if (Control.ModifierKeys.HasFlag(Keys.Control)) ClearNode(hot);
