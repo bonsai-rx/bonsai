@@ -10,6 +10,10 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Expressions
 {
+    /// <summary>
+    /// Provides a base class for expression builders that define a simple selector on the
+    /// elements of an observable sequence. This is an abstract class.
+    /// </summary>
     [WorkflowElementCategory(ElementCategory.Transform)]
     public abstract class SelectBuilder : SingleArgumentExpressionBuilder
     {
@@ -18,8 +22,22 @@ namespace Bonsai.Expressions
                                                                             m.GetParameters().Length == 2 &&
                                                                             m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
 
+        /// <summary>
+        /// When overridden in a derived class, returns the expression
+        /// that maps the specified input parameter to the selector result.
+        /// </summary>
+        /// <param name="expression">The input parameter to the selector.</param>
+        /// <returns>
+        /// The <see cref="Expression"/> that maps the input parameter to the
+        /// selector result.
+        /// </returns>
         protected abstract Expression BuildSelector(Expression expression);
 
+        /// <summary>
+        /// Generates an <see cref="Expression"/> node that will be passed on
+        /// to other builders in the workflow.
+        /// </summary>
+        /// <returns>An <see cref="Expression"/> tree node.</returns>
         public override Expression Build()
         {
             var source = Arguments.Single();

@@ -49,7 +49,7 @@ namespace Bonsai.Design
                     {
                         var expression = workflow.Build(predecessor.Item1.Value);
                         var expressionType = expression.Type.GetGenericArguments()[0];
-                        var label = predecessorEdges.Length > 1 ? predecessor.Item2.Label.Name : ExpressionBuilderArgument.Source;
+                        var label = predecessorEdges.Length > 1 ? predecessor.Item2.Label.Name : ExpressionBuilderArgument.ArgumentNamePrefix;
                         editorDialog.AddMember(label, expressionType);
                     }
 
