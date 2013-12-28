@@ -2,21 +2,22 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace Bonsai.Configuration
 {
     [Serializable]
-    public class AssemblyLocationCollection : KeyedCollection<string, AssemblyLocation>
+    public class AssemblyLocationCollection : KeyedCollection<Tuple<string, ProcessorArchitecture>, AssemblyLocation>
     {
-        public void Add(string name, string path)
+        public void Add(string name, ProcessorArchitecture processorArchitecture, string path)
         {
-            Add(new AssemblyLocation(name, path));
+            Add(new AssemblyLocation(name, processorArchitecture, path));
         }
 
-        protected override string GetKeyForItem(AssemblyLocation item)
+        protected override Tuple<string, ProcessorArchitecture> GetKeyForItem(AssemblyLocation item)
         {
-            return item.AssemblyName;
+            return Tuple.Create(item.AssemblyName, item.ProcessorArchitecture);
         }
     }
 }

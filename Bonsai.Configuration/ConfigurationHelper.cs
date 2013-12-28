@@ -35,6 +35,23 @@ namespace Bonsai.Configuration
             Environment.SetEnvironmentVariable(PathEnvironmentVariable, currentPath);
         }
 
+        static string GetAssemblyLocation(PackageConfiguration configuration, string assemblyName)
+        {
+            var msilAssembly = Tuple.Create(assemblyName, ProcessorArchitecture.MSIL);
+            if (configuration.AssemblyLocations.Contains(msilAssembly))
+            {
+                return configuration.AssemblyLocations[msilAssembly].Location;
+            }
+
+            var architectureSpecificAssembly = Tuple.Create(assemblyName, Environment.Is64BitProcess ? ProcessorArchitecture.Amd64 : ProcessorArchitecture.X86);
+            if (configuration.AssemblyLocations.Contains(architectureSpecificAssembly))
+            {
+                return configuration.AssemblyLocations[architectureSpecificAssembly].Location;
+            }
+
+            return null;
+        }
+
         public static void SetAssemblyResolve(PackageConfiguration configuration)
         {
             var configurationFile = configuration.ConfigurationFile;
@@ -55,9 +72,9 @@ namespace Bonsai.Configuration
             ResolveEventHandler assemblyResolveHandler = (sender, args) =>
             {
                 var assemblyName = new AssemblyName(args.Name).Name;
-                if (configuration.AssemblyLocations.Contains(assemblyName))
+                var assemblyLocation = GetAssemblyLocation(configuration, assemblyName);
+                if (assemblyLocation != null)
                 {
-                    var assemblyLocation = configuration.AssemblyLocations[assemblyName].Location;
                     if (!Path.IsPathRooted(assemblyLocation))
                     {
                         assemblyLocation = Path.Combine(configurationRoot, assemblyLocation);
@@ -111,11 +128,12 @@ namespace Bonsai.Configuration
             configuration.LibraryFolders.Add(path, platform);
             foreach (var assemblyFile in Directory.GetFiles(path, "*.dll"))
             {
-                var assemblyName = Path.GetFileNameWithoutExtension(assemblyFile);
-                if (!configuration.AssemblyLocations.Contains(assemblyName))
+                var assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
+                var locationKey = Tuple.Create(assemblyName.Name, assemblyName.ProcessorArchitecture);
+                if (!configuration.AssemblyLocations.Contains(locationKey))
                 {
-                    configuration.AssemblyReferences.Add(assemblyName);
-                    configuration.AssemblyLocations.Add(assemblyName, assemblyFile);
+                    configuration.AssemblyReferences.Add(assemblyName.Name);
+                    configuration.AssemblyLocations.Add(assemblyName.Name, assemblyName.ProcessorArchitecture, assemblyFile);
                 }
             }
         }
