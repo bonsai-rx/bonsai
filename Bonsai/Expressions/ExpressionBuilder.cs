@@ -12,6 +12,10 @@ using System.Reactive.Disposables;
 
 namespace Bonsai.Expressions
 {
+    /// <summary>
+    /// Provides the base class from which the classes that generate expression tree nodes
+    /// are derived. This is an abstract class.
+    /// </summary>
     [XmlInclude(typeof(UnitBuilder))]
     [XmlInclude(typeof(SourceBuilder))]
     [XmlInclude(typeof(ConditionBuilder))]
@@ -32,6 +36,10 @@ namespace Bonsai.Expressions
         const string ExpressionBuilderSuffix = "Builder";
         readonly SortedList<int, Expression> arguments = new SortedList<int, Expression>();
 
+        /// <summary>
+        /// When overridden in a derived class, gets the range of input arguments
+        /// that this expression builder accepts.
+        /// </summary>
         [Browsable(false)]
         public abstract Range<int> ArgumentRange { get; }
 
@@ -40,13 +48,31 @@ namespace Bonsai.Expressions
             get { return arguments; }
         }
 
+        /// <summary>
+        /// Gets the input arguments that have been passed to this expression builder.
+        /// </summary>
         protected IEnumerable<Expression> Arguments
         {
             get { return arguments.Values; }
         }
 
+        /// <summary>
+        /// When overridden in a derived class, generates an <see cref="Expression"/> node
+        /// that will be passed on to other builders in the workflow.
+        /// </summary>
+        /// <returns>An <see cref="Expression"/> tree node.</returns>
         public abstract Expression Build();
 
+        /// <summary>
+        /// Removes all decorators from a specified <see cref="ExpressionBuilder"/> instance
+        /// and returns the first non-decorated (i.e. primitive) builder to be retrieved.
+        /// </summary>
+        /// <param name="builder">
+        /// An <see cref="ExpressionBuilder"/> instance from which to remove decorators.
+        /// </param>
+        /// <returns>
+        /// The first non-decorated <see cref="ExpressionBuilder"/> instance that is retrieved.
+        /// </returns>
         public static ExpressionBuilder Unwrap(ExpressionBuilder builder)
         {
             if (builder == null)
@@ -60,6 +86,16 @@ namespace Bonsai.Expressions
             return builder;
         }
 
+        /// <summary>
+        /// Returns the editor browsable element for the specified <see cref="ExpressionBuilder"/>.
+        /// </summary>
+        /// <param name="builder">
+        /// The <see cref="ExpressionBuilder"/> for which to retrieve the editor browsable element.
+        /// </param>
+        /// <returns>
+        /// An <see cref="Object"/> that is the editor browsable element for the specified
+        /// <paramref name="builder"/>.
+        /// </returns>
         public static object GetWorkflowElement(ExpressionBuilder builder)
         {
             builder = Unwrap(builder);
@@ -76,6 +112,12 @@ namespace Bonsai.Expressions
             return builder;
         }
 
+        /// <summary>
+        /// Creates a new expression builder from the specified editor browsable element and category.
+        /// </summary>
+        /// <param name="element">The editor browsable element for which to build a new expression builder.</param>
+        /// <param name="elementCategory">The workflow category of the specified element.</param>
+        /// <returns>A new <see cref="ExpressionBuilder"/> object.</returns>
         public static ExpressionBuilder FromWorkflowElement(object element, ElementCategory elementCategory)
         {
             if (element == null)
@@ -110,6 +152,11 @@ namespace Bonsai.Expressions
             return suffixStart >= 0 ? source.Remove(suffixStart) : source;
         }
 
+        /// <summary>
+        /// Gets the display name for the specified type.
+        /// </summary>
+        /// <param name="type">The <see cref="Type"/> for which to retrieve the display name.</param>
+        /// <returns>The display name for the specified <paramref name="type"/>.</returns>
         public static string GetElementDisplayName(Type type)
         {
             var displayNameAttribute = (DisplayNameAttribute)Attribute.GetCustomAttribute(type, typeof(DisplayNameAttribute));
@@ -123,35 +170,27 @@ namespace Bonsai.Expressions
                 : type.Name;
         }
 
-        public static string GetElementDisplayName(object component)
+        /// <summary>
+        /// Gets the display name for the specified element.
+        /// </summary>
+        /// <param name="element">The element for which to retrieve the display name.</param>
+        /// <returns>The name of the element.</returns>
+        public static string GetElementDisplayName(object element)
         {
-            if (component == null)
+            if (element == null)
             {
                 throw new ArgumentNullException("component");
             }
 
-            var namedElement = component as INamedElement;
+            var namedElement = element as INamedElement;
             if (namedElement != null)
             {
                 var name = namedElement.Name;
                 if (!string.IsNullOrEmpty(name)) return name;
             }
 
-            var componentType = component.GetType();
+            var componentType = element.GetType();
             return GetElementDisplayName(componentType);
-        }
-
-        protected static Type GetObservableType(object source)
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-
-            return source.GetType()
-                         .FindInterfaces((t, m) => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IObservable<>), null)
-                         .First()
-                         .GetGenericArguments()[0];
         }
 
         #region Type Inference
@@ -609,7 +648,7 @@ namespace Bonsai.Expressions
             Expression source;
             if (string.IsNullOrEmpty(memberPath))
             {
-                memberPath = ExpressionBuilderArgument.Source;
+                memberPath = ExpressionBuilderArgument.ArgumentNamePrefix;
             }
 
             var selector = memberPath.Split(new[] { ExpressionHelper.MemberSeparator }, 2, StringSplitOptions.None);

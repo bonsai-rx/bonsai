@@ -8,9 +8,22 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
 {
+    /// <summary>
+    /// Represents an expression builder that applies an arithmetic negation operation
+    /// on elements of an observable sequence.
+    /// </summary>
     [XmlType("Negate", Namespace = Constants.XmlNamespace)]
     public class NegateBuilder : SelectBuilder
     {
+        /// <summary>
+        /// Returns the expression that applies an arithmetic negation operation on
+        /// the specified input parameter to the selector result.
+        /// </summary>
+        /// <param name="expression">The input parameter to the selector.</param>
+        /// <returns>
+        /// The <see cref="Expression"/> that applies an arithmetic negation operation
+        /// on the input parameter to the selector result.
+        /// </returns>
         protected override Expression BuildSelector(Expression expression)
         {
             return Expression.Negate(expression);

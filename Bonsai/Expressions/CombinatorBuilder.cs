@@ -9,21 +9,35 @@ using System.ComponentModel;
 
 namespace Bonsai.Expressions
 {
+    /// <summary>
+    /// Represents an expression builder which uses a specified combinator instance
+    /// to process one or more input observable sequences.
+    /// </summary>
     [XmlType("Combinator", Namespace = Constants.XmlNamespace)]
     public class CombinatorBuilder : CombinatorExpressionBuilder, INamedElement
     {
         object combinator;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CombinatorBuilder"/> class.
+        /// </summary>
         public CombinatorBuilder()
             : base(minArguments: 0, maxArguments: 0)
         {
         }
 
+        /// <summary>
+        /// Gets the display name of the combinator.
+        /// </summary>
         public string Name
         {
             get { return GetElementDisplayName(combinator); }
         }
 
+        /// <summary>
+        /// Gets or sets the combinator instance used to process input
+        /// observable sequences.
+        /// </summary>
         public object Combinator
         {
             get { return combinator; }
@@ -66,6 +80,11 @@ namespace Bonsai.Expressions
             return combinatorType.GetMethods(bindingAttributes).Where(m => m.Name == methodName);
         }
 
+        /// <summary>
+        /// Generates an <see cref="Expression"/> node that will be passed on to other
+        /// builders in the workflow.
+        /// </summary>
+        /// <returns>An <see cref="Expression"/> tree node.</returns>
         public override Expression Build()
         {
             var output = BuildCombinator();
@@ -73,6 +92,13 @@ namespace Bonsai.Expressions
             return BuildMappingOutput(combinatorExpression, output, PropertyMappings);
         }
 
+        /// <summary>
+        /// Generates an <see cref="Expression"/> node that will be combined with any
+        /// existing property mappings to produce the final output of the expression builder.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="Expression"/> tree node that represents the combinator output.
+        /// </returns>
         protected override Expression BuildCombinator()
         {
             var combinatorExpression = Expression.Constant(Combinator);

@@ -10,22 +10,41 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Expressions
 {
+    /// <summary>
+    /// Represents an expression builder which uses a specified source instance
+    /// to generate an observable sequence.
+    /// </summary>
     [WorkflowElementCategory(ElementCategory.Source)]
     [XmlType("Source", Namespace = Constants.XmlNamespace)]
     public class SourceBuilder : CombinatorExpressionBuilder, INamedElement
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SourceBuilder"/> class.
+        /// </summary>
         public SourceBuilder()
             : base(minArguments: 0, maxArguments: 0)
         {
         }
 
+        /// <summary>
+        /// Gets the display name of the source.
+        /// </summary>
         public string Name
         {
             get { return GetElementDisplayName(Generator); }
         }
 
+        /// <summary>
+        /// Gets or sets the source instance used to generate
+        /// observable sequences.
+        /// </summary>
         public object Generator { get; set; }
 
+        /// <summary>
+        /// Generates an <see cref="Expression"/> node that will be passed on to other
+        /// builders in the workflow.
+        /// </summary>
+        /// <returns>An <see cref="Expression"/> tree node.</returns>
         public override Expression Build()
         {
             var output = BuildCombinator();
@@ -33,6 +52,13 @@ namespace Bonsai.Expressions
             return BuildMappingOutput(sourceExpression, output, PropertyMappings);
         }
 
+        /// <summary>
+        /// Generates an <see cref="Expression"/> node that will be combined with any
+        /// existing property mappings to produce the final output of the expression builder.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="Expression"/> tree node that represents the source output.
+        /// </returns>
         protected override Expression BuildCombinator()
         {
             const BindingFlags bindingAttributes = BindingFlags.Instance | BindingFlags.Public;
