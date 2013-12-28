@@ -48,9 +48,13 @@ namespace Bonsai.Expressions
                     p.Length == 1 &&
                     Attribute.IsDefined(p[0], typeof(ParamArrayAttribute)));
 
-                var min = processMethodParameters.Min(p => p.Length);
-                var max = paramArray ? int.MaxValue : processMethodParameters.Max(p => p.Length);
-                SetArgumentRange(min, max);
+                if (paramArray) SetArgumentRange(1, int.MaxValue);
+                else
+                {
+                    var min = processMethodParameters.Min(p => p.Length);
+                    var max = processMethodParameters.Max(p => p.Length);
+                    SetArgumentRange(min, max);
+                }
             }
         }
 

@@ -283,7 +283,7 @@ namespace Bonsai.Expressions
             var argumentTypes = Array.ConvertAll(arguments, xs => xs.Type);
             if (method.IsGenericMethodDefinition)
             {
-                var methodCallArgumentTypes = argumentTypes;
+                var methodCallArgumentTypes = (Type[])argumentTypes.Clone();
                 var methodParameters = method.GetParameters();
                 if (ParamExpansionRequired(methodParameters, methodCallArgumentTypes))
                 {
