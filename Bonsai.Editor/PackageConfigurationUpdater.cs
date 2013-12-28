@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Versioning;
 using System.Text;
 
@@ -188,20 +189,22 @@ namespace Bonsai.Editor
 
             foreach (var reference in GetCompatibleAssemblyReferences(package))
             {
-                var referencePath = Path.Combine(installPath, reference.Path);
-                var referenceName = Path.GetFileNameWithoutExtension(reference.Name);
-                if (!packageConfiguration.AssemblyLocations.Contains(referenceName))
+                var assemblyFile = Path.Combine(e.InstallPath, reference.Path);
+                var assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
+                var assemblyLocation = Path.Combine(installPath, reference.Path);
+                var assemblyLocationKey = Tuple.Create(assemblyName.Name, assemblyName.ProcessorArchitecture);
+                if (!packageConfiguration.AssemblyLocations.Contains(assemblyLocationKey))
                 {
-                    packageConfiguration.AssemblyLocations.Add(referenceName, referencePath);
+                    packageConfiguration.AssemblyLocations.Add(assemblyName.Name, assemblyName.ProcessorArchitecture, assemblyLocation);
                 }
-                else if (packageConfiguration.AssemblyLocations[referenceName].Location != referencePath)
+                else if (packageConfiguration.AssemblyLocations[assemblyLocationKey].Location != assemblyLocation)
                 {
-                    throw new InvalidOperationException(string.Format(Resources.AssemblyReferenceLocationMismatchException, referenceName));
+                    throw new InvalidOperationException(string.Format(Resources.AssemblyReferenceLocationMismatchException, assemblyLocationKey));
                 }
 
-                if (taggedPackage && !packageConfiguration.AssemblyReferences.Contains(referenceName))
+                if (taggedPackage && !packageConfiguration.AssemblyReferences.Contains(assemblyName.Name))
                 {
-                    packageConfiguration.AssemblyReferences.Add(referenceName);
+                    packageConfiguration.AssemblyReferences.Add(assemblyName.Name);
                 }
             }
 
@@ -243,11 +246,12 @@ namespace Bonsai.Editor
 
             foreach (var reference in GetCompatibleAssemblyReferences(package))
             {
-                var referenceName = Path.GetFileNameWithoutExtension(reference.Name);
-                packageConfiguration.AssemblyLocations.Remove(referenceName);
+                var assemblyFile = Path.Combine(e.InstallPath, reference.Path);
+                var assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
+                packageConfiguration.AssemblyLocations.Remove(Tuple.Create(assemblyName.Name, assemblyName.ProcessorArchitecture));
                 if (taggedPackage)
                 {
-                    packageConfiguration.AssemblyReferences.Remove(referenceName);
+                    packageConfiguration.AssemblyReferences.Remove(assemblyName.Name);
                 }
             }
 
