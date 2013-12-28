@@ -14,7 +14,7 @@ namespace Bonsai
         readonly IComparer<TValue> valueComparer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Range{TValue}"/> class with the specified
+        /// Initializes a new instance of the <see cref="Range"/> class with the specified
         /// lower and upper bounds.
         /// </summary>
         /// <param name="lowerBound">The inclusive lower bound of the range.</param>
@@ -25,7 +25,7 @@ namespace Bonsai
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Range{TValue}"/> class with the specified 
+        /// Initializes a new instance of the <see cref="Range"/> class with the specified 
         /// lower and upper bounds and using the specified comparer.
         /// </summary>
         /// <param name="lowerBound">The inclusive lower bound of the range.</param>
@@ -70,6 +70,18 @@ namespace Bonsai
         {
             return valueComparer.Compare(LowerBound, value) <= 0 &&
                 valueComparer.Compare(value, UpperBound) <= 0;
+        }
+
+        /// <summary>
+        /// Creates a <see cref="String"/> representation of this <see cref="Range"/>.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="String"/> containing the <see cref="LowerBound"/> and
+        /// <see cref="UpperBound"/> values of this <see cref="Range"/>.
+        /// </returns>
+        public override string ToString()
+        {
+            return string.Format("[{0}, {1}]", LowerBound, UpperBound);
         }
     }
 
