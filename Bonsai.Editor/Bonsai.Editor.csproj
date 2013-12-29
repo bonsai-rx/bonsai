@@ -190,9 +190,9 @@
       <Project>{73701ce6-b60f-4137-b277-eadccd5ad1c3}</Project>
       <Name>Bonsai.NuGet</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Bonsai\Bonsai.csproj">
+    <ProjectReference Include="..\Bonsai\Bonsai.Core.csproj">
       <Project>{E4D03BA3-54A2-4FF8-9DC6-52BA4CC14FED}</Project>
-      <Name>Bonsai</Name>
+      <Name>Bonsai.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

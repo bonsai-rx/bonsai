@@ -16,7 +16,6 @@
     <tags>Bonsai Editor Rx Reactive Extensions Events Data Processing</tags>
     <dependencies>
       <dependency id="Bonsai.Design" version="2.0.0-beta" />
-      <dependency id="Bonsai" version="2.0.0-beta" />
     </dependencies>
   </metadata>
 </package>
