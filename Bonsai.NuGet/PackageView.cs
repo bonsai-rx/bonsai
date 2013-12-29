@@ -12,6 +12,7 @@ namespace Bonsai.NuGet
 {
     class PackageView : TreeView
     {
+        Font boldFont;
         readonly Image packageViewNodeCheckedImage;
         static readonly Rectangle OperationButtonBounds = new Rectangle(10, 2, 75, 23);
         const int BoundsMargin = 5;
@@ -32,6 +33,16 @@ namespace Bonsai.NuGet
         {
             DrawMode = TreeViewDrawMode.OwnerDrawText;
             packageViewNodeCheckedImage = Resources.PackageViewNodeCheckedImage;
+        }
+
+        public override Font Font
+        {
+            get { return base.Font; }
+            set
+            {
+                base.Font = value;
+                boldFont = new Font(value, FontStyle.Bold);
+            }
         }
 
         [Category("Action")]
@@ -71,6 +82,7 @@ namespace Bonsai.NuGet
             {
                 NativeMethods.SendMessage(Handle, TVM_SETEXTENDEDSTYLE, (IntPtr)TVS_EX_DOUBLEBUFFER, (IntPtr)TVS_EX_DOUBLEBUFFER);
             }
+            boldFont = new Font(Font, FontStyle.Bold);
             base.OnHandleCreated(e);
         }
 
@@ -135,7 +147,6 @@ namespace Bonsai.NuGet
             var color = (e.State & TreeNodeStates.Selected) != 0 ? SystemColors.HighlightText : SystemColors.WindowText;
             var bounds = e.Bounds;
             bounds.Width = RightMargin - bounds.X;
-            var bold = new Font(Font, FontStyle.Bold);
 
             if (e.Node.Tag == null)
             {
@@ -173,11 +184,11 @@ namespace Bonsai.NuGet
                 }
 
                 var lines = e.Node.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                TextRenderer.DrawText(e.Graphics, lines[0], bold, bounds, color, TextFormatFlags.WordEllipsis);
+                TextRenderer.DrawText(e.Graphics, lines[0], boldFont, bounds, color, TextFormatFlags.WordEllipsis);
 
                 if (lines.Length > 1)
                 {
-                    bounds.Y += TextRenderer.MeasureText(lines[0], bold, bounds.Size, TextFormatFlags.WordEllipsis).Height;
+                    bounds.Y += TextRenderer.MeasureText(lines[0], boldFont, bounds.Size, TextFormatFlags.WordEllipsis).Height;
                     TextRenderer.DrawText(e.Graphics, lines[1], Font, bounds, color, TextFormatFlags.WordBreak);
                 }
             }
