@@ -85,7 +85,7 @@
       <Project>{B783D74F-CB2D-4419-B438-266CD15774FB}</Project>
       <Name>Bonsai.IO</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Bonsai\Bonsai.Core.csproj">
+    <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj">
       <Project>{E4D03BA3-54A2-4FF8-9DC6-52BA4CC14FED}</Project>
       <Name>Bonsai.Core</Name>
     </ProjectReference>
