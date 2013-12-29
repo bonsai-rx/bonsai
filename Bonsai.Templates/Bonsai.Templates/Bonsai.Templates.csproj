@@ -62,8 +62,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="eula.rtf" />
-    <None Include="..\..\bin\Bonsai.2.0.0-beta.nupkg">
-      <Link>Packages\Bonsai.2.0.0-beta.nupkg</Link>
+    <None Include="..\..\bin\Bonsai.Core.2.0.0-beta.nupkg">
+      <Link>Packages\Bonsai.Core.2.0.0-beta.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="..\Bonsai.ConditionItemTemplate\bin\Release\BonsaiCondition.zip">
