@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bonsai.Editor
+namespace Bonsai
 {
     class OverlayPackagePathResolver : DefaultPackagePathResolver
     {

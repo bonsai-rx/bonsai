@@ -20,7 +20,6 @@ using System.IO;
 using System.Windows.Forms.Design;
 using System.Reactive.Concurrency;
 using System.Reactive;
-using Bonsai.Configuration;
 
 namespace Bonsai.Editor
 {
@@ -51,7 +50,12 @@ namespace Bonsai.Editor
         IDisposable running;
         bool building;
 
-        public MainForm()
+        IObservable<IGrouping<string, WorkflowElementDescriptor>> toolboxElements;
+        IObservable<TypeVisualizerDescriptor> visualizerElements;
+
+        public MainForm(
+            IObservable<IGrouping<string, WorkflowElementDescriptor>> elementProvider,
+            IObservable<TypeVisualizerDescriptor> visualizerProvider)
         {
             InitializeComponent();
             statusTextLabel = new Label();
@@ -80,13 +84,14 @@ namespace Bonsai.Editor
 
             selectionModel.UpdateSelection(workflowGraphView);
             selectionModel.SelectionChanged += new EventHandler(selectionModel_SelectionChanged);
+
+            toolboxElements = elementProvider;
+            visualizerElements = visualizerProvider;
         }
 
         #region Loading
 
-        internal bool LaunchPackageManager { get; set; }
-
-        public PackageConfiguration PackageConfiguration { get; set; }
+        public bool LaunchPackageManager { get; set; }
 
         public string InitialFileName { get; set; }
 
@@ -120,14 +125,13 @@ namespace Bonsai.Editor
                 Path.GetExtension(initialFileName) == BonsaiExtension &&
                 File.Exists(initialFileName);
 
-            var configuration = PackageConfiguration ?? ConfigurationHelper.Load();
             var currentDirectory = Path.GetFullPath(Environment.CurrentDirectory).TrimEnd('\\');
             var appDomainBaseDirectory = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\');
             var systemPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.System)).TrimEnd('\\');
             var systemX86Path = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86)).TrimEnd('\\');
             var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory || currentDirectory == systemPath || currentDirectory == systemX86Path;
             directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
-            var initialization = InitializeToolbox(configuration).Merge(InitializeTypeVisualizers(configuration)).TakeLast(1).ObserveOn(Scheduler.Default);
+            var initialization = InitializeToolbox().Merge(InitializeTypeVisualizers()).TakeLast(1).ObserveOn(Scheduler.Default);
             InitializeExampleDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Examples"), examplesToolStripMenuItem);
 
             if (validFileName)
@@ -159,9 +163,14 @@ namespace Bonsai.Editor
 
         #region Toolbox
 
-        IObservable<Unit> InitializeTypeVisualizers(PackageConfiguration configuration)
+        IObservable<Unit> InitializeTypeVisualizers()
         {
-            var visualizerMapping = TypeVisualizerLoader.GetTypeVisualizerDictionary(configuration);
+            var visualizerMapping = from typeVisualizer in visualizerElements
+                                    let targetType = Type.GetType(typeVisualizer.TargetTypeName)
+                                    let visualizerType = Type.GetType(typeVisualizer.VisualizerTypeName)
+                                    where targetType != null && visualizerType != null
+                                    select Tuple.Create(targetType, visualizerType);
+
             return visualizerMapping
                 .ObserveOn(this)
                 .Do(typeMapping => typeVisualizers.Add(typeMapping.Item1, typeMapping.Item2))
@@ -170,10 +179,9 @@ namespace Bonsai.Editor
                 .Select(xs => Unit.Default);
         }
 
-        IObservable<Unit> InitializeToolbox(PackageConfiguration configuration)
+        IObservable<Unit> InitializeToolbox()
         {
-            var packages = WorkflowElementLoader.GetWorkflowElementTypes(configuration);
-            return packages
+            return toolboxElements
                 .ObserveOn(this)
                 .Do(package => InitializeToolboxCategory(package.Key, package))
                 .SubscribeOn(Scheduler.Default)

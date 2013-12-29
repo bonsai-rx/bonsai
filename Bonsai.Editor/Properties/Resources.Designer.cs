@@ -61,15 +61,6 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The assembly reference &apos;{0}&apos; has already been assigned to a different location. Consider uninstalling the conflicting package..
-        /// </summary>
-        internal static string AssemblyReferenceLocationMismatchException {
-            get {
-                return ResourceManager.GetString("AssemblyReferenceLocationMismatchException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to 
         ///The Bonsai framework includes software from the NuGet Project developed at the Outercurve Foundation (http://www.outercurve.org/).
         ///
@@ -108,24 +99,6 @@ namespace Bonsai.Editor.Properties {
             get {
                 object obj = ResourceManager.GetObject("BonsaiWelcome", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Fatal error: no bootstrapper file was found in editor package..
-        /// </summary>
-        internal static string BootstrapperMissingFromPackage {
-            get {
-                return ResourceManager.GetString("BootstrapperMissingFromPackage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The library folder &apos;{0}&apos; has already been assigned to a different platform. Consider uninstalling the conflicting package..
-        /// </summary>
-        internal static string LibraryFolderPlatformMismatchException {
-            get {
-                return ResourceManager.GetString("LibraryFolderPlatformMismatchException", resourceCulture);
             }
         }
         

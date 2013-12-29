@@ -6,8 +6,9 @@ using System.Reflection;
 using System.IO;
 using System.Reactive.Linq;
 using Bonsai.Configuration;
+using Bonsai.Editor;
 
-namespace Bonsai.Editor
+namespace Bonsai
 {
     sealed class TypeVisualizerLoader : MarshalByRefObject
     {
@@ -23,19 +24,6 @@ namespace Bonsai.Editor
         {
             var typeVisualizerAttributeAssembly = Assembly.Load(typeof(TypeVisualizerAttribute).Assembly.FullName);
             typeVisualizerAttributeType = typeVisualizerAttributeAssembly.GetType(typeof(TypeVisualizerAttribute).FullName);
-        }
-
-        [Serializable]
-        class TypeVisualizerInfo
-        {
-            public string VisualizerTypeName;
-            public string TargetTypeName;
-
-            public TypeVisualizerInfo(TypeVisualizerAttribute typeVisualizer)
-            {
-                TargetTypeName = typeVisualizer.TargetTypeName;
-                VisualizerTypeName = typeVisualizer.VisualizerTypeName;
-            }
         }
 
         IEnumerable<TypeVisualizerAttribute> GetCustomAttributeTypes(Assembly assembly, Type attributeType)
@@ -68,7 +56,7 @@ namespace Bonsai.Editor
             return typeVisualizers;
         }
 
-        TypeVisualizerInfo[] GetReflectionTypeVisualizerAttributes(string assemblyRef)
+        TypeVisualizerDescriptor[] GetReflectionTypeVisualizerAttributes(string assemblyRef)
         {
             var typeVisualizers = Enumerable.Empty<TypeVisualizerAttribute>();
             try
@@ -82,7 +70,7 @@ namespace Bonsai.Editor
             catch (FileNotFoundException) { }
             catch (BadImageFormatException) { }
 
-            return typeVisualizers.Distinct().Select(data => new TypeVisualizerInfo(data)).ToArray();
+            return typeVisualizers.Distinct().Select(data => new TypeVisualizerDescriptor(data)).ToArray();
         }
 
         class LoaderResource : IDisposable
@@ -109,7 +97,7 @@ namespace Bonsai.Editor
             }
         }
 
-        public static IObservable<Tuple<Type, Type>> GetTypeVisualizerDictionary(PackageConfiguration configuration)
+        public static IObservable<TypeVisualizerDescriptor> GetTypeVisualizerDictionary(PackageConfiguration configuration)
         {
             if (configuration == null)
             {
@@ -122,10 +110,7 @@ namespace Bonsai.Editor
                 resource => from assemblyRef in assemblies.ToObservable()
                             let typeVisualizers = resource.Loader.GetReflectionTypeVisualizerAttributes(assemblyRef)
                             from typeVisualizer in typeVisualizers
-                            let targetType = Type.GetType(typeVisualizer.TargetTypeName)
-                            let visualizerType = Type.GetType(typeVisualizer.VisualizerTypeName)
-                            where targetType != null && visualizerType != null
-                            select Tuple.Create(targetType, visualizerType));
+                            select typeVisualizer);
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Text;
 using Bonsai.Expressions;
 using System.ComponentModel;
 
-namespace Bonsai.Editor
+namespace Bonsai
 {
     static class WorkflowElementCategoryConverter
     {

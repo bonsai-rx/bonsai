@@ -9,8 +9,9 @@ using Bonsai.Expressions;
 using System.Reactive.Linq;
 using System.ComponentModel;
 using Bonsai.Configuration;
+using Bonsai.Editor;
 
-namespace Bonsai.Editor
+namespace Bonsai
 {
     sealed class WorkflowElementLoader : MarshalByRefObject
     {
@@ -142,20 +143,5 @@ namespace Bonsai.Editor
                                 .GroupBy(element => element.Namespace)
                             select package);
         }
-    }
-
-    [Serializable]
-    [DebuggerDisplay("Name = {Name}, AssemblyName = {AssemblyName}")]
-    struct WorkflowElementDescriptor
-    {
-        public string Name { get; set; }
-
-        public string Namespace { get; set; }
-
-        public string AssemblyQualifiedName { get; set; }
-
-        public string Description { get; set; }
-
-        public ElementCategory[] ElementTypes { get; set; }
     }
 }
