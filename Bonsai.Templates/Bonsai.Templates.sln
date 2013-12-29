@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.TemplateWizards", "B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.PackageProjectTemplate", "Bonsai.PackageProjectTemplate\Bonsai.PackageProjectTemplate.csproj", "{C65A3F2D-EB8F-46D8-B783-24A90F907D78}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.VisualizerTemplate", "Bonsai.VisualizerTemplate\Bonsai.VisualizerTemplate.csproj", "{3E0FE9EE-AC5F-480F-90EC-B7BCDEEE0A43}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{C65A3F2D-EB8F-46D8-B783-24A90F907D78}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C65A3F2D-EB8F-46D8-B783-24A90F907D78}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C65A3F2D-EB8F-46D8-B783-24A90F907D78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E0FE9EE-AC5F-480F-90EC-B7BCDEEE0A43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E0FE9EE-AC5F-480F-90EC-B7BCDEEE0A43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E0FE9EE-AC5F-480F-90EC-B7BCDEEE0A43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E0FE9EE-AC5F-480F-90EC-B7BCDEEE0A43}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
