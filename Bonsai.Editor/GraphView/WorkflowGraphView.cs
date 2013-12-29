@@ -175,9 +175,12 @@ namespace Bonsai.Design
             }
 
             var observableType = inspectBuilder.ObservableType;
-            foreach (var type in editorService.GetTypeVisualizers(observableType))
+            if (observableType != null)
             {
-                yield return type;
+                foreach (var type in editorService.GetTypeVisualizers(observableType))
+                {
+                    yield return type;
+                }
             }
 
             foreach (var type in editorService.GetTypeVisualizers(typeof(object)))

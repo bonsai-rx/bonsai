@@ -24,6 +24,11 @@ namespace Bonsai.Editor
 
         public IEnumerable<Type> GetTypeVisualizers(Type targetType)
         {
+            if (targetType == null)
+            {
+                throw new ArgumentNullException("targetType");
+            }
+
             List<Type> visualizerTypes;
             if (visualizerMap.TryGetValue(targetType, out visualizerTypes))
             {
