@@ -180,6 +180,15 @@
         AElFTkSuQmCC
 </value>
   </data>
+  <data name="LicenseAuthorshipLabel" xml:space="preserve">
+    <value>(Author: {0})</value>
+  </data>
+  <data name="LicenseViewLicenseLabel" xml:space="preserve">
+    <value>View License</value>
+  </data>
+  <data name="PackageAlreadyInstalled" xml:space="preserve">
+    <value>'{0}' already installed.</value>
+  </data>
   <data name="RetrievingInformationLabel" xml:space="preserve">
     <value>Retrieving information...</value>
   </data>

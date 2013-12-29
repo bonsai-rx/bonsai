@@ -74,6 +74,7 @@
     <Compile Include="CueBannerComboBox.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="LicenseAwarePackageManager.cs" />
     <Compile Include="EventLogger.cs" />
     <Compile Include="LogEventArgs.cs" />
     <Compile Include="NativeMethods.cs" />
@@ -123,6 +124,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="RequiringLicenseAcceptanceEventArgs.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="LicenseAcceptanceDialog.resx">
