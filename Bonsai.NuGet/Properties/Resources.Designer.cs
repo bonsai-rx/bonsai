@@ -115,6 +115,24 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (Author: {0}).
+        /// </summary>
+        internal static string LicenseAuthorshipLabel {
+            get {
+                return ResourceManager.GetString("LicenseAuthorshipLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to View License.
+        /// </summary>
+        internal static string LicenseViewLicenseLabel {
+            get {
+                return ResourceManager.GetString("LicenseViewLicenseLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No Dependencies.
         /// </summary>
         internal static string NoDependenciesLabel {
@@ -138,6 +156,15 @@ namespace Bonsai.NuGet.Properties {
         internal static string OnlineNodeName {
             get {
                 return ResourceManager.GetString("OnlineNodeName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; already installed..
+        /// </summary>
+        internal static string PackageAlreadyInstalled {
+            get {
+                return ResourceManager.GetString("PackageAlreadyInstalled", resourceCulture);
             }
         }
         

@@ -30,7 +30,7 @@
         {
             this.mainFlowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.packageListLabel = new System.Windows.Forms.Label();
-            this.packageListBox = new System.Windows.Forms.ListBox();
+            this.packageLicenseView = new System.Windows.Forms.FlowLayoutPanel();
             this.clarificationLabel = new System.Windows.Forms.Label();
             this.actionFlowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.acceptButton = new System.Windows.Forms.Button();
@@ -42,14 +42,14 @@
             // mainFlowLayoutPanel
             // 
             this.mainFlowLayoutPanel.Controls.Add(this.packageListLabel);
-            this.mainFlowLayoutPanel.Controls.Add(this.packageListBox);
+            this.mainFlowLayoutPanel.Controls.Add(this.packageLicenseView);
             this.mainFlowLayoutPanel.Controls.Add(this.clarificationLabel);
             this.mainFlowLayoutPanel.Controls.Add(this.actionFlowLayoutPanel);
             this.mainFlowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mainFlowLayoutPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.mainFlowLayoutPanel.Location = new System.Drawing.Point(0, 0);
             this.mainFlowLayoutPanel.Name = "mainFlowLayoutPanel";
-            this.mainFlowLayoutPanel.Size = new System.Drawing.Size(384, 411);
+            this.mainFlowLayoutPanel.Size = new System.Drawing.Size(344, 391);
             this.mainFlowLayoutPanel.TabIndex = 0;
             // 
             // packageListLabel
@@ -59,20 +59,22 @@
             this.packageListLabel.Location = new System.Drawing.Point(10, 13);
             this.packageListLabel.Margin = new System.Windows.Forms.Padding(10, 13, 3, 0);
             this.packageListLabel.Name = "packageListLabel";
-            this.packageListLabel.Size = new System.Drawing.Size(365, 13);
+            this.packageListLabel.Size = new System.Drawing.Size(324, 13);
             this.packageListLabel.TabIndex = 0;
             this.packageListLabel.Text = "The following package(s) require a click-to-accept license:";
             // 
-            // packageListBox
+            // packageLicenseView
             // 
-            this.packageListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.packageLicenseView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.packageListBox.FormattingEnabled = true;
-            this.packageListBox.Location = new System.Drawing.Point(10, 29);
-            this.packageListBox.Margin = new System.Windows.Forms.Padding(10, 3, 3, 3);
-            this.packageListBox.Name = "packageListBox";
-            this.packageListBox.Size = new System.Drawing.Size(365, 277);
-            this.packageListBox.TabIndex = 5;
+            this.packageLicenseView.BackColor = System.Drawing.SystemColors.Window;
+            this.packageLicenseView.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.packageLicenseView.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.packageLicenseView.Location = new System.Drawing.Point(10, 29);
+            this.packageLicenseView.Margin = new System.Windows.Forms.Padding(10, 3, 3, 3);
+            this.packageLicenseView.Name = "packageLicenseView";
+            this.packageLicenseView.Size = new System.Drawing.Size(324, 277);
+            this.packageLicenseView.TabIndex = 5;
             // 
             // clarificationLabel
             // 
@@ -82,7 +84,7 @@
             this.clarificationLabel.Location = new System.Drawing.Point(10, 309);
             this.clarificationLabel.Margin = new System.Windows.Forms.Padding(10, 0, 3, 0);
             this.clarificationLabel.Name = "clarificationLabel";
-            this.clarificationLabel.Size = new System.Drawing.Size(365, 26);
+            this.clarificationLabel.Size = new System.Drawing.Size(324, 39);
             this.clarificationLabel.TabIndex = 2;
             this.clarificationLabel.Text = "By clicking \"I Accept,\" you agree to the license terms for the package(s) listed " +
     "above. If you do not agree to the license terms, click \"I Decline.\"";
@@ -93,15 +95,16 @@
             this.actionFlowLayoutPanel.Controls.Add(this.acceptButton);
             this.actionFlowLayoutPanel.Controls.Add(this.declineButton);
             this.actionFlowLayoutPanel.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.actionFlowLayoutPanel.Location = new System.Drawing.Point(10, 338);
+            this.actionFlowLayoutPanel.Location = new System.Drawing.Point(10, 351);
             this.actionFlowLayoutPanel.Margin = new System.Windows.Forms.Padding(10, 3, 3, 3);
             this.actionFlowLayoutPanel.Name = "actionFlowLayoutPanel";
-            this.actionFlowLayoutPanel.Size = new System.Drawing.Size(365, 33);
+            this.actionFlowLayoutPanel.Size = new System.Drawing.Size(324, 33);
             this.actionFlowLayoutPanel.TabIndex = 3;
             // 
             // acceptButton
             // 
-            this.acceptButton.Location = new System.Drawing.Point(287, 3);
+            this.acceptButton.DialogResult = System.Windows.Forms.DialogResult.Yes;
+            this.acceptButton.Location = new System.Drawing.Point(246, 3);
             this.acceptButton.Name = "acceptButton";
             this.acceptButton.Size = new System.Drawing.Size(75, 23);
             this.acceptButton.TabIndex = 0;
@@ -110,7 +113,8 @@
             // 
             // declineButton
             // 
-            this.declineButton.Location = new System.Drawing.Point(206, 3);
+            this.declineButton.DialogResult = System.Windows.Forms.DialogResult.No;
+            this.declineButton.Location = new System.Drawing.Point(165, 3);
             this.declineButton.Name = "declineButton";
             this.declineButton.Size = new System.Drawing.Size(75, 23);
             this.declineButton.TabIndex = 1;
@@ -119,13 +123,15 @@
             // 
             // LicenseAcceptanceDialog
             // 
+            this.AcceptButton = this.acceptButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(384, 411);
+            this.CancelButton = this.declineButton;
+            this.ClientSize = new System.Drawing.Size(344, 391);
             this.Controls.Add(this.mainFlowLayoutPanel);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(350, 300);
+            this.MinimumSize = new System.Drawing.Size(360, 430);
             this.Name = "LicenseAcceptanceDialog";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
@@ -146,6 +152,6 @@
         private System.Windows.Forms.FlowLayoutPanel actionFlowLayoutPanel;
         private System.Windows.Forms.Button acceptButton;
         private System.Windows.Forms.Button declineButton;
-        private System.Windows.Forms.ListBox packageListBox;
+        private System.Windows.Forms.FlowLayoutPanel packageLicenseView;
     }
 }

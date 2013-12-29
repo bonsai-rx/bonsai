@@ -32,12 +32,13 @@ namespace Bonsai.NuGet
         bool loaded;
         readonly string packageManagerPath;
         readonly IPackageSourceProvider packageSourceProvider;
-        Dictionary<string, IPackageManager> packageManagers;
-        IPackageManager selectedManager;
+        Dictionary<string, PackageManager> packageManagers;
+        PackageManager selectedManager;
         IPackageRepository selectedRepository;
         string feedExceptionMessage;
         List<IDisposable> activeRequests;
         IDisposable searchSubscription;
+        Form operationDialog;
 
         TreeNode installedPackagesNode;
         TreeNode onlineNode;
@@ -70,21 +71,43 @@ namespace Bonsai.NuGet
             });
         }
 
-        IPackageManager CreatePackageManager(IPackageRepository sourceRepository, EventLogger logger)
+        PackageManager CreatePackageManager(IPackageRepository sourceRepository, EventLogger logger)
         {
-            var packageManager = new PackageManager(sourceRepository, packageManagerPath);
+            var packageManager = new LicenseAwarePackageManager(sourceRepository, packageManagerPath);
             packageManager.Logger = logger;
             packageManager.PackageInstalled += (sender, e) => OnPackageInstalled(e);
             packageManager.PackageInstalling += (sender, e) => OnPackageInstalling(e);
             packageManager.PackageUninstalled += (sender, e) => OnPackageUninstalled(e);
             packageManager.PackageUninstalling += (sender, e) => OnPackageUninstalling(e);
+            packageManager.RequiringLicenseAcceptance += packageManager_RequiringLicenseAcceptance;
             return packageManager;
         }
 
-        private Dictionary<string, IPackageManager> CreatePackageManagers()
+        void packageManager_RequiringLicenseAcceptance(object sender, RequiringLicenseAcceptanceEventArgs e)
+        {
+            if (InvokeRequired)
+            {
+                Invoke((EventHandler<RequiringLicenseAcceptanceEventArgs>)packageManager_RequiringLicenseAcceptance, sender, e);
+            }
+            else
+            {
+                if (operationDialog == null) return;
+                operationDialog.Hide();
+                using (var licenseDialog = new LicenseAcceptanceDialog(e.LicensePackages))
+                {
+                    e.LicenseAccepted = licenseDialog.ShowDialog(this) == DialogResult.Yes;
+                    if (e.LicenseAccepted)
+                    {
+                        operationDialog.Show();
+                    }
+                }
+            }
+        }
+
+        private Dictionary<string, PackageManager> CreatePackageManagers()
         {
             var logger = new EventLogger();
-            var managers = new Dictionary<string, IPackageManager>();
+            var managers = new Dictionary<string, PackageManager>();
             var aggregateRepository = packageSourceProvider.GetAggregate(PackageRepositoryFactory.Default);
             managers.Add(Resources.AllNodeName, CreatePackageManager(aggregateRepository, logger));
             var packageRepositories = packageSourceProvider
@@ -454,24 +477,29 @@ namespace Bonsai.NuGet
                         }
                         else
                         {
-                            operation = Observable.Start(() => selectedManager.InstallPackage(package, false, allowPrereleaseVersions, false));
+                            operation = Observable.Start(() => selectedManager.InstallPackage(package, false, allowPrereleaseVersions));
                             dialog.Text = Resources.InstallOperationLabel;
                         }
                     }
 
-                    operation.ObserveOn(this).Subscribe(
-                        xs => { },
-                        ex => logger.Log(MessageLevel.Error, ex.Message),
-                        () => dialog.Close());
-                    dialog.ShowDialog();
-                    UpdatePackageFeed();
+                    operationDialog = dialog;
+                    try
+                    {
+                        operation.ObserveOn(this).Subscribe(
+                            xs => { },
+                            ex => logger.Log(MessageLevel.Error, ex.Message),
+                            () => dialog.Close());
+                        dialog.ShowDialog();
+                        UpdatePackageFeed();
+                    }
+                    finally { operationDialog = null; }
                 }
             }
         }
 
         private void repositoriesView_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            selectedManager = e.Node.Tag as IPackageManager;
+            selectedManager = e.Node.Tag as PackageManager;
             if (selectedManager == null) return;
             if (e.Node == installedPackagesNode || e.Node.Parent == installedPackagesNode)
             {
