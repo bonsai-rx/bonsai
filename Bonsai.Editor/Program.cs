@@ -102,7 +102,7 @@ namespace Bonsai.Editor
                 var settings = Settings.LoadDefaultSettings(null, null, machineWideSettings);
                 var sourceProvider = new PackageSourceProvider(settings);
                 var sourceRepository = sourceProvider.GetAggregate(PackageRepositoryFactory.Default, true);
-                var packageManager = new PackageManager(sourceRepository, editorRepositoryPath) { Logger = logger };
+                var packageManager = new LicenseAwarePackageManager(sourceRepository, editorRepositoryPath) { Logger = logger };
 
                 var editorPackage = packageManager.LocalRepository.FindPackage(editorPackageId, editorPackageVersion);
                 if (editorPackage == null)
@@ -110,7 +110,7 @@ namespace Bonsai.Editor
                     using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageId))
                     {
                         PackageHelper.RunPackageOperation(
-                            logger,
+                            packageManager,
                             () => packageManager
                                 .StartInstallPackage(editorPackageId, null)
                                 .ContinueWith(task => editorPackage = task.Result));
@@ -123,7 +123,7 @@ namespace Bonsai.Editor
                 {
                     using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageId))
                     {
-                        PackageHelper.RunPackageOperation(logger, () =>
+                        PackageHelper.RunPackageOperation(packageManager, () =>
                             Task.Factory.ContinueWhenAll(packageManager.StartRestorePackages(missingPackages).ToArray(), operations =>
                             {
                                 foreach (var task in operations)

@@ -10,17 +10,36 @@ using Bonsai.Configuration;
 using NuGet;
 using System.Threading.Tasks;
 using Bonsai.NuGet;
+using System.Windows.Forms;
 using PackageReference = Bonsai.Configuration.PackageReference;
 
 namespace Bonsai.Editor
 {
     static class PackageHelper
     {
-        internal static void RunPackageOperation(EventLogger logger, Func<Task> operationFactory)
+        internal static void RunPackageOperation(LicenseAwarePackageManager packageManager, Func<Task> operationFactory)
         {
+            EventHandler<RequiringLicenseAcceptanceEventArgs> requiringLicenseHandler = null;
             using (var dialog = new PackageOperationDialog { ShowInTaskbar = true })
             {
-                dialog.RegisterEventLogger(logger);
+                requiringLicenseHandler = (sender, e) =>
+                {
+                    if (dialog.InvokeRequired) dialog.Invoke(requiringLicenseHandler, sender, e);
+                    else
+                    {
+                        dialog.Hide();
+                        using (var licenseDialog = new LicenseAcceptanceDialog(e.LicensePackages))
+                        {
+                            e.LicenseAccepted = licenseDialog.ShowDialog() == DialogResult.Yes;
+                            if (e.LicenseAccepted)
+                            {
+                                dialog.Show();
+                            }
+                        }
+                    }
+                };
+
+                dialog.RegisterEventLogger((EventLogger)packageManager.Logger);
                 var operation = operationFactory();
                 operation.ContinueWith(task =>
                 {
@@ -29,7 +48,10 @@ namespace Bonsai.Editor
                         dialog.BeginInvoke((Action)dialog.Close);
                     }
                 });
-                dialog.ShowDialog();
+
+                packageManager.RequiringLicenseAcceptance += requiringLicenseHandler;
+                try { dialog.ShowDialog(); }
+                finally { packageManager.RequiringLicenseAcceptance -= requiringLicenseHandler; }
             }
         }
 
