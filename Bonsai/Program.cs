@@ -1,4 +1,5 @@
-﻿using Bonsai.NuGet;
+﻿using Bonsai.Editor;
+using Bonsai.NuGet;
 using NuGet;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Bonsai.Editor
+namespace Bonsai
 {
     static class Program
     {
@@ -83,10 +84,11 @@ namespace Bonsai.Editor
 
                     libFolders.ForEach(path => Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, path));
                     Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
+                    var elementProvider = WorkflowElementLoader.GetWorkflowElementTypes(packageConfiguration);
+                    var visualizerProvider = TypeVisualizerLoader.GetTypeVisualizerDictionary(packageConfiguration);
 
-                    var mainForm = new MainForm
+                    var mainForm = new MainForm(elementProvider, visualizerProvider)
                     {
-                        PackageConfiguration = packageConfiguration,
                         InitialFileName = initialFileName,
                         StartOnLoad = start
                     };

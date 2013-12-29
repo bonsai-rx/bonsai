@@ -117,62 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="BonsaiWelcome" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\BonsaiWelcome.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="AssemblyReferenceLocationMismatchException" xml:space="preserve">
+    <value>The assembly reference '{0}' has already been assigned to a different location. Consider uninstalling the conflicting package.</value>
   </data>
-  <data name="PropertyMappingIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\PropertyMappingIcon.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="BootstrapperMissingFromPackage" xml:space="preserve">
+    <value>Fatal error: no bootstrapper file was found in editor package.</value>
   </data>
-  <data name="RunningStatus" xml:space="preserve">
-    <value>Running</value>
-  </data>
-  <data name="BonsaiCommands" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\BonsaiCommands.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="SearchModuleCueBanner" xml:space="preserve">
-    <value>Search Modules (Ctrl+E)</value>
-  </data>
-  <data name="Bonsai" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Bonsai.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="ReadyStatus" xml:space="preserve">
-    <value>Ready</value>
-  </data>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="StatusBlockedImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wAAADsABataJCQAAAK5JREFUOE9jQAffvn1LAOL9QPwfDYPEEqDKMAFQUgGIz3/at/P/q2jf/09FGFAw
-        SAwkB1IDUgvVBgFQze9fZ8ZgaETHb8pzQIa8RzEEyDkPksCmARuGGnIepjkB5DRsCvFhqHcSQAbsx+Zn
-        QhikB6QXZABWBcRgkF4UA4gFtDOAVAwzgOJApCwaoWnhPDGpEIZREhIIADngpExMasSalEEAagh5mQkZ
-        ACVJyM4MDAD69UvNH5WBiAAAAABJRU5ErkJggg==
-</value>
-  </data>
-  <data name="StatusReadyImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wAAADsABataJCQAAANdJREFUOE+dU7kNwzAM1CjZwQtpBA/gwqVX8CKpAggI4FojuHNrwIVahZeQhh7a
-        cXLAFSJ5Rz2UKRFCsERHjAURs1xWg5I3op/mKbb3NjZjkxEx5FCDWpZ9wOK1e3SVsOTwHGCyZia08Eho
-        Ao1s4kVssTWtUNi7PgLLtuwxPo6FgdPOnBJCAEYSgwZaGGTFJbXuQmi/GmjdhapBKjjrDqoGqeisOygG
-        1SWKEDjqnl5i9YyyC+Co+/6MPAv+yhQKs0ECaPEe5SvTqI4ywCb/faYUlPzhOxvzAkO1WA01cJaNAAAA
-        AElFTkSuQmCC
-</value>
-  </data>
-  <data name="StatusCriticalImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAANRJREFUOE+1U8ENwjAMzBAMwAiMwAJMAI98kfgzGx86QqbgU5CCeOSHgi/YlZNY
-        SFBx0qmNfXdtWse1SCl54kDMDVHzLOtBzSUxPM6nPG43+bJwFVFDDxpo2fYGm+N1v+uMLW/HA0JiFUKL
-        gAYE43pV2Bp1nUOCmD1eTUTPeyzUIVadt+MRMMieRQiI2KoVLXngRcD0JCvEMgvh7QJAHQJYZvA/AdqM
-        q75vQyRg9kec9xt5FoJMIQTaLNT1apAAWpRRlmn8RHOUAQ757TBpUPOL4+zcCzIffKHxkkn8AAAAAElF
-        TkSuQmCC
-</value>
-  </data>
-  <data name="AttributionNotices" xml:space="preserve">
-    <value>
-The Bonsai framework includes software from the NuGet Project developed at the Outercurve Foundation (http://www.outercurve.org/).
-
-Copyright 2010-2012 Outercurve Foundation</value>
+  <data name="LibraryFolderPlatformMismatchException" xml:space="preserve">
+    <value>The library folder '{0}' has already been assigned to a different platform. Consider uninstalling the conflicting package.</value>
   </data>
 </root>

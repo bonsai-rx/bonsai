@@ -1,5 +1,5 @@
 ﻿using Bonsai.Configuration;
-using Bonsai.Editor.Properties;
+using Bonsai.Properties;
 using NuGet;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Runtime.Versioning;
 using System.Text;
 
-namespace Bonsai.Editor
+namespace Bonsai
 {
     class PackageConfigurationUpdater : IDisposable
     {

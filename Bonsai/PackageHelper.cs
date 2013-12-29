@@ -13,7 +13,7 @@ using Bonsai.NuGet;
 using System.Windows.Forms;
 using PackageReference = Bonsai.Configuration.PackageReference;
 
-namespace Bonsai.Editor
+namespace Bonsai
 {
     static class PackageHelper
     {
