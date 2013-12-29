@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.NuGet
 {
-    class LicenseAwarePackageManager : PackageManager
+    public class LicenseAwarePackageManager : PackageManager
     {
         public LicenseAwarePackageManager(IPackageRepository sourceRepository, string path)
             : base(sourceRepository, path)
