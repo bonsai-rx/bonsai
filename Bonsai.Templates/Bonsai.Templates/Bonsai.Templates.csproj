@@ -66,6 +66,10 @@
       <Link>Packages\Bonsai.Core.2.0.0-beta.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="..\..\bin\Bonsai.Design.2.0.0-beta.nupkg">
+      <Link>Packages\Bonsai.Design.2.0.0-beta.nupkg</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="..\Bonsai.ConditionItemTemplate\bin\Release\BonsaiCondition.zip">
       <Link>ItemTemplates\Bonsai\BonsaiCondition.zip</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -84,6 +88,10 @@
     </None>
     <None Include="..\Bonsai.TransformItemTemplate\bin\Release\BonsaiTransform.zip">
       <Link>ItemTemplates\Bonsai\BonsaiTransform.zip</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\Bonsai.VisualizerTemplate\bin\Release\BonsaiVisualizer.zip">
+      <Link>ItemTemplates\Bonsai\BonsaiVisualizer.zip</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="..\packages\Rx-Core.2.2.2\Rx-Core.2.2.2.nupkg">
