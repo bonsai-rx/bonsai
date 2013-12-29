@@ -174,7 +174,9 @@
     <EmbeddedResource Include="WelcomeDialog.resx">
       <DependentUpon>WelcomeDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="Bonsai.Editor.nuspec" />
+    <None Include="Bonsai.Editor.nuspec">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -190,7 +192,7 @@
       <Project>{73701ce6-b60f-4137-b277-eadccd5ad1c3}</Project>
       <Name>Bonsai.NuGet</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Bonsai\Bonsai.Core.csproj">
+    <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj">
       <Project>{E4D03BA3-54A2-4FF8-9DC6-52BA4CC14FED}</Project>
       <Name>Bonsai.Core</Name>
     </ProjectReference>
