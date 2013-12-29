@@ -176,7 +176,7 @@ namespace Bonsai
             else packageConfiguration.Packages[package.Id].Version = package.Version.ToString();
 
             RegisterLibraryFolders(package, installPath);
-            var pivots = OverlayHelper.FindPivots(package, installPath).ToArray();
+            var pivots = OverlayHelper.FindPivots(package, e.InstallPath).ToArray();
             if (pivots.Length > 0)
             {
                 var overlayManager = OverlayHelper.CreateOverlayManager(packageManager.SourceRepository, e.InstallPath);
@@ -233,10 +233,10 @@ namespace Bonsai
             packageConfiguration.Packages.Remove(package.Id);
 
             RemoveLibraryFolders(package, installPath);
-            var pivots = OverlayHelper.FindPivots(package, installPath).ToArray();
+            var pivots = OverlayHelper.FindPivots(package, e.InstallPath).ToArray();
             if (pivots.Length > 0)
             {
-                var overlayManager = OverlayHelper.CreateOverlayManager(packageManager.SourceRepository, installPath);
+                var overlayManager = OverlayHelper.CreateOverlayManager(packageManager.SourceRepository, e.InstallPath);
                 foreach (var pivot in pivots)
                 {
                     var pivotPackage = overlayManager.LocalRepository.FindPackage(pivot);
