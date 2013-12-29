@@ -14,19 +14,22 @@ namespace Bonsai
     class PackageConfigurationUpdater : IDisposable
     {
         const string PackageTagFilter = "Bonsai";
+        const string BuildDirectory = "build";
+        const string AssemblyExtension = ".dll";
+        const string OldExtension = ".old";
 
         readonly string bootstrapperExePath;
         readonly string bootstrapperPackageId;
         readonly IPackageManager packageManager;
         readonly PackageConfiguration packageConfiguration;
-        public static readonly IEnumerable<FrameworkName> SupportedFrameworks = new[]
+        static readonly FrameworkName NativeFramework = new FrameworkName("native,Version=v0.0");
+        static readonly IEnumerable<FrameworkName> SupportedFrameworks = new[]
         {
             new FrameworkName(".NETFramework,Version=v4.5"),
             new FrameworkName(".NETFramework,Version=v4.0"),
             new FrameworkName(".NETFramework,Version=v4.0,Profile=Client"),
             new FrameworkName(".NETFramework,Version=v3.5"),
-            new FrameworkName(".NETFramework,Version=v3.5,Profile=Client"),
-            new FrameworkName("native,Version=v0.0")
+            new FrameworkName(".NETFramework,Version=v3.5,Profile=Client")
         };
 
         public PackageConfigurationUpdater(PackageConfiguration configuration, IPackageManager manager, string bootstrapperPath = null, string bootstrapperId = null)
@@ -106,10 +109,18 @@ namespace Bonsai
             return platformName;
         }
 
+        static IEnumerable<string> GetAssemblyLocations(IPackage package)
+        {
+            return from file in package.GetFiles(BuildDirectory)
+                   where file.SupportedFrameworks.Intersect(SupportedFrameworks).Any() &&
+                         Path.GetExtension(file.Path) == AssemblyExtension
+                   select file.Path;
+        }
+
         static IEnumerable<LibraryFolder> GetLibraryFolders(IPackage package, string installPath)
         {
-            return from file in package.GetFiles()
-                   where file.Path.StartsWith("build") && file.SupportedFrameworks.Intersect(SupportedFrameworks).Any()
+            return from file in package.GetFiles(BuildDirectory)
+                   where file.SupportedFrameworks.Contains(NativeFramework)
                    group file by Path.GetDirectoryName(file.Path) into folder
                    let platform = GetLibraryFolderPlatform(folder.Key)
                    where !string.IsNullOrWhiteSpace(platform)
@@ -123,6 +134,56 @@ namespace Bonsai
                    group reference by reference.Name into referenceGroup
                    from reference in referenceGroup.OrderByDescending(reference => reference.TargetFramework.FullName).Take(1)
                    select reference;
+        }
+
+        void RegisterAssemblyLocations(IPackage package, string installPath, string relativePath, bool addReferences)
+        {
+            var assemblyLocations = GetAssemblyLocations(package);
+            RegisterAssemblyLocations(assemblyLocations, installPath, relativePath, addReferences);
+        }
+
+        void RegisterAssemblyLocations(IEnumerable<string> assemblyLocations, string installPath, string relativePath, bool addReferences)
+        {
+            foreach (var path in assemblyLocations)
+            {
+                var assemblyFile = Path.Combine(installPath, path);
+                var assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
+                var assemblyLocation = Path.Combine(relativePath, path);
+                var assemblyLocationKey = Tuple.Create(assemblyName.Name, assemblyName.ProcessorArchitecture);
+                if (!packageConfiguration.AssemblyLocations.Contains(assemblyLocationKey))
+                {
+                    packageConfiguration.AssemblyLocations.Add(assemblyName.Name, assemblyName.ProcessorArchitecture, assemblyLocation);
+                }
+                else if (packageConfiguration.AssemblyLocations[assemblyLocationKey].Location != assemblyLocation)
+                {
+                    throw new InvalidOperationException(string.Format(Resources.AssemblyReferenceLocationMismatchException, assemblyLocationKey));
+                }
+
+                if (addReferences && !packageConfiguration.AssemblyReferences.Contains(assemblyName.Name))
+                {
+                    packageConfiguration.AssemblyReferences.Add(assemblyName.Name);
+                }
+            }
+        }
+
+        void RemoveAssemblyLocations(IPackage package, string installPath, bool removeReference)
+        {
+            var assemblyLocations = GetAssemblyLocations(package);
+            RemoveAssemblyLocations(assemblyLocations, installPath, removeReference);
+        }
+
+        void RemoveAssemblyLocations(IEnumerable<string> assemblyLocations, string installPath, bool removeReference)
+        {
+            foreach (var path in assemblyLocations)
+            {
+                var assemblyFile = Path.Combine(installPath, path);
+                var assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
+                packageConfiguration.AssemblyLocations.Remove(Tuple.Create(assemblyName.Name, assemblyName.ProcessorArchitecture));
+                if (removeReference)
+                {
+                    packageConfiguration.AssemblyReferences.Remove(assemblyName.Name);
+                }
+            }
         }
 
         void RegisterLibraryFolders(IPackage package, string installPath)
@@ -176,6 +237,7 @@ namespace Bonsai
             else packageConfiguration.Packages[package.Id].Version = package.Version.ToString();
 
             RegisterLibraryFolders(package, installPath);
+            RegisterAssemblyLocations(package, e.InstallPath, installPath, taggedPackage);
             var pivots = OverlayHelper.FindPivots(package, e.InstallPath).ToArray();
             if (pivots.Length > 0)
             {
@@ -184,30 +246,12 @@ namespace Bonsai
                 {
                     var pivotPackage = overlayManager.LocalRepository.FindPackage(pivot);
                     RegisterLibraryFolders(pivotPackage, installPath);
+                    RegisterAssemblyLocations(pivotPackage, e.InstallPath, installPath, taggedPackage);
                 }
             }
 
-            foreach (var reference in GetCompatibleAssemblyReferences(package))
-            {
-                var assemblyFile = Path.Combine(e.InstallPath, reference.Path);
-                var assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
-                var assemblyLocation = Path.Combine(installPath, reference.Path);
-                var assemblyLocationKey = Tuple.Create(assemblyName.Name, assemblyName.ProcessorArchitecture);
-                if (!packageConfiguration.AssemblyLocations.Contains(assemblyLocationKey))
-                {
-                    packageConfiguration.AssemblyLocations.Add(assemblyName.Name, assemblyName.ProcessorArchitecture, assemblyLocation);
-                }
-                else if (packageConfiguration.AssemblyLocations[assemblyLocationKey].Location != assemblyLocation)
-                {
-                    throw new InvalidOperationException(string.Format(Resources.AssemblyReferenceLocationMismatchException, assemblyLocationKey));
-                }
-
-                if (taggedPackage && !packageConfiguration.AssemblyReferences.Contains(assemblyName.Name))
-                {
-                    packageConfiguration.AssemblyReferences.Add(assemblyName.Name);
-                }
-            }
-
+            var assemblyLocations = GetCompatibleAssemblyReferences(package).Select(reference => reference.Path);
+            RegisterAssemblyLocations(assemblyLocations, e.InstallPath, installPath, taggedPackage);
             packageConfiguration.Save();
 
             if (package.Id == bootstrapperPackageId)
@@ -219,7 +263,7 @@ namespace Bonsai
                     throw new InvalidOperationException(Resources.BootstrapperMissingFromPackage);
                 }
 
-                string backupExePath = bootstrapperExePath + ".old";
+                string backupExePath = bootstrapperExePath + OldExtension;
                 MoveFile(bootstrapperExePath, backupExePath);
                 UpdateFile(bootstrapperExePath, bootstrapperFile);
             }
@@ -233,6 +277,7 @@ namespace Bonsai
             packageConfiguration.Packages.Remove(package.Id);
 
             RemoveLibraryFolders(package, installPath);
+            RemoveAssemblyLocations(package, e.InstallPath, taggedPackage);
             var pivots = OverlayHelper.FindPivots(package, e.InstallPath).ToArray();
             if (pivots.Length > 0)
             {
@@ -241,21 +286,14 @@ namespace Bonsai
                 {
                     var pivotPackage = overlayManager.LocalRepository.FindPackage(pivot);
                     RemoveLibraryFolders(pivotPackage, installPath);
+                    RemoveAssemblyLocations(pivotPackage, e.InstallPath, taggedPackage);
                 }
             }
 
-            foreach (var reference in GetCompatibleAssemblyReferences(package))
-            {
-                var assemblyFile = Path.Combine(e.InstallPath, reference.Path);
-                var assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
-                packageConfiguration.AssemblyLocations.Remove(Tuple.Create(assemblyName.Name, assemblyName.ProcessorArchitecture));
-                if (taggedPackage)
-                {
-                    packageConfiguration.AssemblyReferences.Remove(assemblyName.Name);
-                }
-            }
-
+            var assemblyLocations = GetCompatibleAssemblyReferences(package).Select(reference => reference.Path);
+            RemoveAssemblyLocations(assemblyLocations, e.InstallPath, taggedPackage);
             packageConfiguration.Save();
+
             if (pivots.Length > 0)
             {
                 var overlayManager = OverlayHelper.CreateOverlayManager(packageManager.SourceRepository, installPath);
