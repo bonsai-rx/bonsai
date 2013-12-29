@@ -23,7 +23,7 @@
                                               LogoFile="Bonsai.png"
                                               SuppressOptionsUI="no"
                                               ThemeFile="Theme\RtfTheme.xml"
-                                              LaunchTarget="[InstallFolder]Bonsai.Editor.exe"/>
+                                              LaunchTarget="[InstallFolder]Bonsai.exe"/>
     </BootstrapperApplicationRef>
 
     <Variable Name="InstallFolder" Type="string" Value="[LocalAppDataFolder]Bonsai\"/>

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <?define EditorBuildPath="..\Bonsai.Editor\bin\Release"?>
-  <?define PlayerBuildPath="..\Bonsai.Player\bin\Release"?>
+  <?define BonsaiBuildPath="..\Bonsai\bin\Release"?>
   <?if $(var.Platform) = x64?>
     <?define Win64="yes"?>
     <?define ProductDisplayName="Bonsai"?>
@@ -12,9 +11,9 @@
   
   <Fragment>
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
-      <Component Id="BonsaiEditorExecutable" Guid="*" Win64="$(var.Win64)">
-        <File Id="BonsaiEditorEXE" Name="Bonsai.Editor.exe" Source="$(var.EditorBuildPath)\Bonsai.Editor.exe" KeyPath="yes">
-          <Shortcut Id="startmenuBonsaiEditor" Directory="ProgramMenuDir" WorkingDirectory="INSTALLFOLDER" Name="$(var.ProductDisplayName)" Icon="Bonsai.ico" Advertise="yes"/>
+      <Component Id="BonsaiExecutable" Guid="*" Win64="$(var.Win64)">
+        <File Id="BonsaiEXE" Name="Bonsai.exe" Source="$(var.BonsaiBuildPath)\Bonsai.exe" KeyPath="yes">
+          <Shortcut Id="startmenuBonsai" Directory="ProgramMenuDir" WorkingDirectory="INSTALLFOLDER" Name="$(var.ProductDisplayName)" Icon="Bonsai.ico" Advertise="yes"/>
         </File>
         <ProgId Id='Bonsai.workflow' Description='Bonsai workflow file' Icon='BonsaiWorkflow.ico' Advertise='yes'>
           <Extension Id='bonsai' ContentType='application/xml'>
