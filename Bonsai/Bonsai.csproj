@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandLineParser.cs" />
+    <Compile Include="EditorLauncher.cs" />
     <Compile Include="OverlayHelper.cs" />
     <Compile Include="OverlayPackagePathResolver.cs" />
     <Compile Include="PackageConfigurationUpdater.cs" />

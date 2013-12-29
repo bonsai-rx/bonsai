@@ -1,5 +1,4 @@
-﻿using Bonsai.Editor;
-using Bonsai.NuGet;
+﻿using Bonsai.NuGet;
 using NuGet;
 using System;
 using System.Collections.Generic;
@@ -21,8 +20,8 @@ namespace Bonsai
         const string PackageManagerCommand = "--packagemanager";
         const string EditorDomainName = "EditorDomain";
         const string RepositoryPath = "Packages";
-        const int NormalExitCode = 0;
-        const int RequirePackageManagerExitCode = 1;
+        internal const int NormalExitCode = 0;
+        internal const int RequirePackageManagerExitCode = 1;
 
         /// <summary>
         /// The main entry point for the application.
@@ -84,17 +83,7 @@ namespace Bonsai
 
                     libFolders.ForEach(path => Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, path));
                     Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
-                    var elementProvider = WorkflowElementLoader.GetWorkflowElementTypes(packageConfiguration);
-                    var visualizerProvider = TypeVisualizerLoader.GetTypeVisualizerDictionary(packageConfiguration);
-
-                    var mainForm = new MainForm(elementProvider, visualizerProvider)
-                    {
-                        InitialFileName = initialFileName,
-                        StartOnLoad = start
-                    };
-                    mainForm.PropertyAssignments.AddRange(propertyAssignments);
-                    Application.Run(mainForm);
-                    return mainForm.LaunchPackageManager ? RequirePackageManagerExitCode : NormalExitCode;
+                    return EditorLauncher.Run(packageConfiguration, initialFileName, start, propertyAssignments);
                 }
             }
             else
