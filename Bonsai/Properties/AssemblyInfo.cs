@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Bonsai")]
+[assembly: AssemblyTitle("Bonsai - Core Library")]
 [assembly: AssemblyDescription("A visual framework for data stream processing built on top of Rx for .NET.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Gonçalo Lopes")]
-[assembly: AssemblyProduct("Bonsai")]
+[assembly: AssemblyProduct("Bonsai.Core")]
 [assembly: AssemblyCopyright("Copyright © Gonçalo Lopes 2011-2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
