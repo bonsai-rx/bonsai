@@ -2,20 +2,10 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:bal="http://schemas.microsoft.com/wix/BalExtension"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  <?define ProductDisplayName="Bonsai"?>
   <?define EditorProjectPath="..\Bonsai.Editor"?>
+  <?define ProductUpgradeCode="762f27b1-165b-45a1-b04c-a3ba198fd9d7"?>
   <?define VCRTRegistryKey="SOFTWARE\Microsoft\DevDiv\vc\Servicing\11.0\RuntimeMinimum"?>
-  
-  <?if $(var.Platform) = x64?>
-    <?define Win64="yes"?>
-    <?define VCRTSource="vcredist_x64.exe"?>
-    <?define ProductDisplayName="Bonsai"?>
-    <?define ProductUpgradeCode="762f27b1-165b-45a1-b04c-a3ba198fd9d7"?>
-  <?else?>
-    <?define Win64="no"?>
-    <?define VCRTSource="vcredist_x86.exe"?>
-    <?define ProductDisplayName="Bonsai"?>
-    <?define ProductUpgradeCode="8718e5ba-be5d-4616-9357-206ceba5ec69"?>
-  <?endif?>
   
 	<Bundle Name="$(var.ProductDisplayName)" Version="!(bind.PackageVersion.Bonsai)" Manufacturer="Goncalo Lopes" UpgradeCode="$(var.ProductUpgradeCode)" IconSourceFile="$(var.EditorProjectPath)\Bonsai.ico">
     <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense">
@@ -27,14 +17,17 @@
     </BootstrapperApplicationRef>
 
     <Variable Name="InstallFolder" Type="string" Value="[LocalAppDataFolder]Bonsai\"/>
-    <util:RegistrySearch Root="HKLM" Key="$(var.VCRTRegistryKey)" Value="Install" Variable="VCRTInstalled" Win64="$(var.Win64)"/>
+    <util:RegistrySearch Root="HKLM" Key="$(var.VCRTRegistryKey)" Value="Install" Variable="VCRTInstalled" Win64="no"/>
+    <util:RegistrySearch Root="HKLM" Key="$(var.VCRTRegistryKey)" Value="Install" Variable="VCRT64Installed" Win64="yes"/>
 
 		<Chain>
       <PackageGroupRef Id="NetFx45Web"/>
-      <ExePackage Id="VCRT" SourceFile="Dependencies\$(var.VCRTSource)" InstallCommand="/q /norestart" Permanent="yes" DetectCondition="VCRTInstalled"/>
+      <ExePackage Id="VCRT" SourceFile="Dependencies\vcredist_x86.exe" InstallCommand="/q /norestart" Permanent="yes" DetectCondition="VCRTInstalled"/>
+      <ExePackage Id="VCRT64" SourceFile="Dependencies\vcredist_x64.exe" InstallCommand="/q /norestart" Permanent="yes" InstallCondition="VersionNT64" DetectCondition="VCRT64Installed"/>
       <MsiPackage Id="Bonsai" SourceFile="$(var.Bonsai.Setup.TargetPath)">
         <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]"/>
         <MsiProperty Name="INSTALLVSIX" Value="[InstallVsixCheckbox]"/>
+        <MsiProperty Name="INSTALL64" Value="VersionNT64"/>
       </MsiPackage>
 		</Chain>
 	</Bundle>
