@@ -32,6 +32,9 @@
     <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>..\Bonsai.Editor\Bonsai.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -54,6 +57,11 @@
       <Project>{f44c66dd-913a-4df0-b617-f8c458533c50}</Project>
       <Name>Bonsai</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\Bonsai.Editor\Bonsai.ico">
+      <Link>Bonsai.ico</Link>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\MSBuild\AssemblyInfo.targets" />
