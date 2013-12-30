@@ -139,7 +139,7 @@ namespace Bonsai.Editor
                 OpenWorkflow(initialFileName);
                 foreach (var assignment in propertyAssignments)
                 {
-                    workflowGraphView.SetWorkflowProperty(assignment.Key, assignment.Value);
+                    workflowBuilder.Workflow.SetWorkflowProperty(assignment.Key, assignment.Value);
                 }
 
                 if (StartOnLoad) initialization = initialization.Do(xs => BeginInvoke((Action)(() => StartWorkflow())));

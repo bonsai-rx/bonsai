@@ -10,11 +10,30 @@ using System.Threading;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Concurrency;
+using System.ComponentModel;
+using Bonsai.Properties;
 
 namespace Bonsai.Expressions
 {
     public static class ExpressionBuilderGraphExtensions
     {
+        public static void SetWorkflowProperty(this ExpressionBuilderGraph source, string name, string value)
+        {
+            var property = (from node in source
+                            let workflowProperty = ExpressionBuilder.GetWorkflowElement(node.Value) as WorkflowProperty
+                            where workflowProperty != null && workflowProperty.Name == name
+                            select workflowProperty)
+                            .FirstOrDefault();
+            if (property == null)
+            {
+                throw new KeyNotFoundException(string.Format(Resources.Exception_PropertyNotFound, name));
+            }
+
+            var propertyDescriptor = TypeDescriptor.GetProperties(property).Find("Value", false);
+            var propertyValue = propertyDescriptor.Converter.ConvertFromString(value);
+            propertyDescriptor.SetValue(property, propertyValue);
+        }
+
         static WorkflowException BuildRuntimeExceptionStack(string message, ExpressionBuilder builder, Exception innerException, IEnumerable<ExpressionBuilder> callStack)
         {
             var exception = new WorkflowRuntimeException(message, builder, innerException);

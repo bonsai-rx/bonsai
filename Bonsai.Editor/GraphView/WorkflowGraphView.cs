@@ -829,24 +829,6 @@ namespace Bonsai.Design
             }
         }
 
-        public void SetWorkflowProperty(string name, string value)
-        {
-            var property = (from node in workflow
-                            let workflowProperty = ExpressionBuilder.GetWorkflowElement(node.Value) as WorkflowProperty
-                            where workflowProperty != null && workflowProperty.Name == name
-                            select workflowProperty)
-                            .FirstOrDefault();
-            if (property != null)
-            {
-                var propertyDescriptor = TypeDescriptor.GetProperties(property).Find("Value", false);
-                if (propertyDescriptor != null)
-                {
-                    var propertyValue = propertyDescriptor.Converter.ConvertFromString(value);
-                    propertyDescriptor.SetValue(property, propertyValue);
-                }
-            }
-        }
-
         public GraphNode FindGraphNode(object value)
         {
             return graphView.Nodes.SelectMany(layer => layer).FirstOrDefault(n => n.Value == value);
