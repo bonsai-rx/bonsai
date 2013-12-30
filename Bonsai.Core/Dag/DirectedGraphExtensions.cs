@@ -332,6 +332,13 @@ namespace Bonsai.Dag
             return descriptor;
         }
 
+        /// <summary>
+        /// Adds nodes to a serializable descriptor from a <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
+        /// </summary>
+        /// <typeparam name="TNodeValue">The type of the labels associated with graph nodes.</typeparam>
+        /// <typeparam name="TEdgeLabel">The type of the labels associated with graph edges.</typeparam>
+        /// <param name="source">A <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/> to create descriptors from.</param>
+        /// <param name="descriptor">The serializable descriptor to add node descriptors to.</param>
         public static void ToDescriptor<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source, DirectedGraphDescriptor<TNodeValue, TEdgeLabel> descriptor)
         {
             if (source == null)

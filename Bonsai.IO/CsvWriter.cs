@@ -126,7 +126,7 @@ namespace Bonsai.IO
             var parameterType = source.Type.GetGenericArguments()[0];
             var inputParameter = Expression.Parameter(parameterType, ParameterName);
             var writerParameter = Expression.Parameter(typeof(StreamWriter));
-            var sourceAccess = FindMemberAccess(Selector);
+            var sourceAccess = GetArgumentAccess(Selector);
             var memberExpression = ExpressionHelper.MemberAccess(inputParameter, sourceAccess.Item2);
             var formatConstant = Expression.Constant(EntryFormat);
 

@@ -643,29 +643,29 @@ namespace Bonsai.Expressions
                                                                            m.GetParameters()[0].ParameterType.GetGenericTypeDefinition() == typeof(Func<>) &&
                                                                            m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
 
-        protected Tuple<Expression, string> FindMemberAccess(string memberPath)
+        protected Tuple<Expression, string> GetArgumentAccess(string selector)
         {
             Expression source;
-            if (string.IsNullOrEmpty(memberPath))
+            if (string.IsNullOrEmpty(selector))
             {
-                memberPath = ExpressionBuilderArgument.ArgumentNamePrefix;
+                selector = ExpressionBuilderArgument.ArgumentNamePrefix;
             }
 
-            var selector = memberPath.Split(new[] { ExpressionHelper.MemberSeparator }, 2, StringSplitOptions.None);
-            var argumentName = selector[0];
+            var memberPath = selector.Split(new[] { ExpressionHelper.MemberSeparator }, 2, StringSplitOptions.None);
+            var argumentName = memberPath[0];
             var argument = new ExpressionBuilderArgument(argumentName);
             if (!ArgumentList.TryGetValue(argument.Index, out source))
             {
                 throw new InvalidOperationException(string.Format("Unable to find source with name '{0}'.", argumentName));
             }
 
-            memberPath = selector.Length > 1 ? selector[1] : string.Empty;
-            return Tuple.Create(source, memberPath);
+            selector = memberPath.Length > 1 ? memberPath[1] : string.Empty;
+            return Tuple.Create(source, selector);
         }
 
         internal Expression BuildPropertyMapping(Expression instance, PropertyMapping mapping)
         {
-            var memberAccess = FindMemberAccess(mapping.Selector);
+            var memberAccess = GetArgumentAccess(mapping.Selector);
             var source = memberAccess.Item1;
             var sourceSelector = memberAccess.Item2;
             var sourceType = source.Type.GetGenericArguments()[0];

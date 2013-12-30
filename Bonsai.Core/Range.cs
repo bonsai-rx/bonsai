@@ -14,7 +14,7 @@ namespace Bonsai
         readonly IComparer<TValue> valueComparer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Range"/> class with the specified
+        /// Initializes a new instance of the <see cref="Range{TValue}"/> class with the specified
         /// lower and upper bounds.
         /// </summary>
         /// <param name="lowerBound">The inclusive lower bound of the range.</param>
@@ -25,7 +25,7 @@ namespace Bonsai
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Range"/> class with the specified 
+        /// Initializes a new instance of the <see cref="Range{TValue}"/> class with the specified 
         /// lower and upper bounds and using the specified comparer.
         /// </summary>
         /// <param name="lowerBound">The inclusive lower bound of the range.</param>
@@ -73,11 +73,11 @@ namespace Bonsai
         }
 
         /// <summary>
-        /// Creates a <see cref="String"/> representation of this <see cref="Range"/>.
+        /// Creates a <see cref="String"/> representation of this <see cref="Range{TValue}"/>.
         /// </summary>
         /// <returns>
         /// A <see cref="String"/> containing the <see cref="LowerBound"/> and
-        /// <see cref="UpperBound"/> values of this <see cref="Range"/>.
+        /// <see cref="UpperBound"/> values of this <see cref="Range{TValue}"/>.
         /// </returns>
         public override string ToString()
         {
