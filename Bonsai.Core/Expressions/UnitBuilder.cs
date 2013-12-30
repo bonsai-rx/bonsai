@@ -11,10 +11,19 @@ using System.Reactive;
 
 namespace Bonsai.Expressions
 {
+    /// <summary>
+    /// Represents an expression builder that defines a simple selector on the elements of
+    /// an observable sequence by converting each element into the default <see cref="Unit"/> instance.
+    /// </summary>
     [XmlType("Unit", Namespace = Constants.XmlNamespace)]
     [Description("Converts a sequence of any type into a sequence of Unit type elements.")]
     public class UnitBuilder : SingleArgumentExpressionBuilder
     {
+        /// <summary>
+        /// Generates an <see cref="Expression"/> node that will be passed on
+        /// to other builders in the workflow.
+        /// </summary>
+        /// <returns>An <see cref="Expression"/> tree node.</returns>
         public override Expression Build()
         {
             var source = Arguments.Single();

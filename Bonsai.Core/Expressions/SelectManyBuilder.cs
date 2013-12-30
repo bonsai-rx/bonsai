@@ -11,6 +11,11 @@ using System.Reflection;
 
 namespace Bonsai.Expressions
 {
+    /// <summary>
+    /// Represents an expression builder that generates an expression tree by applying the
+    /// SelectMany operator using an encapsulated workflow selector to an observable sequence
+    /// of windows.
+    /// </summary>
     [XmlType("SelectMany", Namespace = Constants.XmlNamespace)]
     [Description("Processes each input window using the nested workflow and merges the result into a single sequence.")]
     public class SelectManyBuilder : WorkflowExpressionBuilder
@@ -29,16 +34,32 @@ namespace Bonsai.Expressions
                                                        select method)
                                                       .Single();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SelectManyBuilder"/> class.
+        /// </summary>
         public SelectManyBuilder()
             : this(new ExpressionBuilderGraph())
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SelectManyBuilder"/> class
+        /// with the specified expression builder workflow.
+        /// </summary>
+        /// <param name="workflow">
+        /// The expression builder workflow instance that will be used by this builder
+        /// to generate the output expression tree.
+        /// </param>
         public SelectManyBuilder(ExpressionBuilderGraph workflow)
             : base(workflow, minArguments: 1, maxArguments: 1)
         {
         }
 
+        /// <summary>
+        /// Generates an <see cref="Expression"/> node that will be passed on
+        /// to other builders in the workflow.
+        /// </summary>
+        /// <returns>An <see cref="Expression"/> tree node.</returns>
         public override Expression Build()
         {
             var source = Arguments.Single();

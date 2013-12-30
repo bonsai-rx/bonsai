@@ -10,8 +10,19 @@ using System.Reactive.Concurrency;
 
 namespace Bonsai.Expressions
 {
+    /// <summary>
+    /// Represents an expression builder that replays the latest notification from all the
+    /// subscriptions made to its decorated builder.
+    /// </summary>
     public class InspectBuilder : ExpressionBuilder, INamedElement
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InspectBuilder"/> class with the
+        /// specified expression builder.
+        /// </summary>
+        /// <param name="builder">
+        /// The expression builder whose notifications will be replayed by this inspector.
+        /// </param>
         public InspectBuilder(ExpressionBuilder builder)
         {
             if (builder == null)
@@ -22,22 +33,43 @@ namespace Bonsai.Expressions
             Builder = builder;
         }
 
+        /// <summary>
+        /// Gets the expression builder that is being decorated by this inspector.
+        /// </summary>
         public ExpressionBuilder Builder { get; private set; }
 
+        /// <summary>
+        /// Gets the type of the elements in the output observable sequence.
+        /// </summary>
         public Type ObservableType { get; private set; }
 
+        /// <summary>
+        /// Gets an observable sequence that replays the latest notification from all
+        /// the subscriptions made to the output of the decorated expression builder.
+        /// </summary>
         public IObservable<IObservable<object>> Output { get; private set; }
 
+        /// <summary>
+        /// Gets the range of input arguments that the decorated expression builder accepts.
+        /// </summary>
         public override Range<int> ArgumentRange
         {
             get { return Builder.ArgumentRange; }
         }
 
+        /// <summary>
+        /// Gets the display name of the decorated expression builder.
+        /// </summary>
         public string Name
         {
             get { return GetElementDisplayName(Builder); }
         }
 
+        /// <summary>
+        /// Generates an <see cref="Expression"/> node that will be passed on to other
+        /// builders in the workflow.
+        /// </summary>
+        /// <returns>An <see cref="Expression"/> tree node.</returns>
         public override Expression Build()
         {
             foreach (var argument in ArgumentList)

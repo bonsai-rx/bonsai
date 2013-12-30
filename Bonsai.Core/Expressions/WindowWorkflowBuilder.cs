@@ -10,6 +10,10 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
 {
+    /// <summary>
+    /// Represents an expression builder that generates an expression tree by applying
+    /// an encapsulated workflow selector to the elements of an observable sequence of windows.
+    /// </summary>
     [XmlType("WindowWorkflow", Namespace = Constants.XmlNamespace)]
     [Description("Processes each input window using the nested workflow.")]
     public class WindowWorkflowBuilder : WorkflowExpressionBuilder
@@ -19,16 +23,32 @@ namespace Bonsai.Expressions
                                                                             m.GetParameters().Length == 2 &&
                                                                             m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WindowWorkflowBuilder"/> class.
+        /// </summary>
         public WindowWorkflowBuilder()
             : this(new ExpressionBuilderGraph())
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WindowWorkflowBuilder"/> class
+        /// with the specified expression builder workflow.
+        /// </summary>
+        /// <param name="workflow">
+        /// The expression builder workflow instance that will be used by this builder
+        /// to generate the output expression tree.
+        /// </param>
         public WindowWorkflowBuilder(ExpressionBuilderGraph workflow)
             : base(workflow, minArguments: 1, maxArguments: 1)
         {
         }
 
+        /// <summary>
+        /// Generates an <see cref="Expression"/> node that will be passed on
+        /// to other builders in the workflow.
+        /// </summary>
+        /// <returns>An <see cref="Expression"/> tree node.</returns>
         public override Expression Build()
         {
             var source = Arguments.Single();

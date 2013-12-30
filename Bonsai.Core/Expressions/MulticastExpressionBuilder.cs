@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Expressions
 {
+    /// <summary>
+    /// Provides a base class for expression builders that handle sharing of sequences
+    /// between multiple branches of an expression builder workflow. This is an abstract class.
+    /// </summary>
     public abstract class MulticastExpressionBuilder : SingleArgumentExpressionBuilder
     {
         internal MulticastExpressionBuilder()
@@ -17,6 +21,11 @@ namespace Bonsai.Expressions
 
         internal ParameterExpression MulticastParameter { get; set; }
 
+        /// <summary>
+        /// Generates an <see cref="Expression"/> node that will be passed on
+        /// to other builders in the workflow.
+        /// </summary>
+        /// <returns>An <see cref="Expression"/> tree node.</returns>
         public override Expression Build()
         {
             Source = Arguments.Single();
