@@ -27,7 +27,7 @@ namespace Bonsai
         /// </summary>
         [STAThread]
         [LoaderOptimization(LoaderOptimization.MultiDomainHost)]
-        static int Main(string[] args)
+        internal static int Main(string[] args)
         {
             var start = false;
             var bootstrap = true;

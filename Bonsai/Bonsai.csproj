@@ -82,6 +82,7 @@
     <Compile Include="WorkflowElementLoader.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="Bonsai.nuspec">
       <SubType>Designer</SubType>
     </None>
