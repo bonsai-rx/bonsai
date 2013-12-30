@@ -212,6 +212,7 @@
             // searchComboBox
             // 
             this.searchComboBox.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+            this.searchComboBox.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
             this.searchComboBox.CueBanner = null;
             this.searchComboBox.FormattingEnabled = true;
             this.searchComboBox.Location = new System.Drawing.Point(3, 3);
