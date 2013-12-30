@@ -223,6 +223,7 @@ namespace Bonsai
                 foreach (var pivot in pivots)
                 {
                     var package = overlayManager.SourceRepository.FindPackage(pivot);
+                    if (package == null) throw new InvalidOperationException(string.Format("The package '{0}' could not be found.", pivot));
                     overlayManager.InstallPackage(package, false, false);
                 }
             }
