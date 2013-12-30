@@ -1,13 +1,18 @@
 ﻿using Bonsai.Configuration;
 using Bonsai.Editor;
+using Bonsai.Expressions;
 using Bonsai.NuGet;
 using NuGet;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace Bonsai
 {
@@ -117,6 +122,40 @@ namespace Bonsai
             mainForm.PropertyAssignments.AddRange(propertyAssignments);
             Application.Run(mainForm);
             return mainForm.LaunchPackageManager ? Program.RequirePackageManagerExitCode : Program.NormalExitCode;
+        }
+
+        internal static int LaunchWorkflowPlayer(string fileName, Dictionary<string, string> propertyAssignments)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                Console.WriteLine("No workflow file was specified.");
+                return Program.NormalExitCode;
+            }
+
+            if (!File.Exists(fileName))
+            {
+                throw new ArgumentException("Specified workflow file does not exist.");
+            }
+
+            WorkflowBuilder workflowBuilder;
+            using (var reader = XmlReader.Create(fileName))
+            {
+                var serializer = new XmlSerializer(typeof(WorkflowBuilder));
+                workflowBuilder = (WorkflowBuilder)serializer.Deserialize(reader);
+            }
+
+            foreach (var assignment in propertyAssignments)
+            {
+                workflowBuilder.Workflow.SetWorkflowProperty(assignment.Key, assignment.Value);
+            }
+
+            var workflowCompleted = new ManualResetEvent(false);
+            workflowBuilder.Workflow.BuildObservable().Subscribe(
+                unit => { },
+                ex => { Console.WriteLine(ex); workflowCompleted.Set(); },
+                () => workflowCompleted.Set());
+            workflowCompleted.WaitOne();
+            return Program.NormalExitCode;
         }
     }
 }

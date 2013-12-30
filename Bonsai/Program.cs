@@ -15,6 +15,7 @@ namespace Bonsai
         const string PropertyCommand = "-p";
         const string PropertyAssignmentSeparator = "=";
         const string SuppressBootstrapCommand = "--noboot";
+        const string SuppressEditorCommand = "--noeditor";
         const string PackageManagerCommand = "--packagemanager";
         const string EditorDomainName = "EditorDomain";
         const string RepositoryPath = "Packages";
@@ -30,6 +31,7 @@ namespace Bonsai
         {
             var start = false;
             var bootstrap = true;
+            var launchEditor = true;
             var launchPackageManager = false;
             string initialFileName = null;
             var libFolders = new List<string>();
@@ -38,6 +40,7 @@ namespace Bonsai
             parser.RegisterCommand(StartCommand, () => start = true);
             parser.RegisterCommand(LibraryCommand, path => libFolders.Add(path));
             parser.RegisterCommand(SuppressBootstrapCommand, () => bootstrap = false);
+            parser.RegisterCommand(SuppressEditorCommand, () => launchEditor = false);
             parser.RegisterCommand(PackageManagerCommand, () => { launchPackageManager = true; bootstrap = false; });
             parser.RegisterCommand(command => initialFileName = command);
             parser.RegisterCommand(PropertyCommand, property =>
@@ -75,7 +78,8 @@ namespace Bonsai
 
                     libFolders.ForEach(path => Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, path));
                     Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
-                    return Launcher.LaunchWorkflowEditor(packageConfiguration, initialFileName, start, propertyAssignments);
+                    if (!launchEditor) Launcher.LaunchWorkflowPlayer(initialFileName, propertyAssignments);
+                    else return Launcher.LaunchWorkflowEditor(packageConfiguration, initialFileName, start, propertyAssignments);
                 }
             }
             else
