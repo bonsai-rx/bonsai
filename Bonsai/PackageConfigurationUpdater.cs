@@ -299,7 +299,7 @@ namespace Bonsai
 
             if (pivots.Length > 0)
             {
-                var overlayManager = OverlayHelper.CreateOverlayManager(packageManager.SourceRepository, installPath);
+                var overlayManager = OverlayHelper.CreateOverlayManager(packageManager.SourceRepository, e.InstallPath);
                 overlayManager.Logger = packageManager.Logger;
                 foreach (var pivot in pivots)
                 {
