@@ -11,14 +11,24 @@ using System.ComponentModel;
 
 namespace Bonsai.Reactive
 {
+    /// <summary>
+    /// Represents a combinator that delays the notifications of an observable sequence by
+    /// the specified relative time duration.
+    /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Delays the propagation of values by the specified time interval.")]
     public class Delay : Combinator
     {
+        /// <summary>
+        /// Gets or sets the time interval by which to delay the sequence.
+        /// </summary>
         [XmlIgnore]
         [Description("The time interval by which to delay the sequence.")]
         public TimeSpan DueTime { get; set; }
 
+        /// <summary>
+        /// Gets or sets the XML serializable representation of due time.
+        /// </summary>
         [Browsable(false)]
         [XmlElement("DueTime")]
         public string DueTimeXml
@@ -27,6 +37,13 @@ namespace Bonsai.Reactive
             set { DueTime = XmlConvert.ToTimeSpan(value); }
         }
 
+        /// <summary>
+        /// Delays the notifications of an observable sequence by the specified
+        /// relative time duration.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">The source sequence to delay values for.</param>
+        /// <returns>The time-shifted sequence.</returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
             return source.Delay(DueTime, HighResolutionScheduler.Default);

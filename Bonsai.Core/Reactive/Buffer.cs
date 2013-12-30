@@ -29,8 +29,8 @@ namespace Bonsai.Reactive
         public int Skip { get; set; }
 
         /// <summary>
-        /// Projects each element of the <paramref name="source"/> sequence into zero or more
-        /// buffers based on element count information.
+        /// Projects each element of an observable sequence into zero or more buffers
+        /// based on element count information.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
         /// <param name="source">The source sequence to produce buffers over.</param>

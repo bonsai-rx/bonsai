@@ -11,14 +11,24 @@ using System.Xml;
 
 namespace Bonsai.Reactive
 {
+    /// <summary>
+    /// Represents a combinator that takes the single next element from the sequence every
+    /// time the specified interval elapses.
+    /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Allows the next value of the sequence to propagate only when the specified interval elapses.")]
+    [Description("Takes the single next element from the sequence every time the specified interval elapses.")]
     public class GateInterval : Combinator
     {
+        /// <summary>
+        /// Gets or sets the time interval after which a new element of the sequence is allowed to propagate.
+        /// </summary>
         [XmlIgnore]
         [Description("The time interval after which a new value of the sequence is allowed to propagate.")]
         public TimeSpan Interval { get; set; }
 
+        /// <summary>
+        /// Gets or sets the XML serializable representation of the interval.
+        /// </summary>
         [Browsable(false)]
         [XmlElement("Interval")]
         public string IntervalXml
@@ -27,6 +37,13 @@ namespace Bonsai.Reactive
             set { Interval = XmlConvert.ToTimeSpan(value); }
         }
 
+        /// <summary>
+        /// Takes the single next element from the sequence every time the specified
+        /// interval elapses.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">The observable sequence to be gated.</param>
+        /// <returns>The gated observable sequence.</returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
             return source.Gate(Interval, HighResolutionScheduler.Default);

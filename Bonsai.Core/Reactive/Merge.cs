@@ -10,21 +10,45 @@ using System.ComponentModel;
 
 namespace Bonsai.Reactive
 {
+    /// <summary>
+    /// Represents a combinator that merges any number of observable sequences into a
+    /// single observable sequence.
+    /// </summary>
     [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Merges two sequences or a sequence of windows into a single sequence of elements.")]
+    [Description("Merges any number of obervable sequences into a single observable sequence.")]
     public class Merge
     {
-        public IObservable<TSource> Process<TSource>(IObservable<TSource> source, IObservable<TSource> other)
+        /// <summary>
+        /// Merges elements from two observable sequences into a single observable sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the first sequence.</typeparam>
+        /// <param name="first">The first observable sequence.</param>
+        /// <param name="second">The second observable sequence.</param>
+        /// <returns>The observable sequence that merges the elements of the two sequences.</returns>
+        public IObservable<TSource> Process<TSource>(IObservable<TSource> first, IObservable<TSource> second)
         {
-            return source.Merge(other);
+            return first.Merge(second);
         }
 
-        public IObservable<TSource> Process<TSource>(IObservable<IObservable<TSource>> source)
+        /// <summary>
+        /// Merges elements from all inner observable sequences into a single observable sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequences.</typeparam>
+        /// <param name="sources">The observable sequence of inner observable sequences.</param>
+        /// <returns>The observable sequence that merges the elements of the inner sequences.</returns>
+        public IObservable<TSource> Process<TSource>(IObservable<IObservable<TSource>> sources)
         {
-            return source.Merge();
+            return sources.Merge();
         }
 
+        /// <summary>
+        /// Merges elements from the specified observable sequences into a single observable
+        /// sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequences.</typeparam>
+        /// <param name="sources">The observable sequences to merge.</param>
+        /// <returns>The observable sequence that merges the elements of the observable sequences.</returns>
         public IObservable<TSource> Process<TSource>(params IObservable<TSource>[] sources)
         {
             return Observable.Merge(sources);
