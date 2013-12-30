@@ -164,9 +164,17 @@ namespace Bonsai.NuGet
                 .ObserveOn(this)
                 .Subscribe(evt =>
                 {
-                    if (!string.IsNullOrWhiteSpace(searchComboBox.Text))
+                    var searchText = searchComboBox.Text;
+                    if (!string.IsNullOrEmpty(searchText))
                     {
-                        sortComboBox.Items.Insert(0, SortByRelevance);
+                        if (!sortComboBox.Items.Contains(SortByRelevance))
+                        {
+                            sortComboBox.Items.Insert(0, SortByRelevance);
+                        }
+                        if (!searchComboBox.Items.Contains(searchText))
+                        {
+                            searchComboBox.Items.Add(searchComboBox.Text);
+                        }
                     }
                     else sortComboBox.Items.Remove(SortByRelevance);
                     sortComboBox.SelectedIndex = 0;
