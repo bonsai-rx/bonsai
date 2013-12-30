@@ -2,17 +2,14 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-// Expose internals to 64-bit bootstrapper assembly
-[assembly: InternalsVisibleTo("Bonsai64")]
-
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Bonsai")]
-[assembly: AssemblyDescription("A visual framework for data stream processing built on top of Rx for .NET.")]
+[assembly: AssemblyTitle("Bonsai64")]
+[assembly: AssemblyDescription("The x64 bootstrapper for the Bonsai framework.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Gonçalo Lopes")]
-[assembly: AssemblyProduct("Bonsai")]
+[assembly: AssemblyProduct("Bonsai64")]
 [assembly: AssemblyCopyright("Copyright © Gonçalo Lopes 2011-2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -23,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("2a690a30-dbde-4dc5-bd72-fa9cc4351dc2")]
+[assembly: Guid("4f0e7287-20b9-4623-8604-14ed5ff714bd")]
 
 // Version information for an assembly consists of the following four values:
 //
