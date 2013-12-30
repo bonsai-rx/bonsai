@@ -7,8 +7,17 @@ using System.Globalization;
 
 namespace Bonsai.IO
 {
+    /// <summary>
+    /// Provides a set of static methods for creating and manipulating directory
+    /// and file names.
+    /// </summary>
     public static class PathHelper
     {
+        /// <summary>
+        /// Checks that all folders along the specified path exist and attempts to
+        /// create any missing ones.
+        /// </summary>
+        /// <param name="path">The path to check for missing folders.</param>
         public static void EnsureDirectory(string path)
         {
             var directory = Path.GetDirectoryName(path);
@@ -18,6 +27,17 @@ namespace Bonsai.IO
             }
         }
 
+        /// <summary>
+        /// Appends the specified well known suffix type to a file name without
+        /// modifying the extension.
+        /// </summary>
+        /// <param name="path">The file name on which to append the suffix.</param>
+        /// <param name="suffixType">The suffix type to append.</param>
+        /// <returns>
+        /// The new file name where <paramref name="path"/> has been modified
+        /// to end with the specified <paramref name="suffixType"/> but without
+        /// modifying the file extension.
+        /// </returns>
         public static string AppendSuffix(string path, PathSuffix suffixType)
         {
             switch (suffixType)
@@ -29,6 +49,17 @@ namespace Bonsai.IO
             }
         }
 
+        /// <summary>
+        /// Appends the specified suffix to a file name without modifying
+        /// its original extension.
+        /// </summary>
+        /// <param name="path">The file name on which to append the suffix.</param>
+        /// <param name="suffix">The suffix to append.</param>
+        /// <returns>
+        /// The new file name where <paramref name="path"/> has been modified
+        /// to end with <paramref name="suffix"/> but without modifying the
+        /// file extension.
+        /// </returns>
         public static string AppendSuffix(string path, string suffix)
         {
             var directory = Path.GetDirectoryName(path);
@@ -42,11 +73,32 @@ namespace Bonsai.IO
             return suffixPath;
         }
 
+        /// <summary>
+        /// Appends a timestamp suffix to a file name without modifying
+        /// its original extension.
+        /// </summary>
+        /// <param name="path">The file name on which to append the suffix.</param>
+        /// <param name="timestamp">The timestamp to use for generating the suffix.</param>
+        /// <returns>
+        /// The new file name where <paramref name="path"/> has been modified
+        /// to end with the round-trip representation of the specified
+        /// <paramref name="timestamp"/> but without modifying the file extension.
+        /// </returns>
         public static string AppendTimestamp(string path, DateTimeOffset timestamp)
         {
             return AppendSuffix(path, timestamp.ToString("o").Replace(':', '_'));
         }
 
+        /// <summary>
+        /// Appends a file count suffix to a file name without modifying
+        /// its original extension.
+        /// </summary>
+        /// <param name="path">The file name on which to append the suffix.</param>
+        /// <returns>
+        /// The new file name where <paramref name="path"/> has been modified
+        /// to end with the number of files starting with the specified file name
+        /// in the containing folder but without modifying the file extension.
+        /// </returns>
         public static string AppendFileCount(string path)
         {
             var fileCount = 0;

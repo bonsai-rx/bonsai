@@ -38,7 +38,7 @@ namespace Bonsai.Expressions
         /// </returns>
         protected override Expression BuildSelector(Expression expression)
         {
-            var memberAccess = FindMemberAccess(Selector);
+            var memberAccess = GetArgumentAccess(Selector);
             return ExpressionHelper.MemberAccess(expression, memberAccess.Item2);
         }
     }

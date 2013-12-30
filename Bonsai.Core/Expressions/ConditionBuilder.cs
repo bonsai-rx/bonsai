@@ -78,7 +78,7 @@ namespace Bonsai.Expressions
             var sourceSelect = Arguments.First();
             var observableType = sourceSelect.Type.GetGenericArguments()[0];
             var parameter = Expression.Parameter(observableType);
-            var memberAccess = FindMemberAccess(Selector);
+            var memberAccess = GetArgumentAccess(Selector);
             var memberSelector = ExpressionHelper.MemberAccess(parameter, memberAccess.Item2);
 
             var conditionParameter = Expression.Parameter(typeof(IObservable<>).MakeGenericType(memberSelector.Type));
