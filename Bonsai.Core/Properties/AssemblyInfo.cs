@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Bonsai - Core Library")]
-[assembly: AssemblyDescription("A visual framework for data stream processing built on top of Rx for .NET.")]
+[assembly: AssemblyDescription("Bonsai Core Library containing base classes and workflow infrastructure.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Gonçalo Lopes")]
 [assembly: AssemblyProduct("Bonsai.Core")]
