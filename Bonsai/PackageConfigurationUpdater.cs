@@ -15,6 +15,8 @@ namespace Bonsai
     {
         const string PackageTagFilter = "Bonsai";
         const string BuildDirectory = "build";
+        const string BinDirectory = "bin";
+        const string DebugDirectory = "debug";
         const string AssemblyExtension = ".dll";
         const string OldExtension = ".old";
 
@@ -88,7 +90,7 @@ namespace Bonsai
             }
         }
 
-        static string GetLibraryFolderPlatform(string path)
+        static string ResolvePathPlatformName(string path)
         {
             var platformName = string.Empty;
             var components = path.Split(
@@ -96,8 +98,8 @@ namespace Bonsai
                 StringSplitOptions.RemoveEmptyEntries);
             components = Array.ConvertAll(components, name => name.ToLower());
 
-            if (components.Length > 3 && components[2] == "bin" &&
-                Array.FindIndex(components, name => name == "debug") < 0)
+            if (components.Length > 3 && components[2] == BinDirectory &&
+                Array.FindIndex(components, name => name == DebugDirectory) < 0)
             {
                 for (int i = 3; i < components.Length; i++)
                 {
@@ -113,7 +115,8 @@ namespace Bonsai
         {
             return from file in package.GetFiles(BuildDirectory)
                    where file.SupportedFrameworks.Intersect(SupportedFrameworks).Any() &&
-                         Path.GetExtension(file.Path) == AssemblyExtension
+                         Path.GetExtension(file.Path) == AssemblyExtension &&
+                         !string.IsNullOrEmpty(ResolvePathPlatformName(file.Path))
                    select file.Path;
         }
 
@@ -122,7 +125,7 @@ namespace Bonsai
             return from file in package.GetFiles(BuildDirectory)
                    where file.SupportedFrameworks.Contains(NativeFramework)
                    group file by Path.GetDirectoryName(file.Path) into folder
-                   let platform = GetLibraryFolderPlatform(folder.Key)
+                   let platform = ResolvePathPlatformName(folder.Key)
                    where !string.IsNullOrWhiteSpace(platform)
                    select new LibraryFolder(Path.Combine(installPath, folder.Key), platform);
         }
