@@ -8,13 +8,29 @@ using System.ComponentModel;
 
 namespace Bonsai.Reactive
 {
+    /// <summary>
+    /// Represents a combinator that returns a specified number of contiguous elements
+    /// from the end of an observable sequence.
+    /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Propagates only the specified number of contiguous elements from the end of the sequence.")]
+    [Description("Returns the specified number of contiguous elements from the end of the sequence.")]
     public class TakeLast : Combinator
     {
-        [Description("The number of elements to propagate.")]
+        /// <summary>
+        /// Gets or sets the number of elements to take.
+        /// </summary>
+        [Description("The number of elements to take.")]
         public int Count { get; set; }
 
+        /// <summary>
+        /// Returns a specified number of contiguous elements from the end of an observable sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">The sequence to take elements from.</param>
+        /// <returns>
+        /// An observable sequence containing the specified number of elements from the
+        /// end of the source sequence.
+        /// </returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
             return source.TakeLast(Count);

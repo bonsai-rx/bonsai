@@ -11,14 +11,26 @@ using System.Xml;
 
 namespace Bonsai.Reactive
 {
+    /// <summary>
+    /// Represents a combinator that samples the observable sequence at each interval. Upon each
+    /// sampling tick, the latest element (if any) in the source sequence during the last sampling
+    /// interval is sent to the resulting sequence.
+    /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Samples values of the sequence each time the specified interval elapses.")]
+    [Description("Samples the latest element of the sequence each time the specified interval elapses.")]
     public class SampleInterval : Combinator
     {
+        /// <summary>
+        /// Gets or sets the interval at which to sample. If this value is equal to
+        /// <see cref="TimeSpan.Zero"/>, the scheduler will continuously sample the stream.
+        /// </summary>
         [XmlIgnore]
         [Description("The time interval at which to sample the sequence.")]
         public TimeSpan Interval { get; set; }
 
+        /// <summary>
+        /// Gets or sets the XML serializable representation of the interval.
+        /// </summary>
         [Browsable(false)]
         [XmlElement("Interval")]
         public string IntervalXml
@@ -27,6 +39,14 @@ namespace Bonsai.Reactive
             set { Interval = XmlConvert.ToTimeSpan(value); }
         }
 
+        /// <summary>
+        /// Samples the observable sequence at each interval.  Upon each sampling tick,
+        /// the latest element (if any) in the source sequence during the last sampling
+        /// interval is sent to the resulting sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">The source sequence to sample.</param>
+        /// <returns>The sampled observable sequence.</returns>
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
             return source.Sample(Interval, HighResolutionScheduler.Default);
