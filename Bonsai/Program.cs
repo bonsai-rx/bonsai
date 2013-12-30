@@ -1,12 +1,10 @@
-﻿using Bonsai.NuGet;
-using NuGet;
+﻿using NuGet;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace Bonsai
 {
@@ -59,19 +57,13 @@ namespace Bonsai
             var editorPackageVersion = SemanticVersion.Parse(editorAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion);
             var editorRepositoryPath = Path.Combine(editorFolder, RepositoryPath);
 
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
             var packageConfiguration = Configuration.ConfigurationHelper.Load();
             if (!bootstrap)
             {
                 if (launchPackageManager)
                 {
                     Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
-                    var packageManagerDialog = new PackageManagerDialog(editorRepositoryPath);
-                    using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManagerDialog, editorPath, editorPackageId))
-                    {
-                        Application.Run(packageManagerDialog);
-                    }
+                    return Launcher.LaunchPackageManager(packageConfiguration, editorRepositoryPath, editorPath, editorPackageId);
                 }
                 else
                 {
@@ -83,55 +75,18 @@ namespace Bonsai
 
                     libFolders.ForEach(path => Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, path));
                     Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
-                    return EditorLauncher.Run(packageConfiguration, initialFileName, start, propertyAssignments);
+                    return Launcher.LaunchWorkflowEditor(packageConfiguration, initialFileName, start, propertyAssignments);
                 }
             }
             else
             {
-                var logger = new EventLogger();
-                var machineWideSettings = new BonsaiMachineWideSettings();
-                var settings = Settings.LoadDefaultSettings(null, null, machineWideSettings);
-                var sourceProvider = new PackageSourceProvider(settings);
-                var sourceRepository = sourceProvider.GetAggregate(PackageRepositoryFactory.Default, true);
-                var packageManager = new LicenseAwarePackageManager(sourceRepository, editorRepositoryPath) { Logger = logger };
-
-                var editorPackage = packageManager.LocalRepository.FindPackage(editorPackageId, editorPackageVersion);
-                if (editorPackage == null)
-                {
-                    using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageId))
-                    {
-                        PackageHelper.RunPackageOperation(
-                            packageManager,
-                            () => packageManager
-                                .StartInstallPackage(editorPackageId, null)
-                                .ContinueWith(task => editorPackage = task.Result));
-                        launchPackageManager = true;
-                    }
-                }
-
-                var missingPackages = PackageHelper.GetMissingPackages(packageConfiguration.Packages, packageManager.LocalRepository).ToList();
-                if (missingPackages.Count > 0)
-                {
-                    using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageId))
-                    {
-                        PackageHelper.RunPackageOperation(packageManager, () =>
-                            Task.Factory.ContinueWhenAll(packageManager.StartRestorePackages(missingPackages).ToArray(), operations =>
-                            {
-                                foreach (var task in operations)
-                                {
-                                    if (task.IsFaulted || task.IsCanceled) continue;
-                                    packageManager.InstallPackage(
-                                        task.Result,
-                                        ignoreDependencies: true,
-                                        allowPrereleaseVersions: true,
-                                        ignoreWalkInfo: true);
-                                }
-
-                                Task.WaitAll(operations);
-                            }));
-                    }
-                }
-
+                var editorPackage = Launcher.LaunchEditorBootstrapper(
+                    packageConfiguration,
+                    editorRepositoryPath,
+                    editorPath,
+                    editorPackageId,
+                    editorPackageVersion,
+                    ref launchPackageManager);
                 var exit = editorPackage == null;
                 while (!exit)
                 {
