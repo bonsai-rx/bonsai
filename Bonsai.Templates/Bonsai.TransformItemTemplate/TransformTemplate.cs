@@ -19,7 +19,7 @@ namespace $rootnamespace$
             {
                 // TODO: process the input object and return the result.
                 throw new NotImplementedException();
-                return default(TSource);
+                return default(TResult);
             });
         }
     }
