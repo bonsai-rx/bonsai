@@ -81,6 +81,26 @@ namespace Bonsai
             });
         }
 
+        internal static Task<IPackage> StartUpdatePackage(this IPackageManager packageManager, string packageId, SemanticVersion version)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                try
+                {
+                    packageManager.Logger.Log(MessageLevel.Info, "Checking for latest version of '{0}'.", packageId);
+                    var package = packageManager.SourceRepository.FindPackage(packageId, version);
+                    if (package == null) throw new InvalidOperationException(string.Format("The package '{0}' could not be found.", packageId));
+                    packageManager.UpdatePackage(package, true, true);
+                    return package;
+                }
+                catch (Exception ex)
+                {
+                    packageManager.Logger.Log(MessageLevel.Error, ex.Message);
+                    throw;
+                }
+            });
+        }
+
         internal static IEnumerable<PackageReference> GetMissingPackages(IEnumerable<PackageReference> packages, IPackageRepository repository)
         {
             return from package in packages
