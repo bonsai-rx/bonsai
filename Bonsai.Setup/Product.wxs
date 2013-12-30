@@ -1,19 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?define Win64="no"?>
   <?define EditorProjectPath="..\Bonsai.Editor"?>
   <?define ResourcesPath="..\Resources"?>
-  
-  <?if $(var.Platform) = x64?>
-    <?define Win64="yes"?>
-    <?define ProductDisplayName="Bonsai"?>
-    <?define ProductUpgradeCode="4ba318de-f0ce-4c8a-9898-0ac27ef0d0e3"?>
-    <?define ProgramFilesFolder="ProgramFiles64Folder"?>
-  <?else?>
-    <?define Win64="no"?>
-    <?define ProductDisplayName="Bonsai"?>
-    <?define ProductUpgradeCode="c515ec87-8a06-4285-94bf-cfa00c7a7212"?>
-    <?define ProgramFilesFolder="ProgramFilesFolder"?>
-  <?endif?>
+  <?define ProductDisplayName="Bonsai"?>
+  <?define ProductUpgradeCode="4ba318de-f0ce-4c8a-9898-0ac27ef0d0e3"?>
+  <?define ProgramFilesFolder="ProgramFilesFolder"?>
   
 	<Product Id="*" Name="$(var.ProductDisplayName)" Language="1033" Version="!(bind.FileVersion.BonsaiEXE)" Manufacturer="Goncalo Lopes" UpgradeCode="$(var.ProductUpgradeCode)">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perUser" />

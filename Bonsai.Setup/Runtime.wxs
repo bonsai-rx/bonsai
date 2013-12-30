@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?define Win64="no"?>
+  <?define ProductDisplayName="Bonsai"?>
+  <?define Product64DisplayName="Bonsai (x64)"?>
   <?define BonsaiBuildPath="..\Bonsai\bin\Release"?>
-  <?if $(var.Platform) = x64?>
-    <?define Win64="yes"?>
-    <?define ProductDisplayName="Bonsai"?>
-  <?else?>
-    <?define Win64="no"?>
-    <?define ProductDisplayName="Bonsai"?>
-  <?endif?>
+  <?define Bonsai64BuildPath="..\Bonsai64\bin\x64\Release"?>
   
   <Fragment>
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
@@ -20,6 +17,13 @@
             <Verb Id='open' Command='Open' Argument='"%1"' />
           </Extension>
         </ProgId>
+      </Component>
+
+      <Component Id="Bonsai64Executable" Guid="*" Win64="$(var.Win64)">
+        <Condition>INSTALL64</Condition>
+        <File Id="Bonsai64EXE" Name="Bonsai64.exe" Source="$(var.Bonsai64BuildPath)\Bonsai64.exe" KeyPath="yes">
+          <Shortcut Id="startmenuBonsai64" Directory="ProgramMenuDir" WorkingDirectory="INSTALLFOLDER" Name="$(var.Product64DisplayName)" Icon="Bonsai.ico" Advertise="yes"/>
+        </File>
       </Component>
 
       <Component Id='BonsaiInstallDir' Guid='*' Win64="$(var.Win64)">
