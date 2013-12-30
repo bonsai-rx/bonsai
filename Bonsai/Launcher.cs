@@ -45,7 +45,7 @@ namespace Bonsai
             var sourceRepository = sourceProvider.GetAggregate(PackageRepositoryFactory.Default, true);
             var packageManager = new LicenseAwarePackageManager(sourceRepository, editorRepositoryPath) { Logger = logger };
 
-            var editorPackage = packageManager.LocalRepository.FindPackage(editorPackageId, editorPackageVersion);
+            var editorPackage = packageManager.LocalRepository.FindPackage(editorPackageId);
             if (editorPackage == null)
             {
                 EnableVisualStyles();
@@ -56,6 +56,22 @@ namespace Bonsai
                         packageManager,
                         () => packageManager
                             .StartInstallPackage(editorPackageId, null)
+                            .ContinueWith(task => editorPackage = task.Result));
+                    if (editorPackage == null) throw new ApplicationException("Unable to install editor package.");
+                    launchPackageManager = true;
+                }
+            }
+
+            if (editorPackage.Version < editorPackageVersion)
+            {
+                EnableVisualStyles();
+                visualStylesEnabled = true;
+                using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageId))
+                {
+                    PackageHelper.RunPackageOperation(
+                        packageManager,
+                        () => packageManager
+                            .StartUpdatePackage(editorPackageId, editorPackageVersion)
                             .ContinueWith(task => editorPackage = task.Result));
                     launchPackageManager = true;
                 }
