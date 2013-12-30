@@ -9,6 +9,11 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
 {
+    /// <summary>
+    /// Represents an expression builder that handles sharing of sequences between multiple
+    /// branches of an expression builder workflow by eagerly replaying notifications
+    /// across branches.
+    /// </summary>
     [XmlType("Replay", Namespace = Constants.XmlNamespace)]
     public class ReplayBuilder : MulticastBuilder
     {

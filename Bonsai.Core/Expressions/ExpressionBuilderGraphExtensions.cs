@@ -15,9 +15,19 @@ using Bonsai.Properties;
 
 namespace Bonsai.Expressions
 {
+    /// <summary>
+    /// Provides a set of static methods for serializing, building and otherwise manipulating
+    /// expression builder workflows.
+    /// </summary>
     public static class ExpressionBuilderGraphExtensions
     {
-        public static void SetWorkflowProperty(this ExpressionBuilderGraph source, string name, string value)
+        /// <summary>
+        /// Sets the value of a workflow property to a different value.
+        /// </summary>
+        /// <param name="source">The expression builder workflow for which to set the property.</param>
+        /// <param name="name">The name of the workflow property.</param>
+        /// <param name="value">The new value.</param>
+        public static void SetWorkflowProperty(this ExpressionBuilderGraph source, string name, object value)
         {
             var property = (from node in source
                             let workflowProperty = ExpressionBuilder.GetWorkflowElement(node.Value) as WorkflowProperty
@@ -30,7 +40,7 @@ namespace Bonsai.Expressions
             }
 
             var propertyDescriptor = TypeDescriptor.GetProperties(property).Find("Value", false);
-            var propertyValue = propertyDescriptor.Converter.ConvertFromString(value);
+            var propertyValue = propertyDescriptor.Converter.ConvertFrom(value);
             propertyDescriptor.SetValue(property, propertyValue);
         }
 
@@ -45,6 +55,14 @@ namespace Bonsai.Expressions
             return exception;
         }
 
+        /// <summary>
+        /// Redirects any build or execution errors signaled by <see cref="InspectBuilder"/> nodes in
+        /// the specified expression builder workflow into an empty observable sequence.
+        /// </summary>
+        /// <param name="source">The expression builder workflow for which to redirect errors.</param>
+        /// <returns>
+        /// An observable sequence with no elements except for error termination messages.
+        /// </returns>
         public static IObservable<Unit> InspectErrors(this ExpressionBuilderGraph source)
         {
             return InspectErrors(source, Enumerable.Empty<ExpressionBuilder>()).Merge(Scheduler.Immediate);
@@ -90,11 +108,35 @@ namespace Bonsai.Expressions
             }
         }
 
+        /// <summary>
+        /// Generates an expression tree from the specified expression builder workflow.
+        /// </summary>
+        /// <param name="source">
+        /// The expression builder workflow for which to generate the expression tree.
+        /// </param>
+        /// <returns>
+        /// An <see cref="Expression"/> tree representing the evaluation of the full
+        /// expression builder workflow.
+        /// </returns>
         public static Expression Build(this ExpressionBuilderGraph source)
         {
             return Build(source, (BuildContext)null);
         }
 
+        /// <summary>
+        /// Generates an expression tree from the specified expression builder workflow
+        /// evaluated up to the specified build target.
+        /// </summary>
+        /// <param name="source">
+        /// The expression builder workflow for which to generate the expression tree.
+        /// </param>
+        /// <param name="buildTarget">
+        /// The expression builder node up to which the workflow will be evaluated.
+        /// </param>
+        /// <returns>
+        /// An <see cref="Expression"/> tree representing the evaluation of the expression
+        /// builder workflow up to the specified <paramref name="buildTarget"/>.
+        /// </returns>
         public static Expression Build(this ExpressionBuilderGraph source, ExpressionBuilder buildTarget)
         {
             if (buildTarget == null)
@@ -233,6 +275,14 @@ namespace Bonsai.Expressions
             }
         }
 
+        /// <summary>
+        /// Builds and compiles an expression builder workflow into an observable that can be
+        /// subscribed for its side-effects.
+        /// </summary>
+        /// <param name="source">The expression builder workflow to compile.</param>
+        /// <returns>
+        /// An observable sequence with no elements except for termination messages.
+        /// </returns>
         public static IObservable<Unit> BuildObservable(this ExpressionBuilderGraph source)
         {
             var workflow = source.Build();
@@ -255,6 +305,16 @@ namespace Bonsai.Expressions
             return workflowExpression;
         }
 
+        /// <summary>
+        /// Converts the specified expression builder workflow into an equivalent representation
+        /// where all the nodes are decorated by <see cref="InspectBuilder"/> instances that allow
+        /// for runtime inspection and error redirection of workflow values.
+        /// </summary>
+        /// <param name="source">The expression builder workflow to convert.</param>
+        /// <returns>
+        /// A new expression builder workflow where all nodes have been decorated by
+        /// <see cref="InspectBuilder"/> instances.
+        /// </returns>
         public static ExpressionBuilderGraph ToInspectableGraph(this ExpressionBuilderGraph source)
         {
             var observableMapping = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderArgument>, Node<ExpressionBuilder, ExpressionBuilderArgument>>();
@@ -286,11 +346,34 @@ namespace Bonsai.Expressions
             return observableGraph;
         }
 
+        /// <summary>
+        /// Converts the specified expression builder workflow into an equivalent representation
+        /// where all the <see cref="InspectBuilder"/> nodes have been replaced by their decorated
+        /// children.
+        /// </summary>
+        /// <param name="source">The expression builder workflow to convert.</param>
+        /// <returns>
+        /// A new expression builder workflow where all <see cref="InspectBuilder"/> nodes have
+        /// been replaced by their decorated children.
+        /// </returns>
         public static ExpressionBuilderGraph FromInspectableGraph(this ExpressionBuilderGraph source)
         {
             return FromInspectableGraph(source, true);
         }
 
+        /// <summary>
+        /// Converts the specified expression builder workflow into an equivalent representation
+        /// where all the <see cref="InspectBuilder"/> nodes have been replaced by their decorated
+        /// children.
+        /// </summary>
+        /// <param name="source">The expression builder workflow to convert.</param>
+        /// <param name="recurse">
+        /// A value indicating whether to recurse the conversion into nested workflows.
+        /// </param>
+        /// <returns>
+        /// A new expression builder workflow where all <see cref="InspectBuilder"/> nodes have
+        /// been replaced by their decorated children.
+        /// </returns>
         public static ExpressionBuilderGraph FromInspectableGraph(this IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> source, bool recurse)
         {
             var workflow = new ExpressionBuilderGraph();
@@ -326,6 +409,13 @@ namespace Bonsai.Expressions
             return workflow;
         }
 
+        /// <summary>
+        /// Converts an expression builder workflow into its serializable representation.
+        /// </summary>
+        /// <param name="source">The expression builder workflow to convert.</param>
+        /// <returns>
+        /// The serializable descriptor of the specified expression builder workflow.
+        /// </returns>
         public static ExpressionBuilderGraphDescriptor ToDescriptor(this ExpressionBuilderGraph source)
         {
             var descriptor = new ExpressionBuilderGraphDescriptor();

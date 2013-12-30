@@ -8,6 +8,10 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
 {
+    /// <summary>
+    /// Represents an expression builder that handles sharing of sequences between multiple
+    /// branches of an expression builder workflow by publishing notifications across branches.
+    /// </summary>
     [XmlType("Publish", Namespace = Constants.XmlNamespace)]
     public class PublishBuilder : MulticastBuilder
     {
