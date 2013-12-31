@@ -17,11 +17,12 @@ namespace Bonsai
 {
     static class PackageHelper
     {
-        internal static void RunPackageOperation(LicenseAwarePackageManager packageManager, Func<Task> operationFactory)
+        internal static void RunPackageOperation(LicenseAwarePackageManager packageManager, Func<Task> operationFactory, string operationLabel = null)
         {
             EventHandler<RequiringLicenseAcceptanceEventArgs> requiringLicenseHandler = null;
             using (var dialog = new PackageOperationDialog { ShowInTaskbar = true })
             {
+                if (!string.IsNullOrEmpty(operationLabel)) dialog.Text = operationLabel;
                 requiringLicenseHandler = (sender, e) =>
                 {
                     if (dialog.InvokeRequired) dialog.Invoke(requiringLicenseHandler, sender, e);
