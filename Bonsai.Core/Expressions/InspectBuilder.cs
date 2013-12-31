@@ -66,39 +66,33 @@ namespace Bonsai.Expressions
         }
 
         /// <summary>
-        /// Generates an <see cref="Expression"/> node that will be passed on to other
-        /// builders in the workflow.
+        /// Generates an <see cref="Expression"/> node from a collection of input arguments.
+        /// The result can be chained with other builders in a workflow.
         /// </summary>
+        /// <param name="arguments">
+        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
+        /// </param>
         /// <returns>An <see cref="Expression"/> tree node.</returns>
-        public override Expression Build()
+        public override Expression Build(IEnumerable<Expression> arguments)
         {
-            foreach (var argument in ArgumentList)
-            {
-                Builder.ArgumentList.Add(argument);
-            }
+            var source = Builder.Build(arguments);
+            var subject = new ReplaySubject<IObservable<object>>(1, Scheduler.Immediate);
+            ObservableType = source.Type.GetGenericArguments()[0];
 
-            try
+            // If source is already an inspect node, use it
+            var methodCall = source as MethodCallExpression;
+            if (methodCall != null && methodCall.Object != null && methodCall.Object.Type == typeof(InspectBuilder))
             {
-                var source = Builder.Build();
-                var subject = new ReplaySubject<IObservable<object>>(1, Scheduler.Immediate);
-                ObservableType = source.Type.GetGenericArguments()[0];
-
-                // If source is already an inspect node, use it
-                var methodCall = source as MethodCallExpression;
-                if (methodCall != null && methodCall.Object != null && methodCall.Object.Type == typeof(InspectBuilder))
-                {
-                    var inspectBuilder = (InspectBuilder)((ConstantExpression)methodCall.Object).Value;
-                    Output = inspectBuilder.Output;
-                    return source;
-                }
-                else
-                {
-                    Output = subject;
-                    var subjectExpression = Expression.Constant(subject);
-                    return Expression.Call(typeof(InspectBuilder), "Process", new[] { ObservableType }, source, subjectExpression);
-                }
+                var inspectBuilder = (InspectBuilder)((ConstantExpression)methodCall.Object).Value;
+                Output = inspectBuilder.Output;
+                return source;
             }
-            finally { Builder.ArgumentList.Clear(); }
+            else
+            {
+                Output = subject;
+                var subjectExpression = Expression.Constant(subject);
+                return Expression.Call(typeof(InspectBuilder), "Process", new[] { ObservableType }, source, subjectExpression);
+            }
         }
 
         static IObservable<TSource> Process<TSource>(IObservable<TSource> source, ReplaySubject<IObservable<object>> subject)

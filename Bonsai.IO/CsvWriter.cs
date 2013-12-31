@@ -117,16 +117,16 @@ namespace Bonsai.IO
             }
         }
 
-        protected override Expression BuildCombinator()
+        protected override Expression BuildCombinator(IEnumerable<Expression> arguments)
         {
             const string ParameterName = "input";
             const string EntryFormat = "{0} ";
 
-            var source = Arguments.First();
+            var source = arguments.First();
             var parameterType = source.Type.GetGenericArguments()[0];
             var inputParameter = Expression.Parameter(parameterType, ParameterName);
             var writerParameter = Expression.Parameter(typeof(StreamWriter));
-            var sourceAccess = GetArgumentAccess(Selector);
+            var sourceAccess = GetArgumentAccess(arguments, Selector);
             var memberExpression = ExpressionHelper.MemberAccess(inputParameter, sourceAccess.Item2);
             var formatConstant = Expression.Constant(EntryFormat);
 

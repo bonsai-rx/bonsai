@@ -24,7 +24,7 @@ namespace Bonsai.Scripting
         [Description("The script that determines the operation of the transform.")]
         public string Script { get; set; }
 
-        public override Expression Build()
+        public override Expression Build(IEnumerable<Expression> arguments)
         {
             var engine = IronPython.Hosting.Python.CreateEngine();
             var scope = engine.CreateScope();
@@ -39,7 +39,7 @@ namespace Bonsai.Scripting
             }
             else outputType = typeof(object);
 
-            var source = Arguments.Single();
+            var source = arguments.Single();
             var observableType = source.Type.GetGenericArguments()[0];
             var scopeExpression = Expression.Constant(scope);
             var selectorType = Expression.GetFuncType(observableType, outputType);

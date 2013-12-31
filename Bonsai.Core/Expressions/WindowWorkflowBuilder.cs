@@ -45,13 +45,16 @@ namespace Bonsai.Expressions
         }
 
         /// <summary>
-        /// Generates an <see cref="Expression"/> node that will be passed on
-        /// to other builders in the workflow.
+        /// Generates an <see cref="Expression"/> node from a collection of input arguments.
+        /// The result can be chained with other builders in a workflow.
         /// </summary>
+        /// <param name="arguments">
+        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
+        /// </param>
         /// <returns>An <see cref="Expression"/> tree node.</returns>
-        public override Expression Build()
+        public override Expression Build(IEnumerable<Expression> arguments)
         {
-            var source = Arguments.Single();
+            var source = arguments.Single();
             var sourceType = source.Type.GetGenericArguments()[0];
             if (!sourceType.IsGenericType || sourceType.GetGenericTypeDefinition() != typeof(IObservable<>))
             {
@@ -59,7 +62,7 @@ namespace Bonsai.Expressions
             }
 
             var selectorParameter = Expression.Parameter(sourceType);
-            return BuildWorflow(selectorParameter, selectorBody =>
+            return BuildWorflow(arguments, selectorParameter, selectorBody =>
             {
                 var selector = Expression.Lambda(selectorBody, selectorParameter);
                 return Expression.Call(selectMethod.MakeGenericMethod(sourceType, selector.ReturnType), source, selector);
