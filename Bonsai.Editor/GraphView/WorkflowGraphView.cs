@@ -411,7 +411,7 @@ namespace Bonsai.Design
 
                 var builder = GetGraphNodeBuilder(graphViewTarget);
                 if (connectionCount++ >= target.Value.ArgumentRange.UpperBound &&
-                    !Attribute.IsDefined(builder.GetType(), typeof(PropertyMappingAttribute), true) ||
+                    !(builder is IPropertyMappingBuilder) ||
                     target.DepthFirstSearch().Contains(node))
                 {
                     reject = true;

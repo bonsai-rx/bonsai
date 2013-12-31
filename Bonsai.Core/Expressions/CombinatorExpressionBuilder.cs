@@ -12,8 +12,7 @@ namespace Bonsai.Expressions
     /// Provides a base class for expression builders that will generate combinator outputs that
     /// can be combined with dynamic property mappings. This is an abstract class.
     /// </summary>
-    [PropertyMapping]
-    public abstract class CombinatorExpressionBuilder : VariableArgumentExpressionBuilder
+    public abstract class CombinatorExpressionBuilder : VariableArgumentExpressionBuilder, IPropertyMappingBuilder
     {
         readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
 

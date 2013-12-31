@@ -70,6 +70,8 @@
     <Compile Include="Expressions\BitwiseAndBuilder.cs" />
     <Compile Include="Expressions\BitwiseOrBuilder.cs" />
     <Compile Include="Expressions\BitwiseNotBuilder.cs" />
+    <Compile Include="Expressions\IExpressionBuilder.cs" />
+    <Compile Include="Expressions\IPropertyMappingBuilder.cs" />
     <Compile Include="Expressions\MulticastBuilder.cs" />
     <Compile Include="Expressions\MulticastExpressionBuilder.cs" />
     <Compile Include="Expressions\MulticastScope.cs" />
@@ -131,7 +133,6 @@
     <Compile Include="Condition.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="ArrayConvert.cs" />
-    <Compile Include="Expressions\PropertyMappingAttribute.cs" />
     <Compile Include="Expressions\PropertyMappingCollection.cs" />
     <Compile Include="Expressions\PropertyMapping.cs" />
     <Compile Include="CombinatorAttribute.cs" />
