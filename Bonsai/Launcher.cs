@@ -72,7 +72,8 @@ namespace Bonsai
                         packageManager,
                         () => packageManager
                             .StartUpdatePackage(editorPackageId, editorPackageVersion)
-                            .ContinueWith(task => editorPackage = task.Result));
+                            .ContinueWith(task => editorPackage = task.Result),
+                        operationLabel: "Updating...");
                     launchPackageManager = true;
                 }
             }
