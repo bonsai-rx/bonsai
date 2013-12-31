@@ -15,11 +15,10 @@ namespace Bonsai.Expressions
     /// Provides a base class for expression builders that generate their output by means
     /// of an encapsulated workflow.
     /// </summary>
-    [PropertyMapping]
     [WorkflowElementCategory(ElementCategory.Nested)]
     [XmlType("Workflow", Namespace = Constants.XmlNamespace)]
     [TypeDescriptionProvider(typeof(WorkflowTypeDescriptionProvider))]
-    public abstract class WorkflowExpressionBuilder : VariableArgumentExpressionBuilder, INamedElement
+    public abstract class WorkflowExpressionBuilder : VariableArgumentExpressionBuilder, INamedElement, IPropertyMappingBuilder
     {
         readonly ExpressionBuilderGraph workflow;
         readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();

@@ -31,7 +31,7 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(WorkflowExpressionBuilder))]
     [XmlType("Expression", Namespace = Constants.XmlNamespace)]
     [TypeConverter("Bonsai.Design.ExpressionBuilderTypeConverter, Bonsai.Design")]
-    public abstract class ExpressionBuilder
+    public abstract class ExpressionBuilder : IExpressionBuilder
     {
         const string ExpressionBuilderSuffix = "Builder";
 

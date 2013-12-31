@@ -39,20 +39,13 @@ namespace Bonsai.Editor
                 if (builder != null)
                 {
                     var builderProperties = TypeDescriptor.GetProperties(builder);
-                    var builderAttributes = TypeDescriptor.GetAttributes(builder);
 
-                    var propertyMapAttribute = (PropertyMappingAttribute)builderAttributes[typeof(PropertyMappingAttribute)];
-                    if (propertyMapAttribute != null)
+                    var propertyMappingBuilder = builder as IPropertyMappingBuilder;
+                    if (propertyMappingBuilder != null)
                     {
                         using (var provider = new CSharpCodeProvider())
                         {
-                            var propertyMapProperty = builderProperties[propertyMapAttribute.PropertyName];
-                            if (propertyMapProperty == null || propertyMapProperty.PropertyType != typeof(PropertyMappingCollection))
-                            {
-                                throw new InvalidOperationException("The property name specified in PropertyMappingAttribute does not exist or has an invalid type.");
-                            }
-
-                            var propertyMappings = (PropertyMappingCollection)propertyMapProperty.GetValue(builder);
+                            var propertyMappings = propertyMappingBuilder.PropertyMappings;
                             var componentProperties = TypeDescriptor.GetProperties(component);
                             foreach (var descriptor in componentProperties.Cast<PropertyDescriptor>()
                                                                           .Where(descriptor => descriptor.IsBrowsable &&
