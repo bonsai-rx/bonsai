@@ -20,6 +20,11 @@
         <Edition>IntegratedShell</Edition>
         <Edition>VSWinDesktopExpress</Edition>
       </VisualStudio>
+      <VisualStudio Version="12.0">
+        <Edition>Pro</Edition>
+        <Edition>IntegratedShell</Edition>
+        <Edition>VSWinDesktopExpress</Edition>
+      </VisualStudio>
     </SupportedProducts>
     <SupportedFrameworkRuntimeEdition MinVersion="4.0" />
     <AllUsers>true</AllUsers>
