@@ -34,7 +34,6 @@ namespace Bonsai.Expressions
     public abstract class ExpressionBuilder
     {
         const string ExpressionBuilderSuffix = "Builder";
-        readonly SortedList<int, Expression> arguments = new SortedList<int, Expression>();
 
         /// <summary>
         /// When overridden in a derived class, gets the range of input arguments
@@ -43,25 +42,16 @@ namespace Bonsai.Expressions
         [Browsable(false)]
         public abstract Range<int> ArgumentRange { get; }
 
-        internal IDictionary<int, Expression> ArgumentList
-        {
-            get { return arguments; }
-        }
-
-        /// <summary>
-        /// Gets the input arguments that have been passed to this expression builder.
-        /// </summary>
-        protected IEnumerable<Expression> Arguments
-        {
-            get { return arguments.Values; }
-        }
-
         /// <summary>
         /// When overridden in a derived class, generates an <see cref="Expression"/> node
-        /// that will be passed on to other builders in the workflow.
+        /// from a collection of input arguments. The result can be chained with other
+        /// builders in a workflow.
         /// </summary>
+        /// <param name="arguments">
+        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
+        /// </param>
         /// <returns>An <see cref="Expression"/> tree node.</returns>
-        public abstract Expression Build();
+        public abstract Expression Build(IEnumerable<Expression> arguments);
 
         /// <summary>
         /// Removes all decorators from a specified <see cref="ExpressionBuilder"/> instance
@@ -643,9 +633,8 @@ namespace Bonsai.Expressions
                                                                            m.GetParameters()[0].ParameterType.GetGenericTypeDefinition() == typeof(Func<>) &&
                                                                            m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
 
-        protected Tuple<Expression, string> GetArgumentAccess(string selector)
+        protected Tuple<Expression, string> GetArgumentAccess(IEnumerable<Expression> arguments, string selector)
         {
-            Expression source;
             if (string.IsNullOrEmpty(selector))
             {
                 selector = ExpressionBuilderArgument.ArgumentNamePrefix;
@@ -654,7 +643,8 @@ namespace Bonsai.Expressions
             var memberPath = selector.Split(new[] { ExpressionHelper.MemberSeparator }, 2, StringSplitOptions.None);
             var argumentName = memberPath[0];
             var argument = new ExpressionBuilderArgument(argumentName);
-            if (!ArgumentList.TryGetValue(argument.Index, out source))
+            var source = arguments.ElementAtOrDefault(argument.Index);
+            if (source == null)
             {
                 throw new InvalidOperationException(string.Format("Unable to find source with name '{0}'.", argumentName));
             }
@@ -663,9 +653,9 @@ namespace Bonsai.Expressions
             return Tuple.Create(source, selector);
         }
 
-        internal Expression BuildPropertyMapping(Expression instance, PropertyMapping mapping)
+        internal Expression BuildPropertyMapping(IEnumerable<Expression> arguments, Expression instance, PropertyMapping mapping)
         {
-            var memberAccess = GetArgumentAccess(mapping.Selector);
+            var memberAccess = GetArgumentAccess(arguments, mapping.Selector);
             var source = memberAccess.Item1;
             var sourceSelector = memberAccess.Item2;
             var sourceType = source.Type.GetGenericArguments()[0];
@@ -684,9 +674,9 @@ namespace Bonsai.Expressions
             return Expression.Call(subscribeMethod.MakeGenericMethod(sourceType), source, action);
         }
 
-        internal Expression BuildMappingOutput(Expression instance, Expression output, PropertyMappingCollection propertyMappings)
+        internal Expression BuildMappingOutput(IEnumerable<Expression> arguments, Expression instance, Expression output, PropertyMappingCollection propertyMappings)
         {
-            var subscriptions = propertyMappings.Select(mapping => BuildPropertyMapping(instance, mapping)).ToArray();
+            var subscriptions = propertyMappings.Select(mapping => BuildPropertyMapping(arguments, instance, mapping)).ToArray();
             return BuildMappingOutput(output, subscriptions);
         }
 

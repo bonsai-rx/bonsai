@@ -22,6 +22,20 @@ namespace Bonsai.Expressions
     public static class ExpressionBuilderGraphExtensions
     {
         /// <summary>
+        /// Generates an <see cref="Expression"/> node from a collection of zero or more
+        /// input arguments. The result can be chained with other builders in a workflow.
+        /// </summary>
+        /// <param name="builder">The expression builder.</param>
+        /// <param name="arguments">
+        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
+        /// </param>
+        /// <returns>An <see cref="Expression"/> tree node.</returns>
+        public static Expression Build(this ExpressionBuilder builder, params Expression[] arguments)
+        {
+            return builder.Build(arguments);
+        }
+
+        /// <summary>
         /// Sets the value of a workflow property to a different value.
         /// </summary>
         /// <param name="source">The expression builder workflow for which to set the property.</param>
@@ -100,14 +114,6 @@ namespace Bonsai.Expressions
             if (element != expressionBuilder) yield return element;
         }
 
-        internal static void ClearArguments(this ExpressionBuilderGraph source)
-        {
-            foreach (var node in source)
-            {
-                node.Value.ArgumentList.Clear();
-            }
-        }
-
         /// <summary>
         /// Generates an expression tree from the specified expression builder workflow.
         /// </summary>
@@ -149,130 +155,138 @@ namespace Bonsai.Expressions
             return buildContext.BuildResult;
         }
 
+        static readonly Expression[] EmptyArguments = new Expression[0];
+
         internal static Expression Build(this ExpressionBuilderGraph source, BuildContext buildContext)
         {
             WorkflowOutputBuilder workflowOutput = null;
+            var argumentLists = new Dictionary<ExpressionBuilder, SortedList<int, Expression>>();
             var multicastMap = new List<MulticastScope>();
             var connections = new List<Expression>();
 
-            try
+            foreach (var node in source.TopologicalSort())
             {
-                foreach (var node in source.TopologicalSort())
-                {
-                    Expression expression;
-                    var builder = node.Value;
-                    var argumentRange = builder.ArgumentRange;
-                    if (argumentRange == null || builder.ArgumentList.Count < argumentRange.LowerBound)
-                    {
-                        throw new WorkflowBuildException("Unsupported number of arguments. Check the number of connections into node.", builder);
-                    }
+                Expression expression;
+                IList<Expression> arguments;
+                SortedList<int, Expression> argumentList;
 
-                    // Propagate build target in case of a nested workflow
-                    var workflowElement = ExpressionBuilder.Unwrap(builder);
-                    var workflowBuilder = workflowElement as WorkflowExpressionBuilder;
+                var builder = node.Value;
+                if (argumentLists.TryGetValue(builder, out argumentList))
+                {
+                    arguments = argumentList.Values;
+                    argumentLists.Remove(builder);
+                }
+                else arguments = EmptyArguments;
+
+                var argumentRange = builder.ArgumentRange;
+                if (argumentRange == null || arguments.Count < argumentRange.LowerBound)
+                {
+                    throw new WorkflowBuildException("Unsupported number of arguments. Check the number of connections into node.", builder);
+                }
+
+                // Propagate build target in case of a nested workflow
+                var workflowElement = ExpressionBuilder.Unwrap(builder);
+                var workflowBuilder = workflowElement as WorkflowExpressionBuilder;
+                if (workflowBuilder != null)
+                {
+                    workflowBuilder.BuildContext = buildContext;
+                }
+
+                try
+                {
+                    expression = builder.Build(arguments);
+                }
+                catch (Exception e)
+                {
+                    throw new WorkflowBuildException(e.Message, builder, e);
+                }
+                finally
+                {
                     if (workflowBuilder != null)
                     {
-                        workflowBuilder.BuildContext = buildContext;
-                    }
-
-                    try
-                    {
-                        expression = builder.Build();
-                        builder.ArgumentList.Clear();
-                    }
-                    catch (Exception e)
-                    {
-                        throw new WorkflowBuildException(e.Message, builder, e);
-                    }
-                    finally
-                    {
-                        if (workflowBuilder != null)
-                        {
-                            workflowBuilder.BuildContext = null;
-                        }
-                    }
-
-                    // Check if build target was reached
-                    if (buildContext != null)
-                    {
-                        if (builder == buildContext.BuildTarget)
-                        {
-                            buildContext.BuildResult = expression;
-                        }
-
-                        if (buildContext.BuildResult != null)
-                        {
-                            source.ClearArguments();
-                            return expression;
-                        }
-                    }
-
-                    // Remove all closing scopes
-                    multicastMap.RemoveAll(scope =>
-                    {
-                        scope.References.RemoveAll(reference => reference == builder);
-                        if (scope.References.Count == 0)
-                        {
-                            expression = scope.Close(expression);
-                            return true;
-                        }
-
-                        if (node.Successors.Count == 0) scope.References.Add(null);
-                        else scope.References.AddRange(node.Successors.Select(successor => successor.Target.Value));
-                        return false;
-                    });
-
-                    MulticastScope multicastScope = null;
-                    if (node.Successors.Count > 1)
-                    {
-                        // Start a new multicast scope
-                        var multicastBuilder = workflowElement as MulticastExpressionBuilder;
-                        if (multicastBuilder == null)
-                        {
-                            multicastBuilder = new PublishBuilder();
-                            multicastBuilder.ArgumentList.Add(0, expression);
-                            expression = multicastBuilder.Build();
-                        }
-
-                        multicastScope = new MulticastScope(multicastBuilder);
-                        multicastScope.References.AddRange(node.Successors.Select(successor => successor.Target.Value));
-                        multicastMap.Insert(0, multicastScope);
-                    }
-
-                    foreach (var successor in node.Successors)
-                    {
-                        successor.Target.Value.ArgumentList.Add(successor.Label.Index, expression);
-                    }
-
-                    if (node.Successors.Count == 0)
-                    {
-                        connections.Add(expression);
-                    }
-
-                    var outputBuilder = workflowElement as WorkflowOutputBuilder;
-                    if (outputBuilder != null)
-                    {
-                        if (workflowOutput != null)
-                        {
-                            throw new WorkflowBuildException("Workflows cannot have more than one output.", builder);
-                        }
-                        workflowOutput = outputBuilder;
+                        workflowBuilder.BuildContext = null;
                     }
                 }
 
-                var output = ExpressionBuilder.BuildWorkflowOutput(workflowOutput, connections);
+                // Check if build target was reached
+                if (buildContext != null)
+                {
+                    if (builder == buildContext.BuildTarget)
+                    {
+                        buildContext.BuildResult = expression;
+                    }
+
+                    if (buildContext.BuildResult != null)
+                    {
+                        return expression;
+                    }
+                }
+
+                // Remove all closing scopes
                 multicastMap.RemoveAll(scope =>
                 {
-                    output = scope.Close(output);
-                    return true;
+                    scope.References.RemoveAll(reference => reference == builder);
+                    if (scope.References.Count == 0)
+                    {
+                        expression = scope.Close(expression);
+                        return true;
+                    }
+
+                    if (node.Successors.Count == 0) scope.References.Add(null);
+                    else scope.References.AddRange(node.Successors.Select(successor => successor.Target.Value));
+                    return false;
                 });
-                return output;
+
+                MulticastScope multicastScope = null;
+                if (node.Successors.Count > 1)
+                {
+                    // Start a new multicast scope
+                    var multicastBuilder = workflowElement as MulticastExpressionBuilder;
+                    if (multicastBuilder == null)
+                    {
+                        multicastBuilder = new PublishBuilder();
+                        expression = multicastBuilder.Build(expression);
+                    }
+
+                    multicastScope = new MulticastScope(multicastBuilder);
+                    multicastScope.References.AddRange(node.Successors.Select(successor => successor.Target.Value));
+                    multicastMap.Insert(0, multicastScope);
+                }
+
+                foreach (var successor in node.Successors)
+                {
+                    if (!argumentLists.TryGetValue(successor.Target.Value, out argumentList))
+                    {
+                        argumentList = new SortedList<int, Expression>();
+                        argumentLists.Add(successor.Target.Value, argumentList);
+                    }
+
+                    argumentList.Add(successor.Label.Index, expression);
+                }
+
+                if (node.Successors.Count == 0)
+                {
+                    connections.Add(expression);
+                }
+
+                var outputBuilder = workflowElement as WorkflowOutputBuilder;
+                if (outputBuilder != null)
+                {
+                    if (workflowOutput != null)
+                    {
+                        throw new WorkflowBuildException("Workflows cannot have more than one output.", builder);
+                    }
+                    workflowOutput = outputBuilder;
+                }
             }
-            catch
+
+            var output = ExpressionBuilder.BuildWorkflowOutput(workflowOutput, connections);
+            multicastMap.RemoveAll(scope =>
             {
-                source.ClearArguments();
-                throw;
-            }
+                output = scope.Close(output);
+                return true;
+            });
+            return output;
         }
 
         /// <summary>
@@ -287,8 +301,7 @@ namespace Bonsai.Expressions
         {
             var workflow = source.Build();
             var unitBuilder = new UnitBuilder();
-            unitBuilder.ArgumentList.Add(0, workflow);
-            var unitConversion = unitBuilder.Build();
+            var unitConversion = unitBuilder.Build(workflow);
             var observableFactory = Expression.Lambda<Func<IObservable<Unit>>>(unitConversion).Compile();
             return observableFactory();
         }

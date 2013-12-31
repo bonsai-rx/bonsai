@@ -40,15 +40,18 @@ namespace Bonsai.Expressions
         }
 
         /// <summary>
-        /// Generates an <see cref="Expression"/> node that will be passed on to other
-        /// builders in the workflow.
+        /// Generates an <see cref="Expression"/> node from a collection of input arguments.
+        /// The result can be chained with other builders in a workflow.
         /// </summary>
+        /// <param name="arguments">
+        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
+        /// </param>
         /// <returns>An <see cref="Expression"/> tree node.</returns>
-        public override Expression Build()
+        public override Expression Build(IEnumerable<Expression> arguments)
         {
-            var output = BuildCombinator();
+            var output = BuildCombinator(arguments);
             var combinatorExpression = Expression.Constant(this);
-            return BuildMappingOutput(combinatorExpression, output, propertyMappings);
+            return BuildMappingOutput(arguments, combinatorExpression, output, propertyMappings);
         }
 
         /// <summary>
@@ -56,9 +59,12 @@ namespace Bonsai.Expressions
         /// that will be combined with any existing property mappings to produce the final
         /// output of the expression builder.
         /// </summary>
+        /// <param name="arguments">
+        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
+        /// </param>
         /// <returns>
         /// An <see cref="Expression"/> tree node that represents the combinator output.
         /// </returns>
-        protected abstract Expression BuildCombinator();
+        protected abstract Expression BuildCombinator(IEnumerable<Expression> arguments);
     }
 }

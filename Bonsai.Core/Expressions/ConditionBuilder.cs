@@ -49,15 +49,18 @@ namespace Bonsai.Expressions
         public string Selector { get; set; }
 
         /// <summary>
-        /// Generates an <see cref="Expression"/> node that will be passed on to other
-        /// builders in the workflow.
+        /// Generates an <see cref="Expression"/> node from a collection of input arguments.
+        /// The result can be chained with other builders in a workflow.
         /// </summary>
+        /// <param name="arguments">
+        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
+        /// </param>
         /// <returns>An <see cref="Expression"/> tree node.</returns>
-        public override Expression Build()
+        public override Expression Build(IEnumerable<Expression> arguments)
         {
-            var output = BuildCombinator();
+            var output = BuildCombinator(arguments);
             var conditionExpression = Expression.Constant(Condition);
-            return BuildMappingOutput(conditionExpression, output, PropertyMappings);
+            return BuildMappingOutput(arguments, conditionExpression, output, PropertyMappings);
         }
 
         /// <summary>
@@ -65,9 +68,12 @@ namespace Bonsai.Expressions
         /// existing property mappings to produce the final output of the expression builder.
         /// </summary>
         /// <returns>
+        /// <param name="arguments">
+        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
+        /// </param>
         /// An <see cref="Expression"/> tree node that represents the combinator output.
         /// </returns>
-        protected override Expression BuildCombinator()
+        protected override Expression BuildCombinator(IEnumerable<Expression> arguments)
         {
             const BindingFlags bindingAttributes = BindingFlags.Instance | BindingFlags.Public;
             var conditionType = Condition.GetType();
@@ -75,10 +81,10 @@ namespace Bonsai.Expressions
             var conditionAttributes = conditionType.GetCustomAttributes(typeof(CombinatorAttribute), true);
             var methodName = ((CombinatorAttribute)conditionAttributes.Single()).MethodName;
 
-            var sourceSelect = Arguments.First();
+            var sourceSelect = arguments.First();
             var observableType = sourceSelect.Type.GetGenericArguments()[0];
             var parameter = Expression.Parameter(observableType);
-            var memberAccess = GetArgumentAccess(Selector);
+            var memberAccess = GetArgumentAccess(arguments, Selector);
             var memberSelector = ExpressionHelper.MemberAccess(parameter, memberAccess.Item2);
 
             var conditionParameter = Expression.Parameter(typeof(IObservable<>).MakeGenericType(memberSelector.Type));

@@ -34,13 +34,16 @@ namespace Bonsai.Expressions
         protected abstract Expression BuildSelector(Expression expression);
 
         /// <summary>
-        /// Generates an <see cref="Expression"/> node that will be passed on
-        /// to other builders in the workflow.
+        /// Generates an <see cref="Expression"/> node from a collection of input arguments.
+        /// The result can be chained with other builders in a workflow.
         /// </summary>
+        /// <param name="arguments">
+        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
+        /// </param>
         /// <returns>An <see cref="Expression"/> tree node.</returns>
-        public override Expression Build()
+        public override Expression Build(IEnumerable<Expression> arguments)
         {
-            var source = Arguments.Single();
+            var source = arguments.Single();
             var parameterType = source.Type.GetGenericArguments()[0];
             var parameter = Expression.Parameter(parameterType);
             var selectorBody = BuildSelector(parameter);

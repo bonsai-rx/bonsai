@@ -106,6 +106,9 @@ namespace Bonsai.Expressions
         /// Builds the ouptut of the encapsulated workflow for the specified source and applies
         /// a selector taking into account any available workflow mappings.
         /// </summary>
+        /// <param name="arguments">
+        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
+        /// </param>
         /// <param name="source">
         /// The expression tree that will be used as input to the encapsulated workflow.
         /// </param>
@@ -118,7 +121,7 @@ namespace Bonsai.Expressions
         /// workflow to the specified input <paramref name="source"/>. Property mappings are also
         /// resolved in the correct sequence.
         /// </returns>
-        protected Expression BuildWorflow(Expression source, Func<Expression, Expression> selector)
+        protected Expression BuildWorflow(IEnumerable<Expression> arguments, Expression source, Func<Expression, Expression> selector)
         {
             // Assign source if available
             var workflowInput = Workflow.Select(node => GetWorkflowElement(node.Value) as WorkflowInputBuilder)
@@ -146,7 +149,7 @@ namespace Bonsai.Expressions
                                     select property).First();
                 var inputExpression = Expression.Constant(inputBuilder);
                 var inputMapping = new PropertyMapping("Value", mapping.Selector);
-                return BuildPropertyMapping(inputExpression, inputMapping);
+                return BuildPropertyMapping(arguments, inputExpression, inputMapping);
             });
             return BuildMappingOutput(output, subscriptions.ToArray());
         }

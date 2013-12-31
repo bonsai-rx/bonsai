@@ -26,12 +26,15 @@ namespace Bonsai.Expressions
         /// Returns the output expression specified in <see cref="Output"/>.
         /// </summary>
         /// <returns>
+        /// <param name="arguments">
+        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
+        /// </param>
         /// An <see cref="Expression"/> that will be used as the output of an
         /// encapsulated workflow.
         /// </returns>
-        public override Expression Build()
+        public override Expression Build(IEnumerable<Expression> arguments)
         {
-            return Output = Arguments.Single();
+            return Output = arguments.Single();
         }
     }
 }
