@@ -295,7 +295,7 @@
             this.Name = "PackageManagerDialog";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "PackageManagerDialog";
+            this.Text = "Bonsai - Manage Packages";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.PackageManagerDialog_KeyDown);
             this.mainLayoutPanel.ResumeLayout(false);
             this.packageViewLayoutPanel.ResumeLayout(false);
