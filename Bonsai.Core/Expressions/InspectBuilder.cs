@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 using System.Reflection;
 using System.Reactive.Subjects;
 using System.Reactive.Concurrency;
+using System.Reactive;
 
 namespace Bonsai.Expressions
 {
@@ -16,6 +17,8 @@ namespace Bonsai.Expressions
     /// </summary>
     public class InspectBuilder : ExpressionBuilder, INamedElement
     {
+        static readonly MethodInfo CreateSubjectMethod = typeof(InspectBuilder).GetMethod("CreateInspectorSubject", BindingFlags.NonPublic | BindingFlags.Instance);
+
         /// <summary>
         /// Initializes a new instance of the <see cref="InspectBuilder"/> class with the
         /// specified expression builder.
@@ -44,10 +47,17 @@ namespace Bonsai.Expressions
         public Type ObservableType { get; private set; }
 
         /// <summary>
-        /// Gets an observable sequence that replays the latest notification from all
+        /// Gets an observable sequence that multicasts notifications from all
         /// the subscriptions made to the output of the decorated expression builder.
         /// </summary>
         public IObservable<IObservable<object>> Output { get; private set; }
+
+        /// <summary>
+        /// Gets an observable sequence that multicasts errors and termination
+        /// messages from all subscriptions made to the output of the decorated
+        /// expression builder.
+        /// </summary>
+        public IObservable<Unit> Error { get; private set; }
 
         /// <summary>
         /// Gets the range of input arguments that the decorated expression builder accepts.
@@ -76,7 +86,6 @@ namespace Bonsai.Expressions
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             var source = Builder.Build(arguments);
-            var subject = new ReplaySubject<IObservable<object>>(1, Scheduler.Immediate);
             ObservableType = source.Type.GetGenericArguments()[0];
 
             // If source is already an inspect node, use it
@@ -85,26 +94,32 @@ namespace Bonsai.Expressions
             {
                 var inspectBuilder = (InspectBuilder)((ConstantExpression)methodCall.Object).Value;
                 Output = inspectBuilder.Output;
+                Error = inspectBuilder.Error;
                 return source;
             }
             else
             {
-                Output = subject;
+                var subject = CreateSubjectMethod.MakeGenericMethod(ObservableType).Invoke(this, null);
                 var subjectExpression = Expression.Constant(subject);
                 return Expression.Call(typeof(InspectBuilder), "Process", new[] { ObservableType }, source, subjectExpression);
             }
         }
 
-        static IObservable<TSource> Process<TSource>(IObservable<TSource> source, ReplaySubject<IObservable<object>> subject)
+        ReplaySubject<IObservable<TSource>> CreateInspectorSubject<TSource>()
+        {
+            var subject = new ReplaySubject<IObservable<TSource>>(1, Scheduler.Immediate);
+            Output = subject.Select(ys => ys.Select(xs => (object)xs));
+            Error = subject.Merge().IgnoreElements().Select(xs => Unit.Default);
+            return subject;
+        }
+
+        static IObservable<TSource> Process<TSource>(IObservable<TSource> source, ReplaySubject<IObservable<TSource>> subject)
         {
             return Observable.Defer(() =>
             {
-                var sourceInspector = new ReplaySubject<object>(1, Scheduler.Immediate);
+                var sourceInspector = new Subject<TSource>();
                 subject.OnNext(sourceInspector);
-                return source.Do(
-                    xs => sourceInspector.OnNext(xs),
-                    ex => sourceInspector.OnError(ex),
-                    () => sourceInspector.OnCompleted());
+                return source.Do(sourceInspector);
             });
         }
     }
