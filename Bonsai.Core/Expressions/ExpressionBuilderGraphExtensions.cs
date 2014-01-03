@@ -90,10 +90,7 @@ namespace Bonsai.Expressions
                                     select inspectBuilder)
             {
                 var inspectBuilder = builder;
-                yield return inspectBuilder.Output
-                    .Merge()
-                    .IgnoreElements()
-                    .Select(xs => Unit.Default)
+                yield return inspectBuilder.Error
                     .Catch<Unit, Exception>(xs => Observable.Throw<Unit>(BuildRuntimeExceptionStack(xs.Message, inspectBuilder, xs, callStack)));
 
                 var workflowExpression = inspectBuilder.Builder as WorkflowExpressionBuilder;
