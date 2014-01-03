@@ -103,6 +103,15 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to None.
+        /// </summary>
+        internal static string ContextMenu_NoneVisualizerItemLabel {
+            get {
+                return ResourceManager.GetString("ContextMenu_NoneVisualizerItemLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap PropertyMappingIcon {

@@ -14,6 +14,7 @@ using Bonsai.Dag;
 using System.Xml.Serialization;
 using System.Linq.Expressions;
 using System.Windows.Forms.Design;
+using Bonsai.Editor.Properties;
 
 namespace Bonsai.Design
 {
@@ -1343,6 +1344,46 @@ namespace Bonsai.Design
             DeleteGraphNodes(selectionModel.SelectedNodes);
         }
 
+        private ToolStripMenuItem CreateVisualizerMenuItem(string typeName, VisualizerDialogSettings layoutSettings, GraphNode selectedNode)
+        {
+            ToolStripMenuItem menuItem = null;
+            var emptyVisualizer = string.IsNullOrEmpty(typeName);
+            var itemText = emptyVisualizer ? Resources.ContextMenu_NoneVisualizerItemLabel : typeName;
+            menuItem = new ToolStripMenuItem(itemText, null, delegate
+            {
+                if (!menuItem.Checked)
+                {
+                    layoutSettings.VisualizerTypeName = typeName;
+                    layoutSettings.VisualizerSettings = null;
+                    layoutSettings.Visible = !emptyVisualizer;
+                    if (!editorService.WorkflowRunning)
+                    {
+                        layoutSettings.Size = Size.Empty;
+                    }
+                    else
+                    {
+                        var inspectBuilder = (InspectBuilder)selectedNode.Value;
+                        var visualizerLauncher = visualizerMapping[inspectBuilder];
+                        var visualizerVisible = visualizerLauncher.Visible;
+                        if (visualizerVisible)
+                        {
+                            visualizerLauncher.Hide();
+                        }
+
+                        var visualizerBounds = visualizerLauncher.Bounds;
+                        visualizerLauncher = CreateVisualizerLauncher(inspectBuilder, selectedNode);
+                        visualizerLauncher.Bounds = new Rectangle(visualizerBounds.Location, Size.Empty);
+                        visualizerMapping[inspectBuilder] = visualizerLauncher;
+                        if (layoutSettings.Visible)
+                        {
+                            visualizerLauncher.Show(graphView, serviceProvider);
+                        }
+                    }
+                }
+            });
+            return menuItem;
+        }
+
         private void contextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
             var selectedNodes = selectionModel.SelectedNodes.ToArray();
@@ -1364,47 +1405,29 @@ namespace Bonsai.Design
                 var layoutSettings = GetLayoutSettings(selectedNode.Value);
                 if (layoutSettings != null)
                 {
-                    var visualizerTypes = GetTypeVisualizers(selectedNode);
+                    var activeVisualizer = layoutSettings.VisualizerTypeName;
+                    if (editorService.WorkflowRunning)
+                    {
+                        var inspectBuilder = (InspectBuilder)selectedNode.Value;
+                        var visualizerLauncher = visualizerMapping[inspectBuilder];
+                        var visualizer = visualizerLauncher.Visualizer;
+                        if (visualizer.IsValueCreated)
+                        {
+                            activeVisualizer = visualizer.Value.GetType().FullName;
+                        }
+                    }
+
+                    var visualizerTypes = Enumerable.Repeat<Type>(null, 1);
+                    visualizerTypes = visualizerTypes.Concat(GetTypeVisualizers(selectedNode));
                     visualizerToolStripMenuItem.Enabled = true;
                     foreach (var type in visualizerTypes)
                     {
-                        var typeName = type.FullName;
-                        ToolStripMenuItem menuItem = null;
-                        menuItem = new ToolStripMenuItem(typeName, null, delegate
-                        {
-                            layoutSettings.VisualizerTypeName = typeName;
-                            layoutSettings.VisualizerSettings = null;
-                            if (!menuItem.Checked)
-                            {
-                                if (!editorService.WorkflowRunning)
-                                {
-                                    layoutSettings.Size = Size.Empty;
-                                }
-                                else
-                                {
-                                    var inspectBuilder = (InspectBuilder)selectedNode.Value;
-                                    var visualizerLauncher = visualizerMapping[inspectBuilder];
-                                    var visualizerVisible = visualizerLauncher.Visible;
-                                    var visualizerBounds = visualizerLauncher.Bounds;
-                                    if (visualizerVisible)
-                                    {
-                                        visualizerLauncher.Hide();
-                                    }
-
-                                    visualizerLauncher = CreateVisualizerLauncher(inspectBuilder, selectedNode);
-                                    visualizerLauncher.Bounds = new Rectangle(visualizerBounds.Location, Size.Empty);
-                                    visualizerMapping[inspectBuilder] = visualizerLauncher;
-                                    if (visualizerVisible)
-                                    {
-                                        visualizerLauncher.Show(graphView, serviceProvider);
-                                    }
-                                }
-                            }
-                        });
-                        var index = visualizerToolStripMenuItem.DropDownItems.Add(menuItem);
-                        menuItem.Checked = string.IsNullOrEmpty(layoutSettings.VisualizerTypeName)
-                            ? index == 0
-                            : typeName == layoutSettings.VisualizerTypeName;
+                        var typeName = type != null ? type.FullName : string.Empty;
+                        var menuItem = CreateVisualizerMenuItem(typeName, layoutSettings, selectedNode);
+                        visualizerToolStripMenuItem.DropDownItems.Add(menuItem);
+                        menuItem.Checked = type == null
+                            ? string.IsNullOrEmpty(activeVisualizer)
+                            : typeName == activeVisualizer;
                     }
                 }
             }
