@@ -32,8 +32,8 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Source");
             System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Property");
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Condition");
-            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Transform");
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Transform");
+            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Condition");
             System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Sink");
             System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Combinator");
             this.menuStrip = new System.Windows.Forms.MenuStrip();
@@ -650,10 +650,10 @@
             treeNode1.Text = "Source";
             treeNode2.Name = "Property";
             treeNode2.Text = "Property";
-            treeNode3.Name = "Condition";
-            treeNode3.Text = "Condition";
-            treeNode4.Name = "Transform";
-            treeNode4.Text = "Transform";
+            treeNode3.Name = "Transform";
+            treeNode3.Text = "Transform";
+            treeNode4.Name = "Condition";
+            treeNode4.Text = "Condition";
             treeNode5.Name = "Sink";
             treeNode5.Text = "Sink";
             treeNode6.Name = "Combinator";
