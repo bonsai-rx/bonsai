@@ -80,7 +80,7 @@ namespace Bonsai.Vision.Design
 
             GL.Color3(Color.Red);
             GL.Disable(EnableCap.Texture2D);
-            GL.Begin(BeginMode.LineLoop);
+            GL.Begin(PrimitiveType.LineLoop);
             for (int i = 0; i < quadrangle.Length; i++)
             {
                 GL.Vertex2(NormalizePoint(quadrangle[i]));

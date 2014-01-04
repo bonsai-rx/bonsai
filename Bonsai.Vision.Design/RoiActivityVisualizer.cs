@@ -69,7 +69,7 @@ namespace Bonsai.Vision.Design
                     var color = region.Activity.Val0 > 0 ? Color.LimeGreen : Color.Red;
 
                     GL.Color3(color);
-                    GL.Begin(BeginMode.LineLoop);
+                    GL.Begin(PrimitiveType.LineLoop);
                     for (int i = 0; i < roi.Length; i++)
                     {
                         GL.Vertex2(DrawingHelper.NormalizePoint(roi[i], input.Size));
