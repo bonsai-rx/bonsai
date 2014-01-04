@@ -258,7 +258,7 @@ namespace Bonsai.Vision.Design
             }
         }
 
-        void RenderRegion(Point[] region, BeginMode mode, Color color, Size imageSize)
+        void RenderRegion(Point[] region, PrimitiveType mode, Color color, Size imageSize)
         {
             GL.Color3(color);
             GL.Begin(mode);
@@ -288,14 +288,14 @@ namespace Bonsai.Vision.Design
                 GL.Disable(EnableCap.Texture2D);
                 foreach (var region in regions.Where((region, i) => i != selectedRoi))
                 {
-                    RenderRegion(region, BeginMode.LineLoop, Color.Red, image.Size);
+                    RenderRegion(region, PrimitiveType.LineLoop, Color.Red, image.Size);
                 }
 
                 if (selectedRoi.HasValue)
                 {
                     var region = regions[selectedRoi.Value];
-                    RenderRegion(region, BeginMode.LineLoop, Color.LimeGreen, image.Size);
-                    RenderRegion(region, BeginMode.Points, Color.Blue, image.Size);
+                    RenderRegion(region, PrimitiveType.LineLoop, Color.LimeGreen, image.Size);
+                    RenderRegion(region, PrimitiveType.Points, Color.Blue, image.Size);
                 }
             }
         }

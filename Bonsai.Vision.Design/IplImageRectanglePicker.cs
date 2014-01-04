@@ -105,7 +105,7 @@ namespace Bonsai.Vision.Design
 
             GL.Color3(Color.Red);
             GL.Disable(EnableCap.Texture2D);
-            GL.Begin(BeginMode.LineLoop);
+            GL.Begin(PrimitiveType.LineLoop);
             var drawingRectangle = DrawingRectangle(rectangle);
             GL.Vertex2(drawingRectangle.Left, drawingRectangle.Top);
             GL.Vertex2(drawingRectangle.Right, drawingRectangle.Top);

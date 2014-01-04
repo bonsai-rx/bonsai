@@ -89,7 +89,7 @@ namespace Bonsai.Vision.Design
         {
             GL.Enable(EnableCap.Texture2D);
             GL.BindTexture(TextureTarget.Texture2D, texture);
-            GL.Begin(BeginMode.Quads);
+            GL.Begin(PrimitiveType.Quads);
 
             GL.TexCoord2(0.0f, 1.0f); GL.Vertex2(-1f, -1f);
             GL.TexCoord2(1.0f, 1.0f); GL.Vertex2(1f, -1f);
