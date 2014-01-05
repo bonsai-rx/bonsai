@@ -42,7 +42,7 @@
             this.trackBar.Size = new System.Drawing.Size(100, 45);
             this.trackBar.TabIndex = 0;
             this.trackBar.TickStyle = System.Windows.Forms.TickStyle.TopLeft;
-            this.trackBar.ValueChanged += new System.EventHandler(this.trackBar_ValueChanged);
+            this.trackBar.Scroll += new System.EventHandler(this.trackBar_Scroll);
             // 
             // valueLabel
             // 

@@ -26,10 +26,10 @@ namespace Bonsai.Design
                 var precision = (PrecisionAttribute)propertyDescriptor.Attributes[typeof(PrecisionAttribute)];
 
                 var slider = new Slider();
-                slider.Minimum = Convert.ToDouble(range.Minimum);
-                slider.Maximum = Convert.ToDouble(range.Maximum);
+                slider.Minimum = range.Minimum;
+                slider.Maximum = range.Maximum;
                 slider.DecimalPlaces = precision.DecimalPlaces;
-                slider.Value = Convert.ToDouble(value);
+                slider.Value = Convert.ToDecimal(value);
                 slider.ValueChanged += (sender, e) => propertyDescriptor.SetValue(context.Instance, Convert.ChangeType(slider.Value, propertyDescriptor.PropertyType));
                 editorService.DropDownControl(slider);
                 return Convert.ChangeType(slider.Value, propertyDescriptor.PropertyType);
