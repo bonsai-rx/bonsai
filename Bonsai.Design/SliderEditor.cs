@@ -21,14 +21,23 @@ namespace Bonsai.Design
             var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
             if (context != null && editorService != null)
             {
+                var decimalPlaces = 0;
                 var propertyDescriptor = context.PropertyDescriptor;
                 var range = (RangeAttribute)propertyDescriptor.Attributes[typeof(RangeAttribute)];
-                var precision = (PrecisionAttribute)propertyDescriptor.Attributes[typeof(PrecisionAttribute)];
+                var typeCode = Type.GetTypeCode(propertyDescriptor.PropertyType);
+                if (typeCode == TypeCode.Single || typeCode == TypeCode.Double || typeCode == TypeCode.Decimal)
+                {
+                    var precision = (PrecisionAttribute)propertyDescriptor.Attributes[typeof(PrecisionAttribute)];
+                    if (precision != null)
+                    {
+                        decimalPlaces = precision.DecimalPlaces;
+                    }
+                }
 
                 var slider = new Slider();
                 slider.Minimum = range.Minimum;
                 slider.Maximum = range.Maximum;
-                slider.DecimalPlaces = precision.DecimalPlaces;
+                slider.DecimalPlaces = decimalPlaces;
                 slider.Value = Convert.ToDecimal(value);
                 slider.ValueChanged += (sender, e) => propertyDescriptor.SetValue(context.Instance, Convert.ChangeType(slider.Value, propertyDescriptor.PropertyType));
                 editorService.DropDownControl(slider);

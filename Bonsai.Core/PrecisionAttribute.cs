@@ -13,11 +13,6 @@ namespace Bonsai
     public sealed class PrecisionAttribute : Attribute
     {
         /// <summary>
-        /// Specifies the default value for the <see cref="PrecisionAttribute"/>. This field is read-only.
-        /// </summary>
-        public static readonly PrecisionAttribute Default = new PrecisionAttribute(0, 1);
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="PrecisionAttribute"/> with the
         /// specified number of decimal places and the smallest editor step increment.
         /// </summary>
