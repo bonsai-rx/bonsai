@@ -15,38 +15,72 @@ namespace Bonsai.Design
     {
         const int TrackBarPadding = 16;
         int decimalPlaces;
-        string format;
+        decimal minimum;
+        decimal maximum;
+        decimal value;
 
         public Slider()
         {
+            maximum = 100;
             InitializeComponent();
         }
 
-        public double Minimum { get; set; }
+        public decimal Minimum
+        {
+            get { return minimum; }
+            set
+            {
+                if (value >= maximum)
+                {
+                    throw new ArgumentOutOfRangeException("value");
+                }
 
-        public double Maximum { get; set; }
+                minimum = value;
+            }
+        }
+
+        public decimal Maximum
+        {
+            get { return maximum; }
+            set
+            {
+                if (value <= minimum)
+                {
+                    throw new ArgumentOutOfRangeException("value");
+                }
+
+                maximum = value;
+            }
+        }
 
         public int DecimalPlaces
         {
             get { return decimalPlaces; }
             set
             {
-                decimalPlaces = value;
-                format = string.Format("F{0}", DecimalPlaces);
-            }
-        }
-
-        public double Value
-        {
-            get { return Minimum + (Maximum - Minimum) * trackBar.Value / (double)trackBar.Maximum; }
-            set
-            {
-                if (value > Maximum || value < Minimum)
+                if (value < 0)
                 {
                     throw new ArgumentOutOfRangeException("value");
                 }
 
-                trackBar.Value = (int)(trackBar.Maximum * (value - Minimum) / (Maximum - Minimum));
+                decimalPlaces = value;
+                Value = decimal.Round(this.value, decimalPlaces);
+            }
+        }
+
+        public decimal Value
+        {
+            get { return value; }
+            set
+            {
+                if (value > maximum || value < minimum)
+                {
+                    throw new ArgumentOutOfRangeException("value");
+                }
+
+                this.value = decimal.Round(value, decimalPlaces);
+                trackBar.Value = (int)(trackBar.Maximum * (this.value - minimum) / (maximum - minimum));
+                UpdateValueLabel();
             }
         }
 
@@ -58,22 +92,14 @@ namespace Bonsai.Design
 
         private void UpdateTrackBarRange()
         {
-            var value = trackBar.Value / (double)trackBar.Maximum;
             trackBar.Minimum = 0;
             trackBar.Maximum = Width - TrackBarPadding;
-            trackBar.Value = (int)value * trackBar.Maximum;
-            UpdateValueLabel();
+            Value = value;
         }
 
         private void UpdateValueLabel()
         {
-            valueLabel.Text = Value.ToString(format, CultureInfo.InvariantCulture);
-        }
-
-        protected override void OnLoad(EventArgs e)
-        {
-            UpdateTrackBarRange();
-            base.OnLoad(e);
+            valueLabel.Text = value.ToString(CultureInfo.InvariantCulture);
         }
 
         protected override void OnSizeChanged(EventArgs e)
@@ -82,8 +108,9 @@ namespace Bonsai.Design
             base.OnSizeChanged(e);
         }
 
-        private void trackBar_ValueChanged(object sender, EventArgs e)
+        private void trackBar_Scroll(object sender, EventArgs e)
         {
+            value = decimal.Round(minimum + (maximum - minimum) * trackBar.Value / (decimal)trackBar.Maximum, decimalPlaces);
             UpdateValueLabel();
         }
     }
