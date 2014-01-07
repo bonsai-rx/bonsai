@@ -66,7 +66,7 @@ namespace Bonsai.Design.Visualizers
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            if (AutoScaleAxis) AxisChange();
+            if (AutoScaleAxis) GraphPane.AxisChange(e.Graphics);
             base.OnPaint(e);
         }
     }
