@@ -98,6 +98,7 @@ namespace Bonsai.Vision.Design
         {
             if (e.KeyCode == Keys.Return)
             {
+                e.SuppressKeyPress = true;
                 statusStrip.Select();
             }
         }
