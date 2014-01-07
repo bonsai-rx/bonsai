@@ -5,6 +5,7 @@ using System.Text;
 using Bonsai;
 using ZedGraph;
 using System.Drawing;
+using System.Windows.Forms;
 
 namespace Bonsai.Design.Visualizers
 {
@@ -51,7 +52,6 @@ namespace Bonsai.Design.Visualizers
                 chart.GraphPane.XAxis.Scale.TextLabels = textLabels;
             }
 
-            chart.AxisChange();
             chart.Invalidate();
         }
 
@@ -63,6 +63,7 @@ namespace Bonsai.Design.Visualizers
         public override void Load(IServiceProvider provider)
         {
             chart = new ChartControl();
+            chart.Dock = DockStyle.Fill;
             chart.GraphPane.Chart.Border.IsVisible = true;
             chart.GraphPane.YAxis.MajorGrid.IsVisible = true;
             chart.GraphPane.YAxis.MajorGrid.DashOff = 0;

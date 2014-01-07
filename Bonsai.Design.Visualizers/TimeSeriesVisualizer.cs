@@ -5,6 +5,7 @@ using System.Text;
 using Bonsai;
 using Bonsai.Design.Visualizers;
 using ZedGraph;
+using System.Windows.Forms;
 
 [assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(int))]
 [assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(float))]
@@ -50,7 +51,6 @@ namespace Bonsai.Design.Visualizers
 
             if ((time - updateTime) > TargetElapsedTime)
             {
-                chart.AxisChange();
                 chart.Invalidate();
                 updateTime = time;
             }
@@ -64,6 +64,7 @@ namespace Bonsai.Design.Visualizers
         public override void Load(IServiceProvider provider)
         {
             chart = new ChartControl();
+            chart.Dock = DockStyle.Fill;
             chart.GraphPane.XAxis.Type = AxisType.DateAsOrdinal;
             chart.GraphPane.XAxis.Title.Text = "Time";
             chart.GraphPane.XAxis.Title.IsVisible = true;
