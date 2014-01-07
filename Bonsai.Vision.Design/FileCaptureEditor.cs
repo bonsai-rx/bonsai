@@ -30,13 +30,12 @@ namespace Bonsai.Vision.Design
                         editorForm = new TypeVisualizerDialog();
                         var videoPlayer = new VideoPlayerControl { Dock = DockStyle.Fill };
                         editorForm.AddControl(videoPlayer);
-                        var captureNode = (from node in workflow
-                                           let builder = node.Value as SourceBuilder
-                                           where builder != null && builder.Generator == component
-                                           select node)
-                                           .FirstOrDefault();
 
-                        var captureOutput = ((InspectBuilder)workflow.Successors(captureNode).First().Value).Output.Merge();
+                        var captureNode = workflow.FirstOrDefault(node => ExpressionBuilder.GetWorkflowElement(node.Value) == component);
+                        var captureInspector = captureNode != null ? captureNode.Value as InspectBuilder : null;
+                        if (captureInspector == null) return false;
+
+                        var captureOutput = captureInspector.Output.Merge();
                         var capture = (FileCapture)component;
                         var captureFrame = captureOutput
                             .Select(image => Tuple.Create((IplImage)image, (int)capture.Capture.GetProperty(CaptureProperty.PosFrames)))
