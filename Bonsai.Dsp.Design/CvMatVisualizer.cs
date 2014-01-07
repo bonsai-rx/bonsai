@@ -81,7 +81,6 @@ namespace Bonsai.Dsp.Design
 
         protected void DataBindValues()
         {
-            chart.AxisChange();
             chart.Invalidate();
         }
 
@@ -98,6 +97,7 @@ namespace Bonsai.Dsp.Design
         {
             channelOffset = 0;
             chart = new ChartControl();
+            chart.Dock = DockStyle.Fill;
             chart.GraphPane.XAxis.Type = AxisType.Ordinal;
             chart.GraphPane.XAxis.MinorTic.IsAllTics = false;
             chart.GraphPane.XAxis.Title.IsVisible = true;

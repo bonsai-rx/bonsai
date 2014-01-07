@@ -34,9 +34,8 @@ namespace Bonsai.Design.Visualizers
 
         public ChartControl()
         {
-            Dock = DockStyle.Fill;
+            AutoScaleAxis = true;
             Size = new Size(320, 240);
-
             GraphPane.Title.IsVisible = false;
             GraphPane.Border.IsVisible = false;
             GraphPane.Chart.Border.IsVisible = false;
@@ -55,11 +54,20 @@ namespace Bonsai.Design.Visualizers
             GraphPane.XAxis.Scale.MagAuto = false;
         }
 
+        [DefaultValue(true)]
+        public bool AutoScaleAxis { get; set; }
+
         public Color GetNextColor()
         {
             var color = BrightPastelPalette[colorIndex];
             colorIndex = (colorIndex + 1) % BrightPastelPalette.Length;
             return color;
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            if (AutoScaleAxis) AxisChange();
+            base.OnPaint(e);
         }
     }
 }
