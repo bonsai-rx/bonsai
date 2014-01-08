@@ -171,7 +171,7 @@ namespace Bonsai.Dsp.Design
                 }
             }
 
-            if (sequenceIndex * values.Length >= timeSeries.Count || values.Length >= timeSeries.Count)
+            if (sequenceIndex * values.Length >= timeSeries.Count || values.Length > timeSeries.Count)
             {
                 for (int i = 0; i < values.Length; i++)
                 {
@@ -181,6 +181,12 @@ namespace Bonsai.Dsp.Design
                     series.Label.IsVisible = false;
                     timeSeries.Add(series);
                 }
+            }
+
+            var requiredSeries = WaveformBufferLength * values.Length;
+            if (requiredSeries < timeSeries.Count)
+            {
+                timeSeries.RemoveRange(requiredSeries, timeSeries.Count - requiredSeries);
             }
 
             sequenceIndex = (sequenceIndex + 1) % WaveformBufferLength;
@@ -231,6 +237,7 @@ namespace Bonsai.Dsp.Design
             chart.GraphPane.XAxis.Scale.MinAuto = autoScaleXButton.Checked;
             xminStatusLabel.Visible = !autoScaleXButton.Checked;
             xmaxStatusLabel.Visible = !autoScaleXButton.Checked;
+            if (chart.AutoScaleAxis) InvalidateWaveform();
         }
 
         private void autoScaleYButton_CheckedChanged(object sender, EventArgs e)
@@ -240,6 +247,7 @@ namespace Bonsai.Dsp.Design
             chart.GraphPane.YAxis.Scale.MinAuto = autoScaleYButton.Checked;
             yminStatusLabel.Visible = !autoScaleYButton.Checked;
             ymaxStatusLabel.Visible = !autoScaleYButton.Checked;
+            if (chart.AutoScaleAxis) InvalidateWaveform();
         }
 
         private void editableTextBox_KeyDown(object sender, KeyEventArgs e)
