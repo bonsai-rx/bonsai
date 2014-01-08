@@ -24,7 +24,7 @@ namespace Bonsai.Vision.Design
             var output = new IplImage(contours.ImageSize, IplDepth.U8, 1);
             output.SetZero();
 
-            if (!contours.FirstContour.IsInvalid)
+            if (contours.FirstContour != null)
             {
                 CV.DrawContours(output, contours.FirstContour, Scalar.All(255), Scalar.All(128), 2, thickness);
             }
