@@ -31,11 +31,11 @@
             this.components = new System.ComponentModel.Container();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.cursorStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.scaleXStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.xminStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.xmaxStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.autoScaleXButton = new System.Windows.Forms.ToolStripButton();
-            this.scaleStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.scaleYStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.yminStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.ymaxStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.autoScaleYButton = new System.Windows.Forms.ToolStripButton();
@@ -47,11 +47,11 @@
             // 
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cursorStatusLabel,
-            this.toolStripStatusLabel1,
+            this.scaleXStatusLabel,
             this.xminStatusLabel,
             this.xmaxStatusLabel,
             this.autoScaleXButton,
-            this.scaleStatusLabel,
+            this.scaleYStatusLabel,
             this.yminStatusLabel,
             this.ymaxStatusLabel,
             this.autoScaleYButton});
@@ -68,29 +68,27 @@
             this.cursorStatusLabel.Size = new System.Drawing.Size(45, 17);
             this.cursorStatusLabel.Text = "Cursor:";
             // 
-            // toolStripStatusLabel1
+            // scaleXStatusLabel
             // 
-            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(44, 17);
-            this.toolStripStatusLabel1.Text = "ScaleX:";
+            this.scaleXStatusLabel.Name = "scaleXStatusLabel";
+            this.scaleXStatusLabel.Size = new System.Drawing.Size(47, 17);
+            this.scaleXStatusLabel.Text = "Scale X:";
             // 
             // xminStatusLabel
             // 
-            this.xminStatusLabel.DoubleClickEnabled = true;
             this.xminStatusLabel.Name = "xminStatusLabel";
             this.xminStatusLabel.Size = new System.Drawing.Size(12, 17);
             this.xminStatusLabel.Text = "x";
             this.xminStatusLabel.Visible = false;
-            this.xminStatusLabel.DoubleClick += new System.EventHandler(this.editableStatusLabel_DoubleClick);
+            this.xminStatusLabel.Click += new System.EventHandler(this.editableStatusLabel_Click);
             // 
             // xmaxStatusLabel
             // 
-            this.xmaxStatusLabel.DoubleClickEnabled = true;
             this.xmaxStatusLabel.Name = "xmaxStatusLabel";
             this.xmaxStatusLabel.Size = new System.Drawing.Size(14, 17);
             this.xmaxStatusLabel.Text = "X";
             this.xmaxStatusLabel.Visible = false;
-            this.xmaxStatusLabel.DoubleClick += new System.EventHandler(this.editableStatusLabel_DoubleClick);
+            this.xmaxStatusLabel.Click += new System.EventHandler(this.editableStatusLabel_Click);
             // 
             // autoScaleXButton
             // 
@@ -104,29 +102,27 @@
             this.autoScaleXButton.Text = "auto";
             this.autoScaleXButton.CheckedChanged += new System.EventHandler(this.autoScaleXButton_CheckedChanged);
             // 
-            // scaleStatusLabel
+            // scaleYStatusLabel
             // 
-            this.scaleStatusLabel.Name = "scaleStatusLabel";
-            this.scaleStatusLabel.Size = new System.Drawing.Size(44, 17);
-            this.scaleStatusLabel.Text = "ScaleY:";
+            this.scaleYStatusLabel.Name = "scaleYStatusLabel";
+            this.scaleYStatusLabel.Size = new System.Drawing.Size(47, 17);
+            this.scaleYStatusLabel.Text = "Scale Y:";
             // 
             // yminStatusLabel
             // 
-            this.yminStatusLabel.DoubleClickEnabled = true;
             this.yminStatusLabel.Name = "yminStatusLabel";
             this.yminStatusLabel.Size = new System.Drawing.Size(13, 17);
             this.yminStatusLabel.Text = "y";
             this.yminStatusLabel.Visible = false;
-            this.yminStatusLabel.DoubleClick += new System.EventHandler(this.editableStatusLabel_DoubleClick);
+            this.yminStatusLabel.Click += new System.EventHandler(this.editableStatusLabel_Click);
             // 
             // ymaxStatusLabel
             // 
-            this.ymaxStatusLabel.DoubleClickEnabled = true;
             this.ymaxStatusLabel.Name = "ymaxStatusLabel";
             this.ymaxStatusLabel.Size = new System.Drawing.Size(14, 17);
             this.ymaxStatusLabel.Text = "Y";
             this.ymaxStatusLabel.Visible = false;
-            this.ymaxStatusLabel.DoubleClick += new System.EventHandler(this.editableStatusLabel_DoubleClick);
+            this.ymaxStatusLabel.Click += new System.EventHandler(this.editableStatusLabel_Click);
             // 
             // autoScaleYButton
             // 
@@ -179,10 +175,10 @@
         private System.Windows.Forms.ToolStripButton autoScaleYButton;
         private Bonsai.Design.Visualizers.ChartControl chart;
         private System.Windows.Forms.ToolStripStatusLabel cursorStatusLabel;
-        private System.Windows.Forms.ToolStripStatusLabel scaleStatusLabel;
+        private System.Windows.Forms.ToolStripStatusLabel scaleYStatusLabel;
         private System.Windows.Forms.ToolStripStatusLabel yminStatusLabel;
         private System.Windows.Forms.ToolStripStatusLabel ymaxStatusLabel;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        private System.Windows.Forms.ToolStripStatusLabel scaleXStatusLabel;
         private System.Windows.Forms.ToolStripStatusLabel xminStatusLabel;
         private System.Windows.Forms.ToolStripStatusLabel xmaxStatusLabel;
         private System.Windows.Forms.ToolStripButton autoScaleXButton;
