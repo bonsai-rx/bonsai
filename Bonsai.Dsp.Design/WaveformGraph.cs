@@ -24,9 +24,11 @@ namespace Bonsai.Dsp.Design
 
         public WaveformGraph()
         {
+            WaveformBufferLength = 1;
             InitializeComponent();
             chart.IsShowContextMenu = false;
-            autoScaleYButton.Checked = chart.AutoScaleAxis;
+            autoScaleXButton.Checked = true;
+            autoScaleYButton.Checked = true;
             chart.GraphPane.XAxis.Type = AxisType.Ordinal;
             chart.GraphPane.XAxis.MinorTic.IsAllTics = false;
             chart.GraphPane.XAxis.Title.IsVisible = true;
@@ -64,6 +66,8 @@ namespace Bonsai.Dsp.Design
         }
 
         public double ChannelOffset { get; set; }
+
+        public int WaveformBufferLength { get; set; }
 
         public double XMin
         {
@@ -178,6 +182,8 @@ namespace Bonsai.Dsp.Design
                     timeSeries.Add(series);
                 }
             }
+
+            sequenceIndex = (sequenceIndex + 1) % WaveformBufferLength;
         }
 
         public void InvalidateWaveform()
@@ -296,7 +302,7 @@ namespace Bonsai.Dsp.Design
             statusStrip.ResumeLayout();
         }
 
-        private void editableStatusLabel_DoubleClick(object sender, EventArgs e)
+        private void editableStatusLabel_Click(object sender, EventArgs e)
         {
             var statusLabel = (ToolStripStatusLabel)sender;
             var textBox = (ToolStripTextBox)statusLabel.Tag;
