@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using OpenTK;
 using Bonsai;
 using Bonsai.Vision.Design;
 using OpenCV.Net;
@@ -12,6 +13,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.ComponentModel.Design;
 using Size = System.Drawing.Size;
+using Timer = System.Windows.Forms.Timer;
 
 [assembly: TypeVisualizer(typeof(IplImageVisualizer), Target = typeof(IplImage))]
 [assembly: TypeVisualizer(typeof(IplImageVisualizer), Target = typeof(IObservable<IplImage>))]
@@ -21,7 +23,7 @@ namespace Bonsai.Vision.Design
     public class IplImageVisualizer : DialogMashupVisualizer
     {
         volatile bool allowUpdate;
-        volatile bool canvasInvalidated;
+        Timer updateTimer;
         Panel imagePanel;
         StatusStrip statusStrip;
         ToolStripStatusLabel statusLabel;
@@ -65,7 +67,6 @@ namespace Bonsai.Vision.Design
             visualizerCanvas.MakeCurrent();
             if (visualizerImage != null) imageTexture.Update(visualizerImage);
             visualizerCanvas.Canvas.Invalidate();
-            canvasInvalidated = true;
         }
 
         public override void Show(object value)
@@ -80,15 +81,6 @@ namespace Bonsai.Vision.Design
             imageTexture.Draw();
         }
 
-        private void SwapBuffers()
-        {
-            if (canvasInvalidated)
-            {
-                canvasInvalidated = false;
-                allowUpdate = true;
-            }
-        }
-
         public override void Load(IServiceProvider provider)
         {
             allowUpdate = true;
@@ -98,7 +90,6 @@ namespace Bonsai.Vision.Design
             statusLabel = new ToolStripStatusLabel();
             statusStrip.Items.Add(statusLabel);
             visualizerCanvas.RenderFrame += (sender, e) => RenderFrame();
-            visualizerCanvas.SwapBuffers += (sender, e) => SwapBuffers();
             visualizerCanvas.Load += (sender, e) => imageTexture = new IplImageTexture();
             visualizerCanvas.Canvas.MouseClick += (sender, e) => statusStrip.Visible =
                 StatusStripEnabled &&
@@ -137,7 +128,12 @@ namespace Bonsai.Vision.Design
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
             if (visualizerService != null)
             {
+                var refreshRate = DisplayDevice.Default.RefreshRate;
                 visualizerService.AddControl(imagePanel);
+                updateTimer = new System.Windows.Forms.Timer();
+                updateTimer.Interval = Math.Max(1, (int)(500 / refreshRate));
+                updateTimer.Tick += (sender, e) => allowUpdate = true;
+                updateTimer.Start();
             }
 
             base.Load(provider);
@@ -145,7 +141,6 @@ namespace Bonsai.Vision.Design
 
         protected IObservable<object> Visualize<T>(IObservable<IObservable<object>> source, IServiceProvider provider)
         {
-            canvasInvalidated = true;
             IObservable<object> mergedSource;
             IObservable<IList<object>> dataSource;
             var visualizerContext = (ITypeVisualizerContext)provider.GetService(typeof(ITypeVisualizerContext));
@@ -182,8 +177,11 @@ namespace Bonsai.Vision.Design
         public override void Unload()
         {
             base.Unload();
+            updateTimer.Stop();
+            updateTimer.Dispose();
             imageTexture.Dispose();
             imagePanel.Dispose();
+            updateTimer = null;
             imagePanel = null;
             statusStrip = null;
             visualizerCanvas = null;
