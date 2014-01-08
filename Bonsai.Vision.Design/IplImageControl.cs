@@ -53,6 +53,7 @@ namespace Bonsai.Vision.Design
 
         protected override void OnLoad(EventArgs e)
         {
+            if (DesignMode) return;
             allowUpdate = true;
             canvasInvalidated = false;
             texture = new IplImageTexture();
