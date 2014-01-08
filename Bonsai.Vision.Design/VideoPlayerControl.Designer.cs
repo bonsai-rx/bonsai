@@ -28,10 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.seekBar = new Bonsai.Design.SeekBar();
-            this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.imageControl = new Bonsai.Vision.Design.IplImageControl();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.updateTimer = new System.Windows.Forms.Timer(this.components);
             this.tableLayoutPanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -62,14 +64,6 @@
             this.seekBar.TabIndex = 0;
             this.seekBar.TabStop = true;
             // 
-            // statusStrip
-            // 
-            this.statusStrip.Location = new System.Drawing.Point(0, 218);
-            this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(320, 22);
-            this.statusStrip.TabIndex = 3;
-            this.statusStrip.Text = "statusStrip";
-            // 
             // imageControl
             // 
             this.imageControl.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -79,6 +73,18 @@
             this.imageControl.Name = "imageControl";
             this.imageControl.Size = new System.Drawing.Size(320, 201);
             this.imageControl.TabIndex = 1;
+            // 
+            // statusStrip
+            // 
+            this.statusStrip.Location = new System.Drawing.Point(0, 218);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(320, 22);
+            this.statusStrip.TabIndex = 3;
+            this.statusStrip.Text = "statusStrip";
+            // 
+            // updateTimer
+            // 
+            this.updateTimer.Tick += new System.EventHandler(this.updateTimer_Tick);
             // 
             // VideoPlayerControl
             // 
@@ -100,5 +106,6 @@
         private Bonsai.Design.SeekBar seekBar;
         private IplImageControl imageControl;
         private System.Windows.Forms.StatusStrip statusStrip;
+        private System.Windows.Forms.Timer updateTimer;
     }
 }
