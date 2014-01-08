@@ -35,6 +35,7 @@ namespace Bonsai.Vision.Design
 
         private void canvas_Load(object sender, EventArgs e)
         {
+            if (DesignMode) return;
             MakeCurrent();
             GL.ClearColor(Color.Black);
             GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
