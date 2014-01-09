@@ -42,6 +42,7 @@
             this.autoScaleYButton = new System.Windows.Forms.ToolStripButton();
             this.overlayModeSplitButton = new System.Windows.Forms.ToolStripSplitButton();
             this.chart = new Bonsai.Design.Visualizers.ChartControl();
+            this.historyLengthNumericUpDown = new Bonsai.Dsp.Design.ToolStripLabeledNumericUpDown();
             this.bufferLengthNumericUpDown = new Bonsai.Dsp.Design.ToolStripLabeledNumericUpDown();
             this.channelOffsetNumericUpDown = new Bonsai.Dsp.Design.ToolStripLabeledNumericUpDown();
             this.statusStrip.SuspendLayout();
@@ -145,6 +146,7 @@
             // 
             this.overlayModeSplitButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.overlayModeSplitButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.historyLengthNumericUpDown,
             this.bufferLengthNumericUpDown,
             this.channelOffsetNumericUpDown});
             this.overlayModeSplitButton.Image = ((System.Drawing.Image)(resources.GetObject("overlayModeSplitButton.Image")));
@@ -171,6 +173,33 @@
             this.chart.ZoomEvent += new ZedGraph.ZedGraphControl.ZoomEventHandler(this.chart_ZoomEvent);
             this.chart.MouseMoveEvent += new ZedGraph.ZedGraphControl.ZedMouseEventHandler(this.chart_MouseMoveEvent);
             this.chart.MouseClick += new System.Windows.Forms.MouseEventHandler(this.chart_MouseClick);
+            // 
+            // historyLengthNumericUpDown
+            // 
+            this.historyLengthNumericUpDown.DecimalPlaces = 0;
+            this.historyLengthNumericUpDown.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.historyLengthNumericUpDown.Maximum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            this.historyLengthNumericUpDown.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.historyLengthNumericUpDown.Name = "historyLengthNumericUpDown";
+            this.historyLengthNumericUpDown.Size = new System.Drawing.Size(143, 29);
+            this.historyLengthNumericUpDown.Text = "History Length";
+            this.historyLengthNumericUpDown.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             // 
             // bufferLengthNumericUpDown
             // 
@@ -259,5 +288,6 @@
         private System.Windows.Forms.ToolStripSplitButton overlayModeSplitButton;
         private ToolStripLabeledNumericUpDown channelOffsetNumericUpDown;
         private ToolStripLabeledNumericUpDown bufferLengthNumericUpDown;
+        private ToolStripLabeledNumericUpDown historyLengthNumericUpDown;
     }
 }
