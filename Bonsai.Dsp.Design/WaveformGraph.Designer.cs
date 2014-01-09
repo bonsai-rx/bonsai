@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WaveformGraph));
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.cursorStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.scaleXStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
@@ -39,7 +40,10 @@
             this.yminStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.ymaxStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.autoScaleYButton = new System.Windows.Forms.ToolStripButton();
+            this.overlayModeSplitButton = new System.Windows.Forms.ToolStripSplitButton();
             this.chart = new Bonsai.Design.Visualizers.ChartControl();
+            this.bufferLengthNumericUpDown = new Bonsai.Dsp.Design.ToolStripLabeledNumericUpDown();
+            this.channelOffsetNumericUpDown = new Bonsai.Dsp.Design.ToolStripLabeledNumericUpDown();
             this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -54,7 +58,8 @@
             this.scaleYStatusLabel,
             this.yminStatusLabel,
             this.ymaxStatusLabel,
-            this.autoScaleYButton});
+            this.autoScaleYButton,
+            this.overlayModeSplitButton});
             this.statusStrip.Location = new System.Drawing.Point(0, 218);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size(320, 22);
@@ -136,6 +141,19 @@
             this.autoScaleYButton.Text = "auto";
             this.autoScaleYButton.CheckedChanged += new System.EventHandler(this.autoScaleYButton_CheckedChanged);
             // 
+            // overlayModeSplitButton
+            // 
+            this.overlayModeSplitButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.overlayModeSplitButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.bufferLengthNumericUpDown,
+            this.channelOffsetNumericUpDown});
+            this.overlayModeSplitButton.Image = ((System.Drawing.Image)(resources.GetObject("overlayModeSplitButton.Image")));
+            this.overlayModeSplitButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.overlayModeSplitButton.Name = "overlayModeSplitButton";
+            this.overlayModeSplitButton.Size = new System.Drawing.Size(32, 20);
+            this.overlayModeSplitButton.Text = "toolStripSplitButton1";
+            this.overlayModeSplitButton.ButtonClick += new System.EventHandler(this.overlayModeSplitButton_Click);
+            // 
             // chart
             // 
             this.chart.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -153,6 +171,62 @@
             this.chart.ZoomEvent += new ZedGraph.ZedGraphControl.ZoomEventHandler(this.chart_ZoomEvent);
             this.chart.MouseMoveEvent += new ZedGraph.ZedGraphControl.ZedMouseEventHandler(this.chart_MouseMoveEvent);
             this.chart.MouseClick += new System.Windows.Forms.MouseEventHandler(this.chart_MouseClick);
+            // 
+            // bufferLengthNumericUpDown
+            // 
+            this.bufferLengthNumericUpDown.DecimalPlaces = 0;
+            this.bufferLengthNumericUpDown.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.bufferLengthNumericUpDown.Maximum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            this.bufferLengthNumericUpDown.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.bufferLengthNumericUpDown.Name = "bufferLengthNumericUpDown";
+            this.bufferLengthNumericUpDown.Size = new System.Drawing.Size(151, 29);
+            this.bufferLengthNumericUpDown.Text = "Display Previous";
+            this.bufferLengthNumericUpDown.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.bufferLengthNumericUpDown.ValueChanged += new System.EventHandler(this.bufferLengthNumericUpDown_ValueChanged);
+            // 
+            // channelOffsetNumericUpDown
+            // 
+            this.channelOffsetNumericUpDown.DecimalPlaces = 0;
+            this.channelOffsetNumericUpDown.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.channelOffsetNumericUpDown.Maximum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            this.channelOffsetNumericUpDown.Minimum = new decimal(new int[] {
+            0,
+            0,
+            0,
+            0});
+            this.channelOffsetNumericUpDown.Name = "channelOffsetNumericUpDown";
+            this.channelOffsetNumericUpDown.Size = new System.Drawing.Size(144, 29);
+            this.channelOffsetNumericUpDown.Text = "Channel Offset";
+            this.channelOffsetNumericUpDown.Value = new decimal(new int[] {
+            0,
+            0,
+            0,
+            0});
+            this.channelOffsetNumericUpDown.ValueChanged += new System.EventHandler(this.channelOffsetNumericUpDown_ValueChanged);
             // 
             // WaveformGraph
             // 
@@ -182,5 +256,8 @@
         private System.Windows.Forms.ToolStripStatusLabel xminStatusLabel;
         private System.Windows.Forms.ToolStripStatusLabel xmaxStatusLabel;
         private System.Windows.Forms.ToolStripButton autoScaleXButton;
+        private System.Windows.Forms.ToolStripSplitButton overlayModeSplitButton;
+        private ToolStripLabeledNumericUpDown channelOffsetNumericUpDown;
+        private ToolStripLabeledNumericUpDown bufferLengthNumericUpDown;
     }
 }
