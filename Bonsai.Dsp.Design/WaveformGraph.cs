@@ -16,6 +16,7 @@ namespace Bonsai.Dsp.Design
     public partial class WaveformGraph : UserControl
     {
         int sequenceIndex;
+        bool overlayChannels;
         PointPairList[] values;
         ToolStripTextBox yminTextBox;
         ToolStripTextBox ymaxTextBox;
@@ -24,11 +25,15 @@ namespace Bonsai.Dsp.Design
 
         public WaveformGraph()
         {
-            WaveformBufferLength = 1;
             InitializeComponent();
-            chart.IsShowContextMenu = false;
+            overlayChannels = true;
+            WaveformBufferLength = 1;
+            channelOffsetNumericUpDown.Minimum = decimal.MinValue;
+            channelOffsetNumericUpDown.Maximum = decimal.MaxValue;
+            bufferLengthNumericUpDown.Maximum = int.MaxValue;
             autoScaleXButton.Checked = true;
             autoScaleYButton.Checked = true;
+            chart.IsShowContextMenu = false;
             chart.GraphPane.XAxis.Type = AxisType.Ordinal;
             chart.GraphPane.XAxis.MinorTic.IsAllTics = false;
             chart.GraphPane.XAxis.Title.IsVisible = true;
@@ -65,6 +70,36 @@ namespace Bonsai.Dsp.Design
             maxTextBox.KeyDown += editableTextBox_KeyDown;
         }
 
+        private void ResetWaveform()
+        {
+            sequenceIndex = 0;
+            var paneCount = chart.MasterPane.PaneList.Count;
+            if (paneCount > 1)
+            {
+                chart.MasterPane.PaneList.RemoveRange(1, paneCount - 1);
+                chart.SetLayout(PaneLayout.SquareColPreferred);
+            }
+
+            chart.GraphPane.YAxis.IsVisible = overlayChannels;
+            chart.GraphPane.XAxis.IsVisible = overlayChannels;
+            chart.GraphPane.CurveList.Clear();
+            chart.ResetColorCycle();
+        }
+
+        public bool OverlayChannels
+        {
+            get { return overlayChannels; }
+            set
+            {
+                var changed = overlayChannels != value;
+                overlayChannels = value;
+                if (changed)
+                {
+                    ResetWaveform();
+                }
+            }
+        }
+
         public double ChannelOffset { get; set; }
 
         public int WaveformBufferLength { get; set; }
@@ -74,8 +109,11 @@ namespace Bonsai.Dsp.Design
             get { return chart.GraphPane.XAxis.Scale.Min; }
             set
             {
-                chart.GraphPane.XAxis.Scale.Min = value;
-                chart.GraphPane.AxisChange();
+                foreach (var pane in chart.MasterPane.PaneList)
+                {
+                    pane.XAxis.Scale.Min = value;
+                }
+                chart.MasterPane.AxisChange();
                 InvalidateWaveform();
             }
         }
@@ -85,8 +123,11 @@ namespace Bonsai.Dsp.Design
             get { return chart.GraphPane.XAxis.Scale.Max; }
             set
             {
-                chart.GraphPane.XAxis.Scale.Max = value;
-                chart.GraphPane.AxisChange();
+                foreach (var pane in chart.MasterPane.PaneList)
+                {
+                    pane.XAxis.Scale.Max = value;
+                }
+                chart.MasterPane.AxisChange();
                 InvalidateWaveform();
             }
         }
@@ -96,8 +137,11 @@ namespace Bonsai.Dsp.Design
             get { return chart.GraphPane.YAxis.Scale.Min; }
             set
             {
-                chart.GraphPane.YAxis.Scale.Min = value;
-                chart.GraphPane.AxisChange();
+                foreach (var pane in chart.MasterPane.PaneList)
+                {
+                    pane.YAxis.Scale.Min = value;
+                }
+                chart.MasterPane.AxisChange();
                 InvalidateWaveform();
             }
         }
@@ -107,8 +151,11 @@ namespace Bonsai.Dsp.Design
             get { return chart.GraphPane.YAxis.Scale.Max; }
             set
             {
-                chart.GraphPane.YAxis.Scale.Max = value;
-                chart.GraphPane.AxisChange();
+                foreach (var pane in chart.MasterPane.PaneList)
+                {
+                    pane.YAxis.Scale.Max = value;
+                }
+                chart.MasterPane.AxisChange();
                 InvalidateWaveform();
             }
         }
@@ -153,15 +200,19 @@ namespace Bonsai.Dsp.Design
             if (values == null || values.Length != rows)
             {
                 values = new PointPairList[rows];
+                ResetWaveform();
             }
 
-            var timeSeries = chart.GraphPane.CurveList;
+            var graphPanes = chart.MasterPane.PaneList;
+            var seriesCount = graphPanes.Sum(pane => pane.CurveList.Count);
             for (int i = 0; i < values.Length; i++)
             {
                 var seriesIndex = sequenceIndex * values.Length + i;
-                if (seriesIndex < timeSeries.Count)
+                if (seriesIndex < seriesCount)
                 {
-                    values[i] = (PointPairList)timeSeries[seriesIndex].Points;
+                    var curveList = graphPanes[seriesIndex % graphPanes.Count].CurveList;
+                    var curveItem = curveList[seriesIndex / graphPanes.Count];
+                    values[i] = (PointPairList)curveItem.Points;
                     values[i].Clear();
                 }
                 else values[i] = new PointPairList();
@@ -171,22 +222,50 @@ namespace Bonsai.Dsp.Design
                 }
             }
 
-            if (sequenceIndex * values.Length >= timeSeries.Count || values.Length > timeSeries.Count)
+            if (sequenceIndex * values.Length >= seriesCount || values.Length > seriesCount)
             {
                 for (int i = 0; i < values.Length; i++)
                 {
+                    GraphPane pane;
+                    if (overlayChannels) pane = chart.GraphPane;
+                    else
+                    {
+                        if (i < graphPanes.Count) pane = graphPanes[i];
+                        else
+                        {
+                            pane = new GraphPane(chart.GraphPane);
+                            pane.CurveList.Clear();
+                            graphPanes.Add(pane);
+                        }
+                    }
+
+                    var timeSeries = pane.CurveList;
                     var series = new LineItem(string.Empty, values[i], chart.GetNextColor(), SymbolType.None);
                     series.Line.IsAntiAlias = true;
                     series.Line.IsOptimizedDraw = true;
                     series.Label.IsVisible = false;
                     timeSeries.Add(series);
                 }
+
+                if (!overlayChannels) chart.SetLayout(PaneLayout.SquareColPreferred);
             }
 
             var requiredSeries = WaveformBufferLength * values.Length;
-            if (requiredSeries < timeSeries.Count)
+            if (requiredSeries < seriesCount)
             {
-                timeSeries.RemoveRange(requiredSeries, timeSeries.Count - requiredSeries);
+                if (overlayChannels)
+                {
+                    var timeSeries = chart.GraphPane.CurveList;
+                    timeSeries.RemoveRange(requiredSeries, timeSeries.Count - requiredSeries);
+                }
+                else
+                {
+                    var requiredCurves = requiredSeries / values.Length;
+                    foreach (var pane in graphPanes)
+                    {
+                        pane.CurveList.RemoveRange(requiredCurves, pane.CurveList.Count - requiredCurves);
+                    }
+                }
             }
 
             sequenceIndex = (sequenceIndex + 1) % WaveformBufferLength;
@@ -233,8 +312,11 @@ namespace Bonsai.Dsp.Design
         private void autoScaleXButton_CheckedChanged(object sender, EventArgs e)
         {
             chart.AutoScaleAxis = autoScaleXButton.Checked || autoScaleYButton.Checked;
-            chart.GraphPane.XAxis.Scale.MaxAuto = autoScaleXButton.Checked;
-            chart.GraphPane.XAxis.Scale.MinAuto = autoScaleXButton.Checked;
+            foreach (var pane in chart.MasterPane.PaneList)
+            {
+                pane.XAxis.Scale.MaxAuto = autoScaleXButton.Checked;
+                pane.XAxis.Scale.MinAuto = autoScaleXButton.Checked;
+            }
             xminStatusLabel.Visible = !autoScaleXButton.Checked;
             xmaxStatusLabel.Visible = !autoScaleXButton.Checked;
             if (chart.AutoScaleAxis) InvalidateWaveform();
@@ -243,8 +325,11 @@ namespace Bonsai.Dsp.Design
         private void autoScaleYButton_CheckedChanged(object sender, EventArgs e)
         {
             chart.AutoScaleAxis = autoScaleXButton.Checked || autoScaleYButton.Checked;
-            chart.GraphPane.YAxis.Scale.MaxAuto = autoScaleYButton.Checked;
-            chart.GraphPane.YAxis.Scale.MinAuto = autoScaleYButton.Checked;
+            foreach (var pane in chart.MasterPane.PaneList)
+            {
+                pane.YAxis.Scale.MaxAuto = autoScaleYButton.Checked;
+                pane.YAxis.Scale.MinAuto = autoScaleYButton.Checked;
+            }
             yminStatusLabel.Visible = !autoScaleYButton.Checked;
             ymaxStatusLabel.Visible = !autoScaleYButton.Checked;
             if (chart.AutoScaleAxis) InvalidateWaveform();
@@ -322,6 +407,21 @@ namespace Bonsai.Dsp.Design
             textBox.Text = statusLabel.Text;
             statusStrip.ResumeLayout();
             textBox.Focus();
+        }
+
+        private void channelOffsetNumericUpDown_ValueChanged(object sender, EventArgs e)
+        {
+            ChannelOffset = (double)channelOffsetNumericUpDown.Value;
+        }
+
+        private void bufferLengthNumericUpDown_ValueChanged(object sender, EventArgs e)
+        {
+            WaveformBufferLength = (int)bufferLengthNumericUpDown.Value;
+        }
+
+        private void overlayModeSplitButton_Click(object sender, EventArgs e)
+        {
+            OverlayChannels = !OverlayChannels;
         }
     }
 }
