@@ -13,6 +13,7 @@ namespace Bonsai.Design.Visualizers
     public class ChartControl : ZedGraphControl
     {
         int colorIndex;
+        PaneLayout? paneLayout;
         static readonly Color[] BrightPastelPalette = new[]
         {
             ColorTranslator.FromHtml("#418CF0"),
@@ -52,6 +53,7 @@ namespace Bonsai.Design.Visualizers
             GraphPane.XAxis.Title.IsVisible = false;
             GraphPane.YAxis.Scale.MagAuto = false;
             GraphPane.XAxis.Scale.MagAuto = false;
+            MasterPane.Border.IsVisible = false;
         }
 
         [DefaultValue(true)]
@@ -64,9 +66,24 @@ namespace Bonsai.Design.Visualizers
             return color;
         }
 
+        public void ResetColorCycle()
+        {
+            colorIndex = 0;
+        }
+
+        public void SetLayout(PaneLayout layout)
+        {
+            paneLayout = layout;
+        }
+
         protected override void OnPaint(PaintEventArgs e)
         {
-            if (AutoScaleAxis) GraphPane.AxisChange(e.Graphics);
+            if (AutoScaleAxis) MasterPane.AxisChange(e.Graphics);
+            if (paneLayout.HasValue)
+            {
+                MasterPane.SetLayout(e.Graphics, paneLayout.Value);
+                paneLayout = null;
+            }
             base.OnPaint(e);
         }
     }

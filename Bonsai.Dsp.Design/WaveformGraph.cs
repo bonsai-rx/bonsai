@@ -19,7 +19,7 @@ namespace Bonsai.Dsp.Design
 
         int sequenceIndex;
         bool overlayChannels;
-        PointPairList[] values;
+        DownsampledPointPairList[] values;
         ToolStripTextBox yminTextBox;
         ToolStripTextBox ymaxTextBox;
         ToolStripTextBox xminTextBox;
@@ -30,13 +30,14 @@ namespace Bonsai.Dsp.Design
             InitializeComponent();
             overlayChannels = true;
             WaveformBufferLength = 1;
+            historyLengthNumericUpDown.Maximum = decimal.MaxValue;
             channelOffsetNumericUpDown.Minimum = decimal.MinValue;
             channelOffsetNumericUpDown.Maximum = decimal.MaxValue;
             bufferLengthNumericUpDown.Maximum = int.MaxValue;
             autoScaleXButton.Checked = true;
             autoScaleYButton.Checked = true;
             chart.IsShowContextMenu = false;
-            chart.GraphPane.XAxis.Type = AxisType.Ordinal;
+            chart.GraphPane.XAxis.Type = AxisType.Linear;
             chart.GraphPane.XAxis.MinorTic.IsAllTics = false;
             chart.GraphPane.XAxis.Title.IsVisible = true;
             chart.GraphPane.XAxis.Title.Text = "Samples";
@@ -192,6 +193,18 @@ namespace Bonsai.Dsp.Design
 
         protected virtual void OnAxisChanged(EventArgs e)
         {
+            if (AutoScaleX)
+            {
+                foreach (var pane in chart.MasterPane.PaneList)
+                {
+                    if (pane.CurveList.Count == 0) continue;
+                    var points = (DownsampledPointPairList)pane.CurveList.First().Points;
+                    pane.XAxis.Scale.Max = points.HistoryLength;
+                    pane.XAxis.Scale.MaxAuto = AutoScaleX;
+                }
+            }
+
+            if (!AutoScaleX) UpdateDataBounds();
             var handler = AxisChanged;
             if (handler != null)
             {
@@ -199,11 +212,23 @@ namespace Bonsai.Dsp.Design
             }
         }
 
+        private void UpdateDataBounds()
+        {
+            foreach (var pane in chart.MasterPane.PaneList)
+            {
+                foreach (var curve in pane.CurveList)
+                {
+                    var pointList = (DownsampledPointPairList)curve.Points;
+                    pointList.SetBounds(pane.XAxis.Scale.Min, pane.XAxis.Scale.Max, 1000);
+                }
+            }
+        }
+
         public void UpdateWaveform(double[] samples, int rows, int columns)
         {
             if (values == null || values.Length != rows)
             {
-                values = new PointPairList[rows];
+                values = new DownsampledPointPairList[rows];
                 ResetWaveform();
             }
 
@@ -216,14 +241,16 @@ namespace Bonsai.Dsp.Design
                 {
                     var curveList = graphPanes[seriesIndex % graphPanes.Count].CurveList;
                     var curveItem = curveList[seriesIndex / graphPanes.Count];
-                    values[i] = (PointPairList)curveItem.Points;
-                    values[i].Clear();
+                    values[i] = (DownsampledPointPairList)curveItem.Points;
                 }
-                else values[i] = new PointPairList();
+                else values[i] = new DownsampledPointPairList();
+                values[i].HistoryLength = columns * (int)historyLengthNumericUpDown.Value;
                 for (int j = 0; j < columns; j++)
                 {
-                    values[i].Add(j, samples[i * columns + j] + i * ChannelOffset);
+                    values[i].Add(samples[i * columns + j] + i * ChannelOffset);
                 }
+
+                if (AutoScaleX) values[i].SetBounds(0, values[i].List.Count, 1000);
             }
 
             if (sequenceIndex * values.Length >= seriesCount || values.Length > seriesCount)

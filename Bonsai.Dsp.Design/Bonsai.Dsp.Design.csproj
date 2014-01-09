@@ -65,8 +65,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CvMatVisualizer.cs" />
+    <Compile Include="LabeledNumericUpDown.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="LabeledNumericUpDown.Designer.cs">
+      <DependentUpon>LabeledNumericUpDown.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
+    <Compile Include="DownsampledPointPairList.cs" />
+    <Compile Include="ToolStripLabeledNumericUpDown.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="WaveformGraph.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -97,6 +107,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="LabeledNumericUpDown.resx">
+      <DependentUpon>LabeledNumericUpDown.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="WaveformGraph.resx">
       <DependentUpon>WaveformGraph.cs</DependentUpon>
     </EmbeddedResource>
