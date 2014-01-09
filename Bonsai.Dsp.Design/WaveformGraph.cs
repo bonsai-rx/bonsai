@@ -15,6 +15,8 @@ namespace Bonsai.Dsp.Design
 {
     public partial class WaveformGraph : UserControl
     {
+        const float YAxisMinSpace = 50;
+
         int sequenceIndex;
         bool overlayChannels;
         PointPairList[] values;
@@ -39,6 +41,7 @@ namespace Bonsai.Dsp.Design
             chart.GraphPane.XAxis.Title.IsVisible = true;
             chart.GraphPane.XAxis.Title.Text = "Samples";
             chart.GraphPane.XAxis.Scale.BaseTic = 0;
+            chart.GraphPane.YAxis.MinSpace = YAxisMinSpace;
             chart.GraphPane.AxisChangeEvent += GraphPane_AxisChangeEvent;
 
             xminTextBox = new ToolStripTextBox();
@@ -80,6 +83,7 @@ namespace Bonsai.Dsp.Design
                 chart.SetLayout(PaneLayout.SquareColPreferred);
             }
 
+            chart.GraphPane.YAxis.MinSpace = overlayChannels ? YAxisMinSpace : 0;
             chart.GraphPane.YAxis.IsVisible = overlayChannels;
             chart.GraphPane.XAxis.IsVisible = overlayChannels;
             chart.GraphPane.CurveList.Clear();
