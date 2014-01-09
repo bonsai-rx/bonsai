@@ -86,8 +86,9 @@ namespace Bonsai.Dsp.Design
                 if (Count < maxPoints) return list[index + minIndex];
 
                 int start = (int)(index * skip + minIndex);
+                int next = (int)((index + 1) * skip + minIndex);
                 PointPair max = new PointPair(list[start]);
-                for (int i = start + 1; i < start + skip; i++)
+                for (int i = start + 1; i < next; i++)
                 {
                     max.Y = Math.Max(max.Y, list[i].Y);
                 }
