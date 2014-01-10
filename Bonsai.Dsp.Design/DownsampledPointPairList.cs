@@ -10,11 +10,15 @@ namespace Bonsai.Dsp.Design
     class DownsampledPointPairList : IPointList
     {
         double skip;
-        int maxPoints;
+        double? minBounds;
+        double? maxBounds;
         int minIndex = -1;
         int maxIndex = -1;
         PointPairList list;
         int addIndex;
+        Random random;
+        int[] decimation;
+        int historyLength;
 
         public DownsampledPointPairList()
             : this(new PointPairList())
@@ -24,20 +28,52 @@ namespace Bonsai.Dsp.Design
         public DownsampledPointPairList(PointPairList list)
         {
             this.list = list;
+            random = new Random();
         }
 
-        public int HistoryLength { get; set; }
+        public int HistoryLength
+        {
+            get { return historyLength; }
+            set
+            {
+                var dither = historyLength != value;
+                historyLength = value;
+                UpdateDecimation(dither);
+            }
+        }
 
         public void SetBounds(double min, double max, int maxPoints)
         {
-            minIndex = list.BinarySearch(new PointPair(min, 0), PointComparer.Default);
-            maxIndex = list.BinarySearch(new PointPair(max, 0), PointComparer.Default);
+            var dither = minBounds != min || maxBounds != max;
+            minBounds = min;
+            maxBounds = max;
+            if (decimation == null || decimation.Length != maxPoints)
+            {
+                decimation = new int[maxPoints];
+            }
+            UpdateDecimation(dither);
+        }
 
-            if (minIndex < 0) minIndex = Math.Max(0, Math.Min(~minIndex, list.Count - 1)) - 1;
-            if (maxIndex < 0) maxIndex = Math.Max(0, Math.Min(~maxIndex, list.Count - 1)) - 1;
+        private void UpdateDecimation(bool dither)
+        {
+            minIndex = minBounds.HasValue ? Math.Max(0, Math.Min((int)minBounds, HistoryLength - 1)) : 0;
+            maxIndex = maxBounds.HasValue ? Math.Max(1, Math.Min((int)Math.Ceiling(maxBounds.Value) + 1, HistoryLength)) : HistoryLength;
+
             var pointCount = maxIndex - minIndex;
-            skip = pointCount < maxPoints ? 1 : pointCount / (double)maxPoints;
-            this.maxPoints = maxPoints;
+            if (decimation == null || pointCount <= decimation.Length) skip = 1;
+            else
+            {
+                skip = pointCount / (double)decimation.Length;
+                if (dither)
+                {
+                    for (int i = 0; i < decimation.Length; i++)
+                    {
+                        int start = (int)(i * skip + minIndex);
+                        int next = Math.Min(HistoryLength, (int)((i + 1) * skip + minIndex));
+                        decimation[i] = random.Next(start, next);
+                    }
+                }
+            }
         }
 
         public PointPairList List
@@ -49,8 +85,8 @@ namespace Bonsai.Dsp.Design
         {
             get
             {
-                if (minIndex < 0) return list.Count;
-                return Math.Min(maxPoints, maxIndex - minIndex);
+                if (!minBounds.HasValue) return list.Count;
+                return Math.Min(decimation.Length, maxIndex - minIndex);
             }
         }
 
@@ -70,6 +106,25 @@ namespace Bonsai.Dsp.Design
 
             if (list.Count < HistoryLength && addIndex == list.Count) list.Add(addIndex, y);
             else list[addIndex].Y = y;
+
+            // We want to update the dithering (random decimation) only if the current index
+            // is the start of a sample block. This appears to be true iff the condition:
+            // (addIndex - minIndex) % skip > 1
+            var sample = addIndex - minIndex;
+            if (skip > 1 && sample >= 0 && addIndex < maxIndex && sample % skip <= 1)
+            {
+                // The index of the decimation to update is computed by solving the decimation
+                // formula for the index, using ceil instead of floor (truncation):
+                // i = ceil((addIndex - minIndex) / skip)
+                var decimated = (int)Math.Ceiling(sample / skip);
+                if (decimated < decimation.Length)
+                {
+                    int start = (int)(decimated * skip + minIndex);
+                    int next = Math.Min(HistoryLength, (int)((decimated + 1) * skip + minIndex));
+                    decimation[decimated] = random.Next(start, next);
+                }
+            }
+
             addIndex = (addIndex + 1) % HistoryLength;
         }
 
@@ -82,29 +137,15 @@ namespace Bonsai.Dsp.Design
         {
             get
             {
-                if (minIndex < 0) return list[index];
-                if (Count < maxPoints) return list[index + minIndex];
-
-                int start = (int)(index * skip + minIndex);
-                int next = (int)((index + 1) * skip + minIndex);
-                PointPair max = new PointPair(list[start]);
-                for (int i = start + 1; i < next; i++)
+                if (!minBounds.HasValue) return list[index];
+                if (Count < decimation.Length)
                 {
-                    max.Y = Math.Max(max.Y, list[i].Y);
+                    index += minIndex;
                 }
+                else index = decimation[index];
 
-                return max;
-            }
-        }
-
-        class PointComparer : IComparer<PointPair>
-        {
-            internal static readonly PointComparer Default = new PointComparer();
-
-            public int Compare(PointPair x, PointPair y)
-            {
-                var xdiff = x.X - y.X;
-                return xdiff < 0 ? -1 : xdiff > 0 ? 1 : 0;
+                if (index < list.Count) return list[index];
+                else return new PointPair(PointPair.Missing, PointPair.Missing);
             }
         }
     }

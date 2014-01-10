@@ -16,6 +16,7 @@ namespace Bonsai.Dsp.Design
     public partial class WaveformGraph : UserControl
     {
         const float YAxisMinSpace = 50;
+        const int MaxSamplePoints = 1000;
 
         int sequenceIndex;
         bool overlayChannels;
@@ -218,8 +219,8 @@ namespace Bonsai.Dsp.Design
             {
                 foreach (var curve in pane.CurveList)
                 {
-                    var pointList = (DownsampledPointPairList)curve.Points;
-                    pointList.SetBounds(pane.XAxis.Scale.Min, pane.XAxis.Scale.Max, 1000);
+                    var points = (DownsampledPointPairList)curve.Points;
+                    points.SetBounds(pane.XAxis.Scale.Min, pane.XAxis.Scale.Max, MaxSamplePoints);
                 }
             }
         }
@@ -244,13 +245,15 @@ namespace Bonsai.Dsp.Design
                     values[i] = (DownsampledPointPairList)curveItem.Points;
                 }
                 else values[i] = new DownsampledPointPairList();
-                values[i].HistoryLength = columns * (int)historyLengthNumericUpDown.Value;
+
+                var points = values[i];
+                points.HistoryLength = columns * (int)historyLengthNumericUpDown.Value;
                 for (int j = 0; j < columns; j++)
                 {
-                    values[i].Add(samples[i * columns + j] + i * ChannelOffset);
+                    points.Add(samples[i * columns + j] + i * ChannelOffset);
                 }
 
-                if (AutoScaleX) values[i].SetBounds(0, values[i].List.Count, 1000);
+                if (AutoScaleX) points.SetBounds(0, points.HistoryLength, MaxSamplePoints);
             }
 
             if (sequenceIndex * values.Length >= seriesCount || values.Length > seriesCount)
@@ -265,6 +268,7 @@ namespace Bonsai.Dsp.Design
                         else
                         {
                             pane = new GraphPane(chart.GraphPane);
+                            pane.AxisChangeEvent += GraphPane_AxisChangeEvent;
                             pane.CurveList.Clear();
                             graphPanes.Add(pane);
                         }
@@ -327,16 +331,12 @@ namespace Bonsai.Dsp.Design
             }
         }
 
-        private void chart_ZoomEvent(ZedGraphControl sender, ZoomState oldState, ZoomState newState)
-        {
-            autoScaleXButton.Checked = false;
-            autoScaleYButton.Checked = false;
-        }
-
         private void GraphPane_AxisChangeEvent(GraphPane pane)
         {
             var xscale = pane.XAxis.Scale;
             var yscale = pane.YAxis.Scale;
+            autoScaleXButton.Checked = pane.XAxis.Scale.MaxAuto;
+            autoScaleYButton.Checked = pane.YAxis.Scale.MaxAuto;
             xminStatusLabel.Text = xscale.Min.ToString(CultureInfo.InvariantCulture);
             xmaxStatusLabel.Text = xscale.Max.ToString(CultureInfo.InvariantCulture);
             yminStatusLabel.Text = yscale.Min.ToString(CultureInfo.InvariantCulture);

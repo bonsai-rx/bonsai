@@ -170,7 +170,6 @@
             this.chart.ScrollMinY2 = 0D;
             this.chart.Size = new System.Drawing.Size(320, 218);
             this.chart.TabIndex = 2;
-            this.chart.ZoomEvent += new ZedGraph.ZedGraphControl.ZoomEventHandler(this.chart_ZoomEvent);
             this.chart.MouseMoveEvent += new ZedGraph.ZedGraphControl.ZedMouseEventHandler(this.chart_MouseMoveEvent);
             this.chart.MouseClick += new System.Windows.Forms.MouseEventHandler(this.chart_MouseClick);
             // 
