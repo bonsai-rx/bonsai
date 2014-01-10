@@ -19,126 +19,101 @@ namespace Bonsai.Dsp.Design
 {
     public class CvMatVisualizer : DialogTypeVisualizer
     {
-        const int DefaultBufferSize = 640;
-        const int SequenceBufferSize = 100;
-        static readonly TimeSpan TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 20);
-        static readonly TimeSpan WindowedTargetElapsedTime = TimeSpan.FromSeconds(1.0 / 10.0);
+        const int TargetElapsedTime = (int)(1000.0 / 60);
+        bool requireInvalidate;
+        Timer updateTimer;
+        WaveformGraph graph;
 
-        int sequenceIndex;
-        ChartControl chart;
-        RollingPointPairList[] values;
-
-        double channelOffset;
-        int blockSize = 100;
-        DateTimeOffset updateTime;
-        TimeSpan targetElapsedTime;
-
-        protected ChartControl Chart
+        public CvMatVisualizer()
         {
-            get { return chart; }
+            XMax = 1;
+            YMax = 1;
+            AutoScaleX = true;
+            AutoScaleY = true;
         }
 
-        protected void ResetNumericSeries(int numSeries)
-        {
-            var timeSeries = chart.GraphPane.CurveList;
-            values = new RollingPointPairList[numSeries];
-            for (int i = 0; i < values.Length; i++)
-            {
-                var seriesIndex = sequenceIndex * values.Length + i;
-                if (seriesIndex < timeSeries.Count)
-                {
-                    values[i] = (RollingPointPairList)timeSeries[seriesIndex].Points;
-                    values[i].Clear();
-                }
-                else values[i] = new RollingPointPairList(DefaultBufferSize);
-            }
+        public double XMin { get; set; }
 
-            if (sequenceIndex * values.Length >= timeSeries.Count || values.Length >= timeSeries.Count)
-            {
-                for (int i = 0; i < values.Length; i++)
-                {
-                    var series = new LineItem(string.Empty, values[i], chart.GetNextColor(), SymbolType.None);
-                    series.Line.IsAntiAlias = true;
-                    series.Line.IsOptimizedDraw = true;
-                    series.Label.IsVisible = false;
-                    timeSeries.Add(series);
-                }
-            }
-        }
+        public double XMax { get; set; }
 
-        protected void AddValue(double xValue, params double[] value)
-        {
-            for (int i = 0; i < values.Length; i++)
-            {
-                values[i].Add(0, value[i]);
-            }
-        }
+        public double YMin { get; set; }
 
-        protected void ClearValues()
-        {
-            values = null;
-        }
+        public double YMax { get; set; }
 
-        protected void DataBindValues()
-        {
-            chart.Invalidate();
-        }
+        public bool AutoScaleX { get; set; }
 
-        private void SetBlockSize(int size)
-        {
-            var xlabelText = "Samples";
-            blockSize = Math.Max(1, size);
-            chart.GraphPane.Title.IsVisible = true;
-            chart.GraphPane.Title.Text = string.Format("Scale: 1/{0}", blockSize);
-            chart.GraphPane.XAxis.Title.Text = blockSize > 1 ? string.Format(xlabelText + " (10^{0})", Math.Log10(blockSize)) : xlabelText;
-        }
+        public bool AutoScaleY { get; set; }
 
         public override void Load(IServiceProvider provider)
         {
-            channelOffset = 0;
-            chart = new ChartControl();
-            chart.Dock = DockStyle.Fill;
-            chart.GraphPane.XAxis.Type = AxisType.Ordinal;
-            chart.GraphPane.XAxis.MinorTic.IsAllTics = false;
-            chart.GraphPane.XAxis.Title.IsVisible = true;
-            chart.GraphPane.XAxis.Scale.BaseTic = 0;
-            chart.KeyDown += (sender, e) =>
+            graph = new WaveformGraph { Dock = DockStyle.Fill };
+            graph.AutoScaleX = AutoScaleX;
+            if (!AutoScaleX)
             {
-                if (e.KeyCode == Keys.PageUp) SetBlockSize((int)(blockSize * 10));
-                if (e.KeyCode == Keys.PageDown) SetBlockSize((int)(blockSize * 0.1));
-            };
+                graph.XMin = XMin;
+                graph.XMax = XMax;
+            }
 
-            updateTime = HighResolutionScheduler.Now;
-            SetBlockSize(blockSize);
+            graph.AutoScaleY = AutoScaleY;
+            if (!AutoScaleY)
+            {
+                graph.YMin = YMin;
+                graph.YMax = YMax;
+            }
+
+            EventHandler updateScale = (sender, e) =>
+            {
+                AutoScaleX = graph.AutoScaleX;
+                if (!AutoScaleX)
+                {
+                    XMin = graph.XMin;
+                    XMax = graph.XMax;
+                }
+
+                AutoScaleY = graph.AutoScaleY;
+                if (!AutoScaleY)
+                {
+                    YMin = graph.YMin;
+                    YMax = graph.YMax;
+                }
+            };
+            graph.AutoScaleXChanged += updateScale;
+            graph.AutoScaleYChanged += updateScale;
+            graph.AxisChanged += updateScale;
 
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
             if (visualizerService != null)
             {
-                visualizerService.AddControl(chart);
+                visualizerService.AddControl(graph);
+                updateTimer = new System.Windows.Forms.Timer();
+                updateTimer.Interval = TargetElapsedTime;
+                updateTimer.Tick += (sender, e) =>
+                {
+                    if (requireInvalidate)
+                    {
+                        graph.InvalidateWaveform();
+                        requireInvalidate = false;
+                    }
+                };
+                updateTimer.Start();
             }
         }
 
         public override void Unload()
         {
-            ClearValues();
-            chart.Dispose();
-            chart = null;
-            sequenceIndex = 0;
+            updateTimer.Stop();
+            updateTimer.Dispose();
+            graph.Dispose();
+            updateTimer = null;
+            graph = null;
         }
 
         public override void Show(object value)
         {
             var buffer = (Mat)value;
-            var now = HighResolutionScheduler.Now;
-
             var rows = buffer.Rows;
             var columns = buffer.Cols;
-            if (values == null || values.Length != rows)
-            {
-                ResetNumericSeries(rows);
-            }
-
-            var samples = new double[rows, columns];
+            var samples = new double[rows * columns];
             var sampleHandle = GCHandle.Alloc(samples, GCHandleType.Pinned);
             using (var sampleHeader = new Mat(rows, columns, Depth.F64, 1, sampleHandle.AddrOfPinnedObject()))
             {
@@ -146,30 +121,8 @@ namespace Bonsai.Dsp.Design
             }
             sampleHandle.Free();
 
-            var maxValues = new double[rows];
-            for (int j = 0; j < columns; j += blockSize)
-            {
-                for (int i = 0; i < maxValues.Length; i++)
-                {
-                    maxValues[i] = samples[i, j];
-                    for (int k = 1; j + k < Math.Min(j + blockSize, columns); k++)
-                    {
-                        var sample = samples[i, j + k];
-                        maxValues[i] = Math.Max(sample, maxValues[i]);
-                    }
-
-                    channelOffset = Math.Max(channelOffset, maxValues[i]);
-                    maxValues[i] += i * channelOffset;
-                }
-
-                AddValue(blockSize, maxValues);
-            }
-
-            if ((now - updateTime) > targetElapsedTime)
-            {
-                DataBindValues();
-                updateTime = now;
-            }
+            graph.UpdateWaveform(samples, rows, columns);
+            requireInvalidate = true;
         }
 
         public override IObservable<object> Visualize(IObservable<IObservable<object>> source, IServiceProvider provider)
@@ -181,18 +134,12 @@ namespace Bonsai.Dsp.Design
                 var observableType = visualizerContext.Source.ObservableType;
                 if (observableType == typeof(IObservable<Mat>))
                 {
-                    SetBlockSize(1);
-                    targetElapsedTime = WindowedTargetElapsedTime;
                     return source.SelectMany(xs => xs.Select(ws => ws as IObservable<Mat>)
                                                      .Where(ws => ws != null)
                                                      .SelectMany(ws => ws.ObserveOn(visualizerDialog)
                                                                          .Do(Show, SequenceCompleted)));
                 }
-                else
-                {
-                    targetElapsedTime = TargetElapsedTime;
-                    return source.SelectMany(xs => xs.ObserveOn(visualizerDialog).Do(Show, SequenceCompleted));
-                }
+                else return source.SelectMany(xs => xs.ObserveOn(visualizerDialog).Do(Show, SequenceCompleted));
             }
 
             return source;
@@ -200,11 +147,6 @@ namespace Bonsai.Dsp.Design
 
         public override void SequenceCompleted()
         {
-            if (values != null)
-            {
-                ClearValues();
-                sequenceIndex = (sequenceIndex + 1) % SequenceBufferSize;
-            }
             base.SequenceCompleted();
         }
     }
