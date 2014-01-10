@@ -23,6 +23,7 @@ namespace Bonsai.Design.Visualizers
         Rectangle previousRectangle;
         GraphPane selectedPane;
         PaneLayout? paneLayout;
+        IDisposable rubberBandNotifications;
         static readonly Color[] BrightPastelPalette = new[]
         {
             ColorTranslator.FromHtml("#418CF0"),
@@ -122,7 +123,7 @@ namespace Bonsai.Design.Visualizers
                                          .Concat(Observable.Return<Rectangle?>(null))
                                          .Select(rect => new { selectedPane, rect }))
                                          .Merge();
-            selectionDrag.Subscribe(xs => ProcessRubberBand(xs.selectedPane, xs.rect));
+            rubberBandNotifications = selectionDrag.Subscribe(xs => ProcessRubberBand(xs.selectedPane, xs.rect));
         }
 
         Rectangle GetNormalizedRectangle(RectangleF bounds, Point p1, Point p2)
@@ -174,6 +175,12 @@ namespace Bonsai.Design.Visualizers
                 e.Graphics.FillRectangle(RubberBandBrush, rubberBand);
                 e.Graphics.DrawRectangle(RubberBandPen, rubberBand);
             }
+        }
+
+        protected override void OnHandleDestroyed(EventArgs e)
+        {
+            rubberBandNotifications.Dispose();
+            base.OnHandleDestroyed(e);
         }
     }
 }
