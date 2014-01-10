@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WaveformGraph));
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.cursorStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.scaleXStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
@@ -149,11 +148,10 @@
             this.historyLengthNumericUpDown,
             this.bufferLengthNumericUpDown,
             this.channelOffsetNumericUpDown});
-            this.overlayModeSplitButton.Image = ((System.Drawing.Image)(resources.GetObject("overlayModeSplitButton.Image")));
+            this.overlayModeSplitButton.Image = global::Bonsai.Dsp.Design.Properties.Resources.OverlayGridModeImage;
             this.overlayModeSplitButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.overlayModeSplitButton.Name = "overlayModeSplitButton";
             this.overlayModeSplitButton.Size = new System.Drawing.Size(32, 20);
-            this.overlayModeSplitButton.Text = "toolStripSplitButton1";
             this.overlayModeSplitButton.ButtonClick += new System.EventHandler(this.overlayModeSplitButton_Click);
             // 
             // chart
