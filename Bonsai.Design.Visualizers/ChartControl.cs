@@ -7,12 +7,21 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using ZedGraph;
+using System.Reactive.Linq;
+using System.Reactive.Disposables;
 
 namespace Bonsai.Design.Visualizers
 {
     public class ChartControl : ZedGraphControl
     {
+        const int PenWidth = 3;
+        static readonly Pen RubberBandPen = new Pen(Color.FromArgb(51, 153, 255));
+        static readonly Brush RubberBandBrush = new SolidBrush(Color.FromArgb(128, 170, 204, 238));
+
         int colorIndex;
+        Rectangle rubberBand;
+        Rectangle previousRectangle;
+        GraphPane selectedPane;
         PaneLayout? paneLayout;
         static readonly Color[] BrightPastelPalette = new[]
         {
@@ -54,6 +63,7 @@ namespace Bonsai.Design.Visualizers
             GraphPane.YAxis.Scale.MagAuto = false;
             GraphPane.XAxis.Scale.MagAuto = false;
             MasterPane.Border.IsVisible = false;
+            InitializeReactiveEvents();
         }
 
         [DefaultValue(true)]
@@ -76,6 +86,79 @@ namespace Bonsai.Design.Visualizers
             paneLayout = layout;
         }
 
+        void InitializeReactiveEvents()
+        {
+            var mouseDownEvent = Observable.Create<MouseEventArgs>(observer =>
+            {
+                ZedMouseEventHandler handler = (sender, e) => { observer.OnNext(e); return true; };
+                MouseDownEvent += handler;
+                return Disposable.Create(() => MouseDownEvent -= handler);
+            });
+
+            var mouseUpEvent = Observable.Create<MouseEventArgs>(observer =>
+            {
+                ZedMouseEventHandler handler = (sender, e) => { observer.OnNext(e); return true; };
+                MouseUpEvent += handler;
+                return Disposable.Create(() => MouseUpEvent -= handler);
+            });
+
+            var mouseMoveEvent = Observable.Create<MouseEventArgs>(observer =>
+            {
+                ZedMouseEventHandler handler = (sender, e) => { observer.OnNext(e); return true; };
+                MouseMoveEvent += handler;
+                return Disposable.Create(() => MouseMoveEvent -= handler);
+            });
+
+            var scheduler = new ControlScheduler(this);
+            var selectionDrag = (from mouseDown in mouseDownEvent
+                                 where mouseDown.Button == MouseButtons.Left
+                                 let selectedPane = MasterPane.FindChartRect(mouseDown.Location)
+                                 where selectedPane != null
+                                 select (from mouseMove in mouseMoveEvent.TakeUntil(mouseUpEvent).Sample(TimeSpan.FromMilliseconds(50), scheduler)
+                                         let displacementX = mouseMove.X - mouseDown.X
+                                         let displacementY = mouseMove.Y - mouseDown.Y
+                                         where displacementX * displacementX + displacementY * displacementY > 16
+                                         select (Rectangle?)GetNormalizedRectangle(selectedPane.Chart.Rect, mouseDown.Location, mouseMove.Location))
+                                         .Concat(Observable.Return<Rectangle?>(null))
+                                         .Select(rect => new { selectedPane, rect }))
+                                         .Merge();
+            selectionDrag.Subscribe(xs => ProcessRubberBand(xs.selectedPane, xs.rect));
+        }
+
+        Rectangle GetNormalizedRectangle(RectangleF bounds, Point p1, Point p2)
+        {
+            p2.X = (int)Math.Max(bounds.Left, Math.Min(p2.X, bounds.Right));
+            p2.Y = (int)Math.Max(bounds.Top, Math.Min(p2.Y, bounds.Bottom));
+            return new Rectangle(
+                Math.Min(p1.X, p2.X),
+                Math.Min(p1.Y, p2.Y),
+                Math.Abs(p2.X - p1.X),
+                Math.Abs(p2.Y - p1.Y));
+        }
+
+        void ProcessRubberBand(GraphPane selectedPane, Rectangle? rect)
+        {
+            if (!rect.HasValue && !previousRectangle.IsEmpty)
+            {
+                double minX, maxX;
+                double minY, maxY;
+                selectedPane.ReverseTransform(previousRectangle.Location, out minX, out maxY);
+                selectedPane.ReverseTransform(previousRectangle.Location + previousRectangle.Size, out maxX, out minY);
+                selectedPane.XAxis.Scale.Min = minX;
+                selectedPane.XAxis.Scale.Max = maxX;
+                selectedPane.YAxis.Scale.Min = minY;
+                selectedPane.YAxis.Scale.Max = maxY;
+                selectedPane.AxisChange();
+            }
+
+            if (!Focused) Select();
+            rubberBand = rect.GetValueOrDefault();
+            var invalidateRect = rubberBand;
+            invalidateRect.Inflate(PenWidth, PenWidth);
+            Invalidate(Rectangle.Truncate(selectedPane.Chart.Rect));
+            previousRectangle = invalidateRect;
+        }
+
         protected override void OnPaint(PaintEventArgs e)
         {
             if (AutoScaleAxis) MasterPane.AxisChange(e.Graphics);
@@ -85,6 +168,12 @@ namespace Bonsai.Design.Visualizers
                 paneLayout = null;
             }
             base.OnPaint(e);
+
+            if (rubberBand.Width > 0 && rubberBand.Height > 0)
+            {
+                e.Graphics.FillRectangle(RubberBandBrush, rubberBand);
+                e.Graphics.DrawRectangle(RubberBandPen, rubberBand);
+            }
         }
     }
 }
