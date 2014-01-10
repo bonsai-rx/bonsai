@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using Bonsai.Design.Visualizers;
 using ZedGraph;
 using System.Globalization;
+using Bonsai.Dsp.Design.Properties;
 
 namespace Bonsai.Dsp.Design
 {
@@ -457,6 +458,9 @@ namespace Bonsai.Dsp.Design
         private void overlayModeSplitButton_Click(object sender, EventArgs e)
         {
             OverlayChannels = !OverlayChannels;
+            overlayModeSplitButton.Image = !OverlayChannels
+                ? Resources.OverlayGraphModeImage
+                : Resources.OverlayGridModeImage;
         }
     }
 }
