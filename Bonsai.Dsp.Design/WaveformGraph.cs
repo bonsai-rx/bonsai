@@ -310,8 +310,12 @@ namespace Bonsai.Dsp.Design
         private bool chart_MouseMoveEvent(ZedGraphControl sender, MouseEventArgs e)
         {
             double x, y;
-            chart.GraphPane.ReverseTransform(e.Location, out x, out y);
-            cursorStatusLabel.Text = string.Format("Cursor: ({0:F0}, {1:G5})", x, y);
+            var pane = chart.MasterPane.FindChartRect(e.Location);
+            if (pane != null)
+            {
+                pane.ReverseTransform(e.Location, out x, out y);
+                cursorStatusLabel.Text = string.Format("Cursor: ({0:F0}, {1:G5})", x, y);
+            }
             return false;
         }
 
