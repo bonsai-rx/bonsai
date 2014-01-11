@@ -15,13 +15,14 @@ namespace Bonsai.Design.Visualizers
     public class ChartControl : ZedGraphControl
     {
         const int PenWidth = 3;
+        const int MinimumDragDisplacement = 16;
+        static readonly TimeSpan DragRefreshInterval = TimeSpan.FromMilliseconds(30);
         static readonly Pen RubberBandPen = new Pen(Color.FromArgb(51, 153, 255));
         static readonly Brush RubberBandBrush = new SolidBrush(Color.FromArgb(128, 170, 204, 238));
 
         int colorIndex;
         Rectangle rubberBand;
         Rectangle previousRectangle;
-        GraphPane selectedPane;
         PaneLayout? paneLayout;
         IDisposable rubberBandNotifications;
         static readonly Color[] BrightPastelPalette = new[]
@@ -87,38 +88,50 @@ namespace Bonsai.Design.Visualizers
             paneLayout = layout;
         }
 
+        bool IsZoomButton(MouseButtons button)
+        {
+            var modifiers = Control.ModifierKeys;
+            return button == ZoomButtons && modifiers == ZoomModifierKeys ||
+                   button == ZoomButtons2 && modifiers == ZoomModifierKeys2;
+        }
+
         void InitializeReactiveEvents()
         {
             var mouseDownEvent = Observable.Create<MouseEventArgs>(observer =>
             {
-                ZedMouseEventHandler handler = (sender, e) => { observer.OnNext(e); return true; };
+                ZedMouseEventHandler handler = (sender, e) =>
+                {
+                    observer.OnNext(e);
+                    return IsZoomButton(e.Button);
+                };
                 MouseDownEvent += handler;
                 return Disposable.Create(() => MouseDownEvent -= handler);
             });
 
             var mouseUpEvent = Observable.Create<MouseEventArgs>(observer =>
             {
-                ZedMouseEventHandler handler = (sender, e) => { observer.OnNext(e); return true; };
+                ZedMouseEventHandler handler = (sender, e) => { observer.OnNext(e); return false; };
                 MouseUpEvent += handler;
                 return Disposable.Create(() => MouseUpEvent -= handler);
             });
 
             var mouseMoveEvent = Observable.Create<MouseEventArgs>(observer =>
             {
-                ZedMouseEventHandler handler = (sender, e) => { observer.OnNext(e); return true; };
+                ZedMouseEventHandler handler = (sender, e) => { observer.OnNext(e); return false; };
                 MouseMoveEvent += handler;
                 return Disposable.Create(() => MouseMoveEvent -= handler);
             });
 
             var scheduler = new ControlScheduler(this);
             var selectionDrag = (from mouseDown in mouseDownEvent
-                                 where mouseDown.Button == MouseButtons.Left
+                                 where (IsEnableHZoom || IsEnableVZoom) && IsZoomButton(mouseDown.Button)
                                  let selectedPane = MasterPane.FindChartRect(mouseDown.Location)
                                  where selectedPane != null
-                                 select (from mouseMove in mouseMoveEvent.TakeUntil(mouseUpEvent).Sample(TimeSpan.FromMilliseconds(50), scheduler)
+                                 select (from mouseMove in mouseMoveEvent.TakeUntil(mouseUpEvent)
+                                                                         .Sample(DragRefreshInterval, scheduler)
                                          let displacementX = mouseMove.X - mouseDown.X
                                          let displacementY = mouseMove.Y - mouseDown.Y
-                                         where displacementX * displacementX + displacementY * displacementY > 16
+                                         where displacementX * displacementX + displacementY * displacementY > MinimumDragDisplacement
                                          select (Rectangle?)GetNormalizedRectangle(selectedPane.Chart.Rect, mouseDown.Location, mouseMove.Location))
                                          .Concat(Observable.Return<Rectangle?>(null))
                                          .Select(rect => new { selectedPane, rect }))
@@ -143,12 +156,21 @@ namespace Bonsai.Design.Visualizers
             {
                 double minX, maxX;
                 double minY, maxY;
+                selectedPane.ZoomStack.Push(selectedPane, ZoomState.StateType.Zoom);
                 selectedPane.ReverseTransform(previousRectangle.Location, out minX, out maxY);
                 selectedPane.ReverseTransform(previousRectangle.Location + previousRectangle.Size, out maxX, out minY);
-                selectedPane.XAxis.Scale.Min = minX;
-                selectedPane.XAxis.Scale.Max = maxX;
-                selectedPane.YAxis.Scale.Min = minY;
-                selectedPane.YAxis.Scale.Max = maxY;
+                if (IsEnableHZoom)
+                {
+                    selectedPane.XAxis.Scale.Min = minX;
+                    selectedPane.XAxis.Scale.Max = maxX;
+                }
+
+                if (IsEnableVZoom)
+                {
+                    selectedPane.YAxis.Scale.Min = minY;
+                    selectedPane.YAxis.Scale.Max = maxY;
+                }
+
                 selectedPane.AxisChange();
             }
 
@@ -179,7 +201,11 @@ namespace Bonsai.Design.Visualizers
 
         protected override void OnHandleDestroyed(EventArgs e)
         {
-            rubberBandNotifications.Dispose();
+            if (rubberBandNotifications != null)
+            {
+                rubberBandNotifications.Dispose();
+                rubberBandNotifications = null;
+            }
             base.OnHandleDestroyed(e);
         }
     }
