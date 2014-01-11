@@ -30,6 +30,9 @@ namespace Bonsai.Dsp.Design
             YMax = 1;
             AutoScaleX = true;
             AutoScaleY = true;
+            OverlayChannels = true;
+            WaveformBufferLength = 1;
+            HistoryLength = 1;
         }
 
         public double XMin { get; set; }
@@ -44,9 +47,20 @@ namespace Bonsai.Dsp.Design
 
         public bool AutoScaleY { get; set; }
 
+        public bool OverlayChannels { get; set; }
+
+        public double ChannelOffset { get; set; }
+
+        public int HistoryLength { get; set; }
+
+        public int WaveformBufferLength { get; set; }
+
         public override void Load(IServiceProvider provider)
         {
             graph = new WaveformGraph { Dock = DockStyle.Fill };
+            graph.WaveformBufferLength = WaveformBufferLength;
+            graph.HistoryLength = HistoryLength;
+            graph.ChannelOffset = ChannelOffset;
             graph.AutoScaleX = AutoScaleX;
             if (!AutoScaleX)
             {
@@ -77,6 +91,7 @@ namespace Bonsai.Dsp.Design
                     YMax = graph.YMax;
                 }
             };
+            graph.OverlayChannels = OverlayChannels;
             graph.AutoScaleXChanged += updateScale;
             graph.AutoScaleYChanged += updateScale;
             graph.AxisChanged += updateScale;
@@ -101,6 +116,10 @@ namespace Bonsai.Dsp.Design
 
         public override void Unload()
         {
+            OverlayChannels = graph.OverlayChannels;
+            WaveformBufferLength = graph.WaveformBufferLength;
+            HistoryLength = graph.HistoryLength;
+            ChannelOffset = graph.ChannelOffset;
             updateTimer.Stop();
             updateTimer.Dispose();
             graph.Dispose();
