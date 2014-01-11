@@ -21,6 +21,9 @@ namespace Bonsai.Dsp.Design
 
         int sequenceIndex;
         bool overlayChannels;
+        int historyLength;
+        double channelOffset;
+        int waveformBufferLength;
         DownsampledPointPairList[] values;
         ToolStripTextBox yminTextBox;
         ToolStripTextBox ymaxTextBox;
@@ -107,9 +110,35 @@ namespace Bonsai.Dsp.Design
             }
         }
 
-        public double ChannelOffset { get; set; }
+        public int HistoryLength
+        {
+            get { return historyLength; }
+            set
+            {
+                historyLength = value;
+                historyLengthNumericUpDown.Value = value;
+            }
+        }
 
-        public int WaveformBufferLength { get; set; }
+        public double ChannelOffset
+        {
+            get { return channelOffset; }
+            set
+            {
+                channelOffset = value;
+                channelOffsetNumericUpDown.Value = (decimal)value;
+            }
+        }
+
+        public int WaveformBufferLength
+        {
+            get { return waveformBufferLength; }
+            set
+            {
+                waveformBufferLength = value;
+                bufferLengthNumericUpDown.Value = value;
+            }
+        }
 
         public double XMin
         {
@@ -248,7 +277,7 @@ namespace Bonsai.Dsp.Design
                 else values[i] = new DownsampledPointPairList();
 
                 var points = values[i];
-                points.HistoryLength = columns * (int)historyLengthNumericUpDown.Value;
+                points.HistoryLength = columns * HistoryLength;
                 for (int j = 0; j < columns; j++)
                 {
                     points.Add(samples[i * columns + j] + i * ChannelOffset);
@@ -343,10 +372,10 @@ namespace Bonsai.Dsp.Design
             var yscale = pane.YAxis.Scale;
             autoScaleXButton.Checked = pane.XAxis.Scale.MaxAuto;
             autoScaleYButton.Checked = pane.YAxis.Scale.MaxAuto;
-            xminStatusLabel.Text = xscale.Min.ToString(CultureInfo.InvariantCulture);
-            xmaxStatusLabel.Text = xscale.Max.ToString(CultureInfo.InvariantCulture);
-            yminStatusLabel.Text = yscale.Min.ToString(CultureInfo.InvariantCulture);
-            ymaxStatusLabel.Text = yscale.Max.ToString(CultureInfo.InvariantCulture);
+            xminStatusLabel.Text = xscale.Min.ToString("G5", CultureInfo.InvariantCulture);
+            xmaxStatusLabel.Text = xscale.Max.ToString("G5", CultureInfo.InvariantCulture);
+            yminStatusLabel.Text = yscale.Min.ToString("G5", CultureInfo.InvariantCulture);
+            ymaxStatusLabel.Text = yscale.Max.ToString("G5", CultureInfo.InvariantCulture);
             OnAxisChanged(EventArgs.Empty);
         }
 
@@ -458,6 +487,11 @@ namespace Bonsai.Dsp.Design
         private void bufferLengthNumericUpDown_ValueChanged(object sender, EventArgs e)
         {
             WaveformBufferLength = (int)bufferLengthNumericUpDown.Value;
+        }
+
+        private void historyLengthNumericUpDown_ValueChanged(object sender, EventArgs e)
+        {
+            HistoryLength = (int)historyLengthNumericUpDown.Value;
         }
 
         private void overlayModeSplitButton_Click(object sender, EventArgs e)

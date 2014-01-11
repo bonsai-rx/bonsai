@@ -62,7 +62,7 @@
             this.overlayModeSplitButton});
             this.statusStrip.Location = new System.Drawing.Point(0, 218);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(320, 22);
+            this.statusStrip.Size = new System.Drawing.Size(400, 22);
             this.statusStrip.TabIndex = 1;
             this.statusStrip.Text = "statusStrip1";
             this.statusStrip.Visible = false;
@@ -166,7 +166,7 @@
             this.chart.ScrollMinX = 0D;
             this.chart.ScrollMinY = 0D;
             this.chart.ScrollMinY2 = 0D;
-            this.chart.Size = new System.Drawing.Size(320, 240);
+            this.chart.Size = new System.Drawing.Size(400, 218);
             this.chart.TabIndex = 2;
             this.chart.ZoomEvent += new ZedGraph.ZedGraphControl.ZoomEventHandler(this.chart_ZoomEvent);
             this.chart.MouseMoveEvent += new ZedGraph.ZedGraphControl.ZedMouseEventHandler(this.chart_MouseMoveEvent);
@@ -191,13 +191,14 @@
             0,
             0});
             this.historyLengthNumericUpDown.Name = "historyLengthNumericUpDown";
-            this.historyLengthNumericUpDown.Size = new System.Drawing.Size(133, 26);
+            this.historyLengthNumericUpDown.Size = new System.Drawing.Size(143, 29);
             this.historyLengthNumericUpDown.Text = "History Length";
             this.historyLengthNumericUpDown.Value = new decimal(new int[] {
             1,
             0,
             0,
             0});
+            this.historyLengthNumericUpDown.ValueChanged += new System.EventHandler(this.historyLengthNumericUpDown_ValueChanged);
             // 
             // bufferLengthNumericUpDown
             // 
@@ -218,7 +219,7 @@
             0,
             0});
             this.bufferLengthNumericUpDown.Name = "bufferLengthNumericUpDown";
-            this.bufferLengthNumericUpDown.Size = new System.Drawing.Size(143, 26);
+            this.bufferLengthNumericUpDown.Size = new System.Drawing.Size(151, 29);
             this.bufferLengthNumericUpDown.Text = "Display Previous";
             this.bufferLengthNumericUpDown.Value = new decimal(new int[] {
             1,
@@ -246,7 +247,7 @@
             0,
             0});
             this.channelOffsetNumericUpDown.Name = "channelOffsetNumericUpDown";
-            this.channelOffsetNumericUpDown.Size = new System.Drawing.Size(135, 26);
+            this.channelOffsetNumericUpDown.Size = new System.Drawing.Size(144, 29);
             this.channelOffsetNumericUpDown.Text = "Channel Offset";
             this.channelOffsetNumericUpDown.Value = new decimal(new int[] {
             0,
@@ -262,7 +263,7 @@
             this.Controls.Add(this.chart);
             this.Controls.Add(this.statusStrip);
             this.Name = "WaveformGraph";
-            this.Size = new System.Drawing.Size(320, 240);
+            this.Size = new System.Drawing.Size(400, 240);
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
             this.ResumeLayout(false);
