@@ -15,7 +15,7 @@ namespace Bonsai.Design.Visualizers
     public class ChartControl : ZedGraphControl
     {
         const int PenWidth = 3;
-        const int MinimumDragDisplacement = 16;
+        const int MinimumDragDisplacement = 100;
         static readonly TimeSpan DragRefreshInterval = TimeSpan.FromMilliseconds(30);
         static readonly Pen RubberBandPen = new Pen(Color.FromArgb(51, 153, 255));
         static readonly Brush RubberBandBrush = new SolidBrush(Color.FromArgb(128, 170, 204, 238));
@@ -88,6 +88,11 @@ namespace Bonsai.Design.Visualizers
             paneLayout = layout;
         }
 
+        bool IsMinimumDragDisplacement(int displacementX, int displacementY)
+        {
+            return displacementX * displacementX + displacementY * displacementY > MinimumDragDisplacement;
+        }
+
         bool IsZoomButton(MouseButtons button)
         {
             var modifiers = Control.ModifierKeys;
@@ -127,11 +132,9 @@ namespace Bonsai.Design.Visualizers
                                  where (IsEnableHZoom || IsEnableVZoom) && IsZoomButton(mouseDown.Button)
                                  let selectedPane = MasterPane.FindChartRect(mouseDown.Location)
                                  where selectedPane != null
-                                 select (from mouseMove in mouseMoveEvent.TakeUntil(mouseUpEvent)
+                                 select (from mouseMove in mouseMoveEvent.SkipWhile(move => IsMinimumDragDisplacement(move.X - mouseDown.X, move.Y - mouseDown.Y))
+                                                                         .TakeUntil(mouseUpEvent)
                                                                          .Sample(DragRefreshInterval, scheduler)
-                                         let displacementX = mouseMove.X - mouseDown.X
-                                         let displacementY = mouseMove.Y - mouseDown.Y
-                                         where displacementX * displacementX + displacementY * displacementY > MinimumDragDisplacement
                                          select (Rectangle?)GetNormalizedRectangle(selectedPane.Chart.Rect, mouseDown.Location, mouseMove.Location))
                                          .Concat(Observable.Return<Rectangle?>(null))
                                          .Select(rect => new { selectedPane, rect }))
@@ -152,7 +155,9 @@ namespace Bonsai.Design.Visualizers
 
         void ProcessRubberBand(GraphPane selectedPane, Rectangle? rect)
         {
-            if (!rect.HasValue && !previousRectangle.IsEmpty)
+            if (!rect.HasValue &&
+                !previousRectangle.IsEmpty &&
+                IsMinimumDragDisplacement(previousRectangle.Width, previousRectangle.Height))
             {
                 double minX, maxX;
                 double minY, maxY;
