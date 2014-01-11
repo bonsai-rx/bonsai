@@ -312,6 +312,11 @@ namespace Bonsai.Dsp.Design
             chart.Invalidate();
         }
 
+        private void chart_ZoomEvent(ZedGraphControl sender, ZoomState oldState, ZoomState newState)
+        {
+            chart.MasterPane.AxisChange();
+        }
+
         private bool chart_MouseMoveEvent(ZedGraphControl sender, MouseEventArgs e)
         {
             double x, y;

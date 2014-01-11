@@ -166,8 +166,9 @@
             this.chart.ScrollMinX = 0D;
             this.chart.ScrollMinY = 0D;
             this.chart.ScrollMinY2 = 0D;
-            this.chart.Size = new System.Drawing.Size(320, 218);
+            this.chart.Size = new System.Drawing.Size(320, 240);
             this.chart.TabIndex = 2;
+            this.chart.ZoomEvent += new ZedGraph.ZedGraphControl.ZoomEventHandler(this.chart_ZoomEvent);
             this.chart.MouseMoveEvent += new ZedGraph.ZedGraphControl.ZedMouseEventHandler(this.chart_MouseMoveEvent);
             this.chart.MouseClick += new System.Windows.Forms.MouseEventHandler(this.chart_MouseClick);
             // 
@@ -190,7 +191,7 @@
             0,
             0});
             this.historyLengthNumericUpDown.Name = "historyLengthNumericUpDown";
-            this.historyLengthNumericUpDown.Size = new System.Drawing.Size(143, 29);
+            this.historyLengthNumericUpDown.Size = new System.Drawing.Size(133, 26);
             this.historyLengthNumericUpDown.Text = "History Length";
             this.historyLengthNumericUpDown.Value = new decimal(new int[] {
             1,
@@ -217,7 +218,7 @@
             0,
             0});
             this.bufferLengthNumericUpDown.Name = "bufferLengthNumericUpDown";
-            this.bufferLengthNumericUpDown.Size = new System.Drawing.Size(151, 29);
+            this.bufferLengthNumericUpDown.Size = new System.Drawing.Size(143, 26);
             this.bufferLengthNumericUpDown.Text = "Display Previous";
             this.bufferLengthNumericUpDown.Value = new decimal(new int[] {
             1,
@@ -245,7 +246,7 @@
             0,
             0});
             this.channelOffsetNumericUpDown.Name = "channelOffsetNumericUpDown";
-            this.channelOffsetNumericUpDown.Size = new System.Drawing.Size(144, 29);
+            this.channelOffsetNumericUpDown.Size = new System.Drawing.Size(135, 26);
             this.channelOffsetNumericUpDown.Text = "Channel Offset";
             this.channelOffsetNumericUpDown.Value = new decimal(new int[] {
             0,
