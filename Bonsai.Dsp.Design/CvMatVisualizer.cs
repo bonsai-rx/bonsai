@@ -75,27 +75,7 @@ namespace Bonsai.Dsp.Design
                 graph.YMax = YMax;
             }
 
-            EventHandler updateScale = (sender, e) =>
-            {
-                AutoScaleX = graph.AutoScaleX;
-                if (!AutoScaleX)
-                {
-                    XMin = graph.XMin;
-                    XMax = graph.XMax;
-                }
-
-                AutoScaleY = graph.AutoScaleY;
-                if (!AutoScaleY)
-                {
-                    YMin = graph.YMin;
-                    YMax = graph.YMax;
-                }
-            };
             graph.OverlayChannels = OverlayChannels;
-            graph.AutoScaleXChanged += updateScale;
-            graph.AutoScaleYChanged += updateScale;
-            graph.AxisChanged += updateScale;
-
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
             if (visualizerService != null)
             {
@@ -116,6 +96,12 @@ namespace Bonsai.Dsp.Design
 
         public override void Unload()
         {
+            XMin = graph.XMin;
+            XMax = graph.XMax;
+            YMin = graph.YMin;
+            YMax = graph.YMax;
+            AutoScaleX = graph.AutoScaleX;
+            AutoScaleY = graph.AutoScaleY;
             OverlayChannels = graph.OverlayChannels;
             WaveformBufferLength = graph.WaveformBufferLength;
             HistoryLength = graph.HistoryLength;
