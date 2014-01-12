@@ -62,6 +62,8 @@
     <Compile Include="Abs.cs" />
     <Compile Include="AbsoluteDifference.cs" />
     <Compile Include="ArrayTransform.cs" />
+    <Compile Include="ArrHelper.cs" />
+    <Compile Include="Average.cs" />
     <Compile Include="BinaryArrayTransform.cs" />
     <Compile Include="ConvertScale.cs" />
     <Compile Include="ConvertToMat.cs" />

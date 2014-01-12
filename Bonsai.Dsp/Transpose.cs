@@ -7,13 +7,13 @@ using OpenCV.Net;
 
 namespace Bonsai.Dsp
 {
-    public class Transpose : Transform<Mat, Mat>
+    public class Transpose : ArrayTransform
     {
-        public override IObservable<Mat> Process(IObservable<Mat> source)
+        protected override IObservable<TArray> Process<TArray>(IObservable<TArray> source, Func<TArray, TArray> outputFactory)
         {
             return source.Select(input =>
             {
-                var output = new Mat(input.Rows, input.Cols, input.Depth, input.Channels);
+                var output = outputFactory(input);
                 CV.Transpose(input, output);
                 return output;
             });
