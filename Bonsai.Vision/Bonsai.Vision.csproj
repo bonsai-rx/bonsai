@@ -78,6 +78,7 @@
     <Compile Include="Contours.cs" />
     <Compile Include="ConvertColor.cs" />
     <Compile Include="ConvertScale.cs" />
+    <Compile Include="ConvertToImage.cs" />
     <Compile Include="CountNonZero.cs" />
     <Compile Include="DistanceTransform.cs" />
     <Compile Include="Laplace.cs" />
