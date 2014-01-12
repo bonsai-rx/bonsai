@@ -16,7 +16,7 @@
     <tags>Bonsai Rx Reactive Extensions Image Processing Computer Vision</tags>
     <dependencies>
       <dependency id="Bonsai.Core" version="2.0.0-ctp" />
-      <dependency id="OpenCV.Net" version="3.1.0" />
+      <dependency id="OpenCV.Net" version="3.2.0" />
     </dependencies>
   </metadata>
 </package>
