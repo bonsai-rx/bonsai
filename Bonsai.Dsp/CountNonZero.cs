@@ -7,9 +7,11 @@ using OpenCV.Net;
 
 namespace Bonsai.Dsp
 {
-    public class CountNonZero : Transform<Mat, int>
+    [Combinator]
+    [WorkflowElementCategory(ElementCategory.Transform)]
+    public class CountNonZero
     {
-        public override IObservable<int> Process(IObservable<Mat> source)
+        public IObservable<int> Process<TArray>(IObservable<TArray> source) where TArray : Arr
         {
             return source.Select(CV.CountNonZero);
         }

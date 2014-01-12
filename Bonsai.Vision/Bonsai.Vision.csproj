@@ -59,10 +59,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AbsoluteDifference.cs" />
     <Compile Include="Accumulator.cs" />
     <Compile Include="AdaptiveThreshold.cs" />
-    <Compile Include="Average.cs" />
     <Compile Include="AverageBinaryRegion.cs" />
     <Compile Include="BackgroundSubtraction.cs" />
     <Compile Include="BinaryRegionAnalysis.cs" />
@@ -79,7 +77,6 @@
     <Compile Include="ConvertColor.cs" />
     <Compile Include="ConvertScale.cs" />
     <Compile Include="ConvertToImage.cs" />
-    <Compile Include="CountNonZero.cs" />
     <Compile Include="DistanceTransform.cs" />
     <Compile Include="Laplace.cs" />
     <Compile Include="MaskImage.cs" />
@@ -123,9 +120,7 @@
     <Compile Include="Smooth.cs" />
     <Compile Include="Sobel.cs" />
     <Compile Include="SortBinaryRegions.cs" />
-    <Compile Include="Sum.cs" />
     <Compile Include="Threshold.cs" />
-    <Compile Include="Transpose.cs" />
     <Compile Include="Undistort.cs" />
     <Compile Include="VideoWriter.cs" />
     <Compile Include="VideoWriterDisposable.cs" />
