@@ -59,7 +59,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abs.cs" />
+    <Compile Include="AbsoluteDifference.cs" />
+    <Compile Include="ArrayTransform.cs" />
+    <Compile Include="BinaryArrayTransform.cs" />
     <Compile Include="ConvertScale.cs" />
+    <Compile Include="ConvertToMat.cs" />
     <Compile Include="CountNonZero.cs" />
     <Compile Include="Delay.cs" />
     <Compile Include="Difference.cs" />

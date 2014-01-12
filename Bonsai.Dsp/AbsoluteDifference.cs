@@ -6,18 +6,18 @@ using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
 
-namespace Bonsai.Vision
+namespace Bonsai.Dsp
 {
-    [Description("Calculates the absolute difference between the two input images.")]
-    public class AbsoluteDifference : Transform<Tuple<IplImage, IplImage>, IplImage>
+    [Description("Calculates the absolute difference between the two input arrays.")]
+    public class AbsoluteDifference : BinaryArrayTransform
     {
-        public override IObservable<IplImage> Process(IObservable<Tuple<IplImage, IplImage>> source)
+        protected override IObservable<TArray> Process<TArray>(IObservable<Tuple<TArray, TArray>> source, Func<TArray, TArray> outputFactory)
         {
             return source.Select(input =>
             {
                 var first = input.Item1;
                 var second = input.Item2;
-                var output = new IplImage(first.Size, first.Depth, first.Channels);
+                var output = outputFactory(first);
                 CV.AbsDiff(first, second, output);
                 return output;
             });
