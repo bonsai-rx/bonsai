@@ -15,7 +15,7 @@
     <copyright>Gonçalo Lopes © 2013</copyright>
     <tags>Bonsai Rx Reactive Extensions Arduino</tags>
     <dependencies>
-      <dependency id="Bonsai.IO" version="2.0.0-ctp" />
+      <dependency id="Bonsai.IO" version="2.0.0-ctp2" />
     </dependencies>
   </metadata>
 </package>
