@@ -61,6 +61,8 @@
   <ItemGroup>
     <Compile Include="Abs.cs" />
     <Compile Include="AbsoluteDifference.cs" />
+    <Compile Include="Accumulator.cs" />
+    <Compile Include="ArrFactory.cs" />
     <Compile Include="ArrayTransform.cs" />
     <Compile Include="ArrHelper.cs" />
     <Compile Include="Average.cs" />
@@ -82,6 +84,7 @@
     <Compile Include="SelectChannels.cs" />
     <Compile Include="Sum.cs" />
     <Compile Include="Threshold.cs" />
+    <Compile Include="Tile.cs" />
     <Compile Include="Transpose.cs" />
     <Compile Include="TriggeredWindow.cs" />
     <Compile Include="WindowStatistics.cs" />

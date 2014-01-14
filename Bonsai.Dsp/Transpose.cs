@@ -9,8 +9,9 @@ namespace Bonsai.Dsp
 {
     public class Transpose : ArrayTransform
     {
-        protected override IObservable<TArray> Process<TArray>(IObservable<TArray> source, Func<TArray, TArray> outputFactory)
+        public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)
         {
+            var outputFactory = ArrFactory<TArray>.TemplateFactory;
             return source.Select(input =>
             {
                 var output = outputFactory(input);
