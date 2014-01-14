@@ -11,8 +11,9 @@ namespace Bonsai.Dsp
     [Description("Calculates the absolute difference between the two input arrays.")]
     public class AbsoluteDifference : BinaryArrayTransform
     {
-        protected override IObservable<TArray> Process<TArray>(IObservable<Tuple<TArray, TArray>> source, Func<TArray, TArray> outputFactory)
+        public override IObservable<TArray> Process<TArray>(IObservable<Tuple<TArray, TArray>> source)
         {
+            var outputFactory = ArrFactory<TArray>.TemplateFactory;
             return source.Select(input =>
             {
                 var first = input.Item1;
