@@ -120,9 +120,9 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Bonsai.Editor\Bonsai.ico">
+    <None Include="..\Bonsai.Editor\Bonsai.ico">
       <Link>Bonsai.ico</Link>
-    </Content>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\MSBuild\AssemblyInfo.targets" />
