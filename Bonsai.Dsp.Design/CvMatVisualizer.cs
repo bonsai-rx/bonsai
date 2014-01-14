@@ -76,6 +76,20 @@ namespace Bonsai.Dsp.Design
             }
 
             graph.OverlayChannels = OverlayChannels;
+            graph.HandleDestroyed += delegate
+            {
+                XMin = graph.XMin;
+                XMax = graph.XMax;
+                YMin = graph.YMin;
+                YMax = graph.YMax;
+                AutoScaleX = graph.AutoScaleX;
+                AutoScaleY = graph.AutoScaleY;
+                OverlayChannels = graph.OverlayChannels;
+                WaveformBufferLength = graph.WaveformBufferLength;
+                HistoryLength = graph.HistoryLength;
+                ChannelOffset = graph.ChannelOffset;
+            };
+
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
             if (visualizerService != null)
             {
@@ -96,16 +110,6 @@ namespace Bonsai.Dsp.Design
 
         public override void Unload()
         {
-            XMin = graph.XMin;
-            XMax = graph.XMax;
-            YMin = graph.YMin;
-            YMax = graph.YMax;
-            AutoScaleX = graph.AutoScaleX;
-            AutoScaleY = graph.AutoScaleY;
-            OverlayChannels = graph.OverlayChannels;
-            WaveformBufferLength = graph.WaveformBufferLength;
-            HistoryLength = graph.HistoryLength;
-            ChannelOffset = graph.ChannelOffset;
             updateTimer.Stop();
             updateTimer.Dispose();
             graph.Dispose();
