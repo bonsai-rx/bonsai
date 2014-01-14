@@ -119,7 +119,7 @@
             this.MinimizeBox = false;
             this.Name = "WelcomeDialog";
             this.ShowIcon = false;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Welcome to Bonsai";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
             this.controlPanel.ResumeLayout(false);

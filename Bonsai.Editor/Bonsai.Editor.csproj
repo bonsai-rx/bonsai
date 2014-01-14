@@ -174,7 +174,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Bonsai.ico" />
+    <None Include="Bonsai.ico" />
     <None Include="Resources\Bonsai.png" />
     <None Include="Resources\PropertyMappingIcon.bmp" />
     <None Include="Resources\BonsaiCommands.png" />
