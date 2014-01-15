@@ -22,8 +22,7 @@ namespace Bonsai.Dsp
                     var output = outputFactory(input);
                     sum = sum ?? accumulatorFactory(input, Depth.F32);
                     CV.Acc(input, sum);
-                    if (sum.ElementType == input.ElementType) CV.Copy(sum, output);
-                    else CV.Convert(sum, output);
+                    CV.Convert(sum, output);
                     return output;
                 });
             });
