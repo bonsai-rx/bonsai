@@ -145,11 +145,9 @@
     <Compile Include="Expressions\CombinatorBuilder.cs" />
     <Compile Include="Reactive\Slice.cs" />
     <Compile Include="Expressions\WindowWorkflowBuilder.cs" />
-    <Compile Include="IO\StreamSink.cs" />
     <Compile Include="UnidimensionalArrayConverter.cs" />
     <Compile Include="ExpressionHelper.cs" />
     <Compile Include="Expressions\WorkflowOutputBuilder.cs" />
-    <Compile Include="IO\FileSink.cs" />
     <Compile Include="MultidimensionalArrayConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="WorkflowElementCategoryAttribute.cs" />
@@ -174,8 +172,6 @@
     <Compile Include="Expressions\WorkflowInputBuilder.cs" />
     <Compile Include="FileNameFilterAttribute.cs" />
     <Compile Include="HighResolutionScheduler.cs" />
-    <Compile Include="IO\PathHelper.cs" />
-    <Compile Include="IO\PathSuffix.cs" />
     <Compile Include="ObservableCombinators.cs" />
     <Compile Include="Dag\DirectedGraph.cs" />
     <Compile Include="Dag\DirectedGraphDescriptor.cs" />

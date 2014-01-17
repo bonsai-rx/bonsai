@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Core", "Bonsai.Core\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Vision.Design", "Bonsai.Vision.Design\Bonsai.Vision.Design.csproj", "{0004026F-D014-451D-859F-93DCEC59B2A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.IO", "Bonsai.IO\Bonsai.IO.csproj", "{B783D74F-CB2D-4419-B438-266CD15774FB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.System", "Bonsai.System\Bonsai.System.csproj", "{B783D74F-CB2D-4419-B438-266CD15774FB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Arduino", "Bonsai.Arduino\Bonsai.Arduino.csproj", "{CFED93E8-2AE9-471D-81D6-C89BB0356EF3}"
 EndProject
@@ -29,7 +29,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Dsp.Design", "Bonsai
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Dsp", "Bonsai.Dsp\Bonsai.Dsp.csproj", "{9C5BE065-0175-4C6F-A3A3-44F78CA7370E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.IO.Design", "Bonsai.IO.Design\Bonsai.IO.Design.csproj", "{8005E3ED-424B-4CF8-94CF-9A4F6EED32B5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.System.Design", "Bonsai.System.Design\Bonsai.System.Design.csproj", "{8005E3ED-424B-4CF8-94CF-9A4F6EED32B5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{FDB58FD6-66F0-4728-AC90-011CF2518B42}"
 	ProjectSection(SolutionItems) = preProject

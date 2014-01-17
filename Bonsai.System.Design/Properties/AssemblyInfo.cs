@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Bonsai - IO Library")]
-[assembly: AssemblyDescription("Bonsai IO Library containing reactive interfaces with input/output devices such as a keyboard, mouse or serial port.")]
+[assembly: AssemblyTitle("Bonsai - System Design Library")]
+[assembly: AssemblyDescription("Bonsai Design Library containing editor classes for IO and other system configurations.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Gonçalo Lopes")]
-[assembly: AssemblyProduct("Bonsai.IO")]
+[assembly: AssemblyProduct("Bonsai.System.Design")]
 [assembly: AssemblyCopyright("Copyright © Gonçalo Lopes 2011-2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("56dfaa58-745b-4410-801b-45613b52d316")]
+[assembly: Guid("5142ab3f-24db-4ceb-9cd4-11be9bb39ab4")]
 
 // Version information for an assembly consists of the following four values:
 //
