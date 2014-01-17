@@ -94,13 +94,19 @@
       <Project>{E4D03BA3-54A2-4FF8-9DC6-52BA4CC14FED}</Project>
       <Name>Bonsai.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Bonsai.System\Bonsai.System.csproj">
+      <Project>{b783d74f-cb2d-4419-b438-266cd15774fb}</Project>
+      <Name>Bonsai.System</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Externals\OpenCV.Net\OpenCV.Net\OpenCV.Net.csproj">
       <Project>{DAF4D704-2C86-4657-9210-DB5B847BA8BE}</Project>
       <Name>OpenCV.Net</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Bonsai.Dsp.nuspec" />
+    <None Include="Bonsai.Dsp.nuspec">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
