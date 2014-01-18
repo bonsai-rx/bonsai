@@ -12,6 +12,11 @@ namespace Bonsai.Dsp
     [Description("Applies a fixed threshold to the input signal.")]
     public class Threshold : Transform<Mat, Mat>
     {
+        public Threshold()
+        {
+            MaxValue = 1;
+        }
+
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
         [Description("The threshold value used to test individual samples.")]
         public double ThresholdValue { get; set; }
