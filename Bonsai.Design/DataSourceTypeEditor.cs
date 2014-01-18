@@ -25,7 +25,7 @@ namespace Bonsai.Design
             Output
         }
 
-        protected IObservable<object> GetDataSource(ITypeDescriptorContext context, IServiceProvider provider)
+        protected InspectBuilder GetDataSource(ITypeDescriptorContext context, IServiceProvider provider)
         {
             if (provider == null)
             {
@@ -44,8 +44,8 @@ namespace Bonsai.Design
 
             switch (Source)
             {
-                case DataSource.Input: return ((InspectBuilder)workflow.Predecessors(workflowNode).First().Value).Output.Merge();
-                case DataSource.Output: return ((InspectBuilder)workflowNode.Value).Output.Merge();
+                case DataSource.Input: return (InspectBuilder)workflow.Predecessors(workflowNode).First().Value;
+                case DataSource.Output: return (InspectBuilder)workflowNode.Value;
                 default: throw new InvalidOperationException("The specified data source is not supported.");
             }
         }
