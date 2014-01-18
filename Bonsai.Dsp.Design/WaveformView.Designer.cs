@@ -1,6 +1,6 @@
 ﻿namespace Bonsai.Dsp.Design
 {
-    partial class WaveformGraph
+    partial class WaveformView
     {
         /// <summary> 
         /// Required designer variable.
@@ -40,7 +40,7 @@
             this.ymaxStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.autoScaleYButton = new System.Windows.Forms.ToolStripButton();
             this.overlayModeSplitButton = new System.Windows.Forms.ToolStripSplitButton();
-            this.chart = new Bonsai.Design.Visualizers.ChartControl();
+            this.chart = new Bonsai.Dsp.Design.WaveformGraph();
             this.historyLengthNumericUpDown = new Bonsai.Dsp.Design.ToolStripLabeledNumericUpDown();
             this.bufferLengthNumericUpDown = new Bonsai.Dsp.Design.ToolStripLabeledNumericUpDown();
             this.channelOffsetNumericUpDown = new Bonsai.Dsp.Design.ToolStripLabeledNumericUpDown();
@@ -170,6 +170,7 @@
             this.chart.TabIndex = 2;
             this.chart.ZoomEvent += new ZedGraph.ZedGraphControl.ZoomEventHandler(this.chart_ZoomEvent);
             this.chart.MouseMoveEvent += new ZedGraph.ZedGraphControl.ZedMouseEventHandler(this.chart_MouseMoveEvent);
+            this.chart.KeyDown += new System.Windows.Forms.KeyEventHandler(this.chart_KeyDown);
             this.chart.MouseClick += new System.Windows.Forms.MouseEventHandler(this.chart_MouseClick);
             // 
             // historyLengthNumericUpDown
@@ -275,7 +276,7 @@
 
         private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ToolStripButton autoScaleYButton;
-        private Bonsai.Design.Visualizers.ChartControl chart;
+        private WaveformGraph chart;
         private System.Windows.Forms.ToolStripStatusLabel cursorStatusLabel;
         private System.Windows.Forms.ToolStripStatusLabel scaleYStatusLabel;
         private System.Windows.Forms.ToolStripStatusLabel yminStatusLabel;

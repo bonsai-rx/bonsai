@@ -85,8 +85,11 @@
     <Compile Include="WaveformGraph.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="WaveformGraph.Designer.cs">
-      <DependentUpon>WaveformGraph.cs</DependentUpon>
+    <Compile Include="WaveformView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="WaveformView.Designer.cs">
+      <DependentUpon>WaveformView.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -119,8 +122,8 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="WaveformGraph.resx">
-      <DependentUpon>WaveformGraph.cs</DependentUpon>
+    <EmbeddedResource Include="WaveformView.resx">
+      <DependentUpon>WaveformView.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

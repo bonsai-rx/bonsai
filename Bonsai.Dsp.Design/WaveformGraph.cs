@@ -14,86 +14,65 @@ using Bonsai.Dsp.Design.Properties;
 
 namespace Bonsai.Dsp.Design
 {
-    public partial class WaveformGraph : UserControl
+    public partial class WaveformGraph : ChartControl
     {
+        const float TitleFontSize = 10;
         const float YAxisMinSpace = 50;
         const int MaxSamplePoints = 1000;
+        const float DefaultPaneMargin = 10;
+        const float DefaultPaneTitleGap = 0.5f;
+        const float TilePaneHorizontalMargin = 5;
 
+        bool autoScaleX;
+        bool autoScaleY;
         int sequenceIndex;
         bool overlayChannels;
         int historyLength;
         double channelOffset;
         int waveformBufferLength;
         DownsampledPointPairList[] values;
-        ToolStripTextBox yminTextBox;
-        ToolStripTextBox ymaxTextBox;
-        ToolStripTextBox xminTextBox;
-        ToolStripTextBox xmaxTextBox;
 
         public WaveformGraph()
         {
-            InitializeComponent();
             overlayChannels = true;
             WaveformBufferLength = 1;
-            historyLengthNumericUpDown.Maximum = decimal.MaxValue;
-            channelOffsetNumericUpDown.Minimum = decimal.MinValue;
-            channelOffsetNumericUpDown.Maximum = decimal.MaxValue;
-            bufferLengthNumericUpDown.Maximum = int.MaxValue;
-            autoScaleXButton.Checked = true;
-            autoScaleYButton.Checked = true;
-            chart.IsShowContextMenu = false;
-            chart.GraphPane.XAxis.Type = AxisType.Linear;
-            chart.GraphPane.XAxis.MinorTic.IsAllTics = false;
-            chart.GraphPane.XAxis.Title.IsVisible = true;
-            chart.GraphPane.XAxis.Title.Text = "Samples";
-            chart.GraphPane.XAxis.Scale.BaseTic = 0;
-            chart.GraphPane.YAxis.MinSpace = YAxisMinSpace;
-            chart.GraphPane.AxisChangeEvent += GraphPane_AxisChangeEvent;
-
-            xminTextBox = new ToolStripTextBox();
-            xmaxTextBox = new ToolStripTextBox();
-            xminTextBox.LostFocus += xminTextBox_LostFocus;
-            xmaxTextBox.LostFocus += xmaxTextBox_LostFocus;
-            InitializeEditableScale(xminTextBox, xmaxTextBox, xminStatusLabel, xmaxStatusLabel);
-
-            yminTextBox = new ToolStripTextBox();
-            ymaxTextBox = new ToolStripTextBox();
-            yminTextBox.LostFocus += yminTextBox_LostFocus;
-            ymaxTextBox.LostFocus += ymaxTextBox_LostFocus;
-            InitializeEditableScale(yminTextBox, ymaxTextBox, yminStatusLabel, ymaxStatusLabel);
-        }
-
-        private void InitializeEditableScale(
-            ToolStripTextBox minTextBox,
-            ToolStripTextBox maxTextBox,
-            ToolStripStatusLabel minStatusLabel,
-            ToolStripStatusLabel maxStatusLabel)
-        {
-            minStatusLabel.Tag = minTextBox;
-            maxStatusLabel.Tag = maxTextBox;
-            minTextBox.Tag = minStatusLabel;
-            maxTextBox.Tag = maxStatusLabel;
-            minTextBox.LostFocus += editableTextBox_LostFocus;
-            minTextBox.KeyDown += editableTextBox_KeyDown;
-            maxTextBox.LostFocus += editableTextBox_LostFocus;
-            maxTextBox.KeyDown += editableTextBox_KeyDown;
+            IsShowContextMenu = false;
+            MasterPane.InnerPaneGap = 0;
+            GraphPane.IsFontsScaled = false;
+            GraphPane.Title.FontSpec.IsBold = false;
+            GraphPane.Title.FontSpec.Size = TitleFontSize;
+            GraphPane.Title.Text = (0).ToString(CultureInfo.InvariantCulture);
+            GraphPane.XAxis.Type = AxisType.Linear;
+            GraphPane.XAxis.MinorTic.IsAllTics = false;
+            GraphPane.XAxis.Title.IsVisible = true;
+            GraphPane.XAxis.Title.Text = "Samples";
+            GraphPane.XAxis.Scale.BaseTic = 0;
+            GraphPane.YAxis.MinSpace = YAxisMinSpace;
+            GraphPane.AxisChangeEvent += GraphPane_AxisChangeEvent;
+            ZoomEvent += chart_ZoomEvent;
         }
 
         private void ResetWaveform()
         {
             sequenceIndex = 0;
-            var paneCount = chart.MasterPane.PaneList.Count;
+            var paneCount = MasterPane.PaneList.Count;
             if (paneCount > 1)
             {
-                chart.MasterPane.PaneList.RemoveRange(1, paneCount - 1);
-                chart.SetLayout(PaneLayout.SquareColPreferred);
+                MasterPane.PaneList.RemoveRange(1, paneCount - 1);
+                SetLayout(PaneLayout.SquareColPreferred);
             }
 
-            chart.GraphPane.YAxis.MinSpace = overlayChannels ? YAxisMinSpace : 0;
-            chart.GraphPane.YAxis.IsVisible = overlayChannels;
-            chart.GraphPane.XAxis.IsVisible = overlayChannels;
-            chart.GraphPane.CurveList.Clear();
-            chart.ResetColorCycle();
+            GraphPane.Margin.Top = overlayChannels ? DefaultPaneMargin : 0;
+            GraphPane.Margin.Bottom = overlayChannels ? DefaultPaneMargin : 0;
+            GraphPane.Margin.Left = overlayChannels ? DefaultPaneMargin : TilePaneHorizontalMargin;
+            GraphPane.Margin.Right = overlayChannels ? DefaultPaneMargin : TilePaneHorizontalMargin;
+            GraphPane.TitleGap = overlayChannels ? DefaultPaneTitleGap : 0;
+            GraphPane.Title.IsVisible = !overlayChannels;
+            GraphPane.YAxis.MinSpace = overlayChannels ? YAxisMinSpace : 0;
+            GraphPane.YAxis.IsVisible = overlayChannels;
+            GraphPane.XAxis.IsVisible = overlayChannels;
+            GraphPane.CurveList.Clear();
+            ResetColorCycle();
         }
 
         public bool OverlayChannels
@@ -113,120 +92,108 @@ namespace Bonsai.Dsp.Design
         public int HistoryLength
         {
             get { return historyLength; }
-            set
-            {
-                historyLength = value;
-                historyLengthNumericUpDown.Value = value;
-            }
+            set { historyLength = value; }
         }
 
         public double ChannelOffset
         {
             get { return channelOffset; }
-            set
-            {
-                channelOffset = value;
-                channelOffsetNumericUpDown.Value = (decimal)value;
-            }
+            set { channelOffset = value; }
         }
 
         public int WaveformBufferLength
         {
             get { return waveformBufferLength; }
-            set
-            {
-                waveformBufferLength = value;
-                bufferLengthNumericUpDown.Value = value;
-            }
+            set { waveformBufferLength = value; }
         }
 
         public double XMin
         {
-            get { return chart.GraphPane.XAxis.Scale.Min; }
+            get { return GraphPane.XAxis.Scale.Min; }
             set
             {
-                foreach (var pane in chart.MasterPane.PaneList)
+                foreach (var pane in MasterPane.PaneList)
                 {
                     pane.XAxis.Scale.Min = value;
                 }
-                chart.MasterPane.AxisChange();
-                InvalidateWaveform();
+                MasterPane.AxisChange();
+                Invalidate();
             }
         }
 
         public double XMax
         {
-            get { return chart.GraphPane.XAxis.Scale.Max; }
+            get { return GraphPane.XAxis.Scale.Max; }
             set
             {
-                foreach (var pane in chart.MasterPane.PaneList)
+                foreach (var pane in MasterPane.PaneList)
                 {
                     pane.XAxis.Scale.Max = value;
                 }
-                chart.MasterPane.AxisChange();
-                InvalidateWaveform();
+                MasterPane.AxisChange();
+                Invalidate();
             }
         }
 
         public double YMin
         {
-            get { return chart.GraphPane.YAxis.Scale.Min; }
+            get { return GraphPane.YAxis.Scale.Min; }
             set
             {
-                foreach (var pane in chart.MasterPane.PaneList)
+                foreach (var pane in MasterPane.PaneList)
                 {
                     pane.YAxis.Scale.Min = value;
                 }
-                chart.MasterPane.AxisChange();
-                InvalidateWaveform();
+                MasterPane.AxisChange();
+                Invalidate();
             }
         }
 
         public double YMax
         {
-            get { return chart.GraphPane.YAxis.Scale.Max; }
+            get { return GraphPane.YAxis.Scale.Max; }
             set
             {
-                foreach (var pane in chart.MasterPane.PaneList)
+                foreach (var pane in MasterPane.PaneList)
                 {
                     pane.YAxis.Scale.Max = value;
                 }
-                chart.MasterPane.AxisChange();
-                InvalidateWaveform();
+                MasterPane.AxisChange();
+                Invalidate();
             }
         }
 
         public bool AutoScaleX
         {
-            get { return autoScaleXButton.Checked; }
-            set { autoScaleXButton.Checked = value; }
+            get { return autoScaleX; }
+            set
+            {
+                var changed = autoScaleX != value;
+                autoScaleX = value;
+                if (changed) OnAutoScaleXChanged(EventArgs.Empty);
+            }
         }
 
         public bool AutoScaleY
         {
-            get { return autoScaleYButton.Checked; }
-            set { autoScaleYButton.Checked = value; }
+            get { return autoScaleY; }
+            set
+            {
+                var changed = autoScaleY != value;
+                autoScaleY = value;
+                if (changed) OnAutoScaleYChanged(EventArgs.Empty);
+            }
         }
 
-        public event EventHandler AutoScaleXChanged
-        {
-            add { autoScaleXButton.CheckedChanged += value; }
-            remove { autoScaleXButton.CheckedChanged -= value; }
-        }
+        public event EventHandler AutoScaleXChanged;
 
-        public event EventHandler AutoScaleYChanged
-        {
-            add { autoScaleYButton.CheckedChanged += value; }
-            remove { autoScaleYButton.CheckedChanged -= value; }
-        }
-
-        public event EventHandler AxisChanged;
+        public event EventHandler AutoScaleYChanged;
 
         protected virtual void OnAxisChanged(EventArgs e)
         {
             if (AutoScaleX)
             {
-                foreach (var pane in chart.MasterPane.PaneList)
+                foreach (var pane in MasterPane.PaneList)
                 {
                     if (pane.CurveList.Count == 0) continue;
                     var points = (DownsampledPointPairList)pane.CurveList.First().Points;
@@ -236,16 +203,11 @@ namespace Bonsai.Dsp.Design
             }
 
             if (!AutoScaleX) UpdateDataBounds();
-            var handler = AxisChanged;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
         }
 
         private void UpdateDataBounds()
         {
-            foreach (var pane in chart.MasterPane.PaneList)
+            foreach (var pane in MasterPane.PaneList)
             {
                 foreach (var curve in pane.CurveList)
                 {
@@ -263,7 +225,7 @@ namespace Bonsai.Dsp.Design
                 ResetWaveform();
             }
 
-            var graphPanes = chart.MasterPane.PaneList;
+            var graphPanes = MasterPane.PaneList;
             var seriesCount = graphPanes.Sum(pane => pane.CurveList.Count);
             for (int i = 0; i < values.Length; i++)
             {
@@ -291,13 +253,14 @@ namespace Bonsai.Dsp.Design
                 for (int i = 0; i < values.Length; i++)
                 {
                     GraphPane pane;
-                    if (overlayChannels) pane = chart.GraphPane;
+                    if (overlayChannels) pane = GraphPane;
                     else
                     {
                         if (i < graphPanes.Count) pane = graphPanes[i];
                         else
                         {
-                            pane = new GraphPane(chart.GraphPane);
+                            pane = new GraphPane(GraphPane);
+                            pane.Title.Text = i.ToString(CultureInfo.InvariantCulture);
                             pane.AxisChangeEvent += GraphPane_AxisChangeEvent;
                             pane.CurveList.Clear();
                             graphPanes.Add(pane);
@@ -305,14 +268,14 @@ namespace Bonsai.Dsp.Design
                     }
 
                     var timeSeries = pane.CurveList;
-                    var series = new LineItem(string.Empty, values[i], chart.GetNextColor(), SymbolType.None);
+                    var series = new LineItem(string.Empty, values[i], GetNextColor(), SymbolType.None);
                     series.Line.IsAntiAlias = true;
                     series.Line.IsOptimizedDraw = true;
                     series.Label.IsVisible = false;
                     timeSeries.Add(series);
                 }
 
-                if (!overlayChannels) chart.SetLayout(PaneLayout.SquareColPreferred);
+                if (!overlayChannels) SetLayout(PaneLayout.SquareColPreferred);
             }
 
             var requiredSeries = WaveformBufferLength * values.Length;
@@ -320,7 +283,7 @@ namespace Bonsai.Dsp.Design
             {
                 if (overlayChannels)
                 {
-                    var timeSeries = chart.GraphPane.CurveList;
+                    var timeSeries = GraphPane.CurveList;
                     timeSeries.RemoveRange(requiredSeries, timeSeries.Count - requiredSeries);
                 }
                 else
@@ -336,170 +299,52 @@ namespace Bonsai.Dsp.Design
             sequenceIndex = (sequenceIndex + 1) % WaveformBufferLength;
         }
 
-        public void InvalidateWaveform()
-        {
-            chart.Invalidate();
-        }
-
         private void chart_ZoomEvent(ZedGraphControl sender, ZoomState oldState, ZoomState newState)
         {
-            chart.MasterPane.AxisChange();
-        }
-
-        private bool chart_MouseMoveEvent(ZedGraphControl sender, MouseEventArgs e)
-        {
-            double x, y;
-            var pane = chart.MasterPane.FindChartRect(e.Location);
-            if (pane != null)
-            {
-                pane.ReverseTransform(e.Location, out x, out y);
-                cursorStatusLabel.Text = string.Format("Cursor: ({0:F0}, {1:G5})", x, y);
-            }
-            return false;
-        }
-
-        private void chart_MouseClick(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Right)
-            {
-                statusStrip.Visible = !statusStrip.Visible;
-            }
+            MasterPane.AxisChange();
         }
 
         private void GraphPane_AxisChangeEvent(GraphPane pane)
         {
             var xscale = pane.XAxis.Scale;
             var yscale = pane.YAxis.Scale;
-            autoScaleXButton.Checked = pane.XAxis.Scale.MaxAuto;
-            autoScaleYButton.Checked = pane.YAxis.Scale.MaxAuto;
-            xminStatusLabel.Text = xscale.Min.ToString("G5", CultureInfo.InvariantCulture);
-            xmaxStatusLabel.Text = xscale.Max.ToString("G5", CultureInfo.InvariantCulture);
-            yminStatusLabel.Text = yscale.Min.ToString("G5", CultureInfo.InvariantCulture);
-            ymaxStatusLabel.Text = yscale.Max.ToString("G5", CultureInfo.InvariantCulture);
+            AutoScaleX = pane.XAxis.Scale.MaxAuto;
+            AutoScaleY = pane.YAxis.Scale.MaxAuto;
             OnAxisChanged(EventArgs.Empty);
         }
 
-        private void autoScaleXButton_CheckedChanged(object sender, EventArgs e)
+        protected virtual void OnAutoScaleXChanged(EventArgs e)
         {
-            chart.AutoScaleAxis = autoScaleXButton.Checked || autoScaleYButton.Checked;
-            foreach (var pane in chart.MasterPane.PaneList)
+            AutoScaleAxis = autoScaleX || autoScaleY;
+            foreach (var pane in MasterPane.PaneList)
             {
-                pane.XAxis.Scale.MaxAuto = autoScaleXButton.Checked;
-                pane.XAxis.Scale.MinAuto = autoScaleXButton.Checked;
+                pane.XAxis.Scale.MaxAuto = autoScaleX;
+                pane.XAxis.Scale.MinAuto = autoScaleX;
             }
-            xminStatusLabel.Visible = !autoScaleXButton.Checked;
-            xmaxStatusLabel.Visible = !autoScaleXButton.Checked;
-            if (chart.AutoScaleAxis) InvalidateWaveform();
-        }
+            if (AutoScaleAxis) Invalidate();
 
-        private void autoScaleYButton_CheckedChanged(object sender, EventArgs e)
-        {
-            chart.AutoScaleAxis = autoScaleXButton.Checked || autoScaleYButton.Checked;
-            foreach (var pane in chart.MasterPane.PaneList)
+            var handler = AutoScaleXChanged;
+            if (handler != null)
             {
-                pane.YAxis.Scale.MaxAuto = autoScaleYButton.Checked;
-                pane.YAxis.Scale.MinAuto = autoScaleYButton.Checked;
-            }
-            yminStatusLabel.Visible = !autoScaleYButton.Checked;
-            ymaxStatusLabel.Visible = !autoScaleYButton.Checked;
-            if (chart.AutoScaleAxis) InvalidateWaveform();
-        }
-
-        private void editableTextBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Return)
-            {
-                e.SuppressKeyPress = true;
-                statusStrip.Select();
+                handler(this, e);
             }
         }
 
-        private void xmaxTextBox_LostFocus(object sender, EventArgs e)
+        protected virtual void OnAutoScaleYChanged(EventArgs e)
         {
-            double max;
-            if (xmaxTextBox.Text != xmaxStatusLabel.Text &&
-                double.TryParse(xmaxTextBox.Text, out max))
+            AutoScaleAxis = autoScaleX || autoScaleY;
+            foreach (var pane in MasterPane.PaneList)
             {
-                XMax = max;
+                pane.YAxis.Scale.MaxAuto = autoScaleY;
+                pane.YAxis.Scale.MinAuto = autoScaleY;
             }
-        }
+            if (AutoScaleAxis) Invalidate();
 
-        private void xminTextBox_LostFocus(object sender, EventArgs e)
-        {
-            double min;
-            if (xminTextBox.Text != xminStatusLabel.Text &&
-                double.TryParse(xminTextBox.Text, out min))
+            var handler = AutoScaleYChanged;
+            if (handler != null)
             {
-                XMin = min;
+                handler(this, e);
             }
-        }
-
-        private void ymaxTextBox_LostFocus(object sender, EventArgs e)
-        {
-            double max;
-            if (ymaxTextBox.Text != ymaxStatusLabel.Text &&
-                double.TryParse(ymaxTextBox.Text, out max))
-            {
-                YMax = max;
-            }
-        }
-
-        private void yminTextBox_LostFocus(object sender, EventArgs e)
-        {
-            double min;
-            if (yminTextBox.Text != yminStatusLabel.Text &&
-                double.TryParse(yminTextBox.Text, out min))
-            {
-                YMin = min;
-            }
-        }
-
-        private void editableTextBox_LostFocus(object sender, EventArgs e)
-        {
-            var textBox = (ToolStripTextBox)sender;
-            var statusLabel = (ToolStripStatusLabel)textBox.Tag;
-            var labelIndex = statusStrip.Items.IndexOf(textBox);
-            statusStrip.SuspendLayout();
-            statusStrip.Items.Remove(textBox);
-            statusStrip.Items.Insert(labelIndex, statusLabel);
-            statusStrip.ResumeLayout();
-        }
-
-        private void editableStatusLabel_Click(object sender, EventArgs e)
-        {
-            var statusLabel = (ToolStripStatusLabel)sender;
-            var textBox = (ToolStripTextBox)statusLabel.Tag;
-            var labelIndex = statusStrip.Items.IndexOf(statusLabel);
-            statusStrip.SuspendLayout();
-            statusStrip.Items.Remove(statusLabel);
-            statusStrip.Items.Insert(labelIndex, textBox);
-            textBox.Size = statusLabel.Size;
-            textBox.Text = statusLabel.Text;
-            statusStrip.ResumeLayout();
-            textBox.Focus();
-        }
-
-        private void channelOffsetNumericUpDown_ValueChanged(object sender, EventArgs e)
-        {
-            ChannelOffset = (double)channelOffsetNumericUpDown.Value;
-        }
-
-        private void bufferLengthNumericUpDown_ValueChanged(object sender, EventArgs e)
-        {
-            WaveformBufferLength = (int)bufferLengthNumericUpDown.Value;
-        }
-
-        private void historyLengthNumericUpDown_ValueChanged(object sender, EventArgs e)
-        {
-            HistoryLength = (int)historyLengthNumericUpDown.Value;
-        }
-
-        private void overlayModeSplitButton_Click(object sender, EventArgs e)
-        {
-            OverlayChannels = !OverlayChannels;
-            overlayModeSplitButton.Image = !OverlayChannels
-                ? Resources.OverlayGraphModeImage
-                : Resources.OverlayGridModeImage;
         }
     }
 }
