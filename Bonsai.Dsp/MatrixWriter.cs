@@ -13,6 +13,11 @@ namespace Bonsai.Dsp
 {
     public class MatrixWriter : StreamSink<Mat, BinaryWriter>
     {
+        public MatrixWriter()
+        {
+            Layout = MatrixLayout.ColumnMajor;
+        }
+
         public MatrixLayout Layout { get; set; }
 
         protected override BinaryWriter CreateWriter(Stream stream)
