@@ -1,6 +1,6 @@
 ﻿namespace Bonsai.Vision.Design
 {
-    partial class VisualizerCanvasControl
+    partial class VisualizerCanvas
     {
         /// <summary> 
         /// Required designer variable.

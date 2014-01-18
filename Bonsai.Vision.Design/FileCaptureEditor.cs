@@ -28,7 +28,7 @@ namespace Bonsai.Vision.Design
                     if (editorForm == null)
                     {
                         editorForm = new TypeVisualizerDialog();
-                        var videoPlayer = new VideoPlayerControl { Dock = DockStyle.Fill };
+                        var videoPlayer = new VideoPlayer { Dock = DockStyle.Fill };
                         editorForm.AddControl(videoPlayer);
 
                         var captureNode = workflow.FirstOrDefault(node => ExpressionBuilder.GetWorkflowElement(node.Value) == component);

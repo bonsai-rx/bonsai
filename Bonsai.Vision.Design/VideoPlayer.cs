@@ -12,7 +12,7 @@ using OpenTK;
 
 namespace Bonsai.Vision.Design
 {
-    public partial class VideoPlayerControl : UserControl
+    public partial class VideoPlayer : UserControl
     {
         bool playing;
         int frameCount;
@@ -24,7 +24,7 @@ namespace Bonsai.Vision.Design
         ToolStripStatusLabel frameNumberLabel;
         ToolStripTextBox frameNumberTextBox;
 
-        public VideoPlayerControl()
+        public VideoPlayer()
         {
             InitializeComponent();
             allowUpdate = true;

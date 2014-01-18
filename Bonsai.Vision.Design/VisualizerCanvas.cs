@@ -14,12 +14,12 @@ using OpenTK.Graphics;
 
 namespace Bonsai.Vision.Design
 {
-    public partial class VisualizerCanvasControl : UserControl
+    public partial class VisualizerCanvas : UserControl
     {
         bool loaded;
         bool disposed;
 
-        public VisualizerCanvasControl()
+        public VisualizerCanvas()
         {
             InitializeComponent();
         }

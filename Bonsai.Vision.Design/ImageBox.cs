@@ -13,7 +13,7 @@ using OpenTK;
 
 namespace Bonsai.Vision.Design
 {
-    public partial class IplImageControl : VisualizerCanvasControl
+    public partial class ImageBox : VisualizerCanvas
     {
         bool disposed;
         IplImage image;

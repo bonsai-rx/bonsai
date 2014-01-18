@@ -1,6 +1,6 @@
 ﻿namespace Bonsai.Vision.Design
 {
-    partial class VideoPlayerControl
+    partial class VideoPlayer
     {
         /// <summary> 
         /// Required designer variable.
@@ -31,7 +31,7 @@
             this.components = new System.ComponentModel.Container();
             this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.seekBar = new Bonsai.Design.SeekBar();
-            this.imageControl = new Bonsai.Vision.Design.IplImageControl();
+            this.imageControl = new Bonsai.Vision.Design.ImageBox();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.updateTimer = new System.Windows.Forms.Timer(this.components);
             this.tableLayoutPanel.SuspendLayout();
@@ -104,7 +104,7 @@
 
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel;
         private Bonsai.Design.SeekBar seekBar;
-        private IplImageControl imageControl;
+        private ImageBox imageControl;
         private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.Timer updateTimer;
     }
