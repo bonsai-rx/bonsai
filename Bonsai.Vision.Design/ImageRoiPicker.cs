@@ -18,14 +18,14 @@ using Size = OpenCV.Net.Size;
 
 namespace Bonsai.Vision.Design
 {
-    class IplImageRoiPicker : IplImageControl
+    class ImageRoiPicker : ImageBox
     {
         int? selectedRoi;
         Collection<Point[]> regions;
         const float LineWidth = 1;
         const float PointSize = 2;
 
-        public IplImageRoiPicker()
+        public ImageRoiPicker()
         {
             regions = new Collection<Point[]>();
 

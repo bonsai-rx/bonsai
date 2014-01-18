@@ -11,12 +11,12 @@ using OpenTK;
 
 namespace Bonsai.Vision.Design
 {
-    class IplImageQuadranglePicker : IplImageControl
+    class ImageQuadranglePicker : ImageBox
     {
         Point2f[] quadrangle = new Point2f[4];
         const float LineWidth = 2;
 
-        public IplImageQuadranglePicker()
+        public ImageQuadranglePicker()
         {
             var mouseMove = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseMove").Select(e => e.EventArgs);
             var mouseDrag = from evt in mouseMove

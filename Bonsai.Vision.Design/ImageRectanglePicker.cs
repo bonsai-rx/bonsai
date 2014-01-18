@@ -12,12 +12,12 @@ using OpenTK;
 
 namespace Bonsai.Vision.Design
 {
-    class IplImageRectanglePicker : IplImageControl
+    class ImageRectanglePicker : ImageBox
     {
         Rect rectangle;
         const float LineWidth = 2;
 
-        public IplImageRectanglePicker()
+        public ImageRectanglePicker()
         {
             var mouseMove = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseMove").Select(e => e.EventArgs);
             var mouseDown = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseDown").Select(e => e.EventArgs);

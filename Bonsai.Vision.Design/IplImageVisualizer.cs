@@ -27,7 +27,7 @@ namespace Bonsai.Vision.Design
         Panel imagePanel;
         StatusStrip statusStrip;
         ToolStripStatusLabel statusLabel;
-        VisualizerCanvasControl visualizerCanvas;
+        VisualizerCanvas visualizerCanvas;
         IplImageTexture imageTexture;
         IplImage visualizerImage;
 
@@ -43,7 +43,7 @@ namespace Bonsai.Vision.Design
             get { return visualizerImage; }
         }
 
-        public VisualizerCanvasControl VisualizerCanvas
+        public VisualizerCanvas VisualizerCanvas
         {
             get { return visualizerCanvas; }
         }
@@ -85,7 +85,7 @@ namespace Bonsai.Vision.Design
         {
             allowUpdate = true;
             StatusStripEnabled = true;
-            visualizerCanvas = new VisualizerCanvasControl { Dock = DockStyle.Fill };
+            visualizerCanvas = new VisualizerCanvas { Dock = DockStyle.Fill };
             statusStrip = new StatusStrip { Visible = false };
             statusLabel = new ToolStripStatusLabel();
             statusStrip.Items.Add(statusLabel);

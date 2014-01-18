@@ -82,17 +82,17 @@
     <Compile Include="IplImageMashupVisualizer.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="SeekEventArgs.cs" />
-    <Compile Include="VideoPlayerControl.cs">
+    <Compile Include="VideoPlayer.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="VideoPlayerControl.Designer.cs">
-      <DependentUpon>VideoPlayerControl.cs</DependentUpon>
+    <Compile Include="VideoPlayer.Designer.cs">
+      <DependentUpon>VideoPlayer.cs</DependentUpon>
     </Compile>
-    <Compile Include="VisualizerCanvasControl.cs">
+    <Compile Include="VisualizerCanvas.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="VisualizerCanvasControl.designer.cs">
-      <DependentUpon>VisualizerCanvasControl.cs</DependentUpon>
+    <Compile Include="VisualizerCanvas.designer.cs">
+      <DependentUpon>VisualizerCanvas.cs</DependentUpon>
     </Compile>
     <Compile Include="DrawingHelper.cs" />
     <Compile Include="IplImageInputRoiEditor.cs" />
@@ -100,11 +100,11 @@
     <Compile Include="IplImageInputQuadrangleEditor.cs" />
     <Compile Include="IplImageInputRectangleEditor.cs" />
     <Compile Include="IplImageRectangleEditor.cs" />
-    <Compile Include="IplImageControl.cs">
+    <Compile Include="ImageBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="IplImageRoiEditor.cs" />
-    <Compile Include="IplImageRoiPicker.cs">
+    <Compile Include="ImageRoiPicker.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="IplImageTexture.cs" />
@@ -117,10 +117,10 @@
     <Compile Include="HsvScalarConverter.cs" />
     <Compile Include="IplImageOutputQuadrangleEditor.cs" />
     <Compile Include="IplImageQuadrangleEditor.cs" />
-    <Compile Include="IplImageQuadranglePicker.cs">
+    <Compile Include="ImageQuadranglePicker.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="IplImageRectanglePicker.cs">
+    <Compile Include="ImageRectanglePicker.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="IplImageVisualizer.cs" />
@@ -128,11 +128,11 @@
     <Compile Include="TimestampedIplImageVisualizer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="VideoPlayerControl.resx">
-      <DependentUpon>VideoPlayerControl.cs</DependentUpon>
+    <EmbeddedResource Include="VideoPlayer.resx">
+      <DependentUpon>VideoPlayer.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="VisualizerCanvasControl.resx">
-      <DependentUpon>VisualizerCanvasControl.cs</DependentUpon>
+    <EmbeddedResource Include="VisualizerCanvas.resx">
+      <DependentUpon>VisualizerCanvas.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
