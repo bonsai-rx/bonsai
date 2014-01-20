@@ -11,14 +11,12 @@ using Bonsai.Design.Visualizers;
 using ZedGraph;
 using System.Globalization;
 using Bonsai.Dsp.Design.Properties;
+using System.Collections.ObjectModel;
 
 namespace Bonsai.Dsp.Design
 {
     public partial class WaveformView : UserControl
     {
-        const float YAxisMinSpace = 50;
-        const int MaxSamplePoints = 1000;
-
         ToolStripTextBox yminTextBox;
         ToolStripTextBox ymaxTextBox;
         ToolStripTextBox xminTextBox;
@@ -62,6 +60,11 @@ namespace Bonsai.Dsp.Design
             minTextBox.KeyDown += editableTextBox_KeyDown;
             maxTextBox.LostFocus += editableTextBox_LostFocus;
             maxTextBox.KeyDown += editableTextBox_KeyDown;
+        }
+
+        public Collection<int> SelectedChannels
+        {
+            get { return chart.SelectedChannels; }
         }
 
         public bool OverlayChannels

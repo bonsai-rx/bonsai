@@ -71,6 +71,12 @@ namespace Bonsai.Design.Visualizers
         [DefaultValue(true)]
         public bool AutoScaleAxis { get; set; }
 
+        protected new IObservable<MouseEventArgs> MouseDown { get; private set; }
+
+        protected new IObservable<MouseEventArgs> MouseUp { get; private set; }
+
+        protected new IObservable<MouseEventArgs> MouseMove { get; private set; }
+
         public Color GetNextColor()
         {
             var color = BrightPastelPalette[colorIndex];
@@ -140,9 +146,12 @@ namespace Bonsai.Design.Visualizers
                                          .Select(rect => new { selectedPane, rect }))
                                          .Merge();
             rubberBandNotifications = selectionDrag.Subscribe(xs => ProcessRubberBand(xs.selectedPane, xs.rect));
+            MouseDown = mouseDownEvent;
+            MouseUp = mouseUpEvent;
+            MouseMove = mouseMoveEvent;
         }
 
-        Rectangle GetNormalizedRectangle(RectangleF bounds, Point p1, Point p2)
+        protected static Rectangle GetNormalizedRectangle(RectangleF bounds, Point p1, Point p2)
         {
             p2.X = (int)Math.Max(bounds.Left, Math.Min(p2.X, bounds.Right));
             p2.Y = (int)Math.Max(bounds.Top, Math.Min(p2.Y, bounds.Bottom));
@@ -179,12 +188,16 @@ namespace Bonsai.Design.Visualizers
                 selectedPane.AxisChange();
             }
 
+            UpdateRubberBand(rect.GetValueOrDefault(), Rectangle.Truncate(selectedPane.Chart.Rect));
+        }
+
+        protected void UpdateRubberBand(Rectangle bandRect, Rectangle invalidateRect)
+        {
             if (!Focused) Select();
-            rubberBand = rect.GetValueOrDefault();
-            var invalidateRect = rubberBand;
+            rubberBand = bandRect;
             invalidateRect.Inflate(PenWidth, PenWidth);
-            Invalidate(Rectangle.Truncate(selectedPane.Chart.Rect));
-            previousRectangle = invalidateRect;
+            Invalidate(invalidateRect);
+            previousRectangle = bandRect;
         }
 
         protected override void OnPaint(PaintEventArgs e)

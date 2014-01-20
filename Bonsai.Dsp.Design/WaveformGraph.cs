@@ -11,6 +11,10 @@ using Bonsai.Design.Visualizers;
 using ZedGraph;
 using System.Globalization;
 using Bonsai.Dsp.Design.Properties;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using Bonsai.Design;
+using System.Reactive.Linq;
 
 namespace Bonsai.Dsp.Design
 {
@@ -21,7 +25,11 @@ namespace Bonsai.Dsp.Design
         const int MaxSamplePoints = 1000;
         const float DefaultPaneMargin = 10;
         const float DefaultPaneTitleGap = 0.5f;
-        const float TilePaneHorizontalMargin = 5;
+        const float TileMasterPaneHorizontalMargin = 1;
+        const float TilePaneVerticalMargin = 2;
+        const float TilePaneHorizontalMargin = 2;
+        const float TilePaneInnerGap = 1;
+        static readonly TimeSpan SelectionRefreshInterval = TimeSpan.FromMilliseconds(30);
 
         bool autoScaleX;
         bool autoScaleY;
@@ -31,14 +39,18 @@ namespace Bonsai.Dsp.Design
         double channelOffset;
         int waveformBufferLength;
         DownsampledPointPairList[] values;
+        ObservableCollection<int> selectedChannels;
+        IDisposable selectionNotifications;
+        bool allowSelectionUpdate;
 
         public WaveformGraph()
         {
             overlayChannels = true;
+            allowSelectionUpdate = true;
             WaveformBufferLength = 1;
             IsShowContextMenu = false;
             MasterPane.InnerPaneGap = 0;
-            GraphPane.IsFontsScaled = false;
+            GraphPane.Border.Color = Color.Red;
             GraphPane.Title.FontSpec.IsBold = false;
             GraphPane.Title.FontSpec.Size = TitleFontSize;
             GraphPane.Title.Text = (0).ToString(CultureInfo.InvariantCulture);
@@ -47,9 +59,78 @@ namespace Bonsai.Dsp.Design
             GraphPane.XAxis.Title.IsVisible = true;
             GraphPane.XAxis.Title.Text = "Samples";
             GraphPane.XAxis.Scale.BaseTic = 0;
-            GraphPane.YAxis.MinSpace = YAxisMinSpace;
+            selectedChannels = new ObservableCollection<int>();
+            selectedChannels.CollectionChanged += selectedChannels_CollectionChanged;
             GraphPane.AxisChangeEvent += GraphPane_AxisChangeEvent;
             ZoomEvent += chart_ZoomEvent;
+            InitializeReactiveEvents();
+        }
+
+        public Collection<int> SelectedChannels
+        {
+            get { return selectedChannels; }
+        }
+
+        private void InitializeReactiveEvents()
+        {
+            var scheduler = new ControlScheduler(this);
+            var selectionDrag = (from mouseDown in MouseDown
+                                 where !overlayChannels && MasterPane.FindChartRect(mouseDown.Location) == null
+                                 let startRect = (Rectangle?)GetNormalizedRectangle(MasterPane.Rect, mouseDown.Location, mouseDown.Location)
+                                 let previousSelection = MasterPane.PaneList.Select(pane => pane.Border.IsVisible).ToArray()
+                                 select Observable.Return(startRect).Concat(
+                                        (from mouseMove in MouseMove.TakeUntil(MouseUp)
+                                                                    .Sample(SelectionRefreshInterval, scheduler)
+                                         select (Rectangle?)GetNormalizedRectangle(MasterPane.Rect, mouseDown.Location, mouseMove.Location))
+                                         .Concat(Observable.Return<Rectangle?>(null)))
+                                         .Select(rect => new { previousSelection, rect }))
+                                         .Merge();
+            selectionNotifications = selectionDrag.Subscribe(xs => ProcessRubberBand(xs.previousSelection, xs.rect));
+        }
+
+        private void ProcessRubberBand(bool[] previousSelection, Rectangle? rect)
+        {
+            if (rect.HasValue)
+            {
+                for (int i = 0; i < MasterPane.PaneList.Count; i++)
+                {
+                    var pane = MasterPane.PaneList[i];
+                    var selected = pane.Rect.IntersectsWith(rect.Value);
+                    if (Control.ModifierKeys != Keys.Control || i >= previousSelection.Length)
+                    {
+                        pane.Border.IsVisible = selected;
+                    }
+                    else if (selected)
+                    {
+                        pane.Border.IsVisible = !previousSelection[i];
+                    }
+                }
+            }
+            else
+            {
+                allowSelectionUpdate = false;
+                selectedChannels.Clear();
+                for (int i = 0; i < MasterPane.PaneList.Count; i++)
+                {
+                    var pane = MasterPane.PaneList[i];
+                    if (pane.Border.IsVisible) selectedChannels.Add(i);
+                }
+
+                UpdateSelection();
+                allowSelectionUpdate = true;
+            }
+
+            UpdateRubberBand(rect.GetValueOrDefault(), Rectangle.Truncate(MasterPane.Rect));
+        }
+
+        private void UpdateSelection()
+        {
+            for (int i = 0; i < MasterPane.PaneList.Count; i++)
+            {
+                var pane = MasterPane.PaneList[i];
+                var selected = !overlayChannels && selectedChannels.Contains(i);
+                pane.Border.IsVisible = selected;
+            }
         }
 
         private void ResetWaveform()
@@ -62,8 +143,11 @@ namespace Bonsai.Dsp.Design
                 SetLayout(PaneLayout.SquareColPreferred);
             }
 
-            GraphPane.Margin.Top = overlayChannels ? DefaultPaneMargin : 0;
-            GraphPane.Margin.Bottom = overlayChannels ? DefaultPaneMargin : 0;
+            MasterPane.InnerPaneGap = overlayChannels ? 0 : TilePaneInnerGap;
+            MasterPane.Margin.Left = overlayChannels ? 0 : TileMasterPaneHorizontalMargin;
+            MasterPane.Margin.Right = overlayChannels ? 0 : TileMasterPaneHorizontalMargin;
+            GraphPane.Margin.Top = overlayChannels ? DefaultPaneMargin : TilePaneVerticalMargin;
+            GraphPane.Margin.Bottom = overlayChannels ? DefaultPaneMargin : TilePaneVerticalMargin;
             GraphPane.Margin.Left = overlayChannels ? DefaultPaneMargin : TilePaneHorizontalMargin;
             GraphPane.Margin.Right = overlayChannels ? DefaultPaneMargin : TilePaneHorizontalMargin;
             GraphPane.TitleGap = overlayChannels ? DefaultPaneTitleGap : 0;
@@ -71,6 +155,8 @@ namespace Bonsai.Dsp.Design
             GraphPane.YAxis.MinSpace = overlayChannels ? YAxisMinSpace : 0;
             GraphPane.YAxis.IsVisible = overlayChannels;
             GraphPane.XAxis.IsVisible = overlayChannels;
+            GraphPane.Border.IsVisible = !overlayChannels && selectedChannels.Contains(0);
+            GraphPane.IsFontsScaled = overlayChannels;
             GraphPane.CurveList.Clear();
             ResetColorCycle();
         }
@@ -260,6 +346,7 @@ namespace Bonsai.Dsp.Design
                         else
                         {
                             pane = new GraphPane(GraphPane);
+                            pane.Border.IsVisible = selectedChannels.Contains(i);
                             pane.Title.Text = i.ToString(CultureInfo.InvariantCulture);
                             pane.AxisChangeEvent += GraphPane_AxisChangeEvent;
                             pane.CurveList.Clear();
@@ -272,6 +359,7 @@ namespace Bonsai.Dsp.Design
                     series.Line.IsAntiAlias = true;
                     series.Line.IsOptimizedDraw = true;
                     series.Label.IsVisible = false;
+                    series.IsVisible = !overlayChannels || selectedChannels.Count == 0 || selectedChannels.Contains(i);
                     timeSeries.Add(series);
                 }
 
@@ -297,6 +385,14 @@ namespace Bonsai.Dsp.Design
             }
 
             sequenceIndex = (sequenceIndex + 1) % WaveformBufferLength;
+        }
+
+        void selectedChannels_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (allowSelectionUpdate)
+            {
+                UpdateSelection();
+            }
         }
 
         private void chart_ZoomEvent(ZedGraphControl sender, ZoomState oldState, ZoomState newState)
@@ -345,6 +441,16 @@ namespace Bonsai.Dsp.Design
             {
                 handler(this, e);
             }
+        }
+
+        protected override void OnHandleDestroyed(EventArgs e)
+        {
+            if (selectionNotifications != null)
+            {
+                selectionNotifications.Dispose();
+                selectionNotifications = null;
+            }
+            base.OnHandleDestroyed(e);
         }
     }
 }

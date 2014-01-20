@@ -19,10 +19,10 @@ namespace Bonsai.Dsp.Design
 {
     public class CvMatVisualizer : DialogTypeVisualizer
     {
-        const int TargetElapsedTime = (int)(1000.0 / 60);
+        const int TargetElapsedTime = (int)(1000.0 / 30);
         bool requireInvalidate;
         Timer updateTimer;
-        WaveformGraph graph;
+        WaveformView graph;
 
         public CvMatVisualizer()
         {
@@ -55,9 +55,11 @@ namespace Bonsai.Dsp.Design
 
         public int WaveformBufferLength { get; set; }
 
+        public int[] SelectedChannels { get; set; }
+
         public override void Load(IServiceProvider provider)
         {
-            graph = new WaveformGraph { Dock = DockStyle.Fill };
+            graph = new WaveformView { Dock = DockStyle.Fill };
             graph.WaveformBufferLength = WaveformBufferLength;
             graph.HistoryLength = HistoryLength;
             graph.ChannelOffset = ChannelOffset;
@@ -76,6 +78,14 @@ namespace Bonsai.Dsp.Design
             }
 
             graph.OverlayChannels = OverlayChannels;
+            if (SelectedChannels != null)
+            {
+                foreach (var channel in SelectedChannels)
+                {
+                    graph.SelectedChannels.Add(channel);
+                }
+            }
+
             graph.HandleDestroyed += delegate
             {
                 XMin = graph.XMin;
@@ -88,6 +98,11 @@ namespace Bonsai.Dsp.Design
                 WaveformBufferLength = graph.WaveformBufferLength;
                 HistoryLength = graph.HistoryLength;
                 ChannelOffset = graph.ChannelOffset;
+                if (graph.SelectedChannels.Count > 0)
+                {
+                    SelectedChannels = graph.SelectedChannels.ToArray();
+                }
+                else SelectedChannels = null;
             };
 
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
@@ -136,19 +151,18 @@ namespace Bonsai.Dsp.Design
 
         public override IObservable<object> Visualize(IObservable<IObservable<object>> source, IServiceProvider provider)
         {
-            var visualizerDialog = (TypeVisualizerDialog)provider.GetService(typeof(TypeVisualizerDialog));
             var visualizerContext = (ITypeVisualizerContext)provider.GetService(typeof(ITypeVisualizerContext));
-            if (visualizerDialog != null && visualizerContext != null)
+            if (graph != null && visualizerContext != null)
             {
                 var observableType = visualizerContext.Source.ObservableType;
                 if (observableType == typeof(IObservable<Mat>))
                 {
                     return source.SelectMany(xs => xs.Select(ws => ws as IObservable<Mat>)
                                                      .Where(ws => ws != null)
-                                                     .SelectMany(ws => ws.ObserveOn(visualizerDialog)
+                                                     .SelectMany(ws => ws.ObserveOn(graph)
                                                                          .Do(Show, SequenceCompleted)));
                 }
-                else return source.SelectMany(xs => xs.ObserveOn(visualizerDialog).Do(Show, SequenceCompleted));
+                else return source.SelectMany(xs => xs.ObserveOn(graph).Do(Show, SequenceCompleted));
             }
 
             return source;
