@@ -156,7 +156,7 @@ namespace Bonsai.Expressions
 
         internal static Expression Build(this ExpressionBuilderGraph source, BuildContext buildContext)
         {
-            WorkflowOutputBuilder workflowOutput = null;
+            Expression workflowOutput = null;
             var argumentLists = new Dictionary<ExpressionBuilder, SortedList<int, Expression>>();
             var multicastMap = new List<MulticastScope>();
             var connections = new List<Expression>();
@@ -273,7 +273,7 @@ namespace Bonsai.Expressions
                     {
                         throw new WorkflowBuildException("Workflows cannot have more than one output.", builder);
                     }
-                    workflowOutput = outputBuilder;
+                    workflowOutput = expression;
                 }
             }
 
