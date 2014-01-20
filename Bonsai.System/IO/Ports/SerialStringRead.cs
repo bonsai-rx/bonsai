@@ -10,7 +10,7 @@ namespace Bonsai.IO
 {
     public class SerialStringRead : Source<string>
     {
-        [Editor("Bonsai.IO.Design.SerialPortConfigurationEditor, Bonsai.IO.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.IO.Design.SerialPortConfigurationEditor, Bonsai.System.Design", typeof(UITypeEditor))]
         public string PortName { get; set; }
 
         public override IObservable<string> Generate()
