@@ -16,13 +16,6 @@ namespace Bonsai.Expressions
     public class WorkflowOutputBuilder : SingleArgumentExpressionBuilder
     {
         /// <summary>
-        /// Gets or sets the output of an encapsulated workflow.
-        /// </summary>
-        [XmlIgnore]
-        [Browsable(false)]
-        public Expression Output { get; set; }
-
-        /// <summary>
         /// Returns the output expression specified in <see cref="Output"/>.
         /// </summary>
         /// <returns>
@@ -34,7 +27,7 @@ namespace Bonsai.Expressions
         /// </returns>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            return Output = arguments.Single();
+            return arguments.Single();
         }
     }
 }

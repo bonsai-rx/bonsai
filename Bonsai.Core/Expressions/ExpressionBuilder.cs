@@ -585,9 +585,9 @@ namespace Bonsai.Expressions
             else return Expression.Call(typeof(ExpressionBuilder), "MergeOutput", null, connectionArrayExpression);
         }
 
-        internal static Expression BuildWorkflowOutput(WorkflowOutputBuilder workflowOutput, IEnumerable<Expression> connections)
+        internal static Expression BuildWorkflowOutput(Expression workflowOutput, IEnumerable<Expression> connections)
         {
-            var output = workflowOutput != null ? connections.FirstOrDefault(connection => connection == workflowOutput.Output) : null;
+            var output = workflowOutput != null ? connections.FirstOrDefault(connection => connection == workflowOutput) : null;
             return BuildOutput(output, connections);
         }
 
