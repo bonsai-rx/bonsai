@@ -10,7 +10,7 @@ namespace Bonsai.IO
 {
     public class SerialStringWrite : Sink<object>
     {
-        [Editor("Bonsai.IO.Design.SerialPortConfigurationEditor, Bonsai.IO.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.IO.Design.SerialPortConfigurationEditor, Bonsai.System.Design", typeof(UITypeEditor))]
         public string PortName { get; set; }
 
         public override IObservable<object> Process(IObservable<object> source)
