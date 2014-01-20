@@ -16,7 +16,7 @@
     <tags>Bonsai Arduino Design</tags>
     <dependencies>
       <dependency id="Bonsai.Arduino" version="2.0.0-ctp2" />
-      <dependency id="Bonsai.IO.Design" version="2.0.0-ctp2" />
+      <dependency id="Bonsai.System.Design" version="2.0.0-ctp2" />
     </dependencies>
   </metadata>
 </package>
