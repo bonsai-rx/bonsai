@@ -5,12 +5,14 @@ using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
+using System.Drawing.Design;
 
 namespace Bonsai.Dsp
 {
     public class SelectChannels : Transform<Mat, Mat>
     {
         [TypeConverter(typeof(UnidimensionalArrayConverter))]
+        [Editor("Bonsai.Dsp.Design.SelectChannelEditor, Bonsai.Dsp.Design", typeof(UITypeEditor))]
         public int[] Channels { get; set; }
 
         public override IObservable<Mat> Process(IObservable<Mat> source)
