@@ -213,11 +213,15 @@ namespace Bonsai.Dsp.Design
         private void autoScaleXButton_CheckedChanged(object sender, EventArgs e)
         {
             chart.AutoScaleX = autoScaleXButton.Checked;
+            xminStatusLabel.Visible = !autoScaleXButton.Checked;
+            xmaxStatusLabel.Visible = !autoScaleXButton.Checked;
         }
 
         private void autoScaleYButton_CheckedChanged(object sender, EventArgs e)
         {
             chart.AutoScaleY = autoScaleYButton.Checked;
+            yminStatusLabel.Visible = !autoScaleYButton.Checked;
+            ymaxStatusLabel.Visible = !autoScaleYButton.Checked;
         }
 
         private void editableTextBox_KeyDown(object sender, KeyEventArgs e)
