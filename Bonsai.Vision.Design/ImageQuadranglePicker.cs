@@ -60,11 +60,11 @@ namespace Bonsai.Vision.Design
             }
         }
 
-        Vector2 NormalizePoint(Point2f point)
+        Vector2 NormalizePoint(Point2f point, IplImage image)
         {
             return new Vector2(
-                (point.X * 2 / Image.Width) - 1,
-                -((point.Y * 2 / Image.Height) - 1));
+                (point.X * 2 / image.Width) - 1,
+                -((point.Y * 2 / image.Height) - 1));
         }
 
         protected override void OnLoad(EventArgs e)
@@ -78,14 +78,18 @@ namespace Bonsai.Vision.Design
             GL.Color3(Color.White);
             base.OnRenderFrame(e);
 
-            GL.Color3(Color.Red);
-            GL.Disable(EnableCap.Texture2D);
-            GL.Begin(PrimitiveType.LineLoop);
-            for (int i = 0; i < quadrangle.Length; i++)
+            var image = Image;
+            if (image != null)
             {
-                GL.Vertex2(NormalizePoint(quadrangle[i]));
+                GL.Color3(Color.Red);
+                GL.Disable(EnableCap.Texture2D);
+                GL.Begin(PrimitiveType.LineLoop);
+                for (int i = 0; i < quadrangle.Length; i++)
+                {
+                    GL.Vertex2(NormalizePoint(quadrangle[i], image));
+                }
+                GL.End();
             }
-            GL.End();
         }
     }
 }
