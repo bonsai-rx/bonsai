@@ -220,7 +220,7 @@ namespace Bonsai.NuGet
             var updateFeed = updatesNode.IsExpanded;
             return () =>
             {
-                if (selectedRepository == null)
+                if (selectedRepository == null || selectedManager == null)
                 {
                     return Enumerable.Empty<IPackage>().AsQueryable();
                 }
@@ -612,7 +612,7 @@ namespace Bonsai.NuGet
         public ILogger Logger
         {
             get { return selectedManager != null ? selectedManager.Logger : null; }
-            set { if (selectedManager != null)selectedManager.Logger = value; }
+            set { if (selectedManager != null) selectedManager.Logger = value; }
         }
 
         public event EventHandler<PackageOperationEventArgs> PackageInstalled;
