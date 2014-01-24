@@ -57,7 +57,7 @@ namespace Bonsai.Vision.Design
                 var range = max - min;
                 var scale = range > 0 ? 255.0 / range : 0;
                 var shift = range > 0 ? -min : 0;
-                CV.ConvertScale(image, normalizedImage, scale, shift);
+                CV.ConvertScale(image, normalizedImage, scale, shift * scale);
                 image = normalizedImage;
             }
 
