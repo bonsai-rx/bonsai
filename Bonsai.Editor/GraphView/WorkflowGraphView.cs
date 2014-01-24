@@ -749,10 +749,10 @@ namespace Bonsai.Design
             var nodeType = CreateGraphNodeType.Successor;
             var workflowBuilder = nodes.ToWorkflowBuilder();
             var source = workflowBuilder.Workflow.Sources().First();
-            var sourceNode = graphView.Nodes.SelectMany(layer => layer).Single(node => GetGraphNodeBuilder(node) == source.Value);
-            var predecessors = graphView.Nodes
-                .SelectMany(layer => layer)
-                .Where(node => node.Value != null && node.Successors.Any(edge => edge.Node.Value == sourceNode.Value))
+            var layeredNodes = graphView.Nodes.LayeredNodes();
+            var sourceNode = layeredNodes.Single(node => GetGraphNodeBuilder(node) == source.Value);
+            var predecessors = layeredNodes
+                .Where(node => node.Successors.Any(edge => edge.Node.Value == sourceNode.Value))
                 .ToArray();
             if (predecessors.Length == 1)
             {
@@ -764,7 +764,7 @@ namespace Bonsai.Design
             }
 
             var sink = workflowBuilder.Workflow.Sinks().First();
-            var sinkNode = graphView.Nodes.SelectMany(layer => layer).Single(node => GetGraphNodeBuilder(node) == sink.Value);
+            var sinkNode = layeredNodes.Single(node => GetGraphNodeBuilder(node) == sink.Value);
             var successors = sinkNode.Successors.Select(edge => edge.Node).ToArray();
             if (successors.Length == 1)
             {
@@ -783,7 +783,7 @@ namespace Bonsai.Design
             var workflowExpressionBuilder = new NestedWorkflowBuilder(workflowBuilder.Workflow.ToInspectableGraph());
             var updateSelectedNode = CreateUpdateGraphViewDelegate(localGraphView =>
             {
-                localGraphView.SelectedNode = localGraphView.Nodes.SelectMany(layer => layer).First(n => GetGraphNodeBuilder(n) == workflowExpressionBuilder);
+                localGraphView.SelectedNode = localGraphView.Nodes.LayeredNodes().First(n => GetGraphNodeBuilder(n) == workflowExpressionBuilder);
             });
 
             commandExecutor.BeginCompositeCommand();

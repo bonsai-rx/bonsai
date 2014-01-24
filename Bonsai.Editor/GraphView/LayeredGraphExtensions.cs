@@ -18,6 +18,11 @@ namespace Bonsai.Design
             return new WorkflowBuilder(workflow);
         }
 
+        public static IEnumerable<GraphNode> LayeredNodes(this IEnumerable<GraphNodeGrouping> source)
+        {
+            return source.SelectMany(layer => layer).Where(node => node.Value != null);
+        }
+
         static IEnumerable<GraphEdge> GetLayeredSuccessors<TNodeValue, TEdgeLabel>(Node<TNodeValue, TEdgeLabel> node, int layer, Dictionary<Node<TNodeValue, TEdgeLabel>, GraphNode> layerMap)
         {
             foreach (var successor in node.Successors)
