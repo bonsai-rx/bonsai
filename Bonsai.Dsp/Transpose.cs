@@ -11,10 +11,11 @@ namespace Bonsai.Dsp
     {
         public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)
         {
-            var outputFactory = ArrFactory<TArray>.TemplateFactory;
+            var outputFactory = ArrFactory<TArray>.TemplateDepthChannelFactory;
             return source.Select(input =>
             {
-                var output = outputFactory(input);
+                var inputSize = input.Size;
+                var output = outputFactory(input, new Size(inputSize.Height, inputSize.Width));
                 CV.Transpose(input, output);
                 return output;
             });
