@@ -746,7 +746,7 @@ namespace Bonsai.Design
         {
             return ConcatEmpty(
                 ConcatEmpty(GetAllPaths(from, to), GetAllPaths(to, from)),
-                selectedNodes);
+                selectedNodes).Where(node => node.Value != null);
         }
 
         private void SelectRange(GraphNode node, bool unionUpdate)
