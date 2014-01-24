@@ -47,12 +47,15 @@ namespace Bonsai.Vision.Design
         public void Update(IplImage image)
         {
             if (image == null) throw new ArgumentNullException("image");
-            if (image.Depth > IplDepth.U8 && image.Channels == 1)
+            if (image.Depth != IplDepth.U8)
             {
                 double min, max;
                 Point minLoc, maxLoc;
                 normalizedImage = IplImageHelper.EnsureImageFormat(normalizedImage, image.Size, IplDepth.U8, image.Channels);
-                CV.MinMaxLoc(image, out min, out max, out minLoc, out maxLoc);
+                using (var buffer = image.Reshape(1, 0))
+                {
+                    CV.MinMaxLoc(buffer, out min, out max, out minLoc, out maxLoc);
+                }
 
                 var range = max - min;
                 var scale = range > 0 ? 255.0 / range : 0;
@@ -61,7 +64,6 @@ namespace Bonsai.Vision.Design
                 image = normalizedImage;
             }
 
-            if (image.Depth != IplDepth.U8) throw new ArgumentException("Multi-channel floating point or non 8-bit depth images are not supported by the control.", "image");
             if (!nonPowerOfTwo || image.Width > maxTextureSize || image.Height > maxTextureSize)
             {
                 var textureWidth = Math.Min(maxTextureSize, NearestPowerOfTwo(image.Width));
