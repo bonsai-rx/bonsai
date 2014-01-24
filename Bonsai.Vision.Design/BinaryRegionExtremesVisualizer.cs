@@ -55,10 +55,9 @@ namespace Bonsai.Vision.Design
             var context = (ITypeVisualizerContext)provider.GetService(typeof(ITypeVisualizerContext));
             if (workflow != null && context != null)
             {
-                var predecessorNode = (from node in workflow
-                                       let builder = node.Value
-                                       where builder == context.Source
-                                       select workflow.Predecessors(workflow.Predecessors(node).Single()).SingleOrDefault()).SingleOrDefault();
+                var predecessorNode = workflow.Where(node => node.Value == context.Source)
+                                              .Select(node => workflow.Predecessors(node).FirstOrDefault())
+                                              .FirstOrDefault();
                 if (predecessorNode != null)
                 {
                     var inputInspector = (InspectBuilder)predecessorNode.Value;
