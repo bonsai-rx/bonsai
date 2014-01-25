@@ -53,7 +53,8 @@ namespace Bonsai.IO
             {
                 var pipeName = path.Split(new[] { PipeServerPrefix }, StringSplitOptions.RemoveEmptyEntries).Single();
                 var stream = new NamedPipeServerStream(pipeName, PipeDirection.Out);
-                stream.WaitForConnection();
+                try { stream.WaitForConnection(); }
+                catch { stream.Close(); throw; }
                 return stream;
             }
             else return new FileStream(path, FileMode.Create);
@@ -77,16 +78,18 @@ namespace Bonsai.IO
                 {
                     writerTask = new Task<TWriter>(() =>
                     {
+                        Stream stream = null;
                         try
                         {
                             if (!path.StartsWith(@"\\")) PathHelper.EnsureDirectory(path);
                             path = PathHelper.AppendSuffix(path, Suffix);
-                            var stream = CreateStream(path);
+                            stream = CreateStream(path);
                             return CreateWriter(stream);
                         }
                         catch (Exception ex)
                         {
                             observer.OnError(ex);
+                            if (stream != null) stream.Close();
                             return null;
                         }
                     });
@@ -99,7 +102,8 @@ namespace Bonsai.IO
                     {
                         writerTask.ContinueWith(task =>
                         {
-                            task.Result.Dispose();
+                            var writer = task.Result;
+                            if (writer != null) writer.Dispose();
                         });
                     }
                 });
@@ -115,7 +119,6 @@ namespace Bonsai.IO
                             catch (Exception ex)
                             {
                                 observer.OnError(ex);
-                                return null;
                             }
                         }
 
