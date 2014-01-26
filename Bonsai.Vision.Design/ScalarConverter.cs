@@ -8,7 +8,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision.Design
 {
-    public class CvScalarConverter : TypeConverter
+    public class ScalarConverter : TypeConverter
     {
         public override bool GetPropertiesSupported(ITypeDescriptorContext context)
         {
