@@ -185,6 +185,11 @@ namespace Bonsai.Expressions
 
         #region Type Inference
 
+        static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()
+                                                                    .Single(m => m.Name == "Select" &&
+                                                                            m.GetParameters().Length == 2 &&
+                                                                            m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
+
         internal static Type[] GetMethodBindings(MethodInfo methodInfo, params Type[] arguments)
         {
             if (methodInfo == null)
@@ -348,9 +353,23 @@ namespace Bonsai.Expressions
             arguments = Array.ConvertAll(arguments, argument =>
             {
                 var parameterType = parameters[i++].ParameterType;
-                if (argument.Type != parameterType && argument.Type.IsPrimitive)
+                if (argument.Type != parameterType)
                 {
-                    return Expression.Convert(argument, parameterType);
+                    if (argument.Type.IsGenericType && parameterType.IsGenericType &&
+                        argument.Type.GetGenericTypeDefinition() == typeof(IObservable<>) &&
+                        parameterType.GetGenericTypeDefinition() == typeof(IObservable<>))
+                    {
+                        var argumentObservableType = argument.Type.GetGenericArguments()[0];
+                        var parameterObservableType = parameterType.GetGenericArguments()[0];
+                        var conversionParameter = Expression.Parameter(argumentObservableType);
+                        var conversion = Expression.Convert(conversionParameter, parameterObservableType);
+                        var select = selectMethod.MakeGenericMethod(argumentObservableType, parameterObservableType);
+                        return Expression.Call(select, argument, Expression.Lambda(conversion, conversionParameter));
+                    }
+                    else if (argument.Type.IsPrimitive)
+                    {
+                        return Expression.Convert(argument, parameterType);
+                    }
                 }
                 return argument;
             });
