@@ -64,7 +64,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CvMatVisualizer.cs" />
+    <Compile Include="MatVisualizer.cs" />
     <Compile Include="LabeledNumericUpDown.cs">
       <SubType>UserControl</SubType>
     </Compile>

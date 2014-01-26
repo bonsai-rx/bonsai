@@ -40,7 +40,7 @@ namespace Bonsai.Dsp.Design
                 var source = GetDataSource(context, provider);
                 var chart = new ChartPanel(source, provider);
                 chart.ClientSize = new System.Drawing.Size(320, 180);
-                var matVisualizer = new CvMatVisualizer();
+                var matVisualizer = new MatVisualizer();
                 matVisualizer.OverlayChannels = false;
                 matVisualizer.SelectedChannels = (int[])value;
                 matVisualizer.Load(chart);
