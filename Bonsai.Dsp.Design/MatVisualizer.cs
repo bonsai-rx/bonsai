@@ -12,19 +12,19 @@ using ZedGraph;
 using System.Windows.Forms;
 using Bonsai.Design.Visualizers;
 
-[assembly: TypeVisualizer(typeof(CvMatVisualizer), Target = typeof(Mat))]
-[assembly: TypeVisualizer(typeof(CvMatVisualizer), Target = typeof(IObservable<Mat>))]
+[assembly: TypeVisualizer(typeof(MatVisualizer), Target = typeof(Mat))]
+[assembly: TypeVisualizer(typeof(MatVisualizer), Target = typeof(IObservable<Mat>))]
 
 namespace Bonsai.Dsp.Design
 {
-    public class CvMatVisualizer : DialogTypeVisualizer
+    public class MatVisualizer : DialogTypeVisualizer
     {
         const int TargetElapsedTime = (int)(1000.0 / 30);
         bool requireInvalidate;
         Timer updateTimer;
         WaveformView graph;
 
-        public CvMatVisualizer()
+        public MatVisualizer()
         {
             XMax = 1;
             YMax = 1;
