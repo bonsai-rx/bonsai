@@ -173,11 +173,6 @@ namespace Bonsai.Design
             }
         }
 
-        IEnumerable<string> GetMemberChain()
-        {
-            return GetSelectedMembers().Reverse();
-        }
-
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
             provider.Dispose();
