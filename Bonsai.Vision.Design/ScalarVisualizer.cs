@@ -8,13 +8,13 @@ using Bonsai;
 using Bonsai.Vision.Design;
 using Bonsai.Design.Visualizers;
 
-[assembly: TypeVisualizer(typeof(CvScalarVisualizer), Target = typeof(Scalar))]
+[assembly: TypeVisualizer(typeof(ScalarVisualizer), Target = typeof(Scalar))]
 
 namespace Bonsai.Vision.Design
 {
-    public class CvScalarVisualizer : TimeSeriesVisualizer
+    public class ScalarVisualizer : TimeSeriesVisualizer
     {
-        public CvScalarVisualizer()
+        public ScalarVisualizer()
             : base(4)
         {
         }

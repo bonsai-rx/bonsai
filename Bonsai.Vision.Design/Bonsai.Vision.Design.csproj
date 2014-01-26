@@ -111,9 +111,9 @@
     <Compile Include="KeyPointCollectionVisualizer.cs" />
     <Compile Include="RoiActivityVisualizer.cs" />
     <Compile Include="TimeIntervalIplImageVisualizer.cs" />
-    <Compile Include="CvScalarVisualizer.cs" />
+    <Compile Include="ScalarVisualizer.cs" />
     <Compile Include="RangeScalarConverter.cs" />
-    <Compile Include="CvScalarConverter.cs" />
+    <Compile Include="ScalarConverter.cs" />
     <Compile Include="HsvScalarConverter.cs" />
     <Compile Include="IplImageOutputQuadrangleEditor.cs" />
     <Compile Include="IplImageQuadrangleEditor.cs" />
