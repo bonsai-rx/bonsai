@@ -67,6 +67,7 @@
     <Compile Include="ArrHelper.cs" />
     <Compile Include="Average.cs" />
     <Compile Include="BinaryArrayTransform.cs" />
+    <Compile Include="Buffer.cs" />
     <Compile Include="Concat.cs" />
     <Compile Include="ConvertScale.cs" />
     <Compile Include="ConvertToMat.cs" />
