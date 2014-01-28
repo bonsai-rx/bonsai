@@ -15,6 +15,12 @@ namespace Bonsai.Vision
         Size writerFrameSize;
         static readonly object SyncRoot = new object();
 
+        public VideoWriter()
+        {
+            FourCC = "FMP4";
+            FrameRate = 30;
+        }
+
         public string FourCC { get; set; }
 
         public double FrameRate { get; set; }
