@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Bonsai.IO;
 using System.ComponentModel;
 using System.Reactive.Disposables;
+using System.IO;
 
 namespace Bonsai.Vision
 {
@@ -31,6 +32,16 @@ namespace Bonsai.Vision
 
         protected override VideoWriterDisposable CreateWriter(string fileName, IplImage input)
         {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                throw new InvalidOperationException("A valid video file path was not specified.");
+            }
+
+            if (string.IsNullOrEmpty(Path.GetExtension(fileName)))
+            {
+                throw new InvalidOperationException("The specified video file path must have a valid container extension (e.g. .avi).");
+            }
+
             var frameSize = FrameSize.Width > 0 && FrameSize.Height > 0 ? FrameSize : input.Size;
             var fourCCText = FourCC;
             var fourCC = fourCCText.Length != 4 ? 0 : OpenCV.Net.VideoWriter.FourCC(fourCCText[0], fourCCText[1], fourCCText[2], fourCCText[3]);
