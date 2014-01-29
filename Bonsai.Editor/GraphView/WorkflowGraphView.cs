@@ -15,6 +15,9 @@ using System.Xml.Serialization;
 using System.Linq.Expressions;
 using System.Windows.Forms.Design;
 using Bonsai.Editor.Properties;
+using System.Reflection;
+using Microsoft.CSharp;
+using System.CodeDom;
 
 namespace Bonsai.Design
 {
@@ -24,6 +27,7 @@ namespace Bonsai.Design
         static readonly XName XsiAttributeName = ((XNamespace)"http://www.w3.org/2000/xmlns/") + "xsi";
         const string XsdAttributeValue = "http://www.w3.org/2001/XMLSchema";
         const string XsiAttributeValue = "http://www.w3.org/2001/XMLSchema-instance";
+        const string OutputMenuItemLabel = "Output";
 
         const int RightMouseButton = 0x2;
         const int ShiftModifier = 0x4;
@@ -1158,19 +1162,19 @@ namespace Bonsai.Design
                 if (e.Effect == DragDropEffects.Copy)
                 {
                     var branch = (e.KeyState & AltModifier) != 0;
-                    var predecessor = (e.KeyState & ShiftModifier) != 0 ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
+                    var nodeType = (e.KeyState & ShiftModifier) != 0 ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
                     var linkNode = graphView.GetNodeAt(dropLocation) ?? graphView.SelectedNode;
                     if (e.Data.GetDataPresent(DataFormats.FileDrop, true))
                     {
                         var path = (string[])e.Data.GetData(DataFormats.FileDrop, true);
                         var workflowBuilder = editorService.LoadWorkflow(path[0]);
                         var workflowExpressionBuilder = new NestedWorkflowBuilder(workflowBuilder.Workflow);
-                        CreateGraphNode(workflowExpressionBuilder, ElementCategory.Combinator, linkNode, predecessor, branch);
+                        CreateGraphNode(workflowExpressionBuilder, ElementCategory.Combinator, linkNode, nodeType, branch);
                     }
                     else
                     {
                         var typeNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
-                        CreateGraphNode(typeNode, linkNode, predecessor, branch);
+                        CreateGraphNode(typeNode, linkNode, nodeType, branch);
                     }
                 }
 
@@ -1344,6 +1348,66 @@ namespace Bonsai.Design
             DeleteGraphNodes(selectionModel.SelectedNodes);
         }
 
+        private void InitializeOutputMenuItem(ToolStripMenuItem menuItem, string memberSelector, Type memberType)
+        {
+            string typeName;
+            using (var provider = new CSharpCodeProvider())
+            {
+                var typeRef = new CodeTypeReference(memberType);
+                typeName = provider.GetTypeOutput(typeRef);
+            }
+
+            menuItem.Text += string.Format(" ({0})", typeName);
+            menuItem.Name = memberSelector;
+            menuItem.Tag = memberType;
+        }
+
+        private void CreateOutputMenuItems(Type type, ToolStripMenuItem ownerItem, GraphNode selectedNode)
+        {
+            foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public))
+            {
+                var memberSelector = string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, field.Name);
+                if (!ownerItem.DropDownItems.ContainsKey(memberSelector))
+                {
+                    var menuItem = CreateOutputMenuItem(field.Name, memberSelector, field.FieldType, selectedNode);
+                    ownerItem.DropDownItems.Add(menuItem);
+                }
+            }
+
+            foreach (var property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
+            {
+                var memberSelector = string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, property.Name);
+                if (!ownerItem.DropDownItems.ContainsKey(memberSelector))
+                {
+                    var menuItem = CreateOutputMenuItem(property.Name, memberSelector, property.PropertyType, selectedNode);
+                    ownerItem.DropDownItems.Add(menuItem);
+                }
+            }
+
+            ownerItem.DropDownOpening += delegate
+            {
+                foreach (ToolStripMenuItem item in ownerItem.DropDownItems)
+                {
+                    CreateOutputMenuItems((Type)item.Tag, item, selectedNode);
+                }
+            };
+        }
+
+        private ToolStripMenuItem CreateOutputMenuItem(string memberName, string memberSelector, Type memberType, GraphNode selectedNode)
+        {
+            var menuItem = new ToolStripMenuItem(memberName, null, delegate
+            {
+                var builder = new MemberSelectorBuilder { Selector = memberSelector };
+                var successor = selectedNode.Successors.Select(edge => GetGraphNodeBuilder(edge.Node)).FirstOrDefault();
+                var branch = successor != null && successor.GetType() == typeof(MemberSelectorBuilder);
+                CreateGraphNode(builder, ElementCategory.Transform, selectedNode, CreateGraphNodeType.Successor, branch);
+                contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
+            });
+
+            InitializeOutputMenuItem(menuItem, memberSelector, memberType);
+            return menuItem;
+        }
+
         private ToolStripMenuItem CreateVisualizerMenuItem(string typeName, VisualizerDialogSettings layoutSettings, GraphNode selectedNode)
         {
             ToolStripMenuItem menuItem = null;
@@ -1402,13 +1466,20 @@ namespace Bonsai.Design
             if (selectedNodes.Length == 1)
             {
                 var selectedNode = selectedNodes[0];
+                var inspectBuilder = (InspectBuilder)selectedNode.Value;
+                if (inspectBuilder != null && inspectBuilder.ObservableType != null)
+                {
+                    outputToolStripMenuItem.Enabled = true;
+                    InitializeOutputMenuItem(outputToolStripMenuItem, ExpressionBuilderArgument.ArgumentNamePrefix, inspectBuilder.ObservableType);
+                    CreateOutputMenuItems(inspectBuilder.ObservableType, outputToolStripMenuItem, selectedNode);
+                }
+
                 var layoutSettings = GetLayoutSettings(selectedNode.Value);
                 if (layoutSettings != null)
                 {
                     var activeVisualizer = layoutSettings.VisualizerTypeName;
                     if (editorService.WorkflowRunning)
                     {
-                        var inspectBuilder = (InspectBuilder)selectedNode.Value;
                         var visualizerLauncher = visualizerMapping[inspectBuilder];
                         var visualizer = visualizerLauncher.Visualizer;
                         if (visualizer.IsValueCreated)
@@ -1440,6 +1511,8 @@ namespace Bonsai.Design
                 item.Enabled = false;
             }
 
+            outputToolStripMenuItem.Text = OutputMenuItemLabel;
+            outputToolStripMenuItem.DropDownItems.Clear();
             visualizerToolStripMenuItem.DropDownItems.Clear();
         }
 

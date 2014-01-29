@@ -11,7 +11,7 @@ namespace Bonsai
     /// </summary>
     public static class ExpressionHelper
     {
-        internal const string MemberSeparator = ".";
+        public const string MemberSeparator = ".";
         const string IndexBegin = "[";
         const string IndexEnd = "]";
         const string IndexParameterSeparator = ",";
