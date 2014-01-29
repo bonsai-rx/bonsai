@@ -152,6 +152,7 @@ namespace Bonsai
 
                     int namespaceIndex = 1;
                     serializerNamespaces = new XmlSerializerNamespaces();
+                    serializerNamespaces.Add("xsd", XmlSchema.Namespace);
                     serializerNamespaces.Add("xsi", XmlSchema.InstanceNamespace);
                     foreach (var xmlNamespace in (from type in serializerTypes
                                                   let xmlNamespace = GetXmlNamespace(type)
@@ -181,6 +182,13 @@ namespace Bonsai
             return serializerCache;
         }
 
+        static IEnumerable<object> GetWorkflowElements(ExpressionBuilder builder)
+        {
+            yield return builder;
+            var element = ExpressionBuilder.GetWorkflowElement(builder);
+            if (element != builder) yield return element;
+        }
+
         static IEnumerable<Type> GetWorkflowElementTypes(ExpressionBuilder builder)
         {
             var workflowExpressionBuilder = ExpressionBuilder.GetWorkflowElement(builder) as WorkflowExpressionBuilder;
@@ -188,7 +196,7 @@ namespace Bonsai
             {
                 return GetExtensionTypes(workflowExpressionBuilder.Workflow);
             }
-            else return builder.GetWorkflowElements().Select(element => element.GetType());
+            else return GetWorkflowElements(builder).Select(element => element.GetType());
         }
 
         static IEnumerable<Type> GetExtensionTypes(ExpressionBuilderGraph workflow)
