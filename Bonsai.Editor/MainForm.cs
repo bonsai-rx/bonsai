@@ -845,7 +845,9 @@ namespace Bonsai.Editor
                 toolboxTreeView.Nodes.Clear();
                 var searchFilter = searchTextBox.Text.Trim();
                 foreach (var entry in from node in GetTreeViewLeafNodes(treeCache)
-                                      where node.Tag != null && node.Text.IndexOf(searchFilter, StringComparison.OrdinalIgnoreCase) >= 0
+                                      where node.Tag != null &&
+                                            (node.Text.IndexOf(searchFilter, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                             node.Parent != null && node.Parent.Text.IndexOf(searchFilter, StringComparison.OrdinalIgnoreCase) >= 0)
                                       orderby node.Text ascending
                                       select new { category = node.Parent.Text, node = (TreeNode)node.Clone() })
                 {
