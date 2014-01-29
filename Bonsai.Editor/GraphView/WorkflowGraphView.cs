@@ -282,7 +282,7 @@ namespace Bonsai.Design
 
         private static ExpressionBuilder GetGraphNodeBuilder(GraphNode node)
         {
-            if (node != null)
+            if (node != null && node.Value != null)
             {
                 return ExpressionBuilder.Unwrap((ExpressionBuilder)node.Value);
             }
