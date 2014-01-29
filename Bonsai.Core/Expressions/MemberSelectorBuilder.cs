@@ -17,7 +17,7 @@ namespace Bonsai.Expressions
     /// </summary>
     [XmlType("MemberSelector", Namespace = Constants.XmlNamespace)]
     [Description("Selects inner properties of elements of the sequence.")]
-    public class MemberSelectorBuilder : SelectBuilder
+    public class MemberSelectorBuilder : SelectBuilder, INamedElement
     {
         /// <summary>
         /// Gets or sets a string used to select the input element member to project
@@ -26,6 +26,16 @@ namespace Bonsai.Expressions
         [Description("The inner properties that will be selected for each element of the sequence.")]
         [Editor("Bonsai.Design.MemberSelectorEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public string Selector { get; set; }
+
+        string INamedElement.Name
+        {
+            get
+            {
+                var selector = Selector;
+                if (!string.IsNullOrEmpty(selector)) return selector;
+                else return "MemberSelector";
+            }
+        }
 
         /// <summary>
         /// Returns the expression that maps the specified input parameter
