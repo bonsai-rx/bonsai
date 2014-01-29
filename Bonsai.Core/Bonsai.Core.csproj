@@ -79,6 +79,7 @@
     <Compile Include="Expressions\PublishBuilder.cs" />
     <Compile Include="Expressions\ReplayBuilder.cs" />
     <Compile Include="Expressions\VariableArgumentExpressionBuilder.cs" />
+    <Compile Include="Expressions\WorkflowPropertyDescriptor.cs" />
     <Compile Include="Expressions\ZeroArgumentExpressionBuilder.cs" />
     <Compile Include="Expressions\LogicalAndBuilder.cs" />
     <Compile Include="Expressions\LogicalOrBuilder.cs" />
