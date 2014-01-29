@@ -15,7 +15,6 @@ namespace Bonsai.Design
 {
     public partial class MemberSelectorEditorDialog : Form
     {
-        const string MemberSeparator = ".";
         const string IndexBegin = "[";
         CSharpCodeProvider provider;
 
@@ -30,13 +29,13 @@ namespace Bonsai.Design
             get
             {
                 var memberChain = GetSelectedMembers().Reverse();
-                return string.Join(MemberSeparator, memberChain.ToArray());
+                return string.Join(ExpressionHelper.MemberSeparator, memberChain.ToArray());
             }
             set
             {
                 if (!string.IsNullOrEmpty(value))
                 {
-                    var memberChain = value.Split(new[] { MemberSeparator }, StringSplitOptions.RemoveEmptyEntries);
+                    var memberChain = value.Split(new[] { ExpressionHelper.MemberSeparator }, StringSplitOptions.RemoveEmptyEntries);
                     InitializeSelection(memberChain);
                 }
                 else
