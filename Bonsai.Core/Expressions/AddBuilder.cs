@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
@@ -15,6 +16,8 @@ namespace Bonsai.Expressions
     [XmlType("Add", Namespace = Constants.XmlNamespace)]
     public class AddBuilder : BinaryOperatorBuilder
     {
+        static readonly MethodInfo stringConcat = typeof(string).GetMethod("Concat", new[] { typeof(string), typeof(string) });
+
         /// <summary>
         /// Returns the expression that applies the arithmetic addition operation
         /// to the left and right parameters.
@@ -27,7 +30,11 @@ namespace Bonsai.Expressions
         /// </returns>
         protected override Expression BuildSelector(Expression left, Expression right)
         {
-            return Expression.Add(left, right);
+            if (left.Type == typeof(string) && right.Type == typeof(string))
+            {
+                return Expression.Call(stringConcat, left, right);
+            }
+            else return Expression.Add(left, right);
         }
     }
 }
