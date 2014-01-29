@@ -104,13 +104,6 @@ namespace Bonsai.Expressions
             }
         }
 
-        internal static IEnumerable<object> GetWorkflowElements(this ExpressionBuilder expressionBuilder)
-        {
-            yield return expressionBuilder;
-            var element = ExpressionBuilder.GetWorkflowElement(expressionBuilder);
-            if (element != expressionBuilder) yield return element;
-        }
-
         /// <summary>
         /// Generates an expression tree from the specified expression builder workflow.
         /// </summary>
