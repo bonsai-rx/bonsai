@@ -16,7 +16,7 @@ namespace Bonsai.Expressions
     public class WorkflowOutputBuilder : SingleArgumentExpressionBuilder
     {
         /// <summary>
-        /// Returns the output expression specified in <see cref="Output"/>.
+        /// Returns the single output expression specified in <paramref name="arguments"/>.
         /// </summary>
         /// <returns>
         /// <param name="arguments">
