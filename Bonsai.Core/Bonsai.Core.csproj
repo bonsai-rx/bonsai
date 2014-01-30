@@ -70,6 +70,7 @@
     <Compile Include="Expressions\BitwiseAndBuilder.cs" />
     <Compile Include="Expressions\BitwiseOrBuilder.cs" />
     <Compile Include="Expressions\BitwiseNotBuilder.cs" />
+    <Compile Include="Expressions\BinaryOperatorTypeDescriptionProvider.cs" />
     <Compile Include="Expressions\IExpressionBuilder.cs" />
     <Compile Include="Expressions\IPropertyMappingBuilder.cs" />
     <Compile Include="Expressions\MulticastBuilder.cs" />
