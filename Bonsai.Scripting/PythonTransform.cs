@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 
 namespace Bonsai.Scripting
 {
+    [DefaultProperty("Script")]
     [WorkflowElementCategory(ElementCategory.Transform)]
     [Description("A Python script used to process and convert individual elements of the input sequence.")]
     public class PythonTransform : SingleArgumentExpressionBuilder

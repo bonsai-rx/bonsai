@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 
 namespace Bonsai.Scripting
 {
+    [DefaultProperty("Script")]
     [Description("A Python script used to determine which elements of the input sequence are accepted.")]
     public class PythonCondition : Condition
     {
