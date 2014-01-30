@@ -15,6 +15,7 @@ namespace Bonsai.NuGet
 {
     public partial class PackageDetails : UserControl
     {
+        const int TextHeightMargin = 7;
         static readonly Uri NugetPackageRepository = new Uri("https://packages.nuget.org/api/v2");
 
         public PackageDetails()
@@ -74,6 +75,13 @@ namespace Bonsai.NuGet
             {
                 Process.Start(linkUri.AbsoluteUri);
             }
+        }
+
+        private void dependenciesTextBox_TextChanged(object sender, EventArgs e)
+        {
+            var textSize = TextRenderer.MeasureText(dependenciesTextBox.Text, dependenciesTextBox.Font);
+            textSize.Height += TextHeightMargin;
+            dependenciesTextBox.Size = textSize;
         }
     }
 }

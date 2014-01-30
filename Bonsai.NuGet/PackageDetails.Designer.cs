@@ -370,10 +370,12 @@
             this.dependenciesTextBox.BackColor = System.Drawing.SystemColors.Control;
             this.dependenciesTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dependenciesTextBox.Location = new System.Drawing.Point(3, 3);
+            this.dependenciesTextBox.MinimumSize = new System.Drawing.Size(179, 20);
             this.dependenciesTextBox.Multiline = true;
             this.dependenciesTextBox.Name = "dependenciesTextBox";
             this.dependenciesTextBox.Size = new System.Drawing.Size(179, 20);
             this.dependenciesTextBox.TabIndex = 0;
+            this.dependenciesTextBox.TextChanged += new System.EventHandler(this.dependenciesTextBox_TextChanged);
             // 
             // dependencyWarningLabel
             // 
