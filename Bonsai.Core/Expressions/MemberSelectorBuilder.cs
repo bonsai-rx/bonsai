@@ -15,6 +15,7 @@ namespace Bonsai.Expressions
     /// Represents an expression builder that defines a simple selector on the elements
     /// of an observable sequence by mapping each element to one of its member values.
     /// </summary>
+    [DefaultProperty("Selector")]
     [XmlType("MemberSelector", Namespace = Constants.XmlNamespace)]
     [Description("Selects inner properties of elements of the sequence.")]
     public class MemberSelectorBuilder : SelectBuilder, INamedElement
