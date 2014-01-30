@@ -178,4 +178,7 @@ Copyright 2010-2012 Outercurve Foundation</value>
   <data name="ContextMenu_NoneVisualizerItemLabel" xml:space="preserve">
     <value>None</value>
   </data>
+  <data name="BonsaiTitle" xml:space="preserve">
+    <value>Bonsai</value>
+  </data>
 </root>

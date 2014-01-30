@@ -274,6 +274,7 @@ namespace Bonsai.Editor
                     {
                         OpenWorkflow(examplePath);
                         saveWorkflowDialog.FileName = null;
+                        UpdateTitle();
                     }
                 };
                 return true;
@@ -349,6 +350,7 @@ namespace Bonsai.Editor
 
             saveWorkflowDialog.FileName = fileName;
             ResetProjectStatus();
+            UpdateTitle();
 
             var layoutPath = GetLayoutPath(fileName);
             workflowGraphView.VisualizerLayout = null;
@@ -419,6 +421,7 @@ namespace Bonsai.Editor
             workflowGraphView.VisualizerLayout = null;
             workflowGraphView.Workflow = workflowBuilder.Workflow;
             ResetProjectStatus();
+            UpdateTitle();
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -512,6 +515,7 @@ namespace Bonsai.Editor
 
                 running = null;
                 building = false;
+                UpdateTitle();
             }));
         }
 
@@ -538,6 +542,7 @@ namespace Bonsai.Editor
                     .Subscribe(unit => { }, HandleWorkflowError, () => { });
             }
 
+            UpdateTitle();
             undoToolStripButton.Enabled = undoToolStripMenuItem.Enabled = false;
             redoToolStripButton.Enabled = redoToolStripMenuItem.Enabled = false;
             deleteToolStripMenuItem.Enabled = false;
@@ -694,6 +699,17 @@ namespace Bonsai.Editor
         #endregion
 
         #region Workflow Controller
+
+        void UpdateTitle()
+        {
+            var workflowRunning = running != null;
+            var fileName = Path.GetFileName(saveWorkflowDialog.FileName);
+            var emptyFileName = string.IsNullOrEmpty(fileName);
+            var title = emptyFileName ? Resources.BonsaiTitle : fileName;
+            if (workflowRunning) title += string.Format(" ({0})", Resources.RunningStatus);
+            if (!emptyFileName) title += string.Format(" - {0}", Resources.BonsaiTitle);
+            Text = title;
+        }
 
         IEnumerable<TreeNode> GetTreeViewLeafNodes(System.Collections.IEnumerable nodes)
         {
