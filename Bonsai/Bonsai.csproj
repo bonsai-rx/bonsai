@@ -126,10 +126,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\MSBuild\AssemblyInfo.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
   <Target Name="MergeExecutable" Inputs="$(OutputPath)\NuGet.Core.dll;$(OutputPath)\Bonsai.NuGet.dll;$(OutputPath)\Bonsai.Configuration.dll;$(OutputPath)\Bonsai.exe" Outputs="$(OutputPath)Merged\Bonsai.exe" Condition=" '$(OS)' == 'Windows_NT'">
     <PropertyGroup>
       <ILMergeExe>$(MsBuildProjectDirectory)\..\packages\ilmerge.2.13.0307\ILMerge.exe</ILMergeExe>
