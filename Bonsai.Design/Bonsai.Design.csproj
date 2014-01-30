@@ -64,6 +64,13 @@
     <Compile Include="CommandExecutor.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="ConfigurationControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ConfigurationControl.Designer.cs">
+      <DependentUpon>ConfigurationControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ConfigurationEditorService.cs" />
     <Compile Include="ControlObservable.cs" />
     <Compile Include="ControlScheduler.cs" />
     <Compile Include="DescriptiveCollectionEditor.cs" />
@@ -119,6 +126,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="ConfigurationControl.resx">
+      <DependentUpon>ConfigurationControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MemberSelectorEditorDialog.resx">
       <DependentUpon>MemberSelectorEditorDialog.cs</DependentUpon>
     </EmbeddedResource>

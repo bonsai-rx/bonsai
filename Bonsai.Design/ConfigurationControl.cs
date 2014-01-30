@@ -12,7 +12,7 @@ using System.Windows.Forms.Design;
 using System.IO.Ports;
 using Bonsai.Design;
 
-namespace Bonsai.IO.Design
+namespace Bonsai.Design
 {
     public abstract partial class ConfigurationControl : UserControl
     {
