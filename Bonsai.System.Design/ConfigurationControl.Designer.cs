@@ -1,6 +1,6 @@
 ﻿namespace Bonsai.IO.Design
 {
-    partial class SerialPortConfigurationControl
+    partial class ConfigurationControl
     {
         /// <summary> 
         /// Required designer variable.
@@ -28,30 +28,30 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.portNameListbox = new System.Windows.Forms.ListBox();
+            this.configurationNameListbox = new System.Windows.Forms.ListBox();
             this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.configurationManagerButton = new Bonsai.IO.Design.SerialPortConfigurationControl.FlatButton();
+            this.configurationManagerButton = new Bonsai.IO.Design.ConfigurationControl.FlatButton();
             this.tableLayoutPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // portNameListbox
             // 
-            this.portNameListbox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.portNameListbox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.portNameListbox.FormattingEnabled = true;
-            this.portNameListbox.Location = new System.Drawing.Point(0, 1);
-            this.portNameListbox.Margin = new System.Windows.Forms.Padding(0, 1, 3, 0);
-            this.portNameListbox.MinimumSize = new System.Drawing.Size(0, 17);
-            this.portNameListbox.Name = "portNameListbox";
-            this.portNameListbox.Size = new System.Drawing.Size(87, 20);
-            this.portNameListbox.TabIndex = 0;
-            this.portNameListbox.SelectedValueChanged += new System.EventHandler(this.portNameListbox_SelectedValueChanged);
+            this.configurationNameListbox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.configurationNameListbox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.configurationNameListbox.FormattingEnabled = true;
+            this.configurationNameListbox.Location = new System.Drawing.Point(0, 1);
+            this.configurationNameListbox.Margin = new System.Windows.Forms.Padding(0, 1, 3, 0);
+            this.configurationNameListbox.MinimumSize = new System.Drawing.Size(0, 17);
+            this.configurationNameListbox.Name = "portNameListbox";
+            this.configurationNameListbox.Size = new System.Drawing.Size(87, 20);
+            this.configurationNameListbox.TabIndex = 0;
+            this.configurationNameListbox.SelectedValueChanged += new System.EventHandler(this.configurationNameListbox_SelectedValueChanged);
             // 
             // tableLayoutPanel
             // 
             this.tableLayoutPanel.ColumnCount = 1;
             this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel.Controls.Add(this.portNameListbox, 0, 0);
+            this.tableLayoutPanel.Controls.Add(this.configurationNameListbox, 0, 0);
             this.tableLayoutPanel.Controls.Add(this.configurationManagerButton, 0, 1);
             this.tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel.Location = new System.Drawing.Point(0, 0);
@@ -91,7 +91,7 @@
 
         #endregion
 
-        private System.Windows.Forms.ListBox portNameListbox;
+        private System.Windows.Forms.ListBox configurationNameListbox;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel;
         private FlatButton configurationManagerButton;
     }

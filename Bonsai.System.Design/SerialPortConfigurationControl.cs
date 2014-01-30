@@ -14,49 +14,19 @@ using Bonsai.Design;
 
 namespace Bonsai.IO.Design
 {
-    public partial class SerialPortConfigurationControl : UserControl
+    public partial class SerialPortConfigurationControl : ConfigurationControl
     {
-        ConfigurationEditorService editorService;
-
-        public SerialPortConfigurationControl()
+        protected override IEnumerable<string> GetConfigurationNames()
         {
-            InitializeComponent();
-            editorService = new ConfigurationEditorService(this);
-
-            SuspendLayout();
-            foreach (var portName in SerialPort.GetPortNames())
-            {
-                portNameListbox.Items.Add(portName);
-            }
-
-            portNameListbox.Height = portNameListbox.ItemHeight * (portNameListbox.Items.Count + 0);
-            Height = portNameListbox.PreferredHeight + configurationManagerButton.Height;
-            ResumeLayout();
+            return SerialPort.GetPortNames();
         }
 
-        public object SelectedValue
-        {
-            get { return portNameListbox.SelectedItem; }
-            set { portNameListbox.SelectedItem = value; }
-        }
-
-        public event EventHandler SelectedValueChanged;
-
-        private void OnSelectedValueChanged(EventArgs e)
-        {
-            var handler = SelectedValueChanged;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
-
-        protected virtual object LoadConfiguration()
+        protected override object LoadConfiguration()
         {
             return SerialPortManager.LoadConfiguration();
         }
 
-        protected virtual void SaveConfiguration(object configuration)
+        protected override void SaveConfiguration(object configuration)
         {
             var serialPortConfiguration = configuration as SerialPortConfigurationCollection;
             if (serialPortConfiguration == null)
@@ -67,33 +37,9 @@ namespace Bonsai.IO.Design
             SerialPortManager.SaveConfiguration(serialPortConfiguration);
         }
 
-        private void configurationManagerButton_Click(object sender, EventArgs e)
+        protected override CollectionEditor CreateConfigurationEditor(Type type)
         {
-            var configuration = LoadConfiguration();
-            if (configuration == null)
-            {
-                throw new InvalidOperationException("Failed to load configuration.");
-            }
-
-            var configurationManager = new SerialPortConfigurationCollectionEditor(configuration.GetType());
-            configurationManager.EditValue(editorService, editorService, configuration);
-            if (editorService.DialogResult == DialogResult.OK)
-            {
-                SaveConfiguration(configuration);
-            }
-        }
-
-        private void portNameListbox_SelectedValueChanged(object sender, EventArgs e)
-        {
-            OnSelectedValueChanged(e);
-        }
-
-        class FlatButton : Button
-        {
-            public override void NotifyDefault(bool value)
-            {
-                base.NotifyDefault(false);
-            }
+            return new SerialPortConfigurationCollectionEditor(type);
         }
 
         class SerialPortConfigurationCollectionEditor : DescriptiveCollectionEditor
@@ -117,66 +63,6 @@ namespace Bonsai.IO.Design
                 }
 
                 return base.GetDisplayText(value);
-            }
-        }
-
-        class ConfigurationEditorService : IWindowsFormsEditorService, IServiceProvider, ITypeDescriptorContext
-        {
-            Control ownerControl;
-
-            public ConfigurationEditorService(Control owner)
-            {
-                ownerControl = owner;
-            }
-
-            public DialogResult DialogResult { get; private set; }
-
-            public void CloseDropDown()
-            {
-            }
-
-            public void DropDownControl(Control control)
-            {
-            }
-
-            public DialogResult ShowDialog(Form dialog)
-            {
-                DialogResult = dialog.ShowDialog(ownerControl);
-                return DialogResult;
-            }
-
-            public object GetService(Type serviceType)
-            {
-                if (serviceType == typeof(IWindowsFormsEditorService))
-                {
-                    return this;
-                }
-
-                return null;
-            }
-
-            public IContainer Container
-            {
-                get { return null; }
-            }
-
-            public object Instance
-            {
-                get { return null; }
-            }
-
-            public void OnComponentChanged()
-            {
-            }
-
-            public bool OnComponentChanging()
-            {
-                return true;
-            }
-
-            public PropertyDescriptor PropertyDescriptor
-            {
-                get { return null; }
             }
         }
     }
