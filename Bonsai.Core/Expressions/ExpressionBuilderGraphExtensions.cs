@@ -150,6 +150,7 @@ namespace Bonsai.Expressions
         internal static Expression Build(this ExpressionBuilderGraph source, BuildContext buildContext)
         {
             Expression workflowOutput = null;
+            HashSet<string> propertyNames = null;
             var argumentLists = new Dictionary<ExpressionBuilder, SortedList<int, Expression>>();
             var multicastMap = new List<MulticastScope>();
             var connections = new List<Expression>();
@@ -180,6 +181,16 @@ namespace Bonsai.Expressions
                 if (workflowBuilder != null)
                 {
                     workflowBuilder.BuildContext = buildContext;
+                }
+
+                var workflowProperty = ExpressionBuilder.GetWorkflowElement(workflowElement) as WorkflowProperty;
+                if (workflowProperty != null && !string.IsNullOrEmpty(workflowProperty.Name))
+                {
+                    if (propertyNames == null) propertyNames = new HashSet<string>();
+                    if (!propertyNames.Add(workflowProperty.Name))
+                    {
+                        throw new WorkflowBuildException("A workflow property with the specified name already exists.", builder);
+                    }
                 }
 
                 try
