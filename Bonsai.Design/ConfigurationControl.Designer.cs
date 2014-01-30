@@ -1,4 +1,4 @@
-﻿namespace Bonsai.IO.Design
+﻿namespace Bonsai.Design
 {
     partial class ConfigurationControl
     {
@@ -30,7 +30,7 @@
         {
             this.configurationNameListbox = new System.Windows.Forms.ListBox();
             this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.configurationManagerButton = new Bonsai.IO.Design.ConfigurationControl.FlatButton();
+            this.configurationManagerButton = new Bonsai.Design.ConfigurationControl.FlatButton();
             this.tableLayoutPanel.SuspendLayout();
             this.SuspendLayout();
             // 
