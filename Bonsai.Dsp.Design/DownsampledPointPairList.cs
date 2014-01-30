@@ -138,7 +138,7 @@ namespace Bonsai.Dsp.Design
             get
             {
                 if (!minBounds.HasValue) return list[index];
-                if (Count < decimation.Length)
+                if (skip == 1)
                 {
                     index += minIndex;
                 }
