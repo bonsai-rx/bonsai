@@ -9,10 +9,18 @@ namespace Bonsai.Design
 {
     class TypeDescriptorContext : ITypeDescriptorContext
     {
+        IServiceProvider provider;
+
         public TypeDescriptorContext(object instance, PropertyDescriptor propertyDescriptor)
+            : this(instance, propertyDescriptor, null)
+        {
+        }
+
+        public TypeDescriptorContext(object instance, PropertyDescriptor propertyDescriptor, IServiceProvider serviceProvider)
         {
             Instance = instance;
             PropertyDescriptor = propertyDescriptor;
+            provider = serviceProvider;
         }
 
         public virtual IContainer Container
@@ -35,6 +43,11 @@ namespace Bonsai.Design
 
         public virtual object GetService(Type serviceType)
         {
+            if (provider != null)
+            {
+                return provider.GetService(serviceType);
+            }
+
             return null;
         }
     }

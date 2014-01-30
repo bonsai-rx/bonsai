@@ -83,6 +83,7 @@
     <Compile Include="CueBannerTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="GraphView\WorkflowGraphViewEditorService.cs" />
     <Compile Include="Layout\DialogLauncher.cs" />
     <Compile Include="Layout\VisualizerDialogLauncher.cs" />
     <Compile Include="Layout\VisualizerDialogSettings.cs" />

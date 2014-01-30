@@ -18,6 +18,7 @@ using Bonsai.Editor.Properties;
 using System.Reflection;
 using Microsoft.CSharp;
 using System.CodeDom;
+using System.Drawing.Design;
 
 namespace Bonsai.Design
 {
@@ -839,6 +840,33 @@ namespace Bonsai.Design
             return graphView.Nodes.SelectMany(layer => layer).FirstOrDefault(n => n.Value == value);
         }
 
+        public void LaunchDefaultEditor(GraphNode node)
+        {
+            var builder = GetGraphNodeBuilder(node);
+            var workflowExpressionBuilder = builder as WorkflowExpressionBuilder;
+            if (workflowExpressionBuilder != null) LaunchWorkflowView(node);
+            else if (builder != null)
+            {
+                var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
+                var defaultProperty = TypeDescriptor.GetDefaultProperty(workflowElement);
+                if (defaultProperty != null)
+                {
+                    var editor = (UITypeEditor)defaultProperty.GetEditor(typeof(UITypeEditor));
+                    if (editor != null && editor.GetEditStyle() == UITypeEditorEditStyle.Modal)
+                    {
+                        var editorService = new WorkflowGraphViewEditorService(this, serviceProvider);
+                        var context = new TypeDescriptorContext(workflowElement, defaultProperty, editorService);
+                        var currentValue = defaultProperty.GetValue(workflowElement);
+                        var value = editor.EditValue(context, editorService, currentValue);
+                        if (value != currentValue && !defaultProperty.IsReadOnly)
+                        {
+                            defaultProperty.SetValue(workflowElement, value);
+                        }
+                    }
+                }
+            }
+        }
+
         public void LaunchVisualizer(GraphNode node)
         {
             var visualizerLauncher = GetVisualizerDialogLauncher(node);
@@ -1231,7 +1259,7 @@ namespace Bonsai.Design
             {
                 if (e.Modifiers == Keys.Control)
                 {
-                    LaunchWorkflowView(graphView.SelectedNode);
+                    LaunchDefaultEditor(graphView.SelectedNode);
                 }
                 else if (editorService.WorkflowRunning)
                 {
@@ -1299,9 +1327,9 @@ namespace Bonsai.Design
 
         private void graphView_NodeMouseDoubleClick(object sender, GraphNodeMouseEventArgs e)
         {
-            if (Control.ModifierKeys == Keys.Control)
+            if (!editorService.WorkflowRunning || Control.ModifierKeys == Keys.Control)
             {
-                LaunchWorkflowView(e.Node);
+                LaunchDefaultEditor(e.Node);
             }
             else
             {
