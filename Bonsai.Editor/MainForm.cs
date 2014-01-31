@@ -241,7 +241,8 @@ namespace Bonsai.Editor
             {
                 foreach (var elementType in type.ElementTypes)
                 {
-                    var typeCategory = elementType == ElementCategory.Nested ? ElementCategory.Combinator : elementType;
+                    var nestedOrCondition = elementType == ElementCategory.Nested || elementType == ElementCategory.Condition;
+                    var typeCategory = nestedOrCondition ? ElementCategory.Combinator : elementType;
                     var elementTypeNode = toolboxTreeView.Nodes[typeCategory.ToString()];
                     var category = elementTypeNode.Nodes[categoryName];
                     if (category == null)
@@ -765,32 +766,7 @@ namespace Bonsai.Editor
             {
                 var builder = ExpressionBuilder.Unwrap((ExpressionBuilder)node.Value);
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
-
-                if (workflowElement != null)
-                {
-                    var conditionBuilder = builder as ConditionBuilder;
-                    if (conditionBuilder != null)
-                    {
-                        var builderProperties = TypeDescriptor.GetProperties(conditionBuilder);
-                        var provider = new DynamicTypeDescriptionProvider();
-
-                        var selectorProperty = builderProperties["Selector"];
-                        var attributes = new Attribute[selectorProperty.Attributes.Count];
-                        selectorProperty.Attributes.CopyTo(attributes, 0);
-                        var dynamicProperty = new DynamicPropertyDescriptor(
-                            selectorProperty.Name, selectorProperty.PropertyType,
-                            xs => selectorProperty.GetValue(conditionBuilder),
-                            (xs, value) => selectorProperty.SetValue(conditionBuilder, value),
-                            attributes);
-                        provider.Properties.Add(dynamicProperty);
-
-                        TypeDescriptor.AddProvider(provider, workflowElement);
-                        selectionTypeDescriptor = provider;
-                    }
-
-                    return workflowElement;
-                }
-                return builder;
+                return workflowElement ?? builder;
             }).ToArray();
 
             if (selectedObjects.Length == 1)

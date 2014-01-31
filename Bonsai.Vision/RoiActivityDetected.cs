@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Bonsai.Vision
 {
-    public class RoiActivityDetected : Condition<RegionActivityCollection>
+    public class RoiActivityDetected : Transform<RegionActivityCollection, bool>
     {
         public int? Index { get; set; }
 

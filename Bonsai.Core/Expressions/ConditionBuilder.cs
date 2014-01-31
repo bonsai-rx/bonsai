@@ -16,37 +16,28 @@ namespace Bonsai.Expressions
     /// </summary>
     [WorkflowElementCategory(ElementCategory.Condition)]
     [XmlType("Condition", Namespace = Constants.XmlNamespace)]
-    public class ConditionBuilder : CombinatorExpressionBuilder, INamedElement
+    public class ConditionBuilder : WorkflowExpressionBuilder
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ConditionBuilder"/> class.
         /// </summary>
         public ConditionBuilder()
-            : base(minArguments: 1, maxArguments: 1)
+            : this(new ExpressionBuilderGraph())
         {
         }
 
         /// <summary>
-        /// Gets the display name of the condition.
+        /// Initializes a new instance of the <see cref="ConditionBuilder"/> class
+        /// with the specified expression builder workflow.
         /// </summary>
-        public string Name
+        /// <param name="workflow">
+        /// The expression builder workflow instance that will be used by this builder
+        /// to generate the output expression tree.
+        /// </param>
+        public ConditionBuilder(ExpressionBuilderGraph workflow)
+            : base(workflow, minArguments: 1, maxArguments: 1)
         {
-            get { return GetElementDisplayName(Condition); }
         }
-
-        /// <summary>
-        /// Gets or sets the condition instance used to process input
-        /// observable sequences.
-        /// </summary>
-        public object Condition { get; set; }
-
-        /// <summary>
-        /// Gets or sets a string used to select the input element member on which
-        /// to apply the condition.
-        /// </summary>
-        [Description("The inner property on which to apply the condition.")]
-        [Editor("Bonsai.Design.MemberSelectorEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
-        public string Selector { get; set; }
 
         /// <summary>
         /// Generates an <see cref="Expression"/> node from a collection of input arguments.
@@ -58,56 +49,28 @@ namespace Bonsai.Expressions
         /// <returns>An <see cref="Expression"/> tree node.</returns>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            var output = BuildCombinator(arguments);
-            var conditionExpression = Expression.Constant(Condition);
-            return BuildMappingOutput(arguments, conditionExpression, output, PropertyMappings);
+            // Assign input
+            var source = arguments.Single();
+            var selectorParameter = Expression.Parameter(source.Type);
+            return BuildWorflow(arguments, selectorParameter, selectorBody =>
+            {
+                var selector = Expression.Lambda(selectorBody, selectorParameter);
+                var selectorObservableType = selector.ReturnType.GetGenericArguments()[0];
+                if (selectorObservableType != typeof(bool))
+                {
+                    throw new InvalidOperationException("The specified condition workflow must have a single boolean output.");
+                }
+
+                return Expression.Call(GetType(), "Process", source.Type.GetGenericArguments(), source, selector);
+            });
         }
 
-        /// <summary>
-        /// Generates an <see cref="Expression"/> node that will be combined with any
-        /// existing property mappings to produce the final output of the expression builder.
-        /// </summary>
-        /// <returns>
-        /// <param name="arguments">
-        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
-        /// </param>
-        /// An <see cref="Expression"/> tree node that represents the combinator output.
-        /// </returns>
-        protected override Expression BuildCombinator(IEnumerable<Expression> arguments)
-        {
-            const BindingFlags bindingAttributes = BindingFlags.Instance | BindingFlags.Public;
-            var conditionType = Condition.GetType();
-            var conditionExpression = Expression.Constant(Condition);
-            var conditionAttributes = conditionType.GetCustomAttributes(typeof(CombinatorAttribute), true);
-            var methodName = ((CombinatorAttribute)conditionAttributes.Single()).MethodName;
-
-            var sourceSelect = arguments.First();
-            var observableType = sourceSelect.Type.GetGenericArguments()[0];
-            var parameter = Expression.Parameter(observableType);
-            var memberAccess = GetArgumentAccess(arguments, Selector);
-            var memberSelector = ExpressionHelper.MemberAccess(parameter, memberAccess.Item2);
-
-            var conditionParameter = Expression.Parameter(typeof(IObservable<>).MakeGenericType(memberSelector.Type));
-            var processMethods = conditionType.GetMethods(bindingAttributes).Where(m => m.Name == methodName);
-            var processCall = BuildCall(conditionExpression, processMethods, conditionParameter);
-            return (Expression)Expression.Call(
-                typeof(ConditionBuilder),
-                "Process",
-                new[] { observableType, memberSelector.Type },
-                sourceSelect,
-                Expression.Lambda(memberSelector, parameter),
-                Expression.Lambda(processCall, conditionParameter));
-        }
-
-        static IObservable<TSource> Process<TSource, TMember>(IObservable<TSource> source, Func<TSource, TMember> selector, Func<IObservable<TMember>, IObservable<bool>> condition)
+        static IObservable<TSource> Process<TSource>(IObservable<TSource> source, Func<IObservable<TSource>, IObservable<bool>> condition)
         {
             return Observable.Defer(() =>
             {
                 var filter = false;
-                TSource value = default(TSource);
-                return condition(source.Select(xs => { value = xs; return selector(xs); }))
-                    .Select(bs => { filter = bs; return value; })
-                    .Where(xs => filter);
+                return source.Publish(ps => ps.CombineLatest(condition(ps), (xs, ys) => { filter = ys; return xs; }).Sample(ps).Where(xs => filter));
             });
         }
     }
