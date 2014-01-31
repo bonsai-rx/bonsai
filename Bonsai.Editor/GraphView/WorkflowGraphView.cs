@@ -277,6 +277,7 @@ namespace Bonsai.Design
                     }
 
                     visualizerLauncher.Bounds = layoutSettings.Bounds;
+                    visualizerLauncher.WindowState = layoutSettings.WindowState;
                     if (layoutSettings.Visible)
                     {
                         visualizerLauncher.Show(graphView, serviceProvider);
@@ -1045,6 +1046,7 @@ namespace Bonsai.Design
 
                     dialogSettings.Visible = visible;
                     dialogSettings.Bounds = visualizerDialog.Bounds;
+                    dialogSettings.WindowState = visualizerDialog.WindowState;
 
                     if (visualizer.IsValueCreated)
                     {

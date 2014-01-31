@@ -13,6 +13,8 @@ namespace Bonsai.Design
 
         public Rectangle Bounds { get; set; }
 
+        public FormWindowState WindowState { get; set; }
+
         public bool Visible
         {
             get { return visualizerDialog != null; }
@@ -41,14 +43,31 @@ namespace Bonsai.Design
                 visualizerDialog.Load += delegate
                 {
                     var bounds = Bounds;
-                    if (!bounds.IsEmpty && SystemInformation.VirtualScreen.Contains(bounds))
+                    if (!bounds.IsEmpty && (SystemInformation.VirtualScreen.Contains(bounds) || WindowState != FormWindowState.Normal))
                     {
                         if (bounds.Size.IsEmpty) visualizerDialog.DesktopLocation = bounds.Location;
                         else visualizerDialog.DesktopBounds = bounds;
+                        visualizerDialog.WindowState = WindowState;
                     }
                 };
 
-                visualizerDialog.FormClosing += delegate { Bounds = visualizerDialog.DesktopBounds; };
+                visualizerDialog.FormClosing += delegate
+                {
+                    var desktopBounds = Bounds;
+                    if (visualizerDialog.WindowState != FormWindowState.Normal)
+                    {
+                        desktopBounds.Size = visualizerDialog.RestoreBounds.Size;
+                    }
+                    else desktopBounds = visualizerDialog.DesktopBounds;
+
+                    Bounds = desktopBounds;
+                    if (visualizerDialog.WindowState == FormWindowState.Minimized)
+                    {
+                        WindowState = FormWindowState.Normal;
+                    }
+                    else WindowState = visualizerDialog.WindowState;
+                };
+
                 visualizerDialog.FormClosed += delegate
                 {
                     visualizerDialog.Dispose();

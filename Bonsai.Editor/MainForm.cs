@@ -180,7 +180,11 @@ namespace Bonsai.Editor
             }
             else desktopBounds = DesktopBounds;
             EditorSettings.Instance.DesktopBounds = desktopBounds;
-            EditorSettings.Instance.WindowState = WindowState;
+            if (WindowState == FormWindowState.Minimized)
+            {
+                EditorSettings.Instance.WindowState = FormWindowState.Normal;
+            }
+            else EditorSettings.Instance.WindowState = WindowState;
             EditorSettings.Instance.Save();
             base.OnClosed(e);
         }
