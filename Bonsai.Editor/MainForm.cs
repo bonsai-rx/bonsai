@@ -47,6 +47,7 @@ namespace Bonsai.Editor
         XmlSerializer serializer;
         XmlSerializer layoutSerializer;
         TypeVisualizerMap typeVisualizers;
+        List<WorkflowElementDescriptor> workflowElements;
         IDisposable running;
         bool building;
 
@@ -74,6 +75,7 @@ namespace Bonsai.Editor
             regularFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Regular);
             selectionFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Bold);
             typeVisualizers = new TypeVisualizerMap();
+            workflowElements = new List<WorkflowElementDescriptor>();
             selectionModel = new WorkflowSelectionModel();
             propertyAssignments = new Dictionary<string, string>();
             workflowGraphView = new WorkflowGraphView(editorSite);
@@ -219,13 +221,13 @@ namespace Bonsai.Editor
                 .Select(xs => Unit.Default);
         }
 
-        string GetPackageDisplayName(string packageKey)
+        static string GetPackageDisplayName(string packageKey)
         {
             if (packageKey == BonsaiPackageName) return packageKey;
             return packageKey.Replace(BonsaiPackageName + ".", string.Empty);
         }
 
-        int GetElementTypeIndex(string typeName)
+        static int GetElementTypeIndex(string typeName)
         {
             return
                 typeName == ElementCategory.Source.ToString() ? 0 :
@@ -234,7 +236,7 @@ namespace Bonsai.Editor
                 typeName == ElementCategory.Sink.ToString() ? 3 : 4;
         }
 
-        int CompareLoadableElementType(string left, string right)
+        static int CompareLoadableElementType(string left, string right)
         {
             return GetElementTypeIndex(left).CompareTo(GetElementTypeIndex(right));
         }
@@ -243,6 +245,7 @@ namespace Bonsai.Editor
         {
             foreach (var type in types.OrderBy(type => type.Name))
             {
+                workflowElements.Add(type);
                 foreach (var elementType in type.ElementTypes)
                 {
                     var nestedOrCondition = elementType == ElementCategory.Nested || elementType == ElementCategory.Condition;
@@ -1045,7 +1048,7 @@ namespace Bonsai.Editor
 
         #region EditorSite Class
 
-        class EditorSite : ISite, IWorkflowEditorService, IUIService
+        class EditorSite : ISite, IWorkflowEditorService, IWorkflowToolboxService, IUIService
         {
             System.Collections.IDictionary styles;
             MainForm siteForm;
@@ -1097,6 +1100,11 @@ namespace Bonsai.Editor
                 }
 
                 if (serviceType == typeof(IWorkflowEditorService))
+                {
+                    return this;
+                }
+
+                if (serviceType == typeof(IWorkflowToolboxService))
                 {
                     return this;
                 }
@@ -1163,6 +1171,16 @@ namespace Bonsai.Editor
             public IEnumerable<Type> GetTypeVisualizers(Type targetType)
             {
                 return siteForm.typeVisualizers.GetTypeVisualizers(targetType);
+            }
+
+            public string GetPackageDisplayName(string packageKey)
+            {
+                return MainForm.GetPackageDisplayName(packageKey);
+            }
+
+            public IEnumerable<WorkflowElementDescriptor> GetToolboxElements()
+            {
+                return siteForm.workflowElements;
             }
 
             public void StartWorkflow()

@@ -19,6 +19,7 @@ using System.Reflection;
 using Microsoft.CSharp;
 using System.CodeDom;
 using System.Drawing.Design;
+using Bonsai.Editor;
 
 namespace Bonsai.Design
 {
@@ -485,6 +486,17 @@ namespace Bonsai.Design
             return builder;
         }
 
+        WorkflowExpressionBuilder CreateWorkflowBuilder(string typeName, ExpressionBuilderGraph graph)
+        {
+            var type = Type.GetType(typeName);
+            if (!typeof(WorkflowExpressionBuilder).IsAssignableFrom(type))
+            {
+                throw new ArgumentException("The specified type is not a workflow expression builder.", "typeName");
+            }
+
+            return (WorkflowExpressionBuilder)Activator.CreateInstance(type, graph);
+        }
+
         public void CreateGraphNode(TreeNode typeNode, GraphNode closestGraphViewNode, CreateGraphNodeType nodeType, bool branch)
         {
             var builder = CreateBuilder(typeNode);
@@ -743,6 +755,16 @@ namespace Bonsai.Design
 
         public void GroupGraphNodes(IEnumerable<GraphNode> nodes)
         {
+            GroupGraphNodes(nodes, graph => new NestedWorkflowBuilder(graph));
+        }
+
+        private void GroupGraphNodes(IEnumerable<GraphNode> nodes, string typeName)
+        {
+            GroupGraphNodes(nodes, graph => CreateWorkflowBuilder(typeName, graph));
+        }
+
+        private void GroupGraphNodes(IEnumerable<GraphNode> nodes, Func<ExpressionBuilderGraph, WorkflowExpressionBuilder> groupFactory)
+        {
             if (nodes == null)
             {
                 throw new ArgumentNullException("nodes");
@@ -772,7 +794,7 @@ namespace Bonsai.Design
             var sink = workflowBuilder.Workflow.Sinks().First();
             var sinkNode = layeredNodes.Single(node => GetGraphNodeBuilder(node) == sink.Value);
             var successors = sinkNode.Successors.Select(edge => edge.Node).ToArray();
-            if (successors.Length == 1)
+            if (successors.Length <= 1)
             {
                 var workflowOutput = new WorkflowOutputBuilder();
                 var outputNode = workflowBuilder.Workflow.Add(workflowOutput);
@@ -786,7 +808,7 @@ namespace Bonsai.Design
             }
 
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
-            var workflowExpressionBuilder = new NestedWorkflowBuilder(workflowBuilder.Workflow.ToInspectableGraph());
+            var workflowExpressionBuilder = groupFactory(workflowBuilder.Workflow.ToInspectableGraph());
             var updateSelectedNode = CreateUpdateGraphViewDelegate(localGraphView =>
             {
                 localGraphView.SelectedNode = localGraphView.Nodes.LayeredNodes().First(n => GetGraphNodeBuilder(n) == workflowExpressionBuilder);
@@ -1371,6 +1393,7 @@ namespace Bonsai.Design
         private void groupToolStripMenuItem_Click(object sender, EventArgs e)
         {
             GroupGraphNodes(selectionModel.SelectedNodes);
+            contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
         }
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1478,6 +1501,53 @@ namespace Bonsai.Design
             return menuItem;
         }
 
+        private void CreateGroupMenuItems(GraphNode[] selectedNodes)
+        {
+            var toolboxService = (IWorkflowToolboxService)serviceProvider.GetService(typeof(IWorkflowToolboxService));
+            if (toolboxService != null)
+            {
+                foreach (var element in from element in toolboxService.GetToolboxElements()
+                                        where element.ElementTypes.Length == 1 &&
+                                              (element.ElementTypes.Contains(ElementCategory.Nested) || element.AssemblyQualifiedName == typeof(ConditionBuilder).AssemblyQualifiedName)
+                                        select element)
+                {
+                    var name = string.Format("{0} ({1})", element.Name, toolboxService.GetPackageDisplayName(element.Namespace));
+                    groupToolStripMenuItem.DropDownItems.Add(name, null, (sender, e) =>
+                    {
+                        if (selectedNodes.Length == 1)
+                        {
+                            var selectedNode = selectedNodes[0];
+                            var workflowBuilder = GetGraphNodeBuilder(selectedNode) as WorkflowExpressionBuilder;
+                            if (workflowBuilder != null)
+                            {
+                                var builder = CreateWorkflowBuilder(element.AssemblyQualifiedName, workflowBuilder.Workflow);
+                                var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
+                                var updateSelectedNode = CreateUpdateGraphViewDelegate(localGraphView =>
+                                {
+                                    localGraphView.SelectedNode = localGraphView.Nodes.LayeredNodes().First(n => GetGraphNodeBuilder(n) == builder);
+                                });
+
+                                commandExecutor.BeginCompositeCommand();
+                                commandExecutor.Execute(() => { }, updateGraphLayout);
+                                CreateGraphNode(builder, element.ElementTypes[0], selectedNode, CreateGraphNodeType.Successor, false);
+                                DeleteGraphNode(selectedNode);
+                                commandExecutor.Execute(() =>
+                                {
+                                    updateGraphLayout();
+                                    updateSelectedNode();
+                                },
+                                () => { });
+                                commandExecutor.EndCompositeCommand();
+                                return;
+                            }
+                        }
+
+                        GroupGraphNodes(selectedNodes, element.AssemblyQualifiedName);
+                    });
+                }
+            }
+        }
+
         private void contextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
             var selectedNodes = selectionModel.SelectedNodes.ToArray();
@@ -1490,6 +1560,7 @@ namespace Bonsai.Design
                     cutToolStripMenuItem.Enabled = true;
                     deleteToolStripMenuItem.Enabled = true;
                     groupToolStripMenuItem.Enabled = true;
+                    CreateGroupMenuItems(selectedNodes);
                 }
             }
 
@@ -1544,6 +1615,7 @@ namespace Bonsai.Design
             outputToolStripMenuItem.Text = OutputMenuItemLabel;
             outputToolStripMenuItem.DropDownItems.Clear();
             visualizerToolStripMenuItem.DropDownItems.Clear();
+            groupToolStripMenuItem.DropDownItems.Clear();
         }
 
         #endregion
