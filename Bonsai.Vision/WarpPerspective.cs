@@ -10,6 +10,7 @@ using System.Reactive.Disposables;
 
 namespace Bonsai.Vision
 {
+    [DefaultProperty("Source")]
     public class WarpPerspective : Transform<IplImage, IplImage>
     {
         [Editor("Bonsai.Vision.Design.IplImageInputQuadrangleEditor, Bonsai.Vision.Design", typeof(UITypeEditor))]
