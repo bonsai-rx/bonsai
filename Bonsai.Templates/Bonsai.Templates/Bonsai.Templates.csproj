@@ -70,10 +70,6 @@
       <Link>Packages\Bonsai.Design.2.0.0-rc1.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\Bonsai.ConditionItemTemplate\bin\Release\BonsaiCondition.zip">
-      <Link>ItemTemplates\Bonsai\BonsaiCondition.zip</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="..\Bonsai.PackageProjectTemplate\bin\Release\BonsaiPackage.zip">
       <Link>ProjectTemplates\Bonsai\BonsaiPackage.zip</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
