@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Xml.Serialization;
 using System.Collections.ObjectModel;
 using System.Xml.Linq;
+using System.Windows.Forms;
 
 namespace Bonsai.Design
 {
@@ -22,6 +23,8 @@ namespace Bonsai.Design
         public Point Location { get; set; }
 
         public Size Size { get; set; }
+
+        public FormWindowState WindowState { get; set; }
 
         [XmlIgnore]
         public Rectangle Bounds
