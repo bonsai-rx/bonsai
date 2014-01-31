@@ -474,6 +474,7 @@ namespace Bonsai.Editor
             if (saveWorkflowDialog.ShowDialog() == DialogResult.OK)
             {
                 saveToolStripMenuItem_Click(this, e);
+                UpdateTitle();
             }
         }
 
