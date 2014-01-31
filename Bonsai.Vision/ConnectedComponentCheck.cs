@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Bonsai.Vision
 {
-    public class ConnectedComponentCheck : Condition<ConnectedComponentCollection>
+    public class ConnectedComponentCheck : Transform<ConnectedComponentCollection, bool>
     {
         public override IObservable<bool> Process(IObservable<ConnectedComponentCollection> source)
         {

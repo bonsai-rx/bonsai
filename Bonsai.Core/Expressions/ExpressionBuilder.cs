@@ -93,9 +93,6 @@ namespace Bonsai.Expressions
             var sourceBuilder = builder as SourceBuilder;
             if (sourceBuilder != null) return sourceBuilder.Generator;
 
-            var conditionBuilder = builder as ConditionBuilder;
-            if (conditionBuilder != null) return conditionBuilder.Condition;
-
             var combinatorBuilder = builder as CombinatorBuilder;
             if (combinatorBuilder != null) return combinatorBuilder.Combinator;
 
@@ -116,12 +113,6 @@ namespace Bonsai.Expressions
             }
 
             var elementType = element.GetType();
-            if (elementCategory == ElementCategory.Condition &&
-                elementType.IsDefined(typeof(ConditionAttribute), true))
-            {
-                return new ConditionBuilder { Condition = element };
-            }
-
             if (elementType.IsDefined(typeof(CombinatorAttribute), true))
             {
                 return new CombinatorBuilder { Combinator = element };
