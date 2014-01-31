@@ -61,7 +61,8 @@ namespace Bonsai.NuGet
                 targetFramework,
                 Logger,
                 ignoreDependencies,
-                allowPrereleaseVersions);
+                allowPrereleaseVersions,
+                DependencyVersion);
             Execute(package, installerWalker);
         }
 

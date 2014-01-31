@@ -42,7 +42,7 @@ namespace Bonsai
             var machineWideSettings = new BonsaiMachineWideSettings();
             var settings = Settings.LoadDefaultSettings(null, null, machineWideSettings);
             var sourceProvider = new PackageSourceProvider(settings);
-            var sourceRepository = sourceProvider.GetAggregate(PackageRepositoryFactory.Default, true);
+            var sourceRepository = sourceProvider.CreateAggregateRepository(PackageRepositoryFactory.Default, true);
             var packageManager = new LicenseAwarePackageManager(sourceRepository, editorRepositoryPath) { Logger = logger };
 
             var editorPackage = packageManager.LocalRepository.FindPackage(editorPackageId);

@@ -108,7 +108,7 @@ namespace Bonsai.NuGet
         {
             var logger = new EventLogger();
             var managers = new Dictionary<string, PackageManager>();
-            var aggregateRepository = packageSourceProvider.GetAggregate(PackageRepositoryFactory.Default);
+            var aggregateRepository = packageSourceProvider.CreateAggregateRepository(PackageRepositoryFactory.Default, false);
             managers.Add(Resources.AllNodeName, CreatePackageManager(aggregateRepository, logger));
             var packageRepositories = packageSourceProvider
                 .GetEnabledPackageSources()
@@ -715,5 +715,31 @@ namespace Bonsai.NuGet
         }
 
         #endregion
+
+        public DependencyVersion DependencyVersion
+        {
+            get { return selectedManager != null ? selectedManager.DependencyVersion : default(DependencyVersion); }
+            set
+            {
+                var manager = selectedManager;
+                if (manager != null)
+                {
+                    manager.DependencyVersion = value;
+                }
+            }
+        }
+
+        public bool WhatIf
+        {
+            get { return selectedManager != null ? selectedManager.WhatIf : default(bool); }
+            set
+            {
+                var manager = selectedManager;
+                if (manager != null)
+                {
+                    manager.WhatIf = value;
+                }
+            }
+        }
     }
 }
