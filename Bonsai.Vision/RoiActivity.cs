@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 
 namespace Bonsai.Vision
 {
+    [DefaultProperty("Regions")]
     public class RoiActivity : Transform<IplImage, RegionActivityCollection>
     {
         IplImage roi;
