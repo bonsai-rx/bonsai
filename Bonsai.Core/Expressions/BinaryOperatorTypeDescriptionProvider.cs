@@ -44,10 +44,10 @@ namespace Bonsai.Expressions
 
             public override PropertyDescriptorCollection GetProperties(Attribute[] attributes)
             {
-                var property = builder.Property;
-                if (property != null)
+                var operand = builder.Operand;
+                if (operand != null)
                 {
-                    var propertyDescriptor = new WorkflowPropertyDescriptor("Value", emptyAttributes, property);
+                    var propertyDescriptor = new WorkflowPropertyDescriptor("Value", emptyAttributes, operand);
                     return new PropertyDescriptorCollection(new[] { propertyDescriptor });
                 }
                 else return PropertyDescriptorCollection.Empty;
