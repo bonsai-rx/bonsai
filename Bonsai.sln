@@ -48,6 +48,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai", "Bonsai\Bonsai.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai64", "Bonsai64\Bonsai64.csproj", "{8794CB93-EB69-4B98-84F9-F50ABB350E14}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Windows.Input", "Bonsai.Windows.Input\Bonsai.Windows.Input.csproj", "{082F80A4-B096-45A3-ABB7-E8BFBF450CCD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -258,6 +260,16 @@ Global
 		{8794CB93-EB69-4B98-84F9-F50ABB350E14}.Release|Mixed Platforms.Build.0 = Release|x64
 		{8794CB93-EB69-4B98-84F9-F50ABB350E14}.Release|x64.ActiveCfg = Release|x64
 		{8794CB93-EB69-4B98-84F9-F50ABB350E14}.Release|x64.Build.0 = Release|x64
+		{082F80A4-B096-45A3-ABB7-E8BFBF450CCD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{082F80A4-B096-45A3-ABB7-E8BFBF450CCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{082F80A4-B096-45A3-ABB7-E8BFBF450CCD}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{082F80A4-B096-45A3-ABB7-E8BFBF450CCD}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{082F80A4-B096-45A3-ABB7-E8BFBF450CCD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{082F80A4-B096-45A3-ABB7-E8BFBF450CCD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{082F80A4-B096-45A3-ABB7-E8BFBF450CCD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{082F80A4-B096-45A3-ABB7-E8BFBF450CCD}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{082F80A4-B096-45A3-ABB7-E8BFBF450CCD}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{082F80A4-B096-45A3-ABB7-E8BFBF450CCD}.Release|x64.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
