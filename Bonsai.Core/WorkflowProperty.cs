@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Bonsai
 {
@@ -12,6 +13,7 @@ namespace Bonsai
     /// Represents a named workflow property.
     /// </summary>
     [Source]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     [WorkflowElementCategory(ElementCategory.Property)]
     public abstract class WorkflowProperty : INamedElement
     {
@@ -23,6 +25,8 @@ namespace Bonsai
         /// Gets or sets the name of the property.
         /// </summary>
         public string Name { get; set; }
+
+        internal abstract Type PropertyType { get; }
     }
 
     /// <summary>
@@ -30,6 +34,7 @@ namespace Bonsai
     /// </summary>
     /// <typeparam name="TValue">The type of the property value.</typeparam>
     [DefaultProperty("Value")]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     public class WorkflowProperty<TValue> : WorkflowProperty
     {
         TValue value;
@@ -46,6 +51,11 @@ namespace Bonsai
                 this.value = value;
                 OnValueChanged(value);
             }
+        }
+
+        internal override Type PropertyType
+        {
+            get { return typeof(TValue); }
         }
 
         void OnValueChanged(TValue value)
