@@ -13,6 +13,7 @@ namespace Bonsai.Expressions
     /// Represents a workflow property containing a timestamp in Coordinated Universal Time (UTC).
     /// </summary>
     [DisplayName("DateTimeOffset")]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     public class DateTimeOffsetProperty : WorkflowProperty
     {
         DateTimeOffset value;
@@ -30,6 +31,11 @@ namespace Bonsai.Expressions
                 this.value = value;
                 OnValueChanged(value);
             }
+        }
+
+        internal override Type PropertyType
+        {
+            get { return typeof(DateTimeOffset); }
         }
 
         /// <summary>

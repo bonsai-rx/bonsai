@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
 {
@@ -11,6 +12,7 @@ namespace Bonsai.Expressions
     /// Represents a workflow property containing a date and time of day.
     /// </summary>
     [DisplayName("DateTime")]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     public class DateTimeProperty : WorkflowProperty<DateTime>
     {
     }
