@@ -20,6 +20,7 @@ using Microsoft.CSharp;
 using System.CodeDom;
 using System.Drawing.Design;
 using Bonsai.Editor;
+using System.Reactive.Disposables;
 
 namespace Bonsai.Design
 {
@@ -1415,35 +1416,35 @@ namespace Bonsai.Design
             menuItem.Tag = memberType;
         }
 
-        private void CreateOutputMenuItems(Type type, ToolStripMenuItem ownerItem, GraphNode selectedNode)
+        private IDisposable CreateOutputMenuItems(Type type, ToolStripMenuItem ownerItem, GraphNode selectedNode)
         {
             foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public))
             {
                 var memberSelector = string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, field.Name);
-                if (!ownerItem.DropDownItems.ContainsKey(memberSelector))
-                {
-                    var menuItem = CreateOutputMenuItem(field.Name, memberSelector, field.FieldType, selectedNode);
-                    ownerItem.DropDownItems.Add(menuItem);
-                }
+                var menuItem = CreateOutputMenuItem(field.Name, memberSelector, field.FieldType, selectedNode);
+                ownerItem.DropDownItems.Add(menuItem);
             }
 
             foreach (var property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
             {
                 var memberSelector = string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, property.Name);
-                if (!ownerItem.DropDownItems.ContainsKey(memberSelector))
-                {
-                    var menuItem = CreateOutputMenuItem(property.Name, memberSelector, property.PropertyType, selectedNode);
-                    ownerItem.DropDownItems.Add(menuItem);
-                }
+                var menuItem = CreateOutputMenuItem(property.Name, memberSelector, property.PropertyType, selectedNode);
+                ownerItem.DropDownItems.Add(menuItem);
             }
 
-            ownerItem.DropDownOpening += delegate
+            var menuItemDisposable = new CompositeDisposable();
+            EventHandler dropDownHandler = delegate
             {
                 foreach (ToolStripMenuItem item in ownerItem.DropDownItems)
                 {
-                    CreateOutputMenuItems((Type)item.Tag, item, selectedNode);
+                    var itemDisposable = CreateOutputMenuItems((Type)item.Tag, item, selectedNode);
+                    menuItemDisposable.Add(itemDisposable);
                 }
             };
+
+            ownerItem.DropDownOpening += dropDownHandler;
+            menuItemDisposable.Add(Disposable.Create(() => ownerItem.DropDownOpening -= dropDownHandler));
+            return menuItemDisposable;
         }
 
         private ToolStripMenuItem CreateOutputMenuItem(string memberName, string memberSelector, Type memberType, GraphNode selectedNode)
@@ -1572,7 +1573,7 @@ namespace Bonsai.Design
                 {
                     outputToolStripMenuItem.Enabled = true;
                     InitializeOutputMenuItem(outputToolStripMenuItem, ExpressionBuilderArgument.ArgumentNamePrefix, inspectBuilder.ObservableType);
-                    CreateOutputMenuItems(inspectBuilder.ObservableType, outputToolStripMenuItem, selectedNode);
+                    outputToolStripMenuItem.Tag = CreateOutputMenuItems(inspectBuilder.ObservableType, outputToolStripMenuItem, selectedNode);
                 }
 
                 var layoutSettings = GetLayoutSettings(selectedNode.Value);
@@ -1610,6 +1611,13 @@ namespace Bonsai.Design
             foreach (ToolStripItem item in contextMenuStrip.Items)
             {
                 item.Enabled = false;
+            }
+
+            var outputMenuItemDisposable = outputToolStripMenuItem.Tag as IDisposable;
+            if (outputMenuItemDisposable != null)
+            {
+                outputMenuItemDisposable.Dispose();
+                outputToolStripMenuItem.Tag = null;
             }
 
             outputToolStripMenuItem.Text = OutputMenuItemLabel;
