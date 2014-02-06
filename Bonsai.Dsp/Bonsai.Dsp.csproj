@@ -83,6 +83,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="Reduce.cs" />
+    <Compile Include="ReferenceChannels.cs" />
     <Compile Include="RunningAverage.cs" />
     <Compile Include="SelectChannels.cs" />
     <Compile Include="Sum.cs" />
