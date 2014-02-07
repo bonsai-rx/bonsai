@@ -26,10 +26,12 @@ namespace Bonsai.Windows.Input
         Subject<Keys> keyUp;
         IntPtr hookId;
         int hookCount;
+        Task hookTask;
         object gate;
 
         private InterceptKeys()
         {
+            hookTask = Task.FromResult(IntPtr.Zero);
             keyDown = new Subject<Keys>();
             keyUp = new Subject<Keys>();
             gate = new object();
@@ -91,14 +93,13 @@ namespace Bonsai.Windows.Input
             using (var curModule = curProcess.MainModule)
             {
                 var threadContext = new ApplicationContext();
-                var hookThread = new Thread(() =>
+                hookTask = hookTask.ContinueWith(previous =>
                 {
                     hookId = SetWindowsHookEx(WH_KEYBOARD_LL, proc, GetModuleHandle(curModule.ModuleName), 0);
                     Application.Run(threadContext);
                     UnhookWindowsHookEx(hookId);
                     hookId = IntPtr.Zero;
-                });
-                hookThread.Start();
+                }, TaskContinuationOptions.LongRunning);
                 return threadContext;
             }
         }
