@@ -49,8 +49,13 @@ namespace Bonsai.Expressions
         /// <returns>An <see cref="Expression"/> tree node.</returns>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
+            var source = arguments.FirstOrDefault();
+            if (source == null)
+            {
+                throw new InvalidOperationException("There must be at least one workflow input to Condition.");
+            }
+
             // Assign input
-            var source = arguments.Single();
             var selectorParameter = Expression.Parameter(source.Type);
             return BuildWorflow(arguments, selectorParameter, selectorBody =>
             {

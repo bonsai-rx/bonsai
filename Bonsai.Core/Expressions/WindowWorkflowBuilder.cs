@@ -54,7 +54,12 @@ namespace Bonsai.Expressions
         /// <returns>An <see cref="Expression"/> tree node.</returns>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            var source = arguments.Single();
+            var source = arguments.FirstOrDefault();
+            if (source == null)
+            {
+                throw new InvalidOperationException("There must be at least one workflow input to WindowWorkflow.");
+            }
+
             var sourceType = source.Type.GetGenericArguments()[0];
             if (!sourceType.IsGenericType || sourceType.GetGenericTypeDefinition() != typeof(IObservable<>))
             {
