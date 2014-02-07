@@ -77,33 +77,15 @@ namespace Bonsai.Expressions
 
         Type GetPropertyType(Type expressionType)
         {
-            if (expressionType == typeof(DateTimeOffset)) return typeof(DateTimeOffsetProperty);
+            if (expressionType == typeof(bool)) return typeof(BooleanProperty);
+            if (expressionType == typeof(int)) return typeof(IntProperty);
+            if (expressionType == typeof(float)) return typeof(FloatProperty);
+            if (expressionType == typeof(double)) return typeof(DoubleProperty);
+            if (expressionType == typeof(string)) return typeof(StringProperty);
+            if (expressionType == typeof(DateTime)) return typeof(DateTimeProperty);
             if (expressionType == typeof(TimeSpan)) return typeof(TimeSpanProperty);
-
-            var typeCode = Type.GetTypeCode(expressionType);
-            switch (typeCode)
-            {
-                case TypeCode.Boolean: return typeof(BooleanProperty);
-                case TypeCode.DateTime: return typeof(DateTimeProperty);
-                case TypeCode.Double: return typeof(DoubleProperty);
-                case TypeCode.Int32: return typeof(IntProperty);
-                case TypeCode.Single: return typeof(FloatProperty);
-                case TypeCode.String: return typeof(StringProperty);
-                case TypeCode.Byte:
-                case TypeCode.Char:
-                case TypeCode.DBNull:
-                case TypeCode.Decimal:
-                case TypeCode.Empty:
-                case TypeCode.Int16:
-                case TypeCode.Int64:
-                case TypeCode.Object:
-                case TypeCode.SByte:
-                case TypeCode.UInt16:
-                case TypeCode.UInt32:
-                case TypeCode.UInt64:
-                default:
-                    return typeof(WorkflowProperty<>).MakeGenericType(expressionType);
-            }
+            if (expressionType == typeof(DateTimeOffset)) return typeof(DateTimeOffsetProperty);
+            return typeof(WorkflowProperty<>).MakeGenericType(expressionType);
         }
     }
 }
