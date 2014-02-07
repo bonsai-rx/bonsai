@@ -33,10 +33,12 @@ namespace Bonsai.Windows.Input
         Subject<MouseButtons> mouseButtonUp;
         IntPtr hookId;
         int hookCount;
+        Task hookTask;
         object gate;
 
         private InterceptMouse()
         {
+            hookTask = Task.FromResult(IntPtr.Zero);
             mouseMove = new Subject<Point>();
             mouseWheel = new Subject<int>();
             mouseButtonDown = new Subject<MouseButtons>();
@@ -116,14 +118,13 @@ namespace Bonsai.Windows.Input
             using (var curModule = curProcess.MainModule)
             {
                 var threadContext = new ApplicationContext();
-                var hookThread = new Thread(() =>
+                hookTask = hookTask.ContinueWith(previous =>
                 {
                     hookId = SetWindowsHookEx(WH_MOUSE_LL, proc, GetModuleHandle(curModule.ModuleName), 0);
                     Application.Run(threadContext);
                     UnhookWindowsHookEx(hookId);
                     hookId = IntPtr.Zero;
-                });
-                hookThread.Start();
+                }, TaskContinuationOptions.LongRunning);
                 return threadContext;
             }
         }
