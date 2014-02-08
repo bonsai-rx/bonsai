@@ -382,7 +382,11 @@ namespace Bonsai.Editor
 
         void UpdateCurrentDirectory()
         {
-            Environment.CurrentDirectory = directoryToolStripTextBox.Text;
+            if (Directory.Exists(directoryToolStripTextBox.Text))
+            {
+                Environment.CurrentDirectory = directoryToolStripTextBox.Text;
+            }
+            else directoryToolStripTextBox.Text = Environment.CurrentDirectory;
         }
 
         private void directoryToolStripTextBox_TextChanged(object sender, EventArgs e)
