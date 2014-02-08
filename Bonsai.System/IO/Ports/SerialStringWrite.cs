@@ -8,12 +8,12 @@ using System.Reactive.Linq;
 
 namespace Bonsai.IO
 {
-    public class SerialStringWrite : Sink<object>
+    public class SerialStringWrite : Sink
     {
         [Editor("Bonsai.IO.Design.SerialPortConfigurationEditor, Bonsai.System.Design", typeof(UITypeEditor))]
         public string PortName { get; set; }
 
-        public override IObservable<object> Process(IObservable<object> source)
+        public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
             return Observable.Using(
                 () =>
