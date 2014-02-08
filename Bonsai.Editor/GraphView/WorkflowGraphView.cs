@@ -1571,9 +1571,12 @@ namespace Bonsai.Design
                 var inspectBuilder = (InspectBuilder)selectedNode.Value;
                 if (inspectBuilder != null && inspectBuilder.ObservableType != null)
                 {
-                    outputToolStripMenuItem.Enabled = true;
+                    outputToolStripMenuItem.Enabled = !editorService.WorkflowRunning;
                     InitializeOutputMenuItem(outputToolStripMenuItem, ExpressionBuilderArgument.ArgumentNamePrefix, inspectBuilder.ObservableType);
-                    outputToolStripMenuItem.Tag = CreateOutputMenuItems(inspectBuilder.ObservableType, outputToolStripMenuItem, selectedNode);
+                    if (outputToolStripMenuItem.Enabled)
+                    {
+                        outputToolStripMenuItem.Tag = CreateOutputMenuItems(inspectBuilder.ObservableType, outputToolStripMenuItem, selectedNode);
+                    }
                 }
 
                 var layoutSettings = GetLayoutSettings(selectedNode.Value);
