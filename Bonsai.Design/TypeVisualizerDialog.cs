@@ -24,7 +24,12 @@ namespace Bonsai.Design
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Escape) Close();
+            if (e.KeyCode == Keys.Escape)
+            {
+                Close();
+                e.Handled = true;
+            }
+
             if (e.KeyCode == Keys.F11)
             {
                 if (FormBorderStyle == FormBorderStyle.None) FormBorderStyle = FormBorderStyle.Sizable;
