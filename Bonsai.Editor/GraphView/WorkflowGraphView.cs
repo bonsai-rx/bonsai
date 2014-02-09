@@ -800,7 +800,7 @@ namespace Bonsai.Design
                 var workflowOutput = new WorkflowOutputBuilder();
                 var outputNode = workflowBuilder.Workflow.Add(workflowOutput);
                 workflowBuilder.Workflow.AddEdge(sink, outputNode, new ExpressionBuilderArgument());
-                if (linkNode == null)
+                if (linkNode == null && successors.Length > 0)
                 {
                     linkNode = successors[0];
                     replacementNode = sinkNode;
