@@ -29,7 +29,12 @@ namespace Bonsai.Vision.Design
                              select from moveEvt in mouseMove.TakeUntil(mouseUp).Where(upEvt => upEvt.Button == MouseButtons.Left)
                                     select new Rect(origin.X, origin.Y, moveEvt.X - origin.X, moveEvt.Y - origin.Y)).Switch();
 
-            mousePick.Subscribe(rect => rectangle = NormalizedRectangle(rect));
+            mousePick.Subscribe(rect =>
+            {
+                rectangle = NormalizedRectangle(rect);
+                Canvas.Invalidate();
+            });
+
             mouseUp.Subscribe(evt =>
             {
                 if (evt.Button == MouseButtons.Right) rectangle = new Rect(0, 0, 0, 0);
