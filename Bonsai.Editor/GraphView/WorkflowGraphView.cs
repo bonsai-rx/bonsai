@@ -626,7 +626,7 @@ namespace Bonsai.Design
                                      select siblingEdge.Item2)
                                      .ToArray();
 
-            var simplePredecessor = (predecessorEdges.Length == 1 && predecessorEdges[0].Item1.Successors.Count == 1);
+            var simplePredecessor = predecessorEdges.Length == 1;
             var simpleSuccessor = (workflowNode.Successors.Count == 1 && workflow.Predecessors(workflowNode.Successors[0].Target).Count() == 1);
             var replaceEdge = simplePredecessor || simpleSuccessor;
             if (replaceEdge)
