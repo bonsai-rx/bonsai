@@ -318,6 +318,16 @@ namespace Bonsai.Editor
 
         bool CheckUnsavedChanges()
         {
+            if (editorSite.WorkflowRunning)
+            {
+                var result = MessageBox.Show("Do you want to stop the workflow?", "Workflow Running", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                if (result == DialogResult.Yes)
+                {
+                    StopWorkflow();
+                }
+                else return false;
+            }
+
             if (saveVersion != version)
             {
                 var result = MessageBox.Show("Workflow has unsaved changes. Save project file?", "Unsaved Changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
@@ -497,7 +507,6 @@ namespace Bonsai.Editor
         protected override void OnClosing(CancelEventArgs e)
         {
             if (!CheckUnsavedChanges()) e.Cancel = true;
-            else StopWorkflow();
             base.OnClosing(e);
         }
 
