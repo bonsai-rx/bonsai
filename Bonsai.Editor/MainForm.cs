@@ -250,7 +250,10 @@ namespace Bonsai.Editor
                 {
                     var nestedOrCondition = elementType == ElementCategory.Nested || elementType == ElementCategory.Condition;
                     var typeCategory = nestedOrCondition ? ElementCategory.Combinator : elementType;
-                    var elementTypeNode = toolboxTreeView.Nodes[typeCategory.ToString()];
+                    var typeCategoryName = typeCategory.ToString();
+                    var elementTypeNode = treeCache.Count > 0
+                        ? treeCache.Single(ns => ns.Name == typeCategoryName)
+                        : toolboxTreeView.Nodes[typeCategoryName];
                     var category = elementTypeNode.Nodes[categoryName];
                     if (category == null)
                     {
