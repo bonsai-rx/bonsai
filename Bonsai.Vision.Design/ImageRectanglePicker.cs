@@ -32,11 +32,16 @@ namespace Bonsai.Vision.Design
             mousePick.Subscribe(rect => rectangle = NormalizedRectangle(rect));
             mouseUp.Subscribe(evt =>
             {
-                rectangle.X = Math.Min(rectangle.X, rectangle.X + rectangle.Width);
-                rectangle.Y = Math.Min(rectangle.Y, rectangle.Y + rectangle.Height);
-                rectangle.Width = Math.Abs(rectangle.Width);
-                rectangle.Height = Math.Abs(rectangle.Height);
-                rectangle = ClipRectangle(rectangle);
+                if (evt.Button == MouseButtons.Right) rectangle = new Rect(0, 0, 0, 0);
+                else
+                {
+                    rectangle.X = Math.Min(rectangle.X, rectangle.X + rectangle.Width);
+                    rectangle.Y = Math.Min(rectangle.Y, rectangle.Y + rectangle.Height);
+                    rectangle.Width = Math.Abs(rectangle.Width);
+                    rectangle.Height = Math.Abs(rectangle.Height);
+                    rectangle = ClipRectangle(rectangle);
+                }
+
                 OnRectangleChanged(EventArgs.Empty);
             });
         }

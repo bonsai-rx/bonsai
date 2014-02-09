@@ -18,12 +18,28 @@ namespace Bonsai.Vision.Design
 
         public ImageQuadranglePicker()
         {
+            var mouseDown = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseDown").Select(e => e.EventArgs);
             var mouseMove = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseMove").Select(e => e.EventArgs);
+            var mouseRightButtonDown = mouseDown.Where(evt => evt.Button == MouseButtons.Right);
             var mouseDrag = from evt in mouseMove
-                            where Image != null && evt.Button.HasFlag(MouseButtons.Left)
+                            let image = Image
+                            where image != null && evt.Button.HasFlag(MouseButtons.Left)
                             select new Point2f(
-                                evt.X * Image.Width / (float)Canvas.Width,
-                                evt.Y * Image.Height / (float)Canvas.Height);
+                                evt.X * image.Width / (float)Canvas.Width,
+                                evt.Y * image.Height / (float)Canvas.Height);
+
+            mouseRightButtonDown.Subscribe(evt =>
+            {
+                var image = Image;
+                if (image != null)
+                {
+                    quadrangle[0] = new Point2f(0, 0);
+                    quadrangle[1] = new Point2f(0, image.Height);
+                    quadrangle[2] = new Point2f(image.Width, image.Height);
+                    quadrangle[3] = new Point2f(image.Width, 0);
+                    OnQuadrangleChanged(EventArgs.Empty);
+                }
+            });
 
             mouseDrag.Subscribe(point =>
             {
