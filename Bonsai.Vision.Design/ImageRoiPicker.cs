@@ -44,7 +44,7 @@ namespace Bonsai.Vision.Design
                                                orderby distance
                                                select region.i)
                                                .FirstOrDefault()
-                              select selection;
+                              select new Action(() => selectedRoi = selection);
 
             var roiMove = from downEvt in mouseDown
                           where downEvt.Button == MouseButtons.Left && selectedRoi.HasValue
@@ -69,13 +69,23 @@ namespace Bonsai.Vision.Design
                                   let origin = NormalizedLocation(downEvt.X, downEvt.Y)
                                   from moveEvt in mouseMove.TakeUntil(mouseUp)
                                   let location = NormalizedLocation(moveEvt.X, moveEvt.Y)
-                                  select new[]
+                                  select new Action(() =>
                                   {
-                                      origin,
-                                      new Point(location.X, origin.Y),
-                                      location,
-                                      new Point(origin.X, location.Y)
-                                  };
+                                      var region = new[]
+                                      {
+                                          origin,
+                                          new Point(location.X, origin.Y),
+                                          location,
+                                          new Point(origin.X, location.Y)
+                                      };
+
+                                      if (selectedRoi.HasValue) regions[selectedRoi.Value] = region;
+                                      else
+                                      {
+                                          selectedRoi = regions.Count;
+                                          regions.Add(region);
+                                      }
+                                  });
 
             var pointInsertion = from clickEvt in mouseDoubleClick
                                  where clickEvt.Button == MouseButtons.Left && selectedRoi.HasValue
@@ -112,20 +122,11 @@ namespace Bonsai.Vision.Design
                                     regions[selectedRoi.Value] = resizeRegion;
                                 });
 
-
-            roiSelected.Subscribe(selection => selectedRoi = selection);
-            pointMove.Subscribe(action => action());
-            roiMove.Subscribe(action => action());
-            pointInsertion.Subscribe(action => action());
-            pointDeletion.Subscribe(action => action());
-            regionInsertion.Subscribe(region =>
+            var roiActions = Observable.Merge(roiSelected, pointMove, roiMove, pointInsertion, pointDeletion, regionInsertion);
+            roiActions.Subscribe(action =>
             {
-                if (selectedRoi.HasValue) regions[selectedRoi.Value] = region;
-                else
-                {
-                    selectedRoi = regions.Count;
-                    regions.Add(region);
-                }
+                action();
+                Canvas.Invalidate();
             });
         }
 
@@ -157,6 +158,7 @@ namespace Bonsai.Vision.Design
             {
                 regions.RemoveAt(selectedRoi.Value);
                 selectedRoi = null;
+                Canvas.Invalidate();
             }
         }
 
@@ -165,6 +167,7 @@ namespace Bonsai.Vision.Design
             if (keyData == Keys.Tab && regions.Count > 0)
             {
                 selectedRoi = ((selectedRoi ?? 0) + 1) % regions.Count;
+                Canvas.Invalidate();
             }
 
             return base.ProcessCmdKey(ref msg, keyData);

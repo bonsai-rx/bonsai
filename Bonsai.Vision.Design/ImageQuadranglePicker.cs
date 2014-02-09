@@ -38,6 +38,7 @@ namespace Bonsai.Vision.Design
                     quadrangle[2] = new Point2f(image.Width, image.Height);
                     quadrangle[3] = new Point2f(image.Width, 0);
                     OnQuadrangleChanged(EventArgs.Empty);
+                    Canvas.Invalidate();
                 }
             });
 
@@ -57,6 +58,7 @@ namespace Bonsai.Vision.Design
 
                 quadrangle[cornerIndex] = point;
                 OnQuadrangleChanged(EventArgs.Empty);
+                Canvas.Invalidate();
             });
         }
 
