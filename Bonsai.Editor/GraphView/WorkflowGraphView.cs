@@ -777,7 +777,10 @@ namespace Bonsai.Design
             GraphNode replacementNode = null;
             var nodeType = CreateGraphNodeType.Successor;
             var workflowBuilder = nodes.ToWorkflowBuilder();
-            var source = workflowBuilder.Workflow.Sources().First();
+            var sources = workflowBuilder.Workflow.Sources().ToArray();
+            var sinks = workflowBuilder.Workflow.Sinks().ToArray();
+
+            var source = sources.First();
             var layeredNodes = graphView.Nodes.LayeredNodes();
             var sourceNode = layeredNodes.Single(node => GetGraphNodeBuilder(node) == source.Value);
             var predecessors = layeredNodes
@@ -792,10 +795,10 @@ namespace Bonsai.Design
                 replacementNode = sourceNode;
             }
 
-            var sink = workflowBuilder.Workflow.Sinks().First();
+            var sink = sinks.First();
             var sinkNode = layeredNodes.Single(node => GetGraphNodeBuilder(node) == sink.Value);
             var successors = sinkNode.Successors.Select(edge => edge.Node).ToArray();
-            if (successors.Length <= 1)
+            if (sinks.Length == 1)
             {
                 var workflowOutput = new WorkflowOutputBuilder();
                 var outputNode = workflowBuilder.Workflow.Add(workflowOutput);
