@@ -74,7 +74,7 @@ namespace Bonsai.Expressions
             var methodName = ((SourceAttribute)sourceAttributes.Single()).MethodName;
             var generateMethod = sourceType.GetMethods(bindingAttributes)
                                            .Single(m => m.Name == methodName && m.GetParameters().Length == 0);
-            return HandleBuildException(Expression.Call(sourceExpression, generateMethod), this);
+            return Expression.Call(sourceExpression, generateMethod);
         }
     }
 }
