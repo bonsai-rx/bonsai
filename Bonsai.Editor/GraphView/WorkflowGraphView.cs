@@ -511,7 +511,7 @@ namespace Bonsai.Design
             CreateGraphNode(builder, elementCategory, closestGraphViewNode, nodeType, branch);
         }
 
-        public void CreateGraphNode(ExpressionBuilder builder, ElementCategory elementCategory, GraphNode closestGraphViewNode, CreateGraphNodeType nodeType, bool branch)
+        public void CreateGraphNode(ExpressionBuilder builder, ElementCategory elementCategory, GraphNode closestGraphViewNode, CreateGraphNodeType nodeType, bool branch, bool validate = true)
         {
             if (builder == null)
             {
@@ -546,7 +546,7 @@ namespace Bonsai.Design
             {
                 addNode();
                 addConnection();
-                var validation = updateGraphLayoutValidation();
+                var validation = validate && updateGraphLayoutValidation();
                 if (validation)
                 {
                     updateSelectedNode();
@@ -556,8 +556,11 @@ namespace Bonsai.Design
             {
                 removeConnection();
                 removeNode();
-                updateGraphLayout();
-                restoreSelectedNode();
+                if (validate)
+                {
+                    updateGraphLayout();
+                    restoreSelectedNode();
+                }
             });
         }
 
@@ -829,7 +832,8 @@ namespace Bonsai.Design
                             ElementCategory.Nested,
                             replacementNode,
                             nodeType,
-                            branch: false);
+                            branch: false,
+                            validate: false);
             if (replacementNode != null) DeleteGraphNode(replacementNode);
             commandExecutor.Execute(() =>
             {
