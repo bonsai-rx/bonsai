@@ -45,6 +45,8 @@ namespace Bonsai.Dsp.Design
 
         public WaveformGraph()
         {
+            autoScaleX = true;
+            autoScaleY = true;
             overlayChannels = true;
             allowSelectionUpdate = true;
             WaveformBufferLength = 1;
