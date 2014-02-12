@@ -58,7 +58,7 @@ namespace Bonsai.Dsp
                             for (int i = 0; i < buffer.Length; i++)
                             {
                                 var t = frequency * (i + period / 4) * indexScale;
-                                buffer[i] = 1 - (4 * Math.Abs((t % 1) - 0.5) - 1);
+                                buffer[i] = (1 - (4 * Math.Abs((t % 1) - 0.5) - 1)) - 1;
                             }
                             break;
                         case FunctionWaveform.Square:
