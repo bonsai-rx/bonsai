@@ -33,7 +33,7 @@ namespace Bonsai.Reactive
         /// <returns>An observable sequence of windows.</returns>
         public IObservable<IObservable<TSource>> Process<TSource, TWindowClosing>(IObservable<TSource> source, IObservable<TWindowClosing> windowClosing)
         {
-            return source.Window(() => windowClosing);
+            return source.Window(windowClosing);
         }
     }
 }
