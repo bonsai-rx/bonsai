@@ -241,7 +241,7 @@ namespace Bonsai
             else packageConfiguration.Packages[package.Id].Version = package.Version.ToString();
 
             RegisterLibraryFolders(package, installPath);
-            RegisterAssemblyLocations(package, e.InstallPath, installPath, taggedPackage);
+            RegisterAssemblyLocations(package, e.InstallPath, installPath, false);
             var pivots = OverlayHelper.FindPivots(package, e.InstallPath).ToArray();
             if (pivots.Length > 0)
             {
@@ -250,7 +250,7 @@ namespace Bonsai
                 {
                     var pivotPackage = overlayManager.LocalRepository.FindPackage(pivot);
                     RegisterLibraryFolders(pivotPackage, installPath);
-                    RegisterAssemblyLocations(pivotPackage, e.InstallPath, installPath, taggedPackage);
+                    RegisterAssemblyLocations(pivotPackage, e.InstallPath, installPath, false);
                 }
             }
 
@@ -281,7 +281,7 @@ namespace Bonsai
             packageConfiguration.Packages.Remove(package.Id);
 
             RemoveLibraryFolders(package, installPath);
-            RemoveAssemblyLocations(package, e.InstallPath, taggedPackage);
+            RemoveAssemblyLocations(package, e.InstallPath, false);
             var pivots = OverlayHelper.FindPivots(package, e.InstallPath).ToArray();
             if (pivots.Length > 0)
             {
@@ -290,7 +290,7 @@ namespace Bonsai
                 {
                     var pivotPackage = overlayManager.LocalRepository.FindPackage(pivot);
                     RemoveLibraryFolders(pivotPackage, installPath);
-                    RemoveAssemblyLocations(pivotPackage, e.InstallPath, taggedPackage);
+                    RemoveAssemblyLocations(pivotPackage, e.InstallPath, false);
                 }
             }
 
