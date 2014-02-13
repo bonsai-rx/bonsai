@@ -478,15 +478,16 @@ namespace Bonsai.NuGet
                     else
                     {
                         var allowPrereleaseVersions = AllowPrereleaseVersions;
-                        if (packageView.OperationText == Resources.UpdateOperationName)
+                        var update = packageView.OperationText == Resources.UpdateOperationName;
+                        dialog.Text = update ? Resources.UpdateOperationLabel : Resources.InstallOperationLabel;
+
+                        if (update || selectedManager.LocalRepository.FindPackage(package.Id) != null)
                         {
                             operation = Observable.Start(() => selectedManager.UpdatePackage(package, false, allowPrereleaseVersions));
-                            dialog.Text = Resources.UpdateOperationLabel;
                         }
                         else
                         {
                             operation = Observable.Start(() => selectedManager.InstallPackage(package, false, allowPrereleaseVersions));
-                            dialog.Text = Resources.InstallOperationLabel;
                         }
                     }
 
