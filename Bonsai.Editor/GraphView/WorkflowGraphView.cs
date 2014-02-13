@@ -1535,6 +1535,7 @@ namespace Bonsai.Design
                                     localGraphView.SelectedNode = localGraphView.Nodes.LayeredNodes().First(n => GetGraphNodeBuilder(n) == builder);
                                 });
 
+                                builder.Name = workflowBuilder.Name;
                                 commandExecutor.BeginCompositeCommand();
                                 commandExecutor.Execute(() => { }, updateGraphLayout);
                                 CreateGraphNode(builder, element.ElementTypes[0], selectedNode, CreateGraphNodeType.Successor, false);
