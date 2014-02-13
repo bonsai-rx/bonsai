@@ -1514,45 +1514,50 @@ namespace Bonsai.Design
             var toolboxService = (IWorkflowToolboxService)serviceProvider.GetService(typeof(IWorkflowToolboxService));
             if (toolboxService != null)
             {
+                var selectedNode = selectedNodes.Length == 1 ? selectedNodes[0] : null;
+                var workflowBuilder = selectedNode != null ? GetGraphNodeBuilder(selectedNode) as WorkflowExpressionBuilder : null;
                 foreach (var element in from element in toolboxService.GetToolboxElements()
                                         where element.ElementTypes.Length == 1 &&
                                               (element.ElementTypes.Contains(ElementCategory.Nested) || element.AssemblyQualifiedName == typeof(ConditionBuilder).AssemblyQualifiedName)
                                         select element)
                 {
+                    ToolStripMenuItem menuItem = null;
                     var name = string.Format("{0} ({1})", element.Name, toolboxService.GetPackageDisplayName(element.Namespace));
-                    groupToolStripMenuItem.DropDownItems.Add(name, null, (sender, e) =>
+                    menuItem = new ToolStripMenuItem(name, null, (sender, e) =>
                     {
-                        if (selectedNodes.Length == 1)
+                        if (workflowBuilder != null)
                         {
-                            var selectedNode = selectedNodes[0];
-                            var workflowBuilder = GetGraphNodeBuilder(selectedNode) as WorkflowExpressionBuilder;
-                            if (workflowBuilder != null)
+                            if (menuItem.Checked) return;
+                            var builder = CreateWorkflowBuilder(element.AssemblyQualifiedName, workflowBuilder.Workflow);
+                            var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
+                            var updateSelectedNode = CreateUpdateGraphViewDelegate(localGraphView =>
                             {
-                                var builder = CreateWorkflowBuilder(element.AssemblyQualifiedName, workflowBuilder.Workflow);
-                                var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
-                                var updateSelectedNode = CreateUpdateGraphViewDelegate(localGraphView =>
-                                {
-                                    localGraphView.SelectedNode = localGraphView.Nodes.LayeredNodes().First(n => GetGraphNodeBuilder(n) == builder);
-                                });
+                                localGraphView.SelectedNode = localGraphView.Nodes.LayeredNodes().First(n => GetGraphNodeBuilder(n) == builder);
+                            });
 
-                                builder.Name = workflowBuilder.Name;
-                                commandExecutor.BeginCompositeCommand();
-                                commandExecutor.Execute(() => { }, updateGraphLayout);
-                                CreateGraphNode(builder, element.ElementTypes[0], selectedNode, CreateGraphNodeType.Successor, false);
-                                DeleteGraphNode(selectedNode);
-                                commandExecutor.Execute(() =>
-                                {
-                                    updateGraphLayout();
-                                    updateSelectedNode();
-                                },
-                                () => { });
-                                commandExecutor.EndCompositeCommand();
-                                return;
-                            }
+                            builder.Name = workflowBuilder.Name;
+                            commandExecutor.BeginCompositeCommand();
+                            commandExecutor.Execute(() => { }, updateGraphLayout);
+                            CreateGraphNode(builder, element.ElementTypes[0], selectedNode, CreateGraphNodeType.Successor, false);
+                            DeleteGraphNode(selectedNode);
+                            commandExecutor.Execute(() =>
+                            {
+                                updateGraphLayout();
+                                updateSelectedNode();
+                            },
+                            () => { });
+                            commandExecutor.EndCompositeCommand();
                         }
-
-                        GroupGraphNodes(selectedNodes, element.AssemblyQualifiedName);
+                        else GroupGraphNodes(selectedNodes, element.AssemblyQualifiedName);
                     });
+
+                    if (workflowBuilder != null &&
+                        workflowBuilder.GetType().AssemblyQualifiedName == element.AssemblyQualifiedName)
+                    {
+                        menuItem.Checked = true;
+                    }
+
+                    groupToolStripMenuItem.DropDownItems.Add(menuItem);
                 }
             }
         }
