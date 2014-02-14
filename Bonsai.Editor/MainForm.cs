@@ -954,11 +954,26 @@ namespace Bonsai.Editor
 
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.E && e.Control)
+            if (e.Control && e.KeyCode == Keys.E)
             {
                 searchTextBox.Focus();
                 e.Handled = true;
                 e.SuppressKeyPress = true;
+            }
+        }
+
+        private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            var model = selectionModel.SelectedView ?? workflowGraphView;
+            if (!editorSite.WorkflowRunning && model.GraphView.Focused)
+            {
+                if (char.IsLetter(e.KeyChar))
+                {
+                    searchTextBox.Focus();
+                    searchTextBox.Clear();
+                    searchTextBox.AppendText(e.KeyChar.ToString());
+                    e.Handled = true;
+                }
             }
         }
 
