@@ -40,7 +40,7 @@ namespace Bonsai.Dsp
                 return ObservableCombinators.GenerateWithThread<Mat>(observer =>
                 {
                     stopwatch.Restart();
-                    var frequency = Frequency;
+                    var frequency = Math.Max(1, Frequency);
                     var period = buffer.Length / frequency;
                     var indexScale = 1.0 / buffer.Length;
                     var waveform = Waveform;
