@@ -40,12 +40,12 @@ namespace Bonsai.Osc.Design
 
         protected override CollectionEditor CreateConfigurationEditor(Type type)
         {
-            return new SocketConfigurationCollectionEditor(type);
+            return new TransportConfigurationCollectionEditor(type);
         }
 
-        class SocketConfigurationCollectionEditor : DescriptiveCollectionEditor
+        class TransportConfigurationCollectionEditor : DescriptiveCollectionEditor
         {
-            public SocketConfigurationCollectionEditor(Type type)
+            public TransportConfigurationCollectionEditor(Type type)
                 : base(type)
             {
             }

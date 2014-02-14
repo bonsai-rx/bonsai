@@ -26,7 +26,10 @@ namespace Bonsai.Design
             SuspendLayout();
             foreach (var portName in GetConfigurationNames())
             {
-                configurationNameListbox.Items.Add(portName);
+                if (!string.IsNullOrWhiteSpace(portName))
+                {
+                    configurationNameListbox.Items.Add(portName);
+                }
             }
 
             configurationNameListbox.Height = configurationNameListbox.ItemHeight * (configurationNameListbox.Items.Count + 0);
