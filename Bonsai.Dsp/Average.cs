@@ -17,5 +17,12 @@ namespace Bonsai.Dsp
         {
             return source.Select(input => CV.Avg(input));
         }
+
+        public IObservable<Scalar> Process<TArray, TMask>(IObservable<Tuple<TArray, TMask>> source)
+            where TArray : Arr
+            where TMask : Arr
+        {
+            return source.Select(input => CV.Avg(input.Item1, input.Item2));
+        }
     }
 }
