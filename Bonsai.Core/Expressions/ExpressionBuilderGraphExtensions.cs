@@ -331,12 +331,30 @@ namespace Bonsai.Expressions
         /// </returns>
         public static ExpressionBuilderGraph ToInspectableGraph(this ExpressionBuilderGraph source)
         {
+            return ToInspectableGraph(source, true);
+        }
+
+        /// <summary>
+        /// Converts the specified expression builder workflow into an equivalent representation
+        /// where all the nodes are decorated by <see cref="InspectBuilder"/> instances that allow
+        /// for runtime inspection and error redirection of workflow values.
+        /// </summary>
+        /// <param name="source">The expression builder workflow to convert.</param>
+        /// <returns>
+        /// <param name="recurse">
+        /// A value indicating whether to recurse the conversion into nested workflows.
+        /// </param>
+        /// A new expression builder workflow where all nodes have been decorated by
+        /// <see cref="InspectBuilder"/> instances.
+        /// </returns>
+        public static ExpressionBuilderGraph ToInspectableGraph(this ExpressionBuilderGraph source, bool recurse)
+        {
             var observableMapping = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderArgument>, Node<ExpressionBuilder, ExpressionBuilderArgument>>();
             var observableGraph = new ExpressionBuilderGraph();
             foreach (var node in source)
             {
                 ExpressionBuilder nodeValue = node.Value;
-                var workflowExpression = nodeValue as WorkflowExpressionBuilder;
+                var workflowExpression = recurse ? nodeValue as WorkflowExpressionBuilder : null;
                 if (workflowExpression != null)
                 {
                     nodeValue = workflowExpression.Clone(workflowExpression.Workflow.ToInspectableGraph());
