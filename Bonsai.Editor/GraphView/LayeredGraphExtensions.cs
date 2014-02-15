@@ -13,8 +13,13 @@ namespace Bonsai.Design
     {
         public static WorkflowBuilder ToWorkflowBuilder(this IEnumerable<GraphNode> source)
         {
+            return ToWorkflowBuilder(source, true);
+        }
+
+        public static WorkflowBuilder ToWorkflowBuilder(this IEnumerable<GraphNode> source, bool recurse)
+        {
             var workflow = source.Select(node => (Node<ExpressionBuilder, ExpressionBuilderArgument>)node.Tag)
-                                 .FromInspectableGraph(true);
+                                 .FromInspectableGraph(recurse);
             return new WorkflowBuilder(workflow);
         }
 

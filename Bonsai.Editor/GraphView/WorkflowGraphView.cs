@@ -779,7 +779,7 @@ namespace Bonsai.Design
             GraphNode linkNode = null;
             GraphNode replacementNode = null;
             var nodeType = CreateGraphNodeType.Successor;
-            var workflowBuilder = nodes.ToWorkflowBuilder();
+            var workflowBuilder = nodes.ToWorkflowBuilder(recurse: false);
             var sources = workflowBuilder.Workflow.Sources().ToArray();
             var sinks = workflowBuilder.Workflow.Sinks().ToArray();
 
@@ -815,7 +815,7 @@ namespace Bonsai.Design
             }
 
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
-            var workflowExpressionBuilder = groupFactory(workflowBuilder.Workflow.ToInspectableGraph());
+            var workflowExpressionBuilder = groupFactory(workflowBuilder.Workflow.ToInspectableGraph(recurse: false));
             var updateSelectedNode = CreateUpdateGraphViewDelegate(localGraphView =>
             {
                 localGraphView.SelectedNode = localGraphView.Nodes.LayeredNodes().First(n => GetGraphNodeBuilder(n) == workflowExpressionBuilder);
