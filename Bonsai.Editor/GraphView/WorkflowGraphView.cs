@@ -1164,7 +1164,7 @@ namespace Bonsai.Design
             else if (e.Data.GetDataPresent(DataFormats.FileDrop, true))
             {
                 var path = (string[])e.Data.GetData(DataFormats.FileDrop, true);
-                if (path != null && path.Length > 0 &&
+                if (path != null && path.Length == 1 &&
                     Path.GetExtension(path[0]) == BonsaiExtension &&
                     File.Exists(path[0]))
                 {
@@ -1232,9 +1232,13 @@ namespace Bonsai.Design
                     if (e.Data.GetDataPresent(DataFormats.FileDrop, true))
                     {
                         var path = (string[])e.Data.GetData(DataFormats.FileDrop, true);
-                        var workflowBuilder = editorService.LoadWorkflow(path[0]);
-                        var workflowExpressionBuilder = new NestedWorkflowBuilder(workflowBuilder.Workflow);
-                        CreateGraphNode(workflowExpressionBuilder, ElementCategory.Combinator, linkNode, nodeType, branch);
+                        if (path.Length == 1)
+                        {
+                            var workflowBuilder = editorService.LoadWorkflow(path[0]);
+                            var workflowExpressionBuilder = new NestedWorkflowBuilder(workflowBuilder.Workflow);
+                            workflowExpressionBuilder.Name = Path.GetFileNameWithoutExtension(path[0]);
+                            CreateGraphNode(workflowExpressionBuilder, ElementCategory.Combinator, linkNode, nodeType, branch);
+                        }
                     }
                     else
                     {
