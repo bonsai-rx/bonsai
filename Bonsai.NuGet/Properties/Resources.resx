@@ -209,4 +209,7 @@
         gXjZcJYNakAs3BPMSGtpAoyP/2c0FebgLTEHb4eb/QDNdfWdozOECQAAAABJRU5ErkJggg==
 </value>
   </data>
+  <data name="NoUpdatesAvailableLabel" xml:space="preserve">
+    <value>No package updates are available.</value>
+  </data>
 </root>
