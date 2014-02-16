@@ -100,8 +100,6 @@
             this.packageView.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(246)))), ((int)(((byte)(246)))));
             this.packageView.CanSelectNodes = false;
             this.packageView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.packageView.DrawMode = System.Windows.Forms.TreeViewDrawMode.OwnerDrawText;
-            this.packageView.FullRowSelect = true;
             this.packageView.ImageIndex = 0;
             this.packageView.ImageList = this.packageIcons;
             this.packageView.ItemHeight = 64;
