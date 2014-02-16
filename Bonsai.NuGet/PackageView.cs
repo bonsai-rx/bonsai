@@ -31,6 +31,8 @@ namespace Bonsai.NuGet
 
         public PackageView()
         {
+            ShowLines = false;
+            FullRowSelect = true;
             DrawMode = TreeViewDrawMode.OwnerDrawText;
             packageViewNodeCheckedImage = Resources.PackageViewNodeCheckedImage;
         }
@@ -105,6 +107,19 @@ namespace Bonsai.NuGet
             }
 
             base.WndProc(ref m);
+        }
+
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            if (CanSelectNodes)
+            {
+                var node = GetNodeAt(e.Location);
+                if (node != null)
+                {
+                    SelectedNode = node;
+                }
+            }
+            base.OnMouseDown(e);
         }
 
         protected override void OnMouseClick(MouseEventArgs e)
