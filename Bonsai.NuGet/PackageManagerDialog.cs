@@ -58,6 +58,7 @@ namespace Bonsai.NuGet
             packageManagers = CreatePackageManagers();
             InitializeComponent();
             InitializeRepositoryViewNodes();
+            multiOperationPanel.Visible = false;
             searchComboBox.CueBanner = Resources.SearchOnlineCueBanner;
             searchComboBox.Select();
         }
@@ -278,6 +279,7 @@ namespace Bonsai.NuGet
         private void SetPackageViewStatus(string text, Image image = null)
         {
             if (packageView.Nodes.ContainsKey(text)) return;
+            multiOperationPanel.Visible = false;
             packageView.CanSelectNodes = false;
             packageView.BeginUpdate();
             packageView.Nodes.Clear();
@@ -293,10 +295,18 @@ namespace Bonsai.NuGet
             packageView.EndUpdate();
         }
 
-        private void AddPackageRange(IList<IPackage> packages)
+        private void AddPackageRange(IList<IPackage> packages, string operationName)
         {
             if (packages.Count > 0)
             {
+                if (packages.Count > 1 && packagePageSelector.SelectedIndex == 0 &&
+                    operationName == Resources.UpdateOperationName)
+                {
+                    multiOperationLabel.Text = Resources.MultipleUpdatesLabel;
+                    multiOperationButton.Text = Resources.MultipleUpdatesOperationName;
+                    multiOperationPanel.Visible = true;
+                }
+
                 packageView.BeginUpdate();
                 packageView.Nodes.Clear();
                 packageIcons.Images.Clear();
@@ -346,6 +356,7 @@ namespace Bonsai.NuGet
             SetPackageViewStatus(Resources.RetrievingInformationLabel, Resources.WaitImage);
 
             var packageFeed = GetPackageFeed();
+            var operationName = packageView.OperationText;
             var pageIndex = packagePageSelector.SelectedIndex;
             var feedRequest = Observable.Defer(() =>
                 packageFeed().AsBufferedEnumerable(PackagesPerPage * 3)
@@ -358,7 +369,7 @@ namespace Bonsai.NuGet
                 .Buffer(PackagesPerPage)
                 .SubscribeOn(NewThreadScheduler.Default)
                 .ObserveOn(this)
-                .Do(packages => AddPackageRange(packages))
+                .Do(packages => AddPackageRange(packages, operationName))
                 .Sum(packages => packages.Count)
                 .Subscribe(packageCount =>
                 {
@@ -402,6 +413,61 @@ namespace Bonsai.NuGet
                 }));
         }
 
+        private void RunPackageOperation(IEnumerable<IPackage> packages, bool handleDependencies)
+        {
+            using (var dialog = new PackageOperationDialog())
+            {
+                var logger = selectedManager.Logger;
+                dialog.RegisterEventLogger((EventLogger)logger);
+
+                IObservable<Unit> operation;
+                if (selectedRepository == selectedManager.LocalRepository)
+                {
+                    operation = Observable.Start(() =>
+                    {
+                        foreach (var package in packages)
+                        {
+                            selectedManager.UninstallPackage(package, false, handleDependencies);
+                        }
+                    });
+                    dialog.Text = Resources.UninstallOperationLabel;
+                }
+                else
+                {
+                    var allowPrereleaseVersions = AllowPrereleaseVersions;
+                    var update = packageView.OperationText == Resources.UpdateOperationName;
+                    dialog.Text = update ? Resources.UpdateOperationLabel : Resources.InstallOperationLabel;
+
+                    operation = Observable.Start(() =>
+                    {
+                        foreach (var package in packages)
+                        {
+                            if (update || selectedManager.LocalRepository.FindPackage(package.Id) != null)
+                            {
+                                selectedManager.UpdatePackage(package, handleDependencies, allowPrereleaseVersions);
+                            }
+                            else
+                            {
+                                selectedManager.InstallPackage(package, handleDependencies, allowPrereleaseVersions);
+                            }
+                        }
+                    });
+                }
+
+                operationDialog = dialog;
+                try
+                {
+                    operation.ObserveOn(this).Subscribe(
+                        xs => { },
+                        ex => logger.Log(MessageLevel.Error, ex.Message),
+                        () => dialog.Close());
+                    dialog.ShowDialog();
+                    UpdatePackageFeed();
+                }
+                finally { operationDialog = null; }
+            }
+        }
+
         protected override void OnResizeBegin(EventArgs e)
         {
             packageView.BeginUpdate();
@@ -441,9 +507,22 @@ namespace Bonsai.NuGet
             UpdatePackagePage();
         }
 
+        private void multiOperationButton_Click(object sender, EventArgs e)
+        {
+            if (packageView.OperationText == Resources.UpdateOperationName)
+            {
+                var packageFeed = GetPackageFeed();
+                var packages = packageFeed()
+                    .AsEnumerable()
+                    .Where(PackageExtensions.IsListed)
+                    .AsCollapsed();
+                RunPackageOperation(packages, false);
+            }
+        }
+
         private void packageView_OperationClick(object sender, TreeViewEventArgs e)
         {
-            bool removeDependencies = false;
+            bool handleDependencies = false;
             var package = (IPackage)e.Node.Tag;
             if (package != null)
             {
@@ -465,49 +544,11 @@ namespace Bonsai.NuGet
 
                         var result = MessageBox.Show(this, dependencyNotice.ToString(), Text, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
                         if (result == DialogResult.Cancel) return;
-                        if (result == DialogResult.Yes) removeDependencies = true;
+                        if (result == DialogResult.Yes) handleDependencies = true;
                     }
                 }
 
-                using (var dialog = new PackageOperationDialog())
-                {
-                    var logger = selectedManager.Logger;
-                    dialog.RegisterEventLogger((EventLogger)logger);
-
-                    IObservable<Unit> operation;
-                    if (selectedRepository == selectedManager.LocalRepository)
-                    {
-                        operation = Observable.Start(() => selectedManager.UninstallPackage(package, false, removeDependencies));
-                        dialog.Text = Resources.UninstallOperationLabel;
-                    }
-                    else
-                    {
-                        var allowPrereleaseVersions = AllowPrereleaseVersions;
-                        var update = packageView.OperationText == Resources.UpdateOperationName;
-                        dialog.Text = update ? Resources.UpdateOperationLabel : Resources.InstallOperationLabel;
-
-                        if (update || selectedManager.LocalRepository.FindPackage(package.Id) != null)
-                        {
-                            operation = Observable.Start(() => selectedManager.UpdatePackage(package, false, allowPrereleaseVersions));
-                        }
-                        else
-                        {
-                            operation = Observable.Start(() => selectedManager.InstallPackage(package, false, allowPrereleaseVersions));
-                        }
-                    }
-
-                    operationDialog = dialog;
-                    try
-                    {
-                        operation.ObserveOn(this).Subscribe(
-                            xs => { },
-                            ex => logger.Log(MessageLevel.Error, ex.Message),
-                            () => dialog.Close());
-                        dialog.ShowDialog();
-                        UpdatePackageFeed();
-                    }
-                    finally { operationDialog = null; }
-                }
+                RunPackageOperation(new[] { package }, handleDependencies);
             }
         }
 
