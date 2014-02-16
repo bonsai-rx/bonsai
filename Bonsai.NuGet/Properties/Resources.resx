@@ -209,6 +209,12 @@
         gXjZcJYNakAs3BPMSGtpAoyP/2c0FebgLTEHb4eb/QDNdfWdozOECQAAAABJRU5ErkJggg==
 </value>
   </data>
+  <data name="MultipleUpdatesLabel" xml:space="preserve">
+    <value>There are multiple updates available.</value>
+  </data>
+  <data name="MultipleUpdatesOperationName" xml:space="preserve">
+    <value>Update All</value>
+  </data>
   <data name="NoUpdatesAvailableLabel" xml:space="preserve">
     <value>No package updates are available.</value>
   </data>

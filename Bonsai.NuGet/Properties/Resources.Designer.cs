@@ -133,6 +133,24 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There are multiple updates available..
+        /// </summary>
+        internal static string MultipleUpdatesLabel {
+            get {
+                return ResourceManager.GetString("MultipleUpdatesLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update All.
+        /// </summary>
+        internal static string MultipleUpdatesOperationName {
+            get {
+                return ResourceManager.GetString("MultipleUpdatesOperationName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No Dependencies.
         /// </summary>
         internal static string NoDependenciesLabel {
