@@ -327,8 +327,9 @@ namespace Bonsai.Design
             var workflow = this.workflow;
             Action addConnection = () => { };
             Action removeConnection = () => { };
-            if (elementType == ElementCategory.Source ||
-                elementType == ElementCategory.Property)
+            if (!branch &&
+                (elementType == ElementCategory.Source ||
+                elementType == ElementCategory.Property))
             {
                 if (closestNode != null &&
                     !(ExpressionBuilder.Unwrap(closestNode.Value) is SourceBuilder) &&
@@ -346,7 +347,8 @@ namespace Bonsai.Design
                 if (nodeType == CreateGraphNodeType.Predecessor)
                 {
                     var predecessors = workflow.PredecessorEdges(closestNode).ToList();
-                    if (predecessors.Count > 0)
+                    if (branch) parameter.Index = predecessors.Count;
+                    else if (predecessors.Count > 0)
                     {
                         // If we have predecessors, we need to connect the new node in the right branches
                         foreach (var predecessor in predecessors)
@@ -1478,6 +1480,51 @@ namespace Bonsai.Design
             return menuItem;
         }
 
+        private void CreateExternalizeMenuItems(object workflowElement, ToolStripMenuItem ownerItem, GraphNode selectedNode)
+        {
+            foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(workflowElement, true))
+            {
+                if (property.IsReadOnly) continue;
+                var memberSelector = string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, property.Name);
+                var menuItem = CreateExternalizeMenuItem(property.Name, memberSelector, property.PropertyType, selectedNode);
+                ownerItem.DropDownItems.Add(menuItem);
+            }
+        }
+
+        private ToolStripMenuItem CreateExternalizeMenuItem(string memberName, string memberSelector, Type memberType, GraphNode selectedNode)
+        {
+            var propertyMappingBuilder = (IPropertyMappingBuilder)GetGraphNodeBuilder(selectedNode);
+            var menuItem = new ToolStripMenuItem(memberName, null, delegate
+            {
+                var propertyType = typeof(WorkflowProperty<>).MakeGenericType(memberType);
+                var property = (WorkflowProperty)Activator.CreateInstance(propertyType);
+                property.Name = memberName;
+
+                var closestNode = GetGraphNodeTag(workflow, selectedNode);
+                var predecessors = workflow.PredecessorEdges(closestNode).ToList();
+                var edgeLabel = new ExpressionBuilderArgument(predecessors.Count);
+                var builder = ExpressionBuilder.FromWorkflowElement(property, ElementCategory.Property);
+                var selectedBuilderMappings = propertyMappingBuilder.PropertyMappings;
+                var propertyMapping = new PropertyMapping(memberName, edgeLabel.Name);
+
+                commandExecutor.BeginCompositeCommand();
+                CreateGraphNode(builder, ElementCategory.Property, selectedNode, CreateGraphNodeType.Predecessor, true);
+                commandExecutor.Execute(
+                    () =>
+                    {
+                        selectedBuilderMappings.Remove(propertyMapping.Name);
+                        selectedBuilderMappings.Add(propertyMapping);
+                    },
+                    () => selectedBuilderMappings.Remove(propertyMapping));
+                commandExecutor.EndCompositeCommand();
+                contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
+            });
+
+            menuItem.Enabled = !propertyMappingBuilder.PropertyMappings.Contains(memberName);
+            InitializeOutputMenuItem(menuItem, memberSelector, memberType);
+            return menuItem;
+        }
+
         private ToolStripMenuItem CreateVisualizerMenuItem(string typeName, VisualizerDialogSettings layoutSettings, GraphNode selectedNode)
         {
             ToolStripMenuItem menuItem = null;
@@ -1601,6 +1648,17 @@ namespace Bonsai.Design
                     }
                 }
 
+                var workflowElement = ExpressionBuilder.GetWorkflowElement(GetGraphNodeBuilder(selectedNode));
+                if (workflowElement != null)
+                {
+                    if (!editorService.WorkflowRunning)
+                    {
+                        CreateExternalizeMenuItems(workflowElement, externalizeToolStripMenuItem, selectedNode);
+                    }
+
+                    externalizeToolStripMenuItem.Enabled = externalizeToolStripMenuItem.DropDownItems.Count > 0;
+                }
+
                 var layoutSettings = GetLayoutSettings(selectedNode.Value);
                 if (layoutSettings != null)
                 {
@@ -1647,6 +1705,7 @@ namespace Bonsai.Design
 
             outputToolStripMenuItem.Text = OutputMenuItemLabel;
             outputToolStripMenuItem.DropDownItems.Clear();
+            externalizeToolStripMenuItem.DropDownItems.Clear();
             visualizerToolStripMenuItem.DropDownItems.Clear();
             groupToolStripMenuItem.DropDownItems.Clear();
         }
