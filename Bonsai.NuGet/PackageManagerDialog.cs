@@ -365,7 +365,12 @@ namespace Bonsai.NuGet
                     if (packageCount == 0)
                     {
                         packagePageSelector.PageCount = pageIndex;
-                        SetPackageViewStatus(feedExceptionMessage ?? Resources.NoItemsFoundLabel);
+                        if (feedExceptionMessage != null) SetPackageViewStatus(feedExceptionMessage);
+                        else if (packageView.OperationText == Resources.UpdateOperationName)
+                        {
+                            SetPackageViewStatus(Resources.NoUpdatesAvailableLabel);
+                        }
+                        else SetPackageViewStatus(Resources.NoItemsFoundLabel);
                     }
                     else if (packageCount < PackagesPerPage)
                     {
