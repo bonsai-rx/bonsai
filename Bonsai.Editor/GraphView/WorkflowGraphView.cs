@@ -1363,6 +1363,13 @@ namespace Bonsai.Design
                     GroupGraphNodes(selectionModel.SelectedNodes);
                 }
             }
+
+            editorService.OnKeyDown(e);
+        }
+
+        private void graphView_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            editorService.OnKeyPress(e);
         }
 
         private void graphView_SelectedNodeChanged(object sender, EventArgs e)
