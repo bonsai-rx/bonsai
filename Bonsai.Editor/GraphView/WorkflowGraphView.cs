@@ -21,6 +21,7 @@ using System.CodeDom;
 using System.Drawing.Design;
 using Bonsai.Editor;
 using System.Reactive.Disposables;
+using Bonsai.Expressions.Properties;
 
 namespace Bonsai.Design
 {
@@ -1491,30 +1492,87 @@ namespace Bonsai.Design
 
         private void CreateExternalizeMenuItems(object workflowElement, ToolStripMenuItem ownerItem, GraphNode selectedNode)
         {
-            foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(workflowElement, true))
+            var elementType = workflowElement.GetType();
+            foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(elementType))
             {
                 if (property.IsReadOnly || !property.IsBrowsable) continue;
                 var memberSelector = string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, property.Name);
-                var menuItem = CreateExternalizeMenuItem(property.Name, memberSelector, property.PropertyType, selectedNode);
+                var memberValue = property.GetValue(workflowElement);
+                var menuItem = CreateExternalizeMenuItem(
+                    property.Name,
+                    elementType,
+                    property.Name,
+                    property.PropertyType,
+                    memberValue,
+                    selectedNode);
                 ownerItem.DropDownItems.Add(menuItem);
+            }
+
+            var workflowBuilder = workflowElement as WorkflowExpressionBuilder;
+            if (workflowBuilder != null)
+            {
+                foreach (var property in from node in workflowBuilder.Workflow
+                                         let workflowProperty = ExpressionBuilder.GetWorkflowElement(node.Value) as WorkflowProperty
+                                         where workflowProperty != null
+                                         let name = workflowProperty.Name
+                                         where !string.IsNullOrEmpty(name)
+                                         select workflowProperty)
+                {
+                    ToolStripMenuItem menuItem;
+                    var propertyType = property.GetType();
+                    var valueProperty = propertyType.GetProperty("Value");
+                    var propertyValue = valueProperty.GetValue(property);
+                    var externalizedProperty = property as IExternalizedProperty;
+                    if (externalizedProperty != null)
+                    {
+                        menuItem = CreateExternalizeMenuItem(
+                            property.Name,
+                            externalizedProperty.ElementType,
+                            externalizedProperty.MemberName,
+                            valueProperty.PropertyType,
+                            propertyValue,
+                            selectedNode);
+                    }
+                    else
+                    {
+                        menuItem = CreateExternalizeMenuItem(
+                            property.Name,
+                            propertyType,
+                            valueProperty.Name,
+                            valueProperty.PropertyType,
+                            propertyValue,
+                            selectedNode);
+                    }
+                    ownerItem.DropDownItems.Add(menuItem);
+                }
             }
         }
 
-        private ToolStripMenuItem CreateExternalizeMenuItem(string memberName, string memberSelector, Type memberType, GraphNode selectedNode)
+        private ToolStripMenuItem CreateExternalizeMenuItem(
+            string name,
+            Type elementType,
+            string memberName,
+            Type memberType,
+            object memberValue,
+            GraphNode selectedNode)
         {
             var propertyMappingBuilder = (IPropertyMappingBuilder)GetGraphNodeBuilder(selectedNode);
-            var menuItem = new ToolStripMenuItem(memberName, null, delegate
+            var menuItem = new ToolStripMenuItem(name, null, delegate
             {
-                var propertyType = typeof(WorkflowProperty<>).MakeGenericType(memberType);
+                var propertyType = typeof(ExternalizedProperty<,>).MakeGenericType(memberType, elementType);
                 var property = (WorkflowProperty)Activator.CreateInstance(propertyType);
-                property.Name = memberName;
+                var memberNameProperty = propertyType.GetProperty("MemberName");
+                var valueProperty = propertyType.GetProperty("Value");
+                memberNameProperty.SetValue(property, memberName);
+                valueProperty.SetValue(property, memberValue);
+                property.Name = name;
 
                 var closestNode = GetGraphNodeTag(workflow, selectedNode);
                 var predecessors = workflow.PredecessorEdges(closestNode).ToList();
                 var edgeLabel = new ExpressionBuilderArgument(predecessors.Count);
                 var builder = ExpressionBuilder.FromWorkflowElement(property, ElementCategory.Property);
                 var selectedBuilderMappings = propertyMappingBuilder.PropertyMappings;
-                var propertyMapping = new PropertyMapping(memberName, edgeLabel.Name);
+                var propertyMapping = new PropertyMapping(name, edgeLabel.Name);
 
                 commandExecutor.BeginCompositeCommand();
                 CreateGraphNode(builder, ElementCategory.Property, selectedNode, CreateGraphNodeType.Predecessor, true);
@@ -1529,8 +1587,8 @@ namespace Bonsai.Design
                 contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
             });
 
-            menuItem.Enabled = !propertyMappingBuilder.PropertyMappings.Contains(memberName);
-            InitializeOutputMenuItem(menuItem, memberSelector, memberType);
+            menuItem.Enabled = !propertyMappingBuilder.PropertyMappings.Contains(name);
+            InitializeOutputMenuItem(menuItem, memberName, memberType);
             return menuItem;
         }
 

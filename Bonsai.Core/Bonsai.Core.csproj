@@ -76,6 +76,9 @@
     <Compile Include="Expressions\MulticastExpressionBuilder.cs" />
     <Compile Include="Expressions\MulticastScope.cs" />
     <Compile Include="Expressions\Properties\DoubleProperty.cs" />
+    <Compile Include="Expressions\Properties\ExternalizedProperty.cs" />
+    <Compile Include="Expressions\Properties\ExternalizedPropertyTypeDescriptionProvider.cs" />
+    <Compile Include="Expressions\Properties\IExternalizedProperty.cs" />
     <Compile Include="Expressions\PublishBuilder.cs" />
     <Compile Include="Expressions\ReplayBuilder.cs" />
     <Compile Include="Expressions\VariableArgumentExpressionBuilder.cs" />
