@@ -393,6 +393,19 @@ namespace Bonsai.Editor
             }
         }
 
+        void SaveWorkflow(string fileName, WorkflowBuilder workflowBuilder)
+        {
+            using (var memoryStream = new MemoryStream())
+            using (var writer = XmlWriter.Create(memoryStream, new XmlWriterSettings { Indent = true }))
+            {
+                serializer.Serialize(writer, workflowBuilder);
+                using (var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
+                {
+                    memoryStream.WriteTo(fileStream);
+                }
+            }
+        }
+
         void UpdateCurrentDirectory()
         {
             if (Directory.Exists(directoryToolStripTextBox.Text))
@@ -464,18 +477,9 @@ namespace Bonsai.Editor
             if (string.IsNullOrEmpty(saveWorkflowDialog.FileName)) saveAsToolStripMenuItem_Click(this, e);
             else
             {
-                using (var memoryStream = new MemoryStream())
-                using (var writer = XmlWriter.Create(memoryStream, new XmlWriterSettings { Indent = true }))
-                {
-                    var serializerWorkflowBuilder = new WorkflowBuilder(workflowBuilder.Workflow.FromInspectableGraph());
-                    serializer.Serialize(writer, serializerWorkflowBuilder);
-                    using (var fileStream = new FileStream(saveWorkflowDialog.FileName, FileMode.Create, FileAccess.Write))
-                    {
-                        memoryStream.WriteTo(fileStream);
-                    }
-
-                    saveVersion = version;
-                }
+                var serializerWorkflowBuilder = new WorkflowBuilder(workflowBuilder.Workflow.FromInspectableGraph());
+                SaveWorkflow(saveWorkflowDialog.FileName, serializerWorkflowBuilder);
+                saveVersion = version;
 
                 if (workflowGraphView.VisualizerLayout != null)
                 {
@@ -499,6 +503,15 @@ namespace Bonsai.Editor
             {
                 saveToolStripMenuItem_Click(this, e);
                 UpdateTitle();
+            }
+        }
+
+        private void saveSelectionAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (saveWorkflowDialog.ShowDialog() == DialogResult.OK)
+            {
+                var serializerWorkflowBuilder = selectionModel.SelectedNodes.ToWorkflowBuilder();
+                SaveWorkflow(saveWorkflowDialog.FileName, serializerWorkflowBuilder);
             }
         }
 
@@ -793,6 +806,7 @@ namespace Bonsai.Editor
                 return workflowElement ?? builder;
             }).ToArray();
 
+            saveSelectionAsToolStripMenuItem.Enabled = selectedObjects.Length > 0;
             if (selectedObjects.Length == 1)
             {
                 propertyGrid.PropertyTabs.AddTabType(typeof(MappingTab), PropertyTabScope.Document);
@@ -1133,6 +1147,12 @@ namespace Bonsai.Editor
                     siteForm.searchTextBox.Focus();
                     e.Handled = true;
                     e.SuppressKeyPress = true;
+                }
+
+                if (siteForm.saveSelectionAsToolStripMenuItem.Enabled &&
+                    siteForm.saveSelectionAsToolStripMenuItem.ShortcutKeys == e.KeyData)
+                {
+                    siteForm.saveSelectionAsToolStripMenuItem_Click(this, e);
                 }
             }
 
