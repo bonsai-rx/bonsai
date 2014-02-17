@@ -89,22 +89,27 @@ namespace Bonsai.Vision
         {
             return Observable.Defer(() =>
             {
+                Mat mapX = null;
+                Mat mapY = null;
                 Mat cameraMatrix = null;
                 Mat distortionCoefficients = null;
                 return source.Select(input =>
                 {
-                    if (cameraMatrix != intrinsics)
+                    if (mapX == null || mapY == null || mapX.Size != input.Size)
                     {
-                        cameraMatrix = intrinsics;
+                        mapX = new Mat(input.Size, Depth.F32, 1);
+                        mapY = new Mat(input.Size, Depth.F32, 1);
                     }
 
-                    if (distortionCoefficients != distortion)
+                    if (cameraMatrix != intrinsics || distortionCoefficients != distortion)
                     {
+                        cameraMatrix = intrinsics;
                         distortionCoefficients = distortion;
+                        CV.InitUndistortRectifyMap(cameraMatrix, distortionCoefficients, null, cameraMatrix, mapX, mapY);
                     }
 
                     var output = new IplImage(input.Size, input.Depth, input.Channels);
-                    CV.Undistort2(input, output, cameraMatrix, distortionCoefficients);
+                    CV.Remap(input, output, mapX, mapY);
                     return output;
                 });
             });
