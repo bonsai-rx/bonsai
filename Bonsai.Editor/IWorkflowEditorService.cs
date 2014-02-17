@@ -9,6 +9,10 @@ namespace Bonsai.Editor
 {
     interface IWorkflowEditorService
     {
+        void OnKeyDown(KeyEventArgs e);
+
+        void OnKeyPress(KeyPressEventArgs e);
+
         WorkflowBuilder LoadWorkflow(string fileName);
 
         void OpenWorkflow(string fileName);

@@ -954,27 +954,12 @@ namespace Bonsai.Editor
 
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Control && e.KeyCode == Keys.E)
-            {
-                searchTextBox.Focus();
-                e.Handled = true;
-                e.SuppressKeyPress = true;
-            }
+            editorSite.OnKeyDown(e);
         }
 
         private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
         {
-            var model = selectionModel.SelectedView ?? workflowGraphView;
-            if (!editorSite.WorkflowRunning && model.GraphView.Focused)
-            {
-                if (char.IsLetter(e.KeyChar))
-                {
-                    searchTextBox.Focus();
-                    searchTextBox.Clear();
-                    searchTextBox.AppendText(e.KeyChar.ToString());
-                    e.Handled = true;
-                }
-            }
+            editorSite.OnKeyPress(e);
         }
 
         private void cutToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1139,6 +1124,31 @@ namespace Bonsai.Editor
                 }
 
                 return null;
+            }
+
+            public void OnKeyDown(KeyEventArgs e)
+            {
+                if (e.Control && e.KeyCode == Keys.E)
+                {
+                    siteForm.searchTextBox.Focus();
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                }
+            }
+
+            public void OnKeyPress(KeyPressEventArgs e)
+            {
+                var model = siteForm.selectionModel.SelectedView ?? siteForm.workflowGraphView;
+                if (!WorkflowRunning && model.GraphView.Focused)
+                {
+                    if (char.IsLetter(e.KeyChar))
+                    {
+                        siteForm.searchTextBox.Focus();
+                        siteForm.searchTextBox.Clear();
+                        siteForm.searchTextBox.AppendText(e.KeyChar.ToString());
+                        e.Handled = true;
+                    }
+                }
             }
 
             public WorkflowBuilder LoadWorkflow(string fileName)
