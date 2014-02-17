@@ -849,6 +849,16 @@ namespace Bonsai.Design
             commandExecutor.EndCompositeCommand();
         }
 
+        private void InsertWorkflow(WorkflowBuilder builder)
+        {
+            if (builder.Workflow.Count > 0)
+            {
+                var branch = Control.ModifierKeys.HasFlag(BranchModifier);
+                var predecessor = Control.ModifierKeys.HasFlag(PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
+                InsertGraphElements(builder.Workflow, predecessor, branch);
+            }
+        }
+
         public void CutToClipboard()
         {
             CopyToClipboard();
@@ -863,12 +873,7 @@ namespace Bonsai.Design
         public void PasteFromClipboard()
         {
             var builder = editorService.RetrieveWorkflowElements();
-            if (builder.Workflow.Count > 0)
-            {
-                var branch = Control.ModifierKeys.HasFlag(BranchModifier);
-                var predecessor = Control.ModifierKeys.HasFlag(PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
-                InsertGraphElements(builder.Workflow, predecessor, branch);
-            }
+            InsertWorkflow(builder);
         }
 
         public GraphNode FindGraphNode(object value)
@@ -1240,9 +1245,7 @@ namespace Bonsai.Design
                         if (path.Length == 1)
                         {
                             var workflowBuilder = editorService.LoadWorkflow(path[0]);
-                            var workflowExpressionBuilder = new NestedWorkflowBuilder(workflowBuilder.Workflow);
-                            workflowExpressionBuilder.Name = Path.GetFileNameWithoutExtension(path[0]);
-                            CreateGraphNode(workflowExpressionBuilder, ElementCategory.Combinator, linkNode, nodeType, branch);
+                            InsertWorkflow(workflowBuilder);
                         }
                     }
                     else
