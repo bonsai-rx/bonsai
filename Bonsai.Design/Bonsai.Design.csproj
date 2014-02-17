@@ -84,7 +84,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="FileNameEditor.cs" />
-    <Compile Include="IWorkflowEditorService.cs" />
+    <Compile Include="IWorkflowEditorState.cs" />
     <Compile Include="OpenFileNameEditor.cs" />
     <Compile Include="DialogTypeVisualizer.cs" />
     <Compile Include="DynamicPropertyDescriptor.cs" />

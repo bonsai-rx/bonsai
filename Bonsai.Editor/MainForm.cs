@@ -1079,7 +1079,7 @@ namespace Bonsai.Editor
 
         #region EditorSite Class
 
-        class EditorSite : ISite, IWorkflowEditorService, IWorkflowToolboxService, IUIService
+        class EditorSite : ISite, IWorkflowEditorService, IWorkflowEditorState, IWorkflowToolboxService, IUIService
         {
             System.Collections.IDictionary styles;
             MainForm siteForm;
@@ -1130,17 +1130,10 @@ namespace Bonsai.Editor
                     return siteForm.selectionModel;
                 }
 
-                if (serviceType == typeof(IWorkflowEditorService))
-                {
-                    return this;
-                }
-
-                if (serviceType == typeof(IWorkflowToolboxService))
-                {
-                    return this;
-                }
-
-                if (serviceType == typeof(IUIService))
+                if (serviceType == typeof(IWorkflowEditorService) ||
+                    serviceType == typeof(IWorkflowEditorState) ||
+                    serviceType == typeof(IWorkflowToolboxService) ||
+                    serviceType == typeof(IUIService))
                 {
                     return this;
                 }
