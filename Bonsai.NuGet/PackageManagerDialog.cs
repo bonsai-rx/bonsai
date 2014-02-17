@@ -325,8 +325,8 @@ namespace Bonsai.NuGet
             if (selectedRepository != selectedManager.LocalRepository &&
                 packageView.OperationText != Resources.UpdateOperationName)
             {
-                IPackage installedPackage;
-                installCheck = selectedManager.LocalRepository.TryFindPackage(package.Id, package.Version, out installedPackage);
+                var installedPackage = selectedManager.LocalRepository.FindPackage(package.Id);
+                installCheck = installedPackage != null && installedPackage.Version >= package.Version;
             }
 
             var nodeTitle = !string.IsNullOrWhiteSpace(package.Title) ? package.Title : package.Id;
