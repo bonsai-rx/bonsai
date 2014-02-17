@@ -46,6 +46,7 @@ namespace Bonsai.Design
         CommandExecutor commandExecutor;
         ExpressionBuilderGraph workflow;
         WorkflowSelectionModel selectionModel;
+        IWorkflowEditorState editorState;
         IWorkflowEditorService editorService;
         Dictionary<InspectBuilder, VisualizerDialogLauncher> visualizerMapping;
         Dictionary<WorkflowExpressionBuilder, WorkflowEditorLauncher> workflowEditorMapping;
@@ -67,11 +68,12 @@ namespace Bonsai.Design
             commandExecutor = (CommandExecutor)provider.GetService(typeof(CommandExecutor));
             selectionModel = (WorkflowSelectionModel)provider.GetService(typeof(WorkflowSelectionModel));
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
+            editorState = (IWorkflowEditorState)provider.GetService(typeof(IWorkflowEditorState));
             builderConverter = new ExpressionBuilderTypeConverter();
             workflowEditorMapping = new Dictionary<WorkflowExpressionBuilder, WorkflowEditorLauncher>();
 
             graphView.HandleDestroyed += graphView_HandleDestroyed;
-            editorService.WorkflowStarted += editorService_WorkflowStarted;
+            editorState.WorkflowStarted += editorService_WorkflowStarted;
         }
 
         internal WorkflowEditorLauncher Launcher { get; set; }
@@ -157,7 +159,7 @@ namespace Bonsai.Design
         private void UpdateEditorWorkflow(bool validateWorkflow)
         {
             UpdateGraphLayout(validateWorkflow);
-            if (editorService.WorkflowRunning)
+            if (editorState.WorkflowRunning)
             {
                 InitializeVisualizerMapping();
             }
@@ -896,7 +898,7 @@ namespace Bonsai.Design
                             defaultProperty.SetValue(workflowElement, value);
                         }
 
-                        if (!editorService.WorkflowRunning)
+                        if (!editorState.WorkflowRunning)
                         {
                             editorService.ValidateWorkflow();
                         }
@@ -1157,7 +1159,7 @@ namespace Bonsai.Design
 
         private void graphView_DragEnter(object sender, DragEventArgs e)
         {
-            if (editorService.WorkflowRunning) return;
+            if (editorState.WorkflowRunning) return;
             dragKeyState = e.KeyState;
             if (e.Data.GetDataPresent(typeof(TreeNode)))
             {
@@ -1187,7 +1189,7 @@ namespace Bonsai.Design
 
         private void graphView_DragOver(object sender, DragEventArgs e)
         {
-            if (editorService.WorkflowRunning) return;
+            if (editorState.WorkflowRunning) return;
             dragKeyState = e.KeyState;
             if (e.Effect != DragDropEffects.None && e.Data.GetDataPresent(DataFormats.FileDrop, true))
             {
@@ -1304,7 +1306,7 @@ namespace Bonsai.Design
                 {
                     LaunchDefaultEditor(graphView.SelectedNode);
                 }
-                else if (editorService.WorkflowRunning)
+                else if (editorState.WorkflowRunning)
                 {
                     LaunchVisualizer(graphView.SelectedNode);
                 }
@@ -1324,7 +1326,7 @@ namespace Bonsai.Design
                 }
             }
 
-            if (!editorService.WorkflowRunning)
+            if (!editorState.WorkflowRunning)
             {
                 if (e.KeyCode == Keys.Delete)
                 {
@@ -1370,7 +1372,7 @@ namespace Bonsai.Design
 
         private void graphView_NodeMouseDoubleClick(object sender, GraphNodeMouseEventArgs e)
         {
-            if (!editorService.WorkflowRunning || Control.ModifierKeys == Keys.Control)
+            if (!editorState.WorkflowRunning || Control.ModifierKeys == Keys.Control)
             {
                 LaunchDefaultEditor(e.Node);
             }
@@ -1382,7 +1384,7 @@ namespace Bonsai.Design
 
         private void graphView_HandleDestroyed(object sender, EventArgs e)
         {
-            editorService.WorkflowStarted -= editorService_WorkflowStarted;
+            editorState.WorkflowStarted -= editorService_WorkflowStarted;
         }
 
         private void editorService_WorkflowStarted(object sender, EventArgs e)
@@ -1537,7 +1539,7 @@ namespace Bonsai.Design
                     layoutSettings.VisualizerTypeName = typeName;
                     layoutSettings.VisualizerSettings = null;
                     layoutSettings.Visible = !emptyVisualizer;
-                    if (!editorService.WorkflowRunning)
+                    if (!editorState.WorkflowRunning)
                     {
                         layoutSettings.Size = Size.Empty;
                     }
@@ -1622,7 +1624,7 @@ namespace Bonsai.Design
         {
             var selectedNodes = selectionModel.SelectedNodes.ToArray();
             if (selectedNodes.Length > 0) copyToolStripMenuItem.Enabled = true;
-            if (!editorService.WorkflowRunning)
+            if (!editorState.WorkflowRunning)
             {
                 pasteToolStripMenuItem.Enabled = true;
                 if (selectedNodes.Length > 0)
@@ -1640,7 +1642,7 @@ namespace Bonsai.Design
                 var inspectBuilder = (InspectBuilder)selectedNode.Value;
                 if (inspectBuilder != null && inspectBuilder.ObservableType != null)
                 {
-                    outputToolStripMenuItem.Enabled = !editorService.WorkflowRunning;
+                    outputToolStripMenuItem.Enabled = !editorState.WorkflowRunning;
                     InitializeOutputMenuItem(outputToolStripMenuItem, ExpressionBuilderArgument.ArgumentNamePrefix, inspectBuilder.ObservableType);
                     if (outputToolStripMenuItem.Enabled)
                     {
@@ -1651,7 +1653,7 @@ namespace Bonsai.Design
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(GetGraphNodeBuilder(selectedNode));
                 if (workflowElement != null)
                 {
-                    if (!editorService.WorkflowRunning)
+                    if (!editorState.WorkflowRunning)
                     {
                         CreateExternalizeMenuItems(workflowElement, externalizeToolStripMenuItem, selectedNode);
                     }
@@ -1663,7 +1665,7 @@ namespace Bonsai.Design
                 if (layoutSettings != null)
                 {
                     var activeVisualizer = layoutSettings.VisualizerTypeName;
-                    if (editorService.WorkflowRunning)
+                    if (editorState.WorkflowRunning)
                     {
                         var visualizerLauncher = visualizerMapping[inspectBuilder];
                         var visualizer = visualizerLauncher.Visualizer;

@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Bonsai.Expressions;
-using Bonsai.Dag;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
-namespace Bonsai.Design
+namespace Bonsai.Editor
 {
-    public interface IWorkflowEditorService
+    interface IWorkflowEditorService
     {
         WorkflowBuilder LoadWorkflow(string fileName);
 
@@ -28,12 +28,6 @@ namespace Bonsai.Design
         bool ValidateWorkflow();
 
         void RefreshEditor();
-
-        bool WorkflowRunning { get; }
-
-        event EventHandler WorkflowStarted;
-
-        event EventHandler WorkflowStopped;
 
         void Undo();
 

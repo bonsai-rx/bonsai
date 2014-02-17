@@ -21,8 +21,8 @@ namespace Bonsai.Vision.Design
             if (provider != null)
             {
                 var workflow = (ExpressionBuilderGraph)provider.GetService(typeof(ExpressionBuilderGraph));
-                var editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
-                if (workflow != null && editorService != null && editorService.WorkflowRunning)
+                var editorState = (IWorkflowEditorState)provider.GetService(typeof(IWorkflowEditorState));
+                if (workflow != null && editorState != null && editorState.WorkflowRunning)
                 {
                     var editorForm = editorForms.FirstOrDefault(form => form.Tag == component);
                     if (editorForm == null)
@@ -44,7 +44,7 @@ namespace Bonsai.Vision.Design
                         var frameRate = 0.0;
                         IDisposable captureFrameHandle = null;
                         EventHandler workflowStoppedHandler = (sender, e) => editorForm.Close();
-                        editorService.WorkflowStopped += workflowStoppedHandler;
+                        editorState.WorkflowStopped += workflowStoppedHandler;
                         editorForm.HandleCreated += (sender, e) =>
                         {
                             videoPlayer.Loop = capture.Loop;
@@ -58,7 +58,7 @@ namespace Bonsai.Vision.Design
                         editorForm.FormClosed += (sender, e) =>
                         {
                             captureFrameHandle.Dispose();
-                            editorService.WorkflowStopped -= workflowStoppedHandler;
+                            editorState.WorkflowStopped -= workflowStoppedHandler;
                             editorForms.Remove(editorForm);
                         };
 
