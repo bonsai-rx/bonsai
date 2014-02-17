@@ -28,7 +28,7 @@ namespace Bonsai.Vision
 
         public override IObservable<IplImage> Generate()
         {
-            return Observable.Defer(() => Observable.Start(() =>
+            return Observable.Defer(() =>
             {
                 var fileName = FileName;
                 if (string.IsNullOrEmpty(fileName))
@@ -38,8 +38,8 @@ namespace Bonsai.Vision
 
                 var image = CV.LoadImage(FileName, Mode);
                 if (image.IsInvalid) throw new InvalidOperationException("Failed to load an image from the specified path.");
-                return image;
-            }));
+                return Observable.Return(image);
+            });
         }
     }
 }
