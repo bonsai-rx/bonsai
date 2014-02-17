@@ -49,8 +49,21 @@ namespace Bonsai.Expressions
                                  where property != null
                                  let name = property.Name
                                  where !string.IsNullOrEmpty(name)
-                                 select new WorkflowPropertyDescriptor(name, emptyAttributes, property);
+                                 select new WorkflowPropertyDescriptor(name, GetWorkflowPropertyAttributes(property), property);
                 return new PropertyDescriptorCollection(properties.ToArray());
+            }
+
+            static Attribute[] GetWorkflowPropertyAttributes(WorkflowProperty property)
+            {
+                var valueProperty = TypeDescriptor.GetProperties(property)["Value"];
+                if (valueProperty != null)
+                {
+                    var attributes = new Attribute[valueProperty.Attributes.Count];
+                    valueProperty.Attributes.CopyTo(attributes, 0);
+                    return attributes;
+                }
+
+                return emptyAttributes;
             }
         }
     }
