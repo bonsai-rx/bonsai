@@ -1493,7 +1493,7 @@ namespace Bonsai.Design
         {
             foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(workflowElement, true))
             {
-                if (property.IsReadOnly) continue;
+                if (property.IsReadOnly || !property.IsBrowsable) continue;
                 var memberSelector = string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, property.Name);
                 var menuItem = CreateExternalizeMenuItem(property.Name, memberSelector, property.PropertyType, selectedNode);
                 ownerItem.DropDownItems.Add(menuItem);
