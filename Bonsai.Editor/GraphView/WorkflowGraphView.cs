@@ -1495,6 +1495,9 @@ namespace Bonsai.Design
 
         private void CreateExternalizeMenuItems(object workflowElement, ToolStripMenuItem ownerItem, GraphNode selectedNode)
         {
+            var propertyMappingBuilder = GetGraphNodeBuilder(selectedNode) as IPropertyMappingBuilder;
+            if (propertyMappingBuilder == null) return;
+
             var elementType = workflowElement.GetType();
             foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(elementType))
             {
@@ -1507,7 +1510,8 @@ namespace Bonsai.Design
                     property.Name,
                     property.PropertyType,
                     memberValue,
-                    selectedNode);
+                    selectedNode,
+                    propertyMappingBuilder);
                 ownerItem.DropDownItems.Add(menuItem);
             }
 
@@ -1534,7 +1538,8 @@ namespace Bonsai.Design
                             externalizedProperty.MemberName,
                             valueProperty.PropertyType,
                             propertyValue,
-                            selectedNode);
+                            selectedNode,
+                            propertyMappingBuilder);
                     }
                     else
                     {
@@ -1544,7 +1549,8 @@ namespace Bonsai.Design
                             valueProperty.Name,
                             valueProperty.PropertyType,
                             propertyValue,
-                            selectedNode);
+                            selectedNode,
+                            propertyMappingBuilder);
                     }
                     ownerItem.DropDownItems.Add(menuItem);
                 }
@@ -1557,9 +1563,9 @@ namespace Bonsai.Design
             string memberName,
             Type memberType,
             object memberValue,
-            GraphNode selectedNode)
+            GraphNode selectedNode,
+            IPropertyMappingBuilder propertyMappingBuilder)
         {
-            var propertyMappingBuilder = (IPropertyMappingBuilder)GetGraphNodeBuilder(selectedNode);
             var menuItem = new ToolStripMenuItem(name, null, delegate
             {
                 var propertyType = typeof(ExternalizedProperty<,>).MakeGenericType(memberType, elementType);
