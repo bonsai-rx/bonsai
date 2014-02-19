@@ -189,7 +189,7 @@ namespace Bonsai
             if (element != builder) yield return element;
 
             var binaryOperator = builder as BinaryOperatorBuilder;
-            if (binaryOperator != null) yield return binaryOperator.Operand;
+            if (binaryOperator != null && binaryOperator.Operand != null) yield return binaryOperator.Operand;
         }
 
         static IEnumerable<Type> GetWorkflowElementTypes(ExpressionBuilder builder)
