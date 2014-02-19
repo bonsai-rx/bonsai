@@ -36,7 +36,7 @@ namespace Bonsai.Dsp
                 var rowOffset = axis == 0 ? firstSize.Height : 0;
                 var columnOffset = axis == 1 ? firstSize.Width : 0;
                 var outputWidth = axis == 0 ? firstSize.Width : firstSize.Width + secondSize.Width;
-                var outputHeight = axis == 1 ? firstSize.Height : firstSize.Height + firstSize.Height;
+                var outputHeight = axis == 1 ? firstSize.Height : firstSize.Height + secondSize.Height;
                 var output = outputFactory(first, new Size(outputWidth, outputHeight));
                 using (var firstOutput = output.GetSubRect(new Rect(0, 0, firstSize.Width, firstSize.Height)))
                 using (var secondOutput = output.GetSubRect(new Rect(columnOffset, rowOffset, secondSize.Width, secondSize.Height)))
