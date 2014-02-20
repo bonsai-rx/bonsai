@@ -12,40 +12,96 @@ namespace Bonsai.Dsp
     {
         public int Axis { get; set; }
 
-        public override IObservable<TArray> Process<TArray>(IObservable<Tuple<TArray, TArray>> source)
+        TArray Process<TArray>(IEnumerable<TArray> sources) where TArray : Arr
         {
             var outputFactory = ArrFactory<TArray>.TemplateDepthChannelFactory;
-            return source.Select(input =>
+            var axis = Axis;
+
+            TArray first = null;
+            int elementType = 0;
+            int elementWidth = 0;
+            int elementHeight = 0;
+            int outputWidth = 0;
+            int outputHeight = 0;
+            foreach (var source in sources)
             {
-                var axis = Axis;
-                var first = input.Item1;
-                var second = input.Item2;
-                var firstSize = first.Size;
-                var secondSize = second.Size;
-                if (first.ElementType != second.ElementType)
+                var size = source.Size;
+                if (first == null)
+                {
+                    first = source;
+                    elementType = first.ElementType;
+                    elementWidth = size.Width;
+                    elementHeight = size.Height;
+                    outputWidth = axis == 0 ? size.Width : 0;
+                    outputHeight = axis == 1 ? size.Height : 0;
+                }
+
+                if (source.ElementType != elementType)
                 {
                     throw new InvalidOperationException("Input arrays must have the same element type.");
                 }
 
-                if (axis == 0 && firstSize.Width != secondSize.Width ||
-                    axis == 1 && firstSize.Height != secondSize.Height)
+                if (axis == 0 && size.Width != elementWidth ||
+                    axis == 1 && size.Height != elementHeight)
                 {
                     throw new InvalidOperationException("Input arrays must have the same shape except in the dimension corresponding to axis.");
                 }
 
-                var rowOffset = axis == 0 ? firstSize.Height : 0;
-                var columnOffset = axis == 1 ? firstSize.Width : 0;
-                var outputWidth = axis == 0 ? firstSize.Width : firstSize.Width + secondSize.Width;
-                var outputHeight = axis == 1 ? firstSize.Height : firstSize.Height + secondSize.Height;
-                var output = outputFactory(first, new Size(outputWidth, outputHeight));
-                using (var firstOutput = output.GetSubRect(new Rect(0, 0, firstSize.Width, firstSize.Height)))
-                using (var secondOutput = output.GetSubRect(new Rect(columnOffset, rowOffset, secondSize.Width, secondSize.Height)))
+                outputWidth += axis == 1 ? size.Width : 0;
+                outputHeight += axis == 0 ? size.Height : 0;
+            }
+
+            int rowOffset = 0;
+            int columnOffset = 0;
+            var output = outputFactory(first, new Size(outputWidth, outputHeight));
+            foreach (var source in sources)
+            {
+                var size = source.Size;
+                using (var subRect = output.GetSubRect(new Rect(columnOffset, rowOffset, size.Width, size.Height)))
                 {
-                    CV.Copy(first, firstOutput);
-                    CV.Copy(second, secondOutput);
+                    CV.Copy(source, subRect);
                 }
-                return output;
-            });
+
+                rowOffset += axis == 0 ? size.Height : 0;
+                columnOffset += axis == 1 ? size.Width : 0;
+            }
+
+            return output;
+        }
+
+        public override IObservable<TArray> Process<TArray>(IObservable<Tuple<TArray, TArray>> source)
+        {
+            return source.Select(input => Process(new[] { input.Item1, input.Item2 }));
+        }
+
+        public IObservable<TArray> Process<TArray>(IObservable<Tuple<TArray, TArray, TArray>> source) where TArray : Arr
+        {
+            return source.Select(input => Process(new[] { input.Item1, input.Item2, input.Item3 }));
+        }
+
+        public IObservable<TArray> Process<TArray>(IObservable<Tuple<TArray, TArray, TArray, TArray>> source) where TArray : Arr
+        {
+            return source.Select(input => Process(new[] { input.Item1, input.Item2, input.Item3, input.Item4 }));
+        }
+
+        public IObservable<TArray> Process<TArray>(IObservable<Tuple<TArray, TArray, TArray, TArray, TArray>> source) where TArray : Arr
+        {
+            return source.Select(input => Process(new[] { input.Item1, input.Item2, input.Item3, input.Item4, input.Item5 }));
+        }
+
+        public IObservable<TArray> Process<TArray>(IObservable<Tuple<TArray, TArray, TArray, TArray, TArray, TArray>> source) where TArray : Arr
+        {
+            return source.Select(input => Process(new[] { input.Item1, input.Item2, input.Item3, input.Item4, input.Item5, input.Item6 }));
+        }
+
+        public IObservable<TArray> Process<TArray>(IObservable<Tuple<TArray, TArray, TArray, TArray, TArray, TArray, TArray>> source) where TArray : Arr
+        {
+            return source.Select(input => Process(new[] { input.Item1, input.Item2, input.Item3, input.Item4, input.Item5, input.Item6, input.Item7 }));
+        }
+
+        public IObservable<TArray> Process<TArray>(IObservable<IList<TArray>> source) where TArray : Arr
+        {
+            return source.Select(input => Process(input));
         }
     }
 }
