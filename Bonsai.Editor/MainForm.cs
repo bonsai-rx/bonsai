@@ -909,6 +909,7 @@ namespace Bonsai.Editor
                         break;
                     case Keys.Return:
                         toolboxTreeView_KeyDown(sender, e);
+                        searchTextBox.Clear();
                         break;
                 }
             }
