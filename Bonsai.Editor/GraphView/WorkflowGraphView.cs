@@ -409,9 +409,8 @@ namespace Bonsai.Design
             return Tuple.Create(addConnection, removeConnection);
         }
 
-        bool ValidConnection(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget)
+        bool CanConnect(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget)
         {
-            var reject = false;
             var target = GetGraphNodeTag(workflow, graphViewTarget, false);
             var connectionCount = workflow.Predecessors(target).Count();
             foreach (var sourceNode in graphViewSources)
@@ -419,8 +418,7 @@ namespace Bonsai.Design
                 var node = GetGraphNodeTag(workflow, sourceNode, false);
                 if (target == node || node.Successors.Any(edge => edge.Target == target))
                 {
-                    reject = true;
-                    break;
+                    return false;
                 }
 
                 var builder = GetGraphNodeBuilder(graphViewTarget);
@@ -428,12 +426,28 @@ namespace Bonsai.Design
                     !(builder is IPropertyMappingBuilder) ||
                     target.DepthFirstSearch().Contains(node))
                 {
-                    reject = true;
-                    break;
+                    return false;
                 }
             }
 
-            return !reject;
+            return true;
+        }
+
+        bool CanDisconnect(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget)
+        {
+            var target = GetGraphNodeTag(workflow, graphViewTarget, false);
+            foreach (var sourceNode in graphViewSources)
+            {
+                var node = GetGraphNodeTag(workflow, sourceNode, false);
+                if (node == null) return false;
+
+                if (!node.Successors.Any(edge => edge.Target == target))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public void ConnectGraphNodes(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget)
@@ -463,6 +477,58 @@ namespace Bonsai.Design
             () =>
             {
                 removeConnection();
+                updateGraphLayout();
+            });
+        }
+
+        public void DisconnectGraphNodes(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget)
+        {
+            var workflow = this.workflow;
+            Action addConnection = () => { };
+            Action removeConnection = () => { };
+            var target = GetGraphNodeTag(workflow, graphViewTarget);
+            var predecessorEdges = workflow.PredecessorEdges(target).ToArray();
+            foreach (var graphViewSource in graphViewSources)
+            {
+                var source = GetGraphNodeTag(workflow, graphViewSource);
+                var predecessor = predecessorEdges.Where(xs => xs.Item1 == source).FirstOrDefault();
+                if (predecessor == null) continue;
+                var edge = predecessor.Item2;
+                var edgeIndex = edge.Label.Index;
+                var siblingEdgesAfter = (from siblingEdge in predecessorEdges
+                                         where siblingEdge.Item2.Label.Index.CompareTo(edgeIndex) > 0
+                                         select siblingEdge.Item2)
+                                         .ToArray();
+
+                addConnection += () =>
+                {
+                    predecessor.Item1.Successors.Insert(predecessor.Item3, edge);
+                    foreach (var sibling in siblingEdgesAfter)
+                    {
+                        sibling.Label.Index++;
+                    }
+                };
+
+                removeConnection += () =>
+                {
+                    predecessor.Item1.Successors.RemoveAt(predecessor.Item3);
+                    foreach (var sibling in siblingEdgesAfter)
+                    {
+                        sibling.Label.Index--;
+                    }
+                };
+            }
+
+            var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
+            commandExecutor.Execute(
+            () =>
+            {
+                removeConnection();
+                updateGraphLayout();
+            },
+            () =>
+            {
+                addConnection();
                 updateGraphLayout();
             });
         }
@@ -1210,9 +1276,10 @@ namespace Bonsai.Design
                 {
                     if (highlight != null)
                     {
-                        e.Effect = ValidConnection(dragSelection, highlight)
-                            ? DragDropEffects.Link
-                            : DragDropEffects.None;
+                        var validation = (e.KeyState & ShiftModifier) != 0
+                            ? CanDisconnect(dragSelection, highlight)
+                            : CanConnect(dragSelection, highlight);
+                        e.Effect = validation ? DragDropEffects.Link : DragDropEffects.None;
                     }
                     else e.Effect = DragDropEffects.None;
                     dragHighlight = highlight;
@@ -1267,7 +1334,8 @@ namespace Bonsai.Design
                         var linkNode = graphView.GetNodeAt(dropLocation);
                         if (linkNode != null)
                         {
-                            ConnectGraphNodes(dragSelection, linkNode);
+                            if ((e.KeyState & ShiftModifier) != 0) DisconnectGraphNodes(dragSelection, linkNode);
+                            else ConnectGraphNodes(dragSelection, linkNode);
                         }
                     }
                 }
@@ -1314,10 +1382,16 @@ namespace Bonsai.Design
                 {
                     LaunchVisualizer(graphView.SelectedNode);
                 }
-                else if (selectionModel.SelectedNodes.Any() && graphView.CursorNode != null &&
-                         ValidConnection(selectionModel.SelectedNodes, graphView.CursorNode))
+                else if (selectionModel.SelectedNodes.Any() && graphView.CursorNode != null)
                 {
-                    ConnectGraphNodes(selectionModel.SelectedNodes, graphView.CursorNode);
+                    if (e.Modifiers == Keys.Shift && CanDisconnect(selectionModel.SelectedNodes, graphView.CursorNode))
+                    {
+                        DisconnectGraphNodes(selectionModel.SelectedNodes, graphView.CursorNode);
+                    }
+                    else if (CanConnect(selectionModel.SelectedNodes, graphView.CursorNode))
+                    {
+                        ConnectGraphNodes(selectionModel.SelectedNodes, graphView.CursorNode);
+                    }
                 }
             }
 
