@@ -181,7 +181,7 @@ namespace Bonsai.Expressions
                                                                             m.GetParameters().Length == 2 &&
                                                                             m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
 
-        internal static Type[] GetMethodBindings(MethodInfo methodInfo, params Type[] arguments)
+        static Type[] GetMethodTypeArguments(MethodInfo methodInfo, params Type[] arguments)
         {
             if (methodInfo == null)
             {
@@ -208,7 +208,7 @@ namespace Bonsai.Expressions
             return methodGenericArguments.Zip(bindingCandidates, (argument, match) => match).Concat(methodGenericArguments.Skip(bindingCandidates.Length)).ToArray();
         }
 
-        internal static IEnumerable<Tuple<Type, int>> GetParameterBindings(Type parameterType, Type argumentType)
+        static IEnumerable<Tuple<Type, int>> GetParameterBindings(Type parameterType, Type argumentType)
         {
             // If parameter is a generic parameter, just bind it to the input type
             if (parameterType.IsGenericParameter)
@@ -245,7 +245,7 @@ namespace Bonsai.Expressions
             return Enumerable.Empty<Tuple<Type, int>>();
         }
 
-        internal static IEnumerable<Tuple<Type, int>> MatchTypeBindings(Type parameterType, Type argumentType)
+        static IEnumerable<Tuple<Type, int>> MatchTypeBindings(Type parameterType, Type argumentType)
         {
             // If both types have element types, try to recurse into them
             if (parameterType.HasElementType && argumentType.HasElementType)
@@ -281,7 +281,7 @@ namespace Bonsai.Expressions
             return Enumerable.Empty<Tuple<Type, int>>();
         }
 
-        internal static bool MatchParamArrayTypeReferences(Type parameter, Type argument)
+        static bool MatchParamArrayTypeReferences(Type parameter, Type argument)
         {
             if (parameter.HasElementType && argument.HasElementType)
             {
@@ -291,7 +291,7 @@ namespace Bonsai.Expressions
             return parameter.HasElementType == argument.HasElementType;
         }
 
-        internal static bool ParamExpansionRequired(ParameterInfo[] parameters, Type[] arguments)
+        static bool ParamExpansionRequired(ParameterInfo[] parameters, Type[] arguments)
         {
             var offset = parameters.Length - 1;
             var paramArray = parameters.Length > 0 &&
@@ -303,45 +303,65 @@ namespace Bonsai.Expressions
                  !MatchParamArrayTypeReferences(parameters[offset].ParameterType, arguments[arguments.Length - 1]));
         }
 
-        internal static MethodCallExpression BuildCall(Expression instance, MethodInfo method, params Expression[] arguments)
+        static MethodInfo MakeGenericMethod(MethodInfo method, params Type[] argumentTypes)
         {
-            var argumentTypes = Array.ConvertAll(arguments, xs => xs.Type);
-            if (method.IsGenericMethodDefinition)
+            if (!method.IsGenericMethodDefinition)
             {
-                var methodCallArgumentTypes = (Type[])argumentTypes.Clone();
-                var methodParameters = method.GetParameters();
-                if (ParamExpansionRequired(methodParameters, methodCallArgumentTypes))
-                {
-                    var arrayType = methodCallArgumentTypes[methodCallArgumentTypes.Length - 1].MakeArrayType();
-                    Array.Resize(ref methodCallArgumentTypes, methodParameters.Length);
-                    methodCallArgumentTypes[methodCallArgumentTypes.Length - 1] = arrayType;
-                }
-
-                var typeArguments = GetMethodBindings(method, methodCallArgumentTypes);
-                method = method.MakeGenericMethod(typeArguments);
+                throw new ArgumentException("The specified method is not a generic definition.");
             }
 
-            var parameters = method.GetParameters();
-            if (ParamExpansionRequired(parameters, argumentTypes))
+            var methodCallArgumentTypes = (Type[])argumentTypes.Clone();
+            var methodParameters = method.GetParameters();
+            if (ParamExpansionRequired(methodParameters, methodCallArgumentTypes))
             {
-                var offset = parameters.Length - 1;
-                var arrayType = parameters[offset].ParameterType.GetElementType();
-                var initializers = new Expression[arguments.Length - offset];
-                for (int k = 0; k < initializers.Length; k++)
-                {
-                    if (arguments[k + offset].Type != arrayType)
-                    {
-                        throw new InvalidOperationException(string.Format("The type arguments for method '{0}' cannot be inferred from the usage.", method));
-                    }
-                    initializers[k] = arguments[k + offset];
-                }
-                var paramArray = Expression.NewArrayInit(arrayType, initializers);
-                Array.Resize(ref arguments, parameters.Length);
-                arguments[arguments.Length - 1] = paramArray;
+                var arrayType = methodCallArgumentTypes[methodCallArgumentTypes.Length - 1].MakeArrayType();
+                Array.Resize(ref methodCallArgumentTypes, methodParameters.Length);
+                methodCallArgumentTypes[methodCallArgumentTypes.Length - 1] = arrayType;
             }
 
+            var typeArguments = GetMethodTypeArguments(method, methodCallArgumentTypes);
+            var genericArguments = method.GetGenericArguments();
+            return genericArguments.Length == typeArguments.Length ? method.MakeGenericMethod(typeArguments) : method;
+        }
+
+        static bool CanExpandParamArguments(ParameterInfo[] parameters, Type[] argumentTypes)
+        {
+            var offset = parameters.Length - 1;
+            var arrayType = parameters[offset].ParameterType.GetElementType();
+            for (int i = offset; i < argumentTypes.Length; i++)
+            {
+                if (argumentTypes[i] != arrayType)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        static Expression[] ExpandParamArguments(ParameterInfo[] parameters, Expression[] arguments)
+        {
+            var offset = parameters.Length - 1;
+            var arrayType = parameters[offset].ParameterType.GetElementType();
+            var initializers = new Expression[arguments.Length - offset];
+            for (int k = 0; k < initializers.Length; k++)
+            {
+                if (arguments[k + offset].Type != arrayType)
+                {
+                    throw new InvalidOperationException("Parameter expansion requires tail arguments to be of the same type.");
+                }
+                initializers[k] = arguments[k + offset];
+            }
+            var paramArray = Expression.NewArrayInit(arrayType, initializers);
+            Array.Resize(ref arguments, parameters.Length);
+            arguments[arguments.Length - 1] = paramArray;
+            return arguments;
+        }
+
+        static Expression[] MatchMethodParameters(ParameterInfo[] parameters, Expression[] arguments)
+        {
             int i = 0;
-            arguments = Array.ConvertAll(arguments, argument =>
+            return Array.ConvertAll(arguments, argument =>
             {
                 var parameterType = parameters[i++].ParameterType;
                 if (argument.Type != parameterType)
@@ -364,14 +384,113 @@ namespace Bonsai.Expressions
                 }
                 return argument;
             });
+        }
 
-            return Expression.Call(instance, method, arguments);
+        #endregion
+
+        #region Method Validation
+
+        static bool IsNullable(Type type)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
+
+        static Type GetNonNullableType(Type type)
+        {
+            return IsNullable(type) ? type.GetGenericArguments()[0] : type;
+        }
+
+        static bool IsConvertiblePrimitive(Type type)
+        {
+            var nonNullableType = GetNonNullableType(type);
+            if (nonNullableType == typeof(bool)) return false;
+            if (nonNullableType.IsEnum) return true;
+            return nonNullableType.IsPrimitive;
+        }
+
+        static bool HasPrimitiveConversion(Type from, Type to)
+        {
+            if (from == to) return true;
+            if (IsNullable(from) && GetNonNullableType(from) == to) return true;
+            if (IsNullable(to) && GetNonNullableType(to) == from) return true;
+            return IsConvertiblePrimitive(from) && IsConvertiblePrimitive(to);
+        }
+
+        static bool HasReferenceConversion(Type from, Type to)
+        {
+            if (from == to) return true;
+            var nonNullableFrom = GetNonNullableType(from);
+            var nonNullableTo = GetNonNullableType(to);
+
+            if (nonNullableFrom.IsAssignableFrom(nonNullableTo)) return true;
+            if (nonNullableTo.IsAssignableFrom(nonNullableFrom)) return true;
+            if (from.IsInterface || to.IsInterface) return true;
+            return from == typeof(object) || to == typeof(object);
+        }
+
+        static MethodInfo GetUnaryOperator(Type type, string name, Type parameterType, Type returnType)
+        {
+            var methods = GetNonNullableType(type).GetMethods(PublicStaticBinding);
+            foreach (var method in methods)
+            {
+                if (method.Name != name || method.IsGenericMethod || method.ReturnType != returnType) continue;
+
+                var parameters = method.GetParameters();
+                if (parameters.Length != 1) continue;
+
+                if (parameters[0].ParameterType.IsAssignableFrom(GetNonNullableType(parameterType)))
+                {
+                    return method;
+                }
+            }
+
+            return null;
+        }
+
+        static MethodInfo GetUserConversion(Type from, Type to)
+        {
+            var conversion = GetUnaryOperator(from, "op_Implicit", from, to);
+            conversion = conversion ?? GetUnaryOperator(from, "op_Explicit", from, to);
+            conversion = conversion ?? GetUnaryOperator(to, "op_Implicit", from, to);
+            return conversion ?? GetUnaryOperator(to, "op_Explicit", from, to);
+        }
+
+        static bool HasConversion(Type from, Type to)
+        {
+            return HasPrimitiveConversion(from, to) || HasReferenceConversion(from, to) ||
+                   GetUserConversion(from, to) != null;
+        }
+
+        static bool CanMatchMethodParameters(ParameterInfo[] parameters, Expression[] arguments)
+        {
+            int i = 0;
+            if (parameters.Length != arguments.Length) return false;
+            return Array.TrueForAll(arguments, argument =>
+            {
+                var parameterType = parameters[i++].ParameterType;
+                if (argument.Type != parameterType)
+                {
+                    if (argument.Type.IsGenericType && parameterType.IsGenericType &&
+                        argument.Type.GetGenericTypeDefinition() == typeof(IObservable<>) &&
+                        parameterType.GetGenericTypeDefinition() == typeof(IObservable<>))
+                    {
+                        var argumentObservableType = argument.Type.GetGenericArguments()[0];
+                        var parameterObservableType = parameterType.GetGenericArguments()[0];
+                        return HasConversion(argumentObservableType, parameterObservableType);
+                    }
+
+                    return HasConversion(argument.Type, parameterType);
+                }
+
+                return true;
+            });
         }
 
         #endregion
 
         #region Overload Resolution
 
+        static readonly BindingFlags PublicStaticBinding = BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy;
         static readonly Dictionary<Type, Type[]> ImplicitNumericConversions = new Dictionary<Type, Type[]>
         {
             { typeof(sbyte), new[] { typeof(short), typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) } },
@@ -457,7 +576,7 @@ namespace Bonsai.Expressions
             return 0;
         }
 
-        internal static Type[] ExpandCallParameterTypes(ParameterInfo[] parameters, Type[] arguments, bool expansion)
+        static Type[] ExpandCallParameterTypes(ParameterInfo[] parameters, Type[] arguments, bool expansion)
         {
             var expandedParameters = new Type[arguments.Length];
             for (int i = 0; i < parameters.Length; i++)
@@ -490,7 +609,25 @@ namespace Bonsai.Expressions
                 .Select(method =>
                 {
                     MethodCallExpression call;
-                    try { call = BuildCall(instance, method, arguments); }
+                    try
+                    {
+                        if (method.IsGenericMethodDefinition)
+                        {
+                            method = MakeGenericMethod(method, argumentTypes);
+                            if (method.IsGenericMethodDefinition) return null;
+                        }
+
+                        var parameters = method.GetParameters();
+                        if (ParamExpansionRequired(parameters, argumentTypes))
+                        {
+                            if (!CanExpandParamArguments(parameters, argumentTypes)) return null;
+                            arguments = ExpandParamArguments(parameters, arguments);
+                        }
+
+                        if (!CanMatchMethodParameters(parameters, arguments)) return null;
+                        arguments = MatchMethodParameters(parameters, arguments);
+                        call = Expression.Call(instance, method, arguments);
+                    }
                     catch (ArgumentException) { return null; }
                     catch (InvalidOperationException) { return null; }
                     return new
