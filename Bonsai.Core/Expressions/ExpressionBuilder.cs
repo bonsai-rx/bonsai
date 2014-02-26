@@ -266,7 +266,7 @@ namespace Bonsai.Expressions
             if (parameterType.IsGenericType && argumentType.IsGenericType)
             {
                 var parameterTypeDefinition = parameterType.GetGenericTypeDefinition();
-                var argumentTypeDefinition = parameterType.GetGenericTypeDefinition();
+                var argumentTypeDefinition = argumentType.GetGenericTypeDefinition();
                 // Match bindings can only be obtained if both types share the same type definition
                 if (parameterTypeDefinition == argumentTypeDefinition)
                 {
@@ -426,10 +426,7 @@ namespace Bonsai.Expressions
             if (from == to) return true;
             var nonNullableFrom = GetNonNullableType(from);
             var nonNullableTo = GetNonNullableType(to);
-
-            if (nonNullableFrom.IsAssignableFrom(nonNullableTo)) return true;
             if (nonNullableTo.IsAssignableFrom(nonNullableFrom)) return true;
-            if (from.IsInterface || to.IsInterface) return true;
             return from == typeof(object) || to == typeof(object);
         }
 

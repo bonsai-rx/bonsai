@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using Bonsai.Expressions;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Bonsai.Core.Tests
 {
@@ -38,6 +39,20 @@ namespace Bonsai.Core.Tests
             }
         }
 
+        [Combinator]
+        class ListTupleOverloadedCombinatorMock
+        {
+            public IObservable<int> Process(IObservable<Tuple<int, int>> source)
+            {
+                return source.Select(xs => xs.Item1);
+            }
+
+            public IObservable<IList<int>> Process(IObservable<IList<int>> source)
+            {
+                return source;
+            }
+        }
+
         [TestMethod]
         public void Build_FloatOverloadedMethodCalledWithInt_ReturnsFloatValue()
         {
@@ -56,6 +71,17 @@ namespace Bonsai.Core.Tests
             var combinator = new ParamsOverloadedCombinatorMock();
             var source = CreateObservableExpression(Observable.Return(value));
             var resultProvider = TestCombinatorBuilder<float>(combinator, source);
+            var result = Last(resultProvider).Result;
+            Assert.AreEqual(value, result);
+        }
+
+        [TestMethod]
+        public void Build_ListTupleOverloadedMethodCalledWithIntTuple_ReturnsIntValue()
+        {
+            var value = 5;
+            var combinator = new ListTupleOverloadedCombinatorMock();
+            var source = CreateObservableExpression(Observable.Return(Tuple.Create(value, value)));
+            var resultProvider = TestCombinatorBuilder<int>(combinator, source);
             var result = Last(resultProvider).Result;
             Assert.AreEqual(value, result);
         }
