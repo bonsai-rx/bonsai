@@ -48,14 +48,81 @@ namespace Bonsai.Audio
             AL.DeleteBuffers(freeBuffers);
         }
 
+        static Depth GetReducedDepth(Depth depth)
+        {
+            switch (depth)
+            {
+                case Depth.F64:
+                    return Depth.F64;
+                default:
+                case Depth.U8:
+                case Depth.S8:
+                case Depth.U16:
+                case Depth.S16:
+                case Depth.S32:
+                case Depth.F32:
+                    return Depth.F32;
+            }
+        }
+
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
             return Observable.Defer(() =>
             {
+                Mat temp = null;
+                Mat reduced = null;
+                Mat transposed = null;
                 var context = new AudioContext(DeviceName);
                 var sourceId = AL.GenSource();
                 return source.Do(input =>
                 {
+                    var convertDepth = input.Depth != Depth.S16;
+                    var multiChannel = input.Rows > 1 && input.Cols > 1;
+                    if (convertDepth || multiChannel)
+                    {
+                        var rows = multiChannel ? input.Cols : input.Rows;
+                        var cols = multiChannel ? 1 : input.Cols;
+                        if (temp == null || temp.Rows != rows || temp.Cols != cols)
+                        {
+                            temp = new Mat(rows, cols, Depth.S16, 1);
+                            transposed = temp;
+                            reduced = null;
+                        }
+
+                        var reducedDepth = multiChannel ? GetReducedDepth(input.Depth) : input.Depth;
+                        if (multiChannel && (reduced == null || reduced.Depth != reducedDepth))
+                        {
+                            reduced = new Mat(1, input.Cols, reducedDepth, 1);
+                        }
+
+                        if (multiChannel &&
+                           (transposed.Depth != reducedDepth ||
+                            transposed.Cols != input.Rows))
+                        {
+                            transposed = new Mat(rows, cols, reducedDepth, 1);
+                        }
+
+                        if (multiChannel)
+                        {
+                            // Reduce multichannel
+                            CV.Reduce(input, reduced, 0, ReduceOperation.Sum);
+                            multiChannel = false;
+                            input = reduced;
+
+                            // Transpose multichannel to column order
+                            CV.Transpose(input, transposed);
+                            input = transposed;
+                        }
+
+                        // Convert if needed
+                        if (input.Depth != temp.Depth)
+                        {
+                            CV.Convert(input, temp);
+                        }
+
+                        input = temp;
+                    }
+
                     var buffer = AL.GenBuffer();
                     AL.BufferData(buffer, ALFormat.Mono16, input.Data, input.Rows * input.Step, Frequency);
 
