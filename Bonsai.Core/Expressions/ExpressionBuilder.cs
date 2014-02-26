@@ -330,7 +330,7 @@ namespace Bonsai.Expressions
             var arrayType = parameters[offset].ParameterType.GetElementType();
             for (int i = offset; i < argumentTypes.Length; i++)
             {
-                if (argumentTypes[i] != arrayType)
+                if (argumentTypes[i] != arrayType && !HasObservableConversion(argumentTypes[i], arrayType))
                 {
                     return false;
                 }
@@ -348,7 +348,7 @@ namespace Bonsai.Expressions
             {
                 if (arguments[k + offset].Type != arrayType)
                 {
-                    throw new InvalidOperationException("Parameter expansion requires tail arguments to be of the same type.");
+                    arguments[k + offset] = CoerceMethodArgument(arrayType, arguments[k + offset]);
                 }
                 initializers[k] = arguments[k + offset];
             }
@@ -356,6 +356,25 @@ namespace Bonsai.Expressions
             Array.Resize(ref arguments, parameters.Length);
             arguments[arguments.Length - 1] = paramArray;
             return arguments;
+        }
+
+        static Expression CoerceMethodArgument(Type parameterType, Expression argument)
+        {
+            if (argument.Type.IsGenericType && parameterType.IsGenericType &&
+                argument.Type.GetGenericTypeDefinition() == typeof(IObservable<>) &&
+                parameterType.GetGenericTypeDefinition() == typeof(IObservable<>))
+            {
+                var argumentObservableType = argument.Type.GetGenericArguments()[0];
+                var parameterObservableType = parameterType.GetGenericArguments()[0];
+                var conversionParameter = Expression.Parameter(argumentObservableType);
+                var conversion = Expression.Convert(conversionParameter, parameterObservableType);
+                var select = selectMethod.MakeGenericMethod(argumentObservableType, parameterObservableType);
+                return Expression.Call(select, argument, Expression.Lambda(conversion, conversionParameter));
+            }
+            else
+            {
+                return Expression.Convert(argument, parameterType);
+            }
         }
 
         static Expression[] MatchMethodParameters(ParameterInfo[] parameters, Expression[] arguments)
@@ -366,21 +385,7 @@ namespace Bonsai.Expressions
                 var parameterType = parameters[i++].ParameterType;
                 if (argument.Type != parameterType)
                 {
-                    if (argument.Type.IsGenericType && parameterType.IsGenericType &&
-                        argument.Type.GetGenericTypeDefinition() == typeof(IObservable<>) &&
-                        parameterType.GetGenericTypeDefinition() == typeof(IObservable<>))
-                    {
-                        var argumentObservableType = argument.Type.GetGenericArguments()[0];
-                        var parameterObservableType = parameterType.GetGenericArguments()[0];
-                        var conversionParameter = Expression.Parameter(argumentObservableType);
-                        var conversion = Expression.Convert(conversionParameter, parameterObservableType);
-                        var select = selectMethod.MakeGenericMethod(argumentObservableType, parameterObservableType);
-                        return Expression.Call(select, argument, Expression.Lambda(conversion, conversionParameter));
-                    }
-                    else if (argument.Type.IsPrimitive)
-                    {
-                        return Expression.Convert(argument, parameterType);
-                    }
+                    argument = CoerceMethodArgument(parameterType, argument);
                 }
                 return argument;
             });
@@ -461,6 +466,20 @@ namespace Bonsai.Expressions
                    GetUserConversion(from, to) != null;
         }
 
+        static bool HasObservableConversion(Type from, Type to)
+        {
+            if (from.IsGenericType && to.IsGenericType &&
+                from.GetGenericTypeDefinition() == typeof(IObservable<>) &&
+                to.GetGenericTypeDefinition() == typeof(IObservable<>))
+            {
+                var argumentObservableType = from.GetGenericArguments()[0];
+                var parameterObservableType = to.GetGenericArguments()[0];
+                return HasConversion(argumentObservableType, parameterObservableType);
+            }
+
+            return HasConversion(from, to);
+        }
+
         static bool CanMatchMethodParameters(ParameterInfo[] parameters, Expression[] arguments)
         {
             int i = 0;
@@ -470,16 +489,7 @@ namespace Bonsai.Expressions
                 var parameterType = parameters[i++].ParameterType;
                 if (argument.Type != parameterType)
                 {
-                    if (argument.Type.IsGenericType && parameterType.IsGenericType &&
-                        argument.Type.GetGenericTypeDefinition() == typeof(IObservable<>) &&
-                        parameterType.GetGenericTypeDefinition() == typeof(IObservable<>))
-                    {
-                        var argumentObservableType = argument.Type.GetGenericArguments()[0];
-                        var parameterObservableType = parameterType.GetGenericArguments()[0];
-                        return HasConversion(argumentObservableType, parameterObservableType);
-                    }
-
-                    return HasConversion(argument.Type, parameterType);
+                    return HasObservableConversion(argument.Type, parameterType);
                 }
 
                 return true;
@@ -576,19 +586,29 @@ namespace Bonsai.Expressions
             return 0;
         }
 
+        static bool IsObservable(Type type)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IObservable<>);
+        }
+
+        static Type GetObservableElementType(Type type)
+        {
+            return IsObservable(type) ? type.GetGenericArguments()[0] : type;
+        }
+
         static Type[] ExpandCallParameterTypes(ParameterInfo[] parameters, Type[] arguments, bool expansion)
         {
             var expandedParameters = new Type[arguments.Length];
             for (int i = 0; i < parameters.Length; i++)
             {
-                expandedParameters[i] = parameters[i].ParameterType;
+                expandedParameters[i] = GetObservableElementType(parameters[i].ParameterType);
             }
 
             if (expansion)
             {
-                for (int i = parameters.Length-1; i < expandedParameters.Length; i++)
+                for (int i = parameters.Length - 1; i < expandedParameters.Length; i++)
                 {
-                    expandedParameters[i] = parameters[parameters.Length - 1].ParameterType.GetElementType();
+                    expandedParameters[i] = GetObservableElementType(parameters[parameters.Length - 1].ParameterType.GetElementType());
                 }
             }
 
