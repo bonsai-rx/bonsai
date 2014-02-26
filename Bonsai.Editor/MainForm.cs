@@ -1141,6 +1141,14 @@ namespace Bonsai.Editor
                 return null;
             }
 
+            void HandleMenuItemShortcutKeys(KeyEventArgs e, ToolStripMenuItem menuItem, EventHandler onShortcut)
+            {
+                if (menuItem.Enabled && menuItem.ShortcutKeys == e.KeyData)
+                {
+                    onShortcut(this, e);
+                }
+            }
+
             public void OnKeyDown(KeyEventArgs e)
             {
                 if (e.Control && e.KeyCode == Keys.E)
@@ -1150,11 +1158,10 @@ namespace Bonsai.Editor
                     e.SuppressKeyPress = true;
                 }
 
-                if (siteForm.saveSelectionAsToolStripMenuItem.Enabled &&
-                    siteForm.saveSelectionAsToolStripMenuItem.ShortcutKeys == e.KeyData)
-                {
-                    siteForm.saveSelectionAsToolStripMenuItem_Click(this, e);
-                }
+                HandleMenuItemShortcutKeys(e, siteForm.newToolStripMenuItem, siteForm.newToolStripMenuItem_Click);
+                HandleMenuItemShortcutKeys(e, siteForm.openToolStripMenuItem, siteForm.openToolStripMenuItem_Click);
+                HandleMenuItemShortcutKeys(e, siteForm.saveToolStripMenuItem, siteForm.saveToolStripMenuItem_Click);
+                HandleMenuItemShortcutKeys(e, siteForm.saveSelectionAsToolStripMenuItem, siteForm.saveSelectionAsToolStripMenuItem_Click);
             }
 
             public void OnKeyPress(KeyPressEventArgs e)
