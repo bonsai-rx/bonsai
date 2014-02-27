@@ -386,6 +386,7 @@ namespace Bonsai.Editor
 
             workflowGraphView.Workflow = workflowBuilder.Workflow;
             editorSite.ValidateWorkflow();
+            ResetProjectStatus();
 
             if (string.IsNullOrEmpty(directoryToolStripTextBox.Text))
             {
