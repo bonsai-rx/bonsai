@@ -104,8 +104,9 @@ namespace Bonsai.Dsp
                 if (normalizer == 0) kernel[i] = cutoffRadians;
                 else kernel[i] = (float)(Math.Sin(cutoffRadians * normalizer) / normalizer);
 
-                // Hamming window: http://www.dspguide.com/ch16/1.htm
-                kernel[i] = (float)(kernel[i] * (0.54 - 0.46 * Math.Cos(2 * Math.PI * i / filterOrder)));
+                // Blackman window: http://www.dspguide.com/ch16/1.htm
+                kernel[i] = (float)(kernel[i] * (0.42 - 0.5 * Math.Cos(2 * Math.PI * i / filterOrder)
+                                                      + 0.08 * Math.Cos(4 * Math.PI * i / filterOrder)));
             }
 
             // Normalize for unit gain
