@@ -42,7 +42,11 @@ namespace Bonsai.Dsp
                     var depthSize = output.Step / bufferLength;
                     var buffer = new byte[bufferLength * channelCount * depthSize];
                     var bytesRead = reader.Read(buffer, 0, buffer.Length);
-                    if (bytesRead == 0) observer.OnCompleted();
+                    if (bytesRead == 0)
+                    {
+                        observer.OnCompleted();
+                        return;
+                    }
                     else
                     {
                         Mat bufferHeader;
@@ -64,14 +68,13 @@ namespace Bonsai.Dsp
                         }
                         finally { bufferHandle.Free(); }
 
+                        observer.OnNext(output);
                         var sampleInterval = 1000.0 / Frequency;
                         var dueTime = Math.Max(0, (sampleInterval * BufferLength) - stopwatch.Elapsed.TotalMilliseconds);
                         if (dueTime > 0)
                         {
                             Thread.Sleep(TimeSpan.FromMilliseconds(dueTime));
                         }
-
-                        observer.OnNext(output);
                     }
                 }));
         }
