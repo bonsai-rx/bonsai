@@ -14,7 +14,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that repeats an observable sequence indefinitely.
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Repeats the sequence indefinitely.")]
+    [Description("Repeats the observable sequence indefinitely.")]
     public class Repeat : Combinator
     {
         /// <summary>

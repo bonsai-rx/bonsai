@@ -16,7 +16,7 @@ namespace Bonsai.Reactive
     /// the specified relative time duration.
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Delays the propagation of values by the specified time interval.")]
+    [Description("Delays the notification of values by the specified time interval.")]
     public class Delay : Combinator
     {
         /// <summary>

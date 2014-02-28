@@ -15,7 +15,7 @@ namespace Bonsai.Reactive
     /// </summary>
     [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Propagates the sequence that reacts first.")]
+    [Description("Propagates the observable sequence that reacts first.")]
     public class Amb
     {
         /// <summary>

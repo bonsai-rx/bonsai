@@ -14,7 +14,7 @@ namespace Bonsai.Reactive
     /// specified initial relative due time has elapsed.
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Returns an observable sequence that periodically produces a value after the specified initial relative due time has elapsed.")]
+    [Description("Generates an observable sequence that periodically produces a value after the specified initial relative due time has elapsed.")]
     public class Timer : Source<long>
     {
         /// <summary>
@@ -23,6 +23,7 @@ namespace Bonsai.Reactive
         /// fire as soon as possible.
         /// </summary>
         [XmlIgnore]
+        [Description("The relative time at which to produce the first value. If this value is less than or equal to zero, the timer will fire as soon as possible.")]
         public TimeSpan DueTime { get; set; }
 
         /// <summary>
@@ -30,6 +31,7 @@ namespace Bonsai.Reactive
         /// to <see cref="TimeSpan.Zero"/> the timer will recur as fast as possible.
         /// </summary>
         [XmlIgnore]
+        [Description("The period to produce subsequent values. If this value is equal to zero the timer will recur as fast as possible.")]
         public TimeSpan Period { get; set; }
 
         /// <summary>

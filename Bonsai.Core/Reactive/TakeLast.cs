@@ -17,9 +17,9 @@ namespace Bonsai.Reactive
     public class TakeLast : Combinator
     {
         /// <summary>
-        /// Gets or sets the number of elements to take.
+        /// Gets or sets the number of elements to take from the end of the sequence.
         /// </summary>
-        [Description("The number of elements to take.")]
+        [Description("The number of elements to take from the end of the sequence.")]
         public int Count { get; set; }
 
         /// <summary>

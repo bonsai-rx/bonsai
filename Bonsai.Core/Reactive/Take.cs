@@ -13,7 +13,7 @@ namespace Bonsai.Reactive
     /// from the start of an observable sequence.
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Returns only the specified number of contiguous elements from the start of the sequence.")]
+    [Description("Returns the specified number of contiguous elements from the start of the sequence.")]
     public class Take : Combinator
     {
         /// <summary>

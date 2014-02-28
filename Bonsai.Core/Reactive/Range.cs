@@ -19,11 +19,13 @@ namespace Bonsai.Reactive
         /// <summary>
         /// Gets or sets the value of the first integer in the sequence.
         /// </summary>
+        [Description("The value of the first integer in the sequence.")]
         public int Start { get; set; }
 
         /// <summary>
         /// Gets or sets the number of sequential integers to generate.
         /// </summary>
+        [Description("The number of sequential integers to generate.")]
         public int Count { get; set; }
 
         /// <summary>
