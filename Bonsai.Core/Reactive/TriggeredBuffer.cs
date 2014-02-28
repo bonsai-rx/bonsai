@@ -15,7 +15,7 @@ namespace Bonsai.Reactive
     [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Projects each element of the sequence into consecutive non-overlapping buffers.")]
-    public class BufferTriggered
+    public class TriggeredBuffer
     {
         /// <summary>
         /// Projects each element of an observable sequence into consecutive non-overlapping buffers.
