@@ -15,7 +15,7 @@ namespace Bonsai.Expressions
     /// an encapsulated workflow selector to the elements of an observable sequence of windows.
     /// </summary>
     [XmlType("WindowWorkflow", Namespace = Constants.XmlNamespace)]
-    [Description("Processes each input window using the nested workflow.")]
+    [Description("Processes each input window using the encapsulated workflow.")]
     public class WindowWorkflowBuilder : WorkflowExpressionBuilder
     {
         static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()

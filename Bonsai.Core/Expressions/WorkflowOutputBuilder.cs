@@ -12,7 +12,7 @@ namespace Bonsai.Expressions
     /// Represents the expression that is used as the output of an encapsulated workflow.
     /// </summary>
     [XmlType("WorkflowOutput", Namespace = Constants.XmlNamespace)]
-    [Description("Represents an output sequence inside a nested workflow.")]
+    [Description("Represents the output sequence inside a nested workflow.")]
     public class WorkflowOutputBuilder : SingleArgumentExpressionBuilder
     {
         /// <summary>

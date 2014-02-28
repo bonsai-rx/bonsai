@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -15,6 +16,7 @@ namespace Bonsai.Expressions
     /// across branches.
     /// </summary>
     [XmlType("Replay", Namespace = Constants.XmlNamespace)]
+    [Description("Shares an observable sequence between multiple branches by replaying notifications across branches.")]
     public class ReplayBuilder : MulticastBuilder
     {
         internal override IObservable<TResult> Multicast<TSource, TResult>(IObservable<TSource> source, Func<IObservable<TSource>, IObservable<TResult>> selector)
