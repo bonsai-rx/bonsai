@@ -41,6 +41,8 @@
             this.pasteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.connectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.disconnectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.graphView = new Bonsai.Design.GraphView();
             this.contextMenuStrip.SuspendLayout();
@@ -59,9 +61,11 @@
             this.pasteToolStripMenuItem,
             this.deleteToolStripMenuItem,
             this.toolStripSeparator1,
+            this.connectToolStripMenuItem,
+            this.disconnectToolStripMenuItem,
             this.groupToolStripMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip";
-            this.contextMenuStrip.Size = new System.Drawing.Size(150, 198);
+            this.contextMenuStrip.Size = new System.Drawing.Size(150, 242);
             this.contextMenuStrip.Closed += new System.Windows.Forms.ToolStripDropDownClosedEventHandler(this.contextMenuStrip_Closed);
             this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Opening);
             // 
@@ -144,6 +148,22 @@
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(146, 6);
             // 
+            // connectToolStripMenuItem
+            // 
+            this.connectToolStripMenuItem.Enabled = false;
+            this.connectToolStripMenuItem.Name = "connectToolStripMenuItem";
+            this.connectToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
+            this.connectToolStripMenuItem.Text = "Connect";
+            this.connectToolStripMenuItem.Click += new System.EventHandler(this.connectToolStripMenuItem_Click);
+            // 
+            // disconnectToolStripMenuItem
+            // 
+            this.disconnectToolStripMenuItem.Enabled = false;
+            this.disconnectToolStripMenuItem.Name = "disconnectToolStripMenuItem";
+            this.disconnectToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
+            this.disconnectToolStripMenuItem.Text = "Disconnect";
+            this.disconnectToolStripMenuItem.Click += new System.EventHandler(this.disconnectToolStripMenuItem_Click);
+            // 
             // groupToolStripMenuItem
             // 
             this.groupToolStripMenuItem.Enabled = false;
@@ -166,6 +186,8 @@
             this.graphView.TabIndex = 0;
             this.graphView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.graphView_ItemDrag);
             this.graphView.NodeMouseDoubleClick += new System.EventHandler<Bonsai.Design.GraphNodeMouseEventArgs>(this.graphView_NodeMouseDoubleClick);
+            this.graphView.NodeMouseEnter += new System.EventHandler<Bonsai.Design.GraphNodeMouseEventArgs>(this.graphView_NodeMouseEnter);
+            this.graphView.NodeMouseLeave += new System.EventHandler<Bonsai.Design.GraphNodeMouseEventArgs>(this.graphView_NodeMouseLeave);
             this.graphView.SelectedNodeChanged += new System.EventHandler(this.graphView_SelectedNodeChanged);
             this.graphView.DragDrop += new System.Windows.Forms.DragEventHandler(this.graphView_DragDrop);
             this.graphView.DragEnter += new System.Windows.Forms.DragEventHandler(this.graphView_DragEnter);
@@ -173,6 +195,7 @@
             this.graphView.DragLeave += new System.EventHandler(this.graphView_DragLeave);
             this.graphView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.graphView_KeyDown);
             this.graphView.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.graphView_KeyPress);
+            this.graphView.MouseDown += new System.Windows.Forms.MouseEventHandler(this.graphView_MouseDown);
             // 
             // WorkflowGraphView
             // 
@@ -200,5 +223,7 @@
         private System.Windows.Forms.ToolStripMenuItem outputToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripMenuItem externalizeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem connectToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem disconnectToolStripMenuItem;
     }
 }
