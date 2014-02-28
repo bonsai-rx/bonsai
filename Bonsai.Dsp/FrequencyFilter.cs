@@ -8,10 +8,10 @@ namespace Bonsai.Dsp
 {
     public class FrequencyFilter : Transform<Mat, Mat>
     {
-        int filterOrder;
+        int kernelLength = 400;
         FilterType filterType;
-        double samplingFrequency;
         double cutoff1, cutoff2;
+        double samplingFrequency;
         FirFilter filter = new FirFilter();
 
         public double SamplingFrequency
@@ -44,12 +44,12 @@ namespace Bonsai.Dsp
             }
         }
 
-        public int FilterOrder
+        public int KernelLength
         {
-            get { return filterOrder; }
+            get { return kernelLength; }
             set
             {
-                filterOrder = value;
+                kernelLength = value;
                 UpdateFilter();
             }
         }
@@ -71,10 +71,10 @@ namespace Bonsai.Dsp
             if (samplingFrequency > 0)
             {
                 var filterType = FilterType;
-                var filterOrder = FilterOrder;
+                var kernelLength = KernelLength;
                 var cutoff1 = Cutoff1;
                 var cutoff2 = Cutoff2;
-                kernel = CreateLowPassKernel(samplingFrequency, cutoff1, filterOrder);
+                kernel = CreateLowPassKernel(samplingFrequency, cutoff1, kernelLength);
                 switch (filterType)
                 {
                     case FilterType.HighPass:
@@ -82,7 +82,7 @@ namespace Bonsai.Dsp
                         break;
                     case FilterType.BandPass:
                     case FilterType.BandStop:
-                        var highPass = InvertSpectrum(CreateLowPassKernel(samplingFrequency, cutoff2, filterOrder));
+                        var highPass = InvertSpectrum(CreateLowPassKernel(samplingFrequency, cutoff2, kernelLength));
                         var bandStop = AddKernels(kernel, highPass);
                         if (filterType == FilterType.BandStop) kernel = bandStop;
                         else kernel = InvertSpectrum(bandStop);
@@ -93,20 +93,20 @@ namespace Bonsai.Dsp
             filter.Kernel = kernel;
         }
 
-        float[] CreateLowPassKernel(double samplingFrequency, double cutoffFrequency, int filterOrder)
+        float[] CreateLowPassKernel(double samplingFrequency, double cutoffFrequency, int kernelLength)
         {
             // Low-pass windowed-sinc filter: http://www.dspguide.com/ch16/4.htm
             var cutoffRadians = (float)(2 * Math.PI * cutoffFrequency / samplingFrequency);
-            var kernel = new float[filterOrder + 1];
+            var kernel = new float[kernelLength + 1];
             for (int i = 0; i < kernel.Length; i++)
             {
-                var normalizer = i - filterOrder / 2f;
+                var normalizer = i - kernelLength / 2f;
                 if (normalizer == 0) kernel[i] = cutoffRadians;
                 else kernel[i] = (float)(Math.Sin(cutoffRadians * normalizer) / normalizer);
 
                 // Blackman window: http://www.dspguide.com/ch16/1.htm
-                kernel[i] = (float)(kernel[i] * (0.42 - 0.5 * Math.Cos(2 * Math.PI * i / filterOrder)
-                                                      + 0.08 * Math.Cos(4 * Math.PI * i / filterOrder)));
+                kernel[i] = (float)(kernel[i] * (0.42 - 0.5 * Math.Cos(2 * Math.PI * i / kernelLength)
+                                                      + 0.08 * Math.Cos(4 * Math.PI * i / kernelLength)));
             }
 
             // Normalize for unit gain
