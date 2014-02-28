@@ -13,6 +13,7 @@ namespace Bonsai.Expressions
     /// </summary>
     [DisplayName("Int")]
     [XmlType(Namespace = Constants.XmlNamespace)]
+    [Description("Represents a workflow property containing a 32-bit signed integer.")]
     public class IntProperty : WorkflowProperty<int>
     {
     }

@@ -15,6 +15,7 @@ namespace Bonsai.Expressions
     /// </summary>
     [DisplayName("TimeSpan")]
     [XmlType(Namespace = Constants.XmlNamespace)]
+    [Description("Represents a workflow property containing a time interval.")]
     public class TimeSpanProperty : WorkflowProperty
     {
         TimeSpan value;
@@ -24,6 +25,7 @@ namespace Bonsai.Expressions
         /// Gets or sets the value of the property.
         /// </summary>
         [XmlIgnore]
+        [Description("The value of the property.")]
         public TimeSpan Value
         {
             get { return value; }

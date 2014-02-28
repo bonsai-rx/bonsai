@@ -13,6 +13,7 @@ namespace Bonsai.Expressions
     /// </summary>
     [DisplayName("Boolean")]
     [XmlType(Namespace = Constants.XmlNamespace)]
+    [Description("Represents a workflow property containing a logical Boolean value.")]
     public class BooleanProperty : WorkflowProperty<bool>
     {
     }

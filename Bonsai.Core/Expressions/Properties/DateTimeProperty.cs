@@ -13,6 +13,7 @@ namespace Bonsai.Expressions
     /// </summary>
     [DisplayName("DateTime")]
     [XmlType(Namespace = Constants.XmlNamespace)]
+    [Description("Represents a workflow property containing a date and time of day.")]
     public class DateTimeProperty : WorkflowProperty<DateTime>
     {
     }
