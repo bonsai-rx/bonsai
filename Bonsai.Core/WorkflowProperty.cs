@@ -24,6 +24,7 @@ namespace Bonsai
         /// <summary>
         /// Gets or sets the name of the property.
         /// </summary>
+        [Description("The name of the property. When set, the property will appear on the pages of a nested workflow.")]
         public string Name { get; set; }
 
         internal abstract Type PropertyType { get; }
@@ -43,6 +44,7 @@ namespace Bonsai
         /// <summary>
         /// Gets or sets the value of the property.
         /// </summary>
+        [Description("The value of the property.")]
         public TValue Value
         {
             get { return value; }

@@ -13,6 +13,7 @@ namespace Bonsai.Expressions
     /// </summary>
     [DisplayName("String")]
     [XmlType(Namespace = Constants.XmlNamespace)]
+    [Description("Represents a workflow property containing Unicode text.")]
     public class StringProperty : WorkflowProperty<string>
     {
     }

@@ -13,6 +13,7 @@ namespace Bonsai.Expressions
     /// </summary>
     [DisplayName("Double")]
     [XmlType(Namespace = Constants.XmlNamespace)]
+    [Description("Represents a workflow property containing a double-precision floating-point number.")]
     public class DoubleProperty : WorkflowProperty<double>
     {
     }
