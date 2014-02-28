@@ -14,7 +14,7 @@ namespace Bonsai.Reactive
     /// </summary>
     [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Computes the average of an observable sequence.")]
+    [Description("Computes the numerical average of an observable sequence.")]
     public class Average
     {
         /// <summary>

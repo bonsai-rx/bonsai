@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Reactive.Linq;
 using System.Xml.Serialization;
+using System.ComponentModel;
 
 namespace Bonsai.Reactive
 {
@@ -11,6 +12,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that extracts a range of elements from an observable sequence.
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
+    [Description("Extracts a range of elements from an observable sequence.")]
     public class Slice : Combinator
     {
         /// <summary>
@@ -24,16 +26,19 @@ namespace Bonsai.Reactive
         /// <summary>
         /// Gets or sets the element index at which the slice begins.
         /// </summary>
+        [Description("The element index at which the slice begins.")]
         public int Start { get; set; }
 
         /// <summary>
-        /// Gets or sets the number of elements to skip between slice values.
+        /// Gets or sets the number of elements to skip between slice elements.
         /// </summary>
+        [Description("The number of elements to skip between slice elements.")]
         public int Step { get; set; }
 
         /// <summary>
         /// Gets or sets the optional element index at which the slice ends.
         /// </summary>
+        [Description("The optional element index at which the slice ends.")]
         public int? Stop { get; set; }
 
         /// <summary>

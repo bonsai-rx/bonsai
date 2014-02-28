@@ -14,7 +14,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that repeats an observable sequence a specified number of times.
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Repeats the sequence a specified number of times.")]
+    [Description("Repeats the observable sequence a specified number of times.")]
     public class RepeatCount : Combinator
     {
         /// <summary>
