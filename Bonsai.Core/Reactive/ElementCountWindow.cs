@@ -12,11 +12,11 @@ using System.Linq.Expressions;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that projects each element of an observable sequence into consecutive
-    /// non-overlapping windows with the specified maximum number of elements.
+    /// Represents a combinator that projects each element of an observable sequence into zero
+    /// or more windows based on element count information.
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Projects the sequence into non-overlapping windows with the specified maximum number of elements.")]
+    [Description("Projects the sequence into zero or more windows based on element count information.")]
     public class ElementCountWindow : WindowCombinator
     {
         /// <summary>
@@ -26,15 +26,25 @@ namespace Bonsai.Reactive
         public int Count { get; set; }
 
         /// <summary>
-        /// Projects each element of an observable sequence into consecutive non-overlapping
-        /// windows with the specified maximum number of elements.
+        /// Gets or sets the number of elements to skip between the creation of each window.
+        /// If it is not specified, <see cref="Skip"/> will be equal to <see cref="Count"/>
+        /// in order to generate consecutive non-overlapping windows.
+        /// </summary>
+        [Description("The optional number of elements to skip between the creation of each window.")]
+        public int? Skip { get; set; }
+
+        /// <summary>
+        /// Projects each element of an observable sequence into zero or more windows
+        /// based on element count information.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
         /// <param name="source">The source sequence to produce windows over.</param>
         /// <returns>An observable sequence of windows.</returns>
         public override IObservable<IObservable<TSource>> Process<TSource>(IObservable<TSource> source)
         {
-            return source.Window(Count);
+            var skip = Skip;
+            if (skip.HasValue) return source.Window(Count, skip.Value);
+            else return source.Window(Count);
         }
     }
 }
