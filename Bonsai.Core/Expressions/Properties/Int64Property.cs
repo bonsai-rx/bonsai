@@ -11,10 +11,10 @@ namespace Bonsai.Expressions
     /// <summary>
     /// Represents a workflow property containing a 64-bit signed integer.
     /// </summary>
-    [DisplayName("Long")]
+    [DisplayName("Int64")]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Represents a workflow property containing a 64-bit signed integer.")]
-    public class LongProperty : WorkflowProperty<long>
+    public class Int64Property : WorkflowProperty<long>
     {
     }
 }
