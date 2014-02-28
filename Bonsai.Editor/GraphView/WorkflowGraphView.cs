@@ -1282,7 +1282,6 @@ namespace Bonsai.Design
         private void graphView_DragOver(object sender, DragEventArgs e)
         {
             if (editorState.WorkflowRunning) return;
-            dragKeyState = e.KeyState;
             if (e.Effect != DragDropEffects.None && e.Data.GetDataPresent(DataFormats.FileDrop, true))
             {
                 OnDragFileDrop(e);
@@ -1292,7 +1291,7 @@ namespace Bonsai.Design
             {
                 var dragLocation = graphView.PointToClient(new Point(e.X, e.Y));
                 var highlight = graphView.GetNodeAt(dragLocation);
-                if (highlight != dragHighlight)
+                if (highlight != dragHighlight || e.KeyState != dragKeyState)
                 {
                     if (highlight != null)
                     {
@@ -1306,6 +1305,8 @@ namespace Bonsai.Design
                     dragHighlight = highlight;
                 }
             }
+
+            dragKeyState = e.KeyState;
         }
 
         private void graphView_DragLeave(object sender, EventArgs e)
