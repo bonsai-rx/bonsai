@@ -27,6 +27,7 @@ namespace Bonsai.Design
 {
     partial class WorkflowGraphView : UserControl
     {
+        static readonly Cursor AlternateSelectionCursor = Cursors.UpArrow;
         static readonly XName XsdAttributeName = ((XNamespace)"http://www.w3.org/2000/xmlns/") + "xsd";
         static readonly XName XsiAttributeName = ((XNamespace)"http://www.w3.org/2000/xmlns/") + "xsi";
         const string XsdAttributeValue = "http://www.w3.org/2001/XMLSchema";
@@ -1467,6 +1468,50 @@ namespace Bonsai.Design
             }
         }
 
+        private void graphView_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (dragSelection != null)
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    var linkNode = graphView.GetNodeAt(e.Location);
+                    if (linkNode != null)
+                    {
+                        var disconnect = (dragKeyState & ShiftModifier) != 0;
+                        if (disconnect && CanDisconnect(dragSelection, linkNode))
+                        {
+                            DisconnectGraphNodes(dragSelection, linkNode);
+                        }
+                        else if (!disconnect && CanConnect(dragSelection, linkNode))
+                        {
+                            ConnectGraphNodes(dragSelection, linkNode);
+                        }
+                    }
+                }
+
+                ClearDragDrop();
+                Cursor = Cursors.Default;
+            }
+        }
+
+        private void graphView_NodeMouseEnter(object sender, GraphNodeMouseEventArgs e)
+        {
+            if (dragSelection != null && e.Node != null)
+            {
+                var disconnect = (dragKeyState & ShiftModifier) != 0;
+                if (disconnect && !CanDisconnect(dragSelection, e.Node)) Cursor = Cursors.No;
+                else if (!disconnect && !CanConnect(dragSelection, e.Node)) Cursor = Cursors.No;
+            }
+        }
+
+        private void graphView_NodeMouseLeave(object sender, GraphNodeMouseEventArgs e)
+        {
+            if (dragSelection != null)
+            {
+                Cursor = AlternateSelectionCursor;
+            }
+        }
+
         private void graphView_HandleDestroyed(object sender, EventArgs e)
         {
             editorState.WorkflowStarted -= editorService_WorkflowStarted;
@@ -1505,6 +1550,19 @@ namespace Bonsai.Design
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DeleteGraphNodes(selectionModel.SelectedNodes);
+        }
+
+        private void connectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Cursor = AlternateSelectionCursor;
+            dragSelection = graphView.SelectedNodes.ToArray();
+        }
+
+        private void disconnectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Cursor = AlternateSelectionCursor;
+            dragSelection = graphView.SelectedNodes.ToArray();
+            dragKeyState = ShiftModifier;
         }
 
         private void InitializeOutputMenuItem(ToolStripMenuItem menuItem, string memberSelector, Type memberType)
@@ -1779,6 +1837,8 @@ namespace Bonsai.Design
                 {
                     cutToolStripMenuItem.Enabled = true;
                     deleteToolStripMenuItem.Enabled = true;
+                    connectToolStripMenuItem.Enabled = true;
+                    disconnectToolStripMenuItem.Enabled = true;
                     groupToolStripMenuItem.Enabled = true;
                     CreateGroupMenuItems(selectedNodes);
                 }

@@ -892,6 +892,8 @@ namespace Bonsai.Design
                     }
                 }
             }
+
+            OnMouseDown(e);
         }
 
         private void canvas_MouseUp(object sender, MouseEventArgs e)
@@ -912,6 +914,7 @@ namespace Bonsai.Design
             }
 
             mouseDownHandled = false;
+            OnMouseUp(e);
         }
 
         private void canvas_MouseClick(object sender, MouseEventArgs e)
