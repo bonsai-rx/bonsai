@@ -17,7 +17,7 @@ namespace Bonsai.Expressions
     /// of windows.
     /// </summary>
     [XmlType("SelectMany", Namespace = Constants.XmlNamespace)]
-    [Description("Processes each input window using the nested workflow and merges the result into a single sequence.")]
+    [Description("Processes each input window using the encapsulated workflow and merges the result into a single sequence.")]
     public class SelectManyBuilder : WorkflowExpressionBuilder
     {
         static readonly MethodInfo returnMethod = (from method in typeof(Observable).GetMethods()

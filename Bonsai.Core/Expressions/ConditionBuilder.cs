@@ -11,11 +11,12 @@ using System.Xml.Serialization;
 namespace Bonsai.Expressions
 {
     /// <summary>
-    /// Represents an expression builder which uses a specified condition instance
-    /// to process an observable sequence.
+    /// Represents an expression builder which filters the elements of an observable
+    /// sequence according to a condition specified by the encapsulated workflow.
     /// </summary>
     [WorkflowElementCategory(ElementCategory.Condition)]
     [XmlType("Condition", Namespace = Constants.XmlNamespace)]
+    [Description("Filters the elements of an observable sequence according to a condition specified by the encapsulated workflow.")]
     public class ConditionBuilder : WorkflowExpressionBuilder
     {
         /// <summary>

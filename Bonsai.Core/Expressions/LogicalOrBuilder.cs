@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -13,6 +14,7 @@ namespace Bonsai.Expressions
     /// on paired elements of an observable sequence.
     /// </summary>
     [XmlType("LogicalOr", Namespace = Constants.XmlNamespace)]
+    [Description("Applies a conditional OR operation on paired elements of an observable sequence.")]
     public class LogicalOrBuilder : BinaryOperatorBuilder
     {
         /// <summary>
