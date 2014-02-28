@@ -193,6 +193,7 @@
             this.graphView.DragEnter += new System.Windows.Forms.DragEventHandler(this.graphView_DragEnter);
             this.graphView.DragOver += new System.Windows.Forms.DragEventHandler(this.graphView_DragOver);
             this.graphView.DragLeave += new System.EventHandler(this.graphView_DragLeave);
+            this.graphView.GiveFeedback += new System.Windows.Forms.GiveFeedbackEventHandler(this.graphView_GiveFeedback);
             this.graphView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.graphView_KeyDown);
             this.graphView.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.graphView_KeyPress);
             this.graphView.MouseDown += new System.Windows.Forms.MouseEventHandler(this.graphView_MouseDown);

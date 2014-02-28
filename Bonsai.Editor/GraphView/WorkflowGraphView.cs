@@ -27,6 +27,7 @@ namespace Bonsai.Design
 {
     partial class WorkflowGraphView : UserControl
     {
+        static readonly Cursor InvalidSelectionCursor = Cursors.No;
         static readonly Cursor AlternateSelectionCursor = Cursors.UpArrow;
         static readonly XName XsdAttributeName = ((XNamespace)"http://www.w3.org/2000/xmlns/") + "xsd";
         static readonly XName XsiAttributeName = ((XNamespace)"http://www.w3.org/2000/xmlns/") + "xsi";
@@ -1230,6 +1231,24 @@ namespace Bonsai.Design
             dragHighlight = null;
         }
 
+        private void SetDragCursor(DragDropEffects effect)
+        {
+            switch (effect)
+            {
+                case DragDropEffects.All:
+                case DragDropEffects.Copy:
+                case DragDropEffects.Link:
+                case DragDropEffects.Move:
+                case DragDropEffects.Scroll:
+                    Cursor.Current = AlternateSelectionCursor;
+                    break;
+                case DragDropEffects.None:
+                default:
+                    Cursor.Current = InvalidSelectionCursor;
+                    break;
+            }
+        }
+
         private void graphView_DragEnter(object sender, DragEventArgs e)
         {
             if (editorState.WorkflowRunning) return;
@@ -1283,6 +1302,7 @@ namespace Bonsai.Design
                         e.Effect = validation ? DragDropEffects.Link : DragDropEffects.None;
                     }
                     else e.Effect = DragDropEffects.None;
+                    SetDragCursor(e.Effect);
                     dragHighlight = highlight;
                 }
             }
@@ -1358,6 +1378,15 @@ namespace Bonsai.Design
             if (selectedNode != null)
             {
                 graphView.DoDragDrop(selectedNode, DragDropEffects.Link);
+            }
+        }
+
+        private void graphView_GiveFeedback(object sender, GiveFeedbackEventArgs e)
+        {
+            if (dragSelection != null)
+            {
+                e.UseDefaultCursors = false;
+                SetDragCursor(e.Effect);
             }
         }
 
@@ -1499,8 +1528,8 @@ namespace Bonsai.Design
             if (dragSelection != null && e.Node != null)
             {
                 var disconnect = (dragKeyState & ShiftModifier) != 0;
-                if (disconnect && !CanDisconnect(dragSelection, e.Node)) Cursor = Cursors.No;
-                else if (!disconnect && !CanConnect(dragSelection, e.Node)) Cursor = Cursors.No;
+                if (disconnect && !CanDisconnect(dragSelection, e.Node)) SetDragCursor(DragDropEffects.None);
+                else if (!disconnect && !CanConnect(dragSelection, e.Node)) SetDragCursor(DragDropEffects.None);
             }
         }
 
@@ -1508,7 +1537,7 @@ namespace Bonsai.Design
         {
             if (dragSelection != null)
             {
-                Cursor = AlternateSelectionCursor;
+                SetDragCursor(DragDropEffects.Link);
             }
         }
 
@@ -1554,13 +1583,13 @@ namespace Bonsai.Design
 
         private void connectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Cursor = AlternateSelectionCursor;
+            SetDragCursor(DragDropEffects.Link);
             dragSelection = graphView.SelectedNodes.ToArray();
         }
 
         private void disconnectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Cursor = AlternateSelectionCursor;
+            SetDragCursor(DragDropEffects.Link);
             dragSelection = graphView.SelectedNodes.ToArray();
             dragKeyState = ShiftModifier;
         }
