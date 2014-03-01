@@ -645,14 +645,13 @@ namespace Bonsai.Design
             }
 
             var selection = selectionModel.SelectedNodes.FirstOrDefault();
-            var inspectableGraph = elements.ToInspectableGraph();
             Action addConnection = () => { };
             Action removeConnection = () => { };
             if (selection != null)
             {
                 var selectionNode = GetGraphNodeTag(workflow, selection);
-                var source = inspectableGraph.Sources().FirstOrDefault();
-                var sink = inspectableGraph.Sinks().FirstOrDefault();
+                var source = elements.Sources().FirstOrDefault();
+                var sink = elements.Sinks().FirstOrDefault();
                 if (source != null && sink != null)
                 {
                     var insertCommands = GetInsertGraphNodeCommands(source, sink, ElementCategory.Combinator, selectionNode, nodeType, branch);
@@ -665,7 +664,7 @@ namespace Bonsai.Design
             commandExecutor.Execute(
             () =>
             {
-                foreach (var node in inspectableGraph)
+                foreach (var node in elements)
                 {
                     workflow.Add(node);
                 }
@@ -675,7 +674,7 @@ namespace Bonsai.Design
             () =>
             {
                 removeConnection();
-                foreach (var node in inspectableGraph.TopologicalSort())
+                foreach (var node in elements.TopologicalSort())
                 {
                     workflow.Remove(node);
                 }
@@ -917,13 +916,13 @@ namespace Bonsai.Design
             commandExecutor.EndCompositeCommand();
         }
 
-        private void InsertWorkflow(WorkflowBuilder builder)
+        private void InsertWorkflow(ExpressionBuilderGraph workflow)
         {
-            if (builder.Workflow.Count > 0)
+            if (workflow.Count > 0)
             {
                 var branch = Control.ModifierKeys.HasFlag(BranchModifier);
                 var predecessor = Control.ModifierKeys.HasFlag(PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
-                InsertGraphElements(builder.Workflow, predecessor, branch);
+                InsertGraphElements(workflow, predecessor, branch);
             }
         }
 
@@ -941,7 +940,7 @@ namespace Bonsai.Design
         public void PasteFromClipboard()
         {
             var builder = editorService.RetrieveWorkflowElements();
-            InsertWorkflow(builder);
+            InsertWorkflow(builder.Workflow.ToInspectableGraph());
         }
 
         public GraphNode FindGraphNode(object value)
@@ -1334,7 +1333,7 @@ namespace Bonsai.Design
                         if (path.Length == 1)
                         {
                             var workflowBuilder = editorService.LoadWorkflow(path[0]);
-                            InsertWorkflow(workflowBuilder);
+                            InsertWorkflow(workflowBuilder.Workflow);
                         }
                     }
                     else
