@@ -72,10 +72,11 @@
     <Compile Include="ColorBalance.cs" />
     <Compile Include="ConnectedComponent.cs" />
     <Compile Include="ConnectedComponentCollection.cs" />
-    <Compile Include="ConnectedComponentCheck.cs" />
+    <Compile Include="ContourConvexity.cs" />
     <Compile Include="Contours.cs" />
     <Compile Include="ConvertColor.cs" />
     <Compile Include="ConvertToImage.cs" />
+    <Compile Include="ConvexityDefects.cs" />
     <Compile Include="DistanceTransform.cs" />
     <Compile Include="Laplace.cs" />
     <Compile Include="MaskImage.cs" />

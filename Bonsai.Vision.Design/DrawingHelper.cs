@@ -34,6 +34,28 @@ namespace Bonsai.Vision.Design
             CV.Circle(image, new Point(centroid), 2, Scalar.Rgb(255, 0, 0), -1);
         }
 
+        public static void DrawConvexityDefects(IplImage image, Seq convexityDefects, Scalar color, int thickness = 1)
+        {
+            DrawConvexityDefects(image, convexityDefects, color, thickness, Point.Zero);
+        }
+
+        public static void DrawConvexityDefects(IplImage image, Seq convexityDefects, Scalar color, int thickness, Point offset)
+        {
+            if (convexityDefects != null && convexityDefects.Count > 0)
+            {
+                var defects = convexityDefects.ToArray<ConvexityDefect>();
+                foreach (var defect in defects)
+                {
+                    var startPoint = defect.Start;
+                    var endPoint = defect.End;
+                    var depthPoint = defect.DepthPoint;
+                    var surfacePoint = new Point((startPoint.X + endPoint.X) / 2 + offset.X, (startPoint.Y + endPoint.Y) / 2 + offset.Y);
+                    var depthOffset = new Point(depthPoint.X + offset.X, depthPoint.Y + offset.Y);
+                    CV.Line(image, depthOffset, surfacePoint, color, thickness);
+                }
+            }
+        }
+
         public static Vector2 NormalizePoint(Point point, Size imageSize)
         {
             return new Vector2(
