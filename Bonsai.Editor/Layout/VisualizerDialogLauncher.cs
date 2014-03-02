@@ -179,11 +179,15 @@ namespace Bonsai.Design
                 var editorService = (IWorkflowEditorService)visualizerContext.GetService(typeof(IWorkflowEditorService));
                 if (visualizerDialog != null)
                 {
-                    var mashup = typeof(VisualizerMashup<,>).MakeGenericType(visualizer.Value.GetType(), visualizerDialog.Visualizer.Value.GetType());
-                    var mashupVisualizer = editorService.GetTypeVisualizers(mashup);
-                    if (mashupVisualizer != null)
+                    var visualizerType = visualizer.Value.GetType();
+                    if (visualizerType.IsSubclassOf(typeof(DialogMashupVisualizer)))
                     {
-                        e.Effect = DragDropEffects.Link;
+                        var mashup = typeof(VisualizerMashup<,>).MakeGenericType(visualizer.Value.GetType(), visualizerDialog.Visualizer.Value.GetType());
+                        var mashupVisualizer = editorService.GetTypeVisualizers(mashup);
+                        if (mashupVisualizer != null)
+                        {
+                            e.Effect = DragDropEffects.Link;
+                        }
                     }
                 }
             }
