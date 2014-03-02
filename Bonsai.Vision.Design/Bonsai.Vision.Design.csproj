@@ -71,6 +71,7 @@
     <Compile Include="BinaryRegionExtremesVisualizer.cs" />
     <Compile Include="CapturePropertyCollectionConverter.cs" />
     <Compile Include="ConnectedComponentCollectionVisualizer.cs" />
+    <Compile Include="ContourConvexityVisualizer.cs" />
     <Compile Include="ContoursMashupVisualizer.cs" />
     <Compile Include="ContoursVisualizer.cs" />
     <Compile Include="BgraScalarConverter.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="ConnectedComponentMashupVisualizer.cs" />
     <Compile Include="ConnectedComponentCollectionMashupVisualizer.cs" />
     <Compile Include="BinaryRegionExtremesMashupVisualizer.cs" />
+    <Compile Include="ContourConvexityMashupVisualizer.cs" />
     <Compile Include="FileCaptureEditor.cs" />
     <Compile Include="IplImageMashupVisualizer.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
