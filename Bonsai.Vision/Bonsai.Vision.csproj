@@ -79,7 +79,6 @@
     <Compile Include="ConvexityDefects.cs" />
     <Compile Include="DistanceTransform.cs" />
     <Compile Include="Laplace.cs" />
-    <Compile Include="MaskImage.cs" />
     <Compile Include="DrawConnectedComponents.cs" />
     <Compile Include="Crop.cs" />
     <Compile Include="DrawContours.cs" />
@@ -92,7 +91,6 @@
     <Compile Include="GoodFeaturesToTrack.cs" />
     <Compile Include="Grayscale.cs" />
     <Compile Include="HsvThreshold.cs" />
-    <Compile Include="ImageSubtraction.cs" />
     <Compile Include="IplImageHelper.cs" />
     <Compile Include="ApproximatePolygon.cs" />
     <Compile Include="IncrementalMean.cs" />
