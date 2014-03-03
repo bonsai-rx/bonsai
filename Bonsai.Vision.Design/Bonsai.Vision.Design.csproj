@@ -66,6 +66,10 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="ZedGraph, Version=5.1.6.417, Culture=neutral, PublicKeyToken=02a83cbd123fcd60, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\ZedGraph.5.1.6\lib\net35-Client\ZedGraph.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BinaryRegionExtremesVisualizer.cs" />
@@ -81,6 +85,7 @@
     <Compile Include="BinaryRegionExtremesMashupVisualizer.cs" />
     <Compile Include="ContourConvexityMashupVisualizer.cs" />
     <Compile Include="FileCaptureEditor.cs" />
+    <Compile Include="ScalarHistogramVisualizer.cs" />
     <Compile Include="IplImageMashupVisualizer.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="SeekEventArgs.cs" />
