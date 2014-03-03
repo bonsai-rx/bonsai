@@ -70,6 +70,7 @@
     <Compile Include="CapturePropertyAssignment.cs" />
     <Compile Include="CapturePropertyCollection.cs" />
     <Compile Include="ColorBalance.cs" />
+    <Compile Include="ScalarHistogram.cs" />
     <Compile Include="ConnectedComponent.cs" />
     <Compile Include="ConnectedComponentCollection.cs" />
     <Compile Include="ContourConvexity.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="ConvertToImage.cs" />
     <Compile Include="ConvexityDefects.cs" />
     <Compile Include="DistanceTransform.cs" />
+    <Compile Include="ImageHistogram.cs" />
     <Compile Include="Laplace.cs" />
     <Compile Include="DrawConnectedComponents.cs" />
     <Compile Include="Crop.cs" />
