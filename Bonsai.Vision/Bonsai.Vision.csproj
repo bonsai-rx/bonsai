@@ -116,7 +116,6 @@
     <Compile Include="RoiActivityDetected.cs" />
     <Compile Include="RunningAverage.cs" />
     <Compile Include="SaveImage.cs" />
-    <Compile Include="SelectChannel.cs" />
     <Compile Include="Skeletonization.cs" />
     <Compile Include="Smooth.cs" />
     <Compile Include="Sobel.cs" />
