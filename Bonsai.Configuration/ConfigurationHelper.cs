@@ -128,7 +128,11 @@ namespace Bonsai.Configuration
             configuration.LibraryFolders.Add(path, platform);
             foreach (var assemblyFile in Directory.GetFiles(path, "*.dll"))
             {
-                var assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
+                AssemblyName assemblyName;
+                try { assemblyName = AssemblyName.GetAssemblyName(assemblyFile); }
+                catch (BadImageFormatException) { continue; }
+                catch (IOException) { continue; }
+
                 var locationKey = Tuple.Create(assemblyName.Name, assemblyName.ProcessorArchitecture);
                 if (!configuration.AssemblyLocations.Contains(locationKey))
                 {
