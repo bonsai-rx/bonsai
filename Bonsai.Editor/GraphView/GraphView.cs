@@ -43,6 +43,7 @@ namespace Bonsai.Design
         bool mouseDownHandled;
         Rectangle rubberBand;
         Rectangle previousRectangle;
+        Point? previousScrollOffset;
         GraphNode[] selectionBeforeDrag;
         LayoutNodeCollection layoutNodes = new LayoutNodeCollection();
         HashSet<GraphNode> selectedNodes = new HashSet<GraphNode>();
@@ -80,11 +81,13 @@ namespace Bonsai.Design
 
             var selectionDrag = (from mouseDown in mouseDownEvent
                                  where hot == null
+                                 let scrollOrigin = canvas.AutoScrollPosition
                                  select (from mouseMove in mouseMoveEvent.TakeUntil(mouseUpEvent)
-                                         let displacementX = mouseMove.X - mouseDown.X
-                                         let displacementY = mouseMove.Y - mouseDown.Y
+                                         let origin = GetScrollablePoint(mouseDown.Location, scrollOrigin)
+                                         let displacementX = mouseMove.X - origin.X
+                                         let displacementY = mouseMove.Y - origin.Y
                                          where displacementX * displacementX + displacementY * displacementY > 16
-                                         select (Rectangle?)GetNormalizedRectangle(mouseDown.Location, mouseMove.Location))
+                                         select (Rectangle?)GetNormalizedRectangle(origin, mouseMove.Location))
                                          .Concat(Observable.Return<Rectangle?>(null)))
                                          .SelectMany(selection => selection.Select((rect, i) =>
                                          {
@@ -293,6 +296,39 @@ namespace Bonsai.Design
             return Rectangle.Union(boundingRectangle, Rectangle.Truncate(labelRectangle));
         }
 
+        void EnsureVisible(Point point)
+        {
+            var clientRectangle = canvas.ClientRectangle;
+            if (!clientRectangle.Contains(point))
+            {
+                var scrollPosition = canvas.AutoScrollPosition;
+                scrollPosition.X *= -1;
+                scrollPosition.Y *= -1;
+                scrollPosition.X += Math.Min(0, point.X - clientRectangle.Left);
+                scrollPosition.X += Math.Max(0, point.X - clientRectangle.Right);
+                scrollPosition.Y += Math.Min(0, point.Y - clientRectangle.Top);
+                scrollPosition.Y += Math.Max(0, point.Y - clientRectangle.Bottom);
+                canvas.AutoScrollPosition = scrollPosition;
+            }
+        }
+
+        void EnsureVisible(GraphNode node)
+        {
+            var clientRectangle = canvas.ClientRectangle;
+            var boundingRectangle = GetBoundingRectangle(node);
+            if (!clientRectangle.Contains(boundingRectangle))
+            {
+                var scrollPosition = canvas.AutoScrollPosition;
+                scrollPosition.X *= -1;
+                scrollPosition.Y *= -1;
+                scrollPosition.X += Math.Min(0, boundingRectangle.Left - clientRectangle.Left);
+                scrollPosition.X += Math.Max(0, boundingRectangle.Right - clientRectangle.Right);
+                scrollPosition.Y += Math.Min(0, boundingRectangle.Top - clientRectangle.Top);
+                scrollPosition.Y += Math.Max(0, boundingRectangle.Bottom - clientRectangle.Bottom);
+                canvas.AutoScrollPosition = scrollPosition;
+            }
+        }
+
         protected virtual void OnItemDrag(ItemDragEventArgs e)
         {
             var handler = Events[EventItemDrag] as ItemDragEventHandler;
@@ -468,8 +504,27 @@ namespace Bonsai.Design
             var invalidateRect = rubberBand;
             invalidateRect.Inflate(PenWidth, PenWidth);
             invalidateRect = (selectionRect.Width > 0 || selectionRect.Height > 0) ? Rectangle.Union(invalidateRect, selectionRect) : invalidateRect;
+            if (previousScrollOffset.HasValue)
+            {
+                var scrollPosition = canvas.AutoScrollPosition;
+                var previousScroll = previousScrollOffset.Value;
+                scrollPosition.X -= previousScroll.X;
+                scrollPosition.Y -= previousScroll.Y;
+                previousRectangle.Offset(scrollPosition);
+            }
+
             canvas.Invalidate(Rectangle.Union(invalidateRect, previousRectangle));
             previousRectangle = invalidateRect;
+            previousScrollOffset = rect.HasValue ? canvas.AutoScrollPosition : (Point?)null;
+        }
+
+        Point GetScrollablePoint(Point point, Point scrollOrigin)
+        {
+            var scrollPosition = canvas.AutoScrollPosition;
+            scrollPosition.X -= scrollOrigin.X;
+            scrollPosition.Y -= scrollOrigin.Y;
+            point.Offset(scrollPosition);
+            return point;
         }
 
         Rectangle GetNormalizedRectangle(Point p1, Point p2)
@@ -792,6 +847,7 @@ namespace Bonsai.Design
             Invalidate(cursor);
             cursor = node;
             Invalidate(node);
+            EnsureVisible(cursor);
         }
 
         private void canvas_Paint(object sender, PaintEventArgs e)
@@ -938,6 +994,14 @@ namespace Bonsai.Design
             if (hot != null)
             {
                 OnNodeMouseHover(new GraphNodeMouseHoverEventArgs(hot));
+            }
+        }
+
+        private void canvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (canvas.Capture)
+            {
+                EnsureVisible(e.Location);
             }
         }
 
