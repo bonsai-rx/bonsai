@@ -44,6 +44,7 @@ namespace Bonsai.Design
         public const string BonsaiExtension = ".bonsai";
 
         int dragKeyState;
+        bool isContextMenuSource;
         GraphNode dragHighlight;
         IEnumerable<GraphNode> dragSelection;
         CommandExecutor commandExecutor;
@@ -1228,6 +1229,7 @@ namespace Bonsai.Design
             dragKeyState = 0;
             dragSelection = null;
             dragHighlight = null;
+            isContextMenuSource = false;
         }
 
         private void SetDragCursor(DragDropEffects effect)
@@ -1239,11 +1241,13 @@ namespace Bonsai.Design
                 case DragDropEffects.Link:
                 case DragDropEffects.Move:
                 case DragDropEffects.Scroll:
-                    Cursor.Current = AlternateSelectionCursor;
+                    if (isContextMenuSource) Cursor = AlternateSelectionCursor;
+                    else Cursor.Current = AlternateSelectionCursor;
                     break;
                 case DragDropEffects.None:
                 default:
-                    Cursor.Current = InvalidSelectionCursor;
+                    if (isContextMenuSource) Cursor = InvalidSelectionCursor;
+                    else Cursor.Current = InvalidSelectionCursor;
                     break;
             }
         }
@@ -1583,15 +1587,20 @@ namespace Bonsai.Design
 
         private void connectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SetDragCursor(DragDropEffects.Link);
-            dragSelection = graphView.SelectedNodes.ToArray();
+            InitializeConnectionSource();
         }
 
         private void disconnectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SetDragCursor(DragDropEffects.Link);
-            dragSelection = graphView.SelectedNodes.ToArray();
+            InitializeConnectionSource();
             dragKeyState = ShiftModifier;
+        }
+
+        private void InitializeConnectionSource()
+        {
+            isContextMenuSource = true;
+            dragSelection = graphView.SelectedNodes.ToArray();
+            SetDragCursor(DragDropEffects.Link);
         }
 
         private void InitializeOutputMenuItem(ToolStripMenuItem menuItem, string memberSelector, Type memberType)
