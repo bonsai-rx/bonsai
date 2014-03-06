@@ -43,6 +43,28 @@ namespace Bonsai.Expressions
         /// <param name="value">The new value.</param>
         public static void SetWorkflowProperty(this ExpressionBuilderGraph source, string name, object value)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("The workflow property name cannot be null or whitespace.", "name");
+            }
+
+            var memberChain = name.Split(new[] { ExpressionHelper.MemberSeparator }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < memberChain.Length - 1; i++)
+            {
+                var workflowBuilder = (from node in source
+                                       let builder = ExpressionBuilder.Unwrap(node.Value) as WorkflowExpressionBuilder
+                                       where builder != null && builder.Name == memberChain[i]
+                                       select builder)
+                                       .FirstOrDefault();
+                if (workflowBuilder == null)
+                {
+                    throw new KeyNotFoundException(string.Format(Resources.Exception_PropertyNotFound, name));
+                }
+
+                source = workflowBuilder.Workflow;
+            }
+
+            name = memberChain[memberChain.Length - 1];
             var property = (from node in source
                             let workflowProperty = ExpressionBuilder.GetWorkflowElement(node.Value) as WorkflowProperty
                             where workflowProperty != null && workflowProperty.Name == name
@@ -147,10 +169,19 @@ namespace Bonsai.Expressions
 
         static readonly Expression[] EmptyArguments = new Expression[0];
 
+        static void RegisterElementName(ExpressionBuilder builder, INamedElement element, ref HashSet<string> namedElements)
+        {
+            if (namedElements == null) namedElements = new HashSet<string>();
+            if (!namedElements.Add(element.Name))
+            {
+                throw new WorkflowBuildException("A workflow element with the specified name already exists.", builder);
+            }
+        }
+
         internal static Expression Build(this ExpressionBuilderGraph source, BuildContext buildContext)
         {
             Expression workflowOutput = null;
-            HashSet<string> propertyNames = null;
+            HashSet<string> namedElements = null;
             var argumentLists = new Dictionary<ExpressionBuilder, SortedList<int, Expression>>();
             var multicastMap = new List<MulticastScope>();
             var connections = new List<Expression>();
@@ -181,16 +212,16 @@ namespace Bonsai.Expressions
                 if (workflowBuilder != null)
                 {
                     workflowBuilder.BuildContext = buildContext;
+                    if (!string.IsNullOrEmpty(workflowBuilder.Name))
+                    {
+                        RegisterElementName(builder, workflowBuilder, ref namedElements);
+                    }
                 }
 
                 var workflowProperty = ExpressionBuilder.GetWorkflowElement(workflowElement) as WorkflowProperty;
                 if (workflowProperty != null && !string.IsNullOrEmpty(workflowProperty.Name))
                 {
-                    if (propertyNames == null) propertyNames = new HashSet<string>();
-                    if (!propertyNames.Add(workflowProperty.Name))
-                    {
-                        throw new WorkflowBuildException("A workflow property with the specified name already exists.", builder);
-                    }
+                    RegisterElementName(builder, workflowProperty, ref namedElements);
                 }
 
                 try
