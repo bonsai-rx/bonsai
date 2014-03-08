@@ -31,13 +31,16 @@ namespace Bonsai.Design
                 var expressionBuilder = ExpressionBuilder.Unwrap((ExpressionBuilder)value);
                 var elementAttributes = TypeDescriptor.GetAttributes(expressionBuilder);
                 var elementCategoryAttribute = (WorkflowElementCategoryAttribute)elementAttributes[typeof(WorkflowElementCategoryAttribute)];
-                if (elementCategoryAttribute == WorkflowElementCategoryAttribute.Default)
+
+                var workflowElement = ExpressionBuilder.GetWorkflowElement(expressionBuilder);
+                if (workflowElement != expressionBuilder)
                 {
-                    var workflowElement = ExpressionBuilder.GetWorkflowElement(expressionBuilder);
-                    if (workflowElement != expressionBuilder)
+                    var builderCategoryAttribute = elementCategoryAttribute;
+                    elementAttributes = TypeDescriptor.GetAttributes(workflowElement);
+                    elementCategoryAttribute = (WorkflowElementCategoryAttribute)elementAttributes[typeof(WorkflowElementCategoryAttribute)];
+                    if (elementCategoryAttribute == WorkflowElementCategoryAttribute.Default)
                     {
-                        elementAttributes = TypeDescriptor.GetAttributes(workflowElement);
-                        elementCategoryAttribute = (WorkflowElementCategoryAttribute)elementAttributes[typeof(WorkflowElementCategoryAttribute)];
+                        elementCategoryAttribute = builderCategoryAttribute;
                     }
                 }
 
