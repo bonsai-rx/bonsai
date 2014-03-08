@@ -1,4 +1,4 @@
-BONSAI is a visual programming framework for data stream processing built on top of the [Reactive Extensions (Rx) for .NET](https://rx.codeplex.com/). With BONSAI you tell your computer what to do not through long listings of text but by manipulating graphical elements in a workflow. Like in Rx, workflow elements in BONSAI represent asynchronous streams of data which can be connected together to perform complex operations.
+BONSAI is an open-source visual programming framework for data stream processing built on top of the [Reactive Extensions (Rx) for .NET](https://rx.codeplex.com/). With BONSAI you tell your computer what to do not through long listings of text but by manipulating graphical elements in a workflow. Like in Rx, workflow elements in BONSAI represent asynchronous streams of data which can be connected together to perform complex operations.
 
 A quick intro
 -------------
