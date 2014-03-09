@@ -774,6 +774,18 @@ namespace Bonsai.Editor
             }
         }
 
+        private static int IndexOfMatch(TreeNode node, string text)
+        {
+            if (node.Tag == null) return -1;
+            var matchIndex = node.Text.IndexOf(text, StringComparison.OrdinalIgnoreCase);
+            if (matchIndex < 0 && node.Parent != null)
+            {
+                matchIndex = node.Parent.Text.IndexOf(text, StringComparison.OrdinalIgnoreCase);
+            }
+
+            return matchIndex;
+        }
+
         protected override void OnDeactivate(EventArgs e)
         {
             if (workflowGraphView.Focused)
@@ -873,22 +885,28 @@ namespace Bonsai.Editor
                     }
                 }
 
+                int closestMatchIndex = -1;
+                TreeNode closestMatch = null;
                 toolboxTreeView.Nodes.Clear();
                 var searchFilter = searchTextBox.Text.Trim();
                 foreach (var entry in from node in GetTreeViewLeafNodes(treeCache)
-                                      where node.Tag != null &&
-                                            (node.Text.IndexOf(searchFilter, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                             node.Parent != null && node.Parent.Text.IndexOf(searchFilter, StringComparison.OrdinalIgnoreCase) >= 0)
+                                      let matchIndex = IndexOfMatch(node, searchFilter)
+                                      where matchIndex >= 0
                                       orderby node.Text ascending
-                                      select new { category = node.Parent.Text, node = (TreeNode)node.Clone() })
+                                      select new { category = node.Parent.Text, node = (TreeNode)node.Clone(), matchIndex })
                 {
                     entry.node.Text += string.Format(" ({0})", entry.category);
                     toolboxTreeView.Nodes.Add(entry.node);
+                    if (closestMatch == null || entry.matchIndex < closestMatchIndex)
+                    {
+                        closestMatch = entry.node;
+                        closestMatchIndex = entry.matchIndex;
+                    }
                 }
 
                 if (toolboxTreeView.Nodes.Count > 0)
                 {
-                    toolboxTreeView.SelectedNode = toolboxTreeView.Nodes[0];
+                    toolboxTreeView.SelectedNode = closestMatch;
                 }
             }
             toolboxTreeView.EndUpdate();
