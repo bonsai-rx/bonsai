@@ -61,5 +61,16 @@ namespace Bonsai.Dag
         /// target of the <see cref="T:Bonsai.Dag.Edge`2{T,U}"/>.
         /// </summary>
         public Node<TNodeValue, TEdgeLabel> Target { get; private set; }
+
+        /// <summary>
+        /// Returns a string that represents this <see cref="T:Bonsai.Dag.Edge`2{T,U}"/> instance.
+        /// </summary>
+        /// <returns>
+        /// The string representation of this <see cref="T:Bonsai.Dag.Edge`2{T,U}"/> object.
+        /// </returns>
+        public override string ToString()
+        {
+            return string.Format("{{Label = {0}, Target = {1}}}", Label, Target);
+        }
     }
 }
