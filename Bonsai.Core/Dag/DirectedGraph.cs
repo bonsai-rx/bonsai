@@ -125,6 +125,91 @@ namespace Bonsai.Dag
         }
 
         /// <summary>
+        /// Creates and inserts a labeled outgoing edge of the source node at the specified index.
+        /// </summary>
+        /// <param name="from">The node that is the source of the edge.</param>
+        /// <param name="edgeIndex">
+        /// The zero-based index at which the edge should be inserted on the successor list
+        /// of the <paramref name="from"/> node.
+        /// </param>
+        /// <param name="to">The node that is the target of the edge.</param>
+        /// <param name="label">The value of the edge label.</param>
+        /// <returns>A newly created <see cref="T:Bonsai.Dag.Edge`2{T,U}"/> instance.</returns>
+        public Edge<TNodeValue, TEdgeLabel> InsertEdge(Node<TNodeValue, TEdgeLabel> from, int edgeIndex, Node<TNodeValue, TEdgeLabel> to, TEdgeLabel label)
+        {
+            if (from == null)
+            {
+                throw new ArgumentNullException("from");
+            }
+
+            if (to == null)
+            {
+                throw new ArgumentNullException("to");
+            }
+
+            if (!nodes.Contains(from))
+            {
+                throw new ArgumentException("The specified node does not belong to the graph.", "from");
+            }
+
+            if (!nodes.Contains(to))
+            {
+                throw new ArgumentException("The specified node does not belong to the graph.", "to");
+            }
+
+            if (edgeIndex < 0 || edgeIndex > from.Successors.Count)
+            {
+                throw new ArgumentOutOfRangeException("The specified edge index is out of range.", "edgeIndex");
+            }
+
+            var edge = new Edge<TNodeValue, TEdgeLabel>(to, label);
+            from.Successors.Insert(edgeIndex, edge);
+            return edge;
+        }
+
+        /// <summary>
+        /// Inserts a labeled outgoing edge of a source node at the specified index.
+        /// </summary>
+        /// <param name="from">The node that is the source of the edge.</param>
+        /// <param name="edgeIndex">
+        /// The zero-based index at which the edge should be inserted on the successor list
+        /// of the <paramref name="from"/> node.
+        /// </param>
+        /// <param name="edge">
+        /// The labeled outgoing edge that is to be inserted at the specified index on the successor
+        /// list of the <paramref name="from"/> node.
+        /// </param>
+        public void InsertEdge(Node<TNodeValue, TEdgeLabel> from, int edgeIndex, Edge<TNodeValue, TEdgeLabel> edge)
+        {
+            if (from == null)
+            {
+                throw new ArgumentNullException("from");
+            }
+
+            if (edge == null)
+            {
+                throw new ArgumentNullException("edge");
+            }
+
+            if (!nodes.Contains(from))
+            {
+                throw new ArgumentException("The specified node does not belong to the graph.", "from");
+            }
+
+            if (!nodes.Contains(edge.Target))
+            {
+                throw new ArgumentException("The target of the specified edge does not belong to the graph.", "edge");
+            }
+
+            if (edgeIndex < 0 || edgeIndex > from.Successors.Count)
+            {
+                throw new ArgumentOutOfRangeException("The specified edge index is out of range.", "edgeIndex");
+            }
+
+            from.Successors.Insert(edgeIndex, edge);
+        }
+
+        /// <summary>
         /// Creates and replaces a labeled outgoing edge of the source node at the specified index.
         /// </summary>
         /// <param name="from">The node that is the source of the edge.</param>
