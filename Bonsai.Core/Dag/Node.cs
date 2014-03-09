@@ -37,5 +37,16 @@ namespace Bonsai.Dag
         {
             get { return successors; }
         }
+
+        /// <summary>
+        /// Returns a string that represents the value of this <see cref="T:Bonsai.Dag.Node`2{T,U}"/> instance.
+        /// </summary>
+        /// <returns>
+        /// The string representation of this <see cref="T:Bonsai.Dag.Node`2{T,U}"/> object.
+        /// </returns>
+        public override string ToString()
+        {
+            return string.Format("{{Value = {0}}}", Value);
+        }
     }
 }

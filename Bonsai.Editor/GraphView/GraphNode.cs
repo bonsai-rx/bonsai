@@ -53,5 +53,16 @@ namespace Bonsai.Design
         {
             get { return typeConverter != null ? typeConverter.ConvertToString(Value) : string.Empty; }
         }
+
+        /// <summary>
+        /// Returns a string that represents the value of this <see cref="GraphNode"/> instance.
+        /// </summary>
+        /// <returns>
+        /// The string representation of this <see cref="GraphNode"/> object.
+        /// </returns>
+        public override string ToString()
+        {
+            return string.Format("{{{0}}}", Text);
+        }
     }
 }

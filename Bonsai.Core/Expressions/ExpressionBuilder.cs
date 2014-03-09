@@ -54,6 +54,17 @@ namespace Bonsai.Expressions
         public abstract Expression Build(IEnumerable<Expression> arguments);
 
         /// <summary>
+        /// Returns a string that represents the display name of this <see cref="ExpressionBuilder"/> instance.
+        /// </summary>
+        /// <returns>
+        /// The string representation of this <see cref="ExpressionBuilder"/> object.
+        /// </returns>
+        public override string ToString()
+        {
+            return string.Format("{{{0}}}", GetElementDisplayName(this));
+        }
+
+        /// <summary>
         /// Removes all decorators from a specified <see cref="ExpressionBuilder"/> instance
         /// and returns the first non-decorated (i.e. primitive) builder to be retrieved.
         /// </summary>
