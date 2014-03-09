@@ -718,13 +718,14 @@ namespace Bonsai.Design
                                             ? successor
                                             : Edge.Create(successor.Target, predecessor.Item2.Label)
                                      })
+                                     .Reverse()
                                      .ToArray();
 
                 addEdge = () =>
                 {
                     Array.ForEach(replacedEdges, replacedEdge =>
                     {
-                        if (simplePredecessor) workflow.AddEdge(replacedEdge.predecessor, replacedEdge.edge);
+                        if (simplePredecessor) workflow.InsertEdge(replacedEdge.predecessor, replacedEdge.edgeIndex, replacedEdge.edge);
                         else workflow.SetEdge(replacedEdge.predecessor, replacedEdge.edgeIndex, replacedEdge.edge);
                     });
                 };
