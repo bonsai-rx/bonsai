@@ -113,7 +113,6 @@
     <Compile Include="Resize.cs" />
     <Compile Include="RoiActivity.cs" />
     <Compile Include="RoiActivityDetected.cs" />
-    <Compile Include="RunningAverage.cs" />
     <Compile Include="SaveImage.cs" />
     <Compile Include="Skeletonization.cs" />
     <Compile Include="Smooth.cs" />

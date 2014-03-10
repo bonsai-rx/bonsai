@@ -10,17 +10,17 @@ using System.Reactive.Disposables;
 
 namespace Bonsai.Dsp
 {
-    public abstract class RunningAverage<TArray> : Transform<TArray, TArray> where TArray : Arr
+    public class RunningAverage : ArrayTransform
     {
         [Range(0, 1)]
         [Precision(2, .01)]
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         public double Alpha { get; set; }
 
-        protected abstract TArray CreateArray(TArray source, Depth depth);
-
-        public override IObservable<TArray> Process(IObservable<TArray> source)
+        public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)
         {
+            var outputFactory = ArrFactory<TArray>.TemplateFactory;
+            var accumulatorFactory = ArrFactory<TArray>.TemplateSizeChannelFactory;
             return Observable.Defer(() =>
             {
                 TArray accumulator = null;
@@ -28,28 +28,19 @@ namespace Bonsai.Dsp
                 {
                     if (accumulator == null)
                     {
-                        accumulator = CreateArray(input, Depth.F32);
-                        CV.ConvertScale(input, accumulator, 1, 0);
+                        accumulator = accumulatorFactory(input, Depth.F32);
+                        CV.Convert(input, accumulator);
                         return input;
                     }
                     else
                     {
-                        var output = CreateArray(input, 0);
+                        var output = outputFactory(input);
                         CV.RunningAvg(input, accumulator, Alpha);
-                        CV.ConvertScale(accumulator, output, 1, 0);
+                        CV.Convert(accumulator, output);
                         return output;
                     }
                 });
             });
-        }
-    }
-
-    public class RunningAverage : RunningAverage<Mat>
-    {
-        protected override Mat CreateArray(Mat source, Depth depth)
-        {
-            depth = depth > 0 ? depth : source.Depth;
-            return new Mat(source.Rows, source.Cols, depth, source.Channels);
         }
     }
 }
