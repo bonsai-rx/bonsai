@@ -16,14 +16,22 @@ namespace Bonsai.Dsp
             var accumulatorFactory = ArrFactory<TArray>.TemplateSizeChannelFactory;
             return Observable.Defer(() =>
             {
-                TArray sum = null;
+                TArray accumulator = null;
                 return source.Select(input =>
                 {
-                    var output = outputFactory(input);
-                    sum = sum ?? accumulatorFactory(input, Depth.F32);
-                    CV.Acc(input, sum);
-                    CV.Convert(sum, output);
-                    return output;
+                    if (accumulator == null)
+                    {
+                        accumulator = accumulatorFactory(input, Depth.F32);
+                        CV.Convert(input, accumulator);
+                        return input;
+                    }
+                    else
+                    {
+                        var output = outputFactory(input);
+                        CV.Acc(input, accumulator);
+                        CV.Convert(accumulator, output);
+                        return output;
+                    }
                 });
             });
         }
