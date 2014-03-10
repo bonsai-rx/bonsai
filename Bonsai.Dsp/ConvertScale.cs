@@ -15,13 +15,12 @@ namespace Bonsai.Dsp
     {
         public ConvertScale()
         {
-            Depth = Depth.U8;
             Scale = 1;
         }
 
         [TypeConverter(typeof(DepthConverter))]
         [Description("The target bit depth of individual array elements.")]
-        public Depth Depth { get; set; }
+        public Depth? Depth { get; set; }
 
         [Description("The optional scale factor to apply to individual array elements.")]
         public double Scale { get; set; }
@@ -31,10 +30,14 @@ namespace Bonsai.Dsp
 
         public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)
         {
-            var outputFactory = ArrFactory<TArray>.TemplateSizeChannelFactory;
+            var outputFactory = ArrFactory<TArray>.TemplateFactory;
+            var outputDepthFactory = ArrFactory<TArray>.TemplateSizeChannelFactory;
             return source.Select(input =>
             {
-                var output = outputFactory(input, Depth);
+                var depth = Depth;
+                var output = depth.HasValue
+                    ? outputDepthFactory(input, depth.Value)
+                    : outputFactory(input);
                 CV.ConvertScale(input, output, Scale, Shift);
                 return output;
             });
@@ -51,13 +54,13 @@ namespace Bonsai.Dsp
             {
                 return new StandardValuesCollection(new[]
                 {
-                    Depth.U8,
-                    Depth.S8,
-                    Depth.U16,
-                    Depth.S16,
-                    Depth.S32,
-                    Depth.F32,
-                    Depth.F64
+                    OpenCV.Net.Depth.U8,
+                    OpenCV.Net.Depth.S8,
+                    OpenCV.Net.Depth.U16,
+                    OpenCV.Net.Depth.S16,
+                    OpenCV.Net.Depth.S32,
+                    OpenCV.Net.Depth.F32,
+                    OpenCV.Net.Depth.F64
                 });
             }
 
