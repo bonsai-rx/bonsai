@@ -8,7 +8,7 @@ using System.Reactive.Disposables;
 
 namespace Bonsai.Dsp
 {
-    public class Accumulator : ArrayTransform
+    public class Accumulate : ArrayTransform
     {
         public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)
         {
