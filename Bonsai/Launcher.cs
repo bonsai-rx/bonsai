@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -57,7 +58,12 @@ namespace Bonsai
                         () => packageManager
                             .StartInstallPackage(editorPackageId, null)
                             .ContinueWith(task => editorPackage = task.Result));
-                    if (editorPackage == null) throw new ApplicationException("Unable to install editor package.");
+                    if (editorPackage == null)
+                    {
+                        var assemblyName = Assembly.GetEntryAssembly().GetName();
+                        MessageBox.Show("Unable to install editor package.", assemblyName.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return null;
+                    }
                     launchPackageManager = true;
                 }
             }
