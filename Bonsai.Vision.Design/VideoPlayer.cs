@@ -52,7 +52,6 @@ namespace Bonsai.Vision.Design
             statusStrip.Items.Add(frameNumberLabel);
             statusStrip.Items.Add(statusLabel);
 
-            if (!DesignMode) statusStrip.Visible = false;
             imageControl.Canvas.MouseClick += new MouseEventHandler(imageControl_MouseClick);
             playButton.Click += (sender, e) => Playing = true;
             pauseButton.Click += (sender, e) => Playing = false;
