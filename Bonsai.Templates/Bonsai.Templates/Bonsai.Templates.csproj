@@ -64,9 +64,11 @@
     <Content Include="eula.rtf" />
     <None Include="..\..\bin\Bonsai.Core.2.0.0-rc7.nupkg">
       <Link>Packages\Bonsai.Core.2.0.0-rc7.nupkg</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="..\..\bin\Bonsai.Design.2.0.0-rc4.nupkg">
       <Link>Packages\Bonsai.Design.2.0.0-rc4.nupkg</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="..\Bonsai.PackageProjectTemplate\bin\Release\BonsaiPackage.zip">
       <Link>ProjectTemplates\Bonsai\BonsaiPackage.zip</Link>
