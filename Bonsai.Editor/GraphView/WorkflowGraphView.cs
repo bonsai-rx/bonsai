@@ -1034,7 +1034,7 @@ namespace Bonsai.Design
                 Action launchEditor = () =>
                 {
                     editorLauncher.Show(windowSelector(), serviceProvider);
-                    if (highlight)
+                    if (highlight && !visible)
                     {
                         editorService.RefreshEditor();
                     }
