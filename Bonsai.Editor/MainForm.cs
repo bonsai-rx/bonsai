@@ -628,7 +628,7 @@ namespace Bonsai.Editor
         {
             if (workflowError != null)
             {
-                HighlightExceptionBuilderNode(workflowGraphView, workflowError);
+                HighlightExceptionBuilderNode(workflowGraphView, workflowError, false);
             }
         }
 
@@ -664,7 +664,7 @@ namespace Bonsai.Editor
             }
         }
 
-        void HighlightExceptionBuilderNode(WorkflowGraphView workflowView, WorkflowException e)
+        void HighlightExceptionBuilderNode(WorkflowGraphView workflowView, WorkflowException e, bool showMessageBox)
         {
             GraphNode graphNode = null;
             if (workflowView != null)
@@ -695,7 +695,7 @@ namespace Bonsai.Editor
                     nestedEditor = editorLauncher != null ? editorLauncher.WorkflowGraphView : null;
                 }
 
-                HighlightExceptionBuilderNode(nestedEditor, nestedException);
+                HighlightExceptionBuilderNode(nestedEditor, nestedException, showMessageBox);
             }
             else
             {
@@ -708,7 +708,7 @@ namespace Bonsai.Editor
                 var errorCaption = buildException ? "Build Error" : "Runtime Error";
                 statusTextLabel.Text = e.Message;
                 statusImageLabel.Image = buildException ? Resources.StatusBlockedImage : Resources.StatusCriticalImage;
-                if (building)
+                if (showMessageBox)
                 {
                     MessageBox.Show(e.Message, errorCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -723,7 +723,7 @@ namespace Bonsai.Editor
                 Action selectExceptionNode = () =>
                 {
                     workflowError = workflowException;
-                    HighlightExceptionBuilderNode(workflowGraphView, workflowException);
+                    HighlightExceptionBuilderNode(workflowGraphView, workflowException, building);
                 };
 
                 if (InvokeRequired) BeginInvoke(selectExceptionNode);
