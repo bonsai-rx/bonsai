@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 
 namespace Bonsai.Dsp
 {
-    public class TriggeredWindow : Combinator<Tuple<Mat, Mat>, IObservable<Mat>>
+    public class TriggeredWindow : Combinator<Tuple<Mat, Mat>, Mat>
     {
         public int Count { get; set; }
 
@@ -39,9 +39,9 @@ namespace Bonsai.Dsp
             return windowIndex + windowElements;
         }
 
-        public override IObservable<IObservable<Mat>> Process(IObservable<Tuple<Mat, Mat>> source)
+        public override IObservable<Mat> Process(IObservable<Tuple<Mat, Mat>> source)
         {
-            return Observable.Create<IObservable<Mat>>(observer =>
+            return Observable.Create<Mat>(observer =>
             {
                 bool active = false;
                 var dataWindows = new List<DataWindow>();
@@ -58,7 +58,7 @@ namespace Bonsai.Dsp
                             if (window.WindowIndex < window.Window.Cols) return false;
 
                             // Window is ready, emit
-                            observer.OnNext(Observable.Return(window.Window));
+                            observer.OnNext(window.Window);
                             return true;
                         });
 
@@ -88,7 +88,7 @@ namespace Bonsai.Dsp
                                         dataWindows.Add(DataWindow.Create(dataWindow, windowIndex));
                                     }
                                     // Window is ready, emit
-                                    else observer.OnNext(Observable.Return(dataWindow));
+                                    else observer.OnNext(dataWindow);
                                 }
 
                                 active = triggerHigh;
