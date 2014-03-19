@@ -9,42 +9,16 @@ using System.Runtime.InteropServices;
 
 namespace Bonsai.Dsp
 {
-    public class TriggeredWindow : Combinator<Tuple<Mat, Mat>, Mat>
+    public class TriggeredBuffer : Combinator<Tuple<Mat, Mat>, Mat>
     {
         public int Count { get; set; }
-
-        class DataWindow
-        {
-            public Mat Window;
-            public int WindowIndex;
-
-            public static DataWindow Create(Mat window, int windowIndex)
-            {
-                return new DataWindow { Window = window, WindowIndex = windowIndex };
-            }
-        }
-
-        static int UpdateWindow(Mat data, Mat dataWindow, int dataIndex, int windowIndex)
-        {
-            var windowElements = Math.Min(data.Cols - dataIndex, dataWindow.Cols - windowIndex);
-            if (windowElements > 0)
-            {
-                using (var dataSubRect = data.GetSubRect(new Rect(dataIndex, 0, windowElements, data.Rows)))
-                using (var windowSubRect = dataWindow.GetSubRect(new Rect(windowIndex, 0, windowElements, dataWindow.Rows)))
-                {
-                    CV.Copy(dataSubRect, windowSubRect);
-                }
-            }
-
-            return windowIndex + windowElements;
-        }
 
         public override IObservable<Mat> Process(IObservable<Tuple<Mat, Mat>> source)
         {
             return Observable.Create<Mat>(observer =>
             {
                 bool active = false;
-                var dataWindows = new List<DataWindow>();
+                var activeBuffers = new List<SampleBuffer>();
                 return source.Subscribe(
                     xs =>
                     {
@@ -52,14 +26,17 @@ namespace Bonsai.Dsp
                         var trigger = xs.Item2;
 
                         // Update pending windows
-                        dataWindows.RemoveAll(window =>
+                        activeBuffers.RemoveAll(buffer =>
                         {
-                            window.WindowIndex = UpdateWindow(data, window.Window, 0, window.WindowIndex);
-                            if (window.WindowIndex < window.Window.Cols) return false;
+                            buffer.Update(data, 0);
+                            if (buffer.Completed)
+                            {
+                                // Window is ready, emit
+                                observer.OnNext(buffer.Samples);
+                                return true;
+                            }
 
-                            // Window is ready, emit
-                            observer.OnNext(window.Window);
-                            return true;
+                            return false;
                         });
 
                         // Check if new triggers have arrived
@@ -80,15 +57,15 @@ namespace Bonsai.Dsp
                                 var triggerHigh = triggerBuffer[i] > 0;
                                 if (triggerHigh && !active)
                                 {
-                                    var dataWindow = new Mat(data.Rows, Count, data.Depth, data.Channels);
-                                    var windowIndex = UpdateWindow(data, dataWindow, i, 0);
-                                    if (windowIndex < dataWindow.Cols)
+                                    var buffer = new SampleBuffer(data, Count);
+                                    buffer.Update(data, i);
+                                    if (buffer.Completed)
                                     {
-                                        // Window is missing data, add to list
-                                        dataWindows.Add(DataWindow.Create(dataWindow, windowIndex));
+                                        // Window is ready, emit
+                                        observer.OnNext(buffer.Samples);
                                     }
-                                    // Window is ready, emit
-                                    else observer.OnNext(dataWindow);
+                                    // Window is missing data, add to list
+                                    else activeBuffers.Add(buffer);
                                 }
 
                                 active = triggerHigh;

@@ -87,12 +87,13 @@
     <Compile Include="Reduce.cs" />
     <Compile Include="ReferenceChannels.cs" />
     <Compile Include="RunningAverage.cs" />
+    <Compile Include="SampleBuffer.cs" />
     <Compile Include="SelectChannels.cs" />
     <Compile Include="Sum.cs" />
     <Compile Include="Threshold.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="Transpose.cs" />
-    <Compile Include="TriggeredWindow.cs" />
+    <Compile Include="TriggeredBuffer.cs" />
     <Compile Include="WindowStatistics.cs" />
   </ItemGroup>
   <ItemGroup>
