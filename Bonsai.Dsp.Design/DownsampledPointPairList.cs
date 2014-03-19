@@ -27,7 +27,7 @@ namespace Bonsai.Dsp.Design
 
         public DownsampledPointPairList(PointPairList list)
         {
-            this.list = list;
+            this.list = list.Clone();
             random = new Random();
         }
 
@@ -76,11 +76,6 @@ namespace Bonsai.Dsp.Design
             }
         }
 
-        public PointPairList List
-        {
-            get { return list; }
-        }
-
         public int Count
         {
             get
@@ -92,7 +87,7 @@ namespace Bonsai.Dsp.Design
 
         public object Clone()
         {
-            return new DownsampledPointPairList(list.Clone());
+            return new DownsampledPointPairList(list);
         }
 
         public void Add(double y)
