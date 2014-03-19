@@ -105,7 +105,7 @@ namespace Bonsai.Audio
                         if (multiChannel)
                         {
                             // Reduce multichannel
-                            CV.Reduce(input, reduced, 0, ReduceOperation.Sum);
+                            CV.Reduce(input, reduced, 0, ReduceOperation.Avg);
                             multiChannel = false;
                             input = reduced;
 
