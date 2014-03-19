@@ -74,6 +74,7 @@
     <Compile Include="CountNonZero.cs" />
     <Compile Include="Delay.cs" />
     <Compile Include="Difference.cs" />
+    <Compile Include="ElementCountBuffer.cs" />
     <Compile Include="FilterType.cs" />
     <Compile Include="FirFilter.cs" />
     <Compile Include="FrequencyFilter.cs" />
