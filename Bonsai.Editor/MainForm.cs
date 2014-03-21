@@ -509,11 +509,16 @@ namespace Bonsai.Editor
 
         private void saveSelectionAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (saveWorkflowDialog.ShowDialog() == DialogResult.OK)
+            var currentFileName = saveWorkflowDialog.FileName;
+            try
             {
-                var serializerWorkflowBuilder = selectionModel.SelectedNodes.ToWorkflowBuilder();
-                SaveWorkflow(saveWorkflowDialog.FileName, serializerWorkflowBuilder);
+                if (saveWorkflowDialog.ShowDialog() == DialogResult.OK)
+                {
+                    var serializerWorkflowBuilder = selectionModel.SelectedNodes.ToWorkflowBuilder();
+                    SaveWorkflow(saveWorkflowDialog.FileName, serializerWorkflowBuilder);
+                }
             }
+            finally { saveWorkflowDialog.FileName = currentFileName; }
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
