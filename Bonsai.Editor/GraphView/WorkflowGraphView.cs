@@ -1339,18 +1339,20 @@ namespace Bonsai.Design
                 {
                     var branch = (e.KeyState & AltModifier) != 0;
                     var nodeType = (e.KeyState & ShiftModifier) != 0 ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
-                    var linkNode = graphView.GetNodeAt(dropLocation) ?? graphView.SelectedNode;
+                    var targetNode = graphView.GetNodeAt(dropLocation);
                     if (e.Data.GetDataPresent(DataFormats.FileDrop, true))
                     {
                         var path = (string[])e.Data.GetData(DataFormats.FileDrop, true);
                         if (path.Length == 1)
                         {
                             var workflowBuilder = editorService.LoadWorkflow(path[0]);
+                            if (targetNode != null) graphView.SelectedNode = targetNode;
                             InsertWorkflow(workflowBuilder.Workflow);
                         }
                     }
                     else
                     {
+                        var linkNode = targetNode ?? graphView.SelectedNode;
                         var typeNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
                         CreateGraphNode(typeNode, linkNode, nodeType, branch);
                     }
