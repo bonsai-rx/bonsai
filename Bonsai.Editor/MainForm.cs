@@ -958,7 +958,7 @@ namespace Bonsai.Editor
 
         private void toolboxTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Button == MouseButtons.Left && e.Node.GetNodeCount(false) == 0)
+            if (e.Button == MouseButtons.Left && e.Node.Tag != null)
             {
                 var typeNode = e.Node;
                 var model = selectionModel.SelectedView;
