@@ -1680,7 +1680,7 @@ namespace Bonsai.Design
             if (propertyMappingBuilder == null) return;
 
             var elementType = workflowElement.GetType();
-            foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(elementType))
+            foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(workflowElement))
             {
                 if (property.IsReadOnly || !property.IsBrowsable) continue;
                 var memberSelector = string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, property.Name);

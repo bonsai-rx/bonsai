@@ -43,7 +43,7 @@ namespace Bonsai.Expressions
         /// <returns>An <see cref="Expression"/> tree node.</returns>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            var source = arguments.Single();
+            var source = arguments.First();
             var parameterType = source.Type.GetGenericArguments()[0];
             var parameter = Expression.Parameter(parameterType);
             var selectorBody = BuildSelector(parameter);
