@@ -56,8 +56,15 @@ namespace Bonsai.Expressions.Properties
             {
                 var properties = base.GetProperties(null);
                 var propertyDescriptor = parentProperties[externalizedProperty.MemberName];
-                var externalizedAttributes = new Attribute[propertyDescriptor.Attributes.Count];
-                propertyDescriptor.Attributes.CopyTo(externalizedAttributes, 0);
+
+                Attribute[] externalizedAttributes;
+                if (propertyDescriptor != null)
+                {
+                    externalizedAttributes = new Attribute[propertyDescriptor.Attributes.Count];
+                    propertyDescriptor.Attributes.CopyTo(externalizedAttributes, 0);
+                }
+                else externalizedAttributes = new Attribute[0];
+ 
                 var extendedProperty = new ExternalizedPropertyDescriptor(externalizedDescriptor, externalizedAttributes);
                 var extendedProperties = new PropertyDescriptor[properties.Count + 1];
                 properties.CopyTo(extendedProperties, 0);

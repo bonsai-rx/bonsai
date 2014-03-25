@@ -14,14 +14,27 @@ namespace Bonsai.Expressions
     /// on paired elements of an observable sequence. This is an abstract class.
     /// </summary>
     [TypeDescriptionProvider(typeof(BinaryOperatorTypeDescriptionProvider))]
-    public abstract class BinaryOperatorBuilder : SelectBuilder
+    public abstract class BinaryOperatorBuilder : SelectBuilder, IPropertyMappingBuilder
     {
+        readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
+
         /// <summary>
         /// Gets or sets the value which will be paired with elements of the observable
         /// sequence in case the sequence itself is not composed of paired elements.
         /// </summary>
         [Browsable(false)]
         public WorkflowProperty Operand { get; set; }
+
+        /// <summary>
+        /// Gets the collection of property mappings assigned to this expression builder.
+        /// Property mapping subscriptions are processed before evaluating other output generation
+        /// expressions.
+        /// </summary>
+        [Browsable(false)]
+        public PropertyMappingCollection PropertyMappings
+        {
+            get { return propertyMappings; }
+        }
 
         /// <summary>
         /// When overridden in a derived class, returns the expression that applies a binary
@@ -34,6 +47,26 @@ namespace Bonsai.Expressions
         /// and right parameters.
         /// </returns>
         protected abstract Expression BuildSelector(Expression left, Expression right);
+
+        /// <summary>
+        /// Generates an <see cref="Expression"/> node from a collection of input arguments.
+        /// The result can be chained with other builders in a workflow.
+        /// </summary>
+        /// <param name="arguments">
+        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
+        /// </param>
+        /// <returns>An <see cref="Expression"/> tree node.</returns>
+        public override Expression Build(IEnumerable<Expression> arguments)
+        {
+            var output = base.Build(arguments);
+            var operand = Operand;
+            if (operand != null)
+            {
+                var operandExpression = Expression.Constant(operand);
+                return BuildMappingOutput(arguments, operandExpression, output, PropertyMappings);
+            }
+            else return output;
+        }
 
         /// <summary>
         /// Returns the expression that maps the specified input parameter to the selector result.
