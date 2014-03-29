@@ -16,15 +16,23 @@ namespace Bonsai.Design
         WorkflowExpressionBuilder builder;
         WorkflowGraphView workflowGraphView;
 
-        public WorkflowEditorLauncher(WorkflowExpressionBuilder builder)
+        public WorkflowEditorLauncher(WorkflowExpressionBuilder builder, WorkflowGraphView parentView)
         {
             if (builder == null)
             {
                 throw new ArgumentNullException("builder");
             }
 
+            if (parentView == null)
+            {
+                throw new ArgumentNullException("parentView");
+            }
+
             this.builder = builder;
+            ParentView = parentView;
         }
+
+        internal WorkflowGraphView ParentView { get; private set; }
 
         internal IWin32Window Owner
         {

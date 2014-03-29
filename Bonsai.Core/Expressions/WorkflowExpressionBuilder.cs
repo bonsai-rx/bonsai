@@ -18,7 +18,7 @@ namespace Bonsai.Expressions
     [WorkflowElementCategory(ElementCategory.Nested)]
     [XmlType("Workflow", Namespace = Constants.XmlNamespace)]
     [TypeDescriptionProvider(typeof(WorkflowTypeDescriptionProvider))]
-    public abstract class WorkflowExpressionBuilder : VariableArgumentExpressionBuilder, INamedElement, IPropertyMappingBuilder
+    public abstract class WorkflowExpressionBuilder : ExpressionBuilder, INamedElement, IPropertyMappingBuilder
     {
         readonly ExpressionBuilderGraph workflow;
         readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
@@ -27,10 +27,8 @@ namespace Bonsai.Expressions
         /// Initializes a new instance of the <see cref="WorkflowExpressionBuilder"/> class
         /// with the specified argument range.
         /// </summary>
-        /// <param name="minArguments">The inclusive lower bound of the argument range.</param>
-        /// <param name="maxArguments">The inclusive upper bound of the argument range.</param>
-        protected WorkflowExpressionBuilder(int minArguments, int maxArguments)
-            : this(new ExpressionBuilderGraph(), minArguments, maxArguments)
+        protected WorkflowExpressionBuilder()
+            : this(new ExpressionBuilderGraph())
         {
         }
 
@@ -42,10 +40,7 @@ namespace Bonsai.Expressions
         /// The expression builder workflow instance that will be used by this builder
         /// to generate the output expression tree.
         /// </param>
-        /// <param name="minArguments">The inclusive lower bound of the argument range.</param>
-        /// <param name="maxArguments">The inclusive upper bound of the argument range.</param>
-        protected WorkflowExpressionBuilder(ExpressionBuilderGraph workflow, int minArguments, int maxArguments)
-            : base(minArguments, maxArguments)
+        protected WorkflowExpressionBuilder(ExpressionBuilderGraph workflow)
         {
             if (workflow == null)
             {
@@ -99,7 +94,28 @@ namespace Bonsai.Expressions
             get { return propertyMappings; }
         }
 
+        /// <summary>
+        /// Gets the range of input arguments that this expression builder accepts.
+        /// </summary>
+        public override Range<int> ArgumentRange
+        {
+            get
+            {
+                var parameterCount = GetWorkflowParameters().Count();
+                return Range.Create(parameterCount, parameterCount);
+            }
+        }
+
         internal BuildContext BuildContext { get; set; }
+
+        IEnumerable<WorkflowInputBuilder> GetWorkflowParameters()
+        {
+            return from node in workflow
+                   let inputBuilder = Unwrap(node.Value) as WorkflowInputBuilder
+                   where inputBuilder != null
+                   orderby inputBuilder.Index ascending
+                   select inputBuilder;
+        }
 
         /// <summary>
         /// Builds the ouptut of the encapsulated workflow for the specified source and applies
@@ -122,17 +138,12 @@ namespace Bonsai.Expressions
         /// </returns>
         protected Expression BuildWorflow(IEnumerable<Expression> arguments, Expression source, Func<Expression, Expression> selector)
         {
-            // Assign source if available
-            var workflowInput = Workflow.Select(node => GetWorkflowElement(node.Value) as WorkflowInputBuilder)
-                                        .SingleOrDefault(builder => builder != null);
-            if (workflowInput != null)
+            // Assign sources if available
+            var parameters = GetWorkflowParameters();
+            var inputArguments = source != null ? Enumerable.Repeat(source, 1).Concat(arguments.Skip(1)) : arguments;
+            foreach (var assignment in parameters.Zip(inputArguments, (parameter, argument) => new { parameter, argument }))
             {
-                if (source == null)
-                {
-                    throw new ArgumentNullException("source");
-                }
-
-                workflowInput.Source = source;
+                assignment.parameter.Source = assignment.argument;
             }
 
             var buildContext = BuildContext;
