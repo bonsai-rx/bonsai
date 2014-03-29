@@ -51,7 +51,7 @@ namespace Bonsai.Expressions
         /// to generate the output expression tree.
         /// </param>
         public SelectManyBuilder(ExpressionBuilderGraph workflow)
-            : base(workflow, minArguments: 1, maxArguments: 1)
+            : base(workflow)
         {
         }
 

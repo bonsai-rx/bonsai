@@ -106,6 +106,52 @@ namespace Bonsai.Design
 
         #region Model
 
+        private void AddWorkflowNode(ExpressionBuilderGraph workflow, Node<ExpressionBuilder, ExpressionBuilderArgument> node)
+        {
+            workflow.Add(node);
+            var workflowInput = ExpressionBuilder.Unwrap(node.Value) as WorkflowInputBuilder;
+            if (workflowInput != null)
+            {
+                foreach (var inputBuilder in workflow.Select(xs => ExpressionBuilder.Unwrap(xs.Value) as WorkflowInputBuilder)
+                                                     .Where(xs => xs != null))
+                {
+                    if (inputBuilder != workflowInput && inputBuilder.Index >= workflowInput.Index)
+                    {
+                        inputBuilder.Index++;
+                    }
+                }
+
+                var launcher = Launcher;
+                if (launcher != null)
+                {
+                    launcher.ParentView.UpdateGraphLayout(false);
+                }
+            }
+        }
+
+        private void RemoveWorkflowNode(ExpressionBuilderGraph workflow, Node<ExpressionBuilder, ExpressionBuilderArgument> node)
+        {
+            workflow.Remove(node);
+            var workflowInput = ExpressionBuilder.Unwrap(node.Value) as WorkflowInputBuilder;
+            if (workflowInput != null)
+            {
+                foreach (var inputBuilder in workflow.Select(xs => ExpressionBuilder.Unwrap(xs.Value) as WorkflowInputBuilder)
+                                                     .Where(xs => xs != null))
+                {
+                    if (inputBuilder.Index > workflowInput.Index)
+                    {
+                        inputBuilder.Index--;
+                    }
+                }
+
+                var launcher = Launcher;
+                if (launcher != null)
+                {
+                    launcher.ParentView.UpdateGraphLayout(false);
+                }
+            }
+        }
+
         private Func<IWin32Window> CreateWindowOwnerSelectorDelegate()
         {
             var launcher = Launcher;
@@ -593,11 +639,17 @@ namespace Bonsai.Design
             }
 
             var workflow = this.workflow;
+            var workflowInput = builder as WorkflowInputBuilder;
+            if (workflowInput != null)
+            {
+                workflowInput.Index = workflow.Count(node => ExpressionBuilder.Unwrap(node.Value) is WorkflowInputBuilder);
+            }
+
             var inspectBuilder = new InspectBuilder(builder);
             var inspectNode = new Node<ExpressionBuilder, ExpressionBuilderArgument>(inspectBuilder);
             var inspectParameter = new ExpressionBuilderArgument();
-            Action addNode = () => { workflow.Add(inspectNode); };
-            Action removeNode = () => { workflow.Remove(inspectNode); };
+            Action addNode = () => { AddWorkflowNode(workflow, inspectNode); };
+            Action removeNode = () => { RemoveWorkflowNode(workflow, inspectNode); };
 
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             var updateGraphLayoutValidation = CreateUpdateGraphLayoutValidationDelegate();
@@ -667,7 +719,7 @@ namespace Bonsai.Design
             {
                 foreach (var node in elements)
                 {
-                    workflow.Add(node);
+                    AddWorkflowNode(workflow, node);
                 }
                 addConnection();
                 updateGraphLayout();
@@ -677,7 +729,7 @@ namespace Bonsai.Design
                 removeConnection();
                 foreach (var node in elements.TopologicalSort())
                 {
-                    workflow.Remove(node);
+                    RemoveWorkflowNode(workflow, node);
                 }
                 updateGraphLayout();
             });
@@ -741,7 +793,7 @@ namespace Bonsai.Design
 
             Action removeNode = () =>
             {
-                workflow.Remove(workflowNode);
+                RemoveWorkflowNode(workflow, workflowNode);
                 if (!replaceEdge)
                 {
                     foreach (var sibling in siblingEdgesAfter)
@@ -753,7 +805,7 @@ namespace Bonsai.Design
 
             Action addNode = () =>
             {
-                workflow.Add(workflowNode);
+                AddWorkflowNode(workflow, workflowNode);
                 foreach (var edge in predecessorEdges)
                 {
                     edge.Item1.Successors.Insert(edge.Item3, edge.Item2);
@@ -1014,7 +1066,7 @@ namespace Bonsai.Design
             if (!workflowEditorMapping.TryGetValue(workflowExpressionBuilder, out editorLauncher))
             {
                 composite = true;
-                editorLauncher = new WorkflowEditorLauncher(workflowExpressionBuilder);
+                editorLauncher = new WorkflowEditorLauncher(workflowExpressionBuilder, this);
                 editorLauncher.VisualizerLayout = editorLayout;
                 editorLauncher.Bounds = bounds;
                 var addEditorMapping = CreateUpdateEditorMappingDelegate(editorMapping => editorMapping.Add(workflowExpressionBuilder, editorLauncher));
