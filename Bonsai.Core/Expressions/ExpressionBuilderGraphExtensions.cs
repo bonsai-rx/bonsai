@@ -203,7 +203,9 @@ namespace Bonsai.Expressions
                 var argumentRange = builder.ArgumentRange;
                 if (argumentRange == null || arguments.Count < argumentRange.LowerBound)
                 {
-                    throw new WorkflowBuildException("Unsupported number of arguments. Check the number of connections into node.", builder);
+                    throw new WorkflowBuildException(
+                        string.Format("Unsupported number of arguments. This node requires at least {0} input connections.", argumentRange.LowerBound),
+                        builder);
                 }
 
                 // Propagate build target in case of a nested workflow
