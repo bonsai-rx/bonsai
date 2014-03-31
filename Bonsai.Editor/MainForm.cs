@@ -248,8 +248,16 @@ namespace Bonsai.Editor
                 workflowElements.Add(type);
                 foreach (var elementType in type.ElementTypes)
                 {
-                    var nestedOrCondition = elementType == ElementCategory.Nested || elementType == ElementCategory.Condition;
-                    var typeCategory = nestedOrCondition ? ElementCategory.Combinator : elementType;
+                    var typeCategory = elementType;
+                    if (typeCategory == ElementCategory.Nested || typeCategory == ElementCategory.Condition)
+                    {
+                        typeCategory = ElementCategory.Combinator;
+                    }
+                    else if (typeCategory == ElementCategory.Property)
+                    {
+                        typeCategory = ElementCategory.Source;
+                    }
+
                     var typeCategoryName = typeCategory.ToString();
                     var elementTypeNode = treeCache.Count > 0
                         ? treeCache.Single(ns => ns.Name == typeCategoryName)
