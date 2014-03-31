@@ -1747,47 +1747,6 @@ namespace Bonsai.Design
                     propertyMappingBuilder);
                 ownerItem.DropDownItems.Add(menuItem);
             }
-
-            var workflowBuilder = workflowElement as WorkflowExpressionBuilder;
-            if (workflowBuilder != null)
-            {
-                foreach (var property in from node in workflowBuilder.Workflow
-                                         let workflowProperty = ExpressionBuilder.GetWorkflowElement(node.Value) as WorkflowProperty
-                                         where workflowProperty != null
-                                         let name = workflowProperty.Name
-                                         where !string.IsNullOrEmpty(name)
-                                         select workflowProperty)
-                {
-                    ToolStripMenuItem menuItem;
-                    var propertyType = property.GetType();
-                    var valueProperty = propertyType.GetProperty("Value");
-                    var propertyValue = valueProperty.GetValue(property);
-                    var externalizedProperty = property as IExternalizedProperty;
-                    if (externalizedProperty != null)
-                    {
-                        menuItem = CreateExternalizeMenuItem(
-                            property.Name,
-                            externalizedProperty.ElementType,
-                            externalizedProperty.MemberName,
-                            valueProperty.PropertyType,
-                            propertyValue,
-                            selectedNode,
-                            propertyMappingBuilder);
-                    }
-                    else
-                    {
-                        menuItem = CreateExternalizeMenuItem(
-                            property.Name,
-                            propertyType,
-                            valueProperty.Name,
-                            valueProperty.PropertyType,
-                            propertyValue,
-                            selectedNode,
-                            propertyMappingBuilder);
-                    }
-                    ownerItem.DropDownItems.Add(menuItem);
-                }
-            }
         }
 
         private ToolStripMenuItem CreateExternalizeMenuItem(
