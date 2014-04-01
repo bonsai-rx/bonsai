@@ -1735,6 +1735,9 @@ namespace Bonsai.Design
             foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(workflowElement))
             {
                 if (property.IsReadOnly || !property.IsBrowsable) continue;
+                var externalizableAttribute = (ExternalizableAttribute)property.Attributes[typeof(ExternalizableAttribute)];
+                if (externalizableAttribute != null && !externalizableAttribute.Externalizable) continue;
+
                 var memberSelector = string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, property.Name);
                 var memberValue = property.GetValue(workflowElement);
                 var menuItem = CreateExternalizeMenuItem(

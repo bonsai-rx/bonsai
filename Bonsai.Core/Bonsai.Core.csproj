@@ -103,6 +103,7 @@
     <Compile Include="Expressions\NegateBuilder.cs" />
     <Compile Include="Expressions\SelectBuilder.cs" />
     <Compile Include="Expressions\SubtractBuilder.cs" />
+    <Compile Include="ExternalizableAttribute.cs" />
     <Compile Include="INamedElement.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
