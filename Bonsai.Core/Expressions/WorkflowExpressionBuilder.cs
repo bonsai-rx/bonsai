@@ -53,6 +53,7 @@ namespace Bonsai.Expressions
         /// <summary>
         /// Gets the name of the encapsulated workflow.
         /// </summary>
+        [Externalizable(false)]
         [Description("The name of the encapsulated workflow.")]
         public string Name { get; set; }
 
@@ -156,7 +157,14 @@ namespace Bonsai.Expressions
                 var inputBuilder = (from node in Workflow
                                     let property = GetWorkflowElement(node.Value) as WorkflowProperty
                                     where property != null && property.Name == mapping.Name
-                                    select property).First();
+                                    select property).FirstOrDefault();
+                if (inputBuilder == null)
+                {
+                    throw new InvalidOperationException(string.Format(
+                        "The specified property '{0}' was not found in the nested workflow.",
+                        mapping.Name));
+                }
+
                 var inputExpression = Expression.Constant(inputBuilder);
                 var inputMapping = new PropertyMapping("Value", mapping.Selector);
                 return BuildPropertyMapping(arguments, inputExpression, inputMapping);
