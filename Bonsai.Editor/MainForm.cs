@@ -20,6 +20,7 @@ using System.IO;
 using System.Windows.Forms.Design;
 using System.Reactive.Concurrency;
 using System.Reactive;
+using System.Diagnostics;
 
 namespace Bonsai.Editor
 {
@@ -452,11 +453,7 @@ namespace Bonsai.Editor
 
         private void browseDirectoryToolStripButton_Click(object sender, EventArgs e)
         {
-            folderBrowserDialog.SelectedPath = directoryToolStripTextBox.Text;
-            if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
-            {
-                directoryToolStripTextBox.Text = folderBrowserDialog.SelectedPath;
-            }
+            Process.Start(directoryToolStripTextBox.Text);
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
