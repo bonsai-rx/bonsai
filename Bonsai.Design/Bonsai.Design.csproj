@@ -79,6 +79,7 @@
     <Compile Include="FolderNameEditor.cs" />
     <Compile Include="MashupTypeVisualizer.cs" />
     <Compile Include="ITypeVisualizerContext.cs" />
+    <Compile Include="PathConvert.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="SeekBar.cs">
       <SubType>Component</SubType>

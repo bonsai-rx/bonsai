@@ -32,7 +32,7 @@ namespace Bonsai.Design
 
                     if (dialog.ShowDialog() == DialogResult.OK)
                     {
-                        return dialog.SelectedPath;
+                        return PathConvert.GetProjectPath(dialog.SelectedPath);
                     }
                 }
             }
