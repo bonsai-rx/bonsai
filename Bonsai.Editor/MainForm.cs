@@ -474,6 +474,8 @@ namespace Bonsai.Editor
 
             if (openWorkflowDialog.ShowDialog() == DialogResult.OK)
             {
+                var workflowDirectory = Path.GetDirectoryName(openWorkflowDialog.FileName);
+                directoryToolStripTextBox.Text = workflowDirectory;
                 OpenWorkflow(openWorkflowDialog.FileName);
             }
         }
@@ -508,6 +510,8 @@ namespace Bonsai.Editor
             if (saveWorkflowDialog.ShowDialog() == DialogResult.OK)
             {
                 saveToolStripMenuItem_Click(this, e);
+                var workflowDirectory = Path.GetDirectoryName(saveWorkflowDialog.FileName);
+                directoryToolStripTextBox.Text = workflowDirectory;
                 UpdateTitle();
             }
         }
