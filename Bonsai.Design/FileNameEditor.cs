@@ -38,7 +38,7 @@ namespace Bonsai.Design
 
                     if (dialog.ShowDialog() == DialogResult.OK)
                     {
-                        return dialog.FileName;
+                        return PathConvert.GetProjectPath(dialog.FileName);
                     }
                 }
             }
