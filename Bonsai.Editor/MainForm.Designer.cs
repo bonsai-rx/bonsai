@@ -721,12 +721,15 @@
             // 
             // propertyGrid
             // 
+            this.propertyGrid.AllowDrop = true;
             this.propertyGrid.ContextMenuStrip = this.propertyGridContextMenuStrip;
             this.propertyGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.propertyGrid.Location = new System.Drawing.Point(3, 16);
             this.propertyGrid.Name = "propertyGrid";
             this.propertyGrid.Size = new System.Drawing.Size(170, 271);
             this.propertyGrid.TabIndex = 0;
+            this.propertyGrid.DragDrop += new System.Windows.Forms.DragEventHandler(this.propertyGrid_DragDrop);
+            this.propertyGrid.DragEnter += new System.Windows.Forms.DragEventHandler(this.propertyGrid_DragEnter);
             this.propertyGrid.Validated += new System.EventHandler(this.propertyGrid_Validated);
             // 
             // propertyGridContextMenuStrip
