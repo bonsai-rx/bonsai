@@ -1468,6 +1468,52 @@ namespace Bonsai.Editor
             editorSite.ValidateWorkflow();
         }
 
+        private void propertyGrid_DragEnter(object sender, DragEventArgs e)
+        {
+            var gridItem = propertyGrid.SelectedGridItem;
+            if (gridItem != null && !gridItem.PropertyDescriptor.IsReadOnly &&
+                gridItem.PropertyDescriptor.Converter.CanConvertFrom(typeof(string)) &&
+                (e.Data.GetDataPresent(typeof(string)) ||
+                 e.Data.GetDataPresent(DataFormats.FileDrop)))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+        }
+
+        private void propertyGrid_DragDrop(object sender, DragEventArgs e)
+        {
+            var gridItem = propertyGrid.SelectedGridItem;
+            if (gridItem != null)
+            {
+                string text = null;
+                if (e.Data.GetDataPresent(typeof(string)))
+                {
+                    text = (string)e.Data.GetData(typeof(string));
+                }
+                else if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                {
+                    var path = (string[])e.Data.GetData(DataFormats.FileDrop, true);
+                    if (path.Length > 0)
+                    {
+                        text = PathConvert.GetProjectPath(path[0]);
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(text))
+                {
+                    object component;
+                    if (propertyGrid.SelectedObjects != null && propertyGrid.SelectedObjects.Length > 1)
+                    {
+                        component = propertyGrid.SelectedObjects;
+                    }
+                    else component = propertyGrid.SelectedObject;
+                    var value = gridItem.PropertyDescriptor.Converter.ConvertFrom(text);
+                    gridItem.PropertyDescriptor.SetValue(component, value);
+                    propertyGrid.Refresh();
+                }
+            }
+        }
+
         #endregion
 
         #region StatusStrip Controller
