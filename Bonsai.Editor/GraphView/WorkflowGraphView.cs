@@ -1992,7 +1992,7 @@ namespace Bonsai.Design
         #endregion
     }
 
-    public enum CreateGraphNodeType
+    enum CreateGraphNodeType
     {
         Successor,
         Predecessor
