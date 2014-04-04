@@ -204,7 +204,7 @@ namespace Bonsai.Expressions
                 if (argumentRange == null || arguments.Count < argumentRange.LowerBound)
                 {
                     throw new WorkflowBuildException(
-                        string.Format("Unsupported number of arguments. This node requires at least {0} input connections.", argumentRange.LowerBound),
+                        string.Format("Unsupported number of arguments. This node requires at least {0} input connection(s).", argumentRange.LowerBound),
                         builder);
                 }
 
