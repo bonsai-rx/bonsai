@@ -14,7 +14,7 @@ namespace Bonsai.Expressions
         Func<object> getValue;
         Action<object> setValue;
 
-        public WorkflowPropertyDescriptor(string name, Attribute[] attrs, WorkflowProperty property)
+        public WorkflowPropertyDescriptor(string name, Attribute[] attrs, object property)
             : base(name, attrs)
         {
             var propertyExpression = Expression.Constant(property);

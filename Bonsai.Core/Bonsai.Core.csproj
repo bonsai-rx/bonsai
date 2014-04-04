@@ -70,6 +70,10 @@
     <Compile Include="Expressions\BitwiseOrBuilder.cs" />
     <Compile Include="Expressions\BitwiseNotBuilder.cs" />
     <Compile Include="Expressions\BinaryOperatorTypeDescriptionProvider.cs" />
+    <Compile Include="Expressions\ExternalizedTimeSpan.cs" />
+    <Compile Include="Expressions\ExternalizedDateTimeOffset.cs" />
+    <Compile Include="Expressions\ExternalizedProperty.cs" />
+    <Compile Include="Expressions\ExternalizedPropertyTypeDescriptionProvider.cs" />
     <Compile Include="Expressions\IExpressionBuilder.cs" />
     <Compile Include="Expressions\IPropertyMappingBuilder.cs" />
     <Compile Include="Expressions\MulticastBuilder.cs" />
@@ -77,9 +81,6 @@
     <Compile Include="Expressions\MulticastScope.cs" />
     <Compile Include="Expressions\Properties\Int64Property.cs" />
     <Compile Include="Expressions\Properties\DoubleProperty.cs" />
-    <Compile Include="Expressions\Properties\ExternalizedProperty.cs" />
-    <Compile Include="Expressions\Properties\ExternalizedPropertyTypeDescriptionProvider.cs" />
-    <Compile Include="Expressions\Properties\IExternalizedProperty.cs" />
     <Compile Include="Expressions\PublishBuilder.cs" />
     <Compile Include="Expressions\ReplayBuilder.cs" />
     <Compile Include="Expressions\VariableArgumentExpressionBuilder.cs" />
@@ -125,7 +126,7 @@
     <Compile Include="Expressions\Properties\IntProperty.cs" />
     <Compile Include="Expressions\Properties\StringProperty.cs" />
     <Compile Include="Expressions\Properties\TimeSpanProperty.cs" />
-    <Compile Include="WorkflowProperty.cs" />
+    <Compile Include="Expressions\Properties\WorkflowProperty.cs" />
     <Compile Include="Reactive\Range.cs" />
     <Compile Include="Reactive\IgnoreElements.cs" />
     <Compile Include="Reactive\Distinct.cs" />

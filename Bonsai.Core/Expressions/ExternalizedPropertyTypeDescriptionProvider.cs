@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bonsai.Expressions.Properties
+namespace Bonsai.Expressions
 {
     class ExternalizedPropertyTypeDescriptionProvider : TypeDescriptionProvider
     {
-        static readonly TypeDescriptionProvider parentProvider = TypeDescriptor.GetProvider(typeof(WorkflowProperty));
+        static readonly TypeDescriptionProvider parentProvider = TypeDescriptor.GetProvider(typeof(ExternalizedProperty));
 
         public ExternalizedPropertyTypeDescriptionProvider()
             : base(parentProvider)
@@ -18,9 +18,9 @@ namespace Bonsai.Expressions.Properties
 
         public override ICustomTypeDescriptor GetTypeDescriptor(Type objectType, object instance)
         {
-            if (objectType != typeof(WorkflowProperty) && instance != null)
+            if (objectType != typeof(ExternalizedProperty) && instance != null)
             {
-                var parentDescriptor = base.GetTypeDescriptor(typeof(WorkflowProperty));
+                var parentDescriptor = base.GetTypeDescriptor(typeof(ExternalizedProperty));
                 return new ExternalizedPropertyTypeDescriptor(instance, parentDescriptor);
             }
 
@@ -30,7 +30,7 @@ namespace Bonsai.Expressions.Properties
         class ExternalizedPropertyTypeDescriptor : CustomTypeDescriptor
         {
             PropertyDescriptorCollection parentProperties;
-            IExternalizedProperty externalizedProperty;
+            ExternalizedProperty externalizedProperty;
             PropertyDescriptor externalizedDescriptor;
             static readonly Attribute[] emptyAttributes = new Attribute[0];
 
@@ -42,7 +42,7 @@ namespace Bonsai.Expressions.Properties
                     throw new ArgumentNullException("instance");
                 }
 
-                externalizedProperty = (IExternalizedProperty)instance;
+                externalizedProperty = (ExternalizedProperty)instance;
                 parentProperties = TypeDescriptor.GetProperties(externalizedProperty.ElementType);
                 externalizedDescriptor = TypeDescriptor.GetProperties(externalizedProperty.GetType())["Value"];
             }

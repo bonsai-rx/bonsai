@@ -45,7 +45,7 @@ namespace Bonsai.Expressions
             public override PropertyDescriptorCollection GetProperties(Attribute[] attributes)
             {
                 var properties = from node in builder.Workflow
-                                 let property = ExpressionBuilder.GetWorkflowElement(node.Value) as WorkflowProperty
+                                 let property = ExpressionBuilder.Unwrap(node.Value) as ExternalizedProperty
                                  where property != null
                                  let name = property.Name
                                  where !string.IsNullOrEmpty(name)
@@ -53,7 +53,7 @@ namespace Bonsai.Expressions
                 return new PropertyDescriptorCollection(properties.ToArray());
             }
 
-            static Attribute[] GetWorkflowPropertyAttributes(WorkflowProperty property)
+            static Attribute[] GetWorkflowPropertyAttributes(ExternalizedProperty property)
             {
                 var valueProperty = TypeDescriptor.GetProperties(property)["Value"];
                 if (valueProperty != null)

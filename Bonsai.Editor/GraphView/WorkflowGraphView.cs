@@ -21,7 +21,6 @@ using System.CodeDom;
 using System.Drawing.Design;
 using Bonsai.Editor;
 using System.Reactive.Disposables;
-using Bonsai.Expressions.Properties;
 
 namespace Bonsai.Design
 {
@@ -1763,23 +1762,31 @@ namespace Bonsai.Design
         {
             var menuItem = new ToolStripMenuItem(name, null, delegate
             {
-                var propertyType = typeof(ExternalizedProperty<,>).MakeGenericType(memberType, elementType);
-                var property = (WorkflowProperty)Activator.CreateInstance(propertyType);
-                var memberNameProperty = propertyType.GetProperty("MemberName");
+                Type propertyType;
+                if (memberType == typeof(DateTimeOffset))
+                {
+                    propertyType = typeof(ExternalizedDateTimeOffset<>).MakeGenericType(elementType);
+                }
+                else if (memberType == typeof(TimeSpan))
+                {
+                    propertyType = typeof(ExternalizedTimeSpan<>).MakeGenericType(elementType);
+                }
+                else propertyType = typeof(ExternalizedProperty<,>).MakeGenericType(memberType, elementType);
+
+                var property = (ExternalizedProperty)Activator.CreateInstance(propertyType);
                 var valueProperty = propertyType.GetProperty("Value");
-                memberNameProperty.SetValue(property, memberName);
                 valueProperty.SetValue(property, memberValue);
+                property.MemberName = memberName;
                 property.Name = name;
 
                 var closestNode = GetGraphNodeTag(workflow, selectedNode);
                 var predecessors = workflow.PredecessorEdges(closestNode).ToList();
                 var edgeLabel = new ExpressionBuilderArgument(predecessors.Count);
-                var builder = ExpressionBuilder.FromWorkflowElement(property, ElementCategory.Property);
                 var selectedBuilderMappings = propertyMappingBuilder.PropertyMappings;
                 var propertyMapping = new PropertyMapping(name, edgeLabel.Name);
 
                 commandExecutor.BeginCompositeCommand();
-                CreateGraphNode(builder, ElementCategory.Property, selectedNode, CreateGraphNodeType.Predecessor, true);
+                CreateGraphNode(property, ElementCategory.Property, selectedNode, CreateGraphNodeType.Predecessor, true);
                 commandExecutor.Execute(
                     () =>
                     {

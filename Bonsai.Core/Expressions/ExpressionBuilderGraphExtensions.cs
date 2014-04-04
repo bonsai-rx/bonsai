@@ -66,7 +66,7 @@ namespace Bonsai.Expressions
 
             name = memberChain[memberChain.Length - 1];
             var property = (from node in source
-                            let workflowProperty = ExpressionBuilder.GetWorkflowElement(node.Value) as WorkflowProperty
+                            let workflowProperty = ExpressionBuilder.Unwrap(node.Value) as ExternalizedProperty
                             where workflowProperty != null && workflowProperty.Name == name
                             select workflowProperty)
                             .FirstOrDefault();
@@ -220,7 +220,7 @@ namespace Bonsai.Expressions
                     }
                 }
 
-                var workflowProperty = ExpressionBuilder.GetWorkflowElement(workflowElement) as WorkflowProperty;
+                var workflowProperty = workflowElement as ExternalizedProperty;
                 if (workflowProperty != null && !string.IsNullOrEmpty(workflowProperty.Name))
                 {
                     RegisterElementName(builder, workflowProperty, ref namedElements);
