@@ -369,7 +369,7 @@ namespace Bonsai.Expressions
             return arguments;
         }
 
-        static Expression CoerceMethodArgument(Type parameterType, Expression argument)
+        internal static Expression CoerceMethodArgument(Type parameterType, Expression argument)
         {
             if (argument.Type.IsGenericType && parameterType.IsGenericType &&
                 argument.Type.GetGenericTypeDefinition() == typeof(IObservable<>) &&

@@ -7,25 +7,19 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace Bonsai
+namespace Bonsai.Expressions
 {
     /// <summary>
-    /// Represents a named workflow property.
+    /// Represents a workflow property.
     /// </summary>
     [Source]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [WorkflowElementCategory(ElementCategory.Property)]
-    public abstract class WorkflowProperty : INamedElement
+    [WorkflowElementCategory(ElementCategory.Source)]
+    public abstract class WorkflowProperty
     {
         internal WorkflowProperty()
         {
         }
-
-        /// <summary>
-        /// Gets or sets the name of the property.
-        /// </summary>
-        [Description("The name of the property. When set, the property will appear on the pages of a nested workflow.")]
-        public string Name { get; set; }
 
         internal abstract Type PropertyType { get; }
     }

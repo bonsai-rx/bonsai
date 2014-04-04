@@ -155,7 +155,7 @@ namespace Bonsai.Expressions
             var subscriptions = propertyMappings.Select(mapping =>
             {
                 var inputBuilder = (from node in Workflow
-                                    let property = GetWorkflowElement(node.Value) as WorkflowProperty
+                                    let property = Unwrap(node.Value) as ExternalizedProperty
                                     where property != null && property.Name == mapping.Name
                                     select property).FirstOrDefault();
                 if (inputBuilder == null)
