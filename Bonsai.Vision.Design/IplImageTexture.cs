@@ -10,6 +10,7 @@ namespace Bonsai.Vision.Design
     public class IplImageTexture : IDisposable
     {
         bool disposed;
+        uint vbo;
         int texture;
         int maxTextureSize;
         bool nonPowerOfTwo;
@@ -21,6 +22,21 @@ namespace Bonsai.Vision.Design
             var extensions = GL.GetString(StringName.Extensions).Split(' ');
             nonPowerOfTwo = extensions.Contains("GL_ARB_texture_non_power_of_two");
             GL.GetInteger(GetPName.MaxTextureSize, out maxTextureSize);
+
+            GL.GenBuffers(1, out vbo);
+            var vertices = new float[]
+            {
+                0f, 1f, -1f, -1f,
+                1f, 1f,  1f, -1f,
+                1f, 0f,  1f,  1f,
+                0f, 0f, -1f,  1f,
+            };
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+            GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(vertices.Length * sizeof(float)), vertices, BufferUsageHint.StaticDraw);
+            GL.VertexPointer(2, VertexPointerType.Float, 4 * sizeof(float), 2 * sizeof(float));
+            GL.TexCoordPointer(2, TexCoordPointerType.Float, 4 * sizeof(float), 0);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
             GL.GenTextures(1, out texture);
             GL.BindTexture(TextureTarget.Texture2D, texture);
@@ -90,15 +106,13 @@ namespace Bonsai.Vision.Design
         public void Draw()
         {
             GL.Enable(EnableCap.Texture2D);
+            GL.EnableClientState(ArrayCap.VertexArray);
+            GL.EnableClientState(ArrayCap.TextureCoordArray);
+
             GL.BindTexture(TextureTarget.Texture2D, texture);
-            GL.Begin(PrimitiveType.Quads);
-
-            GL.TexCoord2(0.0f, 1.0f); GL.Vertex2(-1f, -1f);
-            GL.TexCoord2(1.0f, 1.0f); GL.Vertex2(1f, -1f);
-            GL.TexCoord2(1.0f, 0.0f); GL.Vertex2(1f, 1f);
-            GL.TexCoord2(0.0f, 0.0f); GL.Vertex2(-1f, 1f);
-
-            GL.End();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+            GL.DrawArrays(PrimitiveType.Quads, 0, 4);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
         }
 
         ~IplImageTexture()
@@ -113,6 +127,7 @@ namespace Bonsai.Vision.Design
                 if (disposing)
                 {
                     GL.DeleteTextures(1, ref texture);
+                    GL.DeleteBuffers(1, ref vbo);
                     if (textureImage != null)
                     {
                         textureImage.Close();
