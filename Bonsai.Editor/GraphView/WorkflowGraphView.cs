@@ -1716,8 +1716,7 @@ namespace Bonsai.Design
             {
                 var builder = new MemberSelectorBuilder { Selector = memberSelector };
                 var successor = selectedNode.Successors.Select(edge => GetGraphNodeBuilder(edge.Node)).FirstOrDefault();
-                var branch = successor != null && successor.GetType() == typeof(MemberSelectorBuilder);
-                CreateGraphNode(builder, ElementCategory.Transform, selectedNode, CreateGraphNodeType.Successor, branch);
+                CreateGraphNode(builder, ElementCategory.Transform, selectedNode, CreateGraphNodeType.Successor, true);
                 contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
             });
 
