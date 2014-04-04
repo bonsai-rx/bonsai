@@ -1688,7 +1688,8 @@ namespace Bonsai.Design
                 ownerItem.DropDownItems.Add(menuItem);
             }
 
-            foreach (var property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
+            foreach (var property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                                         .Distinct(PropertyInfoComparer.Default))
             {
                 var memberSelector = string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, property.Name);
                 var menuItem = CreateOutputMenuItem(property.Name, memberSelector, property.PropertyType, selectedNode);
@@ -1987,6 +1988,25 @@ namespace Bonsai.Design
             externalizeToolStripMenuItem.DropDownItems.Clear();
             visualizerToolStripMenuItem.DropDownItems.Clear();
             groupToolStripMenuItem.DropDownItems.Clear();
+        }
+
+        #endregion
+
+        #region PropertyInfoComparer Class
+
+        class PropertyInfoComparer : IEqualityComparer<PropertyInfo>
+        {
+            public static readonly PropertyInfoComparer Default = new PropertyInfoComparer();
+
+            public bool Equals(PropertyInfo x, PropertyInfo y)
+            {
+                return x.Name == y.Name;
+            }
+
+            public int GetHashCode(PropertyInfo obj)
+            {
+                return obj.Name.GetHashCode();
+            }
         }
 
         #endregion
