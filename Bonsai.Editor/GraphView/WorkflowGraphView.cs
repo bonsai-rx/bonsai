@@ -481,6 +481,52 @@ namespace Bonsai.Design
             return true;
         }
 
+        IEnumerable<PropertyMapping> GetEdgeMappings(Edge<ExpressionBuilder, ExpressionBuilderArgument> edge)
+        {
+            var mappingBuilder = ExpressionBuilder.Unwrap(edge.Target.Value) as IPropertyMappingBuilder;
+            if (mappingBuilder != null)
+            {
+                foreach (var mapping in mappingBuilder.PropertyMappings)
+                {
+                    var memberPath = mapping.Selector.Split(new[] { ExpressionHelper.MemberSeparator }, 2, StringSplitOptions.None);
+                    if (memberPath[0] == edge.Label.Name)
+                    {
+                        yield return mapping;
+                    }
+                }
+            }
+        }
+
+        void AddPropertyMappings(ExpressionBuilder builder, IEnumerable<PropertyMapping> mappings)
+        {
+            var mappingBuilder = ExpressionBuilder.Unwrap(builder) as IPropertyMappingBuilder;
+            if (mappingBuilder != null)
+            {
+                var propertyMappings = mappingBuilder.PropertyMappings;
+                foreach (var mapping in mappings)
+                {
+                    if (propertyMappings.Contains(mapping.Name))
+                    {
+                        propertyMappings.Remove(mapping.Name);
+                    }
+
+                    propertyMappings.Add(mapping);
+                }
+            }
+        }
+
+        void RemovePropertyMappings(ExpressionBuilder builder, IEnumerable<PropertyMapping> mappings)
+        {
+            var mappingBuilder = ExpressionBuilder.Unwrap(builder) as IPropertyMappingBuilder;
+            if (mappingBuilder != null)
+            {
+                foreach (var mapping in mappings)
+                {
+                    mappingBuilder.PropertyMappings.Remove(mapping);
+                }
+            }
+        }
+
         bool CanDisconnect(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget)
         {
             var target = GetGraphNodeTag(workflow, graphViewTarget, false);
@@ -543,6 +589,7 @@ namespace Bonsai.Design
                 if (predecessor == null) continue;
                 var edge = predecessor.Item2;
                 var edgeIndex = edge.Label.Index;
+                var propertyMappings = GetEdgeMappings(edge).ToArray();
                 var siblingEdgesAfter = (from siblingEdge in predecessorEdges
                                          where siblingEdge.Item2.Label.Index.CompareTo(edgeIndex) > 0
                                          select siblingEdge.Item2)
@@ -551,6 +598,7 @@ namespace Bonsai.Design
                 addConnection += () =>
                 {
                     predecessor.Item1.Successors.Insert(predecessor.Item3, edge);
+                    AddPropertyMappings(edge.Target.Value, propertyMappings);
                     foreach (var sibling in siblingEdgesAfter)
                     {
                         sibling.Label.Index++;
@@ -559,6 +607,7 @@ namespace Bonsai.Design
 
                 removeConnection += () =>
                 {
+                    RemovePropertyMappings(edge.Target.Value, propertyMappings);
                     predecessor.Item1.Successors.RemoveAt(predecessor.Item3);
                     foreach (var sibling in siblingEdgesAfter)
                     {
@@ -746,6 +795,7 @@ namespace Bonsai.Design
             Action removeEdge = () => { };
 
             var workflowNode = GetGraphNodeTag(workflow, node);
+            var edgeMappings = workflowNode.Successors.Select(edge => Tuple.Create(edge.Target.Value, GetEdgeMappings(edge).ToArray())).ToList();
             var predecessorEdges = workflow.PredecessorEdges(workflowNode).ToArray();
             var siblingEdgesAfter = (from edge in workflowNode.Successors
                                      from siblingEdge in workflow.PredecessorEdges(edge.Target)
@@ -772,6 +822,7 @@ namespace Bonsai.Design
                                      .Reverse()
                                      .ToArray();
 
+                edgeMappings.RemoveAll(mapping => replacedEdges.Any(edge => edge.edge.Target.Value == mapping.Item1));
                 addEdge = () =>
                 {
                     Array.ForEach(replacedEdges, replacedEdge =>
@@ -787,6 +838,25 @@ namespace Bonsai.Design
                     {
                         workflow.RemoveEdge(replacedEdge.predecessor, replacedEdge.edge);
                     });
+                };
+            }
+
+            if (edgeMappings.Count > 0)
+            {
+                addEdge += () =>
+                {
+                    foreach (var mapping in edgeMappings)
+                    {
+                        RemovePropertyMappings(mapping.Item1, mapping.Item2);
+                    };
+                };
+
+                removeEdge += () =>
+                {
+                    foreach (var mapping in edgeMappings)
+                    {
+                        AddPropertyMappings(mapping.Item1, mapping.Item2);
+                    };
                 };
             }
 
