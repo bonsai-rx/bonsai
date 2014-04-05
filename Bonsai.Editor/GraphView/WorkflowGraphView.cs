@@ -1697,7 +1697,7 @@ namespace Bonsai.Design
             }
 
             var menuItemDisposable = new CompositeDisposable();
-            EventHandler dropDownHandler = delegate
+            EventHandler dropDownOpeningHandler = delegate
             {
                 foreach (ToolStripMenuItem item in ownerItem.DropDownItems)
                 {
@@ -1706,9 +1706,24 @@ namespace Bonsai.Design
                 }
             };
 
-            ownerItem.DropDownOpening += dropDownHandler;
-            menuItemDisposable.Add(Disposable.Create(() => ownerItem.DropDownOpening -= dropDownHandler));
-            return menuItemDisposable;
+            EventHandler dropDownClosedHandler = delegate
+            {
+                menuItemDisposable.Clear();
+                foreach (ToolStripMenuItem item in ownerItem.DropDownItems)
+                {
+                    item.DropDownItems.Clear();
+                }
+            };
+
+            ownerItem.DropDownOpening += dropDownOpeningHandler;
+            ownerItem.DropDownClosed += dropDownClosedHandler;
+            return new CompositeDisposable(
+                Disposable.Create(() =>
+                {
+                    ownerItem.DropDownClosed -= dropDownClosedHandler;
+                    ownerItem.DropDownOpening -= dropDownOpeningHandler;
+                }),
+                menuItemDisposable);
         }
 
         private ToolStripMenuItem CreateOutputMenuItem(string memberName, string memberSelector, Type memberType, GraphNode selectedNode)
