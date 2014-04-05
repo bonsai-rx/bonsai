@@ -146,14 +146,13 @@ namespace Bonsai.Editor
             public override void SetValue(object component, object value)
             {
                 PropertyMapping mapping;
-                if (!owner.Contains(member.Name))
+                if (owner.Contains(member.Name))
                 {
-                    mapping = new PropertyMapping { Name = member.Name };
-                    owner.Add(mapping);
+                    owner.Remove(member.Name);
                 }
-                else mapping = owner[member.Name];
 
-                mapping.Selector = (string)value;
+                mapping = new PropertyMapping(member.Name, (string)value);
+                owner.Add(mapping);
             }
 
             public override bool ShouldSerializeValue(object component)
