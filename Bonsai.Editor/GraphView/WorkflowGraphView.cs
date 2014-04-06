@@ -1782,6 +1782,8 @@ namespace Bonsai.Design
 
         private IDisposable CreateOutputMenuItems(Type type, ToolStripMenuItem ownerItem, GraphNode selectedNode)
         {
+            if (type.IsEnum) return Disposable.Empty;
+
             foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public))
             {
                 var memberSelector = string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, field.Name);
