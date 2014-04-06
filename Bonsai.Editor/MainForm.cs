@@ -140,7 +140,6 @@ namespace Bonsai.Editor
                 Path.GetExtension(initialFileName) == BonsaiExtension &&
                 File.Exists(initialFileName);
 
-            var tempPath = GetTempPath();
             var currentDirectory = Path.GetFullPath(Environment.CurrentDirectory).TrimEnd('\\');
             var appDomainBaseDirectory = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\');
             var systemPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.System)).TrimEnd('\\');
@@ -149,7 +148,7 @@ namespace Bonsai.Editor
             directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
             var initialization = InitializeToolbox().Merge(InitializeTypeVisualizers()).TakeLast(1).ObserveOn(Scheduler.Default);
             InitializeExampleDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Examples"), examplesToolStripMenuItem);
-            Directory.Delete(tempPath, true);
+            DeleteTempDirectory();
 
             if (validFileName)
             {
@@ -281,6 +280,13 @@ namespace Bonsai.Editor
         #endregion
 
         #region Workflow Examples
+
+        static void DeleteTempDirectory()
+        {
+            var tempPath = GetTempPath();
+            try { Directory.Delete(tempPath, true); }
+            catch { } //best effort
+        }
 
         static string GetTempPath()
         {
