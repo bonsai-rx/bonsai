@@ -2009,7 +2009,13 @@ namespace Bonsai.Design
                         menuItem.Checked = true;
                     }
 
-                    groupToolStripMenuItem.DropDownItems.Add(menuItem);
+                    if (element.AssemblyQualifiedName == typeof(NestedWorkflowBuilder).AssemblyQualifiedName)
+                    {
+                        //make nested workflow the first on the list and display shortcut key string
+                        menuItem.ShortcutKeys = groupToolStripMenuItem.ShortcutKeys;
+                        groupToolStripMenuItem.DropDownItems.Insert(0, menuItem);
+                    }
+                    else groupToolStripMenuItem.DropDownItems.Add(menuItem);
                 }
             }
         }
