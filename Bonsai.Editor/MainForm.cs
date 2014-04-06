@@ -140,6 +140,7 @@ namespace Bonsai.Editor
                 Path.GetExtension(initialFileName) == BonsaiExtension &&
                 File.Exists(initialFileName);
 
+            var tempPath = GetTempPath();
             var currentDirectory = Path.GetFullPath(Environment.CurrentDirectory).TrimEnd('\\');
             var appDomainBaseDirectory = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\');
             var systemPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.System)).TrimEnd('\\');
@@ -148,6 +149,7 @@ namespace Bonsai.Editor
             directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
             var initialization = InitializeToolbox().Merge(InitializeTypeVisualizers()).TakeLast(1).ObserveOn(Scheduler.Default);
             InitializeExampleDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Examples"), examplesToolStripMenuItem);
+            Directory.Delete(tempPath, true);
 
             if (validFileName)
             {
@@ -280,6 +282,44 @@ namespace Bonsai.Editor
 
         #region Workflow Examples
 
+        static string GetTempPath()
+        {
+            return Path.Combine(Path.GetTempPath(), BonsaiPackageName);
+        }
+
+        static void CopyDirectory(DirectoryInfo source, DirectoryInfo target)
+        {
+            if (source.FullName.Equals(target.FullName, StringComparison.OrdinalIgnoreCase)) return;
+            if (!target.Exists) Directory.CreateDirectory(target.FullName);
+
+            foreach (var file in source.GetFiles())
+            {
+                file.CopyTo(Path.Combine(target.FullName, file.Name), true);
+            }
+
+            foreach (var directory in source.GetDirectories())
+            {
+                var targetDirectory = target.CreateSubdirectory(directory.Name);
+                CopyDirectory(directory, targetDirectory);
+            }
+        }
+
+        void OpenExample(string examplePath)
+        {
+            if (CheckUnsavedChanges())
+            {
+                var tempPath = GetTempPath();
+                var targetDirectory = Directory.CreateDirectory(Path.Combine(tempPath, Path.GetRandomFileName()));
+                var sourceDirectory = new DirectoryInfo(Path.GetDirectoryName(examplePath));
+                CopyDirectory(sourceDirectory, targetDirectory);
+
+                examplePath = Path.Combine(targetDirectory.FullName, Path.GetFileName(examplePath));
+                directoryToolStripTextBox.Text = targetDirectory.FullName;
+                OpenWorkflow(examplePath);
+                saveWorkflowDialog.FileName = null;
+            }
+        }
+
         bool InitializeExampleDirectory(string path, ToolStripMenuItem exampleMenuItem)
         {
             if (!Directory.Exists(path)) return false;
@@ -288,15 +328,7 @@ namespace Bonsai.Editor
             if (File.Exists(examplePath))
             {
                 exampleMenuItem.Tag = examplePath;
-                exampleMenuItem.Click += (sender, e) =>
-                {
-                    if (CheckUnsavedChanges())
-                    {
-                        OpenWorkflow(examplePath);
-                        saveWorkflowDialog.FileName = null;
-                        UpdateTitle();
-                    }
-                };
+                exampleMenuItem.Click += (sender, e) => OpenExample(examplePath);
                 return true;
             }
             else
