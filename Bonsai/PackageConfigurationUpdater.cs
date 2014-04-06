@@ -14,6 +14,7 @@ namespace Bonsai
     class PackageConfigurationUpdater : IDisposable
     {
         const string PackageTagFilter = "Bonsai";
+        const string ExamplesDirectory = "Examples";
         const string BuildDirectory = "build";
         const string BinDirectory = "bin";
         const string DebugDirectory = "debug";
@@ -24,6 +25,7 @@ namespace Bonsai
         readonly string bootstrapperPackageId;
         readonly IPackageManager packageManager;
         readonly PackageConfiguration packageConfiguration;
+        static readonly char[] DirectorySeparators = new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
         static readonly FrameworkName NativeFramework = new FrameworkName("native,Version=v0.0");
         static readonly IEnumerable<FrameworkName> SupportedFrameworks = new[]
         {
@@ -93,9 +95,7 @@ namespace Bonsai
         static string ResolvePathPlatformName(string path)
         {
             var platformName = string.Empty;
-            var components = path.Split(
-                new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar },
-                StringSplitOptions.RemoveEmptyEntries);
+            var components = path.Split(DirectorySeparators, StringSplitOptions.RemoveEmptyEntries);
             components = Array.ConvertAll(components, name => name.ToLower());
 
             if (components.Length > 3 && components[2] == BinDirectory &&
@@ -212,6 +212,76 @@ namespace Bonsai
             }
         }
 
+        static void CopyDirectory(DirectoryInfo source, DirectoryInfo target)
+        {
+            if (source.FullName.Equals(target.FullName, StringComparison.OrdinalIgnoreCase)) return;
+            if (!target.Exists) Directory.CreateDirectory(target.FullName);
+
+            foreach (var file in source.GetFiles())
+            {
+                file.CopyTo(Path.Combine(target.FullName, file.Name), true);
+            }
+
+            foreach (var directory in source.GetDirectories())
+            {
+                var targetDirectory = target.CreateSubdirectory(directory.Name);
+                CopyDirectory(directory, targetDirectory);
+            }
+        }
+
+        void AddExampleFolders(string installPath)
+        {
+            var examplesDirectory = new DirectoryInfo(Path.Combine(installPath, Constants.ContentDirectory, ExamplesDirectory));
+            if (examplesDirectory.Exists)
+            {
+                var bootstrapperPath = Path.GetDirectoryName(bootstrapperExePath);
+                var bootstrapperExamples = new DirectoryInfo(Path.Combine(bootstrapperPath, ExamplesDirectory));
+                if (!bootstrapperExamples.Exists) bootstrapperExamples.Create();
+                CopyDirectory(examplesDirectory, bootstrapperExamples);
+            }
+        }
+
+        void RemoveEmptyDirectories(DirectoryInfo directory)
+        {
+            try
+            {
+                foreach (var subdirectory in directory.EnumerateDirectories())
+                {
+                    RemoveEmptyDirectories(subdirectory);
+                }
+
+                if (!directory.EnumerateFileSystemInfos().Any())
+                {
+                    try { directory.Delete(); }
+                    catch (UnauthorizedAccessException) { } //best effort
+                }
+            }
+            catch (UnauthorizedAccessException) { } //best effort
+        }
+
+        void RemoveExampleFolders(IPackage package)
+        {
+            if (package.HasProjectContent())
+            {
+                var bootstrapperPath = Path.GetDirectoryName(bootstrapperExePath);
+                if (Directory.Exists(bootstrapperPath))
+                {
+                    foreach (var file in package.GetFiles(Path.Combine(Constants.ContentDirectory, ExamplesDirectory)))
+                    {
+                        var path = file.Path.Split(DirectorySeparators, 2)[1];
+                        var bootstrapperFilePath = Path.Combine(bootstrapperPath, path);
+                        if (File.Exists(bootstrapperFilePath))
+                        {
+                            File.Delete(bootstrapperFilePath);
+                        }
+                    }
+
+                    var examplesDirectory = new DirectoryInfo(Path.Combine(bootstrapperPath, ExamplesDirectory));
+                    RemoveEmptyDirectories(examplesDirectory);
+                }
+            }
+        }
+
         void packageManager_PackageInstalling(object sender, PackageOperationEventArgs e)
         {
             var installPath = e.InstallPath;
@@ -240,6 +310,7 @@ namespace Bonsai
             }
             else packageConfiguration.Packages[package.Id].Version = package.Version.ToString();
 
+            AddExampleFolders(e.InstallPath);
             RegisterLibraryFolders(package, installPath);
             RegisterAssemblyLocations(package, e.InstallPath, installPath, false);
             var pivots = OverlayHelper.FindPivots(package, e.InstallPath).ToArray();
@@ -280,6 +351,7 @@ namespace Bonsai
             var installPath = GetRelativePath(e.InstallPath);
             packageConfiguration.Packages.Remove(package.Id);
 
+            RemoveExampleFolders(package);
             RemoveLibraryFolders(package, installPath);
             RemoveAssemblyLocations(package, e.InstallPath, false);
             var pivots = OverlayHelper.FindPivots(package, e.InstallPath).ToArray();
