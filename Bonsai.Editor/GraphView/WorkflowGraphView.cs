@@ -1071,6 +1071,32 @@ namespace Bonsai.Design
             return graphView.Nodes.SelectMany(layer => layer).FirstOrDefault(n => n.Value == value);
         }
 
+        private bool HasDefaultEditor(ExpressionBuilder builder)
+        {
+            var workflowExpressionBuilder = builder as WorkflowExpressionBuilder;
+            if (workflowExpressionBuilder != null) return true;
+            else if (builder != null)
+            {
+                var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
+                var componentEditor = (ComponentEditor)TypeDescriptor.GetEditor(workflowElement, typeof(ComponentEditor));
+                if (componentEditor != null) return true;
+                else
+                {
+                    var defaultProperty = TypeDescriptor.GetDefaultProperty(workflowElement);
+                    if (defaultProperty != null)
+                    {
+                        var editor = (UITypeEditor)defaultProperty.GetEditor(typeof(UITypeEditor));
+                        if (editor != null && editor.GetEditStyle() == UITypeEditorEditStyle.Modal)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
         public void LaunchDefaultEditor(GraphNode node)
         {
             var builder = GetGraphNodeBuilder(node);
@@ -1691,6 +1717,11 @@ namespace Bonsai.Design
 
         #region Context Menu
 
+        private void defaultEditorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LaunchDefaultEditor(graphView.SelectedNode);
+        }
+
         private void cutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             CutToClipboard();
@@ -2013,7 +2044,11 @@ namespace Bonsai.Design
                     }
                 }
 
-                var workflowElement = ExpressionBuilder.GetWorkflowElement(GetGraphNodeBuilder(selectedNode));
+                var builder = GetGraphNodeBuilder(selectedNode);
+                defaultEditorToolStripMenuItem.ShortcutKeyDisplayString = (editorState.WorkflowRunning ? "Ctrl+Enter" : "Enter").ToString();
+                defaultEditorToolStripMenuItem.Enabled = HasDefaultEditor(builder);
+
+                var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
                 if (workflowElement != null)
                 {
                     if (!editorState.WorkflowRunning)
