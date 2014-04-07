@@ -35,6 +35,7 @@
             this.externalizeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.visualizerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.defaultEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.cutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -44,7 +45,6 @@
             this.connectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.disconnectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.defaultEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.graphView = new Bonsai.Design.GraphView();
             this.contextMenuStrip.SuspendLayout();
             this.SuspendLayout();
@@ -96,6 +96,15 @@
             this.visualizerToolStripMenuItem.Name = "visualizerToolStripMenuItem";
             this.visualizerToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
             this.visualizerToolStripMenuItem.Text = "Show Visualizer";
+            // 
+            // defaultEditorToolStripMenuItem
+            // 
+            this.defaultEditorToolStripMenuItem.Enabled = false;
+            this.defaultEditorToolStripMenuItem.Name = "defaultEditorToolStripMenuItem";
+            this.defaultEditorToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Enter";
+            this.defaultEditorToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.defaultEditorToolStripMenuItem.Text = "Show Default Editor...";
+            this.defaultEditorToolStripMenuItem.Click += new System.EventHandler(this.defaultEditorToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
@@ -171,19 +180,9 @@
             this.groupToolStripMenuItem.Enabled = false;
             this.groupToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("groupToolStripMenuItem.Image")));
             this.groupToolStripMenuItem.Name = "groupToolStripMenuItem";
-            this.groupToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.G)));
             this.groupToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
             this.groupToolStripMenuItem.Text = "Group";
             this.groupToolStripMenuItem.Click += new System.EventHandler(this.groupToolStripMenuItem_Click);
-            // 
-            // defaultEditorToolStripMenuItem
-            // 
-            this.defaultEditorToolStripMenuItem.Enabled = false;
-            this.defaultEditorToolStripMenuItem.Name = "defaultEditorToolStripMenuItem";
-            this.defaultEditorToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Enter";
-            this.defaultEditorToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
-            this.defaultEditorToolStripMenuItem.Text = "Show Default Editor...";
-            this.defaultEditorToolStripMenuItem.Click += new System.EventHandler(this.defaultEditorToolStripMenuItem_Click);
             // 
             // graphView
             // 
