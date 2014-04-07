@@ -1048,7 +1048,11 @@ namespace Bonsai.Editor
                     toolboxTreeView.SelectedNode = selectedNode;
                     if (selectedNode.Tag != null)
                     {
-                        toolboxContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);
+                        if (selectedNode.Tag.Equals(ElementCategory.Source))
+                        {
+                            toolboxSourceContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);
+                        }
+                        else toolboxContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);
                     }
                 }
             }
