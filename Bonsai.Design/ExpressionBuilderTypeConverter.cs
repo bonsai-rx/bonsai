@@ -53,7 +53,7 @@ namespace Bonsai.Design
                     case ElementCategory.Transform:
                         return Brushes.White;
                     case ElementCategory.Sink:
-                        return Brushes.Gray;
+                        return Brushes.DarkGray;
                     case ElementCategory.Nested:
                         return Brushes.Goldenrod;
                     case ElementCategory.Property:
