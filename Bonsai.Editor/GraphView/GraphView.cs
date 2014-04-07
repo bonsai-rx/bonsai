@@ -28,7 +28,7 @@ namespace Bonsai.Design
         static readonly Pen RubberBandPen = new Pen(Color.FromArgb(51, 153, 255));
         static readonly Brush RubberBandBrush = new SolidBrush(Color.FromArgb(128, 170, 204, 238));
         static readonly Brush HotBrush = new SolidBrush(Color.FromArgb(128, 229, 243, 251));
-        static readonly Pen CursorPen = new Pen(Brushes.Gray, PenWidth);
+        static readonly Pen CursorPen = new Pen(Brushes.DarkGray, PenWidth);
         static readonly Pen WhitePen = new Pen(Brushes.White, PenWidth);
         static readonly Pen BlackPen = new Pen(Brushes.Black, PenWidth);
 
