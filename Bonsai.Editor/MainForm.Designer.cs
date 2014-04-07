@@ -104,6 +104,10 @@
             this.workflowSplitContainer = new System.Windows.Forms.SplitContainer();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.commandExecutor = new Bonsai.Design.CommandExecutor();
+            this.toolboxContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.insertAfterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.insertBeforeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.createBranchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -124,6 +128,7 @@
             this.workflowSplitContainer.Panel1.SuspendLayout();
             this.workflowSplitContainer.Panel2.SuspendLayout();
             this.workflowSplitContainer.SuspendLayout();
+            this.toolboxContextMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip
@@ -675,6 +680,7 @@
             this.toolboxTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.toolboxTreeView_AfterSelect);
             this.toolboxTreeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.toolboxTreeView_NodeMouseDoubleClick);
             this.toolboxTreeView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.toolboxTreeView_KeyDown);
+            this.toolboxTreeView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.toolboxTreeView_MouseUp);
             // 
             // toolboxDescriptionPanel
             // 
@@ -806,6 +812,39 @@
             // 
             this.commandExecutor.StatusChanged += new System.EventHandler(this.commandExecutor_StatusChanged);
             // 
+            // toolboxContextMenuStrip
+            // 
+            this.toolboxContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.insertAfterToolStripMenuItem,
+            this.insertBeforeToolStripMenuItem,
+            this.createBranchToolStripMenuItem});
+            this.toolboxContextMenuStrip.Name = "toolboxContextMenuStrip";
+            this.toolboxContextMenuStrip.Size = new System.Drawing.Size(207, 70);
+            // 
+            // insertAfterToolStripMenuItem
+            // 
+            this.insertAfterToolStripMenuItem.Name = "insertAfterToolStripMenuItem";
+            this.insertAfterToolStripMenuItem.ShortcutKeyDisplayString = "Enter";
+            this.insertAfterToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
+            this.insertAfterToolStripMenuItem.Text = "Insert After";
+            this.insertAfterToolStripMenuItem.Click += new System.EventHandler(this.insertAfterToolStripMenuItem_Click);
+            // 
+            // insertBeforeToolStripMenuItem
+            // 
+            this.insertBeforeToolStripMenuItem.Name = "insertBeforeToolStripMenuItem";
+            this.insertBeforeToolStripMenuItem.ShortcutKeyDisplayString = "Shift+Enter";
+            this.insertBeforeToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
+            this.insertBeforeToolStripMenuItem.Text = "Insert Before";
+            this.insertBeforeToolStripMenuItem.Click += new System.EventHandler(this.insertBeforeToolStripMenuItem_Click);
+            // 
+            // createBranchToolStripMenuItem
+            // 
+            this.createBranchToolStripMenuItem.Name = "createBranchToolStripMenuItem";
+            this.createBranchToolStripMenuItem.ShortcutKeyDisplayString = "Alt+Enter";
+            this.createBranchToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
+            this.createBranchToolStripMenuItem.Text = "Create Branch";
+            this.createBranchToolStripMenuItem.Click += new System.EventHandler(this.createBranchToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -848,6 +887,7 @@
             this.workflowSplitContainer.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.workflowSplitContainer)).EndInit();
             this.workflowSplitContainer.ResumeLayout(false);
+            this.toolboxContextMenuStrip.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -925,6 +965,10 @@
         private System.Windows.Forms.ToolStripMenuItem restartToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel statusImageLabel;
         private System.Windows.Forms.ToolStripMenuItem saveSelectionAsToolStripMenuItem;
+        private System.Windows.Forms.ContextMenuStrip toolboxContextMenuStrip;
+        private System.Windows.Forms.ToolStripMenuItem insertAfterToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem insertBeforeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem createBranchToolStripMenuItem;
     }
 }
 
