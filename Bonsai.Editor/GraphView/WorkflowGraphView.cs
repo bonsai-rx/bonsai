@@ -2053,7 +2053,6 @@ namespace Bonsai.Design
                 }
 
                 var builder = GetGraphNodeBuilder(selectedNode);
-                defaultEditorToolStripMenuItem.ShortcutKeyDisplayString = (editorState.WorkflowRunning ? "Ctrl+Enter" : "Enter").ToString();
                 defaultEditorToolStripMenuItem.Enabled = HasDefaultEditor(builder);
 
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
