@@ -27,7 +27,10 @@ namespace Bonsai.Vision
         public Point Offset { get; set; }
 
         [Description("The minimum area for individual contours to be accepted.")]
-        public double MinArea { get; set; }
+        public double? MinArea { get; set; }
+
+        [Description("The maximum area for individual contours to be accepted.")]
+        public double? MaxArea { get; set; }
 
         public override IObservable<Contours> Process(IObservable<IplImage> source)
         {
@@ -44,9 +47,13 @@ namespace Bonsai.Vision
                     var scanner = CV.StartFindContours(temp, storage, Contour.HeaderSize, Mode, Method, Offset);
                     while ((currentContour = scanner.FindNextContour()) != null)
                     {
-                        if (MinArea > 0 && CV.ContourArea(currentContour, SeqSlice.WholeSeq) < MinArea)
+                        if (MinArea.HasValue || MaxArea.HasValue)
                         {
-                            scanner.SubstituteContour(null);
+                            var contourArea = CV.ContourArea(currentContour, SeqSlice.WholeSeq);
+                            if (contourArea < MinArea || contourArea > MaxArea)
+                            {
+                                scanner.SubstituteContour(null);
+                            }
                         }
                     }
 
