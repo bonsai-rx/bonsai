@@ -1038,6 +1038,37 @@ namespace Bonsai.Editor
             }
         }
 
+        private void toolboxTreeView_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                var selectedNode = toolboxTreeView.GetNodeAt(e.X, e.Y);
+                if (selectedNode != null)
+                {
+                    toolboxTreeView.SelectedNode = selectedNode;
+                    if (selectedNode.Tag != null)
+                    {
+                        toolboxContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);
+                    }
+                }
+            }
+        }
+
+        private void insertAfterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            toolboxTreeView_KeyDown(sender, new KeyEventArgs(Keys.Return));
+        }
+
+        private void insertBeforeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            toolboxTreeView_KeyDown(sender, new KeyEventArgs(Keys.Shift | Keys.Return));
+        }
+
+        private void createBranchToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            toolboxTreeView_KeyDown(sender, new KeyEventArgs(Keys.Alt | Keys.Return));
+        }
+
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
         {
             editorSite.OnKeyDown(e);
