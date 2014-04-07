@@ -464,7 +464,7 @@ namespace Bonsai.Design
             foreach (var sourceNode in graphViewSources)
             {
                 var node = GetGraphNodeTag(workflow, sourceNode, false);
-                if (target == node || node.Successors.Any(edge => edge.Target == target))
+                if (node == null || target == node || node.Successors.Any(edge => edge.Target == target))
                 {
                     return false;
                 }
