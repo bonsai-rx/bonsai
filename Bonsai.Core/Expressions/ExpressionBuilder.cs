@@ -676,6 +676,7 @@ namespace Bonsai.Expressions
             if (candidates.Length == 1) return candidates[0].call;
 
             int best = -1;
+            argumentTypes = Array.ConvertAll(argumentTypes, argumentType => GetObservableElementType(argumentType));
             var candidateParameters = Array.ConvertAll(
                 candidates,
                 candidate => ExpandCallParameterTypes(candidate.call.Method.GetParameters(), argumentTypes, candidate.expansion));
