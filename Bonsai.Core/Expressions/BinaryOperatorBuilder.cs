@@ -19,8 +19,8 @@ namespace Bonsai.Expressions
         readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
 
         /// <summary>
-        /// Gets or sets the value which will be paired with elements of the observable
-        /// sequence in case the sequence itself is not composed of paired elements.
+        /// Gets or sets the value of the right hand operand which will be paired with elements
+        /// of the observable sequence in case the sequence itself is not composed of paired elements.
         /// </summary>
         [Browsable(false)]
         public WorkflowProperty Operand { get; set; }

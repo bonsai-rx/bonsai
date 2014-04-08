@@ -25,7 +25,10 @@ namespace Bonsai.Expressions
         class BinaryOperatorTypeDescriptor : CustomTypeDescriptor
         {
             BinaryOperatorBuilder builder;
-            static readonly Attribute[] emptyAttributes = new Attribute[0];
+            static readonly Attribute[] valueAttributes = new[]
+            {
+                new DescriptionAttribute("The value of the right hand operand in the binary operator.")
+            };
 
             public BinaryOperatorTypeDescriptor(object instance)
             {
@@ -39,7 +42,7 @@ namespace Bonsai.Expressions
 
             public override PropertyDescriptorCollection GetProperties()
             {
-                return GetProperties(emptyAttributes);
+                return GetProperties(valueAttributes);
             }
 
             public override PropertyDescriptorCollection GetProperties(Attribute[] attributes)
@@ -47,7 +50,7 @@ namespace Bonsai.Expressions
                 var operand = builder.Operand;
                 if (operand != null)
                 {
-                    var propertyDescriptor = new WorkflowPropertyDescriptor("Value", emptyAttributes, operand);
+                    var propertyDescriptor = new WorkflowPropertyDescriptor("Value", valueAttributes, operand);
                     return new PropertyDescriptorCollection(new[] { propertyDescriptor });
                 }
                 else return PropertyDescriptorCollection.Empty;
