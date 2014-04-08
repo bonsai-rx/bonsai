@@ -95,7 +95,6 @@
     <Compile Include="Tile.cs" />
     <Compile Include="Transpose.cs" />
     <Compile Include="TriggeredBuffer.cs" />
-    <Compile Include="WindowStatistics.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj">
