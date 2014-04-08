@@ -26,8 +26,14 @@ namespace Bonsai.Vision.Design
             var mousePick = (from downEvt in mouseDown
                              where Image != null && downEvt.Button == MouseButtons.Left
                              let origin = new OpenCV.Net.Point(downEvt.X, downEvt.Y)
+                             let rect = CanvasRectangle(rectangle)
+                             let intersect = IntersectRectangle(rect, origin.X, origin.Y)
                              select from moveEvt in mouseMove.TakeUntil(mouseUp).Where(upEvt => upEvt.Button == MouseButtons.Left)
-                                    select new Rect(origin.X, origin.Y, moveEvt.X - origin.X, moveEvt.Y - origin.Y)).Switch();
+                                    let displacementX = moveEvt.X - origin.X
+                                    let displacementY = moveEvt.Y - origin.Y
+                                    select intersect
+                                        ? new Rect(rect.X + displacementX, rect.Y + displacementY, rect.Width, rect.Height)
+                                        : new Rect(origin.X, origin.Y, displacementX, displacementY)).Switch();
 
             mousePick.Subscribe(rect =>
             {
@@ -63,6 +69,22 @@ namespace Bonsai.Vision.Design
             rect.Width = rect.Width - clipX;
             rect.Height = rect.Height - clipY;
             return rect;
+        }
+
+        static bool IntersectRectangle(Rect rect, int x, int y)
+        {
+            return x >= rect.X && y >= rect.Y &&
+                x < (rect.X + rect.Width) &&
+                y < (rect.Y + rect.Height);
+        }
+
+        Rect CanvasRectangle(Rect rect)
+        {
+            return new Rect(
+                (int)(rect.X * Canvas.Width / (float)Image.Width),
+                (int)(rect.Y * Canvas.Height / (float)Image.Height),
+                (int)(rect.Width * Canvas.Width / (float)Image.Width),
+                (int)(rect.Height * Canvas.Height / (float)Image.Height));
         }
 
         Rect NormalizedRectangle(Rect rect)
