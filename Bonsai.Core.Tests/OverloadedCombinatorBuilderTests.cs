@@ -54,6 +54,17 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
+        public void Build_DoubleOverloadedMethodCalledWithDouble_ReturnsDoubleValue()
+        {
+            var value = 5.0;
+            var combinator = new OverloadedCombinatorMock();
+            var source = CreateObservableExpression(Observable.Return(value));
+            var resultProvider = TestCombinatorBuilder<double>(combinator, source);
+            var result = Last(resultProvider).Result;
+            Assert.AreEqual(value, result);
+        }
+
+        [TestMethod]
         public void Build_FloatOverloadedMethodCalledWithInt_ReturnsFloatValue()
         {
             var value = 5;
