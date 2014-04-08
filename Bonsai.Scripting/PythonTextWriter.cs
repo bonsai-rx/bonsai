@@ -28,7 +28,7 @@ namespace Bonsai.Scripting
         [Description("Indicates whether to append or overwrite the specified file.")]
         public bool Append { get; set; }
 
-        [Description("The optional suffix used to create file names.")]
+        [Description("The optional suffix used to generate file names.")]
         public PathSuffix Suffix { get; set; }
 
         protected override ScriptEngine CreateEngine()

@@ -24,12 +24,14 @@ namespace Bonsai.IO
         /// <summary>
         /// Gets or sets the identifier of the named stream on which to write the elements.
         /// </summary>
+        [Description("The name of the output data path.")]
         [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public string Path { get; set; }
 
         /// <summary>
         /// Gets or sets the suffix that should be applied to the path before creating the writer.
         /// </summary>
+        [Description("The optional suffix used to generate path names.")]
         public PathSuffix Suffix { get; set; }
 
         /// <summary>
