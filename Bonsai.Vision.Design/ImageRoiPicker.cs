@@ -154,11 +154,47 @@ namespace Bonsai.Vision.Design
 
         void PictureBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Delete && selectedRoi.HasValue)
+            if (e.Control && e.KeyCode == Keys.V)
             {
-                regions.RemoveAt(selectedRoi.Value);
-                selectedRoi = null;
-                Canvas.Invalidate();
+                var roiText = (string)Clipboard.GetData(DataFormats.Text);
+                try
+                {
+                    var roiData = (int[])ArrayConvert.ToArray(roiText, 1, typeof(int));
+                    var roi = new Point[roiData.Length / 2];
+                    for (int i = 0, k = 0; i < roi.Length && k < roiData.Length; i++, k += 2)
+                    {
+                        roi[i].X = roiData[k + 0];
+                        roi[i].Y = roiData[k + 1];
+                    }
+                    regions.Add(roi);
+                    selectedRoi = regions.Count - 1;
+                    Canvas.Invalidate();
+                }
+                catch (ArgumentException) { }
+                catch (InvalidCastException) { }
+                catch (FormatException) { }
+            }
+
+            if (selectedRoi.HasValue)
+            {
+                if (e.Control && e.KeyCode == Keys.C)
+                {
+                    var roi = regions[selectedRoi.Value];
+                    var roiData = new int[roi.Length * 2];
+                    for (int i = 0, k = 0; i < roi.Length && k < roiData.Length; i++, k += 2)
+                    {
+                        roiData[k + 0] = roi[i].X;
+                        roiData[k + 1] = roi[i].Y;
+                    }
+                    Clipboard.SetData(DataFormats.Text, ArrayConvert.ToString(roiData));
+                }
+
+                if (e.KeyCode == Keys.Delete)
+                {
+                    regions.RemoveAt(selectedRoi.Value);
+                    selectedRoi = null;
+                    Canvas.Invalidate();
+                }
             }
         }
 
