@@ -12,13 +12,28 @@ using System.Reactive;
 namespace Bonsai.Expressions
 {
     /// <summary>
-    /// Represents an expression builder that defines a simple selector on the elements of
-    /// an observable sequence by converting each element into the default <see cref="Unit"/> instance.
+    /// Represents an expression builder that generates a sequence of <see cref="Unit"/> elements.
     /// </summary>
+    /// <remarks>
+    /// This expression builder generates its elements by either returning the single default
+    /// <see cref="Unit"/> instance if no input sequence is provided; or applying a selector
+    /// on the elements of the source sequence that will convert each input element into the
+    /// default <see cref="Unit"/> instance.
+    /// </remarks>
     [XmlType("Unit", Namespace = Constants.XmlNamespace)]
-    [Description("Converts a sequence of any type into a sequence of Unit type elements.")]
-    public class UnitBuilder : SingleArgumentExpressionBuilder
+    [Description("Generates a sequence of Unit type elements.")]
+    public class UnitBuilder : ExpressionBuilder
     {
+        static readonly Range<int> argumentRange = Range.Create(lowerBound: 0, upperBound: 1);
+
+        /// <summary>
+        /// Gets the range of input arguments that this expression builder accepts.
+        /// </summary>
+        public override Range<int> ArgumentRange
+        {
+            get { return argumentRange; }
+        }
+
         /// <summary>
         /// Generates an <see cref="Expression"/> node from a collection of input arguments.
         /// The result can be chained with other builders in a workflow.
@@ -29,8 +44,12 @@ namespace Bonsai.Expressions
         /// <returns>An <see cref="Expression"/> tree node.</returns>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            var source = arguments.Single();
-            return Expression.Call(typeof(UnitBuilder), "Process", source.Type.GetGenericArguments(), source);
+            var source = arguments.SingleOrDefault();
+            if (source == null)
+            {
+                return Expression.Constant(Observable.Return(Unit.Default), typeof(IObservable<Unit>));
+            }
+            else return Expression.Call(typeof(UnitBuilder), "Process", source.Type.GetGenericArguments(), source);
         }
 
         static IObservable<Unit> Process<TSource>(IObservable<TSource> source)
