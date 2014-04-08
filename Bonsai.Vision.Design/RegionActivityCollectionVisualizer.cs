@@ -16,11 +16,11 @@ using Font = OpenCV.Net.Font;
 using Point = OpenCV.Net.Point;
 using Size = OpenCV.Net.Size;
 
-[assembly: TypeVisualizer(typeof(RoiActivityVisualizer), Target = typeof(RoiActivity))]
+[assembly: TypeVisualizer(typeof(RegionActivityCollectionVisualizer), Target = typeof(RegionActivityCollection))]
 
 namespace Bonsai.Vision.Design
 {
-    public class RoiActivityVisualizer : IplImageVisualizer
+    public class RegionActivityCollectionVisualizer : IplImageVisualizer
     {
         const int RoiThickness = 1;
         static readonly Scalar InactiveRoi = Scalar.Rgb(255, 0, 0);

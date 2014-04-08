@@ -116,7 +116,7 @@
     </Compile>
     <Compile Include="IplImageTexture.cs" />
     <Compile Include="KeyPointCollectionVisualizer.cs" />
-    <Compile Include="RoiActivityVisualizer.cs" />
+    <Compile Include="RegionActivityCollectionVisualizer.cs" />
     <Compile Include="TimeIntervalIplImageVisualizer.cs" />
     <Compile Include="ScalarVisualizer.cs" />
     <Compile Include="RangeScalarConverter.cs" />
