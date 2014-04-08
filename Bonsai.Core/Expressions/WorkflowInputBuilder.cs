@@ -18,12 +18,7 @@ namespace Bonsai.Expressions
     {
         readonly ExpressionBuilderArgument parameter = new ExpressionBuilderArgument();
 
-        /// <summary>
-        /// Gets or sets the source of an encapsulated workflow.
-        /// </summary>
-        [XmlIgnore]
-        [Browsable(false)]
-        public Expression Source { get; set; }
+        internal Expression Source { get; set; }
 
         /// <summary>
         /// Gets or sets the zero-based index of the input parameter.
@@ -60,7 +55,17 @@ namespace Bonsai.Expressions
         /// </returns>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            return Source;
+            var source = Source;
+            try
+            {
+                if (source == null)
+                {
+                    throw new InvalidOperationException("Workflow input nodes must be encapsulated inside a workflow group.");
+                }
+
+                return source;
+            }
+            finally { Source = null; }
         }
     }
 }
