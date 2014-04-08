@@ -28,12 +28,14 @@ namespace Bonsai.IO
         /// <summary>
         /// Gets or sets the name of the file on which to write the elements.
         /// </summary>
+        [Description("The name of the output file.")]
         [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public string FileName { get; set; }
 
         /// <summary>
         /// Gets or sets the suffix that should be applied to the path before creating the writer.
         /// </summary>
+        [Description("The optional suffix used to generate file names.")]
         public PathSuffix Suffix { get; set; }
 
         /// <summary>
@@ -42,6 +44,7 @@ namespace Bonsai.IO
         /// by the writer in a different thread. Otherwise, writing will be done in the same
         /// thread in which notifications arrive.
         /// </summary>
+        [Description("Indicates whether writing should be buffered.")]
         public bool Buffered { get; set; }
 
         /// <summary>

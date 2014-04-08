@@ -37,7 +37,7 @@ namespace Bonsai.IO
         [Description("Indicates whether to append or overwrite the specified file.")]
         public bool Append { get; set; }
 
-        [Description("The optional suffix used to create file names.")]
+        [Description("The optional suffix used to generate file names.")]
         public PathSuffix Suffix { get; set; }
 
         [Description("Indicates whether to include a text header with column names for multi-dimensional input.")]
