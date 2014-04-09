@@ -30,6 +30,7 @@ namespace Bonsai.Editor
         const string LayoutExtension = ".layout";
         const string BonsaiPackageName = "Bonsai";
         const string CombinatorCategoryName = "Combinator";
+        const string ExamplesDirectory = "Examples";
 
         int version;
         int saveVersion;
@@ -147,7 +148,8 @@ namespace Bonsai.Editor
             var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory || currentDirectory == systemPath || currentDirectory == systemX86Path;
             directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
             var initialization = InitializeToolbox().Merge(InitializeTypeVisualizers()).TakeLast(1).ObserveOn(Scheduler.Default);
-            InitializeExampleDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Examples"), examplesToolStripMenuItem);
+            var examplesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ExamplesDirectory);
+            examplesToolStripMenuItem.Enabled = InitializeExampleDirectory(examplesPath, examplesToolStripMenuItem);
             DeleteTempDirectory();
 
             if (validFileName)
