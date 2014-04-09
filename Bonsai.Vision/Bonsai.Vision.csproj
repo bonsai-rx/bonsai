@@ -69,7 +69,6 @@
     <Compile Include="CapturePropertyAssignment.cs" />
     <Compile Include="CapturePropertyCollection.cs" />
     <Compile Include="ColorBalance.cs" />
-    <Compile Include="Merge.cs" />
     <Compile Include="ScalarHistogram.cs" />
     <Compile Include="ConnectedComponent.cs" />
     <Compile Include="ConnectedComponentCollection.cs" />
@@ -118,7 +117,6 @@
     <Compile Include="Smooth.cs" />
     <Compile Include="Sobel.cs" />
     <Compile Include="SortBinaryRegions.cs" />
-    <Compile Include="Split.cs" />
     <Compile Include="Threshold.cs" />
     <Compile Include="Undistort.cs" />
     <Compile Include="VideoWriter.cs" />
