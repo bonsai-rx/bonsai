@@ -16,12 +16,12 @@ namespace Bonsai.Vision
             ApertureSize = 3;
         }
 
-        [Range(0, 255)]
-        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Range(0, int.MaxValue)]
+        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
         public double Threshold1 { get; set; }
 
-        [Range(0, 255)]
-        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Range(0, int.MaxValue)]
+        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
         public double Threshold2 { get; set; }
 
         [Range(3, 7)]

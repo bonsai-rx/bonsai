@@ -69,6 +69,7 @@
     <Compile Include="CapturePropertyAssignment.cs" />
     <Compile Include="CapturePropertyCollection.cs" />
     <Compile Include="ColorBalance.cs" />
+    <Compile Include="DistanceTypeConverter.cs" />
     <Compile Include="ScalarHistogram.cs" />
     <Compile Include="ConnectedComponent.cs" />
     <Compile Include="ConnectedComponentCollection.cs" />

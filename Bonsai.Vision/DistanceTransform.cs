@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
+using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
@@ -14,6 +15,7 @@ namespace Bonsai.Vision
             DistanceType = OpenCV.Net.DistanceType.L2;
         }
 
+        [TypeConverter(typeof(DistanceTypeConverter))]
         public DistanceType DistanceType { get; set; }
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
