@@ -43,13 +43,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Content Include="__TemplateIcon.ico" />
     <Content Include="SinkTemplate.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="MyTemplate.vstemplate">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="__TemplateIcon.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
