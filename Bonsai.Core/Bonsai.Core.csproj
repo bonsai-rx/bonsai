@@ -112,6 +112,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Range.cs" />
+    <Compile Include="Reactive\Accumulate.cs" />
     <Compile Include="Reactive\Average.cs" />
     <Compile Include="Reactive\Buffer.cs" />
     <Compile Include="Reactive\Concat.cs" />
