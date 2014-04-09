@@ -256,15 +256,18 @@ namespace Bonsai
                     catch (UnauthorizedAccessException) { } //best effort
                 }
             }
+            catch (DirectoryNotFoundException) { } //best effort
             catch (UnauthorizedAccessException) { } //best effort
         }
 
-        void RemoveExampleFolders(IPackage package)
+        void RemoveExampleFolders(IPackage package, string installPath)
         {
-            if (package.HasProjectContent())
+            var examplesDirectory = new DirectoryInfo(Path.Combine(installPath, Constants.ContentDirectory, ExamplesDirectory));
+            if (examplesDirectory.Exists)
             {
                 var bootstrapperPath = Path.GetDirectoryName(bootstrapperExePath);
-                if (Directory.Exists(bootstrapperPath))
+                var bootstrapperExamples = new DirectoryInfo(Path.Combine(bootstrapperPath, ExamplesDirectory));
+                if (bootstrapperExamples.Exists)
                 {
                     foreach (var file in package.GetFiles(Path.Combine(Constants.ContentDirectory, ExamplesDirectory)))
                     {
@@ -276,8 +279,7 @@ namespace Bonsai
                         }
                     }
 
-                    var examplesDirectory = new DirectoryInfo(Path.Combine(bootstrapperPath, ExamplesDirectory));
-                    RemoveEmptyDirectories(examplesDirectory);
+                    RemoveEmptyDirectories(bootstrapperExamples);
                 }
             }
         }
@@ -351,7 +353,7 @@ namespace Bonsai
             var installPath = GetRelativePath(e.InstallPath);
             packageConfiguration.Packages.Remove(package.Id);
 
-            RemoveExampleFolders(package);
+            RemoveExampleFolders(package, e.InstallPath);
             RemoveLibraryFolders(package, installPath);
             RemoveAssemblyLocations(package, e.InstallPath, false);
             var pivots = OverlayHelper.FindPivots(package, e.InstallPath).ToArray();
