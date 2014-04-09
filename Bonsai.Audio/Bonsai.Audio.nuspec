@@ -15,7 +15,7 @@
     <copyright>Gonçalo Lopes © 2013</copyright>
     <tags>Bonsai Rx Reactive Extensions Audio</tags>
     <dependencies>
-      <dependency id="Bonsai.Core" version="2.0.0-rc7" />
+      <dependency id="Bonsai.Core" version="2.0.0-rc8" />
       <dependency id="OpenCV.Net" version="3.2.2" />
     </dependencies>
   </metadata>
