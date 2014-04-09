@@ -92,6 +92,7 @@
     <Compile Include="SampleBuffer.cs" />
     <Compile Include="SelectChannels.cs" />
     <Compile Include="Split.cs" />
+    <Compile Include="Submatrix.cs" />
     <Compile Include="Sum.cs" />
     <Compile Include="Threshold.cs" />
     <Compile Include="Tile.cs" />
