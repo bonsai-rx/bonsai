@@ -55,14 +55,15 @@ namespace Bonsai.NuGet
             bool ignoreDependencies,
             bool allowPrereleaseVersions)
         {
-            var installerWalker = new InstallWalker(
+            var installerWalker = new UpdateWalker(
                 LocalRepository,
                 SourceRepository,
+                new DependentsWalker(LocalRepository, targetFramework),
+                NullConstraintProvider.Instance,
                 targetFramework,
                 Logger,
-                ignoreDependencies,
-                allowPrereleaseVersions,
-                DependencyVersion);
+                !ignoreDependencies,
+                allowPrereleaseVersions);
             Execute(package, installerWalker);
         }
 
