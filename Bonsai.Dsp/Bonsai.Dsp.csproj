@@ -71,9 +71,12 @@
     <Compile Include="Concat.cs" />
     <Compile Include="ConvertScale.cs" />
     <Compile Include="ConvertToMat.cs" />
+    <Compile Include="Exp.cs" />
+    <Compile Include="Log.cs" />
     <Compile Include="CountNonZero.cs" />
     <Compile Include="Delay.cs" />
     <Compile Include="Difference.cs" />
+    <Compile Include="DiscreteFourierTransform.cs" />
     <Compile Include="ElementCountBuffer.cs" />
     <Compile Include="FilterType.cs" />
     <Compile Include="FirFilter.cs" />
