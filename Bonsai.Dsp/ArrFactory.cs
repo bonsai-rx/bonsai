@@ -13,6 +13,7 @@ namespace Bonsai.Dsp
         static readonly Lazy<Func<TArray, TArray>> templateFactory = new Lazy<Func<TArray, TArray>>(InitializeTemplateFactory);
         static readonly Lazy<Func<TArray, Depth, int, TArray>> templateSizeFactory = new Lazy<Func<TArray, Depth, int, TArray>>(InitializeTemplateSizeFactory);
         static readonly Lazy<Func<TArray, Depth, TArray>> templateSizeChannelFactory = new Lazy<Func<TArray, Depth, TArray>>(InitializeTemplateSizeChannelFactory);
+        static readonly Lazy<Func<TArray, int, TArray>> templateSizeDepthFactory = new Lazy<Func<TArray, int, TArray>>(InitializeTemplateSizeDepthFactory);
         static readonly Lazy<Func<TArray, Size, TArray>> templateDepthChannelFactory = new Lazy<Func<TArray, Size, TArray>>(InitializeTemplateDepthChannelFactory);
         static readonly Lazy<Func<Size, Depth, int, TArray>> defaultFactory = new Lazy<Func<Size, Depth, int, TArray>>(InitializeDefaultFactory);
 
@@ -29,6 +30,11 @@ namespace Bonsai.Dsp
         public static Func<TArray, Depth, TArray> TemplateSizeChannelFactory
         {
             get { return templateSizeChannelFactory.Value; }
+        }
+
+        public static Func<TArray, int, TArray> TemplateSizeDepthFactory
+        {
+            get { return templateSizeDepthFactory.Value; }
         }
 
         public static Func<TArray, Size, TArray> TemplateDepthChannelFactory
@@ -113,6 +119,25 @@ namespace Bonsai.Dsp
             }
             else throw new InvalidOperationException("Invalid array type.");
             return Expression.Lambda<Func<TArray, Depth, TArray>>(allocator.Body, allocator.Parameters).Compile();
+        }
+
+        static Func<TArray, int, TArray> InitializeTemplateSizeDepthFactory()
+        {
+            LambdaExpression allocator;
+            if (typeof(TArray) == typeof(Mat))
+            {
+                Expression<Func<Mat, int, Mat>> matAllocator =
+                    (mat, channels) => new Mat(mat.Size, mat.Depth, channels);
+                allocator = matAllocator;
+            }
+            else if (typeof(TArray) == typeof(IplImage))
+            {
+                Expression<Func<IplImage, int, IplImage>> imageAllocator =
+                    (image, channels) => new IplImage(image.Size, image.Depth, channels);
+                allocator = imageAllocator;
+            }
+            else throw new InvalidOperationException("Invalid array type.");
+            return Expression.Lambda<Func<TArray, int, TArray>>(allocator.Body, allocator.Parameters).Compile();
         }
 
         static Func<Size, Depth, int, TArray> InitializeDefaultFactory()

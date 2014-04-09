@@ -83,6 +83,7 @@
     <Compile Include="MatrixReader.cs" />
     <Compile Include="MatrixLayout.cs" />
     <Compile Include="MatrixWriter.cs" />
+    <Compile Include="Merge.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="Reduce.cs" />
@@ -90,6 +91,7 @@
     <Compile Include="RunningAverage.cs" />
     <Compile Include="SampleBuffer.cs" />
     <Compile Include="SelectChannels.cs" />
+    <Compile Include="Split.cs" />
     <Compile Include="Sum.cs" />
     <Compile Include="Threshold.cs" />
     <Compile Include="Tile.cs" />
