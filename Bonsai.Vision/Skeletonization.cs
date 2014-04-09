@@ -16,11 +16,16 @@ namespace Bonsai.Vision
 
         public Skeletonization()
         {
+            LaplacianAperture = 3;
             DistanceType = DistanceType.L2;
         }
 
+        [TypeConverter(typeof(DistanceTypeConverter))]
         public DistanceType DistanceType { get; set; }
 
+        [Range(1, 31)]
+        [Precision(0, 2)]
+        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
         public int LaplacianAperture { get; set; }
 
         [Precision(2, 0.1)]

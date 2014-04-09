@@ -5,6 +5,8 @@ using System.Text;
 using OpenCV.Net;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
+using System.ComponentModel;
+using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
@@ -42,6 +44,7 @@ namespace Bonsai.Vision
             }
         }
 
+        [TypeConverter(typeof(ShapeConverter))]
         public StructuringElementShape Shape
         {
             get { return shape; }
@@ -61,6 +64,8 @@ namespace Bonsai.Vision
             }
         }
 
+        [Range(0, int.MaxValue)]
+        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
         public int Iterations { get; set; }
 
         public OpenCV.Net.MorphologicalOperation Operation { get; set; }
@@ -92,6 +97,24 @@ namespace Bonsai.Vision
                     return output;
                 }).Finally(update.Dispose);
             });
+        }
+
+        class ShapeConverter : EnumConverter
+        {
+            internal ShapeConverter()
+                : base(typeof(StructuringElementShape))
+            {
+            }
+
+            public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+            {
+                return new StandardValuesCollection(new[]
+                {
+                    StructuringElementShape.Rectangle,
+                    StructuringElementShape.Cross,
+                    StructuringElementShape.Ellipse
+                });
+            }
         }
     }
 }
