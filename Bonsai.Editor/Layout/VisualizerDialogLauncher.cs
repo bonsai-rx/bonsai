@@ -101,6 +101,15 @@ namespace Bonsai.Design
                 visualizerContext.Dispose();
                 visualizerContext = null;
             };
+
+            visualizerDialog.Activated += delegate
+            {
+                var graphNode = workflowGraphView.FindGraphNode(source);
+                if (graphNode != null)
+                {
+                    workflowGraphView.GraphView.SelectedNode = graphNode;
+                }
+            };
         }
 
         void visualizerDialog_KeyDown(object sender, KeyEventArgs e)
