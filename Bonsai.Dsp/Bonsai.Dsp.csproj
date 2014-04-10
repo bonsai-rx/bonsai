@@ -62,6 +62,7 @@
     <Compile Include="Abs.cs" />
     <Compile Include="AbsoluteDifference.cs" />
     <Compile Include="Accumulate.cs" />
+    <Compile Include="ArrayExtrema.cs" />
     <Compile Include="ArrFactory.cs" />
     <Compile Include="ArrayTransform.cs" />
     <Compile Include="ArrHelper.cs" />
@@ -71,6 +72,9 @@
     <Compile Include="Concat.cs" />
     <Compile Include="ConvertScale.cs" />
     <Compile Include="ConvertToMat.cs" />
+    <Compile Include="Extrema.cs" />
+    <Compile Include="Phase.cs" />
+    <Compile Include="Magnitude.cs" />
     <Compile Include="Exp.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="CountNonZero.cs" />
