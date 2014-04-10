@@ -27,10 +27,14 @@ namespace Bonsai.Scripting
 
         public override Expression Build(IEnumerable<Expression> arguments)
         {
+            Action load;
+            Action unload;
             var engine = IronPython.Hosting.Python.CreateEngine();
             var scope = engine.CreateScope();
             var scriptSource = engine.CreateScriptSourceFromString(Script);
             scriptSource.Execute(scope);
+            scope.TryGetVariable<Action>("load", out load);
+            scope.TryGetVariable<Action>("unload", out unload);
 
             Type outputType;
             Func<Type> getOutputType;
@@ -45,14 +49,28 @@ namespace Bonsai.Scripting
             var scopeExpression = Expression.Constant(scope);
             var selectorType = Expression.GetFuncType(observableType, outputType);
             var processExpression = Expression.Call(scopeExpression, "GetVariable", new[] { selectorType }, Expression.Constant("process"));
+            var loadExpression = Expression.Constant(load, typeof(Action));
+            var unloadExpression = Expression.Constant(unload, typeof(Action));
 
             var combinatorExpression = Expression.Constant(this);
-            return Expression.Call(combinatorExpression, "Combine", new[] { observableType, outputType }, source, processExpression);
+            return Expression.Call(combinatorExpression, "Combine", new[] { observableType, outputType }, source, processExpression, loadExpression, unloadExpression);
         }
 
-        IObservable<TResult> Combine<TSource, TResult>(IObservable<TSource> source, Func<TSource, TResult> selector)
+        IObservable<TResult> Combine<TSource, TResult>(IObservable<TSource> source, Func<TSource, TResult> selector, Action load, Action unload)
         {
-            return source.Select(selector);
+            var result = source.Select(selector);
+            if (unload != null) result = result.Finally(unload);
+            if (load != null)
+            {
+                var observable = result;
+                result = Observable.Defer(() =>
+                {
+                    load();
+                    return observable;
+                });
+            }
+
+            return result;
         }
     }
 }
