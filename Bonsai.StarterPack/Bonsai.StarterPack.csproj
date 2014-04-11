@@ -59,8 +59,14 @@
     <Content Include="Examples\Audio\VoicePaint\VoicePaint.bonsai.layout" />
     <Content Include="Examples\Vision\ImageFiltering\ImageFiltering.bonsai" />
     <Content Include="Examples\Vision\ImageFiltering\ImageFiltering.bonsai.layout" />
-    <None Include="Examples\Audio\VolumeLevel\VolumeLevel.bonsai" />
-    <None Include="Examples\Audio\VolumeLevel\VolumeLevel.bonsai.layout" />
+    <Content Include="Examples\Audio\VolumeLevel\VolumeLevel.bonsai" />
+    <Content Include="Examples\Audio\VolumeLevel\VolumeLevel.bonsai.layout" />
+    <Content Include="Examples\Osc\ReceiveMessage\Osc.config" />
+    <Content Include="Examples\Osc\ReceiveMessage\ReceiveMessage.bonsai" />
+    <Content Include="Examples\Osc\ReceiveMessage\ReceiveMessage.bonsai.layout" />
+    <Content Include="Examples\Osc\SendMessage\Osc.config" />
+    <Content Include="Examples\Osc\SendMessage\SendMessage.bonsai" />
+    <Content Include="Examples\Osc\SendMessage\SendMessage.bonsai.layout" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
