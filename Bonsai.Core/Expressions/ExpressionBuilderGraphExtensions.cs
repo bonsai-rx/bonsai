@@ -174,12 +174,12 @@ namespace Bonsai.Expressions
 
         static readonly Expression[] EmptyArguments = new Expression[0];
 
-        static void RegisterElementName(ExpressionBuilder builder, INamedElement element, ref HashSet<string> namedElements)
+        static void RegisterPropertyName(ExpressionBuilder builder, INamedElement element, ref HashSet<string> namedElements)
         {
             if (namedElements == null) namedElements = new HashSet<string>();
             if (!namedElements.Add(element.Name))
             {
-                throw new WorkflowBuildException("A workflow element with the specified name already exists.", builder);
+                throw new WorkflowBuildException("A workflow property with the specified name already exists.", builder);
             }
         }
 
@@ -224,7 +224,7 @@ namespace Bonsai.Expressions
                 var workflowProperty = workflowElement as ExternalizedProperty;
                 if (workflowProperty != null && !string.IsNullOrEmpty(workflowProperty.Name))
                 {
-                    RegisterElementName(builder, workflowProperty, ref namedElements);
+                    RegisterPropertyName(builder, workflowProperty, ref namedElements);
                 }
 
                 try
