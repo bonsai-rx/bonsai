@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Exception_AmbiguousNamedElement" xml:space="preserve">
+    <value>Multiple elements with the specified name '{0}' were found in the workflow.</value>
+  </data>
   <data name="Exception_PropertyNotFound" xml:space="preserve">
     <value>The specified property '{0}' was not found in the workflow. </value>
   </data>

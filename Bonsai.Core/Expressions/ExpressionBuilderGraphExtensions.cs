@@ -51,17 +51,22 @@ namespace Bonsai.Expressions
             var memberChain = name.Split(new[] { ExpressionHelper.MemberSeparator }, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < memberChain.Length - 1; i++)
             {
-                var workflowBuilder = (from node in source
-                                       let builder = ExpressionBuilder.Unwrap(node.Value) as WorkflowExpressionBuilder
-                                       where builder != null && builder.Name == memberChain[i]
-                                       select builder)
-                                       .FirstOrDefault();
-                if (workflowBuilder == null)
+                var workflowBuilders = (from node in source
+                                        let builder = ExpressionBuilder.Unwrap(node.Value) as WorkflowExpressionBuilder
+                                        where builder != null && builder.Name == memberChain[i]
+                                        select builder).ToArray();
+                if (workflowBuilders.Length == 0)
                 {
                     throw new KeyNotFoundException(string.Format(Resources.Exception_PropertyNotFound, name));
                 }
+                else if (workflowBuilders.Length > 1)
+                {
+                    throw new InvalidOperationException(string.Format(
+                        Resources.Exception_AmbiguousNamedElement,
+                        string.Join(ExpressionHelper.MemberSeparator, memberChain, 0, i + 1)));
+                }
 
-                source = workflowBuilder.Workflow;
+                source = workflowBuilders[0].Workflow;
             }
 
             name = memberChain[memberChain.Length - 1];
@@ -214,10 +219,6 @@ namespace Bonsai.Expressions
                 if (workflowBuilder != null)
                 {
                     workflowBuilder.BuildContext = buildContext;
-                    if (!string.IsNullOrEmpty(workflowBuilder.Name))
-                    {
-                        RegisterElementName(builder, workflowBuilder, ref namedElements);
-                    }
                 }
 
                 var workflowProperty = workflowElement as ExternalizedProperty;
