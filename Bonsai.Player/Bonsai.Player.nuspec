@@ -11,7 +11,7 @@
     <iconUrl>https://bitbucket.org/horizongir/bonsai/raw/7aacc64dc4647e57362ab310238591dc197fef0d/Resources/Bonsai.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>First public prerelease of the command line player for Bonsai workflows.</releaseNotes>
+    <releaseNotes>Public release of the command line player for Bonsai workflows.</releaseNotes>
     <copyright>Gonçalo Lopes © 2013</copyright>
     <tags>Bonsai Player Rx Reactive Extensions Events Data Processing</tags>
     <dependencies>

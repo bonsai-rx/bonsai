@@ -11,7 +11,7 @@
     <iconUrl>https://bitbucket.org/horizongir/bonsai/raw/7aacc64dc4647e57362ab310238591dc197fef0d/Resources/Bonsai.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>The Bonsai Starter Pack includes everything you need to build your own data processing workflows.</description>
-    <releaseNotes>First public prerelease of the starter pack including simple workflow examples for Bonsai.</releaseNotes>
+    <releaseNotes>Public release of the starter pack including simple workflow examples for Bonsai.</releaseNotes>
     <copyright>Gonçalo Lopes © 2014</copyright>
     <tags>Bonsai Starter Pack Examples</tags>
     <dependencies>

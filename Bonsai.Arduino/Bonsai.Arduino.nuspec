@@ -11,7 +11,7 @@
     <iconUrl>https://bitbucket.org/horizongir/bonsai/raw/7aacc64dc4647e57362ab310238591dc197fef0d/Resources/Bonsai.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>First public prerelease of Arduino communication infrastructure for Bonsai.</releaseNotes>
+    <releaseNotes>Public release of Arduino communication infrastructure for Bonsai.</releaseNotes>
     <copyright>Gonçalo Lopes © 2013</copyright>
     <tags>Bonsai Rx Reactive Extensions Arduino</tags>
     <dependencies>
