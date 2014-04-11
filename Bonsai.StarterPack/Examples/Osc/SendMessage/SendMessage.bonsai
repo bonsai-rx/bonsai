@@ -10,7 +10,7 @@
       </Expression>
       <Expression xsi:type="q1:SendMessage">
         <q1:PropertyMappings />
-        <q1:Connection>Udp</q1:Connection>
+        <q1:Connection>UdpSend</q1:Connection>
         <q1:Address>/number</q1:Address>
       </Expression>
     </Nodes>
