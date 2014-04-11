@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkflowBuilder Version="2.0.0">
+  <Workflow xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:q1="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision" xmlns="https://horizongir.org/bonsai">
+    <Nodes>
+      <Expression xsi:type="Source">
+        <PropertyMappings />
+        <Generator xsi:type="q1:CameraCapture">
+          <q1:Index>0</q1:Index>
+          <q1:CaptureProperties />
+        </Generator>
+      </Expression>
+      <Expression xsi:type="Source">
+        <PropertyMappings />
+        <Generator xsi:type="Timer">
+          <DueTime>PT0S</DueTime>
+          <Period>PT1S</Period>
+        </Generator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <PropertyMappings />
+        <Combinator xsi:type="Sample" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <PropertyMappings />
+        <Combinator xsi:type="q1:SaveImage">
+          <q1:FileName>snapshot.jpg</q1:FileName>
+          <q1:Suffix>None</q1:Suffix>
+        </Combinator>
+      </Expression>
+    </Nodes>
+    <Edges>
+      <Edge>
+        <From>0</From>
+        <To>2</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>1</From>
+        <To>2</To>
+        <Label>Source2</Label>
+      </Edge>
+      <Edge>
+        <From>2</From>
+        <To>3</To>
+        <Label>Source1</Label>
+      </Edge>
+    </Edges>
+  </Workflow>
+  <ExtensionTypes>
+    <Type>Bonsai.Vision.CameraCapture, Bonsai.Vision, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Reactive.Timer, Bonsai.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Reactive.Sample, Bonsai.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.SaveImage, Bonsai.Vision, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null</Type>
+  </ExtensionTypes>
+</WorkflowBuilder>
