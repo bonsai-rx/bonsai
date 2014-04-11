@@ -19,6 +19,7 @@ namespace Bonsai
         const string PackageManagerCommand = "--packagemanager";
         const string EditorDomainName = "EditorDomain";
         const string RepositoryPath = "Packages";
+        const string ExtensionsPath = "Extensions";
         internal const int NormalExitCode = 0;
         internal const int RequirePackageManagerExitCode = 1;
 
@@ -59,6 +60,7 @@ namespace Bonsai
             var editorPackageId = editorAssembly.GetName().Name;
             var editorPackageVersion = SemanticVersion.Parse(editorAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion);
             var editorRepositoryPath = Path.Combine(editorFolder, RepositoryPath);
+            var editorExtensionsPath = Path.Combine(editorFolder, ExtensionsPath);
 
             var packageConfiguration = Configuration.ConfigurationHelper.Load();
             if (!bootstrap)
@@ -76,6 +78,7 @@ namespace Bonsai
                         Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, initialPath);
                     }
 
+                    Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, editorExtensionsPath);
                     libFolders.ForEach(path => Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, path));
                     Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
                     if (!launchEditor) Launcher.LaunchWorkflowPlayer(initialFileName, propertyAssignments);
