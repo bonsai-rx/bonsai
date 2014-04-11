@@ -22,9 +22,17 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <PropertyMappings />
-        <Combinator xsi:type="q1:SaveImage">
-          <q1:FileName>snapshot.jpg</q1:FileName>
+        <Combinator xsi:type="q1:VideoWriter">
+          <q1:FileName>timelapse.avi</q1:FileName>
           <q1:Suffix>None</q1:Suffix>
+          <q1:Buffered>true</q1:Buffered>
+          <q1:FourCC>FMP4</q1:FourCC>
+          <q1:FrameRate>30</q1:FrameRate>
+          <q1:FrameSize>
+            <q1:Width>0</q1:Width>
+            <q1:Height>0</q1:Height>
+          </q1:FrameSize>
+          <q1:ResizeInterpolation>NearestNeighbor</q1:ResizeInterpolation>
         </Combinator>
       </Expression>
     </Nodes>
@@ -50,6 +58,6 @@
     <Type>Bonsai.Vision.CameraCapture, Bonsai.Vision, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.Reactive.Timer, Bonsai.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.Reactive.Sample, Bonsai.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Vision.SaveImage, Bonsai.Vision, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.VideoWriter, Bonsai.Vision, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null</Type>
   </ExtensionTypes>
 </WorkflowBuilder>
