@@ -124,6 +124,7 @@ namespace Bonsai.Configuration
 
         public static void RegisterPath(this PackageConfiguration configuration, string path)
         {
+            if (!Directory.Exists(path)) return;
             var platform = GetEnvironmentPlatform();
             configuration.LibraryFolders.Add(path, platform);
             foreach (var assemblyFile in Directory.GetFiles(path, "*.dll"))
