@@ -15,7 +15,7 @@
     <copyright>Gonçalo Lopes © 2013</copyright>
     <tags>Bonsai Editor Rx Reactive Extensions Events Data Processing</tags>
     <dependencies>
-      <dependency id="Bonsai.Design" version="2.0.0-rc8" />
+      <dependency id="Bonsai.Design" version="2.0.0" />
     </dependencies>
   </metadata>
 </package>

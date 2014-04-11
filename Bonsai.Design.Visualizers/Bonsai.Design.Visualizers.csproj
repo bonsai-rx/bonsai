@@ -74,7 +74,9 @@
     <Compile Include="TimestampedTimeSeriesVisualizer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Bonsai.Design.Visualizers.nuspec" />
+    <None Include="Bonsai.Design.Visualizers.nuspec">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
