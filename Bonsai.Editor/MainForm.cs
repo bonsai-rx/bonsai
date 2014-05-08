@@ -642,16 +642,26 @@ namespace Bonsai.Editor
                     () =>
                     {
                         var runtimeWorkflow = workflowBuilder.Workflow.BuildObservable();
-                        statusTextLabel.Text = Resources.RunningStatus;
-                        statusImageLabel.Image = Resources.StatusReadyImage;
-                        editorSite.OnWorkflowStarted(EventArgs.Empty);
-
                         var shutdown = ShutdownSequence();
+                        try
+                        {
+                            Invoke((Action)(() =>
+                            {
+                                statusTextLabel.Text = Resources.RunningStatus;
+                                statusImageLabel.Image = Resources.StatusReadyImage;
+                                editorSite.OnWorkflowStarted(EventArgs.Empty);
+                            }));
+                        }
+                        catch
+                        {
+                            shutdown.Dispose();
+                            throw;
+                        }
+
                         return new WorkflowDisposable(runtimeWorkflow, shutdown);
                     },
-                    resource => resource.Workflow
-                        .TakeUntil(workflowBuilder.Workflow.InspectErrors())
-                        .SubscribeOn(NewThreadScheduler.Default))
+                    resource => resource.Workflow.TakeUntil(workflowBuilder.Workflow.InspectErrors()))
+                    .SubscribeOn(NewThreadScheduler.Default.Catch<Exception>(HandleSchedulerError))
                     .Subscribe(unit => { }, HandleWorkflowError, () => { });
             }
 
@@ -787,6 +797,12 @@ namespace Bonsai.Editor
                     MessageBox.Show(e.Message, errorCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+        }
+
+        bool HandleSchedulerError(Exception e)
+        {
+            HandleWorkflowError(e);
+            return true;
         }
 
         void HandleWorkflowError(Exception e)
