@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Reactive.Subjects;
 using System.Reactive.Concurrency;
 using System.Reactive;
+using System.Reactive.Disposables;
 
 namespace Bonsai.Expressions
 {
@@ -102,7 +103,7 @@ namespace Bonsai.Expressions
                 source = HandleBuildException(source, Builder);
                 var subject = CreateSubjectMethod.MakeGenericMethod(ObservableType).Invoke(this, null);
                 var subjectExpression = Expression.Constant(subject);
-                return Expression.Call(typeof(InspectBuilder), "Process", new[] { ObservableType }, source, subjectExpression);
+                return Expression.Call(Expression.Constant(this), "Process", new[] { ObservableType }, source, subjectExpression);
             }
         }
 
@@ -114,13 +115,21 @@ namespace Bonsai.Expressions
             return subject;
         }
 
-        static IObservable<TSource> Process<TSource>(IObservable<TSource> source, ReplaySubject<IObservable<TSource>> subject)
+        IObservable<TSource> Process<TSource>(IObservable<TSource> source, ReplaySubject<IObservable<TSource>> subject)
         {
-            return Observable.Defer(() =>
+            return Observable.Create<TSource>(observer =>
             {
                 var sourceInspector = new Subject<TSource>();
                 subject.OnNext(sourceInspector);
-                return source.Do(sourceInspector);
+                var subscription = source.Do(sourceInspector).SubscribeSafe(observer);
+                return Disposable.Create(() =>
+                {
+                    try { subscription.Dispose(); }
+                    catch (Exception ex)
+                    {
+                        throw new WorkflowRuntimeException(ex.Message, this, ex);
+                    }
+                });
             });
         }
     }
