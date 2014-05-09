@@ -168,7 +168,7 @@ namespace Bonsai.Editor
 
             if (validFileName)
             {
-                OpenWorkflow(initialFileName);
+                OpenWorkflow(initialFileName, false);
                 foreach (var assignment in propertyAssignments)
                 {
                     workflowBuilder.Workflow.SetWorkflowProperty(assignment.Key, assignment.Value);
@@ -342,7 +342,6 @@ namespace Bonsai.Editor
                 CopyDirectory(sourceDirectory, targetDirectory);
 
                 examplePath = Path.Combine(targetDirectory.FullName, Path.GetFileName(examplePath));
-                directoryToolStripTextBox.Text = targetDirectory.FullName;
                 OpenWorkflow(examplePath);
                 saveWorkflowDialog.FileName = null;
             }
@@ -431,6 +430,11 @@ namespace Bonsai.Editor
 
         void OpenWorkflow(string fileName)
         {
+            OpenWorkflow(fileName, true);
+        }
+
+        void OpenWorkflow(string fileName, bool setWorkingDirectory)
+        {
             try { workflowBuilder = LoadWorkflow(fileName); }
             catch (InvalidOperationException ex)
             {
@@ -457,7 +461,7 @@ namespace Bonsai.Editor
             editorSite.ValidateWorkflow();
             ResetProjectStatus();
 
-            if (string.IsNullOrEmpty(directoryToolStripTextBox.Text))
+            if (setWorkingDirectory || string.IsNullOrEmpty(directoryToolStripTextBox.Text))
             {
                 directoryToolStripTextBox.Text = Path.GetDirectoryName(fileName);
             }
@@ -534,8 +538,6 @@ namespace Bonsai.Editor
 
             if (openWorkflowDialog.ShowDialog() == DialogResult.OK)
             {
-                var workflowDirectory = Path.GetDirectoryName(openWorkflowDialog.FileName);
-                directoryToolStripTextBox.Text = workflowDirectory;
                 OpenWorkflow(openWorkflowDialog.FileName);
             }
         }
