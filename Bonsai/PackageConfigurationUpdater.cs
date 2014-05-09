@@ -290,11 +290,12 @@ namespace Bonsai
             var pivots = OverlayHelper.FindPivots(e.Package, installPath).ToArray();
             if (pivots.Length > 0)
             {
+                var overlayVersion = OverlayHelper.FindOverlayVersion(e.Package);
                 var overlayManager = OverlayHelper.CreateOverlayManager(packageManager.SourceRepository, installPath);
                 overlayManager.Logger = packageManager.Logger;
                 foreach (var pivot in pivots)
                 {
-                    var package = overlayManager.SourceRepository.FindPackage(pivot);
+                    var package = overlayManager.SourceRepository.FindPackage(pivot, overlayVersion);
                     if (package == null) throw new InvalidOperationException(string.Format("The package '{0}' could not be found.", pivot));
                     overlayManager.InstallPackage(package, false, false);
                 }
