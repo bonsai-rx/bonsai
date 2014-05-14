@@ -448,7 +448,7 @@ namespace Bonsai.NuGet
                             }
                             else
                             {
-                                selectedManager.InstallPackage(package, handleDependencies, allowPrereleaseVersions);
+                                selectedManager.InstallPackage(package, !handleDependencies, allowPrereleaseVersions);
                             }
                         }
                     });
@@ -522,7 +522,7 @@ namespace Bonsai.NuGet
 
         private void packageView_OperationClick(object sender, TreeViewEventArgs e)
         {
-            bool handleDependencies = false;
+            bool handleDependencies = true;
             var package = (IPackage)e.Node.Tag;
             if (package != null)
             {
@@ -544,7 +544,7 @@ namespace Bonsai.NuGet
 
                         var result = MessageBox.Show(this, dependencyNotice.ToString(), Text, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
                         if (result == DialogResult.Cancel) return;
-                        if (result == DialogResult.Yes) handleDependencies = true;
+                        if (result == DialogResult.No) handleDependencies = false;
                     }
                 }
 
