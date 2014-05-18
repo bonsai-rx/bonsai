@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Bonsai.StarterPack</id>
-    <version>2.0.1</version>
+    <version>2.1.0</version>
     <title>Bonsai - Starter Pack</title>
     <authors>Gonçalo Lopes</authors>
     <owners>Gonçalo Lopes</owners>
@@ -15,17 +15,17 @@
     <copyright>Gonçalo Lopes © 2014</copyright>
     <tags>Bonsai Starter Pack Examples</tags>
     <dependencies>
-      <dependency id="Bonsai.Arduino" version="2.0.1" />
-      <dependency id="Bonsai.Arduino.Design" version="2.0.1" />
-      <dependency id="Bonsai.Audio" version="2.0.1" />
-      <dependency id="Bonsai.Dsp" version="2.0.1" />
-      <dependency id="Bonsai.Dsp.Design" version="2.0.1" />
-      <dependency id="Bonsai.Osc" version="2.0.1" />
-      <dependency id="Bonsai.Osc.Design" version="2.0.1" />
-      <dependency id="Bonsai.Scripting" version="2.0.1" />
-      <dependency id="Bonsai.Vision" version="2.0.1" />
-      <dependency id="Bonsai.Vision.Design" version="2.0.1" />
-      <dependency id="Bonsai.Windows.Input" version="2.0.1" />
+      <dependency id="Bonsai.Arduino" version="2.1.0" />
+      <dependency id="Bonsai.Arduino.Design" version="2.1.0" />
+      <dependency id="Bonsai.Audio" version="2.1.0" />
+      <dependency id="Bonsai.Dsp" version="2.1.0" />
+      <dependency id="Bonsai.Dsp.Design" version="2.1.0" />
+      <dependency id="Bonsai.Osc" version="2.1.0" />
+      <dependency id="Bonsai.Osc.Design" version="2.1.0" />
+      <dependency id="Bonsai.Scripting" version="2.1.0" />
+      <dependency id="Bonsai.Vision" version="2.1.0" />
+      <dependency id="Bonsai.Vision.Design" version="2.1.0" />
+      <dependency id="Bonsai.Windows.Input" version="2.1.0" />
     </dependencies>
   </metadata>
   <files>

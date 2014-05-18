@@ -117,6 +117,7 @@
     <Compile Include="Reactive\Average.cs" />
     <Compile Include="Reactive\Buffer.cs" />
     <Compile Include="Reactive\Concat.cs" />
+    <Compile Include="Reactive\Switch.cs" />
     <Compile Include="Reactive\TriggeredBuffer.cs" />
     <Compile Include="Reactive\Max.cs" />
     <Compile Include="Reactive\Min.cs" />
