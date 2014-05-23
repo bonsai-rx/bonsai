@@ -62,6 +62,7 @@ namespace Bonsai.Arduino
         public Arduino(string portName, int baudRate)
         {
             serialPort = new SerialPort(portName);
+            serialPort.DtrEnable = true;
             serialPort.BaudRate = baudRate;
             serialPort.Parity = Parity.None;
             serialPort.StopBits = StopBits.One;
