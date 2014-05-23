@@ -64,10 +64,12 @@ namespace Bonsai.Arduino
                     }
                 };
 
+                connection.Arduino.ReportAnalog(pin, true);
                 connection.Arduino.AnalogInputReceived += inputReceived;
                 return Disposable.Create(() =>
                 {
                     connection.Arduino.AnalogInputReceived -= inputReceived;
+                    connection.Arduino.ReportAnalog(pin, false);
                     connection.Dispose();
                 });
             });
@@ -79,7 +81,7 @@ namespace Bonsai.Arduino
             {
                 var connection = ArduinoManager.ReserveConnection(portName);
                 connection.Arduino.PinMode(pin, PinMode.Input);
-                var port = (pin >> 3) & 0x0F;
+                var port = Arduino.GetPortNumber(pin);
                 EventHandler<DigitalInputReceivedEventArgs> inputReceived;
                 inputReceived = (sender, e) =>
                 {
@@ -89,10 +91,12 @@ namespace Bonsai.Arduino
                     }
                 };
 
+                connection.Arduino.ReportDigital(port, true);
                 connection.Arduino.DigitalInputReceived += inputReceived;
                 return Disposable.Create(() =>
                 {
                     connection.Arduino.DigitalInputReceived -= inputReceived;
+                    connection.Arduino.ReportDigital(port, false);
                     connection.Dispose();
                 });
             });
