@@ -16,8 +16,6 @@ namespace Bonsai.Arduino
         public const int DefaultBaudRate = 57600;
         public const int DefaultSamplingInterval = 19;
 
-        const int AnalogPins = 6;
-        const int DigitalPorts = 2;
         const int MaxDataBytes = 32;
         const int ConnectionDelay = 2000;
 
@@ -50,9 +48,11 @@ namespace Bonsai.Arduino
         readonly byte[] commandBuffer;
         readonly byte[] sysexBuffer;
         readonly byte[] readBuffer;
-        readonly int[] analogInput;
-        readonly byte[] digitalInput;
-        readonly byte[] digitalOutput;
+        int[] reportAnalog;
+        int[] reportDigital;
+        int[] analogInput;
+        byte[] digitalInput;
+        byte[] digitalOutput;
 
         public Arduino(string portName)
             : this(portName, DefaultBaudRate)
@@ -72,9 +72,6 @@ namespace Bonsai.Arduino
             commandBuffer = new byte[MaxDataBytes];
             sysexBuffer = new byte[MaxDataBytes];
             readBuffer = new byte[serialPort.ReadBufferSize];
-            analogInput = new int[AnalogPins];
-            digitalInput = new byte[DigitalPorts];
-            digitalOutput = new byte[DigitalPorts];
             serialPort.DataReceived += new SerialDataReceivedEventHandler(serialPort_DataReceived);
         }
 
@@ -138,16 +135,31 @@ namespace Bonsai.Arduino
             serialPort.Open();
             Thread.Sleep(ConnectionDelay);
             serialPort.ReadExisting();
+        }
 
-            for (int i = 0; i < AnalogPins; i++)
+        void ReportInput(ref int[] reportInput, byte command, int index, bool state)
+        {
+            EnsureCapacity(ref reportInput, index);
+            if (!state && reportInput[index] > 0) reportInput[index]--;
+
+            if (reportInput[index] == 0)
             {
-                ReportAnalog(i, true);
+                commandBuffer[0] = (byte)(command | index);
+                commandBuffer[1] = (byte)(state ? 1 : 0);
+                serialPort.Write(commandBuffer, 0, 2);
             }
 
-            for (int i = 0; i < DigitalPorts; i++)
-            {
-                ReportDigital(i, true);
-            }
+            if (state) reportInput[index]++;
+        }
+
+        public void ReportAnalog(int pin, bool state)
+        {
+            ReportInput(ref reportAnalog, REPORT_ANALOG, pin, state);
+        }
+
+        public void ReportDigital(int port, bool state)
+        {
+            ReportInput(ref reportDigital, REPORT_DIGITAL, port, state);
         }
 
         public void PinMode(int pin, PinMode mode)
@@ -165,13 +177,15 @@ namespace Bonsai.Arduino
 
         public int DigitalRead(int pin)
         {
-            var portNumber = (pin >> 3) & 0x0F;
+            var portNumber = GetPortNumber(pin);
+            EnsureCapacity(ref digitalInput, portNumber);
             return ((digitalInput[portNumber] >> (pin & 0x07)) & 0x01);
         }
 
         public void DigitalWrite(int pin, int value)
         {
-            var portNumber = (pin >> 3) & 0x0F;
+            var portNumber = GetPortNumber(pin);
+            EnsureCapacity(ref digitalOutput, portNumber);
             if (value == 0) digitalOutput[portNumber] &= (byte)~(1 << (pin & 0x07));
             else digitalOutput[portNumber] |= (byte)(1 << (pin & 0x07));
 
@@ -183,6 +197,7 @@ namespace Bonsai.Arduino
 
         public int AnalogRead(int pin)
         {
+            EnsureCapacity(ref analogInput, pin);
             return analogInput[pin];
         }
 
@@ -213,28 +228,29 @@ namespace Bonsai.Arduino
             serialPort.Write(commandBuffer, 0, args.Length + 3);
         }
 
-        void ReportAnalog(int pin, bool state)
+        static void EnsureCapacity<TElement>(ref TElement[] array, int index)
         {
-            commandBuffer[0] = (byte)(REPORT_ANALOG | pin);
-            commandBuffer[1] = (byte)(state ? 1 : 0);
-            serialPort.Write(commandBuffer, 0, 2);
+            if (array == null || index >= array.Length)
+            {
+                Array.Resize(ref array, index + 1);
+            }
         }
 
-        void ReportDigital(int port, bool state)
+        public static int GetPortNumber(int pin)
         {
-            commandBuffer[0] = (byte)(REPORT_DIGITAL | port);
-            commandBuffer[1] = (byte)(state ? 1 : 0);
-            serialPort.Write(commandBuffer, 0, 2);
+            return (pin >> 3) & 0x0F;
         }
 
         void SetDigitalInput(int port, int data)
         {
+            EnsureCapacity(ref digitalInput, port);
             digitalInput[port] = (byte)data;
             OnDigitalInputReceived(new DigitalInputReceivedEventArgs(port, data));
         }
 
         void SetAnalogInput(int pin, int value)
         {
+            EnsureCapacity(ref analogInput, pin);
             analogInput[pin] = value;
             OnAnalogInputReceived(new AnalogInputReceivedEventArgs(pin, value));
         }
