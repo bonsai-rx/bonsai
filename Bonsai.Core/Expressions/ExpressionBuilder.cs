@@ -645,16 +645,17 @@ namespace Bonsai.Expressions
                             if (method.IsGenericMethodDefinition) return null;
                         }
 
+                        var callArguments = arguments;
                         var parameters = method.GetParameters();
                         if (ParamExpansionRequired(parameters, argumentTypes))
                         {
                             if (!CanExpandParamArguments(parameters, argumentTypes)) return null;
-                            arguments = ExpandParamArguments(parameters, arguments);
+                            callArguments = ExpandParamArguments(parameters, callArguments);
                         }
 
-                        if (!CanMatchMethodParameters(parameters, arguments)) return null;
-                        arguments = MatchMethodParameters(parameters, arguments);
-                        call = Expression.Call(instance, method, arguments);
+                        if (!CanMatchMethodParameters(parameters, callArguments)) return null;
+                        callArguments = MatchMethodParameters(parameters, callArguments);
+                        call = Expression.Call(instance, method, callArguments);
                     }
                     catch (ArgumentException) { return null; }
                     catch (InvalidOperationException) { return null; }
