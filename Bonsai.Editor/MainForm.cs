@@ -448,6 +448,7 @@ namespace Bonsai.Editor
 
             var layoutPath = GetLayoutPath(fileName);
             workflowGraphView.VisualizerLayout = null;
+            workflowGraphView.Workflow = workflowBuilder.Workflow;
             if (File.Exists(layoutPath))
             {
                 using (var reader = XmlReader.Create(layoutPath))
@@ -457,7 +458,6 @@ namespace Bonsai.Editor
                 }
             }
 
-            workflowGraphView.Workflow = workflowBuilder.Workflow;
             editorSite.ValidateWorkflow();
             ResetProjectStatus();
 
@@ -551,6 +551,7 @@ namespace Bonsai.Editor
                 SaveWorkflow(saveWorkflowDialog.FileName, serializerWorkflowBuilder);
                 saveVersion = version;
 
+                workflowGraphView.UpdateVisualizerLayout();
                 if (workflowGraphView.VisualizerLayout != null)
                 {
                     var layoutPath = GetLayoutPath(saveWorkflowDialog.FileName);

@@ -89,7 +89,7 @@ namespace Bonsai.Design
         public VisualizerLayout VisualizerLayout
         {
             get { return visualizerLayout; }
-            set { visualizerLayout = value; }
+            set { SetVisualizerLayout(value); }
         }
 
         public ExpressionBuilderGraph Workflow
@@ -1253,42 +1253,41 @@ namespace Bonsai.Design
             return dialogSettings;
         }
 
-        public void UpdateVisualizerLayout()
+        private void SetVisualizerLayout(VisualizerLayout layout)
         {
-            if (visualizerLayout == null)
+            if (workflow == null)
             {
-                visualizerLayout = new VisualizerLayout();
+                throw new InvalidOperationException("Cannot set visualizer layout with a null workflow.");
             }
 
-            if (visualizerMapping == null)
+            visualizerLayout = layout ?? new VisualizerLayout();
+            foreach (var node in workflow)
             {
-                var updatedLayout = new VisualizerLayout();
-                foreach (var node in workflow)
+                var layoutSettings = GetLayoutSettings(node.Value);
+                if (layoutSettings == null) layoutSettings = CreateLayoutSettings(node.Value);
+                else layoutSettings.Tag = node.Value;
+
+                var graphNode = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == node.Value);
+                var workflowEditorSettings = layoutSettings as WorkflowEditorSettings;
+                if (workflowEditorSettings != null)
                 {
-                    var layoutSettings = GetLayoutSettings(node.Value);
-                    if (layoutSettings == null) layoutSettings = CreateLayoutSettings(node.Value);
-                    else layoutSettings.Tag = node.Value;
-
-                    var graphNode = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == node.Value);
-                    var workflowEditorSettings = layoutSettings as WorkflowEditorSettings;
-                    if (workflowEditorSettings != null)
+                    var editorLauncher = GetWorkflowEditorLauncher(graphNode);
+                    if (workflowEditorSettings.EditorDialogSettings.Visible)
                     {
-                        var editorLauncher = GetWorkflowEditorLauncher(graphNode);
-                        if (workflowEditorSettings.EditorDialogSettings.Visible)
-                        {
-                            LaunchWorkflowView(graphNode,
-                                               workflowEditorSettings.EditorVisualizerLayout,
-                                               workflowEditorSettings.EditorDialogSettings.Bounds,
-                                               activate: false);
-                        }
+                        LaunchWorkflowView(graphNode,
+                                           workflowEditorSettings.EditorVisualizerLayout,
+                                           workflowEditorSettings.EditorDialogSettings.Bounds,
+                                           activate: false);
                     }
-
-                    updatedLayout.DialogSettings.Add(layoutSettings);
                 }
 
-                visualizerLayout = updatedLayout;
+                visualizerLayout.DialogSettings.Add(layoutSettings);
             }
-            else
+        }
+
+        public void UpdateVisualizerLayout()
+        {
+            if (visualizerMapping != null)
             {
                 visualizerLayout.DialogSettings.Clear();
 
@@ -1338,9 +1337,42 @@ namespace Bonsai.Design
 
                     visualizerLayout.DialogSettings.Add(dialogSettings);
                 }
-            }
 
-            visualizerMapping = null;
+                visualizerMapping = null;
+            }
+            else
+            {
+                var updatedLayout = new VisualizerLayout();
+                foreach (var node in workflow)
+                {
+                    var builder = node.Value;
+                    var dialogSettings = GetLayoutSettings(builder);
+                    if (dialogSettings == null) dialogSettings = CreateLayoutSettings(builder);
+                    else
+                    {
+                        var workflowExpressionBuilder = ExpressionBuilder.Unwrap(builder) as WorkflowExpressionBuilder;
+                        if (workflowExpressionBuilder != null)
+                        {
+                            var updatedEditorSettings = CreateLayoutSettings(builder);
+                            updatedEditorSettings.Bounds = dialogSettings.Bounds;
+                            updatedEditorSettings.Visible = dialogSettings.Visible;
+                            updatedEditorSettings.WindowState = dialogSettings.WindowState;
+                            updatedEditorSettings.VisualizerTypeName = dialogSettings.VisualizerTypeName;
+                            updatedEditorSettings.VisualizerSettings = dialogSettings.VisualizerSettings;
+                            foreach (var mashup in dialogSettings.Mashups)
+                            {
+                                updatedEditorSettings.Mashups.Add(mashup);
+                            }
+
+                            dialogSettings = updatedEditorSettings;
+                        }
+                    }
+
+                    updatedLayout.DialogSettings.Add(dialogSettings);
+                }
+
+                visualizerLayout = updatedLayout;
+            }
         }
 
         private void UpdateGraphLayout()
@@ -1362,7 +1394,6 @@ namespace Bonsai.Design
                 result = editorService.ValidateWorkflow();
             }
 
-            UpdateVisualizerLayout();
             return result;
         }
 
