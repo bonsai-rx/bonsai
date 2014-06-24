@@ -408,7 +408,7 @@ namespace Bonsai.Design
                             var predecessorNode = predecessor.Item1;
                             var edgeIndex = predecessor.Item3;
                             addConnection += () => { workflow.SetEdge(predecessorNode, edgeIndex, sourceNode, predecessorEdge.Label); };
-                            removeConnection += () => { workflow.SetEdge(predecessorNode, edgeIndex, predecessorEdge.Target, predecessorEdge.Label); };
+                            removeConnection += () => { workflow.SetEdge(predecessorNode, edgeIndex, predecessorEdge); };
                         }
                     }
 
