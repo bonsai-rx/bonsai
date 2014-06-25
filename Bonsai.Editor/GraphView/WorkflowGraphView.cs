@@ -971,26 +971,37 @@ namespace Bonsai.Design
 
             if (!nodes.Any()) return;
             var workflow = this.workflow;
-            GraphNode linkNode = null;
             GraphNode replacementNode = null;
             var nodeType = CreateGraphNodeType.Successor;
             var workflowBuilder = nodes.ToWorkflowBuilder(recurse: false);
             var sources = workflowBuilder.Workflow.Sources().ToArray();
             var sinks = workflowBuilder.Workflow.Sinks().ToArray();
 
-            var source = sources.First();
+            int inputIndex = 0;
             var layeredNodes = graphView.Nodes.LayeredNodes();
-            var sourceNode = layeredNodes.Single(node => GetGraphNodeBuilder(node) == source.Value);
-            var predecessors = layeredNodes
-                .Where(node => node.Successors.Any(edge => edge.Node.Value == sourceNode.Value))
-                .ToArray();
-            if (predecessors.Length == 1)
+            var predecessors = (from predecessor in layeredNodes
+                                let predecessorNode = GetGraphNodeTag(workflow, predecessor)
+                                let unwrapPredecessor = ExpressionBuilder.Unwrap(predecessorNode.Value)
+                                where !workflowBuilder.Workflow.Any(node => unwrapPredecessor == ExpressionBuilder.Unwrap(node.Value))
+                                from edge in predecessor.Successors
+                                let target = GetGraphNodeTag(workflow, edge.Node)
+                                let unwrapTarget = ExpressionBuilder.Unwrap(target.Value)
+                                let source = workflowBuilder.Workflow.FirstOrDefault(node => unwrapTarget == ExpressionBuilder.Unwrap(node.Value))
+                                where source != null
+                                let sourceNode = layeredNodes.Single(node => GetGraphNodeBuilder(node) == source.Value)
+                                select new
+                                {
+                                    source,
+                                    sourceNode,
+                                    node = predecessorNode,
+                                    i = ((ExpressionBuilderArgument)edge.Label).Index
+                                }).ToArray();
+
+            foreach (var predecessor in predecessors)
             {
-                var workflowInput = new WorkflowInputBuilder();
+                var workflowInput = new WorkflowInputBuilder { Index = inputIndex++ };
                 var inputNode = workflowBuilder.Workflow.Add(workflowInput);
-                workflowBuilder.Workflow.AddEdge(inputNode, source, new ExpressionBuilderArgument());
-                linkNode = predecessors[0];
-                replacementNode = sourceNode;
+                workflowBuilder.Workflow.AddEdge(inputNode, predecessor.source, new ExpressionBuilderArgument { Index = predecessor.i });
             }
 
             var sink = sinks.First();
@@ -1001,9 +1012,8 @@ namespace Bonsai.Design
                 var workflowOutput = new WorkflowOutputBuilder();
                 var outputNode = workflowBuilder.Workflow.Add(workflowOutput);
                 workflowBuilder.Workflow.AddEdge(sink, outputNode, new ExpressionBuilderArgument());
-                if (linkNode == null && successors.Length > 0)
+                if (replacementNode == null && successors.Length > 0)
                 {
-                    linkNode = successors[0];
                     replacementNode = sinkNode;
                     nodeType = CreateGraphNodeType.Predecessor;
                 }
@@ -1029,6 +1039,36 @@ namespace Bonsai.Design
                             nodeType,
                             branch: false,
                             validate: false);
+
+            // Connect grouped node predecessors
+            var predecessorEdges = new List<Tuple<Node<ExpressionBuilder, ExpressionBuilderArgument>, Edge<ExpressionBuilder, ExpressionBuilderArgument>>>();
+            commandExecutor.Execute(() =>
+            {
+                int linkIndex = 0;
+                var groupNode = workflow.Single(node => ExpressionBuilder.Unwrap(node.Value) == workflowExpressionBuilder);
+                foreach (var predecessor in predecessors)
+                {
+                    var predecessorEdge = predecessor.node
+                        .Successors
+                        .FirstOrDefault(edge => edge.Target == groupNode && edge.Label.Index == linkIndex);
+                    if (predecessorEdge == null)
+                    {
+                        var edge = workflow.AddEdge(predecessor.node, groupNode, new ExpressionBuilderArgument { Index = linkIndex });
+                        predecessorEdges.Add(Tuple.Create(predecessor.node, edge));
+                    }
+
+                    linkIndex++;
+                }
+            },
+            () =>
+            {
+                var groupNode = workflow.Single(node => ExpressionBuilder.Unwrap(node.Value) == workflowExpressionBuilder);
+                foreach (var edge in predecessorEdges)
+                {
+                    workflow.RemoveEdge(edge.Item1, edge.Item2);
+                }
+            });
+
             if (replacementNode != null) DeleteGraphNode(replacementNode);
             commandExecutor.Execute(() =>
             {
