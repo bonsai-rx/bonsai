@@ -1329,8 +1329,7 @@ namespace Bonsai.Design
         {
             if (visualizerMapping != null)
             {
-                visualizerLayout.DialogSettings.Clear();
-
+                visualizerLayout = new VisualizerLayout();
                 foreach (var mapping in visualizerMapping)
                 {
                     var visualizerDialog = mapping.Value;
