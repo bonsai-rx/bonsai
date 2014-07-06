@@ -402,6 +402,21 @@ namespace Bonsai.Dsp.Design
             MasterPane.AxisChange();
         }
 
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.Modifiers == Keys.Control && e.KeyCode == Keys.P)
+            {
+                DoPrint();
+            }
+
+            if (e.Modifiers == Keys.Control && e.KeyCode == Keys.S)
+            {
+                SaveAs();
+            }
+
+            base.OnKeyDown(e);
+        }
+
         private void GraphPane_AxisChangeEvent(GraphPane pane)
         {
             var xscale = pane.XAxis.Scale;
