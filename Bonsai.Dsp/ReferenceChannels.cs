@@ -21,25 +21,31 @@ namespace Bonsai.Dsp
             return source.Select(input =>
             {
                 var channels = Channels;
-                if (channels == null || channels.Length == 0) return input;
-
                 var output = new Mat(input.Size, input.Depth, input.Channels);
-                var referenceSum = new Mat(1, input.Cols, input.Depth, input.Channels);
-                referenceSum.SetZero();
-                for (int i = 0; i < channels.Length; i++)
+                var reference = new Mat(1, input.Cols, input.Depth, input.Channels);
+                if (channels == null || channels.Length == 0)
                 {
-                    using (var referenceChannel = input.GetRow(channels[i]))
+                    CV.Reduce(input, reference, 0, ReduceOperation.Avg);
+                }
+                else if (channels.Length == 1)
+                {
+                    CV.Copy(input.GetRow(channels[0]), reference);
+                }
+                else
+                {
+                    reference.SetZero();
+                    for (int i = 0; i < channels.Length; i++)
                     {
-                        CV.Add(referenceSum, referenceChannel, referenceSum);
+                        using (var referenceChannel = input.GetRow(channels[i]))
+                        {
+                            CV.Add(reference, referenceChannel, reference);
+                        }
                     }
+
+                    CV.ConvertScale(reference, reference, 1f / channels.Length);
                 }
 
-                if (channels.Length > 1)
-                {
-                    CV.ConvertScale(referenceSum, referenceSum, 1f / channels.Length);
-                }
-
-                CV.Repeat(referenceSum, output);
+                CV.Repeat(reference, output);
                 CV.Sub(input, output, output);
                 return output;
             });
