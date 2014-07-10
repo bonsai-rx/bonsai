@@ -357,7 +357,7 @@ namespace Bonsai.Dsp.Design
                     }
 
                     var timeSeries = pane.CurveList;
-                    var series = new LineItem(string.Empty, values[i], GetNextColor(), SymbolType.None);
+                    var series = new LineItem(string.Empty, values[i], GetColor(i), SymbolType.None);
                     series.Line.IsAntiAlias = true;
                     series.Line.IsOptimizedDraw = true;
                     series.Label.IsVisible = false;
