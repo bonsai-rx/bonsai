@@ -37,7 +37,7 @@ namespace Bonsai.Vision
 
                     image = null;
                     capture = Capture.CreateFileCapture(fileName);
-                    if (capture.IsInvalid) throw new InvalidOperationException("Failed to open the video at the specified path.");
+                    if (capture == null) throw new InvalidOperationException("Failed to open the video at the specified path.");
                     captureFps = capture.GetProperty(CaptureProperty.Fps);
                     return capture;
                 },
