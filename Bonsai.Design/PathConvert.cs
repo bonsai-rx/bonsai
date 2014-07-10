@@ -19,7 +19,7 @@ namespace Bonsai.Design
             if (rootUri.IsBaseOf(pathUri))
             {
                 var relativeUri = rootUri.MakeRelativeUri(pathUri);
-                return relativeUri.ToString().Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+                return Uri.UnescapeDataString(relativeUri.ToString().Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar));
             }
             else return path;
         }
