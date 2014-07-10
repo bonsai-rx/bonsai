@@ -24,39 +24,46 @@ namespace Bonsai.Dsp
                 var activeBuffers = new List<SampleBuffer>();
                 return source.Subscribe(input =>
                 {
-                    // Update pending windows
-                    activeBuffers.RemoveAll(buffer =>
+                    try
                     {
-                        buffer.Update(input, 0);
-                        if (buffer.Completed)
+                        // Update pending windows
+                        activeBuffers.RemoveAll(buffer =>
                         {
-                            // Window is ready, emit
-                            observer.OnNext(buffer.Samples);
-                            return true;
+                            buffer.Update(input, 0);
+                            if (buffer.Completed)
+                            {
+                                // Window is ready, emit
+                                observer.OnNext(buffer.Samples);
+                                return true;
+                            }
+
+                            return false;
+                        });
+
+                        var index = 0;
+                        while ((index + skipCount) < input.Cols)
+                        {
+                            // Create new window and reset skip counter
+                            index += skipCount;
+                            skipCount = skip;
+                            var buffer = new SampleBuffer(input, count);
+                            buffer.Update(input, index);
+                            if (buffer.Completed)
+                            {
+                                // Window is ready, emit
+                                observer.OnNext(buffer.Samples);
+                            }
+                            // Window is missing data, add to list
+                            else activeBuffers.Add(buffer);
                         }
 
-                        return false;
-                    });
-
-                    var index = 0;
-                    while ((index + skipCount) < input.Cols)
-                    {
-                        // Create new window and reset skip counter
-                        index += skipCount;
-                        skipCount = skip;
-                        var buffer = new SampleBuffer(input, count);
-                        buffer.Update(input, index);
-                        if (buffer.Completed)
-                        {
-                            // Window is ready, emit
-                            observer.OnNext(buffer.Samples);
-                        }
-                        // Window is missing data, add to list
-                        else activeBuffers.Add(buffer);
+                        // Remove remainder of input samples from skip counter
+                        skipCount -= input.Cols - index;
                     }
-
-                    // Remove remainder of input samples from skip counter
-                    skipCount -= input.Cols - index;
+                    catch (Exception ex)
+                    {
+                        observer.OnError(ex);
+                    }
                 },
                 error => observer.OnError(error),
                 () => observer.OnCompleted());
