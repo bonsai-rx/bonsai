@@ -133,9 +133,14 @@ namespace Bonsai
         static IEnumerable<IPackageAssemblyReference> GetCompatibleAssemblyReferences(IPackage package)
         {
             return from reference in package.AssemblyReferences
-                   where reference.SupportedFrameworks.Intersect(SupportedFrameworks).Any()
+                   where !reference.SupportedFrameworks.Any() ||
+                         reference.SupportedFrameworks.Intersect(SupportedFrameworks).Any()
                    group reference by reference.Name into referenceGroup
-                   from reference in referenceGroup.OrderByDescending(reference => reference.TargetFramework.FullName).Take(1)
+                   from reference in referenceGroup
+                       .OrderByDescending(reference => reference.TargetFramework != null
+                           ? reference.TargetFramework.FullName
+                           : null)
+                       .Take(1)
                    select reference;
         }
 
