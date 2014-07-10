@@ -19,11 +19,12 @@ namespace Bonsai.Dsp
             {
                 bool active = false;
                 var activeBuffers = new List<SampleBuffer>();
-                return source.Subscribe(
-                    xs =>
+                return source.Subscribe(input =>
+                {
+                    try
                     {
-                        var data = xs.Item1;
-                        var trigger = xs.Item2;
+                        var data = input.Item1;
+                        var trigger = input.Item2;
 
                         // Update pending windows
                         activeBuffers.RemoveAll(buffer =>
@@ -71,9 +72,14 @@ namespace Bonsai.Dsp
                                 active = triggerHigh;
                             }
                         }
-                    },
-                    error => observer.OnError(error),
-                    () => observer.OnCompleted());
+                    }
+                    catch (Exception ex)
+                    {
+                        observer.OnError(ex);
+                    }
+                },
+                error => observer.OnError(error),
+                () => observer.OnCompleted());
             });
         }
     }
