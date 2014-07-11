@@ -540,23 +540,23 @@
             // stopToolStripButton
             // 
             this.stopToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.stopToolStripButton.Enabled = false;
             this.stopToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("stopToolStripButton.Image")));
             this.stopToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.stopToolStripButton.Name = "stopToolStripButton";
             this.stopToolStripButton.Size = new System.Drawing.Size(23, 22);
             this.stopToolStripButton.Text = "S&top";
-            this.stopToolStripButton.Visible = false;
             this.stopToolStripButton.Click += new System.EventHandler(this.stopToolStripMenuItem_Click);
             // 
             // restartToolStripButton
             // 
             this.restartToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.restartToolStripButton.Enabled = false;
             this.restartToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("restartToolStripButton.Image")));
             this.restartToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.restartToolStripButton.Name = "restartToolStripButton";
             this.restartToolStripButton.Size = new System.Drawing.Size(23, 22);
             this.restartToolStripButton.Text = "Restart";
-            this.restartToolStripButton.Visible = false;
             this.restartToolStripButton.Click += new System.EventHandler(this.restartToolStripMenuItem_Click);
             // 
             // helpToolStripSeparator
