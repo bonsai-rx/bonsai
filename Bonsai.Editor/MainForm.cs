@@ -620,9 +620,9 @@ namespace Bonsai.Editor
                 groupToolStripMenuItem.Enabled = true;
                 cutToolStripMenuItem.Enabled = true;
                 pasteToolStripMenuItem.Enabled = true;
-                startToolStripButton.Visible = startToolStripMenuItem.Visible = true;
-                stopToolStripButton.Visible = stopToolStripMenuItem.Visible = false;
-                restartToolStripButton.Visible = restartToolStripMenuItem.Visible = false;
+                startToolStripButton.Enabled = startToolStripMenuItem.Enabled = true;
+                stopToolStripButton.Enabled = stopToolStripMenuItem.Enabled = false;
+                restartToolStripButton.Enabled = restartToolStripMenuItem.Enabled = false;
                 if (workflowError == null)
                 {
                     statusTextLabel.Text = Resources.ReadyStatus;
@@ -675,9 +675,9 @@ namespace Bonsai.Editor
             groupToolStripMenuItem.Enabled = false;
             cutToolStripMenuItem.Enabled = false;
             pasteToolStripMenuItem.Enabled = false;
-            startToolStripButton.Visible = startToolStripMenuItem.Visible = false;
-            stopToolStripButton.Visible = stopToolStripMenuItem.Visible = true;
-            restartToolStripButton.Visible = restartToolStripMenuItem.Visible = true;
+            startToolStripButton.Enabled = startToolStripMenuItem.Enabled = false;
+            stopToolStripButton.Enabled = stopToolStripMenuItem.Enabled = true;
+            restartToolStripButton.Enabled = restartToolStripMenuItem.Enabled = true;
         }
 
         void StopWorkflow()
