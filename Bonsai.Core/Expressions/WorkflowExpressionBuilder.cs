@@ -57,6 +57,20 @@ namespace Bonsai.Expressions
         [Description("The name of the encapsulated workflow.")]
         public string Name { get; set; }
 
+        string INamedElement.Name
+        {
+            get
+            {
+                var name = Name;
+                if (!string.IsNullOrWhiteSpace(name))
+                {
+                    var elementType = GetType();
+                    return name + Environment.NewLine + "(" + GetElementDisplayName(elementType) + ")";
+                }
+                else return name;
+            }
+        }
+
         /// <summary>
         /// Gets the expression builder workflow that will be used to generate the
         /// output expression tree.
