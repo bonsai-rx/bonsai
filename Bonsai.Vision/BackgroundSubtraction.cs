@@ -54,14 +54,15 @@ namespace Bonsai.Vision
         {
             return Observable.Defer(() =>
             {
+                int averageCount = 0;
                 IplImage image = null;
                 IplImage difference = null;
                 IplImage background = null;
-                int averageCount = 0;
                 return source.Select(input =>
                 {
-                    if (averageCount == 0)
+                    if (background == null || background.Size != input.Size)
                     {
+                        averageCount = 0;
                         image = new IplImage(input.Size, IplDepth.F32, input.Channels);
                         difference = new IplImage(input.Size, IplDepth.F32, input.Channels);
                         background = new IplImage(input.Size, IplDepth.F32, input.Channels);
