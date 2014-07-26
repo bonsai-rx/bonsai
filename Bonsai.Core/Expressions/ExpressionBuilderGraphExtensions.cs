@@ -273,10 +273,10 @@ namespace Bonsai.Expressions
                 });
 
                 MulticastScope multicastScope = null;
-                if (node.Successors.Count > 1)
+                var multicastBuilder = workflowElement as MulticastExpressionBuilder;
+                if (node.Successors.Count > 1 || multicastBuilder != null)
                 {
                     // Start a new multicast scope
-                    var multicastBuilder = workflowElement as MulticastExpressionBuilder;
                     if (multicastBuilder == null)
                     {
                         multicastBuilder = new PublishBuilder();
@@ -284,8 +284,12 @@ namespace Bonsai.Expressions
                     }
 
                     multicastScope = new MulticastScope(multicastBuilder);
-                    multicastScope.References.AddRange(node.Successors.Select(successor => successor.Target.Value));
-                    multicastMap.Insert(0, multicastScope);
+                    if (node.Successors.Count > 1)
+                    {
+                        multicastScope.References.AddRange(node.Successors.Select(successor => successor.Target.Value));
+                        multicastMap.Insert(0, multicastScope);
+                    }
+                    else expression = multicastScope.Close(expression);
                 }
 
                 foreach (var successor in node.Successors)
