@@ -13,10 +13,12 @@ namespace Bonsai.Osc
 {
     static class MessageBuilder
     {
+        const int PadLength = 4;
         const string ASCIIEncodingName = "ASCII";
         const string WriteMethodName = "Write";
         const string GetBytesMethodName = "GetBytes";
         const string PadBytesMethodName = "PadBytes";
+        const string WriteBlobMethodName = "WriteBlob";
         const string ArrayLengthProperty = "Length";
         const string BlockCopyMethodName = "BlockCopy";
         const string FromTimestampMethodName = "FromTimestamp";
@@ -42,14 +44,27 @@ namespace Bonsai.Osc
 
         static byte[] PadBytes(byte[] value, int zeroPad)
         {
-            var excess = (value.Length + zeroPad) % 4;
+            var excess = (value.Length + zeroPad) % PadLength;
             if (excess > 0 || zeroPad > 0)
             {
-                if (excess == 0) excess = 4;
-                Array.Resize(ref value, value.Length + 4 - excess + zeroPad);
+                if (excess == 0) excess = PadLength;
+                Array.Resize(ref value, value.Length + PadLength - excess + zeroPad);
             }
 
             return value;
+        }
+
+        static void WriteBlob(BigEndianWriter writer, byte[] buffer)
+        {
+            writer.Write(buffer.Length);
+            writer.Write(buffer);
+
+            var zeroPad = buffer.Length % PadLength;
+            if (zeroPad > 0)
+            {
+                var padBytes = new byte[zeroPad];
+                writer.Write(padBytes);
+            }
         }
 
         static Expression CreateMessageBuilder(Expression parameter, StringBuilder typeTagBuilder, Expression writer)
@@ -146,8 +161,7 @@ namespace Bonsai.Osc
                         return Expression.Block(
                             new[] { blobVariable },
                             blobAssignment,
-                            Expression.Call(writer, WriteInt32, blobSize),
-                            Expression.Call(writer, WriteBytes, blobVariable));
+                            Expression.Call(typeof(MessageBuilder), WriteBlobMethodName, null, writer, blobVariable));
                     }
                     else
                     {
