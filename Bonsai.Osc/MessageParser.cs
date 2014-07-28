@@ -12,9 +12,11 @@ namespace Bonsai.Osc
     static class MessageParser
     {
         const string ReadStringMethodName = "ReadString";
+        static readonly MethodInfo ToTimestamp = typeof(TimeTag).GetMethod("ToTimestamp");
         static readonly MethodInfo ReadBytes = typeof(BigEndianReader).GetMethod("ReadBytes");
         static readonly MethodInfo ReadInt32 = typeof(BigEndianReader).GetMethod("ReadInt32");
         static readonly MethodInfo ReadInt64 = typeof(BigEndianReader).GetMethod("ReadInt64");
+        static readonly MethodInfo ReadUInt64 = typeof(BigEndianReader).GetMethod("ReadUInt64");
         static readonly MethodInfo ReadFloat = typeof(BigEndianReader).GetMethod("ReadSingle");
         static readonly MethodInfo ReadDouble = typeof(BigEndianReader).GetMethod("ReadDouble");
 
@@ -78,6 +80,9 @@ namespace Bonsai.Osc
             {
                 switch (tag)
                 {
+                    case TypeTag.TimeTag:
+                        var timeTag = Expression.Call(reader, ReadUInt64);
+                        return Expression.Call(ToTimestamp, timeTag);
                     case TypeTag.Int64: return Expression.Call(reader, ReadInt64);
                     case TypeTag.Int32: return Expression.Call(reader, ReadInt32);
                     case TypeTag.Float: return Expression.Call(reader, ReadFloat);
