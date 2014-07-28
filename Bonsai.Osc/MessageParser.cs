@@ -11,6 +11,9 @@ namespace Bonsai.Osc
 {
     static class MessageParser
     {
+        const int PadLength = 4;
+        const string ReadBlobMethodName = "ReadBlob";
+        const string ReadCharMethodName = "ReadChar";
         const string ReadStringMethodName = "ReadString";
         static readonly MethodInfo ToTimestamp = typeof(TimeTag).GetMethod("ToTimestamp");
         static readonly MethodInfo ReadBytes = typeof(BigEndianReader).GetMethod("ReadBytes");
@@ -20,6 +23,24 @@ namespace Bonsai.Osc
         static readonly MethodInfo ReadFloat = typeof(BigEndianReader).GetMethod("ReadSingle");
         static readonly MethodInfo ReadDouble = typeof(BigEndianReader).GetMethod("ReadDouble");
 
+        static byte[] ReadBlob(BigEndianReader reader, int blobSize)
+        {
+            var bytes = reader.ReadBytes(blobSize);
+            var zeroBytes = blobSize % PadLength;
+            if (zeroBytes > 0)
+            {
+                reader.ReadBytes(zeroBytes);
+            }
+
+            return bytes;
+        }
+
+        static char ReadChar(BigEndianReader reader)
+        {
+            var bytes = reader.ReadBytes(PadLength);
+            return Encoding.ASCII.GetChars(bytes)[0];
+        }
+
         static string ReadString(BigEndianReader reader)
         {
             int size;
@@ -28,8 +49,6 @@ namespace Bonsai.Osc
 
         public static string ReadString(BigEndianReader reader, out int size)
         {
-            const int PadLength = 4;
-
             int index = 0;
             var done = false;
             var bytes = new byte[PadLength];
@@ -80,6 +99,8 @@ namespace Bonsai.Osc
             {
                 switch (tag)
                 {
+                    case TypeTag.Char:
+                        return Expression.Call(typeof(MessageParser), ReadCharMethodName, null, reader);
                     case TypeTag.TimeTag:
                         var timeTag = Expression.Call(reader, ReadUInt64);
                         return Expression.Call(ToTimestamp, timeTag);
@@ -87,7 +108,11 @@ namespace Bonsai.Osc
                     case TypeTag.Int32: return Expression.Call(reader, ReadInt32);
                     case TypeTag.Float: return Expression.Call(reader, ReadFloat);
                     case TypeTag.Double: return Expression.Call(reader, ReadDouble);
+                    case TypeTag.Alternate:
                     case TypeTag.String: return Address(reader);
+                    case TypeTag.Blob:
+                        var blobSize = Expression.Call(reader, ReadInt32);
+                        return Expression.Call(typeof(MessageParser), ReadBlobMethodName, null, reader, blobSize);
                     default: throw new ArgumentException(string.Format("The type tag '{0}' is not supported.", tag), "typeTag");
                 }
             });
