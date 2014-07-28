@@ -25,8 +25,10 @@ namespace Bonsai.Osc
         static readonly MethodInfo WriteBytes = typeof(BigEndianWriter).GetMethod(WriteMethodName, new[] { typeof(byte[]) });
         static readonly MethodInfo WriteInt32 = typeof(BigEndianWriter).GetMethod(WriteMethodName, new[] { typeof(int) });
         static readonly MethodInfo WriteInt64 = typeof(BigEndianWriter).GetMethod(WriteMethodName, new[] { typeof(long) });
+        static readonly MethodInfo WriteUInt64 = typeof(BigEndianWriter).GetMethod(WriteMethodName, new[] { typeof(ulong) });
         static readonly MethodInfo WriteFloat = typeof(BigEndianWriter).GetMethod(WriteMethodName, new[] { typeof(float) });
         static readonly MethodInfo WriteDouble = typeof(BigEndianWriter).GetMethod(WriteMethodName, new[] { typeof(double) });
+        static readonly ConstructorInfo DateTimeOffsetConstructor = typeof(DateTimeOffset).GetConstructor(new[] { typeof(DateTime) });
 
         public const string AddressSeparator = "/";
         const string TypeTagSeparator = ",";
@@ -53,7 +55,7 @@ namespace Bonsai.Osc
         static Expression CreateMessageBuilder(Expression parameter, StringBuilder typeTagBuilder, Expression writer)
         {
             var type = parameter.Type;
-            var typeCode = Type.GetTypeCode(type);
+            var typeCode = type == typeof(DateTimeOffset) ? TypeCode.DateTime : Type.GetTypeCode(type);
             switch (typeCode)
             {
                 case TypeCode.Char:
@@ -66,8 +68,12 @@ namespace Bonsai.Osc
                     return Expression.Call(writer, WriteBytes, parameter);
                 case TypeCode.DateTime:
                     typeTagBuilder.Append(TypeTag.TimeTag);
+                    if (type != typeof(DateTimeOffset))
+                    {
+                        parameter = Expression.New(DateTimeOffsetConstructor, parameter);
+                    }
                     parameter = Expression.Call(typeof(TimeTag), FromTimestampMethodName, null, parameter);
-                    return Expression.Call(writer, WriteInt64, parameter);
+                    return Expression.Call(writer, WriteUInt64, parameter);
                 case TypeCode.Decimal:
                 case TypeCode.Double:
                     if (typeCode != TypeCode.Double)
