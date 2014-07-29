@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive;
@@ -70,6 +71,7 @@ namespace Bonsai.Expressions
             var matchExpression = Expression.Call(regexExpression, "Match", null, expression);
             var matchAssignment = Expression.Assign(matchVariable, matchExpression);
             var matchResult = Expression.Property(matchVariable, "Success");
+            var invariantCulture = Expression.Constant(CultureInfo.InvariantCulture);
 
             var inputValidation = Expression.IfThen(
                 Expression.Equal(expression, Expression.Constant(null, typeof(string))),
@@ -80,13 +82,14 @@ namespace Bonsai.Expressions
             var groupParsers = Array.ConvertAll(tokenTypes, tokenType =>
             {
                 var groupExpression = Expression.Property(matchVariable, "Groups");
-                var groupIndexer = Expression.Property(groupExpression, "Item", Expression.Constant(groupIndex));
+                var groupIndexer = Expression.Property(groupExpression, "Item", Expression.Constant(groupIndex++));
                 var groupValueExpression = Expression.Property(groupIndexer, "Value");
-                var valueExpression = tokenType != typeof(string)
-                    ? (Expression)Expression.Call(tokenType, "Parse", null, groupValueExpression)
-                    : groupValueExpression;
-                groupIndex++;
-                return valueExpression;
+                if (tokenType == typeof(string)) return (Expression)groupValueExpression;
+                if (tokenType == typeof(int) || tokenType == typeof(float))
+                {
+                    return Expression.Call(tokenType, "Parse", null, groupValueExpression, invariantCulture);
+                }
+                else return Expression.Call(tokenType, "Parse", null, groupValueExpression);
             });
 
             var matchValidation = Expression.IfThen(
