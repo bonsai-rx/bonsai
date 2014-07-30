@@ -70,7 +70,9 @@
     <Compile Include="BinaryArrayTransform.cs" />
     <Compile Include="Buffer.cs" />
     <Compile Include="Concat.cs" />
+    <Compile Include="ConvertFromArray.cs" />
     <Compile Include="ConvertScale.cs" />
+    <Compile Include="ConvertToArray.cs" />
     <Compile Include="ConvertToMat.cs" />
     <Compile Include="Extrema.cs" />
     <Compile Include="Phase.cs" />
