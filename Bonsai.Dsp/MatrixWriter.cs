@@ -27,25 +27,7 @@ namespace Bonsai.Dsp
 
         protected override void Write(BinaryWriter writer, Mat input)
         {
-            var data = new byte[input.Step * input.Rows];
-            var dataHandle = GCHandle.Alloc(data, GCHandleType.Pinned);
-            try
-            {
-                Mat dataHeader;
-                switch (Layout)
-                {
-                    case MatrixLayout.ColumnMajor:
-                        dataHeader = new Mat(input.Cols, input.Rows, input.Depth, input.Channels, dataHandle.AddrOfPinnedObject());
-                        CV.Transpose(input, dataHeader);
-                        break;
-                    default:
-                    case MatrixLayout.RowMajor:
-                        dataHeader = new Mat(input.Rows, input.Cols, input.Depth, input.Channels, dataHandle.AddrOfPinnedObject());
-                        CV.Copy(input, dataHeader);
-                        break;
-                }
-            }
-            finally { dataHandle.Free(); }
+            var data = ArrHelper.ToArray(input, Layout);
             writer.Write(data);
         }
     }
