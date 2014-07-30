@@ -98,6 +98,9 @@
     <Compile Include="RunningAverage.cs" />
     <Compile Include="SampleBuffer.cs" />
     <Compile Include="SelectChannels.cs" />
+    <Compile Include="DetectSpikes.cs" />
+    <Compile Include="SpikeWaveform.cs" />
+    <Compile Include="SpikeWaveformCollection.cs" />
     <Compile Include="Split.cs" />
     <Compile Include="Submatrix.cs" />
     <Compile Include="Sum.cs" />
