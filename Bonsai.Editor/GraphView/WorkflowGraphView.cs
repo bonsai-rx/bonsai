@@ -712,6 +712,15 @@ namespace Bonsai.Design
                 graphView.SelectedNode = graphView.Nodes.SelectMany(layer => layer).FirstOrDefault(n => closestNode != null ? GetGraphNodeTag(workflow, n).Value == closestNode.Value : false);
             });
 
+            var workflowBuilder = builder as WorkflowExpressionBuilder;
+            if (workflowBuilder != null && closestNode != null &&
+                (nodeType == CreateGraphNodeType.Successor || workflow.PredecessorEdges(closestNode).Any()))
+            {
+                var nestedInput = new WorkflowInputBuilder();
+                var nestedInputInspectBuilder = new InspectBuilder(nestedInput);
+                workflowBuilder.Workflow.Add(nestedInputInspectBuilder);
+            }
+
             var insertCommands = GetInsertGraphNodeCommands(inspectNode, inspectNode, elementCategory, closestNode, nodeType, branch);
             var addConnection = insertCommands.Item1;
             var removeConnection = insertCommands.Item2;
