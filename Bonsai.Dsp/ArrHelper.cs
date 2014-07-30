@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -68,6 +69,30 @@ namespace Bonsai.Dsp
                 default:
                     throw new ArgumentException("Invalid depth type.", "depth");
             }
+        }
+
+        public static byte[] ToArray(Mat input, MatrixLayout layout = MatrixLayout.RowMajor)
+        {
+            var data = new byte[input.Step * input.Rows];
+            var dataHandle = GCHandle.Alloc(data, GCHandleType.Pinned);
+            try
+            {
+                Mat dataHeader;
+                switch (layout)
+                {
+                    case MatrixLayout.ColumnMajor:
+                        dataHeader = new Mat(input.Cols, input.Rows, input.Depth, input.Channels, dataHandle.AddrOfPinnedObject());
+                        CV.Transpose(input, dataHeader);
+                        break;
+                    default:
+                    case MatrixLayout.RowMajor:
+                        dataHeader = new Mat(input.Rows, input.Cols, input.Depth, input.Channels, dataHandle.AddrOfPinnedObject());
+                        CV.Copy(input, dataHeader);
+                        break;
+                }
+            }
+            finally { dataHandle.Free(); }
+            return data;
         }
     }
 }

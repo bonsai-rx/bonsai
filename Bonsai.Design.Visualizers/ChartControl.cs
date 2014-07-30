@@ -84,6 +84,16 @@ namespace Bonsai.Design.Visualizers
             return color;
         }
 
+        public static Color GetColor(int colorIndex)
+        {
+            if (colorIndex < 0)
+            {
+                throw new ArgumentOutOfRangeException("colorIndex");
+            }
+
+            return BrightPastelPalette[colorIndex % BrightPastelPalette.Length];
+        }
+
         public void ResetColorCycle()
         {
             colorIndex = 0;
