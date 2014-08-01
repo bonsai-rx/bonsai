@@ -117,9 +117,12 @@
     <Compile Include="Reactive\Average.cs" />
     <Compile Include="Reactive\Buffer.cs" />
     <Compile Include="Reactive\Concat.cs" />
+    <Compile Include="Reactive\Dematerialize.cs" />
+    <Compile Include="Reactive\DelaySubscription.cs" />
     <Compile Include="Reactive\ElementIndex.cs" />
     <Compile Include="Reactive\Index.cs" />
     <Compile Include="Reactive\Materialize.cs" />
+    <Compile Include="Reactive\SequenceEqual.cs" />
     <Compile Include="Reactive\Switch.cs" />
     <Compile Include="Reactive\TriggeredBuffer.cs" />
     <Compile Include="Reactive\Max.cs" />
