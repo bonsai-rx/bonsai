@@ -26,7 +26,7 @@ namespace Bonsai.Vision
 
                     var output = new IplImage(input.Size, input.Depth, input.Channels);
                     CV.Sub(input, mean, output);
-                    CV.ConvertScale(output, output, 1f / count++, 0);
+                    CV.ConvertScale(output, output, 1f / ++count, 0);
                     CV.Add(mean, output, mean);
                     CV.Copy(mean, output);
                     return output;
