@@ -58,7 +58,7 @@ namespace Bonsai.Dsp
                                 var triggerHigh = triggerBuffer[i] > 0;
                                 if (triggerHigh && !active)
                                 {
-                                    var buffer = new SampleBuffer(data, Count);
+                                    var buffer = new SampleBuffer(data, Count, i);
                                     buffer.Update(data, i);
                                     if (buffer.Completed)
                                     {

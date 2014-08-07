@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -16,6 +17,8 @@ namespace Bonsai.Expressions
     [TypeDescriptionProvider(typeof(BinaryOperatorTypeDescriptionProvider))]
     public abstract class BinaryOperatorBuilder : SelectBuilder, IPropertyMappingBuilder
     {
+        static readonly MethodInfo GetEnumeratorMethod = typeof(IEnumerable).GetMethod("GetEnumerator");
+        static readonly MethodInfo MoveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
         readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
 
         /// <summary>
@@ -48,6 +51,18 @@ namespace Bonsai.Expressions
         /// </returns>
         protected abstract Expression BuildSelector(Expression left, Expression right);
 
+        private Expression ConvertAndBuildSelector(Expression left, Expression right)
+        {
+            if (left.Type != right.Type && left.Type.IsPrimitive && right.Type.IsPrimitive)
+            {
+                var comparison = CompareConversion(left.Type, right.Type, typeof(object));
+                if (comparison < 0) left = Expression.Convert(left, right.Type);
+                else right = Expression.Convert(right, left.Type);
+            }
+
+            return BuildSelector(left, right);
+        }
+
         /// <summary>
         /// Generates an <see cref="Expression"/> node from a collection of input arguments.
         /// The result can be chained with other builders in a workflow.
@@ -79,17 +94,69 @@ namespace Bonsai.Expressions
         protected override Expression BuildSelector(Expression expression)
         {
             Expression left, right;
-            if (expression.Type.IsGenericType && expression.Type.GetGenericTypeDefinition() == typeof(Tuple<,>))
+            var expressionTypeDefinition = expression.Type.IsGenericType ? expression.Type.GetGenericTypeDefinition() : null;
+            if (expressionTypeDefinition == typeof(Tuple<,>) ||
+                expressionTypeDefinition == typeof(Tuple<,,>) ||
+                expressionTypeDefinition == typeof(Tuple<,,,>) ||
+                expressionTypeDefinition == typeof(Tuple<,,,,>) ||
+                expressionTypeDefinition == typeof(Tuple<,,,,,>) ||
+                expressionTypeDefinition == typeof(Tuple<,,,,,,>))
             {
                 Operand = null;
                 left = ExpressionHelper.MemberAccess(expression, "Item1");
                 right = ExpressionHelper.MemberAccess(expression, "Item2");
-                if (left.Type != right.Type && left.Type.IsPrimitive && right.Type.IsPrimitive)
+
+                if (expressionTypeDefinition != typeof(Tuple<,>))
                 {
-                    var comparison = CompareConversion(left.Type, right.Type, typeof(object));
-                    if (comparison < 0) left = Expression.Convert(left, right.Type);
-                    else right = Expression.Convert(right, left.Type);
+                    left = ConvertAndBuildSelector(left, right);
+                    right = ExpressionHelper.MemberAccess(expression, "Item3");
+                    if (expressionTypeDefinition != typeof(Tuple<,,>))
+                    {
+                        left = ConvertAndBuildSelector(left, right);
+                        right = ExpressionHelper.MemberAccess(expression, "Item4");
+                        if (expressionTypeDefinition != typeof(Tuple<,,,>))
+                        {
+                            left = ConvertAndBuildSelector(left, right);
+                            right = ExpressionHelper.MemberAccess(expression, "Item5");
+                            if (expressionTypeDefinition != typeof(Tuple<,,,,>))
+                            {
+                                left = ConvertAndBuildSelector(left, right);
+                                right = ExpressionHelper.MemberAccess(expression, "Item6");
+                                if (expressionTypeDefinition != typeof(Tuple<,,,,,>))
+                                {
+                                    left = ConvertAndBuildSelector(left, right);
+                                    right = ExpressionHelper.MemberAccess(expression, "Item7");
+                                }
+                            }
+                        }
+                    }
                 }
+            }
+            else if (typeof(IEnumerable).IsAssignableFrom(expression.Type))
+            {
+                var genericEnumerable = Array.Find(expression.Type.GetInterfaces(), type => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+                var enumeratorMethod = genericEnumerable != null ? genericEnumerable.GetMethod("GetEnumerator") : GetEnumeratorMethod;
+                var enumeratorCall = Expression.Call(expression, enumeratorMethod);
+                var elementType = enumeratorCall.Type.IsGenericType ? enumeratorCall.Type.GetGenericArguments()[0] : typeof(object);
+                var enumerator = Expression.Variable(enumeratorCall.Type);
+                var accumulator = Expression.Variable(elementType);
+                var loopLabel = Expression.Label(elementType);
+                var moveNext = Expression.Call(enumerator, MoveNextMethod);
+                var current = Expression.Property(enumerator, "Current");
+                return Expression.Block(new[] { enumerator, accumulator },
+                    Expression.Assign(enumerator, enumeratorCall),
+                    Expression.IfThen(
+                        Expression.Not(moveNext),
+                        Expression.Throw(Expression.Constant(
+                            new InvalidOperationException("The sequence must have at least one argument.")))),
+                    Expression.Assign(accumulator, current),
+                    Expression.Loop(
+                        Expression.IfThenElse(
+                            moveNext,
+                            Expression.Assign(accumulator, ConvertAndBuildSelector(accumulator, current)),
+                            Expression.Break(loopLabel, accumulator)),
+                        loopLabel),
+                    accumulator);
             }
             else
             {
@@ -105,10 +172,10 @@ namespace Bonsai.Expressions
                 right = Expression.Property(operandExpression, "Value");
             }
 
-            return BuildSelector(left, right);
+            return ConvertAndBuildSelector(left, right);
         }
 
-        Type GetPropertyType(Type expressionType)
+        static Type GetPropertyType(Type expressionType)
         {
             if (expressionType == typeof(bool)) return typeof(BooleanProperty);
             if (expressionType == typeof(int)) return typeof(IntProperty);
