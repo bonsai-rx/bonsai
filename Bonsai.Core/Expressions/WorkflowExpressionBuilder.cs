@@ -133,7 +133,7 @@ namespace Bonsai.Expressions
         }
 
         /// <summary>
-        /// Builds the ouptut of the encapsulated workflow for the specified source and applies
+        /// Builds the output of the encapsulated workflow for the specified source and applies
         /// a selector taking into account any available workflow mappings.
         /// </summary>
         /// <param name="arguments">
