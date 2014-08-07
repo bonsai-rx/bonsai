@@ -10,11 +10,18 @@ namespace Bonsai.Dsp
     class SampleBuffer
     {
         int offset;
+        readonly int sampleIndex;
         readonly Mat samples;
 
-        public SampleBuffer(Mat template, int count)
+        public SampleBuffer(Mat template, int count, int index)
         {
+            sampleIndex = index;
             samples = new Mat(template.Rows, count, template.Depth, template.Channels);
+        }
+
+        public int SampleIndex
+        {
+            get { return sampleIndex; }
         }
 
         public Mat Samples
