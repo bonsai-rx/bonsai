@@ -175,7 +175,7 @@ namespace Bonsai.Expressions
             return ConvertAndBuildSelector(left, right);
         }
 
-        Type GetPropertyType(Type expressionType)
+        static Type GetPropertyType(Type expressionType)
         {
             if (expressionType == typeof(bool)) return typeof(BooleanProperty);
             if (expressionType == typeof(int)) return typeof(IntProperty);
