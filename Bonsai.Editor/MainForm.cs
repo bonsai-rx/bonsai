@@ -821,11 +821,11 @@ namespace Bonsai.Editor
 
                 if (InvokeRequired) BeginInvoke(selectExceptionNode);
                 else selectExceptionNode();
-
-                var shutdown = ShutdownSequence();
-                shutdown.Dispose();
             }
             else MessageBox.Show(e.Message, Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+            var shutdown = ShutdownSequence();
+            shutdown.Dispose();
         }
 
         #endregion
