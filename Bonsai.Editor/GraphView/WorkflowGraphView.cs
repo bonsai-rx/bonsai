@@ -43,6 +43,7 @@ namespace Bonsai.Design
         public const string BonsaiExtension = ".bonsai";
 
         int dragKeyState;
+        bool editorLaunching;
         bool isContextMenuSource;
         GraphNode dragHighlight;
         IEnumerable<GraphNode> dragSelection;
@@ -1205,23 +1206,30 @@ namespace Bonsai.Design
             var workflowExpressionBuilder = GetGraphNodeBuilder(node) as WorkflowExpressionBuilder;
             if (workflowExpressionBuilder == null) return;
 
-            bool composite = false;
+            editorLaunching = true;
+            var launcher = Launcher;
+            var parentLaunching = launcher != null && launcher.ParentView.editorLaunching;
+            var compositeExecutor = new Lazy<CommandExecutor>(() =>
+            {
+                if (!parentLaunching) commandExecutor.BeginCompositeCommand();
+                return commandExecutor;
+            }, false);
+
             WorkflowEditorLauncher editorLauncher;
             if (!workflowEditorMapping.TryGetValue(workflowExpressionBuilder, out editorLauncher))
             {
-                composite = true;
-                editorLauncher = new WorkflowEditorLauncher(workflowExpressionBuilder, this);
+                editorLauncher = new WorkflowEditorLauncher(
+                    workflowExpressionBuilder,
+                    () => launcher != null ? launcher.WorkflowGraphView : this);
                 editorLauncher.VisualizerLayout = editorLayout;
                 editorLauncher.Bounds = bounds;
                 var addEditorMapping = CreateUpdateEditorMappingDelegate(editorMapping => editorMapping.Add(workflowExpressionBuilder, editorLauncher));
                 var removeEditorMapping = CreateUpdateEditorMappingDelegate(editorMapping => editorMapping.Remove(workflowExpressionBuilder));
-                commandExecutor.BeginCompositeCommand();
-                commandExecutor.Execute(addEditorMapping, removeEditorMapping);
+                compositeExecutor.Value.Execute(addEditorMapping, removeEditorMapping);
             }
 
             if (!editorLauncher.Visible || activate)
             {
-                var launcher = Launcher;
                 var highlight = node.Highlight;
                 var visible = editorLauncher.Visible;
                 var editorService = this.editorService;
@@ -1237,9 +1245,21 @@ namespace Bonsai.Design
                 };
 
                 if (visible) launchEditor();
-                else commandExecutor.Execute(launchEditor, editorLauncher.Hide);
-                if (composite) commandExecutor.EndCompositeCommand();
+                else compositeExecutor.Value.Execute(launchEditor, editorLauncher.Hide);
             }
+
+            if (compositeExecutor.IsValueCreated && !parentLaunching)
+            {
+                compositeExecutor.Value.EndCompositeCommand();
+            }
+            editorLaunching = false;
+        }
+
+        internal void CloseWorkflowView(WorkflowExpressionBuilder workflowExpressionBuilder)
+        {
+            commandExecutor.BeginCompositeCommand();
+            RemoveEditorMapping(workflowExpressionBuilder);
+            commandExecutor.EndCompositeCommand();
         }
 
         public VisualizerDialogLauncher GetVisualizerDialogLauncher(GraphNode node)
