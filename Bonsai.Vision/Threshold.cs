@@ -33,7 +33,7 @@ namespace Bonsai.Vision
         {
             return source.Select(input =>
             {
-                var output = new IplImage(input.Size, IplDepth.U8, input.Channels);
+                var output = new IplImage(input.Size, input.Depth, input.Channels);
                 CV.Threshold(input, output, ThresholdValue, MaxValue, ThresholdType);
                 return output;
             });

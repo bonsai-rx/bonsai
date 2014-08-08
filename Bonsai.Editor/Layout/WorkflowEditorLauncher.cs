@@ -15,24 +15,28 @@ namespace Bonsai.Design
         bool userClosing;
         WorkflowExpressionBuilder builder;
         WorkflowGraphView workflowGraphView;
+        Func<WorkflowGraphView> parentSelector;
 
-        public WorkflowEditorLauncher(WorkflowExpressionBuilder builder, WorkflowGraphView parentView)
+        public WorkflowEditorLauncher(WorkflowExpressionBuilder builder, Func<WorkflowGraphView> parentSelector)
         {
             if (builder == null)
             {
                 throw new ArgumentNullException("builder");
             }
 
-            if (parentView == null)
+            if (parentSelector == null)
             {
-                throw new ArgumentNullException("parentView");
+                throw new ArgumentNullException("parentSelector");
             }
 
             this.builder = builder;
-            ParentView = parentView;
+            this.parentSelector = parentSelector;
         }
 
-        internal WorkflowGraphView ParentView { get; private set; }
+        internal WorkflowGraphView ParentView
+        {
+            get { return parentSelector(); }
+        }
 
         internal IWin32Window Owner
         {
@@ -84,7 +88,7 @@ namespace Bonsai.Design
                     if (userClosing)
                     {
                         e.Cancel = true;
-                        workflowGraphView.CloseWorkflowEditorLauncher(this);
+                        ParentView.CloseWorkflowView(builder);
                     }
                     else UpdateEditorLayout();
                 }
