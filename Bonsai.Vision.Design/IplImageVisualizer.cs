@@ -74,11 +74,27 @@ namespace Bonsai.Vision.Design
             var inputImage = (IplImage)value;
             visualizerImage = IplImageHelper.EnsureImageFormat(visualizerImage, inputImage.Size, inputImage.Depth, inputImage.Channels);
             CV.Copy(inputImage, visualizerImage);
+            UpdateStatus();
         }
 
         protected virtual void RenderFrame()
         {
             imageTexture.Draw();
+        }
+
+        private void UpdateStatus()
+        {
+            if (visualizerImage != null && statusStrip.Visible)
+            {
+                var cursorPosition = visualizerCanvas.Canvas.PointToClient(Form.MousePosition);
+                if (visualizerCanvas.ClientRectangle.Contains(cursorPosition))
+                {
+                    var imageX = (int)(cursorPosition.X * ((float)visualizerImage.Width / visualizerCanvas.Width));
+                    var imageY = (int)(cursorPosition.Y * ((float)visualizerImage.Height / visualizerCanvas.Height));
+                    var cursorColor = visualizerImage[imageY, imageX];
+                    statusLabel.Text = string.Format("Cursor: ({0},{1}) Value: ({2},{3},{4})", imageX, imageY, cursorColor.Val0, cursorColor.Val1, cursorColor.Val2);
+                }
+            }
         }
 
         public override void Load(IServiceProvider provider)
@@ -95,6 +111,7 @@ namespace Bonsai.Vision.Design
                 StatusStripEnabled &&
                 e.Button == MouseButtons.Right ? !statusStrip.Visible : statusStrip.Visible;
 
+            visualizerCanvas.Canvas.MouseMove += (sender, e) => UpdateStatus();
             visualizerCanvas.Canvas.MouseDoubleClick += (sender, e) =>
             {
                 if (e.Button == MouseButtons.Left)
@@ -102,21 +119,6 @@ namespace Bonsai.Vision.Design
                     if (visualizerImage != null)
                     {
                         imagePanel.Parent.ClientSize = new Size(visualizerImage.Width, visualizerImage.Height);
-                    }
-                }
-            };
-
-            visualizerCanvas.Canvas.MouseMove += (sender, e) =>
-            {
-                if (visualizerImage != null && statusStrip.Visible)
-                {
-                    var cursorPosition = visualizerCanvas.Canvas.PointToClient(Form.MousePosition);
-                    if (visualizerCanvas.ClientRectangle.Contains(cursorPosition))
-                    {
-                        var imageX = (int)(cursorPosition.X * ((float)visualizerImage.Width / visualizerCanvas.Width));
-                        var imageY = (int)(cursorPosition.Y * ((float)visualizerImage.Height / visualizerCanvas.Height));
-                        var cursorColor = visualizerImage[imageY, imageX];
-                        statusLabel.Text = string.Format("Cursor: ({0},{1}) Value: ({2},{3},{4})", imageX, imageY, cursorColor.Val0, cursorColor.Val1, cursorColor.Val2);
                     }
                 }
             };
