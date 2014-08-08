@@ -93,6 +93,7 @@ namespace Bonsai.Vision.Design
             switch (image.Channels)
             {
                 case 1: pixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Luminance; break;
+                case 2: pixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Rg; break;
                 case 3: pixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Bgr; break;
                 case 4: pixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Bgra; break;
                 default: throw new ArgumentException("Image has an unsupported number of channels.", "image");
