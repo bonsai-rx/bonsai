@@ -44,7 +44,7 @@ namespace Bonsai.Expressions
             set
             {
                 combinator = value;
-                UpdateArgumentRange();                
+                UpdateArgumentRange();
             }
         }
 
