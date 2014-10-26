@@ -32,7 +32,7 @@ namespace Bonsai.Dsp
         {
             var stopwatch = new Stopwatch();
             return Observable.Using(
-                () => new BinaryReader(new FileStream(FileName, FileMode.Open)),
+                () => new BinaryReader(new FileStream(FileName, FileMode.Open, FileAccess.Read)),
                 reader => ObservableCombinators.GenerateWithThread<Mat>(observer =>
                 {
                     stopwatch.Restart();
