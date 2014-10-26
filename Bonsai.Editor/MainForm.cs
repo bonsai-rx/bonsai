@@ -21,6 +21,7 @@ using System.Windows.Forms.Design;
 using System.Reactive.Concurrency;
 using System.Reactive;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace Bonsai.Editor
 {
@@ -797,7 +798,7 @@ namespace Bonsai.Editor
                 statusImageLabel.Image = buildException ? Resources.StatusBlockedImage : Resources.StatusCriticalImage;
                 if (showMessageBox)
                 {
-                    MessageBox.Show(e.Message, errorCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    editorSite.ShowError(e.Message, errorCaption);
                 }
             }
         }
@@ -822,7 +823,7 @@ namespace Bonsai.Editor
                 if (InvokeRequired) BeginInvoke(selectExceptionNode);
                 else selectExceptionNode();
             }
-            else MessageBox.Show(e.Message, Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            else editorSite.ShowError(e.Message, Name);
 
             var shutdown = ShutdownSequence();
             shutdown.Dispose();
@@ -1027,6 +1028,26 @@ namespace Bonsai.Editor
             }
         }
 
+        void CreateGraphNode(TreeNode typeNode, Keys modifiers)
+        {
+            const string ErrorCaption = "Type Error";
+            const string ErrorMessage = "Failed to create {0}:\n{1}";
+            var model = selectionModel.SelectedView;
+            var branch = modifiers.HasFlag(WorkflowGraphView.BranchModifier);
+            var predecessor = modifiers.HasFlag(WorkflowGraphView.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
+            try { model.CreateGraphNode(typeNode, selectionModel.SelectedNodes.FirstOrDefault(), predecessor, branch); }
+            catch (TargetInvocationException e)
+            {
+                var message = string.Format(ErrorMessage, typeNode.Text, e.InnerException.Message);
+                editorSite.ShowError(message, ErrorCaption);
+            }
+            catch (SystemException e)
+            {
+                var message = string.Format(ErrorMessage, typeNode.Text, e.Message);
+                editorSite.ShowError(message, ErrorCaption);
+            }
+        }
+
         private void toolboxTreeView_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Return &&
@@ -1035,10 +1056,7 @@ namespace Bonsai.Editor
                 toolboxTreeView.SelectedNode.Tag != null)
             {
                 var typeNode = toolboxTreeView.SelectedNode;
-                var model = selectionModel.SelectedView;
-                var branch = e.Modifiers.HasFlag(WorkflowGraphView.BranchModifier);
-                var predecessor = e.Modifiers.HasFlag(WorkflowGraphView.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
-                model.CreateGraphNode(typeNode, selectionModel.SelectedNodes.FirstOrDefault(), predecessor, branch);
+                CreateGraphNode(typeNode, e.Modifiers);
                 e.Handled = true;
                 e.SuppressKeyPress = true;
             }
@@ -1049,10 +1067,7 @@ namespace Bonsai.Editor
             if (e.Button == MouseButtons.Left && e.Node.Tag != null)
             {
                 var typeNode = e.Node;
-                var model = selectionModel.SelectedView;
-                var branch = Control.ModifierKeys.HasFlag(WorkflowGraphView.BranchModifier);
-                var predecessor = Control.ModifierKeys.HasFlag(WorkflowGraphView.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
-                model.CreateGraphNode(typeNode, selectionModel.SelectedNodes.FirstOrDefault(), predecessor, branch);
+                CreateGraphNode(typeNode, Control.ModifierKeys);
             }
         }
 
@@ -1547,7 +1562,7 @@ namespace Bonsai.Editor
 
             public void ShowError(Exception ex, string message)
             {
-                MessageBox.Show(message, siteForm.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowError(message);
             }
 
             public void ShowError(Exception ex)
@@ -1557,7 +1572,12 @@ namespace Bonsai.Editor
 
             public void ShowError(string message)
             {
-                MessageBox.Show(message, siteForm.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowError(message, siteForm.Name);
+            }
+
+            public void ShowError(string message, string caption)
+            {
+                MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             public DialogResult ShowMessage(string message, string caption, MessageBoxButtons buttons)
