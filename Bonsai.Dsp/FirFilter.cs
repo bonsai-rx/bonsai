@@ -46,10 +46,14 @@ namespace Bonsai.Dsp
                 float[] currentKernel = null;
                 return source.Select(input =>
                 {
-                    if (Kernel != currentKernel)
+                    if (Kernel != currentKernel ||
+                        currentKernel != null &&
+                        (input.Rows != overlapOutput.Height ||
+                         input.Cols != overlapOutput.Width))
                     {
                         currentKernel = Kernel;
-                        if (currentKernel != null && currentKernel.Length > 0)
+                        if (currentKernel == null || currentKernel.Length == 0) kernel = null;
+                        else
                         {
                             kernel = new Mat(1, currentKernel.Length, Depth.F32, 1);
                             Marshal.Copy(currentKernel, 0, kernel.Data, currentKernel.Length);
