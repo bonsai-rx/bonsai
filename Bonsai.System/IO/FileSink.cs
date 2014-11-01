@@ -101,11 +101,11 @@ namespace Bonsai.IO
 
                 var process = source.Do(input =>
                 {
-                    var runningWriter = writer;
                     Action writeTask = () =>
                     {
                         try
                         {
+                            var runningWriter = writer;
                             if (runningWriter == null)
                             {
                                 var fileName = FileName;
