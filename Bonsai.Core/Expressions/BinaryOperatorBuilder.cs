@@ -132,7 +132,7 @@ namespace Bonsai.Expressions
                     }
                 }
             }
-            else if (typeof(IEnumerable).IsAssignableFrom(expression.Type))
+            else if (expression.Type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(expression.Type))
             {
                 var genericEnumerable = Array.Find(expression.Type.GetInterfaces(), type => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>));
                 var enumeratorMethod = genericEnumerable != null ? genericEnumerable.GetMethod("GetEnumerator") : GetEnumeratorMethod;
