@@ -29,7 +29,7 @@ namespace Bonsai.Reactive
         /// <returns>An observable sequence with timestamp information on elements.</returns>
         public IObservable<Timestamped<TSource>> Process<TSource>(IObservable<TSource> source)
         {
-            return source.Timestamp();
+            return source.Timestamp(HighResolutionScheduler.Default);
         }
     }
 }
