@@ -1226,15 +1226,16 @@ namespace Bonsai.Editor
 
         static void CycleActiveForm(int step)
         {
-            if (Application.OpenForms.Count > 1 && !Form.ActiveForm.Modal)
+            var activeForm = Form.ActiveForm;
+            if (activeForm != null && !activeForm.Modal && Application.OpenForms.Count > 1)
             {
                 for (int i = 0; i < Application.OpenForms.Count; i++)
                 {
                     var form = Application.OpenForms[i];
-                    if (form == Form.ActiveForm)
+                    if (form == activeForm)
                     {
                         i = (i + Application.OpenForms.Count + step) % Application.OpenForms.Count;
-                        var activeForm = Application.OpenForms[i];
+                        activeForm = Application.OpenForms[i];
                         activeForm.Activate();
                         break;
                     }
