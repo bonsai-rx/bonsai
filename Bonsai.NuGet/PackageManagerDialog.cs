@@ -43,6 +43,8 @@ namespace Bonsai.NuGet
         TreeNode installedPackagesNode;
         TreeNode onlineNode;
         TreeNode updatesNode;
+        TreeNode collapsingNode;
+        TreeNode selectingNode;
 
         public PackageManagerDialog(string path)
         {
@@ -61,6 +63,13 @@ namespace Bonsai.NuGet
             multiOperationPanel.Visible = false;
             searchComboBox.CueBanner = Resources.SearchOnlineCueBanner;
             searchComboBox.Select();
+
+            sortComboBox.Items.Add(SortByMostDownloads);
+            sortComboBox.Items.Add(SortByPublishedDate);
+            sortComboBox.Items.Add(SortByNameAscending);
+            sortComboBox.Items.Add(SortByNameDescending);
+            sortComboBox.SelectedIndex = 0;
+            releaseFilterComboBox.SelectedIndex = 0;
         }
 
         void ClearActiveRequests()
@@ -152,12 +161,6 @@ namespace Bonsai.NuGet
 
         protected override void OnLoad(EventArgs e)
         {
-            sortComboBox.Items.Add(SortByMostDownloads);
-            sortComboBox.Items.Add(SortByPublishedDate);
-            sortComboBox.Items.Add(SortByNameAscending);
-            sortComboBox.Items.Add(SortByNameDescending);
-            releaseFilterComboBox.SelectedIndex = 0;
-            sortComboBox.SelectedIndex = 0;
             searchSubscription = Observable.FromEventPattern<EventArgs>(
                 handler => searchComboBox.TextChanged += new EventHandler(handler),
                 handler => searchComboBox.TextChanged -= new EventHandler(handler))
@@ -552,8 +555,31 @@ namespace Bonsai.NuGet
             }
         }
 
+        private void repositoriesView_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
+        {
+            collapsingNode = e.Node;
+        }
+
+        private void repositoriesView_AfterCollapse(object sender, TreeViewEventArgs e)
+        {
+            collapsingNode = null;
+            if (repositoriesView.SelectedNode == e.Node && selectingNode == null)
+            {
+                repositoriesView.SelectedNode = null;
+            }
+        }
+
+        private void repositoriesView_AfterExpand(object sender, TreeViewEventArgs e)
+        {
+            if (repositoriesView.SelectedNode != e.Node)
+            {
+                repositoriesView.SelectedNode = e.Node;
+            }
+        }
+
         private void repositoriesView_AfterSelect(object sender, TreeViewEventArgs e)
         {
+            selectingNode = null;
             selectedManager = e.Node.Tag as PackageManager;
             if (selectedManager == null) return;
             if (e.Node == installedPackagesNode || e.Node.Parent == installedPackagesNode)
@@ -580,7 +606,8 @@ namespace Bonsai.NuGet
         private void repositoriesView_BeforeSelect(object sender, TreeViewCancelEventArgs e)
         {
             var node = e.Node;
-            if (node.Parent == null && !node.IsExpanded)
+            selectingNode = node;
+            if (node != collapsingNode && node.Parent == null)
             {
                 e.Cancel = true;
                 var selectedNode = repositoriesView.SelectedNode;
