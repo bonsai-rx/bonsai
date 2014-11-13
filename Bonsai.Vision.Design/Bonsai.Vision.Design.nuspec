@@ -16,7 +16,7 @@
     <tags>Bonsai Vision Visualizers</tags>
     <dependencies>
       <dependency id="Bonsai.Vision" version="2.0.1" />
-      <dependency id="Bonsai.Design.Visualizers" version="2.0.1" />
+      <dependency id="Bonsai.Design.Visualizers" version="2.0.0" />
     </dependencies>
   </metadata>
 </package>
