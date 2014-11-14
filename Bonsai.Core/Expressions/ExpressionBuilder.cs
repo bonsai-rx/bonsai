@@ -126,7 +126,11 @@ namespace Bonsai.Expressions
             var elementType = element.GetType();
             if (elementType.IsDefined(typeof(CombinatorAttribute), true))
             {
-                return new CombinatorBuilder { Combinator = element };
+                var combinatorAttribute = elementType.GetCustomAttribute<CombinatorAttribute>(true);
+                var builderType = Type.GetType(combinatorAttribute.ExpressionBuilderTypeName);
+                var builder = (CombinatorBuilder)Activator.CreateInstance(builderType);
+                builder.Combinator = element;
+                return builder;
             }
 
             if (elementCategory == ElementCategory.Source ||
@@ -623,7 +627,7 @@ namespace Bonsai.Expressions
             return expandedParameters;
         }
 
-        internal static Expression BuildCall(Expression instance, IEnumerable<MethodInfo> methods, params Expression[] arguments)
+        protected static Expression BuildCall(Expression instance, IEnumerable<MethodInfo> methods, params Expression[] arguments)
         {
             var argumentTypes = Array.ConvertAll(arguments, argument => argument.Type);
             var candidates = methods
