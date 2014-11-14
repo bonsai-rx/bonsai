@@ -75,6 +75,7 @@
     <Compile Include="ConvertToArray.cs" />
     <Compile Include="ConvertToMat.cs" />
     <Compile Include="Extrema.cs" />
+    <Compile Include="Norm.cs" />
     <Compile Include="Phase.cs" />
     <Compile Include="Magnitude.cs" />
     <Compile Include="Exp.cs" />
