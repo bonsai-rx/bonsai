@@ -19,6 +19,8 @@ namespace Bonsai.Dsp
             samples = new Mat(template.Rows, count, template.Depth, template.Channels);
         }
 
+        public bool Refined { get; set; }
+
         public int SampleIndex
         {
             get { return sampleIndex; }

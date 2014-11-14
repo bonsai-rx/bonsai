@@ -29,7 +29,9 @@ namespace Bonsai.Dsp
             {
                 byte[] triggerBuffer = null;
                 bool[] activeChannels = null;
+                int[] refractoryChannels = null;
                 SampleBuffer[] activeSpikes = null;
+                int ioff = 0;
                 return source.Publish(ps => ps.Zip(delay.Process(ps), (input, delayed) =>
                 {
                     var spikes = new SpikeWaveformCollection(input.Size);
@@ -37,6 +39,7 @@ namespace Bonsai.Dsp
                     {
                         triggerBuffer = new byte[input.Cols];
                         activeChannels = new bool[input.Rows];
+                        refractoryChannels = new int[input.Rows];
                         activeSpikes = new SampleBuffer[input.Rows];
                     }
 
@@ -45,10 +48,13 @@ namespace Bonsai.Dsp
                         using (var channel = input.GetRow(i))
                         using (var delayedChannel = delayed.GetRow(i))
                         {
+                            var threshold = Threshold;
                             if (activeSpikes[i] != null)
                             {
                                 var buffer = activeSpikes[i];
                                 buffer.Update(delayedChannel, 0);
+                                buffer = Refine(buffer, delay.Count, threshold);
+                                activeSpikes[i] = buffer;
                                 if (buffer.Completed)
                                 {
                                     spikes.Add(new SpikeWaveform
@@ -62,7 +68,6 @@ namespace Bonsai.Dsp
                                 else continue;
                             }
 
-                            var threshold = Threshold;
                             using (var triggerHeader = Mat.CreateMatHeader(triggerBuffer))
                             {
                                 CV.Threshold(channel, triggerHeader, threshold, 1, threshold < 0 ? ThresholdTypes.BinaryInv : ThresholdTypes.Binary);
@@ -71,10 +76,13 @@ namespace Bonsai.Dsp
                             for (int j = 0; j < triggerBuffer.Length; j++)
                             {
                                 var triggerHigh = triggerBuffer[j] > 0;
-                                if (triggerHigh && !activeChannels[i])
+                                if (triggerHigh && !activeChannels[i] && refractoryChannels[i] == 0 && activeSpikes[i] == null)
                                 {
-                                    var buffer = new SampleBuffer(channel, Length, j);
+                                    var length = Length;
+                                    refractoryChannels[i] = length;
+                                    var buffer = new SampleBuffer(channel, length, j + ioff);
                                     buffer.Update(delayedChannel, j);
+                                    buffer = Refine(buffer, delay.Count, threshold);
                                     if (buffer.Completed)
                                     {
                                         spikes.Add(new SpikeWaveform
@@ -88,13 +96,40 @@ namespace Bonsai.Dsp
                                 }
 
                                 activeChannels[i] = triggerHigh;
+                                if (refractoryChannels[i] > 0)
+                                {
+                                    refractoryChannels[i]--;
+                                }
                             }
                         }
                     }
 
+                    ioff += input.Cols;
                     return spikes;
                 }));
             });
+        }
+
+        static SampleBuffer Refine(SampleBuffer buffer, int delay, int threshold)
+        {
+            if (buffer.Completed && !buffer.Refined)
+            {
+                double min, max;
+                Point minLoc, maxLoc;
+                var waveform = buffer.Samples;
+                CV.MinMaxLoc(waveform, out min, out max, out minLoc, out maxLoc);
+
+                var offset = threshold > 0 ? maxLoc.X - delay : minLoc.X - delay;
+                if (offset > 0)
+                {
+                    buffer.Refined = true;
+                    var offsetBuffer = new SampleBuffer(waveform, waveform.Cols, buffer.SampleIndex + offset);
+                    offsetBuffer.Update(waveform, offset);
+                    return offsetBuffer;
+                }
+            }
+
+            return buffer;
         }
     }
 }
