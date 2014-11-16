@@ -48,6 +48,7 @@ namespace Bonsai.NuGet
 
         public PackageManagerDialog(string path)
         {
+            InitializeComponent();
             packageManagerPath = path;
             var defaultIconRequest = GetPackageIcon(PackageDefaultIconUrl).PublishLast();
             defaultIcon = defaultIconRequest;
@@ -58,7 +59,6 @@ namespace Bonsai.NuGet
             var settings = Settings.LoadDefaultSettings(null, null, machineWideSettings);
             packageSourceProvider = new PackageSourceProvider(settings);
             packageManagers = CreatePackageManagers();
-            InitializeComponent();
             InitializeRepositoryViewNodes();
             multiOperationPanel.Visible = false;
             searchComboBox.CueBanner = Resources.SearchOnlineCueBanner;
