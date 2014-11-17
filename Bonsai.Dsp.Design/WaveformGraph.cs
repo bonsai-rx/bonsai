@@ -33,7 +33,7 @@ namespace Bonsai.Dsp.Design
 
         bool autoScaleX;
         bool autoScaleY;
-        int sequenceIndex;
+        int[] sequenceIndices;
         bool overlayChannels;
         int historyLength;
         double channelOffset;
@@ -137,7 +137,7 @@ namespace Bonsai.Dsp.Design
 
         private void ResetWaveform()
         {
-            sequenceIndex = 0;
+            sequenceIndices = new int[values == null ? 0 : values.Length];
             var paneCount = MasterPane.PaneList.Count;
             if (paneCount > 1)
             {
@@ -305,7 +305,7 @@ namespace Bonsai.Dsp.Design
             }
         }
 
-        public void UpdateWaveform(double[] samples, int rows, int columns)
+        private void EnsureWaveformValues(int rows)
         {
             if (values == null || values.Length != rows)
             {
@@ -313,11 +313,99 @@ namespace Bonsai.Dsp.Design
                 ResetWaveform();
             }
 
+            if (!overlayChannels)
+            {
+                var graphPanes = MasterPane.PaneList;
+                if (graphPanes.Count != rows)
+                {
+                    for (int i = 1; i < rows; i++)
+                    {
+                        var pane = new GraphPane(GraphPane);
+                        pane.Border.IsVisible = selectedChannels.Contains(i);
+                        pane.Title.Text = i.ToString(CultureInfo.InvariantCulture);
+                        pane.AxisChangeEvent += GraphPane_AxisChangeEvent;
+                        pane.CurveList.Clear();
+                        graphPanes.Add(pane);
+                    }
+                }
+            }
+        }
+
+        private void InsertTimeSeries(int channel)
+        {
+            GraphPane pane;
+            var graphPanes = MasterPane.PaneList;
+            if (overlayChannels) pane = GraphPane;
+            else pane = graphPanes[channel];
+
+            var timeSeries = pane.CurveList;
+            var series = new LineItem(string.Empty, values[channel], GetColor(channel), SymbolType.None);
+            series.Line.IsAntiAlias = true;
+            series.Line.IsOptimizedDraw = true;
+            series.Label.IsVisible = false;
+            series.IsVisible = !overlayChannels || selectedChannels.Count == 0 || selectedChannels.Contains(channel);
+            timeSeries.Add(series);
+        }
+
+        private static void EnsureMaxSeries(CurveList timeSeries, int maxSeries)
+        {
+            timeSeries.RemoveRange(maxSeries, timeSeries.Count - maxSeries);
+        }
+
+        public void UpdateWaveform(int channel, double[] samples, int rows, int columns)
+        {
+            EnsureWaveformValues(rows);
+            var graphPanes = MasterPane.PaneList;
+            var seriesCount = channel < graphPanes.Count ? graphPanes[channel].CurveList.Count : 0;
+
+            var seriesIndex = sequenceIndices[channel];
+            if (seriesIndex < seriesCount)
+            {
+                var curveList = graphPanes[channel].CurveList;
+                var curveItem = curveList[seriesIndex];
+                values[channel] = (DownsampledPointPairList)curveItem.Points;
+            }
+            else values[channel] = new DownsampledPointPairList();
+
+            var points = values[channel];
+            points.HistoryLength = columns * HistoryLength;
+            for (int j = 0; j < samples.Length; j++)
+            {
+                points.Add(samples[j] + channel * ChannelOffset);
+            }
+
+            if (AutoScaleX) points.SetBounds(0, points.HistoryLength, MaxSamplePoints);
+
+            if (seriesIndex >= seriesCount)
+            {
+                InsertTimeSeries(channel);
+                if (!overlayChannels) SetLayout(PaneLayout.SquareColPreferred);
+            }
+
+            var maxSeries = WaveformBufferLength;
+            if (seriesCount >= maxSeries)
+            {
+                if (overlayChannels)
+                {
+                    EnsureMaxSeries(GraphPane.CurveList, maxSeries);
+                }
+                else
+                {
+                    EnsureMaxSeries(graphPanes[channel].CurveList, maxSeries);
+                }
+            }
+
+            sequenceIndices[channel] = (sequenceIndices[channel] + 1) % WaveformBufferLength;
+        }
+
+        public void UpdateWaveform(double[] samples, int rows, int columns)
+        {
+            EnsureWaveformValues(rows);
             var graphPanes = MasterPane.PaneList;
             var seriesCount = graphPanes.Sum(pane => pane.CurveList.Count);
             for (int i = 0; i < values.Length; i++)
             {
-                var seriesIndex = sequenceIndex * values.Length + i;
+                var seriesIndex = sequenceIndices[i] * values.Length + i;
                 if (seriesIndex < seriesCount)
                 {
                     var curveList = graphPanes[seriesIndex % graphPanes.Count].CurveList;
@@ -336,57 +424,37 @@ namespace Bonsai.Dsp.Design
                 if (AutoScaleX) points.SetBounds(0, points.HistoryLength, MaxSamplePoints);
             }
 
-            if (sequenceIndex * values.Length >= seriesCount || values.Length > seriesCount)
+            if (sequenceIndices[0] * values.Length >= seriesCount || values.Length > seriesCount)
             {
                 for (int i = 0; i < values.Length; i++)
                 {
-                    GraphPane pane;
-                    if (overlayChannels) pane = GraphPane;
-                    else
-                    {
-                        if (i < graphPanes.Count) pane = graphPanes[i];
-                        else
-                        {
-                            pane = new GraphPane(GraphPane);
-                            pane.Border.IsVisible = selectedChannels.Contains(i);
-                            pane.Title.Text = i.ToString(CultureInfo.InvariantCulture);
-                            pane.AxisChangeEvent += GraphPane_AxisChangeEvent;
-                            pane.CurveList.Clear();
-                            graphPanes.Add(pane);
-                        }
-                    }
-
-                    var timeSeries = pane.CurveList;
-                    var series = new LineItem(string.Empty, values[i], GetNextColor(), SymbolType.None);
-                    series.Line.IsAntiAlias = true;
-                    series.Line.IsOptimizedDraw = true;
-                    series.Label.IsVisible = false;
-                    series.IsVisible = !overlayChannels || selectedChannels.Count == 0 || selectedChannels.Contains(i);
-                    timeSeries.Add(series);
+                    InsertTimeSeries(i);
                 }
 
                 if (!overlayChannels) SetLayout(PaneLayout.SquareColPreferred);
             }
 
-            var requiredSeries = WaveformBufferLength * values.Length;
-            if (requiredSeries < seriesCount)
+            var maxSeries = WaveformBufferLength * values.Length;
+            if (seriesCount >= maxSeries)
             {
                 if (overlayChannels)
                 {
-                    var timeSeries = GraphPane.CurveList;
-                    timeSeries.RemoveRange(requiredSeries, timeSeries.Count - requiredSeries);
+                    EnsureMaxSeries(GraphPane.CurveList, maxSeries);
                 }
                 else
                 {
-                    var requiredCurves = requiredSeries / values.Length;
+                    var maxPaneSeries = maxSeries / values.Length;
                     foreach (var pane in graphPanes)
                     {
-                        pane.CurveList.RemoveRange(requiredCurves, pane.CurveList.Count - requiredCurves);
+                        EnsureMaxSeries(pane.CurveList, maxPaneSeries);
                     }
                 }
             }
 
-            sequenceIndex = (sequenceIndex + 1) % WaveformBufferLength;
+            for (int i = 0; i < sequenceIndices.Length; i++)
+            {
+                sequenceIndices[i] = (sequenceIndices[i] + 1) % WaveformBufferLength;
+            }
         }
 
         void selectedChannels_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)

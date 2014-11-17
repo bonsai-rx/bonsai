@@ -80,6 +80,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="SelectChannelEditor.cs" />
+    <Compile Include="SpikeWaveformCollectionVisualizer.cs" />
     <Compile Include="ToolStripLabeledNumericUpDown.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -105,6 +106,10 @@
     <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj">
       <Project>{E4D03BA3-54A2-4FF8-9DC6-52BA4CC14FED}</Project>
       <Name>Bonsai.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Bonsai.Dsp\Bonsai.Dsp.csproj">
+      <Project>{9c5be065-0175-4c6f-a3a3-44f78ca7370e}</Project>
+      <Name>Bonsai.Dsp</Name>
     </ProjectReference>
     <ProjectReference Include="..\Externals\OpenCV.Net\OpenCV.Net\OpenCV.Net.csproj">
       <Project>{DAF4D704-2C86-4657-9210-DB5B847BA8BE}</Project>

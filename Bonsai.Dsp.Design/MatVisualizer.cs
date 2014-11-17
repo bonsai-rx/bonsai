@@ -13,7 +13,6 @@ using System.Windows.Forms;
 using Bonsai.Design.Visualizers;
 
 [assembly: TypeVisualizer(typeof(MatVisualizer), Target = typeof(Mat))]
-[assembly: TypeVisualizer(typeof(MatVisualizer), Target = typeof(IObservable<Mat>))]
 
 namespace Bonsai.Dsp.Design
 {
@@ -56,6 +55,16 @@ namespace Bonsai.Dsp.Design
         public int WaveformBufferLength { get; set; }
 
         public int[] SelectedChannels { get; set; }
+
+        protected WaveformView Graph
+        {
+            get { return graph; }
+        }
+
+        protected void InvalidateGraph()
+        {
+            requireInvalidate = true;
+        }
 
         public override void Load(IServiceProvider provider)
         {
@@ -135,6 +144,8 @@ namespace Bonsai.Dsp.Design
         public override void Show(object value)
         {
             var buffer = (Mat)value;
+            if (buffer == null) return;
+
             var rows = buffer.Rows;
             var columns = buffer.Cols;
             var samples = new double[rows * columns];
@@ -146,31 +157,7 @@ namespace Bonsai.Dsp.Design
             sampleHandle.Free();
 
             graph.UpdateWaveform(samples, rows, columns);
-            requireInvalidate = true;
-        }
-
-        public override IObservable<object> Visualize(IObservable<IObservable<object>> source, IServiceProvider provider)
-        {
-            var visualizerContext = (ITypeVisualizerContext)provider.GetService(typeof(ITypeVisualizerContext));
-            if (graph != null && visualizerContext != null)
-            {
-                var observableType = visualizerContext.Source.ObservableType;
-                if (observableType == typeof(IObservable<Mat>))
-                {
-                    return source.SelectMany(xs => xs.Select(ws => ws as IObservable<Mat>)
-                                                     .Where(ws => ws != null)
-                                                     .SelectMany(ws => ws.ObserveOn(graph)
-                                                                         .Do(Show, SequenceCompleted)));
-                }
-                else return source.SelectMany(xs => xs.ObserveOn(graph).Do(Show, SequenceCompleted));
-            }
-
-            return source;
-        }
-
-        public override void SequenceCompleted()
-        {
-            base.SequenceCompleted();
+            InvalidateGraph();
         }
     }
 }
