@@ -162,6 +162,11 @@ namespace Bonsai.Dsp.Design
             }
         }
 
+        public void UpdateWaveform(int channel, double[] samples, int rows, int columns)
+        {
+            chart.UpdateWaveform(channel, samples, rows, columns);
+        }
+
         public void UpdateWaveform(double[] samples, int rows, int columns)
         {
             chart.UpdateWaveform(samples, rows, columns);

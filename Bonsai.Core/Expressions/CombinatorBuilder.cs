@@ -17,6 +17,7 @@ namespace Bonsai.Expressions
     public class CombinatorBuilder : CombinatorExpressionBuilder, INamedElement
     {
         object combinator;
+        int maxArgumentCount;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CombinatorBuilder"/> class.
@@ -52,7 +53,7 @@ namespace Bonsai.Expressions
         {
             if (combinator == null)
             {
-                SetArgumentRange(0, 0);
+                SetArgumentRange(0, maxArgumentCount = 0);
             }
             else
             {
@@ -62,12 +63,12 @@ namespace Bonsai.Expressions
                     p.Length == 1 &&
                     Attribute.IsDefined(p[0], typeof(ParamArrayAttribute)));
 
-                if (paramArray) SetArgumentRange(1, int.MaxValue);
+                if (paramArray) SetArgumentRange(1, maxArgumentCount = int.MaxValue);
                 else
                 {
                     var min = processMethodParameters.Min(p => p.Length);
                     var max = processMethodParameters.Max(p => p.Length);
-                    SetArgumentRange(min, max);
+                    SetArgumentRange(min, maxArgumentCount = max);
                 }
             }
         }
@@ -109,7 +110,7 @@ namespace Bonsai.Expressions
         {
             var combinatorExpression = Expression.Constant(Combinator);
             var processMethods = GetProcessMethods(combinatorExpression.Type);
-            return BuildCall(combinatorExpression, processMethods, arguments.Take(ArgumentRange.UpperBound).ToArray());
+            return BuildCall(combinatorExpression, processMethods, arguments.Take(maxArgumentCount).ToArray());
         }
     }
 }

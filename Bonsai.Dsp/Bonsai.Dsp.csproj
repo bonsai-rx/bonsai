@@ -70,9 +70,12 @@
     <Compile Include="BinaryArrayTransform.cs" />
     <Compile Include="Buffer.cs" />
     <Compile Include="Concat.cs" />
+    <Compile Include="ConvertFromArray.cs" />
     <Compile Include="ConvertScale.cs" />
+    <Compile Include="ConvertToArray.cs" />
     <Compile Include="ConvertToMat.cs" />
     <Compile Include="Extrema.cs" />
+    <Compile Include="Norm.cs" />
     <Compile Include="Phase.cs" />
     <Compile Include="Magnitude.cs" />
     <Compile Include="Exp.cs" />
@@ -98,6 +101,9 @@
     <Compile Include="RunningAverage.cs" />
     <Compile Include="SampleBuffer.cs" />
     <Compile Include="SelectChannels.cs" />
+    <Compile Include="DetectSpikes.cs" />
+    <Compile Include="SpikeWaveform.cs" />
+    <Compile Include="SpikeWaveformCollection.cs" />
     <Compile Include="Split.cs" />
     <Compile Include="Submatrix.cs" />
     <Compile Include="Sum.cs" />

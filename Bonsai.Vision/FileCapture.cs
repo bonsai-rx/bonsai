@@ -24,6 +24,7 @@ namespace Bonsai.Vision
         public FileCapture()
         {
             Playing = true;
+            PositionUnits = CapturePosition.Frames;
 
             var stopwatch = new Stopwatch();
             source = Observable.Using(
@@ -39,6 +40,11 @@ namespace Bonsai.Vision
                     capture = Capture.CreateFileCapture(fileName);
                     if (capture == null) throw new InvalidOperationException("Failed to open the video at the specified path.");
                     captureFps = capture.GetProperty(CaptureProperty.Fps);
+                    var position = StartPosition;
+                    if (position > 0)
+                    {
+                        targetPosition = GetFramePosition(position, PositionUnits);
+                    }
                     return capture;
                 },
                 capture => ObservableCombinators.GenerateWithThread<IplImage>(observer =>
@@ -132,6 +138,12 @@ namespace Bonsai.Vision
         [Description("The rate at which to read images from the file. A value of 0 means the native video frame rate will be used.")]
         public double PlaybackRate { get; set; }
 
+        [Description("The position at which to start playback of the file.")]
+        public double StartPosition { get; set; }
+
+        [Description("The units in which the start position is specified.")]
+        public CapturePosition PositionUnits { get; set; }
+
         [Description("Indicates whether the video sequence should loop when the end of the file is reached.")]
         public bool Loop { get; set; }
 
@@ -143,9 +155,30 @@ namespace Bonsai.Vision
             targetPosition = frameNumber;
         }
 
+        private int GetFramePosition(double position, CapturePosition units)
+        {
+            switch (units)
+            {
+                case CapturePosition.Milliseconds:
+                    return (int)(position * captureFps / 1000.0);
+                case CapturePosition.AviRatio:
+                    var frameCount = capture.GetProperty(CaptureProperty.FrameCount);
+                    return (int)(position * frameCount);
+                case CapturePosition.Frames:
+                default: return (int)position;
+            }
+        }
+
         public override IObservable<IplImage> Generate()
         {
             return source;
         }
+    }
+
+    public enum CapturePosition
+    {
+        Milliseconds,
+        Frames,
+        AviRatio
     }
 }
