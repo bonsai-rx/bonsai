@@ -81,8 +81,12 @@ namespace Bonsai.Expressions
             }
 
             var propertyDescriptor = TypeDescriptor.GetProperties(property).Find("Value", false);
-            var propertyValue = propertyDescriptor.Converter.ConvertFrom(value);
-            propertyDescriptor.SetValue(property, propertyValue);
+            if (value != null && value.GetType() != propertyDescriptor.PropertyType)
+            {
+                value = propertyDescriptor.Converter.ConvertFrom(value);
+            }
+
+            propertyDescriptor.SetValue(property, value);
         }
 
         static WorkflowException BuildRuntimeExceptionStack(string message, ExpressionBuilder builder, Exception innerException, IEnumerable<ExpressionBuilder> callStack)
