@@ -12,6 +12,7 @@ using System.Reactive.Disposables;
 using System.Reactive;
 using System.Runtime.InteropServices;
 using OpenCV.Net;
+using System.Threading.Tasks;
 
 namespace Bonsai.Audio
 {
@@ -25,28 +26,37 @@ namespace Bonsai.Audio
             BufferLength = 10;
             Frequency = 44100;
 
-            var bufferSize = 0;
-            source = Observable.Create<Mat>(observer =>
+            source = Observable.Create<Mat>((observer, cancellationToken) =>
             {
-                var frequency = Frequency;
-                bufferSize = (int)Math.Ceiling(frequency * 0.01);
-                var captureBufferSize = (int)(BufferLength * frequency * 0.001 / BlittableValueType.StrideOf(short.MinValue));
-                var capture = new OpenTK.Audio.AudioCapture(DeviceName, frequency, ALFormat.Mono16, captureBufferSize);
+                return Task.Factory.StartNew(() =>
+                {
+                    var frequency = Frequency;
+                    var bufferLength = BufferLength;
+                    var bufferSize = (int)Math.Ceiling(frequency * 0.01);
+                    var captureInterval = TimeSpan.FromMilliseconds((int)(bufferLength / 2 + 0.5));
+                    var captureBufferSize = (int)(bufferLength * frequency * 0.001 / BlittableValueType.StrideOf(short.MinValue));
 
-                capture.Start();
-                return new CompositeDisposable(
-                    HighResolutionScheduler.Default.Schedule<int>((int)(BufferLength / 2 + 0.5), TimeSpan.Zero, (interval, self) =>
+                    using (var capture = new OpenTK.Audio.AudioCapture(DeviceName, frequency, ALFormat.Mono16, captureBufferSize))
+                    using (var captureSignal = new ManualResetEvent(false))
                     {
-                        while (capture.AvailableSamples > bufferSize)
+                        capture.Start();
+                        while (!cancellationToken.IsCancellationRequested)
                         {
-                            var buffer = new Mat(1, bufferSize, Depth.S16, 1);
-                            capture.ReadSamples(buffer.Data, bufferSize);
-                            observer.OnNext(buffer);
+                            while (capture.AvailableSamples > bufferSize)
+                            {
+                                var buffer = new Mat(1, bufferSize, Depth.S16, 1);
+                                capture.ReadSamples(buffer.Data, bufferSize);
+                                observer.OnNext(buffer);
+                            }
+
+                            captureSignal.WaitOne(captureInterval);
                         }
-                        self(interval, TimeSpan.FromMilliseconds(interval));
-                    }),
-                    Disposable.Create(capture.Stop),
-                    Disposable.Create(capture.Dispose));
+                        capture.Stop();
+                    }
+                },
+                cancellationToken,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default);
             })
             .PublishReconnectable()
             .RefCount();
