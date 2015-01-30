@@ -13,11 +13,11 @@ using System.Reactive.Concurrency;
 namespace Bonsai.Reactive
 {
     /// <summary>
-    /// Represents a combinator that projects each element of an observable sequence into consecutive
-    /// non-overlapping windows with the specified time interval.
+    /// Represents a combinator that projects each element of an observable sequence into zero
+    /// or more windows based on timing information.
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Projects the sequence into non-overlapping windows of elements corresponding to the specified time interval.")]
+    [Description("Projects the sequence into zero or more windows based on timing information.")]
     public class TimeSpanWindow : WindowCombinator
     {
         /// <summary>
@@ -26,6 +26,13 @@ namespace Bonsai.Reactive
         [XmlIgnore]
         [Description("The length of each window.")]
         public TimeSpan TimeSpan { get; set; }
+
+        /// <summary>
+        /// Gets or sets the interval between creation of consecutive windows.
+        /// </summary>
+        [XmlIgnore]
+        [Description("The optional interval between creation of consecutive windows.")]
+        public TimeSpan? TimeShift { get; set; }
 
         /// <summary>
         /// Gets or sets the XML serializable representation of window time span.
@@ -39,15 +46,37 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
-        /// Projects each element of an observable sequence into consecutive non-overlapping
-        /// windows with the specified time interval.
+        /// Gets or sets the XML serializable representation of window interval.
+        /// </summary>
+        [Browsable(false)]
+        [XmlElement("TimeShift")]
+        public string TimeShiftXml
+        {
+            get
+            {
+                var timeShift = TimeShift;
+                if (timeShift.HasValue) return XmlConvert.ToString(timeShift.Value);
+                else return null;
+            }
+            set
+            {
+                if (!string.IsNullOrEmpty(value)) TimeShift = XmlConvert.ToTimeSpan(value);
+                else TimeShift = null;
+            }
+        }
+
+        /// <summary>
+        /// Projects each element of an observable sequence into zero or more windows
+        /// based on timing information.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
         /// <param name="source">The source sequence to produce windows over.</param>
         /// <returns>An observable sequence of windows.</returns>
         public override IObservable<IObservable<TSource>> Process<TSource>(IObservable<TSource> source)
         {
-            return source.Window(TimeSpan, HighResolutionScheduler.Default);
+            var timeShift = TimeShift;
+            if (timeShift.HasValue) return source.Window(TimeSpan, timeShift.Value, HighResolutionScheduler.Default);
+            else return source.Window(TimeSpan, HighResolutionScheduler.Default);
         }
     }
 }
