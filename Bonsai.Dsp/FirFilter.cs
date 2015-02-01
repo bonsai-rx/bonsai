@@ -68,7 +68,7 @@ namespace Bonsai.Dsp
                                 overlapStart = overlap.GetSubRect(new Rect(0, 0, kernel.Cols - 1, input.Rows));
                             }
 
-                            overlapOutput = new Rect(kernel.Cols - anchor - 1, 0, input.Cols, input.Rows);
+                            overlapOutput = new Rect(anchor, 0, input.Cols, input.Rows);
                             overlap.SetZero();
                         }
                     }
