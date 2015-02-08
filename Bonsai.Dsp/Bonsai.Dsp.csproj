@@ -74,6 +74,7 @@
     <Compile Include="ConvertScale.cs" />
     <Compile Include="ConvertToArray.cs" />
     <Compile Include="ConvertToMat.cs" />
+    <Compile Include="IirFilter.cs" />
     <Compile Include="Extrema.cs" />
     <Compile Include="Norm.cs" />
     <Compile Include="Phase.cs" />
