@@ -40,6 +40,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Reactive.Core, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Rx-Core.2.2.5\lib\net45\System.Reactive.Core.dll</HintPath>
@@ -69,11 +70,13 @@
     <Compile Include="Average.cs" />
     <Compile Include="BinaryArrayTransform.cs" />
     <Compile Include="Buffer.cs" />
+    <Compile Include="Butterworth.cs" />
     <Compile Include="Concat.cs" />
     <Compile Include="ConvertFromArray.cs" />
     <Compile Include="ConvertScale.cs" />
     <Compile Include="ConvertToArray.cs" />
     <Compile Include="ConvertToMat.cs" />
+    <Compile Include="FilterDesign.cs" />
     <Compile Include="IirFilter.cs" />
     <Compile Include="Extrema.cs" />
     <Compile Include="Norm.cs" />
