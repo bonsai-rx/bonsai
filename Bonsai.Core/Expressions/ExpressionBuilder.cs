@@ -223,7 +223,7 @@ namespace Bonsai.Expressions
             return methodGenericArguments.Zip(bindingCandidates, (argument, match) => match).Concat(methodGenericArguments.Skip(bindingCandidates.Length)).ToArray();
         }
 
-        static IEnumerable<Tuple<Type, int>> GetParameterBindings(Type parameterType, Type argumentType)
+        internal static IEnumerable<Tuple<Type, int>> GetParameterBindings(Type parameterType, Type argumentType)
         {
             // If parameter is a generic parameter, just bind it to the input type
             if (parameterType.IsGenericParameter)
