@@ -63,7 +63,7 @@ namespace Bonsai.Dsp.Design
             return base.EditValue(context, provider, value);
         }
 
-        class ChartPanel : Panel, IDialogTypeVisualizerService, IServiceProvider, ITypeVisualizerContext
+        class ChartPanel : ContainerControl, IDialogTypeVisualizerService, IServiceProvider, ITypeVisualizerContext
         {
             InspectBuilder source;
             IServiceProvider provider;
