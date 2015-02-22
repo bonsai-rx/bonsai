@@ -348,6 +348,11 @@ namespace Bonsai.Dsp.Design
             get { return overlayChannels && selectedChannels.Count > 0; }
         }
 
+        internal int ChannelCount
+        {
+            get { return channelCount; }
+        }
+
         public event EventHandler AutoScaleXChanged;
 
         public event EventHandler AutoScaleYChanged;

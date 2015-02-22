@@ -64,6 +64,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChartPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="MatVisualizer.cs" />
     <Compile Include="LabeledNumericUpDown.cs">
       <SubType>UserControl</SubType>
@@ -80,11 +83,15 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="SelectChannelEditor.cs" />
+    <Compile Include="SpikeThresholdEditor.cs" />
     <Compile Include="SpikeWaveformCollectionVisualizer.cs" />
     <Compile Include="ToolStripLabeledNumericUpDown.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="WaveformGraph.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="WaveformThresholdPicker.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="WaveformView.cs">
