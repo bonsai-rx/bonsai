@@ -78,7 +78,9 @@ namespace Bonsai.Dsp.Design
         {
             var scheduler = new ControlScheduler(this);
             var selectionDrag = (from mouseDown in MouseDown
-                                 where !overlayChannels && MasterPane.FindChartRect(mouseDown.Location) == null
+                                 where !overlayChannels &&
+                                       mouseDown.Button == MouseButtons.Left &&
+                                       MasterPane.FindChartRect(mouseDown.Location) == null
                                  let startRect = (Rectangle?)GetNormalizedRectangle(MasterPane.Rect, mouseDown.Location, mouseDown.Location)
                                  let previousSelection = MasterPane.PaneList.Select(pane => pane.Border.IsVisible).ToArray()
                                  select Observable.Return(startRect).Concat(
