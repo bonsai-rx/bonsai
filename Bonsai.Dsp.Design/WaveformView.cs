@@ -198,6 +198,33 @@ namespace Bonsai.Dsp.Design
             chart.Invalidate();
         }
 
+        protected override bool ProcessDialogKey(Keys keyData)
+        {
+            var keyCode = keyData & Keys.KeyCode;
+            var modifiers = keyData & Keys.Modifiers;
+            if (modifiers == Keys.Control && keyCode == Keys.P)
+            {
+                chart.DoPrint();
+            }
+
+            if (modifiers == Keys.Control && keyCode == Keys.S)
+            {
+                chart.SaveAs();
+            }
+
+            if (keyCode == Keys.PageDown)
+            {
+                SelectedPage++;
+            }
+
+            if (keyCode == Keys.PageUp)
+            {
+                SelectedPage--;
+            }
+
+            return base.ProcessDialogKey(keyData);
+        }
+
         private void chart_ZoomEvent(ZedGraphControl sender, ZoomState oldState, ZoomState newState)
         {
             chart.MasterPane.AxisChange();
