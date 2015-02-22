@@ -24,6 +24,7 @@ namespace Bonsai.Dsp.Design
             var spikes = (SpikeWaveformCollection)value;
             var bufferSize = spikes.BufferSize;
             double[] samples = null;
+            Graph.EnsureWaveformRows(bufferSize.Height);
             foreach (var spike in spikes)
             {
                 if (samples == null)
@@ -39,10 +40,7 @@ namespace Bonsai.Dsp.Design
                 Graph.UpdateWaveform(spike.ChannelIndex, samples, bufferSize.Height, samples.Length);
             }
 
-            if (spikes.Count > 0)
-            {
-                InvalidateGraph();
-            }
+            InvalidateGraph();
         }
     }
 }

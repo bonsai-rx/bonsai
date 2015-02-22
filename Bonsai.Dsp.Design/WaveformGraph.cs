@@ -29,11 +29,16 @@ namespace Bonsai.Dsp.Design
         const float TilePaneVerticalMargin = 2;
         const float TilePaneHorizontalMargin = 2;
         const float TilePaneInnerGap = 1;
+        const string TitleFormat = "Page {0}/{1}";
         static readonly TimeSpan SelectionRefreshInterval = TimeSpan.FromMilliseconds(30);
 
         bool autoScaleX;
         bool autoScaleY;
         int[] sequenceIndices;
+        int selectedPage;
+        int channelsPerPage;
+        int pageCount;
+        int channelCount;
         bool overlayChannels;
         int historyLength;
         double channelOffset;
@@ -47,6 +52,7 @@ namespace Bonsai.Dsp.Design
         {
             autoScaleX = true;
             autoScaleY = true;
+            channelsPerPage = 16;
             overlayChannels = true;
             allowSelectionUpdate = true;
             WaveformBufferLength = 1;
@@ -66,11 +72,6 @@ namespace Bonsai.Dsp.Design
             GraphPane.AxisChangeEvent += GraphPane_AxisChangeEvent;
             ZoomEvent += chart_ZoomEvent;
             InitializeReactiveEvents();
-        }
-
-        public Collection<int> SelectedChannels
-        {
-            get { return selectedChannels; }
         }
 
         private void InitializeReactiveEvents()
@@ -111,11 +112,14 @@ namespace Bonsai.Dsp.Design
             else
             {
                 allowSelectionUpdate = false;
-                selectedChannels.Clear();
+                var extendSelection = Control.ModifierKeys == Keys.Control;
+                if (!extendSelection) selectedChannels.Clear();
                 for (int i = 0; i < MasterPane.PaneList.Count; i++)
                 {
                     var pane = MasterPane.PaneList[i];
-                    if (pane.Border.IsVisible) selectedChannels.Add(i);
+                    var channel = (int)pane.Tag;
+                    if (extendSelection) selectedChannels.Remove(channel);
+                    if (pane.Border.IsVisible) selectedChannels.Add(channel);
                 }
 
                 UpdateSelection();
@@ -130,21 +134,20 @@ namespace Bonsai.Dsp.Design
             for (int i = 0; i < MasterPane.PaneList.Count; i++)
             {
                 var pane = MasterPane.PaneList[i];
-                var selected = !overlayChannels && selectedChannels.Contains(i);
+                var channel = (int)pane.Tag;
+                var selected = !overlayChannels && selectedChannels.Contains(channel);
                 pane.Border.IsVisible = selected;
             }
         }
 
         private void ResetWaveform()
         {
-            sequenceIndices = new int[values == null ? 0 : values.Length];
             var paneCount = MasterPane.PaneList.Count;
-            if (paneCount > 1)
-            {
-                MasterPane.PaneList.RemoveRange(1, paneCount - 1);
-                SetLayout(PaneLayout.SquareColPreferred);
-            }
+            MasterPane.PaneList.RemoveRange(1, paneCount - 1);
+            sequenceIndices = new int[values == null ? 0 : values.Length];
 
+            MasterPane.Title.IsVisible = pageCount > 1;
+            MasterPane.Title.Text = string.Format(TitleFormat, selectedPage + 1, pageCount);
             MasterPane.InnerPaneGap = overlayChannels ? 0 : TilePaneInnerGap;
             MasterPane.Margin.Left = overlayChannels ? 0 : TileMasterPaneHorizontalMargin;
             MasterPane.Margin.Right = overlayChannels ? 0 : TileMasterPaneHorizontalMargin;
@@ -161,6 +164,70 @@ namespace Bonsai.Dsp.Design
             GraphPane.IsFontsScaled = overlayChannels;
             GraphPane.CurveList.Clear();
             ResetColorCycle();
+
+            if (!overlayChannels && values != null)
+            {
+                var graphPanes = MasterPane.PaneList;
+                if (graphPanes.Count != values.Length)
+                {
+                    for (int i = 0; i < values.Length; i++)
+                    {
+                        var pane = GraphPane;
+                        if (i > 0)
+                        {
+                            pane = new GraphPane(pane);
+                            pane.AxisChangeEvent += GraphPane_AxisChangeEvent;
+                            graphPanes.Add(pane);
+                        }
+
+                        var channel = selectedPage * channelsPerPage + i;
+                        pane.Border.IsVisible = selectedChannels.Contains(channel);
+                        pane.Title.Text = channel.ToString(CultureInfo.InvariantCulture);
+                        pane.CurveList.Clear();
+                        pane.Tag = channel;
+                    }
+                }
+            }
+
+            if (!overlayChannels && pageCount > 1)
+            {
+                var squareSize = (int)Math.Ceiling(Math.Sqrt(channelsPerPage));
+                SetLayout(squareSize, squareSize);
+            }
+            else SetLayout(PaneLayout.SquareColPreferred);
+        }
+
+        public int SelectedPage
+        {
+            get { return selectedPage; }
+            set
+            {
+                var changed = selectedPage != value;
+                selectedPage = value;
+                if (changed)
+                {
+                    ResetWaveform();
+                }
+            }
+        }
+
+        public int ChannelsPerPage
+        {
+            get { return channelsPerPage; }
+            set
+            {
+                var changed = channelsPerPage != value;
+                channelsPerPage = value;
+                if (changed)
+                {
+                    ResetWaveform();
+                }
+            }
+        }
+
+        public Collection<int> SelectedChannels
+        {
+            get { return selectedChannels; }
         }
 
         public bool OverlayChannels
@@ -305,45 +372,40 @@ namespace Bonsai.Dsp.Design
             }
         }
 
-        private void EnsureWaveformValues(int rows)
+        public void EnsureWaveformRows(int channels)
         {
-            if (values == null || values.Length != rows)
+            var channelsPerPage = ChannelsPerPage;
+            var remainderChannels = channels % channelsPerPage;
+            var channelCountChanged = channelCount != channels;
+            pageCount = channels / channelsPerPage;
+            if (remainderChannels != 0) pageCount++;
+            selectedPage = Math.Min(selectedPage, pageCount - 1);
+            channelCount = channels;
+            if (pageCount > 1)
             {
-                values = new DownsampledPointPairList[rows];
-                ResetWaveform();
+                var lastPage = selectedPage >= pageCount - 1;
+                channels = lastPage && remainderChannels != 0 ? remainderChannels : channelsPerPage;
             }
 
-            if (!overlayChannels)
+            if (values == null || values.Length != channels || channelCountChanged)
             {
-                var graphPanes = MasterPane.PaneList;
-                if (graphPanes.Count != rows)
-                {
-                    for (int i = 1; i < rows; i++)
-                    {
-                        var pane = new GraphPane(GraphPane);
-                        pane.Border.IsVisible = selectedChannels.Contains(i);
-                        pane.Title.Text = i.ToString(CultureInfo.InvariantCulture);
-                        pane.AxisChangeEvent += GraphPane_AxisChangeEvent;
-                        pane.CurveList.Clear();
-                        graphPanes.Add(pane);
-                    }
-                }
+                values = new DownsampledPointPairList[channels];
+                ResetWaveform();
             }
         }
 
-        private void InsertTimeSeries(int channel)
+        private void InsertTimeSeries(int paneIndex, int channel)
         {
             GraphPane pane;
             var graphPanes = MasterPane.PaneList;
             if (overlayChannels) pane = GraphPane;
-            else pane = graphPanes[channel];
+            else pane = graphPanes[paneIndex];
 
             var timeSeries = pane.CurveList;
-            var series = new LineItem(string.Empty, values[channel], GetColor(channel), SymbolType.None);
+            var series = new LineItem(string.Empty, values[paneIndex], GetColor(channel), SymbolType.None);
             series.Line.IsAntiAlias = true;
             series.Line.IsOptimizedDraw = true;
             series.Label.IsVisible = false;
-            series.IsVisible = !overlayChannels || selectedChannels.Count == 0 || selectedChannels.Contains(channel);
             timeSeries.Add(series);
         }
 
@@ -354,31 +416,37 @@ namespace Bonsai.Dsp.Design
 
         public void UpdateWaveform(int channel, double[] samples, int rows, int columns)
         {
-            EnsureWaveformValues(rows);
             var graphPanes = MasterPane.PaneList;
-            var seriesCount = channel < graphPanes.Count ? graphPanes[channel].CurveList.Count : 0;
+            var channelPage = channel / channelsPerPage;
+            if (channelPage != selectedPage) return;
+            var channelPane = channel % channelsPerPage;
+            var seriesCount = channelPane < graphPanes.Count ? graphPanes[channelPane].CurveList.Count : 0;
 
-            var seriesIndex = sequenceIndices[channel];
+            var setBounds = AutoScaleX;
+            var seriesIndex = sequenceIndices[channelPane];
             if (seriesIndex < seriesCount)
             {
-                var curveList = graphPanes[channel].CurveList;
+                var curveList = graphPanes[channelPane].CurveList;
                 var curveItem = curveList[seriesIndex];
-                values[channel] = (DownsampledPointPairList)curveItem.Points;
+                values[channelPane] = (DownsampledPointPairList)curveItem.Points;
             }
-            else values[channel] = new DownsampledPointPairList();
+            else
+            {
+                values[channelPane] = new DownsampledPointPairList();
+                setBounds = true;
+            }
 
-            var points = values[channel];
+            var points = values[channelPane];
             points.HistoryLength = columns * HistoryLength;
             for (int j = 0; j < samples.Length; j++)
             {
-                points.Add(samples[j] + channel * ChannelOffset);
+                points.Add(samples[j] + channelPane * ChannelOffset);
             }
 
-            if (AutoScaleX) points.SetBounds(0, points.HistoryLength, MaxSamplePoints);
-
+            if (setBounds) points.SetBounds(0, points.HistoryLength, MaxSamplePoints);
             if (seriesIndex >= seriesCount)
             {
-                InsertTimeSeries(channel);
+                InsertTimeSeries(channelPane, channel);
                 if (!overlayChannels) SetLayout(PaneLayout.SquareColPreferred);
             }
 
@@ -391,20 +459,24 @@ namespace Bonsai.Dsp.Design
                 }
                 else
                 {
-                    EnsureMaxSeries(graphPanes[channel].CurveList, maxSeries);
+                    EnsureMaxSeries(graphPanes[channelPane].CurveList, maxSeries);
                 }
             }
 
-            sequenceIndices[channel] = (sequenceIndices[channel] + 1) % WaveformBufferLength;
+            sequenceIndices[channelPane] = (sequenceIndices[channelPane] + 1) % WaveformBufferLength;
         }
 
         public void UpdateWaveform(double[] samples, int rows, int columns)
         {
-            EnsureWaveformValues(rows);
+            var filterRows = overlayChannels && selectedChannels.Count > 0;
+            var activeRows = filterRows ? selectedChannels.Count : rows;
+            EnsureWaveformRows(activeRows);
+
             var graphPanes = MasterPane.PaneList;
             var seriesCount = graphPanes.Sum(pane => pane.CurveList.Count);
             for (int i = 0; i < values.Length; i++)
             {
+                var setBounds = AutoScaleX;
                 var seriesIndex = sequenceIndices[i] * values.Length + i;
                 if (seriesIndex < seriesCount)
                 {
@@ -412,26 +484,32 @@ namespace Bonsai.Dsp.Design
                     var curveItem = curveList[seriesIndex / graphPanes.Count];
                     values[i] = (DownsampledPointPairList)curveItem.Points;
                 }
-                else values[i] = new DownsampledPointPairList();
+                else
+                {
+                    values[i] = new DownsampledPointPairList();
+                    setBounds = true;
+                }
 
                 var points = values[i];
                 points.HistoryLength = columns * HistoryLength;
+                var channel = selectedPage * channelsPerPage + i;
+                if (filterRows) channel = selectedChannels[channel];
                 for (int j = 0; j < columns; j++)
                 {
-                    points.Add(samples[i * columns + j] + i * ChannelOffset);
+                    points.Add(samples[channel * columns + j] + i * ChannelOffset);
                 }
 
-                if (AutoScaleX) points.SetBounds(0, points.HistoryLength, MaxSamplePoints);
+                if (setBounds) points.SetBounds(0, points.HistoryLength, MaxSamplePoints);
             }
 
             if (sequenceIndices[0] * values.Length >= seriesCount || values.Length > seriesCount)
             {
                 for (int i = 0; i < values.Length; i++)
                 {
-                    InsertTimeSeries(i);
+                    var channel = selectedPage * channelsPerPage + i;
+                    if (filterRows) channel = selectedChannels[channel];
+                    InsertTimeSeries(i, channel);
                 }
-
-                if (!overlayChannels) SetLayout(PaneLayout.SquareColPreferred);
             }
 
             var maxSeries = WaveformBufferLength * values.Length;
@@ -459,7 +537,7 @@ namespace Bonsai.Dsp.Design
 
         void selectedChannels_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (allowSelectionUpdate)
+            if (allowSelectionUpdate && values != null)
             {
                 UpdateSelection();
             }
@@ -480,6 +558,16 @@ namespace Bonsai.Dsp.Design
             if (e.Modifiers == Keys.Control && e.KeyCode == Keys.S)
             {
                 SaveAs();
+            }
+
+            if (e.KeyCode == Keys.PageDown)
+            {
+                SelectedPage = Math.Min(selectedPage + 1, pageCount - 1);
+            }
+
+            if (e.KeyCode == Keys.PageUp)
+            {
+                SelectedPage = Math.Max(0, selectedPage - 1);
             }
 
             base.OnKeyDown(e);
