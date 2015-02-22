@@ -72,11 +72,11 @@ namespace Bonsai.Design.Visualizers
         [DefaultValue(true)]
         public bool AutoScaleAxis { get; set; }
 
-        protected new IObservable<MouseEventArgs> MouseDown { get; private set; }
+        public new IObservable<MouseEventArgs> MouseDown { get; private set; }
 
-        protected new IObservable<MouseEventArgs> MouseUp { get; private set; }
+        public new IObservable<MouseEventArgs> MouseUp { get; private set; }
 
-        protected new IObservable<MouseEventArgs> MouseMove { get; private set; }
+        public new IObservable<MouseEventArgs> MouseMove { get; private set; }
 
         public Color GetNextColor()
         {
