@@ -75,7 +75,11 @@ namespace Bonsai.Dsp.Design
         public int SelectedPage
         {
             get { return chart.SelectedPage; }
-            set { chart.SelectedPage = value; }
+            set
+            {
+                chart.SelectedPage = value;
+                OnSelectedPageChanged(EventArgs.Empty);
+            }
         }
 
         public int ChannelsPerPage
@@ -174,6 +178,8 @@ namespace Bonsai.Dsp.Design
 
         public event EventHandler AxisChanged;
 
+        public event EventHandler SelectedPageChanged;
+
         protected virtual void OnAxisChanged(EventArgs e)
         {
             var handler = AxisChanged;
@@ -183,7 +189,16 @@ namespace Bonsai.Dsp.Design
             }
         }
 
-        public void EnsureWaveformRows(int rows)
+        protected virtual void OnSelectedPageChanged(EventArgs e)
+        {
+            var handler = SelectedPageChanged;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        public virtual void EnsureWaveform(int rows, int columns)
         {
             chart.EnsureWaveformRows(rows);
         }
