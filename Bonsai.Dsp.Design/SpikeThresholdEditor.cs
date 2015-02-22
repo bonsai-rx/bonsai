@@ -41,7 +41,7 @@ namespace Bonsai.Dsp.Design
                 spikeVisualizer.Load(chart);
                 var thresholdPicker = spikeVisualizer.Graph;
                 thresholdPicker.Threshold = (double[])value;
-                thresholdPicker.ThresholdChanged += (sender, e) => propertyDescriptor.SetValue(context.Instance, thresholdPicker.Threshold);
+                thresholdPicker.ThresholdChanged += (sender, e) => propertyDescriptor.SetValue(context.Instance, value = thresholdPicker.Threshold);
                 var visualizerObservable = spikeVisualizer.Visualize(source.Output, chart);
                 chart.HandleCreated += delegate { subscription = visualizerObservable.Subscribe(); };
                 chart.Leave += delegate { editorService.CloseDropDown(); subscription.Dispose(); };
@@ -55,7 +55,7 @@ namespace Bonsai.Dsp.Design
                     spikeVisualizer.Unload();
                 }
 
-                return thresholdPicker.Threshold;
+                return value;
             }
 
             return base.EditValue(context, provider, value);
