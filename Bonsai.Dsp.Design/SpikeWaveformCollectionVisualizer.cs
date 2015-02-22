@@ -29,7 +29,7 @@ namespace Bonsai.Dsp.Design
             var spikes = (SpikeWaveformCollection)value;
             var bufferSize = spikes.BufferSize;
             double[] samples = null;
-            Graph.EnsureWaveformRows(bufferSize.Height);
+            Graph.EnsureWaveform(bufferSize.Height, bufferSize.Width);
             foreach (var spike in spikes)
             {
                 if (samples == null)
