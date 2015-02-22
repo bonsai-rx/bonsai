@@ -62,6 +62,11 @@ namespace Bonsai.Dsp.Design
             maxTextBox.KeyDown += editableTextBox_KeyDown;
         }
 
+        protected WaveformGraph Chart
+        {
+            get { return chart; }
+        }
+
         public Collection<int> SelectedChannels
         {
             get { return chart.SelectedChannels; }
