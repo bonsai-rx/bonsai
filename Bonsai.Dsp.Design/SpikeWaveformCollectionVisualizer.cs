@@ -12,7 +12,11 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Dsp.Design
 {
-    public class SpikeWaveformCollectionVisualizer : MatVisualizer
+    public class SpikeWaveformCollectionVisualizer : SpikeWaveformCollectionVisualizer<WaveformView>
+    {
+    }
+
+    public class SpikeWaveformCollectionVisualizer<TWaveformView> : MatVisualizer<TWaveformView> where TWaveformView : WaveformView, new()
     {
         public SpikeWaveformCollectionVisualizer()
         {

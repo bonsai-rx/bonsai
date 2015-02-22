@@ -16,12 +16,16 @@ using Bonsai.Design.Visualizers;
 
 namespace Bonsai.Dsp.Design
 {
-    public class MatVisualizer : DialogTypeVisualizer
+    public class MatVisualizer : MatVisualizer<WaveformView>
+    {
+    }
+
+    public class MatVisualizer<TWaveformView> : DialogTypeVisualizer where TWaveformView : WaveformView, new()
     {
         const int TargetElapsedTime = (int)(1000.0 / 30);
         bool requireInvalidate;
         Timer updateTimer;
-        WaveformView graph;
+        TWaveformView graph;
 
         public MatVisualizer()
         {
@@ -61,7 +65,7 @@ namespace Bonsai.Dsp.Design
 
         public int[] SelectedChannels { get; set; }
 
-        protected WaveformView Graph
+        protected internal TWaveformView Graph
         {
             get { return graph; }
         }
@@ -73,7 +77,8 @@ namespace Bonsai.Dsp.Design
 
         public override void Load(IServiceProvider provider)
         {
-            graph = new WaveformView { Dock = DockStyle.Fill };
+            graph = new TWaveformView();
+            graph.Dock = DockStyle.Fill;
             graph.WaveformBufferLength = WaveformBufferLength;
             graph.HistoryLength = HistoryLength;
             graph.ChannelOffset = ChannelOffset;
