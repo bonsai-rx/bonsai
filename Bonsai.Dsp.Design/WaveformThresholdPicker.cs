@@ -15,6 +15,7 @@ namespace Bonsai.Dsp.Design
     {
         static readonly TimeSpan PickerRefreshInterval = TimeSpan.FromMilliseconds(30);
         IDisposable thresholdNotifications;
+        bool initialized;
 
         public WaveformThresholdPicker()
         {
@@ -62,20 +63,53 @@ namespace Bonsai.Dsp.Design
         private void ProcessThreshold(GraphPane pane, double threshold)
         {
             var channelIndex = (int)pane.Tag;
-            var channelCount = Chart.ChannelCount;
-            var thresholdValues = Threshold ?? new double[channelCount];
-            if (thresholdValues.Length != channelCount) Array.Resize(ref thresholdValues, channelCount);
+            var thresholdValues = EnsureThreshold();
             thresholdValues[channelIndex] = threshold;
-            Threshold = thresholdValues;
 
+            SetThresholdLine(pane, pane.XAxis.Scale.Min, pane.XAxis.Scale.Max, threshold);
+            OnThresholdChanged(EventArgs.Empty);
+        }
+
+        private void SetThresholdLine(GraphPane pane, double x0, double x1, double threshold)
+        {
             var thresholdLine = pane.GraphObjList.FirstOrDefault();
             if (thresholdLine == null)
             {
-                thresholdLine = new LineObj(Color.Red, pane.XAxis.Scale.Min, threshold, pane.XAxis.Scale.Max, threshold);
+                thresholdLine = new LineObj(Color.Red, x0, threshold, x1, threshold);
                 pane.GraphObjList.Add(thresholdLine);
             }
             else thresholdLine.Location.Y = threshold;
-            OnThresholdChanged(EventArgs.Empty);
+        }
+
+        private double[] EnsureThreshold()
+        {
+            var channelCount = Chart.ChannelCount;
+            var thresholdValues = Threshold ?? new double[channelCount];
+            if (thresholdValues.Length != channelCount) Array.Resize(ref thresholdValues, channelCount);
+            Threshold = thresholdValues;
+            return thresholdValues;
+        }
+
+        public override void EnsureWaveform(int rows, int columns)
+        {
+            base.EnsureWaveform(rows, columns);
+            if (!initialized)
+            {
+                initialized = true;
+                var thresholdValues = EnsureThreshold();
+                foreach (var pane in Chart.MasterPane.PaneList)
+                {
+                    var channelIndex = (int)pane.Tag;
+                    var threshold = thresholdValues[channelIndex];
+                    SetThresholdLine(pane, 0, columns, threshold);
+                }
+            }
+        }
+
+        protected override void OnSelectedPageChanged(EventArgs e)
+        {
+            initialized = false;
+            base.OnSelectedPageChanged(e);
         }
 
         protected override void OnHandleDestroyed(EventArgs e)
