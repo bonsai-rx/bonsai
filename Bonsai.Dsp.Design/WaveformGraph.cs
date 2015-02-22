@@ -341,6 +341,11 @@ namespace Bonsai.Dsp.Design
             }
         }
 
+        private bool FilterChannels
+        {
+            get { return overlayChannels && selectedChannels.Count > 0; }
+        }
+
         public event EventHandler AutoScaleXChanged;
 
         public event EventHandler AutoScaleYChanged;
@@ -376,6 +381,7 @@ namespace Bonsai.Dsp.Design
         public void EnsureWaveformRows(int channels)
         {
             var channelsPerPage = ChannelsPerPage;
+            if (FilterChannels) channels = selectedChannels.Count;
             var remainderChannels = channels % channelsPerPage;
             var channelCountChanged = channelCount != channels;
             pageCount = channels / channelsPerPage;
@@ -412,20 +418,23 @@ namespace Bonsai.Dsp.Design
 
         private static void EnsureMaxSeries(CurveList timeSeries, int maxSeries)
         {
-            timeSeries.RemoveRange(maxSeries, timeSeries.Count - maxSeries);
+            timeSeries.RemoveRange(0, timeSeries.Count - maxSeries);
         }
 
         public void UpdateWaveform(int channel, double[] samples, int rows, int columns)
         {
+            var channelLabel = channel;
             var graphPanes = MasterPane.PaneList;
+            if (FilterChannels) channel = selectedChannels.IndexOf(channel);
             var channelPage = channel / channelsPerPage;
-            if (channelPage != selectedPage) return;
+            if (channelPage != selectedPage || channel < 0) return;
             var channelPane = channel % channelsPerPage;
-            var seriesCount = channelPane < graphPanes.Count ? graphPanes[channelPane].CurveList.Count : 0;
+            var seriesPane = !overlayChannels && channelPane < graphPanes.Count ? graphPanes[channelPane] : graphPanes[0];
+            var seriesCount = seriesPane.CurveList.Count;
 
             var setBounds = AutoScaleX;
             var seriesIndex = sequenceIndices[channelPane];
-            if (seriesIndex < seriesCount)
+            if (!overlayChannels && seriesIndex < seriesCount)
             {
                 var curveList = graphPanes[channelPane].CurveList;
                 var curveItem = curveList[seriesIndex];
@@ -445,10 +454,9 @@ namespace Bonsai.Dsp.Design
             }
 
             if (setBounds) points.SetBounds(0, points.HistoryLength, MaxSamplePoints);
-            if (seriesIndex >= seriesCount)
+            if (overlayChannels || seriesIndex >= seriesCount)
             {
-                InsertTimeSeries(channelPane, channel);
-                if (!overlayChannels) SetLayout(PaneLayout.SquareColPreferred);
+                InsertTimeSeries(channelPane, channelLabel);
             }
 
             var maxSeries = WaveformBufferLength;
@@ -469,9 +477,8 @@ namespace Bonsai.Dsp.Design
 
         public void UpdateWaveform(double[] samples, int rows, int columns)
         {
-            var filterRows = overlayChannels && selectedChannels.Count > 0;
-            var activeRows = filterRows ? selectedChannels.Count : rows;
-            EnsureWaveformRows(activeRows);
+            var filterChannels = FilterChannels;
+            EnsureWaveformRows(rows);
 
             var graphPanes = MasterPane.PaneList;
             var seriesCount = graphPanes.Sum(pane => pane.CurveList.Count);
@@ -494,7 +501,7 @@ namespace Bonsai.Dsp.Design
                 var points = values[i];
                 points.HistoryLength = columns * HistoryLength;
                 var channel = selectedPage * channelsPerPage + i;
-                if (filterRows) channel = selectedChannels[channel];
+                if (filterChannels) channel = selectedChannels[channel];
                 for (int j = 0; j < columns; j++)
                 {
                     points.Add(samples[channel * columns + j] + i * ChannelOffset);
@@ -508,7 +515,7 @@ namespace Bonsai.Dsp.Design
                 for (int i = 0; i < values.Length; i++)
                 {
                     var channel = selectedPage * channelsPerPage + i;
-                    if (filterRows) channel = selectedChannels[channel];
+                    if (filterChannels) channel = selectedChannels[channel];
                     InsertTimeSeries(i, channel);
                 }
             }
