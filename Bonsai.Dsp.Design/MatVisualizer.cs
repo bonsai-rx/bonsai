@@ -29,6 +29,7 @@ namespace Bonsai.Dsp.Design
             YMax = 1;
             AutoScaleX = true;
             AutoScaleY = true;
+            ChannelsPerPage = 16;
             OverlayChannels = true;
             WaveformBufferLength = 1;
             HistoryLength = 1;
@@ -45,6 +46,10 @@ namespace Bonsai.Dsp.Design
         public bool AutoScaleX { get; set; }
 
         public bool AutoScaleY { get; set; }
+
+        public int SelectedPage { get; set; }
+
+        public int ChannelsPerPage { get; set; }
 
         public bool OverlayChannels { get; set; }
 
@@ -86,6 +91,8 @@ namespace Bonsai.Dsp.Design
                 graph.YMax = YMax;
             }
 
+            graph.SelectedPage = SelectedPage;
+            graph.ChannelsPerPage = ChannelsPerPage;
             graph.OverlayChannels = OverlayChannels;
             if (SelectedChannels != null)
             {
@@ -103,6 +110,8 @@ namespace Bonsai.Dsp.Design
                 YMax = graph.YMax;
                 AutoScaleX = graph.AutoScaleX;
                 AutoScaleY = graph.AutoScaleY;
+                SelectedPage = graph.SelectedPage;
+                ChannelsPerPage = graph.ChannelsPerPage;
                 OverlayChannels = graph.OverlayChannels;
                 WaveformBufferLength = graph.WaveformBufferLength;
                 HistoryLength = graph.HistoryLength;

@@ -67,6 +67,22 @@ namespace Bonsai.Dsp.Design
             get { return chart.SelectedChannels; }
         }
 
+        public int SelectedPage
+        {
+            get { return chart.SelectedPage; }
+            set { chart.SelectedPage = value; }
+        }
+
+        public int ChannelsPerPage
+        {
+            get { return chart.ChannelsPerPage; }
+            set
+            {
+                chart.ChannelsPerPage = value;
+                channelsPerPageNumericUpDown.Value = value;
+            }
+        }
+
         public bool OverlayChannels
         {
             get { return chart.OverlayChannels; }
@@ -160,6 +176,11 @@ namespace Bonsai.Dsp.Design
             {
                 handler(this, e);
             }
+        }
+
+        public void EnsureWaveformRows(int rows)
+        {
+            chart.EnsureWaveformRows(rows);
         }
 
         public void UpdateWaveform(int channel, double[] samples, int rows, int columns)
@@ -316,6 +337,11 @@ namespace Bonsai.Dsp.Design
         private void historyLengthNumericUpDown_ValueChanged(object sender, EventArgs e)
         {
             HistoryLength = (int)historyLengthNumericUpDown.Value;
+        }
+
+        private void channelsPerPageNumericUpDown_ValueChanged(object sender, EventArgs e)
+        {
+            ChannelsPerPage = (int)channelsPerPageNumericUpDown.Value;
         }
 
         private void overlayModeSplitButton_Click(object sender, EventArgs e)

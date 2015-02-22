@@ -24,6 +24,7 @@ namespace Bonsai.Design.Visualizers
         Rectangle rubberBand;
         Rectangle previousRectangle;
         PaneLayout? paneLayout;
+        Size? paneLayoutSize;
         IDisposable rubberBandNotifications;
         static readonly Color[] BrightPastelPalette = new[]
         {
@@ -102,6 +103,11 @@ namespace Bonsai.Design.Visualizers
         public void SetLayout(PaneLayout layout)
         {
             paneLayout = layout;
+        }
+
+        public void SetLayout(int rows, int columns)
+        {
+            paneLayoutSize = new Size(columns, rows);
         }
 
         bool IsMinimumDragDisplacement(int displacementX, int displacementY)
@@ -217,6 +223,12 @@ namespace Bonsai.Design.Visualizers
             {
                 MasterPane.SetLayout(e.Graphics, paneLayout.Value);
                 paneLayout = null;
+            }
+            else if (paneLayoutSize.HasValue)
+            {
+                var layoutSize = paneLayoutSize.Value;
+                MasterPane.SetLayout(e.Graphics, layoutSize.Height, layoutSize.Width);
+                paneLayoutSize = null;
             }
             base.OnPaint(e);
 
