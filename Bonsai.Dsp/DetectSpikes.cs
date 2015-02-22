@@ -2,6 +2,8 @@
 using OpenCV.Net;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing.Design;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -11,6 +13,7 @@ namespace Bonsai.Dsp
 {
     public class DetectSpikes : Combinator<Mat, SpikeWaveformCollection>
     {
+        static readonly double[] DefaultThreshold = new[] { 0.0 };
         readonly Delay delay = new Delay();
 
         public int Delay
@@ -21,7 +24,9 @@ namespace Bonsai.Dsp
 
         public int Length { get; set; }
 
-        public int Threshold { get; set; }
+        [TypeConverter(typeof(UnidimensionalArrayConverter))]
+        [Editor("Bonsai.Dsp.Design.SpikeThresholdEditor, Bonsai.Dsp.Design", typeof(UITypeEditor))]
+        public double[] Threshold { get; set; }
 
         public override IObservable<SpikeWaveformCollection> Process(IObservable<Mat> source)
         {
@@ -43,12 +48,14 @@ namespace Bonsai.Dsp
                         activeSpikes = new SampleBuffer[input.Rows];
                     }
 
+                    var thresholdValues = Threshold ?? DefaultThreshold;
+                    if (thresholdValues.Length == 0) thresholdValues = DefaultThreshold;
                     for (int i = 0; i < activeSpikes.Length; i++)
                     {
                         using (var channel = input.GetRow(i))
                         using (var delayedChannel = delayed.GetRow(i))
                         {
-                            var threshold = Threshold;
+                            var threshold = thresholdValues.Length > 1 ? thresholdValues[i] : thresholdValues[0];
                             if (activeSpikes[i] != null)
                             {
                                 var buffer = activeSpikes[i];
@@ -70,7 +77,11 @@ namespace Bonsai.Dsp
 
                             using (var triggerHeader = Mat.CreateMatHeader(triggerBuffer))
                             {
-                                CV.Threshold(channel, triggerHeader, threshold, 1, threshold < 0 ? ThresholdTypes.BinaryInv : ThresholdTypes.Binary);
+                                CV.Threshold(
+                                    channel,
+                                    triggerHeader,
+                                    threshold, 1,
+                                    threshold < 0 ? ThresholdTypes.BinaryInv : ThresholdTypes.Binary);
                             }
 
                             for (int j = 0; j < triggerBuffer.Length; j++)
@@ -110,7 +121,7 @@ namespace Bonsai.Dsp
             });
         }
 
-        static SampleBuffer Refine(SampleBuffer buffer, int delay, int threshold)
+        static SampleBuffer Refine(SampleBuffer buffer, int delay, double threshold)
         {
             if (buffer.Completed && !buffer.Refined)
             {
