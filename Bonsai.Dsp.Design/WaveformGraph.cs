@@ -202,8 +202,9 @@ namespace Bonsai.Dsp.Design
             get { return selectedPage; }
             set
             {
-                var changed = selectedPage != value;
-                selectedPage = value;
+                var page = Math.Max(0, Math.Min(value, pageCount - 1));
+                var changed = selectedPage != page;
+                selectedPage = page;
                 if (changed)
                 {
                     ResetWaveform();
@@ -546,31 +547,6 @@ namespace Bonsai.Dsp.Design
         private void chart_ZoomEvent(ZedGraphControl sender, ZoomState oldState, ZoomState newState)
         {
             MasterPane.AxisChange();
-        }
-
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            if (e.Modifiers == Keys.Control && e.KeyCode == Keys.P)
-            {
-                DoPrint();
-            }
-
-            if (e.Modifiers == Keys.Control && e.KeyCode == Keys.S)
-            {
-                SaveAs();
-            }
-
-            if (e.KeyCode == Keys.PageDown)
-            {
-                SelectedPage = Math.Min(selectedPage + 1, pageCount - 1);
-            }
-
-            if (e.KeyCode == Keys.PageUp)
-            {
-                SelectedPage = Math.Max(0, selectedPage - 1);
-            }
-
-            base.OnKeyDown(e);
         }
 
         private void GraphPane_AxisChangeEvent(GraphPane pane)
