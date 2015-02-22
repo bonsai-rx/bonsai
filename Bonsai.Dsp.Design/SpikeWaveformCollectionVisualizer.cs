@@ -17,6 +17,7 @@ namespace Bonsai.Dsp.Design
         public SpikeWaveformCollectionVisualizer()
         {
             OverlayChannels = false;
+            WaveformBufferLength = 10;
         }
 
         public override void Show(object value)
