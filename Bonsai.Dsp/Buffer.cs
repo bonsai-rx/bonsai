@@ -338,5 +338,75 @@ namespace Bonsai.Dsp
         }
 
         #endregion
+
+        #region N-Channels
+
+        public IObservable<Mat> Process(IObservable<Mat> source)
+        {
+            return Observable.Create<Mat>(observer =>
+            {
+                var bufferIndex = 0;
+                var buffer = default(Mat);
+                return source.Subscribe(input =>
+                {
+                    try
+                    {
+                        var inputIndex = 0;
+                        while (inputIndex < input.Cols)
+                        {
+                            if (buffer == null)
+                            {
+                                bufferIndex = 0;
+                                buffer = new Mat(input.Rows, Count, input.Depth, input.Channels);
+                            }
+
+                            var samplesTaken = Math.Min(input.Cols - inputIndex, buffer.Cols - bufferIndex);
+                            using (var bufferRoi = buffer.GetSubRect(new Rect(bufferIndex, 0, samplesTaken, buffer.Rows)))
+                            using (var inputRoi = input.GetSubRect(new Rect(inputIndex, 0, samplesTaken, input.Rows)))
+                            {
+                                CV.Copy(inputRoi, bufferRoi);
+                                bufferIndex += samplesTaken;
+                                inputIndex += samplesTaken;
+                                if (bufferIndex >= buffer.Cols)
+                                {
+                                    observer.OnNext(buffer);
+                                    buffer = null;
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        observer.OnError(ex);
+                    }
+                },
+                observer.OnError,
+                () =>
+                {
+                    try
+                    {
+                        if (buffer != null)
+                        {
+                            var lastBuffer = new Mat(buffer.Rows, bufferIndex, buffer.Depth, buffer.Channels);
+                            using (var bufferRoi = buffer.GetSubRect(new Rect(0, 0, bufferIndex, buffer.Rows)))
+                            {
+                                CV.Copy(bufferRoi, lastBuffer);
+                            }
+
+                            observer.OnNext(lastBuffer);
+                            buffer = null;
+                        }
+
+                        observer.OnCompleted();
+                    }
+                    catch (Exception ex)
+                    {
+                        observer.OnError(ex);
+                    }
+                });
+            });
+        }
+
+        #endregion
     }
 }
