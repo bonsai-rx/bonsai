@@ -106,6 +106,7 @@
     <Compile Include="SampleBuffer.cs" />
     <Compile Include="SelectChannels.cs" />
     <Compile Include="DetectSpikes.cs" />
+    <Compile Include="Skip.cs" />
     <Compile Include="SpikeWaveform.cs" />
     <Compile Include="SpikeWaveformCollection.cs" />
     <Compile Include="Split.cs" />
