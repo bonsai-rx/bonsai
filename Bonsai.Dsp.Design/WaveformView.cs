@@ -208,7 +208,7 @@ namespace Bonsai.Dsp.Design
             chart.UpdateWaveform(channel, samples, rows, columns);
         }
 
-        public void UpdateWaveform(double[] samples, int rows, int columns)
+        public virtual void UpdateWaveform(double[] samples, int rows, int columns)
         {
             chart.UpdateWaveform(samples, rows, columns);
         }

@@ -15,6 +15,7 @@ namespace Bonsai.Dsp.Design
     {
         static readonly TimeSpan PickerRefreshInterval = TimeSpan.FromMilliseconds(30);
         IDisposable thresholdNotifications;
+        double[] threshold;
         bool initialized;
 
         public WaveformThresholdPicker()
@@ -23,7 +24,15 @@ namespace Bonsai.Dsp.Design
             InitializeReactiveEvents();
         }
 
-        public double[] Threshold { get; set; }
+        public double[] Threshold
+        {
+            get { return threshold; }
+            set
+            {
+                threshold = value;
+                initialized = false;
+            }
+        }
 
         public event EventHandler ThresholdChanged;
 
@@ -90,9 +99,8 @@ namespace Bonsai.Dsp.Design
             return thresholdValues;
         }
 
-        public override void EnsureWaveform(int rows, int columns)
+        private void InitializeThreshold(int columns)
         {
-            base.EnsureWaveform(rows, columns);
             if (!initialized)
             {
                 initialized = true;
@@ -104,6 +112,18 @@ namespace Bonsai.Dsp.Design
                     SetThresholdLine(pane, 0, columns, threshold);
                 }
             }
+        }
+
+        public override void EnsureWaveform(int rows, int columns)
+        {
+            base.EnsureWaveform(rows, columns);
+            InitializeThreshold(columns);
+        }
+
+        public override void UpdateWaveform(double[] samples, int rows, int columns)
+        {
+            base.UpdateWaveform(samples, rows, columns);
+            InitializeThreshold(columns);
         }
 
         protected override void OnSelectedPageChanged(EventArgs e)
