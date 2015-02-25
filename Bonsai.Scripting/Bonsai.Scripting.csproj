@@ -94,6 +94,7 @@
   <ItemGroup>
     <Compile Include="ExpressionTransform.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
+    <Compile Include="PythonSource.cs" />
     <Compile Include="PythonTextWriter.cs" />
     <Compile Include="PythonSink.cs" />
     <Compile Include="PythonCondition.cs" />
