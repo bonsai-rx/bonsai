@@ -126,7 +126,11 @@ namespace Bonsai.Expressions
             var elementType = element.GetType();
             if (elementType.IsDefined(typeof(CombinatorAttribute), true))
             {
-                return new CombinatorBuilder { Combinator = element };
+                var combinatorAttribute = elementType.GetCustomAttribute<CombinatorAttribute>(true);
+                var builderType = Type.GetType(combinatorAttribute.ExpressionBuilderTypeName);
+                var builder = (CombinatorBuilder)Activator.CreateInstance(builderType);
+                builder.Combinator = element;
+                return builder;
             }
 
             if (elementCategory == ElementCategory.Source ||
@@ -219,7 +223,7 @@ namespace Bonsai.Expressions
             return methodGenericArguments.Zip(bindingCandidates, (argument, match) => match).Concat(methodGenericArguments.Skip(bindingCandidates.Length)).ToArray();
         }
 
-        static IEnumerable<Tuple<Type, int>> GetParameterBindings(Type parameterType, Type argumentType)
+        internal static IEnumerable<Tuple<Type, int>> GetParameterBindings(Type parameterType, Type argumentType)
         {
             // If parameter is a generic parameter, just bind it to the input type
             if (parameterType.IsGenericParameter)
@@ -623,7 +627,7 @@ namespace Bonsai.Expressions
             return expandedParameters;
         }
 
-        internal static Expression BuildCall(Expression instance, IEnumerable<MethodInfo> methods, params Expression[] arguments)
+        protected static Expression BuildCall(Expression instance, IEnumerable<MethodInfo> methods, params Expression[] arguments)
         {
             var argumentTypes = Array.ConvertAll(arguments, argument => argument.Type);
             var candidates = methods

@@ -46,7 +46,7 @@ namespace Bonsai.Dsp
                             // Create new window and reset skip counter
                             index += skipCount;
                             skipCount = skip;
-                            var buffer = new SampleBuffer(input, count);
+                            var buffer = new SampleBuffer(input, count, index);
                             buffer.Update(input, index);
                             if (buffer.Completed)
                             {

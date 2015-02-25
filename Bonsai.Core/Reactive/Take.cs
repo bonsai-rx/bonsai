@@ -17,6 +17,14 @@ namespace Bonsai.Reactive
     public class Take : Combinator
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="Take"/> class.
+        /// </summary>
+        public Take()
+        {
+            Count = 1;
+        }
+
+        /// <summary>
         /// Gets or sets the number of elements to take.
         /// </summary>
         [Description("The number of elements to take.")]

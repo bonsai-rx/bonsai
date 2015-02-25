@@ -28,24 +28,25 @@ namespace Bonsai.Video
                 resource => Observable.FromEventPattern<NewFrameEventArgs>(
                     handler => videoSource.NewFrame += new NewFrameEventHandler(handler),
                     handler => videoSource.NewFrame -= new NewFrameEventHandler(handler))
-                    .Select(evt =>
-                    {
-                        var bitmap = evt.EventArgs.Frame;
-                        var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-                        try
-                        {
-                            var image = new IplImage(new OpenCV.Net.Size(bitmap.Width, bitmap.Height), IplDepth.U8, 3, bitmapData.Scan0);
-                            var output = new IplImage(image.Size, image.Depth, image.Channels);
-                            CV.Copy(image, output);
-                            return output;
-                        }
-                        finally { bitmap.UnlockBits(bitmapData); }
-                    }))
+                    .Select(evt => ProcessFrame(evt.EventArgs.Frame)))
                     .PublishReconnectable()
                     .RefCount();
         }
 
         protected abstract IVideoSource CreateVideoSource();
+
+        protected virtual IplImage ProcessFrame(Bitmap bitmap)
+        {
+            var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+            try
+            {
+                var image = new IplImage(new OpenCV.Net.Size(bitmap.Width, bitmap.Height), IplDepth.U8, 3, bitmapData.Scan0);
+                var output = new IplImage(image.Size, image.Depth, image.Channels);
+                CV.Copy(image, output);
+                return output;
+            }
+            finally { bitmap.UnlockBits(bitmapData); }
+        }
 
         [Browsable(false)]
         public IVideoSource VideoSource

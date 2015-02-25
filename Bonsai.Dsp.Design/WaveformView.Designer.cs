@@ -44,6 +44,7 @@
             this.historyLengthNumericUpDown = new Bonsai.Dsp.Design.ToolStripLabeledNumericUpDown();
             this.bufferLengthNumericUpDown = new Bonsai.Dsp.Design.ToolStripLabeledNumericUpDown();
             this.channelOffsetNumericUpDown = new Bonsai.Dsp.Design.ToolStripLabeledNumericUpDown();
+            this.channelsPerPageNumericUpDown = new Bonsai.Dsp.Design.ToolStripLabeledNumericUpDown();
             this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -147,7 +148,8 @@
             this.overlayModeSplitButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.historyLengthNumericUpDown,
             this.bufferLengthNumericUpDown,
-            this.channelOffsetNumericUpDown});
+            this.channelOffsetNumericUpDown,
+            this.channelsPerPageNumericUpDown});
             this.overlayModeSplitButton.Image = global::Bonsai.Dsp.Design.Properties.Resources.OverlayGridModeImage;
             this.overlayModeSplitButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.overlayModeSplitButton.Name = "overlayModeSplitButton";
@@ -257,6 +259,34 @@
             0});
             this.channelOffsetNumericUpDown.ValueChanged += new System.EventHandler(this.channelOffsetNumericUpDown_ValueChanged);
             // 
+            // channelsPerPageNumericUpDown
+            // 
+            this.channelsPerPageNumericUpDown.DecimalPlaces = 0;
+            this.channelsPerPageNumericUpDown.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.channelsPerPageNumericUpDown.Maximum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            this.channelsPerPageNumericUpDown.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.channelsPerPageNumericUpDown.Name = "channelsPerPageNumericUpDown";
+            this.channelsPerPageNumericUpDown.Size = new System.Drawing.Size(144, 29);
+            this.channelsPerPageNumericUpDown.Text = "Channels per Page";
+            this.channelsPerPageNumericUpDown.Value = new decimal(new int[] {
+            16,
+            0,
+            0,
+            0});
+            this.channelsPerPageNumericUpDown.ValueChanged += new System.EventHandler(this.channelsPerPageNumericUpDown_ValueChanged);
+            // 
             // WaveformGraph
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -289,5 +319,6 @@
         private ToolStripLabeledNumericUpDown channelOffsetNumericUpDown;
         private ToolStripLabeledNumericUpDown bufferLengthNumericUpDown;
         private ToolStripLabeledNumericUpDown historyLengthNumericUpDown;
+        private ToolStripLabeledNumericUpDown channelsPerPageNumericUpDown;
     }
 }

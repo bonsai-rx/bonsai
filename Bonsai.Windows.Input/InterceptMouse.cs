@@ -76,6 +76,7 @@ namespace Bonsai.Windows.Input
         {
             get { return instance.Value; }
         }
+
         public IObservable<Point> MouseMove { get; private set; }
 
         public IObservable<int> MouseWheel { get; private set; }

@@ -24,11 +24,11 @@ namespace Bonsai.Design
             editorService = new ConfigurationEditorService(this);
 
             SuspendLayout();
-            foreach (var portName in GetConfigurationNames())
+            foreach (var configurationName in GetConfigurationNames())
             {
-                if (!string.IsNullOrWhiteSpace(portName))
+                if (!string.IsNullOrWhiteSpace(configurationName))
                 {
-                    configurationNameListbox.Items.Add(portName);
+                    configurationNameListbox.Items.Add(configurationName);
                 }
             }
 
