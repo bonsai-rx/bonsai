@@ -24,6 +24,10 @@ namespace Bonsai.Expressions
                                                    where method.Name == "Return" && method.GetParameters().Length == 1
                                                    select method)
                                                    .Single();
+        static readonly MethodInfo toObservableMethod = (from method in typeof(Observable).GetMethods()
+                                                   where method.Name == "ToObservable" && method.GetParameters().Length == 1
+                                                   select method)
+                                                   .Single();
         static readonly MethodInfo selectManyMethod = (from method in typeof(Observable).GetMethods()
                                                        where method.Name == "SelectMany"
                                                        let parameters = method.GetParameters()
@@ -75,7 +79,12 @@ namespace Bonsai.Expressions
             Expression inputParameter;
             var sourceType = source.Type.GetGenericArguments()[0];
             var selectorParameter = Expression.Parameter(sourceType);
-            if (!sourceType.IsGenericType || sourceType.GetGenericTypeDefinition() != typeof(IObservable<>))
+            var enumerableBindings = GetParameterBindings(typeof(IEnumerable<>), sourceType).FirstOrDefault();
+            if (enumerableBindings != null && sourceType != typeof(string))
+            {
+                inputParameter = Expression.Call(toObservableMethod.MakeGenericMethod(enumerableBindings.Item1), selectorParameter);
+            }
+            else if (!sourceType.IsGenericType || sourceType.GetGenericTypeDefinition() != typeof(IObservable<>))
             {
                 inputParameter = Expression.Call(returnMethod.MakeGenericMethod(sourceType), selectorParameter);
             }

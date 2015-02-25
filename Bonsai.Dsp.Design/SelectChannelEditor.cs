@@ -62,38 +62,5 @@ namespace Bonsai.Dsp.Design
 
             return base.EditValue(context, provider, value);
         }
-
-        class ChartPanel : Panel, IDialogTypeVisualizerService, IServiceProvider, ITypeVisualizerContext
-        {
-            InspectBuilder source;
-            IServiceProvider provider;
-
-            public ChartPanel(InspectBuilder dataSource, IServiceProvider parentProvider)
-            {
-                source = dataSource;
-                provider = parentProvider;
-            }
-
-            public void AddControl(Control control)
-            {
-                Controls.Add(control);
-            }
-
-            public new object GetService(Type serviceType)
-            {
-                if (serviceType == typeof(IDialogTypeVisualizerService) ||
-                    serviceType == typeof(ITypeVisualizerContext))
-                {
-                    return this;
-                }
-
-                return provider.GetService(serviceType);
-            }
-
-            public InspectBuilder Source
-            {
-                get { return source; }
-            }
-        }
     }
 }

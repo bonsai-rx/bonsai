@@ -55,6 +55,7 @@ namespace Bonsai.Windows.Input
         {
             get { return instance.Value; }
         }
+
         public IObservable<Keys> KeyDown { get; private set; }
 
         public IObservable<Keys> KeyUp { get; private set; }

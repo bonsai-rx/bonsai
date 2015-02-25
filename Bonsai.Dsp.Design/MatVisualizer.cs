@@ -13,16 +13,19 @@ using System.Windows.Forms;
 using Bonsai.Design.Visualizers;
 
 [assembly: TypeVisualizer(typeof(MatVisualizer), Target = typeof(Mat))]
-[assembly: TypeVisualizer(typeof(MatVisualizer), Target = typeof(IObservable<Mat>))]
 
 namespace Bonsai.Dsp.Design
 {
-    public class MatVisualizer : DialogTypeVisualizer
+    public class MatVisualizer : MatVisualizer<WaveformView>
+    {
+    }
+
+    public class MatVisualizer<TWaveformView> : DialogTypeVisualizer where TWaveformView : WaveformView, new()
     {
         const int TargetElapsedTime = (int)(1000.0 / 30);
         bool requireInvalidate;
         Timer updateTimer;
-        WaveformView graph;
+        TWaveformView graph;
 
         public MatVisualizer()
         {
@@ -30,6 +33,7 @@ namespace Bonsai.Dsp.Design
             YMax = 1;
             AutoScaleX = true;
             AutoScaleY = true;
+            ChannelsPerPage = 16;
             OverlayChannels = true;
             WaveformBufferLength = 1;
             HistoryLength = 1;
@@ -47,6 +51,10 @@ namespace Bonsai.Dsp.Design
 
         public bool AutoScaleY { get; set; }
 
+        public int SelectedPage { get; set; }
+
+        public int ChannelsPerPage { get; set; }
+
         public bool OverlayChannels { get; set; }
 
         public double ChannelOffset { get; set; }
@@ -57,9 +65,20 @@ namespace Bonsai.Dsp.Design
 
         public int[] SelectedChannels { get; set; }
 
+        protected internal TWaveformView Graph
+        {
+            get { return graph; }
+        }
+
+        protected void InvalidateGraph()
+        {
+            requireInvalidate = true;
+        }
+
         public override void Load(IServiceProvider provider)
         {
-            graph = new WaveformView { Dock = DockStyle.Fill };
+            graph = new TWaveformView();
+            graph.Dock = DockStyle.Fill;
             graph.WaveformBufferLength = WaveformBufferLength;
             graph.HistoryLength = HistoryLength;
             graph.ChannelOffset = ChannelOffset;
@@ -77,6 +96,8 @@ namespace Bonsai.Dsp.Design
                 graph.YMax = YMax;
             }
 
+            graph.SelectedPage = SelectedPage;
+            graph.ChannelsPerPage = ChannelsPerPage;
             graph.OverlayChannels = OverlayChannels;
             if (SelectedChannels != null)
             {
@@ -94,6 +115,8 @@ namespace Bonsai.Dsp.Design
                 YMax = graph.YMax;
                 AutoScaleX = graph.AutoScaleX;
                 AutoScaleY = graph.AutoScaleY;
+                SelectedPage = graph.SelectedPage;
+                ChannelsPerPage = graph.ChannelsPerPage;
                 OverlayChannels = graph.OverlayChannels;
                 WaveformBufferLength = graph.WaveformBufferLength;
                 HistoryLength = graph.HistoryLength;
@@ -135,6 +158,8 @@ namespace Bonsai.Dsp.Design
         public override void Show(object value)
         {
             var buffer = (Mat)value;
+            if (buffer == null) return;
+
             var rows = buffer.Rows;
             var columns = buffer.Cols;
             var samples = new double[rows * columns];
@@ -146,31 +171,7 @@ namespace Bonsai.Dsp.Design
             sampleHandle.Free();
 
             graph.UpdateWaveform(samples, rows, columns);
-            requireInvalidate = true;
-        }
-
-        public override IObservable<object> Visualize(IObservable<IObservable<object>> source, IServiceProvider provider)
-        {
-            var visualizerContext = (ITypeVisualizerContext)provider.GetService(typeof(ITypeVisualizerContext));
-            if (graph != null && visualizerContext != null)
-            {
-                var observableType = visualizerContext.Source.ObservableType;
-                if (observableType == typeof(IObservable<Mat>))
-                {
-                    return source.SelectMany(xs => xs.Select(ws => ws as IObservable<Mat>)
-                                                     .Where(ws => ws != null)
-                                                     .SelectMany(ws => ws.ObserveOn(graph)
-                                                                         .Do(Show, SequenceCompleted)));
-                }
-                else return source.SelectMany(xs => xs.ObserveOn(graph).Do(Show, SequenceCompleted));
-            }
-
-            return source;
-        }
-
-        public override void SequenceCompleted()
-        {
-            base.SequenceCompleted();
+            InvalidateGraph();
         }
     }
 }

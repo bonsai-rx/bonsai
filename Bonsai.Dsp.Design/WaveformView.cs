@@ -62,9 +62,34 @@ namespace Bonsai.Dsp.Design
             maxTextBox.KeyDown += editableTextBox_KeyDown;
         }
 
+        protected WaveformGraph Chart
+        {
+            get { return chart; }
+        }
+
         public Collection<int> SelectedChannels
         {
             get { return chart.SelectedChannels; }
+        }
+
+        public int SelectedPage
+        {
+            get { return chart.SelectedPage; }
+            set
+            {
+                chart.SelectedPage = value;
+                OnSelectedPageChanged(EventArgs.Empty);
+            }
+        }
+
+        public int ChannelsPerPage
+        {
+            get { return chart.ChannelsPerPage; }
+            set
+            {
+                chart.ChannelsPerPage = value;
+                channelsPerPageNumericUpDown.Value = value;
+            }
         }
 
         public bool OverlayChannels
@@ -153,6 +178,8 @@ namespace Bonsai.Dsp.Design
 
         public event EventHandler AxisChanged;
 
+        public event EventHandler SelectedPageChanged;
+
         protected virtual void OnAxisChanged(EventArgs e)
         {
             var handler = AxisChanged;
@@ -162,7 +189,26 @@ namespace Bonsai.Dsp.Design
             }
         }
 
-        public void UpdateWaveform(double[] samples, int rows, int columns)
+        protected virtual void OnSelectedPageChanged(EventArgs e)
+        {
+            var handler = SelectedPageChanged;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        public virtual void EnsureWaveform(int rows, int columns)
+        {
+            chart.EnsureWaveformRows(rows);
+        }
+
+        public void UpdateWaveform(int channel, double[] samples, int rows, int columns)
+        {
+            chart.UpdateWaveform(channel, samples, rows, columns);
+        }
+
+        public virtual void UpdateWaveform(double[] samples, int rows, int columns)
         {
             chart.UpdateWaveform(samples, rows, columns);
         }
@@ -170,6 +216,33 @@ namespace Bonsai.Dsp.Design
         public void InvalidateWaveform()
         {
             chart.Invalidate();
+        }
+
+        protected override bool ProcessDialogKey(Keys keyData)
+        {
+            var keyCode = keyData & Keys.KeyCode;
+            var modifiers = keyData & Keys.Modifiers;
+            if (modifiers == Keys.Control && keyCode == Keys.P)
+            {
+                chart.DoPrint();
+            }
+
+            if (modifiers == Keys.Control && keyCode == Keys.S)
+            {
+                chart.SaveAs();
+            }
+
+            if (keyCode == Keys.PageDown)
+            {
+                SelectedPage++;
+            }
+
+            if (keyCode == Keys.PageUp)
+            {
+                SelectedPage--;
+            }
+
+            return base.ProcessDialogKey(keyData);
         }
 
         private void chart_ZoomEvent(ZedGraphControl sender, ZoomState oldState, ZoomState newState)
@@ -311,6 +384,11 @@ namespace Bonsai.Dsp.Design
         private void historyLengthNumericUpDown_ValueChanged(object sender, EventArgs e)
         {
             HistoryLength = (int)historyLengthNumericUpDown.Value;
+        }
+
+        private void channelsPerPageNumericUpDown_ValueChanged(object sender, EventArgs e)
+        {
+            ChannelsPerPage = (int)channelsPerPageNumericUpDown.Value;
         }
 
         private void overlayModeSplitButton_Click(object sender, EventArgs e)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reactive.Linq;
+using System.Windows.Forms;
 
 namespace Bonsai.Design
 {
@@ -16,10 +17,10 @@ namespace Bonsai.Design
 
         public virtual IObservable<object> Visualize(IObservable<IObservable<object>> source, IServiceProvider provider)
         {
-            var visualizerDialog = (TypeVisualizerDialog)provider.GetService(typeof(TypeVisualizerDialog));
-            if (visualizerDialog != null)
+            var visualizerControl = provider.GetService(typeof(IDialogTypeVisualizerService)) as Control;
+            if (visualizerControl != null)
             {
-                return source.SelectMany(xs => xs.ObserveOn(visualizerDialog).Do(Show, SequenceCompleted));
+                return source.SelectMany(xs => xs.ObserveOn(visualizerControl).Do(Show, SequenceCompleted));
             }
 
             return source;
