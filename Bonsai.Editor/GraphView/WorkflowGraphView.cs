@@ -1466,6 +1466,7 @@ namespace Bonsai.Design
                 result = editorService.ValidateWorkflow();
             }
 
+            UpdateVisualizerLayout();
             return result;
         }
 
