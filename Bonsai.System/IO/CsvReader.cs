@@ -26,14 +26,14 @@ namespace Bonsai.IO
         public string FileName { get; set; }
 
         [TypeConverter("Bonsai.Expressions.ParseBuilder+PatternConverter, Bonsai.Core")]
-        [Description("The parse pattern to match, including conversion specifications for output data types.")]
-        public string Pattern { get; set; }
+        [Description("The parse pattern for scanning individual lines, including conversion specifications for output data types.")]
+        public string ScanPattern { get; set; }
 
         protected override Expression BuildCombinator(IEnumerable<Expression> arguments)
         {
-            var pattern = Pattern;
+            var scanPattern = ScanPattern;
             var parameter = Expression.Parameter(typeof(string));
-            var parseBody = !string.IsNullOrEmpty(pattern) ? ExpressionHelper.Parse(parameter, pattern) : parameter;
+            var parseBody = !string.IsNullOrEmpty(scanPattern) ? ExpressionHelper.Parse(parameter, scanPattern) : parameter;
             var parser = Expression.Lambda(parseBody, parameter);
             var combinatorExpression = Expression.Constant(this);
             return Expression.Call(combinatorExpression, "Generate", new[] { parseBody.Type }, parser);
