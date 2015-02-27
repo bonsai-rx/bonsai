@@ -1082,7 +1082,9 @@ namespace Bonsai.Editor
         void UpdateTreeViewDescription()
         {
             var selectedNode = toolboxTreeView.SelectedNode;
-            if (selectedNode != null && selectedNode.GetNodeCount(false) == 0)
+            if (selectedNode != null &&
+                (!toolboxTreeView.ShowRootLines ||
+                selectedNode.Parent != null && selectedNode.GetNodeCount(false) == 0))
             {
                 UpdateDescriptionTextBox(selectedNode.Text, selectedNode.ToolTipText, toolboxDescriptionTextBox);
             }
