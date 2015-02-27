@@ -920,7 +920,7 @@ namespace Bonsai.Editor
                 var type = selectedObjects[0].GetType();
                 var name = ExpressionBuilder.GetElementDisplayName(type);
                 var description = (DescriptionAttribute)TypeDescriptor.GetAttributes(type)[typeof(DescriptionAttribute)];
-                UpdateNodeDescription(name, description.Description, propertiesDescriptionTextBox);
+                UpdateDescriptionTextBox(name, description.Description, propertiesDescriptionTextBox);
                 propertyGrid.PropertyTabs.AddTabType(typeof(MappingTab), PropertyTabScope.Document);
                 propertyGrid.SelectedObject = selectedObjects[0];
             }
@@ -931,7 +931,7 @@ namespace Bonsai.Editor
                                        types.Select(type => ExpressionBuilder.GetElementDisplayName(type)));
                 var selectedType = types.FirstOrDefault();
                 var description = types.Length == 1 ? (DescriptionAttribute)TypeDescriptor.GetAttributes(selectedType)[typeof(DescriptionAttribute)] : null;
-                UpdateNodeDescription(name, description != null ? description.Description : string.Empty, propertiesDescriptionTextBox);
+                UpdateDescriptionTextBox(name, description != null ? description.Description : string.Empty, propertiesDescriptionTextBox);
                 propertyGrid.RefreshTabs(PropertyTabScope.Document);
                 propertyGrid.SelectedObjects = selectedObjects;
             }
@@ -1014,6 +1014,7 @@ namespace Bonsai.Editor
                     toolboxTreeView.SelectedNode = closestMatch;
                 }
             }
+            UpdateTreeViewDescription();
             toolboxTreeView.EndUpdate();
         }
 
@@ -1059,7 +1060,7 @@ namespace Bonsai.Editor
             }
         }
 
-        void UpdateNodeDescription(string name, string description, RichTextBox descriptionTextBox)
+        void UpdateDescriptionTextBox(string name, string description, RichTextBox descriptionTextBox)
         {
             var nameLength = name != null ? name.Length : 0;
             descriptionTextBox.SuspendLayout();
@@ -1076,6 +1077,16 @@ namespace Bonsai.Editor
             descriptionTextBox.SelectionLength = description.Length;
             descriptionTextBox.SelectionFont = regularFont;
             descriptionTextBox.ResumeLayout();
+        }
+
+        void UpdateTreeViewDescription()
+        {
+            var selectedNode = toolboxTreeView.SelectedNode;
+            if (selectedNode != null && selectedNode.GetNodeCount(false) == 0)
+            {
+                UpdateDescriptionTextBox(selectedNode.Text, selectedNode.ToolTipText, toolboxDescriptionTextBox);
+            }
+            else UpdateDescriptionTextBox(string.Empty, string.Empty, toolboxDescriptionTextBox);
         }
 
         private void toolboxTreeView_KeyDown(object sender, KeyEventArgs e)
@@ -1103,11 +1114,7 @@ namespace Bonsai.Editor
 
         private void toolboxTreeView_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            var selectedNode = e.Node;
-            if (selectedNode != null && selectedNode.GetNodeCount(false) == 0)
-            {
-                UpdateNodeDescription(selectedNode.Text, selectedNode.ToolTipText, toolboxDescriptionTextBox);
-            }
+            UpdateTreeViewDescription();
         }
 
         private void toolboxTreeView_MouseUp(object sender, MouseEventArgs e)
