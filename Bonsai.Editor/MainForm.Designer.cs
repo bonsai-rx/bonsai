@@ -89,12 +89,14 @@
             this.toolboxGroupBox = new System.Windows.Forms.GroupBox();
             this.toolboxSplitContainer = new System.Windows.Forms.SplitContainer();
             this.toolboxTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.searchTextBox = new Bonsai.Design.CueBannerTextBox();
             this.toolboxTreeView = new System.Windows.Forms.TreeView();
-            this.toolboxDescriptionPanel = new System.Windows.Forms.Panel();
+            this.toolboxDescriptionPanel = new Bonsai.Editor.BorderPanel();
             this.toolboxDescriptionTextBox = new System.Windows.Forms.RichTextBox();
             this.workflowGroupBox = new System.Windows.Forms.GroupBox();
             this.propertiesGroupBox = new System.Windows.Forms.GroupBox();
             this.propertiesSplitContainer = new System.Windows.Forms.SplitContainer();
+            this.propertiesDescriptionPanel = new Bonsai.Editor.BorderPanel();
             this.propertiesDescriptionTextBox = new System.Windows.Forms.RichTextBox();
             this.propertyGrid = new System.Windows.Forms.PropertyGrid();
             this.propertyGridContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -111,8 +113,6 @@
             this.createBranchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolboxSourceContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.createSourceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.propertiesDescriptionPanel = new System.Windows.Forms.Panel();
-            this.searchTextBox = new Bonsai.Design.CueBannerTextBox();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -128,6 +128,7 @@
             this.propertiesSplitContainer.Panel1.SuspendLayout();
             this.propertiesSplitContainer.Panel2.SuspendLayout();
             this.propertiesSplitContainer.SuspendLayout();
+            this.propertiesDescriptionPanel.SuspendLayout();
             this.propertyGridContextMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelSplitContainer)).BeginInit();
             this.panelSplitContainer.Panel1.SuspendLayout();
@@ -139,7 +140,6 @@
             this.workflowSplitContainer.SuspendLayout();
             this.toolboxContextMenuStrip.SuspendLayout();
             this.toolboxSourceContextMenuStrip.SuspendLayout();
-            this.propertiesDescriptionPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip
@@ -656,6 +656,18 @@
             this.toolboxTableLayoutPanel.Size = new System.Drawing.Size(194, 208);
             this.toolboxTableLayoutPanel.TabIndex = 2;
             // 
+            // searchTextBox
+            // 
+            this.searchTextBox.CueBanner = null;
+            this.searchTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.searchTextBox.Location = new System.Drawing.Point(0, 3);
+            this.searchTextBox.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
+            this.searchTextBox.Name = "searchTextBox";
+            this.searchTextBox.Size = new System.Drawing.Size(194, 20);
+            this.searchTextBox.TabIndex = 1;
+            this.searchTextBox.TextChanged += new System.EventHandler(this.searchTextBox_TextChanged);
+            this.searchTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.searchTextBox_KeyDown);
+            // 
             // toolboxTreeView
             // 
             this.toolboxTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -686,11 +698,12 @@
             // 
             // toolboxDescriptionPanel
             // 
-            this.toolboxDescriptionPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.toolboxDescriptionPanel.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(160)))), ((int)(((byte)(160)))), ((int)(((byte)(160)))));
             this.toolboxDescriptionPanel.Controls.Add(this.toolboxDescriptionTextBox);
             this.toolboxDescriptionPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.toolboxDescriptionPanel.Location = new System.Drawing.Point(0, 0);
             this.toolboxDescriptionPanel.Name = "toolboxDescriptionPanel";
+            this.toolboxDescriptionPanel.Padding = new System.Windows.Forms.Padding(1);
             this.toolboxDescriptionPanel.Size = new System.Drawing.Size(194, 59);
             this.toolboxDescriptionPanel.TabIndex = 0;
             // 
@@ -698,7 +711,7 @@
             // 
             this.toolboxDescriptionTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.toolboxDescriptionTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.toolboxDescriptionTextBox.Location = new System.Drawing.Point(0, 0);
+            this.toolboxDescriptionTextBox.Location = new System.Drawing.Point(1, 1);
             this.toolboxDescriptionTextBox.Name = "toolboxDescriptionTextBox";
             this.toolboxDescriptionTextBox.ReadOnly = true;
             this.toolboxDescriptionTextBox.Size = new System.Drawing.Size(192, 57);
@@ -747,11 +760,22 @@
             this.propertiesSplitContainer.TabIndex = 1;
             this.propertiesSplitContainer.TabStop = false;
             // 
+            // propertiesDescriptionPanel
+            // 
+            this.propertiesDescriptionPanel.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(160)))), ((int)(((byte)(160)))), ((int)(((byte)(160)))));
+            this.propertiesDescriptionPanel.Controls.Add(this.propertiesDescriptionTextBox);
+            this.propertiesDescriptionPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.propertiesDescriptionPanel.Location = new System.Drawing.Point(0, 0);
+            this.propertiesDescriptionPanel.Name = "propertiesDescriptionPanel";
+            this.propertiesDescriptionPanel.Padding = new System.Windows.Forms.Padding(1);
+            this.propertiesDescriptionPanel.Size = new System.Drawing.Size(190, 59);
+            this.propertiesDescriptionPanel.TabIndex = 0;
+            // 
             // propertiesDescriptionTextBox
             // 
             this.propertiesDescriptionTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.propertiesDescriptionTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.propertiesDescriptionTextBox.Location = new System.Drawing.Point(0, 0);
+            this.propertiesDescriptionTextBox.Location = new System.Drawing.Point(1, 1);
             this.propertiesDescriptionTextBox.Name = "propertiesDescriptionTextBox";
             this.propertiesDescriptionTextBox.ReadOnly = true;
             this.propertiesDescriptionTextBox.Size = new System.Drawing.Size(188, 57);
@@ -894,28 +918,6 @@
             this.createSourceToolStripMenuItem.Text = "Create Source";
             this.createSourceToolStripMenuItem.Click += new System.EventHandler(this.insertAfterToolStripMenuItem_Click);
             // 
-            // propertiesDescriptionPanel
-            // 
-            this.propertiesDescriptionPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.propertiesDescriptionPanel.Controls.Add(this.propertiesDescriptionTextBox);
-            this.propertiesDescriptionPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.propertiesDescriptionPanel.Location = new System.Drawing.Point(0, 0);
-            this.propertiesDescriptionPanel.Name = "propertiesDescriptionPanel";
-            this.propertiesDescriptionPanel.Size = new System.Drawing.Size(190, 59);
-            this.propertiesDescriptionPanel.TabIndex = 0;
-            // 
-            // searchTextBox
-            // 
-            this.searchTextBox.CueBanner = null;
-            this.searchTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.searchTextBox.Location = new System.Drawing.Point(0, 3);
-            this.searchTextBox.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
-            this.searchTextBox.Name = "searchTextBox";
-            this.searchTextBox.Size = new System.Drawing.Size(194, 20);
-            this.searchTextBox.TabIndex = 1;
-            this.searchTextBox.TextChanged += new System.EventHandler(this.searchTextBox_TextChanged);
-            this.searchTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.searchTextBox_KeyDown);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -953,6 +955,7 @@
             this.propertiesSplitContainer.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.propertiesSplitContainer)).EndInit();
             this.propertiesSplitContainer.ResumeLayout(false);
+            this.propertiesDescriptionPanel.ResumeLayout(false);
             this.propertyGridContextMenuStrip.ResumeLayout(false);
             this.panelSplitContainer.Panel1.ResumeLayout(false);
             this.panelSplitContainer.Panel2.ResumeLayout(false);
@@ -964,7 +967,6 @@
             this.workflowSplitContainer.ResumeLayout(false);
             this.toolboxContextMenuStrip.ResumeLayout(false);
             this.toolboxSourceContextMenuStrip.ResumeLayout(false);
-            this.propertiesDescriptionPanel.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1020,7 +1022,7 @@
         private System.Windows.Forms.ToolStripButton browseDirectoryToolStripButton;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
         private System.Windows.Forms.SplitContainer toolboxSplitContainer;
-        private System.Windows.Forms.Panel toolboxDescriptionPanel;
+        private Bonsai.Editor.BorderPanel toolboxDescriptionPanel;
         private System.Windows.Forms.RichTextBox toolboxDescriptionTextBox;
         private System.Windows.Forms.ToolStripMenuItem welcomeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem examplesToolStripMenuItem;
@@ -1050,7 +1052,7 @@
         private System.Windows.Forms.ToolStripMenuItem createSourceToolStripMenuItem;
         private System.Windows.Forms.SplitContainer propertiesSplitContainer;
         private System.Windows.Forms.RichTextBox propertiesDescriptionTextBox;
-        private System.Windows.Forms.Panel propertiesDescriptionPanel;
+        private Bonsai.Editor.BorderPanel propertiesDescriptionPanel;
     }
 }
 
