@@ -22,6 +22,7 @@ using System.Reactive.Concurrency;
 using System.Reactive;
 using System.Diagnostics;
 using System.Reflection;
+using System.Globalization;
 
 namespace Bonsai.Editor
 {
@@ -916,11 +917,21 @@ namespace Bonsai.Editor
             saveSelectionAsToolStripMenuItem.Enabled = selectedObjects.Length > 0;
             if (selectedObjects.Length == 1)
             {
+                var type = selectedObjects[0].GetType();
+                var name = ExpressionBuilder.GetElementDisplayName(type);
+                var description = (DescriptionAttribute)TypeDescriptor.GetAttributes(type)[typeof(DescriptionAttribute)];
+                UpdateNodeDescription(name, description.Description, propertiesDescriptionTextBox);
                 propertyGrid.PropertyTabs.AddTabType(typeof(MappingTab), PropertyTabScope.Document);
                 propertyGrid.SelectedObject = selectedObjects[0];
             }
             else
             {
+                var types = selectedObjects.Select(obj => obj.GetType()).Distinct().Reverse().ToArray();
+                var name = string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ",
+                                       types.Select(type => ExpressionBuilder.GetElementDisplayName(type)));
+                var selectedType = types.FirstOrDefault();
+                var description = types.Length == 1 ? (DescriptionAttribute)TypeDescriptor.GetAttributes(selectedType)[typeof(DescriptionAttribute)] : null;
+                UpdateNodeDescription(name, description != null ? description.Description : string.Empty, propertiesDescriptionTextBox);
                 propertyGrid.RefreshTabs(PropertyTabScope.Document);
                 propertyGrid.SelectedObjects = selectedObjects;
             }
@@ -1048,6 +1059,25 @@ namespace Bonsai.Editor
             }
         }
 
+        void UpdateNodeDescription(string name, string description, RichTextBox descriptionTextBox)
+        {
+            var nameLength = name != null ? name.Length : 0;
+            descriptionTextBox.SuspendLayout();
+            descriptionTextBox.Lines = new[]
+            {
+                name,
+                description
+            };
+
+            descriptionTextBox.SelectionStart = 0;
+            descriptionTextBox.SelectionLength = nameLength;
+            descriptionTextBox.SelectionFont = selectionFont;
+            descriptionTextBox.SelectionStart = nameLength;
+            descriptionTextBox.SelectionLength = description.Length;
+            descriptionTextBox.SelectionFont = regularFont;
+            descriptionTextBox.ResumeLayout();
+        }
+
         private void toolboxTreeView_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Return &&
@@ -1076,21 +1106,7 @@ namespace Bonsai.Editor
             var selectedNode = e.Node;
             if (selectedNode != null && selectedNode.GetNodeCount(false) == 0)
             {
-                var description = selectedNode.ToolTipText;
-                toolboxDescriptionTextBox.SuspendLayout();
-                toolboxDescriptionTextBox.Lines = new[]
-                {
-                    selectedNode.Text,
-                    description
-                };
-
-                toolboxDescriptionTextBox.SelectionStart = 0;
-                toolboxDescriptionTextBox.SelectionLength = selectedNode.Text.Length;
-                toolboxDescriptionTextBox.SelectionFont = selectionFont;
-                toolboxDescriptionTextBox.SelectionStart = selectedNode.Text.Length;
-                toolboxDescriptionTextBox.SelectionLength = description.Length;
-                toolboxDescriptionTextBox.SelectionFont = regularFont;
-                toolboxDescriptionTextBox.ResumeLayout();
+                UpdateNodeDescription(selectedNode.Text, selectedNode.ToolTipText, toolboxDescriptionTextBox);
             }
         }
 
