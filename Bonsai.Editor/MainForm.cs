@@ -845,7 +845,7 @@ namespace Bonsai.Editor
             Text = title;
         }
 
-        IEnumerable<TreeNode> GetTreeViewLeafNodes(System.Collections.IEnumerable nodes)
+        static IEnumerable<TreeNode> GetTreeViewLeafNodes(System.Collections.IEnumerable nodes)
         {
             foreach (TreeNode node in nodes)
             {
@@ -899,6 +899,12 @@ namespace Bonsai.Editor
             }
         }
 
+        static string GetElementDescription(object component)
+        {
+            var descriptionAttribute = (DescriptionAttribute)TypeDescriptor.GetAttributes(component)[typeof(DescriptionAttribute)];
+            return descriptionAttribute.Description;
+        }
+
         private void selectionModel_SelectionChanged(object sender, EventArgs e)
         {
             if (selectionTypeDescriptor != null)
@@ -914,24 +920,22 @@ namespace Bonsai.Editor
                 return workflowElement ?? builder;
             }).ToArray();
 
+            var displayNames = selectedObjects
+                .Select(obj => ExpressionBuilder.GetElementDisplayName(obj))
+                .Distinct().Reverse().ToArray();
+            var displayName = string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ", displayNames);
+            var objectDescriptions = selectedObjects.Select(obj => GetElementDescription(obj)).Distinct().Reverse().ToArray();
+            var description = objectDescriptions.Length == 1 ? objectDescriptions[0] : string.Empty;
+            UpdateDescriptionTextBox(displayName, description, propertiesDescriptionTextBox);
+
             saveSelectionAsToolStripMenuItem.Enabled = selectedObjects.Length > 0;
             if (selectedObjects.Length == 1)
             {
-                var type = selectedObjects[0].GetType();
-                var name = ExpressionBuilder.GetElementDisplayName(type);
-                var description = (DescriptionAttribute)TypeDescriptor.GetAttributes(type)[typeof(DescriptionAttribute)];
-                UpdateDescriptionTextBox(name, description.Description, propertiesDescriptionTextBox);
                 propertyGrid.PropertyTabs.AddTabType(typeof(MappingTab), PropertyTabScope.Document);
                 propertyGrid.SelectedObject = selectedObjects[0];
             }
             else
             {
-                var types = selectedObjects.Select(obj => obj.GetType()).Distinct().Reverse().ToArray();
-                var name = string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ",
-                                       types.Select(type => ExpressionBuilder.GetElementDisplayName(type)));
-                var selectedType = types.FirstOrDefault();
-                var description = types.Length == 1 ? (DescriptionAttribute)TypeDescriptor.GetAttributes(selectedType)[typeof(DescriptionAttribute)] : null;
-                UpdateDescriptionTextBox(name, description != null ? description.Description : string.Empty, propertiesDescriptionTextBox);
                 propertyGrid.RefreshTabs(PropertyTabScope.Document);
                 propertyGrid.SelectedObjects = selectedObjects;
             }
