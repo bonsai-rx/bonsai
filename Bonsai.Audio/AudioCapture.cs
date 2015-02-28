@@ -32,7 +32,7 @@ namespace Bonsai.Audio
                 {
                     var frequency = Frequency;
                     var bufferLength = BufferLength;
-                    var bufferSize = (int)Math.Ceiling(frequency * 0.01);
+                    var bufferSize = (int)Math.Ceiling(frequency * bufferLength / 1000);
                     var captureInterval = TimeSpan.FromMilliseconds((int)(bufferLength / 2 + 0.5));
                     var captureBufferSize = (int)(bufferLength * frequency * 0.001 / BlittableValueType.StrideOf(short.MinValue));
 
