@@ -18,6 +18,14 @@ namespace Bonsai.Expressions
     [Description("Processes each input window using the encapsulated workflow.")]
     public class WindowWorkflowBuilder : WorkflowExpressionBuilder
     {
+        static readonly MethodInfo returnMethod = (from method in typeof(Observable).GetMethods()
+                                                   where method.Name == "Return" && method.GetParameters().Length == 1
+                                                   select method)
+                                                   .Single();
+        static readonly MethodInfo toObservableMethod = (from method in typeof(Observable).GetMethods()
+                                                         where method.Name == "ToObservable" && method.GetParameters().Length == 1
+                                                         select method)
+                                                   .Single();
         static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()
                                                                     .Single(m => m.Name == "Select" &&
                                                                             m.GetParameters().Length == 2 &&
@@ -57,17 +65,25 @@ namespace Bonsai.Expressions
             var source = arguments.FirstOrDefault();
             if (source == null)
             {
-                throw new InvalidOperationException("There must be at least one workflow input to WindowWorkflow.");
+                throw new InvalidOperationException("There must be at least one input to WindowWorkflow.");
             }
 
+            // Assign input
+            Expression inputParameter;
             var sourceType = source.Type.GetGenericArguments()[0];
-            if (!sourceType.IsGenericType || sourceType.GetGenericTypeDefinition() != typeof(IObservable<>))
-            {
-                throw new InvalidOperationException("WindowWorkflow operator takes as input an observable sequence of windows.");
-            }
-
             var selectorParameter = Expression.Parameter(sourceType);
-            return BuildWorflow(arguments, selectorParameter, selectorBody =>
+            var enumerableBindings = GetParameterBindings(typeof(IEnumerable<>), sourceType).FirstOrDefault();
+            if (enumerableBindings != null && sourceType != typeof(string))
+            {
+                inputParameter = Expression.Call(toObservableMethod.MakeGenericMethod(enumerableBindings.Item1), selectorParameter);
+            }
+            else if (!sourceType.IsGenericType || sourceType.GetGenericTypeDefinition() != typeof(IObservable<>))
+            {
+                inputParameter = Expression.Call(returnMethod.MakeGenericMethod(sourceType), selectorParameter);
+            }
+            else inputParameter = selectorParameter;
+
+            return BuildWorflow(arguments, inputParameter, selectorBody =>
             {
                 var selector = Expression.Lambda(selectorBody, selectorParameter);
                 return Expression.Call(selectMethod.MakeGenericMethod(sourceType, selector.ReturnType), source, selector);
