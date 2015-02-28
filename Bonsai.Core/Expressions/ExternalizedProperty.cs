@@ -16,6 +16,7 @@ namespace Bonsai.Expressions
     [XmlType(Namespace = Constants.XmlNamespace)]
     [WorkflowElementCategory(ElementCategory.Property)]
     [TypeDescriptionProvider(typeof(ExternalizedPropertyTypeDescriptionProvider))]
+    [Description("Represents a property that has been externalized from a workflow element.")]
     public abstract class ExternalizedProperty : ExpressionBuilder, INamedElement
     {
         static readonly Range<int> argumentRange = Range.Create(lowerBound: 0, upperBound: 1);
@@ -33,6 +34,7 @@ namespace Bonsai.Expressions
         /// <summary>
         /// Gets or sets the name of the property.
         /// </summary>
+        [Category("Design")]
         [Description("The name of the property. When set, the property will appear on the pages of a nested workflow.")]
         public string Name { get; set; }
 
