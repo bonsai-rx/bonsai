@@ -1120,6 +1120,12 @@ namespace Bonsai.Design
             InsertWorkflow(builder.Workflow.ToInspectableGraph());
         }
 
+        public void SelectAllGraphNodes()
+        {
+            var graphNodes = graphView.Nodes.SelectMany(layer => layer);
+            graphView.SelectedNodes = graphNodes;
+        }
+
         public GraphNode FindGraphNode(object value)
         {
             return graphView.Nodes.SelectMany(layer => layer).FirstOrDefault(n => n.Value == value);
@@ -1689,6 +1695,11 @@ namespace Bonsai.Design
                         ConnectGraphNodes(selectionModel.SelectedNodes, graphView.CursorNode);
                     }
                 }
+            }
+
+            if (e.KeyCode == Keys.A && e.Modifiers == Keys.Control)
+            {
+                SelectAllGraphNodes();
             }
 
             if (e.KeyCode == Keys.Back && e.Modifiers == Keys.Control)
