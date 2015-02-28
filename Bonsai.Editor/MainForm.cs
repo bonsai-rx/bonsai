@@ -1209,6 +1209,12 @@ namespace Bonsai.Editor
             }
         }
 
+        private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var model = selectionModel.SelectedView;
+            model.SelectAllGraphNodes();
+        }
+
         private void groupToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var model = selectionModel.SelectedView;
