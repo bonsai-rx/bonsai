@@ -42,6 +42,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Reactive.Core, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Rx-Core.2.2.5\lib\net45\System.Reactive.Core.dll</HintPath>
@@ -63,11 +64,13 @@
   <ItemGroup>
     <Compile Include="AudioCapture.cs" />
     <Compile Include="AudioPlayback.cs" />
+    <Compile Include="AudioReader.cs" />
     <Compile Include="AudioWriter.cs" />
     <Compile Include="CaptureDeviceNameConverter.cs" />
     <Compile Include="PlaybackDeviceNameConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
+    <Compile Include="RiffHeader.cs" />
     <Compile Include="RiffWriter.cs" />
   </ItemGroup>
   <ItemGroup>
