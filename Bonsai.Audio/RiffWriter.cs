@@ -14,10 +14,10 @@ namespace Bonsai.Audio
         long dataSize;
         WaveFormatEx format;
         readonly BinaryWriter writer;
-        static readonly byte[] riffId = Encoding.ASCII.GetBytes("RIFF");
-        static readonly byte[] waveId = Encoding.ASCII.GetBytes("WAVE");
-        static readonly byte[] fmtId = Encoding.ASCII.GetBytes("fmt ");
-        static readonly byte[] dataId = Encoding.ASCII.GetBytes("data");
+        static readonly byte[] riffId = Encoding.ASCII.GetBytes(RiffHeader.RiffId);
+        static readonly byte[] waveId = Encoding.ASCII.GetBytes(RiffHeader.WaveId);
+        static readonly byte[] fmtId = Encoding.ASCII.GetBytes(RiffHeader.FmtId);
+        static readonly byte[] dataId = Encoding.ASCII.GetBytes(RiffHeader.DataId);
         
         public RiffWriter(Stream stream, int channels, int samplesPerSecond, int bitsPerSample)
         {
