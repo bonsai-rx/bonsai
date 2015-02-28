@@ -63,15 +63,21 @@
   <ItemGroup>
     <Compile Include="AudioCapture.cs" />
     <Compile Include="AudioPlayback.cs" />
+    <Compile Include="AudioWriter.cs" />
     <Compile Include="CaptureDeviceNameConverter.cs" />
     <Compile Include="PlaybackDeviceNameConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
+    <Compile Include="RiffWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj">
       <Project>{E4D03BA3-54A2-4FF8-9DC6-52BA4CC14FED}</Project>
       <Name>Bonsai.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Bonsai.System\Bonsai.System.csproj">
+      <Project>{b783d74f-cb2d-4419-b438-266cd15774fb}</Project>
+      <Name>Bonsai.System</Name>
     </ProjectReference>
     <ProjectReference Include="..\Externals\OpenCV.Net\OpenCV.Net\OpenCV.Net.csproj">
       <Project>{DAF4D704-2C86-4657-9210-DB5B847BA8BE}</Project>
