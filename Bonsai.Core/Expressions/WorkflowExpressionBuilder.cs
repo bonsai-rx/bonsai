@@ -51,11 +51,21 @@ namespace Bonsai.Expressions
         }
 
         /// <summary>
-        /// Gets the name of the encapsulated workflow.
+        /// Gets or sets the name of the encapsulated workflow.
         /// </summary>
+        [Category("Design")]
         [Externalizable(false)]
         [Description("The name of the encapsulated workflow.")]
         public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets a description for the encapsulated workflow.
+        /// </summary>
+        [Category("Design")]
+        [Externalizable(false)]
+        [Description("A description for the encapsulated workflow.")]
+        [Editor(DesignTypes.MultilineStringEditor, "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        public string Description { get; set; }
 
         string INamedElement.Name
         {

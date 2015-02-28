@@ -901,6 +901,13 @@ namespace Bonsai.Editor
 
         static string GetElementDescription(object component)
         {
+            var workflowExpressionBuilder = component as WorkflowExpressionBuilder;
+            if (workflowExpressionBuilder != null)
+            {
+                var description = workflowExpressionBuilder.Description;
+                if (!string.IsNullOrEmpty(description)) return description;
+            }
+
             var descriptionAttribute = (DescriptionAttribute)TypeDescriptor.GetAttributes(component)[typeof(DescriptionAttribute)];
             return descriptionAttribute.Description;
         }
