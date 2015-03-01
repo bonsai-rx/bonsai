@@ -38,61 +38,70 @@ namespace Bonsai.Dsp
 
         public override IObservable<Mat> Generate()
         {
-            return Observable.Defer(() =>
+            return Observable.Create<Mat>((observer, cancellationToken) =>
             {
-                var stopwatch = new Stopwatch();
-                var buffer = new double[BufferLength];
-                return ObservableCombinators.GenerateWithThread<Mat>(observer =>
+                return Task.Factory.StartNew(() =>
                 {
-                    stopwatch.Restart();
-                    var frequency = Math.Max(1, Frequency);
-                    var period = buffer.Length / frequency;
-                    var indexScale = 1.0 / buffer.Length;
-                    var waveform = Waveform;
-                    switch (waveform)
+                    var stopwatch = new Stopwatch();
+                    var buffer = new double[BufferLength];
+                    using (var sampleSignal = new ManualResetEvent(false))
                     {
-                        default:
-                        case FunctionWaveform.Sine:
-                            indexScale = 2 * Math.PI * indexScale;
-                            for (int i = 0; i < buffer.Length; i++)
+                        while (!cancellationToken.IsCancellationRequested)
+                        {
+                            stopwatch.Restart();
+                            var frequency = Math.Max(1, Frequency);
+                            var period = buffer.Length / frequency;
+                            var indexScale = 1.0 / buffer.Length;
+                            var waveform = Waveform;
+                            switch (waveform)
                             {
-                                buffer[i] = Math.Sin(frequency * i * indexScale);
+                                default:
+                                case FunctionWaveform.Sine:
+                                    indexScale = 2 * Math.PI * indexScale;
+                                    for (int i = 0; i < buffer.Length; i++)
+                                    {
+                                        buffer[i] = Math.Sin(frequency * i * indexScale);
+                                    }
+                                    break;
+                                case FunctionWaveform.Triangular:
+                                    for (int i = 0; i < buffer.Length; i++)
+                                    {
+                                        var t = frequency * (i + period / 4) * indexScale;
+                                        buffer[i] = (1 - (4 * Math.Abs((t % 1) - 0.5) - 1)) - 1;
+                                    }
+                                    break;
+                                case FunctionWaveform.Square:
+                                case FunctionWaveform.Sawtooth:
+                                    for (int i = 0; i < buffer.Length; i++)
+                                    {
+                                        var t = frequency * (i + period / 2) * indexScale;
+                                        buffer[i] = 2 * (t % 1) - 1;
+                                        if (waveform == FunctionWaveform.Square)
+                                        {
+                                            buffer[i] = Math.Sign(buffer[i]);
+                                        }
+                                    }
+                                    break;
                             }
-                            break;
-                        case FunctionWaveform.Triangular:
-                            for (int i = 0; i < buffer.Length; i++)
-                            {
-                                var t = frequency * (i + period / 4) * indexScale;
-                                buffer[i] = (1 - (4 * Math.Abs((t % 1) - 0.5) - 1)) - 1;
-                            }
-                            break;
-                        case FunctionWaveform.Square:
-                        case FunctionWaveform.Sawtooth:
-                            for (int i = 0; i < buffer.Length; i++)
-                            {
-                                var t = frequency * (i + period / 2) * indexScale;
-                                buffer[i] = 2 * (t % 1) - 1;
-                                if (waveform == FunctionWaveform.Square)
-                                {
-                                    buffer[i] = Math.Sign(buffer[i]);
-                                }
-                            }
-                            break;
-                    }
 
-                    observer.OnNext(Mat.FromArray(buffer));
-                    var playbackRate = PlaybackRate;
-                    if (playbackRate <= 0)
-                    {
-                        throw new InvalidOperationException("Playback rate must be a positive integer.");
-                    }
+                            observer.OnNext(Mat.FromArray(buffer));
+                            var playbackRate = PlaybackRate;
+                            if (playbackRate <= 0)
+                            {
+                                throw new InvalidOperationException("Playback rate must be a positive integer.");
+                            }
 
-                    var dueTime = Math.Max(0, (1000.0 / playbackRate) - stopwatch.Elapsed.TotalMilliseconds);
-                    if (dueTime > 0)
-                    {
-                        Thread.Sleep(TimeSpan.FromMilliseconds(dueTime));
+                            var dueTime = Math.Max(0, (1000.0 / playbackRate) - stopwatch.Elapsed.TotalMilliseconds);
+                            if (dueTime > 0)
+                            {
+                                sampleSignal.WaitOne(TimeSpan.FromMilliseconds(dueTime));
+                            }
+                        }
                     }
-                });
+                },
+                cancellationToken,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default);
             });
         }
     }
