@@ -11,21 +11,25 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Dsp
 {
+    [Description("Detects spike events in the input signal and extracts their waveforms.")]
     public class DetectSpikes : Combinator<Mat, SpikeWaveformCollection>
     {
         static readonly double[] DefaultThreshold = new[] { 0.0 };
         readonly Delay delay = new Delay();
 
+        [Description("The delay of each spike waveform from its trigger, in samples.")]
         public int Delay
         {
             get { return delay.Count; }
             set { delay.Count = value; }
         }
 
+        [Description("The length of each spike waveform, in samples.")]
         public int Length { get; set; }
 
         [TypeConverter(typeof(UnidimensionalArrayConverter))]
         [Editor("Bonsai.Dsp.Design.SpikeThresholdEditor, Bonsai.Dsp.Design", typeof(UITypeEditor))]
+        [Description("The per-channel threshold for detecting individual spikes.")]
         public double[] Threshold { get; set; }
 
         public override IObservable<SpikeWaveformCollection> Process(IObservable<Mat> source)

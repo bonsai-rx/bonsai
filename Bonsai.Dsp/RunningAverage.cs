@@ -10,11 +10,13 @@ using System.Reactive.Disposables;
 
 namespace Bonsai.Dsp
 {
+    [Description("Computes the running average of all the input array buffers.")]
     public class RunningAverage : ArrayTransform
     {
         [Range(0, 1)]
         [Precision(2, .01)]
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Description("The weight of the input buffer. This parameter determines how fast the average forgets previous input arrays.")]
         public double Alpha { get; set; }
 
         public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)

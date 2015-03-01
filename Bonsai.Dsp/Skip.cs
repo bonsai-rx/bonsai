@@ -1,6 +1,7 @@
 ﻿using OpenCV.Net;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -8,8 +9,10 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Dsp
 {
+    [Description("Skips a specified number of samples in the input sequence.")]
     public class Skip : Combinator<Mat, Mat>
     {
+        [Description("The number of samples to skip.")]
         public int Count { get; set; }
 
         public override IObservable<Mat> Process(IObservable<Mat> source)

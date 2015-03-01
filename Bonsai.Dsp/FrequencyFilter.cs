@@ -7,6 +7,7 @@ using System.ComponentModel;
 
 namespace Bonsai.Dsp
 {
+    [Description("Filters frequencies in the input signal using a linear phase filter with the specified design parameters.")]
     public class FrequencyFilter : Transform<Mat, Mat>
     {
         int kernelLength = 400;
@@ -15,6 +16,7 @@ namespace Bonsai.Dsp
         double samplingFrequency;
         FirFilter filter = new FirFilter();
 
+        [Description("The sampling frequency (Hz) of the input signal.")]
         public double SamplingFrequency
         {
             get { return samplingFrequency; }
@@ -25,6 +27,7 @@ namespace Bonsai.Dsp
             }
         }
 
+        [Description("The first cutoff frequency (Hz) applied to the input signal.")]
         public double Cutoff1
         {
             get { return cutoff1; }
@@ -35,6 +38,7 @@ namespace Bonsai.Dsp
             }
         }
 
+        [Description("The second cutoff frequency (Hz) applied to the input signal.")]
         public double Cutoff2
         {
             get { return cutoff2; }
@@ -46,6 +50,7 @@ namespace Bonsai.Dsp
         }
 
         [TypeConverter(typeof(KernelLengthConverter))]
+        [Description("The size of the FIR kernel used to design the linear filter.")]
         public int KernelLength
         {
             get { return kernelLength; }
@@ -56,6 +61,7 @@ namespace Bonsai.Dsp
             }
         }
 
+        [Description("The type of filter to apply on the signal.")]
         public FilterType FilterType
         {
             get { return filterType; }

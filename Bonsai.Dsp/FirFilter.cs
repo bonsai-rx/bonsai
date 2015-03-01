@@ -12,6 +12,7 @@ using System.Globalization;
 
 namespace Bonsai.Dsp
 {
+    [Description("Convolves the input signal with a finite-impulse response filter kernel.")]
     public class FirFilter : Transform<Mat, Mat>
     {
         public FirFilter()
@@ -19,10 +20,12 @@ namespace Bonsai.Dsp
             Anchor = -1;
         }
 
+        [Description("The anchor of the kernel that indicates the relative position of filtered points.")]
         public int Anchor { get; set; }
 
         [XmlIgnore]
         [TypeConverter(typeof(UnidimensionalArrayConverter))]
+        [Description("The convolution kernel for the FIR filter.")]
         public float[] Kernel { get; set; }
 
         [Browsable(false)]

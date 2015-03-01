@@ -1,6 +1,7 @@
 ﻿using OpenCV.Net;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -8,8 +9,10 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Dsp
 {
+    [Description("Performs a forward or inverse Discrete Fourier transform of a 1D or 2D array.")]
     public class DiscreteFourierTransform : ArrayTransform
     {
+        [Description("Specifies the operation of the DFT.")]
         public DiscreteTransformFlags OperationFlags { get; set; }
 
         public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)

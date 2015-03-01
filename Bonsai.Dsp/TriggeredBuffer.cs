@@ -6,11 +6,14 @@ using Bonsai.Expressions;
 using OpenCV.Net;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
+using System.ComponentModel;
 
 namespace Bonsai.Dsp
 {
+    [Description("Projects each element of the sequence into a buffered array whenever a trigger signal rises.")]
     public class TriggeredBuffer : Combinator<Tuple<Mat, Mat>, Mat>
     {
+        [Description("The number of elements in each buffer.")]
         public int Count { get; set; }
 
         public override IObservable<Mat> Process(IObservable<Tuple<Mat, Mat>> source)

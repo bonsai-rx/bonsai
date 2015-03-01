@@ -1,6 +1,7 @@
 ﻿using OpenCV.Net;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -10,8 +11,10 @@ namespace Bonsai.Dsp
 {
     [Combinator]
     [WorkflowElementCategory(ElementCategory.Transform)]
+    [Description("Projects each element of the sequence into a buffered array based on element count information.")]
     public class Buffer
     {
+        [Description("The number of elements in each buffer.")]
         public int Count { get; set; }
 
         #region One Channel

@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OpenCV.Net;
+using System.ComponentModel;
 
 namespace Bonsai.Dsp
 {
+    [Description("Calculates the Nth difference between adjacent elements of the input array.")]
     public class Difference : Transform<Mat, Mat>
     {
         int order;
         FirFilter filter = new FirFilter();
 
+        [Description("The number of times to apply the difference operator.")]
         public int Order
         {
             get { return order; }

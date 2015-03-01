@@ -13,19 +13,26 @@ using System.Threading;
 
 namespace Bonsai.Dsp
 {
+    [Description("Sources buffered signal samples from a raw binary file.")]
     public class MatrixReader : Source<Mat>
     {
+        [Description("The name of the raw binary file.")]
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
         public string FileName { get; set; }
 
+        [Description("The frequency of the output signal.")]
         public int Frequency { get; set; }
 
+        [Description("The number of channels in the output signal.")]
         public int ChannelCount { get; set; }
 
+        [Description("The number of samples in each output buffer.")]
         public int BufferLength { get; set; }
 
+        [Description("The bit depth of individual buffer elements.")]
         public Depth Depth { get; set; }
 
+        [Description("The memory layout used to store the signal on disk.")]
         public MatrixLayout Layout { get; set; }
 
         public override IObservable<Mat> Generate()

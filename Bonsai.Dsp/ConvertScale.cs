@@ -19,7 +19,7 @@ namespace Bonsai.Dsp
         }
 
         [TypeConverter(typeof(DepthConverter))]
-        [Description("The target bit depth of individual array elements.")]
+        [Description("The optional target bit depth of individual array elements.")]
         public Depth? Depth { get; set; }
 
         [Description("The optional scale factor to apply to individual array elements.")]

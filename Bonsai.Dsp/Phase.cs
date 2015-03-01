@@ -5,9 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
+using System.ComponentModel;
 
 namespace Bonsai.Dsp
 {
+    [Description("Calculates the phase of 2D vectors stored as elements of the input array.")]
     public class Phase : ArrayTransform
     {
         public IObservable<TArray> Process<TArray>(IObservable<Tuple<TArray, TArray>> source) where TArray : Arr
