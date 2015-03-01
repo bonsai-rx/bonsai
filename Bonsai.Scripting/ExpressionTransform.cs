@@ -1,6 +1,7 @@
 ﻿using Bonsai.Expressions;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
@@ -11,6 +12,7 @@ using System.Threading.Tasks;
 namespace Bonsai.Scripting
 {
     [WorkflowElementCategory(ElementCategory.Transform)]
+    [Description("An expression that is used to process and convert individual elements of the input sequence.")]
     public class ExpressionTransform : SingleArgumentExpressionBuilder
     {
         static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()
@@ -23,6 +25,7 @@ namespace Bonsai.Scripting
             Expression = "it";
         }
 
+        [Description("The expression that determines the operation of the transform.")]
         public string Expression { get; set; }
 
         public override Expression Build(IEnumerable<Expression> arguments)
