@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 namespace Bonsai.Osc
 {
     [WorkflowElementCategory(ElementCategory.Source)]
+    [Description("Reads data from an Open Sound Control communication channel.")]
     public class ReceiveMessage : CombinatorExpressionBuilder
     {
         public ReceiveMessage()
@@ -24,11 +25,14 @@ namespace Bonsai.Osc
             Address = MessageBuilder.AddressSeparator;
         }
 
+        [Description("The communication channel to use for the OSC protocol.")]
         [Editor("Bonsai.Osc.Design.TransportConfigurationEditor, Bonsai.Osc.Design", typeof(UITypeEditor))]
         public string Connection { get; set; }
 
+        [Description("The OSC address space on which the received data is being broadcast.")]
         public string Address { get; set; }
 
+        [Description("The OSC type tag specifying the contents of the message.")]
         public string TypeTag { get; set; }
 
         protected override Expression BuildCombinator(IEnumerable<Expression> arguments)
