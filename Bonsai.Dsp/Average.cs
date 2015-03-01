@@ -10,7 +10,7 @@ namespace Bonsai.Dsp
 {
     [Combinator]
     [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Calculates the average (mean) of all the array elements for each channel.")]
+    [Description("Calculates the average (mean) of all the input array elements for each channel.")]
     public class Average
     {
         public IObservable<Scalar> Process<TArray>(IObservable<TArray> source) where TArray : Arr

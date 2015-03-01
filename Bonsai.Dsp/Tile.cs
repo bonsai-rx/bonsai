@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Dsp
 {
+    [Description("Repeats the input array in the horizontal or vertical dimensions.")]
     public class Tile : ArrayTransform
     {
         public Tile()
@@ -20,10 +21,12 @@ namespace Bonsai.Dsp
 
         [Range(1, int.MaxValue)]
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Description("The number of times to repeat the input array in the vertical dimension.")]
         public int RowTiles { get; set; }
 
         [Range(1, int.MaxValue)]
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Description("The number of times to repeat the input array in the horizontal dimension.")]
         public int ColumnTiles { get; set; }
 
         public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)

@@ -5,9 +5,11 @@ using System.Text;
 using OpenCV.Net;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
+using System.ComponentModel;
 
 namespace Bonsai.Dsp
 {
+    [Description("Computes the accumulated per-element sum of input arrays.")]
     public class Accumulate : ArrayTransform
     {
         public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)

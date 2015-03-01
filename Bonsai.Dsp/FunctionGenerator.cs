@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Dsp
 {
+    [Description("Generates signal waveforms following any of a set of common periodic functions.")]
     public class FunctionGenerator : Source<Mat>
     {
         public FunctionGenerator()
@@ -21,14 +22,18 @@ namespace Bonsai.Dsp
             Frequency = 1;
         }
 
+        [Description("The number of samples in each output buffer.")]
         public int BufferLength { get; set; }
 
         [Range(1, int.MaxValue)]
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Description("The number of periods in each output buffer.")]
         public int Frequency { get; set; }
 
+        [Description("The periodic waveform used to generate each output buffer.")]
         public FunctionWaveform Waveform { get; set; }
 
+        [Description("The number of buffers generated per second.")]
         public int PlaybackRate { get; set; }
 
         public override IObservable<Mat> Generate()

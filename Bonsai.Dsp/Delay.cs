@@ -5,11 +5,14 @@ using System.Text;
 using OpenCV.Net;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
+using System.ComponentModel;
 
 namespace Bonsai.Dsp
 {
+    [Description("Delays the input sequence by a specified number of samples.")]
     public class Delay : Transform<Mat, Mat>
     {
+        [Description("The number of samples by which to delay the array sequence.")]
         public int Count { get; set; }
 
         public override IObservable<Mat> Process(IObservable<Mat> source)

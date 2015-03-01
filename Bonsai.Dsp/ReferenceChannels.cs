@@ -10,10 +10,12 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Dsp
 {
+    [Description("Subtracts a reference channel from all the channels in the input array.")]
     public class ReferenceChannels : Transform<Mat, Mat>
     {
         [TypeConverter(typeof(UnidimensionalArrayConverter))]
         [Editor("Bonsai.Dsp.Design.SelectChannelEditor, Bonsai.Dsp.Design", typeof(UITypeEditor))]
+        [Description("The channels to use as reference. If empty, the average of all the array channels is used.")]
         public int[] Channels { get; set; }
 
         public override IObservable<Mat> Process(IObservable<Mat> source)

@@ -4,9 +4,11 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
+using System.ComponentModel;
 
 namespace Bonsai.Dsp
 {
+    [Description("Transposes every array in the input sequence.")]
     public class Transpose : ArrayTransform
     {
         public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)

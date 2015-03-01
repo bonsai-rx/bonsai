@@ -1,6 +1,7 @@
 ﻿using OpenCV.Net;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -8,10 +9,13 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Dsp
 {
+    [Description("Reduces the input array to a 1D vector using the specified operation.")]
     public class Reduce : ArrayTransform
     {
+        [Description("The dimension along which to reduce the array.")]
         public int Axis { get; set; }
 
+        [Description("The reduction operation to be applied.")]
         public ReduceOperation Operation { get; set; }
 
         public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)

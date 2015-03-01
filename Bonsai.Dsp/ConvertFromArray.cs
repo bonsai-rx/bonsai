@@ -1,6 +1,7 @@
 ﻿using OpenCV.Net;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
@@ -11,12 +12,16 @@ namespace Bonsai.Dsp
 {
     [Combinator]
     [WorkflowElementCategory(ElementCategory.Transform)]
+    [Description("Converts each managed array in the sequence into a buffer with the specified size, depth and number of channels.")]
     public class ConvertFromArray
     {
+        [Description("The size of the output buffer.")]
         public Size Size { get; set; }
 
+        [Description("The optional bit depth of each element in the output buffer.")]
         public Depth? Depth { get; set; }
 
+        [Description("The optional number of channels in the output buffer.")]
         public int? Channels { get; set; }
 
         static int ElementSize(Depth depth)

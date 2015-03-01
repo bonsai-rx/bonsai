@@ -5,9 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
+using System.ComponentModel;
 
 namespace Bonsai.Dsp
 {
+    [Description("Calculates the per-element absolute value of input arrays.")]
     public class Abs : ArrayTransform
     {
         public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)

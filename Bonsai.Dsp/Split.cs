@@ -1,6 +1,7 @@
 ﻿using OpenCV.Net;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ namespace Bonsai.Dsp
 {
     [Combinator]
     [WorkflowElementCategory(ElementCategory.Transform)]
+    [Description("Splits every channel in the input array into its own buffer.")]
     public class Split
     {
         public IObservable<Tuple<Mat, Mat, Mat, Mat>> Process(IObservable<Mat> source)

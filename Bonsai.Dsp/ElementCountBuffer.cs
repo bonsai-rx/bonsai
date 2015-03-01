@@ -1,6 +1,7 @@
 ﻿using OpenCV.Net;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -8,10 +9,13 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Dsp
 {
+    [Description("Projects each element of the sequence into a buffered array based on element count information.")]
     public class ElementCountBuffer : Combinator<Mat, Mat>
     {
+        [Description("The number of elements in each buffer.")]
         public int Count { get; set; }
 
+        [Description("The optional number of elements to skip between the creation of each buffer.")]
         public int? Skip { get; set; }
 
         public override IObservable<Mat> Process(IObservable<Mat> source)

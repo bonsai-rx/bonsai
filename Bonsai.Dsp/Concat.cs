@@ -1,6 +1,7 @@
 ﻿using OpenCV.Net;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -8,8 +9,10 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Dsp
 {
+    [Description("Concatenates each set of input arrays into a single buffer.")]
     public class Concat : BinaryArrayTransform
     {
+        [Description("The dimension along which to merge the arrays.")]
         public int Axis { get; set; }
 
         TArray Process<TArray>(IEnumerable<TArray> sources) where TArray : Arr

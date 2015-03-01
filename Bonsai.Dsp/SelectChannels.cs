@@ -9,10 +9,12 @@ using System.Drawing.Design;
 
 namespace Bonsai.Dsp
 {
+    [Description("Selects a subset of the input channels or reorganizes channel layout.")]
     public class SelectChannels : Transform<Mat, Mat>
     {
         [TypeConverter(typeof(UnidimensionalArrayConverter))]
         [Editor("Bonsai.Dsp.Design.SelectChannelEditor, Bonsai.Dsp.Design", typeof(UITypeEditor))]
+        [Description("The channels to include in the output buffer. Reordering and duplicating channels is allowed.")]
         public int[] Channels { get; set; }
 
         public override IObservable<Mat> Process(IObservable<Mat> source)

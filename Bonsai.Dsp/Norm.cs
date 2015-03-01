@@ -1,6 +1,7 @@
 ﻿using OpenCV.Net;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ namespace Bonsai.Dsp
 {
     [Combinator]
     [WorkflowElementCategory(ElementCategory.Transform)]
+    [Description("Calculates the absolute array norm, absolute difference norm, or relative difference norm.")]
     public class Norm
     {
         public Norm()
@@ -17,6 +19,7 @@ namespace Bonsai.Dsp
             NormType = NormTypes.L2;
         }
 
+        [Description("The type of array norm to calculate.")]
         public NormTypes NormType { get; set; }
 
         public IObservable<double> Process<TArray>(IObservable<TArray> source) where TArray : Arr
