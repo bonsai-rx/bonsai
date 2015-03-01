@@ -8,8 +8,10 @@ using System.Reactive.Linq;
 
 namespace Bonsai.IO
 {
+    [Description("Sinks the text representation of individual elements of the input sequence to a serial port.")]
     public class SerialStringWrite : Sink
     {
+        [Description("The name of the serial port.")]
         [Editor("Bonsai.IO.Design.SerialPortConfigurationEditor, Bonsai.System.Design", typeof(UITypeEditor))]
         public string PortName { get; set; }
 
