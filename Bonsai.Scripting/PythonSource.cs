@@ -25,7 +25,7 @@ namespace Bonsai.Scripting
         }
 
         [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
-        [Description("The script that determines the operation of the transform.")]
+        [Description("The script that determines the operation of the source.")]
         public string Script { get; set; }
 
         public override Expression Build(IEnumerable<Expression> arguments)
