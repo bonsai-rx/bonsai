@@ -7,6 +7,7 @@ using System.Threading;
 using System.Reactive.Linq;
 using System.ComponentModel;
 using System.Reactive.Disposables;
+using System.Threading.Tasks;
 
 namespace Bonsai.Vision
 {
@@ -18,33 +19,36 @@ namespace Bonsai.Vision
 
         public CameraCapture()
         {
-            source = Observable
-                .Using(
-                    () =>
+            source = Observable.Create<IplImage>((observer, cancellationToken) =>
+            {
+                return Task.Factory.StartNew(() =>
+                {
+                    using (var capture = Capture.CreateCameraCapture(Index))
                     {
-                        var capture = Capture.CreateCameraCapture(Index);
                         foreach (var setting in captureProperties)
                         {
                             capture.SetProperty(setting.Property, setting.Value);
                         }
                         captureProperties.Capture = capture;
-                        return Disposable.Create(() =>
+                        try
                         {
-                            captureProperties.Capture = null;
-                            capture.Close();
-                        });
-                    },
-                    capture => ObservableCombinators.GenerateWithThread<IplImage>(observer =>
-                    {
-                        var image = captureProperties.Capture.QueryFrame();
-                        if (image == null)
-                        {
-                            observer.OnCompleted();
+                            while (!cancellationToken.IsCancellationRequested)
+                            {
+                                var image = captureProperties.Capture.QueryFrame();
+                                if (image == null)
+                                {
+                                    observer.OnCompleted();
+                                    break;
+                                }
+                                else observer.OnNext(image.Clone());
+                            }
                         }
-                        else observer.OnNext(image.Clone());
-                    }))
-                .PublishReconnectable()
-                .RefCount();
+                        finally { captureProperties.Capture = null; }
+                    }
+                });
+            })
+            .PublishReconnectable()
+            .RefCount();
         }
 
         [Description("The index of the camera from which to acquire images.")]
