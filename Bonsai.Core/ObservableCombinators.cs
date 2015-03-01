@@ -26,6 +26,7 @@ namespace Bonsai
         /// completes a loop.
         /// </param>
         /// <returns>A new observable sequence which notifies observers in a loop.</returns>
+        [Obsolete]
         public static IObservable<TSource> GenerateWithThread<TSource>(Action<IObserver<TSource>> generator)
         {
             return Observable.Create<TSource>(observer =>
