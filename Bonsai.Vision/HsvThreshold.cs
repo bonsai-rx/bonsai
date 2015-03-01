@@ -8,6 +8,7 @@ using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
+    [Description("Segments the input image using an HSV color range.")]
     public class HsvThreshold : Transform<IplImage, IplImage>
     {
         public HsvThreshold()
@@ -15,9 +16,11 @@ namespace Bonsai.Vision
             Upper = new Scalar(179, 255, 255, 255);
         }
 
+        [Description("The lower bound of the HSV color range.")]
         [TypeConverter("Bonsai.Vision.Design.HsvScalarConverter, Bonsai.Vision.Design")]
         public Scalar Lower { get; set; }
 
+        [Description("The upper bound of the HSV color range.")]
         [TypeConverter("Bonsai.Vision.Design.HsvScalarConverter, Bonsai.Vision.Design")]
         public Scalar Upper { get; set; }
 
@@ -25,8 +28,21 @@ namespace Bonsai.Vision
         {
             return source.Select(input =>
             {
+                var lower = Lower;
+                var upper = Upper;
                 var output = new IplImage(input.Size, IplDepth.U8, 1);
-                CV.InRangeS(input, Lower, Upper, output);
+                if (upper.Val0 < lower.Val0)
+                {
+                    var upperH = new Scalar(180, upper.Val1, upper.Val2, upper.Val3);
+                    var lowerH = new Scalar(0, lower.Val1, lower.Val2, lower.Val3);
+                    using (var temp = new IplImage(input.Size, IplDepth.U8, 1))
+                    {
+                        CV.InRangeS(input, lower, upperH, temp);
+                        CV.InRangeS(input, lowerH, upper, output);
+                        CV.Or(temp, output, output);
+                    }
+                }
+                else CV.InRangeS(input, lower, upper, output);
                 return output;
             });
         }
