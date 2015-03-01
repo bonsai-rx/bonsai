@@ -5,12 +5,15 @@ using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.Runtime.InteropServices;
+using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
+    [Description("Computes the extremities of individual connected components.")]
     [TypeVisualizer("Bonsai.Vision.Design.BinaryRegionExtremesVisualizer, Bonsai.Vision.Design")]
     public class BinaryRegionExtremes : Transform<ConnectedComponent, Tuple<Point2f, Point2f>>
     {
+        [Description("The method used to compute the extremities of each connected component.")]
         public FindExtremesMethod Method { get; set; }
 
         static double Norm(Point2f vector)

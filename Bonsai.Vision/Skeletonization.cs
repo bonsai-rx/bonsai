@@ -9,6 +9,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
+    [Description("Calculates the topological skeleton of the input image.")]
     public class Skeletonization : Transform<IplImage, IplImage>
     {
         IplImage distance;
@@ -21,16 +22,19 @@ namespace Bonsai.Vision
         }
 
         [TypeConverter(typeof(DistanceTypeConverter))]
+        [Description("The function used to compute the distance transform for each pixel.")]
         public DistanceType DistanceType { get; set; }
 
         [Range(1, 31)]
         [Precision(0, 2)]
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Description("The size of the extended Sobel kernel used to compute derivatives.")]
         public int LaplacianAperture { get; set; }
 
         [Precision(2, 0.1)]
         [Range(int.MinValue, 0.0)]
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Description("The second-derivative cutoff used to isolate skeleton lines.")]
         public double RidgeThreshold { get; set; }
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)

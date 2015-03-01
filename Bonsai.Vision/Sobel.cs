@@ -9,6 +9,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
+    [Description("Calculates the first, second, third or mixed image derivatives using an extended Sobel operator.")]
     public class Sobel : Transform<IplImage, IplImage>
     {
         public Sobel()
@@ -17,15 +18,18 @@ namespace Bonsai.Vision
         }
 
         [Range(0, 6)]
+        [Description("The order of the horizontal derivative.")]
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
         public int XOrder { get; set; }
 
         [Range(0, 6)]
+        [Description("The order of the vertical derivative.")]
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
         public int YOrder { get; set; }
 
         [Range(1, 7)]
         [Precision(0, 2)]
+        [Description("The size of the extended Sobel kernel.")]
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
         public int ApertureSize { get; set; }
 

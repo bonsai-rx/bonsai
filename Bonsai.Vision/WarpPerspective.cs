@@ -11,11 +11,14 @@ using System.Reactive.Disposables;
 namespace Bonsai.Vision
 {
     [DefaultProperty("Source")]
+    [Description("Applies a perspective transformation to the input image.")]
     public class WarpPerspective : Transform<IplImage, IplImage>
     {
+        [Description("Coordinates of the four source quadrangle vertices in the input image.")]
         [Editor("Bonsai.Vision.Design.IplImageInputQuadrangleEditor, Bonsai.Vision.Design", typeof(UITypeEditor))]
         public Point2f[] Source { get; set; }
 
+        [Description("Coordinates of the four corresponding quadrangle vertices in the output image.")]
         [Editor("Bonsai.Vision.Design.IplImageOutputQuadrangleEditor, Bonsai.Vision.Design", typeof(UITypeEditor))]
         public Point2f[] Destination { get; set; }
 

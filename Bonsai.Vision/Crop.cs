@@ -10,8 +10,10 @@ using System.Drawing.Design;
 namespace Bonsai.Vision
 {
     [DefaultProperty("RegionOfInterest")]
+    [Description("Crops out a subregion of the input image.")]
     public class Crop : Transform<IplImage, IplImage>
     {
+        [Description("The region of interest inside the input image.")]
         [Editor("Bonsai.Vision.Design.IplImageInputRectangleEditor, Bonsai.Vision.Design", typeof(UITypeEditor))]
         public Rect RegionOfInterest { get; set; }
 

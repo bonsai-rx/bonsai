@@ -10,6 +10,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
+    [Description("Applies advanced morphological operators to the input image.")]
     public class MorphologicalOperator : Transform<IplImage, IplImage>
     {
         Size size;
@@ -24,6 +25,7 @@ namespace Bonsai.Vision
             Iterations = 1;
         }
 
+        [Description("The size of the structuring element.")]
         public Size Size
         {
             get { return size; }
@@ -34,6 +36,7 @@ namespace Bonsai.Vision
             }
         }
 
+        [Description("The anchor of the structuring element.")]
         public Point Anchor
         {
             get { return anchor; }
@@ -45,6 +48,7 @@ namespace Bonsai.Vision
         }
 
         [TypeConverter(typeof(ShapeConverter))]
+        [Description("The shape of the structuring element.")]
         public StructuringElementShape Shape
         {
             get { return shape; }
@@ -66,8 +70,10 @@ namespace Bonsai.Vision
 
         [Range(0, int.MaxValue)]
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Description("The number of times to apply the morphological operator.")]
         public int Iterations { get; set; }
 
+        [Description("The type of morphological operation to be applied.")]
         public OpenCV.Net.MorphologicalOperation Operation { get; set; }
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)

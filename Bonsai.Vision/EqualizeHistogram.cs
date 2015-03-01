@@ -4,9 +4,11 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
+using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
+    [Description("Equalizes the histogram of a grayscale image.")]
     public class EqualizeHistogram : Transform<IplImage, IplImage>
     {
         public override IObservable<IplImage> Process(IObservable<IplImage> source)

@@ -5,9 +5,11 @@ using System.Text;
 using OpenCV.Net;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
+using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
+    [Description("Incrementally computes the mean of the incoming image sequence.")]
     public class IncrementalMean : Transform<IplImage, IplImage>
     {
         public override IObservable<IplImage> Process(IObservable<IplImage> source)

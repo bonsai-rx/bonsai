@@ -9,6 +9,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
+    [Description("Computes the Canny algorithm for edge detection.")]
     public class Canny : Transform<IplImage, IplImage>
     {
         public Canny()
@@ -18,15 +19,18 @@ namespace Bonsai.Vision
 
         [Range(0, int.MaxValue)]
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Description("The first threshold. The smallest threshold is used for edge linking and the largest to find initial edge segments.")]
         public double Threshold1 { get; set; }
 
         [Range(0, int.MaxValue)]
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Description("The second threshold. The smallest threshold is used for edge linking and the largest to find initial edge segments.")]
         public double Threshold2 { get; set; }
 
         [Range(3, 7)]
         [Precision(0, 2)]
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Description("Aperture parameter for the Sobel operator.")]
         public int ApertureSize { get; set; }
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)

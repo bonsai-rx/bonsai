@@ -10,6 +10,7 @@ using System.Reactive.Disposables;
 
 namespace Bonsai.Vision
 {
+    [Description("Performs image segmentation using an online estimation of the background.")]
     public class BackgroundSubtraction : Transform<IplImage, IplImage>
     {
         public BackgroundSubtraction()
@@ -17,20 +18,25 @@ namespace Bonsai.Vision
             BackgroundFrames = 1;
         }
 
+        [Description("The number of frames to use for initial background estimation.")]
         public int BackgroundFrames { get; set; }
 
         [Range(0, 1)]
         [Precision(2, .01)]
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Description("Determines how fast the online estimation of the background is adapted.")]
         public double AdaptationRate { get; set; }
 
         [Range(0, 255)]
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Description("The threshold value used to test whether individual pixels are foreground or background.")]
         public double ThresholdValue { get; set; }
 
         [TypeConverter(typeof(ThresholdTypeConverter))]
+        [Description("The type of threshold to apply to individual pixels.")]
         public ThresholdTypes ThresholdType { get; set; }
 
+        [Description("Specifies the subtraction method used to isolate foreground pixels.")]
         public SubtractionMethod SubtractionMethod { get; set; }
 
         class ThresholdTypeConverter : EnumConverter
