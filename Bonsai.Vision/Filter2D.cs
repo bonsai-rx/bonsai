@@ -12,6 +12,7 @@ using System.Globalization;
 
 namespace Bonsai.Vision
 {
+    [Description("Convolves an image with the specified kernel.")]
     public class Filter2D : Transform<IplImage, IplImage>
     {
         public Filter2D()
@@ -19,9 +20,11 @@ namespace Bonsai.Vision
             Anchor = new Point(-1, -1);
         }
 
+        [Description("The anchor of the kernel that indicates the relative position of filtered points.")]
         public Point Anchor { get; set; }
 
         [XmlIgnore]
+        [Description("The image convolution kernel.")]
         [TypeConverter(typeof(MultidimensionalArrayConverter))]
         public float[,] Kernel { get; set; }
 

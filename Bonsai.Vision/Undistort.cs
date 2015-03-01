@@ -5,9 +5,11 @@ using System.Text;
 using OpenCV.Net;
 using System.Runtime.InteropServices;
 using System.Reactive.Linq;
+using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
+    [Description("Undistorts the input image using the specified intrinsic camera matrix.")]
     public class Undistort : Transform<IplImage, IplImage>
     {
         Point2d focalLength;
@@ -23,6 +25,7 @@ namespace Bonsai.Vision
             UpdateDistortion();
         }
 
+        [Description("The focal length of the camera, expresse in pixel units.")]
         public Point2d FocalLength
         {
             get { return focalLength; }
@@ -33,6 +36,7 @@ namespace Bonsai.Vision
             }
         }
 
+        [Description("The principal point of the camera, usually at the image center.")]
         public Point2d PrincipalPoint
         {
             get { return principalPoint; }
@@ -43,6 +47,7 @@ namespace Bonsai.Vision
             }
         }
 
+        [Description("The radial distortion coefficients.")]
         public Point3d RadialDistortion
         {
             get { return radialDistortion; }
@@ -53,6 +58,7 @@ namespace Bonsai.Vision
             }
         }
 
+        [Description("The tangential distortion coefficients.")]
         public Point2d TangentialDistortion
         {
             get { return tangentialDistortion; }

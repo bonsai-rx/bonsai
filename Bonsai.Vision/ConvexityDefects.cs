@@ -1,6 +1,7 @@
 ﻿using OpenCV.Net;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Vision
 {
+    [Description("Finds the convexity defects of a contour.")]
     public class ConvexityDefects : Transform<Seq, ContourConvexity>
     {
         static ContourConvexity ProcessContour(Seq contour)

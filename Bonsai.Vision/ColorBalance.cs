@@ -9,6 +9,7 @@ using System.Reactive.Disposables;
 
 namespace Bonsai.Vision
 {
+    [Description("Applies an independent scale to every color channel of the input image.")]
     public class ColorBalance : Transform<IplImage, IplImage>
     {
         public ColorBalance()
@@ -19,6 +20,7 @@ namespace Bonsai.Vision
         [Precision(2, .01)]
         [Range(0, int.MaxValue)]
         [TypeConverter("Bonsai.Vision.Design.BgraScalarConverter, Bonsai.Vision.Design")]
+        [Description("The scale factor applied to every color channel of the input image.")]
         public Scalar Scale { get; set; }
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)

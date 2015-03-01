@@ -4,9 +4,12 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
+using System.ComponentModel;
+using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
+    [Description("Calculates the laplacian of the input image.")]
     public class Laplace : Transform<IplImage, IplImage>
     {
         public Laplace()
@@ -14,6 +17,10 @@ namespace Bonsai.Vision
             ApertureSize = 3;
         }
 
+        [Range(1, 7)]
+        [Precision(0, 2)]
+        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Description("The size of the extended Sobel kernel used to compute derivatives.")]
         public int ApertureSize { get; set; }
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)

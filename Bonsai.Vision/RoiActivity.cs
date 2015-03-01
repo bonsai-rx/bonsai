@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 namespace Bonsai.Vision
 {
     [DefaultProperty("Regions")]
+    [Description("Sums all the activation intensity inside specified regions of interest.")]
     public class RoiActivity : Transform<IplImage, RegionActivityCollection>
     {
         IplImage roi;
@@ -19,6 +20,7 @@ namespace Bonsai.Vision
         Point[][] currentRegions;
         Rect[] boundingRegions;
 
+        [Description("The regions of interest for which to sum activation intensity.")]
         [Editor("Bonsai.Vision.Design.IplImageInputRoiEditor, Bonsai.Vision.Design", typeof(UITypeEditor))]
         public Point[][] Regions { get; set; }
 

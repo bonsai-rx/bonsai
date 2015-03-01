@@ -5,9 +5,11 @@ using System.Text;
 using OpenCV.Net;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
+using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
+    [Description("Determines strong corner features in the input image.")]
     public class GoodFeaturesToTrack : Transform<IplImage, KeyPointCollection>
     {
         public GoodFeaturesToTrack()
@@ -16,10 +18,13 @@ namespace Bonsai.Vision
             QualityLevel = 0.01;
         }
 
+        [Description("The maximum number of corners to find.")]
         public int MaxFeatures { get; set; }
 
+        [Description("The minimal accepted quality of image corners.")]
         public double QualityLevel { get; set; }
 
+        [Description("The minimum accepted distance between detected corners.")]
         public double MinDistance { get; set; }
 
         public override IObservable<KeyPointCollection> Process(IObservable<IplImage> source)

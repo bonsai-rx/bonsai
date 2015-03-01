@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 
 namespace Bonsai.Vision
 {
+    [Description("Writes the incoming image sequence to the specified stream.")]
     public class ImageWriter : StreamSink<IplImage, BinaryWriter>
     {
         protected override BinaryWriter CreateWriter(Stream stream)

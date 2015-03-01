@@ -1,6 +1,7 @@
 ﻿using OpenCV.Net;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Vision
 {
+    [Description("Computes the color histogram for each channel of the input image.")]
     public class ImageHistogram : Transform<IplImage, ScalarHistogram>
     {
         static Histogram ComputeChannelHistogram(IplImage channel)

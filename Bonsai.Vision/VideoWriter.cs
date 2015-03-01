@@ -11,6 +11,7 @@ using System.IO;
 
 namespace Bonsai.Vision
 {
+    [Description("Writes the input image sequence into a compressed AVI file.")]
     public class VideoWriter : FileSink<IplImage, VideoWriterDisposable>
     {
         Size writerFrameSize;
@@ -22,12 +23,16 @@ namespace Bonsai.Vision
             FrameRate = 30;
         }
 
+        [Description("The four-character code of the codec used to compress video frames.")]
         public string FourCC { get; set; }
 
+        [Description("The playback frame rate of the image sequence.")]
         public double FrameRate { get; set; }
 
+        [Description("The optional size of video frames.")]
         public Size FrameSize { get; set; }
 
+        [Description("The optional interpolation method used to resize video frames.")]
         public SubPixelInterpolation ResizeInterpolation { get; set; }
 
         protected override VideoWriterDisposable CreateWriter(string fileName, IplImage input)

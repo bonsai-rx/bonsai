@@ -8,6 +8,7 @@ using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
+    [Description("Calculates the distance to the closest zero pixel for all non-zero pixels of the input image.")]
     public class DistanceTransform : Transform<IplImage, IplImage>
     {
         public DistanceTransform()
@@ -16,6 +17,7 @@ namespace Bonsai.Vision
         }
 
         [TypeConverter(typeof(DistanceTypeConverter))]
+        [Description("The type of distance function to use.")]
         public DistanceType DistanceType { get; set; }
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)

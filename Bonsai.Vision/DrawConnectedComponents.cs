@@ -4,9 +4,11 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
+using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
+    [Description("Draws the set of connected components into the input image.")]
     public class DrawConnectedComponents : Transform<ConnectedComponentCollection, IplImage>
     {
         public override IObservable<IplImage> Process(IObservable<ConnectedComponentCollection> source)

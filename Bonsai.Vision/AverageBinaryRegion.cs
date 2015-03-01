@@ -4,9 +4,11 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
+using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
+    [Description("Computes the average binary region from the input collection of connected components.")]
     public class AverageBinaryRegion : Transform<ConnectedComponentCollection, ConnectedComponent>
     {
         public override IObservable<ConnectedComponent> Process(IObservable<ConnectedComponentCollection> source)
