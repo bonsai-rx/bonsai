@@ -799,6 +799,11 @@ namespace Bonsai.Design
 
         void DeleteGraphNode(GraphNode node)
         {
+            DeleteGraphNode(node, true);
+        }
+
+        void DeleteGraphNode(GraphNode node, bool replaceEdges)
+        {
             var workflow = this.workflow;
             if (node == null)
             {
@@ -819,8 +824,8 @@ namespace Bonsai.Design
 
             var simplePredecessor = predecessorEdges.Length == 1;
             var simpleSuccessor = (workflowNode.Successors.Count == 1 && workflow.Predecessors(workflowNode.Successors[0].Target).Count() == 1);
-            var replaceEdge = simplePredecessor || simpleSuccessor;
-            if (replaceEdge)
+            replaceEdges &= simplePredecessor || simpleSuccessor;
+            if (replaceEdges)
             {
                 var replacedEdges = (from predecessor in predecessorEdges
                                      from successor in workflowNode.Successors
@@ -877,7 +882,7 @@ namespace Bonsai.Design
             Action removeNode = () =>
             {
                 RemoveWorkflowNode(workflow, workflowNode);
-                if (!replaceEdge)
+                if (!replaceEdges)
                 {
                     foreach (var sibling in siblingEdgesAfter)
                     {
@@ -894,7 +899,7 @@ namespace Bonsai.Design
                     edge.Item1.Successors.Insert(edge.Item3, edge.Item2);
                 }
 
-                if (!replaceEdge)
+                if (!replaceEdges)
                 {
                     foreach (var sibling in siblingEdgesAfter)
                     {
@@ -1090,6 +1095,92 @@ namespace Bonsai.Design
                 updateSelectedNode();
             },
             () => { });
+            commandExecutor.EndCompositeCommand();
+        }
+
+        private void UngroupGraphNode(GraphNode node)
+        {
+            var workflow = this.workflow;
+            if (node == null)
+            {
+                throw new ArgumentNullException("node");
+            }
+
+            var workflowNode = GetGraphNodeTag(workflow, node);
+            var workflowBuilder = ExpressionBuilder.Unwrap(workflowNode.Value) as WorkflowExpressionBuilder;
+            if (workflowBuilder == null)
+            {
+                return;
+            }
+
+            var predecessors = workflow.PredecessorEdges(workflowNode).OrderBy(edge => edge.Item3).Select(xs => xs.Item1.Value).ToArray();
+            var successors = workflowNode.Successors.Select(xs => xs.Target.Value).ToArray();
+            var groupWorkflow = new ExpressionBuilderGraph();
+            groupWorkflow.AddDescriptor(workflowBuilder.Workflow.ToDescriptor());
+
+            var groupSources = (from n in groupWorkflow
+                                let source = ExpressionBuilder.Unwrap(n.Value) as WorkflowInputBuilder
+                                where source != null
+                                orderby source.Index ascending
+                                select n).ToArray();
+            var groupSinks = (from n in groupWorkflow
+                              let sink = ExpressionBuilder.Unwrap(n.Value) as WorkflowOutputBuilder
+                              where sink != null
+                              select groupWorkflow.PredecessorEdges(n))
+                              .Take(1)
+                              .SelectMany(edges => edges.OrderBy(edge => edge.Item3))
+                              .ToArray();
+            foreach (var terminal in groupSources.Concat(groupSinks.Take(1).Select(sink => sink.Item2.Target)))
+            {
+                groupWorkflow.Remove(terminal);
+            }
+
+            DeleteGraphNode(node, replaceEdges: false);
+            InsertGraphElements(groupWorkflow, CreateGraphNodeType.Successor, false);
+
+            // Connect incoming nodes to internal targets
+            var inputConnections = predecessors
+                .Zip(groupSources, (xs, ys) =>
+                    ys.Successors.Select(edge =>
+                        Tuple.Create(FindGraphNode(xs), FindGraphNode(edge.Target.Value))));
+            foreach (var input in inputConnections.SelectMany(xs => xs))
+            {
+                ConnectGraphNodes(Enumerable.Repeat(input.Item1, 1), input.Item2);
+            }
+
+            // Connect output sources to external targets
+            var outputConnections = groupSinks
+                .Select(sink => FindGraphNode(sink.Item1.Value))
+                .SelectMany(sink => successors.Select(edge =>
+                    Tuple.Create(sink, FindGraphNode(edge))));
+            foreach (var output in outputConnections)
+            {
+                ConnectGraphNodes(Enumerable.Repeat(output.Item1, 1), output.Item2);
+            }
+        }
+
+        public void UngroupGraphNodes(IEnumerable<GraphNode> nodes)
+        {
+            if (nodes == null)
+            {
+                throw new ArgumentNullException("nodes");
+            }
+
+            if (!nodes.Any()) return;
+            var selectedNodes = nodes.ToArray();
+            var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
+            var updateSelectedNode = CreateUpdateGraphViewDelegate(localGraphView => localGraphView.SelectedNode = null);
+            var restoreSelectedNodes = CreateUpdateGraphViewDelegate(localGraphView => localGraphView.SelectedNodes = selectedNodes);
+
+            commandExecutor.BeginCompositeCommand();
+            commandExecutor.Execute(() => { }, updateGraphLayout);
+            commandExecutor.Execute(updateSelectedNode, restoreSelectedNodes);
+            foreach (var node in selectedNodes)
+            {
+                UngroupGraphNode(node);
+            }
+
+            commandExecutor.Execute(updateGraphLayout, () => { });
             commandExecutor.EndCompositeCommand();
         }
 
@@ -1745,7 +1836,11 @@ namespace Bonsai.Design
 
                 if (e.KeyCode == Keys.G && e.Modifiers.HasFlag(Keys.Control))
                 {
-                    GroupGraphNodes(selectionModel.SelectedNodes);
+                    if (e.Modifiers.HasFlag(Keys.Shift) && selectionModel.SelectedNodes.Any())
+                    {
+                        UngroupGraphNodes(selectionModel.SelectedNodes);
+                    }
+                    else GroupGraphNodes(selectionModel.SelectedNodes);
                 }
             }
 
@@ -1861,6 +1956,11 @@ namespace Bonsai.Design
         {
             GroupGraphNodes(selectionModel.SelectedNodes);
             contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
+        }
+
+        private void ungroupToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            UngroupGraphNodes(selectionModel.SelectedNodes);
         }
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2154,6 +2254,7 @@ namespace Bonsai.Design
                     connectToolStripMenuItem.Enabled = true;
                     disconnectToolStripMenuItem.Enabled = true;
                     groupToolStripMenuItem.Enabled = true;
+                    ungroupToolStripMenuItem.Enabled = true;
                     saveSelectionAsToolStripMenuItem.Enabled = true;
                     CreateGroupMenuItems(selectedNodes);
                 }

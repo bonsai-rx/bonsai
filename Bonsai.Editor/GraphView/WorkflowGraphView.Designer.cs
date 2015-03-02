@@ -47,6 +47,7 @@
             this.connectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.disconnectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ungroupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.graphView = new Bonsai.Design.GraphView();
             this.contextMenuStrip.SuspendLayout();
             this.SuspendLayout();
@@ -69,9 +70,10 @@
             this.toolStripSeparator1,
             this.connectToolStripMenuItem,
             this.disconnectToolStripMenuItem,
-            this.groupToolStripMenuItem});
+            this.groupToolStripMenuItem,
+            this.ungroupToolStripMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip";
-            this.contextMenuStrip.Size = new System.Drawing.Size(249, 292);
+            this.contextMenuStrip.Size = new System.Drawing.Size(249, 336);
             this.contextMenuStrip.Closed += new System.Windows.Forms.ToolStripDropDownClosedEventHandler(this.contextMenuStrip_Closed);
             this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Opening);
             // 
@@ -199,9 +201,21 @@
             this.groupToolStripMenuItem.Enabled = false;
             this.groupToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("groupToolStripMenuItem.Image")));
             this.groupToolStripMenuItem.Name = "groupToolStripMenuItem";
+            this.groupToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.G)));
             this.groupToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
             this.groupToolStripMenuItem.Text = "Group";
             this.groupToolStripMenuItem.Click += new System.EventHandler(this.groupToolStripMenuItem_Click);
+            // 
+            // ungroupToolStripMenuItem
+            // 
+            this.ungroupToolStripMenuItem.Enabled = false;
+            this.ungroupToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("ungroupToolStripMenuItem.Image")));
+            this.ungroupToolStripMenuItem.Name = "ungroupToolStripMenuItem";
+            this.ungroupToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.G)));
+            this.ungroupToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.ungroupToolStripMenuItem.Text = "Ungroup";
+            this.ungroupToolStripMenuItem.Click += new System.EventHandler(this.ungroupToolStripMenuItem_Click);
             // 
             // graphView
             // 
@@ -258,5 +272,6 @@
         private System.Windows.Forms.ToolStripMenuItem defaultEditorToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripMenuItem saveSelectionAsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ungroupToolStripMenuItem;
     }
 }
