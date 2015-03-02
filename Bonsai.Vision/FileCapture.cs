@@ -38,91 +38,100 @@ namespace Bonsai.Vision
                     }
 
                     image = null;
-                    using (var capture = Capture.CreateFileCapture(fileName))
-                    using (var sampleSignal = new ManualResetEvent(false))
+                    capture = Capture.CreateFileCapture(fileName);
+                    if (capture == null) throw new InvalidOperationException("Failed to open the video at the specified path.");
+
+                    try
                     {
-                        if (capture == null) throw new InvalidOperationException("Failed to open the video at the specified path.");
-                        captureFps = capture.GetProperty(CaptureProperty.Fps);
-                        var position = StartPosition;
-                        if (position > 0)
+                        using (var sampleSignal = new ManualResetEvent(false))
                         {
-                            targetPosition = GetFramePosition(position, PositionUnits);
-                        }
-
-                        var stopwatch = new Stopwatch();
-                        while (!cancellationToken.IsCancellationRequested)
-                        {
-                            stopwatch.Restart();
-                            if (targetPosition.HasValue)
+                            captureFps = capture.GetProperty(CaptureProperty.Fps);
+                            var position = StartPosition;
+                            if (position > 0)
                             {
-                                var target = targetPosition.Value;
-                                var currentPosition = (int)capture.GetProperty(CaptureProperty.PosFrames) - 1;
-                                if (target != currentPosition)
-                                {
-                                    IplImage targetFrame = null;
-                                    capture.SetProperty(CaptureProperty.PosFrames, target);
-                                    if (target < currentPosition) // seek backward
-                                    {
-                                        currentPosition = (int)capture.GetProperty(CaptureProperty.PosFrames);
-                                        targetFrame = capture.QueryFrame();
+                                targetPosition = GetFramePosition(position, PositionUnits);
+                            }
 
-                                        int skip = 1;
-                                        while (target < currentPosition)
+                            var stopwatch = new Stopwatch();
+                            while (!cancellationToken.IsCancellationRequested)
+                            {
+                                stopwatch.Restart();
+                                if (targetPosition.HasValue)
+                                {
+                                    var target = targetPosition.Value;
+                                    var currentPosition = (int)capture.GetProperty(CaptureProperty.PosFrames) - 1;
+                                    if (target != currentPosition)
+                                    {
+                                        IplImage targetFrame = null;
+                                        capture.SetProperty(CaptureProperty.PosFrames, target);
+                                        if (target < currentPosition) // seek backward
                                         {
-                                            // try to seek back to the nearest key frame in multiples of two
-                                            capture.SetProperty(CaptureProperty.PosFrames, target - skip);
                                             currentPosition = (int)capture.GetProperty(CaptureProperty.PosFrames);
-                                            skip *= 2;
+                                            targetFrame = capture.QueryFrame();
+
+                                            int skip = 1;
+                                            while (target < currentPosition)
+                                            {
+                                                // try to seek back to the nearest key frame in multiples of two
+                                                capture.SetProperty(CaptureProperty.PosFrames, target - skip);
+                                                currentPosition = (int)capture.GetProperty(CaptureProperty.PosFrames);
+                                                skip *= 2;
+                                            }
+                                        }
+
+                                        // continue seeking frame-by-frame until target is reached
+                                        while (target > currentPosition)
+                                        {
+                                            currentPosition = (int)capture.GetProperty(CaptureProperty.PosFrames);
+                                            var nextFrame = capture.QueryFrame();
+
+                                            // if next frame is null we tried to seek past the end of the file
+                                            if (nextFrame == null) break;
+                                            targetFrame = nextFrame;
+                                        }
+
+                                        // successfully switched frame; clone it for cache
+                                        image = targetFrame.Clone();
+                                    }
+
+                                    targetPosition = null;
+                                }
+                                else if (Playing || image == null)
+                                {
+                                    var currentFrame = capture.QueryFrame();
+                                    if (currentFrame == null)
+                                    {
+                                        if (Loop)
+                                        {
+                                            capture.SetProperty(CaptureProperty.PosFrames, 0);
+                                            currentFrame = capture.QueryFrame();
+                                        }
+                                        else
+                                        {
+                                            observer.OnCompleted();
+                                            break;
                                         }
                                     }
 
-                                    // continue seeking frame-by-frame until target is reached
-                                    while (target > currentPosition)
-                                    {
-                                        currentPosition = (int)capture.GetProperty(CaptureProperty.PosFrames);
-                                        var nextFrame = capture.QueryFrame();
-
-                                        // if next frame is null we tried to seek past the end of the file
-                                        if (nextFrame == null) break;
-                                        targetFrame = nextFrame;
-                                    }
-
                                     // successfully switched frame; clone it for cache
-                                    image = targetFrame.Clone();
+                                    image = currentFrame.Clone();
                                 }
 
-                                targetPosition = null;
-                            }
-                            else if (Playing || image == null)
-                            {
-                                var currentFrame = capture.QueryFrame();
-                                if (currentFrame == null)
+                                observer.OnNext(image);
+                                var playbackRate = PlaybackRate;
+                                var targetFps = playbackRate > 0 ? playbackRate : captureFps;
+                                var dueTime = Math.Max(0, (1000.0 / targetFps) - stopwatch.Elapsed.TotalMilliseconds);
+                                if (dueTime > 0)
                                 {
-                                    if (Loop)
-                                    {
-                                        capture.SetProperty(CaptureProperty.PosFrames, 0);
-                                        currentFrame = capture.QueryFrame();
-                                    }
-                                    else
-                                    {
-                                        observer.OnCompleted();
-                                        break;
-                                    }
+                                    sampleSignal.WaitOne(TimeSpan.FromMilliseconds(dueTime));
                                 }
-
-                                // successfully switched frame; clone it for cache
-                                image = currentFrame.Clone();
-                            }
-
-                            observer.OnNext(image);
-                            var playbackRate = PlaybackRate;
-                            var targetFps = playbackRate > 0 ? playbackRate : captureFps;
-                            var dueTime = Math.Max(0, (1000.0 / targetFps) - stopwatch.Elapsed.TotalMilliseconds);
-                            if (dueTime > 0)
-                            {
-                                sampleSignal.WaitOne(TimeSpan.FromMilliseconds(dueTime));
                             }
                         }
+                    }
+                    finally
+                    {
+                        capture.Dispose();
+                        capture = null;
                     }
                 });
             })
