@@ -31,6 +31,7 @@ namespace Bonsai.Design
                 var expressionBuilder = ExpressionBuilder.Unwrap((ExpressionBuilder)value);
                 var elementAttributes = TypeDescriptor.GetAttributes(expressionBuilder);
                 var elementCategoryAttribute = (WorkflowElementCategoryAttribute)elementAttributes[typeof(WorkflowElementCategoryAttribute)];
+                var obsolete = (ObsoleteAttribute)elementAttributes[typeof(ObsoleteAttribute)] != null;
 
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(expressionBuilder);
                 if (workflowElement != expressionBuilder)
@@ -38,6 +39,7 @@ namespace Bonsai.Design
                     var builderCategoryAttribute = elementCategoryAttribute;
                     elementAttributes = TypeDescriptor.GetAttributes(workflowElement);
                     elementCategoryAttribute = (WorkflowElementCategoryAttribute)elementAttributes[typeof(WorkflowElementCategoryAttribute)];
+                    obsolete |= (ObsoleteAttribute)elementAttributes[typeof(ObsoleteAttribute)] != null;
                     if (elementCategoryAttribute == WorkflowElementCategoryAttribute.Default)
                     {
                         elementCategoryAttribute = builderCategoryAttribute;
@@ -47,20 +49,20 @@ namespace Bonsai.Design
                 switch (elementCategoryAttribute.Category)
                 {
                     case ElementCategory.Source:
-                        return Brushes.Violet;
+                        return obsolete ? HatchBrushes.Violet : Brushes.Violet;
                     case ElementCategory.Condition:
-                        return Brushes.LightGreen;
+                        return obsolete ? HatchBrushes.LightGreen : Brushes.LightGreen;
                     case ElementCategory.Transform:
-                        return Brushes.White;
+                        return obsolete ? HatchBrushes.White : Brushes.White;
                     case ElementCategory.Sink:
-                        return Brushes.DarkGray;
+                        return obsolete ? HatchBrushes.DarkGray : Brushes.DarkGray;
                     case ElementCategory.Nested:
-                        return Brushes.Goldenrod;
+                        return obsolete ? HatchBrushes.Goldenrod : Brushes.Goldenrod;
                     case ElementCategory.Property:
-                        return Brushes.Orange;
+                        return obsolete ? HatchBrushes.Orange : Brushes.Orange;
                     case ElementCategory.Combinator:
                     default:
-                        return Brushes.LightBlue;
+                        return obsolete ? HatchBrushes.LightBlue : Brushes.LightBlue;
                 }
             }
 
