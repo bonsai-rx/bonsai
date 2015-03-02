@@ -77,6 +77,7 @@
     <Compile Include="DialogMashupVisualizer.cs" />
     <Compile Include="DynamicTypeDescriptionProvider.cs" />
     <Compile Include="FolderNameEditor.cs" />
+    <Compile Include="HatchBrushes.cs" />
     <Compile Include="MashupTypeVisualizer.cs" />
     <Compile Include="ITypeVisualizerContext.cs" />
     <Compile Include="PathConvert.cs" />
