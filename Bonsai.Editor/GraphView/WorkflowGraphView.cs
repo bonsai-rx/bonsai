@@ -1126,11 +1126,12 @@ namespace Bonsai.Design
             var groupSinks = (from n in groupWorkflow
                               let sink = ExpressionBuilder.Unwrap(n.Value) as WorkflowOutputBuilder
                               where sink != null
-                              select groupWorkflow.PredecessorEdges(n))
-                              .Take(1)
-                              .SelectMany(edges => edges.OrderBy(edge => edge.Item3))
-                              .ToArray();
-            foreach (var terminal in groupSources.Concat(groupSinks.Take(1).Select(sink => sink.Item2.Target)))
+                              select n).ToArray();
+            var groupOutputs = groupSinks.Take(1)
+                .Select(groupWorkflow.PredecessorEdges)
+                .SelectMany(edges => edges.OrderBy(edge => edge.Item3))
+                .ToArray();
+            foreach (var terminal in groupSources.Concat(groupSinks))
             {
                 groupWorkflow.Remove(terminal);
             }
@@ -1139,20 +1140,24 @@ namespace Bonsai.Design
             InsertGraphElements(groupWorkflow, CreateGraphNodeType.Successor, false);
 
             // Connect incoming nodes to internal targets
+            var mainSink = groupSinks.FirstOrDefault();
             var inputConnections = predecessors
+                .Select(xs => FindGraphNode(xs))
                 .Zip(groupSources, (xs, ys) =>
-                    ys.Successors.Select(edge =>
-                        Tuple.Create(FindGraphNode(xs), FindGraphNode(edge.Target.Value))));
+                    ys.Successors.SelectMany(zs => zs.Target != mainSink
+                                     ? Enumerable.Repeat(Tuple.Create(xs, FindGraphNode(zs.Target.Value)), 1)
+                                     : successors.Select(ss => Tuple.Create(xs, FindGraphNode(ss)))));
             foreach (var input in inputConnections.SelectMany(xs => xs))
             {
                 ConnectGraphNodes(Enumerable.Repeat(input.Item1, 1), input.Item2);
             }
 
             // Connect output sources to external targets
-            var outputConnections = groupSinks
-                .Select(sink => FindGraphNode(sink.Item1.Value))
-                .SelectMany(sink => successors.Select(edge =>
-                    Tuple.Create(sink, FindGraphNode(edge))));
+            var outputConnections = groupOutputs
+                .Select(edge => FindGraphNode(edge.Item1.Value))
+                .Where(xs => xs != null)
+                .SelectMany(xs => successors.Select(edge =>
+                    Tuple.Create(xs, FindGraphNode(edge))));
             foreach (var output in outputConnections)
             {
                 ConnectGraphNodes(Enumerable.Repeat(output.Item1, 1), output.Item2);
