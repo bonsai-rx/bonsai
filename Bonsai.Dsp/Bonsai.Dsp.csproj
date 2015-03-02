@@ -70,15 +70,12 @@
     <Compile Include="Average.cs" />
     <Compile Include="BinaryArrayTransform.cs" />
     <Compile Include="Buffer.cs" />
-    <Compile Include="Butterworth.cs" />
     <Compile Include="Concat.cs" />
     <Compile Include="ConvertFromArray.cs" />
     <Compile Include="ConvertScale.cs" />
     <Compile Include="ConvertToArray.cs" />
     <Compile Include="ConvertToMat.cs" />
     <Compile Include="DepthConverter.cs" />
-    <Compile Include="FilterDesign.cs" />
-    <Compile Include="IirFilter.cs" />
     <Compile Include="Extrema.cs" />
     <Compile Include="Norm.cs" />
     <Compile Include="Phase.cs" />
