@@ -76,6 +76,7 @@
     <Compile Include="ConvertScale.cs" />
     <Compile Include="ConvertToArray.cs" />
     <Compile Include="ConvertToMat.cs" />
+    <Compile Include="DepthConverter.cs" />
     <Compile Include="FilterDesign.cs" />
     <Compile Include="IirFilter.cs" />
     <Compile Include="Extrema.cs" />

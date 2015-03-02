@@ -42,32 +42,5 @@ namespace Bonsai.Dsp
                 return output;
             });
         }
-
-        class DepthConverter : EnumConverter
-        {
-            public DepthConverter()
-                : base(typeof(Depth))
-            {
-            }
-
-            public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
-            {
-                return new StandardValuesCollection(new[]
-                {
-                    OpenCV.Net.Depth.U8,
-                    OpenCV.Net.Depth.S8,
-                    OpenCV.Net.Depth.U16,
-                    OpenCV.Net.Depth.S16,
-                    OpenCV.Net.Depth.S32,
-                    OpenCV.Net.Depth.F32,
-                    OpenCV.Net.Depth.F64
-                });
-            }
-
-            public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
-            {
-                return true;
-            }
-        }
     }
 }
