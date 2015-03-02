@@ -1219,7 +1219,10 @@ namespace Bonsai.Editor
         private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var model = selectionModel.SelectedView;
-            model.SelectAllGraphNodes();
+            if (model.GraphView.Focused)
+            {
+                model.SelectAllGraphNodes();
+            }
         }
 
         private void groupToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1228,6 +1231,15 @@ namespace Bonsai.Editor
             if (model.GraphView.Focused)
             {
                 model.GroupGraphNodes(selectionModel.SelectedNodes);
+            }
+        }
+
+        private void ungroupToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var model = selectionModel.SelectedView;
+            if (model.GraphView.Focused)
+            {
+                model.UngroupGraphNodes(selectionModel.SelectedNodes);
             }
         }
 
