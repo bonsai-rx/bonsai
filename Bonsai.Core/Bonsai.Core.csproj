@@ -122,6 +122,9 @@
     <Compile Include="Reactive\ElementIndex.cs" />
     <Compile Include="Reactive\Index.cs" />
     <Compile Include="Reactive\Materialize.cs" />
+    <Compile Include="Reactive\OnErrorResumeNext.cs" />
+    <Compile Include="Reactive\Retry.cs" />
+    <Compile Include="Reactive\RetryCount.cs" />
     <Compile Include="Reactive\SequenceEqual.cs" />
     <Compile Include="Reactive\Switch.cs" />
     <Compile Include="Reactive\TriggeredBuffer.cs" />

@@ -28,7 +28,7 @@ namespace Bonsai.Reactive
         /// <param name="second">The second observable sequence.</param>
         /// <returns>
         /// An observable sequence that contains the elements of the first sequence,
-        /// followed by those of the second the sequence.
+        /// followed by those of the second sequence.
         /// </returns>
         public IObservable<TSource> Process<TSource>(IObservable<TSource> first, IObservable<TSource> second)
         {
