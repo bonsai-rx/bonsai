@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Dsp
 {
+    [Obsolete]
     [Description("Projects each element of the sequence into a buffered array based on element count information.")]
     public class ElementCountBuffer : Combinator<Mat, Mat>
     {
