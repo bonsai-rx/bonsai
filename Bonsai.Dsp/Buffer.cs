@@ -17,36 +17,51 @@ namespace Bonsai.Dsp
         [Description("The number of elements in each buffer.")]
         public int Count { get; set; }
 
+        [Description("The optional number of elements to skip between the creation of each buffer.")]
+        public int? Skip { get; set; }
+
         #region One Channel
 
         public IObservable<Mat> Process(IObservable<byte> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(buffer.ToArray()));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(buffer.ToArray()));
         }
 
         public IObservable<Mat> Process(IObservable<short> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(buffer.ToArray()));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(buffer.ToArray()));
         }
 
         public IObservable<Mat> Process(IObservable<ushort> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(buffer.ToArray()));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(buffer.ToArray()));
         }
 
         public IObservable<Mat> Process(IObservable<int> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(buffer.ToArray()));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(buffer.ToArray()));
         }
 
         public IObservable<Mat> Process(IObservable<float> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(buffer.ToArray()));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(buffer.ToArray()));
         }
 
         public IObservable<Mat> Process(IObservable<double> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(buffer.ToArray()));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(buffer.ToArray()));
         }
 
         #endregion
@@ -67,32 +82,44 @@ namespace Bonsai.Dsp
 
         public IObservable<Mat> Process(IObservable<Tuple<byte, byte>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<short, short>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<ushort, ushort>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<int, int>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<float, float>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<double, double>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         #endregion
@@ -114,32 +141,44 @@ namespace Bonsai.Dsp
 
         public IObservable<Mat> Process(IObservable<Tuple<byte, byte, byte>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<short, short, short>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<ushort, ushort, ushort>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<int, int, int>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<float, float, float>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<double, double, double>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         #endregion
@@ -162,32 +201,44 @@ namespace Bonsai.Dsp
 
         public IObservable<Mat> Process(IObservable<Tuple<byte, byte, byte, byte>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<short, short, short, short>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<ushort, ushort, ushort, ushort>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<int, int, int, int>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<float, float, float, float>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<double, double, double, double>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         #endregion
@@ -211,32 +262,44 @@ namespace Bonsai.Dsp
 
         public IObservable<Mat> Process(IObservable<Tuple<byte, byte, byte, byte, byte>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<short, short, short, short, short>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<ushort, ushort, ushort, ushort, ushort>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<int, int, int, int, int>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<float, float, float, float, float>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<double, double, double, double, double>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         #endregion
@@ -261,32 +324,44 @@ namespace Bonsai.Dsp
 
         public IObservable<Mat> Process(IObservable<Tuple<byte, byte, byte, byte, byte, byte>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<short, short, short, short, short, short>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<ushort, ushort, ushort, ushort, ushort, ushort>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<int, int, int, int, int, int>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<float, float, float, float, float, float>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<double, double, double, double, double, double>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         #endregion
@@ -312,32 +387,44 @@ namespace Bonsai.Dsp
 
         public IObservable<Mat> Process(IObservable<Tuple<byte, byte, byte, byte, byte, byte, byte>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<short, short, short, short, short, short, short>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<ushort, ushort, ushort, ushort, ushort, ushort, ushort>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<int, int, int, int, int, int, int>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<float, float, float, float, float, float, float>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         public IObservable<Mat> Process(IObservable<Tuple<double, double, double, double, double, double, double>> source)
         {
-            return source.Buffer(Count).Select(buffer => Mat.FromArray(ToArray(buffer)));
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
         }
 
         #endregion
@@ -348,35 +435,47 @@ namespace Bonsai.Dsp
         {
             return Observable.Create<Mat>(observer =>
             {
-                var bufferIndex = 0;
-                var buffer = default(Mat);
+                var skipCount = 0;
+                var count = Count;
+                var skip = Skip.GetValueOrDefault(count);
+                var activeBuffers = new List<SampleBuffer>();
                 return source.Subscribe(input =>
                 {
                     try
                     {
-                        var inputIndex = 0;
-                        while (inputIndex < input.Cols)
+                        // Update pending windows
+                        activeBuffers.RemoveAll(buffer =>
                         {
-                            if (buffer == null)
+                            buffer.Update(input, 0);
+                            if (buffer.Completed)
                             {
-                                bufferIndex = 0;
-                                buffer = new Mat(input.Rows, Count, input.Depth, input.Channels);
+                                // Window is ready, emit
+                                observer.OnNext(buffer.Samples);
+                                return true;
                             }
 
-                            var samplesTaken = Math.Min(input.Cols - inputIndex, buffer.Cols - bufferIndex);
-                            using (var bufferRoi = buffer.GetSubRect(new Rect(bufferIndex, 0, samplesTaken, buffer.Rows)))
-                            using (var inputRoi = input.GetSubRect(new Rect(inputIndex, 0, samplesTaken, input.Rows)))
+                            return false;
+                        });
+
+                        var index = 0;
+                        while ((index + skipCount) < input.Cols)
+                        {
+                            // Create new window and reset skip counter
+                            index += skipCount;
+                            skipCount = skip;
+                            var buffer = new SampleBuffer(input, count, index);
+                            buffer.Update(input, index);
+                            if (buffer.Completed)
                             {
-                                CV.Copy(inputRoi, bufferRoi);
-                                bufferIndex += samplesTaken;
-                                inputIndex += samplesTaken;
-                                if (bufferIndex >= buffer.Cols)
-                                {
-                                    observer.OnNext(buffer);
-                                    buffer = null;
-                                }
+                                // Window is ready, emit
+                                observer.OnNext(buffer.Samples);
                             }
+                            // Window is missing data, add to list
+                            else activeBuffers.Add(buffer);
                         }
+
+                        // Remove remainder of input samples from skip counter
+                        skipCount -= input.Cols - index;
                     }
                     catch (Exception ex)
                     {
@@ -386,26 +485,15 @@ namespace Bonsai.Dsp
                 observer.OnError,
                 () =>
                 {
-                    try
+                    // Emit pending windows
+                    activeBuffers.RemoveAll(buffer =>
                     {
-                        if (buffer != null)
-                        {
-                            var lastBuffer = new Mat(buffer.Rows, bufferIndex, buffer.Depth, buffer.Channels);
-                            using (var bufferRoi = buffer.GetSubRect(new Rect(0, 0, bufferIndex, buffer.Rows)))
-                            {
-                                CV.Copy(bufferRoi, lastBuffer);
-                            }
+                        var remainder = new Rect(0, 0, buffer.SampleIndex, buffer.Samples.Rows);
+                        observer.OnNext(buffer.Samples.GetSubRect(remainder));
+                        return true;
+                    });
 
-                            observer.OnNext(lastBuffer);
-                            buffer = null;
-                        }
-
-                        observer.OnCompleted();
-                    }
-                    catch (Exception ex)
-                    {
-                        observer.OnError(ex);
-                    }
+                    observer.OnCompleted();
                 });
             });
         }
