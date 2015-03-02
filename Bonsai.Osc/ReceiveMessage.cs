@@ -32,6 +32,7 @@ namespace Bonsai.Osc
         [Description("The OSC address space on which the received data is being broadcast.")]
         public string Address { get; set; }
 
+        [TypeConverter(typeof(TypeTagConverter))]
         [Description("The OSC type tag specifying the contents of the message.")]
         public string TypeTag { get; set; }
 
@@ -59,6 +60,29 @@ namespace Bonsai.Osc
                     var contents = message.GetContents();
                     return messageReader(contents);
                 }));
+        }
+
+        class TypeTagConverter : StringConverter
+        {
+            public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
+            {
+                return true;
+            }
+
+            public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+            {
+                return new StandardValuesCollection(new[]
+                {
+                    Osc.TypeTag.Int32,
+                    Osc.TypeTag.Float,
+                    Osc.TypeTag.String,
+                    Osc.TypeTag.Blob,
+                    Osc.TypeTag.Int64,
+                    Osc.TypeTag.TimeTag,
+                    Osc.TypeTag.Double,
+                    Osc.TypeTag.Char
+                });
+            }
         }
     }
 }
