@@ -1,6 +1,7 @@
 ﻿using Bonsai.Osc.IO;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -15,15 +16,27 @@ namespace Bonsai.Osc
         const string ReadBlobMethodName = "ReadBlob";
         const string ReadCharMethodName = "ReadChar";
         const string ReadStringMethodName = "ReadString";
-        static readonly MethodInfo ToTimestamp = typeof(TimeTag).GetMethod("ToTimestamp");
-        static readonly MethodInfo ReadBytes = typeof(BigEndianReader).GetMethod("ReadBytes");
-        static readonly MethodInfo ReadInt32 = typeof(BigEndianReader).GetMethod("ReadInt32");
-        static readonly MethodInfo ReadInt64 = typeof(BigEndianReader).GetMethod("ReadInt64");
-        static readonly MethodInfo ReadUInt64 = typeof(BigEndianReader).GetMethod("ReadUInt64");
-        static readonly MethodInfo ReadFloat = typeof(BigEndianReader).GetMethod("ReadSingle");
-        static readonly MethodInfo ReadDouble = typeof(BigEndianReader).GetMethod("ReadDouble");
+        const string ReadTimeTagMethodName = "ReadTimeTag";
+        static readonly MethodInfo ReadBytes = typeof(BinaryReader).GetMethod("ReadBytes");
+        static readonly MethodInfo ReadInt32 = typeof(BinaryReader).GetMethod("ReadInt32");
+        static readonly MethodInfo ReadInt64 = typeof(BinaryReader).GetMethod("ReadInt64");
+        static readonly MethodInfo ReadUInt64 = typeof(BinaryReader).GetMethod("ReadUInt64");
+        static readonly MethodInfo ReadFloat = typeof(BinaryReader).GetMethod("ReadSingle");
+        static readonly MethodInfo ReadDouble = typeof(BinaryReader).GetMethod("ReadDouble");
 
-        static byte[] ReadBlob(BigEndianReader reader, int blobSize)
+        internal static DateTimeOffset ReadTimeTag(BinaryReader reader)
+        {
+            var timeTag = reader.ReadUInt64();
+            return TimeTag.ToTimestamp(timeTag);
+        }
+
+        internal static byte[] ReadBlob(BinaryReader reader)
+        {
+            var blobSize = reader.ReadInt32();
+            return ReadBlob(reader, blobSize);
+        }
+
+        internal static byte[] ReadBlob(BinaryReader reader, int blobSize)
         {
             var bytes = reader.ReadBytes(blobSize);
             var zeroBytes = blobSize % PadLength;
@@ -35,19 +48,19 @@ namespace Bonsai.Osc
             return bytes;
         }
 
-        static char ReadChar(BigEndianReader reader)
+        internal static char ReadChar(BinaryReader reader)
         {
             var bytes = reader.ReadBytes(PadLength);
             return Encoding.ASCII.GetChars(bytes)[0];
         }
 
-        static string ReadString(BigEndianReader reader)
+        internal static string ReadString(BinaryReader reader)
         {
             int size;
             return ReadString(reader, out size);
         }
 
-        public static string ReadString(BigEndianReader reader, out int size)
+        internal static string ReadString(BinaryReader reader, out int size)
         {
             int index = 0;
             var done = false;
@@ -74,12 +87,12 @@ namespace Bonsai.Osc
             return Encoding.ASCII.GetString(bytes);
         }
 
-        public static Expression Address(Expression reader)
+        internal static Expression Address(Expression reader)
         {
             return Expression.Call(typeof(MessageParser), ReadStringMethodName, null, reader);
         }
 
-        public static Expression Content(string typeTag, Expression reader)
+        internal static Expression Content(string typeTag, Expression reader)
         {
             if (string.IsNullOrEmpty(typeTag))
             {
@@ -102,8 +115,7 @@ namespace Bonsai.Osc
                     case TypeTag.Char:
                         return Expression.Call(typeof(MessageParser), ReadCharMethodName, null, reader);
                     case TypeTag.TimeTag:
-                        var timeTag = Expression.Call(reader, ReadUInt64);
-                        return Expression.Call(ToTimestamp, timeTag);
+                        return Expression.Call(typeof(MessageParser), ReadTimeTagMethodName, null, reader);
                     case TypeTag.Int64: return Expression.Call(reader, ReadInt64);
                     case TypeTag.Int32: return Expression.Call(reader, ReadInt32);
                     case TypeTag.Float: return Expression.Call(reader, ReadFloat);
