@@ -116,6 +116,7 @@
     <Compile Include="Reactive\Accumulate.cs" />
     <Compile Include="Reactive\Average.cs" />
     <Compile Include="Reactive\Buffer.cs" />
+    <Compile Include="Reactive\Catch.cs" />
     <Compile Include="Reactive\Concat.cs" />
     <Compile Include="Reactive\Dematerialize.cs" />
     <Compile Include="Reactive\DelaySubscription.cs" />
