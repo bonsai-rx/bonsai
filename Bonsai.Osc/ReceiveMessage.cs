@@ -38,28 +38,42 @@ namespace Bonsai.Osc
 
         protected override Expression BuildCombinator(IEnumerable<Expression> arguments)
         {
-            var addressReaderParameter = Expression.Parameter(typeof(BigEndianReader));
-            var readerParameter = Expression.Parameter(typeof(BigEndianReader));
+            var addressReaderParameter = Expression.Parameter(typeof(BinaryReader));
+            var readerParameter = Expression.Parameter(typeof(BinaryReader));
             var parseAddress = MessageParser.Address(addressReaderParameter);
             var addressParser = Expression.Lambda(parseAddress, addressReaderParameter);
-
-            var parseMessage = MessageParser.Content(TypeTag, readerParameter);
-            var messageParser = Expression.Lambda(parseMessage, readerParameter);
             var builder = Expression.Constant(this);
-            return Expression.Call(builder, "Generate", new[] { messageParser.ReturnType }, addressParser, messageParser);
+
+            if (string.IsNullOrEmpty(TypeTag))
+            {
+                return Expression.Call(builder, "Generate", null, addressParser);
+            }
+            else
+            {
+                var parseMessage = MessageParser.Content(TypeTag, readerParameter);
+                var messageParser = Expression.Lambda(parseMessage, readerParameter);
+                return Expression.Call(builder, "Generate", new[] { messageParser.ReturnType }, addressParser, messageParser);
+            }
         }
 
-        IObservable<TSource> Generate<TSource>(Func<BigEndianReader, string> addressReader, Func<BigEndianReader, TSource> messageReader)
+        IObservable<Message> Generate(Func<BinaryReader, string> addressReader)
         {
             return Observable.Using(
                 () => TransportManager.ReserveConnection(Connection),
                 connection => connection.Transport.MessageReceived
-                    .Where(message => message.IsMatch(Address))
-                    .Select(message =>
+                    .Where(message => message.IsMatch(Address)));
+        }
+
+        IObservable<TSource> Generate<TSource>(Func<BinaryReader, string> addressReader, Func<BinaryReader, TSource> messageReader)
+        {
+            return Generate(addressReader).Select(message =>
+            {
+                var contents = message.GetStream();
+                using (var reader = new BigEndianReader(contents))
                 {
-                    var contents = message.GetContents();
-                    return messageReader(contents);
-                }));
+                    return messageReader(reader);
+                }
+            });
         }
 
         class TypeTagConverter : StringConverter
