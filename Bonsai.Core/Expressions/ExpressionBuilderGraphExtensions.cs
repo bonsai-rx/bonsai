@@ -108,12 +108,12 @@ namespace Bonsai.Expressions
         /// <returns>
         /// An observable sequence with no elements except for error termination messages.
         /// </returns>
-        public static IObservable<Unit> InspectErrors(this ExpressionBuilderGraph source)
+        public static IObservable<Exception> InspectErrors(this ExpressionBuilderGraph source)
         {
             return InspectErrors(source, Enumerable.Empty<ExpressionBuilder>()).Merge(Scheduler.Immediate);
         }
 
-        static IEnumerable<IObservable<Unit>> InspectErrors(this ExpressionBuilderGraph source, IEnumerable<ExpressionBuilder> callStack)
+        static IEnumerable<IObservable<Exception>> InspectErrors(this ExpressionBuilderGraph source, IEnumerable<ExpressionBuilder> callStack)
         {
             foreach (var builder in from node in source
                                     let inspectBuilder = node.Value as InspectBuilder
@@ -121,8 +121,7 @@ namespace Bonsai.Expressions
                                     select inspectBuilder)
             {
                 var inspectBuilder = builder;
-                yield return inspectBuilder.Error
-                    .Catch<Unit, Exception>(xs => Observable.Throw<Unit>(BuildRuntimeExceptionStack(xs.Message, inspectBuilder, xs, callStack)));
+                yield return inspectBuilder.Error.Select(xs => BuildRuntimeExceptionStack(xs.Message, inspectBuilder, xs, callStack));
 
                 var workflowExpression = inspectBuilder.Builder as WorkflowExpressionBuilder;
                 if (workflowExpression != null)
