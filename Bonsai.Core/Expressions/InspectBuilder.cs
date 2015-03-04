@@ -54,11 +54,11 @@ namespace Bonsai.Expressions
         public IObservable<IObservable<object>> Output { get; private set; }
 
         /// <summary>
-        /// Gets an observable sequence that multicasts errors and termination
-        /// messages from all subscriptions made to the output of the decorated
+        /// Gets an observable sequence that multicasts error notifications
+        /// from all subscriptions made to the output of the decorated
         /// expression builder.
         /// </summary>
-        public IObservable<Unit> Error { get; private set; }
+        public IObservable<Exception> Error { get; private set; }
 
         /// <summary>
         /// Gets the range of input arguments that the decorated expression builder accepts.
@@ -111,7 +111,10 @@ namespace Bonsai.Expressions
         {
             var subject = new ReplaySubject<IObservable<TSource>>(1, Scheduler.Immediate);
             Output = subject.Select(ys => ys.Select(xs => (object)xs));
-            Error = subject.Merge().IgnoreElements().Select(xs => Unit.Default);
+            Error = subject.SelectMany(xs => xs
+                .IgnoreElements()
+                .Select(x => default(Exception))
+                .Catch<Exception, Exception>(ex => Observable.Return(ex)));
             return subject;
         }
 
