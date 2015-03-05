@@ -141,6 +141,7 @@
       <DependentUpon>WelcomeDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="WorkflowElementDescriptor.cs" />
+    <Compile Include="WorkflowRuntimeExceptionCache.cs" />
     <EmbeddedResource Include="AboutBox.resx">
       <DependentUpon>AboutBox.cs</DependentUpon>
     </EmbeddedResource>
