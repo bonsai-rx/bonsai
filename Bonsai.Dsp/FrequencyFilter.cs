@@ -10,7 +10,7 @@ namespace Bonsai.Dsp
     [Description("Filters frequencies in the input signal using a linear phase filter with the specified design parameters.")]
     public class FrequencyFilter : Transform<Mat, Mat>
     {
-        int kernelLength = 400;
+        int kernelLength = 60;
         FilterType filterType;
         double cutoff1, cutoff2;
         double samplingFrequency;
