@@ -48,7 +48,6 @@ namespace Bonsai.Editor
         TypeDescriptionProvider selectionTypeDescriptor;
         Dictionary<string, string> propertyAssignments;
         List<TreeNode> treeCache;
-        WorkflowException workflowError;
         Label statusTextLabel;
         Bitmap statusReadyImage;
 
@@ -56,6 +55,8 @@ namespace Bonsai.Editor
         XmlSerializer layoutSerializer;
         TypeVisualizerMap typeVisualizers;
         List<WorkflowElementDescriptor> workflowElements;
+        WorkflowRuntimeExceptionCache exceptionCache;
+        WorkflowException workflowError;
         IDisposable running;
         bool building;
 
@@ -86,6 +87,7 @@ namespace Bonsai.Editor
             selectionFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Bold);
             typeVisualizers = new TypeVisualizerMap();
             workflowElements = new List<WorkflowElementDescriptor>();
+            exceptionCache = new WorkflowRuntimeExceptionCache();
             selectionModel = new WorkflowSelectionModel();
             propertyAssignments = new Dictionary<string, string>();
             workflowGraphView = new WorkflowGraphView(editorSite);
@@ -679,9 +681,12 @@ namespace Bonsai.Editor
 
                         return new WorkflowDisposable(runtimeWorkflow, shutdown);
                     },
-                    resource => resource.Workflow.TakeUntil(workflowBuilder.Workflow.InspectErrors()))
+                    resource => resource.Workflow.TakeUntil(workflowBuilder.Workflow
+                        .InspectErrors()
+                        .Do(RegisterWorkflowError)
+                        .IgnoreElements()))
                     .SubscribeOn(NewThreadScheduler.Default.Catch<Exception>(HandleSchedulerError))
-                    .Subscribe(unit => { }, HandleWorkflowError, () => { });
+                    .Subscribe(unit => { }, HandleWorkflowError, HandleWorkflowCompleted);
             }
 
             UpdateTitle();
@@ -717,6 +722,21 @@ namespace Bonsai.Editor
             StopWorkflow();
         }
 
+        void RegisterWorkflowError(Exception ex)
+        {
+            Action registerError = () =>
+            {
+                var workflowException = ex as WorkflowRuntimeException;
+                if (workflowException != null)
+                {
+                    exceptionCache.TryAdd(workflowException);
+                }
+            };
+
+            if (InvokeRequired) BeginInvoke(registerError);
+            else registerError();
+        }
+
         void ClearWorkflowError()
         {
             if (workflowError != null)
@@ -724,6 +744,7 @@ namespace Bonsai.Editor
                 ClearExceptionBuilderNode(workflowGraphView, workflowError);
             }
 
+            exceptionCache.Clear();
             workflowError = null;
         }
 
@@ -826,22 +847,28 @@ namespace Bonsai.Editor
 
         void HandleWorkflowError(Exception e)
         {
-            var workflowException = e as WorkflowException;
-            if (workflowException != null)
+            var shutdown = ShutdownSequence();
+            Action selectExceptionNode = () =>
             {
-                Action selectExceptionNode = () =>
+                var workflowException = e as WorkflowException;
+                if (workflowException != null || exceptionCache.TryGetValue(e, out workflowException))
                 {
                     workflowError = workflowException;
                     HighlightExceptionBuilderNode(workflowGraphView, workflowException, building);
-                };
+                }
+                else editorSite.ShowError(e.Message, Name);
+            };
 
-                if (InvokeRequired) BeginInvoke(selectExceptionNode);
-                else selectExceptionNode();
-            }
-            else editorSite.ShowError(e.Message, Name);
-
-            var shutdown = ShutdownSequence();
+            if (InvokeRequired) BeginInvoke(selectExceptionNode);
+            else selectExceptionNode();
             shutdown.Dispose();
+        }
+
+        void HandleWorkflowCompleted()
+        {
+            Action clearErrors = exceptionCache.Clear;
+            if (InvokeRequired) BeginInvoke(clearErrors);
+            else clearErrors();
         }
 
         #endregion
@@ -1535,7 +1562,6 @@ namespace Bonsai.Editor
                     catch (WorkflowBuildException ex)
                     {
                         siteForm.HandleWorkflowError(ex);
-                        siteForm.workflowError = ex;
                         return false;
                     }
                 }
