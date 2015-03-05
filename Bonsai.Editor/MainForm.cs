@@ -50,6 +50,7 @@ namespace Bonsai.Editor
         List<TreeNode> treeCache;
         WorkflowException workflowError;
         Label statusTextLabel;
+        Bitmap statusReadyImage;
 
         XmlSerializer serializer;
         XmlSerializer layoutSerializer;
@@ -69,6 +70,7 @@ namespace Bonsai.Editor
             statusTextLabel = new Label();
             statusTextLabel.AutoSize = true;
             statusTextLabel.Text = Resources.ReadyStatus;
+            statusReadyImage = Resources.StatusReadyImage;
             searchTextBox.CueBanner = Resources.SearchModuleCueBanner;
             statusStrip.Items.Add(new ToolStripControlHost(statusTextLabel));
             statusStrip.SizeChanged += new EventHandler(statusStrip_SizeChanged);
@@ -638,10 +640,9 @@ namespace Bonsai.Editor
                 startToolStripButton.Enabled = startToolStripMenuItem.Enabled = true;
                 stopToolStripButton.Enabled = stopToolStripMenuItem.Enabled = false;
                 restartToolStripButton.Enabled = restartToolStripMenuItem.Enabled = false;
-                if (workflowError == null)
+                if (statusImageLabel.Image == statusReadyImage)
                 {
                     statusTextLabel.Text = Resources.ReadyStatus;
-                    statusImageLabel.Image = Resources.StatusReadyImage;
                 }
 
                 running = null;
@@ -666,7 +667,7 @@ namespace Bonsai.Editor
                             Invoke((Action)(() =>
                             {
                                 statusTextLabel.Text = Resources.RunningStatus;
-                                statusImageLabel.Image = Resources.StatusReadyImage;
+                                statusImageLabel.Image = statusReadyImage;
                                 editorSite.OnWorkflowStarted(EventArgs.Empty);
                             }));
                         }
@@ -762,7 +763,7 @@ namespace Bonsai.Editor
             else
             {
                 statusTextLabel.Text = Resources.ReadyStatus;
-                statusImageLabel.Image = Resources.StatusReadyImage;
+                statusImageLabel.Image = statusReadyImage;
             }
         }
 
