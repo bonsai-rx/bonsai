@@ -393,7 +393,13 @@ namespace Bonsai.Editor
         {
             if (editorSite.WorkflowRunning)
             {
-                var result = MessageBox.Show("Do you want to stop the workflow?", "Workflow Running", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                var result = MessageBox.Show(
+                    this,
+                    "Do you want to stop the workflow?",
+                    "Workflow Running",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning,
+                    MessageBoxDefaultButton.Button1);
                 if (result == DialogResult.Yes)
                 {
                     StopWorkflow();
@@ -403,7 +409,13 @@ namespace Bonsai.Editor
 
             if (saveVersion != version)
             {
-                var result = MessageBox.Show("Workflow has unsaved changes. Save project file?", "Unsaved Changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                var result = MessageBox.Show(
+                    this,
+                    "Workflow has unsaved changes. Save project file?",
+                    "Unsaved Changes",
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Warning,
+                    MessageBoxDefaultButton.Button1);
                 if (result == DialogResult.Yes)
                 {
                     saveToolStripMenuItem_Click(this, EventArgs.Empty);
@@ -440,7 +452,8 @@ namespace Bonsai.Editor
             try { workflowBuilder = LoadWorkflow(fileName); }
             catch (InvalidOperationException ex)
             {
-                MessageBox.Show(string.Format("There was an error opening the Bonsai workflow:\n{0}", ex.InnerException.Message), "Open Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var errorMessage = string.Format("There was an error opening the Bonsai workflow:\n{0}", ex.InnerException.Message);
+                MessageBox.Show(this, errorMessage, "Open Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -1632,22 +1645,22 @@ namespace Bonsai.Editor
 
             public void ShowError(string message, string caption)
             {
-                MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(siteForm, message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             public DialogResult ShowMessage(string message, string caption, MessageBoxButtons buttons)
             {
-                return MessageBox.Show(message, caption, buttons);
+                return MessageBox.Show(siteForm, message, caption, buttons);
             }
 
             public void ShowMessage(string message, string caption)
             {
-                MessageBox.Show(message, caption);
+                MessageBox.Show(siteForm, message, caption);
             }
 
             public void ShowMessage(string message)
             {
-                MessageBox.Show(message);
+                MessageBox.Show(siteForm, message);
             }
 
             public bool ShowToolWindow(Guid toolWindow)
