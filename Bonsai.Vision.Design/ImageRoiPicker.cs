@@ -20,6 +20,7 @@ namespace Bonsai.Vision.Design
 {
     class ImageRoiPicker : ImageBox
     {
+        int nextRoi;
         int? selectedRoi;
         Collection<Point[]> regions;
         const float LineWidth = 1;
@@ -80,11 +81,7 @@ namespace Bonsai.Vision.Design
                                       };
 
                                       if (selectedRoi.HasValue) regions[selectedRoi.Value] = region;
-                                      else
-                                      {
-                                          selectedRoi = regions.Count;
-                                          regions.Add(region);
-                                      }
+                                      else AddRegion(region);
                                   });
 
             var pointInsertion = from clickEvt in mouseDoubleClick
@@ -159,15 +156,16 @@ namespace Bonsai.Vision.Design
                 var roiText = (string)Clipboard.GetData(DataFormats.Text);
                 try
                 {
+                    var mousePosition = PointToClient(MousePosition);
+                    var offset = NormalizedLocation(mousePosition.X, mousePosition.Y);
                     var roiData = (int[])ArrayConvert.ToArray(roiText, 1, typeof(int));
                     var roi = new Point[roiData.Length / 2];
                     for (int i = 0, k = 0; i < roi.Length && k < roiData.Length; i++, k += 2)
                     {
-                        roi[i].X = roiData[k + 0];
-                        roi[i].Y = roiData[k + 1];
+                        roi[i].X = roiData[k + 0] - roiData[0] + offset.X;
+                        roi[i].Y = roiData[k + 1] - roiData[1] + offset.Y;
                     }
-                    regions.Add(roi);
-                    selectedRoi = regions.Count - 1;
+                    AddRegion(roi);
                     Canvas.Invalidate();
                 }
                 catch (ArgumentException) { }
@@ -192,6 +190,7 @@ namespace Bonsai.Vision.Design
                 if (e.KeyCode == Keys.Delete)
                 {
                     regions.RemoveAt(selectedRoi.Value);
+                    nextRoi = Math.Min(nextRoi, regions.Count);
                     selectedRoi = null;
                     Canvas.Invalidate();
                 }
@@ -207,6 +206,18 @@ namespace Bonsai.Vision.Design
             }
 
             return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        void AddRegion(Point[] region)
+        {
+            selectedRoi = nextRoi;
+            var maxRegions = MaxRegions.GetValueOrDefault(int.MaxValue);
+            nextRoi = (nextRoi + 1) % maxRegions;
+            if (selectedRoi >= regions.Count)
+            {
+                regions.Add(region);
+            }
+            else regions[selectedRoi.Value] = region;
         }
 
         double TestIntersection(Point[] region, Point point)
@@ -275,6 +286,8 @@ namespace Bonsai.Vision.Design
                     .FirstOrDefault();
         }
 
+        public int? MaxRegions{get;set;}
+
         public int? SelectedRegion
         {
             get { return selectedRoi; }
@@ -310,6 +323,8 @@ namespace Bonsai.Vision.Design
 
         protected override void OnLoad(EventArgs e)
         {
+            var maxRegions = MaxRegions.GetValueOrDefault(int.MaxValue);
+            nextRoi = regions.Count % maxRegions;
             GL.LineWidth(LineWidth);
             GL.PointSize(PointSize);
             GL.Enable(EnableCap.PointSmooth);

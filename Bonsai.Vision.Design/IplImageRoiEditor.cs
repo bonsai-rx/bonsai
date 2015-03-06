@@ -34,12 +34,18 @@ namespace Bonsai.Vision.Design
             var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
             if (context != null && editorService != null)
             {
-                var regions = (OpenCV.Net.Point[][])value;
-                var propertyDescriptor = context.PropertyDescriptor;
-
                 using (var visualizerDialog = new TypeVisualizerDialog())
                 using (var imageControl = new ImageRoiPicker())
                 {
+                    var regions = default(OpenCV.Net.Point[][]);
+                    var propertyDescriptor = context.PropertyDescriptor;
+                    if (propertyDescriptor.PropertyType == typeof(OpenCV.Net.Point[]))
+                    {
+                        if (value != null) regions = new[] { (OpenCV.Net.Point[])value };
+                        imageControl.MaxRegions = 1;
+                    }
+                    else regions = (OpenCV.Net.Point[][])value;
+
                     imageControl.Dock = DockStyle.Fill;
                     visualizerDialog.Text = propertyDescriptor.Name;
                     if (regions != null)
@@ -64,7 +70,13 @@ namespace Bonsai.Vision.Design
                     imageControl.Load += delegate { subscription = source.Subscribe(image => imageControl.Image = (IplImage)image); };
                     imageControl.HandleDestroyed += delegate { subscription.Dispose(); };
                     editorService.ShowDialog(visualizerDialog);
-                    return imageControl.Regions.ToArray();
+
+                    var result = imageControl.Regions.ToArray();
+                    if (propertyDescriptor.PropertyType == typeof(OpenCV.Net.Point[]))
+                    {
+                        return result.Length > 0 ? result[0] : null;
+                    }
+                    else return result;
                 }
             }
 
