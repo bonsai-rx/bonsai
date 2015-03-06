@@ -70,6 +70,7 @@
     <Compile Include="CapturePropertyCollection.cs" />
     <Compile Include="ColorBalance.cs" />
     <Compile Include="DistanceTypeConverter.cs" />
+    <Compile Include="MaskPolygon.cs" />
     <Compile Include="OpticalFlow.cs" />
     <Compile Include="ScalarHistogram.cs" />
     <Compile Include="ConnectedComponent.cs" />
@@ -114,6 +115,7 @@
     <Compile Include="RoiActivity.cs" />
     <Compile Include="RoiActivityDetected.cs" />
     <Compile Include="SaveImage.cs" />
+    <Compile Include="CropPolygon.cs" />
     <Compile Include="Skeletonization.cs" />
     <Compile Include="Smooth.cs" />
     <Compile Include="Sobel.cs" />
