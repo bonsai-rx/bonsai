@@ -682,7 +682,7 @@ namespace Bonsai.Editor
                         return new WorkflowDisposable(runtimeWorkflow, shutdown);
                     },
                     resource => resource.Workflow.TakeUntil(workflowBuilder.Workflow
-                        .InspectErrors()
+                        .InspectErrorsEx()
                         .Do(RegisterWorkflowError)
                         .IgnoreElements()))
                     .SubscribeOn(NewThreadScheduler.Default.Catch<Exception>(HandleSchedulerError))
