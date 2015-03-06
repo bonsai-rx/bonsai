@@ -19,7 +19,8 @@ namespace Bonsai.Vision.Design
         public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object value, Attribute[] attributes)
         {
             var propertyDescriptor = context.PropertyDescriptor;
-            var valueAttributes = new Attribute[] { propertyDescriptor.Attributes[typeof(PrecisionAttribute)], propertyDescriptor.Attributes[typeof(RangeAttribute)], new EditorAttribute(typeof(NumericUpDownEditor), typeof(UITypeEditor)) };
+            var editorAttribute = propertyDescriptor.Attributes[typeof(EditorAttribute)] ?? new EditorAttribute(typeof(NumericUpDownEditor), typeof(UITypeEditor));
+            var valueAttributes = new Attribute[] { propertyDescriptor.Attributes[typeof(PrecisionAttribute)], propertyDescriptor.Attributes[typeof(RangeAttribute)], editorAttribute };
 
             var properties = new PropertyDescriptor[4];
             properties[0] = new DynamicPropertyDescriptor("B", typeof(double), c => ((Scalar)c).Val0, (c, v) => { var s = (Scalar)c; s.Val0 = (double)v; propertyDescriptor.SetValue(context.Instance, s); }, valueAttributes);
