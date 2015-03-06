@@ -102,6 +102,7 @@
     <Compile Include="ReferenceChannels.cs" />
     <Compile Include="RunningAverage.cs" />
     <Compile Include="SampleBuffer.cs" />
+    <Compile Include="ScalarBuffer.cs" />
     <Compile Include="SelectChannels.cs" />
     <Compile Include="DetectSpikes.cs" />
     <Compile Include="Skip.cs" />

@@ -22,7 +22,7 @@ namespace Bonsai.Vision
         [Description("The size of the output image.")]
         public Size Size { get; set; }
 
-        [Description("The optional target bit depth of individual image pixels.")]
+        [Description("The target bit depth of individual image pixels.")]
         public IplDepth Depth { get; set; }
 
         [Description("The number of channels in the output image.")]
