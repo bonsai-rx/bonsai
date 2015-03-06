@@ -119,6 +119,7 @@
     <Compile Include="Skeletonization.cs" />
     <Compile Include="Smooth.cs" />
     <Compile Include="Sobel.cs" />
+    <Compile Include="SolidColor.cs" />
     <Compile Include="SortBinaryRegions.cs" />
     <Compile Include="Threshold.cs" />
     <Compile Include="Undistort.cs" />
