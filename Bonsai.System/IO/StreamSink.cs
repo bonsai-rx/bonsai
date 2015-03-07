@@ -35,6 +35,12 @@ namespace Bonsai.IO
         public PathSuffix Suffix { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to overwrite the output if it already exists.
+        /// </summary>
+        [Description("Indicates whether the output should be overwritten if it already exists.")]
+        public bool Overwrite { get; set; }
+
+        /// <summary>
         /// When overridden in a derived class, creates the writer over the specified <see cref="Stream"/>
         /// instance that will be responsible for handling the input elements.
         /// </summary>
@@ -49,7 +55,7 @@ namespace Bonsai.IO
         /// <param name="input">The input element that should be pushed into the stream.</param>
         protected abstract void Write(TWriter writer, TSource input);
 
-        static Stream CreateStream(string path)
+        static Stream CreateStream(string path, bool overwrite)
         {
             if (path.StartsWith(PipeServerPrefix))
             {
@@ -59,7 +65,7 @@ namespace Bonsai.IO
                 catch { stream.Close(); throw; }
                 return stream;
             }
-            else return new FileStream(path, FileMode.Create);
+            else return new FileStream(path, overwrite ? FileMode.Create : FileMode.CreateNew);
         }
 
         /// <summary>
@@ -85,7 +91,7 @@ namespace Bonsai.IO
                         {
                             if (!path.StartsWith(@"\\")) PathHelper.EnsureDirectory(path);
                             path = PathHelper.AppendSuffix(path, Suffix);
-                            stream = CreateStream(path);
+                            stream = CreateStream(path, Overwrite);
                             return CreateWriter(stream);
                         }
                         catch (Exception ex)
