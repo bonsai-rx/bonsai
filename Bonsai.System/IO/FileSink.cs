@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
+using System.IO;
 
 namespace Bonsai.IO
 {
@@ -46,6 +47,12 @@ namespace Bonsai.IO
         /// </summary>
         [Description("Indicates whether writing should be buffered.")]
         public bool Buffered { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to overwrite the output file if it already exists.
+        /// </summary>
+        [Description("Indicates whether the output file should be overwritten if it already exists.")]
+        public bool Overwrite { get; set; }
 
         /// <summary>
         /// When overridden in a derived class, creates the writer over the specified
@@ -113,6 +120,11 @@ namespace Bonsai.IO
 
                                 PathHelper.EnsureDirectory(fileName);
                                 fileName = PathHelper.AppendSuffix(fileName, Suffix);
+                                if (File.Exists(fileName) && !Overwrite)
+                                {
+                                    throw new IOException(string.Format("The file '{0}' already exists.", fileName));
+                                }
+
                                 runningWriter = writer = CreateWriter(fileName, input);
                             }
 
