@@ -16,6 +16,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Templates", "Bonsai.
 		{1A74AD68-6339-44C9-BBE6-2F76F0537A1C} = {1A74AD68-6339-44C9-BBE6-2F76F0537A1C}
 		{D177A47A-2B6E-429F-8692-BFEAFBE61E62} = {D177A47A-2B6E-429F-8692-BFEAFBE61E62}
 		{E9382F93-F085-4E94-880E-9BDBEC6B24AD} = {E9382F93-F085-4E94-880E-9BDBEC6B24AD}
+		{15EA55BC-B7F6-4CE2-A041-DC579A09E876} = {15EA55BC-B7F6-4CE2-A041-DC579A09E876}
 		{3E0FE9EE-AC5F-480F-90EC-B7BCDEEE0A43} = {3E0FE9EE-AC5F-480F-90EC-B7BCDEEE0A43}
 		{42D1DFF5-75C5-4346-9368-9D0D22B5FD37} = {42D1DFF5-75C5-4346-9368-9D0D22B5FD37}
 	EndProjectSection
@@ -29,6 +30,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.PackageProjectTemplate", "Bonsai.PackageProjectTemplate\Bonsai.PackageProjectTemplate.csproj", "{C65A3F2D-EB8F-46D8-B783-24A90F907D78}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.VisualizerTemplate", "Bonsai.VisualizerTemplate\Bonsai.VisualizerTemplate.csproj", "{3E0FE9EE-AC5F-480F-90EC-B7BCDEEE0A43}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.WorkflowItemTemplate", "Bonsai.WorkflowItemTemplate\Bonsai.WorkflowItemTemplate.csproj", "{15EA55BC-B7F6-4CE2-A041-DC579A09E876}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -64,6 +67,10 @@ Global
 		{3E0FE9EE-AC5F-480F-90EC-B7BCDEEE0A43}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E0FE9EE-AC5F-480F-90EC-B7BCDEEE0A43}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3E0FE9EE-AC5F-480F-90EC-B7BCDEEE0A43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15EA55BC-B7F6-4CE2-A041-DC579A09E876}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15EA55BC-B7F6-4CE2-A041-DC579A09E876}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15EA55BC-B7F6-4CE2-A041-DC579A09E876}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15EA55BC-B7F6-4CE2-A041-DC579A09E876}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

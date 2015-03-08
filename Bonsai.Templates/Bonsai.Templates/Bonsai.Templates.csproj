@@ -90,6 +90,10 @@
       <Link>ItemTemplates\Bonsai\BonsaiVisualizer.zip</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="..\Bonsai.WorkflowItemTemplate\bin\Release\BonsaiWorkflow.zip">
+      <Link>ItemTemplates\Bonsai\BonsaiWorkflow.zip</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="..\packages\Rx-Core.2.2.5\Rx-Core.2.2.5.nupkg">
       <Link>Packages\Rx-Core.2.2.5.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
