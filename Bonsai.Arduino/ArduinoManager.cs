@@ -13,6 +13,7 @@ namespace Bonsai.Arduino
     {
         public const string DefaultConfigurationFile = "Arduino.config";
         static readonly Dictionary<string, Tuple<Arduino, RefCountDisposable>> openConnections = new Dictionary<string, Tuple<Arduino, RefCountDisposable>>();
+        static readonly object openConnectionsLock = new object();
 
         public static ArduinoDisposable ReserveConnection(string portName)
         {
@@ -22,38 +23,41 @@ namespace Bonsai.Arduino
             }
 
             Tuple<Arduino, RefCountDisposable> connection;
-            if (!openConnections.TryGetValue(portName, out connection))
+            lock (openConnectionsLock)
             {
-                Arduino arduino;
-                var configuration = LoadConfiguration();
-                if (configuration.Contains(portName))
+                if (!openConnections.TryGetValue(portName, out connection))
                 {
-                    var arduinoConfiguration = configuration[portName];
-                    arduino = new Arduino(portName, arduinoConfiguration.BaudRate);
-                    arduino.Open();
-
-                    arduino.SamplingInterval(arduinoConfiguration.SamplingInterval);
-                    foreach (var section in arduinoConfiguration.SysexConfigurationSettings)
+                    Arduino arduino;
+                    var configuration = LoadConfiguration();
+                    if (configuration.Contains(portName))
                     {
-                        section.Configure(arduino);
+                        var arduinoConfiguration = configuration[portName];
+                        arduino = new Arduino(portName, arduinoConfiguration.BaudRate);
+                        arduino.Open();
+
+                        arduino.SamplingInterval(arduinoConfiguration.SamplingInterval);
+                        foreach (var section in arduinoConfiguration.SysexConfigurationSettings)
+                        {
+                            section.Configure(arduino);
+                        }
                     }
-                }
-                else
-                {
-                    arduino = new Arduino(portName);
-                    arduino.Open();
-                }
+                    else
+                    {
+                        arduino = new Arduino(portName);
+                        arduino.Open();
+                    }
 
-                var dispose = Disposable.Create(() =>
-                {
-                    arduino.Close();
-                    openConnections.Remove(portName);
-                });
+                    var dispose = Disposable.Create(() =>
+                    {
+                        arduino.Close();
+                        openConnections.Remove(portName);
+                    });
 
-                var refCount = new RefCountDisposable(dispose);
-                connection = Tuple.Create(arduino, refCount);
-                openConnections.Add(portName, connection);
-                return new ArduinoDisposable(arduino, refCount);
+                    var refCount = new RefCountDisposable(dispose);
+                    connection = Tuple.Create(arduino, refCount);
+                    openConnections.Add(portName, connection);
+                    return new ArduinoDisposable(arduino, refCount);
+                }
             }
 
             return new ArduinoDisposable(connection.Item1, connection.Item2.GetDisposable());
