@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Bonsai.Osc.Net
@@ -27,27 +28,35 @@ namespace Bonsai.Osc.Net
                 var dispatcher = new Dispatcher(observer, scheduler);
                 return scheduler.Schedule(recurse =>
                 {
-                    var bytesRead = stream.Read(sizeBuffer, 0, sizeBuffer.Length);
-                    if (bytesRead < sizeBuffer.Length)
+                    try
                     {
-                        observer.OnError(new InvalidOperationException("Unexpected end of stream."));
-                        scheduler.Dispose();
-                    }
-                    else
-                    {
-                        var packetSize = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(sizeBuffer, 0));
-                        var packet = new byte[packetSize];
-                        bytesRead = stream.Read(packet, 0, packet.Length);
-                        if (bytesRead < packet.Length)
+                        var bytesRead = stream.Read(sizeBuffer, 0, sizeBuffer.Length);
+                        if (bytesRead < sizeBuffer.Length)
                         {
                             observer.OnError(new InvalidOperationException("Unexpected end of stream."));
                             scheduler.Dispose();
                         }
                         else
                         {
-                            dispatcher.ProcessPacket(packet);
-                            recurse();
+                            var packetSize = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(sizeBuffer, 0));
+                            var packet = new byte[packetSize];
+                            bytesRead = stream.Read(packet, 0, packet.Length);
+                            if (bytesRead < packet.Length)
+                            {
+                                observer.OnError(new InvalidOperationException("Unexpected end of stream."));
+                                scheduler.Dispose();
+                            }
+                            else
+                            {
+                                dispatcher.ProcessPacket(packet);
+                                recurse();
+                            }
                         }
+                    }
+                    catch (Exception e)
+                    {
+                        observer.OnError(e);
+                        scheduler.Dispose();
                     }
                 });
             })
@@ -80,9 +89,19 @@ namespace Bonsai.Osc.Net
             }
         }
 
+        private void Dispose(bool disposing)
+        {
+            var disposable = Interlocked.Exchange(ref stream, null);
+            if (disposable != null && disposing)
+            {
+                disposable.Close();
+            }
+        }
+
         public void Dispose()
         {
-            throw new NotImplementedException();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }
