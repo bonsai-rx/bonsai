@@ -21,6 +21,9 @@ namespace Bonsai.Dsp
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
         public string FileName { get; set; }
 
+        [Description("The byte offset at which to start reading the raw binary file.")]
+        public long Offset { get; set; }
+
         [Description("The frequency of the output signal.")]
         public int Frequency { get; set; }
 
@@ -48,6 +51,11 @@ namespace Bonsai.Dsp
                         var stopwatch = new Stopwatch();
                         var channelCount = ChannelCount;
                         var bufferLength = BufferLength;
+                        var offset = Offset;
+                        if (offset > 0)
+                        {
+                            reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+                        }
 
                         while (!cancellationToken.IsCancellationRequested)
                         {
