@@ -15,30 +15,34 @@ namespace Bonsai.Osc.Net
     {
         public const string DefaultConfigurationFile = "Osc.config";
         static readonly Dictionary<string, Tuple<ITransport, RefCountDisposable>> openConnections = new Dictionary<string, Tuple<ITransport, RefCountDisposable>>();
+        static readonly object openConnectionsLock = new object();
 
         public static TransportDisposable ReserveConnection(string name)
         {
             Tuple<ITransport, RefCountDisposable> connection;
-            if (!openConnections.TryGetValue(name, out connection))
+            lock (openConnectionsLock)
             {
-                var configuration = LoadConfiguration();
-                if (!configuration.Contains(name))
+                if (!openConnections.TryGetValue(name, out connection))
                 {
-                    throw new ArgumentException("The specified connection name has no matching configuration.");
+                    var configuration = LoadConfiguration();
+                    if (!configuration.Contains(name))
+                    {
+                        throw new ArgumentException("The specified connection name has no matching configuration.");
+                    }
+
+                    var transportConfiguration = configuration[name];
+                    var transport = transportConfiguration.CreateTransport();
+                    var dispose = Disposable.Create(() =>
+                    {
+                        transport.Dispose();
+                        openConnections.Remove(name);
+                    });
+
+                    var refCount = new RefCountDisposable(dispose);
+                    connection = Tuple.Create(transport, refCount);
+                    openConnections.Add(name, connection);
+                    return new TransportDisposable(transport, refCount);
                 }
-
-                var transportConfiguration = configuration[name];
-                var transport = transportConfiguration.CreateTransport();
-                var dispose = Disposable.Create(() =>
-                {
-                    transport.Dispose();
-                    openConnections.Remove(name);
-                });
-
-                var refCount = new RefCountDisposable(dispose);
-                connection = Tuple.Create(transport, refCount);
-                openConnections.Add(name, connection);
-                return new TransportDisposable(transport, refCount);
             }
 
             return new TransportDisposable(connection.Item1, connection.Item2.GetDisposable());
