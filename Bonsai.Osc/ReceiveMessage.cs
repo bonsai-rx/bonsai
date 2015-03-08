@@ -61,7 +61,8 @@ namespace Bonsai.Osc
             return Observable.Using(
                 () => TransportManager.ReserveConnection(Connection),
                 connection => connection.Transport.MessageReceived
-                    .Where(message => message.IsMatch(Address)));
+                    .Where(message => message.IsMatch(Address)))
+                    .SubscribeOn(System.Reactive.Concurrency.Scheduler.TaskPool);
         }
 
         IObservable<TSource> Generate<TSource>(Func<BinaryReader, string> addressReader, Func<BinaryReader, TSource> messageReader)
