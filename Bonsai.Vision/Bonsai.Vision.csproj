@@ -125,6 +125,7 @@
     <Compile Include="Undistort.cs" />
     <Compile Include="VideoWriter.cs" />
     <Compile Include="VideoWriterDisposable.cs" />
+    <Compile Include="WarpAffine.cs" />
     <Compile Include="WarpPerspective.cs" />
   </ItemGroup>
   <ItemGroup>
