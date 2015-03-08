@@ -14,36 +14,40 @@ namespace Bonsai.IO
     {
         public const string DefaultConfigurationFile = "SerialPort.config";
         static readonly Dictionary<string, Tuple<SerialPort, RefCountDisposable>> openConnections = new Dictionary<string, Tuple<SerialPort, RefCountDisposable>>();
+        static readonly object openConnectionsLock = new object();
 
         public static SerialPortDisposable ReserveConnection(string portName)
         {
             Tuple<SerialPort, RefCountDisposable> connection;
-            if (!openConnections.TryGetValue(portName, out connection))
+            lock (openConnectionsLock)
             {
-                SerialPort serialPort;
-                var configuration = LoadConfiguration();
-                if (configuration.Contains(portName))
+                if (!openConnections.TryGetValue(portName, out connection))
                 {
-                    var serialPortConfiguration = configuration[portName];
-                    serialPort = new SerialPort(portName, serialPortConfiguration.BaudRate);
-                }
-                else
-                {
-                    serialPort = new SerialPort(portName);
-                }
+                    SerialPort serialPort;
+                    var configuration = LoadConfiguration();
+                    if (configuration.Contains(portName))
+                    {
+                        var serialPortConfiguration = configuration[portName];
+                        serialPort = new SerialPort(portName, serialPortConfiguration.BaudRate);
+                    }
+                    else
+                    {
+                        serialPort = new SerialPort(portName);
+                    }
 
-                serialPort.Open();
-                serialPort.ReadExisting();
-                var dispose = Disposable.Create(() =>
-                {
-                    serialPort.Close();
-                    openConnections.Remove(portName);
-                });
+                    serialPort.Open();
+                    serialPort.ReadExisting();
+                    var dispose = Disposable.Create(() =>
+                    {
+                        serialPort.Close();
+                        openConnections.Remove(portName);
+                    });
 
-                var refCount = new RefCountDisposable(dispose);
-                connection = Tuple.Create(serialPort, refCount);
-                openConnections.Add(portName, connection);
-                return new SerialPortDisposable(serialPort, refCount);
+                    var refCount = new RefCountDisposable(dispose);
+                    connection = Tuple.Create(serialPort, refCount);
+                    openConnections.Add(portName, connection);
+                    return new SerialPortDisposable(serialPort, refCount);
+                }
             }
 
             return new SerialPortDisposable(connection.Item1, connection.Item2.GetDisposable());
