@@ -77,6 +77,7 @@
     <Compile Include="ConvertToMat.cs" />
     <Compile Include="DepthConverter.cs" />
     <Compile Include="Extrema.cs" />
+    <Compile Include="MatchTemplate.cs" />
     <Compile Include="MatConverter.cs" />
     <Compile Include="Norm.cs" />
     <Compile Include="Phase.cs" />
