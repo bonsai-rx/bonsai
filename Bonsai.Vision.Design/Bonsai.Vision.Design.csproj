@@ -82,7 +82,9 @@
     <Compile Include="ConnectedComponentCollectionMashupVisualizer.cs" />
     <Compile Include="BinaryRegionExtremesMashupVisualizer.cs" />
     <Compile Include="ContourConvexityMashupVisualizer.cs" />
+    <Compile Include="PointVisualizer.cs" />
     <Compile Include="FileCaptureEditor.cs" />
+    <Compile Include="PointMashupVisualizer.cs" />
     <Compile Include="ScalarHistogramVisualizer.cs" />
     <Compile Include="IplImageMashupVisualizer.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
