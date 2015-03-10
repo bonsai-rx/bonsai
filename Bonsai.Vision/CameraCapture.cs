@@ -15,6 +15,7 @@ namespace Bonsai.Vision
     public class CameraCapture : Source<IplImage>
     {
         IObservable<IplImage> source;
+        readonly object captureLock = new object();
         readonly CapturePropertyCollection captureProperties = new CapturePropertyCollection();
 
         public CameraCapture()
@@ -23,29 +24,35 @@ namespace Bonsai.Vision
             {
                 return Task.Factory.StartNew(() =>
                 {
-                    using (var capture = Capture.CreateCameraCapture(Index))
+                    lock (captureLock)
                     {
-                        foreach (var setting in captureProperties)
+                        using (var capture = Capture.CreateCameraCapture(Index))
                         {
-                            capture.SetProperty(setting.Property, setting.Value);
-                        }
-                        captureProperties.Capture = capture;
-                        try
-                        {
-                            while (!cancellationToken.IsCancellationRequested)
+                            foreach (var setting in captureProperties)
                             {
-                                var image = captureProperties.Capture.QueryFrame();
-                                if (image == null)
-                                {
-                                    observer.OnCompleted();
-                                    break;
-                                }
-                                else observer.OnNext(image.Clone());
+                                capture.SetProperty(setting.Property, setting.Value);
                             }
+                            captureProperties.Capture = capture;
+                            try
+                            {
+                                while (!cancellationToken.IsCancellationRequested)
+                                {
+                                    var image = captureProperties.Capture.QueryFrame();
+                                    if (image == null)
+                                    {
+                                        observer.OnCompleted();
+                                        break;
+                                    }
+                                    else observer.OnNext(image.Clone());
+                                }
+                            }
+                            finally { captureProperties.Capture = null; }
                         }
-                        finally { captureProperties.Capture = null; }
                     }
-                });
+                },
+                cancellationToken,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default);
             })
             .PublishReconnectable()
             .RefCount();

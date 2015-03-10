@@ -133,7 +133,10 @@ namespace Bonsai.Vision
                         capture.Dispose();
                         capture = null;
                     }
-                });
+                },
+                cancellationToken,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default);
             })
             .PublishReconnectable()
             .RefCount();

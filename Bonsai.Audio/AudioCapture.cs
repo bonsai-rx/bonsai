@@ -20,6 +20,7 @@ namespace Bonsai.Audio
     public class AudioCapture : Source<Mat>
     {
         IObservable<Mat> source;
+        readonly object captureLock = new object();
 
         public AudioCapture()
         {
@@ -36,22 +37,25 @@ namespace Bonsai.Audio
                     var captureInterval = TimeSpan.FromMilliseconds((int)(bufferLength / 2 + 0.5));
                     var captureBufferSize = (int)(bufferLength * frequency * 0.001 / BlittableValueType.StrideOf(short.MinValue));
 
-                    using (var capture = new OpenTK.Audio.AudioCapture(DeviceName, frequency, ALFormat.Mono16, captureBufferSize))
-                    using (var captureSignal = new ManualResetEvent(false))
+                    lock (captureLock)
                     {
-                        capture.Start();
-                        while (!cancellationToken.IsCancellationRequested)
+                        using (var capture = new OpenTK.Audio.AudioCapture(DeviceName, frequency, ALFormat.Mono16, captureBufferSize))
+                        using (var captureSignal = new ManualResetEvent(false))
                         {
-                            while (capture.AvailableSamples > bufferSize)
+                            capture.Start();
+                            while (!cancellationToken.IsCancellationRequested)
                             {
-                                var buffer = new Mat(1, bufferSize, Depth.S16, 1);
-                                capture.ReadSamples(buffer.Data, bufferSize);
-                                observer.OnNext(buffer);
-                            }
+                                while (capture.AvailableSamples > bufferSize)
+                                {
+                                    var buffer = new Mat(1, bufferSize, Depth.S16, 1);
+                                    capture.ReadSamples(buffer.Data, bufferSize);
+                                    observer.OnNext(buffer);
+                                }
 
-                            captureSignal.WaitOne(captureInterval);
+                                captureSignal.WaitOne(captureInterval);
+                            }
+                            capture.Stop();
                         }
-                        capture.Stop();
                     }
                 },
                 cancellationToken,
