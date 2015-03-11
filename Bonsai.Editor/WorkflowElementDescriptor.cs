@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Bonsai.Editor
 {
     [Serializable]
-    [DebuggerDisplay("Name = {Name}, AssemblyName = {AssemblyName}")]
+    [DebuggerDisplay("Name = {Name}, Namespace = {Namespace}")]
     public struct WorkflowElementDescriptor
     {
         public string Name { get; set; }
