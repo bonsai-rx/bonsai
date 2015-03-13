@@ -34,6 +34,7 @@
             System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Transform");
             System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Sink");
             System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Combinator");
+            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Workflow");
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -116,6 +117,7 @@
             this.toolboxSourceContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.createSourceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.commandExecutor = new Bonsai.Design.CommandExecutor();
+            this.workflowFileWatcher = new System.IO.FileSystemWatcher();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -143,6 +145,7 @@
             this.workflowSplitContainer.SuspendLayout();
             this.toolboxContextMenuStrip.SuspendLayout();
             this.toolboxSourceContextMenuStrip.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.workflowFileWatcher)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip
@@ -713,11 +716,14 @@
             treeNode3.Text = "Sink";
             treeNode4.Name = "Combinator";
             treeNode4.Text = "Combinator";
+            treeNode5.Name = "Workflow";
+            treeNode5.Text = "Workflow";
             this.toolboxTreeView.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode1,
             treeNode2,
             treeNode3,
-            treeNode4});
+            treeNode4,
+            treeNode5});
             this.toolboxTreeView.Size = new System.Drawing.Size(194, 182);
             this.toolboxTreeView.TabIndex = 0;
             this.toolboxTreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.toolboxTreeView_ItemDrag);
@@ -948,6 +954,12 @@
             // 
             this.commandExecutor.StatusChanged += new System.EventHandler(this.commandExecutor_StatusChanged);
             // 
+            // workflowFileWatcher
+            // 
+            this.workflowFileWatcher.EnableRaisingEvents = true;
+            this.workflowFileWatcher.IncludeSubdirectories = true;
+            this.workflowFileWatcher.SynchronizingObject = this;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -997,6 +1009,7 @@
             this.workflowSplitContainer.ResumeLayout(false);
             this.toolboxContextMenuStrip.ResumeLayout(false);
             this.toolboxSourceContextMenuStrip.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.workflowFileWatcher)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1086,6 +1099,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripMenuItem selectAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ungroupToolStripMenuItem;
+        private System.IO.FileSystemWatcher workflowFileWatcher;
     }
 }
 

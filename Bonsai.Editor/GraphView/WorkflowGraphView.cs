@@ -669,9 +669,20 @@ namespace Bonsai.Design
 
         public void CreateGraphNode(TreeNode typeNode, GraphNode closestGraphViewNode, CreateGraphNodeType nodeType, bool branch)
         {
-            var builder = CreateBuilder(typeNode);
-            var elementCategory = (ElementCategory)typeNode.Tag;
-            CreateGraphNode(builder, elementCategory, closestGraphViewNode, nodeType, branch);
+            if (Path.IsPathRooted(typeNode.Name))
+            {
+                var workflowBuilder = editorService.LoadWorkflow(typeNode.Name);
+                if (workflowBuilder.Workflow.Count > 0)
+                {
+                    InsertGraphElements(workflowBuilder.Workflow, nodeType, branch);
+                }
+            }
+            else
+            {
+                var builder = CreateBuilder(typeNode);
+                var elementCategory = (ElementCategory)typeNode.Tag;
+                CreateGraphNode(builder, elementCategory, closestGraphViewNode, nodeType, branch);
+            }
         }
 
         public void CreateGraphNode(string typeName, ElementCategory elementCategory, GraphNode closestGraphViewNode, CreateGraphNodeType nodeType, bool branch)
@@ -2210,7 +2221,7 @@ namespace Bonsai.Design
                 var workflowBuilder = selectedNode != null ? GetGraphNodeBuilder(selectedNode) as WorkflowExpressionBuilder : null;
                 foreach (var element in from element in toolboxService.GetToolboxElements()
                                         where element.ElementTypes.Length == 1 &&
-                                              (element.ElementTypes.Contains(ElementCategory.Nested) || element.AssemblyQualifiedName == typeof(ConditionBuilder).AssemblyQualifiedName)
+                                              (element.ElementTypes.Contains(ElementCategory.Nested) || element.FullyQualifiedName == typeof(ConditionBuilder).AssemblyQualifiedName)
                                         select element)
                 {
                     ToolStripMenuItem menuItem = null;
@@ -2220,7 +2231,7 @@ namespace Bonsai.Design
                         if (workflowBuilder != null)
                         {
                             if (menuItem.Checked) return;
-                            var builder = CreateWorkflowBuilder(element.AssemblyQualifiedName, workflowBuilder.Workflow);
+                            var builder = CreateWorkflowBuilder(element.FullyQualifiedName, workflowBuilder.Workflow);
                             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
                             var updateSelectedNode = CreateUpdateGraphViewDelegate(localGraphView =>
                             {
@@ -2240,16 +2251,16 @@ namespace Bonsai.Design
                             () => { });
                             commandExecutor.EndCompositeCommand();
                         }
-                        else GroupGraphNodes(selectedNodes, element.AssemblyQualifiedName);
+                        else GroupGraphNodes(selectedNodes, element.FullyQualifiedName);
                     });
 
                     if (workflowBuilder != null &&
-                        workflowBuilder.GetType().AssemblyQualifiedName == element.AssemblyQualifiedName)
+                        workflowBuilder.GetType().AssemblyQualifiedName == element.FullyQualifiedName)
                     {
                         menuItem.Checked = true;
                     }
 
-                    if (element.AssemblyQualifiedName == typeof(NestedWorkflowBuilder).AssemblyQualifiedName)
+                    if (element.FullyQualifiedName == typeof(NestedWorkflowBuilder).AssemblyQualifiedName)
                     {
                         //make nested workflow the first on the list and display shortcut key string
                         menuItem.ShortcutKeys = Keys.Control | Keys.G;

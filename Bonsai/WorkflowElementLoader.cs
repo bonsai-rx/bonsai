@@ -57,7 +57,7 @@ namespace Bonsai
                     {
                         Name = ExpressionBuilder.GetElementDisplayName(type),
                         Namespace = type.Namespace,
-                        AssemblyQualifiedName = type.AssemblyQualifiedName,
+                        FullyQualifiedName = type.AssemblyQualifiedName,
                         Description = descriptionAttribute.Description,
                         ElementTypes = WorkflowElementCategoryConverter.FromType(type).ToArray()
                     };

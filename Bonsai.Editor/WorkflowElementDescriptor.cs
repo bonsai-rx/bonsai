@@ -15,7 +15,14 @@ namespace Bonsai.Editor
 
         public string Namespace { get; set; }
 
-        public string AssemblyQualifiedName { get; set; }
+        [Obsolete]
+        public string AssemblyQualifiedName
+        {
+            get { return FullyQualifiedName; }
+            set { FullyQualifiedName = value; }
+        }
+
+        public string FullyQualifiedName { get; set; }
 
         public string Description { get; set; }
 
