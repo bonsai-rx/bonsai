@@ -281,6 +281,21 @@ namespace Bonsai.Editor
 
             foreach (var fileName in workflowFiles)
             {
+                var description = string.Empty;
+                try
+                {
+                    using (var reader = XmlReader.Create(fileName, new XmlReaderSettings { IgnoreWhitespace = true }))
+                    {
+                        reader.ReadStartElement(typeof(WorkflowBuilder).Name);
+                        if (reader.Name == "Description")
+                        {
+                            reader.ReadStartElement();
+                            description = reader.Value;
+                        }
+                    }
+                }
+                catch (SystemException) { continue; }
+                
                 var relativePath = fileName.Substring(basePath.Length)
                                            .TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
                 var fileNamespace = Path.GetDirectoryName(relativePath)
@@ -293,7 +308,7 @@ namespace Bonsai.Editor
                         Name = Path.GetFileNameWithoutExtension(relativePath),
                         Namespace = fileNamespace,
                         FullyQualifiedName = fileName,
-                        Description = string.Empty,
+                        Description = description,
                         ElementTypes = new[] { ElementCategory.Workflow }
                     };
                 }
