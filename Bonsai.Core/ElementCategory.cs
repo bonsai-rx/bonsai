@@ -50,5 +50,10 @@ namespace Bonsai
         /// observable sequence.
         /// </summary>
         Combinator,
+
+        /// <summary>
+        /// A set of operators defining a data processing workflow.
+        /// </summary>
+        Workflow
     }
 }

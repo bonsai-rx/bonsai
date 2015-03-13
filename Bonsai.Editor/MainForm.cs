@@ -31,8 +31,9 @@ namespace Bonsai.Editor
         const string BonsaiExtension = ".bonsai";
         const string LayoutExtension = ".layout";
         const string BonsaiPackageName = "Bonsai";
-        const string CombinatorCategoryName = "Combinator";
         const string ExamplesDirectory = "Examples";
+        const string WorkflowsDirectory = "Workflows";
+        const string WorkflowCategoryName = "Workflow";
         const int CycleNextHotKey = 0;
         const int CyclePreviousHotKey = 1;
 
@@ -47,6 +48,7 @@ namespace Bonsai.Editor
         WorkflowSelectionModel selectionModel;
         TypeDescriptionProvider selectionTypeDescriptor;
         Dictionary<string, string> propertyAssignments;
+        Dictionary<string, TreeNode> toolboxCategories;
         List<TreeNode> treeCache;
         Label statusTextLabel;
         Bitmap statusReadyImage;
@@ -76,6 +78,12 @@ namespace Bonsai.Editor
             statusStrip.Items.Add(new ToolStripControlHost(statusTextLabel));
             statusStrip.SizeChanged += new EventHandler(statusStrip_SizeChanged);
             UpdateStatusLabelSize();
+
+            toolboxCategories = new Dictionary<string, TreeNode>();
+            foreach (TreeNode node in toolboxTreeView.Nodes)
+            {
+                toolboxCategories.Add(node.Name, node);
+            }
 
             hotKeys = new HotKeyManager(this);
             treeCache = new List<TreeNode>();
@@ -161,6 +169,9 @@ namespace Bonsai.Editor
                 Path.GetExtension(initialFileName) == BonsaiExtension &&
                 File.Exists(initialFileName);
 
+            try { workflowFileWatcher.Path = WorkflowsDirectory; }
+            catch (ArgumentException) { workflowFileWatcher.EnableRaisingEvents = false; }
+
             var currentDirectory = Path.GetFullPath(Environment.CurrentDirectory).TrimEnd('\\');
             var appDomainBaseDirectory = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\');
             var systemPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.System)).TrimEnd('\\');
@@ -184,6 +195,7 @@ namespace Bonsai.Editor
             }
 
             initialization.Subscribe();
+            RefreshWorkflowElements().Subscribe();
             base.OnLoad(e);
         }
 
@@ -224,6 +236,69 @@ namespace Bonsai.Editor
         #endregion
 
         #region Toolbox
+
+        IObservable<Unit> RefreshWorkflowElements()
+        {
+            var start = Observable.Return(new EventPattern<EventArgs>(this, EventArgs.Empty));
+            var changed = Observable.FromEventPattern<FileSystemEventHandler, EventArgs>(
+                handler => workflowFileWatcher.Changed += handler,
+                handler => workflowFileWatcher.Changed -= handler);
+            var created = Observable.FromEventPattern<FileSystemEventHandler, EventArgs>(
+                handler => workflowFileWatcher.Created += handler,
+                handler => workflowFileWatcher.Created -= handler);
+            var deleted = Observable.FromEventPattern<FileSystemEventHandler, EventArgs>(
+                handler => workflowFileWatcher.Deleted += handler,
+                handler => workflowFileWatcher.Deleted -= handler);
+            var renamed = Observable.FromEventPattern<RenamedEventHandler, EventArgs>(
+                handler => workflowFileWatcher.Renamed += handler,
+                handler => workflowFileWatcher.Renamed -= handler);
+            return Observable
+                .Merge(start, changed, created, deleted, renamed)
+                .Throttle(TimeSpan.FromSeconds(1), Scheduler.Default)
+                .Select(evt => FindWorkflowElements(WorkflowsDirectory).GroupBy(x => x.Namespace).ToList())
+                .ObserveOn(this)
+                .Do(elements =>
+                {
+                    toolboxTreeView.BeginUpdate();
+                    var workflowCategory = toolboxCategories[WorkflowCategoryName];
+                    workflowCategory.Nodes.Clear();
+                    foreach (var package in elements)
+                    {
+                        InitializeToolboxCategory(package.Key, package);
+                    }
+                    toolboxTreeView.EndUpdate();
+                })
+                .IgnoreElements()
+                .Select(xs => Unit.Default);
+        }
+
+        static IEnumerable<WorkflowElementDescriptor> FindWorkflowElements(string basePath)
+        {
+            var workflowFiles = default(string[]);
+            basePath = Path.IsPathRooted(basePath) ? basePath : Path.Combine(AppDomain.CurrentDomain.BaseDirectory, basePath);
+            try { workflowFiles = Directory.GetFiles(basePath, "*" + BonsaiExtension, SearchOption.AllDirectories); }
+            catch (DirectoryNotFoundException) { yield break; }
+
+            foreach (var fileName in workflowFiles)
+            {
+                var relativePath = fileName.Substring(basePath.Length)
+                                           .TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                var fileNamespace = Path.GetDirectoryName(relativePath)
+                                        .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar)
+                                        .Replace(Path.DirectorySeparatorChar, ExpressionHelper.MemberSeparator.First());
+                if (!string.IsNullOrEmpty(fileNamespace))
+                {
+                    yield return new WorkflowElementDescriptor
+                    {
+                        Name = Path.GetFileNameWithoutExtension(relativePath),
+                        Namespace = fileNamespace,
+                        FullyQualifiedName = fileName,
+                        Description = string.Empty,
+                        ElementTypes = new[] { ElementCategory.Workflow }
+                    };
+                }
+            }
+        }
 
         IObservable<Unit> InitializeTypeVisualizers()
         {
@@ -289,16 +364,14 @@ namespace Bonsai.Editor
                     }
 
                     var typeCategoryName = typeCategory.ToString();
-                    var elementTypeNode = treeCache.Count > 0
-                        ? treeCache.Single(ns => ns.Name == typeCategoryName)
-                        : toolboxTreeView.Nodes[typeCategoryName];
+                    var elementTypeNode = toolboxCategories[typeCategoryName];
                     var category = elementTypeNode.Nodes[categoryName];
                     if (category == null)
                     {
                         category = elementTypeNode.Nodes.Add(categoryName, GetPackageDisplayName(categoryName));
                     }
 
-                    var node = category.Nodes.Add(type.AssemblyQualifiedName, type.Name);
+                    var node = category.Nodes.Add(type.FullyQualifiedName, type.Name);
                     node.Tag = elementType;
                     node.ToolTipText = type.Description;
                 }
