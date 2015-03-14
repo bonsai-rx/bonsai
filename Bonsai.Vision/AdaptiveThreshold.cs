@@ -9,7 +9,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
-    [Description("Applies an adaptive threshold to the input image.")]
+    [Description("Applies an adaptive threshold to the input grayscale image.")]
     public class AdaptiveThreshold : Transform<IplImage, IplImage>
     {
         public AdaptiveThreshold()
