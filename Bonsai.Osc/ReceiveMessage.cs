@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Sockets;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -62,7 +63,7 @@ namespace Bonsai.Osc
                 () => TransportManager.ReserveConnection(Connection),
                 connection => connection.Transport.MessageReceived
                     .Where(message => message.IsMatch(Address)))
-                    .SubscribeOn(System.Reactive.Concurrency.Scheduler.TaskPool);
+                    .SubscribeOn(TaskPoolScheduler.Default);
         }
 
         IObservable<TSource> Generate<TSource>(Func<BinaryReader, string> addressReader, Func<BinaryReader, TSource> messageReader)
