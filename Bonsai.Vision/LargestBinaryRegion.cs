@@ -15,14 +15,22 @@ namespace Bonsai.Vision
         {
             return source.Select(input =>
             {
-                ConnectedComponent largest = new ConnectedComponent();
-                for (int i = 0; i < input.Count; i++)
+                var largest = new ConnectedComponent();
+                if (input.Count > 0)
                 {
-                    var component = input[i];
-                    if (component.Area > largest.Area)
+                    for (int i = 0; i < input.Count; i++)
                     {
-                        largest = component;
+                        var component = input[i];
+                        if (component.Area > largest.Area)
+                        {
+                            largest = component;
+                        }
                     }
+                }
+                else
+                {
+                    largest.Centroid = new Point2f(float.NaN, float.NaN);
+                    largest.Orientation = double.NaN;
                 }
 
                 return largest;

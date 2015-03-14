@@ -85,7 +85,9 @@ namespace Bonsai.Vision
                         break;
                 }
 
-                return Tuple.Create(extremePoint1 ?? new Point2f(-1, -1), extremePoint2 ?? new Point2f(-1, -1));
+                return Tuple.Create(
+                    extremePoint1 ?? new Point2f(float.NaN, float.NaN),
+                    extremePoint2 ?? new Point2f(float.NaN, float.NaN));
             });
         }
     }
