@@ -5,6 +5,7 @@ using OpenCV.Net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -17,52 +18,84 @@ namespace Bonsai.Vision.Design
     {
         bool tracking;
         List<Point> points;
+        List<List<Point>> polylines;
         IplImageVisualizer visualizer;
+        IDisposable subscription;
 
         public override void Show(object value)
         {
+            Point point;
             if (value is Point)
             {
-                points.Add((Point)value);
+                point = (Point)value;
             }
             else if (value is Point2f)
             {
-                points.Add(new Point((Point2f)value));
+                point = new Point((Point2f)value);
             }
             else
             {
                 var point2d = (Point2d)value;
-                points.Add(new Point((int)point2d.X, (int)point2d.Y));
+                point = new Point((int)point2d.X, (int)point2d.Y);
             }
 
             var image = visualizer.VisualizerImage;
-            if (points.Count > 1)
+            if (point.X < 0 || point.Y < 0 ||
+                point.X >= image.Width || point.Y >= image.Height)
             {
-                CV.PolyLine(image, new[] { points.Skip(1).ToArray() }, false, Scalar.Rgb(255, 0, 0), 2);
+                points = null;
+            }
+            else if (tracking)
+            {
+                if (points == null)
+                {
+                    points = new List<Point>(1);
+                    polylines.Add(points);
+                }
+
+                points.Add(point);
             }
 
-            CV.Circle(image, points[points.Count - 1], 3, Scalar.Rgb(0, 255, 0), 3);
+            if (polylines.Count > 0)
+            {
+                CV.PolyLine(image, polylines.Select(ps => ps.ToArray()).ToArray(), false, Scalar.Rgb(255, 0, 0), 2);
+            }
+
+            CV.Circle(image, point, 3, Scalar.Rgb(0, 255, 0), 3);
             if (!tracking)
             {
-                points.Clear();
+                polylines.Clear();
+                points = null;
             }
         }
 
         public override void Load(IServiceProvider provider)
         {
             points = new List<Point>(1);
+            polylines = new List<List<Point>>(1);
             visualizer = (IplImageVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
-            visualizer.VisualizerCanvas.Canvas.MouseClick += (sender, e) =>
+            MouseEventHandler mouseHandler = (sender, e) =>
             {
                 if (e.Button == MouseButtons.Left)
                 {
                     tracking = !tracking;
                 }
             };
+
+            visualizer.VisualizerCanvas.Canvas.MouseClick += mouseHandler;
+            subscription = Disposable.Create(() => visualizer.VisualizerCanvas.Canvas.MouseClick -= mouseHandler);
         }
 
         public override void Unload()
         {
+            if (subscription != null)
+            {
+                subscription.Dispose();
+                subscription = null;
+                visualizer = null;
+                polylines = null;
+                points = null;
+            }
         }
     }
 }
