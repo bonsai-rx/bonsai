@@ -38,6 +38,11 @@ namespace Bonsai.Vision
                     result.Area = area;
                     result.Contour = Contour.FromSeq(null);
                 }
+                else
+                {
+                    result.Centroid = new Point2f(float.NaN, float.NaN);
+                    result.Orientation = double.NaN;
+                }
 
                 return result;
             });

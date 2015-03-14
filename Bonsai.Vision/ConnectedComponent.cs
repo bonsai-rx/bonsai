@@ -49,6 +49,11 @@ namespace Bonsai.Vision
                 component.MajorAxisLength = Math.Sqrt(6 * (miu20 + miu02 + deviation));
                 component.MinorAxisLength = Math.Sqrt(6 * (miu20 + miu02 - deviation));
             }
+            else
+            {
+                component.Centroid = new Point2f(float.NaN, float.NaN);
+                component.Orientation = double.NaN;
+            }
 
             return component;
         }
