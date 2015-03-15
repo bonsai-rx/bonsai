@@ -34,8 +34,11 @@ namespace Bonsai.IO
         [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public string FileName { get; set; }
 
-        [Description("Indicates whether to append or overwrite the specified file.")]
+        [Description("Indicates whether data should be appended to the output file if it already exists.")]
         public bool Append { get; set; }
+
+        [Description("Indicates whether the output file should be overwritten if it already exists.")]
+        public bool Overwrite { get; set; }
 
         [Description("The optional suffix used to generate file names.")]
         public PathSuffix Suffix { get; set; }
@@ -171,10 +174,15 @@ namespace Bonsai.IO
                         throw new InvalidOperationException("A valid filename must be specified.");
                     }
 
+                    var fileName = PathHelper.AppendSuffix(FileName, Suffix);
+                    if (File.Exists(fileName) && !Overwrite && !Append)
+                    {
+                        throw new IOException(string.Format("The file '{0}' already exists.", fileName));
+                    }
+
                     var disposable = new WriterDisposable();
                     disposable.WriterTask = new Task(() =>
                     {
-                        var fileName = PathHelper.AppendSuffix(FileName, Suffix);
                         var writer = new StreamWriter(fileName, Append, Encoding.ASCII);
                         if (!string.IsNullOrEmpty(header)) writer.WriteLine(header);
                         disposable.Writer = writer;
