@@ -14,38 +14,31 @@ namespace Bonsai.Video
 {
     public abstract class VideoCapture : Source<IplImage>
     {
-        IVideoSource videoSource;
         IObservable<IplImage> source;
 
         public VideoCapture()
         {
-            source = Observable.Using(
-                () =>
+            source = Observable.Create<IplImage>(observer =>
+            {
+                var videoSource = CreateVideoSource();
+                videoSource.NewFrame += (sender, e) => observer.OnNext(ProcessFrame(e.Frame));
+                videoSource.VideoSourceError += (sender, e) => observer.OnError(new VideoException(e.Description));
+                videoSource.PlayingFinished += (sender, e) => observer.OnCompleted();
+                videoSource.Start();
+                VideoSource = videoSource;
+                return new CompositeDisposable
                 {
-                    Load();
-                    return Disposable.Create(Unload);
-                },
-                resource =>
-                {
-                    var newFrame = Observable.FromEventPattern<NewFrameEventHandler, NewFrameEventArgs>(
-                        handler => videoSource.NewFrame += handler,
-                        handler => videoSource.NewFrame -= handler)
-                        .Select(evt => ProcessFrame(evt.EventArgs.Frame));
-                    var errors = Observable.FromEventPattern<VideoSourceErrorEventHandler, VideoSourceErrorEventArgs>(
-                        handler => videoSource.VideoSourceError += handler,
-                        handler => videoSource.VideoSourceError -= handler)
-                        .SelectMany(evt => Observable.Throw<IplImage>(new VideoException(evt.EventArgs.Description)));
-                    var completed = Observable.Create<IplImage>(observer =>
-                    {
-                        PlayingFinishedEventHandler handler = delegate { observer.OnCompleted(); };
-                        videoSource.PlayingFinished += handler;
-                        return Disposable.Create(() => videoSource.PlayingFinished -= handler);
-                    });
-                    return newFrame.Merge(errors).TakeUntil(completed);
-                })
-                .PublishReconnectable()
-                .RefCount();
+                    Disposable.Create(() => VideoSource = null),
+                    Disposable.Create(videoSource.SignalToStop)
+                };
+            })
+            .PublishReconnectable()
+            .RefCount();
         }
+
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public IVideoSource VideoSource { get; private set; }
 
         protected abstract IVideoSource CreateVideoSource();
 
@@ -60,24 +53,6 @@ namespace Bonsai.Video
                 return output;
             }
             finally { bitmap.UnlockBits(bitmapData); }
-        }
-
-        [Browsable(false)]
-        public IVideoSource VideoSource
-        {
-            get { return videoSource; }
-        }
-
-        private void Load()
-        {
-            videoSource = CreateVideoSource();
-            videoSource.Start();
-        }
-
-        private void Unload()
-        {
-            videoSource.SignalToStop();
-            videoSource = null;
         }
 
         public override IObservable<IplImage> Generate()
