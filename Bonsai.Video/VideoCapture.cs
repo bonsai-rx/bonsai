@@ -25,12 +25,26 @@ namespace Bonsai.Video
                     Load();
                     return Disposable.Create(Unload);
                 },
-                resource => Observable.FromEventPattern<NewFrameEventArgs>(
-                    handler => videoSource.NewFrame += new NewFrameEventHandler(handler),
-                    handler => videoSource.NewFrame -= new NewFrameEventHandler(handler))
-                    .Select(evt => ProcessFrame(evt.EventArgs.Frame)))
-                    .PublishReconnectable()
-                    .RefCount();
+                resource =>
+                {
+                    var newFrame = Observable.FromEventPattern<NewFrameEventHandler, NewFrameEventArgs>(
+                        handler => videoSource.NewFrame += handler,
+                        handler => videoSource.NewFrame -= handler)
+                        .Select(evt => ProcessFrame(evt.EventArgs.Frame));
+                    var errors = Observable.FromEventPattern<VideoSourceErrorEventHandler, VideoSourceErrorEventArgs>(
+                        handler => videoSource.VideoSourceError += handler,
+                        handler => videoSource.VideoSourceError -= handler)
+                        .SelectMany(evt => Observable.Throw<IplImage>(new VideoException(evt.EventArgs.Description)));
+                    var completed = Observable.Create<IplImage>(observer =>
+                    {
+                        PlayingFinishedEventHandler handler = delegate { observer.OnCompleted(); };
+                        videoSource.PlayingFinished += handler;
+                        return Disposable.Create(() => videoSource.PlayingFinished -= handler);
+                    });
+                    return newFrame.Merge(errors).TakeUntil(completed);
+                })
+                .PublishReconnectable()
+                .RefCount();
         }
 
         protected abstract IVideoSource CreateVideoSource();
