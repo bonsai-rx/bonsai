@@ -14,22 +14,12 @@ namespace Bonsai.Scripting
         public PythonScriptEditorDialog()
         {
             InitializeComponent();
-
-            var fontSize = TextRenderer.MeasureText("c", richTextBox1.Font);
-            var tabSize = fontSize.Width * 4;
-            var tabs = new int[10];
-            for (int i = 0; i < tabs.Length; i++)
-            {
-                tabs[i] = (i + 1) * tabSize;
-            }
-
-            richTextBox1.SelectionTabs = tabs;
         }
 
         public string Script
         {
-            get { return richTextBox1.Text; }
-            set { richTextBox1.Text = value; }
+            get { return richTextBox.Text; }
+            set { richTextBox.Text = value; }
         }
     }
 }
