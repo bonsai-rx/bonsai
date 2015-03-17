@@ -18,7 +18,7 @@ namespace Bonsai.Scripting
     {
         public PythonCondition()
         {
-            Script = "def process(input):\n    return True";
+            Script = "def process(input):\n  return True";
         }
 
         [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
@@ -35,9 +35,9 @@ namespace Bonsai.Scripting
                 var engine = IronPython.Hosting.Python.CreateEngine();
                 var scope = engine.CreateScope();
                 engine.Execute(Script, scope);
-                scope.TryGetVariable<Action>("load", out load);
-                scope.TryGetVariable<Action>("unload", out unload);
-                process = scope.GetVariable<Func<object, bool>>("process");
+                scope.TryGetVariable<Action>(PythonHelper.LoadFunction, out load);
+                scope.TryGetVariable<Action>(PythonHelper.UnloadFunction, out unload);
+                process = scope.GetVariable<Func<object, bool>>(PythonHelper.ProcessFunction);
 
                 if (load != null)
                 {

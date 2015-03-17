@@ -8,6 +8,7 @@ using System.Drawing.Design;
 using Bonsai.Expressions;
 using System.Reactive.Linq;
 using System.Linq.Expressions;
+using IronPython.Runtime;
 
 namespace Bonsai.Scripting
 {
@@ -18,7 +19,7 @@ namespace Bonsai.Scripting
     {
         public PythonTransform()
         {
-            Script = "import clr\n\ndef getOutputType():\n    return clr.GetClrType(bool)\n\ndef process(input):\n    return True";
+            Script = "@returns(bool)\ndef process(input):\n  return True";
         }
 
         [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
@@ -31,32 +32,43 @@ namespace Bonsai.Scripting
             Action unload;
             var engine = IronPython.Hosting.Python.CreateEngine();
             var scope = engine.CreateScope();
-            var scriptSource = engine.CreateScriptSourceFromString(Script);
+            var script = PythonHelper.ReturnsDecorator + Script;
+            var scriptSource = engine.CreateScriptSourceFromString(script);
             scriptSource.Execute(scope);
-            scope.TryGetVariable<Action>("load", out load);
-            scope.TryGetVariable<Action>("unload", out unload);
 
             Type outputType;
-            Func<Type> getOutputType;
-            if (scope.TryGetVariable<Func<Type>>("getOutputType", out getOutputType))
-            {
-                outputType = getOutputType();
-            }
-            else outputType = typeof(object);
+            PythonHelper.TryGetOutputType(scope, PythonHelper.ProcessFunction, out outputType);
+            scope.TryGetVariable<Action>(PythonHelper.LoadFunction, out load);
+            scope.TryGetVariable<Action>(PythonHelper.UnloadFunction, out unload);
 
             var source = arguments.Single();
             var observableType = source.Type.GetGenericArguments()[0];
             var scopeExpression = Expression.Constant(scope);
             var selectorType = Expression.GetFuncType(observableType, outputType);
-            var processExpression = Expression.Call(scopeExpression, "GetVariable", new[] { selectorType }, Expression.Constant("process"));
+            var processExpression = Expression.Call(
+                scopeExpression,
+                "GetVariable",
+                new[] { selectorType },
+                Expression.Constant(PythonHelper.ProcessFunction));
             var loadExpression = Expression.Constant(load, typeof(Action));
             var unloadExpression = Expression.Constant(unload, typeof(Action));
 
             var combinatorExpression = Expression.Constant(this);
-            return Expression.Call(combinatorExpression, "Combine", new[] { observableType, outputType }, source, processExpression, loadExpression, unloadExpression);
+            return Expression.Call(
+                combinatorExpression,
+                "Combine",
+                new[] { observableType, outputType },
+                source,
+                processExpression,
+                loadExpression,
+                unloadExpression);
         }
 
-        IObservable<TResult> Combine<TSource, TResult>(IObservable<TSource> source, Func<TSource, TResult> selector, Action load, Action unload)
+        IObservable<TResult> Combine<TSource, TResult>(
+            IObservable<TSource> source,
+            Func<TSource, TResult> selector,
+            Action load,
+            Action unload)
         {
             var result = source.Select(selector);
             if (unload != null) result = result.Finally(unload);

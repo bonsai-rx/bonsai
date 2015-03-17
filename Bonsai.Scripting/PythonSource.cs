@@ -21,7 +21,7 @@ namespace Bonsai.Scripting
     {
         public PythonSource()
         {
-            Script = "import clr\n\ndef getOutputType():\n    return clr.GetClrType(int)\n\ndef generate():\n    yield 0";
+            Script = "@returns(int)\ndef generate():\n  yield 0";
         }
 
         [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
@@ -32,16 +32,12 @@ namespace Bonsai.Scripting
         {
             var engine = IronPython.Hosting.Python.CreateEngine();
             var scope = engine.CreateScope();
-            var scriptSource = engine.CreateScriptSourceFromString(Script);
+            var script = PythonHelper.ReturnsDecorator + Script;
+            var scriptSource = engine.CreateScriptSourceFromString(script);
             scriptSource.Execute(scope);
 
             Type outputType;
-            Func<Type> getOutputType;
-            if (scope.TryGetVariable<Func<Type>>("getOutputType", out getOutputType))
-            {
-                outputType = getOutputType();
-            }
-            else outputType = typeof(object);
+            PythonHelper.TryGetOutputType(scope, PythonHelper.GenerateFunction, out outputType);
 
             var scopeExpression = Expression.Constant(scope);
             var generatorType = Expression.GetFuncType(typeof(PythonGenerator));
@@ -49,7 +45,7 @@ namespace Bonsai.Scripting
                 scopeExpression,
                 "GetVariable",
                 new[] { generatorType },
-                Expression.Constant("generate"));
+                Expression.Constant(PythonHelper.GenerateFunction));
 
             var combinatorExpression = Expression.Constant(this);
             return Expression.Call(combinatorExpression, "Generate", new[] { outputType }, generateExpression);
