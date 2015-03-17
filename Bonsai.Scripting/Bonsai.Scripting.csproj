@@ -95,6 +95,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PythonSelectMany.cs" />
     <Compile Include="ExpressionTransform.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="PythonSource.cs" />
