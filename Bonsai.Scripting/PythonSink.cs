@@ -43,9 +43,9 @@ namespace Bonsai.Scripting
                 var engine = CreateEngine();
                 var scope = engine.CreateScope();
                 engine.Execute(Script, scope);
-                scope.TryGetVariable<Action>("load", out load);
-                scope.TryGetVariable<Action>("unload", out unload);
-                var processAction = scope.GetVariable<Action<object>>("process");
+                scope.TryGetVariable<Action>(PythonHelper.LoadFunction, out load);
+                scope.TryGetVariable<Action>(PythonHelper.UnloadFunction, out unload);
+                var processAction = scope.GetVariable<Action<object>>(PythonHelper.ProcessFunction);
 
                 if (load != null)
                 {
