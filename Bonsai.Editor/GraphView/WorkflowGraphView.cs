@@ -2241,7 +2241,9 @@ namespace Bonsai.Design
                             builder.Name = workflowBuilder.Name;
                             commandExecutor.BeginCompositeCommand();
                             commandExecutor.Execute(() => { }, updateGraphLayout);
-                            CreateGraphNode(builder, element.ElementTypes[0], selectedNode, CreateGraphNodeType.Successor, false);
+                            CreateGraphNode(
+                                builder, element.ElementTypes[0], selectedNode,
+                                CreateGraphNodeType.Successor, branch: false, validate: false);
                             DeleteGraphNode(selectedNode);
                             commandExecutor.Execute(() =>
                             {
