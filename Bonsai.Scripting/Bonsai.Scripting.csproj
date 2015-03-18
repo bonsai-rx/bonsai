@@ -96,6 +96,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PythonHelper.cs" />
+    <Compile Include="PythonProcessor.cs" />
     <Compile Include="PythonSelectMany.cs" />
     <Compile Include="ExpressionTransform.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />

@@ -29,25 +29,27 @@ namespace Bonsai.Scripting
         {
             return Observable.Defer(() =>
             {
-                Action load;
-                Action unload;
-                Func<object, bool> process;
                 var engine = IronPython.Hosting.Python.CreateEngine();
                 var scope = engine.CreateScope();
                 engine.Execute(Script, scope);
-                scope.TryGetVariable<Action>(PythonHelper.LoadFunction, out load);
-                scope.TryGetVariable<Action>(PythonHelper.UnloadFunction, out unload);
-                process = scope.GetVariable<Func<object, bool>>(PythonHelper.ProcessFunction);
 
-                if (load != null)
+                object condition;
+                PythonProcessor<TSource, bool> processor;
+                if (PythonHelper.TryGetClass(scope, "Condition", out condition))
                 {
-                    load();
+                    processor = new PythonProcessor<TSource, bool>(engine.Operations, condition);
+                }
+                else processor = new PythonProcessor<TSource, bool>(scope);
+
+                if (processor.Load != null)
+                {
+                    processor.Load();
                 }
 
-                var result = source.Where(input => process(input));
-                if (unload != null)
+                var result = source.Where(processor.Process);
+                if (processor.Unload != null)
                 {
-                    result = result.Finally(unload);
+                    result = result.Finally(processor.Unload);
                 }
 
                 return result;
