@@ -28,56 +28,76 @@ namespace Bonsai.Scripting
 
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            Action load;
-            Action unload;
             var engine = IronPython.Hosting.Python.CreateEngine();
             var scope = engine.CreateScope();
             var script = PythonHelper.ReturnsDecorator + Script;
             var scriptSource = engine.CreateScriptSourceFromString(script);
             scriptSource.Execute(scope);
 
-            Type outputType;
-            PythonHelper.TryGetOutputType(scope, PythonHelper.ProcessFunction, out outputType);
-            scope.TryGetVariable<Action>(PythonHelper.LoadFunction, out load);
-            scope.TryGetVariable<Action>(PythonHelper.UnloadFunction, out unload);
-
+            object transform;
             var source = arguments.Single();
             var observableType = source.Type.GetGenericArguments()[0];
-            var scopeExpression = Expression.Constant(scope);
-            var selectorType = Expression.GetFuncType(observableType, outputType);
-            var processExpression = Expression.Call(
-                scopeExpression,
-                "GetVariable",
-                new[] { selectorType },
-                Expression.Constant(PythonHelper.ProcessFunction));
-            var loadExpression = Expression.Constant(load, typeof(Action));
-            var unloadExpression = Expression.Constant(unload, typeof(Action));
-
-            var combinatorExpression = Expression.Constant(this);
-            return Expression.Call(
-                combinatorExpression,
-                "Combine",
-                new[] { observableType, outputType },
-                source,
-                processExpression,
-                loadExpression,
-                unloadExpression);
+            if (PythonHelper.TryGetClass(scope, "Transform", out transform))
+            {
+                var classExpression = Expression.Constant(transform);
+                var opExpression = Expression.Constant(engine.Operations);
+                var outputType = PythonHelper.GetOutputType(engine.Operations, transform, PythonHelper.ProcessFunction);
+                return Expression.Call(
+                    typeof(PythonTransform),
+                    "Process",
+                    new[] { observableType, outputType },
+                    source,
+                    opExpression,
+                    classExpression);
+            }
+            else
+            {
+                var outputType = PythonHelper.GetOutputType(scope, PythonHelper.ProcessFunction);
+                var scopeExpression = Expression.Constant(scope);
+                return Expression.Call(
+                    typeof(PythonTransform),
+                    "Process",
+                    new[] { observableType, outputType },
+                    source,
+                    scopeExpression);
+            }
         }
 
-        IObservable<TResult> Combine<TSource, TResult>(
+        static IObservable<TResult> Process<TSource, TResult>(
             IObservable<TSource> source,
-            Func<TSource, TResult> selector,
-            Action load,
-            Action unload)
+            ObjectOperations op,
+            object processorClass)
         {
-            var result = source.Select(selector);
-            if (unload != null) result = result.Finally(unload);
-            if (load != null)
+            return Observable.Defer(() =>
+            {
+                var processor = new PythonProcessor<TSource, TResult>(op, processorClass);
+                var result = source.Select(processor.Process);
+                if (processor.Load != null) processor.Load();
+                if (processor.Unload != null)
+                {
+                    return result.Finally(processor.Unload);
+                }
+                else return result;
+            });
+        }
+
+        static IObservable<TResult> Process<TSource, TResult>(
+            IObservable<TSource> source,
+            ScriptScope scope)
+        {
+            var processor = new PythonProcessor<TSource, TResult>(scope);
+            var result = source.Select(processor.Process);
+            if (processor.Unload != null)
+            {
+                result = result.Finally(processor.Unload);
+            }
+
+            if (processor.Load != null)
             {
                 var observable = result;
                 result = Observable.Defer(() =>
                 {
-                    load();
+                    processor.Load();
                     return observable;
                 });
             }

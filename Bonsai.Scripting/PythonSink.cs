@@ -19,7 +19,7 @@ namespace Bonsai.Scripting
     {
         public PythonSink()
         {
-            Script = "def process(input):\n";
+            Script = "def process(input):\n  return";
         }
 
         [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
@@ -38,34 +38,32 @@ namespace Bonsai.Scripting
                 var scriptTask = new Task(() => { });
                 scriptTask.Start();
 
-                Action load;
-                Action unload;
                 var engine = CreateEngine();
                 var scope = engine.CreateScope();
                 engine.Execute(Script, scope);
-                scope.TryGetVariable<Action>(PythonHelper.LoadFunction, out load);
-                scope.TryGetVariable<Action>(PythonHelper.UnloadFunction, out unload);
-                var processAction = scope.GetVariable<Action<object>>(PythonHelper.ProcessFunction);
 
-                if (load != null)
+                object sink;
+                PythonProcessor<TSource, object> processor;
+                if (PythonHelper.TryGetClass(scope, "Sink", out sink))
                 {
-                    load();
+                    processor = new PythonProcessor<TSource, object>(engine.Operations, sink);
+                }
+                else processor = new PythonProcessor<TSource, object>(scope);
+
+                if (processor.Load != null)
+                {
+                    processor.Load();
                 }
 
                 return source.Do(input =>
                 {
-                    if (scriptTask == null) return;
-
-                    if (processAction != null)
+                    scriptTask = scriptTask.ContinueWith(task =>
                     {
-                        scriptTask = scriptTask.ContinueWith(task =>
-                        {
-                            processAction(input);
-                        });
-                    }
+                        processor.Process(input);
+                    });
                 }).Finally(() =>
                 {
-                    var unloadAction = unload;
+                    var unloadAction = processor.Unload;
                     if (unloadAction != null)
                     {
                         scriptTask = scriptTask.ContinueWith(task => unloadAction());

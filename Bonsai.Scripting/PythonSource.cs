@@ -36,10 +36,8 @@ namespace Bonsai.Scripting
             var scriptSource = engine.CreateScriptSourceFromString(script);
             scriptSource.Execute(scope);
 
-            Type outputType;
-            PythonHelper.TryGetOutputType(scope, PythonHelper.GenerateFunction, out outputType);
-
             var scopeExpression = Expression.Constant(scope);
+            var outputType = PythonHelper.GetOutputType(scope, PythonHelper.GenerateFunction);
             var generatorType = Expression.GetFuncType(typeof(PythonGenerator));
             var generateExpression = Expression.Call(
                 scopeExpression,
