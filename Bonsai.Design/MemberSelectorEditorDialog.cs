@@ -13,30 +13,28 @@ using System.CodeDom;
 
 namespace Bonsai.Design
 {
-    public partial class MemberSelectorEditorDialog : Form
+    public partial class MemberSelectorEditorDialog : Form, IMemberSelectorEditorDialog
     {
-        const string IndexBegin = "[";
-        CSharpCodeProvider provider;
+        MemberSelectorEditorController controller;
 
         public MemberSelectorEditorDialog()
         {
             InitializeComponent();
-            provider = new CSharpCodeProvider();
+            controller = new MemberSelectorEditorController(treeView);
         }
 
         public string Selector
         {
             get
             {
-                var memberChain = GetSelectedMembers().Reverse();
-                return string.Join(ExpressionHelper.MemberSeparator, memberChain.ToArray());
+                return controller.GetSelectedMember();
             }
             set
             {
                 if (!string.IsNullOrEmpty(value))
                 {
                     var memberChain = value.Split(new[] { ExpressionHelper.MemberSeparator }, StringSplitOptions.RemoveEmptyEntries);
-                    InitializeSelection(memberChain);
+                    controller.InitializeSelection(memberChain);
                 }
                 else
                 {
@@ -53,7 +51,7 @@ namespace Bonsai.Design
                 throw new ArgumentNullException("type");
             }
 
-            InitializeMemberTree(treeView.Nodes, type);
+            controller.InitializeMemberTree(treeView.Nodes, type);
         }
 
         public void AddMember(string name, Type type)
@@ -68,113 +66,12 @@ namespace Bonsai.Design
                 throw new ArgumentNullException("type");
             }
 
-            EnsureNode(treeView.Nodes, name, type);
-        }
-
-        void InitializeSelection(IEnumerable<string> memberChain)
-        {
-            var nodes = treeView.Nodes;
-            foreach (var memberName in memberChain)
-            {
-                var nodeName = memberName;
-                var indexBegin = nodeName.IndexOf(IndexBegin);
-                if (indexBegin >= 0) nodeName = nodeName.Substring(0, indexBegin);
-                var node = nodes[nodeName];
-                if (node == null)
-                {
-                    treeView.SelectedNode = node;
-                    break;
-                }
-
-                ExpandNode(node);
-                nodes = node.Nodes;
-                treeView.SelectedNode = node;
-            }
-        }
-
-        void ExpandNode(TreeNode node)
-        {
-            if (node.Nodes.Count > 0)
-            {
-                InitializeMemberTree(node.Nodes, (Type)node.Tag);
-            }
-        }
-
-        TreeNode CreateNode(TreeNodeCollection nodes, string name, Type type)
-        {
-            var typeRef = new CodeTypeReference(type);
-            var node = nodes.Add(name, name + string.Format(" ({0})", provider.GetTypeOutput(typeRef)));
-            node.Tag = type;
-            return node;
-        }
-
-        TreeNode EnsureNode(TreeNodeCollection nodes, string name, Type type, bool recurse = true)
-        {
-            var node = nodes[name];
-            if (node == null)
-            {
-                node = CreateNode(nodes, name, type);
-            }
-
-            if (node.Nodes.Count == 0 && recurse)
-            {
-                InitializeDummyMembers(node.Nodes, type);
-            }
-
-            return node;
-        }
-
-        void InitializeMemberTree(TreeNodeCollection nodes, Type componentType)
-        {
-            if (componentType == null)
-            {
-                throw new ArgumentNullException("componentType");
-            }
-
-            foreach (var field in componentType.GetFields(BindingFlags.Instance | BindingFlags.Public))
-            {
-                EnsureNode(nodes, field.Name, field.FieldType);
-            }
-
-            foreach (var property in componentType.GetProperties(BindingFlags.Instance | BindingFlags.Public))
-            {
-                EnsureNode(nodes, property.Name, property.PropertyType);
-            }
-        }
-
-        void InitializeDummyMembers(TreeNodeCollection nodes, Type componentType)
-        {
-            foreach (var field in componentType.GetFields(BindingFlags.Instance | BindingFlags.Public))
-            {
-                EnsureNode(nodes, field.Name, field.FieldType, recurse: false);
-            }
-
-            foreach (var property in componentType.GetProperties(BindingFlags.Instance | BindingFlags.Public))
-            {
-                EnsureNode(nodes, property.Name, property.PropertyType, recurse: false);
-            }
-        }
-
-        private void treeView_BeforeExpand(object sender, TreeViewCancelEventArgs e)
-        {
-            treeView.SuspendLayout();
-            ExpandNode(e.Node);
-            treeView.ResumeLayout();
-        }
-
-        IEnumerable<string> GetSelectedMembers()
-        {
-            var node = treeView.SelectedNode;
-            while (node != null)
-            {
-                yield return node.Name;
-                node = node.Parent;
-            }
+            controller.EnsureNode(treeView.Nodes, name, type);
         }
 
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
-            provider.Dispose();
+            controller.Dispose();
             base.OnFormClosed(e);
         }
     }

@@ -73,6 +73,14 @@
     <Compile Include="ConfigurationEditorService.cs" />
     <Compile Include="ControlObservable.cs" />
     <Compile Include="ControlScheduler.cs" />
+    <Compile Include="MultiMemberSelectorEditor.cs" />
+    <Compile Include="IMemberSelectorEditorDialog.cs" />
+    <Compile Include="MultiMemberSelectorEditorDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MultiMemberSelectorEditorDialog.Designer.cs">
+      <DependentUpon>MultiMemberSelectorEditorDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="DescriptiveCollectionEditor.cs" />
     <Compile Include="DialogMashupVisualizer.cs" />
     <Compile Include="DynamicTypeDescriptionProvider.cs" />
@@ -80,6 +88,7 @@
     <Compile Include="HatchBrushes.cs" />
     <Compile Include="MashupTypeVisualizer.cs" />
     <Compile Include="ITypeVisualizerContext.cs" />
+    <Compile Include="MemberSelectorEditorController.cs" />
     <Compile Include="PathConvert.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="SeekBar.cs">
@@ -130,6 +139,9 @@
   <ItemGroup>
     <EmbeddedResource Include="ConfigurationControl.resx">
       <DependentUpon>ConfigurationControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MultiMemberSelectorEditorDialog.resx">
+      <DependentUpon>MultiMemberSelectorEditorDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MemberSelectorEditorDialog.resx">
       <DependentUpon>MemberSelectorEditorDialog.cs</DependentUpon>

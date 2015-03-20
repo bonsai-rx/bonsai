@@ -66,7 +66,6 @@
             this.treeView.Name = "treeView";
             this.treeView.Size = new System.Drawing.Size(260, 196);
             this.treeView.TabIndex = 0;
-            this.treeView.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeView_BeforeExpand);
             // 
             // label1
             // 
