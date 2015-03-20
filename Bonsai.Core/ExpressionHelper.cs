@@ -20,9 +20,61 @@ namespace Bonsai
         /// </summary>
         public const string MemberSeparator = ".";
 
-        const string IndexBegin = "[";
-        const string IndexEnd = "]";
-        const string IndexParameterSeparator = ",";
+        /// <summary>
+        /// Represents the character separating selected members in a member selector
+        /// <see cref="string"/>.
+        /// </summary>
+        public const string ArgumentSeparator = ",";
+
+        const char IndexBegin = '[';
+        const char IndexEnd = ']';
+        const char IndexArgumentSeparator = ',';
+
+        /// <summary>
+        /// Extracts the set of member accessor paths from a composite selector string.
+        /// </summary>
+        /// <param name="selector">
+        /// The comma-separated selector string used to extract multiple members.
+        /// </param>
+        /// <returns>
+        /// An enumerator of the set of member accessor paths extracted from
+        /// the composite selector string.
+        /// </returns>
+        public static IEnumerable<string> SelectMemberNames(string selector)
+        {
+            var indexCounter = 0;
+            var argumentBuilder = new StringBuilder();
+            var trailingSeparator = Enumerable.Repeat(IndexArgumentSeparator, 1);
+            foreach (var character in Enumerable.Concat(selector, trailingSeparator))
+            {
+                switch (character)
+                {
+                    case IndexBegin: indexCounter++; break;
+                    case IndexEnd: indexCounter--; break;
+                    case IndexArgumentSeparator:
+                        if (indexCounter == 0)
+                        {
+                            var argument = argumentBuilder.ToString().Trim();
+                            if (argument.Length == 0)
+                            {
+                                throw new InvalidOperationException("Empty argument specification is not allowed.");
+                            }
+
+                            yield return argument;
+                            argumentBuilder.Clear();
+                        }
+                        break;
+                    default:
+                        argumentBuilder.Append(character);
+                        break;
+                }
+            }
+
+            if (indexCounter > 0)
+            {
+                throw new InvalidOperationException("Error parsing member specification: invalid format.");
+            }
+        }
 
         /// <summary>
         /// Creates an <see cref="Expression"/> representing a chained access to a member
@@ -51,7 +103,7 @@ namespace Bonsai
                         var parameterInfo = propertyInfo.GetIndexParameters();
                         var indexParameters = memberName
                             .Substring(indexBegin + 1, indexEnd - indexBegin - 1)
-                            .Split(new[] { IndexParameterSeparator }, StringSplitOptions.RemoveEmptyEntries);
+                            .Split(new[] { IndexArgumentSeparator }, StringSplitOptions.RemoveEmptyEntries);
                         var arguments = (from indexParameter in parameterInfo.Zip(indexParameters, (xs, ys) => Tuple.Create(xs, ys))
                                          let parameterType = indexParameter.Item1.ParameterType
                                          let parameter = Convert.ChangeType(indexParameter.Item2, parameterType)
