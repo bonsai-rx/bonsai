@@ -15,6 +15,17 @@ namespace Bonsai.Design
 {
     public class MemberSelectorEditor : UITypeEditor
     {
+        bool allowMultiSelection;
+
+        public MemberSelectorEditor()
+        {
+        }
+
+        public MemberSelectorEditor(bool allowMultiSelection)
+        {
+            this.allowMultiSelection = allowMultiSelection;
+        }
+
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
             return UITypeEditorEditStyle.Modal;
@@ -39,7 +50,10 @@ namespace Bonsai.Design
                                    select node).SingleOrDefault();
 
                 if (builderNode == null) return base.EditValue(context, provider, value);
-                using (var editorDialog = new MemberSelectorEditorDialog())
+                using (var editorDialog = allowMultiSelection ?
+                       (IMemberSelectorEditorDialog)
+                       new MultiMemberSelectorEditorDialog() :
+                       new MemberSelectorEditorDialog())
                 {
                     var predecessorEdges = nodeBuilderGraph.PredecessorEdges(builderNode)
                                                            .OrderBy(edge => edge.Item2.Label.Index)
@@ -54,7 +68,7 @@ namespace Bonsai.Design
                     }
 
                     editorDialog.Selector = selector;
-                    if (editorService.ShowDialog(editorDialog) == DialogResult.OK)
+                    if (editorService.ShowDialog((Form)editorDialog) == DialogResult.OK)
                     {
                         return editorDialog.Selector;
                     }
