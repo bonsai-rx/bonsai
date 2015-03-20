@@ -33,8 +33,25 @@ namespace Bonsai.Expressions
             get
             {
                 var selector = Selector;
-                if (!string.IsNullOrEmpty(selector)) return selector;
-                else return "MemberSelector";
+                if (!string.IsNullOrEmpty(selector))
+                {
+                    string[] memberNames;
+                    try
+                    {
+                        memberNames = ExpressionHelper.SelectMemberNames(selector).ToArray();
+                        if (memberNames.Length == 1) return memberNames[0];
+                        else
+                        {
+                            return string.Join(ExpressionHelper.ArgumentSeparator, Array.ConvertAll(memberNames, memberName =>
+                                memberName != ExpressionBuilderArgument.ArgumentNamePrefix ?
+                                memberName.Remove(0, ExpressionBuilderArgument.ArgumentNamePrefix.Length + 1) :
+                                memberName));
+                        }
+                    }
+                    catch (InvalidOperationException) { }
+                }
+
+                return "MemberSelector";
             }
         }
 
@@ -49,8 +66,24 @@ namespace Bonsai.Expressions
         /// </returns>
         protected override Expression BuildSelector(Expression expression)
         {
-            var memberAccess = GetArgumentAccess(Enumerable.Repeat(expression, 1), Selector);
-            return ExpressionHelper.MemberAccess(expression, memberAccess.Item2);
+            var selector = Selector;
+            if (string.IsNullOrWhiteSpace(selector))
+            {
+                selector = ExpressionBuilderArgument.ArgumentNamePrefix;
+            }
+
+            var selectedMemberNames = ExpressionHelper.SelectMemberNames(selector);
+            var inputExpression = Enumerable.Repeat(expression, 1);
+            var selectedMembers = (from memberSelector in selectedMemberNames
+                                   let memberPath = GetArgumentAccess(inputExpression, memberSelector)
+                                   select ExpressionHelper.MemberAccess(expression, memberPath.Item2))
+                                   .ToArray();
+            if (selectedMembers.Length > 1)
+            {
+                var memberTypes = Array.ConvertAll(selectedMembers, member => member.Type);
+                return Expression.Call(typeof(Tuple), "Create", memberTypes, selectedMembers);
+            }
+            else return selectedMembers.Single();
         }
     }
 }
