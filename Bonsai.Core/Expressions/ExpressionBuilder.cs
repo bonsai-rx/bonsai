@@ -627,7 +627,7 @@ namespace Bonsai.Expressions
             return expandedParameters;
         }
 
-        protected static Expression BuildCall(Expression instance, IEnumerable<MethodInfo> methods, params Expression[] arguments)
+        internal static Expression BuildCall(Expression instance, IEnumerable<MethodInfo> methods, params Expression[] arguments)
         {
             var argumentTypes = Array.ConvertAll(arguments, argument => argument.Type);
             var candidates = methods
