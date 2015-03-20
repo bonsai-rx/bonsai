@@ -15,6 +15,7 @@ namespace Bonsai.Design
 {
     public partial class MultiMemberSelectorEditorDialog : Form, IMemberSelectorEditorDialog
     {
+        int mouseClicks;
         const int ButtonMargin = 2;
         MemberSelectorEditorController controller;
 
@@ -207,6 +208,20 @@ namespace Bonsai.Design
             {
                 AddSelectedNode();
             }
+        }
+
+        private void treeView_BeforeExpand(object sender, TreeViewCancelEventArgs e)
+        {
+            if (e.Action == TreeViewAction.Expand && mouseClicks > 1)
+            {
+                mouseClicks = 0;
+                e.Cancel = true;
+            }
+        }
+
+        private void treeView_MouseDown(object sender, MouseEventArgs e)
+        {
+            mouseClicks = e.Clicks;
         }
     }
 }
