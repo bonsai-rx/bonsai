@@ -72,7 +72,7 @@ namespace Bonsai.Dsp
                             }
 
                             overlapOutput = new Rect(anchor, 0, input.Cols, input.Rows);
-                            overlap.SetZero();
+                            CV.CopyMakeBorder(input, overlap, new Point(kernel.Cols - 1, 0), IplBorder.Reflect);
                         }
                     }
 
