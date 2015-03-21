@@ -31,6 +31,8 @@ namespace Bonsai.Vision
             get
             {
                 var transform = (Mat)Transform;
+                if (transform == null) return null;
+
                 var array = new float[transform.Rows, transform.Cols];
                 using (var arrayHeader = Mat.CreateMatHeader(array))
                 {
