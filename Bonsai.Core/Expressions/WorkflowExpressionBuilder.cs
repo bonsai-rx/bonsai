@@ -133,7 +133,7 @@ namespace Bonsai.Expressions
 
         internal BuildContext BuildContext { get; set; }
 
-        IEnumerable<WorkflowInputBuilder> GetWorkflowParameters()
+        internal IEnumerable<WorkflowInputBuilder> GetWorkflowParameters()
         {
             return from node in workflow
                    let inputBuilder = Unwrap(node.Value) as WorkflowInputBuilder

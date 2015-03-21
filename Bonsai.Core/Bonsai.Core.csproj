@@ -70,6 +70,7 @@
     <Compile Include="Expressions\BitwiseOrBuilder.cs" />
     <Compile Include="Expressions\BitwiseNotBuilder.cs" />
     <Compile Include="Expressions\BinaryOperatorTypeDescriptionProvider.cs" />
+    <Compile Include="Expressions\ScanBuilder.cs" />
     <Compile Include="Expressions\ParseBuilder.cs" />
     <Compile Include="Expressions\ExternalizedTimeSpan.cs" />
     <Compile Include="Expressions\ExternalizedDateTimeOffset.cs" />
@@ -120,6 +121,7 @@
     <Compile Include="Reactive\Concat.cs" />
     <Compile Include="Reactive\Dematerialize.cs" />
     <Compile Include="Reactive\DelaySubscription.cs" />
+    <Compile Include="Reactive\ElementAccumulation.cs" />
     <Compile Include="Reactive\ElementIndex.cs" />
     <Compile Include="Reactive\Index.cs" />
     <Compile Include="Reactive\Materialize.cs" />
