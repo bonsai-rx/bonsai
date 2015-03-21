@@ -1225,21 +1225,58 @@ namespace Bonsai.Design
             }
         }
 
-        public void CutToClipboard()
-        {
-            CopyToClipboard();
-            DeleteGraphNodes(selectionModel.SelectedNodes);
-        }
-
-        public void CopyToClipboard()
+        private void StoreWorkflowElements()
         {
             editorService.StoreWorkflowElements(selectionModel.SelectedNodes.ToWorkflowBuilder());
         }
 
+        private void ShowClipboardError(InvalidOperationException ex, string message)
+        {
+            if (ex == null)
+            {
+                throw new ArgumentNullException("ex");
+            }
+
+            // Unwrap XML exceptions when serializing individual workflow elements
+            var writerException = ex.InnerException as InvalidOperationException;
+            if (writerException != null) ex = writerException;
+
+            uiService.ShowError(ex.InnerException, message);
+        }
+
+        public void CutToClipboard()
+        {
+            try
+            {
+                StoreWorkflowElements();
+                DeleteGraphNodes(selectionModel.SelectedNodes);
+            }
+            catch (InvalidOperationException ex)
+            {
+                ShowClipboardError(ex, Resources.CopyToClipboard_Error);
+            }
+        }
+
+        public void CopyToClipboard()
+        {
+            try { StoreWorkflowElements(); }
+            catch (InvalidOperationException ex)
+            {
+                ShowClipboardError(ex, Resources.CopyToClipboard_Error);
+            }
+        }
+
         public void PasteFromClipboard()
         {
-            var builder = editorService.RetrieveWorkflowElements();
-            InsertWorkflow(builder.Workflow.ToInspectableGraph());
+            try
+            {
+                var builder = editorService.RetrieveWorkflowElements();
+                InsertWorkflow(builder.Workflow.ToInspectableGraph());
+            }
+            catch (InvalidOperationException ex)
+            {
+                ShowClipboardError(ex, Resources.PasteFromClipboard_Error);
+            }
         }
 
         public void SelectAllGraphNodes()

@@ -181,4 +181,29 @@ Copyright 2010-2012 Outercurve Foundation</value>
   <data name="BonsaiTitle" xml:space="preserve">
     <value>Bonsai</value>
   </data>
+  <data name="CopyToClipboard_Error" xml:space="preserve">
+    <value>There was an error copying the selected elements to the clipboard:
+{0}</value>
+  </data>
+  <data name="Editor_Error_Caption" xml:space="preserve">
+    <value>Interface Error</value>
+  </data>
+  <data name="OpenWorkflow_Error" xml:space="preserve">
+    <value>There was an error opening the Bonsai workflow:
+{0}</value>
+  </data>
+  <data name="OpenWorkflow_Error_Caption" xml:space="preserve">
+    <value>Open Error</value>
+  </data>
+  <data name="PasteFromClipboard_Error" xml:space="preserve">
+    <value>There was an error pasting the selected elements from the clipboard:
+{0}</value>
+  </data>
+  <data name="SaveWorkflow_Error" xml:space="preserve">
+    <value>There was an error saving the Bonsai workflow:
+{0}</value>
+  </data>
+  <data name="SaveWorkflow_Error_Caption" xml:space="preserve">
+    <value>Save Error</value>
+  </data>
 </root>

@@ -544,8 +544,8 @@ namespace Bonsai.Editor
             try { workflowBuilder = LoadWorkflow(fileName); }
             catch (InvalidOperationException ex)
             {
-                var errorMessage = string.Format("There was an error opening the Bonsai workflow:\n{0}", ex.InnerException.Message);
-                MessageBox.Show(this, errorMessage, "Open Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var errorMessage = string.Format(Resources.OpenWorkflow_Error, ex.InnerException.Message);
+                MessageBox.Show(this, errorMessage, Resources.OpenWorkflow_Error_Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -576,14 +576,26 @@ namespace Bonsai.Editor
 
         void SaveWorkflow(string fileName, WorkflowBuilder workflowBuilder)
         {
-            using (var memoryStream = new MemoryStream())
-            using (var writer = XmlWriter.Create(memoryStream, new XmlWriterSettings { Indent = true }))
+            try
             {
-                serializer.Serialize(writer, workflowBuilder);
-                using (var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
+                using (var memoryStream = new MemoryStream())
+                using (var writer = XmlWriter.Create(memoryStream, new XmlWriterSettings { Indent = true }))
                 {
-                    memoryStream.WriteTo(fileStream);
+                    serializer.Serialize(writer, workflowBuilder);
+                    using (var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
+                    {
+                        memoryStream.WriteTo(fileStream);
+                    }
                 }
+            }
+            catch (InvalidOperationException ex)
+            {
+                // Unwrap XML exceptions when serializing individual workflow elements
+                var writerException = ex.InnerException as InvalidOperationException;
+                if (writerException != null) ex = writerException;
+
+                var errorMessage = string.Format(Resources.SaveWorkflow_Error, ex.InnerException.Message);
+                MessageBox.Show(this, errorMessage, Resources.SaveWorkflow_Error_Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -1745,7 +1757,8 @@ namespace Bonsai.Editor
 
             public void ShowError(Exception ex, string message)
             {
-                ShowError(message);
+                if (ex != null) message = string.Format(message, ex.Message);
+                MessageBox.Show(siteForm, message, Resources.Editor_Error_Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             public void ShowError(Exception ex)
