@@ -277,6 +277,33 @@
         AAAASUVORK5CYII=
 </value>
   </data>
+  <data name="wikiToolStripMenuItem.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        xAAADsQBlSsOGwAAAOBJREFUOE+dU0sKwjAQzT3ceCj35gIuXHsGD+ExBCEI4jZeQVd+kNJNwYXEee2M
+        JJNUqw8eNPPmPZpkYjSaprFERwyKqFluy0HimOjdsQ7TzTmMVqeEqEFDD3rZ1oHN1Wx7zYyai/0NIVUS
+        QgsPQZrmu3uoH88gwDdqKsSL2eLXRAT7EPfwdiwCnN6zYLK+tBTEPfDAi4BEKFGg6/B+DFgearZ20PrX
+        gBgI0/rggJIGSkB2iEMYH2J2jUJBSXtfI8+CL02hQNeTQQJo0Y5yPI19LI4ywCH/PaYYJP7wnI15AZ9a
+        s/c7lU10AAAAAElFTkSuQmCC
+</value>
+  </data>
+  <data name="forumToolStripMenuItem.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        xAAADsQBlSsOGwAAAKxJREFUOE/NkrENwyAURD2KZ6FnALZI6YzBBJ7DblJTOQV7OGloz5xFHBx+ZMdu
+        8qUnwf93hwRUAE4hNn/hvYgVQmgj2KCltgjgwHsPrTWUUiKcUUOtFDALhuGOx/gU4YwaasUAniIZc6j5
+        44Czd1C8Ak1Nc132nH19hc9/QEPf9TDGzPsM+R/k9Qrgic45mi5ptNSuAGstzbfUXtVmQGKM1Km9qiLg
+        KGJzP6gm/JDKQpSrS7MAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="reportBugToolStripMenuItem.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        wwAADsMBx2+oZAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAAGhJREFUOE9j+P//
+        P8O3b9/+E4HfA7EBAxIA6YUb4OTkhBe3tbVhGEKSASCMbghWAz68/4gVYzOELAOQDSFogJ2dHRgji8HU
+        gfSMBAMeP3wKxshiJBkw8F7AhgkaQCymvgHk4P///zMAAA+12OcyLyvuAAAAAElFTkSuQmCC
+</value>
+  </data>
   <metadata name="openWorkflowDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>125, 17</value>
   </metadata>

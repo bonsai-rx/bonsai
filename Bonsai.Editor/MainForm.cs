@@ -1452,6 +1452,43 @@ namespace Bonsai.Editor
 
         #region Help Menu
 
+        private void StartBrowser(string url)
+        {
+            Uri result;
+            var validUrl = Uri.TryCreate(url, UriKind.Absolute, out result) &&
+                (result.Scheme == Uri.UriSchemeHttp || result.Scheme == Uri.UriSchemeHttps);
+            if (!validUrl)
+            {
+                throw new ArgumentException("The URL is malformed.");
+            }
+
+            try
+            {
+                Cursor = Cursors.AppStarting;
+                Process.Start(url);
+            }
+            catch { } //best effort
+            finally
+            {
+                Cursor = null;
+            }
+        }
+
+        private void wikiToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            StartBrowser("https://bitbucket.org/horizongir/bonsai/wiki");
+        }
+
+        private void forumToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            StartBrowser("https://groups.google.com/forum/#!forum/bonsai-users");
+        }
+
+        private void reportBugToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            StartBrowser("https://bitbucket.org/horizongir/bonsai/issues/new");
+        }
+
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             using (var about = new AboutBox())
