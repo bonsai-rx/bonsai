@@ -92,29 +92,31 @@ namespace Bonsai.Design
         private void selectionListBox_DrawItem(object sender, DrawItemEventArgs e)
         {
             e.DrawBackground();
-
-            var buttonBounds = e.Bounds;
-            var maxIndex = selectionListBox.Items.Count - 1;
-            buttonBounds.Width = (int)e.Graphics.MeasureString(maxIndex.ToString(), e.Font).Width;
-            buttonBounds.Width += 2 * ButtonMargin + 1;
-            ControlPaint.DrawButton(e.Graphics, buttonBounds, ButtonState.Inactive);
-
-            var indexWidth = (int)e.Graphics.MeasureString(e.Index.ToString(), e.Font).Width;
-            buttonBounds.X = (buttonBounds.Width - indexWidth) / 2;
-            e.Graphics.DrawString(e.Index.ToString(), e.Font, Brushes.Black, buttonBounds.Location);
-
-            var itemBounds = e.Bounds;
-            itemBounds.X += buttonBounds.Width;
-
-            var itemBrush = Brushes.Black;
-            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
+            if (e.Index >= 0)
             {
-                itemBrush = Brushes.White;
-            }
+                var buttonBounds = e.Bounds;
+                var maxIndex = selectionListBox.Items.Count - 1;
+                buttonBounds.Width = (int)e.Graphics.MeasureString(maxIndex.ToString(), e.Font).Width;
+                buttonBounds.Width += 2 * ButtonMargin + 1;
+                ControlPaint.DrawButton(e.Graphics, buttonBounds, ButtonState.Inactive);
 
-            e.Graphics.DrawString(
-                selectionListBox.Items[e.Index].ToString(),
-                e.Font, itemBrush, itemBounds, StringFormat.GenericDefault);
+                var indexWidth = (int)e.Graphics.MeasureString(e.Index.ToString(), e.Font).Width;
+                buttonBounds.X = (buttonBounds.Width - indexWidth) / 2;
+                e.Graphics.DrawString(e.Index.ToString(), e.Font, Brushes.Black, buttonBounds.Location);
+
+                var itemBounds = e.Bounds;
+                itemBounds.X += buttonBounds.Width;
+
+                var itemBrush = Brushes.Black;
+                if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
+                {
+                    itemBrush = Brushes.White;
+                }
+
+                e.Graphics.DrawString(
+                    selectionListBox.Items[e.Index].ToString(),
+                    e.Font, itemBrush, itemBounds, StringFormat.GenericDefault);
+            }
             e.DrawFocusRectangle();
         }
 
@@ -126,6 +128,16 @@ namespace Bonsai.Design
                 var index = selectionListBox.SelectedIndex + 1;
                 selectionListBox.Items.Insert(index, memberSelector);
                 selectionListBox.SelectedIndex = index;
+            }
+        }
+
+        private void RemoveSelectedItem()
+        {
+            if (selectionListBox.SelectedItem != null)
+            {
+                var selectedIndex = selectionListBox.SelectedIndex;
+                selectionListBox.Items.RemoveAt(selectedIndex);
+                selectionListBox.SelectedIndex = Math.Min(selectedIndex, selectionListBox.Items.Count - 1);
             }
         }
 
@@ -158,12 +170,7 @@ namespace Bonsai.Design
 
         private void removeButton_Click(object sender, EventArgs e)
         {
-            if (selectionListBox.SelectedItem != null)
-            {
-                var selectedIndex = selectionListBox.SelectedIndex;
-                selectionListBox.Items.RemoveAt(selectedIndex);
-                selectionListBox.SelectedIndex = Math.Min(selectedIndex, selectionListBox.Items.Count - 1);
-            }
+            RemoveSelectedItem();
         }
 
         private void addAllButton_Click(object sender, EventArgs e)
@@ -202,6 +209,14 @@ namespace Bonsai.Design
             }
         }
 
+        private void selectionListBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Delete && e.Modifiers == Keys.None)
+            {
+                RemoveSelectedItem();
+            }
+        }
+
         private void treeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -222,6 +237,14 @@ namespace Bonsai.Design
         private void treeView_MouseDown(object sender, MouseEventArgs e)
         {
             mouseClicks = e.Clicks;
+        }
+
+        private void treeView_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Space && e.Modifiers == Keys.None)
+            {
+                AddSelectedNode();
+            }
         }
     }
 }
