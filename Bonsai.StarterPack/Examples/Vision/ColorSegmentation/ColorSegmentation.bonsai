@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<WorkflowBuilder Version="2.1.0">
+<WorkflowBuilder Version="2.2.0">
   <Workflow xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:q2="clr-namespace:Bonsai.Scripting;assembly=Bonsai.Scripting" xmlns:q1="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision" xmlns="https://horizongir.org/bonsai">
     <Nodes>
       <Expression xsi:type="Source">
@@ -190,13 +190,13 @@ def process(input):
     </Edges>
   </Workflow>
   <ExtensionTypes>
-    <Type>Bonsai.Vision.FileCapture, Bonsai.Vision, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Vision.ConvertColor, Bonsai.Vision, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Vision.HsvThreshold, Bonsai.Vision, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Vision.FindContours, Bonsai.Vision, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Vision.BinaryRegionAnalysis, Bonsai.Vision, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Vision.LargestBinaryRegion, Bonsai.Vision, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Scripting.PythonTransform, Bonsai.Scripting, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Reactive.Zip, Bonsai.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.FileCapture, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.ConvertColor, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.HsvThreshold, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.FindContours, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.BinaryRegionAnalysis, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.LargestBinaryRegion, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Scripting.PythonTransform, Bonsai.Scripting, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Reactive.Zip, Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
   </ExtensionTypes>
 </WorkflowBuilder>

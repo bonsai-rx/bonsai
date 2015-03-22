@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<WorkflowBuilder Version="2.1.0">
+<WorkflowBuilder Version="2.2.0">
   <Workflow xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:q3="clr-namespace:Bonsai.Scripting;assembly=Bonsai.Scripting" xmlns:q2="clr-namespace:Bonsai.Dsp;assembly=Bonsai.Dsp" xmlns:q1="clr-namespace:Bonsai.Audio;assembly=Bonsai.Audio" xmlns="https://horizongir.org/bonsai">
     <Nodes>
       <Expression xsi:type="Source">
@@ -286,21 +286,21 @@ def unload():
     </Edges>
   </Workflow>
   <ExtensionTypes>
-    <Type>Bonsai.Audio.AudioCapture, Bonsai.Audio, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Dsp.Submatrix, Bonsai.Dsp, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Dsp.DiscreteFourierTransform, Bonsai.Dsp, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Dsp.ElementCountBuffer, Bonsai.Dsp, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Expressions.ExternalizedProperty`2[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[Bonsai.Dsp.ElementCountBuffer, Bonsai.Dsp, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null]], Bonsai.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Expressions.ExternalizedProperty`2[[System.Nullable`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[Bonsai.Dsp.Submatrix, Bonsai.Dsp, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null]], Bonsai.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Expressions.DivideBuilder, Bonsai.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Expressions.IntProperty, Bonsai.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Dsp.RunningAverage, Bonsai.Dsp, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Dsp.ConvertScale, Bonsai.Dsp, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Dsp.Extrema, Bonsai.Dsp, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Dsp.Magnitude, Bonsai.Dsp, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Scripting.PythonTransform, Bonsai.Scripting, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Expressions.FloatProperty, Bonsai.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Expressions.ExternalizedProperty`2[[System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[Bonsai.Expressions.FloatProperty, Bonsai.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null]], Bonsai.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Reactive.CombineLatest, Bonsai.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Audio.AudioCapture, Bonsai.Audio, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Dsp.Submatrix, Bonsai.Dsp, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Dsp.DiscreteFourierTransform, Bonsai.Dsp, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Dsp.ElementCountBuffer, Bonsai.Dsp, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Expressions.ExternalizedProperty`2[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[Bonsai.Dsp.ElementCountBuffer, Bonsai.Dsp, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null]], Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Expressions.ExternalizedProperty`2[[System.Nullable`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[Bonsai.Dsp.Submatrix, Bonsai.Dsp, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null]], Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Expressions.DivideBuilder, Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Expressions.IntProperty, Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Dsp.RunningAverage, Bonsai.Dsp, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Dsp.ConvertScale, Bonsai.Dsp, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Dsp.Extrema, Bonsai.Dsp, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Dsp.Magnitude, Bonsai.Dsp, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Scripting.PythonTransform, Bonsai.Scripting, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Expressions.FloatProperty, Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Expressions.ExternalizedProperty`2[[System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[Bonsai.Expressions.FloatProperty, Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null]], Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Reactive.CombineLatest, Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
   </ExtensionTypes>
 </WorkflowBuilder>

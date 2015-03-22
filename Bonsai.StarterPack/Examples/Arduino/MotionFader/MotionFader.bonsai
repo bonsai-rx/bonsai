@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<WorkflowBuilder Version="2.1.0">
+<WorkflowBuilder Version="2.2.0">
   <Workflow xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:q3="clr-namespace:Bonsai.Scripting;assembly=Bonsai.Scripting" xmlns:q2="clr-namespace:Bonsai.Arduino;assembly=Bonsai.Arduino" xmlns:q1="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision" xmlns="https://horizongir.org/bonsai">
     <Nodes>
       <Expression xsi:type="Source">
@@ -245,13 +245,13 @@ def process(input):
     </Edges>
   </Workflow>
   <ExtensionTypes>
-    <Type>Bonsai.Vision.CameraCapture, Bonsai.Vision, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Vision.RoiActivity, Bonsai.Vision, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Vision.BackgroundSubtraction, Bonsai.Vision, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Vision.Grayscale, Bonsai.Vision, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Expressions.ExternalizedProperty`2[[OpenCV.Net.Point[][], OpenCV.Net, Version=3.2.0.0, Culture=neutral, PublicKeyToken=null],[Bonsai.Vision.RoiActivity, Bonsai.Vision, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null]], Bonsai.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Expressions.ExternalizedProperty`2[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[Bonsai.Vision.BackgroundSubtraction, Bonsai.Vision, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null]], Bonsai.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Arduino.AnalogOutput, Bonsai.Arduino, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Scripting.PythonTransform, Bonsai.Scripting, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.CameraCapture, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.RoiActivity, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.BackgroundSubtraction, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.Grayscale, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Expressions.ExternalizedProperty`2[[OpenCV.Net.Point[][], OpenCV.Net, Version=3.2.0.0, Culture=neutral, PublicKeyToken=null],[Bonsai.Vision.RoiActivity, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null]], Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Expressions.ExternalizedProperty`2[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[Bonsai.Vision.BackgroundSubtraction, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null]], Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Arduino.AnalogOutput, Bonsai.Arduino, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Scripting.PythonTransform, Bonsai.Scripting, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
   </ExtensionTypes>
 </WorkflowBuilder>
