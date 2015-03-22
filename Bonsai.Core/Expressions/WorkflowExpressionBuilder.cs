@@ -191,7 +191,7 @@ namespace Bonsai.Expressions
 
                 var inputExpression = Expression.Constant(inputBuilder);
                 var inputMapping = new PropertyMapping("Value", mapping.Selector);
-                return BuildPropertyMapping(arguments, inputExpression, inputMapping);
+                return BuildPropertyMapping(arguments, inputExpression, output, inputMapping);
             });
             return BuildMappingOutput(output, subscriptions.ToArray());
         }

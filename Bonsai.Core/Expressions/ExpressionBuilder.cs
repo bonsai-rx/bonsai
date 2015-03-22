@@ -9,6 +9,7 @@ using System.Xml.Serialization;
 using System.Reflection;
 using System.Reactive;
 using System.Reactive.Disposables;
+using System.Reactive.Concurrency;
 
 namespace Bonsai.Expressions
 {
@@ -802,18 +803,6 @@ namespace Bonsai.Expressions
 
         #region Dynamic Properties
 
-        static readonly ConstructorInfo compositeDisposableConstructor = typeof(CompositeDisposable).GetConstructor(new[] { typeof(IDisposable[]) });
-        static readonly MethodInfo subscribeMethod = typeof(ObservableExtensions).GetMethods()
-                                                                                 .Single(m => m.Name == "Subscribe" &&
-                                                                                         m.GetParameters().Length == 2 &&
-                                                                                         m.GetParameters()[1].ParameterType.IsGenericType &&
-                                                                                         m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Action<>));
-        static readonly MethodInfo usingMethod = typeof(Observable).GetMethods()
-                                                                   .Single(m => m.Name == "Using" &&
-                                                                           m.GetParameters().Length == 2 &&
-                                                                           m.GetParameters()[0].ParameterType.GetGenericTypeDefinition() == typeof(Func<>) &&
-                                                                           m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
-
         protected Tuple<Expression, string> GetArgumentAccess(IEnumerable<Expression> arguments, string selector)
         {
             if (string.IsNullOrEmpty(selector))
@@ -834,12 +823,13 @@ namespace Bonsai.Expressions
             return Tuple.Create(source, selector);
         }
 
-        internal Expression BuildPropertyMapping(IEnumerable<Expression> arguments, Expression instance, PropertyMapping mapping)
+        internal Expression BuildPropertyMapping(IEnumerable<Expression> arguments, Expression instance, Expression output, PropertyMapping mapping)
         {
             var memberAccess = GetArgumentAccess(arguments, mapping.Selector);
             var source = memberAccess.Item1;
             var sourceSelector = memberAccess.Item2;
             var sourceType = source.Type.GetGenericArguments()[0];
+            var outputType = output.Type.GetGenericArguments()[0];
             var parameter = Expression.Parameter(sourceType);
             var body = ExpressionHelper.MemberAccess(parameter, sourceSelector);
 
@@ -852,12 +842,17 @@ namespace Bonsai.Expressions
 
             body = Expression.Assign(property, body);
             var action = Expression.Lambda(actionType, body, parameter);
-            return Expression.Call(subscribeMethod.MakeGenericMethod(sourceType), source, action);
+            return Expression.Call(
+                typeof(ExpressionBuilder),
+                "PropertyMapping",
+                new[] { sourceType, outputType },
+                source,
+                action);
         }
 
         internal Expression BuildMappingOutput(IEnumerable<Expression> arguments, Expression instance, Expression output, PropertyMappingCollection propertyMappings)
         {
-            var subscriptions = propertyMappings.Select(mapping => BuildPropertyMapping(arguments, instance, mapping)).ToArray();
+            var subscriptions = propertyMappings.Select(mapping => BuildPropertyMapping(arguments, instance, output, mapping)).ToArray();
             return BuildMappingOutput(output, subscriptions);
         }
 
@@ -865,15 +860,29 @@ namespace Bonsai.Expressions
         {
             if (mappings.Length > 0)
             {
+                var observableFactory = Expression.Lambda(output);
                 var outputType = output.Type.GetGenericArguments()[0];
-                var resource = Expression.New(compositeDisposableConstructor, Expression.NewArrayInit(typeof(IDisposable), mappings));
-                var resourceFactory = Expression.Lambda(resource);
-                var resourceParameter = Expression.Parameter(resource.Type);
-                var observableFactory = Expression.Lambda(output, resourceParameter);
-                return Expression.Call(usingMethod.MakeGenericMethod(outputType, resource.Type), resourceFactory, observableFactory);
+                var mappingArray = Expression.NewArrayInit(output.Type, mappings);
+                return Expression.Call(
+                    typeof(ExpressionBuilder),
+                    "MappingOutput",
+                    new[] { outputType },
+                    observableFactory,
+                    mappingArray);
             }
 
             return output;
+        }
+
+        static IObservable<TResult> PropertyMapping<TSource, TResult>(IObservable<TSource> source, Action<TSource> action)
+        {
+            return source.Do(action).IgnoreElements().Select(xs => default(TResult));
+        }
+
+        static IObservable<TSource> MappingOutput<TSource>(Func<IObservable<TSource>> observableFactory, IEnumerable<IObservable<TSource>> mappings)
+        {
+            var source = Observable.Defer(observableFactory);
+            return Observable.Merge(mappings.Concat(Enumerable.Repeat(source, 1)), Scheduler.Immediate);
         }
 
         #endregion
