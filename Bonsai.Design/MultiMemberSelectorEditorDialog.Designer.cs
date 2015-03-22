@@ -32,11 +32,11 @@
             this.okButton = new System.Windows.Forms.Button();
             this.cancelButton = new System.Windows.Forms.Button();
             this.treeView = new System.Windows.Forms.TreeView();
-            this.label1 = new System.Windows.Forms.Label();
+            this.membersLabel = new System.Windows.Forms.Label();
             this.selectionListBox = new System.Windows.Forms.ListBox();
             this.upButton = new System.Windows.Forms.Button();
             this.downButton = new System.Windows.Forms.Button();
-            this.label2 = new System.Windows.Forms.Label();
+            this.selectionLabel = new System.Windows.Forms.Label();
             this.addButton = new System.Windows.Forms.Button();
             this.removeButton = new System.Windows.Forms.Button();
             this.addAllButton = new System.Windows.Forms.Button();
@@ -50,7 +50,7 @@
             this.okButton.Location = new System.Drawing.Point(285, 227);
             this.okButton.Name = "okButton";
             this.okButton.Size = new System.Drawing.Size(75, 23);
-            this.okButton.TabIndex = 1;
+            this.okButton.TabIndex = 8;
             this.okButton.Text = "OK";
             this.okButton.UseVisualStyleBackColor = true;
             // 
@@ -61,7 +61,7 @@
             this.cancelButton.Location = new System.Drawing.Point(366, 227);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
-            this.cancelButton.TabIndex = 2;
+            this.cancelButton.TabIndex = 9;
             this.cancelButton.Text = "Cancel";
             this.cancelButton.UseVisualStyleBackColor = true;
             // 
@@ -74,16 +74,17 @@
             this.treeView.TabIndex = 0;
             this.treeView.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeView_BeforeExpand);
             this.treeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView_NodeMouseDoubleClick);
+            this.treeView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.treeView_KeyDown);
             this.treeView.MouseDown += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseDown);
             // 
-            // label1
+            // membersLabel
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(15, 6);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(53, 13);
-            this.label1.TabIndex = 3;
-            this.label1.Text = "Members:";
+            this.membersLabel.AutoSize = true;
+            this.membersLabel.Location = new System.Drawing.Point(15, 6);
+            this.membersLabel.Name = "membersLabel";
+            this.membersLabel.Size = new System.Drawing.Size(53, 13);
+            this.membersLabel.TabIndex = 10;
+            this.membersLabel.Text = "Members:";
             // 
             // selectionListBox
             // 
@@ -93,9 +94,10 @@
             this.selectionListBox.Location = new System.Drawing.Point(256, 25);
             this.selectionListBox.Name = "selectionListBox";
             this.selectionListBox.Size = new System.Drawing.Size(185, 196);
-            this.selectionListBox.TabIndex = 4;
+            this.selectionListBox.TabIndex = 3;
             this.selectionListBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.selectionListBox_DrawItem);
             this.selectionListBox.SelectedIndexChanged += new System.EventHandler(this.selectionListBox_SelectedIndexChanged);
+            this.selectionListBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.selectionListBox_KeyDown);
             // 
             // upButton
             // 
@@ -103,7 +105,7 @@
             this.upButton.Location = new System.Drawing.Point(448, 25);
             this.upButton.Name = "upButton";
             this.upButton.Size = new System.Drawing.Size(24, 24);
-            this.upButton.TabIndex = 5;
+            this.upButton.TabIndex = 4;
             this.upButton.UseVisualStyleBackColor = true;
             this.upButton.Click += new System.EventHandler(this.upButton_Click);
             // 
@@ -113,18 +115,18 @@
             this.downButton.Location = new System.Drawing.Point(448, 55);
             this.downButton.Name = "downButton";
             this.downButton.Size = new System.Drawing.Size(24, 24);
-            this.downButton.TabIndex = 6;
+            this.downButton.TabIndex = 5;
             this.downButton.UseVisualStyleBackColor = true;
             this.downButton.Click += new System.EventHandler(this.downButton_Click);
             // 
-            // label2
+            // selectionLabel
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(259, 6);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(54, 13);
-            this.label2.TabIndex = 7;
-            this.label2.Text = "Selection:";
+            this.selectionLabel.AutoSize = true;
+            this.selectionLabel.Location = new System.Drawing.Point(259, 6);
+            this.selectionLabel.Name = "selectionLabel";
+            this.selectionLabel.Size = new System.Drawing.Size(54, 13);
+            this.selectionLabel.TabIndex = 11;
+            this.selectionLabel.Text = "Selection:";
             // 
             // addButton
             // 
@@ -132,7 +134,7 @@
             this.addButton.Location = new System.Drawing.Point(226, 25);
             this.addButton.Name = "addButton";
             this.addButton.Size = new System.Drawing.Size(24, 24);
-            this.addButton.TabIndex = 8;
+            this.addButton.TabIndex = 1;
             this.addButton.UseVisualStyleBackColor = true;
             this.addButton.Click += new System.EventHandler(this.addButton_Click);
             // 
@@ -142,7 +144,7 @@
             this.removeButton.Location = new System.Drawing.Point(226, 55);
             this.removeButton.Name = "removeButton";
             this.removeButton.Size = new System.Drawing.Size(24, 24);
-            this.removeButton.TabIndex = 9;
+            this.removeButton.TabIndex = 2;
             this.removeButton.UseVisualStyleBackColor = true;
             this.removeButton.Click += new System.EventHandler(this.removeButton_Click);
             // 
@@ -152,7 +154,7 @@
             this.addAllButton.Location = new System.Drawing.Point(226, 167);
             this.addAllButton.Name = "addAllButton";
             this.addAllButton.Size = new System.Drawing.Size(24, 24);
-            this.addAllButton.TabIndex = 10;
+            this.addAllButton.TabIndex = 6;
             this.addAllButton.UseVisualStyleBackColor = true;
             this.addAllButton.Click += new System.EventHandler(this.addAllButton_Click);
             // 
@@ -162,7 +164,7 @@
             this.removeAllButton.Location = new System.Drawing.Point(226, 197);
             this.removeAllButton.Name = "removeAllButton";
             this.removeAllButton.Size = new System.Drawing.Size(24, 24);
-            this.removeAllButton.TabIndex = 11;
+            this.removeAllButton.TabIndex = 7;
             this.removeAllButton.UseVisualStyleBackColor = true;
             this.removeAllButton.Click += new System.EventHandler(this.removeAllButton_Click);
             // 
@@ -176,11 +178,11 @@
             this.Controls.Add(this.addAllButton);
             this.Controls.Add(this.removeButton);
             this.Controls.Add(this.addButton);
-            this.Controls.Add(this.label2);
+            this.Controls.Add(this.selectionLabel);
             this.Controls.Add(this.downButton);
             this.Controls.Add(this.upButton);
             this.Controls.Add(this.selectionListBox);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.membersLabel);
             this.Controls.Add(this.treeView);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.okButton);
@@ -200,11 +202,11 @@
         private System.Windows.Forms.Button okButton;
         private System.Windows.Forms.Button cancelButton;
         private System.Windows.Forms.TreeView treeView;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label membersLabel;
         private System.Windows.Forms.ListBox selectionListBox;
         private System.Windows.Forms.Button upButton;
         private System.Windows.Forms.Button downButton;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label selectionLabel;
         private System.Windows.Forms.Button addButton;
         private System.Windows.Forms.Button removeButton;
         private System.Windows.Forms.Button addAllButton;
