@@ -9,6 +9,7 @@ using System.Drawing.Imaging;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using System.ComponentModel;
+using System.Xml.Serialization;
 
 namespace Bonsai.Video
 {
@@ -36,6 +37,7 @@ namespace Bonsai.Video
             .RefCount();
         }
 
+        [XmlIgnore]
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public IVideoSource VideoSource { get; private set; }
