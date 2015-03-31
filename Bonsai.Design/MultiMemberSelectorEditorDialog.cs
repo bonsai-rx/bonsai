@@ -48,7 +48,7 @@ namespace Bonsai.Design
                         selectionListBox.Items.Add(memberSelector);
                     }
 
-                    selectionListBox.SelectedIndex = 0;
+                    selectionListBox.SelectedIndex = selectionListBox.Items.Count - 1;
                 }
                 else
                 {
