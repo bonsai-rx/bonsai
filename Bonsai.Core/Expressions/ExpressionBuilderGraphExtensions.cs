@@ -370,6 +370,7 @@ namespace Bonsai.Expressions
             var propertyMappings = builder.PropertyMappings;
             var workflowExpression = (WorkflowExpressionBuilder)Activator.CreateInstance(builder.GetType(), workflow);
             workflowExpression.Name = builder.Name;
+            workflowExpression.Description = builder.Description;
             foreach (var mapping in builder.PropertyMappings)
             {
                 workflowExpression.PropertyMappings.Add(mapping);

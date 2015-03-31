@@ -2276,6 +2276,7 @@ namespace Bonsai.Design
                             });
 
                             builder.Name = workflowBuilder.Name;
+                            builder.Description = workflowBuilder.Description;
                             commandExecutor.BeginCompositeCommand();
                             commandExecutor.Execute(() => { }, updateGraphLayout);
                             CreateGraphNode(
