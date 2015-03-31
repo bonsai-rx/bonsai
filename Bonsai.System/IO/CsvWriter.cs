@@ -15,6 +15,7 @@ using Bonsai.Expressions;
 
 namespace Bonsai.IO
 {
+    [DefaultProperty("Selector")]
     [WorkflowElementCategory(ElementCategory.Sink)]
     [Description("Sinks individual elements of the input sequence to a text file.")]
     public class CsvWriter : CombinatorExpressionBuilder
@@ -47,7 +48,7 @@ namespace Bonsai.IO
         public bool IncludeHeader { get; set; }
 
         [Description("The inner properties that will be selected for output in each element of the sequence.")]
-        [Editor("Bonsai.Design.MemberSelectorEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        [Editor("Bonsai.Design.MultiMemberSelectorEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public string Selector { get; set; }
 
         class ExpressionNode
@@ -66,14 +67,18 @@ namespace Bonsai.IO
             }
         }
 
-        static IEnumerable<Expression> MakeMemberAccess(Expression expression)
+        static IEnumerable<Expression> MakeMemberAccess(IEnumerable<Expression> expressions)
         {
             var stack = new Stack<ExpressionNode>();
-            stack.Push(new ExpressionNode { Expression = expression });
+            foreach (var expression in expressions)
+            {
+                stack.Push(new ExpressionNode { Expression = expression });
+            }
+
             while (stack.Count > 0)
             {
                 var current = stack.Pop();
-                expression = current.Expression;
+                var expression = current.Expression;
                 if (expression.Type == typeof(string)) yield return expression;
                 else if (expression.Type.IsPrimitive || expression.Type.IsEnum || expression.Type == typeof(string) ||
                          expression.Type == typeof(DateTime) || expression.Type == typeof(DateTimeOffset) ||
@@ -120,6 +125,24 @@ namespace Bonsai.IO
             }
         }
 
+        IEnumerable<Expression> GetSelectedMembers(Expression expression)
+        {
+            var selector = Selector;
+            if (string.IsNullOrWhiteSpace(selector))
+            {
+                yield return expression;
+                yield break;
+            }
+
+            var selectedMemberNames = ExpressionHelper.SelectMemberNames(selector);
+            var inputExpression = Enumerable.Repeat(expression, 1);
+            foreach (var memberSelector in selectedMemberNames)
+            {
+                var memberPath = GetArgumentAccess(inputExpression, memberSelector);
+                yield return ExpressionHelper.MemberAccess(expression, memberPath.Item2);
+            }
+        }
+
         protected override Expression BuildCombinator(IEnumerable<Expression> arguments)
         {
             const string ParameterName = "input";
@@ -129,11 +152,10 @@ namespace Bonsai.IO
             var parameterType = source.Type.GetGenericArguments()[0];
             var inputParameter = Expression.Parameter(parameterType, ParameterName);
             var writerParameter = Expression.Parameter(typeof(StreamWriter));
-            var sourceAccess = GetArgumentAccess(arguments, Selector);
-            var memberExpression = ExpressionHelper.MemberAccess(inputParameter, sourceAccess.Item2);
+            var selectedMembers = GetSelectedMembers(inputParameter);
             var formatConstant = Expression.Constant(EntryFormat);
 
-            var memberAccessExpressions = MakeMemberAccess(memberExpression).ToArray();
+            var memberAccessExpressions = MakeMemberAccess(selectedMembers).ToArray();
             Array.Reverse(memberAccessExpressions);
 
             var writeParameters = from memberAccess in memberAccessExpressions
