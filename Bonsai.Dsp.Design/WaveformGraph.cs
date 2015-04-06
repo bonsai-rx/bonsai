@@ -170,7 +170,7 @@ namespace Bonsai.Dsp.Design
             if (!overlayChannels && values != null)
             {
                 var graphPanes = MasterPane.PaneList;
-                if (graphPanes.Count != values.Length)
+                if (graphPanes.Count != values.Length || GraphPane.Tag == null)
                 {
                     for (int i = 0; i < values.Length; i++)
                     {
