@@ -14,6 +14,11 @@ namespace Bonsai.Dsp
     [Description("Compares a template against overlapped regions in the input array.")]
     public class MatchTemplate
     {
+        public MatchTemplate()
+        {
+            MatchingMethod = TemplateMatchingMethod.CorrelationCoefficientNormed;
+        }
+
         [Description("Specifies the method used to compare the template with array regions.")]
         public TemplateMatchingMethod MatchingMethod { get; set; }
 
