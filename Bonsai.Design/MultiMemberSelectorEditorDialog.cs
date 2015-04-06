@@ -113,9 +113,10 @@ namespace Bonsai.Design
                     itemBrush = Brushes.White;
                 }
 
-                e.Graphics.DrawString(
-                    selectionListBox.Items[e.Index].ToString(),
-                    e.Font, itemBrush, itemBounds, StringFormat.GenericDefault);
+                var itemText = selectionListBox.Items[e.Index].ToString();
+                var itemExtent = (int)e.Graphics.MeasureString(itemText, e.Font).Width + buttonBounds.Width;
+                selectionListBox.HorizontalExtent = Math.Max(selectionListBox.HorizontalExtent, itemExtent);
+                e.Graphics.DrawString(itemText, e.Font, itemBrush, itemBounds, StringFormat.GenericDefault);
             }
             e.DrawFocusRectangle();
         }
@@ -138,6 +139,7 @@ namespace Bonsai.Design
                 var selectedIndex = selectionListBox.SelectedIndex;
                 selectionListBox.Items.RemoveAt(selectedIndex);
                 selectionListBox.SelectedIndex = Math.Min(selectedIndex, selectionListBox.Items.Count - 1);
+                selectionListBox.HorizontalExtent = 0;
             }
         }
 
@@ -197,6 +199,7 @@ namespace Bonsai.Design
         private void removeAllButton_Click(object sender, EventArgs e)
         {
             selectionListBox.Items.Clear();
+            selectionListBox.HorizontalExtent = 0;
         }
 
         private void selectionListBox_SelectedIndexChanged(object sender, EventArgs e)

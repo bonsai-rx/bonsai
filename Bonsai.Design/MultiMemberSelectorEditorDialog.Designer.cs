@@ -95,6 +95,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.selectionListBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.selectionListBox.FormattingEnabled = true;
+            this.selectionListBox.HorizontalScrollbar = true;
             this.selectionListBox.IntegralHeight = false;
             this.selectionListBox.Location = new System.Drawing.Point(256, 25);
             this.selectionListBox.Name = "selectionListBox";
