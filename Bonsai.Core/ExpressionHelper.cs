@@ -47,26 +47,22 @@ namespace Bonsai
             var trailingSeparator = Enumerable.Repeat(IndexArgumentSeparator, 1);
             foreach (var character in Enumerable.Concat(selector, trailingSeparator))
             {
-                switch (character)
+                if (character != IndexArgumentSeparator || indexCounter > 0)
                 {
-                    case IndexBegin: indexCounter++; break;
-                    case IndexEnd: indexCounter--; break;
-                    case IndexArgumentSeparator:
-                        if (indexCounter == 0)
-                        {
-                            var argument = argumentBuilder.ToString().Trim();
-                            if (argument.Length == 0)
-                            {
-                                throw new InvalidOperationException("Empty argument specification is not allowed.");
-                            }
+                    if (character == IndexBegin) indexCounter++;
+                    if (character == IndexEnd) indexCounter--;
+                    argumentBuilder.Append(character);
+                }
+                else
+                {
+                    var argument = argumentBuilder.ToString().Trim();
+                    if (argument.Length == 0)
+                    {
+                        throw new InvalidOperationException("Empty argument specification is not allowed.");
+                    }
 
-                            yield return argument;
-                            argumentBuilder.Clear();
-                        }
-                        break;
-                    default:
-                        argumentBuilder.Append(character);
-                        break;
+                    yield return argument;
+                    argumentBuilder.Clear();
                 }
             }
 
