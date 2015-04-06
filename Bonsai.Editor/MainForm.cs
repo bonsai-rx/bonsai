@@ -1225,8 +1225,8 @@ namespace Bonsai.Editor
             descriptionTextBox.SelectionStart = 0;
             descriptionTextBox.SelectionLength = nameLength;
             descriptionTextBox.SelectionFont = selectionFont;
-            descriptionTextBox.SelectionStart = nameLength + 1;
-            descriptionTextBox.SelectionLength = description.Length;
+            descriptionTextBox.SelectionStart = nameLength;
+            descriptionTextBox.SelectionLength = descriptionTextBox.TextLength - nameLength;
             descriptionTextBox.SelectionFont = regularFont;
             descriptionTextBox.ResumeLayout();
         }
