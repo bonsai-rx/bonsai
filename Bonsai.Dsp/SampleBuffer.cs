@@ -36,7 +36,7 @@ namespace Bonsai.Dsp
             get { return offset >= samples.Cols; }
         }
 
-        public void Update(Mat source, int index)
+        public int Update(Mat source, int index)
         {
             var windowElements = Math.Min(source.Cols - index, samples.Cols - offset);
             if (windowElements > 0)
@@ -46,9 +46,12 @@ namespace Bonsai.Dsp
                 {
                     CV.Copy(dataSubRect, windowSubRect);
                 }
+
+                offset += windowElements;
+                return windowElements;
             }
 
-            offset += windowElements;
+            return 0;
         }
     }
 }
