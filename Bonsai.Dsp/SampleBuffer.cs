@@ -10,10 +10,10 @@ namespace Bonsai.Dsp
     class SampleBuffer
     {
         int offset;
-        readonly int sampleIndex;
+        readonly long sampleIndex;
         readonly Mat samples;
 
-        public SampleBuffer(Mat template, int count, int index)
+        public SampleBuffer(Mat template, int count, long index)
         {
             sampleIndex = index;
             samples = new Mat(template.Rows, count, template.Depth, template.Channels);
@@ -21,7 +21,7 @@ namespace Bonsai.Dsp
 
         public bool Refined { get; set; }
 
-        public int SampleIndex
+        public long SampleIndex
         {
             get { return sampleIndex; }
         }
