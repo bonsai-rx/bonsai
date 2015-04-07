@@ -40,7 +40,7 @@ namespace Bonsai.Dsp
                 bool[] activeChannels = null;
                 int[] refractoryChannels = null;
                 SampleBuffer[] activeSpikes = null;
-                int ioff = 0;
+                var ioff = 0L;
                 return source.Publish(ps => ps.Zip(delay.Process(ps), (input, delayed) =>
                 {
                     var spikes = new SpikeWaveformCollection(input.Size);
