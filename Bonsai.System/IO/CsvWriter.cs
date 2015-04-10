@@ -226,11 +226,14 @@ namespace Bonsai.IO
 
             public void Dispose()
             {
-                var closingWriter = Writer;
-                if (closingWriter != null)
+                WriterTask.ContinueWith(task =>
                 {
-                    WriterTask.ContinueWith(task => closingWriter.Close());
-                }
+                    var closingWriter = Writer;
+                    if (closingWriter != null)
+                    {
+                        closingWriter.Close();
+                    }
+                });
             }
         }
     }
