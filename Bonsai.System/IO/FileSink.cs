@@ -93,9 +93,9 @@ namespace Bonsai.IO
 
                 var close = Disposable.Create(() =>
                 {
-                    var closingWriter = writer;
                     Action closingTask = () =>
                     {
+                        var closingWriter = writer;
                         if (closingWriter != null)
                         {
                             closingWriter.Dispose();
@@ -138,7 +138,7 @@ namespace Bonsai.IO
 
                     if (writerTask == null) writeTask();
                     else writerTask = writerTask.ContinueWith(task => writeTask());
-                }).Subscribe(observer);
+                }).SubscribeSafe(observer);
 
                 return new CompositeDisposable(process, close);
             });

@@ -132,7 +132,7 @@ namespace Bonsai.IO
 
                         return task.Result;
                     });
-                }).Subscribe(observer);
+                }).SubscribeSafe(observer);
 
                 return new CompositeDisposable(process, close);
             });
