@@ -2136,12 +2136,27 @@ namespace Bonsai.Design
             var propertyMappingBuilder = GetGraphNodeBuilder(selectedNode) as IPropertyMappingBuilder;
             if (propertyMappingBuilder == null) return;
 
-            var elementType = workflowElement.GetType();
+            var workflowElementType = workflowElement.GetType();
+            var workflowBuilder = workflowElement as WorkflowExpressionBuilder;
             foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(workflowElement))
             {
                 if (property.IsReadOnly || !property.IsBrowsable) continue;
                 var externalizableAttribute = (ExternalizableAttribute)property.Attributes[typeof(ExternalizableAttribute)];
                 if (externalizableAttribute != null && !externalizableAttribute.Externalizable) continue;
+
+                var elementType = workflowElementType;
+                if (workflowBuilder != null)
+                {
+                    var externalizedProperty = (from node in workflowBuilder.Workflow
+                                                let workflowProperty = ExpressionBuilder.Unwrap(node.Value) as ExternalizedProperty
+                                                where workflowProperty != null && workflowProperty.Name == property.Name
+                                                select workflowProperty)
+                                                .FirstOrDefault();
+                    if (externalizedProperty != null)
+                    {
+                        elementType = externalizedProperty.GetType().GetGenericArguments().Last();
+                    }
+                }
 
                 var memberSelector = string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, property.Name);
                 var memberValue = property.GetValue(workflowElement);
