@@ -40,6 +40,7 @@ namespace Bonsai.Design
         static readonly object EventNodeMouseHover = new object();
         static readonly object EventSelectedNodeChanged = new object();
 
+        bool ignoreMouseUp;
         bool mouseDownHandled;
         Rectangle rubberBand;
         Rectangle previousRectangle;
@@ -72,6 +73,12 @@ namespace Bonsai.Design
             var mouseUpEvent = Observable.FromEventPattern<MouseEventHandler, MouseEventArgs>(
                 handler => canvas.MouseUp += handler,
                 handler => canvas.MouseUp -= handler)
+                .Select(evt => EventArgs.Empty);
+
+            var lostFocusEvent = Observable.FromEventPattern<EventHandler, EventArgs>(
+                handler => LostFocus += handler,
+                handler => LostFocus -= handler)
+                .Do(evt => ignoreMouseUp = true)
                 .Select(evt => evt.EventArgs);
 
             var mouseMoveEvent = Observable.FromEventPattern<MouseEventHandler, MouseEventArgs>(
@@ -79,10 +86,11 @@ namespace Bonsai.Design
                 handler => canvas.MouseMove -= handler)
                 .Select(evt => evt.EventArgs);
 
+            var mouseUpOrLostFocus = mouseUpEvent.Merge(lostFocusEvent);
             var selectionDrag = (from mouseDown in mouseDownEvent
                                  where hot == null
                                  let scrollOrigin = canvas.AutoScrollPosition
-                                 select (from mouseMove in mouseMoveEvent.TakeUntil(mouseUpEvent)
+                                 select (from mouseMove in mouseMoveEvent.TakeUntil(mouseUpOrLostFocus)
                                          let origin = GetScrollablePoint(mouseDown.Location, scrollOrigin)
                                          let displacementX = mouseMove.X - origin.X
                                          let displacementY = mouseMove.Y - origin.Y
@@ -98,7 +106,7 @@ namespace Bonsai.Design
             var itemDrag = (from mouseDown in mouseDownEvent
                             let node = hot
                             where node != null
-                            select (from mouseMove in mouseMoveEvent.TakeUntil(mouseUpEvent)
+                            select (from mouseMove in mouseMoveEvent.TakeUntil(mouseUpOrLostFocus)
                                     let displacementX = mouseMove.X - mouseDown.X
                                     let displacementY = mouseMove.Y - mouseDown.Y
                                     where displacementX * displacementX + displacementY * displacementY > 16
@@ -929,6 +937,7 @@ namespace Bonsai.Design
 
         private void canvas_MouseDown(object sender, MouseEventArgs e)
         {
+            ignoreMouseUp = false;
             if (!Focused) Select();
             if (hot != null)
             {
@@ -954,7 +963,7 @@ namespace Bonsai.Design
 
         private void canvas_MouseUp(object sender, MouseEventArgs e)
         {
-            if (selectionBeforeDrag != null) return;
+            if (selectionBeforeDrag != null || ignoreMouseUp) return;
             if (hot != null)
             {
                 if (e.Button == MouseButtons.Right && selectedNodes.Contains(hot)) return;
