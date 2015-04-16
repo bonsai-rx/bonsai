@@ -280,15 +280,18 @@ namespace Bonsai.Expressions
                 // Remove all closing scopes
                 multicastMap.RemoveAll(scope =>
                 {
-                    scope.References.RemoveAll(reference => reference == builder);
+                    var referencesRemoved = scope.References.RemoveAll(reference => reference == builder);
                     if (scope.References.Count == 0)
                     {
                         expression = scope.Close(expression);
                         return true;
                     }
 
-                    if (node.Successors.Count == 0) scope.References.Add(null);
-                    else scope.References.AddRange(node.Successors.Select(successor => successor.Target.Value));
+                    if (referencesRemoved > 0)
+                    {
+                        if (node.Successors.Count == 0) scope.References.Add(null);
+                        else scope.References.AddRange(node.Successors.Select(successor => successor.Target.Value));
+                    }
                     return false;
                 });
 
