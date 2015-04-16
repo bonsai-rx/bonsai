@@ -1214,14 +1214,12 @@ namespace Bonsai.Editor
 
         void UpdateDescriptionTextBox(string name, string description, RichTextBox descriptionTextBox)
         {
-            var nameLength = name != null ? name.Length : 0;
             descriptionTextBox.SuspendLayout();
-            descriptionTextBox.Lines = new[]
-            {
-                name,
-                description
-            };
+            descriptionTextBox.Text = name;
 
+            var nameLength = descriptionTextBox.TextLength;
+            name = descriptionTextBox.Text.Replace('\n', ' ');
+            descriptionTextBox.Lines = new[] { name, description };
             descriptionTextBox.SelectionStart = 0;
             descriptionTextBox.SelectionLength = nameLength;
             descriptionTextBox.SelectionFont = selectionFont;
