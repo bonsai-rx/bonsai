@@ -18,7 +18,7 @@ namespace Bonsai.Vision
                 var currentContour = input.FirstContour;
                 var output = new ConnectedComponentCollection(input.ImageSize);
 
-                while (currentContour != null && !currentContour.IsInvalid)
+                while (currentContour != null)
                 {
                     var contour = ConnectedComponent.FromContour(currentContour);
                     currentContour = currentContour.HNext;

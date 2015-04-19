@@ -24,7 +24,7 @@ namespace Bonsai.Vision.Design
             var tuple = (Tuple<Point2f, Point2f>)value;
             if (connectedComponent != null)
             {
-                var validContour = connectedComponent.Contour != null && !connectedComponent.Contour.IsInvalid;
+                var validContour = connectedComponent.Contour != null;
                 var boundingBox = validContour ? connectedComponent.Contour.Rect : new Rect(0, 0, 1, 1);
                 var output = new IplImage(new Size(boundingBox.Width, boundingBox.Height), IplDepth.U8, 3);
                 output.SetZero();
