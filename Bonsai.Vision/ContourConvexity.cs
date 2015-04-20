@@ -11,21 +11,6 @@ namespace Bonsai.Vision
     {
         public ContourConvexity(Contour contour, Seq convexHull, Seq convexityDefects)
         {
-            if (contour == null)
-            {
-                throw new ArgumentNullException("contour");
-            }
-
-            if (convexHull == null)
-            {
-                throw new ArgumentNullException("convexHull");
-            }
-
-            if (convexityDefects == null)
-            {
-                throw new ArgumentNullException("convexityDefects");
-            }
-
             Contour = contour;
             ConvexHull = convexHull;
             ConvexityDefects = convexityDefects;
