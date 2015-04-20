@@ -70,6 +70,9 @@
     <Compile Include="Expressions\BitwiseOrBuilder.cs" />
     <Compile Include="Expressions\BitwiseNotBuilder.cs" />
     <Compile Include="Expressions\BinaryOperatorTypeDescriptionProvider.cs" />
+    <Compile Include="Expressions\IArgumentBuilder.cs" />
+    <Compile Include="Expressions\InputMappingBuilder.cs" />
+    <Compile Include="Expressions\PropertyMappingBuilder.cs" />
     <Compile Include="Expressions\ScanBuilder.cs" />
     <Compile Include="Expressions\ParseBuilder.cs" />
     <Compile Include="Expressions\ExternalizedTimeSpan.cs" />

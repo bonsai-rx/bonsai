@@ -11,6 +11,7 @@ namespace Bonsai.Expressions
     /// Represents a dynamic assignment between a selected input source and a property of
     /// a workflow element.
     /// </summary>
+    [XmlType("PropertyMappingItem", Namespace = Constants.XmlNamespace)]
     public sealed class PropertyMapping
     {
         /// <summary>
