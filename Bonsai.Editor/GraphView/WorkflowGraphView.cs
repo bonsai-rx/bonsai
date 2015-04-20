@@ -399,7 +399,7 @@ namespace Bonsai.Design
                 if (nodeType == CreateGraphNodeType.Predecessor)
                 {
                     var predecessors = workflow.PredecessorEdges(closestNode).ToList();
-                    if (CanConnect(sinkNode, closestNode) && CanConnect(predecessors.Select(p => p.Item1), sourceNode))
+                    if (CanConnect(sinkNode, closestNode) && (branch || CanConnect(predecessors.Select(p => p.Item1), sourceNode)))
                     {
                         if (branch) parameter.Index = predecessors.Count;
                         else if (predecessors.Count > 0)
