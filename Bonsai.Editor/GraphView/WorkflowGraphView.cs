@@ -374,7 +374,8 @@ namespace Bonsai.Design
             ElementCategory elementType,
             Node<ExpressionBuilder, ExpressionBuilderArgument> closestNode,
             CreateGraphNodeType nodeType,
-            bool branch)
+            bool branch,
+            bool validate = true)
         {
             var workflow = this.workflow;
             Action addConnection = () => { };
@@ -383,7 +384,7 @@ namespace Bonsai.Design
                 (elementType == ElementCategory.Source ||
                 elementType == ElementCategory.Property))
             {
-                if (closestNode != null && CanConnect(sinkNode, closestNode) &&
+                if (closestNode != null && (!validate || CanConnect(sinkNode, closestNode)) &&
                     !(ExpressionBuilder.Unwrap(closestNode.Value) is SourceBuilder) &&
                     !workflow.Predecessors(closestNode).Any())
                 {
@@ -399,7 +400,8 @@ namespace Bonsai.Design
                 if (nodeType == CreateGraphNodeType.Predecessor)
                 {
                     var predecessors = workflow.PredecessorEdges(closestNode).ToList();
-                    if (CanConnect(sinkNode, closestNode) && (branch || CanConnect(predecessors.Select(p => p.Item1), sourceNode)))
+                    if (!validate ||
+                        CanConnect(sinkNode, closestNode) && (branch || CanConnect(predecessors.Select(p => p.Item1), sourceNode)))
                     {
                         if (branch) parameter.Index = predecessors.Count;
                         else if (predecessors.Count > 0)
@@ -421,7 +423,7 @@ namespace Bonsai.Design
                         removeConnection += () => { workflow.RemoveEdge(sinkNode, edge); };
                     }
                 }
-                else if (CanConnect(closestNode, sourceNode))
+                else if (!validate || CanConnect(closestNode, sourceNode))
                 {
                     if (!branch && closestNode.Successors.Count > 0)
                     {
@@ -754,7 +756,7 @@ namespace Bonsai.Design
                 workflowBuilder.Workflow.AddEdge(nestedInputNode, nestedOutputNode, new ExpressionBuilderArgument());
             }
 
-            var insertCommands = GetInsertGraphNodeCommands(inspectNode, inspectNode, elementCategory, closestNode, nodeType, branch);
+            var insertCommands = GetInsertGraphNodeCommands(inspectNode, inspectNode, elementCategory, closestNode, nodeType, branch, validate);
             var addConnection = insertCommands.Item1;
             var removeConnection = insertCommands.Item2;
             commandExecutor.Execute(
