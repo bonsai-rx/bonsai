@@ -113,7 +113,9 @@ namespace Bonsai.Expressions
         /// expressions. In the case of an encapsulated workflow, mappings to nested workflow
         /// properties are also allowed.
         /// </summary>
+        [Obsolete]
         [Browsable(false)]
+        [XmlArrayItem("PropertyMapping")]
         public PropertyMappingCollection PropertyMappings
         {
             get { return propertyMappings; }

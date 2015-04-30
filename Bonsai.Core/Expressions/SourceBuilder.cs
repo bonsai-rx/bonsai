@@ -14,6 +14,7 @@ namespace Bonsai.Expressions
     /// Represents an expression builder which uses a specified source instance
     /// to generate an observable sequence.
     /// </summary>
+    [Obsolete]
     [WorkflowElementCategory(ElementCategory.Source)]
     [XmlType("Source", Namespace = Constants.XmlNamespace)]
     public class SourceBuilder : CombinatorExpressionBuilder, INamedElement
