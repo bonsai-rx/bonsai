@@ -30,7 +30,7 @@ namespace Bonsai.Vision
                 var output = new IplImage(input.ImageSize, IplDepth.U8, 1);
                 output.SetZero();
 
-                if (!input.FirstContour.IsInvalid)
+                if (input.FirstContour != null)
                 {
                     CV.DrawContours(output, input.FirstContour, Scalar.All(255), Scalar.All(0), MaxLevel, Thickness);
                 }

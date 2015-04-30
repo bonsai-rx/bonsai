@@ -519,7 +519,7 @@ namespace Bonsai.NuGet
                     .AsEnumerable()
                     .Where(PackageExtensions.IsListed)
                     .AsCollapsed();
-                RunPackageOperation(packages, false);
+                RunPackageOperation(packages, true);
             }
         }
 

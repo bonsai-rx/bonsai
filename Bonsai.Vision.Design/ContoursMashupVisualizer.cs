@@ -19,7 +19,7 @@ namespace Bonsai.Vision.Design
         {
             var contours = (Contours)value;
             var image = visualizer.VisualizerImage;
-            if (image != null && !contours.FirstContour.IsInvalid)
+            if (image != null && contours.FirstContour != null)
             {
                 CV.DrawContours(image, contours.FirstContour, Scalar.All(255), Scalar.All(128), 2);
             }

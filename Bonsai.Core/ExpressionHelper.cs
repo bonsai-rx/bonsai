@@ -47,26 +47,22 @@ namespace Bonsai
             var trailingSeparator = Enumerable.Repeat(IndexArgumentSeparator, 1);
             foreach (var character in Enumerable.Concat(selector, trailingSeparator))
             {
-                switch (character)
+                if (character != IndexArgumentSeparator || indexCounter > 0)
                 {
-                    case IndexBegin: indexCounter++; break;
-                    case IndexEnd: indexCounter--; break;
-                    case IndexArgumentSeparator:
-                        if (indexCounter == 0)
-                        {
-                            var argument = argumentBuilder.ToString().Trim();
-                            if (argument.Length == 0)
-                            {
-                                throw new InvalidOperationException("Empty argument specification is not allowed.");
-                            }
+                    if (character == IndexBegin) indexCounter++;
+                    if (character == IndexEnd) indexCounter--;
+                    argumentBuilder.Append(character);
+                }
+                else
+                {
+                    var argument = argumentBuilder.ToString().Trim();
+                    if (argument.Length == 0)
+                    {
+                        throw new InvalidOperationException("Empty argument specification is not allowed.");
+                    }
 
-                            yield return argument;
-                            argumentBuilder.Clear();
-                        }
-                        break;
-                    default:
-                        argumentBuilder.Append(character);
-                        break;
+                    yield return argument;
+                    argumentBuilder.Clear();
                 }
             }
 
@@ -98,18 +94,25 @@ namespace Bonsai
                         var indexEnd = memberName.IndexOf(IndexEnd);
                         if (indexEnd < 0) throw new ArgumentException("Member path has badly formatted index accessor.", "memberPath");
                         var propertyName = memberName.Substring(0, indexBegin);
-                        var propertyInfo = instance.Type.GetProperty(propertyName);
-                        if (propertyInfo == null) throw new ArgumentException("Member path has reference to non-existent indexed property.", "memberPath");
-                        var parameterInfo = propertyInfo.GetIndexParameters();
                         var indexParameters = memberName
                             .Substring(indexBegin + 1, indexEnd - indexBegin - 1)
                             .Split(new[] { IndexArgumentSeparator }, StringSplitOptions.RemoveEmptyEntries);
+
+                        var properties = instance.Type.GetProperties().Where(p =>
+                            p.Name == propertyName &&
+                            p.GetIndexParameters().Length == indexParameters.Length)
+                            .ToArray();
+                        if (properties.Length == 0) throw new ArgumentException("Member path has reference to non-existent indexed property.", "memberPath");
+                        if (properties.Length > 1) throw new ArgumentException("Ambiguous indexed property access.", "memberPath");
+
+                        var propertyInfo = properties[0];
+                        var parameterInfo = propertyInfo.GetIndexParameters();
                         var arguments = (from indexParameter in parameterInfo.Zip(indexParameters, (xs, ys) => Tuple.Create(xs, ys))
                                          let parameterType = indexParameter.Item1.ParameterType
                                          let parameter = Convert.ChangeType(indexParameter.Item2, parameterType)
                                          select Expression.Constant(parameter))
                                         .ToArray();
-                        instance = Expression.Property(instance, propertyName, arguments);
+                        instance = Expression.Property(instance, propertyInfo, arguments);
                     }
                     else instance = Expression.PropertyOrField(instance, memberName);
                 }

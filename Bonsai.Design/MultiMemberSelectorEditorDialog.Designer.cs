@@ -67,6 +67,9 @@
             // 
             // treeView
             // 
+            this.treeView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.treeView.HideSelection = false;
             this.treeView.Location = new System.Drawing.Point(12, 25);
             this.treeView.Name = "treeView";
@@ -88,8 +91,11 @@
             // 
             // selectionListBox
             // 
+            this.selectionListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.selectionListBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.selectionListBox.FormattingEnabled = true;
+            this.selectionListBox.HorizontalScrollbar = true;
             this.selectionListBox.IntegralHeight = false;
             this.selectionListBox.Location = new System.Drawing.Point(256, 25);
             this.selectionListBox.Name = "selectionListBox";
@@ -101,6 +107,7 @@
             // 
             // upButton
             // 
+            this.upButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.upButton.Image = ((System.Drawing.Image)(resources.GetObject("upButton.Image")));
             this.upButton.Location = new System.Drawing.Point(448, 25);
             this.upButton.Name = "upButton";
@@ -111,6 +118,7 @@
             // 
             // downButton
             // 
+            this.downButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.downButton.Image = ((System.Drawing.Image)(resources.GetObject("downButton.Image")));
             this.downButton.Location = new System.Drawing.Point(448, 55);
             this.downButton.Name = "downButton";
@@ -121,6 +129,8 @@
             // 
             // selectionLabel
             // 
+            this.selectionLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.selectionLabel.AutoSize = true;
             this.selectionLabel.Location = new System.Drawing.Point(259, 6);
             this.selectionLabel.Name = "selectionLabel";
@@ -130,6 +140,7 @@
             // 
             // addButton
             // 
+            this.addButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.addButton.Image = ((System.Drawing.Image)(resources.GetObject("addButton.Image")));
             this.addButton.Location = new System.Drawing.Point(226, 25);
             this.addButton.Name = "addButton";
@@ -140,6 +151,7 @@
             // 
             // removeButton
             // 
+            this.removeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.removeButton.Image = ((System.Drawing.Image)(resources.GetObject("removeButton.Image")));
             this.removeButton.Location = new System.Drawing.Point(226, 55);
             this.removeButton.Name = "removeButton";
@@ -150,8 +162,9 @@
             // 
             // addAllButton
             // 
+            this.addAllButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.addAllButton.Image = ((System.Drawing.Image)(resources.GetObject("addAllButton.Image")));
-            this.addAllButton.Location = new System.Drawing.Point(226, 167);
+            this.addAllButton.Location = new System.Drawing.Point(226, 85);
             this.addAllButton.Name = "addAllButton";
             this.addAllButton.Size = new System.Drawing.Size(24, 24);
             this.addAllButton.TabIndex = 6;
@@ -160,8 +173,9 @@
             // 
             // removeAllButton
             // 
+            this.removeAllButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.removeAllButton.Image = ((System.Drawing.Image)(resources.GetObject("removeAllButton.Image")));
-            this.removeAllButton.Location = new System.Drawing.Point(226, 197);
+            this.removeAllButton.Location = new System.Drawing.Point(226, 115);
             this.removeAllButton.Name = "removeAllButton";
             this.removeAllButton.Size = new System.Drawing.Size(24, 24);
             this.removeAllButton.TabIndex = 7;
@@ -173,7 +187,7 @@
             this.AcceptButton = this.okButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(484, 262);
+            this.ClientSize = new System.Drawing.Size(484, 261);
             this.Controls.Add(this.removeAllButton);
             this.Controls.Add(this.addAllButton);
             this.Controls.Add(this.removeButton);

@@ -10,10 +10,10 @@ namespace Bonsai.Dsp
     class SampleBuffer
     {
         int offset;
-        readonly int sampleIndex;
+        readonly long sampleIndex;
         readonly Mat samples;
 
-        public SampleBuffer(Mat template, int count, int index)
+        public SampleBuffer(Mat template, int count, long index)
         {
             sampleIndex = index;
             samples = new Mat(template.Rows, count, template.Depth, template.Channels);
@@ -21,7 +21,7 @@ namespace Bonsai.Dsp
 
         public bool Refined { get; set; }
 
-        public int SampleIndex
+        public long SampleIndex
         {
             get { return sampleIndex; }
         }
@@ -36,7 +36,7 @@ namespace Bonsai.Dsp
             get { return offset >= samples.Cols; }
         }
 
-        public void Update(Mat source, int index)
+        public int Update(Mat source, int index)
         {
             var windowElements = Math.Min(source.Cols - index, samples.Cols - offset);
             if (windowElements > 0)
@@ -46,9 +46,12 @@ namespace Bonsai.Dsp
                 {
                     CV.Copy(dataSubRect, windowSubRect);
                 }
+
+                offset += windowElements;
+                return windowElements;
             }
 
-            offset += windowElements;
+            return 0;
         }
     }
 }

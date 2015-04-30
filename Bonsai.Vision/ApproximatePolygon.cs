@@ -25,9 +25,9 @@ namespace Bonsai.Vision
             return source.Select(input =>
             {
                 Seq output = input.FirstContour;
-                if (!input.FirstContour.IsInvalid)
+                if (output != null)
                 {
-                    output = CV.ApproxPoly(input.FirstContour, Contour.HeaderSize, input.FirstContour.Storage, Method, Eps, Recursive);
+                    output = CV.ApproxPoly(output, Contour.HeaderSize, output.Storage, Method, Eps, Recursive);
                 }
 
                 return new Contours(output, input.ImageSize);

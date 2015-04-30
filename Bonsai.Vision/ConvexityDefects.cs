@@ -15,7 +15,7 @@ namespace Bonsai.Vision
     {
         static ContourConvexity ProcessContour(Seq contour)
         {
-            return ProcessContour(contour != null ? Contour.FromSeq(contour) : null);
+            return ProcessContour(Contour.FromSeq(contour));
         }
 
         static ContourConvexity ProcessContour(Contour contour)
