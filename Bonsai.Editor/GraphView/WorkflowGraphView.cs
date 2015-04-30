@@ -379,9 +379,7 @@ namespace Bonsai.Design
             var workflow = this.workflow;
             Action addConnection = () => { };
             Action removeConnection = () => { };
-            if (!branch &&
-                (elementType == ElementCategory.Source ||
-                elementType == ElementCategory.Property))
+            if (!branch && elementType == ElementCategory.Source)
             {
                 if (closestNode != null &&
                     !(ExpressionBuilder.Unwrap(closestNode.Value) is SourceBuilder) &&
@@ -472,7 +470,7 @@ namespace Bonsai.Design
 
                 var builder = GetGraphNodeBuilder(graphViewTarget);
                 if (connectionCount++ >= target.Value.ArgumentRange.UpperBound &&
-                    !(builder is IPropertyMappingBuilder) ||
+                    !sourceNode.BuildDependency ||
                     target.DepthFirstSearch().Contains(node))
                 {
                     return false;
@@ -2133,9 +2131,6 @@ namespace Bonsai.Design
 
         private void CreateExternalizeMenuItems(object workflowElement, ToolStripMenuItem ownerItem, GraphNode selectedNode)
         {
-            var propertyMappingBuilder = GetGraphNodeBuilder(selectedNode) as IPropertyMappingBuilder;
-            if (propertyMappingBuilder == null) return;
-
             var elementType = workflowElement.GetType();
             foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(workflowElement))
             {
@@ -2151,8 +2146,7 @@ namespace Bonsai.Design
                     property.Name,
                     property.PropertyType,
                     memberValue,
-                    selectedNode,
-                    propertyMappingBuilder);
+                    selectedNode);
                 ownerItem.DropDownItems.Add(menuItem);
             }
         }
@@ -2163,8 +2157,7 @@ namespace Bonsai.Design
             string memberName,
             Type memberType,
             object memberValue,
-            GraphNode selectedNode,
-            IPropertyMappingBuilder propertyMappingBuilder)
+            GraphNode selectedNode)
         {
             var menuItem = new ToolStripMenuItem(name, null, delegate
             {
@@ -2188,23 +2181,15 @@ namespace Bonsai.Design
                 var closestNode = GetGraphNodeTag(workflow, selectedNode);
                 var predecessors = workflow.PredecessorEdges(closestNode).ToList();
                 var edgeLabel = new ExpressionBuilderArgument(predecessors.Count);
-                var selectedBuilderMappings = propertyMappingBuilder.PropertyMappings;
-                var propertyMapping = new PropertyMapping(name, edgeLabel.Name);
 
-                commandExecutor.BeginCompositeCommand();
                 CreateGraphNode(property, ElementCategory.Property, selectedNode, CreateGraphNodeType.Predecessor, true);
-                commandExecutor.Execute(
-                    () =>
-                    {
-                        selectedBuilderMappings.Remove(propertyMapping.Name);
-                        selectedBuilderMappings.Add(propertyMapping);
-                    },
-                    () => selectedBuilderMappings.Remove(propertyMapping));
-                commandExecutor.EndCompositeCommand();
                 contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
             });
 
-            menuItem.Enabled = !propertyMappingBuilder.PropertyMappings.Contains(name);
+            menuItem.Enabled = !workflow
+                .Predecessors(GetGraphNodeTag(workflow, selectedNode))
+                .Select(node => ExpressionBuilder.Unwrap(node.Value) as ExternalizedProperty)
+                .Any(property => property != null && property.MemberName == name);
             InitializeOutputMenuItem(menuItem, memberName, memberType);
             return menuItem;
         }
