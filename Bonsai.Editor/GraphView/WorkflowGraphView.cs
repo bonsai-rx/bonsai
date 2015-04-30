@@ -461,6 +461,12 @@ namespace Bonsai.Design
             return Tuple.Create(addConnection, removeConnection);
         }
 
+        static bool IsBuildDependency(ExpressionBuilder builder)
+        {
+            //TODO: Refactor this test into the core API
+            return builder is PropertyMappingBuilder || builder is ExternalizedProperty;
+        }
+
         bool CanConnect(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget)
         {
             var target = GetGraphNodeTag(workflow, graphViewTarget, false);
@@ -489,7 +495,7 @@ namespace Bonsai.Design
 
                 var builder = ExpressionBuilder.Unwrap(target.Value);
                 if (connectionCount++ >= target.Value.ArgumentRange.UpperBound &&
-                    !sourceNode.BuildDependency ||
+                    !IsBuildDependency(builder) ||
                     target.DepthFirstSearch().Contains(source))
                 {
                     return false;
