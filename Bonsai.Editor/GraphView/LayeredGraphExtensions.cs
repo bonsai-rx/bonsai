@@ -192,7 +192,7 @@ namespace Bonsai.Design
                                    select (from predecessor in predecessorNodes
                                            from edge in predecessor.Value.Successors
                                            where edge.Node == node
-                                           orderby edge.Text ascending
+                                           orderby predecessor.Value.BuildDependency, edge.Text ascending
                                            select new { predecessor, edge });
                     foreach (var group in ordering)
                     {
