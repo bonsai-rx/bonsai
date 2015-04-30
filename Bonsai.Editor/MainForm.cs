@@ -369,13 +369,11 @@ namespace Bonsai.Editor
                 foreach (var elementType in type.ElementTypes)
                 {
                     var typeCategory = elementType;
-                    if (typeCategory == ElementCategory.Nested || typeCategory == ElementCategory.Condition)
+                    if (typeCategory == ElementCategory.Nested ||
+                        typeCategory == ElementCategory.Condition ||
+                        typeCategory == ElementCategory.Property)
                     {
                         typeCategory = ElementCategory.Combinator;
-                    }
-                    else if (typeCategory == ElementCategory.Property)
-                    {
-                        typeCategory = ElementCategory.Source;
                     }
 
                     var typeCategoryName = typeCategory.ToString();
