@@ -40,7 +40,7 @@ namespace Bonsai.Dsp
                 bool[] activeChannels = null;
                 int[] refractoryChannels = null;
                 SampleBuffer[] activeSpikes = null;
-                int ioff = 0;
+                var ioff = 0L;
                 return source.Publish(ps => ps.Zip(delay.Process(ps), (input, delayed) =>
                 {
                     var spikes = new SpikeWaveformCollection(input.Size);
@@ -63,8 +63,7 @@ namespace Bonsai.Dsp
                             if (activeSpikes[i] != null)
                             {
                                 var buffer = activeSpikes[i];
-                                buffer.Update(delayedChannel, 0);
-                                buffer = Refine(buffer, delay.Count, threshold);
+                                buffer = UpdateBuffer(buffer, delayedChannel, 0, delay.Count, threshold);
                                 activeSpikes[i] = buffer;
                                 if (buffer.Completed)
                                 {
@@ -96,8 +95,7 @@ namespace Bonsai.Dsp
                                     var length = Length;
                                     refractoryChannels[i] = length;
                                     var buffer = new SampleBuffer(channel, length, j + ioff);
-                                    buffer.Update(delayedChannel, j);
-                                    buffer = Refine(buffer, delay.Count, threshold);
+                                    buffer = UpdateBuffer(buffer, delayedChannel, j, delay.Count, threshold);
                                     if (buffer.Completed)
                                     {
                                         spikes.Add(new SpikeWaveform
@@ -125,8 +123,9 @@ namespace Bonsai.Dsp
             });
         }
 
-        static SampleBuffer Refine(SampleBuffer buffer, int delay, double threshold)
+        static SampleBuffer UpdateBuffer(SampleBuffer buffer, Mat source, int index, int delay, double threshold)
         {
+            var samplesTaken = buffer.Update(source, index);
             if (buffer.Completed && !buffer.Refined)
             {
                 double min, max;
@@ -140,6 +139,7 @@ namespace Bonsai.Dsp
                     buffer.Refined = true;
                     var offsetBuffer = new SampleBuffer(waveform, waveform.Cols, buffer.SampleIndex + offset);
                     offsetBuffer.Update(waveform, offset);
+                    offsetBuffer.Update(source, index + samplesTaken + offset);
                     return offsetBuffer;
                 }
             }

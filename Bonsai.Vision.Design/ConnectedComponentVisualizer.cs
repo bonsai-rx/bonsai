@@ -17,7 +17,7 @@ namespace Bonsai.Vision.Design
         public override void Show(object value)
         {
             var connectedComponent = (ConnectedComponent)value;
-            var validContour = connectedComponent.Contour != null && !connectedComponent.Contour.IsInvalid;
+            var validContour = connectedComponent.Contour != null;
             var boundingBox = validContour ? connectedComponent.Contour.Rect : new Rect(0, 0, 1, 1);
             var output = new IplImage(new Size(boundingBox.Width, boundingBox.Height), IplDepth.U8, 3);
             output.SetZero();

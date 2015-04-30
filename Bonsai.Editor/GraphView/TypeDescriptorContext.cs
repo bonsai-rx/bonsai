@@ -36,7 +36,7 @@ namespace Bonsai.Design
 
         public virtual bool OnComponentChanging()
         {
-            return false;
+            return true;
         }
 
         public PropertyDescriptor PropertyDescriptor { get; private set; }

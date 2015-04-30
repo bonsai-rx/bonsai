@@ -955,7 +955,21 @@ namespace Bonsai.Expressions
         static IObservable<TSource> MappingOutput<TSource>(Func<IObservable<TSource>> observableFactory, IEnumerable<IObservable<TSource>> mappings)
         {
             var source = Observable.Defer(observableFactory);
-            return Observable.Merge(mappings.Concat(Enumerable.Repeat(source, 1)), Scheduler.Immediate);
+            return Observable.Create<TSource>(observer =>
+            {
+                var mappingDisposable = new SingleAssignmentDisposable();
+                mappingDisposable.Disposable = mappings.Merge(Scheduler.Immediate).Subscribe(
+                    value => { },
+                    error =>
+                    {
+                        using (mappingDisposable)
+                            observer.OnError(error);
+                    },
+                    () => { });
+
+                if (mappingDisposable.IsDisposed) return mappingDisposable;
+                else return new CompositeDisposable(mappingDisposable, source.SubscribeSafe(observer));
+            });
         }
 
         #endregion

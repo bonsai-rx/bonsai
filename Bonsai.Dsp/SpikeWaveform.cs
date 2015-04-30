@@ -12,7 +12,7 @@ namespace Bonsai.Dsp
     {
         public int ChannelIndex { get; set; }
 
-        public int SampleIndex { get; set; }
+        public long SampleIndex { get; set; }
 
         [XmlIgnore]
         public Mat Waveform { get; set; }

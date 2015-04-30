@@ -488,7 +488,7 @@ namespace Bonsai.Dsp
                     // Emit pending windows
                     activeBuffers.RemoveAll(buffer =>
                     {
-                        var remainder = new Rect(0, 0, buffer.SampleIndex, buffer.Samples.Rows);
+                        var remainder = new Rect(0, 0, (int)buffer.SampleIndex, buffer.Samples.Rows);
                         observer.OnNext(buffer.Samples.GetSubRect(remainder));
                         return true;
                     });

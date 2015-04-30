@@ -153,8 +153,17 @@ namespace Bonsai.Design
             var visualizerDialog = workflowGraphView.GetVisualizerDialogLauncher(graphNode);
             if (dialogMashup != null && visualizerDialog != null)
             {
-                var mashup = typeof(VisualizerMashup<,>).MakeGenericType(visualizer.Value.GetType(), visualizerDialog.Visualizer.Value.GetType());
-                var mashupVisualizer = editorService.GetTypeVisualizers(mashup).SingleOrDefault();
+                var dialogMashupType = dialogMashup.GetType();
+                var visualizerType = visualizerDialog.visualizer.Value.GetType();
+                var mashupVisualizer = default(Type);
+                while (dialogMashupType != null)
+                {
+                    var mashup = typeof(VisualizerMashup<,>).MakeGenericType(dialogMashupType, visualizerType);
+                    mashupVisualizer = editorService.GetTypeVisualizers(mashup).SingleOrDefault();
+                    if (mashupVisualizer != null) break;
+                    dialogMashupType = dialogMashupType.BaseType;
+                }
+
                 if (mashupVisualizer != null)
                 {
                     UnloadMashups();
