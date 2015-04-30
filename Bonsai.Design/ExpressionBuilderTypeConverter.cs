@@ -15,6 +15,7 @@ namespace Bonsai.Design
         {
             if (destinationType == typeof(Brush)) return true;
             if (destinationType == typeof(Image)) return true;
+            if (destinationType == typeof(Pen)) return true;
 
             return base.CanConvertTo(context, destinationType);
         }
@@ -78,6 +79,16 @@ namespace Bonsai.Design
                 }
 
                 return null;
+            }
+
+            if (destinationType == typeof(Pen))
+            {
+                var expressionBuilder = ExpressionBuilder.Unwrap((ExpressionBuilder)value);
+                if (expressionBuilder is PropertyMappingBuilder || expressionBuilder is ExternalizedProperty)
+                {
+                    return Pens.Red;
+                }
+                else return Pens.Black;
             }
 
             return base.ConvertTo(context, culture, value, destinationType);
