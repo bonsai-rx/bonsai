@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
 {
@@ -32,7 +33,9 @@ namespace Bonsai.Expressions
         /// Property mapping subscriptions are processed before evaluating other output generation
         /// expressions.
         /// </summary>
+        [Obsolete]
         [Browsable(false)]
+        [XmlArrayItem("PropertyMapping")]
         public PropertyMappingCollection PropertyMappings
         {
             get { return propertyMappings; }
