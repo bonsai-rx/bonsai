@@ -203,27 +203,87 @@ namespace Bonsai.Expressions
             }
         }
 
+        static IList<Expression> GetArgumentList(
+            Dictionary<ExpressionBuilder, SortedList<int, Expression>> argumentLists,
+            ExpressionBuilder builder)
+        {
+            IList<Expression> arguments;
+            SortedList<int, Expression> argumentList;
+
+            if (argumentLists.TryGetValue(builder, out argumentList))
+            {
+                arguments = argumentList.Values;
+                argumentLists.Remove(builder);
+            }
+            else arguments = EmptyArguments;
+            return arguments;
+        }
+
+        static void UpdateArgumentList(
+            Dictionary<ExpressionBuilder, SortedList<int, Expression>> argumentLists,
+            Edge<ExpressionBuilder, ExpressionBuilderArgument> successor,
+            Expression expression)
+        {
+            SortedList<int, Expression> argumentList;
+            if (!argumentLists.TryGetValue(successor.Target.Value, out argumentList))
+            {
+                argumentList = new SortedList<int, Expression>();
+                argumentLists.Add(successor.Target.Value, argumentList);
+            }
+
+            argumentList.Add(successor.Label.Index, expression);
+        }
+
+        static Expression BuildDependency(Expression source, Expression output)
+        {
+            var sourceType = source.Type.GetGenericArguments()[0];
+            var outputType = output.Type.GetGenericArguments()[0];
+            return Expression.Call(
+                typeof(ExpressionBuilderGraphExtensions),
+                "BuildDependency",
+                new[] { sourceType, outputType },
+                source);
+        }
+
+        static IObservable<TResult> BuildDependency<TSource, TResult>(IObservable<TSource> source)
+        {
+            return source.IgnoreElements().Select(xs => default(TResult));
+        }
+
+        static Expression MergeDependencies(Expression output, IEnumerable<Expression> buildDependencies)
+        {
+            var observableFactory = Expression.Lambda(output);
+            var outputType = output.Type.GetGenericArguments()[0];
+            buildDependencies = buildDependencies.Select(dependency => BuildDependency(dependency, output));
+            var mappingArray = Expression.NewArrayInit(output.Type, buildDependencies);
+            return Expression.Call(
+                typeof(ExpressionBuilderGraphExtensions),
+                "MergeDependencies",
+                new[] { outputType },
+                observableFactory,
+                mappingArray);
+        }
+
+        static IObservable<TSource> MergeDependencies<TSource>(Func<IObservable<TSource>> observableFactory, IEnumerable<IObservable<TSource>> mappings)
+        {
+            var source = Observable.Defer(observableFactory);
+            return Observable.Merge(mappings.Concat(Enumerable.Repeat(source, 1)), Scheduler.Immediate);
+        }
+
         internal static Expression Build(this ExpressionBuilderGraph source, BuildContext buildContext)
         {
             Expression workflowOutput = null;
             HashSet<string> namedElements = null;
             var argumentLists = new Dictionary<ExpressionBuilder, SortedList<int, Expression>>();
+            var dependencyLists = new Dictionary<ExpressionBuilder, SortedList<int, Expression>>();
             var multicastMap = new List<MulticastScope>();
             var connections = new List<Expression>();
 
             foreach (var node in source.TopologicalSort())
             {
                 Expression expression;
-                IList<Expression> arguments;
-                SortedList<int, Expression> argumentList;
-
                 var builder = node.Value;
-                if (argumentLists.TryGetValue(builder, out argumentList))
-                {
-                    arguments = argumentList.Values;
-                    argumentLists.Remove(builder);
-                }
-                else arguments = EmptyArguments;
+                var arguments = GetArgumentList(argumentLists, builder);
 
                 var argumentRange = builder.ArgumentRange;
                 if (argumentRange == null || arguments.Count < argumentRange.LowerBound)
@@ -261,6 +321,13 @@ namespace Bonsai.Expressions
                     {
                         workflowBuilder.BuildContext = null;
                     }
+                }
+
+                // Merge build dependencies
+                var buildDependencies = GetArgumentList(dependencyLists, builder);
+                if (buildDependencies.Count > 0)
+                {
+                    expression = MergeDependencies(expression, buildDependencies);
                 }
 
                 // Check if build target was reached
@@ -312,15 +379,25 @@ namespace Bonsai.Expressions
                     else expression = multicastScope.Close(expression);
                 }
 
+                var argumentBuilder = workflowElement as IArgumentBuilder;
                 foreach (var successor in node.Successors)
                 {
-                    if (!argumentLists.TryGetValue(successor.Target.Value, out argumentList))
+                    var argument = expression;
+                    var buildDependency = false;
+                    if (argumentBuilder != null)
                     {
-                        argumentList = new SortedList<int, Expression>();
-                        argumentLists.Add(successor.Target.Value, argumentList);
+                        try { buildDependency = !argumentBuilder.BuildArgument(argument, successor, out argument); }
+                        catch (Exception e)
+                        {
+                            throw new WorkflowBuildException(e.Message, builder, e);
+                        }
                     }
 
-                    argumentList.Add(successor.Label.Index, expression);
+                    if (buildDependency)
+                    {
+                        UpdateArgumentList(dependencyLists, successor, argument);
+                    }
+                    else UpdateArgumentList(argumentLists, successor, argument);
                 }
 
                 if (node.Successors.Count == 0)
