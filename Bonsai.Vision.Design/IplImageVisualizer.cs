@@ -22,7 +22,6 @@ namespace Bonsai.Vision.Design
 {
     public class IplImageVisualizer : DialogMashupVisualizer
     {
-        volatile bool allowUpdate;
         Timer updateTimer;
         Panel imagePanel;
         StatusStrip statusStrip;
@@ -30,6 +29,7 @@ namespace Bonsai.Vision.Design
         VisualizerCanvas visualizerCanvas;
         IplImageTexture imageTexture;
         IplImage visualizerImage;
+        IObservable<object> allowUpdate;
 
         protected bool StatusStripEnabled { get; set; }
 
@@ -99,7 +99,6 @@ namespace Bonsai.Vision.Design
 
         public override void Load(IServiceProvider provider)
         {
-            allowUpdate = true;
             StatusStripEnabled = true;
             visualizerCanvas = new VisualizerCanvas { Dock = DockStyle.Fill };
             statusStrip = new StatusStrip { Visible = false };
@@ -134,7 +133,9 @@ namespace Bonsai.Vision.Design
                 visualizerService.AddControl(imagePanel);
                 updateTimer = new System.Windows.Forms.Timer();
                 updateTimer.Interval = Math.Max(1, (int)(500 / refreshRate));
-                updateTimer.Tick += (sender, e) => allowUpdate = true;
+                allowUpdate = Observable.FromEventPattern(
+                    handler => updateTimer.Tick += handler,
+                    handler => updateTimer.Tick -= handler);
                 updateTimer.Start();
             }
 
@@ -165,8 +166,9 @@ namespace Bonsai.Vision.Design
             else dataSource = mergedSource.Select(xs => new[] { xs });
 
             return dataSource
-                .Where(xs => allowUpdate)
-                .Do(xs => allowUpdate = false)
+                .CombineLatest(allowUpdate, (x, y) => x)
+                .Sample(allowUpdate)
+                .DistinctUntilChanged()
                 .ObserveOn(visualizerCanvas.Canvas)
                 .Do(ShowMashup);
         }
