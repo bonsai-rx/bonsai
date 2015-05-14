@@ -22,14 +22,15 @@ namespace Bonsai.Vision.Design
 {
     public class IplImageVisualizer : DialogMashupVisualizer
     {
-        Timer updateTimer;
         Panel imagePanel;
         StatusStrip statusStrip;
         ToolStripStatusLabel statusLabel;
         VisualizerCanvas visualizerCanvas;
         IplImageTexture imageTexture;
         IplImage visualizerImage;
-        IObservable<object> allowUpdate;
+        IList<object> activeValues;
+        IList<object> drawnValues;
+        Timer updateTimer;
 
         protected bool StatusStripEnabled { get; set; }
 
@@ -59,6 +60,7 @@ namespace Bonsai.Vision.Design
 
         protected virtual void ShowMashup(IList<object> values)
         {
+            drawnValues = values;
             foreach (var mashupValue in values.Zip(EnumerableMashup(this, Mashups.Select(xs => (DialogTypeVisualizer)xs.Visualizer)), (value, visualizer) => new { value, visualizer }))
             {
                 mashupValue.visualizer.Show(mashupValue.value);
@@ -129,17 +131,47 @@ namespace Bonsai.Vision.Design
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
             if (visualizerService != null)
             {
-                var refreshRate = DisplayDevice.Default.RefreshRate;
                 visualizerService.AddControl(imagePanel);
-                updateTimer = new System.Windows.Forms.Timer();
-                updateTimer.Interval = Math.Max(1, (int)(500 / refreshRate));
-                allowUpdate = Observable.FromEventPattern(
-                    handler => updateTimer.Tick += handler,
-                    handler => updateTimer.Tick -= handler);
-                updateTimer.Start();
+                updateTimer = new Timer();
+                updateTimer.Tick += Application_Idle;
+                visualizerCanvas.ParentForm.Activated += delegate
+                {
+                    updateTimer.Stop();
+                    Application.Idle += Application_Idle;
+                };
+
+                visualizerCanvas.ParentForm.Deactivate += delegate
+                {
+                    Application.Idle -= Application_Idle;
+                    var activeScreen = Screen.FromControl(visualizerCanvas.Canvas);
+                    var displayIndex = Array.FindIndex(Screen.AllScreens, screen => screen == activeScreen);
+                    var refreshRate = DisplayDevice.GetDisplay((DisplayIndex)displayIndex).RefreshRate;
+                    updateTimer.Interval = Math.Max(1, (int)(500 / refreshRate));
+                    updateTimer.Start();
+                };
             }
 
             base.Load(provider);
+        }
+
+        void Application_Idle(object sender, EventArgs e)
+        {
+            var values = Interlocked.Exchange(ref activeValues, null);
+            if (values != drawnValues)
+            {
+                UpdateCanvas(values);
+            }
+
+            drawnValues = null;
+        }
+
+        void UpdateCanvas(IList<object> values)
+        {
+            var canvas = visualizerCanvas;
+            if (values != null && canvas != null)
+            {
+                canvas.BeginInvoke((Action<IList<object>>)ShowMashup, values);
+            }
         }
 
         protected IObservable<object> Visualize<T>(IObservable<IObservable<object>> source, IServiceProvider provider)
@@ -165,12 +197,13 @@ namespace Bonsai.Vision.Design
             }
             else dataSource = mergedSource.Select(xs => new[] { xs });
 
-            return dataSource
-                .CombineLatest(allowUpdate, (x, y) => x)
-                .Sample(allowUpdate)
-                .DistinctUntilChanged()
-                .ObserveOn(visualizerCanvas.Canvas)
-                .Do(ShowMashup);
+            return dataSource.Do(xs =>
+            {
+                if (Interlocked.Exchange(ref activeValues, xs) == null)
+                {
+                    UpdateCanvas(xs);
+                }
+            });
         }
 
         public override IObservable<object> Visualize(IObservable<IObservable<object>> source, IServiceProvider provider)
@@ -181,11 +214,9 @@ namespace Bonsai.Vision.Design
         public override void Unload()
         {
             base.Unload();
-            updateTimer.Stop();
-            updateTimer.Dispose();
+            Application.Idle -= Application_Idle;
             imageTexture.Dispose();
             imagePanel.Dispose();
-            updateTimer = null;
             imagePanel = null;
             statusStrip = null;
             visualizerCanvas = null;
