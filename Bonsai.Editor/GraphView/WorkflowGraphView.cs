@@ -1300,7 +1300,9 @@ namespace Bonsai.Design
 
         public void SelectAllGraphNodes()
         {
-            var graphNodes = graphView.Nodes.SelectMany(layer => layer);
+            var graphNodes = graphView.Nodes
+                .SelectMany(layer => layer)
+                .Where(node => node.Value != null);
             graphView.SelectedNodes = graphNodes;
         }
 
