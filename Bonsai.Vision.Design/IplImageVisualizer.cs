@@ -22,6 +22,7 @@ namespace Bonsai.Vision.Design
 {
     public class IplImageVisualizer : DialogMashupVisualizer
     {
+        const int TargetInterval = 15;
         Panel imagePanel;
         StatusStrip statusStrip;
         ToolStripStatusLabel statusLabel;
@@ -131,27 +132,43 @@ namespace Bonsai.Vision.Design
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
             if (visualizerService != null)
             {
-                visualizerService.AddControl(imagePanel);
                 updateTimer = new Timer();
+                updateTimer.Interval = TargetInterval;
                 updateTimer.Tick += Application_Idle;
-                visualizerCanvas.ParentForm.Activated += delegate
-                {
-                    updateTimer.Stop();
-                    Application.Idle += Application_Idle;
-                };
-
-                visualizerCanvas.ParentForm.Deactivate += delegate
-                {
-                    Application.Idle -= Application_Idle;
-                    var activeScreen = Screen.FromControl(visualizerCanvas.Canvas);
-                    var displayIndex = Array.FindIndex(Screen.AllScreens, screen => screen == activeScreen);
-                    var refreshRate = DisplayDevice.GetDisplay((DisplayIndex)displayIndex).RefreshRate;
-                    updateTimer.Interval = Math.Max(1, (int)(500 / refreshRate));
-                    updateTimer.Start();
-                };
+                visualizerService.AddControl(imagePanel);
+                visualizerCanvas.ParentForm.StyleChanged += ParentForm_Activated;
+                visualizerCanvas.ParentForm.Activated += ParentForm_Activated;
+                visualizerCanvas.ParentForm.Deactivate += ParentForm_Deactivate;
             }
 
             base.Load(provider);
+        }
+
+        void ParentForm_Activated(object sender, EventArgs e)
+        {
+            UpdateRenderMode(true);
+        }
+
+        void ParentForm_Deactivate(object sender, EventArgs e)
+        {
+            UpdateRenderMode(false);
+        }
+
+        void UpdateRenderMode(bool active)
+        {
+            if (active && visualizerCanvas.ParentForm.FormBorderStyle == FormBorderStyle.None)
+            {
+                if (updateTimer.Enabled)
+                {
+                    updateTimer.Stop();
+                    Application.Idle += Application_Idle;
+                }
+            }
+            else if (!updateTimer.Enabled)
+            {
+                Application.Idle -= Application_Idle;
+                updateTimer.Start();
+            }
         }
 
         void Application_Idle(object sender, EventArgs e)
@@ -215,6 +232,12 @@ namespace Bonsai.Vision.Design
         {
             base.Unload();
             Application.Idle -= Application_Idle;
+            if (updateTimer != null)
+            {
+                updateTimer.Dispose();
+                updateTimer = null;
+            }
+
             imageTexture.Dispose();
             imagePanel.Dispose();
             imagePanel = null;
