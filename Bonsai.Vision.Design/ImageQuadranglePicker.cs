@@ -7,58 +7,69 @@ using System.Reactive.Linq;
 using System.Windows.Forms;
 using OpenTK.Graphics.OpenGL;
 using System.Drawing;
+using Bonsai.Design;
 using OpenTK;
 
 namespace Bonsai.Vision.Design
 {
     class ImageQuadranglePicker : ImageBox
     {
+        CommandExecutor commandExecutor = new CommandExecutor();
         Point2f[] quadrangle = new Point2f[4];
         const float LineWidth = 2;
 
         public ImageQuadranglePicker()
         {
+            Canvas.KeyDown += Canvas_KeyDown;
+            var lostFocus = Observable.FromEventPattern<EventArgs>(Canvas, "LostFocus").Select(e => e.EventArgs);
+            var mouseUp = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseUp").Select(e => e.EventArgs);
             var mouseDown = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseDown").Select(e => e.EventArgs);
             var mouseMove = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseMove").Select(e => e.EventArgs);
-            var mouseRightButtonDown = mouseDown.Where(evt => evt.Button == MouseButtons.Right);
-            var mouseDrag = from evt in mouseMove
-                            let image = Image
-                            where image != null && evt.Button.HasFlag(MouseButtons.Left)
-                            select new Point2f(
-                                evt.X * image.Width / (float)Canvas.Width,
-                                evt.Y * image.Height / (float)Canvas.Height);
+            var mouseLeftButtonUp = mouseUp.Where(evt => evt.Button == MouseButtons.Left);
+            var mouseLeftButtonDown = mouseDown.Where(evt => evt.Button == MouseButtons.Left);
+            var mouseRightButtonDown = mouseDown.Where(evt => evt.Button == MouseButtons.Right &&
+                                                              !MouseButtons.HasFlag(MouseButtons.Left));
+            var mouseDrag = mouseLeftButtonDown.SelectMany(downEvt =>
+            {
+                var image = Image;
+                if (image == null) return Observable.Empty<Point2f>();
+                var downPoint = ImagePoint(downEvt.X, downEvt.Y, image);
+                var cornerIndex = CornerIndex(downPoint);
+                commandExecutor.BeginCompositeCommand();
+                commandExecutor.Execute(() => { }, UpdateQuadrangle);
+                UpdatePoint(cornerIndex, quadrangle[cornerIndex]);
+                return mouseMove
+                    .TakeUntil(mouseLeftButtonUp.Merge(lostFocus))
+                    .Select(evt => ImagePoint(evt.X, evt.Y, image))
+                    .Do(point =>
+                    {
+                        quadrangle[cornerIndex] = point;
+                        UpdateQuadrangle();
+                    })
+                    .TakeLast(1)
+                    .Do(point =>
+                    {
+                        UpdatePoint(cornerIndex, point);
+                        commandExecutor.Execute(UpdateQuadrangle, () => { });
+                    })
+                    .Finally(commandExecutor.EndCompositeCommand);
+            });
 
+            mouseDrag.Subscribe();
             mouseRightButtonDown.Subscribe(evt =>
             {
                 var image = Image;
                 if (image != null)
                 {
-                    quadrangle[0] = new Point2f(0, 0);
-                    quadrangle[1] = new Point2f(0, image.Height);
-                    quadrangle[2] = new Point2f(image.Width, image.Height);
-                    quadrangle[3] = new Point2f(image.Width, 0);
-                    OnQuadrangleChanged(EventArgs.Empty);
-                    Canvas.Invalidate();
+                    commandExecutor.BeginCompositeCommand();
+                    commandExecutor.Execute(() => { }, UpdateQuadrangle);
+                    UpdatePoint(0, new Point2f(0, 0));
+                    UpdatePoint(1, new Point2f(0, image.Height));
+                    UpdatePoint(2, new Point2f(image.Width, image.Height));
+                    UpdatePoint(3, new Point2f(image.Width, 0));
+                    commandExecutor.Execute(UpdateQuadrangle, () => { });
+                    commandExecutor.EndCompositeCommand();
                 }
-            });
-
-            mouseDrag.Subscribe(point =>
-            {
-                int cornerIndex = 0;
-                double min = double.MaxValue;
-                for (int i = 0; i < quadrangle.Length; i++)
-                {
-                    var distance = Math.Pow(point.X - quadrangle[i].X, 2) + Math.Pow(point.Y - quadrangle[i].Y, 2);
-                    if (distance < min)
-                    {
-                        min = distance;
-                        cornerIndex = i;
-                    }
-                }
-
-                quadrangle[cornerIndex] = point;
-                OnQuadrangleChanged(EventArgs.Empty);
-                Canvas.Invalidate();
             });
         }
 
@@ -78,11 +89,60 @@ namespace Bonsai.Vision.Design
             }
         }
 
+        int CornerIndex(Point2f point)
+        {
+            int cornerIndex = 0;
+            double min = double.MaxValue;
+            for (int i = 0; i < quadrangle.Length; i++)
+            {
+                var distance = Math.Pow(point.X - quadrangle[i].X, 2) + Math.Pow(point.Y - quadrangle[i].Y, 2);
+                if (distance < min)
+                {
+                    min = distance;
+                    cornerIndex = i;
+                }
+            }
+
+            return cornerIndex;
+        }
+
+        void UpdatePoint(int index, Point2f point)
+        {
+            var current = quadrangle[index];
+            commandExecutor.Execute(
+                () => quadrangle[index] = point,
+                () => quadrangle[index] = current);
+        }
+
+        void UpdateQuadrangle()
+        {
+            OnQuadrangleChanged(EventArgs.Empty);
+            Canvas.Invalidate();
+        }
+
+        Point2f ImagePoint(int x, int y, IplImage image)
+        {
+            if (image == null)
+            {
+                throw new ArgumentNullException("image");
+            }
+
+            return new Point2f(
+                x * image.Width / (float)Canvas.Width,
+                y * image.Height / (float)Canvas.Height);
+        }
+
         Vector2 NormalizePoint(Point2f point, IplImage image)
         {
             return new Vector2(
                 (point.X * 2 / image.Width) - 1,
                 -((point.Y * 2 / image.Height) - 1));
+        }
+
+        void Canvas_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.Z) commandExecutor.Undo();
+            if (e.Control && e.KeyCode == Keys.Y) commandExecutor.Redo();
         }
 
         protected override void OnLoad(EventArgs e)
