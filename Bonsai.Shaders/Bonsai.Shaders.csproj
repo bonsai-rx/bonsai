@@ -33,10 +33,6 @@
     <BuildPackage>true</BuildPackage>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Chromatophore, Version=0.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Chromatophore.0.2.0\lib\net45\Chromatophore.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenTK.1.1.1589.5942\lib\NET40\OpenTK.dll</HintPath>
       <Private>True</Private>
@@ -67,7 +63,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShaderConfiguration.cs" />
     <Compile Include="ShaderConfigurationCollection.cs" />
+    <Compile Include="ShaderPrograms.cs" />
     <Compile Include="ShaderWindow.cs" />
+    <Compile Include="TexturedQuad.cs" />
     <Compile Include="TextureHelper.cs" />
     <Compile Include="UpdateTexture.cs" />
     <Compile Include="ShaderDisposable.cs" />

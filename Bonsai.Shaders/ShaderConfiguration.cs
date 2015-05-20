@@ -1,5 +1,4 @@
-﻿using Chromatophore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -13,8 +12,8 @@ namespace Bonsai.Shaders
         public ShaderConfiguration()
         {
             Visible = true;
-            VertexShader = VertexShaders.UniformScaleShiftTexCoord;
-            FragmentShader = FragmentShaders.UniformSampler;
+            VertexShader = ShaderPrograms.UniformScaleShiftTexCoord;
+            FragmentShader = ShaderPrograms.UniformSampler;
         }
 
         public string Name { get; set; }

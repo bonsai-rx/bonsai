@@ -1,5 +1,4 @@
-﻿using Chromatophore;
-using OpenTK;
+﻿using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Platform;
 using System;
@@ -11,10 +10,10 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
-    public class Shader : GraphicsResource
+    public class Shader : IDisposable
     {
         int program;
-        Texture2D texture;
+        int texture;
         TexturedQuad quad;
         string vertexSource;
         string fragmentSource;
@@ -50,7 +49,7 @@ namespace Bonsai.Shaders
             get { return program; }
         }
 
-        public Texture2D Texture
+        public int Texture
         {
             get { return texture; }
         }
@@ -60,11 +59,28 @@ namespace Bonsai.Shaders
             update += action;
         }
 
+        static int CreateShader(string vertexSource, string fragmentSource)
+        {
+            var vertexShader = GL.CreateShader(ShaderType.VertexShader);
+            GL.ShaderSource(vertexShader, vertexSource);
+            GL.CompileShader(vertexShader);
+
+            var fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
+            GL.ShaderSource(fragmentShader, fragmentSource);
+            GL.CompileShader(fragmentShader);
+
+            var shaderProgram = GL.CreateProgram();
+            GL.AttachShader(shaderProgram, vertexShader);
+            GL.AttachShader(shaderProgram, fragmentShader);
+            GL.LinkProgram(shaderProgram);
+            return shaderProgram;
+        }
+
         private void Load()
         {
+            texture = GL.GenTexture();
             quad = new TexturedQuad();
-            texture = new Texture2D();
-            program = ShaderPrograms.CreateShader(vertexSource, fragmentSource);
+            program = CreateShader(vertexSource, fragmentSource);
         }
 
         void Window_UpdateFrame(object sender, FrameEventArgs e)
@@ -81,7 +97,7 @@ namespace Bonsai.Shaders
             if (Loaded && Visible)
             {
                 GL.UseProgram(program);
-                GL.BindTexture(TextureTarget.Texture2D, texture.Name);
+                GL.BindTexture(TextureTarget.Texture2D, texture);
                 var action = Interlocked.Exchange(ref update, null);
                 if (action != null)
                 {
@@ -92,20 +108,18 @@ namespace Bonsai.Shaders
             }
         }
 
-        protected override void ReleaseResource()
+        public void Dispose()
         {
             if (Loaded)
             {
                 Loaded = false;
-                texture.Dispose();
                 quad.Dispose();
-                texture = null;
+                GL.DeleteTextures(1, ref texture);
                 quad = null;
             }
 
             Window.RenderFrame -= Window_RenderFrame;
             Window.UpdateFrame -= Window_UpdateFrame;
-            base.ReleaseResource();
         }
     }
 }
