@@ -63,7 +63,7 @@ namespace Bonsai.Shaders
                     shader.Visible = shaderConfiguration.Visible;
                     shader.Update(() =>
                     {
-                        GL.BindTexture(TextureTarget.Texture2D, shader.Texture.Name);
+                        GL.BindTexture(TextureTarget.Texture2D, shader.Texture);
                         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
                         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
                         GL.BindTexture(TextureTarget.Texture2D, 0);

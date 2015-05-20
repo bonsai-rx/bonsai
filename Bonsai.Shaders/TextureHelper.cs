@@ -1,5 +1,4 @@
-﻿using Chromatophore;
-using OpenCV.Net;
+﻿using OpenCV.Net;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
@@ -9,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
-    public static class TextureHelper
+    static class TextureHelper
     {
-        public static void UpdateTexture(Texture2D texture, IplImage image)
+        public static void UpdateTexture(int texture, IplImage image)
         {
             if (image == null) throw new ArgumentNullException("image");
             PixelFormat pixelFormat;
@@ -24,7 +23,7 @@ namespace Bonsai.Shaders
                 default: throw new ArgumentException("Image has an unsupported number of channels.", "image");
             }
 
-            GL.BindTexture(TextureTarget.Texture2D, texture.Name);
+            GL.BindTexture(TextureTarget.Texture2D, texture);
             GL.PixelStore(PixelStoreParameter.UnpackRowLength, image.WidthStep / image.Channels);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0, pixelFormat, PixelType.UnsignedByte, image.ImageData);
         }
