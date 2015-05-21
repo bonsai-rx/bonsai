@@ -1,6 +1,7 @@
 ﻿using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,9 +18,18 @@ namespace Bonsai.Shaders
             base.OnLoad(e);
         }
 
-        protected override void OnUpdateFrame(FrameEventArgs e)
+        protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
-            base.OnUpdateFrame(e);
+            if (e.Key == Key.F11)
+            {
+                if (WindowState == WindowState.Fullscreen)
+                {
+                    WindowState = WindowState.Normal;
+                }
+                else WindowState = WindowState.Fullscreen;
+            }
+
+            base.OnKeyDown(e);
         }
 
         protected override void OnResize(EventArgs e)
@@ -33,11 +43,6 @@ namespace Bonsai.Shaders
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             base.OnRenderFrame(e);
             SwapBuffers();
-        }
-
-        protected override void OnUnload(EventArgs e)
-        {
-            base.OnUnload(e);
         }
     }
 }
