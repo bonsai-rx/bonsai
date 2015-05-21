@@ -22,6 +22,12 @@ namespace Bonsai.Shaders
             base.OnUpdateFrame(e);
         }
 
+        protected override void OnResize(EventArgs e)
+        {
+            GL.Viewport(ClientRectangle);
+            base.OnResize(e);
+        }
+
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
