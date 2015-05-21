@@ -19,6 +19,7 @@ namespace Bonsai.Shaders
         static readonly object activeShadersLock = new object();
         static CancellationTokenSource windowTokenSource;
         static ShaderWindow window;
+        static Task windowTask;
 
         public static ShaderDisposable ReserveShader(string shaderName)
         {
@@ -43,7 +44,7 @@ namespace Bonsai.Shaders
                     {
                         var waitEvent = new ManualResetEvent(false);
                         windowTokenSource = new CancellationTokenSource();
-                        Task.Factory.StartNew(() =>
+                        windowTask = Task.Factory.StartNew(() =>
                         {
                             using (window = new ShaderWindow())
                             using (var notification = windowTokenSource.Token.Register(window.Close))
@@ -59,7 +60,12 @@ namespace Bonsai.Shaders
                     }
 
                     var shaderConfiguration = configuration[shaderName];
-                    shader = new Shader(window, shaderConfiguration.VertexShader, shaderConfiguration.FragmentShader);
+                    shader = new Shader(
+                        shaderName,
+                        window,
+                        windowTask,
+                        shaderConfiguration.VertexShader,
+                        shaderConfiguration.FragmentShader);
                     shader.Visible = shaderConfiguration.Visible;
                     shader.Update(() =>
                     {
@@ -79,6 +85,7 @@ namespace Bonsai.Shaders
                             {
                                 windowTokenSource.Cancel();
                                 window = null;
+                                windowTask = null;
                             }
                         }
                     });

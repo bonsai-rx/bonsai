@@ -20,24 +20,39 @@ namespace Bonsai.Shaders
 
         IObservable<TSource> Process<TSource>(IObservable<TSource> source, Action<int, TSource> update)
         {
-            return Observable.Using(
-                () => ShaderManager.ReserveShader(ShaderName),
-                resource =>
+            return Observable.Create<TSource>(observer =>
+            {
+                int location = 0;
+                var resource = ShaderManager.ReserveShader(ShaderName);
+                resource.Shader.Subscribe(observer);
+                resource.Shader.Update(() =>
                 {
-                    int location = 0;
+                    var name = Name;
+                    if (string.IsNullOrEmpty(name))
+                    {
+                        throw new InvalidOperationException("A uniform variable name must be specified.");
+                    }
+
+                    location = GL.GetUniformLocation(resource.Shader.Program, Name);
+                    if (location < 0)
+                    {
+                        throw new InvalidOperationException(string.Format(
+                            "The uniform variable \"{0}\" was not found in shader program \"{1}\".",
+                            Name,
+                            ShaderName));
+                    }
+                });
+
+                return source.Do(input =>
+                {
                     resource.Shader.Update(() =>
                     {
-                        location = GL.GetUniformLocation(resource.Shader.Program, Name);
+                        update(location, input);
                     });
-
-                    return source.Do(input =>
-                    {
-                        resource.Shader.Update(() =>
-                        {
-                            update(location, input);
-                        });
-                    });
-                });
+                })
+                .Finally(resource.Dispose)
+                .SubscribeSafe(observer);
+            });
         }
 
         public IObservable<int> Process(IObservable<int> source)
