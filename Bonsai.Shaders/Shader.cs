@@ -137,6 +137,7 @@ namespace Bonsai.Shaders
             texture = GL.GenTexture();
             quad = new TexturedQuad();
             program = CreateShader();
+            shaderWindow.Unload += Window_Unload;
         }
 
         void Window_UpdateFrame(object sender, FrameEventArgs e)
@@ -164,6 +165,11 @@ namespace Bonsai.Shaders
             }
         }
 
+        void Window_Unload(object sender, EventArgs e)
+        {
+            Dispose();
+        }
+
         public void Dispose()
         {
             if (Loaded)
@@ -172,8 +178,10 @@ namespace Bonsai.Shaders
                 quad.Dispose();
                 GL.DeleteTextures(1, ref texture);
                 quad = null;
+                update = null;
             }
 
+            shaderWindow.Unload -= Window_Unload;
             shaderWindow.RenderFrame -= Window_RenderFrame;
             shaderWindow.UpdateFrame -= Window_UpdateFrame;
         }

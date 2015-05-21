@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK;
+using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -77,7 +78,14 @@ namespace Bonsai.Shaders
 
                     var dispose = Disposable.Create(() =>
                     {
-                        shader.Dispose();
+                        EventHandler<FrameEventArgs> unloadShader = null;
+                        unloadShader = delegate
+                        {
+                            shader.Dispose();
+                            window.UpdateFrame -= unloadShader;
+                        };
+
+                        window.UpdateFrame += unloadShader;
                         lock (activeShadersLock)
                         {
                             activeShaders.Remove(shaderName);
