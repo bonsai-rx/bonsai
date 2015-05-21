@@ -15,12 +15,14 @@ namespace Bonsai.Shaders
     {
         int program;
         int texture;
+        int timeLocation;
         TexturedQuad quad;
         string vertexSource;
         string fragmentSource;
         event Action update;
         IGameWindow shaderWindow;
         Task shaderTask;
+        double time;
 
         internal Shader(string name, IGameWindow window, Task windowTask, string vertexShader, string fragmentShader)
         {
@@ -134,14 +136,17 @@ namespace Bonsai.Shaders
 
         private void Load()
         {
+            time = 0;
             texture = GL.GenTexture();
             quad = new TexturedQuad();
             program = CreateShader();
+            timeLocation = GL.GetUniformLocation(program, "time");
             shaderWindow.Unload += Window_Unload;
         }
 
         void Window_UpdateFrame(object sender, FrameEventArgs e)
         {
+            time += e.Time;
             if (!Loaded)
             {
                 Load();
@@ -155,6 +160,11 @@ namespace Bonsai.Shaders
             {
                 GL.UseProgram(program);
                 GL.BindTexture(TextureTarget.Texture2D, texture);
+                if (timeLocation >= 0)
+                {
+                    GL.Uniform1(timeLocation, (float)time);
+                }
+
                 var action = Interlocked.Exchange(ref update, null);
                 if (action != null)
                 {
