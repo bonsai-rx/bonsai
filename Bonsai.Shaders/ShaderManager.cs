@@ -23,7 +23,7 @@ namespace Bonsai.Shaders
             return ObservableCombinators.Multicast(
                 Observable.Create<ShaderWindow>((observer, cancellationToken) =>
                 {
-                    return Task.Run(() =>
+                    return Task.Factory.StartNew(() =>
                     {
                         var configuration = LoadConfiguration();
                         using (var window = new ShaderWindow(configuration))
@@ -32,7 +32,10 @@ namespace Bonsai.Shaders
                             observer.OnNext(window);
                             window.Run();
                         }
-                    }, cancellationToken);
+                    },
+                    cancellationToken,
+                    TaskCreationOptions.LongRunning,
+                    TaskScheduler.Default);
                 }),
                 () => new ReplaySubject<ShaderWindow>(1))
                 .RefCount();
