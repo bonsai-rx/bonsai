@@ -69,7 +69,6 @@
     <Compile Include="TexturedQuad.cs" />
     <Compile Include="TextureHelper.cs" />
     <Compile Include="UpdateTexture.cs" />
-    <Compile Include="ShaderDisposable.cs" />
     <Compile Include="ShaderManager.cs" />
     <Compile Include="UpdateUniform.cs" />
   </ItemGroup>

@@ -21,19 +21,13 @@ namespace Bonsai.Shaders
         string fragmentSource;
         event Action update;
         IGameWindow shaderWindow;
-        Task shaderTask;
         double time;
 
-        internal Shader(string name, IGameWindow window, Task windowTask, string vertexShader, string fragmentShader)
+        internal Shader(string name, IGameWindow window, string vertexShader, string fragmentShader)
         {
             if (window == null)
             {
                 throw new ArgumentNullException("window");
-            }
-
-            if (windowTask == null)
-            {
-                throw new ArgumentNullException("windowTask");
             }
 
             if (vertexShader == null)
@@ -48,16 +42,11 @@ namespace Bonsai.Shaders
 
             Name = name;
             shaderWindow = window;
-            shaderTask = windowTask;
             vertexSource = vertexShader;
             fragmentSource = fragmentShader;
-            shaderWindow.UpdateFrame += Window_UpdateFrame;
-            shaderWindow.RenderFrame += Window_RenderFrame;
         }
 
-        internal bool Loaded { get; set; }
-
-        public bool Visible { get; set; }
+        public bool Enabled { get; set; }
 
         public string Name { get; private set; }
 
@@ -69,18 +58,6 @@ namespace Bonsai.Shaders
         public int Texture
         {
             get { return texture; }
-        }
-
-        internal void Subscribe<TSource>(IObserver<TSource> observer)
-        {
-            shaderTask.GetAwaiter().OnCompleted(() =>
-            {
-                if (shaderTask.IsFaulted)
-                {
-                    observer.OnError(shaderTask.Exception.Flatten().InnerException);
-                }
-                else observer.OnCompleted();
-            });
         }
 
         public void Update(Action action)
@@ -134,29 +111,23 @@ namespace Bonsai.Shaders
             return shaderProgram;
         }
 
-        private void Load()
+        public void Load()
         {
             time = 0;
             texture = GL.GenTexture();
             quad = new TexturedQuad();
             program = CreateShader();
             timeLocation = GL.GetUniformLocation(program, "time");
-            shaderWindow.Unload += Window_Unload;
+            GL.BindTexture(TextureTarget.Texture2D, texture);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
-        void Window_UpdateFrame(object sender, FrameEventArgs e)
+        public void RenderFrame(FrameEventArgs e)
         {
             time += e.Time;
-            if (!Loaded)
-            {
-                Load();
-                Loaded = true;
-            }
-        }
-
-        void Window_RenderFrame(object sender, FrameEventArgs e)
-        {
-            if (Loaded && Visible)
+            if (Enabled)
             {
                 GL.UseProgram(program);
                 GL.BindTexture(TextureTarget.Texture2D, texture);
@@ -175,25 +146,15 @@ namespace Bonsai.Shaders
             }
         }
 
-        void Window_Unload(object sender, EventArgs e)
-        {
-            Dispose();
-        }
-
         public void Dispose()
         {
-            if (Loaded)
+            if (quad != null)
             {
-                Loaded = false;
                 quad.Dispose();
                 GL.DeleteTextures(1, ref texture);
                 quad = null;
                 update = null;
             }
-
-            shaderWindow.Unload -= Window_Unload;
-            shaderWindow.RenderFrame -= Window_RenderFrame;
-            shaderWindow.UpdateFrame -= Window_UpdateFrame;
         }
     }
 }
