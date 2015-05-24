@@ -10,6 +10,16 @@ namespace Bonsai.Shaders.Design
 {
     public class ShaderConfigurationControl : ConfigurationControl
     {
+        public ShaderConfigurationControl()
+        {
+            //TODO: Extend configuration control to allow updating button text
+            var button = Controls.Find("configurationManagerButton", true);
+            if (button.Length > 0)
+            {
+                button[0].Text = "Manage Shaders";
+            }
+        }
+
         protected override IEnumerable<string> GetConfigurationNames()
         {
             return ShaderManager.LoadConfiguration().Select(configuration => configuration.Name);
