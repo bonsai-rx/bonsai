@@ -37,7 +37,7 @@ namespace Bonsai.Vision
                 }
 
                 var image = CV.LoadImage(FileName, Mode);
-                if (image != null) throw new InvalidOperationException("Failed to load an image from the specified path.");
+                if (image == null) throw new InvalidOperationException("Failed to load an image from the specified path.");
                 return Observable.Return(image);
             });
         }
