@@ -1,10 +1,10 @@
 ﻿using OpenTK;
-using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,96 +16,44 @@ namespace Bonsai.Shaders
     public static class ShaderManager
     {
         public const string DefaultConfigurationFile = "Shaders.config";
-        static readonly Dictionary<string, Tuple<Shader, RefCountDisposable>> activeShaders = new Dictionary<string, Tuple<Shader, RefCountDisposable>>();
-        static readonly object activeShadersLock = new object();
-        static CancellationTokenSource windowTokenSource;
-        static ShaderWindow window;
-        static Task windowTask;
+        static readonly IObservable<ShaderWindow> windowSource = CreateWindow();
 
-        public static ShaderDisposable ReserveShader(string shaderName)
+        static IObservable<ShaderWindow> CreateWindow()
+        {
+            return ObservableCombinators.Multicast(
+                Observable.Create<ShaderWindow>((observer, cancellationToken) =>
+                {
+                    return Task.Run(() =>
+                    {
+                        var configuration = LoadConfiguration();
+                        using (var window = new ShaderWindow(configuration))
+                        using (var notification = cancellationToken.Register(window.Close))
+                        {
+                            observer.OnNext(window);
+                            window.Run();
+                        }
+                    }, cancellationToken);
+                }),
+                () => new ReplaySubject<ShaderWindow>(1))
+                .RefCount();
+        }
+
+        public static IObservable<Shader> ReserveShader(string shaderName)
         {
             if (string.IsNullOrEmpty(shaderName))
             {
                 throw new ArgumentException("A shader name must be specified.", "shaderName");
             }
 
-            Tuple<Shader, RefCountDisposable> activeShader;
-            lock (activeShadersLock)
+            return windowSource.Select(window =>
             {
-                if (!activeShaders.TryGetValue(shaderName, out activeShader))
+                var shader = window.Shaders.FirstOrDefault(s => s.Name == shaderName);
+                if (shader == null)
                 {
-                    Shader shader;
-                    var configuration = LoadConfiguration();
-                    if (!configuration.Contains(shaderName))
-                    {
-                        throw new ArgumentException("No matching shader configuration was found.", "shaderName");
-                    }
-
-                    if (window == null)
-                    {
-                        var waitEvent = new ManualResetEvent(false);
-                        windowTokenSource = new CancellationTokenSource();
-                        windowTask = Task.Factory.StartNew(() =>
-                        {
-                            using (window = new ShaderWindow())
-                            using (var notification = windowTokenSource.Token.Register(window.Close))
-                            {
-                                waitEvent.Set();
-                                window.Run();
-                            }
-                        },
-                        windowTokenSource.Token,
-                        TaskCreationOptions.LongRunning,
-                        TaskScheduler.Default);
-                        waitEvent.WaitOne();
-                    }
-
-                    var shaderConfiguration = configuration[shaderName];
-                    shader = new Shader(
-                        shaderName,
-                        window,
-                        windowTask,
-                        shaderConfiguration.VertexShader,
-                        shaderConfiguration.FragmentShader);
-                    shader.Visible = shaderConfiguration.Visible;
-                    shader.Update(() =>
-                    {
-                        GL.BindTexture(TextureTarget.Texture2D, shader.Texture);
-                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-                        GL.BindTexture(TextureTarget.Texture2D, 0);
-                    });
-
-                    var dispose = Disposable.Create(() =>
-                    {
-                        EventHandler<FrameEventArgs> unloadShader = null;
-                        unloadShader = delegate
-                        {
-                            shader.Dispose();
-                            window.UpdateFrame -= unloadShader;
-                        };
-
-                        window.UpdateFrame += unloadShader;
-                        lock (activeShadersLock)
-                        {
-                            activeShaders.Remove(shaderName);
-                            if (activeShaders.Count == 0)
-                            {
-                                windowTokenSource.Cancel();
-                                window = null;
-                                windowTask = null;
-                            }
-                        }
-                    });
-
-                    var refCount = new RefCountDisposable(dispose);
-                    activeShader = Tuple.Create(shader, refCount);
-                    activeShaders.Add(shaderName, activeShader);
-                    return new ShaderDisposable(shader, refCount);
+                    throw new ArgumentException("No matching shader configuration was found.", "shaderName");
                 }
-            }
-
-            return new ShaderDisposable(activeShader.Item1, activeShader.Item2.GetDisposable());
+                return shader;
+            });
         }
 
         public static ShaderConfigurationCollection LoadConfiguration()
@@ -131,5 +79,4 @@ namespace Bonsai.Shaders
             }
         }
     }
-
 }

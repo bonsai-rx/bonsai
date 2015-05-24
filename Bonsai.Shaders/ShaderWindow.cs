@@ -12,9 +12,34 @@ namespace Bonsai.Shaders
 {
     public class ShaderWindow : GameWindow
     {
+        List<Shader> shaders = new List<Shader>();
+
+        public ShaderWindow(ShaderConfigurationCollection configuration)
+        {
+            foreach (var shaderConfiguration in configuration)
+            {
+                var shader = new Shader(
+                    shaderConfiguration.Name, this,
+                    shaderConfiguration.VertexShader,
+                    shaderConfiguration.FragmentShader);
+                shader.Enabled = shaderConfiguration.Enabled;
+                shaders.Add(shader);
+            }
+        }
+
+        public IEnumerable<Shader> Shaders
+        {
+            get { return shaders; }
+        }
+
         protected override void OnLoad(EventArgs e)
         {
             GL.ClearColor(Color4.Black);
+            foreach (var shader in shaders)
+            {
+                shader.Load();
+            }
+
             base.OnLoad(e);
         }
 
@@ -41,8 +66,21 @@ namespace Bonsai.Shaders
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            base.OnRenderFrame(e);
+            foreach (var shader in shaders)
+            {
+                shader.RenderFrame(e);
+            }
             SwapBuffers();
+            base.OnRenderFrame(e);
+        }
+
+        protected override void OnUnload(EventArgs e)
+        {
+            foreach (var shader in shaders)
+            {
+                shader.Dispose();
+            }
+            base.OnUnload(e);
         }
     }
 }

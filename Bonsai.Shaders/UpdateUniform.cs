@@ -11,47 +11,46 @@ using System.Threading.Tasks;
 namespace Bonsai.Shaders
 {
     [Combinator]
+    [WorkflowElementCategory(ElementCategory.Sink)]
     public class UpdateUniform
     {
+        public string UniformName { get; set; }
+
         [Editor("Bonsai.Shaders.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string ShaderName { get; set; }
 
-        public string Name { get; set; }
-
         IObservable<TSource> Process<TSource>(IObservable<TSource> source, Action<int, TSource> update)
         {
-            return Observable.Create<TSource>(observer =>
+            return ShaderManager.ReserveShader(ShaderName).Publish(ps =>
             {
-                int location = 0;
-                var resource = ShaderManager.ReserveShader(ShaderName);
-                resource.Shader.Subscribe(observer);
-                resource.Shader.Update(() =>
+                var location = -1;
+                var name = UniformName;
+                if (string.IsNullOrEmpty(name))
                 {
-                    var name = Name;
-                    if (string.IsNullOrEmpty(name))
-                    {
-                        throw new InvalidOperationException("A uniform variable name must be specified.");
-                    }
+                    throw new InvalidOperationException("A uniform variable name must be specified.");
+                }
 
-                    location = GL.GetUniformLocation(resource.Shader.Program, Name);
-                    if (location < 0)
+                return source.CombineLatest(ps,
+                    (input, shader) =>
                     {
-                        throw new InvalidOperationException(string.Format(
-                            "The uniform variable \"{0}\" was not found in shader program \"{1}\".",
-                            Name,
-                            ShaderName));
-                    }
-                });
+                        shader.Update(() =>
+                        {
+                            if (location < 0)
+                            {
+                                location = GL.GetUniformLocation(shader.Program, name);
+                                if (location < 0)
+                                {
+                                    throw new InvalidOperationException(string.Format(
+                                        "The uniform variable \"{0}\" was not found in shader program \"{1}\".",
+                                        name,
+                                        ShaderName));
+                                }
+                            }
 
-                return source.Do(input =>
-                {
-                    resource.Shader.Update(() =>
-                    {
-                        update(location, input);
-                    });
-                })
-                .Finally(resource.Dispose)
-                .SubscribeSafe(observer);
+                            update(location, input);
+                        });
+                        return input;
+                    }).TakeUntil(ps.LastAsync());
             });
         }
 
