@@ -22,7 +22,7 @@ namespace Bonsai.Vision.Design
 {
     public class IplImageVisualizer : DialogMashupVisualizer
     {
-        const int TargetInterval = 15;
+        const int TargetInterval = 16;
         Panel imagePanel;
         StatusStrip statusStrip;
         ToolStripStatusLabel statusLabel;
