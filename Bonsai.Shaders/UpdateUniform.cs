@@ -21,36 +21,38 @@ namespace Bonsai.Shaders
 
         IObservable<TSource> Process<TSource>(IObservable<TSource> source, Action<int, TSource> update)
         {
-            return ShaderManager.ReserveShader(ShaderName).Publish(ps =>
+            return Observable.Defer(() =>
             {
-                var location = -1;
+                var location = 0;
                 var name = UniformName;
                 if (string.IsNullOrEmpty(name))
                 {
                     throw new InvalidOperationException("A uniform variable name must be specified.");
                 }
 
-                return source.CombineLatest(ps,
+                return source.CombineEither(
+                    ShaderManager.ReserveShader(ShaderName).Do(shader =>
+                    {
+                        shader.Update(() =>
+                        {
+                            location = GL.GetUniformLocation(shader.Program, name);
+                            if (location < 0)
+                            {
+                                throw new InvalidOperationException(string.Format(
+                                    "The uniform variable \"{0}\" was not found in shader program \"{1}\".",
+                                    name,
+                                    ShaderName));
+                            }
+                        });
+                    }),
                     (input, shader) =>
                     {
                         shader.Update(() =>
                         {
-                            if (location < 0)
-                            {
-                                location = GL.GetUniformLocation(shader.Program, name);
-                                if (location < 0)
-                                {
-                                    throw new InvalidOperationException(string.Format(
-                                        "The uniform variable \"{0}\" was not found in shader program \"{1}\".",
-                                        name,
-                                        ShaderName));
-                                }
-                            }
-
                             update(location, input);
                         });
                         return input;
-                    }).TakeUntil(ps.LastAsync());
+                    });
             });
         }
 
