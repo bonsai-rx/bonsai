@@ -17,18 +17,16 @@ namespace Bonsai.Shaders
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            return ShaderManager.ReserveShader(ShaderName).Publish(ps =>
-            {
-                return source.CombineLatest(ps,
-                    (input, shader) =>
+            return source.CombineEither(
+                ShaderManager.ReserveShader(ShaderName),
+                (input, shader) =>
+                {
+                    shader.Update(() =>
                     {
-                        shader.Update(() =>
-                        {
-                            TextureHelper.UpdateTexture(shader.Texture, input);
-                        });
-                        return input;
-                    }).TakeUntil(ps.LastAsync());
-            });
+                        TextureHelper.UpdateTexture(shader.Texture, input);
+                    });
+                    return input;
+                });
         }
     }
 }

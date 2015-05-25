@@ -20,25 +20,24 @@ namespace Bonsai.Shaders
 
         static IObservable<ShaderWindow> CreateWindow()
         {
-            return ObservableCombinators.Multicast(
-                Observable.Create<ShaderWindow>((observer, cancellationToken) =>
+            return Observable.Create<ShaderWindow>((observer, cancellationToken) =>
+            {
+                return Task.Factory.StartNew(() =>
                 {
-                    return Task.Factory.StartNew(() =>
+                    var configuration = LoadConfiguration();
+                    using (var window = new ShaderWindow(configuration))
+                    using (var notification = cancellationToken.Register(window.Close))
                     {
-                        var configuration = LoadConfiguration();
-                        using (var window = new ShaderWindow(configuration))
-                        using (var notification = cancellationToken.Register(window.Close))
-                        {
-                            observer.OnNext(window);
-                            window.Run();
-                        }
-                    },
-                    cancellationToken,
-                    TaskCreationOptions.LongRunning,
-                    TaskScheduler.Default);
-                }),
-                () => new ReplaySubject<ShaderWindow>(1))
-                .RefCount();
+                        observer.OnNext(window);
+                        window.Run();
+                    }
+                },
+                cancellationToken,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default);
+            })
+            .ReplayReconnectable()
+            .RefCount();
         }
 
         public static IObservable<Shader> ReserveShader(string shaderName)
