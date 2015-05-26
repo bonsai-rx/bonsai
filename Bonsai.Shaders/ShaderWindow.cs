@@ -13,6 +13,7 @@ namespace Bonsai.Shaders
     public class ShaderWindow : GameWindow
     {
         List<Shader> shaders = new List<Shader>();
+        static readonly object syncRoot = string.Intern("A1105A50-BBB0-4EC6-B8B2-B5EF38A9CC3E");
 
         public ShaderWindow(ShaderConfigurationCollection configuration)
         {
@@ -70,7 +71,11 @@ namespace Bonsai.Shaders
             {
                 shader.RenderFrame(e);
             }
-            SwapBuffers();
+
+            lock (syncRoot)
+            {
+                SwapBuffers();
+            }
             base.OnRenderFrame(e);
         }
 
