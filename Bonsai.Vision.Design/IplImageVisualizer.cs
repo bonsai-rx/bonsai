@@ -134,44 +134,15 @@ namespace Bonsai.Vision.Design
             {
                 updateTimer = new Timer();
                 updateTimer.Interval = TargetInterval;
-                updateTimer.Tick += Application_Idle;
+                updateTimer.Tick += updateTimer_Tick;
                 visualizerService.AddControl(imagePanel);
-                visualizerCanvas.ParentForm.StyleChanged += ParentForm_Activated;
-                visualizerCanvas.ParentForm.Activated += ParentForm_Activated;
-                visualizerCanvas.ParentForm.Deactivate += ParentForm_Deactivate;
+                updateTimer.Start();
             }
 
             base.Load(provider);
         }
 
-        void ParentForm_Activated(object sender, EventArgs e)
-        {
-            UpdateRenderMode(true);
-        }
-
-        void ParentForm_Deactivate(object sender, EventArgs e)
-        {
-            UpdateRenderMode(false);
-        }
-
-        void UpdateRenderMode(bool active)
-        {
-            if (active && visualizerCanvas.ParentForm.FormBorderStyle == FormBorderStyle.None)
-            {
-                if (updateTimer.Enabled)
-                {
-                    updateTimer.Stop();
-                    Application.Idle += Application_Idle;
-                }
-            }
-            else if (!updateTimer.Enabled)
-            {
-                Application.Idle -= Application_Idle;
-                updateTimer.Start();
-            }
-        }
-
-        void Application_Idle(object sender, EventArgs e)
+        void updateTimer_Tick(object sender, EventArgs e)
         {
             var values = Interlocked.Exchange(ref activeValues, null);
             if (values != drawnValues)
@@ -231,15 +202,11 @@ namespace Bonsai.Vision.Design
         public override void Unload()
         {
             base.Unload();
-            Application.Idle -= Application_Idle;
-            if (updateTimer != null)
-            {
-                updateTimer.Dispose();
-                updateTimer = null;
-            }
-
+            updateTimer.Stop();
+            updateTimer.Dispose();
             imageTexture.Dispose();
             imagePanel.Dispose();
+            updateTimer = null;
             imagePanel = null;
             statusStrip = null;
             visualizerCanvas = null;
