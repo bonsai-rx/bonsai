@@ -1553,7 +1553,10 @@ namespace Bonsai.Design
                 {
                     var visualizerDialog = mapping.Value;
                     var visible = visualizerDialog.Visible;
-                    visualizerDialog.Hide();
+                    if (!editorState.WorkflowRunning)
+                    {
+                        visualizerDialog.Hide();
+                    }
 
                     var visualizer = visualizerDialog.Visualizer;
                     var dialogSettings = CreateLayoutSettings(mapping.Key);
@@ -1596,7 +1599,10 @@ namespace Bonsai.Design
                     visualizerLayout.DialogSettings.Add(dialogSettings);
                 }
 
-                visualizerMapping = null;
+                if (!editorState.WorkflowRunning)
+                {
+                    visualizerMapping = null;
+                }
             }
             else
             {
