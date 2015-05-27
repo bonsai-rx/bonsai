@@ -22,6 +22,7 @@ namespace Bonsai.Vision.Design
 
         public VisualizerCanvas()
         {
+            GraphicsContext.ShareContexts = false;
             InitializeComponent();
         }
 
@@ -109,6 +110,7 @@ namespace Bonsai.Vision.Design
             {
                 if (disposing)
                 {
+                    MakeCurrent();
                     if (components != null) components.Dispose();
                     disposed = true;
                 }

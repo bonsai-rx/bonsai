@@ -1,4 +1,5 @@
 ﻿using OpenTK;
+using OpenTK.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,6 +25,7 @@ namespace Bonsai.Shaders
             {
                 return Task.Factory.StartNew(() =>
                 {
+                    GraphicsContext.ShareContexts = false;
                     var configuration = LoadConfiguration();
                     using (var window = new ShaderWindow(configuration))
                     using (var notification = cancellationToken.Register(window.Close))
