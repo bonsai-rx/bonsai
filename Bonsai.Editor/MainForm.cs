@@ -732,7 +732,6 @@ namespace Bonsai.Editor
             return new ScheduledDisposable(new ControlScheduler(this), Disposable.Create(() =>
             {
                 editorSite.OnWorkflowStopped(EventArgs.Empty);
-                workflowGraphView.UpdateVisualizerLayout();
                 undoToolStripButton.Enabled = undoToolStripMenuItem.Enabled = commandExecutor.CanUndo;
                 redoToolStripButton.Enabled = redoToolStripMenuItem.Enabled = commandExecutor.CanRedo;
                 deleteToolStripMenuItem.Enabled = true;
@@ -749,6 +748,7 @@ namespace Bonsai.Editor
 
                 running = null;
                 building = false;
+                workflowGraphView.UpdateVisualizerLayout();
                 UpdateTitle();
             }));
         }
