@@ -106,6 +106,11 @@ namespace Bonsai.Design
 
         #region Model
 
+        private static Node<ExpressionBuilder, ExpressionBuilderArgument> FindWorkflowValue(ExpressionBuilderGraph workflow, ExpressionBuilder value)
+        {
+            return workflow.Single(n => ExpressionBuilder.Unwrap(n.Value) == value);
+        }
+
         private void AddWorkflowNode(ExpressionBuilderGraph workflow, Node<ExpressionBuilder, ExpressionBuilderArgument> node)
         {
             workflow.Add(node);
@@ -1001,6 +1006,25 @@ namespace Bonsai.Design
             commandExecutor.EndCompositeCommand();
         }
 
+        private bool CanGroup(IEnumerable<GraphNode> nodes, WorkflowBuilder groupBuilder)
+        {
+            if (nodes == null)
+            {
+                throw new ArgumentNullException("nodes");
+            }
+
+            var workflow = this.workflow;
+            var selectedNodes = nodes.Select(node => (Node<ExpressionBuilder, ExpressionBuilderArgument>)node.Tag);
+            return !(from node in groupBuilder.Workflow.Sources()
+                     let source = FindWorkflowValue(workflow, node.Value)
+                     let connectivity = node.DepthFirstSearch()
+                                            .Select(successor => FindWorkflowValue(workflow, successor.Value))
+                                            .ToArray()
+                     from successor in source.DepthFirstSearch()
+                     where !connectivity.Contains(successor) && selectedNodes.Contains(successor)
+                     select successor).Any();
+        }
+
         public void GroupGraphNodes(IEnumerable<GraphNode> nodes)
         {
             GroupGraphNodes(nodes, graph => new NestedWorkflowBuilder(graph));
@@ -1023,6 +1047,11 @@ namespace Bonsai.Design
             GraphNode replacementNode = null;
             var nodeType = CreateGraphNodeType.Successor;
             var workflowBuilder = nodes.ToWorkflowBuilder(recurse: false);
+            if (!CanGroup(nodes, workflowBuilder))
+            {
+                uiService.ShowError("Unable to group broken branches.");
+                return;
+            }
 
             var inputIndex = 0;
             var predecessors = (from node in workflow
