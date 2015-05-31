@@ -1676,11 +1676,7 @@ namespace Bonsai.Design
         private bool UpdateGraphLayout(bool validateWorkflow)
         {
             var result = true;
-            graphView.Nodes = workflow
-                .LongestPathLayering()
-                .EnsureLayerPriority()
-                .EnsureEdgeLabelPriority()
-                .ToList();
+            graphView.Nodes = workflow.ConnectedComponentLayering().ToList();
             graphView.Invalidate();
             if (validateWorkflow)
             {

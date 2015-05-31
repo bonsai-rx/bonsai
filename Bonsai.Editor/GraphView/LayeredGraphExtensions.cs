@@ -365,5 +365,96 @@ namespace Bonsai.Design
 
             return layers;
         }
+
+        class ConnectedComponent<TNodeValue, TEdgeLabel> : DirectedGraph<TNodeValue, TEdgeLabel>
+        {
+            public ConnectedComponent(int index)
+            {
+                Index = index;
+            }
+
+            public int Index { get; private set; }
+        }
+
+        static IEnumerable<ConnectedComponent<TNodeValue, TEdgeLabel>> FindConnectedComponents<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source)
+        {
+            var connectedComponents = new List<ConnectedComponent<TNodeValue, TEdgeLabel>>();
+            var connectedComponentMap = new Dictionary<Node<TNodeValue, TEdgeLabel>, ConnectedComponent<TNodeValue, TEdgeLabel>>();
+            var visited = new Queue<Node<TNodeValue, TEdgeLabel>>();
+            foreach (var node in source)
+            {
+                ConnectedComponent<TNodeValue, TEdgeLabel> component = null;
+                if (!connectedComponentMap.TryGetValue(node, out component))
+                {
+                    foreach (var successor in node.DepthFirstSearch())
+                    {
+                        ConnectedComponent<TNodeValue, TEdgeLabel> successorComponent;
+                        if (connectedComponentMap.TryGetValue(successor, out successorComponent))
+                        {
+                            component = successorComponent;
+                        }
+                        else visited.Enqueue(successor);
+                    }
+
+                    if (component == null)
+                    {
+                        component = new ConnectedComponent<TNodeValue, TEdgeLabel>(connectedComponents.Count);
+                        connectedComponents.Add(component);
+                    }
+
+                    while (visited.Count > 0)
+                    {
+                        var componentNode = visited.Dequeue();
+                        component.Add(componentNode);
+                        connectedComponentMap.Add(componentNode, component);
+                    }
+                }
+            }
+
+            return connectedComponents;
+        }
+
+        public static IEnumerable<GraphNodeGrouping> ConnectedComponentLayering<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source)
+        {
+            int layerOffset = 0;
+            List<GraphNodeGrouping> layers = new List<GraphNodeGrouping>();
+            var connectedComponents = FindConnectedComponents(source);
+            foreach (var component in connectedComponents)
+            {
+                var maxLayerCount = 0;
+                var layeredComponent = component
+                    .LongestPathLayering()
+                    .EnsureLayerPriority()
+                    .EnsureEdgeLabelPriority()
+                    .ToList();
+
+                foreach (var layer in layeredComponent)
+                {
+                    if (layer.Key < layers.Count)
+                    {
+                        foreach (var node in layer)
+                        {
+                            layers[layer.Key].Add(node);
+                        }
+                    }
+                    else
+                    {
+                        layers.Add(layer);
+                        layer.UpdateItems = false;
+                    }
+
+                    foreach (var node in layer)
+                    {
+                        node.LayerIndex += layerOffset;
+                    }
+
+                    maxLayerCount = Math.Max(maxLayerCount, layer.Count);
+                }
+
+                layerOffset += maxLayerCount;
+            }
+
+            return layers;
+        }
     }
 }
