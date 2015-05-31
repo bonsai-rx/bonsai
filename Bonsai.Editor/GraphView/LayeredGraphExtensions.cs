@@ -366,6 +366,34 @@ namespace Bonsai.Design
             return layers;
         }
 
+        public static IEnumerable<GraphNodeGrouping> SortLayerEdgeLabels(this IEnumerable<GraphNodeGrouping> source)
+        {
+            var layers = source.ToArray();
+            for (int i = 0; i < layers.Length; i++)
+            {
+                var layer = layers[i];
+                if (i > 0)
+                {
+                    var nodeOrder = from node in layer
+                                    from edge in node.Successors
+                                    let label = edge.Text
+                                    let successor = edge.Node
+                                    orderby successor.LayerIndex, label
+                                    group node by node into g
+                                    select g.Key;
+                    var sortedLayer = new GraphNodeGrouping(layer.Key);
+                    foreach (var node in nodeOrder)
+                    {
+                        sortedLayer.Add(node);
+                    }
+
+                    layers[i] = sortedLayer;
+                }
+            }
+
+            return layers;
+        }
+
         class ConnectedComponent<TNodeValue, TEdgeLabel> : DirectedGraph<TNodeValue, TEdgeLabel>
         {
             public ConnectedComponent(int index)
@@ -424,8 +452,7 @@ namespace Bonsai.Design
                 var maxLayerCount = 0;
                 var layeredComponent = component
                     .LongestPathLayering()
-                    .EnsureLayerPriority()
-                    .EnsureEdgeLabelPriority()
+                    .SortLayerEdgeLabels()
                     .ToList();
 
                 foreach (var layer in layeredComponent)
