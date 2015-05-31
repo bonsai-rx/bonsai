@@ -85,5 +85,35 @@ namespace Bonsai.Shaders
         {
             return Process(source, (location, input) => GL.Uniform2(location, input.Item1, input.Item2));
         }
+
+        public IObservable<Tuple<int, int, int>> Process(IObservable<Tuple<int, int, int>> source)
+        {
+            return Process(source, (location, input) => GL.Uniform3(location, input.Item1, input.Item2, input.Item3));
+        }
+
+        public IObservable<Tuple<float, float, float>> Process(IObservable<Tuple<float, float, float>> source)
+        {
+            return Process(source, (location, input) => GL.Uniform3(location, input.Item1, input.Item2, input.Item3));
+        }
+
+        public IObservable<Tuple<double, double, double>> Process(IObservable<Tuple<double, double, double>> source)
+        {
+            return Process(source, (location, input) => GL.Uniform3(location, input.Item1, input.Item2, input.Item3));
+        }
+
+        public IObservable<Tuple<int, int, int, int>> Process(IObservable<Tuple<int, int, int, int>> source)
+        {
+            return Process(source, (location, input) => GL.Uniform4(location, input.Item1, input.Item2, input.Item3, input.Item4));
+        }
+
+        public IObservable<Tuple<float, float, float, float>> Process(IObservable<Tuple<float, float, float, float>> source)
+        {
+            return Process(source, (location, input) => GL.Uniform4(location, input.Item1, input.Item2, input.Item3, input.Item4));
+        }
+
+        public IObservable<Tuple<double, double, double, double>> Process(IObservable<Tuple<double, double, double, double>> source)
+        {
+            return Process(source, (location, input) => GL.Uniform4(location, input.Item1, input.Item2, input.Item3, input.Item4));
+        }
     }
 }
