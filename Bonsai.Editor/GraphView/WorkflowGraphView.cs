@@ -1055,6 +1055,9 @@ namespace Bonsai.Design
 
             var inputIndex = 0;
             var predecessors = (from node in workflow
+                                let graphNode = FindGraphNode(node.Value)
+                                where graphNode != null
+                                orderby graphNode.Layer descending, graphNode.LayerIndex
                                 let unwrapNode = ExpressionBuilder.Unwrap(node.Value)
                                 where !workflowBuilder.Workflow.Any(n => n.Value == unwrapNode)
                                 from successor in node.Successors
