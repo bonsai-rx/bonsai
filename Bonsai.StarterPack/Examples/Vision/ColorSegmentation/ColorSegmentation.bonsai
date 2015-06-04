@@ -98,9 +98,7 @@
 clr.AddReference("OpenCV.Net")
 from OpenCV.Net import CV, IplImage, Point, Scalar
 
-def getOutputType():
-    return clr.GetClrType(IplImage)
-
+@returns(IplImage)
 def process(value):
     red = input.Item1
     green = input.Item2
