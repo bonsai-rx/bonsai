@@ -19,7 +19,7 @@ namespace Bonsai.Scripting
     {
         public PythonSink()
         {
-            Script = "def process(input):\n  return";
+            Script = "def process(value):\n  return";
         }
 
         [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]

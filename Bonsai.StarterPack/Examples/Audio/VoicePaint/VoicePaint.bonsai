@@ -154,7 +154,7 @@ def load():
     output = IplImage(Size(width, height), IplDepth.U8, 3)
     output.SetZero()
 
-def process(input):
+def process(value):
     global particle, output
     extrema = input.Item1
     minpitch = input.Item2

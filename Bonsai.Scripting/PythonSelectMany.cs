@@ -19,7 +19,7 @@ namespace Bonsai.Scripting
     {
         public PythonSelectMany()
         {
-            Script = "@returns(bool)\ndef process(input):\n  yield True";
+            Script = "@returns(bool)\ndef process(value):\n  yield True";
         }
 
         [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]

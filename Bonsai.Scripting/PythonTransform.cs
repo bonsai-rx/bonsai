@@ -19,7 +19,7 @@ namespace Bonsai.Scripting
     {
         public PythonTransform()
         {
-            Script = "@returns(bool)\ndef process(input):\n  return True";
+            Script = "@returns(bool)\ndef process(value):\n  return True";
         }
 
         [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
