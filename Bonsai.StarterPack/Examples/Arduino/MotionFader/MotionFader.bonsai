@@ -174,7 +174,7 @@
 def getOutputType():
     return clr.GetClrType(int)
 
-def process(input):
+def process(value):
     activity = input.Activity.Val0
     rect = input.Rect
     normalizer = rect.Width * rect.Height
@@ -186,7 +186,7 @@ def process(input):
 def getOutputType():
     return clr.GetClrType(int)
 
-def process(input):
+def process(value):
     activity = input.Activity.Val0
     rect = input.Rect
     normalizer = rect.Width * rect.Height

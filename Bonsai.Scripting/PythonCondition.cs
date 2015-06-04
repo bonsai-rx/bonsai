@@ -18,7 +18,7 @@ namespace Bonsai.Scripting
     {
         public PythonCondition()
         {
-            Script = "def process(input):\n  return True";
+            Script = "def process(value):\n  return True";
         }
 
         [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
