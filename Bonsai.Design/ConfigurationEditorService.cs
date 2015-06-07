@@ -30,8 +30,25 @@ namespace Bonsai.Design
 
         public DialogResult ShowDialog(Form dialog)
         {
-            DialogResult = dialog.ShowDialog(ownerControl);
-            return DialogResult;
+            DialogResult = DialogResult.None;
+            var acceptButton = dialog.AcceptButton as Button;
+            if (acceptButton != null)
+            {
+                acceptButton.Click += acceptButton_Click;
+            }
+
+            var result = dialog.ShowDialog(ownerControl);
+            if (acceptButton != null)
+            {
+                acceptButton.Click -= acceptButton_Click;
+            }
+
+            return DialogResult == DialogResult.None ? result : DialogResult;
+        }
+
+        void acceptButton_Click(object sender, EventArgs e)
+        {
+            DialogResult = DialogResult.OK;
         }
 
         public object GetService(Type serviceType)
