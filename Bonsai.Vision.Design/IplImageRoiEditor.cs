@@ -35,8 +35,8 @@ namespace Bonsai.Vision.Design
             if (context != null && editorService != null)
             {
                 using (var visualizerDialog = new TypeVisualizerDialog())
-                using (var imageControl = new ImageRoiPicker())
                 {
+                    var imageControl = new ImageRoiPicker();
                     var regions = default(OpenCV.Net.Point[][]);
                     var propertyDescriptor = context.PropertyDescriptor;
                     if (propertyDescriptor.PropertyType == typeof(OpenCV.Net.Point[]))
