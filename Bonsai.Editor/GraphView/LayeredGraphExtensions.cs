@@ -419,6 +419,17 @@ namespace Bonsai.Design
                         ConnectedComponent<TNodeValue, TEdgeLabel> successorComponent;
                         if (connectedComponentMap.TryGetValue(successor, out successorComponent))
                         {
+                            if (component != null && component != successorComponent)
+                            {
+                                // Merge connected components
+                                foreach (var componentNode in component)
+                                {
+                                    successorComponent.Add(componentNode);
+                                    connectedComponentMap[componentNode] = successorComponent;
+                                }
+                                connectedComponents.Remove(component);
+                            }
+                            
                             component = successorComponent;
                         }
                         else visited.Enqueue(successor);
