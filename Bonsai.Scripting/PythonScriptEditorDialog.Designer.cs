@@ -38,11 +38,12 @@
             this.scintilla.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.scintilla.IndentWidth = 2;
             this.scintilla.Location = new System.Drawing.Point(12, 12);
             this.scintilla.Name = "scintilla";
             this.scintilla.Size = new System.Drawing.Size(600, 229);
             this.scintilla.TabIndex = 3;
+            this.scintilla.TabWidth = 2;
+            this.scintilla.UseTabs = false;
             this.scintilla.WrapMode = ScintillaNET.WrapMode.Word;
             this.scintilla.TextChanged += new System.EventHandler(this.scintilla_TextChanged);
             // 
