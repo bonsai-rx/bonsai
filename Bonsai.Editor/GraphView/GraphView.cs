@@ -755,6 +755,7 @@ namespace Bonsai.Design
                     var layerCount = model.Count();
                     foreach (var layer in model)
                     {
+                        var maxRow = 0;
                         var column = layerCount - layer.Key - 1;
                         foreach (var node in layer)
                         {
@@ -763,9 +764,10 @@ namespace Bonsai.Design
                             var location = new Point(column * NodeAirspace + PenWidth, row * NodeAirspace + PenWidth);
                             var labelRectangle = GetNodeLabelRectangle(node.Text, location, graphics);
                             layoutNodes.Add(new LayoutNode(node, location, node.Text, labelRectangle));
+                            maxRow = Math.Max(row, maxRow);
                         }
 
-                        var rowHeight = layer.Count * NodeAirspace;
+                        var rowHeight = (maxRow + 1) * NodeAirspace;
                         size.Height = Math.Max(rowHeight, size.Height);
                     }
 
