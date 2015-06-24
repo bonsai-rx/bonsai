@@ -162,15 +162,7 @@ namespace Bonsai.Design
             {
                 var nullX = string.IsNullOrEmpty(x);
                 var nullY = string.IsNullOrEmpty(y);
-                if (nullX)
-                {
-                    return nullY ? 0 : 1;
-                }
-                else if (nullY)
-                {
-                    return -1;
-                }
-
+                if (nullX || nullY || x.Length != y.Length) return 0;
                 return x.CompareTo(y);
             }
         }
@@ -463,6 +455,7 @@ namespace Bonsai.Design
                 var maxLayerCount = 0;
                 var layeredComponent = component
                     .LongestPathLayering()
+                    .EnsureLayerPriority()
                     .SortLayerEdgeLabels()
                     .ToList();
 
