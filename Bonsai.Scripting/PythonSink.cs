@@ -28,7 +28,7 @@ namespace Bonsai.Scripting
 
         protected virtual ScriptEngine CreateEngine()
         {
-            return IronPython.Hosting.Python.CreateEngine();
+            return PythonEngine.Create();
         }
 
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)

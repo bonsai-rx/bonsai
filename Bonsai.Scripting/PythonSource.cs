@@ -30,7 +30,7 @@ namespace Bonsai.Scripting
 
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            var engine = IronPython.Hosting.Python.CreateEngine();
+            var engine = PythonEngine.Create();
             var scope = engine.CreateScope();
             var script = PythonHelper.ReturnsDecorator + Script;
             var scriptSource = engine.CreateScriptSourceFromString(script);

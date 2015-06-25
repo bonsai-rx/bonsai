@@ -99,6 +99,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PythonEngine.cs" />
     <Compile Include="PythonHelper.cs" />
     <Compile Include="PythonProcessor.cs" />
     <Compile Include="PythonSelectMany.cs" />
