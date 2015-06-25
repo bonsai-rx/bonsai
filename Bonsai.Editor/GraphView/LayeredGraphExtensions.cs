@@ -366,11 +366,13 @@ namespace Bonsai.Design
                 var layer = layers[i];
                 if (i > 0)
                 {
+                    //TODO: ExpressionBuilderArgument should implement IComparable so ordering can be generic
                     var nodeOrder = from node in layer
                                     from edge in node.Successors
-                                    let label = edge.Text
+                                    let label = edge.Label as ExpressionBuilderArgument
+                                    where label != null
                                     let successor = edge.Node
-                                    orderby successor.LayerIndex, label
+                                    orderby successor.LayerIndex, label.Index
                                     group node by node into g
                                     select g.Key;
                     var sortedLayer = new GraphNodeGrouping(layer.Key);
