@@ -47,6 +47,7 @@ namespace Bonsai.Scripting
         protected override void OnLoad(EventArgs e)
         {
             scintilla.Text = Script;
+            scintilla.EmptyUndoBuffer();
             base.OnLoad(e);
         }
 
