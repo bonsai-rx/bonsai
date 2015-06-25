@@ -10,6 +10,7 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Vision
 {
+    [DefaultProperty("FileName")]
     [Description("Produces a sequence with a single image loaded from the specified file.")]
     public class LoadImage : Source<IplImage>
     {
