@@ -29,7 +29,7 @@ namespace Bonsai.Scripting
         {
             return Observable.Defer(() =>
             {
-                var engine = IronPython.Hosting.Python.CreateEngine();
+                var engine = PythonEngine.Create();
                 var scope = engine.CreateScope();
                 engine.Execute(Script, scope);
 
