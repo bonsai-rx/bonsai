@@ -55,7 +55,7 @@ namespace Bonsai.Scripting
                 var outputType = PythonHelper.GetOutputType(scope, PythonHelper.ProcessFunction);
                 var scopeExpression = Expression.Constant(scope);
                 return Expression.Call(
-                    typeof(PythonTransform),
+                    typeof(PythonSelectMany),
                     "Process",
                     new[] { observableType, outputType },
                     source,
