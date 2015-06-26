@@ -12,10 +12,13 @@ namespace Bonsai.Shaders
 {
     [Combinator]
     [WorkflowElementCategory(ElementCategory.Sink)]
+    [Description("Updates an active uniform variable on the specified shader.")]
     public class UpdateUniform
     {
+        [Description("The name of the uniform variable to update.")]
         public string UniformName { get; set; }
 
+        [Description("The name of the shader program.")]
         [Editor("Bonsai.Shaders.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string ShaderName { get; set; }
 
