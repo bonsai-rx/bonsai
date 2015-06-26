@@ -12,15 +12,20 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
+    [Description("Updates the vertex buffer data used by the specified shader.")]
     public class UpdateVertexBuffer : Sink<Mat>
     {
+        [Description("The name of the shader program.")]
         [Editor("Bonsai.Shaders.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string ShaderName { get; set; }
 
+        [Description("Specifies the width of rasterized lines. A value of zero will keep the current width.")]
         public float LineWidth { get; set; }
 
+        [Description("Specifies the diameter of rasterized points. A value of zero will keep the current size.")]
         public float PointSize { get; set; }
 
+        [Description("Specifies the kind of primitives to render with the vertex buffer data.")]
         public PrimitiveType DrawMode { get; set; }
 
         static int GetAttribPointerChannels(ActiveAttribType type)

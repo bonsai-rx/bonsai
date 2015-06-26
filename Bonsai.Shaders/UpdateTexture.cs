@@ -10,8 +10,10 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
+    [Description("Updates the pixel store of a texture bound to the specified shader.")]
     public class UpdateTexture : Sink<IplImage>
     {
+        [Description("The name of the shader program.")]
         [Editor("Bonsai.Shaders.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string ShaderName { get; set; }
 
