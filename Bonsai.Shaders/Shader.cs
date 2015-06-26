@@ -13,10 +13,11 @@ namespace Bonsai.Shaders
 {
     public class Shader : IDisposable
     {
+        int vbo;
+        int vao;
         int program;
         int texture;
         int timeLocation;
-        TexturedQuad quad;
         string vertexSource;
         string fragmentSource;
         event Action update;
@@ -49,6 +50,24 @@ namespace Bonsai.Shaders
         public bool Enabled { get; set; }
 
         public string Name { get; private set; }
+
+        public float LineWidth { get; set; }
+
+        public float PointSize { get; set; }
+
+        public PrimitiveType DrawMode { get; set; }
+
+        public int VertexCount { get; set; }
+
+        public int VertexBuffer
+        {
+            get { return vbo; }
+        }
+
+        public int VertexArray
+        {
+            get { return vao; }
+        }
 
         public int Program
         {
@@ -115,8 +134,10 @@ namespace Bonsai.Shaders
         {
             time = 0;
             texture = GL.GenTexture();
-            quad = new TexturedQuad();
             program = CreateShader();
+
+            GL.GenBuffers(1, out vbo);
+            GL.GenVertexArrays(1, out vao);
             timeLocation = GL.GetUniformLocation(program, "time");
             GL.BindTexture(TextureTarget.Texture2D, texture);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
@@ -142,17 +163,27 @@ namespace Bonsai.Shaders
                     action();
                 }
 
-                quad.Draw();
+                if (LineWidth > 0) GL.LineWidth(LineWidth);
+                if (PointSize > 0) GL.PointSize(PointSize);
+                if (VertexCount > 0)
+                {
+                    GL.BindVertexArray(vao);
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+                    GL.DrawArrays(DrawMode, 0, VertexCount);
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+                    GL.BindVertexArray(0);
+                }
             }
         }
 
         public void Dispose()
         {
-            if (quad != null)
+            if (shaderWindow != null)
             {
-                quad.Dispose();
                 GL.DeleteTextures(1, ref texture);
-                quad = null;
+                GL.DeleteVertexArrays(1, ref vao);
+                GL.DeleteBuffers(1, ref vbo);
+                shaderWindow = null;
                 update = null;
             }
         }

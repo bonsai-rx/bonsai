@@ -23,7 +23,7 @@ namespace Bonsai.Shaders
                     shaderConfiguration.Name, this,
                     shaderConfiguration.VertexShader,
                     shaderConfiguration.FragmentShader);
-                shader.Enabled = shaderConfiguration.Enabled;
+                shaderConfiguration.Configure(shader);
                 shaders.Add(shader);
             }
         }

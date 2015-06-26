@@ -59,6 +59,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TexturedQuad.cs" />
+    <Compile Include="UpdateVertexBuffer.cs" />
     <Compile Include="ObservableCombinators.cs" />
     <Compile Include="Shader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -67,11 +69,11 @@
     <Compile Include="ShaderException.cs" />
     <Compile Include="ShaderPrograms.cs" />
     <Compile Include="ShaderWindow.cs" />
-    <Compile Include="TexturedQuad.cs" />
     <Compile Include="TextureHelper.cs" />
     <Compile Include="UpdateTexture.cs" />
     <Compile Include="ShaderManager.cs" />
     <Compile Include="UpdateUniform.cs" />
+    <Compile Include="VertexHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Bonsai.Shaders.nuspec">

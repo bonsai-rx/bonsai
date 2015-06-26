@@ -52,6 +52,15 @@ namespace Bonsai.Shaders.Design
                 : base(type)
             {
             }
+
+            protected override Type[] CreateNewItemTypes()
+            {
+                return new[]
+                {
+                    typeof(ShaderConfiguration),
+                    typeof(TexturedQuad)
+                };
+            }
         }
     }
 }
