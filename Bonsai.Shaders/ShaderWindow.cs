@@ -36,6 +36,7 @@ namespace Bonsai.Shaders
         protected override void OnLoad(EventArgs e)
         {
             GL.ClearColor(Color4.Black);
+            GL.Enable(EnableCap.PointSprite);
             foreach (var shader in shaders)
             {
                 shader.Load();
