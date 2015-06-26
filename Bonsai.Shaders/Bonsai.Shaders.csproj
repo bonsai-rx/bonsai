@@ -59,6 +59,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="UpdateFrame.cs" />
     <Compile Include="TexturedQuad.cs" />
     <Compile Include="UpdateVertexBuffer.cs" />
     <Compile Include="ObservableCombinators.cs" />

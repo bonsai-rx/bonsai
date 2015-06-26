@@ -42,6 +42,11 @@ namespace Bonsai.Shaders
             .RefCount();
         }
 
+        public static IObservable<ShaderWindow> WindowSource
+        {
+            get { return windowSource; }
+        }
+
         public static IObservable<Shader> ReserveShader(string shaderName)
         {
             if (string.IsNullOrEmpty(shaderName))
