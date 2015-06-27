@@ -11,6 +11,8 @@ namespace Bonsai.Shaders
     [XmlInclude(typeof(TexturedQuad))]
     public class ShaderConfiguration
     {
+        readonly StateConfigurationCollection renderState = new StateConfigurationCollection();
+
         public ShaderConfiguration()
         {
             Enabled = true;
@@ -29,6 +31,12 @@ namespace Bonsai.Shaders
         [Category("Shaders")]
         [Editor("Bonsai.Shaders.Design.GlslScriptEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public string FragmentShader { get; set; }
+
+        [Editor("Bonsai.Shaders.Design.StateConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        public StateConfigurationCollection RenderState
+        {
+            get { return renderState; }
+        }
 
         internal virtual void Configure(Shader shader)
         {

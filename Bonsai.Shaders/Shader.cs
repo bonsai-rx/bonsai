@@ -22,9 +22,10 @@ namespace Bonsai.Shaders
         string fragmentSource;
         event Action update;
         IGameWindow shaderWindow;
+        List<StateConfiguration> shaderState;
         double time;
 
-        internal Shader(string name, IGameWindow window, string vertexShader, string fragmentShader)
+        internal Shader(string name, IGameWindow window, string vertexShader, string fragmentShader, IEnumerable<StateConfiguration> renderState)
         {
             if (window == null)
             {
@@ -41,19 +42,21 @@ namespace Bonsai.Shaders
                 throw new ArgumentNullException("fragmentShader");
             }
 
+            if (renderState == null)
+            {
+                throw new ArgumentNullException("renderState");
+            }
+
             Name = name;
             shaderWindow = window;
             vertexSource = vertexShader;
             fragmentSource = fragmentShader;
+            shaderState = renderState.ToList();
         }
 
         public bool Enabled { get; set; }
 
         public string Name { get; private set; }
-
-        public float LineWidth { get; set; }
-
-        public float PointSize { get; set; }
 
         public PrimitiveType DrawMode { get; set; }
 
@@ -150,6 +153,11 @@ namespace Bonsai.Shaders
             time += e.Time;
             if (Enabled)
             {
+                foreach (var state in shaderState)
+                {
+                    state.Execute();
+                }
+
                 GL.UseProgram(program);
                 GL.BindTexture(TextureTarget.Texture2D, texture);
                 if (timeLocation >= 0)
@@ -163,8 +171,6 @@ namespace Bonsai.Shaders
                     action();
                 }
 
-                if (LineWidth > 0) GL.LineWidth(LineWidth);
-                if (PointSize > 0) GL.PointSize(PointSize);
                 if (VertexCount > 0)
                 {
                     GL.BindVertexArray(vao);

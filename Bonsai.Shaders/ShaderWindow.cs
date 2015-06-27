@@ -22,7 +22,8 @@ namespace Bonsai.Shaders
                 var shader = new Shader(
                     shaderConfiguration.Name, this,
                     shaderConfiguration.VertexShader,
-                    shaderConfiguration.FragmentShader);
+                    shaderConfiguration.FragmentShader,
+                    shaderConfiguration.RenderState);
                 shaderConfiguration.Configure(shader);
                 shaders.Add(shader);
             }
@@ -36,7 +37,6 @@ namespace Bonsai.Shaders
         protected override void OnLoad(EventArgs e)
         {
             GL.ClearColor(Color4.Black);
-            GL.Enable(EnableCap.PointSprite);
             foreach (var shader in shaders)
             {
                 shader.Load();
