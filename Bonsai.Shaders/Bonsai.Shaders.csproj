@@ -59,6 +59,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BlendFunctionState.cs" />
+    <Compile Include="PointSizeState.cs" />
+    <Compile Include="LineWidthState.cs" />
+    <Compile Include="StateConfigurationCollection.cs" />
+    <Compile Include="DisableState.cs" />
+    <Compile Include="EnableState.cs" />
+    <Compile Include="StateConfiguration.cs" />
     <Compile Include="UpdateFrame.cs" />
     <Compile Include="TexturedQuad.cs" />
     <Compile Include="UpdateVertexBuffer.cs" />

@@ -19,12 +19,6 @@ namespace Bonsai.Shaders
         [Editor("Bonsai.Shaders.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string ShaderName { get; set; }
 
-        [Description("Specifies the width of rasterized lines. A value of zero will keep the current width.")]
-        public float LineWidth { get; set; }
-
-        [Description("Specifies the diameter of rasterized points. A value of zero will keep the current size.")]
-        public float PointSize { get; set; }
-
         [Description("Specifies the kind of primitives to render with the vertex buffer data.")]
         public PrimitiveType DrawMode { get; set; }
 
@@ -118,9 +112,6 @@ namespace Bonsai.Shaders
                                           new IntPtr(packedBuffer.Cols * BlittableValueType<float>.Stride),
                                           packedBuffer.Data,
                                           BufferUsageHint.StaticDraw);
-
-                            shader.LineWidth = LineWidth;
-                            shader.PointSize = PointSize;
                             shader.VertexCount = input.Cols;
                             shader.DrawMode = DrawMode;
                         });
