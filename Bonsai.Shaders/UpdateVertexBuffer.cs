@@ -34,6 +34,34 @@ namespace Bonsai.Shaders
             }
         }
 
+        Mat PackBuffer(int channelCount, Mat input)
+        {
+            if (input.Rows > 1 && channelCount != input.Rows)
+            {
+                throw new InvalidOperationException(string.Format(
+                    "The size of the input buffer does not match vertex array specification in shader program \"{1}\". Expected {0}-channel buffer, or packed one-dimensional buffer.",
+                    channelCount,
+                    ShaderName));
+            }
+
+            var packedBuffer = input;
+            if (channelCount > 1 || input.Rows > 1 && input.Depth != Depth.F32)
+            {
+                packedBuffer = new Mat(1, input.Rows > 1 ? channelCount * input.Cols : input.Cols, Depth.F32, 1);
+                var packedRows = packedBuffer.Reshape(1, packedBuffer.Cols);
+                for (int i = 0; i < input.Rows; i++)
+                {
+                    using (var row = input.GetRow(i).Reshape(1, input.Cols))
+                    using (var rowStep = packedRows.GetRows(i, packedRows.Rows, input.Rows))
+                    {
+                        CV.Convert(row, rowStep);
+                    }
+                }
+            }
+
+            return packedBuffer;
+        }
+
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
             return Observable.Defer(() =>
@@ -82,31 +110,15 @@ namespace Bonsai.Shaders
                     }),
                     (input, shader) =>
                     {
-                        if (input.Rows > 1 && channelCount != input.Rows)
+                        var packedBuffer = default(Mat);
+                        if (channelCount > 0)
                         {
-                            throw new InvalidOperationException(string.Format(
-                                "The size of the input buffer does not match vertex array specification in shader program \"{1}\". Expected {0}-channel buffer, or packed one-dimensional buffer.",
-                                channelCount,
-                                ShaderName));
-                        }
-
-                        var packedBuffer = input;
-                        if (channelCount > 1 || input.Rows > 1 && input.Depth != Depth.F32)
-                        {
-                            packedBuffer = new Mat(1, input.Rows > 1 ? channelCount * input.Cols : input.Cols, Depth.F32, 1);
-                            var packedRows = packedBuffer.Reshape(1, packedBuffer.Cols);
-                            for (int i = 0; i < input.Rows; i++)
-                            {
-                                using (var row = input.GetRow(i).Reshape(1, input.Cols))
-                                using (var rowStep = packedRows.GetRows(i, packedRows.Rows, input.Rows))
-                                {
-                                    CV.Convert(row, rowStep);
-                                }
-                            }
+                            packedBuffer = PackBuffer(channelCount, input);
                         }
 
                         shader.Update(() =>
                         {
+                            packedBuffer = packedBuffer ?? PackBuffer(channelCount, input);
                             GL.BindBuffer(BufferTarget.ArrayBuffer, shader.VertexBuffer);
                             GL.BufferData(BufferTarget.ArrayBuffer,
                                           new IntPtr(packedBuffer.Cols * BlittableValueType<float>.Stride),
