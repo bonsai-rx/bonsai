@@ -10,14 +10,14 @@ namespace Bonsai.Shaders
 {
     static class VertexHelper
     {
-        public static int TexturedQuad(int vbo, int vao)
+        public static int TexturedQuad(int vbo, int vao, bool flipX, bool flipY)
         {
             var vertices = new float[]
             {
-                0f, 1f, -1f, -1f,
-                1f, 1f,  1f, -1f,
-                1f, 0f,  1f,  1f,
-                0f, 0f, -1f,  1f,
+                flipX ? 1f : 0f, flipY ? 1f : 0f, -1f, -1f,
+                flipX ? 0f : 1f, flipY ? 1f : 0f,  1f, -1f,
+                flipX ? 0f : 1f, flipY ? 0f : 1f,  1f,  1f,
+                flipX ? 1f : 0f, flipY ? 0f : 1f, -1f,  1f,
             };
 
             GL.BindVertexArray(vao);
