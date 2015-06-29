@@ -15,17 +15,24 @@ namespace Bonsai.Shaders
     {
         int vbo;
         int vao;
+        int fbo;
         int program;
-        int texture;
         int timeLocation;
         string vertexSource;
         string fragmentSource;
         event Action update;
-        IGameWindow shaderWindow;
+        ShaderWindow shaderWindow;
         List<StateConfiguration> shaderState;
+        List<TextureConfiguration> shaderTextures;
         double time;
 
-        internal Shader(string name, IGameWindow window, string vertexShader, string fragmentShader, IEnumerable<StateConfiguration> renderState)
+        internal Shader(
+            string name,
+            ShaderWindow window,
+            string vertexShader,
+            string fragmentShader,
+            IEnumerable<StateConfiguration> renderState,
+            IEnumerable<TextureConfiguration> textureUnits)
         {
             if (window == null)
             {
@@ -47,11 +54,17 @@ namespace Bonsai.Shaders
                 throw new ArgumentNullException("renderState");
             }
 
+            if (textureUnits == null)
+            {
+                throw new ArgumentNullException("textureUnits");
+            }
+
             Name = name;
             shaderWindow = window;
             vertexSource = vertexShader;
             fragmentSource = fragmentShader;
             shaderState = renderState.ToList();
+            shaderTextures = textureUnits.ToList();
         }
 
         public bool Enabled { get; set; }
@@ -72,14 +85,24 @@ namespace Bonsai.Shaders
             get { return vao; }
         }
 
+        public int Framebuffer
+        {
+            get { return fbo; }
+        }
+
         public int Program
         {
             get { return program; }
         }
 
-        public int Texture
+        public ShaderWindow Window
         {
-            get { return texture; }
+            get { return shaderWindow; }
+        }
+
+        public IEnumerable<TextureConfiguration> TextureUnits
+        {
+            get { return shaderTextures; }
         }
 
         public void Update(Action action)
@@ -133,19 +156,27 @@ namespace Bonsai.Shaders
             return shaderProgram;
         }
 
+        internal void EnsureFrameBuffer()
+        {
+            if (fbo == 0)
+            {
+                GL.GenFramebuffers(1, out fbo);
+            }
+        }
+
         public void Load()
         {
             time = 0;
-            texture = GL.GenTexture();
             program = CreateShader();
+            GL.UseProgram(program);
+            foreach (var texture in shaderTextures)
+            {
+                texture.Load(this);
+            }
 
             GL.GenBuffers(1, out vbo);
             GL.GenVertexArrays(1, out vao);
             timeLocation = GL.GetUniformLocation(program, "time");
-            GL.BindTexture(TextureTarget.Texture2D, texture);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-            GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
         public void RenderFrame(FrameEventArgs e)
@@ -159,7 +190,6 @@ namespace Bonsai.Shaders
                 }
 
                 GL.UseProgram(program);
-                GL.BindTexture(TextureTarget.Texture2D, texture);
                 if (timeLocation >= 0)
                 {
                     GL.Uniform1(timeLocation, (float)time);
@@ -173,11 +203,23 @@ namespace Bonsai.Shaders
 
                 if (VertexCount > 0)
                 {
+                    foreach (var texture in shaderTextures)
+                    {
+                        texture.Bind(this);
+                    }
+
                     GL.BindVertexArray(vao);
                     GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+                    if (fbo > 0) GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
                     GL.DrawArrays(DrawMode, 0, VertexCount);
+                    if (fbo > 0) GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
                     GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
                     GL.BindVertexArray(0);
+
+                    foreach (var texture in shaderTextures)
+                    {
+                        texture.Unbind(this);
+                    }
                 }
             }
         }
@@ -186,7 +228,12 @@ namespace Bonsai.Shaders
         {
             if (shaderWindow != null)
             {
-                GL.DeleteTextures(1, ref texture);
+                foreach (var texture in shaderTextures)
+                {
+                    texture.Unload(this);
+                }
+
+                if (fbo != 0) GL.DeleteFramebuffers(1, ref fbo);
                 GL.DeleteVertexArrays(1, ref vao);
                 GL.DeleteBuffers(1, ref vbo);
                 shaderWindow = null;

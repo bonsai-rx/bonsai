@@ -61,6 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TextureConfigurationCollectionEditor.cs" />
     <Compile Include="GlslScriptEditorDialog.cs">
       <SubType>Form</SubType>
     </Compile>
