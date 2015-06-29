@@ -12,6 +12,7 @@ namespace Bonsai.Shaders
     public class ShaderConfiguration
     {
         readonly StateConfigurationCollection renderState = new StateConfigurationCollection();
+        readonly TextureConfigurationCollection textureUnits = new TextureConfigurationCollection();
 
         public ShaderConfiguration()
         {
@@ -37,6 +38,13 @@ namespace Bonsai.Shaders
         public StateConfigurationCollection RenderState
         {
             get { return renderState; }
+        }
+
+        [Category("State")]
+        [Editor("Bonsai.Shaders.Design.TextureConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        public TextureConfigurationCollection TextureUnits
+        {
+            get { return textureUnits; }
         }
 
         internal virtual void Configure(Shader shader)

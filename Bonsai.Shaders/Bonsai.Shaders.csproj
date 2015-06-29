@@ -60,13 +60,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlendFunctionState.cs" />
+    <Compile Include="FramebufferTexture.cs" />
     <Compile Include="PointSizeState.cs" />
     <Compile Include="LineWidthState.cs" />
     <Compile Include="QuadEffects.cs" />
+    <Compile Include="ShaderExtensions.cs" />
     <Compile Include="StateConfigurationCollection.cs" />
     <Compile Include="DisableState.cs" />
     <Compile Include="EnableState.cs" />
     <Compile Include="StateConfiguration.cs" />
+    <Compile Include="Texture2D.cs" />
+    <Compile Include="TextureConfiguration.cs" />
+    <Compile Include="TextureConfigurationCollection.cs" />
+    <Compile Include="TextureReference.cs" />
+    <Compile Include="TextureBase.cs" />
     <Compile Include="UpdateFrame.cs" />
     <Compile Include="TexturedQuad.cs" />
     <Compile Include="UpdateVertexBuffer.cs" />
