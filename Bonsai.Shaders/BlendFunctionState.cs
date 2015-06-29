@@ -9,6 +9,12 @@ namespace Bonsai.Shaders
 {
     public class BlendFunctionState : StateConfiguration
     {
+        public BlendFunctionState()
+        {
+            SourceFactor = BlendingFactorSrc.SrcAlpha;
+            DestinationFactor = BlendingFactorDest.OneMinusSrcAlpha;
+        }
+
         public BlendingFactorSrc SourceFactor { get; set; }
 
         public BlendingFactorDest DestinationFactor { get; set; }
