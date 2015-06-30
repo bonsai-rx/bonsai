@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK;
+using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -147,6 +148,36 @@ namespace Bonsai.Shaders
         {
             return Process(source, (location, input) => GL.Uniform4(location, input.Item1, input.Item2, input.Item3, input.Item4),
                            ActiveUniformType.DoubleVec4);
+        }
+
+        public IObservable<Vector2> Process(IObservable<Vector2> source)
+        {
+            return Process(source, (location, input) => GL.Uniform2(location, ref input),
+                           ActiveUniformType.FloatVec2);
+        }
+
+        public IObservable<Vector3> Process(IObservable<Vector3> source)
+        {
+            return Process(source, (location, input) => GL.Uniform3(location, ref input),
+                           ActiveUniformType.FloatVec3);
+        }
+
+        public IObservable<Vector4> Process(IObservable<Vector4> source)
+        {
+            return Process(source, (location, input) => GL.Uniform4(location, ref input),
+                           ActiveUniformType.FloatVec4);
+        }
+
+        public IObservable<Quaternion> Process(IObservable<Quaternion> source)
+        {
+            return Process(source, (location, input) => GL.Uniform4(location, input),
+                           ActiveUniformType.FloatVec4);
+        }
+
+        public IObservable<Matrix4> Process(IObservable<Matrix4> source)
+        {
+            return Process(source, (location, input) => GL.UniformMatrix4(location, false, ref input),
+                           ActiveUniformType.FloatMat4);
         }
     }
 }
