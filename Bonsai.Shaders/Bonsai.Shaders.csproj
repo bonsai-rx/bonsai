@@ -83,7 +83,6 @@
     <Compile Include="ShaderConfiguration.cs" />
     <Compile Include="ShaderConfigurationCollection.cs" />
     <Compile Include="ShaderException.cs" />
-    <Compile Include="ShaderPrograms.cs" />
     <Compile Include="ShaderWindow.cs" />
     <Compile Include="TextureHelper.cs" />
     <Compile Include="UpdateTexture.cs" />
