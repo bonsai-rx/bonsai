@@ -61,6 +61,20 @@ namespace Bonsai.Shaders.Design
                     typeof(TexturedQuad)
                 };
             }
+
+            protected override object CreateInstance(Type itemType)
+            {
+                var instance = (ShaderConfiguration)base.CreateInstance(itemType);
+                if (itemType == typeof(TexturedQuad))
+                {
+                    instance.TextureUnits.Add(new Texture2D
+                    {
+                        Name = "tex"
+                    });
+                }
+
+                return instance;
+            }
         }
     }
 }
