@@ -9,6 +9,11 @@ namespace Bonsai.Shaders
 {
     public class DepthFunctionState : StateConfiguration
     {
+        public DepthFunctionState()
+        {
+            Function = DepthFunction.Less;
+        }
+
         public DepthFunction Function { get; set; }
 
         public override void Execute()
