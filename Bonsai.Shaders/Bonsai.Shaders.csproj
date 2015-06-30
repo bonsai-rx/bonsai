@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlendFunctionState.cs" />
+    <Compile Include="DepthFunctionState.cs" />
     <Compile Include="FramebufferTexture.cs" />
     <Compile Include="PointSizeState.cs" />
     <Compile Include="LineWidthState.cs" />

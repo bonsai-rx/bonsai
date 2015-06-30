@@ -12,6 +12,7 @@ namespace Bonsai.Shaders
     [XmlInclude(typeof(LineWidthState))]
     [XmlInclude(typeof(PointSizeState))]
     [XmlInclude(typeof(BlendFunctionState))]
+    [XmlInclude(typeof(DepthFunctionState))]
     public abstract class StateConfiguration
     {
         public abstract void Execute();
