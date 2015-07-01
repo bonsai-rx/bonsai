@@ -22,6 +22,7 @@ namespace Bonsai.Shaders
                 var shader = new Shader(
                     shaderConfiguration.Name, this,
                     shaderConfiguration.VertexShader,
+                    shaderConfiguration.GeometryShader,
                     shaderConfiguration.FragmentShader,
                     shaderConfiguration.RenderState,
                     shaderConfiguration.TextureUnits);
