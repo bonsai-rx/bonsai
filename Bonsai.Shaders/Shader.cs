@@ -19,6 +19,7 @@ namespace Bonsai.Shaders
         int program;
         int timeLocation;
         string vertexSource;
+        string geometrySource;
         string fragmentSource;
         event Action update;
         ShaderWindow shaderWindow;
@@ -30,6 +31,7 @@ namespace Bonsai.Shaders
             string name,
             ShaderWindow window,
             string vertexShader,
+            string geometryShader,
             string fragmentShader,
             IEnumerable<StateConfiguration> renderState,
             IEnumerable<TextureConfiguration> textureUnits)
@@ -62,6 +64,7 @@ namespace Bonsai.Shaders
             Name = name;
             shaderWindow = window;
             vertexSource = vertexShader;
+            geometrySource = geometryShader;
             fragmentSource = fragmentShader;
             shaderState = renderState.ToList();
             shaderTextures = textureUnits.ToList();
@@ -126,6 +129,23 @@ namespace Bonsai.Shaders
                 throw new ShaderException(message);
             }
 
+            var geometryShader = 0;
+            if (!string.IsNullOrWhiteSpace(geometrySource))
+            {
+                geometryShader = GL.CreateShader(ShaderType.GeometryShader);
+                GL.ShaderSource(geometryShader, geometrySource);
+                GL.CompileShader(geometryShader);
+                GL.GetShader(geometryShader, ShaderParameter.CompileStatus, out status);
+                if (status == 0)
+                {
+                    var message = string.Format(
+                        "Failed to compile geometry shader.\nShader name: {0}\n{1}",
+                        Name,
+                        GL.GetShaderInfoLog(geometryShader));
+                    throw new ShaderException(message);
+                }
+            }
+
             var fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
             GL.ShaderSource(fragmentShader, fragmentSource);
             GL.CompileShader(fragmentShader);
@@ -141,6 +161,7 @@ namespace Bonsai.Shaders
 
             var shaderProgram = GL.CreateProgram();
             GL.AttachShader(shaderProgram, vertexShader);
+            if (geometryShader > 0) GL.AttachShader(shaderProgram, geometryShader);
             GL.AttachShader(shaderProgram, fragmentShader);
             GL.LinkProgram(shaderProgram);
             GL.GetProgram(shaderProgram, GetProgramParameterName.LinkStatus, out status);
