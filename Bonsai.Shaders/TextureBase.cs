@@ -1,6 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,12 +20,16 @@ namespace Bonsai.Shaders
             MagFilter = TextureMinFilter.Linear;
         }
 
+        [Category("TextureParameter")]
         public TextureWrapMode WrapS { get; set; }
 
+        [Category("TextureParameter")]
         public TextureWrapMode WrapT { get; set; }
 
+        [Category("TextureParameter")]
         public TextureMinFilter MinFilter { get; set; }
 
+        [Category("TextureParameter")]
         public TextureMinFilter MagFilter { get; set; }
 
         public override void Load(Shader shader)
