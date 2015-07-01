@@ -61,6 +61,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigurationEditorService.cs" />
+    <Compile Include="ShaderConfigurationCollectionEditor.cs" />
+    <Compile Include="ShaderConfigurationComponentEditor.cs" />
     <Compile Include="TextureConfigurationCollectionEditor.cs" />
     <Compile Include="GlslScriptEditorDialog.cs">
       <SubType>Form</SubType>
