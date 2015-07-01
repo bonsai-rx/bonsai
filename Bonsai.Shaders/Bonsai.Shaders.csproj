@@ -62,6 +62,7 @@
     <Compile Include="BlendFunctionState.cs" />
     <Compile Include="DepthFunctionState.cs" />
     <Compile Include="FramebufferTexture.cs" />
+    <Compile Include="MouseMove.cs" />
     <Compile Include="PointSizeState.cs" />
     <Compile Include="LineWidthState.cs" />
     <Compile Include="QuadEffects.cs" />
