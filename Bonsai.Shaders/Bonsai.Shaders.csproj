@@ -60,6 +60,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlendFunctionState.cs" />
+    <Compile Include="KeyPress.cs" />
+    <Compile Include="KeyUp.cs" />
+    <Compile Include="KeyDown.cs" />
+    <Compile Include="MouseWheel.cs" />
+    <Compile Include="MouseLeave.cs" />
+    <Compile Include="MouseEnter.cs" />
+    <Compile Include="MouseUp.cs" />
+    <Compile Include="MouseDown.cs" />
     <Compile Include="DepthFunctionState.cs" />
     <Compile Include="FramebufferTexture.cs" />
     <Compile Include="MouseMove.cs" />
