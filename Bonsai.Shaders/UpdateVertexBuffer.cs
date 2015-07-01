@@ -34,6 +34,76 @@ namespace Bonsai.Shaders
             }
         }
 
+        int GetVertexChannels(Shader shader)
+        {
+            int attribCount;
+            GL.BindVertexArray(shader.VertexBuffer);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, shader.VertexArray);
+            GL.GetProgramInterface(
+                shader.Program,
+                ProgramInterface.ProgramInput,
+                ProgramInterfaceParameter.ActiveResources,
+                out attribCount);
+
+            var channelCount = 0;
+            for (int index = 0; index < attribCount; index++)
+            {
+                int attribSize;
+                ActiveAttribType attribType;
+                var name = GL.GetActiveAttrib(shader.Program, index, out attribSize, out attribType);
+                var channels = GetAttribPointerChannels(attribType);
+                if (attribSize != 1 || channels < 1)
+                {
+                    throw new InvalidOperationException(string.Format(
+                        "The type of vertex attribute \"{0}\" is not supported in shader program \"{1}\".",
+                        name,
+                        ShaderName));
+                }
+
+                GL.EnableVertexAttribArray(index);
+                GL.VertexAttribPointer(
+                    index, channels,
+                    VertexAttribPointerType.Float,
+                    false,
+                    channels * BlittableValueType<float>.Stride,
+                    channelCount);
+                channelCount += channels;
+            }
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            GL.BindVertexArray(0);
+            return channelCount;
+        }
+
+        public IObservable<TVertex[]> Process<TVertex>(IObservable<TVertex[]> source) where TVertex : struct
+        {
+            return Observable.Defer(() =>
+            {
+                var channelCount = 0;
+                return source.CombineEither(
+                    ShaderManager.ReserveShader(ShaderName).Do(shader =>
+                    {
+                        shader.Update(() =>
+                        {
+                            channelCount = GetVertexChannels(shader);
+                        });
+                    }),
+                    (input, shader) =>
+                    {
+                        shader.Update(() =>
+                        {
+                            var bufferSize = input.Length * BlittableValueType<TVertex>.Stride;
+                            GL.BindBuffer(BufferTarget.ArrayBuffer, shader.VertexBuffer);
+                            GL.BufferData(BufferTarget.ArrayBuffer,
+                                          new IntPtr(bufferSize), input,
+                                          BufferUsageHint.StaticDraw);
+                            shader.VertexCount = bufferSize / (channelCount * BlittableValueType<float>.Stride);
+                            shader.DrawMode = DrawMode;
+                        });
+                        return input;
+                    });
+            });
+        }
+
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
             return Observable.Defer(() =>
@@ -44,40 +114,7 @@ namespace Bonsai.Shaders
                     {
                         shader.Update(() =>
                         {
-                            int attribCount;
-                            GL.BindVertexArray(shader.VertexBuffer);
-                            GL.BindBuffer(BufferTarget.ArrayBuffer, shader.VertexArray);
-                            GL.GetProgramInterface(
-                                shader.Program,
-                                ProgramInterface.ProgramInput,
-                                ProgramInterfaceParameter.ActiveResources,
-                                out attribCount);
-
-                            for (int index = 0; index <  attribCount; index++)
-                            {
-                                int attribSize;
-                                ActiveAttribType attribType;
-                                var name = GL.GetActiveAttrib(shader.Program, index, out attribSize, out attribType);
-                                var channels = GetAttribPointerChannels(attribType);
-                                if (attribSize != 1 || channels < 1)
-                                {
-                                    throw new InvalidOperationException(string.Format(
-                                        "The type of vertex attribute \"{0}\" is not supported in shader program \"{1}\".",
-                                        name,
-                                        ShaderName));
-                                }
-
-                                GL.EnableVertexAttribArray(index);
-                                GL.VertexAttribPointer(
-                                    index, channels,
-                                    VertexAttribPointerType.Float,
-                                    false,
-                                    channels * BlittableValueType<float>.Stride,
-                                    channelCount);
-                                channelCount += channels;
-                            }
-                            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-                            GL.BindVertexArray(0);
+                            channelCount = GetVertexChannels(shader);
                         });
                     }),
                     (input, shader) =>
