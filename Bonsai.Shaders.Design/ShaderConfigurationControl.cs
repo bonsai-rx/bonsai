@@ -45,36 +45,5 @@ namespace Bonsai.Shaders.Design
         {
             return new ShaderConfigurationCollectionEditor(type);
         }
-
-        class ShaderConfigurationCollectionEditor : DescriptiveCollectionEditor
-        {
-            public ShaderConfigurationCollectionEditor(Type type)
-                : base(type)
-            {
-            }
-
-            protected override Type[] CreateNewItemTypes()
-            {
-                return new[]
-                {
-                    typeof(ShaderConfiguration),
-                    typeof(TexturedQuad)
-                };
-            }
-
-            protected override object CreateInstance(Type itemType)
-            {
-                var instance = (ShaderConfiguration)base.CreateInstance(itemType);
-                if (itemType == typeof(TexturedQuad))
-                {
-                    instance.TextureUnits.Add(new Texture2D
-                    {
-                        Name = "tex"
-                    });
-                }
-
-                return instance;
-            }
-        }
     }
 }
