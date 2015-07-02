@@ -26,6 +26,7 @@ namespace Bonsai.Shaders
             GL.BindTexture(TextureTarget.Texture2D, texture);
             GL.PixelStore(PixelStoreParameter.UnpackRowLength, image.WidthStep / image.Channels);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0, pixelFormat, PixelType.UnsignedByte, image.ImageData);
+            GC.KeepAlive(image);
         }
     }
 }
