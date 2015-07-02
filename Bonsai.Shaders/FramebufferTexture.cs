@@ -42,7 +42,7 @@ namespace Bonsai.Shaders
                 IntPtr.Zero);
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
-            shader.EnsureFrameBuffer();
+            shader.EnsureFramebuffer();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, shader.Framebuffer);
             GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, Attachment, TextureTarget.Texture2D, texture, 0);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
