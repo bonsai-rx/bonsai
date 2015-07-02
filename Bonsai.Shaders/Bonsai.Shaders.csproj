@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlendFunctionState.cs" />
+    <Compile Include="ImageTexture.cs" />
     <Compile Include="KeyPress.cs" />
     <Compile Include="KeyUp.cs" />
     <Compile Include="KeyDown.cs" />
