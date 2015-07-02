@@ -19,6 +19,7 @@ namespace Bonsai.Shaders.Design
             return new[]
             {
                 typeof(Texture2D),
+                typeof(ImageTexture),
                 typeof(TextureReference),
                 typeof(FramebufferTexture),
             };

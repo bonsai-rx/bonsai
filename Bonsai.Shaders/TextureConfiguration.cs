@@ -10,6 +10,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Shaders
 {
     [XmlInclude(typeof(Texture2D))]
+    [XmlInclude(typeof(ImageTexture))]
     [XmlInclude(typeof(TextureReference))]
     [XmlInclude(typeof(FramebufferTexture))]
     public abstract class TextureConfiguration
