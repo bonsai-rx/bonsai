@@ -1,4 +1,5 @@
 ﻿using Bonsai.Design;
+using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,6 +34,12 @@ namespace Bonsai.Shaders.Design
                 {
                     Name = "tex"
                 });
+            }
+
+            if (itemType == typeof(TexturedModel))
+            {
+                instance.RenderState.Add(new EnableState { Capability = EnableCap.DepthTest });
+                instance.RenderState.Add(new DepthFunctionState { Function = DepthFunction.Less });
             }
 
             return instance;
