@@ -7,6 +7,7 @@ using System.Drawing.Design;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
@@ -31,6 +32,7 @@ namespace Bonsai.Shaders
             {
                 var texture = 0;
                 var name = TextureName;
+                var frame = default(IplImage);
                 if (string.IsNullOrEmpty(name))
                 {
                     throw new InvalidOperationException("A texture sampler name must be specified.");
@@ -55,10 +57,14 @@ namespace Bonsai.Shaders
                     }),
                     (input, shader) =>
                     {
-                        shader.Update(() =>
+                        if (Interlocked.Exchange(ref frame, input) == null)
                         {
-                            TextureHelper.UpdateTexture(texture, input);
-                        });
+                            shader.Update(() =>
+                            {
+                                TextureHelper.UpdateTexture(texture, frame);
+                                Interlocked.Exchange(ref frame, null);
+                            });
+                        }
                         return input;
                     });
             });
