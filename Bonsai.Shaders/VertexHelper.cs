@@ -14,10 +14,10 @@ namespace Bonsai.Shaders
         {
             var vertices = new float[]
             {
-                flipX ? 1f : 0f, flipY ? 1f : 0f, -1f, -1f,
-                flipX ? 0f : 1f, flipY ? 1f : 0f,  1f, -1f,
-                flipX ? 0f : 1f, flipY ? 0f : 1f,  1f,  1f,
-                flipX ? 1f : 0f, flipY ? 0f : 1f, -1f,  1f,
+                -1f, -1f, flipX ? 1f : 0f, flipY ? 1f : 0f,
+                 1f, -1f, flipX ? 0f : 1f, flipY ? 1f : 0f,
+                 1f,  1f, flipX ? 0f : 1f, flipY ? 0f : 1f,
+                -1f,  1f, flipX ? 1f : 0f, flipY ? 0f : 1f,
             };
 
             GL.BindVertexArray(vao);
@@ -33,12 +33,13 @@ namespace Bonsai.Shaders
                 VertexAttribPointerType.Float,
                 false,
                 4 * BlittableValueType<float>.Stride,
-                2 * BlittableValueType<float>.Stride);
+                0 * BlittableValueType<float>.Stride);
             GL.VertexAttribPointer(
                 1, 2,
                 VertexAttribPointerType.Float,
                 false,
-                4 * BlittableValueType<float>.Stride, 0);
+                4 * BlittableValueType<float>.Stride,
+                2 * BlittableValueType<float>.Stride);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
             GL.BindVertexArray(0);
             return 4;
