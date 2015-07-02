@@ -257,6 +257,7 @@ namespace Bonsai.Shaders
                 if (fbo != 0) GL.DeleteFramebuffers(1, ref fbo);
                 GL.DeleteVertexArrays(1, ref vao);
                 GL.DeleteBuffers(1, ref vbo);
+                GL.DeleteProgram(program);
                 shaderWindow = null;
                 update = null;
             }
