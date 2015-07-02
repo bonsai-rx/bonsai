@@ -10,28 +10,80 @@ using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using System.ComponentModel;
 using System.Xml.Serialization;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Bonsai.Video
 {
     public abstract class VideoCapture : Source<IplImage>
     {
         IObservable<IplImage> source;
+        readonly object captureLock = new object();
 
         public VideoCapture()
         {
-            source = Observable.Create<IplImage>(observer =>
+            source = Observable.Create<IplImage>((observer, cancellationToken) =>
             {
-                var videoSource = CreateVideoSource();
-                videoSource.NewFrame += (sender, e) => observer.OnNext(ProcessFrame(e.Frame));
-                videoSource.VideoSourceError += (sender, e) => observer.OnError(new VideoException(e.Description));
-                videoSource.PlayingFinished += (sender, e) => observer.OnCompleted();
-                videoSource.Start();
-                VideoSource = videoSource;
-                return new CompositeDisposable
+                return Task.Factory.StartNew(() =>
                 {
-                    Disposable.Create(() => VideoSource = null),
-                    Disposable.Create(videoSource.SignalToStop)
-                };
+                    lock (captureLock)
+                    {
+                        // When we finally acquire the lock, do we still want to start?
+                        if (cancellationToken.IsCancellationRequested) return;
+
+                        var frame = default(IplImage);
+                        var exception = default(Exception);
+                        var videoSource = CreateVideoSource();
+                        using (var waitEvent = new AutoResetEvent(false))
+                        {
+                            videoSource.NewFrame += (sender, e) =>
+                            {
+                                Interlocked.Exchange(ref frame, ProcessFrame(e.Frame));
+                                waitEvent.Set();
+                            };
+
+                            videoSource.VideoSourceError += (sender, e) =>
+                            {
+                                Interlocked.Exchange(ref exception, new VideoException(e.Description));
+                                waitEvent.Set();
+                            };
+
+                            videoSource.PlayingFinished += (sender, e) =>
+                            {
+                                Interlocked.Exchange(ref frame, null);
+                                waitEvent.Set();
+                            };
+
+                            videoSource.Start();
+                            VideoSource = videoSource;
+                            using (var cleanUp = Disposable.Create(() => VideoSource = null))
+                            using (var stopNotification = Disposable.Create(videoSource.WaitForStop))
+                            using (var notification = cancellationToken.Register(videoSource.SignalToStop))
+                            {
+                                while (!cancellationToken.IsCancellationRequested)
+                                {
+                                    waitEvent.WaitOne();
+                                    if (exception != null)
+                                    {
+                                        observer.OnError(exception);
+                                        break;
+                                    }
+
+                                    var image = frame;
+                                    if (image == null)
+                                    {
+                                        observer.OnCompleted();
+                                        break;
+                                    }
+                                    else observer.OnNext(image);
+                                }
+                            }
+                        }
+                    }
+                },
+                cancellationToken,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default);
             })
             .PublishReconnectable()
             .RefCount();
