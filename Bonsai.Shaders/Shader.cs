@@ -177,7 +177,7 @@ namespace Bonsai.Shaders
             return shaderProgram;
         }
 
-        internal void EnsureFrameBuffer()
+        internal void EnsureFramebuffer()
         {
             if (fbo == 0)
             {
