@@ -17,7 +17,7 @@
     <dependencies>
       <dependency id="Bonsai.Core" version="2.1.0" />
       <dependency id="Bonsai.Design" version="2.1.0" />
-      <dependency id="Bonsai.Video" version="2.1.0" />
+      <dependency id="Bonsai.Video" version="2.1.2" />
     </dependencies>
   </metadata>
 </package>
