@@ -17,17 +17,17 @@ namespace Bonsai.Shaders.Design
         protected override Type[] CreateNewItemTypes()
         {
             return new[]
-                {
-                    typeof(ShaderConfiguration),
-                    typeof(TexturedQuad),
-                    typeof(TexturedCube)
-                };
+            {
+                typeof(ShaderConfiguration),
+                typeof(TexturedQuad),
+                typeof(TexturedModel)
+            };
         }
 
         protected override object CreateInstance(Type itemType)
         {
             var instance = (ShaderConfiguration)base.CreateInstance(itemType);
-            if (itemType == typeof(TexturedQuad))
+            if (itemType == typeof(TexturedQuad) || itemType == typeof(TexturedModel))
             {
                 instance.TextureUnits.Add(new Texture2D
                 {

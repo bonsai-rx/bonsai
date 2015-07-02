@@ -72,6 +72,7 @@
     <Compile Include="DepthFunctionState.cs" />
     <Compile Include="FramebufferTexture.cs" />
     <Compile Include="MouseMove.cs" />
+    <Compile Include="ObjReader.cs" />
     <Compile Include="PointSizeState.cs" />
     <Compile Include="LineWidthState.cs" />
     <Compile Include="QuadEffects.cs" />
@@ -83,6 +84,7 @@
     <Compile Include="Texture2D.cs" />
     <Compile Include="TextureConfiguration.cs" />
     <Compile Include="TextureConfigurationCollection.cs" />
+    <Compile Include="TexturedModel.cs" />
     <Compile Include="TextureReference.cs" />
     <Compile Include="TextureBase.cs" />
     <Compile Include="UpdateFrame.cs" />

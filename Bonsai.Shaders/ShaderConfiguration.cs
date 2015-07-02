@@ -9,6 +9,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Shaders
 {
     [XmlInclude(typeof(TexturedQuad))]
+    [XmlInclude(typeof(TexturedModel))]
     public class ShaderConfiguration
     {
         readonly StateConfigurationCollection renderState = new StateConfigurationCollection();
