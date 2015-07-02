@@ -14,6 +14,18 @@ namespace Bonsai.Shaders.Design
         {
         }
 
+        protected override string GetDisplayText(object value)
+        {
+            var configuration = (TextureConfiguration)value;
+            var text = Convert.ToString(configuration);
+            if (!string.IsNullOrEmpty(configuration.Name))
+            {
+                return string.Format("{0} [{1}]", configuration.Name, text);
+            }
+
+            return text;
+        }
+
         protected override Type[] CreateNewItemTypes()
         {
             return new[]
