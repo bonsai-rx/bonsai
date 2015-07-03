@@ -46,7 +46,8 @@ namespace Bonsai.Shaders
                 out attribCount);
 
             var channelCount = 0;
-            for (int index = 0; index < attribCount; index++)
+            var attribChannels = new int[attribCount];
+            for (int index = 0; index < attribChannels.Length; index++)
             {
                 int attribSize;
                 ActiveAttribType attribType;
@@ -60,15 +61,23 @@ namespace Bonsai.Shaders
                         ShaderName));
                 }
 
+                channelCount += channels;
+                attribChannels[index] = channels;
+            }
+
+            var offset = 0;
+            for (int index = 0; index < attribChannels.Length; index++)
+            {
                 GL.EnableVertexAttribArray(index);
                 GL.VertexAttribPointer(
-                    index, channels,
+                    index, attribChannels[index],
                     VertexAttribPointerType.Float,
                     false,
-                    channels * BlittableValueType<float>.Stride,
-                    channelCount);
-                channelCount += channels;
+                    channelCount * BlittableValueType<float>.Stride,
+                    offset);
+                offset += attribChannels[index] * BlittableValueType<float>.Stride;
             }
+
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
             GL.BindVertexArray(0);
             return channelCount;
