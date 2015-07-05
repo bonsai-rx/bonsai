@@ -426,7 +426,10 @@ namespace Bonsai.Design
                             
                             component = successorComponent;
                         }
-                        else visited.Enqueue(successor);
+                        else if (!visited.Contains(successor))
+                        {
+                            visited.Enqueue(successor);
+                        }
                     }
 
                     if (component == null)
