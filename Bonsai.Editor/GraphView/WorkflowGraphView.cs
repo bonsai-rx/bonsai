@@ -1403,6 +1403,12 @@ namespace Bonsai.Design
                             {
                                 editorService.ValidateWorkflow();
                             }
+
+                            //TODO: Find more economical way to deal with visual node changes after editor
+                            foreach (var graphNode in graphView.Nodes.SelectMany(layer => layer))
+                            {
+                                graphView.Invalidate(graphNode);
+                            }
                         }
                     }
                 }
