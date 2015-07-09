@@ -117,7 +117,7 @@ namespace Bonsai.Shaders
             var indexMap = new Dictionary<Index, ushort>();
             foreach (var line in File.ReadAllLines(fileName))
             {
-                var values = line.Split(' ');
+                var values = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 if (values.Length == 0) continue;
                 switch (values[0])
                 {
