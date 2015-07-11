@@ -169,16 +169,6 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap PropertyMappingIcon {
-            get {
-                object obj = ResourceManager.GetObject("PropertyMappingIcon", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Ready.
         /// </summary>
         internal static string ReadyStatus {
