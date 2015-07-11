@@ -372,7 +372,7 @@ namespace Bonsai.Design
                                     let label = edge.Label as ExpressionBuilderArgument
                                     where label != null
                                     let successor = edge.Node
-                                    orderby successor.LayerIndex, label.Index
+                                    orderby node.BuildDependency, successor.LayerIndex, label.Index
                                     group node by node into g
                                     select g.Key;
                     var sortedLayer = new GraphNodeGrouping(layer.Key);
