@@ -1075,16 +1075,7 @@ namespace Bonsai.Editor
             UpdateDescriptionTextBox(displayName, description, propertiesDescriptionTextBox);
 
             saveSelectionAsToolStripMenuItem.Enabled = selectedObjects.Length > 0;
-            if (selectedObjects.Length == 1)
-            {
-                propertyGrid.PropertyTabs.AddTabType(typeof(MappingTab), PropertyTabScope.Document);
-                propertyGrid.SelectedObject = selectedObjects[0];
-            }
-            else
-            {
-                propertyGrid.RefreshTabs(PropertyTabScope.Document);
-                propertyGrid.SelectedObjects = selectedObjects;
-            }
+            propertyGrid.SelectedObjects = selectedObjects;
         }
 
         private void startToolStripMenuItem_Click(object sender, EventArgs e)
