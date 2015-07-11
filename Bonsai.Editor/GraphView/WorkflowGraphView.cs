@@ -469,6 +469,7 @@ namespace Bonsai.Design
         static bool IsBuildDependency(ExpressionBuilder builder)
         {
             //TODO: Refactor this test into the core API
+            builder = ExpressionBuilder.Unwrap(builder);
             return builder is PropertyMappingBuilder || builder is ExternalizedProperty;
         }
 
@@ -490,7 +491,9 @@ namespace Bonsai.Design
             IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> sources,
             Node<ExpressionBuilder, ExpressionBuilderArgument> target)
         {
-            var connectionCount = workflow.Contains(target) ? workflow.Predecessors(target).Count() : 0;
+            var connectionCount = workflow.Contains(target)
+                ? workflow.Predecessors(target).Count(node => !IsBuildDependency(node.Value))
+                : 0;
             foreach (var source in sources)
             {
                 if (source == null || target == source || source.Successors.Any(edge => edge.Target == target))
@@ -498,9 +501,8 @@ namespace Bonsai.Design
                     return false;
                 }
 
-                var builder = ExpressionBuilder.Unwrap(source.Value);
                 if (connectionCount++ >= target.Value.ArgumentRange.UpperBound &&
-                    !IsBuildDependency(builder) ||
+                    !IsBuildDependency(source.Value) ||
                     target.DepthFirstSearch().Contains(source))
                 {
                     return false;
