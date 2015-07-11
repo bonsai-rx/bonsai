@@ -8,51 +8,78 @@ using System.Windows.Forms;
 using System.Reactive;
 using OpenTK.Graphics.OpenGL;
 using System.Drawing;
+using Bonsai.Design;
 using OpenTK;
 
 namespace Bonsai.Vision.Design
 {
     class ImageRectanglePicker : ImageBox
     {
+        Rect previous;
         Rect rectangle;
         const float LineWidth = 2;
+        CommandExecutor commandExecutor = new CommandExecutor();
 
         public ImageRectanglePicker()
         {
+            Canvas.KeyDown += Canvas_KeyDown;
+            var lostFocus = Observable.FromEventPattern<EventArgs>(Canvas, "LostFocus").Select(e => e.EventArgs);
             var mouseMove = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseMove").Select(e => e.EventArgs);
             var mouseDown = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseDown").Select(e => e.EventArgs);
             var mouseUp = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseUp").Select(e => e.EventArgs);
+            var mouseLeftButtonUp = mouseUp.Where(evt => evt.Button == MouseButtons.Left);
+            var mouseRightButtonUp = mouseUp.Where(evt => evt.Button == MouseButtons.Right &&
+                                                          !MouseButtons.HasFlag(MouseButtons.Left));
 
             var mousePick = (from downEvt in mouseDown
-                             where Image != null && downEvt.Button == MouseButtons.Left
+                                .Where(evt => Image != null && evt.Button == MouseButtons.Left)
+                                .Do(evt => previous = rectangle)
                              let origin = new OpenCV.Net.Point(downEvt.X, downEvt.Y)
                              let rect = CanvasRectangle(rectangle)
                              let intersect = IntersectRectangle(rect, origin.X, origin.Y)
-                             select from moveEvt in mouseMove.TakeUntil(mouseUp).Where(upEvt => upEvt.Button == MouseButtons.Left)
-                                    let displacementX = moveEvt.X - origin.X
-                                    let displacementY = moveEvt.Y - origin.Y
-                                    select intersect
-                                        ? new Rect(rect.X + displacementX, rect.Y + displacementY, rect.Width, rect.Height)
-                                        : new Rect(origin.X, origin.Y, displacementX, displacementY)).Switch();
+                             select (from moveEvt in mouseMove.TakeUntil(mouseLeftButtonUp.Merge(lostFocus))
+                                     let displacementX = moveEvt.X - origin.X
+                                     let displacementY = moveEvt.Y - origin.Y
+                                     select intersect
+                                         ? new Rect(rect.X + displacementX, rect.Y + displacementY, rect.Width, rect.Height)
+                                         : new Rect(origin.X, origin.Y, displacementX, displacementY))
+                                     .Do(x =>
+                                     {
+                                         rectangle = NormalizedRectangle(x);
+                                         Canvas.Invalidate();
+                                     })
+                                     .TakeLast(1)
+                                     .Do(x =>
+                                     {
+                                         rectangle.X = Math.Min(rectangle.X, rectangle.X + rectangle.Width);
+                                         rectangle.Y = Math.Min(rectangle.Y, rectangle.Y + rectangle.Height);
+                                         rectangle.Width = Math.Abs(rectangle.Width);
+                                         rectangle.Height = Math.Abs(rectangle.Height);
+                                         rectangle = ClipRectangle(rectangle);
+                                         UpdateRectangle(rectangle, previous);
+                                     })).Switch();
 
-            mousePick.Subscribe(rect =>
+            mouseRightButtonUp.Subscribe(evt => UpdateRectangle(default(Rect), rectangle));
+            mousePick.Subscribe();
+        }
+
+        void Canvas_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.Z) commandExecutor.Undo();
+            if (e.Control && e.KeyCode == Keys.Y) commandExecutor.Redo();
+        }
+
+        void UpdateRectangle(Rect current, Rect previous)
+        {
+            commandExecutor.Execute(
+            () =>
             {
-                rectangle = NormalizedRectangle(rect);
-                Canvas.Invalidate();
-            });
-
-            mouseUp.Subscribe(evt =>
+                rectangle = current;
+                OnRectangleChanged(EventArgs.Empty);
+            },
+            () =>
             {
-                if (evt.Button == MouseButtons.Right) rectangle = new Rect(0, 0, 0, 0);
-                else
-                {
-                    rectangle.X = Math.Min(rectangle.X, rectangle.X + rectangle.Width);
-                    rectangle.Y = Math.Min(rectangle.Y, rectangle.Y + rectangle.Height);
-                    rectangle.Width = Math.Abs(rectangle.Width);
-                    rectangle.Height = Math.Abs(rectangle.Height);
-                    rectangle = ClipRectangle(rectangle);
-                }
-
+                rectangle = previous;
                 OnRectangleChanged(EventArgs.Empty);
             });
         }

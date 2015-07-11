@@ -14,7 +14,7 @@ namespace Bonsai.Vision
     [Description("Writes the input image into the specified file.")]
     public class SaveImage : Sink<IplImage>
     {
-        [FileNameFilter("PNG Files|*.png|BMP Files|*.bmp|JPEG Files|*.jpg;*.jpeg")]
+        [FileNameFilter("PNG Files (*.png)|*.png|BMP Files (*.bmp)|*.bmp|JPEG Files (*.jpg;*.jpeg)|*.jpg;*.jpeg|TIFF Files (*.tif)|*.tif")]
         [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
         [Description("The name of the output image file.")]
         public string FileName { get; set; }

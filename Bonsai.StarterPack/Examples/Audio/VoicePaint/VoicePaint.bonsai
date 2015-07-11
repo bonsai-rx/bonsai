@@ -145,16 +145,14 @@ output = None
 width = 640
 height = 480
 
-def getOutputType():
-    return clr.GetClrType(IplImage)
-
 def load():
     global particle, output
     particle = Point(width / 2, height / 2)
     output = IplImage(Size(width, height), IplDepth.U8, 3)
     output.SetZero()
 
-def process(input):
+@returns(IplImage)
+def process(value):
     global particle, output
     extrema = input.Item1
     minpitch = input.Item2

@@ -106,6 +106,11 @@ namespace Bonsai.Design
 
         #region Model
 
+        private static Node<ExpressionBuilder, ExpressionBuilderArgument> FindWorkflowValue(ExpressionBuilderGraph workflow, ExpressionBuilder value)
+        {
+            return workflow.Single(n => ExpressionBuilder.Unwrap(n.Value) == value);
+        }
+
         private void AddWorkflowNode(ExpressionBuilderGraph workflow, Node<ExpressionBuilder, ExpressionBuilderArgument> node)
         {
             workflow.Add(node);
@@ -1005,6 +1010,25 @@ namespace Bonsai.Design
             commandExecutor.EndCompositeCommand();
         }
 
+        private bool CanGroup(IEnumerable<GraphNode> nodes, WorkflowBuilder groupBuilder)
+        {
+            if (nodes == null)
+            {
+                throw new ArgumentNullException("nodes");
+            }
+
+            var workflow = this.workflow;
+            var selectedNodes = nodes.Select(node => (Node<ExpressionBuilder, ExpressionBuilderArgument>)node.Tag);
+            return !(from node in groupBuilder.Workflow.Sources()
+                     let source = FindWorkflowValue(workflow, node.Value)
+                     let connectivity = node.DepthFirstSearch()
+                                            .Select(successor => FindWorkflowValue(workflow, successor.Value))
+                                            .ToArray()
+                     from successor in source.DepthFirstSearch()
+                     where !connectivity.Contains(successor) && selectedNodes.Contains(successor)
+                     select successor).Any();
+        }
+
         public void GroupGraphNodes(IEnumerable<GraphNode> nodes)
         {
             GroupGraphNodes(nodes, graph => new NestedWorkflowBuilder(graph));
@@ -1027,9 +1051,17 @@ namespace Bonsai.Design
             GraphNode replacementNode = null;
             var nodeType = CreateGraphNodeType.Successor;
             var workflowBuilder = nodes.ToWorkflowBuilder(recurse: false);
+            if (!CanGroup(nodes, workflowBuilder))
+            {
+                uiService.ShowError("Unable to group broken branches.");
+                return;
+            }
 
             var inputIndex = 0;
             var predecessors = (from node in workflow
+                                let graphNode = FindGraphNode(node.Value)
+                                where graphNode != null
+                                orderby graphNode.Layer descending, graphNode.LayerIndex
                                 let unwrapNode = ExpressionBuilder.Unwrap(node.Value)
                                 where !workflowBuilder.Workflow.Any(n => n.Value == unwrapNode)
                                 from successor in node.Successors
@@ -1304,7 +1336,9 @@ namespace Bonsai.Design
 
         public void SelectAllGraphNodes()
         {
-            var graphNodes = graphView.Nodes.SelectMany(layer => layer);
+            var graphNodes = graphView.Nodes
+                .SelectMany(layer => layer)
+                .Where(node => node.Value != null);
             graphView.SelectedNodes = graphNodes;
         }
 
@@ -1372,6 +1406,12 @@ namespace Bonsai.Design
                             if (!editorState.WorkflowRunning)
                             {
                                 editorService.ValidateWorkflow();
+                            }
+
+                            //TODO: Find more economical way to deal with visual node changes after editor
+                            foreach (var graphNode in graphView.Nodes.SelectMany(layer => layer))
+                            {
+                                graphView.Invalidate(graphNode);
                             }
                         }
                     }
@@ -1555,7 +1595,10 @@ namespace Bonsai.Design
                 {
                     var visualizerDialog = mapping.Value;
                     var visible = visualizerDialog.Visible;
-                    visualizerDialog.Hide();
+                    if (!editorState.WorkflowRunning)
+                    {
+                        visualizerDialog.Hide();
+                    }
 
                     var visualizer = visualizerDialog.Visualizer;
                     var dialogSettings = CreateLayoutSettings(mapping.Key);
@@ -1598,7 +1641,10 @@ namespace Bonsai.Design
                     visualizerLayout.DialogSettings.Add(dialogSettings);
                 }
 
-                visualizerMapping = null;
+                if (!editorState.WorkflowRunning)
+                {
+                    visualizerMapping = null;
+                }
             }
             else
             {
@@ -1643,11 +1689,7 @@ namespace Bonsai.Design
         private bool UpdateGraphLayout(bool validateWorkflow)
         {
             var result = true;
-            graphView.Nodes = workflow
-                .LongestPathLayering()
-                .EnsureLayerPriority()
-                .EnsureEdgeLabelPriority()
-                .ToList();
+            graphView.Nodes = workflow.ConnectedComponentLayering().ToList();
             graphView.Invalidate();
             if (validateWorkflow)
             {
@@ -2095,7 +2137,8 @@ namespace Bonsai.Design
         {
             if (type.IsEnum) return Disposable.Empty;
 
-            foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public))
+            foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public)
+                                      .OrderBy(field => field.Name))
             {
                 var memberSelector = string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, field.Name);
                 var menuItem = CreateOutputMenuItem(field.Name, memberSelector, field.FieldType, selectedNode);
@@ -2103,7 +2146,8 @@ namespace Bonsai.Design
             }
 
             foreach (var property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                                         .Distinct(PropertyInfoComparer.Default))
+                                         .Distinct(PropertyInfoComparer.Default)
+                                         .OrderBy(property => property.Name))
             {
                 var memberSelector = string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, property.Name);
                 var menuItem = CreateOutputMenuItem(property.Name, memberSelector, property.PropertyType, selectedNode);
