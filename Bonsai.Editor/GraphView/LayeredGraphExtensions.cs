@@ -162,15 +162,7 @@ namespace Bonsai.Design
             {
                 var nullX = string.IsNullOrEmpty(x);
                 var nullY = string.IsNullOrEmpty(y);
-                if (nullX)
-                {
-                    return nullY ? 0 : 1;
-                }
-                else if (nullY)
-                {
-                    return -1;
-                }
-
+                if (nullX || nullY || x.Length != y.Length) return 0;
                 return x.CompareTo(y);
             }
         }
@@ -361,6 +353,141 @@ namespace Bonsai.Design
                         layer[k + 1] = neighbor;
                     }
                 }
+            }
+
+            return layers;
+        }
+
+        public static IEnumerable<GraphNodeGrouping> SortLayerEdgeLabels(this IEnumerable<GraphNodeGrouping> source)
+        {
+            var layers = source.ToArray();
+            for (int i = 0; i < layers.Length; i++)
+            {
+                var layer = layers[i];
+                if (i > 0)
+                {
+                    //TODO: ExpressionBuilderArgument should implement IComparable so ordering can be generic
+                    var nodeOrder = from node in layer
+                                    from edge in node.Successors
+                                    let label = edge.Label as ExpressionBuilderArgument
+                                    where label != null
+                                    let successor = edge.Node
+                                    orderby successor.LayerIndex, label.Index
+                                    group node by node into g
+                                    select g.Key;
+                    var sortedLayer = new GraphNodeGrouping(layer.Key);
+                    foreach (var node in nodeOrder)
+                    {
+                        sortedLayer.Add(node);
+                    }
+
+                    layers[i] = sortedLayer;
+                }
+            }
+
+            return layers;
+        }
+
+        class ConnectedComponent<TNodeValue, TEdgeLabel> : DirectedGraph<TNodeValue, TEdgeLabel>
+        {
+            public ConnectedComponent(int index)
+            {
+                Index = index;
+            }
+
+            public int Index { get; private set; }
+        }
+
+        static IEnumerable<ConnectedComponent<TNodeValue, TEdgeLabel>> FindConnectedComponents<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source)
+        {
+            var connectedComponents = new List<ConnectedComponent<TNodeValue, TEdgeLabel>>();
+            var connectedComponentMap = new Dictionary<Node<TNodeValue, TEdgeLabel>, ConnectedComponent<TNodeValue, TEdgeLabel>>();
+            var visited = new Queue<Node<TNodeValue, TEdgeLabel>>();
+            foreach (var node in source)
+            {
+                ConnectedComponent<TNodeValue, TEdgeLabel> component = null;
+                if (!connectedComponentMap.TryGetValue(node, out component))
+                {
+                    foreach (var successor in node.DepthFirstSearch())
+                    {
+                        ConnectedComponent<TNodeValue, TEdgeLabel> successorComponent;
+                        if (connectedComponentMap.TryGetValue(successor, out successorComponent))
+                        {
+                            if (component != null && component != successorComponent)
+                            {
+                                // Merge connected components
+                                foreach (var componentNode in component)
+                                {
+                                    successorComponent.Add(componentNode);
+                                    connectedComponentMap[componentNode] = successorComponent;
+                                }
+                                connectedComponents.Remove(component);
+                            }
+                            
+                            component = successorComponent;
+                        }
+                        else if (!visited.Contains(successor))
+                        {
+                            visited.Enqueue(successor);
+                        }
+                    }
+
+                    if (component == null)
+                    {
+                        component = new ConnectedComponent<TNodeValue, TEdgeLabel>(connectedComponents.Count);
+                        connectedComponents.Add(component);
+                    }
+
+                    while (visited.Count > 0)
+                    {
+                        var componentNode = visited.Dequeue();
+                        component.Add(componentNode);
+                        connectedComponentMap.Add(componentNode, component);
+                    }
+                }
+            }
+
+            return connectedComponents;
+        }
+
+        public static IEnumerable<GraphNodeGrouping> ConnectedComponentLayering<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source)
+        {
+            int layerOffset = 0;
+            List<GraphNodeGrouping> layers = new List<GraphNodeGrouping>();
+            var connectedComponents = FindConnectedComponents(source);
+            foreach (var component in connectedComponents)
+            {
+                var maxLayerCount = 0;
+                var layeredComponent = component
+                    .LongestPathLayering()
+                    .EnsureLayerPriority()
+                    .SortLayerEdgeLabels()
+                    .ToList();
+
+                foreach (var layer in layeredComponent)
+                {
+                    if (layer.Key < layers.Count)
+                    {
+                        foreach (var node in layer)
+                        {
+                            layers[layer.Key].Add(node);
+                        }
+                    }
+                    else
+                    {
+                        layers.Add(layer);
+                        layer.UpdateItems = false;
+                    }
+
+                    foreach (var node in layer)
+                    {
+                        node.LayerIndex += layerOffset;
+                    }
+
+                    maxLayerCount = Math.Max(maxLayerCount, layer.Count);
+                }
+
+                layerOffset += maxLayerCount;
             }
 
             return layers;

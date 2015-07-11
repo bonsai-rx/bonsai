@@ -274,7 +274,7 @@ namespace Bonsai.Expressions
 
                 var parameterElementType = parameterType.GetElementType();
                 var argumentElementType = argumentType.GetElementType();
-                return MatchTypeBindings(parameterElementType, argumentElementType);
+                return GetParameterBindings(parameterElementType, argumentElementType);
             }
 
             // Match bindings can only be obtained if both types are generic types

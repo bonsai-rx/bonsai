@@ -90,6 +90,7 @@ namespace Bonsai.Vision.Design
             {
                 if (disposing)
                 {
+                    MakeCurrent();
                     if (texture != null)
                     {
                         texture.Dispose();

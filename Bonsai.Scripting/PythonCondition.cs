@@ -18,7 +18,7 @@ namespace Bonsai.Scripting
     {
         public PythonCondition()
         {
-            Script = "def process(input):\n  return True";
+            Script = "def process(value):\n  return True";
         }
 
         [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
@@ -29,7 +29,7 @@ namespace Bonsai.Scripting
         {
             return Observable.Defer(() =>
             {
-                var engine = IronPython.Hosting.Python.CreateEngine();
+                var engine = PythonEngine.Create();
                 var scope = engine.CreateScope();
                 engine.Execute(Script, scope);
 

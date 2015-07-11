@@ -19,7 +19,7 @@ namespace Bonsai.Scripting
     {
         public PythonSink()
         {
-            Script = "def process(input):\n  return";
+            Script = "def process(value):\n  return";
         }
 
         [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
@@ -28,7 +28,7 @@ namespace Bonsai.Scripting
 
         protected virtual ScriptEngine CreateEngine()
         {
-            return IronPython.Hosting.Python.CreateEngine();
+            return PythonEngine.Create();
         }
 
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)

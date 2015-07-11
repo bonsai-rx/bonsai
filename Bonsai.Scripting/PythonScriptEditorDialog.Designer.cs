@@ -28,22 +28,24 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.richTextBox = new Bonsai.Scripting.TabSpaceRichTextBox();
+            this.scintilla = new ScintillaNET.Scintilla();
             this.okButton = new System.Windows.Forms.Button();
             this.cancelButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // richTextBox
+            // scintilla
             // 
-            this.richTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.scintilla.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.richTextBox.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBox.Location = new System.Drawing.Point(12, 12);
-            this.richTextBox.Name = "richTextBox";
-            this.richTextBox.Size = new System.Drawing.Size(600, 229);
-            this.richTextBox.TabIndex = 0;
-            this.richTextBox.Text = "";
+            this.scintilla.Location = new System.Drawing.Point(12, 12);
+            this.scintilla.Name = "scintilla";
+            this.scintilla.Size = new System.Drawing.Size(600, 229);
+            this.scintilla.TabIndex = 3;
+            this.scintilla.TabWidth = 2;
+            this.scintilla.UseTabs = false;
+            this.scintilla.WrapMode = ScintillaNET.WrapMode.Word;
+            this.scintilla.TextChanged += new System.EventHandler(this.scintilla_TextChanged);
             // 
             // okButton
             // 
@@ -74,7 +76,7 @@
             this.ClientSize = new System.Drawing.Size(624, 282);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.okButton);
-            this.Controls.Add(this.richTextBox);
+            this.Controls.Add(this.scintilla);
             this.MinimumSize = new System.Drawing.Size(640, 320);
             this.Name = "PythonScriptEditorDialog";
             this.Text = "Python Script";
@@ -84,7 +86,7 @@
 
         #endregion
 
-        private Bonsai.Scripting.TabSpaceRichTextBox richTextBox;
+        private ScintillaNET.Scintilla scintilla;
         private System.Windows.Forms.Button okButton;
         private System.Windows.Forms.Button cancelButton;
     }

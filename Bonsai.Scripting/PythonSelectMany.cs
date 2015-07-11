@@ -19,7 +19,7 @@ namespace Bonsai.Scripting
     {
         public PythonSelectMany()
         {
-            Script = "@returns(bool)\ndef process(input):\n  yield True";
+            Script = "@returns(bool)\ndef process(value):\n  yield True";
         }
 
         [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
@@ -28,7 +28,7 @@ namespace Bonsai.Scripting
 
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            var engine = IronPython.Hosting.Python.CreateEngine();
+            var engine = PythonEngine.Create();
             var scope = engine.CreateScope();
             var script = PythonHelper.ReturnsDecorator + Script;
             var scriptSource = engine.CreateScriptSourceFromString(script);
@@ -55,7 +55,7 @@ namespace Bonsai.Scripting
                 var outputType = PythonHelper.GetOutputType(scope, PythonHelper.ProcessFunction);
                 var scopeExpression = Expression.Constant(scope);
                 return Expression.Call(
-                    typeof(PythonTransform),
+                    typeof(PythonSelectMany),
                     "Process",
                     new[] { observableType, outputType },
                     source,

@@ -18,9 +18,11 @@ namespace Bonsai.Vision.Design
     {
         bool loaded;
         bool disposed;
+        static readonly object syncRoot = string.Intern("A1105A50-BBB0-4EC6-B8B2-B5EF38A9CC3E");
 
         public VisualizerCanvas()
         {
+            GraphicsContext.ShareContexts = false;
             InitializeComponent();
         }
 
@@ -65,7 +67,10 @@ namespace Bonsai.Vision.Design
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadIdentity();
             OnRenderFrame(e);
-            canvas.SwapBuffers();
+            lock (syncRoot)
+            {
+                canvas.SwapBuffers();
+            }
             OnSwapBuffers(e);
         }
 
@@ -105,6 +110,7 @@ namespace Bonsai.Vision.Design
             {
                 if (disposing)
                 {
+                    MakeCurrent();
                     if (components != null) components.Dispose();
                     disposed = true;
                 }

@@ -10,6 +10,7 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Vision
 {
+    [DefaultProperty("FileName")]
     [Description("Produces a sequence with a single image loaded from the specified file.")]
     public class LoadImage : Source<IplImage>
     {
@@ -37,7 +38,7 @@ namespace Bonsai.Vision
                 }
 
                 var image = CV.LoadImage(FileName, Mode);
-                if (image != null) throw new InvalidOperationException("Failed to load an image from the specified path.");
+                if (image == null) throw new InvalidOperationException("Failed to load an image from the specified path.");
                 return Observable.Return(image);
             });
         }

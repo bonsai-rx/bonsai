@@ -169,24 +169,16 @@
         </Combinator>
       </Expression>
       <Expression xsi:type="q3:PythonTransform">
-        <q3:Script>import clr
-
-def getOutputType():
-    return clr.GetClrType(int)
-
-def process(input):
+        <q3:Script>@returns(int)
+def process(value):
     activity = input.Activity.Val0
     rect = input.Rect
     normalizer = rect.Width * rect.Height
     return int(activity / normalizer)</q3:Script>
       </Expression>
       <Expression xsi:type="q3:PythonTransform">
-        <q3:Script>import clr
-
-def getOutputType():
-    return clr.GetClrType(int)
-
-def process(input):
+        <q3:Script>@returns(int)
+def process(value):
     activity = input.Activity.Val0
     rect = input.Rect
     normalizer = rect.Width * rect.Height

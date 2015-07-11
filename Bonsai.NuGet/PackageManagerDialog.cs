@@ -262,7 +262,9 @@ namespace Bonsai.NuGet
         {
             if (iconUrl == null) return defaultIcon;
 
-            var imageRequest = WebRequest.Create(iconUrl);
+            WebRequest imageRequest;
+            try { imageRequest = WebRequest.Create(iconUrl); }
+            catch (InvalidOperationException) { return defaultIcon; }
             var requestAsync = Observable.FromAsyncPattern(
                 (callback, state) => imageRequest.BeginGetResponse(callback, state),
                 asyncResult => imageRequest.EndGetResponse(asyncResult));
