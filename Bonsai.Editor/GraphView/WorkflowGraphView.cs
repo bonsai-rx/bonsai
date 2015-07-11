@@ -498,7 +498,7 @@ namespace Bonsai.Design
                     return false;
                 }
 
-                var builder = ExpressionBuilder.Unwrap(target.Value);
+                var builder = ExpressionBuilder.Unwrap(source.Value);
                 if (connectionCount++ >= target.Value.ArgumentRange.UpperBound &&
                     !IsBuildDependency(builder) ||
                     target.DepthFirstSearch().Contains(source))
