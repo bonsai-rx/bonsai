@@ -267,7 +267,9 @@ namespace Bonsai.Expressions
         static IObservable<TSource> MergeDependencies<TSource>(Func<IObservable<TSource>> observableFactory, IEnumerable<IObservable<TSource>> mappings)
         {
             var source = Observable.Defer(observableFactory);
-            return Observable.Merge(mappings.Concat(Enumerable.Repeat(source, 1)), Scheduler.Immediate);
+            return source.Publish(ps => ps
+                .Merge(Observable.Merge(mappings, Scheduler.Immediate))
+                .TakeUntil(ps.TakeLast(1)));
         }
 
         internal static Expression Build(this ExpressionBuilderGraph source, BuildContext buildContext)
