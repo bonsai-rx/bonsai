@@ -2,9 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Bonsai.Shaders
 {
@@ -17,6 +19,7 @@ namespace Bonsai.Shaders
         public FramebufferTexture()
         {
             Attachment = FramebufferAttachment.ColorAttachment0;
+            ClearColor = Color.Transparent;
         }
 
         [Category("TextureSize")]
@@ -26,6 +29,17 @@ namespace Bonsai.Shaders
         public int? Height { get; set; }
 
         public FramebufferAttachment Attachment { get; set; }
+
+        [XmlIgnore]
+        public Color ClearColor { get; set; }
+
+        [Browsable(false)]
+        [XmlElement("ClearColor")]
+        public string ClearColorHtml
+        {
+            get { return ColorTranslator.ToHtml(ClearColor); }
+            set { ClearColor = ColorTranslator.FromHtml(value); }
+        }
 
         public override void Load(Shader shader)
         {
@@ -52,6 +66,7 @@ namespace Bonsai.Shaders
         public override void Bind(Shader shader)
         {
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
+            GL.ClearColor(ClearColor);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.Viewport(0, 0, width, height);
         }
