@@ -16,7 +16,6 @@ namespace Bonsai.Shaders
         int vbo;
         int vao;
         int eao;
-        int fbo;
         int program;
         int timeLocation;
         string vertexSource;
@@ -92,11 +91,6 @@ namespace Bonsai.Shaders
         public int ElementArray
         {
             get { return eao; }
-        }
-
-        public int Framebuffer
-        {
-            get { return fbo; }
         }
 
         public int Program
@@ -183,14 +177,6 @@ namespace Bonsai.Shaders
             return shaderProgram;
         }
 
-        internal void EnsureFramebuffer()
-        {
-            if (fbo == 0)
-            {
-                GL.GenFramebuffers(1, out fbo);
-            }
-        }
-
         internal void EnsureElementArray()
         {
             if (eao == 0)
@@ -245,7 +231,6 @@ namespace Bonsai.Shaders
 
                     GL.BindVertexArray(vao);
                     GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-                    if (fbo > 0) GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
                     if (eao > 0)
                     {
                         GL.BindBuffer(BufferTarget.ElementArrayBuffer, eao);
@@ -253,7 +238,6 @@ namespace Bonsai.Shaders
                         GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
                     }
                     else GL.DrawArrays(DrawMode, 0, VertexCount);
-                    if (fbo > 0) GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
                     GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
                     GL.BindVertexArray(0);
 
@@ -274,7 +258,6 @@ namespace Bonsai.Shaders
                     texture.Unload(this);
                 }
 
-                if (fbo != 0) GL.DeleteFramebuffers(1, ref fbo);
                 if (eao != 0) GL.DeleteBuffers(1, ref eao);
                 GL.DeleteVertexArrays(1, ref vao);
                 GL.DeleteBuffers(1, ref vbo);
