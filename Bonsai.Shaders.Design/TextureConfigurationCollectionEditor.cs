@@ -34,6 +34,7 @@ namespace Bonsai.Shaders.Design
                 typeof(ImageTexture),
                 typeof(TextureReference),
                 typeof(FramebufferTexture),
+                typeof(FramebufferTextureReference),
             };
         }
     }
