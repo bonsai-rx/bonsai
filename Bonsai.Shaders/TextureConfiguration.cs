@@ -13,6 +13,7 @@ namespace Bonsai.Shaders
     [XmlInclude(typeof(ImageTexture))]
     [XmlInclude(typeof(TextureReference))]
     [XmlInclude(typeof(FramebufferTexture))]
+    [XmlInclude(typeof(FramebufferTextureReference))]
     public abstract class TextureConfiguration
     {
         public string Name { get; set; }
