@@ -33,49 +33,39 @@ namespace Bonsai.Expressions
     [XmlType(Namespace = Constants.XmlNamespace)]
     public class WorkflowProperty<TValue> : WorkflowProperty
     {
-        TValue value;
-        event Action<TValue> ValueChanged;
-
         /// <summary>
         /// Gets or sets the value of the property.
         /// </summary>
         [Description("The value of the property.")]
-        public TValue Value
-        {
-            get { return value; }
-            set
-            {
-                this.value = value;
-                OnValueChanged(value);
-            }
-        }
+        public TValue Value { get; set; }
 
         internal override Type PropertyType
         {
             get { return typeof(TValue); }
         }
 
-        void OnValueChanged(TValue value)
+        /// <summary>
+        /// Generates an observable sequence that contains the current property value
+        /// as a single element.
+        /// </summary>
+        /// <returns>
+        /// An observable sequence containing the current property value.
+        /// </returns>
+        public virtual IObservable<TValue> Generate()
         {
-            var handler = ValueChanged;
-            if (handler != null)
-            {
-                handler(value);
-            }
+            return Observable.Defer(() => Observable.Return(Value));
         }
 
         /// <summary>
         /// Generates an observable sequence that produces a value whenever the
-        /// workflow property changes, starting with the initial property value.
+        /// source sequence emits a new element.
         /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">The source sequence used to generate new values.</param>
         /// <returns>An observable sequence of property values.</returns>
-        public virtual IObservable<TValue> Generate()
+        public IObservable<TValue> Generate<TSource>(IObservable<TSource> source)
         {
-            return Observable
-                .Return(value)
-                .Concat(Observable.FromEvent<TValue>(
-                    handler => ValueChanged += handler,
-                    handler => ValueChanged -= handler));
+            return source.Select(x => Value);
         }
     }
 }
