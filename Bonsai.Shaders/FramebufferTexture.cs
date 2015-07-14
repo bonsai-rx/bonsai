@@ -2,9 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Bonsai.Shaders
 {
@@ -12,10 +14,12 @@ namespace Bonsai.Shaders
     {
         int width;
         int height;
+        int fbo;
 
         public FramebufferTexture()
         {
             Attachment = FramebufferAttachment.ColorAttachment0;
+            ClearColor = Color.Transparent;
         }
 
         [Category("TextureSize")]
@@ -25,6 +29,22 @@ namespace Bonsai.Shaders
         public int? Height { get; set; }
 
         public FramebufferAttachment Attachment { get; set; }
+
+        [XmlIgnore]
+        public Color ClearColor { get; set; }
+
+        [Browsable(false)]
+        [XmlElement("ClearColor")]
+        public string ClearColorHtml
+        {
+            get { return ColorTranslator.ToHtml(ClearColor); }
+            set { ClearColor = ColorTranslator.FromHtml(value); }
+        }
+
+        public int Framebuffer
+        {
+            get { return fbo; }
+        }
 
         public override void Load(Shader shader)
         {
@@ -42,26 +62,31 @@ namespace Bonsai.Shaders
                 IntPtr.Zero);
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
-            shader.EnsureFramebuffer();
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, shader.Framebuffer);
+            GL.GenFramebuffers(1, out fbo);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
             GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, Attachment, TextureTarget.Texture2D, texture, 0);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         }
 
         public override void Bind(Shader shader)
         {
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
+            GL.ClearColor(ClearColor);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.Viewport(0, 0, width, height);
         }
 
         public override void Unbind(Shader shader)
         {
             GL.Viewport(shader.Window.ClientRectangle);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         }
 
         public override void Unload(Shader shader)
         {
             width = 0;
             height = 0;
+            GL.DeleteFramebuffers(1, ref fbo);
             base.Unload(shader);
         }
     }
