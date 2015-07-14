@@ -36,6 +36,47 @@ namespace Bonsai.Dsp
         [Description("The number of buffers generated per second.")]
         public int PlaybackRate { get; set; }
 
+        Mat CreateBuffer()
+        {
+            var buffer = new double[BufferLength];
+            var frequency = Math.Max(1, Frequency);
+            var period = buffer.Length / frequency;
+            var indexScale = 1.0 / buffer.Length;
+            var waveform = Waveform;
+            switch (waveform)
+            {
+                default:
+                case FunctionWaveform.Sine:
+                    indexScale = 2 * Math.PI * indexScale;
+                    for (int i = 0; i < buffer.Length; i++)
+                    {
+                        buffer[i] = Math.Sin(frequency * i * indexScale);
+                    }
+                    break;
+                case FunctionWaveform.Triangular:
+                    for (int i = 0; i < buffer.Length; i++)
+                    {
+                        var t = frequency * (i + period / 4) * indexScale;
+                        buffer[i] = (1 - (4 * Math.Abs((t % 1) - 0.5) - 1)) - 1;
+                    }
+                    break;
+                case FunctionWaveform.Square:
+                case FunctionWaveform.Sawtooth:
+                    for (int i = 0; i < buffer.Length; i++)
+                    {
+                        var t = frequency * (i + period / 2) * indexScale;
+                        buffer[i] = 2 * (t % 1) - 1;
+                        if (waveform == FunctionWaveform.Square)
+                        {
+                            buffer[i] = Math.Sign(buffer[i]);
+                        }
+                    }
+                    break;
+            }
+
+            return Mat.FromArray(buffer);
+        }
+
         public override IObservable<Mat> Generate()
         {
             return Observable.Create<Mat>((observer, cancellationToken) =>
@@ -43,48 +84,14 @@ namespace Bonsai.Dsp
                 return Task.Factory.StartNew(() =>
                 {
                     var stopwatch = new Stopwatch();
-                    var buffer = new double[BufferLength];
                     using (var sampleSignal = new ManualResetEvent(false))
                     {
                         while (!cancellationToken.IsCancellationRequested)
                         {
                             stopwatch.Restart();
-                            var frequency = Math.Max(1, Frequency);
-                            var period = buffer.Length / frequency;
-                            var indexScale = 1.0 / buffer.Length;
-                            var waveform = Waveform;
-                            switch (waveform)
-                            {
-                                default:
-                                case FunctionWaveform.Sine:
-                                    indexScale = 2 * Math.PI * indexScale;
-                                    for (int i = 0; i < buffer.Length; i++)
-                                    {
-                                        buffer[i] = Math.Sin(frequency * i * indexScale);
-                                    }
-                                    break;
-                                case FunctionWaveform.Triangular:
-                                    for (int i = 0; i < buffer.Length; i++)
-                                    {
-                                        var t = frequency * (i + period / 4) * indexScale;
-                                        buffer[i] = (1 - (4 * Math.Abs((t % 1) - 0.5) - 1)) - 1;
-                                    }
-                                    break;
-                                case FunctionWaveform.Square:
-                                case FunctionWaveform.Sawtooth:
-                                    for (int i = 0; i < buffer.Length; i++)
-                                    {
-                                        var t = frequency * (i + period / 2) * indexScale;
-                                        buffer[i] = 2 * (t % 1) - 1;
-                                        if (waveform == FunctionWaveform.Square)
-                                        {
-                                            buffer[i] = Math.Sign(buffer[i]);
-                                        }
-                                    }
-                                    break;
-                            }
+                            var buffer = CreateBuffer();
+                            observer.OnNext(buffer);
 
-                            observer.OnNext(Mat.FromArray(buffer));
                             var playbackRate = PlaybackRate;
                             if (playbackRate <= 0)
                             {
@@ -103,6 +110,11 @@ namespace Bonsai.Dsp
                 TaskCreationOptions.LongRunning,
                 TaskScheduler.Default);
             });
+        }
+
+        public IObservable<Mat> Generate<TSource>(IObservable<TSource> source)
+        {
+            return source.Select(x => CreateBuffer());
         }
     }
 }
