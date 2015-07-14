@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlendFunctionState.cs" />
+    <Compile Include="FramebufferTextureReference.cs" />
     <Compile Include="ImageTexture.cs" />
     <Compile Include="KeyPress.cs" />
     <Compile Include="KeyUp.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="LineWidthState.cs" />
     <Compile Include="QuadEffects.cs" />
     <Compile Include="ShaderExtensions.cs" />
+    <Compile Include="ShaderNameConverter.cs" />
     <Compile Include="StateConfigurationCollection.cs" />
     <Compile Include="DisableState.cs" />
     <Compile Include="EnableState.cs" />

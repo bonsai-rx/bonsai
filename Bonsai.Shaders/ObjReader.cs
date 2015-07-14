@@ -2,6 +2,7 @@
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -29,7 +30,7 @@ namespace Bonsai.Shaders
                 for (int i = 0; i < values.Length; i++)
                 {
                     int value;
-                    if (!int.TryParse(values[i], out value))
+                    if (!int.TryParse(values[i], NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
                     {
                         throw new InvalidOperationException(string.Format(
                             "Invalid face specification: {0}.",
@@ -60,7 +61,7 @@ namespace Bonsai.Shaders
             for (int i = 1; i < values.Length; i++)
             {
                 float value;
-                if (!float.TryParse(values[i], out value))
+                if (!float.TryParse(values[i], NumberStyles.Float, CultureInfo.InvariantCulture, out value))
                 {
                     throw new InvalidOperationException(string.Format(
                         "Invalid vertex specification: {0}.",

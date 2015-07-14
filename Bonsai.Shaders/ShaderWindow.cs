@@ -38,7 +38,6 @@ namespace Bonsai.Shaders
 
         protected override void OnLoad(EventArgs e)
         {
-            GL.ClearColor(Color4.Black);
             foreach (var shader in shaders)
             {
                 shader.Load();
@@ -69,6 +68,7 @@ namespace Bonsai.Shaders
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
+            GL.ClearColor(Color4.Black);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             foreach (var shader in shaders)
             {

@@ -8,16 +8,12 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
-    public class TextureReference : TextureConfiguration
+    public class FramebufferTextureReference : TextureConfiguration
     {
+        int fbo;
+        int width;
+        int height;
         int texture;
-
-        public TextureReference()
-        {
-            TextureSlot = TextureUnit.Texture0;
-        }
-
-        public TextureUnit TextureSlot { get; set; }
 
         [Category("Reference")]
         [TypeConverter(typeof(ShaderNameConverter))]
@@ -28,7 +24,6 @@ namespace Bonsai.Shaders
 
         public override void Load(Shader shader)
         {
-            shader.SetTextureSlot(Name, TextureSlot);
             var referenceShader = shader.Window.Shaders.FirstOrDefault(s => s.Name == ShaderName);
             if (referenceShader == null)
             {
@@ -48,24 +43,39 @@ namespace Bonsai.Shaders
                         ShaderName));
                 }
 
-                texture = textureUnit.GetTexture();
+                var framebufferTexture = textureUnit as FramebufferTexture;
+                if (framebufferTexture == null)
+                {
+                    throw new InvalidOperationException(string.Format(
+                        "The texture unit \"{0}\" in shader program  \"{1}\" is not a framebuffer texture.",
+                        TextureName,
+                        ShaderName));
+                }
+
+                fbo = framebufferTexture.Framebuffer;
+                width = framebufferTexture.Width.GetValueOrDefault(shader.Window.Width);
+                height = framebufferTexture.Height.GetValueOrDefault(shader.Window.Height);
+                texture = framebufferTexture.GetTexture();
             });
         }
 
         public override void Bind(Shader shader)
         {
-            GL.ActiveTexture(TextureSlot);
-            GL.BindTexture(TextureTarget.Texture2D, texture);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
+            GL.Viewport(0, 0, width, height);
         }
 
         public override void Unbind(Shader shader)
         {
-            GL.ActiveTexture(TextureSlot);
-            GL.BindTexture(TextureTarget.Texture2D, 0);
+            GL.Viewport(shader.Window.ClientRectangle);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         }
 
         public override void Unload(Shader shader)
         {
+            fbo = 0;
+            width = 0;
+            height = 0;
             texture = 0;
         }
 
