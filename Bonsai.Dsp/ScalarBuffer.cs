@@ -30,14 +30,21 @@ namespace Bonsai.Dsp
         [Description("The scalar value to which all element in the output buffer will be set to.")]
         public Scalar Value { get; set; }
 
+        Mat CreateBuffer()
+        {
+            var buffer = new Mat(Size, Depth, Channels);
+            buffer.Set(Value);
+            return buffer;
+        }
+
         public override IObservable<Mat> Generate()
         {
-            return Observable.Defer(() =>
-            {
-                var buffer = new Mat(Size, Depth, Channels);
-                buffer.Set(Value);
-                return Observable.Return(buffer);
-            });
+            return Observable.Defer(() => Observable.Return(CreateBuffer()));
+        }
+
+        public IObservable<Mat> Generate<TSource>(IObservable<TSource> source)
+        {
+            return source.Select(x => CreateBuffer());
         }
     }
 }
