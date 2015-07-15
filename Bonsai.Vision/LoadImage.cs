@@ -27,20 +27,27 @@ namespace Bonsai.Vision
         [Description("Specifies optional conversions applied to the loaded image.")]
         public LoadImageFlags Mode { get; set; }
 
+        IplImage CreateImage()
+        {
+            var fileName = FileName;
+            if (string.IsNullOrEmpty(fileName))
+            {
+                throw new InvalidOperationException("A valid image file path was not specified.");
+            }
+
+            var image = CV.LoadImage(FileName, Mode);
+            if (image == null) throw new InvalidOperationException("Failed to load an image from the specified path.");
+            return image;
+        }
+
         public override IObservable<IplImage> Generate()
         {
-            return Observable.Defer(() =>
-            {
-                var fileName = FileName;
-                if (string.IsNullOrEmpty(fileName))
-                {
-                    throw new InvalidOperationException("A valid image file path was not specified.");
-                }
+            return Observable.Defer(() => Observable.Return(CreateImage()));
+        }
 
-                var image = CV.LoadImage(FileName, Mode);
-                if (image == null) throw new InvalidOperationException("Failed to load an image from the specified path.");
-                return Observable.Return(image);
-            });
+        public IObservable<IplImage> Generate<TSource>(IObservable<TSource> source)
+        {
+            return source.Select(x => CreateImage());
         }
     }
 }
