@@ -85,7 +85,7 @@ namespace Bonsai.Expressions
 
         bool IArgumentBuilder.BuildArgument(Expression source, Edge<ExpressionBuilder, ExpressionBuilderArgument> successor, out Expression argument)
         {
-            var workflowElement = GetWorkflowElement(successor.Target.Value);
+            var workflowElement = GetPropertyMappingElement(successor.Target.Value);
             var instance = Expression.Constant(workflowElement);
             argument = BuildPropertyMapping(source, instance, MemberName);
             return false;

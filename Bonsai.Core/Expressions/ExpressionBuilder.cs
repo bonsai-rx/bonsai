@@ -111,6 +111,19 @@ namespace Bonsai.Expressions
             return builder;
         }
 
+        internal static object GetPropertyMappingElement(ExpressionBuilder builder)
+        {
+            //TODO: The special case for binary operator operands should be avoided in the future
+            var element = ExpressionBuilder.GetWorkflowElement(builder);
+            var binaryOperator = element as BinaryOperatorBuilder;
+            if (binaryOperator != null && binaryOperator.Operand != null)
+            {
+                return binaryOperator.Operand;
+            }
+
+            return element;
+        }
+
         /// <summary>
         /// Creates a new expression builder from the specified editor browsable element and category.
         /// </summary>
