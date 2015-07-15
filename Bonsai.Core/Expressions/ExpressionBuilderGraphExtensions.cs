@@ -365,13 +365,19 @@ namespace Bonsai.Expressions
                 });
 
                 MulticastScope multicastScope = null;
+                var argumentBuilder = workflowElement as IArgumentBuilder;
                 var multicastBuilder = workflowElement as MulticastExpressionBuilder;
                 if (node.Successors.Count > 1 || multicastBuilder != null)
                 {
                     // Start a new multicast scope
                     if (multicastBuilder == null)
                     {
-                        multicastBuilder = new PublishBuilder();
+                        // Property mappings get replayed across subscriptions
+                        if (argumentBuilder != null)
+                        {
+                            multicastBuilder = new ReplayLatestBuilder();
+                        }
+                        else multicastBuilder = new PublishBuilder();
                         expression = multicastBuilder.Build(expression);
                     }
 
@@ -384,7 +390,6 @@ namespace Bonsai.Expressions
                     else expression = multicastScope.Close(expression);
                 }
 
-                var argumentBuilder = workflowElement as IArgumentBuilder;
                 foreach (var successor in node.Successors)
                 {
                     var argument = expression;
