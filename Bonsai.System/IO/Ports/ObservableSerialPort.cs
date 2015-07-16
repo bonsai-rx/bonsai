@@ -34,7 +34,6 @@ namespace Bonsai.IO
 
             return Observable.Create<string>(observer =>
             {
-                var first = true;
                 var data = string.Empty;
                 var connection = SerialPortManager.ReserveConnection(portName);
                 SerialDataReceivedEventHandler dataReceivedHandler;
@@ -53,7 +52,6 @@ namespace Bonsai.IO
                                 for (int i = 0; i < messages.Length; i++)
                                 {
                                     if (i == messages.Length - 1) data = messages[i];
-                                    else if (first) first = false;
                                     else observer.OnNext(messages[i]);
                                 }
                             }
