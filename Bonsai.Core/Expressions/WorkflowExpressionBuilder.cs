@@ -18,8 +18,9 @@ namespace Bonsai.Expressions
     [WorkflowElementCategory(ElementCategory.Nested)]
     [XmlType("Workflow", Namespace = Constants.XmlNamespace)]
     [TypeDescriptionProvider(typeof(WorkflowTypeDescriptionProvider))]
-    public abstract class WorkflowExpressionBuilder : ExpressionBuilder, INamedElement, IPropertyMappingBuilder
+    public abstract class WorkflowExpressionBuilder : ExpressionBuilder, INamedElement, IPropertyMappingBuilder, IRequireBuildContext
     {
+        BuildContext buildContext;
         readonly ExpressionBuilderGraph workflow;
         readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
 
@@ -133,7 +134,11 @@ namespace Bonsai.Expressions
             }
         }
 
-        internal BuildContext BuildContext { get; set; }
+        BuildContext IRequireBuildContext.BuildContext
+        {
+            get { return buildContext; }
+            set { buildContext = value; }
+        }
 
         internal IEnumerable<WorkflowInputBuilder> GetWorkflowParameters()
         {
@@ -173,9 +178,9 @@ namespace Bonsai.Expressions
                 assignment.parameter.Source = assignment.argument;
             }
 
-            var buildContext = BuildContext;
-            var expression = Workflow.Build(buildContext);
-            if (buildContext != null && buildContext.BuildResult != null) return buildContext.BuildResult;
+            var nestedContext = new BuildContext(buildContext);
+            var expression = Workflow.Build(nestedContext);
+            if (nestedContext.BuildResult != null) return nestedContext.BuildResult;
             var output = selector(expression);
 
             var subscriptions = propertyMappings.Select(mapping =>
