@@ -58,7 +58,7 @@ namespace Bonsai.Expressions
 
             // Assign input
             var selectorParameter = Expression.Parameter(source.Type);
-            return BuildWorflow(arguments, selectorParameter, selectorBody =>
+            return BuildWorkflow(arguments, selectorParameter, selectorBody =>
             {
                 var selector = Expression.Lambda(selectorBody, selectorParameter);
                 var selectorObservableType = selector.ReturnType.GetGenericArguments()[0];

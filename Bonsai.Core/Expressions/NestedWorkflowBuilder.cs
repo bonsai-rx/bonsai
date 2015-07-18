@@ -55,7 +55,7 @@ namespace Bonsai.Expressions
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             var source = arguments.FirstOrDefault();
-            return BuildWorflow(arguments, source, expression => expression);
+            return BuildWorkflow(arguments, source, expression => expression);
         }
     }
 }
