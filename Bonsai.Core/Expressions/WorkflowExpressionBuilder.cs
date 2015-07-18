@@ -163,7 +163,7 @@ namespace Bonsai.Expressions
         /// workflow to the specified input <paramref name="source"/>. Property mappings are also
         /// resolved in the correct sequence.
         /// </returns>
-        protected Expression BuildWorflow(IEnumerable<Expression> arguments, Expression source, Func<Expression, Expression> selector)
+        protected Expression BuildWorkflow(IEnumerable<Expression> arguments, Expression source, Func<Expression, Expression> selector)
         {
             // Assign sources if available
             var parameters = GetWorkflowParameters();
