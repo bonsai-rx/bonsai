@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Vision
 {
+    [Editor("Bonsai.Vision.Design.PolarTransformEditor, Bonsai.Vision.Design", typeof(ComponentEditor))]
     [Description("Performs forward or inverse linear-polar image transform. This transform \"emulates\" human foveal vision.")]
     public class LinearPolar : Transform<IplImage, IplImage>
     {
