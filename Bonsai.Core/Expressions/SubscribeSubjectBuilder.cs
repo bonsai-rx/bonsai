@@ -24,6 +24,7 @@ namespace Bonsai.Expressions
         /// <summary>
         /// Gets or sets the name of the shared subject.
         /// </summary>
+        [TypeConverter(typeof(SubjectNameConverter))]
         [Description("The name of the shared subject.")]
         public string Name { get; set; }
 
@@ -62,6 +63,64 @@ namespace Bonsai.Expressions
         static IObservable<TSource> Process<TSource>(Subject<TSource> subject)
         {
             return subject;
+        }
+
+        class SubjectNameConverter : StringConverter
+        {
+            public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
+            {
+                return true;
+            }
+
+            bool GetCallContext(ExpressionBuilderGraph source, ExpressionBuilderGraph target, Stack<ExpressionBuilderGraph> context)
+            {
+                context.Push(source);
+                if (source == target)
+                {
+                    return true;
+                }
+
+                foreach (var node in source)
+                {
+                    var workflowBuilder = ExpressionBuilder.Unwrap(node.Value) as WorkflowExpressionBuilder;
+                    if (workflowBuilder != null)
+                    {
+                        if (GetCallContext(workflowBuilder.Workflow, target, context))
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                context.Pop();
+                return false;
+            }
+
+            public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+            {
+                if (context != null)
+                {
+                    var workflow = (ExpressionBuilderGraph)context.GetService(typeof(ExpressionBuilderGraph));
+                    var workflowBuilder = (WorkflowBuilder)context.GetService(typeof(WorkflowBuilder));
+                    if (workflow != null && workflowBuilder != null)
+                    {
+                        var callContext = new Stack<ExpressionBuilderGraph>();
+                        if (GetCallContext(workflowBuilder.Workflow, workflow, callContext))
+                        {
+                            var names = (from level in callContext
+                                         from node in level
+                                         let publishBuilder = ExpressionBuilder.Unwrap(node.Value) as PublishSubjectBuilder
+                                         where publishBuilder != null
+                                         select publishBuilder.Name)
+                                         .Distinct()
+                                         .ToList();
+                            return new StandardValuesCollection(names);
+                        }
+                    }
+                }
+
+                return base.GetStandardValues(context);
+            }
         }
     }
 }
