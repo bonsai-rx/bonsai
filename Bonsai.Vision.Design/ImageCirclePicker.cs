@@ -33,7 +33,7 @@ namespace Bonsai.Vision.Design
                                      .Do(radius =>
                                      {
                                          Center = center;
-                                         MaxRadius = radius;
+                                         Radius = radius;
                                          Canvas.Invalidate();
                                          OnCircleChanged(EventArgs.Empty);
                                      })).Switch();
@@ -42,7 +42,7 @@ namespace Bonsai.Vision.Design
 
         public Point2f Center { get; set; }
 
-        public double MaxRadius { get; set; }
+        public double Radius { get; set; }
 
         public event EventHandler CircleChanged;
 
@@ -89,7 +89,7 @@ namespace Bonsai.Vision.Design
         protected override void OnRenderFrame(EventArgs e)
         {
             var center = DrawingCenter(Center);
-            var radius = DrawingRadius(MaxRadius);
+            var radius = DrawingRadius(Radius);
             GL.Color3(Color.White);
             base.OnRenderFrame(e);
 

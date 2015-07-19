@@ -70,6 +70,8 @@
     <Compile Include="CapturePropertyAssignment.cs" />
     <Compile Include="CapturePropertyCollection.cs" />
     <Compile Include="ColorBalance.cs" />
+    <Compile Include="PolarTransform.cs" />
+    <Compile Include="LogPolar.cs" />
     <Compile Include="DistanceTypeConverter.cs" />
     <Compile Include="LinearPolar.cs" />
     <Compile Include="MaskPolygon.cs" />

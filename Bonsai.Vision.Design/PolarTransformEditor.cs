@@ -23,17 +23,17 @@ namespace Bonsai.Vision.Design
                 var editorState = (IWorkflowEditorState)provider.GetService(typeof(IWorkflowEditorState));
                 if (workflow != null && editorState != null && editorState.WorkflowRunning)
                 {
-                    var linearPolar = (LinearPolar)component;
+                    var polarTransform = (PolarTransform)component;
                     using (var editorForm = new TypeVisualizerDialog())
                     {
                         var imageControl = new ImageCirclePicker();
                         imageControl.Dock = DockStyle.Fill;
-                        imageControl.Center = linearPolar.Center;
-                        imageControl.MaxRadius = linearPolar.MaxRadius;
+                        imageControl.Center = polarTransform.Center;
+                        imageControl.Radius = polarTransform.Magnitude;
                         imageControl.CircleChanged += (sender, e) =>
                         {
-                            linearPolar.Center = imageControl.Center;
-                            linearPolar.MaxRadius = imageControl.MaxRadius;
+                            polarTransform.Center = imageControl.Center;
+                            polarTransform.Magnitude = imageControl.Radius;
                         };
                         editorForm.Text = string.Format("{0} Center", component.GetType().Name);
                         editorForm.AddControl(imageControl);
