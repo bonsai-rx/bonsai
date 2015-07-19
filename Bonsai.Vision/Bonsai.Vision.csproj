@@ -71,6 +71,7 @@
     <Compile Include="CapturePropertyCollection.cs" />
     <Compile Include="ColorBalance.cs" />
     <Compile Include="DistanceTypeConverter.cs" />
+    <Compile Include="LinearPolar.cs" />
     <Compile Include="MaskPolygon.cs" />
     <Compile Include="OpticalFlow.cs" />
     <Compile Include="ScalarHistogram.cs" />
