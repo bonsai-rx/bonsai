@@ -470,7 +470,8 @@ namespace Bonsai.Design
         {
             //TODO: Refactor this test into the core API
             builder = ExpressionBuilder.Unwrap(builder);
-            return builder is PropertyMappingBuilder || builder is ExternalizedProperty;
+            return !(builder is InputMappingBuilder) && builder is PropertyMappingBuilder ||
+                   builder is ExternalizedProperty;
         }
 
         bool CanConnect(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget)

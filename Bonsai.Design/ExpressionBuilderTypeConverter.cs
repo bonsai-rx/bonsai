@@ -84,7 +84,8 @@ namespace Bonsai.Design
             if (destinationType == typeof(Pen))
             {
                 var expressionBuilder = ExpressionBuilder.Unwrap((ExpressionBuilder)value);
-                if (expressionBuilder is PropertyMappingBuilder || expressionBuilder is ExternalizedProperty)
+                if (!(expressionBuilder is InputMappingBuilder) && expressionBuilder is PropertyMappingBuilder ||
+                    expressionBuilder is ExternalizedProperty)
                 {
                     return Pens.Red;
                 }
