@@ -39,39 +39,42 @@ namespace Bonsai.Dsp
         Mat CreateBuffer()
         {
             var buffer = new double[BufferLength];
-            var frequency = Math.Max(1, Frequency);
-            var period = buffer.Length / frequency;
-            var indexScale = 1.0 / buffer.Length;
-            var waveform = Waveform;
-            switch (waveform)
+            var frequency = Math.Max(0, Frequency);
+            if (frequency > 0)
             {
-                default:
-                case FunctionWaveform.Sine:
-                    indexScale = 2 * Math.PI * indexScale;
-                    for (int i = 0; i < buffer.Length; i++)
-                    {
-                        buffer[i] = Math.Sin(frequency * i * indexScale);
-                    }
-                    break;
-                case FunctionWaveform.Triangular:
-                    for (int i = 0; i < buffer.Length; i++)
-                    {
-                        var t = frequency * (i + period / 4) * indexScale;
-                        buffer[i] = (1 - (4 * Math.Abs((t % 1) - 0.5) - 1)) - 1;
-                    }
-                    break;
-                case FunctionWaveform.Square:
-                case FunctionWaveform.Sawtooth:
-                    for (int i = 0; i < buffer.Length; i++)
-                    {
-                        var t = frequency * (i + period / 2) * indexScale;
-                        buffer[i] = 2 * (t % 1) - 1;
-                        if (waveform == FunctionWaveform.Square)
+                var period = buffer.Length / frequency;
+                var indexScale = 1.0 / buffer.Length;
+                var waveform = Waveform;
+                switch (waveform)
+                {
+                    default:
+                    case FunctionWaveform.Sine:
+                        indexScale = 2 * Math.PI * indexScale;
+                        for (int i = 0; i < buffer.Length; i++)
                         {
-                            buffer[i] = Math.Sign(buffer[i]);
+                            buffer[i] = Math.Sin(frequency * i * indexScale);
                         }
-                    }
-                    break;
+                        break;
+                    case FunctionWaveform.Triangular:
+                        for (int i = 0; i < buffer.Length; i++)
+                        {
+                            var t = frequency * (i + period / 4) * indexScale;
+                            buffer[i] = (1 - (4 * Math.Abs((t % 1) - 0.5) - 1)) - 1;
+                        }
+                        break;
+                    case FunctionWaveform.Square:
+                    case FunctionWaveform.Sawtooth:
+                        for (int i = 0; i < buffer.Length; i++)
+                        {
+                            var t = frequency * (i + period / 2) * indexScale;
+                            buffer[i] = 2 * (t % 1) - 1;
+                            if (waveform == FunctionWaveform.Square)
+                            {
+                                buffer[i] = Math.Sign(buffer[i]);
+                            }
+                        }
+                        break;
+                }
             }
 
             return Mat.FromArray(buffer);
