@@ -70,6 +70,7 @@
     <Compile Include="Expressions\BitwiseOrBuilder.cs" />
     <Compile Include="Expressions\BitwiseNotBuilder.cs" />
     <Compile Include="Expressions\BinaryOperatorTypeDescriptionProvider.cs" />
+    <Compile Include="Expressions\ReplaySubjectBuilder.cs" />
     <Compile Include="Expressions\IRequireBuildContext.cs" />
     <Compile Include="Expressions\PublishSubjectBuilder.cs" />
     <Compile Include="Expressions\ReplayLatestBuilder.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="Expressions\Properties\DoubleProperty.cs" />
     <Compile Include="Expressions\PublishBuilder.cs" />
     <Compile Include="Expressions\ReplayBuilder.cs" />
+    <Compile Include="Expressions\SubjectBuilder.cs" />
     <Compile Include="Expressions\SubscribeSubjectBuilder.cs" />
     <Compile Include="Expressions\VariableArgumentExpressionBuilder.cs" />
     <Compile Include="Expressions\WorkflowPropertyDescriptor.cs" />
