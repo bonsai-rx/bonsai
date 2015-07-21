@@ -24,6 +24,7 @@ namespace Bonsai.Expressions
         /// <summary>
         /// Gets or sets the name of the shared subject.
         /// </summary>
+        [Category("Design")]
         [TypeConverter(typeof(SubjectNameConverter))]
         [Description("The name of the shared subject.")]
         public string Name { get; set; }
@@ -60,7 +61,7 @@ namespace Bonsai.Expressions
             return Expression.Call(typeof(SubscribeSubjectBuilder), "Process", new[] { parameterType }, subjectExpression);
         }
 
-        static IObservable<TSource> Process<TSource>(Subject<TSource> subject)
+        static IObservable<TSource> Process<TSource>(ISubject<TSource> subject)
         {
             return subject;
         }
@@ -109,9 +110,9 @@ namespace Bonsai.Expressions
                         {
                             var names = (from level in callContext
                                          from node in level
-                                         let publishBuilder = ExpressionBuilder.Unwrap(node.Value) as PublishSubjectBuilder
-                                         where publishBuilder != null
-                                         select publishBuilder.Name)
+                                         let subjectBuilder = ExpressionBuilder.Unwrap(node.Value) as SubjectBuilder
+                                         where subjectBuilder != null
+                                         select subjectBuilder.Name)
                                          .Distinct()
                                          .ToList();
                             return new StandardValuesCollection(names);

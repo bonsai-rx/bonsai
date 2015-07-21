@@ -337,17 +337,17 @@ namespace Bonsai.Expressions
             foreach (var node in source)
             {
                 var workflowElement = ExpressionBuilder.Unwrap(node.Value);
-                var publishSubject = workflowElement as PublishSubjectBuilder;
-                if (publishSubject != null && !string.IsNullOrEmpty(publishSubject.Name))
+                var subjectBuilder = workflowElement as SubjectBuilder;
+                if (subjectBuilder != null && !string.IsNullOrEmpty(subjectBuilder.Name))
                 {
                     // Connect to any existing subscribers
-                    var dependency = GetOrCreateDependency(ref dependencies, publishSubject.Name);
+                    var dependency = GetOrCreateDependency(ref dependencies, subjectBuilder.Name);
                     if (dependency.Publish == null)
                     {
                         dependency.Publish = node;
                         foreach (var subscriber in dependency.Subscribe)
                         {
-                            yield return new DependencyLink(publishSubject.Name, source, node, subscriber);
+                            yield return new DependencyLink(subjectBuilder.Name, source, node, subscriber);
                         }
                     }
                 }
