@@ -91,6 +91,7 @@
     <Compile Include="TextureBase.cs" />
     <Compile Include="UpdateFrame.cs" />
     <Compile Include="TexturedQuad.cs" />
+    <Compile Include="UpdateShaderState.cs" />
     <Compile Include="UpdateVertexBuffer.cs" />
     <Compile Include="ObservableCombinators.cs" />
     <Compile Include="Shader.cs" />

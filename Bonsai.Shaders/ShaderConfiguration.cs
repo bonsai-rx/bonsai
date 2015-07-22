@@ -24,6 +24,7 @@ namespace Bonsai.Shaders
 
         public string Name { get; set; }
 
+        [Category("State")]
         public bool Enabled { get; set; }
 
         [Category("Shaders")]
