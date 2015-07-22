@@ -31,7 +31,7 @@ namespace Bonsai.Shaders
         }
 
         const string DefaultVertexShader = @"
-#version 400
+#version 410
 layout(location = 0) in vec3 vp;
 layout(location = 1) in vec2 vt;
 layout(location = 2) out vec3 vn;
