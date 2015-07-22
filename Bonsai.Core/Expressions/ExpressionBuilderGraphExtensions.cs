@@ -418,10 +418,22 @@ namespace Bonsai.Expressions
                 var arguments = GetArgumentList(argumentLists, builder);
 
                 var argumentRange = builder.ArgumentRange;
-                if (argumentRange == null || arguments.Count < argumentRange.LowerBound)
+                if (argumentRange == null)
+                {
+                    throw new WorkflowBuildException("Argument range not set in expression builder node.", builder);
+                }
+
+                if (arguments.Count < argumentRange.LowerBound)
                 {
                     throw new WorkflowBuildException(
                         string.Format("Unsupported number of arguments. This node requires at least {0} input connection(s).", argumentRange.LowerBound),
+                        builder);
+                }
+
+                if (arguments.Count > argumentRange.UpperBound)
+                {
+                    throw new WorkflowBuildException(
+                        string.Format("Unsupported number of arguments. This node supports at most {0} input connection(s).", argumentRange.LowerBound),
                         builder);
                 }
 
