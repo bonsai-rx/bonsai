@@ -20,6 +20,7 @@ namespace Bonsai.Shaders.Design
             return new[]
             {
                 typeof(ShaderConfiguration),
+                typeof(PointSprite),
                 typeof(TexturedQuad),
                 typeof(TexturedModel)
             };
@@ -28,6 +29,18 @@ namespace Bonsai.Shaders.Design
         protected override object CreateInstance(Type itemType)
         {
             var instance = (ShaderConfiguration)base.CreateInstance(itemType);
+            if (itemType == typeof(PointSprite))
+            {
+                instance.RenderState.Add(new EnableState { Capability = EnableCap.Blend });
+                instance.RenderState.Add(new BlendFunctionState());
+                instance.RenderState.Add(new EnableState { Capability = EnableCap.PointSprite });
+                instance.RenderState.Add(new PointSizeState { Size = 10 });
+                instance.TextureUnits.Add(new ImageTexture
+                {
+                    Name = "tex"
+                });
+            }
+
             if (itemType == typeof(TexturedQuad) || itemType == typeof(TexturedModel))
             {
                 instance.TextureUnits.Add(new Texture2D

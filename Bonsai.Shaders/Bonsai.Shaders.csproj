@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlendFunctionState.cs" />
+    <Compile Include="PointSprite.cs" />
     <Compile Include="FramebufferTextureReference.cs" />
     <Compile Include="ImageTexture.cs" />
     <Compile Include="KeyPress.cs" />
