@@ -12,6 +12,11 @@ namespace Bonsai.Shaders
 {
     public class ImageTexture : Texture2D
     {
+        public ImageTexture()
+        {
+            Mode = LoadImageFlags.Unchanged;
+        }
+
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
         [FileNameFilter("Image Files|*.png;*.bmp;*.jpg;*.jpeg;*.tif|PNG Files (*.png)|*.png|BMP Files (*.bmp)|*.bmp|JPEG Files (*.jpg;*.jpeg)|*.jpg;*.jpeg|TIFF Files (*.tif)|*.tif")]
         [Description("The name of the image file.")]
