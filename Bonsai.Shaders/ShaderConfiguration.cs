@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders
 {
+    [XmlInclude(typeof(PointSprite))]
     [XmlInclude(typeof(TexturedQuad))]
     [XmlInclude(typeof(TexturedModel))]
     public class ShaderConfiguration
