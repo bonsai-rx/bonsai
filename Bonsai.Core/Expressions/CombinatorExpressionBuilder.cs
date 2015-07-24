@@ -53,7 +53,7 @@ namespace Bonsai.Expressions
         {
             var output = BuildCombinator(arguments);
             var combinatorExpression = Expression.Constant(this);
-            return BuildMappingOutput(arguments, combinatorExpression, output, propertyMappings);
+            return BuildMappingOutput(arguments, combinatorExpression, output);
         }
 
         /// <summary>
