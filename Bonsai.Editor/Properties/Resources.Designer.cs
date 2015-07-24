@@ -243,5 +243,23 @@ namespace Bonsai.Editor.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This workflow file has been created with an older version of Bonsai. Further modifications will be incompatible with previous versions..
+        /// </summary>
+        internal static string UpdateWorkflow_Warning {
+            get {
+                return ResourceManager.GetString("UpdateWorkflow_Warning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update Workflow.
+        /// </summary>
+        internal static string UpdateWorkflow_Warning_Caption {
+            get {
+                return ResourceManager.GetString("UpdateWorkflow_Warning_Caption", resourceCulture);
+            }
+        }
     }
 }
