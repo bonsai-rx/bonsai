@@ -203,4 +203,10 @@ Copyright 2010-2012 Outercurve Foundation</value>
   <data name="SaveWorkflow_Error_Caption" xml:space="preserve">
     <value>Save Error</value>
   </data>
+  <data name="UpdateWorkflow_Warning" xml:space="preserve">
+    <value>This workflow file has been created with an older version of Bonsai. Further modifications will be incompatible with previous versions.</value>
+  </data>
+  <data name="UpdateWorkflow_Warning_Caption" xml:space="preserve">
+    <value>Update Workflow</value>
+  </data>
 </root>
