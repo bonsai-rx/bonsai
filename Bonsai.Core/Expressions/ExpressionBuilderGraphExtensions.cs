@@ -614,6 +614,42 @@ namespace Bonsai.Expressions
 
         /// <summary>
         /// Converts the specified expression builder workflow into an equivalent representation
+        /// where each node has been replaced by its projection as specified by a selector function.
+        /// </summary>
+        /// <param name="source">The expression builder workflow to convert.</param>
+        /// <param name="selector">A transform function to apply to each node.</param>
+        /// <returns>
+        /// A new expression builder workflow where all nodes have been replaced by their
+        /// projections as specified by the selector function.
+        /// </returns>
+        public static ExpressionBuilderGraph Convert(
+            this IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> source,
+            Func<ExpressionBuilder, ExpressionBuilder> selector)
+        {
+            var workflow = new ExpressionBuilderGraph();
+            var nodeMapping = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderArgument>, Node<ExpressionBuilder, ExpressionBuilderArgument>>();
+            foreach (var node in source)
+            {
+                var builder = selector(node.Value);
+                var builderNode = workflow.Add(builder);
+                nodeMapping.Add(node, builderNode);
+            }
+
+            foreach (var node in source)
+            {
+                var builderNode = nodeMapping[node];
+                foreach (var successor in node.Successors)
+                {
+                    var targetNode = nodeMapping[successor.Target];
+                    workflow.AddEdge(builderNode, targetNode, successor.Label);
+                }
+            }
+
+            return workflow;
+        }
+
+        /// <summary>
+        /// Converts the specified expression builder workflow into an equivalent representation
         /// where all the nodes are decorated by <see cref="InspectBuilder"/> instances that allow
         /// for runtime inspection and error redirection of workflow values.
         /// </summary>
@@ -642,33 +678,16 @@ namespace Bonsai.Expressions
         /// </returns>
         public static ExpressionBuilderGraph ToInspectableGraph(this ExpressionBuilderGraph source, bool recurse)
         {
-            var observableMapping = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderArgument>, Node<ExpressionBuilder, ExpressionBuilderArgument>>();
-            var observableGraph = new ExpressionBuilderGraph();
-            foreach (var node in source)
+            return Convert(source, builder =>
             {
-                ExpressionBuilder nodeValue = node.Value;
-                var workflowExpression = recurse ? nodeValue as WorkflowExpressionBuilder : null;
+                var workflowExpression = recurse ? builder as WorkflowExpressionBuilder : null;
                 if (workflowExpression != null)
                 {
-                    nodeValue = workflowExpression.Clone(workflowExpression.Workflow.ToInspectableGraph());
+                    builder = workflowExpression.Clone(workflowExpression.Workflow.ToInspectableGraph());
                 }
 
-                var observableNode = observableGraph.Add(new InspectBuilder(nodeValue));
-                observableMapping.Add(node, observableNode);
-            }
-
-            foreach (var node in source)
-            {
-                var observableNode = observableMapping[node];
-                foreach (var successor in node.Successors)
-                {
-                    var successorNode = observableMapping[successor.Target];
-                    var parameter = new ExpressionBuilderArgument(successor.Label.Index);
-                    observableGraph.AddEdge(observableNode, successorNode, parameter);
-                }
-            }
-
-            return observableGraph;
+                return new InspectBuilder(builder);
+            });
         }
 
         /// <summary>
@@ -701,37 +720,18 @@ namespace Bonsai.Expressions
         /// </returns>
         public static ExpressionBuilderGraph FromInspectableGraph(this IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> source, bool recurse)
         {
-            var workflow = new ExpressionBuilderGraph();
-            var nodeMapping = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderArgument>, Node<ExpressionBuilder, ExpressionBuilderArgument>>();
-            foreach (var node in source)
+            return Convert(source, builder =>
             {
-                InspectBuilder inspectBuilder = (InspectBuilder)node.Value;
-                ExpressionBuilder nodeValue = inspectBuilder.Builder;
-                var workflowExpression = recurse ? nodeValue as WorkflowExpressionBuilder : null;
+                var inspectBuilder = (InspectBuilder)builder;
+                builder = inspectBuilder.Builder;
+                var workflowExpression = recurse ? builder as WorkflowExpressionBuilder : null;
                 if (workflowExpression != null)
                 {
-                    nodeValue = workflowExpression.Clone(workflowExpression.Workflow.FromInspectableGraph());
+                    builder = workflowExpression.Clone(workflowExpression.Workflow.FromInspectableGraph());
                 }
 
-                var builderNode = workflow.Add(nodeValue);
-                nodeMapping.Add(node, builderNode);
-            }
-
-            foreach (var node in source)
-            {
-                var sourceNode = node;
-                var builderNode = nodeMapping[sourceNode];
-                foreach (var successor in sourceNode.Successors)
-                {
-                    Node<ExpressionBuilder, ExpressionBuilderArgument> targetNode;
-                    if (nodeMapping.TryGetValue(successor.Target, out targetNode))
-                    {
-                        workflow.AddEdge(builderNode, targetNode, successor.Label);
-                    }
-                }
-            }
-
-            return workflow;
+                return builder;
+            });
         }
 
         /// <summary>
