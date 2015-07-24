@@ -81,7 +81,7 @@ namespace Bonsai.Expressions
             if (operand != null)
             {
                 var operandExpression = Expression.Constant(operand);
-                return BuildMappingOutput(arguments, operandExpression, output, PropertyMappings);
+                return BuildMappingOutput(arguments, operandExpression, output);
             }
             else return output;
         }
