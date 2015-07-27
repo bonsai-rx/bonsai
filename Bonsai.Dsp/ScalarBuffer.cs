@@ -27,7 +27,7 @@ namespace Bonsai.Dsp
         [Description("The number of channels in the output buffer.")]
         public int Channels { get; set; }
 
-        [Description("The scalar value to which all element in the output buffer will be set to.")]
+        [Description("The scalar value to which all elements in the output buffer will be set to.")]
         public Scalar Value { get; set; }
 
         Mat CreateBuffer()
