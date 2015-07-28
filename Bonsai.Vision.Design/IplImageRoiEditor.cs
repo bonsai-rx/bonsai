@@ -67,7 +67,7 @@ namespace Bonsai.Vision.Design
 
                     IDisposable subscription = null;
                     var source = GetDataSource(context, provider).Output.Merge();
-                    imageControl.Load += delegate { subscription = source.Subscribe(image => imageControl.Image = (IplImage)image); };
+                    imageControl.Load += delegate { subscription = source.Subscribe(image => imageControl.Image = image as IplImage); };
                     imageControl.HandleDestroyed += delegate { subscription.Dispose(); };
                     editorService.ShowDialog(visualizerDialog);
 
