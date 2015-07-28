@@ -106,6 +106,7 @@
     <Compile Include="ShaderManager.cs" />
     <Compile Include="UpdateUniform.cs" />
     <Compile Include="VertexHelper.cs" />
+    <Compile Include="WarpPerspective.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Bonsai.Shaders.nuspec">
