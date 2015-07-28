@@ -32,7 +32,6 @@ namespace Bonsai.Vision.Design
             var mouseDrag = mouseLeftButtonDown.SelectMany(downEvt =>
             {
                 var image = Image;
-                if (image == null) return Observable.Empty<Point2f>();
                 var downPoint = ImagePoint(downEvt.X, downEvt.Y, image);
                 var cornerIndex = CornerIndex(downPoint);
                 commandExecutor.BeginCompositeCommand();
@@ -124,16 +123,21 @@ namespace Bonsai.Vision.Design
         {
             if (image == null)
             {
-                throw new ArgumentNullException("image");
+                return new Point2f(
+                    2 * x / (float)Canvas.Width - 1,
+                    -2 * y / (float)Canvas.Height + 1);
             }
-
-            return new Point2f(
-                x * image.Width / (float)Canvas.Width,
-                y * image.Height / (float)Canvas.Height);
+            else
+            {
+                return new Point2f(
+                    x * image.Width / (float)Canvas.Width,
+                    y * image.Height / (float)Canvas.Height);
+            }
         }
 
         Vector2 NormalizePoint(Point2f point, IplImage image)
         {
+            if (image == null) return new Vector2(point.X, point.Y);
             return new Vector2(
                 (point.X * 2 / image.Width) - 1,
                 -((point.Y * 2 / image.Height) - 1));
@@ -157,17 +161,14 @@ namespace Bonsai.Vision.Design
             base.OnRenderFrame(e);
 
             var image = Image;
-            if (image != null)
+            GL.Color3(Color.Red);
+            GL.Disable(EnableCap.Texture2D);
+            GL.Begin(PrimitiveType.LineLoop);
+            for (int i = 0; i < quadrangle.Length; i++)
             {
-                GL.Color3(Color.Red);
-                GL.Disable(EnableCap.Texture2D);
-                GL.Begin(PrimitiveType.LineLoop);
-                for (int i = 0; i < quadrangle.Length; i++)
-                {
-                    GL.Vertex2(NormalizePoint(quadrangle[i], image));
-                }
-                GL.End();
+                GL.Vertex2(NormalizePoint(quadrangle[i], image));
             }
+            GL.End();
         }
     }
 }
