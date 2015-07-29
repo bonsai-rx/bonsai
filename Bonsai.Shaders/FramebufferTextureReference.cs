@@ -86,7 +86,7 @@ namespace Bonsai.Shaders
 
         public override string ToString()
         {
-            return string.Format("Reference({0}.{1})", ShaderName, TextureName);
+            return string.Format("FramebufferReference({0}.{1})", ShaderName, TextureName);
         }
     }
 }
