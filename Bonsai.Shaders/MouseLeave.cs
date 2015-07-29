@@ -12,14 +12,13 @@ namespace Bonsai.Shaders
 {
     [Description("Produces a sequence of events whenever the mouse cursor leaves the shader window bounds.")]
     [Editor("Bonsai.Shaders.Design.ShaderConfigurationComponentEditor, Bonsai.Shaders.Design", typeof(ComponentEditor))]
-    public class MouseLeave : Source<Unit>
+    public class MouseLeave : Source<EventPattern<EventArgs>>
     {
-        public override IObservable<Unit> Generate()
+        public override IObservable<EventPattern<EventArgs>> Generate()
         {
             return ShaderManager.WindowSource.SelectMany(window => Observable.FromEventPattern<EventArgs>(
                 handler => window.MouseLeave += handler,
-                handler => window.MouseLeave -= handler)
-                .Select(evt => Unit.Default));
+                handler => window.MouseLeave -= handler));
         }
     }
 }
