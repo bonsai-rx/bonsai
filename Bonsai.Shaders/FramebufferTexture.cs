@@ -41,6 +41,7 @@ namespace Bonsai.Shaders
             set { ClearColor = ColorTranslator.FromHtml(value); }
         }
 
+        [Browsable(false)]
         public int Framebuffer
         {
             get { return fbo; }
