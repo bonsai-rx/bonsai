@@ -12,14 +12,13 @@ namespace Bonsai.Shaders
 {
     [Description("Produces a sequence of events whenever the mouse cursor enters the shader window bounds.")]
     [Editor("Bonsai.Shaders.Design.ShaderConfigurationComponentEditor, Bonsai.Shaders.Design", typeof(ComponentEditor))]
-    public class MouseEnter : Source<Unit>
+    public class MouseEnter : Source<EventPattern<EventArgs>>
     {
-        public override IObservable<Unit> Generate()
+        public override IObservable<EventPattern<EventArgs>> Generate()
         {
             return ShaderManager.WindowSource.SelectMany(window => Observable.FromEventPattern<EventArgs>(
                 handler => window.MouseEnter += handler,
-                handler => window.MouseEnter -= handler)
-                .Select(evt => Unit.Default));
+                handler => window.MouseEnter -= handler));
         }
     }
 }
