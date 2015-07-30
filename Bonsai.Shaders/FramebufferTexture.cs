@@ -21,6 +21,7 @@ namespace Bonsai.Shaders
         public FramebufferTexture()
         {
             Attachment = FramebufferAttachment.ColorAttachment0;
+            Format = PixelInternalFormat.Rgba;
             ClearColor = Color.Transparent;
             back = new AttachmentTexture();
             front = new AttachmentTexture();
@@ -64,6 +65,8 @@ namespace Bonsai.Shaders
 
         public TextureUnit? TextureSlot { get; set; }
 
+        public PixelInternalFormat Format { get; set; }
+
         [XmlIgnore]
         public Color ClearColor { get; set; }
 
@@ -86,13 +89,12 @@ namespace Bonsai.Shaders
             return back.GetTexture();
         }
 
-        static void ClearTexture(int texture, int width, int height)
+        void ClearTexture(int texture, int width, int height)
         {
             GL.BindTexture(TextureTarget.Texture2D, texture);
             GL.TexImage2D(
                 TextureTarget.Texture2D, 0,
-                PixelInternalFormat.Rgba,
-                width, height, 0,
+                Format, width, height, 0,
                 PixelFormat.Rgba,
                 PixelType.UnsignedByte,
                 IntPtr.Zero);
