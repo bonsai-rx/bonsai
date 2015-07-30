@@ -10,7 +10,7 @@ namespace Bonsai.Shaders
 {
     public class TextureReference : TextureConfiguration
     {
-        int texture;
+        TextureConfiguration textureUnit;
 
         public TextureReference()
         {
@@ -39,7 +39,7 @@ namespace Bonsai.Shaders
 
             shader.Update(() =>
             {
-                var textureUnit = referenceShader.TextureUnits.FirstOrDefault(t => t.Name == TextureName);
+                textureUnit = referenceShader.TextureUnits.FirstOrDefault(t => t.Name == TextureName);
                 if (textureUnit == null)
                 {
                     throw new InvalidOperationException(string.Format(
@@ -47,15 +47,13 @@ namespace Bonsai.Shaders
                         TextureName,
                         ShaderName));
                 }
-
-                texture = textureUnit.GetTexture();
             });
         }
 
         public override void Bind(Shader shader)
         {
             GL.ActiveTexture(TextureSlot);
-            GL.BindTexture(TextureTarget.Texture2D, texture);
+            GL.BindTexture(TextureTarget.Texture2D, textureUnit.GetTexture());
         }
 
         public override void Unbind(Shader shader)
@@ -66,12 +64,12 @@ namespace Bonsai.Shaders
 
         public override void Unload(Shader shader)
         {
-            texture = 0;
+            textureUnit = null;
         }
 
         public override int GetTexture()
         {
-            return texture;
+            return textureUnit.GetTexture();
         }
 
         public override string ToString()
