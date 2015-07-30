@@ -19,6 +19,7 @@ namespace Bonsai.Shaders
         public ShaderConfiguration()
         {
             Enabled = true;
+            Iterations = 1;
             VertexShader = DefaultVertexShader;
             FragmentShader = DefaultFragmentShader;
         }
@@ -27,6 +28,10 @@ namespace Bonsai.Shaders
 
         [Category("State")]
         public bool Enabled { get; set; }
+
+        [DefaultValue(1)]
+        [Category("State")]
+        public int Iterations { get; set; }
 
         [Category("Shaders")]
         [Editor("Bonsai.Shaders.Design.GlslScriptEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
@@ -57,6 +62,7 @@ namespace Bonsai.Shaders
         internal virtual void Configure(Shader shader)
         {
             shader.Enabled = Enabled;
+            shader.Iterations = Iterations;
         }
 
         const string DefaultVertexShader = @"

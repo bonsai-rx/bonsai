@@ -72,6 +72,8 @@ namespace Bonsai.Shaders
 
         public bool Enabled { get; set; }
 
+        public int Iterations { get; set; }
+
         public string Name { get; private set; }
 
         public PrimitiveType DrawMode { get; set; }
@@ -224,26 +226,29 @@ namespace Bonsai.Shaders
 
                 if (VertexCount > 0)
                 {
-                    foreach (var texture in shaderTextures)
+                    for (int i = 0; i < Iterations; i++)
                     {
-                        texture.Bind(this);
-                    }
+                        foreach (var texture in shaderTextures)
+                        {
+                            texture.Bind(this);
+                        }
 
-                    GL.BindVertexArray(vao);
-                    GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-                    if (eao > 0)
-                    {
-                        GL.BindBuffer(BufferTarget.ElementArrayBuffer, eao);
-                        GL.DrawElements(DrawMode, VertexCount, DrawElementsType.UnsignedShort, IntPtr.Zero);
-                        GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-                    }
-                    else GL.DrawArrays(DrawMode, 0, VertexCount);
-                    GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-                    GL.BindVertexArray(0);
+                        GL.BindVertexArray(vao);
+                        GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+                        if (eao > 0)
+                        {
+                            GL.BindBuffer(BufferTarget.ElementArrayBuffer, eao);
+                            GL.DrawElements(DrawMode, VertexCount, DrawElementsType.UnsignedShort, IntPtr.Zero);
+                            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+                        }
+                        else GL.DrawArrays(DrawMode, 0, VertexCount);
+                        GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+                        GL.BindVertexArray(0);
 
-                    foreach (var texture in shaderTextures)
-                    {
-                        texture.Unbind(this);
+                        foreach (var texture in shaderTextures)
+                        {
+                            texture.Unbind(this);
+                        }   
                     }
                 }
             }
