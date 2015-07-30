@@ -10,16 +10,20 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders
 {
-    public class FramebufferTexture : TextureBase
+    public class FramebufferTexture : TextureConfiguration
     {
         int width;
         int height;
         int fbo;
+        AttachmentTexture back;
+        AttachmentTexture front;
 
         public FramebufferTexture()
         {
             Attachment = FramebufferAttachment.ColorAttachment0;
             ClearColor = Color.Transparent;
+            back = new AttachmentTexture();
+            front = new AttachmentTexture();
         }
 
         [Category("TextureSize")]
@@ -28,7 +32,37 @@ namespace Bonsai.Shaders
         [Category("TextureSize")]
         public int? Height { get; set; }
 
+        [Category("TextureParameter")]
+        public TextureWrapMode WrapS
+        {
+            get { return back.WrapS; }
+            set { back.WrapS = front.WrapS = value; }
+        }
+
+        [Category("TextureParameter")]
+        public TextureWrapMode WrapT
+        {
+            get { return back.WrapT; }
+            set { back.WrapT = front.WrapT = value; }
+        }
+
+        [Category("TextureParameter")]
+        public TextureMinFilter MinFilter
+        {
+            get { return back.MinFilter; }
+            set { back.MinFilter = front.MinFilter = value; }
+        }
+
+        [Category("TextureParameter")]
+        public TextureMinFilter MagFilter
+        {
+            get { return back.MagFilter; }
+            set { back.MagFilter = front.MagFilter = value; }
+        }
+
         public FramebufferAttachment Attachment { get; set; }
+
+        public TextureUnit? TextureSlot { get; set; }
 
         [XmlIgnore]
         public Color ClearColor { get; set; }
@@ -47,12 +81,13 @@ namespace Bonsai.Shaders
             get { return fbo; }
         }
 
-        public override void Load(Shader shader)
+        public override int GetTexture()
         {
-            base.Load(shader);
-            var texture = GetTexture();
-            width = Width.GetValueOrDefault(shader.Window.Width);
-            height = Height.GetValueOrDefault(shader.Window.Height);
+            return back.GetTexture();
+        }
+
+        static void ClearTexture(int texture, int width, int height)
+        {
             GL.BindTexture(TextureTarget.Texture2D, texture);
             GL.TexImage2D(
                 TextureTarget.Texture2D, 0,
@@ -62,6 +97,21 @@ namespace Bonsai.Shaders
                 PixelType.UnsignedByte,
                 IntPtr.Zero);
             GL.BindTexture(TextureTarget.Texture2D, 0);
+        }
+
+        public override void Load(Shader shader)
+        {
+            back.Load(shader);
+            var texture = back.GetTexture();
+            width = Width.GetValueOrDefault(shader.Window.Width);
+            height = Height.GetValueOrDefault(shader.Window.Height);
+            ClearTexture(texture, width, height);
+            if (TextureSlot.HasValue)
+            {
+                front.Load(shader);
+                ClearTexture(front.GetTexture(), width, height);
+                shader.SetTextureSlot(Name, TextureSlot.Value);
+            }
 
             GL.GenFramebuffers(1, out fbo);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
@@ -72,6 +122,16 @@ namespace Bonsai.Shaders
         public override void Bind(Shader shader)
         {
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
+            if (TextureSlot.HasValue)
+            {
+                var temp = back;
+                back = front;
+                front = temp;
+                GL.ActiveTexture(TextureSlot.Value);
+                GL.BindTexture(TextureTarget.Texture2D, front.GetTexture());
+                GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, Attachment, TextureTarget.Texture2D, back.GetTexture(), 0);
+            }
+
             GL.ClearColor(ClearColor);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.Viewport(0, 0, width, height);
@@ -79,6 +139,12 @@ namespace Bonsai.Shaders
 
         public override void Unbind(Shader shader)
         {
+            if (TextureSlot.HasValue)
+            {
+                GL.ActiveTexture(TextureSlot.Value);
+                GL.BindTexture(TextureTarget.Texture2D, 0);
+            }
+
             GL.Viewport(shader.Window.ClientRectangle);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         }
@@ -88,7 +154,23 @@ namespace Bonsai.Shaders
             width = 0;
             height = 0;
             GL.DeleteFramebuffers(1, ref fbo);
-            base.Unload(shader);
+            back.Unload(shader);
+            if (TextureSlot.HasValue) front.Unload(shader);
         }
+
+        #region AttachmentTexture Class
+
+        class AttachmentTexture : TextureBase
+        {
+            public override void Bind(Shader shader)
+            {
+            }
+
+            public override void Unbind(Shader shader)
+            {
+            }
+        }
+
+        #endregion
     }
 }

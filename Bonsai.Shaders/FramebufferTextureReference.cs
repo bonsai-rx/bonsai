@@ -10,10 +10,9 @@ namespace Bonsai.Shaders
 {
     public class FramebufferTextureReference : TextureConfiguration
     {
-        int fbo;
         int width;
         int height;
-        int texture;
+        FramebufferTexture framebufferTexture;
 
         [Category("Reference")]
         [TypeConverter(typeof(ShaderNameConverter))]
@@ -43,7 +42,7 @@ namespace Bonsai.Shaders
                         ShaderName));
                 }
 
-                var framebufferTexture = textureUnit as FramebufferTexture;
+                framebufferTexture = textureUnit as FramebufferTexture;
                 if (framebufferTexture == null)
                 {
                     throw new InvalidOperationException(string.Format(
@@ -52,16 +51,14 @@ namespace Bonsai.Shaders
                         ShaderName));
                 }
 
-                fbo = framebufferTexture.Framebuffer;
                 width = framebufferTexture.Width.GetValueOrDefault(shader.Window.Width);
                 height = framebufferTexture.Height.GetValueOrDefault(shader.Window.Height);
-                texture = framebufferTexture.GetTexture();
             });
         }
 
         public override void Bind(Shader shader)
         {
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferTexture.Framebuffer);
             GL.Viewport(0, 0, width, height);
         }
 
@@ -73,15 +70,14 @@ namespace Bonsai.Shaders
 
         public override void Unload(Shader shader)
         {
-            fbo = 0;
             width = 0;
             height = 0;
-            texture = 0;
+            framebufferTexture = null;
         }
 
         public override int GetTexture()
         {
-            return texture;
+            return framebufferTexture.GetTexture();
         }
 
         public override string ToString()
