@@ -30,7 +30,7 @@ namespace Bonsai.Shaders
             base.Load(shader);
             var texture = GetTexture();
             var image = CV.LoadImage(FileName, Mode);
-            TextureHelper.UpdateTexture(texture, image);
+            TextureHelper.UpdateTexture(texture, PixelInternalFormat.Rgba, image);
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
     }

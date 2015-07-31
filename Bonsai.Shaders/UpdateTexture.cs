@@ -18,6 +18,7 @@ namespace Bonsai.Shaders
         public UpdateTexture()
         {
             TextureName = "tex";
+            InternalFormat = PixelInternalFormat.Rgba;
         }
 
         [Description("The name of the shader program.")]
@@ -25,6 +26,8 @@ namespace Bonsai.Shaders
         public string ShaderName { get; set; }
 
         public string TextureName { get; set; }
+
+        public PixelInternalFormat InternalFormat { get; set; }
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
@@ -61,7 +64,7 @@ namespace Bonsai.Shaders
                         {
                             shader.Update(() =>
                             {
-                                TextureHelper.UpdateTexture(texture, frame);
+                                TextureHelper.UpdateTexture(texture, InternalFormat, frame);
                                 Interlocked.Exchange(ref frame, null);
                             });
                         }
