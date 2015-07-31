@@ -10,7 +10,7 @@ namespace Bonsai.Shaders
 {
     static class TextureHelper
     {
-        public static void UpdateTexture(int texture, IplImage image)
+        public static void UpdateTexture(int texture, PixelInternalFormat internalFormat, IplImage image)
         {
             if (image == null) throw new ArgumentNullException("image");
             PixelFormat pixelFormat;
@@ -23,9 +23,40 @@ namespace Bonsai.Shaders
                 default: throw new ArgumentException("Image has an unsupported number of channels.", "image");
             }
 
+            int pixelSize;
+            PixelType pixelType;
+            switch (image.Depth)
+            {
+                case IplDepth.U8:
+                    pixelSize = 1;
+                    pixelType = PixelType.UnsignedByte;
+                    break;
+                case IplDepth.S8:
+                    pixelSize = 1;
+                    pixelType = PixelType.Byte;
+                    break;
+                case IplDepth.U16:
+                    pixelSize = 2;
+                    pixelType = PixelType.UnsignedShort;
+                    break;
+                case IplDepth.S16:
+                    pixelSize = 2;
+                    pixelType = PixelType.Short;
+                    break;
+                case IplDepth.S32:
+                    pixelSize = 4;
+                    pixelType = PixelType.Int;
+                    break;
+                case IplDepth.F32:
+                    pixelSize = 4;
+                    pixelType = PixelType.Float;
+                    break;
+                default: throw new ArgumentException("Image has an unsupported pixel bit depth.", "image");
+            }
+
             GL.BindTexture(TextureTarget.Texture2D, texture);
-            GL.PixelStore(PixelStoreParameter.UnpackRowLength, image.WidthStep / image.Channels);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0, pixelFormat, PixelType.UnsignedByte, image.ImageData);
+            GL.PixelStore(PixelStoreParameter.UnpackRowLength, image.WidthStep / (pixelSize * image.Channels));
+            GL.TexImage2D(TextureTarget.Texture2D, 0, internalFormat, image.Width, image.Height, 0, pixelFormat, pixelType, image.ImageData);
             GC.KeepAlive(image);
         }
     }
