@@ -86,22 +86,20 @@ namespace Bonsai.Shaders.Design
                         var serializer = new XmlSerializer(typeof(ShaderConfigurationCollection));
                         if (serializer.CanDeserialize(reader))
                         {
-                            var duplicateIndices = new List<Tuple<int, string>>();
                             var settings = (ShaderConfigurationCollection)serializer.Deserialize(reader);
-                            for (int i = 0; i < settings.Count; i++)
+                            try { methodInfo.Invoke(collectionForm, new[] { settings }); }
+                            catch (TargetInvocationException ex)
                             {
-                                var item = settings[i];
-                                if (ListBox.NoMatches != listBox.FindStringExact(item.Name))
+                                if (ex.InnerException is ArgumentException)
                                 {
-                                    duplicateIndices.Add(Tuple.Create(i, item.Name));
-                                    item.Name = null;
+                                    MessageBox.Show(
+                                        collectionForm,
+                                        "An item with the same key has already been added.",
+                                        "Error",
+                                        MessageBoxButtons.OK,
+                                        MessageBoxIcon.Warning);
                                 }
-                            }
-
-                            methodInfo.Invoke(collectionForm, new[] { settings });
-                            foreach (var duplicate in duplicateIndices)
-                            {
-                                settings[duplicate.Item1].Name = duplicate.Item2;
+                                else throw;
                             }
                         }
                     }
