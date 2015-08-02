@@ -8,6 +8,7 @@ using System.Drawing.Design;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
@@ -83,11 +84,25 @@ namespace Bonsai.Shaders
             return channelCount;
         }
 
+        int ProcessBuffer(int vertexBuffer, int channelCount, Mat buffer)
+        {
+            if (buffer.Rows > 1 && buffer.Cols > 1 && buffer.Cols != channelCount)
+            {
+                throw new InvalidOperationException(string.Format(
+                    "The size of the input buffer does not match vertex array specification in shader program \"{1}\". Expected {0}-channel buffer, or packed one-dimensional buffer.",
+                    channelCount,
+                    ShaderName));
+            }
+
+            return VertexHelper.UpdateVertexBuffer(vertexBuffer, buffer);
+        }
+
         public IObservable<TVertex[]> Process<TVertex>(IObservable<TVertex[]> source) where TVertex : struct
         {
             return Observable.Defer(() =>
             {
                 var channelCount = 0;
+                var buffer = default(TVertex[]);
                 return source.CombineEither(
                     ShaderManager.ReserveShader(ShaderName).Do(shader =>
                     {
@@ -98,16 +113,15 @@ namespace Bonsai.Shaders
                     }),
                     (input, shader) =>
                     {
-                        shader.Update(() =>
+                        if (Interlocked.Exchange(ref buffer, input) == null)
                         {
-                            var bufferSize = input.Length * BlittableValueType<TVertex>.Stride;
-                            GL.BindBuffer(BufferTarget.ArrayBuffer, shader.VertexBuffer);
-                            GL.BufferData(BufferTarget.ArrayBuffer,
-                                          new IntPtr(bufferSize), input,
-                                          BufferUsageHint.StaticDraw);
-                            shader.VertexCount = bufferSize / (channelCount * BlittableValueType<float>.Stride);
-                            shader.DrawMode = DrawMode;
-                        });
+                            shader.Update(() =>
+                            {
+                                shader.DrawMode = DrawMode;
+                                shader.VertexCount = VertexHelper.UpdateVertexBuffer(shader.VertexBuffer, channelCount, buffer);
+                                Interlocked.Exchange(ref buffer, null);
+                            });
+                        }
                         return input;
                     });
             });
@@ -118,6 +132,7 @@ namespace Bonsai.Shaders
             return Observable.Defer(() =>
             {
                 var channelCount = 0;
+                var buffer = default(Mat);
                 return source.CombineEither(
                     ShaderManager.ReserveShader(ShaderName).Do(shader =>
                     {
@@ -133,24 +148,15 @@ namespace Bonsai.Shaders
                             throw new InvalidOperationException("The type of array elements must be 32-bit floating point.");
                         }
 
-                        shader.Update(() =>
+                        if (Interlocked.Exchange(ref buffer, input) == null)
                         {
-                            if (input.Rows > 1 && input.Cols > 1 && input.Cols != channelCount)
+                            shader.Update(() =>
                             {
-                                throw new InvalidOperationException(string.Format(
-                                    "The size of the input buffer does not match vertex array specification in shader program \"{1}\". Expected {0}-channel buffer, or packed one-dimensional buffer.",
-                                    channelCount,
-                                    ShaderName));
-                            }
-
-                            GL.BindBuffer(BufferTarget.ArrayBuffer, shader.VertexBuffer);
-                            GL.BufferData(BufferTarget.ArrayBuffer,
-                                          new IntPtr(input.Rows * input.Step),
-                                          input.Data,
-                                          BufferUsageHint.StaticDraw);
-                            shader.VertexCount = input.Rows;
-                            shader.DrawMode = DrawMode;
-                        });
+                                shader.DrawMode = DrawMode;
+                                shader.VertexCount = ProcessBuffer(shader.VertexBuffer, channelCount, buffer);
+                                Interlocked.Exchange(ref buffer, null);
+                            });
+                        }
                         return input;
                     });
             });

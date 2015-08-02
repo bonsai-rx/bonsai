@@ -1,4 +1,5 @@
-﻿using OpenTK;
+﻿using OpenCV.Net;
+using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
@@ -43,6 +44,27 @@ namespace Bonsai.Shaders
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
             GL.BindVertexArray(0);
             return 4;
+        }
+
+        public static int UpdateVertexBuffer<TVertex>(int vertexBuffer, int channelCount, TVertex[] buffer)
+            where TVertex : struct
+        {
+            var bufferSize = buffer.Length * BlittableValueType<TVertex>.Stride;
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBuffer);
+            GL.BufferData(BufferTarget.ArrayBuffer,
+                          new IntPtr(bufferSize), buffer,
+                          BufferUsageHint.StaticDraw);
+            return bufferSize / (channelCount * BlittableValueType<float>.Stride);
+        }
+
+        public static int UpdateVertexBuffer(int vertexBuffer, Mat buffer)
+        {
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBuffer);
+            GL.BufferData(BufferTarget.ArrayBuffer,
+                          new IntPtr(buffer.Rows * buffer.Step),
+                          buffer.Data,
+                          BufferUsageHint.StaticDraw);
+            return buffer.Rows;
         }
     }
 }
