@@ -7,6 +7,7 @@ using System.Drawing.Design;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
@@ -33,6 +34,13 @@ namespace Bonsai.Shaders
                 {
                     throw new InvalidOperationException("A uniform variable name must be specified.");
                 }
+
+                var selector = default(Func<TSource>);
+                Action updateAction = () =>
+                {
+                    update(location, selector());
+                    Interlocked.Exchange(ref selector, null);
+                };
 
                 return source.CombineEither(
                     ShaderManager.ReserveShader(ShaderName).Do(shader =>
@@ -69,10 +77,11 @@ namespace Bonsai.Shaders
                     }),
                     (input, shader) =>
                     {
-                        shader.Update(() =>
+                        Func<TSource> inputSelector = () => input;
+                        if (Interlocked.Exchange(ref selector, inputSelector) == null)
                         {
-                            update(location, input);
-                        });
+                            shader.Update(updateAction);
+                        }
                         return input;
                     });
             });
