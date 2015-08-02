@@ -2141,7 +2141,7 @@ namespace Bonsai.Design
             if (type.IsEnum) return Disposable.Empty;
 
             foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public)
-                                      .OrderBy(field => field.Name))
+                                      .OrderBy(member => member.MetadataToken))
             {
                 var memberSelector = string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, field.Name);
                 var menuItem = CreateOutputMenuItem(field.Name, memberSelector, field.FieldType, selectedNode);
@@ -2150,7 +2150,7 @@ namespace Bonsai.Design
 
             foreach (var property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
                                          .Distinct(PropertyInfoComparer.Default)
-                                         .OrderBy(property => property.Name))
+                                         .OrderBy(member => member.MetadataToken))
             {
                 var memberSelector = string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, property.Name);
                 var menuItem = CreateOutputMenuItem(property.Name, memberSelector, property.PropertyType, selectedNode);
