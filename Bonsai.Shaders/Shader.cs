@@ -18,6 +18,9 @@ namespace Bonsai.Shaders
         int eao;
         int program;
         int timeLocation;
+        int vertexShader;
+        int geometryShader;
+        int fragmentShader;
         string vertexSource;
         string geometrySource;
         string fragmentSource;
@@ -118,7 +121,7 @@ namespace Bonsai.Shaders
         int CreateShader()
         {
             int status;
-            var vertexShader = GL.CreateShader(ShaderType.VertexShader);
+            vertexShader = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(vertexShader, vertexSource);
             GL.CompileShader(vertexShader);
             GL.GetShader(vertexShader, ShaderParameter.CompileStatus, out status);
@@ -131,7 +134,7 @@ namespace Bonsai.Shaders
                 throw new ShaderException(message);
             }
 
-            var geometryShader = 0;
+            geometryShader = 0;
             if (!string.IsNullOrWhiteSpace(geometrySource))
             {
                 geometryShader = GL.CreateShader(ShaderType.GeometryShader);
@@ -148,7 +151,7 @@ namespace Bonsai.Shaders
                 }
             }
 
-            var fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
+            fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
             GL.ShaderSource(fragmentShader, fragmentSource);
             GL.CompileShader(fragmentShader);
             GL.GetShader(fragmentShader, ShaderParameter.CompileStatus, out status);
@@ -267,6 +270,9 @@ namespace Bonsai.Shaders
                 GL.DeleteVertexArrays(1, ref vao);
                 GL.DeleteBuffers(1, ref vbo);
                 GL.DeleteProgram(program);
+                GL.DeleteShader(fragmentShader);
+                GL.DeleteShader(geometryShader);
+                GL.DeleteShader(vertexShader);
                 shaderWindow = null;
                 update = null;
             }
