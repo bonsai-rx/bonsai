@@ -207,9 +207,9 @@ namespace Bonsai.Shaders
 
         public void RenderFrame(FrameEventArgs e)
         {
-            time += e.Time;
             if (Enabled)
             {
+                time += e.Time;
                 foreach (var state in shaderState)
                 {
                     state.Execute();
