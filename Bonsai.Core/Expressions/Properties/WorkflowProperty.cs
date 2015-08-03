@@ -33,27 +33,49 @@ namespace Bonsai.Expressions
     [XmlType(Namespace = Constants.XmlNamespace)]
     public class WorkflowProperty<TValue> : WorkflowProperty
     {
+        TValue value;
+        event Action<TValue> ValueChanged;
+
         /// <summary>
         /// Gets or sets the value of the property.
         /// </summary>
         [Description("The value of the property.")]
-        public TValue Value { get; set; }
+        public TValue Value
+        {
+            get { return value; }
+            set
+            {
+                this.value = value;
+                OnValueChanged(value);
+            }
+        }
 
         internal override Type PropertyType
         {
             get { return typeof(TValue); }
         }
 
+        void OnValueChanged(TValue value)
+        {
+            var handler = ValueChanged;
+            if (handler != null)
+            {
+                handler(value);
+            }
+        }
+
         /// <summary>
-        /// Generates an observable sequence that contains the current property value
-        /// as a single element.
+        /// Generates an observable sequence that produces a value whenever the
+        /// workflow property changes, starting with the initial property value.
         /// </summary>
-        /// <returns>
-        /// An observable sequence containing the current property value.
-        /// </returns>
+        /// <returns>An observable sequence of property values.</returns>
         public virtual IObservable<TValue> Generate()
         {
-            return Observable.Defer(() => Observable.Return(Value));
+            return Observable
+                .Defer(() => Observable.Return(value))
+                .Concat(Observable.FromEvent<TValue>(
+                    handler => ValueChanged += handler,
+                    handler => ValueChanged -= handler));
         }
 
         /// <summary>
@@ -65,7 +87,7 @@ namespace Bonsai.Expressions
         /// <returns>An observable sequence of property values.</returns>
         public IObservable<TValue> Generate<TSource>(IObservable<TSource> source)
         {
-            return source.Select(x => Value);
+            return source.Select(x => value);
         }
     }
 }
