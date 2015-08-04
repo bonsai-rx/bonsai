@@ -83,6 +83,7 @@ namespace Bonsai.Design
 
             if (destinationType == typeof(Pen))
             {
+                //TODO: Refactor this test into the core API
                 var expressionBuilder = ExpressionBuilder.Unwrap((ExpressionBuilder)value);
                 if (!(expressionBuilder is InputMappingBuilder) && expressionBuilder is PropertyMappingBuilder ||
                     expressionBuilder is ExternalizedProperty)
