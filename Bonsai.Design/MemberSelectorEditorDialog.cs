@@ -38,7 +38,8 @@ namespace Bonsai.Design
                 }
                 else
                 {
-                    treeView.CollapseAll();
+                    if (treeView.Nodes.Count == 1) treeView.ExpandAll();
+                    else treeView.CollapseAll();
                     treeView.SelectedNode = null;
                 }
             }
