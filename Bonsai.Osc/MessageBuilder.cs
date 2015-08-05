@@ -39,7 +39,8 @@ namespace Bonsai.Osc
         {
             return Enumerable.Concat<MemberInfo>(
                 type.GetFields(BindingFlags.Instance | BindingFlags.Public),
-                type.GetProperties(BindingFlags.Instance | BindingFlags.Public));
+                type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
+                .OrderBy(member => member.MetadataToken);
         }
 
         static byte[] PadBytes(byte[] value, int zeroPad)

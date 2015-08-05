@@ -24,6 +24,9 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(SelectManyBuilder))]
     [XmlInclude(typeof(PublishBuilder))]
     [XmlInclude(typeof(ReplayBuilder))]
+    [XmlInclude(typeof(ReplaySubjectBuilder))]
+    [XmlInclude(typeof(PublishSubjectBuilder))]
+    [XmlInclude(typeof(SubscribeSubjectBuilder))]
     [XmlInclude(typeof(WindowWorkflowBuilder))]
     [XmlInclude(typeof(NestedWorkflowBuilder))]
     [XmlInclude(typeof(MemberSelectorBuilder))]
@@ -111,6 +114,19 @@ namespace Bonsai.Expressions
             return builder;
         }
 
+        internal static object GetPropertyMappingElement(ExpressionBuilder builder)
+        {
+            //TODO: The special case for binary operator operands should be avoided in the future
+            var element = ExpressionBuilder.GetWorkflowElement(builder);
+            var binaryOperator = element as BinaryOperatorBuilder;
+            if (binaryOperator != null && binaryOperator.Operand != null)
+            {
+                return binaryOperator.Operand;
+            }
+
+            return element;
+        }
+
         /// <summary>
         /// Creates a new expression builder from the specified editor browsable element and category.
         /// </summary>
@@ -134,13 +150,12 @@ namespace Bonsai.Expressions
                 return builder;
             }
 
-            if (elementCategory == ElementCategory.Source ||
-                elementCategory == ElementCategory.Property)
+            if (elementCategory == ElementCategory.Source)
             {
                 return new SourceBuilder { Generator = element };
             }
 
-            throw new InvalidOperationException("Invalid loadable element type.");
+            throw new InvalidOperationException("Invalid workflow element type.");
         }
 
         static string RemoveSuffix(string source, string suffix)
@@ -823,6 +838,75 @@ namespace Bonsai.Expressions
             return Tuple.Create(source, selector);
         }
 
+        internal static string GetMemberPath(string selector)
+        {
+            var memberPath = selector.Split(new[] { ExpressionHelper.MemberSeparator }, 2, StringSplitOptions.None);
+            var sourceName = memberPath[0];
+            if (sourceName != ExpressionBuilderArgument.ArgumentNamePrefix)
+            {
+                throw new ArgumentException(
+                    string.Format("Selector strings must start with the prefix '{0}'.", ExpressionBuilderArgument.ArgumentNamePrefix),
+                    "selector");
+            }
+
+            return memberPath.Length > 1 ? memberPath[1] : string.Empty;
+        }
+
+        internal static Expression BuildPropertyMapping(Expression source, Expression instance, string propertyName)
+        {
+            return BuildPropertyMapping(source, instance, propertyName, string.Empty);
+        }
+
+        internal static Expression BuildPropertyMapping(Expression source, Expression instance, string propertyName, string sourceSelector)
+        {
+            if (instance.NodeType == ExpressionType.Constant)
+            {
+                var workflowBuilder = ((ConstantExpression)instance).Value as WorkflowExpressionBuilder;
+                if (workflowBuilder != null)
+                {
+                    var inputBuilder = (from node in workflowBuilder.Workflow
+                                        let workflowProperty = Unwrap(node.Value) as ExternalizedProperty
+                                        where workflowProperty != null && workflowProperty.Name == propertyName
+                                        select workflowProperty).FirstOrDefault();
+                    if (inputBuilder == null)
+                    {
+                        throw new InvalidOperationException(string.Format(
+                            "The specified property '{0}' was not found in the nested workflow.",
+                            propertyName));
+                    }
+
+                    var inputExpression = Expression.Constant(inputBuilder);
+                    return BuildPropertyMapping(source, inputExpression, "Value", sourceSelector);
+                }
+            }
+
+            var sourceType = source.Type.GetGenericArguments()[0];
+            var parameter = Expression.Parameter(sourceType);
+
+            Expression body = parameter;
+            if (!string.IsNullOrEmpty(sourceSelector))
+            {
+                var memberPath = GetMemberPath(sourceSelector);
+                body = ExpressionHelper.MemberAccess(body, memberPath);
+            }
+
+            var actionType = Expression.GetActionType(parameter.Type);
+            var property = Expression.Property(instance, propertyName);
+            if (body.Type != property.Type)
+            {
+                body = Expression.Convert(body, property.Type);
+            }
+
+            body = Expression.Assign(property, body);
+            var action = Expression.Lambda(actionType, body, parameter);
+            return Expression.Call(
+                typeof(ExpressionBuilder),
+                "PropertyMapping",
+                new[] { sourceType },
+                source,
+                action);
+        }
+
         internal Expression BuildPropertyMapping(IEnumerable<Expression> arguments, Expression instance, Expression output, PropertyMapping mapping)
         {
             var memberAccess = GetArgumentAccess(arguments, mapping.Selector);
@@ -850,7 +934,12 @@ namespace Bonsai.Expressions
                 action);
         }
 
-        internal Expression BuildMappingOutput(IEnumerable<Expression> arguments, Expression instance, Expression output, PropertyMappingCollection propertyMappings)
+        internal Expression BuildMappingOutput(IEnumerable<Expression> arguments, Expression instance, Expression output, params PropertyMapping[] propertyMappings)
+        {
+            return BuildMappingOutput(arguments, instance, output, (IEnumerable<PropertyMapping>)propertyMappings);
+        }
+
+        internal Expression BuildMappingOutput(IEnumerable<Expression> arguments, Expression instance, Expression output, IEnumerable<PropertyMapping> propertyMappings)
         {
             var subscriptions = propertyMappings.Select(mapping => BuildPropertyMapping(arguments, instance, output, mapping)).ToArray();
             return BuildMappingOutput(output, subscriptions);
@@ -872,6 +961,11 @@ namespace Bonsai.Expressions
             }
 
             return output;
+        }
+
+        static IObservable<TSource> PropertyMapping<TSource>(IObservable<TSource> source, Action<TSource> action)
+        {
+            return source.Do(action);
         }
 
         static IObservable<TResult> PropertyMapping<TSource, TResult>(IObservable<TSource> source, Action<TSource> action)
