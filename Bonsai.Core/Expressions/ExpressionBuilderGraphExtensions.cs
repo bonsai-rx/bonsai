@@ -640,8 +640,11 @@ namespace Bonsai.Expressions
                 var builderNode = nodeMapping[node];
                 foreach (var successor in node.Successors)
                 {
-                    var targetNode = nodeMapping[successor.Target];
-                    workflow.AddEdge(builderNode, targetNode, successor.Label);
+                    Node<ExpressionBuilder, ExpressionBuilderArgument> targetNode;
+                    if (nodeMapping.TryGetValue(successor.Target, out targetNode))
+                    {
+                        workflow.AddEdge(builderNode, targetNode, successor.Label);
+                    }
                 }
             }
 
