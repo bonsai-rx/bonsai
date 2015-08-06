@@ -103,7 +103,6 @@ namespace Bonsai.Dsp.Design
         {
             if (!initialized)
             {
-                initialized = true;
                 var thresholdValues = EnsureThreshold();
                 foreach (var pane in Chart.MasterPane.PaneList)
                 {
@@ -111,6 +110,8 @@ namespace Bonsai.Dsp.Design
                     var threshold = thresholdValues[channelIndex];
                     SetThresholdLine(pane, 0, columns, threshold);
                 }
+
+                initialized = true;
             }
         }
 
