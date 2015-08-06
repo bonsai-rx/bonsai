@@ -64,6 +64,7 @@
     <Compile Include="AbsoluteDifference.cs" />
     <Compile Include="Accumulate.cs" />
     <Compile Include="ArrayExtrema.cs" />
+    <Compile Include="Decimate.cs" />
     <Compile Include="Range.cs" />
     <Compile Include="Reshape.cs" />
     <Compile Include="Histogram2D.cs" />
