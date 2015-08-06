@@ -403,8 +403,9 @@ namespace Bonsai.Design
                 if (nodeType == CreateGraphNodeType.Predecessor)
                 {
                     var predecessors = workflow.PredecessorEdges(closestNode).ToList();
-                    if (!validate ||
-                        CanConnect(sinkNode, closestNode) && (branch || CanConnect(predecessors.Select(p => p.Item1), sourceNode)))
+                    // If the selected node has no predecessors or we are branching, we need to test if we can connect
+                    if (!validate || (!branch && predecessors.Count > 0 || CanConnect(sinkNode, closestNode))
+                        && (branch || CanConnect(predecessors.Select(p => p.Item1), sourceNode)))
                     {
                         if (branch) parameter.Index = predecessors.Count;
                         else if (predecessors.Count > 0)
