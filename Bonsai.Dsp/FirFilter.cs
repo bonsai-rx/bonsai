@@ -45,6 +45,7 @@ namespace Bonsai.Dsp
                 Mat overlapInput = null;
                 Mat overlapEnd = null;
                 Mat overlapStart = null;
+                Mat overlapFilter = null;
                 Rect overlapOutput = default(Rect);
                 float[] currentKernel = null;
                 return source.Select(input =>
@@ -65,6 +66,7 @@ namespace Bonsai.Dsp
                             if (anchor == -1) anchor = kernel.Cols / 2;
                             overlap = new Mat(input.Rows, input.Cols + kernel.Cols - 1, input.Depth, input.Channels);
                             overlapInput = overlap.GetSubRect(new Rect(kernel.Cols - 1, 0, input.Cols, input.Rows));
+                            overlapFilter = new Mat(overlap.Rows, overlap.Cols, overlap.Depth, overlap.Channels);
                             if (kernel.Cols > 1)
                             {
                                 overlapEnd = overlap.GetSubRect(new Rect(overlap.Cols - kernel.Cols + 1, 0, kernel.Cols - 1, input.Rows));
@@ -79,11 +81,10 @@ namespace Bonsai.Dsp
                     if (kernel == null) return input;
                     else
                     {
-                        var output = new Mat(overlap.Rows, overlap.Cols, overlap.Depth, overlap.Channels);
                         CV.Copy(input, overlapInput);
-                        CV.Filter2D(overlap, output, kernel, new Point(Anchor, -1));
+                        CV.Filter2D(overlap, overlapFilter, kernel, new Point(Anchor, -1));
                         if (overlapEnd != null) CV.Copy(overlapEnd, overlapStart);
-                        return output.GetSubRect(overlapOutput);
+                        return overlapFilter.GetSubRect(overlapOutput).Clone();
                     }
                 });
             });
