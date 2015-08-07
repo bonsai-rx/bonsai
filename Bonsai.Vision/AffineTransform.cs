@@ -10,29 +10,81 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Vision
 {
-    [WorkflowElementCategory(ElementCategory.Transform)]
+    [WorkflowElementCategory(ElementCategory.Source)]
     [Description("Creates an affine transformation matrix specified by a translation, rotation and scale.")]
     public class AffineTransform : Combinator<Mat>
     {
+        Mat transform;
+        Point2f pivot;
+        Point2f translation;
+        float rotation;
+        Point2f scale;
+        event Action<Mat> PropertyChanged;
+
         public AffineTransform()
         {
             Scale = new Point2f(1, 1);
         }
 
         [Description("The pivot around which to scale or rotate the image.")]
-        public Point2f Pivot { get; set; }
+        public Point2f Pivot
+        {
+            get { return pivot; }
+            set
+            {
+                pivot = value;
+                transform = CreateTransform(translation, rotation, scale, pivot);
+                OnPropertyChanged(transform);
+            }
+        }
 
         [Description("The translation vector to apply to the image.")]
-        public Point2f Translation { get; set; }
+        public Point2f Translation
+        {
+            get { return translation; }
+            set
+            {
+                translation = value;
+                transform = CreateTransform(translation, rotation, scale, pivot);
+                OnPropertyChanged(transform);
+            }
+        }
 
         [Precision(3, 0.001)]
         [Range(-Math.PI, Math.PI)]
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Description("The rotation angle around the pivot, in radians.")]
-        public float Rotation { get; set; }
+        public float Rotation
+        {
+            get { return rotation; }
+            set
+            {
+                rotation = value;
+                transform = CreateTransform(translation, rotation, scale, pivot);
+                OnPropertyChanged(transform);
+            }
+        }
 
         [Description("The scale factor to apply to individual image dimensions.")]
-        public Point2f Scale { get; set; }
+        public Point2f Scale
+        {
+            get { return scale; }
+            set
+            {
+                scale = value;
+                transform = CreateTransform(translation, rotation, scale, pivot);
+                OnPropertyChanged(transform);
+            }
+        }
+
+        void OnPropertyChanged(Mat value)
+        {
+            var handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(value);
+            }
+        }
 
         static Mat CreateTransform(Point2f translation, double rotation, Point2f scale, Point2f pivot)
         {
@@ -45,9 +97,18 @@ namespace Bonsai.Vision
             });
         }
 
+        public IObservable<Mat> Process()
+        {
+            return Observable
+                .Defer(() => Observable.Return(transform))
+                .Concat(Observable.FromEvent<Mat>(
+                    handler => PropertyChanged += handler,
+                    handler => PropertyChanged -= handler));
+        }
+
         public override IObservable<Mat> Process<TSource>(IObservable<TSource> source)
         {
-            return source.Select(input => CreateTransform(Translation, Rotation, Scale, Pivot));
+            return source.Select(input => transform);
         }
     }
 }

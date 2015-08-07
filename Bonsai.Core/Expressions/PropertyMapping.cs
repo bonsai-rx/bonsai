@@ -11,6 +11,7 @@ namespace Bonsai.Expressions
     /// Represents a dynamic assignment between a selected input source and a property of
     /// a workflow element.
     /// </summary>
+    [XmlType("PropertyMappingItem", Namespace = Constants.XmlNamespace)]
     public sealed class PropertyMapping
     {
         /// <summary>
@@ -41,6 +42,7 @@ namespace Bonsai.Expressions
         /// Gets or sets the name of the property that will be assigned by this mapping.
         /// </summary>
         [XmlAttribute("name")]
+        [TypeConverter("Bonsai.Design.PropertyMappingNameConverter, Bonsai.Design")]
         public string Name { get; set; }
 
         /// <summary>
@@ -48,6 +50,7 @@ namespace Bonsai.Expressions
         /// values to this property mapping.
         /// </summary>
         [XmlAttribute("selector")]
+        [Editor("Bonsai.Design.MemberSelectorEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public string Selector { get; set; }
     }
 }
