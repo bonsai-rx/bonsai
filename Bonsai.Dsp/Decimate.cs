@@ -69,9 +69,12 @@ namespace Bonsai.Dsp
             {
                 var index = 0;
                 var offset = 0;
+                var lottery = 0;
                 var currentFactor = 0;
                 var buffer = default(Mat);
-                var downsample = Downsampling == DownsamplingMethod.LowPass ? filter.Process(source) : source;
+                var downsampling = Downsampling;
+                var random = downsampling == DownsamplingMethod.Dithering ? new Random() : null;
+                var downsample = downsampling == DownsamplingMethod.LowPass ? filter.Process(source) : source;
                 return downsample.Subscribe(input =>
                 {
                     try
@@ -81,17 +84,31 @@ namespace Bonsai.Dsp
                         if (buffer == null || buffer.Rows != input.Rows || currentFactor != factor)
                         {
                             index = 0;
-                            offset = 0;
                             currentFactor = factor;
+                            if (random != null)
+                            {
+                                lottery = random.Next(currentFactor);
+                                offset = lottery;
+                            }
+                            else offset = 0;
                             buffer = CreateBuffer(bufferLength, input);
                         }
 
                         while (offset < input.Cols)
                         {
                             // Process decimation data on this buffer
-                            var samples = input.Cols - offset;
-                            var whole = samples / currentFactor;
-                            var outputRect = new Rect(index, 0, Math.Min(buffer.Cols - index, whole), input.Rows);
+                            Rect outputRect;
+                            if (random != null)
+                            {
+                                outputRect = new Rect(index, 0, 1, input.Rows);
+                            }
+                            else
+                            {
+                                var samples = input.Cols - offset;
+                                var whole = samples / currentFactor;
+                                outputRect = new Rect(index, 0, Math.Min(buffer.Cols - index, whole), input.Rows);
+                            }
+
                             if (outputRect.Width > 1)
                             {
                                 var inputRect = new Rect(offset, 0, outputRect.Width * currentFactor, input.Rows);
@@ -113,7 +130,13 @@ namespace Bonsai.Dsp
                                 }
 
                                 index++;
-                                offset += currentFactor;
+                                if (random != null)
+                                {
+                                    offset += currentFactor - lottery;
+                                    lottery = random.Next(currentFactor);
+                                    offset += lottery;
+                                }
+                                else offset += currentFactor;
                             }
 
                             if (index >= buffer.Cols)

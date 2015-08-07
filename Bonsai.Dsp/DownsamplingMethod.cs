@@ -9,6 +9,7 @@ namespace Bonsai.Dsp
     public enum DownsamplingMethod
     {
         None,
-        LowPass
+        LowPass,
+        Dithering
     }
 }
