@@ -93,6 +93,39 @@ namespace Bonsai.Dsp.Design
             selectionNotifications = selectionDrag.Subscribe(xs => ProcessRubberBand(xs.previousSelection, xs.rect));
         }
 
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.A)
+            {
+                allowSelectionUpdate = false;
+                selectedChannels.Clear();
+                for (int i = 0; i < channelCount; i++)
+                {
+                    selectedChannels.Add(i);
+                }
+                UpdateSelection();
+                allowSelectionUpdate = true;
+            }
+
+            if (e.Control && e.KeyCode == Keys.I)
+            {
+                allowSelectionUpdate = false;
+                var selection = selectedChannels.ToList();
+                selectedChannels.Clear();
+                for (int i = 0; i < channelCount; i++)
+                {
+                    if (!selection.Contains(i))
+                    {
+                        selectedChannels.Add(i);
+                    }
+                }
+                UpdateSelection();
+                allowSelectionUpdate = true;
+            }
+
+            base.OnKeyDown(e);
+        }
+
         private void ProcessRubberBand(bool[] previousSelection, Rectangle? rect)
         {
             if (rect.HasValue)
