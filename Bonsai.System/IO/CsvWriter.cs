@@ -105,7 +105,8 @@ namespace Bonsai.IO
             return Enumerable.Concat<MemberInfo>(
                 type.GetFields(BindingFlags.Instance | BindingFlags.Public),
                 type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
-                .Where(member => !member.IsDefined(typeof(XmlIgnoreAttribute), true));
+                .Where(member => !member.IsDefined(typeof(XmlIgnoreAttribute), true))
+                .OrderBy(member => member.MetadataToken);
         }
 
         static Expression GetDataString(Expression expression)

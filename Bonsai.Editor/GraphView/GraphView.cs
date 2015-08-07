@@ -908,12 +908,12 @@ namespace Bonsai.Design
                             Point.Add(layout.Location, Size.Add(offset, TextOffset)));
                     }
                 }
-                else e.Graphics.DrawLine(((GraphEdge)layout.Node.Tag).Pen, Point.Add(layout.EntryPoint, offset), Point.Add(layout.ExitPoint, offset));
+                else e.Graphics.DrawLine(layout.Node.Pen, Point.Add(layout.EntryPoint, offset), Point.Add(layout.ExitPoint, offset));
 
                 foreach (var successor in layout.Node.Successors)
                 {
                     var successorLayout = layoutNodes[successor.Node];
-                    e.Graphics.DrawLine(successor.Pen, Point.Add(layout.ExitPoint, offset), Point.Add(successorLayout.EntryPoint, offset));
+                    e.Graphics.DrawLine(layout.Node.Pen, Point.Add(layout.ExitPoint, offset), Point.Add(successorLayout.EntryPoint, offset));
                 }
             }
 

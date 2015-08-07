@@ -34,6 +34,7 @@ namespace Bonsai.Editor
         const string ExamplesDirectory = "Examples";
         const string WorkflowsDirectory = "Workflows";
         const string WorkflowCategoryName = "Workflow";
+        const string VersionAttributeName = "Version";
         const int CycleNextHotKey = 0;
         const int CyclePreviousHotKey = 1;
 
@@ -369,13 +370,11 @@ namespace Bonsai.Editor
                 foreach (var elementType in type.ElementTypes)
                 {
                     var typeCategory = elementType;
-                    if (typeCategory == ElementCategory.Nested || typeCategory == ElementCategory.Condition)
+                    if (typeCategory == ElementCategory.Nested ||
+                        typeCategory == ElementCategory.Condition ||
+                        typeCategory == ElementCategory.Property)
                     {
                         typeCategory = ElementCategory.Combinator;
-                    }
-                    else if (typeCategory == ElementCategory.Property)
-                    {
-                        typeCategory = ElementCategory.Source;
                     }
 
                     var typeCategoryName = typeCategory.ToString();
@@ -524,12 +523,47 @@ namespace Bonsai.Editor
             return Path.ChangeExtension(fileName, Path.GetExtension(fileName) + LayoutExtension);
         }
 
-        WorkflowBuilder LoadWorkflow(string fileName)
+        static bool IsDeprecated(Version version)
+        {
+            return version < Version.Parse("2.2.0");
+        }
+
+        WorkflowBuilder LoadWorkflow(string fileName, out Version version)
         {
             using (var reader = XmlReader.Create(fileName))
             {
+                version = null;
+                reader.MoveToContent();
+                var versionName = reader.GetAttribute(VersionAttributeName);
                 var workflowBuilder = (WorkflowBuilder)serializer.Deserialize(reader);
-                workflowBuilder = new WorkflowBuilder(workflowBuilder.Workflow.ToInspectableGraph());
+                var workflow = workflowBuilder.Workflow;
+                if (string.IsNullOrEmpty(versionName) ||
+                    !Version.TryParse(versionName, out version) ||
+                    IsDeprecated(version))
+                {
+                    MessageBox.Show(
+                        this,
+                        Resources.UpdateWorkflow_Warning,
+                        Resources.UpdateWorkflow_Warning_Caption,
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning,
+                        MessageBoxDefaultButton.Button1);
+                    workflow = workflow.Convert(builder =>
+                    {
+                        var sourceBuilder = builder as SourceBuilder;
+                        if (sourceBuilder != null)
+                        {
+                            return new CombinatorBuilder
+                            {
+                                Combinator = sourceBuilder.Generator
+                            };
+                        }
+
+                        return builder;
+                    });
+                }
+
+                workflowBuilder = new WorkflowBuilder(workflow.ToInspectableGraph());
                 return workflowBuilder;
             }
         }
@@ -541,7 +575,8 @@ namespace Bonsai.Editor
 
         void OpenWorkflow(string fileName, bool setWorkingDirectory)
         {
-            try { workflowBuilder = LoadWorkflow(fileName); }
+            Version version;
+            try { workflowBuilder = LoadWorkflow(fileName, out version); }
             catch (InvalidOperationException ex)
             {
                 var errorMessage = string.Format(Resources.OpenWorkflow_Error, ex.InnerException.Message);
@@ -549,7 +584,8 @@ namespace Bonsai.Editor
                 return;
             }
 
-            saveWorkflowDialog.FileName = fileName;
+            if (IsDeprecated(version)) saveWorkflowDialog.FileName = null;
+            else saveWorkflowDialog.FileName = fileName;
             ResetProjectStatus();
             UpdateTitle();
 
@@ -1077,16 +1113,7 @@ namespace Bonsai.Editor
             UpdateDescriptionTextBox(displayName, description, propertiesDescriptionTextBox);
 
             saveSelectionAsToolStripMenuItem.Enabled = selectedObjects.Length > 0;
-            if (selectedObjects.Length == 1)
-            {
-                propertyGrid.PropertyTabs.AddTabType(typeof(MappingTab), PropertyTabScope.Document);
-                propertyGrid.SelectedObject = selectedObjects[0];
-            }
-            else
-            {
-                propertyGrid.RefreshTabs(PropertyTabScope.Document);
-                propertyGrid.SelectedObjects = selectedObjects;
-            }
+            propertyGrid.SelectedObjects = selectedObjects;
         }
 
         private void startToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1606,7 +1633,8 @@ namespace Bonsai.Editor
 
             public WorkflowBuilder LoadWorkflow(string fileName)
             {
-                return siteForm.LoadWorkflow(fileName);
+                Version version;
+                return siteForm.LoadWorkflow(fileName, out version);
             }
 
             public void OpenWorkflow(string fileName)
