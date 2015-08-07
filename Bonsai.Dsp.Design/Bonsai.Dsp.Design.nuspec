@@ -14,7 +14,7 @@
     <copyright>Gonçalo Lopes © 2013</copyright>
     <tags>Bonsai Dsp Visualizers</tags>
     <dependencies>
-      <dependency id="Bonsai.Dsp" version="2.1.1" />
+      <dependency id="Bonsai.Dsp" version="2.1.2" />
       <dependency id="Bonsai.Design.Visualizers" version="2.1.0" />
     </dependencies>
   </metadata>
