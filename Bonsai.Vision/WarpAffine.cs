@@ -16,7 +16,7 @@ namespace Bonsai.Vision
     {
         public WarpAffine()
         {
-            Flags = WarpFlags.Linear | WarpFlags.FillOutliers;
+            Flags = WarpFlags.Linear;
         }
 
         [XmlIgnore]
@@ -63,7 +63,7 @@ namespace Bonsai.Vision
                 else
                 {
                     var output = new IplImage(input.Size, input.Depth, input.Channels);
-                    CV.WarpAffine(input, output, mapMatrix, Flags, FillValue);
+                    CV.WarpAffine(input, output, mapMatrix, Flags | WarpFlags.FillOutliers, FillValue);
                     return output;
                 }
             });
