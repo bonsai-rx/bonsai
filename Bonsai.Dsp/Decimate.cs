@@ -16,7 +16,10 @@ namespace Bonsai.Dsp
         public Decimate()
         {
             Factor = 1;
+            Downsampling = DownsamplingMethod.LowPass;
         }
+
+        public DownsamplingMethod Downsampling { get; set; }
 
         public int BufferLength { get; set; }
 
@@ -68,7 +71,8 @@ namespace Bonsai.Dsp
                 var offset = 0;
                 var currentFactor = 0;
                 var buffer = default(Mat);
-                return filter.Process(source).Subscribe(input =>
+                var downsample = Downsampling == DownsamplingMethod.LowPass ? filter.Process(source) : source;
+                return downsample.Subscribe(input =>
                 {
                     try
                     {
