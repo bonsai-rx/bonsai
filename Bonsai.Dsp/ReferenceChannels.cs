@@ -27,7 +27,13 @@ namespace Bonsai.Dsp
                 var reference = new Mat(1, input.Cols, input.Depth, input.Channels);
                 if (channels == null || channels.Length == 0)
                 {
-                    CV.Reduce(input, reference, 0, ReduceOperation.Avg);
+                    if (input.Depth != Depth.F32)
+                    {
+                        var temp = new Mat(reference.Rows, reference.Cols, Depth.F32, reference.Channels);
+                        CV.Reduce(input, temp, 0, ReduceOperation.Avg);
+                        CV.Convert(temp, reference);
+                    }
+                    else CV.Reduce(input, reference, 0, ReduceOperation.Avg);
                 }
                 else if (channels.Length == 1)
                 {
