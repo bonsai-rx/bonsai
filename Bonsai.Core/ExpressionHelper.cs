@@ -114,11 +114,32 @@ namespace Bonsai
                                         .ToArray();
                         instance = Expression.Property(instance, propertyInfo, arguments);
                     }
-                    else instance = Expression.PropertyOrField(instance, memberName);
+                    else instance = ExpressionHelper.PropertyOrField(instance, memberName);
                 }
             }
 
             return instance;
+        }
+
+        static Expression PropertyOrField(Expression instance, string propertyOrFieldName)
+        {
+            if (instance.Type.IsInterface)
+            {
+                foreach (var type in Enumerable.Repeat(instance.Type, 1)
+                                               .Concat(instance.Type.GetInterfaces()))
+                {
+                    var property = type.GetProperty(propertyOrFieldName);
+                    if (property != null)
+                    {
+                        return Expression.Property(instance, property);
+                    }
+                }
+
+                throw new ArgumentException(
+                    string.Format("'{0}' is not a member of type '{1}'", propertyOrFieldName, instance.Type),
+                    "propertyOrFieldName");
+            }
+            else return Expression.PropertyOrField(instance, propertyOrFieldName);
         }
 
         /// <summary>

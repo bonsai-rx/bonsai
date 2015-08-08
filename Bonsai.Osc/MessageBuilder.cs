@@ -37,9 +37,16 @@ namespace Bonsai.Osc
 
         static IEnumerable<MemberInfo> GetDataMembers(Type type)
         {
-            return Enumerable.Concat<MemberInfo>(
+            var members = Enumerable.Concat<MemberInfo>(
                 type.GetFields(BindingFlags.Instance | BindingFlags.Public),
                 type.GetProperties(BindingFlags.Instance | BindingFlags.Public));
+            if (type.IsInterface)
+            {
+                members = members.Concat(type
+                    .GetInterfaces()
+                    .SelectMany(i => i.GetProperties(BindingFlags.Instance | BindingFlags.Public)));
+            }
+            return members;
         }
 
         static byte[] PadBytes(byte[] value, int zeroPad)
