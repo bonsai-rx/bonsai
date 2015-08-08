@@ -2137,6 +2137,19 @@ namespace Bonsai.Design
             menuItem.Tag = memberType;
         }
 
+        //TODO: Consider refactoring this method into the core API to avoid redundancy
+        static IEnumerable<PropertyInfo> GetProperties(Type type, BindingFlags bindingAttr)
+        {
+            IEnumerable<PropertyInfo> properties = type.GetProperties(bindingAttr);
+            if (type.IsInterface)
+            {
+                properties = properties.Concat(type
+                    .GetInterfaces()
+                    .SelectMany(i => i.GetProperties(bindingAttr)));
+            }
+            return properties;
+        }
+
         private IDisposable CreateOutputMenuItems(Type type, ToolStripMenuItem ownerItem, GraphNode selectedNode)
         {
             if (type.IsEnum) return Disposable.Empty;
@@ -2149,7 +2162,7 @@ namespace Bonsai.Design
                 ownerItem.DropDownItems.Add(menuItem);
             }
 
-            foreach (var property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            foreach (var property in GetProperties(type, BindingFlags.Instance | BindingFlags.Public)
                                          .Distinct(PropertyInfoComparer.Default)
                                          .OrderBy(member => member.MetadataToken))
             {

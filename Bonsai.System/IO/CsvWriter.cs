@@ -102,11 +102,17 @@ namespace Bonsai.IO
 
         static IEnumerable<MemberInfo> GetDataMembers(Type type)
         {
-            return Enumerable.Concat<MemberInfo>(
+            var members = Enumerable.Concat<MemberInfo>(
                 type.GetFields(BindingFlags.Instance | BindingFlags.Public),
-                type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
-                .Where(member => !member.IsDefined(typeof(XmlIgnoreAttribute), true))
-                .OrderBy(member => member.MetadataToken);
+                type.GetProperties(BindingFlags.Instance | BindingFlags.Public));
+            if (type.IsInterface)
+            {
+                members = members.Concat(type
+                    .GetInterfaces()
+                    .SelectMany(i => i.GetProperties(BindingFlags.Instance | BindingFlags.Public)));
+            }
+            return members.Where(member => !member.IsDefined(typeof(XmlIgnoreAttribute), true))
+                          .OrderBy(member => member.MetadataToken);
         }
 
         static Expression GetDataString(Expression expression)
