@@ -76,6 +76,18 @@ namespace Bonsai.Design
             return node;
         }
 
+        static IEnumerable<PropertyInfo> GetProperties(Type type, BindingFlags bindingAttr)
+        {
+            IEnumerable<PropertyInfo> properties = type.GetProperties(bindingAttr);
+            if (type.IsInterface)
+            {
+                properties = properties.Concat(type
+                    .GetInterfaces()
+                    .SelectMany(i => i.GetProperties(bindingAttr)));
+            }
+            return properties;
+        }
+
         internal void InitializeMemberTree(TreeNodeCollection nodes, Type componentType)
         {
             if (componentType == null)
@@ -89,7 +101,7 @@ namespace Bonsai.Design
                 EnsureNode(nodes, field.Name, field.FieldType);
             }
 
-            foreach (var property in componentType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            foreach (var property in GetProperties(componentType, BindingFlags.Instance | BindingFlags.Public)
                                                   .OrderBy(member => member.MetadataToken))
             {
                 EnsureNode(nodes, property.Name, property.PropertyType);
@@ -104,7 +116,7 @@ namespace Bonsai.Design
                 EnsureNode(nodes, field.Name, field.FieldType, recurse: false);
             }
 
-            foreach (var property in componentType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            foreach (var property in GetProperties(componentType, BindingFlags.Instance | BindingFlags.Public)
                                                   .OrderBy(member => member.MetadataToken))
             {
                 EnsureNode(nodes, property.Name, property.PropertyType, recurse: false);
