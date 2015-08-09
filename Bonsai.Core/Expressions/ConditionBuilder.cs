@@ -76,7 +76,10 @@ namespace Bonsai.Expressions
             return Observable.Defer(() =>
             {
                 var filter = false;
-                return source.Publish(ps => ps.CombineLatest(condition(ps), (xs, ys) => { filter = ys; return xs; }).Sample(ps).Where(xs => filter));
+                return source.Publish(ps => ps
+                    .CombineLatest(condition(ps), (xs, ys) => { filter = ys; return xs; })
+                    .Sample(ps)
+                    .Where(xs => filter));
             });
         }
     }
