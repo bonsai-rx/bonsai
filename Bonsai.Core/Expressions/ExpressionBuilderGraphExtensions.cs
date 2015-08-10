@@ -433,7 +433,7 @@ namespace Bonsai.Expressions
                 var buildDependencies = GetArgumentList(dependencyLists, builder);
                 if (buildDependencies.Count > 0)
                 {
-                    expression = ExpressionBuilder.MergeDependencies(expression, buildDependencies);
+                    expression = ExpressionBuilder.MergeBuildDependencies(expression, buildDependencies);
                 }
 
                 // Check if build target was reached

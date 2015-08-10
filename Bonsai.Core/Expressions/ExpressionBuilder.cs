@@ -843,6 +843,12 @@ namespace Bonsai.Expressions
 
         #region Dynamic Properties
 
+        static readonly MethodInfo deferMethod = typeof(Observable).GetMethods()
+                                                                   .Single(m => m.Name == "Defer" &&
+                                                                                m.GetParameters()[0].ParameterType
+                                                                                 .GetGenericArguments()[0]
+                                                                                 .GetGenericTypeDefinition() == typeof(IObservable<>));
+
         protected Tuple<Expression, string> GetArgumentAccess(IEnumerable<Expression> arguments, string selector)
         {
             if (string.IsNullOrEmpty(selector))
@@ -976,12 +982,13 @@ namespace Bonsai.Expressions
             {
                 var observableFactory = Expression.Lambda(output);
                 var outputType = output.Type.GetGenericArguments()[0];
+                var source = Expression.Call(deferMethod.MakeGenericMethod(outputType), observableFactory);
                 var mappingArray = Expression.NewArrayInit(output.Type, mappings);
                 return Expression.Call(
                     typeof(ExpressionBuilder),
                     "MergeDependencies",
                     new[] { outputType },
-                    observableFactory,
+                    source,
                     mappingArray);
             }
 
@@ -1018,23 +1025,23 @@ namespace Bonsai.Expressions
             return source.IgnoreElements().Select(xs => default(TResult));
         }
 
-        internal static Expression MergeDependencies(Expression output, IEnumerable<Expression> buildDependencies)
+        internal static Expression MergeBuildDependencies(Expression output, IEnumerable<Expression> buildDependencies)
         {
             var observableFactory = Expression.Lambda(output);
             var outputType = output.Type.GetGenericArguments()[0];
+            var source = Expression.Call(deferMethod.MakeGenericMethod(outputType), observableFactory);
             buildDependencies = buildDependencies.Select(dependency => BuildDependency(dependency, output));
             var mappingArray = Expression.NewArrayInit(output.Type, buildDependencies);
             return Expression.Call(
                 typeof(ExpressionBuilder),
                 "MergeDependencies",
                 new[] { outputType },
-                observableFactory,
+                source,
                 mappingArray);
         }
 
-        internal static IObservable<TSource> MergeDependencies<TSource>(Func<IObservable<TSource>> observableFactory, IEnumerable<IObservable<TSource>> dependencies)
+        internal static IObservable<TSource> MergeDependencies<TSource>(IObservable<TSource> source, IEnumerable<IObservable<TSource>> dependencies)
         {
-            var source = Observable.Defer(observableFactory);
             return Observable.Create<TSource>(observer =>
             {
                 var dependencyDisposable = new SingleAssignmentDisposable();
