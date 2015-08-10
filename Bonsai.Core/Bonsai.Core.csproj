@@ -128,6 +128,10 @@
     <Compile Include="Reactive\Buffer.cs" />
     <Compile Include="Reactive\Catch.cs" />
     <Compile Include="Reactive\Concat.cs" />
+    <Compile Include="Reactive\LastOrDefault.cs" />
+    <Compile Include="Reactive\Last.cs" />
+    <Compile Include="Reactive\First.cs" />
+    <Compile Include="Reactive\FirstOrDefault.cs" />
     <Compile Include="Reactive\MinBy.cs" />
     <Compile Include="Reactive\IsEmpty.cs" />
     <Compile Include="Reactive\MaxBy.cs" />
