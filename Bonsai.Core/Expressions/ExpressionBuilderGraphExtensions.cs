@@ -202,7 +202,7 @@ namespace Bonsai.Expressions
             }
         }
 
-        #region Build Dependencies
+        #region Argument Lists
 
         static readonly Expression[] EmptyArguments = new Expression[0];
 
@@ -244,44 +244,6 @@ namespace Bonsai.Expressions
             }
 
             argumentList.Add(successor.Label.Index, expression);
-        }
-
-        static Expression BuildDependency(Expression source, Expression output)
-        {
-            var sourceType = source.Type.GetGenericArguments()[0];
-            var outputType = output.Type.GetGenericArguments()[0];
-            return Expression.Call(
-                typeof(ExpressionBuilderGraphExtensions),
-                "BuildDependency",
-                new[] { sourceType, outputType },
-                source);
-        }
-
-        static IObservable<TResult> BuildDependency<TSource, TResult>(IObservable<TSource> source)
-        {
-            return source.IgnoreElements().Select(xs => default(TResult));
-        }
-
-        static Expression MergeDependencies(Expression output, IEnumerable<Expression> buildDependencies)
-        {
-            var observableFactory = Expression.Lambda(output);
-            var outputType = output.Type.GetGenericArguments()[0];
-            buildDependencies = buildDependencies.Select(dependency => BuildDependency(dependency, output));
-            var mappingArray = Expression.NewArrayInit(output.Type, buildDependencies);
-            return Expression.Call(
-                typeof(ExpressionBuilderGraphExtensions),
-                "MergeDependencies",
-                new[] { outputType },
-                observableFactory,
-                mappingArray);
-        }
-
-        static IObservable<TSource> MergeDependencies<TSource>(Func<IObservable<TSource>> observableFactory, IEnumerable<IObservable<TSource>> mappings)
-        {
-            var source = Observable.Defer(observableFactory);
-            return source.Publish(ps => ps
-                .Merge(Observable.Merge(mappings, Scheduler.Immediate))
-                .TakeUntil(ps.TakeLast(1)));
         }
 
         #endregion
@@ -471,7 +433,7 @@ namespace Bonsai.Expressions
                 var buildDependencies = GetArgumentList(dependencyLists, builder);
                 if (buildDependencies.Count > 0)
                 {
-                    expression = MergeDependencies(expression, buildDependencies);
+                    expression = ExpressionBuilder.MergeDependencies(expression, buildDependencies);
                 }
 
                 // Check if build target was reached

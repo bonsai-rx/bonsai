@@ -979,7 +979,7 @@ namespace Bonsai.Expressions
                 var mappingArray = Expression.NewArrayInit(output.Type, mappings);
                 return Expression.Call(
                     typeof(ExpressionBuilder),
-                    "MappingOutput",
+                    "MergeDependencies",
                     new[] { outputType },
                     observableFactory,
                     mappingArray);
@@ -998,23 +998,57 @@ namespace Bonsai.Expressions
             return source.Do(action).IgnoreElements().Select(xs => default(TResult));
         }
 
-        static IObservable<TSource> MappingOutput<TSource>(Func<IObservable<TSource>> observableFactory, IEnumerable<IObservable<TSource>> mappings)
+        #endregion
+
+        #region Build Dependencies
+
+        static Expression BuildDependency(Expression source, Expression output)
+        {
+            var sourceType = source.Type.GetGenericArguments()[0];
+            var outputType = output.Type.GetGenericArguments()[0];
+            return Expression.Call(
+                typeof(ExpressionBuilder),
+                "BuildDependency",
+                new[] { sourceType, outputType },
+                source);
+        }
+
+        static IObservable<TResult> BuildDependency<TSource, TResult>(IObservable<TSource> source)
+        {
+            return source.IgnoreElements().Select(xs => default(TResult));
+        }
+
+        internal static Expression MergeDependencies(Expression output, IEnumerable<Expression> buildDependencies)
+        {
+            var observableFactory = Expression.Lambda(output);
+            var outputType = output.Type.GetGenericArguments()[0];
+            buildDependencies = buildDependencies.Select(dependency => BuildDependency(dependency, output));
+            var mappingArray = Expression.NewArrayInit(output.Type, buildDependencies);
+            return Expression.Call(
+                typeof(ExpressionBuilder),
+                "MergeDependencies",
+                new[] { outputType },
+                observableFactory,
+                mappingArray);
+        }
+
+        internal static IObservable<TSource> MergeDependencies<TSource>(Func<IObservable<TSource>> observableFactory, IEnumerable<IObservable<TSource>> dependencies)
         {
             var source = Observable.Defer(observableFactory);
             return Observable.Create<TSource>(observer =>
             {
-                var mappingDisposable = new SingleAssignmentDisposable();
-                mappingDisposable.Disposable = mappings.Merge(Scheduler.Immediate).Subscribe(
+                var dependencyDisposable = new SingleAssignmentDisposable();
+                dependencyDisposable.Disposable = dependencies.Merge(Scheduler.Immediate).Subscribe(
                     value => { },
                     error =>
                     {
-                        using (mappingDisposable)
+                        using (dependencyDisposable)
                             observer.OnError(error);
                     },
                     () => { });
 
-                if (mappingDisposable.IsDisposed) return mappingDisposable;
-                else return new CompositeDisposable(mappingDisposable, source.SubscribeSafe(observer));
+                if (dependencyDisposable.IsDisposed) return dependencyDisposable;
+                else return new CompositeDisposable(dependencyDisposable, source.SubscribeSafe(observer));
             });
         }
 
