@@ -788,7 +788,7 @@ namespace Bonsai.Expressions
 
         static IObservable<TSource> MergeOutput<TSource>(IObservable<TSource> source, params IObservable<Unit>[] connections)
         {
-            return source.Publish(ps => ps.Merge(Observable.Merge(connections).Select(xs => default(TSource)).TakeUntil(ps.TakeLast(1))));
+            return MergeDependencies(source, Observable.Merge(connections).Select(xs => default(TSource)));
         }
 
         internal static Expression BuildOutput(Expression output, IEnumerable<Expression> connections)
