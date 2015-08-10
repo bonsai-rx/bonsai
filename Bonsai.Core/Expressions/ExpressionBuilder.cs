@@ -1040,12 +1040,23 @@ namespace Bonsai.Expressions
                 mappingArray);
         }
 
-        internal static IObservable<TSource> MergeDependencies<TSource>(IObservable<TSource> source, IEnumerable<IObservable<TSource>> dependencies)
+        internal static IObservable<TSource> MergeDependencies<TSource>(IObservable<TSource> source, params IObservable<TSource>[] dependencies)
         {
+            if (dependencies == null)
+            {
+                throw new ArgumentNullException("dependencies");
+            }
+
+            if (dependencies.Length == 0)
+            {
+                return source;
+            }
+
             return Observable.Create<TSource>(observer =>
             {
                 var dependencyDisposable = new SingleAssignmentDisposable();
-                dependencyDisposable.Disposable = dependencies.Merge(Scheduler.Immediate).Subscribe(
+                var dependencyObservable = dependencies.Length == 1 ? dependencies[0] : dependencies.Merge(Scheduler.Immediate);
+                dependencyDisposable.Disposable = dependencyObservable.Subscribe(
                     value => { },
                     error =>
                     {
