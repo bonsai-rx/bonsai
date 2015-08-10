@@ -128,6 +128,7 @@
     <Compile Include="Reactive\Buffer.cs" />
     <Compile Include="Reactive\Catch.cs" />
     <Compile Include="Reactive\Concat.cs" />
+    <Compile Include="Reactive\IsEmpty.cs" />
     <Compile Include="Reactive\ToArray.cs" />
     <Compile Include="Reactive\Dematerialize.cs" />
     <Compile Include="Reactive\DelaySubscription.cs" />
