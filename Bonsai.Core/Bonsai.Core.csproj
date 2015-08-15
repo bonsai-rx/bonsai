@@ -70,6 +70,7 @@
     <Compile Include="Expressions\BitwiseOrBuilder.cs" />
     <Compile Include="Expressions\BitwiseNotBuilder.cs" />
     <Compile Include="Expressions\BinaryOperatorTypeDescriptionProvider.cs" />
+    <Compile Include="Expressions\SinkBuilder.cs" />
     <Compile Include="Expressions\ReplaySubjectBuilder.cs" />
     <Compile Include="Expressions\IRequireBuildContext.cs" />
     <Compile Include="Expressions\PublishSubjectBuilder.cs" />
