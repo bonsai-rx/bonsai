@@ -47,7 +47,7 @@ namespace Bonsai.Editor
         WorkflowBuilder workflowBuilder;
         WorkflowGraphView workflowGraphView;
         WorkflowSelectionModel selectionModel;
-        TypeDescriptionProvider selectionTypeDescriptor;
+        List<TypeDescriptionProvider> selectionDescriptionProviders;
         Dictionary<string, string> propertyAssignments;
         Dictionary<string, TreeNode> toolboxCategories;
         List<TreeNode> treeCache;
@@ -98,6 +98,7 @@ namespace Bonsai.Editor
             workflowElements = new List<WorkflowElementDescriptor>();
             exceptionCache = new WorkflowRuntimeExceptionCache();
             selectionModel = new WorkflowSelectionModel();
+            selectionDescriptionProviders = new List<TypeDescriptionProvider>();
             propertyAssignments = new Dictionary<string, string>();
             workflowGraphView = new WorkflowGraphView(editorSite);
             workflowGraphView.Workflow = workflowBuilder.Workflow;
@@ -1091,17 +1092,34 @@ namespace Bonsai.Editor
 
         private void selectionModel_SelectionChanged(object sender, EventArgs e)
         {
-            if (selectionTypeDescriptor != null)
+            if (selectionDescriptionProviders.Count > 0)
             {
-                TypeDescriptor.RemoveProvider(selectionTypeDescriptor, propertyGrid.SelectedObject);
-                selectionTypeDescriptor = null;
+                foreach (var association in propertyGrid.SelectedObjects.Zip(selectionDescriptionProviders,
+                                                                             (instance, provider) => new { instance, provider }))
+                {
+                    TypeDescriptor.RemoveProvider(association.provider, association.instance);
+                }
+                selectionDescriptionProviders.Clear();
             }
 
             var selectedObjects = selectionModel.SelectedNodes.Select(node =>
             {
                 var builder = ExpressionBuilder.Unwrap((ExpressionBuilder)node.Value);
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
-                return workflowElement ?? builder;
+                var instance = workflowElement ?? builder;
+                var externalizedProperties = selectionModel.SelectedView.GetExternalizedProperties(node).ToArray();
+                if (externalizedProperties.Length > 0)
+                {
+                    var parentProvider = TypeDescriptor.GetProvider(instance);
+                    var parentDescriptor = parentProvider.GetTypeDescriptor(instance);
+                    var parentExtendedDescriptor = parentProvider.GetExtendedTypeDescriptor(instance);
+                    var provider = new OverrideTypeDescriptionProvider(parentProvider);
+                    provider.TypeDescriptor = new PropertyFilterTypeDescriptor(parentDescriptor, externalizedProperties);
+                    provider.ExtendedTypeDescriptor = new PropertyFilterTypeDescriptor(parentExtendedDescriptor, externalizedProperties);
+                    TypeDescriptor.AddProvider(provider, instance);
+                    selectionDescriptionProviders.Add(provider);
+                }
+                return instance;
             }).ToArray();
 
             var displayNames = selectedObjects
