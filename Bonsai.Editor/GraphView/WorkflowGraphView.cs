@@ -2409,6 +2409,12 @@ namespace Bonsai.Design
 
         private void contextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
+            // Ensure that the current view is selected 
+            if (selectionModel.SelectedView != this)
+            {
+                selectionModel.UpdateSelection(this);
+            }
+
             var selectedNodes = selectionModel.SelectedNodes.ToArray();
             if (selectedNodes.Length > 0) copyToolStripMenuItem.Enabled = true;
             if (!editorState.WorkflowRunning)
