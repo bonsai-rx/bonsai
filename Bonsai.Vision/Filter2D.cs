@@ -36,6 +36,13 @@ namespace Bonsai.Vision
             set { Kernel = (float[,])ArrayConvert.ToArray(value, 2, typeof(float), CultureInfo.InvariantCulture); }
         }
 
+        IplImage Filter(IplImage image, Mat kernel)
+        {
+            var output = new IplImage(image.Size, image.Depth, image.Channels);
+            CV.Filter2D(image, output, kernel, Anchor);
+            return output;
+        }
+
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
             return Observable.Defer(() =>
@@ -65,14 +72,19 @@ namespace Bonsai.Vision
                     }
 
                     if (kernel == null) return input;
-                    else
-                    {
-                        var output = new IplImage(input.Size, input.Depth, input.Channels);
-                        CV.Filter2D(input, output, kernel, Anchor);
-                        return output;
-                    }
+                    else return Filter(input, kernel);
                 });
             });
+        }
+
+        public IObservable<IplImage> Process(IObservable<Tuple<IplImage, Mat>> source)
+        {
+            return source.Select(input => Filter(input.Item1, input.Item2));
+        }
+
+        public IObservable<IplImage> Process(IObservable<Tuple<IplImage, IplImage>> source)
+        {
+            return source.Select(input => Filter(input.Item1, input.Item2.GetMat()));
         }
     }
 }

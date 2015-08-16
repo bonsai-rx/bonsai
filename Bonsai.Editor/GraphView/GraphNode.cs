@@ -17,6 +17,7 @@ namespace Bonsai.Design
             Layer = layer;
             Successors = successors;
 
+            Pen = Pens.Black;
             Brush = Brushes.White;
             if (value != null)
             {
@@ -29,6 +30,28 @@ namespace Bonsai.Design
                 if (typeConverter.CanConvertTo(typeof(Image)))
                 {
                     Image = (Image)typeConverter.ConvertTo(value, typeof(Image));
+                }
+
+                if (typeConverter.CanConvertTo(typeof(Pen)))
+                {
+                    Pen = (Pen)typeConverter.ConvertTo(value, typeof(Pen));
+                }
+            }
+
+            if (Pen != null)
+            {
+                InitializeDummySuccessors();
+            }
+        }
+
+        void InitializeDummySuccessors()
+        {
+            foreach (var successor in Successors)
+            {
+                if (successor.Node.Value == null)
+                {
+                    successor.Node.Pen = Pen;
+                    successor.Node.InitializeDummySuccessors();
                 }
             }
         }
@@ -49,9 +72,16 @@ namespace Bonsai.Design
 
         public Image Image { get; private set; }
 
+        public Pen Pen { get; private set; }
+
         public string Text
         {
             get { return typeConverter != null ? typeConverter.ConvertToString(Value) : string.Empty; }
+        }
+
+        public bool BuildDependency
+        {
+            get { return Pen != null && Pen.Color.R > 0; }
         }
 
         /// <summary>

@@ -39,53 +39,65 @@ namespace Bonsai.Dsp
         [Description("The memory layout used to store the signal on disk.")]
         public MatrixLayout Layout { get; set; }
 
+        IEnumerable<Mat> CreateReader()
+        {
+            using (var reader = new BinaryReader(new FileStream(FileName, FileMode.Open, FileAccess.Read)))
+            {
+                var channelCount = ChannelCount;
+                var bufferLength = BufferLength;
+                var offset = Offset;
+                if (offset > 0)
+                {
+                    reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+                }
+
+                while (true)
+                {
+                    var output = new Mat(channelCount, bufferLength, Depth, 1);
+                    var depthSize = output.Step / bufferLength;
+                    var buffer = new byte[bufferLength * channelCount * depthSize];
+                    var bytesRead = reader.Read(buffer, 0, buffer.Length);
+                    if (bytesRead < buffer.Length) yield break;
+
+                    Mat bufferHeader;
+                    var bufferHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+                    try
+                    {
+                        switch (Layout)
+                        {
+                            case MatrixLayout.ColumnMajor:
+                                bufferHeader = new Mat(bufferLength, channelCount, Depth, 1, bufferHandle.AddrOfPinnedObject());
+                                CV.Transpose(bufferHeader, output);
+                                break;
+                            default:
+                            case MatrixLayout.RowMajor:
+                                bufferHeader = new Mat(channelCount, bufferLength, Depth, 1, bufferHandle.AddrOfPinnedObject());
+                                CV.Copy(bufferHeader, output);
+                                break;
+                        }
+                    }
+                    finally { bufferHandle.Free(); }
+                    yield return output;
+                }
+            }
+        }
+
         public override IObservable<Mat> Generate()
         {
             return Observable.Create<Mat>((observer, cancellationToken) =>
             {
                 return Task.Factory.StartNew(() =>
                 {
-                    using (var reader = new BinaryReader(new FileStream(FileName, FileMode.Open, FileAccess.Read)))
+                    using (var reader = CreateReader().GetEnumerator())
                     using (var sampleSignal = new ManualResetEvent(false))
                     {
                         var stopwatch = new Stopwatch();
-                        var channelCount = ChannelCount;
-                        var bufferLength = BufferLength;
-                        var offset = Offset;
-                        if (offset > 0)
-                        {
-                            reader.BaseStream.Seek(offset, SeekOrigin.Begin);
-                        }
-
                         while (!cancellationToken.IsCancellationRequested)
                         {
                             stopwatch.Restart();
-                            var output = new Mat(channelCount, bufferLength, Depth, 1);
-                            var depthSize = output.Step / bufferLength;
-                            var buffer = new byte[bufferLength * channelCount * depthSize];
-                            var bytesRead = reader.Read(buffer, 0, buffer.Length);
-                            if (bytesRead < buffer.Length) break;
+                            if (!reader.MoveNext()) break;
+                            observer.OnNext(reader.Current);
 
-                            Mat bufferHeader;
-                            var bufferHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-                            try
-                            {
-                                switch (Layout)
-                                {
-                                    case MatrixLayout.ColumnMajor:
-                                        bufferHeader = new Mat(bufferLength, channelCount, Depth, 1, bufferHandle.AddrOfPinnedObject());
-                                        CV.Transpose(bufferHeader, output);
-                                        break;
-                                    default:
-                                    case MatrixLayout.RowMajor:
-                                        bufferHeader = new Mat(channelCount, bufferLength, Depth, 1, bufferHandle.AddrOfPinnedObject());
-                                        CV.Copy(bufferHeader, output);
-                                        break;
-                                }
-                            }
-                            finally { bufferHandle.Free(); }
-
-                            observer.OnNext(output);
                             var sampleInterval = 1000.0 / Frequency;
                             var dueTime = Math.Max(0, (sampleInterval * BufferLength) - stopwatch.Elapsed.TotalMilliseconds);
                             if (dueTime > 0)
@@ -101,6 +113,11 @@ namespace Bonsai.Dsp
                 TaskCreationOptions.LongRunning,
                 TaskScheduler.Default);
             });
+        }
+
+        public IObservable<Mat> Generate<TSource>(IObservable<TSource> source)
+        {
+            return source.Zip(CreateReader(), (x, output) => output);
         }
     }
 }

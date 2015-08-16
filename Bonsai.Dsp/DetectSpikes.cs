@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Dsp
 {
+    [WorkflowElementCategory(ElementCategory.Transform)]
     [Description("Detects spike events in the input signal and extracts their waveforms.")]
     public class DetectSpikes : Combinator<Mat, SpikeWaveformCollection>
     {
