@@ -70,6 +70,14 @@
     <Compile Include="Expressions\BitwiseOrBuilder.cs" />
     <Compile Include="Expressions\BitwiseNotBuilder.cs" />
     <Compile Include="Expressions\BinaryOperatorTypeDescriptionProvider.cs" />
+    <Compile Include="Expressions\SinkBuilder.cs" />
+    <Compile Include="Expressions\ReplaySubjectBuilder.cs" />
+    <Compile Include="Expressions\IRequireBuildContext.cs" />
+    <Compile Include="Expressions\PublishSubjectBuilder.cs" />
+    <Compile Include="Expressions\ReplayLatestBuilder.cs" />
+    <Compile Include="Expressions\IArgumentBuilder.cs" />
+    <Compile Include="Expressions\InputMappingBuilder.cs" />
+    <Compile Include="Expressions\PropertyMappingBuilder.cs" />
     <Compile Include="Expressions\ScanBuilder.cs" />
     <Compile Include="Expressions\ParseBuilder.cs" />
     <Compile Include="Expressions\ExternalizedTimeSpan.cs" />
@@ -85,6 +93,8 @@
     <Compile Include="Expressions\Properties\DoubleProperty.cs" />
     <Compile Include="Expressions\PublishBuilder.cs" />
     <Compile Include="Expressions\ReplayBuilder.cs" />
+    <Compile Include="Expressions\SubjectBuilder.cs" />
+    <Compile Include="Expressions\SubscribeSubjectBuilder.cs" />
     <Compile Include="Expressions\VariableArgumentExpressionBuilder.cs" />
     <Compile Include="Expressions\WorkflowPropertyDescriptor.cs" />
     <Compile Include="Expressions\ZeroArgumentExpressionBuilder.cs" />
@@ -119,6 +129,14 @@
     <Compile Include="Reactive\Buffer.cs" />
     <Compile Include="Reactive\Catch.cs" />
     <Compile Include="Reactive\Concat.cs" />
+    <Compile Include="Reactive\LastOrDefault.cs" />
+    <Compile Include="Reactive\Last.cs" />
+    <Compile Include="Reactive\First.cs" />
+    <Compile Include="Reactive\FirstOrDefault.cs" />
+    <Compile Include="Reactive\MinBy.cs" />
+    <Compile Include="Reactive\IsEmpty.cs" />
+    <Compile Include="Reactive\MaxBy.cs" />
+    <Compile Include="Reactive\ToArray.cs" />
     <Compile Include="Reactive\Dematerialize.cs" />
     <Compile Include="Reactive\DelaySubscription.cs" />
     <Compile Include="Reactive\ElementAccumulation.cs" />
@@ -130,6 +148,7 @@
     <Compile Include="Reactive\RetryCount.cs" />
     <Compile Include="Reactive\SequenceEqual.cs" />
     <Compile Include="Reactive\Switch.cs" />
+    <Compile Include="Reactive\ToList.cs" />
     <Compile Include="Reactive\TriggeredBuffer.cs" />
     <Compile Include="Reactive\Max.cs" />
     <Compile Include="Reactive\Min.cs" />

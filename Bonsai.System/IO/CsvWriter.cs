@@ -111,7 +111,8 @@ namespace Bonsai.IO
                     .GetInterfaces()
                     .SelectMany(i => i.GetProperties(BindingFlags.Instance | BindingFlags.Public)));
             }
-            return members.Where(member => !member.IsDefined(typeof(XmlIgnoreAttribute), true));
+            return members.Where(member => !member.IsDefined(typeof(XmlIgnoreAttribute), true))
+                          .OrderBy(member => member.MetadataToken);
         }
 
         static Expression GetDataString(Expression expression)
