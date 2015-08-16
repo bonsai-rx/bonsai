@@ -118,6 +118,7 @@
     <Compile Include="Skip.cs" />
     <Compile Include="SpikeWaveform.cs" />
     <Compile Include="SpikeWaveformCollection.cs" />
+    <Compile Include="SpikeWaveformRefinement.cs" />
     <Compile Include="Split.cs" />
     <Compile Include="Submatrix.cs" />
     <Compile Include="Sum.cs" />
