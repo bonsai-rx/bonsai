@@ -18,6 +18,11 @@ namespace Bonsai.Dsp
         static readonly double[] DefaultThreshold = new[] { 0.0 };
         readonly Delay delay = new Delay();
 
+        public DetectSpikes()
+        {
+            WaveformRefinement = SpikeWaveformRefinement.AlignPeaks;
+        }
+
         [Description("The delay of each spike waveform from its trigger, in samples.")]
         public int Delay
         {
@@ -32,6 +37,9 @@ namespace Bonsai.Dsp
         [Editor("Bonsai.Dsp.Design.SpikeThresholdEditor, Bonsai.Dsp.Design", typeof(UITypeEditor))]
         [Description("The per-channel threshold for detecting individual spikes.")]
         public double[] Threshold { get; set; }
+
+        [Description("The waveform refinement method.")]
+        public SpikeWaveformRefinement WaveformRefinement { get; set; }
 
         public override IObservable<SpikeWaveformCollection> Process(IObservable<Mat> source)
         {
@@ -96,6 +104,7 @@ namespace Bonsai.Dsp
                                     var length = Length;
                                     refractoryChannels[i] = length;
                                     var buffer = new SampleBuffer(channel, length, j + ioff);
+                                    buffer.Refined = WaveformRefinement == SpikeWaveformRefinement.None;
                                     buffer = UpdateBuffer(buffer, delayedChannel, j, delay.Count, threshold);
                                     if (buffer.Completed)
                                     {
