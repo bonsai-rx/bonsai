@@ -136,8 +136,8 @@ namespace Bonsai.Dsp
                 var offset = threshold > 0 ? maxLoc.X - delay : minLoc.X - delay;
                 if (offset > 0)
                 {
-                    buffer.Refined = true;
                     var offsetBuffer = new SampleBuffer(waveform, waveform.Cols, buffer.SampleIndex + offset);
+                    offsetBuffer.Refined = true;
                     offsetBuffer.Update(waveform, offset);
                     offsetBuffer.Update(source, index + samplesTaken + offset);
                     return offsetBuffer;
