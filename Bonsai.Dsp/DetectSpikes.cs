@@ -104,7 +104,7 @@ namespace Bonsai.Dsp
                                     var length = Length;
                                     refractoryChannels[i] = length;
                                     var buffer = new SampleBuffer(channel, length, j + ioff);
-                                    buffer.Refined = WaveformRefinement == SpikeWaveformRefinement.None;
+                                    buffer.Refined |= WaveformRefinement == SpikeWaveformRefinement.None;
                                     buffer = UpdateBuffer(buffer, delayedChannel, j, delay.Count, threshold);
                                     if (buffer.Completed)
                                     {
