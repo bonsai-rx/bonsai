@@ -158,12 +158,12 @@ namespace Bonsai.Dsp
                 () =>
                 {
                     // Emit pending buffer
-                    if (buffer != null)
+                    if (index > 0)
                     {
                         observer.OnNext(buffer.GetCols(0, index));
-                        buffer = null;
                     }
 
+                    buffer = null;
                     observer.OnCompleted();
                 });
             });
