@@ -10,6 +10,10 @@ namespace Bonsai.Dsp
     {
         None,
         LowPass,
-        Dithering
+        Dithering,
+        Sum,
+        Avg,
+        Max,
+        Min
     }
 }
