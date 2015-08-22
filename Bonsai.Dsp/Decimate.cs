@@ -67,13 +67,18 @@ namespace Bonsai.Dsp
         {
             return Observable.Create<Mat>(observer =>
             {
+                var carry = 0;
                 var index = 0;
                 var offset = 0;
                 var lottery = 0;
+                var scaleFactor = 0.0;
                 var currentFactor = 0;
                 var buffer = default(Mat);
+                var carryBuffer = default(Mat);
                 var downsampling = Downsampling;
                 var random = downsampling == DownsamplingMethod.Dithering ? new Random() : null;
+                var reduceOp = (ReduceOperation)(downsampling - DownsamplingMethod.Sum);
+                if (reduceOp == ReduceOperation.Avg) reduceOp = ReduceOperation.Sum;
                 var downsample = downsampling == DownsamplingMethod.LowPass ? filter.Process(source) : source;
                 return downsample.Subscribe(input =>
                 {
@@ -85,7 +90,14 @@ namespace Bonsai.Dsp
                         {
                             index = 0;
                             currentFactor = factor;
-                            if (random != null)
+                            if (downsampling >= DownsamplingMethod.Sum)
+                            {
+                                carry = currentFactor;
+                                carryBuffer = new Mat(input.Rows, 1, input.Depth, input.Channels);
+                                if (downsampling == DownsamplingMethod.Avg) scaleFactor = 1.0 / currentFactor;
+                                else scaleFactor = 0;
+                            }
+                            else if (random != null)
                             {
                                 lottery = random.Next(currentFactor);
                                 offset = lottery;
@@ -98,7 +110,7 @@ namespace Bonsai.Dsp
                         {
                             // Process decimation data on this buffer
                             Rect outputRect;
-                            if (random != null)
+                            if (downsampling > DownsamplingMethod.LowPass)
                             {
                                 outputRect = new Rect(index, 0, 1, input.Rows);
                             }
@@ -109,8 +121,48 @@ namespace Bonsai.Dsp
                                 outputRect = new Rect(index, 0, Math.Min(buffer.Cols - index, whole), input.Rows);
                             }
 
-                            if (outputRect.Width > 1)
+                            if (downsampling >= DownsamplingMethod.Sum)
                             {
+                                // Reduce decimate
+                                var inputSamples = Math.Min(input.Cols - offset, carry);
+                                var inputRect = new Rect(offset, 0, inputSamples, input.Rows);
+                                using (var inputBuffer = input.GetSubRect(inputRect))
+                                using (var outputBuffer = buffer.GetCol(index))
+                                {
+                                    if (carry < currentFactor)
+                                    {
+                                        CV.Reduce(inputBuffer, carryBuffer, 1, reduceOp);
+                                        switch (reduceOp)
+                                        {
+                                            case ReduceOperation.Sum:
+                                                CV.Add(outputBuffer, carryBuffer, outputBuffer);
+                                                break;
+                                            case ReduceOperation.Max:
+                                                CV.Max(outputBuffer, carryBuffer, outputBuffer);
+                                                break;
+                                            case ReduceOperation.Min:
+                                                CV.Min(outputBuffer, carryBuffer, outputBuffer);
+                                                break;
+                                        }
+                                    }
+                                    else CV.Reduce(inputBuffer, outputBuffer, 1, reduceOp);
+
+                                    offset += inputRect.Width;
+                                    carry -= inputSamples;
+                                    if (carry <= 0)
+                                    {
+                                        index++;
+                                        carry = currentFactor;
+                                        if (scaleFactor > 0)
+                                        {
+                                            CV.ConvertScale(outputBuffer, outputBuffer, scaleFactor);
+                                        }
+                                    }
+                                }
+                            }
+                            else if (outputRect.Width > 1)
+                            {
+                                // Block decimate
                                 var inputRect = new Rect(offset, 0, outputRect.Width * currentFactor, input.Rows);
                                 using (var inputBuffer = input.GetSubRect(inputRect))
                                 using (var outputBuffer = buffer.GetSubRect(outputRect))
@@ -123,6 +175,7 @@ namespace Bonsai.Dsp
                             }
                             else
                             {
+                                // Decimate single time point
                                 using (var inputBuffer = input.GetCol(offset))
                                 using (var outputBuffer = buffer.GetCol(index))
                                 {
