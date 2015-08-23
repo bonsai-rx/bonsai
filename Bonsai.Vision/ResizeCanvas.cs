@@ -35,7 +35,6 @@ namespace Bonsai.Vision
                 if (top == 0 && left == 0) return input;
                 else
                 {
-                    var output = new IplImage(targetSize, input.Depth, input.Channels);
                     var inputRect = new Rect(0, 0, input.Width, input.Height);
                     if (left < 0)
                     {
@@ -48,8 +47,10 @@ namespace Bonsai.Vision
                         top = 0;
                         inputRect.Y = input.Height / 2 - targetSize.Height / 2;
                         inputRect.Height = targetSize.Height;
+                        if (left == 0) return input.GetSubRect(inputRect);
                     }
 
+                    var output = new IplImage(targetSize, input.Depth, input.Channels);
                     using (var inputHeader = input.GetSubRect(inputRect))
                     {
                         CV.CopyMakeBorder(inputHeader, output, new Point(left / 2, top / 2), BorderType, FillValue);
