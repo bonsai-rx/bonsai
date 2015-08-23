@@ -12,16 +12,19 @@ using System.Globalization;
 
 namespace Bonsai.Dsp
 {
+    [Description("Transforms the input signal using an infinite-impulse response filter.")]
     public class IirFilter : Transform<Mat, Mat>
     {
         static readonly double[] IdentityWeight = new[] { 1.0 };
 
         [XmlIgnore]
         [TypeConverter(typeof(UnidimensionalArrayConverter))]
+        [Description("The feedforward filter coefficients for the IIR filter.")]
         public double[] FeedforwardCoefficients { get; set; }
 
         [XmlIgnore]
         [TypeConverter(typeof(UnidimensionalArrayConverter))]
+        [Description("The feedback filter coefficients for the IIR filter.")]
         public double[] FeedbackCoefficients { get; set; }
 
         [Browsable(false)]
