@@ -64,8 +64,11 @@
     <Compile Include="AbsoluteDifference.cs" />
     <Compile Include="Accumulate.cs" />
     <Compile Include="ArrayExtrema.cs" />
+    <Compile Include="Butterworth.cs" />
     <Compile Include="Decimate.cs" />
     <Compile Include="DownsamplingMethod.cs" />
+    <Compile Include="FilterDesign.cs" />
+    <Compile Include="IirFilter.cs" />
     <Compile Include="Range.cs" />
     <Compile Include="RasterSpikes.cs" />
     <Compile Include="Reshape.cs" />
