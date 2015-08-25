@@ -65,6 +65,7 @@
     <Compile Include="Accumulate.cs" />
     <Compile Include="ArrayExtrema.cs" />
     <Compile Include="Butterworth.cs" />
+    <Compile Include="Pow.cs" />
     <Compile Include="Decimate.cs" />
     <Compile Include="DownsamplingMethod.cs" />
     <Compile Include="FilterDesign.cs" />
