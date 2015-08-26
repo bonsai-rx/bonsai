@@ -7,27 +7,27 @@ using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using System.ComponentModel;
 
-namespace Bonsai.Vision
+namespace Bonsai.Dsp
 {
-    [Obsolete]
-    [Description("Incrementally computes the mean of the incoming image sequence.")]
-    public class IncrementalMean : Transform<IplImage, IplImage>
+    [Description("Incrementally computes the mean of the incoming array sequence.")]
+    public class IncrementalMean : ArrayTransform
     {
-        public override IObservable<IplImage> Process(IObservable<IplImage> source)
+        public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)
         {
             return Observable.Defer(() =>
             {
                 var count = 0;
-                IplImage mean = null;
+                TArray mean = null;
+                var outputFactory = ArrFactory<TArray>.TemplateFactory;
                 return source.Select(input =>
                 {
                     if (mean == null)
                     {
-                        mean = new IplImage(input.Size, input.Depth, input.Channels);
+                        mean = outputFactory(input);
                         mean.SetZero();
                     }
 
-                    var output = new IplImage(input.Size, input.Depth, input.Channels);
+                    var output = outputFactory(input);
                     CV.Sub(input, mean, output);
                     CV.ConvertScale(output, output, 1f / ++count, 0);
                     CV.Add(mean, output, mean);
@@ -35,6 +35,7 @@ namespace Bonsai.Vision
                     return output;
                 });
             });
+
         }
     }
 }
