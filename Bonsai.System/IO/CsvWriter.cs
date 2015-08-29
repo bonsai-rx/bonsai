@@ -197,12 +197,14 @@ namespace Bonsai.IO
             return Observable.Using(
                 () =>
                 {
-                    if (string.IsNullOrEmpty(FileName))
+                    var fileName = FileName;
+                    if (string.IsNullOrEmpty(fileName))
                     {
                         throw new InvalidOperationException("A valid filename must be specified.");
                     }
 
-                    var fileName = PathHelper.AppendSuffix(FileName, Suffix);
+                    PathHelper.EnsureDirectory(fileName);
+                    fileName = PathHelper.AppendSuffix(fileName, Suffix);
                     if (File.Exists(fileName) && !Overwrite && !Append)
                     {
                         throw new IOException(string.Format("The file '{0}' already exists.", fileName));
