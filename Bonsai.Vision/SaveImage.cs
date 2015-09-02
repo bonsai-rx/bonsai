@@ -11,6 +11,7 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Vision
 {
+    [DefaultProperty("FileName")]
     [Description("Writes the input image into the specified file.")]
     public class SaveImage : Sink<IplImage>
     {

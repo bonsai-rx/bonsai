@@ -15,7 +15,7 @@ using Bonsai.Expressions;
 
 namespace Bonsai.IO
 {
-    [DefaultProperty("Selector")]
+    [DefaultProperty("FileName")]
     [WorkflowElementCategory(ElementCategory.Sink)]
     [Description("Sinks individual elements of the input sequence to a text file.")]
     public class CsvWriter : CombinatorExpressionBuilder
