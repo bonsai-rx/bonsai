@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.IO
 {
+    [DefaultProperty("FileName")]
     [WorkflowElementCategory(ElementCategory.Source)]
     [Description("Sources individual lines of a text file as an observable sequence.")]
     public class CsvReader : CombinatorExpressionBuilder

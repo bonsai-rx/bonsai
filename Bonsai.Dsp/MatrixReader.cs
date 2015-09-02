@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Dsp
 {
+    [DefaultProperty("FileName")]
     [Description("Sources buffered signal samples from a raw binary file.")]
     public class MatrixReader : Source<Mat>
     {

@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Audio
 {
+    [DefaultProperty("FileName")]
     [Description("Sources buffered audio samples from an uncompressed RIFF/WAV file.")]
     public class AudioReader : Source<Mat>
     {
