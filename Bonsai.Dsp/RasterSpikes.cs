@@ -1,6 +1,7 @@
 ﻿using OpenCV.Net;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Dsp
 {
+    [Description("Rasterizes spike waveforms into an output array where spike timepoints are the only non-zero values.")]
     public class RasterSpikes : Transform<SpikeWaveformCollection, Mat>
     {
         public override IObservable<Mat> Process(IObservable<SpikeWaveformCollection> source)
