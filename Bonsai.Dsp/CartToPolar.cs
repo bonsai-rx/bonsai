@@ -1,6 +1,7 @@
 ﻿using OpenCV.Net;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -8,8 +9,10 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Dsp
 {
+    [Description("Computes the magnitude and angle of the input array of 2D vectors.")]
     public class CartToPolar : ArrayTransform
     {
+        [Description("Specifies whether vector angle values are measured in degrees.")]
         public bool AngleInDegrees { get; set; }
 
         public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)
