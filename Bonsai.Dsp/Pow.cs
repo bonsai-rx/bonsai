@@ -12,6 +12,7 @@ namespace Bonsai.Dsp
     [Description("Raises every input array element to a power.")]
     public class Pow : ArrayTransform
     {
+        [Description("Specifies the power exponent.")]
         public double Power { get; set; }
 
         public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)
