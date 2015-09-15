@@ -29,6 +29,7 @@ namespace Bonsai.Vision
 
         [Range(3, 7)]
         [Precision(0, 2)]
+        [TypeConverter(typeof(OddKernelSizeConverter))]
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
         [Description("Aperture parameter for the Sobel operator.")]
         public int ApertureSize { get; set; }
