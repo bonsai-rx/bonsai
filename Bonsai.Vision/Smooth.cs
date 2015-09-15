@@ -23,12 +23,14 @@ namespace Bonsai.Vision
 
         [Precision(0, 2)]
         [Range(1, int.MaxValue)]
+        [TypeConverter(typeof(OddKernelSizeConverter))]
         [Description("The aperture width of the smoothing kernel.")]
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
         public int Size1 { get; set; }
 
         [Precision(0, 2)]
         [Range(1, int.MaxValue)]
+        [TypeConverter(typeof(OddKernelSizeConverter))]
         [Description("The aperture height of the smoothing kernel.")]
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
         public int Size2 { get; set; }

@@ -19,6 +19,7 @@ namespace Bonsai.Vision
 
         [Range(1, 7)]
         [Precision(0, 2)]
+        [TypeConverter(typeof(OddKernelSizeConverter))]
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
         [Description("The size of the extended Sobel kernel used to compute derivatives.")]
         public int ApertureSize { get; set; }
