@@ -1,6 +1,7 @@
 ﻿using OpenCV.Net;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ namespace Bonsai.Dsp
 {
     [Combinator]
     [WorkflowElementCategory(ElementCategory.Transform)]
+    [Description("Computes a sequence of two-dimensional histograms from the sequence of input values.")]
     public class Histogram2D
     {
         public Histogram2D()
@@ -19,20 +21,28 @@ namespace Bonsai.Dsp
             Accumulate = true;
         }
 
+        [Description("The lower range of the histogram bins in the horizontal dimension.")]
         public float MinX { get; set; }
 
+        [Description("The upper range of the histogram bins in the horizontal dimension.")]
         public float MaxX { get; set; }
 
+        [Description("The lower range of the histogram bins in the vertical dimension.")]
         public float MinY { get; set; }
 
+        [Description("The upper range of the histogram bins in the vertical dimension.")]
         public float MaxY { get; set; }
 
+        [Description("The number of bins in the horizontal dimension of the histogram.")]
         public int BinsX { get; set; }
 
+        [Description("The number of bins in the vertical dimension of the histogram.")]
         public int BinsY { get; set; }
 
+        [Description("Specifies whether the histogram should be normalized such that the sum of bins adds up to one.")]
         public bool Normalize { get; set; }
 
+        [Description("Specifies whether the histogram should be continuously updated.")]
         public bool Accumulate { get; set; }
 
         Histogram CreateHistogram()
