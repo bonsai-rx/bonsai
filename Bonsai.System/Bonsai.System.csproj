@@ -59,7 +59,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IO\GetFileSystemEntries.cs" />
+    <Compile Include="IO\GetDirectories.cs" />
     <Compile Include="IO\CsvReader.cs" />
+    <Compile Include="IO\GetFiles.cs" />
     <Compile Include="IO\Ports\BaudRateConverter.cs" />
     <Compile Include="IO\FileSink.cs" />
     <Compile Include="IO\PathHelper.cs" />
