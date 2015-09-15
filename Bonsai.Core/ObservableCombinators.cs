@@ -199,5 +199,57 @@ namespace Bonsai
         {
             return Multicast(source, () => new Subject<TSource>());
         }
+
+        /// <summary>
+        /// Merges an observable sequence and an enumerable sequence into one observable sequence
+        /// by using the selector function.
+        /// </summary>
+        /// <typeparam name="TSource1">The type of the elements in the first observable source sequence.</typeparam>
+        /// <typeparam name="TSource2">The type of the elements in the second observable source sequence.</typeparam>
+        /// <typeparam name="TResult">
+        /// The type of the elements in the result sequence, returned by the selector function.
+        /// </typeparam>
+        /// <param name="first">The first observable source.</param>
+        /// <param name="second">The second enumerable source.</param>
+        /// <param name="resultSelector">
+        /// The function to invoke for each consecutive pair of elements from the first and second source.
+        /// </param>
+        /// <returns>
+        /// An observable sequence containing the result of pairwise combining the elements
+        /// of the first and second source using the specified result selector function.
+        /// </returns>
+        public static IObservable<TResult> Zip<TSource1, TSource2, TResult>(this IObservable<TSource1> first, IEnumerable<TSource2> second, Func<TSource1, TSource2, TResult> resultSelector)
+        {
+            return Observable.Create<TResult>(observer =>
+            {
+                var gate = new object();
+                var enumerator = second.GetEnumerator();
+                var subscription = first.Subscribe(x =>
+                {
+                    bool hasNext;
+                    try
+                    {
+                        lock (gate) { hasNext = enumerator.MoveNext(); }
+                        if (hasNext)
+                        {
+                            var result = resultSelector(x, enumerator.Current);
+                            observer.OnNext(result);
+                        }
+                        else observer.OnCompleted();
+                    }
+                    catch (Exception ex)
+                    {
+                        observer.OnError(ex);
+                    }
+                },
+                observer.OnError,
+                observer.OnCompleted);
+                return () =>
+                {
+                    subscription.Dispose();
+                    lock (gate) { enumerator.Dispose(); }
+                };
+            });
+        }
     }
 }
