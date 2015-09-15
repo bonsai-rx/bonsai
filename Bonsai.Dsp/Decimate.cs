@@ -1,6 +1,7 @@
 ﻿using OpenCV.Net;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Dsp
 {
+    [Description("Decreases the sampling rate of the input signal by the specified factor.")]
     public class Decimate : Combinator<Mat, Mat>
     {
         int factor;
@@ -19,10 +21,13 @@ namespace Bonsai.Dsp
             Downsampling = DownsamplingMethod.LowPass;
         }
 
+        [Description("The downsampling method used to decimate the input signal.")]
         public DownsamplingMethod Downsampling { get; set; }
 
+        [Description("The optional length of the output array buffer. If set to zero, the length of the input buffer will be used.")]
         public int BufferLength { get; set; }
 
+        [Description("The integral factor by which to divide the sampling rate of the input signal.")]
         public int Factor
         {
             get { return factor; }
@@ -33,6 +38,7 @@ namespace Bonsai.Dsp
             }
         }
 
+        [Description("The sampling frequency (Hz) of the input signal.")]
         public double SamplingFrequency
         {
             get { return filter.SamplingFrequency; }
@@ -43,6 +49,8 @@ namespace Bonsai.Dsp
             }
         }
 
+        [TypeConverter(typeof(KernelLengthConverter))]
+        [Description("The size of the FIR kernel used to design the downsampling filter.")]
         public int KernelLength
         {
             get { return filter.KernelLength; }

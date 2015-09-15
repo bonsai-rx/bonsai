@@ -66,6 +66,7 @@
     <Compile Include="ArrayExtrema.cs" />
     <Compile Include="Butterworth.cs" />
     <Compile Include="IncrementalMean.cs" />
+    <Compile Include="KernelLengthConverter.cs" />
     <Compile Include="Pow.cs" />
     <Compile Include="Decimate.cs" />
     <Compile Include="DownsamplingMethod.cs" />
