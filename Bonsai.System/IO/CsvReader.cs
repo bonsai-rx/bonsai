@@ -29,6 +29,9 @@ namespace Bonsai.IO
         [Description("The parse pattern for scanning individual lines, including conversion specifications for output data types.")]
         public string ScanPattern { get; set; }
 
+        [Description("The number of lines to skip at the start of the file.")]
+        public int SkipRows { get; set; }
+
         protected override Expression BuildCombinator(IEnumerable<Expression> arguments)
         {
             var scanPattern = ScanPattern;
@@ -45,12 +48,19 @@ namespace Bonsai.IO
             {
                 try
                 {
+                    var skipRows = SkipRows;
                     using (var reader = new StreamReader(FileName))
                     {
                         while (!reader.EndOfStream)
                         {
                             if (token.IsCancellationRequested) break;
                             var line = await reader.ReadLineAsync();
+                            if (skipRows > 0)
+                            {
+                                skipRows--;
+                                continue;
+                            }
+
                             observer.OnNext(parser(line));
                         }
                     }
