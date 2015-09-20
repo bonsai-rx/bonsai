@@ -226,11 +226,11 @@ namespace Bonsai.Design
                 var selectedNode = SelectedNode;
                 if (selectedNode != value)
                 {
-                    InvalidateSelection();
-                    selectedNodes.Clear();
-                    if (value != null) selectedNodes.Add(value);
-                    InvalidateSelection();
-                    OnSelectedNodeChanged(EventArgs.Empty);
+                    UpdateSelection(() =>
+                    {
+                        selectedNodes.Clear();
+                        if (value != null) selectedNodes.Add(value);
+                    });
                 }
             }
         }
@@ -244,15 +244,15 @@ namespace Bonsai.Design
             {
                 if (selectedNodes != value)
                 {
-                    InvalidateSelection();
-                    var selection = value.ToArray();
-                    selectedNodes.Clear();
-                    foreach (var node in selection)
+                    UpdateSelection(() =>
                     {
-                        selectedNodes.Add(node);
-                    }
-                    InvalidateSelection();
-                    OnSelectedNodeChanged(EventArgs.Empty);
+                        var selection = value.ToArray();
+                        selectedNodes.Clear();
+                        foreach (var node in selection)
+                        {
+                            selectedNodes.Add(node);
+                        }
+                    });
                 }
             }
         }
@@ -403,12 +403,14 @@ namespace Bonsai.Design
         protected override void OnGotFocus(EventArgs e)
         {
             InvalidateSelection();
+            OnSelectedNodeChanged(EventArgs.Empty);
             base.OnGotFocus(e);
         }
 
         protected override void OnLostFocus(EventArgs e)
         {
             InvalidateSelection();
+            OnSelectedNodeChanged(EventArgs.Empty);
             base.OnLostFocus(e);
         }
 
