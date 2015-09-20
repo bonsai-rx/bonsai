@@ -794,9 +794,9 @@ namespace Bonsai.Design
                 throw new ArgumentNullException("elements");
             }
 
-            var selection = selectionModel.SelectedNodes.FirstOrDefault();
             Action addConnection = () => { };
             Action removeConnection = () => { };
+            var selection = selectionModel.SelectedNodes.FirstOrDefault();
             if (selection != null)
             {
                 var selectionNode = GetGraphNodeTag(workflow, selection);
