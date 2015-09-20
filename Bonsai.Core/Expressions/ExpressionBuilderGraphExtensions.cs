@@ -588,11 +588,40 @@ namespace Bonsai.Expressions
             this IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> source,
             Func<ExpressionBuilder, ExpressionBuilder> selector)
         {
+            return Convert(source, selector, true);
+        }
+
+        /// <summary>
+        /// Converts the specified expression builder workflow into an equivalent representation
+        /// where each node has been replaced by its projection as specified by a selector function.
+        /// </summary>
+        /// <param name="source">The expression builder workflow to convert.</param>
+        /// <param name="selector">A transform function to apply to each node.</param>
+        /// <param name="recurse">
+        /// A value indicating whether to recurse the conversion into nested workflows.
+        /// </param>
+        /// <returns>
+        /// A new expression builder workflow where all nodes have been replaced by their
+        /// projections as specified by the selector function.
+        /// </returns>
+        public static ExpressionBuilderGraph Convert(
+            this IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> source,
+            Func<ExpressionBuilder, ExpressionBuilder> selector,
+            bool recurse)
+        {
             var workflow = new ExpressionBuilderGraph();
             var nodeMapping = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderArgument>, Node<ExpressionBuilder, ExpressionBuilderArgument>>();
             foreach (var node in source)
             {
-                var builder = selector(node.Value);
+                var builder = node.Value;
+                var workflowExpression = recurse ? ExpressionBuilder.Unwrap(builder) as WorkflowExpressionBuilder : null;
+                if (workflowExpression != null)
+                {
+                    workflowExpression = workflowExpression.Clone(workflowExpression.Workflow.Convert(selector, recurse));
+                    builder = UnwrapConvert(builder, x => workflowExpression);
+                }
+
+                builder = selector(builder);
                 var builderNode = workflow.Add(builder);
                 nodeMapping.Add(node, builderNode);
             }
@@ -611,6 +640,24 @@ namespace Bonsai.Expressions
             }
 
             return workflow;
+        }
+
+        // This method needs to be kept in sync with the behavior of Unwrap
+        static ExpressionBuilder UnwrapConvert(ExpressionBuilder builder, Func<ExpressionBuilder, ExpressionBuilder> selector)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException("builder");
+            }
+
+            var inspectBuilder = builder as InspectBuilder;
+            if (inspectBuilder != null)
+            {
+                var result = UnwrapConvert(inspectBuilder.Builder, selector);
+                return new InspectBuilder(result);
+            }
+
+            return selector(builder);
         }
 
         /// <summary>
@@ -643,16 +690,7 @@ namespace Bonsai.Expressions
         /// </returns>
         public static ExpressionBuilderGraph ToInspectableGraph(this ExpressionBuilderGraph source, bool recurse)
         {
-            return Convert(source, builder =>
-            {
-                var workflowExpression = recurse ? builder as WorkflowExpressionBuilder : null;
-                if (workflowExpression != null)
-                {
-                    builder = workflowExpression.Clone(workflowExpression.Workflow.ToInspectableGraph());
-                }
-
-                return new InspectBuilder(builder);
-            });
+            return Convert(source, builder => new InspectBuilder(builder), recurse);
         }
 
         /// <summary>
@@ -685,18 +723,7 @@ namespace Bonsai.Expressions
         /// </returns>
         public static ExpressionBuilderGraph FromInspectableGraph(this IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> source, bool recurse)
         {
-            return Convert(source, builder =>
-            {
-                var inspectBuilder = (InspectBuilder)builder;
-                builder = inspectBuilder.Builder;
-                var workflowExpression = recurse ? builder as WorkflowExpressionBuilder : null;
-                if (workflowExpression != null)
-                {
-                    builder = workflowExpression.Clone(workflowExpression.Workflow.FromInspectableGraph());
-                }
-
-                return builder;
-            });
+            return Convert(source, builder => ((InspectBuilder)builder).Builder, recurse);
         }
 
         /// <summary>
