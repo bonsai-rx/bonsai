@@ -17,6 +17,14 @@ namespace Bonsai.Reactive
     public class TakeLast : Combinator
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="TakeLast"/> class.
+        /// </summary>
+        public TakeLast()
+        {
+            Count = 1;
+        }
+
+        /// <summary>
         /// Gets or sets the number of elements to take from the end of the sequence.
         /// </summary>
         [Description("The number of elements to take from the end of the sequence.")]

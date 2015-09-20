@@ -169,16 +169,6 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap PropertyMappingIcon {
-            get {
-                object obj = ResourceManager.GetObject("PropertyMappingIcon", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Ready.
         /// </summary>
         internal static string ReadyStatus {
@@ -251,6 +241,24 @@ namespace Bonsai.Editor.Properties {
             get {
                 object obj = ResourceManager.GetObject("StatusReadyImage", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This workflow file has been created with an older version of Bonsai. Further modifications will be incompatible with previous versions..
+        /// </summary>
+        internal static string UpdateWorkflow_Warning {
+            get {
+                return ResourceManager.GetString("UpdateWorkflow_Warning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update Workflow.
+        /// </summary>
+        internal static string UpdateWorkflow_Warning_Caption {
+            get {
+                return ResourceManager.GetString("UpdateWorkflow_Warning_Caption", resourceCulture);
             }
         }
     }

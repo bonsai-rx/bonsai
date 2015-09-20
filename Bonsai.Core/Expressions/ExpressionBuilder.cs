@@ -24,6 +24,9 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(SelectManyBuilder))]
     [XmlInclude(typeof(PublishBuilder))]
     [XmlInclude(typeof(ReplayBuilder))]
+    [XmlInclude(typeof(ReplaySubjectBuilder))]
+    [XmlInclude(typeof(PublishSubjectBuilder))]
+    [XmlInclude(typeof(SubscribeSubjectBuilder))]
     [XmlInclude(typeof(WindowWorkflowBuilder))]
     [XmlInclude(typeof(NestedWorkflowBuilder))]
     [XmlInclude(typeof(MemberSelectorBuilder))]
@@ -111,6 +114,19 @@ namespace Bonsai.Expressions
             return builder;
         }
 
+        internal static object GetPropertyMappingElement(ExpressionBuilder builder)
+        {
+            //TODO: The special case for binary operator operands should be avoided in the future
+            var element = ExpressionBuilder.GetWorkflowElement(builder);
+            var binaryOperator = element as BinaryOperatorBuilder;
+            if (binaryOperator != null && binaryOperator.Operand != null)
+            {
+                return binaryOperator.Operand;
+            }
+
+            return element;
+        }
+
         /// <summary>
         /// Creates a new expression builder from the specified editor browsable element and category.
         /// </summary>
@@ -134,13 +150,12 @@ namespace Bonsai.Expressions
                 return builder;
             }
 
-            if (elementCategory == ElementCategory.Source ||
-                elementCategory == ElementCategory.Property)
+            if (elementCategory == ElementCategory.Source)
             {
                 return new SourceBuilder { Generator = element };
             }
 
-            throw new InvalidOperationException("Invalid loadable element type.");
+            throw new InvalidOperationException("Invalid workflow element type.");
         }
 
         static string RemoveSuffix(string source, string suffix)
@@ -189,6 +204,31 @@ namespace Bonsai.Expressions
             var componentType = element.GetType();
             return GetElementDisplayName(componentType);
         }
+
+        #region Member Selector
+
+        internal Expression MemberSelector(Expression expression, string selector)
+        {
+            if (string.IsNullOrWhiteSpace(selector))
+            {
+                selector = ExpressionBuilderArgument.ArgumentNamePrefix;
+            }
+
+            var selectedMemberNames = ExpressionHelper.SelectMemberNames(selector);
+            var inputExpression = Enumerable.Repeat(expression, 1);
+            var selectedMembers = (from memberSelector in selectedMemberNames
+                                   let memberPath = GetArgumentAccess(inputExpression, memberSelector)
+                                   select ExpressionHelper.MemberAccess(expression, memberPath.Item2))
+                                   .ToArray();
+            if (selectedMembers.Length > 1)
+            {
+                var memberTypes = Array.ConvertAll(selectedMembers, member => member.Type);
+                return Expression.Call(typeof(Tuple), "Create", memberTypes, selectedMembers);
+            }
+            else return selectedMembers.Single();
+        }
+
+        #endregion
 
         #region Type Inference
 
@@ -748,7 +788,7 @@ namespace Bonsai.Expressions
 
         static IObservable<TSource> MergeOutput<TSource>(IObservable<TSource> source, params IObservable<Unit>[] connections)
         {
-            return source.Publish(ps => ps.Merge(Observable.Merge(connections).Select(xs => default(TSource)).TakeUntil(ps.TakeLast(1))));
+            return MergeDependencies(source, Observable.Merge(connections).Select(xs => default(TSource)));
         }
 
         internal static Expression BuildOutput(Expression output, IEnumerable<Expression> connections)
@@ -803,6 +843,12 @@ namespace Bonsai.Expressions
 
         #region Dynamic Properties
 
+        static readonly MethodInfo deferMethod = typeof(Observable).GetMethods()
+                                                                   .Single(m => m.Name == "Defer" &&
+                                                                                m.GetParameters()[0].ParameterType
+                                                                                 .GetGenericArguments()[0]
+                                                                                 .GetGenericTypeDefinition() == typeof(IObservable<>));
+
         protected Tuple<Expression, string> GetArgumentAccess(IEnumerable<Expression> arguments, string selector)
         {
             if (string.IsNullOrEmpty(selector))
@@ -821,6 +867,75 @@ namespace Bonsai.Expressions
 
             selector = memberPath.Length > 1 ? memberPath[1] : string.Empty;
             return Tuple.Create(source, selector);
+        }
+
+        internal static string GetMemberPath(string selector)
+        {
+            var memberPath = selector.Split(new[] { ExpressionHelper.MemberSeparator }, 2, StringSplitOptions.None);
+            var sourceName = memberPath[0];
+            if (sourceName != ExpressionBuilderArgument.ArgumentNamePrefix)
+            {
+                throw new ArgumentException(
+                    string.Format("Selector strings must start with the prefix '{0}'.", ExpressionBuilderArgument.ArgumentNamePrefix),
+                    "selector");
+            }
+
+            return memberPath.Length > 1 ? memberPath[1] : string.Empty;
+        }
+
+        internal static Expression BuildPropertyMapping(Expression source, Expression instance, string propertyName)
+        {
+            return BuildPropertyMapping(source, instance, propertyName, string.Empty);
+        }
+
+        internal static Expression BuildPropertyMapping(Expression source, Expression instance, string propertyName, string sourceSelector)
+        {
+            if (instance.NodeType == ExpressionType.Constant)
+            {
+                var workflowBuilder = ((ConstantExpression)instance).Value as WorkflowExpressionBuilder;
+                if (workflowBuilder != null)
+                {
+                    var inputBuilder = (from node in workflowBuilder.Workflow
+                                        let workflowProperty = Unwrap(node.Value) as ExternalizedProperty
+                                        where workflowProperty != null && workflowProperty.Name == propertyName
+                                        select workflowProperty).FirstOrDefault();
+                    if (inputBuilder == null)
+                    {
+                        throw new InvalidOperationException(string.Format(
+                            "The specified property '{0}' was not found in the nested workflow.",
+                            propertyName));
+                    }
+
+                    var inputExpression = Expression.Constant(inputBuilder);
+                    return BuildPropertyMapping(source, inputExpression, "Value", sourceSelector);
+                }
+            }
+
+            var sourceType = source.Type.GetGenericArguments()[0];
+            var parameter = Expression.Parameter(sourceType);
+
+            Expression body = parameter;
+            if (!string.IsNullOrEmpty(sourceSelector))
+            {
+                var memberPath = GetMemberPath(sourceSelector);
+                body = ExpressionHelper.MemberAccess(body, memberPath);
+            }
+
+            var actionType = Expression.GetActionType(parameter.Type);
+            var property = Expression.Property(instance, propertyName);
+            if (body.Type != property.Type)
+            {
+                body = Expression.Convert(body, property.Type);
+            }
+
+            body = Expression.Assign(property, body);
+            var action = Expression.Lambda(actionType, body, parameter);
+            return Expression.Call(
+                typeof(ExpressionBuilder),
+                "PropertyMapping",
+                new[] { sourceType },
+                source,
+                action);
         }
 
         internal Expression BuildPropertyMapping(IEnumerable<Expression> arguments, Expression instance, Expression output, PropertyMapping mapping)
@@ -850,7 +965,12 @@ namespace Bonsai.Expressions
                 action);
         }
 
-        internal Expression BuildMappingOutput(IEnumerable<Expression> arguments, Expression instance, Expression output, PropertyMappingCollection propertyMappings)
+        internal Expression BuildMappingOutput(IEnumerable<Expression> arguments, Expression instance, Expression output, params PropertyMapping[] propertyMappings)
+        {
+            return BuildMappingOutput(arguments, instance, output, (IEnumerable<PropertyMapping>)propertyMappings);
+        }
+
+        internal Expression BuildMappingOutput(IEnumerable<Expression> arguments, Expression instance, Expression output, IEnumerable<PropertyMapping> propertyMappings)
         {
             var subscriptions = propertyMappings.Select(mapping => BuildPropertyMapping(arguments, instance, output, mapping)).ToArray();
             return BuildMappingOutput(output, subscriptions);
@@ -862,16 +982,22 @@ namespace Bonsai.Expressions
             {
                 var observableFactory = Expression.Lambda(output);
                 var outputType = output.Type.GetGenericArguments()[0];
+                var source = Expression.Call(deferMethod.MakeGenericMethod(outputType), observableFactory);
                 var mappingArray = Expression.NewArrayInit(output.Type, mappings);
                 return Expression.Call(
                     typeof(ExpressionBuilder),
-                    "MappingOutput",
+                    "MergeDependencies",
                     new[] { outputType },
-                    observableFactory,
+                    source,
                     mappingArray);
             }
 
             return output;
+        }
+
+        static IObservable<TSource> PropertyMapping<TSource>(IObservable<TSource> source, Action<TSource> action)
+        {
+            return source.Do(action);
         }
 
         static IObservable<TResult> PropertyMapping<TSource, TResult>(IObservable<TSource> source, Action<TSource> action)
@@ -879,23 +1005,68 @@ namespace Bonsai.Expressions
             return source.Do(action).IgnoreElements().Select(xs => default(TResult));
         }
 
-        static IObservable<TSource> MappingOutput<TSource>(Func<IObservable<TSource>> observableFactory, IEnumerable<IObservable<TSource>> mappings)
+        #endregion
+
+        #region Build Dependencies
+
+        static Expression BuildDependency(Expression source, Expression output)
         {
-            var source = Observable.Defer(observableFactory);
+            var sourceType = source.Type.GetGenericArguments()[0];
+            var outputType = output.Type.GetGenericArguments()[0];
+            return Expression.Call(
+                typeof(ExpressionBuilder),
+                "BuildDependency",
+                new[] { sourceType, outputType },
+                source);
+        }
+
+        static IObservable<TResult> BuildDependency<TSource, TResult>(IObservable<TSource> source)
+        {
+            return source.IgnoreElements().Select(xs => default(TResult));
+        }
+
+        internal static Expression MergeBuildDependencies(Expression output, IEnumerable<Expression> buildDependencies)
+        {
+            var observableFactory = Expression.Lambda(output);
+            var outputType = output.Type.GetGenericArguments()[0];
+            var source = Expression.Call(deferMethod.MakeGenericMethod(outputType), observableFactory);
+            buildDependencies = buildDependencies.Select(dependency => BuildDependency(dependency, output));
+            var mappingArray = Expression.NewArrayInit(output.Type, buildDependencies);
+            return Expression.Call(
+                typeof(ExpressionBuilder),
+                "MergeDependencies",
+                new[] { outputType },
+                source,
+                mappingArray);
+        }
+
+        internal static IObservable<TSource> MergeDependencies<TSource>(IObservable<TSource> source, params IObservable<TSource>[] dependencies)
+        {
+            if (dependencies == null)
+            {
+                throw new ArgumentNullException("dependencies");
+            }
+
+            if (dependencies.Length == 0)
+            {
+                return source;
+            }
+
             return Observable.Create<TSource>(observer =>
             {
-                var mappingDisposable = new SingleAssignmentDisposable();
-                mappingDisposable.Disposable = mappings.Merge(Scheduler.Immediate).Subscribe(
+                var dependencyDisposable = new SingleAssignmentDisposable();
+                var dependencyObservable = dependencies.Length == 1 ? dependencies[0] : dependencies.Merge(Scheduler.Immediate);
+                dependencyDisposable.Disposable = dependencyObservable.Subscribe(
                     value => { },
                     error =>
                     {
-                        using (mappingDisposable)
+                        using (dependencyDisposable)
                             observer.OnError(error);
                     },
                     () => { });
 
-                if (mappingDisposable.IsDisposed) return mappingDisposable;
-                else return new CompositeDisposable(mappingDisposable, source.SubscribeSafe(observer));
+                if (dependencyDisposable.IsDisposed) return dependencyDisposable;
+                else return new CompositeDisposable(dependencyDisposable, source.SubscribeSafe(observer));
             });
         }
 

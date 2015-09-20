@@ -17,6 +17,7 @@ namespace Bonsai.Expressions
         /// Property mapping subscriptions are processed before evaluating other output generation
         /// expressions.
         /// </summary>
+        [Obsolete]
         PropertyMappingCollection PropertyMappings { get; }
     }
 }

@@ -20,9 +20,7 @@ namespace Bonsai.Vision.Design
         {
             var image = visualizer.VisualizerImage;
             var connectedComponent = (ConnectedComponent)value;
-            var validContour = connectedComponent.Contour != null;
-
-            if (image != null && validContour)
+            if (image != null)
             {
                 DrawingHelper.DrawConnectedComponent(image, connectedComponent);
             }

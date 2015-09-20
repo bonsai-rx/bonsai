@@ -88,7 +88,7 @@ namespace Bonsai.Expressions
 
             var memoryType = typeof(ElementAccumulation<,>).MakeGenericType(seedType, sourceType);
             var inputParameter = Expression.Parameter(typeof(IObservable<>).MakeGenericType(memoryType));
-            return BuildWorflow(arguments, inputParameter, selectorBody =>
+            return BuildWorkflow(arguments, inputParameter, selectorBody =>
             {
                 var selector = Expression.Lambda(selectorBody, inputParameter);
                 var selectorObservableType = selector.ReturnType.GetGenericArguments()[0];
