@@ -13,7 +13,7 @@ namespace Bonsai.Expressions
     /// any given node.
     /// </summary>
     [TypeConverter("Bonsai.Design.ExpressionBuilderArgumentTypeConverter, Bonsai.Design")]
-    public class ExpressionBuilderArgument
+    public class ExpressionBuilderArgument : IComparable<ExpressionBuilderArgument>, IComparable
     {
         /// <summary>
         /// The prefix that starts every input argument name.
@@ -86,12 +86,86 @@ namespace Bonsai.Expressions
         }
 
         /// <summary>
+        /// Compares the current object with another object of the same type.
+        /// </summary>
+        /// <param name="other">An object to compare with this object.</param>
+        /// <returns>
+        /// A value that indicates the relative order of the objects being compared.
+        /// Less than zero means this object is less than the <paramref name="other"/>
+        /// parameter. Zero means this object is equal to <paramref name="other"/>.
+        /// Greater than zero means this object is greater than <paramref name="other"/>.
+        /// </returns>
+        public int CompareTo(ExpressionBuilderArgument other)
+        {
+            if (object.ReferenceEquals(other, null))
+            {
+                return 1;
+            }
+
+            return Index.CompareTo(other.Index);
+        }
+
+        int IComparable.CompareTo(object obj)
+        {
+            var other = (ExpressionBuilderArgument)obj;
+            return CompareTo(other);
+        }
+
+        /// <summary>
         /// Returns a string that represents the current object.
         /// </summary>
         /// <returns>A string that represents the current object.</returns>
         public override string ToString()
         {
             return Name;
+        }
+
+        /// <summary>
+        /// Tests whether an <see cref="ExpressionBuilderArgument"/> object is less than
+        /// another object of the same type.
+        /// </summary>
+        /// <param name="left">
+        /// The <see cref="ExpressionBuilderArgument"/> object on the left of the less than operator.
+        /// </param>
+        /// <param name="right">
+        /// The <see cref="ExpressionBuilderArgument"/> object on the right of the less than operator.
+        /// </param>
+        /// <returns>
+        /// <b>true</b> if <paramref name="left"/> has an index smaller than <paramref name="right"/>;
+        /// otherwise, <b>false</b>.
+        /// </returns>
+        public static bool operator <(ExpressionBuilderArgument left, ExpressionBuilderArgument right)
+        {
+            if (object.ReferenceEquals(left, null))
+            {
+                return !object.ReferenceEquals(right, null);
+            }
+
+            return left.CompareTo(right) < 0;
+        }
+
+        /// <summary>
+        /// Tests whether an <see cref="ExpressionBuilderArgument"/> object is greater than
+        /// another object of the same type.
+        /// </summary>
+        /// <param name="left">
+        /// The <see cref="ExpressionBuilderArgument"/> object on the left of the greater than operator.
+        /// </param>
+        /// <param name="right">
+        /// The <see cref="ExpressionBuilderArgument"/> object on the right of the greater than operator.
+        /// </param>
+        /// <returns>
+        /// <b>true</b> if <paramref name="left"/> has an index greater than <paramref name="right"/>;
+        /// otherwise, <b>false</b>.
+        /// </returns>
+        public static bool operator >(ExpressionBuilderArgument left, ExpressionBuilderArgument right)
+        {
+            if (object.ReferenceEquals(left, null))
+            {
+                return false;
+            }
+
+            return left.CompareTo(right) > 0;
         }
     }
 }

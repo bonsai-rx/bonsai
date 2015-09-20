@@ -24,8 +24,8 @@ namespace Bonsai.Expressions
         /// </summary>
         /// <remarks>
         /// The allowed conversion specifications are preceded by the character '%'.
-        /// Currently the only supported types are: int (%i); float (%f); bool (%b);
-        /// char (%c); string (%s).
+        /// Currently the only supported types are: int (%i); float (%f); double (%d);
+        /// bool (%b); char (%c); string (%s); date-time (%t) and time-span (%p).
         /// </remarks>
         [TypeConverter(typeof(PatternConverter))]
         [Description("The parse pattern to match, including conversion specifications for output data types.")]
@@ -65,9 +65,12 @@ namespace Bonsai.Expressions
                 {
                     "%i",
                     "%f",
+                    "%d",
                     "%b",
                     "%c",
-                    "%s"
+                    "%s",
+                    "%t",
+                    "%p"
                 });
             }
         }

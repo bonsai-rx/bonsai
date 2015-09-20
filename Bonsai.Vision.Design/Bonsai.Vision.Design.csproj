@@ -82,6 +82,10 @@
     <Compile Include="ConnectedComponentCollectionMashupVisualizer.cs" />
     <Compile Include="BinaryRegionExtremesMashupVisualizer.cs" />
     <Compile Include="ContourConvexityMashupVisualizer.cs" />
+    <Compile Include="ImageCirclePicker.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PolarTransformEditor.cs" />
     <Compile Include="PointVisualizer.cs" />
     <Compile Include="FileCaptureEditor.cs" />
     <Compile Include="PointMashupVisualizer.cs" />
