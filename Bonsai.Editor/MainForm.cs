@@ -1600,6 +1600,21 @@ namespace Bonsai.Editor
                     return siteForm.selectionModel;
                 }
 
+                if (serviceType == typeof(DialogTypeVisualizer))
+                {
+                    var selectedView = siteForm.selectionModel.SelectedView;
+                    var selectedNode = siteForm.selectionModel.SelectedNodes.FirstOrDefault();
+                    if (selectedNode != null)
+                    {
+                        var visualizerDialog = selectedView.GetVisualizerDialogLauncher(selectedNode);
+                        var visualizer = visualizerDialog.Visualizer;
+                        if (visualizer.IsValueCreated)
+                        {
+                            return visualizer.Value;
+                        }
+                    }
+                }
+
                 if (serviceType == typeof(IWorkflowEditorService) ||
                     serviceType == typeof(IWorkflowEditorState) ||
                     serviceType == typeof(IWorkflowToolboxService) ||
