@@ -22,7 +22,7 @@ namespace Bonsai.Shaders.Design
 
         protected override IEnumerable<string> GetConfigurationNames()
         {
-            return ShaderManager.LoadConfiguration().Select(configuration => configuration.Name);
+            return ShaderManager.LoadConfiguration().Shaders.Select(configuration => configuration.Name);
         }
 
         protected override object LoadConfiguration()
@@ -32,7 +32,7 @@ namespace Bonsai.Shaders.Design
 
         protected override void SaveConfiguration(object configuration)
         {
-            var shaderConfiguration = configuration as ShaderConfigurationCollection;
+            var shaderConfiguration = configuration as ShaderWindowSettings;
             if (shaderConfiguration == null)
             {
                 throw new ArgumentNullException("configuration");
