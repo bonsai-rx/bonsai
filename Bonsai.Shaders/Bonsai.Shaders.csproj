@@ -80,6 +80,7 @@
     <Compile Include="QuadEffects.cs" />
     <Compile Include="ShaderExtensions.cs" />
     <Compile Include="ShaderNameConverter.cs" />
+    <Compile Include="ShaderWindowSettings.cs" />
     <Compile Include="StateConfigurationCollection.cs" />
     <Compile Include="DisableState.cs" />
     <Compile Include="EnableState.cs" />
