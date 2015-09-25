@@ -2,6 +2,7 @@
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
@@ -19,8 +20,19 @@ namespace Bonsai.Shaders.Design
         CollectionForm collectionForm;
 
         public ShaderConfigurationCollectionEditor(Type type)
-            : base(type)
+            : base(typeof(ShaderConfigurationCollection))
         {
+        }
+
+        public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
+        {
+            var settings = value as ShaderWindowSettings;
+            if (settings != null)
+            {
+                value = settings.Shaders;
+            }
+
+            return base.EditValue(context, provider, value);
         }
 
         protected override CollectionEditor.CollectionForm CreateCollectionForm()

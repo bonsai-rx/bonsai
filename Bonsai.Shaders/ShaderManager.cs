@@ -65,23 +65,23 @@ namespace Bonsai.Shaders
             });
         }
 
-        public static ShaderConfigurationCollection LoadConfiguration()
+        public static ShaderWindowSettings LoadConfiguration()
         {
             if (!File.Exists(DefaultConfigurationFile))
             {
-                return new ShaderConfigurationCollection();
+                return new ShaderWindowSettings();
             }
 
-            var serializer = new XmlSerializer(typeof(ShaderConfigurationCollection));
+            var serializer = new XmlSerializer(typeof(ShaderWindowSettings));
             using (var reader = XmlReader.Create(DefaultConfigurationFile))
             {
-                return (ShaderConfigurationCollection)serializer.Deserialize(reader);
+                return (ShaderWindowSettings)serializer.Deserialize(reader);
             }
         }
 
-        public static void SaveConfiguration(ShaderConfigurationCollection configuration)
+        public static void SaveConfiguration(ShaderWindowSettings configuration)
         {
-            var serializer = new XmlSerializer(typeof(ShaderConfigurationCollection));
+            var serializer = new XmlSerializer(typeof(ShaderWindowSettings));
             using (var writer = XmlWriter.Create(DefaultConfigurationFile, new XmlWriterSettings { Indent = true }))
             {
                 serializer.Serialize(writer, configuration);

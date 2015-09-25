@@ -16,7 +16,7 @@ namespace Bonsai.Shaders
 
         public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
-            var shaderNames = ShaderManager.LoadConfiguration().Select(configuration => configuration.Name);
+            var shaderNames = ShaderManager.LoadConfiguration().Shaders.Select(configuration => configuration.Name);
             return new StandardValuesCollection(shaderNames.ToArray());
         }
     }

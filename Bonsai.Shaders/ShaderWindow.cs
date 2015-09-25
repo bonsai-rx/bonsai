@@ -13,11 +13,15 @@ namespace Bonsai.Shaders
     public class ShaderWindow : GameWindow
     {
         List<Shader> shaders = new List<Shader>();
+        const string DefaultTitle = "Bonsai Shader Window";
         static readonly object syncRoot = string.Intern("A1105A50-BBB0-4EC6-B8B2-B5EF38A9CC3E");
 
-        public ShaderWindow(ShaderConfigurationCollection configuration)
+        public ShaderWindow(ShaderWindowSettings configuration)
+            : base(configuration.Width, configuration.Height)
         {
-            foreach (var shaderConfiguration in configuration)
+            VSync = configuration.VSync;
+            Title = configuration.Title ?? DefaultTitle;
+            foreach (var shaderConfiguration in configuration.Shaders)
             {
                 var shader = new Shader(
                     shaderConfiguration.Name, this,
