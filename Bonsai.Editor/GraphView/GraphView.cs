@@ -304,7 +304,7 @@ namespace Bonsai.Design
             return Rectangle.Union(boundingRectangle, Rectangle.Truncate(labelRectangle));
         }
 
-        void EnsureVisible(Point point)
+        public void EnsureVisible(Point point)
         {
             var clientRectangle = canvas.ClientRectangle;
             if (!clientRectangle.Contains(point))
