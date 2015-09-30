@@ -403,14 +403,12 @@ namespace Bonsai.Design
         protected override void OnGotFocus(EventArgs e)
         {
             InvalidateSelection();
-            OnSelectedNodeChanged(EventArgs.Empty);
             base.OnGotFocus(e);
         }
 
         protected override void OnLostFocus(EventArgs e)
         {
             InvalidateSelection();
-            OnSelectedNodeChanged(EventArgs.Empty);
             base.OnLostFocus(e);
         }
 
