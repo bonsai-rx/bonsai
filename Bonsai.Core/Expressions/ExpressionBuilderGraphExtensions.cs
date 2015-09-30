@@ -470,7 +470,7 @@ namespace Bonsai.Expressions
 
                 MulticastScope multicastScope = null;
                 var argumentBuilder = workflowElement as IArgumentBuilder;
-                var multicastBuilder = workflowElement as MulticastExpressionBuilder;
+                var multicastBuilder = workflowElement as MulticastBranchBuilder;
                 if (successorCount > 1 || multicastBuilder != null)
                 {
                     // Start a new multicast scope
@@ -479,9 +479,9 @@ namespace Bonsai.Expressions
                         // Property mappings get replayed across subscriptions
                         if (argumentBuilder != null)
                         {
-                            multicastBuilder = new ReplayLatestBuilder();
+                            multicastBuilder = new ReplayLatestBranchBuilder();
                         }
-                        else multicastBuilder = new PublishBuilder();
+                        else multicastBuilder = new PublishBranchBuilder();
                         expression = multicastBuilder.Build(expression);
                     }
 
