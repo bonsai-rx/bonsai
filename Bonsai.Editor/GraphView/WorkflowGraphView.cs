@@ -1466,6 +1466,8 @@ namespace Bonsai.Design
                     {
                         editorService.RefreshEditor();
                     }
+
+                    selectionModel.UpdateSelection(editorLauncher.WorkflowGraphView);
                 };
 
                 if (visible) launchEditor();
