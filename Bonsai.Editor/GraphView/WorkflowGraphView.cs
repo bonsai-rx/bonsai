@@ -1784,8 +1784,21 @@ namespace Bonsai.Design
             }
         }
 
+        private void EnsureDragVisible(DragEventArgs e)
+        {
+            const int DragOffset = 50;
+            var halfWidth = graphView.Width / 2;
+            var halfHeight = graphView.Height / 2;
+            var location = new Point(e.X, e.Y);
+            location = graphView.PointToClient(location);
+            location.X += DragOffset * Math.Sign(location.X - halfWidth);
+            location.Y += DragOffset * Math.Sign(location.Y - halfHeight);
+            graphView.EnsureVisible(location);
+        }
+
         private void graphView_DragOver(object sender, DragEventArgs e)
         {
+            EnsureDragVisible(e);
             if (editorState.WorkflowRunning) return;
             if (e.Effect != DragDropEffects.None && e.Data.GetDataPresent(DataFormats.FileDrop, true))
             {
