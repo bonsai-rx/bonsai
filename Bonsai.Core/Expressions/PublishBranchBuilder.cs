@@ -9,13 +9,7 @@ using System.ComponentModel;
 
 namespace Bonsai.Expressions
 {
-    /// <summary>
-    /// Represents an expression builder that shares a single subscription to an observable
-    /// sequence across the encapsulated workflow.
-    /// </summary>
-    [XmlType("Publish", Namespace = Constants.XmlNamespace)]
-    [Description("Shares a single subscription to an observable sequence across the encapsulated workflow.")]
-    public class PublishBuilder : MulticastBuilder
+    class PublishBranchBuilder : MulticastBranchBuilder
     {
         internal override IObservable<TResult> Multicast<TSource, TResult>(IObservable<TSource> source, Func<IObservable<TSource>, IObservable<TResult>> selector)
         {

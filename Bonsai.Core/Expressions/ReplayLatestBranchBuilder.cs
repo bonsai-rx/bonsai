@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Expressions
 {
-    class ReplayLatestBuilder : MulticastBuilder
+    class ReplayLatestBranchBuilder : MulticastBranchBuilder
     {
         internal override IObservable<TResult> Multicast<TSource, TResult>(IObservable<TSource> source, Func<IObservable<TSource>, IObservable<TResult>> selector)
         {
