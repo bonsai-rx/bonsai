@@ -1446,7 +1446,7 @@ namespace Bonsai.Design
         public void LaunchWorkflowView(GraphNode node, VisualizerLayout editorLayout, Rectangle bounds, bool activate)
         {
             var workflowExpressionBuilder = GetGraphNodeBuilder(node) as WorkflowExpressionBuilder;
-            if (workflowExpressionBuilder == null) return;
+            if (workflowExpressionBuilder == null || editorLaunching) return;
 
             editorLaunching = true;
             var launcher = Launcher;
