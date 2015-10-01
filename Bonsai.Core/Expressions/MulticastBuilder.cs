@@ -15,6 +15,12 @@ namespace Bonsai.Expressions
     public abstract class MulticastBuilder : WorkflowExpressionBuilder
     {
         internal MulticastBuilder()
+            : this(new ExpressionBuilderGraph())
+        {
+        }
+
+        internal MulticastBuilder(ExpressionBuilderGraph workflow)
+            : base(workflow)
         {
         }
 
