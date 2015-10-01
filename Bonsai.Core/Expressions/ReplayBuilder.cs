@@ -20,6 +20,27 @@ namespace Bonsai.Expressions
     public class ReplayBuilder : MulticastBuilder
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="ReplayBuilder"/> class.
+        /// </summary>
+        public ReplayBuilder()
+            : this(new ExpressionBuilderGraph())
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReplayBuilder"/> class
+        /// with the specified expression builder workflow.
+        /// </summary>
+        /// <param name="workflow">
+        /// The expression builder workflow instance that will be used by this builder
+        /// to generate the output expression tree.
+        /// </param>
+        public ReplayBuilder(ExpressionBuilderGraph workflow)
+            : base(workflow)
+        {
+        }
+
+        /// <summary>
         /// Gets or sets the maximum element count of the replay buffer.
         /// </summary>
         [Description("The maximum element count of the replay buffer.")]
