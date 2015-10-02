@@ -15,8 +15,12 @@ namespace Bonsai.Video.Design
         {
             var videoCaptureDevice = (VideoCaptureDevice)component;
             var videoSource = (AForge.Video.DirectShow.VideoCaptureDevice)videoCaptureDevice.VideoSource;
-            videoSource.DisplayPropertyPage(owner.Handle);
-            return true;
+            if (videoSource != null)
+            {
+                videoSource.DisplayPropertyPage(owner.Handle);
+                return true;
+            }
+            else return false;
         }
     }
 }
