@@ -140,6 +140,15 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Component did not succeed to show the property page..
+        /// </summary>
+        internal static string LaunchDefaultEditor_Error {
+            get {
+                return ResourceManager.GetString("LaunchDefaultEditor_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There was an error opening the Bonsai workflow:
         ///{0}.
         /// </summary>
