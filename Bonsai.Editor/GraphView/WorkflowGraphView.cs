@@ -1378,35 +1378,42 @@ namespace Bonsai.Design
             {
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
                 var componentEditor = (ComponentEditor)TypeDescriptor.GetEditor(workflowElement, typeof(ComponentEditor));
-                if (componentEditor == null || !uiService.ShowComponentEditor(workflowElement, this))
+                try
                 {
-                    var defaultProperty = TypeDescriptor.GetDefaultProperty(workflowElement);
-                    if (defaultProperty != null)
+                    if (componentEditor == null || !uiService.ShowComponentEditor(workflowElement, this))
                     {
-                        var editor = (UITypeEditor)defaultProperty.GetEditor(typeof(UITypeEditor));
-                        if (editor != null && editor.GetEditStyle() == UITypeEditorEditStyle.Modal)
+                        var defaultProperty = TypeDescriptor.GetDefaultProperty(workflowElement);
+                        if (defaultProperty != null)
                         {
-                            var graphViewEditorService = new WorkflowGraphViewEditorService(this, serviceProvider);
-                            var context = new TypeDescriptorContext(workflowElement, defaultProperty, graphViewEditorService);
-                            var currentValue = defaultProperty.GetValue(workflowElement);
-                            var value = editor.EditValue(context, graphViewEditorService, currentValue);
-                            if (value != currentValue && !defaultProperty.IsReadOnly)
+                            var editor = (UITypeEditor)defaultProperty.GetEditor(typeof(UITypeEditor));
+                            if (editor != null && editor.GetEditStyle() == UITypeEditorEditStyle.Modal)
                             {
-                                defaultProperty.SetValue(workflowElement, value);
-                            }
+                                var graphViewEditorService = new WorkflowGraphViewEditorService(this, serviceProvider);
+                                var context = new TypeDescriptorContext(workflowElement, defaultProperty, graphViewEditorService);
+                                var currentValue = defaultProperty.GetValue(workflowElement);
+                                var value = editor.EditValue(context, graphViewEditorService, currentValue);
+                                if (value != currentValue && !defaultProperty.IsReadOnly)
+                                {
+                                    defaultProperty.SetValue(workflowElement, value);
+                                }
 
-                            if (!editorState.WorkflowRunning)
-                            {
-                                editorService.ValidateWorkflow();
-                            }
+                                if (!editorState.WorkflowRunning)
+                                {
+                                    editorService.ValidateWorkflow();
+                                }
 
-                            //TODO: Find more economical way to deal with visual node changes after editor
-                            foreach (var graphNode in graphView.Nodes.SelectMany(layer => layer))
-                            {
-                                graphView.Invalidate(graphNode);
+                                //TODO: Find more economical way to deal with visual node changes after editor
+                                foreach (var graphNode in graphView.Nodes.SelectMany(layer => layer))
+                                {
+                                    graphView.Invalidate(graphNode);
+                                }
                             }
                         }
                     }
+                }
+                catch (Exception ex)
+                {
+                    uiService.ShowError(ex, Resources.LaunchDefaultEditor_Error);
                 }
             }
         }
