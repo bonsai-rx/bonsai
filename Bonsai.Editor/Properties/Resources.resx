@@ -200,7 +200,7 @@ Copyright 2010-2012 Outercurve Foundation</value>
     <value>There was an error saving the Bonsai workflow:
 {0}</value>
   </data>
-  <data name="SaveWorkflow_Error_Caption" xml:space="preserve">
+  <data name="SaveElement_Error_Caption" xml:space="preserve">
     <value>Save Error</value>
   </data>
   <data name="UpdateWorkflow_Warning" xml:space="preserve">
@@ -211,5 +211,9 @@ Copyright 2010-2012 Outercurve Foundation</value>
   </data>
   <data name="LaunchDefaultEditor_Error" xml:space="preserve">
     <value>Component did not succeed to show the property page.</value>
+  </data>
+  <data name="SaveLayout_Error" xml:space="preserve">
+    <value>There was an error saving the visualizer layout:
+{0}</value>
   </data>
 </root>

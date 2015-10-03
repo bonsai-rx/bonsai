@@ -611,19 +611,24 @@ namespace Bonsai.Editor
             }
         }
 
-        void SaveWorkflow(string fileName, WorkflowBuilder workflowBuilder)
+        void SaveElement(XmlSerializer serializer, string fileName, object o, string error)
         {
             try
             {
                 using (var memoryStream = new MemoryStream())
                 using (var writer = XmlWriter.Create(memoryStream, new XmlWriterSettings { Indent = true }))
                 {
-                    serializer.Serialize(writer, workflowBuilder);
+                    serializer.Serialize(writer, o);
                     using (var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
                     {
                         memoryStream.WriteTo(fileStream);
                     }
                 }
+            }
+            catch (IOException ex)
+            {
+                var errorMessage = string.Format(error, ex.Message);
+                MessageBox.Show(this, errorMessage, Resources.SaveElement_Error_Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch (InvalidOperationException ex)
             {
@@ -631,9 +636,19 @@ namespace Bonsai.Editor
                 var writerException = ex.InnerException as InvalidOperationException;
                 if (writerException != null) ex = writerException;
 
-                var errorMessage = string.Format(Resources.SaveWorkflow_Error, ex.InnerException.Message);
-                MessageBox.Show(this, errorMessage, Resources.SaveWorkflow_Error_Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var errorMessage = string.Format(error, ex.InnerException.Message);
+                MessageBox.Show(this, errorMessage, Resources.SaveElement_Error_Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        void SaveWorkflow(string fileName, WorkflowBuilder workflowBuilder)
+        {
+            SaveElement(serializer, fileName, workflowBuilder, Resources.SaveWorkflow_Error);
+        }
+
+        void SaveVisualizerLayout(string fileName, VisualizerLayout layout)
+        {
+            SaveElement(layoutSerializer, fileName, layout, Resources.SaveLayout_Error);
         }
 
         void UpdateCurrentDirectory()
@@ -711,10 +726,7 @@ namespace Bonsai.Editor
                 if (workflowGraphView.VisualizerLayout != null)
                 {
                     var layoutPath = GetLayoutPath(saveWorkflowDialog.FileName);
-                    using (var writer = XmlWriter.Create(layoutPath, new XmlWriterSettings { Indent = true }))
-                    {
-                        layoutSerializer.Serialize(writer, workflowGraphView.VisualizerLayout);
-                    }
+                    SaveVisualizerLayout(layoutPath, workflowGraphView.VisualizerLayout);
                 }
 
                 if (string.IsNullOrEmpty(directoryToolStripTextBox.Text))
