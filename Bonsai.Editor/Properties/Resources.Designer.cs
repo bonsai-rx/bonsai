@@ -196,21 +196,31 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Save Error.
+        /// </summary>
+        internal static string SaveElement_Error_Caption {
+            get {
+                return ResourceManager.GetString("SaveElement_Error_Caption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There was an error saving the visualizer layout:
+        ///{0}.
+        /// </summary>
+        internal static string SaveLayout_Error {
+            get {
+                return ResourceManager.GetString("SaveLayout_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There was an error saving the Bonsai workflow:
         ///{0}.
         /// </summary>
         internal static string SaveWorkflow_Error {
             get {
                 return ResourceManager.GetString("SaveWorkflow_Error", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Save Error.
-        /// </summary>
-        internal static string SaveWorkflow_Error_Caption {
-            get {
-                return ResourceManager.GetString("SaveWorkflow_Error_Caption", resourceCulture);
             }
         }
         
