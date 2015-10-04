@@ -761,6 +761,25 @@ namespace Bonsai.Editor
             finally { saveWorkflowDialog.FileName = currentFileName; }
         }
 
+        private void exportSVGImageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var model = selectionModel.SelectedView;
+            if (model.Workflow.Count > 0)
+            {
+                var graphics = new SvgNet.SvgGdi.SvgGraphics();
+                var bounds = model.GraphView.DrawGraphics(graphics);
+                if (exportSvgDialog.ShowDialog() == DialogResult.OK)
+                {
+                    var svg = graphics.WriteSVGString();
+                    var attributes = string.Format(
+                        "<svg width=\"{0}\" height=\"{1}\" ",
+                        bounds.Width, bounds.Height);
+                    svg = svg.Replace("<svg ", attributes);
+                    File.WriteAllText(exportSvgDialog.FileName, svg);
+                }
+            }
+        }
+
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
@@ -1648,7 +1667,7 @@ namespace Bonsai.Editor
 
             public void OnKeyDown(KeyEventArgs e)
             {
-                if (e.Control && e.KeyCode == Keys.E)
+                if (!e.Shift && e.Control && e.KeyCode == Keys.E)
                 {
                     siteForm.searchTextBox.Focus();
                     e.Handled = true;
@@ -1659,6 +1678,7 @@ namespace Bonsai.Editor
                 HandleMenuItemShortcutKeys(e, siteForm.openToolStripMenuItem, siteForm.openToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.saveToolStripMenuItem, siteForm.saveToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.saveSelectionAsToolStripMenuItem, siteForm.saveSelectionAsToolStripMenuItem_Click);
+                HandleMenuItemShortcutKeys(e, siteForm.exportSVGImageToolStripMenuItem, siteForm.exportSVGImageToolStripMenuItem_Click);
             }
 
             public void OnKeyPress(KeyPressEventArgs e)
