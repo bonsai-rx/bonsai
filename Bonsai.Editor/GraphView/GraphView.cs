@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Drawing.Drawing2D;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using SvgNet.SvgGdi;
 
 namespace Bonsai.Design
 {
@@ -23,6 +24,7 @@ namespace Bonsai.Design
         const int IconOffset = HalfSize - (IconSize / 2);
         const int LabelTextOffset = 5;
         static readonly Size TextOffset = new Size(9, 9);
+        static readonly SizeF VectorTextOffset = new SizeF(11.3f, 8.3f);
         static readonly Size EntryOffset = new Size(-PenWidth / 2, NodeSize / 2);
         static readonly Size ExitOffset = new Size(NodeSize + PenWidth / 2, NodeSize / 2);
         static readonly Pen RubberBandPen = new Pen(Color.FromArgb(51, 153, 255));
@@ -858,6 +860,66 @@ namespace Bonsai.Design
             cursor = node;
             Invalidate(node);
             EnsureVisible(cursor);
+        }
+
+        public RectangleF DrawGraphics(IGraphics graphics)
+        {
+            var textBrush = Brushes.Black;
+            var boundingRect = RectangleF.Empty;
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.Clear(Color.White);
+
+            foreach (var layout in layoutNodes)
+            {
+                if (layout.Node.Value != null)
+                {
+                    var unionRect = RectangleF.Union(layout.BoundingRectangle, layout.LabelRectangle);
+                    boundingRect = RectangleF.Union(boundingRect, unionRect);
+
+                    var selected = selectedNodes.Contains(layout.Node);
+                    var nodeRectangle = new Rectangle(
+                        layout.Location.X,
+                        layout.Location.Y,
+                        NodeSize, NodeSize);
+
+                    graphics.DrawEllipse(BlackPen, nodeRectangle);
+                    graphics.FillEllipse(layout.Node.Brush, nodeRectangle);
+                    if (layout.Node.Image != null)
+                    {
+                        var imageRect = new Rectangle(
+                            nodeRectangle.X + IconOffset,
+                            nodeRectangle.Y + IconOffset,
+                            IconSize, IconSize);
+                        graphics.DrawImage(layout.Node.Image, imageRect);
+                    }
+                    else
+                    {
+                        graphics.DrawString(
+                            layout.Label.Substring(0, 1),
+                            Font, textBrush,
+                            PointF.Add(layout.Location, VectorTextOffset));
+                    }
+
+                    var labelRect = layout.LabelRectangle;
+                    labelRect.Width = NodeAirspace;
+                    labelRect.Location = new PointF(
+                        labelRect.Location.X,
+                        labelRect.Location.Y);
+                    graphics.DrawString(
+                        layout.Label,
+                        Font, textBrush,
+                        labelRect);
+                }
+                else graphics.DrawLine(layout.Node.Pen, layout.EntryPoint, layout.ExitPoint);
+
+                foreach (var successor in layout.Node.Successors)
+                {
+                    var successorLayout = layoutNodes[successor.Node];
+                    graphics.DrawLine(layout.Node.Pen, layout.ExitPoint, successorLayout.EntryPoint);
+                }
+            }
+
+            return boundingRect;
         }
 
         private void canvas_Paint(object sender, PaintEventArgs e)
