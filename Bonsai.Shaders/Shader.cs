@@ -212,7 +212,7 @@ namespace Bonsai.Shaders
                 time += e.Time;
                 foreach (var state in shaderState)
                 {
-                    state.Execute();
+                    state.Execute(this);
                 }
 
                 GL.UseProgram(program);

@@ -20,6 +20,7 @@ namespace Bonsai.Shaders.Design
             {
                 typeof(EnableState),
                 typeof(DisableState),
+                typeof(ViewportState),
                 typeof(LineWidthState),
                 typeof(PointSizeState),
                 typeof(BlendFunctionState),

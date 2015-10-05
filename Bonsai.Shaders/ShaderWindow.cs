@@ -4,6 +4,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ namespace Bonsai.Shaders
 {
     public class ShaderWindow : GameWindow
     {
+        RectangleF viewport;
         List<Shader> shaders = new List<Shader>();
         const string DefaultTitle = "Bonsai Shader Window";
         static readonly object syncRoot = string.Intern("A1105A50-BBB0-4EC6-B8B2-B5EF38A9CC3E");
@@ -21,6 +23,7 @@ namespace Bonsai.Shaders
         {
             VSync = configuration.VSync;
             Title = configuration.Title ?? DefaultTitle;
+            Viewport = new RectangleF(0, 0, 1, 1);
             foreach (var shaderConfiguration in configuration.Shaders)
             {
                 var shader = new Shader(
@@ -35,9 +38,33 @@ namespace Bonsai.Shaders
             }
         }
 
+        public RectangleF Viewport
+        {
+            get { return viewport; }
+            set
+            {
+                viewport = value;
+                UpdateViewport();
+            }
+        }
+
         public IEnumerable<Shader> Shaders
         {
             get { return shaders; }
+        }
+
+        internal void UpdateViewport()
+        {
+            UpdateViewport(Width, Height);
+        }
+
+        internal void UpdateViewport(float width, float height)
+        {
+            GL.Viewport(
+                (int)(viewport.X * width),
+                (int)(viewport.Y * height),
+                (int)(viewport.Width * width),
+                (int)(viewport.Height * height));
         }
 
         protected override void OnLoad(EventArgs e)
@@ -66,7 +93,7 @@ namespace Bonsai.Shaders
 
         protected override void OnResize(EventArgs e)
         {
-            GL.Viewport(ClientRectangle);
+            UpdateViewport();
             base.OnResize(e);
         }
 

@@ -19,7 +19,7 @@ namespace Bonsai.Shaders
 
         public BlendingFactorDest DestinationFactor { get; set; }
 
-        public override void Execute()
+        public override void Execute(Shader shader)
         {
             GL.BlendFunc(SourceFactor, DestinationFactor);
         }
