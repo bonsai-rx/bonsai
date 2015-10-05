@@ -16,7 +16,7 @@ namespace Bonsai.Shaders
 
         public DepthFunction Function { get; set; }
 
-        public override void Execute()
+        public override void Execute(Shader shader)
         {
             GL.DepthFunc(Function);
         }

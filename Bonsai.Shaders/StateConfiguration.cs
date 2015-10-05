@@ -9,12 +9,13 @@ namespace Bonsai.Shaders
 {
     [XmlInclude(typeof(EnableState))]
     [XmlInclude(typeof(DisableState))]
+    [XmlInclude(typeof(ViewportState))]
     [XmlInclude(typeof(LineWidthState))]
     [XmlInclude(typeof(PointSizeState))]
     [XmlInclude(typeof(BlendFunctionState))]
     [XmlInclude(typeof(DepthFunctionState))]
     public abstract class StateConfiguration
     {
-        public abstract void Execute();
+        public abstract void Execute(Shader shader);
     }
 }

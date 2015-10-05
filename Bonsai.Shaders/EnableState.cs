@@ -11,7 +11,7 @@ namespace Bonsai.Shaders
     {
         public EnableCap Capability { get; set; }
 
-        public override void Execute()
+        public override void Execute(Shader shader)
         {
             GL.Enable(Capability);
         }

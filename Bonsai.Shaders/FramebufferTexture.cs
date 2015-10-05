@@ -136,7 +136,7 @@ namespace Bonsai.Shaders
 
             GL.ClearColor(ClearColor);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            GL.Viewport(0, 0, width, height);
+            shader.Window.UpdateViewport(width, height);
         }
 
         public override void Unbind(Shader shader)
@@ -147,7 +147,7 @@ namespace Bonsai.Shaders
                 GL.BindTexture(TextureTarget.Texture2D, 0);
             }
 
-            GL.Viewport(shader.Window.ClientRectangle);
+            shader.Window.UpdateViewport();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         }
 

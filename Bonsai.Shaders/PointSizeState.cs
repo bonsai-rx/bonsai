@@ -11,7 +11,7 @@ namespace Bonsai.Shaders
     {
         public float Size { get; set; }
 
-        public override void Execute()
+        public override void Execute(Shader shader)
         {
             GL.PointSize(Size);
         }

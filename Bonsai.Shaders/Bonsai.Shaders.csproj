@@ -107,6 +107,7 @@
     <Compile Include="ShaderManager.cs" />
     <Compile Include="UpdateUniform.cs" />
     <Compile Include="VertexHelper.cs" />
+    <Compile Include="ViewportState.cs" />
     <Compile Include="WarpPerspective.cs" />
   </ItemGroup>
   <ItemGroup>
