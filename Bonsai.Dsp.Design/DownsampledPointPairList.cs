@@ -21,13 +21,13 @@ namespace Bonsai.Dsp.Design
         int historyLength;
 
         public DownsampledPointPairList()
-            : this(new PointPairList())
+            : this(null)
         {
         }
 
         public DownsampledPointPairList(PointPairList list)
         {
-            this.list = list.Clone();
+            this.list = list != null ? list.Clone() : new PointPairList();
             random = new Random();
         }
 
