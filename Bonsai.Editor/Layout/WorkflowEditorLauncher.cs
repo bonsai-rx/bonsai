@@ -74,6 +74,7 @@ namespace Bonsai.Design
             userClosing = true;
             visualizerDialog.Activated += delegate
             {
+                workflowGraphView.UpdateSelection();
                 if (!string.IsNullOrWhiteSpace(builder.Name))
                 {
                     visualizerDialog.Text = builder.Name;
