@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Drawing.Drawing2D;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using SvgNet.SvgGdi;
 
 namespace Bonsai.Design
 {
@@ -23,6 +24,7 @@ namespace Bonsai.Design
         const int IconOffset = HalfSize - (IconSize / 2);
         const int LabelTextOffset = 5;
         static readonly Size TextOffset = new Size(9, 9);
+        static readonly SizeF VectorTextOffset = new SizeF(11.3f, 8.3f);
         static readonly Size EntryOffset = new Size(-PenWidth / 2, NodeSize / 2);
         static readonly Size ExitOffset = new Size(NodeSize + PenWidth / 2, NodeSize / 2);
         static readonly Pen RubberBandPen = new Pen(Color.FromArgb(51, 153, 255));
@@ -304,7 +306,7 @@ namespace Bonsai.Design
             return Rectangle.Union(boundingRectangle, Rectangle.Truncate(labelRectangle));
         }
 
-        void EnsureVisible(Point point)
+        public void EnsureVisible(Point point)
         {
             var clientRectangle = canvas.ClientRectangle;
             if (!clientRectangle.Contains(point))
@@ -860,6 +862,136 @@ namespace Bonsai.Design
             EnsureVisible(cursor);
         }
 
+        private static string[] GetWords(string text)
+        {
+            var wordCount = 0;
+            var words = new string[text.Length];
+            var builder = new StringBuilder(text.Length);
+            foreach (var c in text)
+            {
+                if (builder.Length > 0 && (Char.IsUpper(c) || Char.IsWhiteSpace(c)))
+                {
+                    words[wordCount++] = builder.ToString();
+                    builder.Clear();
+                }
+
+                if (Char.IsWhiteSpace(c)) continue;
+                builder.Append(c);
+            }
+
+            if (builder.Length > 0) words[wordCount++] = builder.ToString();
+            Array.Resize(ref words, wordCount);
+            return words;
+        }
+
+        private static IEnumerable<string> WordWrap(Graphics graphics, string text, Font font, RectangleF rect)
+        {
+            var words = GetWords(text);
+            var lineBreak = words.Length <= 1 ? 0 : 2;
+            var result = new StringBuilder(text.Length);
+            foreach (var word in words)
+            {
+                if (lineBreak > 0 && result.Length > 0)
+                {
+                    var line = result.ToString();
+                    var wordSize = graphics.MeasureString(word, font);
+                    var lineSize = graphics.MeasureString(line, font);
+                    if ((wordSize.Width + lineSize.Width) > rect.Width)
+                    {
+                        yield return line;
+                        result.Clear();
+                        lineBreak--;
+                    }
+                }
+
+                foreach (var c in word)
+                {
+                    result.Append(c);
+                }
+            }
+
+            if (result.Length > 0)
+            {
+                yield return result.ToString();
+            }
+        }
+
+        public RectangleF DrawGraphics(IGraphics graphics)
+        {
+            var textBrush = Brushes.Black;
+            var boundingRect = RectangleF.Empty;
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.Clear(Color.White);
+
+            using (var measureGraphics = CreateGraphics())
+            {
+                foreach (var layout in layoutNodes)
+                {
+                    if (layout.Node.Value != null)
+                    {
+                        var selected = selectedNodes.Contains(layout.Node);
+                        var nodeRectangle = new Rectangle(
+                            layout.Location.X,
+                            layout.Location.Y,
+                            NodeSize, NodeSize);
+
+                        graphics.DrawEllipse(BlackPen, nodeRectangle);
+                        graphics.FillEllipse(layout.Node.Brush, nodeRectangle);
+                        if (layout.Node.Image != null)
+                        {
+                            var imageRect = new Rectangle(
+                                nodeRectangle.X + IconOffset,
+                                nodeRectangle.Y + IconOffset,
+                                IconSize, IconSize);
+                            graphics.DrawImage(layout.Node.Image, imageRect);
+                        }
+                        else
+                        {
+                            graphics.DrawString(
+                                layout.Label.Substring(0, 1),
+                                Font, textBrush,
+                                PointF.Add(layout.Location, VectorTextOffset));
+                        }
+
+                        var firstWord = true;
+                        var labelRect = layout.LabelRectangle;
+                        labelRect.Width = NodeAirspace;
+                        var layoutBounds = labelRect;
+
+                        foreach (var word in WordWrap(measureGraphics, layout.Label, Font, labelRect))
+                        {
+                            var width = Math.Min(graphics.MeasureString(word, Font).Width, NodeAirspace);
+                            if (firstWord)
+                            {
+                                layoutBounds.Width = width;
+                                firstWord = false;
+                            }
+                            else
+                            {
+                                labelRect.Y += labelRect.Height;
+                                layoutBounds.Width = Math.Max(layoutBounds.Width, width);
+                                layoutBounds.Height += labelRect.Height;
+                            }
+
+                            graphics.DrawString(word, Font, textBrush, labelRect);
+                        }
+
+                        layoutBounds = RectangleF.Union(layout.BoundingRectangle, layoutBounds);
+                        boundingRect = RectangleF.Union(boundingRect, layoutBounds);
+                    }
+                    else graphics.DrawLine(layout.Node.Pen, layout.EntryPoint, layout.ExitPoint);
+
+                    foreach (var successor in layout.Node.Successors)
+                    {
+                        var successorLayout = layoutNodes[successor.Node];
+                        graphics.DrawLine(layout.Node.Pen, layout.ExitPoint, successorLayout.EntryPoint);
+                    }
+                }
+            }
+
+            return boundingRect;
+        }
+
         private void canvas_Paint(object sender, PaintEventArgs e)
         {
             var offset = new Size(-canvas.HorizontalScroll.Value, -canvas.VerticalScroll.Value);
@@ -908,12 +1040,12 @@ namespace Bonsai.Design
                             Point.Add(layout.Location, Size.Add(offset, TextOffset)));
                     }
                 }
-                else e.Graphics.DrawLine(((GraphEdge)layout.Node.Tag).Pen, Point.Add(layout.EntryPoint, offset), Point.Add(layout.ExitPoint, offset));
+                else e.Graphics.DrawLine(layout.Node.Pen, Point.Add(layout.EntryPoint, offset), Point.Add(layout.ExitPoint, offset));
 
                 foreach (var successor in layout.Node.Successors)
                 {
                     var successorLayout = layoutNodes[successor.Node];
-                    e.Graphics.DrawLine(successor.Pen, Point.Add(layout.ExitPoint, offset), Point.Add(successorLayout.EntryPoint, offset));
+                    e.Graphics.DrawLine(layout.Node.Pen, Point.Add(layout.ExitPoint, offset), Point.Add(successorLayout.EntryPoint, offset));
                 }
             }
 

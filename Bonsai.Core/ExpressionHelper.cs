@@ -173,8 +173,11 @@ namespace Bonsai
                     {
                         case 'i': tokenType = typeof(int); break;
                         case 'f': tokenType = typeof(float); break;
+                        case 'd': tokenType = typeof(double); break;
                         case 'b': tokenType = typeof(bool); break;
                         case 'c': tokenType = typeof(char); break;
+                        case 't': tokenType = typeof(DateTimeOffset); break;
+                        case 'p': tokenType = typeof(TimeSpan); break;
                         case 's':
                         default:
                             tokenType = typeof(string);
@@ -209,7 +212,9 @@ namespace Bonsai
                 var groupIndexer = Expression.Property(groupExpression, "Item", Expression.Constant(groupIndex++));
                 var groupValueExpression = Expression.Property(groupIndexer, "Value");
                 if (tokenType == typeof(string)) return (Expression)groupValueExpression;
-                if (tokenType == typeof(int) || tokenType == typeof(float))
+                if (tokenType == typeof(int) || tokenType == typeof(float) ||
+                    tokenType == typeof(double) || tokenType == typeof(DateTimeOffset) ||
+                    tokenType == typeof(TimeSpan))
                 {
                     return Expression.Call(tokenType, "Parse", null, groupValueExpression, invariantCulture);
                 }

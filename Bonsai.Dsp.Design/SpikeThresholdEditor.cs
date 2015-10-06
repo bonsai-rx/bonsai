@@ -86,9 +86,29 @@ namespace Bonsai.Dsp.Design
                 editorPanel.Controls.Add(chart);
                 editorPanel.Controls.Add(autoSetPanel);
 
+                var activeVisualizer = provider.GetService(typeof(DialogTypeVisualizer)) as SpikeWaveformCollectionVisualizer;
                 var spikeVisualizer = new MatVisualizer<WaveformThresholdPicker>();
-                spikeVisualizer.OverlayChannels = false;
-                spikeVisualizer.WaveformBufferLength = 10;
+                if (activeVisualizer != null)
+                {
+                    spikeVisualizer.AutoScaleX = activeVisualizer.AutoScaleX;
+                    spikeVisualizer.AutoScaleY = activeVisualizer.AutoScaleY;
+                    spikeVisualizer.ChannelOffset = activeVisualizer.ChannelOffset;
+                    spikeVisualizer.ChannelsPerPage = activeVisualizer.ChannelsPerPage;
+                    spikeVisualizer.HistoryLength = activeVisualizer.HistoryLength;
+                    spikeVisualizer.OverlayChannels = activeVisualizer.OverlayChannels;
+                    spikeVisualizer.SelectedChannels = activeVisualizer.SelectedChannels;
+                    spikeVisualizer.SelectedPage = activeVisualizer.SelectedPage;
+                    spikeVisualizer.WaveformBufferLength = activeVisualizer.WaveformBufferLength;
+                    spikeVisualizer.XMax = activeVisualizer.XMax;
+                    spikeVisualizer.XMin = activeVisualizer.XMin;
+                    spikeVisualizer.YMax = activeVisualizer.YMax;
+                    spikeVisualizer.YMin = activeVisualizer.YMin;
+                }
+                else
+                {
+                    spikeVisualizer.OverlayChannels = false;
+                    spikeVisualizer.WaveformBufferLength = 10;
+                }
                 spikeVisualizer.Load(chart);
                 var thresholdPicker = spikeVisualizer.Graph;
                 thresholdPicker.Threshold = (double[])value;
