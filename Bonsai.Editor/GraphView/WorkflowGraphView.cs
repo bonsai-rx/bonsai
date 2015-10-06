@@ -1473,8 +1473,6 @@ namespace Bonsai.Design
                     {
                         editorService.RefreshEditor();
                     }
-
-                    selectionModel.UpdateSelection(editorLauncher.WorkflowGraphView);
                 };
 
                 if (visible) launchEditor();
@@ -1486,6 +1484,11 @@ namespace Bonsai.Design
                 compositeExecutor.Value.EndCompositeCommand();
             }
             editorLaunching = false;
+        }
+
+        internal void UpdateSelection()
+        {
+            selectionModel.UpdateSelection(this);
         }
 
         internal void CloseWorkflowView(WorkflowExpressionBuilder workflowExpressionBuilder)
@@ -1988,7 +1991,7 @@ namespace Bonsai.Design
 
         private void graphView_SelectedNodeChanged(object sender, EventArgs e)
         {
-            selectionModel.UpdateSelection(this);
+            UpdateSelection();
         }
 
         private void graphView_NodeMouseDoubleClick(object sender, GraphNodeMouseEventArgs e)
