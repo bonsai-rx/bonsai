@@ -19,14 +19,16 @@ namespace Bonsai.Dsp
         {
             return Observable.Defer(() =>
             {
+                var count = Count;
                 int bufferIndex = 0;
                 Queue<Mat> buffer = null;
-                return source.Select(input =>
+                if (count == 0) return source;
+                else return source.Select(input =>
                 {
                     if (buffer == null)
                     {
                         buffer = new Queue<Mat>();
-                        var delayBuffer = new Mat(input.Rows, Count, input.Depth, input.Channels);
+                        var delayBuffer = new Mat(input.Rows, count, input.Depth, input.Channels);
                         buffer.Enqueue(delayBuffer);
                         delayBuffer.SetZero();
                     }
