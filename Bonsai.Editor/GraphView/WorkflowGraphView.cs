@@ -1701,6 +1701,7 @@ namespace Bonsai.Design
             }
 
             UpdateVisualizerLayout();
+            UpdateSelection();
             return result;
         }
 
