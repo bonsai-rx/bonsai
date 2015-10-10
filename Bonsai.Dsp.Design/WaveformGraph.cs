@@ -48,7 +48,7 @@ namespace Bonsai.Dsp.Design
         IDisposable selectionNotifications;
         bool allowSelectionUpdate;
         ReplayRandom random;
-        bool replay;
+        bool replayDithering;
 
         public WaveformGraph()
         {
@@ -411,7 +411,7 @@ namespace Bonsai.Dsp.Design
 
         private void UpdateDataBounds()
         {
-            var record = replay;
+            var record = replayDithering;
             foreach (var pane in MasterPane.PaneList)
             {
                 foreach (var curve in pane.CurveList)
@@ -421,7 +421,7 @@ namespace Bonsai.Dsp.Design
                         random.Mode = ReplayMode.Recording;
                         record = false;
                     }
-                    else if (replay) random.Mode = ReplayMode.Replaying;
+                    else if (replayDithering) random.Mode = ReplayMode.Replaying;
                     
                     var points = (DownsampledPointPairList)curve.Points;
                     points.SetBounds(pane.XAxis.Scale.Min, pane.XAxis.Scale.Max, MaxSamplePoints);
@@ -530,7 +530,7 @@ namespace Bonsai.Dsp.Design
 
         public void UpdateWaveform(double[] samples, int rows, int columns)
         {
-            replay = true;
+            replayDithering = true;
             var filterChannels = FilterChannels;
             EnsureWaveformRows(rows);
 
