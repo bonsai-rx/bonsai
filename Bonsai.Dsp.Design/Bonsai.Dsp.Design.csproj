@@ -82,6 +82,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="ReplayRandom.cs" />
     <Compile Include="SelectChannelEditor.cs" />
     <Compile Include="SpikeThresholdEditor.cs" />
     <Compile Include="SpikeWaveformCollectionVisualizer.cs" />

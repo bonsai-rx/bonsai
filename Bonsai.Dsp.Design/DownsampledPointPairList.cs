@@ -21,14 +21,19 @@ namespace Bonsai.Dsp.Design
         int historyLength;
 
         public DownsampledPointPairList()
-            : this(null)
+            : this(null, new Random())
         {
         }
 
-        public DownsampledPointPairList(PointPairList list)
+        public DownsampledPointPairList(Random random)
+            : this(null, random)
+        {
+        }
+
+        public DownsampledPointPairList(PointPairList list, Random random)
         {
             this.list = list != null ? list.Clone() : new PointPairList();
-            random = new Random();
+            this.random = random;
         }
 
         public int HistoryLength
@@ -87,7 +92,7 @@ namespace Bonsai.Dsp.Design
 
         public object Clone()
         {
-            return new DownsampledPointPairList(list);
+            return new DownsampledPointPairList(list, random);
         }
 
         public void Add(double y)

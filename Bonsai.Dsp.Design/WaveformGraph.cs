@@ -47,6 +47,8 @@ namespace Bonsai.Dsp.Design
         ObservableCollection<int> selectedChannels;
         IDisposable selectionNotifications;
         bool allowSelectionUpdate;
+        ReplayRandom random;
+        bool replay;
 
         public WaveformGraph()
         {
@@ -55,6 +57,7 @@ namespace Bonsai.Dsp.Design
             channelsPerPage = 16;
             overlayChannels = true;
             allowSelectionUpdate = true;
+            random = new ReplayRandom();
             WaveformBufferLength = 1;
             IsShowContextMenu = false;
             MasterPane.InnerPaneGap = 0;
@@ -408,14 +411,24 @@ namespace Bonsai.Dsp.Design
 
         private void UpdateDataBounds()
         {
+            var record = replay;
             foreach (var pane in MasterPane.PaneList)
             {
                 foreach (var curve in pane.CurveList)
                 {
+                    if (record)
+                    {
+                        random.Mode = ReplayMode.Recording;
+                        record = false;
+                    }
+                    else if (replay) random.Mode = ReplayMode.Replaying;
+                    
                     var points = (DownsampledPointPairList)curve.Points;
                     points.SetBounds(pane.XAxis.Scale.Min, pane.XAxis.Scale.Max, MaxSamplePoints);
                 }
             }
+
+            random.Mode = ReplayMode.None;
         }
 
         public void EnsureWaveformRows(int channels)
@@ -482,7 +495,7 @@ namespace Bonsai.Dsp.Design
             }
             else
             {
-                values[channelPane] = new DownsampledPointPairList();
+                values[channelPane] = new DownsampledPointPairList(random);
                 setBounds = true;
             }
 
@@ -517,6 +530,7 @@ namespace Bonsai.Dsp.Design
 
         public void UpdateWaveform(double[] samples, int rows, int columns)
         {
+            replay = true;
             var filterChannels = FilterChannels;
             EnsureWaveformRows(rows);
 
@@ -534,11 +548,12 @@ namespace Bonsai.Dsp.Design
                 }
                 else
                 {
-                    values[i] = new DownsampledPointPairList();
+                    values[i] = new DownsampledPointPairList(random);
                     setBounds = true;
                 }
 
                 var points = values[i];
+                random.Mode = i == 0 ? ReplayMode.Recording : ReplayMode.Replaying;
                 points.HistoryLength = columns * HistoryLength;
                 var channel = selectedPage * channelsPerPage + i;
                 if (filterChannels) channel = selectedChannels[channel];
@@ -550,6 +565,7 @@ namespace Bonsai.Dsp.Design
                 if (setBounds) points.SetBounds(0, points.HistoryLength, MaxSamplePoints);
             }
 
+            random.Mode = ReplayMode.None;
             if (sequenceIndices[0] * values.Length >= seriesCount || values.Length > seriesCount)
             {
                 for (int i = 0; i < values.Length; i++)
