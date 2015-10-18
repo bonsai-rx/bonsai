@@ -16,6 +16,7 @@ namespace Bonsai.Expressions
     /// across the encapsulated workflow by eagerly replaying notifications.
     /// </summary>
     [XmlType("Replay", Namespace = Constants.XmlNamespace)]
+    [TypeDescriptionProvider(typeof(ReplayTypeDescriptionProvider))]
     [Description("Shares an observable sequence across the encapsulated workflow by eagerly replaying notifications.")]
     public class ReplayBuilder : MulticastBuilder
     {
@@ -87,6 +88,21 @@ namespace Bonsai.Expressions
                 return source.Replay(selector, window.Value);
             }
             else return source.Replay(selector);
+        }
+
+        class ReplayTypeDescriptionProvider : TypeDescriptionProvider
+        {
+            static readonly TypeDescriptionProvider parentProvider = TypeDescriptor.GetProvider(typeof(ReplayBuilder));
+
+            public ReplayTypeDescriptionProvider()
+                : base(parentProvider)
+            {
+            }
+
+            public override ICustomTypeDescriptor GetExtendedTypeDescriptor(object instance)
+            {
+                return new WorkflowTypeDescriptor(instance);
+            }
         }
     }
 }
