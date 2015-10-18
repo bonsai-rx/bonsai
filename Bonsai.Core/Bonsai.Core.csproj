@@ -98,6 +98,7 @@
     <Compile Include="Expressions\SubscribeSubjectBuilder.cs" />
     <Compile Include="Expressions\VariableArgumentExpressionBuilder.cs" />
     <Compile Include="Expressions\WorkflowPropertyDescriptor.cs" />
+    <Compile Include="Expressions\WorkflowTypeDescriptor.cs" />
     <Compile Include="Expressions\ZeroArgumentExpressionBuilder.cs" />
     <Compile Include="Expressions\LogicalAndBuilder.cs" />
     <Compile Include="Expressions\LogicalOrBuilder.cs" />
