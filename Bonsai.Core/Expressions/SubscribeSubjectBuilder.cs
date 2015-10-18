@@ -25,6 +25,7 @@ namespace Bonsai.Expressions
         /// Gets or sets the name of the shared subject.
         /// </summary>
         [Category("Design")]
+        [Externalizable(false)]
         [TypeConverter(typeof(SubjectNameConverter))]
         [Description("The name of the shared subject.")]
         public string Name { get; set; }
