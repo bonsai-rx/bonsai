@@ -35,7 +35,7 @@ namespace Bonsai.Audio
                     var bufferLength = BufferLength;
                     var bufferSize = (int)Math.Ceiling(frequency * bufferLength / 1000);
                     var captureInterval = TimeSpan.FromMilliseconds((int)(bufferLength / 2 + 0.5));
-                    var captureBufferSize = (int)(bufferLength * frequency * 0.001 / BlittableValueType.StrideOf(short.MinValue));
+                    var captureBufferSize = bufferSize * 4;
 
                     lock (captureLock)
                     {
@@ -45,7 +45,7 @@ namespace Bonsai.Audio
                             capture.Start();
                             while (!cancellationToken.IsCancellationRequested)
                             {
-                                while (capture.AvailableSamples > bufferSize)
+                                while (capture.AvailableSamples >= bufferSize)
                                 {
                                     var buffer = new Mat(1, bufferSize, Depth.S16, 1);
                                     capture.ReadSamples(buffer.Data, bufferSize);
