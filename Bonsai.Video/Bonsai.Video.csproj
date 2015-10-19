@@ -71,6 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="JpegStream.cs" />
+    <Compile Include="JpegServer.cs" />
     <Compile Include="MjpegStream.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
