@@ -1162,7 +1162,16 @@ namespace Bonsai.Editor
             UpdateDescriptionTextBox(displayName, description, propertiesDescriptionTextBox);
 
             saveSelectionAsToolStripMenuItem.Enabled = selectedObjects.Length > 0;
-            propertyGrid.SelectedObjects = selectedObjects;
+            if (selectedObjects.Length == 0)
+            {
+                // Select externalized properties
+                var selectedView = selectionModel.SelectedView;
+                if (selectedView != null)
+                {
+                    propertyGrid.SelectedObject = selectedView.Workflow;
+                }
+            }
+            else propertyGrid.SelectedObjects = selectedObjects;
         }
 
         private void startToolStripMenuItem_Click(object sender, EventArgs e)
