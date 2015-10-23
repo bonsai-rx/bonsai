@@ -1109,8 +1109,7 @@ namespace Bonsai.Design
                 workflowBuilder.Workflow.AddEdge(sink, outputNode, new ExpressionBuilderArgument());
 
                 var sinkNode = graphView.Nodes.LayeredNodes().Single(node => GetGraphNodeBuilder(node) == sink.Value);
-                var sinkSuccessors = sinkNode.Successors.Select(edge => edge.Node).ToArray();
-                if (replacementNode == null && sinkSuccessors.Length > 0)
+                if (sinkNode.Successors.Count() > 0)
                 {
                     replacementNode = sinkNode;
                     nodeType = CreateGraphNodeType.Predecessor;
