@@ -634,7 +634,8 @@ namespace Bonsai.Expressions
                     Node<ExpressionBuilder, ExpressionBuilderArgument> targetNode;
                     if (nodeMapping.TryGetValue(successor.Target, out targetNode))
                     {
-                        workflow.AddEdge(builderNode, targetNode, successor.Label);
+                        var edge = new ExpressionBuilderArgument(successor.Label.Index);
+                        workflow.AddEdge(builderNode, targetNode, edge);
                     }
                 }
             }
