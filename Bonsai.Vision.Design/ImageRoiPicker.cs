@@ -15,22 +15,22 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK;
 using Point = OpenCV.Net.Point;
 using Size = OpenCV.Net.Size;
+using Bonsai.Design;
 
 namespace Bonsai.Vision.Design
 {
     class ImageRoiPicker : ImageBox
     {
-        int nextRoi;
         int? selectedRoi;
-        Collection<Point[]> regions;
         const float LineWidth = 1;
         const float PointSize = 2;
+        Collection<Point[]> regions = new Collection<Point[]>();
+        CommandExecutor commandExecutor = new CommandExecutor();
 
         public ImageRoiPicker()
         {
-            regions = new Collection<Point[]>();
-
-            this.Canvas.KeyDown += new KeyEventHandler(PictureBox_KeyDown);
+            Canvas.KeyDown += Canvas_KeyDown;
+            commandExecutor.StatusChanged += commandExecutor_StatusChanged;
             var mouseDoubleClick = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseDoubleClick").Select(e => e.EventArgs);
             var mouseMove = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseMove").Select(e => e.EventArgs);
             var mouseDown = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseDown").Select(e => e.EventArgs);
@@ -47,42 +47,67 @@ namespace Bonsai.Vision.Design
                                                .FirstOrDefault()
                               select new Action(() => selectedRoi = selection);
 
-            var roiMove = from downEvt in mouseDown
-                          where downEvt.Button == MouseButtons.Left && selectedRoi.HasValue
-                          let location = NormalizedLocation(downEvt.X, downEvt.Y)
-                          let region = regions[selectedRoi.Value]
-                          from moveEvt in mouseMove.TakeUntil(mouseUp)
-                          let target = NormalizedLocation(moveEvt.X, moveEvt.Y)
-                          let displacement = target - location
-                          select new Action(() => regions[selectedRoi.Value] = region.Select(point => point + displacement).ToArray());
+            var roiMove = (from downEvt in mouseDown
+                           where downEvt.Button == MouseButtons.Left && selectedRoi.HasValue
+                           let location = NormalizedLocation(downEvt.X, downEvt.Y)
+                           let selection = selectedRoi.Value
+                           let region = regions[selection]
+                           select (from moveEvt in mouseMove.TakeUntil(mouseUp)
+                                   let target = NormalizedLocation(moveEvt.X, moveEvt.Y)
+                                   let displacement = target - location
+                                   let displacedRegion = region.Select(point => point + displacement).ToArray()
+                                   select displacedRegion)
+                                   .Publish(ps =>
+                                       ps.TakeLast(1).Do(displacedRegion =>
+                                           commandExecutor.Execute(
+                                               () => regions[selection] = displacedRegion,
+                                               () => regions[selection] = region))
+                                         .Merge(ps))
+                                   .Select(displacedRegion => new Action(() => regions[selectedRoi.Value] = displacedRegion)))
+                           .Switch();
 
-            var pointMove = from downEvt in mouseDown
-                            where downEvt.Button == MouseButtons.Right && selectedRoi.HasValue
-                            let location = NormalizedLocation(downEvt.X, downEvt.Y)
-                            let region = regions[selectedRoi.Value]
-                            let nearestPoint = NearestPoint(region, location)
-                            from moveEvt in mouseMove.TakeUntil(mouseUp)
-                            let target = NormalizedLocation(moveEvt.X, moveEvt.Y)
-                            select new Action(() => regions[selectedRoi.Value][nearestPoint] = target);
+            var pointMove = (from downEvt in mouseDown
+                             where downEvt.Button == MouseButtons.Right && selectedRoi.HasValue
+                             let location = NormalizedLocation(downEvt.X, downEvt.Y)
+                             let selection = selectedRoi.Value
+                             let region = regions[selection]
+                             let nearestPoint = NearestPoint(region, location)
+                             let source = regions[selection][nearestPoint]
+                             select (from moveEvt in mouseMove.TakeUntil(mouseUp)
+                                     let target = NormalizedLocation(moveEvt.X, moveEvt.Y)
+                                     select target)
+                                     .Publish(ps =>
+                                         ps.TakeLast(1).Do(target =>
+                                             commandExecutor.Execute(
+                                                 () => regions[selection][nearestPoint] = target,
+                                                 () => regions[selection][nearestPoint] = source))
+                                           .Merge(ps))
+                                     .Select(target => new Action(() => regions[selection][nearestPoint] = target)))
+                            .Switch();
 
-            var regionInsertion = from downEvt in mouseDown
-                                  where downEvt.Button == MouseButtons.Left && !selectedRoi.HasValue
-                                  let origin = NormalizedLocation(downEvt.X, downEvt.Y)
-                                  from moveEvt in mouseMove.TakeUntil(mouseUp)
-                                  let location = NormalizedLocation(moveEvt.X, moveEvt.Y)
-                                  select new Action(() =>
-                                  {
-                                      var region = new[]
-                                      {
-                                          origin,
-                                          new Point(location.X, origin.Y),
-                                          location,
-                                          new Point(origin.X, location.Y)
-                                      };
-
-                                      if (selectedRoi.HasValue) regions[selectedRoi.Value] = region;
-                                      else AddRegion(region);
-                                  });
+            var regionInsertion = (from downEvt in mouseDown
+                                   where downEvt.Button == MouseButtons.Left && !selectedRoi.HasValue
+                                   let count = regions.Count
+                                   let origin = NormalizedLocation(downEvt.X, downEvt.Y)
+                                   select (from moveEvt in mouseMove.TakeUntil(mouseUp)
+                                           let location = NormalizedLocation(moveEvt.X, moveEvt.Y)
+                                           select new[]
+                                           {
+                                               origin, new Point(location.X, origin.Y),
+                                               location, new Point(origin.X, location.Y)
+                                           })
+                                           .Publish(ps =>
+                                               ps.TakeLast(1).Do(region =>
+                                                   commandExecutor.Execute(
+                                                       () => { if (count == regions.Count) AddRegion(region); },
+                                                       () => { regions.Remove(region); selectedRoi = null; }))
+                                                 .Merge(ps))
+                                           .Select(region => new Action(() =>
+                                           {
+                                               if (selectedRoi.HasValue) regions[selectedRoi.Value] = region;
+                                               else AddRegion(region);
+                                           })))
+                                   .Switch();
 
             var pointInsertion = from clickEvt in mouseDoubleClick
                                  where clickEvt.Button == MouseButtons.Left && selectedRoi.HasValue
@@ -101,8 +126,11 @@ namespace Bonsai.Vision.Design
                                          resizeRegion[i] = resizeRegion[i - 1];
                                      }
 
+                                     var selection = selectedRoi.Value;
                                      resizeRegion[nearestLine.Item2] = midPoint;
-                                     regions[selectedRoi.Value] = resizeRegion;
+                                     commandExecutor.Execute(
+                                         () => regions[selection] = resizeRegion,
+                                         () => regions[selection] = region);
                                  });
 
             var pointDeletion = from clickEvt in mouseDoubleClick
@@ -113,18 +141,25 @@ namespace Bonsai.Vision.Design
                                 let nearestPoint = NearestPoint(region, location)
                                 select new Action(() =>
                                 {
+                                    var selection = selectedRoi.Value;
                                     var resizeRegion = new Point[region.Length - 1];
                                     Array.Copy(region, resizeRegion, nearestPoint);
                                     Array.Copy(region, nearestPoint + 1, resizeRegion, nearestPoint, region.Length - nearestPoint - 1);
-                                    regions[selectedRoi.Value] = resizeRegion;
+                                    commandExecutor.Execute(
+                                         () => regions[selection] = resizeRegion,
+                                         () => regions[selection] = region);
                                 });
 
             var roiActions = Observable.Merge(roiSelected, pointMove, roiMove, pointInsertion, pointDeletion, regionInsertion);
             roiActions.Subscribe(action =>
             {
                 action();
-                Canvas.Invalidate();
             });
+        }
+
+        void commandExecutor_StatusChanged(object sender, EventArgs e)
+        {
+            Canvas.Invalidate();
         }
 
         static float PointLineSegmentDistance(Point point, Point line0, Point line1)
@@ -149,8 +184,10 @@ namespace Bonsai.Vision.Design
             return (point - projection).Length;
         }
 
-        void PictureBox_KeyDown(object sender, KeyEventArgs e)
+        void Canvas_KeyDown(object sender, KeyEventArgs e)
         {
+            if (e.Control && e.KeyCode == Keys.Z) commandExecutor.Undo();
+            if (e.Control && e.KeyCode == Keys.Y) commandExecutor.Redo();
             if (e.Control && e.KeyCode == Keys.V)
             {
                 var roiText = (string)Clipboard.GetData(DataFormats.Text);
@@ -165,8 +202,11 @@ namespace Bonsai.Vision.Design
                         roi[i].X = roiData[k + 0] - roiData[0] + offset.X;
                         roi[i].Y = roiData[k + 1] - roiData[1] + offset.Y;
                     }
-                    AddRegion(roi);
-                    Canvas.Invalidate();
+                    
+                    var selection = selectedRoi;
+                    commandExecutor.Execute(
+                        () => AddRegion(roi),
+                        () => { regions.Remove(roi); selectedRoi = selection; });
                 }
                 catch (ArgumentException) { }
                 catch (InvalidCastException) { }
@@ -189,10 +229,11 @@ namespace Bonsai.Vision.Design
 
                 if (e.KeyCode == Keys.Delete)
                 {
-                    regions.RemoveAt(selectedRoi.Value);
-                    nextRoi = Math.Min(nextRoi, regions.Count);
-                    selectedRoi = null;
-                    Canvas.Invalidate();
+                    var selection = selectedRoi.Value;
+                    var region = regions[selection];
+                    commandExecutor.Execute(
+                        () => { regions.RemoveAt(selection); selectedRoi = null; },
+                        () => { regions.Insert(selection, region); selectedRoi = selection; });
                 }
             }
         }
@@ -210,14 +251,8 @@ namespace Bonsai.Vision.Design
 
         void AddRegion(Point[] region)
         {
-            selectedRoi = nextRoi;
-            var maxRegions = MaxRegions.GetValueOrDefault(int.MaxValue);
-            nextRoi = (nextRoi + 1) % maxRegions;
-            if (selectedRoi >= regions.Count)
-            {
-                regions.Add(region);
-            }
-            else regions[selectedRoi.Value] = region;
+            regions.Add(region);
+            selectedRoi = regions.Count - 1;
         }
 
         double TestIntersection(Point[] region, Point point)
@@ -286,7 +321,7 @@ namespace Bonsai.Vision.Design
                     .FirstOrDefault();
         }
 
-        public int? MaxRegions{get;set;}
+        public int? MaxRegions { get; set; }
 
         public int? SelectedRegion
         {
@@ -323,8 +358,6 @@ namespace Bonsai.Vision.Design
 
         protected override void OnLoad(EventArgs e)
         {
-            var maxRegions = MaxRegions.GetValueOrDefault(int.MaxValue);
-            nextRoi = regions.Count % maxRegions;
             GL.LineWidth(LineWidth);
             GL.PointSize(PointSize);
             GL.Enable(EnableCap.PointSmooth);
