@@ -832,10 +832,12 @@ namespace Bonsai.Design
 
             Action addConnection = () => { };
             Action removeConnection = () => { };
-            var selection = selectionModel.SelectedNodes.FirstOrDefault();
-            if (selection != null)
+            var selectedNodes = selectionModel.SelectedNodes.ToArray();
+            var updateSelectedNodes = CreateUpdateSelectionDelegate(elements.Sinks().FirstOrDefault());
+            var restoreSelectedNodes = CreateUpdateSelectionDelegate(selectedNodes);
+            if (selectedNodes.Length > 0)
             {
-                var selectionNode = GetGraphNodeTag(workflow, selection);
+                var selectionNode = GetGraphNodeTag(workflow, selectedNodes[0]);
                 var source = elements.Sources().FirstOrDefault();
                 var sink = elements.Sinks().FirstOrDefault();
                 if (source != null && sink != null)
@@ -856,6 +858,7 @@ namespace Bonsai.Design
                 }
                 addConnection();
                 updateGraphLayout();
+                updateSelectedNodes();
             },
             () =>
             {
@@ -865,6 +868,7 @@ namespace Bonsai.Design
                     RemoveWorkflowNode(workflow, node);
                 }
                 updateGraphLayout();
+                restoreSelectedNodes();
             });
         }
 
