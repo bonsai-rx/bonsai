@@ -195,6 +195,15 @@ namespace Bonsai.Design
                 : () => UpdateGraphLayout(validateWorkflow: true);
         }
 
+        private Action CreateRestoreSelectionDelegate(IEnumerable<GraphNode> selection)
+        {
+            var nodes = selection.Select(node => GetGraphNodeTag(workflow, node)).ToArray();
+            return CreateUpdateGraphViewDelegate(graphView =>
+            {
+                graphView.SelectedNodes = graphView.Nodes.SelectMany(layer => layer).Where(node => nodes.Contains(GetGraphNodeTag(workflow, node)));
+            });
+        }
+
         internal void CloseWorkflowEditorLauncher(WorkflowEditorLauncher editorLauncher)
         {
             var visible = editorLauncher.Visible;
@@ -1252,11 +1261,11 @@ namespace Bonsai.Design
             var selectedNodes = nodes.ToArray();
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             var updateSelectedNode = CreateUpdateGraphViewDelegate(localGraphView => localGraphView.SelectedNode = null);
-            var restoreSelectedNodes = CreateUpdateGraphViewDelegate(localGraphView => localGraphView.SelectedNodes = selectedNodes);
+            var restoreSelectedNodes = CreateRestoreSelectionDelegate(selectedNodes);
 
             commandExecutor.BeginCompositeCommand();
-            commandExecutor.Execute(() => { }, updateGraphLayout);
-            commandExecutor.Execute(updateSelectedNode, restoreSelectedNodes);
+            commandExecutor.Execute(() => { }, restoreSelectedNodes);
+            commandExecutor.Execute(updateSelectedNode, updateGraphLayout);
             foreach (var node in selectedNodes)
             {
                 UngroupGraphNode(node);
