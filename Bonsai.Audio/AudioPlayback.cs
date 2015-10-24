@@ -132,7 +132,7 @@ namespace Bonsai.Audio
                         AL.SourcePlay(sourceId);
                     }
 
-                    ClearBuffers(sourceId,0);
+                    ClearBuffers(sourceId, 0);
                 }).Finally(() =>
                 {
                     int queuedBuffers;

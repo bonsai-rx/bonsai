@@ -34,9 +34,9 @@ namespace Bonsai.Vision
                 return source.Select(input =>
                 {
                     channel1 = IplImageHelper.EnsureImageFormat(channel1, input.Size, IplDepth.U8, 1);
-                    if (input.Channels > 1) channel2 = IplImageHelper.EnsureImageFormat(channel2, input.Size, IplDepth.U8, 1);
-                    if (input.Channels > 2) channel3 = IplImageHelper.EnsureImageFormat(channel3, input.Size, IplDepth.U8, 1);
-                    if (input.Channels > 3) channel4 = IplImageHelper.EnsureImageFormat(channel4, input.Size, IplDepth.U8, 1);
+                    channel2 = input.Channels > 1 ? IplImageHelper.EnsureImageFormat(channel2, input.Size, IplDepth.U8, 1) : null;
+                    channel3 = input.Channels > 2 ? IplImageHelper.EnsureImageFormat(channel3, input.Size, IplDepth.U8, 1) : null;
+                    channel4 = input.Channels > 3 ? IplImageHelper.EnsureImageFormat(channel4, input.Size, IplDepth.U8, 1) : null;
 
                     var output = new IplImage(input.Size, input.Depth, input.Channels);
                     CV.Split(input, channel1, channel2, channel3, channel4);

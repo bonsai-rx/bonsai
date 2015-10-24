@@ -19,10 +19,12 @@ namespace Bonsai.Shaders
         static readonly object syncRoot = string.Intern("A1105A50-BBB0-4EC6-B8B2-B5EF38A9CC3E");
 
         public ShaderWindow(ShaderWindowSettings configuration)
-            : base(configuration.Width, configuration.Height)
+            : base(configuration.Width, configuration.Height, GraphicsMode.Default,
+                   DefaultTitle, GameWindowFlags.Default, DisplayDevice.GetDisplay(configuration.DisplayDevice))
         {
             VSync = configuration.VSync;
             Title = configuration.Title ?? DefaultTitle;
+            WindowState = configuration.WindowState;
             Viewport = new RectangleF(0, 0, 1, 1);
             foreach (var shaderConfiguration in configuration.Shaders)
             {
