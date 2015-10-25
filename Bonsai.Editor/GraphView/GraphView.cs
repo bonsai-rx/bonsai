@@ -869,13 +869,13 @@ namespace Bonsai.Design
             var builder = new StringBuilder(text.Length);
             foreach (var c in text)
             {
-                if (builder.Length > 0 && (Char.IsUpper(c) || Char.IsWhiteSpace(c)))
+                if (Char.IsWhiteSpace(c)) break;
+                if (builder.Length > 0 && Char.IsUpper(c))
                 {
                     words[wordCount++] = builder.ToString();
                     builder.Clear();
                 }
 
-                if (Char.IsWhiteSpace(c)) continue;
                 builder.Append(c);
             }
 
