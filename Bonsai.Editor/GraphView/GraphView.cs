@@ -960,7 +960,8 @@ namespace Bonsai.Design
 
                         foreach (var word in WordWrap(measureGraphics, layout.Label, Font, labelRect))
                         {
-                            var width = Math.Min(graphics.MeasureString(word, Font).Width, NodeAirspace);
+                            var size = graphics.MeasureString(word, Font);
+                            var width = Math.Min(size.Width, NodeAirspace);
                             if (firstWord)
                             {
                                 layoutBounds.Width = width;
@@ -968,9 +969,9 @@ namespace Bonsai.Design
                             }
                             else
                             {
-                                labelRect.Y += labelRect.Height;
+                                labelRect.Y += size.Height;
                                 layoutBounds.Width = Math.Max(layoutBounds.Width, width);
-                                layoutBounds.Height += labelRect.Height;
+                                layoutBounds.Height += size.Height;
                             }
 
                             graphics.DrawString(word, Font, textBrush, labelRect);
