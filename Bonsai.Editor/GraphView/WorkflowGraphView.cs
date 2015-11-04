@@ -2412,7 +2412,9 @@ namespace Bonsai.Design
                 var workflowBuilder = selectedNode != null ? GetGraphNodeBuilder(selectedNode) as WorkflowExpressionBuilder : null;
                 foreach (var element in from element in toolboxService.GetToolboxElements()
                                         where element.ElementTypes.Length == 1 &&
-                                              (element.ElementTypes.Contains(ElementCategory.Nested) || element.FullyQualifiedName == typeof(ConditionBuilder).AssemblyQualifiedName)
+                                              (element.ElementTypes.Contains(ElementCategory.Nested) ||
+                                               element.FullyQualifiedName == typeof(ConditionBuilder).AssemblyQualifiedName ||
+                                               element.FullyQualifiedName == typeof(SinkBuilder).AssemblyQualifiedName)
                                         select element)
                 {
                     ToolStripMenuItem menuItem = null;
