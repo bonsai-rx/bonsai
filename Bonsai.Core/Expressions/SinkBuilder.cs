@@ -18,7 +18,7 @@ namespace Bonsai.Expressions
     [WorkflowElementCategory(ElementCategory.Sink)]
     [XmlType("Sink", Namespace = Constants.XmlNamespace)]
     [Description("Adds side effects specified by the encapsulated workflow to an observable sequence without modifying its elements.")]
-    public class SinkBuilder : WorkflowExpressionBuilder
+    public class SinkBuilder : SingleArgumentWorkflowExpressionBuilder
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SinkBuilder"/> class.

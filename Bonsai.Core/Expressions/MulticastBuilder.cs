@@ -12,7 +12,7 @@ namespace Bonsai.Expressions
     /// between multiple branches of an expression builder workflow by means of an observable
     /// query. This is an abstract class.
     /// </summary>
-    public abstract class MulticastBuilder : WorkflowExpressionBuilder
+    public abstract class MulticastBuilder : SingleArgumentWorkflowExpressionBuilder
     {
         internal MulticastBuilder()
             : this(new ExpressionBuilderGraph())

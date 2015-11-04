@@ -17,7 +17,7 @@ namespace Bonsai.Expressions
     [WorkflowElementCategory(ElementCategory.Condition)]
     [XmlType("Condition", Namespace = Constants.XmlNamespace)]
     [Description("Filters the elements of an observable sequence according to a condition specified by the encapsulated workflow.")]
-    public class ConditionBuilder : WorkflowExpressionBuilder
+    public class ConditionBuilder : SingleArgumentWorkflowExpressionBuilder
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ConditionBuilder"/> class.

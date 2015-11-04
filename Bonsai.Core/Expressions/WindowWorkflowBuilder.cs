@@ -16,7 +16,7 @@ namespace Bonsai.Expressions
     /// </summary>
     [XmlType("WindowWorkflow", Namespace = Constants.XmlNamespace)]
     [Description("Processes each input window using the encapsulated workflow.")]
-    public class WindowWorkflowBuilder : WorkflowExpressionBuilder
+    public class WindowWorkflowBuilder : SingleArgumentWorkflowExpressionBuilder
     {
         static readonly MethodInfo returnMethod = (from method in typeof(Observable).GetMethods()
                                                    where method.Name == "Return" && method.GetParameters().Length == 1
