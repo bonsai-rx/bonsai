@@ -1898,7 +1898,14 @@ namespace Bonsai.Design
                         var path = (string[])e.Data.GetData(DataFormats.FileDrop, true);
                         if (path.Length == 1)
                         {
-                            var workflowBuilder = editorService.LoadWorkflow(path[0]);
+                            WorkflowBuilder workflowBuilder;
+                            try { workflowBuilder = editorService.LoadWorkflow(path[0]); }
+                            catch (InvalidOperationException ex)
+                            {
+                                uiService.ShowError(ex.InnerException, Resources.OpenWorkflow_Error);
+                                return;
+                            }
+
                             if (targetNode != null) graphView.SelectedNode = targetNode;
                             InsertWorkflow(workflowBuilder.Workflow);
                         }
