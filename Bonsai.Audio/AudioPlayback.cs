@@ -19,6 +19,7 @@ namespace Bonsai.Audio
         public AudioPlayback()
         {
             Frequency = 44100;
+            Format = ALFormat.Mono16;
         }
 
         [Description("The name of the output device used for playback.")]
@@ -27,6 +28,10 @@ namespace Bonsai.Audio
 
         [Description("The playback frequency (Hz) used by the output device.")]
         public int Frequency { get; set; }
+
+        [TypeConverter(typeof(FormatConverter))]
+        [Description("The format of the data buffered to the output device.")]
+        public ALFormat Format { get; set; }
 
         static void ClearBuffers(int source, int input)
         {
@@ -48,83 +53,46 @@ namespace Bonsai.Audio
             AL.DeleteBuffers(freeBuffers);
         }
 
-        static Depth GetReducedDepth(Depth depth)
-        {
-            switch (depth)
-            {
-                case Depth.F64:
-                    return Depth.F64;
-                default:
-                case Depth.U8:
-                case Depth.S8:
-                case Depth.U16:
-                case Depth.S16:
-                case Depth.S32:
-                case Depth.F32:
-                    return Depth.F32;
-            }
-        }
-
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
             return Observable.Defer(() =>
             {
-                Mat temp = null;
-                Mat reduced = null;
-                Mat transposed = null;
                 var context = new AudioContext(DeviceName);
                 var sourceId = AL.GenSource();
                 return source.Do(input =>
                 {
-                    var convertDepth = input.Depth != Depth.S16;
-                    var multiChannel = input.Rows > 1 && input.Cols > 1;
-                    if (convertDepth || multiChannel)
+                    var format = Format;
+                    var targetDepth = (int)format % 2 == 0 ? Depth.S8 : Depth.S16;
+                    var targetChannels = format > ALFormat.Mono16 ? 2 : 1;
+                    var validChannels = input.Rows == targetChannels || input.Cols == targetChannels;
+                    if (!validChannels)
                     {
-                        var rows = multiChannel ? input.Cols : input.Rows;
-                        var cols = multiChannel ? 1 : input.Cols;
-                        if (temp == null || temp.Rows != rows || temp.Cols != cols)
-                        {
-                            temp = new Mat(rows, cols, Depth.S16, 1);
-                            transposed = temp;
-                            reduced = null;
-                        }
+                        throw new InvalidOperationException("Unsupported number of channels for the specified output format.");
+                    }
 
-                        var reducedDepth = multiChannel ? GetReducedDepth(input.Depth) : input.Depth;
-                        if (multiChannel && (reduced == null || reduced.Depth != reducedDepth))
-                        {
-                            reduced = new Mat(1, input.Cols, reducedDepth, 1);
-                        }
-
-                        if (multiChannel &&
-                           (transposed.Depth != reducedDepth ||
-                            transposed.Cols != input.Rows))
-                        {
-                            transposed = new Mat(rows, cols, reducedDepth, 1);
-                        }
-
-                        if (multiChannel)
-                        {
-                            // Reduce multichannel
-                            CV.Reduce(input, reduced, 0, ReduceOperation.Avg);
-                            multiChannel = false;
-                            input = reduced;
-
-                            // Transpose multichannel to column order
-                            CV.Transpose(input, transposed);
-                            input = transposed;
-                        }
-
+                    var transpose = input.Rows > 1 && input.Rows == targetChannels ? true : false;
+                    var convertDepth = input.Depth != targetDepth;
+                    if (convertDepth || transpose)
+                    {
                         // Convert if needed
-                        if (input.Depth != temp.Depth)
+                        if (convertDepth)
                         {
+                            var temp = new Mat(input.Rows, input.Cols, targetDepth, 1);
                             CV.Convert(input, temp);
+                            input = temp;
                         }
 
-                        input = temp;
+                        // Transpose multichannel to column order
+                        if (transpose)
+                        {
+                            var temp = new Mat(input.Cols, input.Rows, input.Depth, 1);
+                            CV.Transpose(input, temp);
+                            input = temp;
+                        }
                     }
 
                     var buffer = AL.GenBuffer();
-                    AL.BufferData(buffer, ALFormat.Mono16, input.Data, input.Rows * input.Step, Frequency);
+                    AL.BufferData(buffer, format, input.Data, input.Rows * input.Step, Frequency);
 
                     AL.SourceQueueBuffer(sourceId, buffer);
                     if (AL.GetSourceState(sourceId) != ALSourceState.Playing)
@@ -143,6 +111,25 @@ namespace Bonsai.Audio
                     context.Dispose();
                 });
             });
+        }
+
+        class FormatConverter : EnumConverter
+        {
+            public FormatConverter(Type type)
+                : base(type)
+            {
+            }
+
+            public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+            {
+                return new StandardValuesCollection(new[]
+                {
+                    ALFormat.Mono8,
+                    ALFormat.Mono16,
+                    ALFormat.Stereo8,
+                    ALFormat.Stereo16
+                });
+            }
         }
     }
 }
