@@ -19,7 +19,6 @@ namespace Bonsai.Audio
         public AudioPlayback()
         {
             Frequency = 44100;
-            Format = ALFormat.Mono16;
         }
 
         [Description("The name of the output device used for playback.")]
@@ -28,10 +27,6 @@ namespace Bonsai.Audio
 
         [Description("The playback frequency (Hz) used by the output device.")]
         public int Frequency { get; set; }
-
-        [TypeConverter(typeof(FormatConverter))]
-        [Description("The format of the data buffered to the output device.")]
-        public ALFormat Format { get; set; }
 
         static void ClearBuffers(int source, int input)
         {
@@ -61,23 +56,21 @@ namespace Bonsai.Audio
                 var sourceId = AL.GenSource();
                 return source.Do(input =>
                 {
-                    var format = Format;
-                    var targetDepth = (int)format % 2 == 0 ? Depth.S8 : Depth.S16;
-                    var targetChannels = format > ALFormat.Mono16 ? 2 : 1;
-                    var validChannels = input.Rows == targetChannels || input.Cols == targetChannels;
-                    if (!validChannels)
+                    var transpose = input.Rows < input.Cols;
+                    var channels = transpose ? input.Rows : input.Cols;
+                    if (channels > 2)
                     {
                         throw new InvalidOperationException("Unsupported number of channels for the specified output format.");
                     }
 
-                    var transpose = input.Rows > 1 && input.Rows == targetChannels ? true : false;
-                    var convertDepth = input.Depth != targetDepth;
+                    var format = channels == 2 ? ALFormat.Stereo16 : ALFormat.Mono16;
+                    var convertDepth = input.Depth != Depth.S16;
                     if (convertDepth || transpose)
                     {
                         // Convert if needed
                         if (convertDepth)
                         {
-                            var temp = new Mat(input.Rows, input.Cols, targetDepth, 1);
+                            var temp = new Mat(input.Rows, input.Cols, Depth.S16, 1);
                             CV.Convert(input, temp);
                             input = temp;
                         }
@@ -111,25 +104,6 @@ namespace Bonsai.Audio
                     context.Dispose();
                 });
             });
-        }
-
-        class FormatConverter : EnumConverter
-        {
-            public FormatConverter(Type type)
-                : base(type)
-            {
-            }
-
-            public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
-            {
-                return new StandardValuesCollection(new[]
-                {
-                    ALFormat.Mono8,
-                    ALFormat.Mono16,
-                    ALFormat.Stereo8,
-                    ALFormat.Stereo16
-                });
-            }
         }
     }
 }
