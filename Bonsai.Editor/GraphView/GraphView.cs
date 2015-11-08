@@ -16,14 +16,15 @@ namespace Bonsai.Design
 {
     partial class GraphView : UserControl
     {
-        const int PenWidth = 3;
-        const int NodeAirspace = 80;
-        const int NodeSize = 30;
-        const int IconSize = 16;
+        const float DrawScale = 1f;
+        const int PenWidth = (int)(3 * DrawScale);
+        const int NodeAirspace = (int)(80 * DrawScale);
+        const int NodeSize = (int)(30 * DrawScale);
+        const int IconSize = (int)(16 * DrawScale);
         const int HalfSize = NodeSize / 2;
         const int IconOffset = HalfSize - (IconSize / 2);
-        const int LabelTextOffset = 5;
-        static readonly SizeF TextOffset = new SizeF(9, 9);
+        const int LabelTextOffset = (int)(5 * DrawScale);
+        static readonly SizeF TextOffset = new SizeF(9 * DrawScale, 9 * DrawScale);
         static readonly SizeF VectorTextOffset = new SizeF(11.3f, 8.3f);
         static readonly Size EntryOffset = new Size(-PenWidth / 2, NodeSize / 2);
         static readonly Size ExitOffset = new Size(NodeSize + PenWidth / 2, NodeSize / 2);
