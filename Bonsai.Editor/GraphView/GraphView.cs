@@ -23,7 +23,7 @@ namespace Bonsai.Design
         const int HalfSize = NodeSize / 2;
         const int IconOffset = HalfSize - (IconSize / 2);
         const int LabelTextOffset = 5;
-        static readonly Size TextOffset = new Size(9, 9);
+        static readonly SizeF TextOffset = new SizeF(9, 9);
         static readonly SizeF VectorTextOffset = new SizeF(11.3f, 8.3f);
         static readonly Size EntryOffset = new Size(-PenWidth / 2, NodeSize / 2);
         static readonly Size ExitOffset = new Size(NodeSize + PenWidth / 2, NodeSize / 2);
@@ -884,7 +884,7 @@ namespace Bonsai.Design
             return words;
         }
 
-        private static IEnumerable<string> WordWrap(Graphics graphics, string text, Font font, RectangleF rect)
+        private static IEnumerable<string> WordWrap(Graphics graphics, string text, Font font, float lineWidth)
         {
             var words = GetWords(text);
             var lineBreak = words.Length <= 1 ? 0 : 2;
@@ -896,7 +896,7 @@ namespace Bonsai.Design
                     var line = result.ToString();
                     var wordSize = graphics.MeasureString(word, font);
                     var lineSize = graphics.MeasureString(line, font);
-                    if ((wordSize.Width + lineSize.Width) > rect.Width)
+                    if ((wordSize.Width + lineSize.Width) > lineWidth)
                     {
                         yield return line;
                         result.Clear();
@@ -958,7 +958,7 @@ namespace Bonsai.Design
                         labelRect.Width = NodeAirspace;
                         var layoutBounds = labelRect;
 
-                        foreach (var word in WordWrap(measureGraphics, layout.Label, Font, labelRect))
+                        foreach (var word in WordWrap(measureGraphics, layout.Label, Font, labelRect.Width))
                         {
                             var size = graphics.MeasureString(word, Font);
                             var width = Math.Min(size.Width, NodeAirspace);
@@ -1002,14 +1002,10 @@ namespace Bonsai.Design
             {
                 if (layout.Node.Value != null)
                 {
-                    var selected = selectedNodes.Contains(layout.Node);
-                    var nodeRectangle = new Rectangle(
-                        layout.Location.X + offset.Width,
-                        layout.Location.Y + offset.Height,
-                        NodeSize, NodeSize);
-
                     Pen pen;
                     Brush brush;
+                    var selected = selectedNodes.Contains(layout.Node);
+                    var textBrush = selected ? Brushes.White : Brushes.Black;
                     if (layout.Node.Highlight)
                     {
                         brush = selected ? HighlightedSelectionBrush : HighlightedBrush;
@@ -1021,7 +1017,11 @@ namespace Bonsai.Design
                         brush = selected ? (Focused ? FocusedSelectionBrush : UnfocusedSelectionBrush) : layout.Node.Brush;
                     }
 
-                    var textBrush = selected ? Brushes.White : Brushes.Black;
+                    var nodeRectangle = new Rectangle(
+                        layout.Location.X + offset.Width,
+                        layout.Location.Y + offset.Height,
+                        NodeSize, NodeSize);
+
                     e.Graphics.DrawEllipse(pen, nodeRectangle);
                     e.Graphics.FillEllipse(brush, nodeRectangle);
                     if (layout.Node == hot) e.Graphics.FillEllipse(HotBrush, nodeRectangle);
@@ -1038,7 +1038,7 @@ namespace Bonsai.Design
                         e.Graphics.DrawString(
                             layout.Label.Substring(0, 1),
                             Font, textBrush,
-                            Point.Add(layout.Location, Size.Add(offset, TextOffset)));
+                            PointF.Add(layout.Location, SizeF.Add(offset, TextOffset)));
                     }
                 }
                 else e.Graphics.DrawLine(layout.Node.Pen, Point.Add(layout.EntryPoint, offset), Point.Add(layout.ExitPoint, offset));
