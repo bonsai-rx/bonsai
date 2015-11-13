@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing.Design;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
@@ -25,6 +26,7 @@ namespace Bonsai.Scripting
             Expression = "it";
         }
 
+        [Editor(DesignTypes.MultilineStringEditor, typeof(UITypeEditor))]
         [Description("The expression that determines the operation of the transform.")]
         public string Expression { get; set; }
 
