@@ -104,7 +104,8 @@ namespace Bonsai.Dsp
                             if (!reader.MoveNext()) break;
                             observer.OnNext(reader.Current);
 
-                            var sampleInterval = 1000.0 / Frequency;
+                            var frequency = Frequency;
+                            var sampleInterval = frequency > 0 ? 1000.0 / Frequency : 0;
                             var dueTime = Math.Max(0, (sampleInterval * BufferLength) - stopwatch.Elapsed.TotalMilliseconds);
                             if (dueTime > 0)
                             {
