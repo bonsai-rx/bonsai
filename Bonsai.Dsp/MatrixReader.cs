@@ -18,6 +18,11 @@ namespace Bonsai.Dsp
     [Description("Sources buffered signal samples from a raw binary file.")]
     public class MatrixReader : Source<Mat>
     {
+        public MatrixReader()
+        {
+            ChannelCount = 1;
+        }
+
         [Description("The name of the raw binary file.")]
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
         public string FileName { get; set; }
