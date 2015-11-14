@@ -45,11 +45,16 @@ namespace Bonsai.Dsp
             using (var reader = new BinaryReader(new FileStream(FileName, FileMode.Open, FileAccess.Read)))
             {
                 var channelCount = ChannelCount;
-                var bufferLength = BufferLength;
                 var offset = Offset;
                 if (offset > 0)
                 {
                     reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+                }
+
+                var bufferLength = BufferLength;
+                if (bufferLength == 0)
+                {
+                    bufferLength = (int)(reader.BaseStream.Length - offset);
                 }
 
                 while (true)
