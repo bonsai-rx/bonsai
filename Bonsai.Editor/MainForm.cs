@@ -1798,7 +1798,7 @@ namespace Bonsai.Editor
 
             public void ShowError(Exception ex)
             {
-                siteForm.HandleWorkflowError(ex);
+                ShowError(ex.Message);
             }
 
             public void ShowError(string message)
