@@ -11,6 +11,7 @@ using System.Drawing.Drawing2D;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using SvgNet.SvgGdi;
+using System.Drawing.Text;
 
 namespace Bonsai.Design
 {
@@ -25,7 +26,7 @@ namespace Bonsai.Design
         const int IconOffset = HalfSize - (IconSize / 2);
         const int LabelTextOffset = (int)(5 * DrawScale);
         static readonly SizeF TextOffset = new SizeF(9 * DrawScale, 9 * DrawScale);
-        static readonly SizeF VectorTextOffset = new SizeF(11.3f, 8.3f);
+        static readonly SizeF VectorTextOffset = new SizeF(11.3f * DrawScale, 8.3f * DrawScale);
         static readonly Size EntryOffset = new Size(-PenWidth / 2, NodeSize / 2);
         static readonly Size ExitOffset = new Size(NodeSize + PenWidth / 2, NodeSize / 2);
         static readonly Pen RubberBandPen = new Pen(Color.FromArgb(51, 153, 255));
@@ -34,6 +35,12 @@ namespace Bonsai.Design
         static readonly Pen CursorPen = new Pen(Brushes.DarkGray, PenWidth);
         static readonly Pen WhitePen = new Pen(Brushes.White, PenWidth);
         static readonly Pen BlackPen = new Pen(Brushes.Black, PenWidth);
+        static readonly StringFormat TextFormat = new StringFormat(StringFormatFlags.NoWrap);
+        static readonly StringFormat VectorTextFormat = new StringFormat(StringFormat.GenericTypographic)
+        {
+            FormatFlags = StringFormatFlags.NoWrap,
+            Trimming = StringTrimming.Character
+        };
 
         static readonly object EventItemDrag = new object();
         static readonly object EventNodeMouseClick = new object();
@@ -49,6 +56,7 @@ namespace Bonsai.Design
         Rectangle previousRectangle;
         Point? previousScrollOffset;
         GraphNode[] selectionBeforeDrag;
+        GraphViewTextDrawMode textDrawMode;
         LayoutNodeCollection layoutNodes = new LayoutNodeCollection();
         HashSet<GraphNode> selectedNodes = new HashSet<GraphNode>();
         IEnumerable<GraphNodeGrouping> nodes;
@@ -58,12 +66,13 @@ namespace Bonsai.Design
 
         public GraphView()
         {
+            InitializeComponent();
+            InitializeReactiveEvents();
             HighlightedBrush = Brushes.DarkRed;
             HighlightedSelectionBrush = Brushes.Red;
             FocusedSelectionBrush = Brushes.Black;
             UnfocusedSelectionBrush = Brushes.Gray;
-            InitializeComponent();
-            InitializeReactiveEvents();
+            TextDrawMode = GraphViewTextDrawMode.All;
         }
 
         void InitializeReactiveEvents()
@@ -201,6 +210,21 @@ namespace Bonsai.Design
 
         public Brush UnfocusedSelectionBrush { get; set; }
 
+        public GraphViewTextDrawMode TextDrawMode
+        {
+            get { return textDrawMode; }
+            set
+            {
+                textDrawMode = value;
+                UpdateModelLayout();
+            }
+        }
+
+        private bool WrapLabels
+        {
+            get { return textDrawMode == GraphViewTextDrawMode.All; }
+        }
+
         public IEnumerable<GraphNodeGrouping> Nodes
         {
             get { return nodes; }
@@ -292,17 +316,15 @@ namespace Bonsai.Design
             boundingRectangle.Offset(offset);
 
             var nodeText = node.Text;
-            var labelRectangle = nodeLayout.LabelRectangle;
-            if (nodeText != nodeLayout.Label)
+            if (nodeText != nodeLayout.Text)
             {
                 using (var graphics = CreateGraphics())
                 {
-                    nodeLayout.Label = nodeText;
-                    labelRectangle = GetNodeLabelRectangle(nodeText, nodeLayout.Location, graphics);
-                    nodeLayout.LabelRectangle = labelRectangle;
+                    nodeLayout.SetNodeLabel(nodeText, Font, graphics, WrapLabels);
                 }
             }
 
+            var labelRectangle = nodeLayout.LabelRectangle;
             labelRectangle.Offset(offset);
             return Rectangle.Union(boundingRectangle, Rectangle.Truncate(labelRectangle));
         }
@@ -737,15 +759,6 @@ namespace Bonsai.Design
             return closest;
         }
 
-        RectangleF GetNodeLabelRectangle(string text, Point location, Graphics graphics)
-        {
-            var labelSize = graphics.MeasureString(text, Font);
-            var labelLocation = new PointF(0, NodeSize + LabelTextOffset);
-            labelLocation.X += location.X;
-            labelLocation.Y += location.Y;
-            return new RectangleF(labelLocation, labelSize);
-        }
-
         private void UpdateModelLayout()
         {
             layoutNodes.Clear();
@@ -765,8 +778,9 @@ namespace Bonsai.Design
                             if (pivot == null) pivot = cursor = node;
                             var row = node.LayerIndex;
                             var location = new Point(column * NodeAirspace + PenWidth, row * NodeAirspace + PenWidth);
-                            var labelRectangle = GetNodeLabelRectangle(node.Text, location, graphics);
-                            layoutNodes.Add(new LayoutNode(node, location, node.Text, labelRectangle));
+                            var layout = new LayoutNode(node, location);
+                            layout.SetNodeLabel(node.Text, Font, graphics, WrapLabels);
+                            layoutNodes.Add(layout);
                             maxRow = Math.Max(row, maxRow);
                         }
 
@@ -954,31 +968,21 @@ namespace Bonsai.Design
                                 PointF.Add(layout.Location, VectorTextOffset));
                         }
 
-                        var firstWord = true;
                         var labelRect = layout.LabelRectangle;
-                        labelRect.Width = NodeAirspace;
-                        var layoutBounds = labelRect;
-
-                        foreach (var word in WordWrap(measureGraphics, layout.Label, Font, labelRect.Width))
+                        var layoutBounds = RectangleF.Union(layout.BoundingRectangle, labelRect);
+                        foreach (var line in layout.Label.Split(Environment.NewLine.ToArray(),
+                                                                StringSplitOptions.RemoveEmptyEntries))
                         {
-                            var size = graphics.MeasureString(word, Font);
-                            var width = Math.Min(size.Width, NodeAirspace);
-                            if (firstWord)
-                            {
-                                layoutBounds.Width = width;
-                                firstWord = false;
-                            }
-                            else
-                            {
-                                labelRect.Y += size.Height;
-                                layoutBounds.Width = Math.Max(layoutBounds.Width, width);
-                                layoutBounds.Height += size.Height;
-                            }
-
-                            graphics.DrawString(word, Font, textBrush, labelRect);
+                            int charactersFitted, linesFilled;
+                            var size = measureGraphics.MeasureString(
+                                line, Font,
+                                labelRect.Size,
+                                VectorTextFormat,
+                                out charactersFitted, out linesFilled);
+                            var lineLabel = line.Length > charactersFitted ? line.Substring(0, charactersFitted) : line;
+                            graphics.DrawString(lineLabel, Font, textBrush, labelRect);
+                            labelRect.Y += size.Height;
                         }
-
-                        layoutBounds = RectangleF.Union(layout.BoundingRectangle, layoutBounds);
                         boundingRect = RectangleF.Union(boundingRect, layoutBounds);
                     }
                     else graphics.DrawLine(layout.Node.Pen, layout.EntryPoint, layout.ExitPoint);
@@ -1041,6 +1045,13 @@ namespace Bonsai.Design
                             Font, textBrush,
                             PointF.Add(layout.Location, SizeF.Add(offset, TextOffset)));
                     }
+
+                    if (TextDrawMode == GraphViewTextDrawMode.All || layout.Node == hot)
+                    {
+                        var labelRect = layout.LabelRectangle;
+                        labelRect.Location += offset;
+                        e.Graphics.DrawString(layout.Label, Font, Brushes.Black, labelRect, TextFormat);
+                    }
                 }
                 else e.Graphics.DrawLine(layout.Node.Pen, Point.Add(layout.EntryPoint, offset), Point.Add(layout.ExitPoint, offset));
 
@@ -1049,19 +1060,6 @@ namespace Bonsai.Design
                     var successorLayout = layoutNodes[successor.Node];
                     e.Graphics.DrawLine(layout.Node.Pen, Point.Add(layout.ExitPoint, offset), Point.Add(successorLayout.EntryPoint, offset));
                 }
-            }
-
-            if (hot != null)
-            {
-                var layout = layoutNodes[hot];
-                var labelRect = layout.LabelRectangle;
-                labelRect.Location = new PointF(
-                    labelRect.Location.X + offset.Width,
-                    labelRect.Location.Y + offset.Height);
-                e.Graphics.DrawString(
-                    layout.Label,
-                    Font, Brushes.Black,
-                    labelRect);
             }
 
             if (rubberBand.Width > 0 && rubberBand.Height > 0)
@@ -1160,21 +1158,21 @@ namespace Bonsai.Design
 
         class LayoutNode
         {
-            public LayoutNode(GraphNode node, Point location, string label, RectangleF labelRectangle)
+            public LayoutNode(GraphNode node, Point location)
             {
                 Node = node;
                 Location = location;
-                Label = label;
-                LabelRectangle = labelRectangle;
             }
 
             public GraphNode Node { get; private set; }
 
             public Point Location { get; private set; }
 
-            public string Label { get; set; }
+            public string Text { get; private set; }
 
-            public RectangleF LabelRectangle { get; set; }
+            public string Label { get; private set; }
+
+            public RectangleF LabelRectangle { get; private set; }
 
             public Point Center
             {
@@ -1199,6 +1197,26 @@ namespace Bonsai.Design
                         Location.X - PenWidth, Location.Y - PenWidth,
                         NodeSize + 2 * PenWidth, NodeSize + 2 * PenWidth);
                 }
+            }
+
+            public void SetNodeLabel(string text, Font font, Graphics graphics, bool wrap)
+            {
+                Text = text;
+                var labelSize = SizeF.Empty;
+                var labelLocation = (PointF)Location;
+                labelLocation.Y += NodeSize + LabelTextOffset;
+                var labelBuilder = new StringBuilder(text.Length);
+                foreach (var word in WordWrap(graphics, text, font, NodeAirspace))
+                {
+                    if (labelBuilder.Length > 0) labelBuilder.AppendLine();
+                    labelBuilder.Append(word);
+                    var size = graphics.MeasureString(word, font, NodeAirspace, TextFormat);
+                    labelSize.Width = Math.Max(size.Width, labelSize.Width);
+                    labelSize.Height += size.Height;
+                }
+
+                Label = labelBuilder.ToString();
+                LabelRectangle = new RectangleF(labelLocation, labelSize);
             }
         }
     }
