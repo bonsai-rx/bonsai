@@ -90,6 +90,7 @@
     <Compile Include="CueBannerTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="GraphView\GraphViewTextDrawMode.cs" />
     <Compile Include="GraphView\WorkflowGraphViewEditorService.cs" />
     <Compile Include="HotKeyManager.cs" />
     <Compile Include="IWorkflowEditorService.cs" />
