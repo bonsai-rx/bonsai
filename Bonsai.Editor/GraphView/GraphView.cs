@@ -884,8 +884,7 @@ namespace Bonsai.Design
             var builder = new StringBuilder(text.Length);
             foreach (var c in text)
             {
-                if (Char.IsWhiteSpace(c)) break;
-                if (builder.Length > 0 && Char.IsUpper(c))
+                if (builder.Length > 0 && (Char.IsUpper(c) || Char.IsWhiteSpace(c)))
                 {
                     words[wordCount++] = builder.ToString();
                     builder.Clear();
@@ -901,6 +900,7 @@ namespace Bonsai.Design
 
         private static IEnumerable<string> WordWrap(Graphics graphics, string text, Font font, float lineWidth)
         {
+            var trimStart = true;
             var words = GetWords(text);
             var lineBreak = words.Length <= 1 ? 0 : 2;
             var result = new StringBuilder(text.Length);
@@ -914,6 +914,7 @@ namespace Bonsai.Design
                     if ((wordSize.Width + lineSize.Width) > lineWidth)
                     {
                         yield return line;
+                        trimStart = true;
                         result.Clear();
                         lineBreak--;
                     }
@@ -921,6 +922,11 @@ namespace Bonsai.Design
 
                 foreach (var c in word)
                 {
+                    if (trimStart)
+                    {
+                        if (Char.IsWhiteSpace(c)) continue;
+                        else trimStart = false;
+                    }
                     result.Append(c);
                 }
             }
