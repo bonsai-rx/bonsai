@@ -1108,6 +1108,25 @@ namespace Bonsai.Editor
             }
         }
 
+        static string GetElementName(object component)
+        {
+            var name = ExpressionBuilder.GetElementDisplayName(component);
+            var workflowExpressionBuilder = component as WorkflowExpressionBuilder;
+            if (workflowExpressionBuilder != null && !string.IsNullOrWhiteSpace(workflowExpressionBuilder.Name))
+            {
+                var elementType = component.GetType();
+                name += " (" + ExpressionBuilder.GetElementDisplayName(elementType) + ")";
+            }
+
+            var workflowProperty = component as ExternalizedProperty;
+            if (workflowProperty != null && !string.IsNullOrWhiteSpace(workflowProperty.Name) && workflowProperty.Name != workflowProperty.MemberName)
+            {
+                name += " (" + workflowProperty.MemberName + ")";
+            }
+
+            return name;
+        }
+
         static string GetElementDescription(object component)
         {
             var workflowExpressionBuilder = component as WorkflowExpressionBuilder;
@@ -1154,7 +1173,7 @@ namespace Bonsai.Editor
             }).ToArray();
 
             var displayNames = selectedObjects
-                .Select(obj => ExpressionBuilder.GetElementDisplayName(obj))
+                .Select(obj => GetElementName(obj))
                 .Distinct().Reverse().ToArray();
             var displayName = string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ", displayNames);
             var objectDescriptions = selectedObjects.Select(obj => GetElementDescription(obj)).Distinct().Reverse().ToArray();
