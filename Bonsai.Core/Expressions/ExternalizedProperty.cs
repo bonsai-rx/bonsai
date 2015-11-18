@@ -48,10 +48,8 @@ namespace Bonsai.Expressions
             get
             {
                 var name = Name;
-                var memberName = MemberName;
-                if (string.IsNullOrWhiteSpace(name)) return memberName;
-                else if (name == memberName) return name;
-                else return name + Environment.NewLine + "(" + memberName + ")";
+                if (string.IsNullOrWhiteSpace(name)) return MemberName;
+                else return name;
             }
         }
 

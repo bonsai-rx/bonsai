@@ -70,16 +70,7 @@ namespace Bonsai.Expressions
 
         string INamedElement.Name
         {
-            get
-            {
-                var name = Name;
-                if (!string.IsNullOrWhiteSpace(name))
-                {
-                    var elementType = GetType();
-                    return name + Environment.NewLine + "(" + GetElementDisplayName(elementType) + ")";
-                }
-                else return name;
-            }
+            get { return Name; }
         }
 
         /// <summary>
