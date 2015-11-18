@@ -316,15 +316,16 @@ namespace Bonsai.Design
             boundingRectangle.Offset(offset);
 
             var nodeText = node.Text;
+            var labelRectangle = nodeLayout.LabelRectangle;
             if (nodeText != nodeLayout.Text)
             {
                 using (var graphics = CreateGraphics())
                 {
                     nodeLayout.SetNodeLabel(nodeText, Font, graphics, WrapLabels);
+                    labelRectangle = RectangleF.Union(labelRectangle, nodeLayout.LabelRectangle);
                 }
             }
 
-            var labelRectangle = nodeLayout.LabelRectangle;
             labelRectangle.Offset(offset);
             return Rectangle.Union(boundingRectangle, Rectangle.Truncate(labelRectangle));
         }
