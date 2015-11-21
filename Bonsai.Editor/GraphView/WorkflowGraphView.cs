@@ -282,17 +282,22 @@ namespace Bonsai.Design
             }
 
             var observableType = inspectBuilder.ObservableType;
-            if (observableType != null)
+            while (observableType != null)
             {
                 foreach (var type in editorService.GetTypeVisualizers(observableType))
                 {
                     yield return type;
                 }
-            }
 
-            foreach (var type in editorService.GetTypeVisualizers(typeof(object)))
-            {
-                yield return type;
+                if (!observableType.IsClass)
+                {
+                    foreach (var type in editorService.GetTypeVisualizers(typeof(object)))
+                    {
+                        yield return type;
+                    }
+                    break;
+                }
+                else observableType = observableType.BaseType;
             }
         }
 
