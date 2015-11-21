@@ -402,16 +402,22 @@ namespace Bonsai.Expressions
             var initializers = new Expression[arguments.Length - offset];
             for (int k = 0; k < initializers.Length; k++)
             {
-                if (arguments[k + offset].Type != arrayType)
+                var argument = arguments[k + offset];
+                if (argument.Type != arrayType)
                 {
-                    arguments[k + offset] = CoerceMethodArgument(arrayType, arguments[k + offset]);
+                    argument = CoerceMethodArgument(arrayType, argument);
                 }
-                initializers[k] = arguments[k + offset];
+                initializers[k] = argument;
             }
+
             var paramArray = Expression.NewArrayInit(arrayType, initializers);
-            Array.Resize(ref arguments, parameters.Length);
-            arguments[arguments.Length - 1] = paramArray;
-            return arguments;
+            var expandedArguments = new Expression[parameters.Length];
+            for (int i = 0; i < expandedArguments.Length - 1; i++)
+            {
+                expandedArguments[i] = arguments[i];
+            }
+            expandedArguments[expandedArguments.Length - 1] = paramArray;
+            return expandedArguments;
         }
 
         internal static Expression CoerceMethodArgument(Type parameterType, Expression argument)
