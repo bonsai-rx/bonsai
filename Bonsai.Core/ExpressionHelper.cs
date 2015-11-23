@@ -30,6 +30,38 @@ namespace Bonsai
         const char IndexEnd = ']';
         const char IndexArgumentSeparator = ',';
 
+        internal static Expression CreateTuple(Expression[] arguments)
+        {
+            return CreateTuple(arguments, 0);
+        }
+
+        internal static Expression CreateTuple(Expression[] arguments, int offset)
+        {
+            const int MaxLength = 7;
+            var length = arguments.Length - offset;
+            if (length > MaxLength)
+            {
+                var rest = CreateTuple(arguments, offset + MaxLength);
+                var selectedArguments = new Expression[MaxLength + 1];
+                selectedArguments[MaxLength] = rest;
+                Array.Copy(arguments, offset, selectedArguments, 0, MaxLength);
+                var memberTypes = Array.ConvertAll(selectedArguments, member => member.Type);
+                var constructor = typeof(Tuple<,,,,,,,>).MakeGenericType(memberTypes).GetConstructors()[0];
+                return Expression.New(constructor, selectedArguments);
+            }
+            else
+            {
+                if (offset > 0)
+                {
+                    var selectedArguments = new Expression[length];
+                    Array.Copy(arguments, offset, selectedArguments, 0, length);
+                    arguments = selectedArguments;
+                }
+                var memberTypes = Array.ConvertAll(arguments, member => member.Type);
+                return Expression.Call(typeof(Tuple), "Create", memberTypes, arguments);
+            }
+        }
+
         /// <summary>
         /// Extracts the set of member accessor paths from a composite selector string.
         /// </summary>
