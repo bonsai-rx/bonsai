@@ -207,7 +207,7 @@ namespace Bonsai.Expressions
 
         #region Member Selector
 
-        internal Expression MemberSelector(Expression expression, string selector)
+        internal static Expression MemberSelector(Expression expression, string selector)
         {
             if (string.IsNullOrWhiteSpace(selector))
             {
@@ -217,7 +217,7 @@ namespace Bonsai.Expressions
             var selectedMemberNames = ExpressionHelper.SelectMemberNames(selector);
             var inputExpression = Enumerable.Repeat(expression, 1);
             var selectedMembers = (from memberSelector in selectedMemberNames
-                                   let memberPath = GetArgumentAccess(inputExpression, memberSelector)
+                                   let memberPath = BuildArgumentAccess(inputExpression, memberSelector)
                                    select ExpressionHelper.MemberAccess(expression, memberPath.Item2))
                                    .ToArray();
             if (selectedMembers.Length > 1)
@@ -854,7 +854,7 @@ namespace Bonsai.Expressions
                                                                                  .GetGenericArguments()[0]
                                                                                  .GetGenericTypeDefinition() == typeof(IObservable<>));
 
-        protected Tuple<Expression, string> GetArgumentAccess(IEnumerable<Expression> arguments, string selector)
+        internal static Tuple<Expression, string> BuildArgumentAccess(IEnumerable<Expression> arguments, string selector)
         {
             if (string.IsNullOrEmpty(selector))
             {
@@ -872,6 +872,12 @@ namespace Bonsai.Expressions
 
             selector = memberPath.Length > 1 ? memberPath[1] : string.Empty;
             return Tuple.Create(source, selector);
+        }
+
+        [Obsolete]
+        protected Tuple<Expression, string> GetArgumentAccess(IEnumerable<Expression> arguments, string selector)
+        {
+            return BuildArgumentAccess(arguments, selector);
         }
 
         internal static string GetMemberPath(string selector)
@@ -943,9 +949,9 @@ namespace Bonsai.Expressions
                 action);
         }
 
-        internal Expression BuildPropertyMapping(IEnumerable<Expression> arguments, Expression instance, Expression output, PropertyMapping mapping)
+        internal static Expression BuildPropertyMapping(IEnumerable<Expression> arguments, Expression instance, Expression output, PropertyMapping mapping)
         {
-            var memberAccess = GetArgumentAccess(arguments, mapping.Selector);
+            var memberAccess = BuildArgumentAccess(arguments, mapping.Selector);
             var source = memberAccess.Item1;
             var sourceSelector = memberAccess.Item2;
             var sourceType = source.Type.GetGenericArguments()[0];
@@ -970,18 +976,18 @@ namespace Bonsai.Expressions
                 action);
         }
 
-        internal Expression BuildMappingOutput(IEnumerable<Expression> arguments, Expression instance, Expression output, params PropertyMapping[] propertyMappings)
+        internal static Expression BuildMappingOutput(IEnumerable<Expression> arguments, Expression instance, Expression output, params PropertyMapping[] propertyMappings)
         {
             return BuildMappingOutput(arguments, instance, output, (IEnumerable<PropertyMapping>)propertyMappings);
         }
 
-        internal Expression BuildMappingOutput(IEnumerable<Expression> arguments, Expression instance, Expression output, IEnumerable<PropertyMapping> propertyMappings)
+        internal static Expression BuildMappingOutput(IEnumerable<Expression> arguments, Expression instance, Expression output, IEnumerable<PropertyMapping> propertyMappings)
         {
             var subscriptions = propertyMappings.Select(mapping => BuildPropertyMapping(arguments, instance, output, mapping)).ToArray();
             return BuildMappingOutput(output, subscriptions);
         }
 
-        internal Expression BuildMappingOutput(Expression output, params Expression[] mappings)
+        internal static Expression BuildMappingOutput(Expression output, params Expression[] mappings)
         {
             if (mappings.Length > 0)
             {
