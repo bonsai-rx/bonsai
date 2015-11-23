@@ -132,24 +132,6 @@ namespace Bonsai.IO
             }
         }
 
-        IEnumerable<Expression> GetSelectedMembers(Expression expression)
-        {
-            var selector = Selector;
-            if (string.IsNullOrWhiteSpace(selector))
-            {
-                yield return expression;
-                yield break;
-            }
-
-            var selectedMemberNames = ExpressionHelper.SelectMemberNames(selector);
-            var inputExpression = Enumerable.Repeat(expression, 1);
-            foreach (var memberSelector in selectedMemberNames)
-            {
-                var memberPath = GetArgumentAccess(inputExpression, memberSelector);
-                yield return ExpressionHelper.MemberAccess(expression, memberPath.Item2);
-            }
-        }
-
         protected override Expression BuildCombinator(IEnumerable<Expression> arguments)
         {
             const string ParameterName = "input";
@@ -159,7 +141,7 @@ namespace Bonsai.IO
             var parameterType = source.Type.GetGenericArguments()[0];
             var inputParameter = Expression.Parameter(parameterType, ParameterName);
             var writerParameter = Expression.Parameter(typeof(StreamWriter));
-            var selectedMembers = GetSelectedMembers(inputParameter);
+            var selectedMembers = SelectMembers(inputParameter, Selector);
             var formatConstant = Expression.Constant(EntryFormat);
 
             var memberAccessExpressions = MakeMemberAccess(selectedMembers).ToArray();

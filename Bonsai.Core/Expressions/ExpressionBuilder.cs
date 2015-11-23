@@ -209,17 +209,7 @@ namespace Bonsai.Expressions
 
         internal static Expression MemberSelector(Expression expression, string selector)
         {
-            if (string.IsNullOrWhiteSpace(selector))
-            {
-                selector = ExpressionBuilderArgument.ArgumentNamePrefix;
-            }
-
-            var selectedMemberNames = ExpressionHelper.SelectMemberNames(selector);
-            var inputExpression = Enumerable.Repeat(expression, 1);
-            var selectedMembers = (from memberSelector in selectedMemberNames
-                                   let memberPath = BuildArgumentAccess(inputExpression, memberSelector)
-                                   select ExpressionHelper.MemberAccess(expression, memberPath.Item2))
-                                   .ToArray();
+            var selectedMembers = SelectMembers(expression, selector).ToArray();
             if (selectedMembers.Length > 1)
             {
                 return ExpressionHelper.CreateTuple(selectedMembers);
@@ -872,6 +862,23 @@ namespace Bonsai.Expressions
 
             selector = memberPath.Length > 1 ? memberPath[1] : string.Empty;
             return Tuple.Create(source, selector);
+        }
+
+        protected static IEnumerable<Expression> SelectMembers(Expression expression, string selector)
+        {
+            if (string.IsNullOrWhiteSpace(selector))
+            {
+                yield return expression;
+                yield break;
+            }
+
+            var selectedMemberNames = ExpressionHelper.SelectMemberNames(selector);
+            var inputExpression = Enumerable.Repeat(expression, 1);
+            foreach (var memberSelector in selectedMemberNames)
+            {
+                var memberPath = BuildArgumentAccess(inputExpression, memberSelector);
+                yield return ExpressionHelper.MemberAccess(expression, memberPath.Item2);
+            }
         }
 
         [Obsolete]
