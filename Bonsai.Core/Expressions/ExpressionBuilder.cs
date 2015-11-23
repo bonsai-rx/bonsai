@@ -222,8 +222,7 @@ namespace Bonsai.Expressions
                                    .ToArray();
             if (selectedMembers.Length > 1)
             {
-                var memberTypes = Array.ConvertAll(selectedMembers, member => member.Type);
-                return Expression.Call(typeof(Tuple), "Create", memberTypes, selectedMembers);
+                return ExpressionHelper.CreateTuple(selectedMembers);
             }
             else return selectedMembers.Single();
         }
