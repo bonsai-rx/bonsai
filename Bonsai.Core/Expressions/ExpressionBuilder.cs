@@ -702,8 +702,8 @@ namespace Bonsai.Expressions
                     return new
                     {
                         call,
-                        generic = call.Method != method,
-                        expansion = ParamExpansionRequired(call.Method.GetParameters(), argumentTypes)
+                        generic = method.IsGenericMethod,
+                        expansion = ParamExpansionRequired(method.GetParameters(), argumentTypes)
                     };
                 })
                 .Where(candidate => candidate != null)
