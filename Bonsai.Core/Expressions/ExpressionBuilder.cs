@@ -663,7 +663,25 @@ namespace Bonsai.Expressions
             return expandedParameters;
         }
 
+        class CallCandidate
+        {
+            internal static readonly CallCandidate Ambiguous = new CallCandidate();
+            internal static readonly CallCandidate None = new CallCandidate();
+            internal MethodBase method;
+            internal Expression[] arguments;
+            internal bool generic;
+            internal bool expansion;
+        }
+
         internal static Expression BuildCall(Expression instance, IEnumerable<MethodInfo> methods, params Expression[] arguments)
+        {
+            var overload = OverloadResolution(methods, arguments);
+            if (overload == CallCandidate.None) throw new InvalidOperationException("No method overload found for the given arguments.");
+            if (overload == CallCandidate.Ambiguous) throw new InvalidOperationException("The method overload call is ambiguous.");
+            return Expression.Call(instance, (MethodInfo)overload.method, overload.arguments);
+        }
+
+        static CallCandidate OverloadResolution(IEnumerable<MethodBase> methods, params Expression[] arguments)
         {
             var argumentTypes = Array.ConvertAll(arguments, argument => argument.Type);
             var candidates = methods
@@ -676,16 +694,16 @@ namespace Bonsai.Expressions
                 })
                 .Select(method =>
                 {
-                    MethodCallExpression call;
+                    Expression[] callArguments;
                     try
                     {
                         if (method.IsGenericMethodDefinition)
                         {
-                            method = MakeGenericMethod(method, argumentTypes);
+                            method = MakeGenericMethod((MethodInfo)method, argumentTypes);
                             if (method.IsGenericMethodDefinition) return null;
                         }
 
-                        var callArguments = arguments;
+                        callArguments = arguments;
                         var parameters = method.GetParameters();
                         if (ParamExpansionRequired(parameters, argumentTypes))
                         {
@@ -695,13 +713,13 @@ namespace Bonsai.Expressions
 
                         if (!CanMatchMethodParameters(parameters, callArguments)) return null;
                         callArguments = MatchMethodParameters(parameters, callArguments);
-                        call = Expression.Call(instance, method, callArguments);
                     }
                     catch (ArgumentException) { return null; }
                     catch (InvalidOperationException) { return null; }
-                    return new
+                    return new CallCandidate
                     {
-                        call,
+                        method = method,
+                        arguments = callArguments,
                         generic = method.IsGenericMethod,
                         expansion = ParamExpansionRequired(method.GetParameters(), argumentTypes)
                     };
@@ -709,18 +727,14 @@ namespace Bonsai.Expressions
                 .Where(candidate => candidate != null)
                 .ToArray();
 
-            if (candidates.Length == 0)
-            {
-                throw new InvalidOperationException("No method overload found for the given arguments.");
-            }
-
-            if (candidates.Length == 1) return candidates[0].call;
+            if (candidates.Length == 0) return CallCandidate.None;
+            if (candidates.Length == 1) return candidates[0];
 
             int best = -1;
             argumentTypes = Array.ConvertAll(argumentTypes, argumentType => GetObservableElementType(argumentType));
             var candidateParameters = Array.ConvertAll(
                 candidates,
-                candidate => ExpandCallParameterTypes(candidate.call.Method.GetParameters(), argumentTypes, candidate.expansion));
+                candidate => ExpandCallParameterTypes(candidate.method.GetParameters(), argumentTypes, candidate.expansion));
 
             for (int i = 0; i < candidateParameters.Length;)
             {
@@ -763,8 +777,8 @@ namespace Bonsai.Expressions
                 i = best;
             }
 
-            if (best < 0) throw new InvalidOperationException("The method overload call is ambiguous.");
-            return candidates[best].call;
+            if (best < 0) return CallCandidate.Ambiguous;
+            return candidates[best];
         }
 
         #endregion
@@ -949,11 +963,10 @@ namespace Bonsai.Expressions
                 else
                 {
                     var arguments = SelectMembers(parameter, sourceSelector).ToArray();
-                    var argumentTypes = Array.ConvertAll(arguments, argument => argument.Type);
-                    var constructor = property.Type.GetConstructor(argumentTypes);
-                    if (constructor != null)
+                    var constructor = OverloadResolution(property.Type.GetConstructors(), arguments);
+                    if (constructor.method != null)
                     {
-                        body = Expression.New(constructor, arguments);
+                        body = Expression.New((ConstructorInfo)constructor.method, constructor.arguments);
                     }
                 }
             }
