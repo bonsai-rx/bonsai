@@ -935,15 +935,27 @@ namespace Bonsai.Expressions
             Expression body = parameter;
             if (!string.IsNullOrEmpty(sourceSelector))
             {
-                var memberPath = GetMemberPath(sourceSelector);
-                body = ExpressionHelper.MemberAccess(body, memberPath);
+                body = MemberSelector(body, sourceSelector);
             }
 
             var actionType = Expression.GetActionType(parameter.Type);
             var property = Expression.Property(instance, propertyName);
             if (body.Type != property.Type)
             {
-                body = Expression.Convert(body, property.Type);
+                if (HasConversion(body.Type, property.Type))
+                {
+                    body = Expression.Convert(body, property.Type);
+                }
+                else
+                {
+                    var arguments = SelectMembers(parameter, sourceSelector).ToArray();
+                    var argumentTypes = Array.ConvertAll(arguments, argument => argument.Type);
+                    var constructor = property.Type.GetConstructor(argumentTypes);
+                    if (constructor != null)
+                    {
+                        body = Expression.New(constructor, arguments);
+                    }
+                }
             }
 
             body = Expression.Assign(property, body);
