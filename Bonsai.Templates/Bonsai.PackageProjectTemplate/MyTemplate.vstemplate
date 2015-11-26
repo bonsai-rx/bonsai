@@ -16,6 +16,7 @@
       <Folder Name="Properties" TargetFolderName="Properties">
         <ProjectItem ReplaceParameters="true" TargetFileName="AssemblyInfo.cs">AssemblyInfo.cs</ProjectItem>
       </Folder>
+      <ProjectItem ReplaceParameters="true" TargetFileName="$safeprojectname$.nuspec">ProjectPackage.nuspec</ProjectItem>
       <ProjectItem ReplaceParameters="true" TargetFileName="Transform1.cs">Transform1.cs</ProjectItem>
     </Project>
   </TemplateContent>
