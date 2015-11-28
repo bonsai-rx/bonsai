@@ -69,7 +69,7 @@ namespace Bonsai
                 try
                 {
                     packageManager.Logger.Log(MessageLevel.Info, "Checking for latest version of '{0}'.", packageId);
-                    var package = packageManager.SourceRepository.FindPackage(packageId);
+                    var package = packageManager.SourceRepository.FindPackage(packageId, version);
                     if (package == null) throw new InvalidOperationException(string.Format("The package '{0}' could not be found.", packageId));
                     packageManager.InstallPackage(package, false, true);
                     return package;

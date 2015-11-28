@@ -56,7 +56,7 @@ namespace Bonsai
                     PackageHelper.RunPackageOperation(
                         packageManager,
                         () => packageManager
-                            .StartInstallPackage(editorPackageId, null)
+                            .StartInstallPackage(editorPackageId, editorPackageVersion)
                             .ContinueWith(task => editorPackage = task.Result));
                     if (editorPackage == null)
                     {
