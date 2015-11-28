@@ -16,6 +16,7 @@
       <Folder Name="Properties" TargetFolderName="Properties">
         <ProjectItem ReplaceParameters="true" TargetFileName="AssemblyInfo.cs">AssemblyInfo.cs</ProjectItem>
       </Folder>
+      <ProjectItem ReplaceParameters="true" TargetFileName="$safeprojectname$.nuspec">ProjectPackage.nuspec</ProjectItem>
       <ProjectItem ReplaceParameters="true" TargetFileName="Transform1.cs">Transform1.cs</ProjectItem>
     </Project>
   </TemplateContent>
@@ -28,7 +29,7 @@
       <package id="Rx-Core" version="2.2.5" />
       <package id="Rx-Interfaces" version="2.2.5" />
       <package id="Rx-Linq" version="2.2.5" />
-      <package id="Bonsai.Core" version="2.1.1" />
+      <package id="Bonsai.Core" version="2.2.0" />
     </packages>
   </WizardData>
 </VSTemplate>

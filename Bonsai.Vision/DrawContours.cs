@@ -38,5 +38,17 @@ namespace Bonsai.Vision
                 return output;
             });
         }
+
+        public IObservable<IplImage> Process(IObservable<Contour> source)
+        {
+            return source.Select(input =>
+            {
+                var rect = input.Rect;
+                var output = new IplImage(new Size(rect.Width, rect.Height), IplDepth.U8, 1);
+                output.SetZero();
+                CV.DrawContours(output, input, Scalar.All(255), Scalar.All(0), MaxLevel, Thickness, LineFlags.Connected8, new Point(-rect.X, -rect.Y));
+                return output;
+            });
+        }
     }
 }

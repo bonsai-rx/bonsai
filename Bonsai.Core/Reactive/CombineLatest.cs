@@ -204,5 +204,20 @@ namespace Bonsai.Reactive
         {
             return Observable.CombineLatest(sources);
         }
+
+        /// <summary>
+        /// Merges elements from all inner observable sequences into one observable sequence by emitting
+        /// a list with the elements of each sequence whenever any of the sequences produces a new element.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequences.</typeparam>
+        /// <param name="sources">The observable sequence of inner observable sequences.</param>
+        /// <returns>
+        /// An observable sequence containing the result of combining the latest elements of the
+        /// inner sequences into lists.
+        /// </returns>
+        public IObservable<IList<TSource>> Process<TSource>(IObservable<IObservable<TSource>> sources)
+        {
+            return sources.ToArray().SelectMany(xs => xs.CombineLatest());
+        }
     }
 }

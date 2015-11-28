@@ -19,9 +19,15 @@ namespace Bonsai.Audio
 
         protected override RiffWriter CreateWriter(string fileName, Mat input)
         {
+            var samplingFrequency = SamplingFrequency;
+            if (samplingFrequency <= 0)
+            {
+                throw new InvalidOperationException("Sampling frequency must be a positive integer in Hz.");
+            }
+
             var stream = new FileStream(fileName, FileMode.Create);
             var bitsPerSample = input.Depth == Depth.U8 ? 8 : 16;
-            return new RiffWriter(stream, input.Rows, SamplingFrequency, bitsPerSample);
+            return new RiffWriter(stream, input.Rows, samplingFrequency, bitsPerSample);
         }
 
         protected override void Write(RiffWriter writer, Mat input)

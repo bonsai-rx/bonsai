@@ -16,7 +16,7 @@ namespace Bonsai.Expressions
     [DisplayName("NestedWorkflow")]
     [XmlType("NestedWorkflow", Namespace = Constants.XmlNamespace)]
     [Description("Encapsulates complex workflow logic into a single workflow element.")]
-    public class NestedWorkflowBuilder : WorkflowExpressionBuilder, INamedElement
+    public class NestedWorkflowBuilder : WorkflowExpressionBuilder
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="NestedWorkflowBuilder"/> class.
@@ -39,11 +39,6 @@ namespace Bonsai.Expressions
         {
         }
 
-        string INamedElement.Name
-        {
-            get { return Name; }
-        }
-
         /// <summary>
         /// Generates an <see cref="Expression"/> node from a collection of input arguments.
         /// The result can be chained with other builders in a workflow.
@@ -55,7 +50,7 @@ namespace Bonsai.Expressions
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             var source = arguments.FirstOrDefault();
-            return BuildWorflow(arguments, source, expression => expression);
+            return BuildWorkflow(arguments, source, expression => expression);
         }
     }
 }

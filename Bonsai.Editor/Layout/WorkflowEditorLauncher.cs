@@ -97,6 +97,7 @@ namespace Bonsai.Design
 
             workflowGraphView = new WorkflowGraphView(provider);
             workflowGraphView.Launcher = this;
+            workflowGraphView.Font = ParentView.Font;
             workflowGraphView.Dock = DockStyle.Fill;
             workflowGraphView.Size = new Size(300, 200);
             workflowGraphView.Workflow = builder.Workflow;

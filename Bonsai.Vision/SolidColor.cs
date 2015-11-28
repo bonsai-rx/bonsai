@@ -35,14 +35,21 @@ namespace Bonsai.Vision
         [Description("The color value to which all pixels in the output image will be set to.")]
         public Scalar Color { get; set; }
 
+        IplImage CreateImage()
+        {
+            var image = new IplImage(Size, Depth, Channels);
+            image.Set(Color);
+            return image;
+        }
+
         public override IObservable<IplImage> Generate()
         {
-            return Observable.Defer(() =>
-            {
-                var image = new IplImage(Size, Depth, Channels);
-                image.Set(Color);
-                return Observable.Return(image);
-            });
+            return Observable.Defer(() => Observable.Return(CreateImage()));
+        }
+
+        public IObservable<IplImage> Generate<TSource>(IObservable<TSource> source)
+        {
+            return source.Select(x => CreateImage());
         }
     }
 }

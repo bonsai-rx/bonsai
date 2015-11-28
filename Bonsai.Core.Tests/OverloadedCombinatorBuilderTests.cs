@@ -40,6 +40,20 @@ namespace Bonsai.Core.Tests
         }
 
         [Combinator]
+        class GenericOverloadedCombinatorMock
+        {
+            public IObservable<float> Process(IObservable<float> source)
+            {
+                return source.Select(x => x + 1);
+            }
+
+            public IObservable<TSource> Process<TSource>(IObservable<TSource> source)
+            {
+                return source;
+            }
+        }
+
+        [Combinator]
         class ListTupleOverloadedCombinatorMock
         {
             public IObservable<int> Process(IObservable<Tuple<int, int>> source)
@@ -84,6 +98,17 @@ namespace Bonsai.Core.Tests
             var resultProvider = TestCombinatorBuilder<float>(combinator, source);
             var result = Last(resultProvider).Result;
             Assert.AreEqual(value, result);
+        }
+
+        [TestMethod]
+        public void Build_GenericFloatOverloadedMethodCalledWithFloat_ReturnsFloatValue()
+        {
+            var value = 5.0f;
+            var combinator = new GenericOverloadedCombinatorMock();
+            var source = CreateObservableExpression(Observable.Return(value));
+            var resultProvider = TestCombinatorBuilder<float>(combinator, source);
+            var result = Last(resultProvider).Result;
+            Assert.AreEqual(value + 1, result);
         }
 
         [TestMethod]
