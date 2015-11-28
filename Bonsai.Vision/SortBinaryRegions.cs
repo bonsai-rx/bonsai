@@ -14,8 +14,7 @@ namespace Bonsai.Vision
         {
             return source.Select(input =>
             {
-                var components = new List<ConnectedComponent>(input);
-                components.Sort((xs, ys) => xs.Area.CompareTo(ys.Area));
+                var components = input.OrderByDescending(xs => xs.Area).ToList();
                 return new ConnectedComponentCollection(components, input.ImageSize);
             });
         }

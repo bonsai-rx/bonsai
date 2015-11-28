@@ -46,7 +46,7 @@ namespace Bonsai.Osc
                     .GetInterfaces()
                     .SelectMany(i => i.GetProperties(BindingFlags.Instance | BindingFlags.Public)));
             }
-            return members;
+            return members.OrderBy(member => member.MetadataToken);
         }
 
         static byte[] PadBytes(byte[] value, int zeroPad)

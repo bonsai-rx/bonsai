@@ -25,6 +25,7 @@
       <Feature Id="RuntimeFeature" Title="Runtime" Level="1">
         <ComponentGroupRef Id="ProductComponents" />
         <ComponentRef Id="NuGetMachineWideSettings" />
+        <ComponentRef Id="WorkflowExtensionDoc" />
         <ComponentRef Id="ProgramMenuDir" />
       </Feature>
 
@@ -39,6 +40,11 @@
 			<Directory Id="$(var.ProgramFilesFolder)">
         <Directory Id="INSTALLFOLDER" Name="$(var.ProductDisplayName)">
           <Directory Id="VSEXTENSIONSFOLDER" Name="Extensions"/>
+          <Directory Id="WORKFLOWFOLDER" Name="Workflows">
+            <Component Id="WorkflowExtensionDoc" Guid="*" Win64="$(var.Win64)">
+              <File Id="README" Name="README.txt" Source="WorkflowReadme.txt" KeyPath="yes"/>
+            </Component>
+          </Directory>
           <Directory Id="NUGETFOLDER" Name="NuGet">
             <Directory Id="NUGETCONFIGFOLDER" Name="Config">
               <Component Id="NuGetMachineWideSettings" Guid="*" Win64="$(var.Win64)">

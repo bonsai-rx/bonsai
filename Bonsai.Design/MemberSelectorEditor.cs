@@ -26,6 +26,14 @@ namespace Bonsai.Design
             this.allowMultiSelection = allowMultiSelection;
         }
 
+        static bool IsBuildDependency(ExpressionBuilder builder)
+        {
+            //TODO: Refactor this test into the core API
+            builder = ExpressionBuilder.Unwrap(builder);
+            return !(builder is InputMappingBuilder) && builder is PropertyMappingBuilder ||
+                   builder is ExternalizedProperty;
+        }
+
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
             return UITypeEditorEditStyle.Modal;
@@ -44,10 +52,19 @@ namespace Bonsai.Design
                 if (nodeBuilderGraph == null) return base.EditValue(context, provider, value);
 
                 var workflow = workflowBuilder.Workflow;
-                var builderNode = (from node in nodeBuilderGraph
-                                   let builder = node.Value
-                                   where ExpressionBuilder.GetWorkflowElement(builder) == context.Instance
+                Node<ExpressionBuilder, ExpressionBuilderArgument> builderNode;
+                var mapping = context.Instance as PropertyMapping;
+                if (mapping != null)
+                {
+                    builderNode = (from node in nodeBuilderGraph
+                                   let builder = ExpressionBuilder.Unwrap(node.Value) as PropertyMappingBuilder
+                                   where builder != null && builder.PropertyMappings.Contains(mapping)
                                    select node).SingleOrDefault();
+                }
+                else builderNode = (from node in nodeBuilderGraph
+                                    let builder = node.Value
+                                    where ExpressionBuilder.GetWorkflowElement(builder) == context.Instance
+                                    select node).SingleOrDefault();
 
                 if (builderNode == null) return base.EditValue(context, provider, value);
                 using (var editorDialog = allowMultiSelection ?
@@ -56,6 +73,7 @@ namespace Bonsai.Design
                        new MemberSelectorEditorDialog())
                 {
                     var predecessorEdges = nodeBuilderGraph.PredecessorEdges(builderNode)
+                                                           .Where(edge => !IsBuildDependency(edge.Item1.Value))
                                                            .OrderBy(edge => edge.Item2.Label.Index)
                                                            .ToArray();
 

@@ -15,6 +15,7 @@ namespace Bonsai
     /// </summary>
     /// <typeparam name="TSource">The type of the elements emitted by the generator.</typeparam>
     [Source]
+    [Combinator(MethodName = "Generate")]
     [WorkflowElementCategory(ElementCategory.Source)]
     public abstract class Source<TSource>
     {

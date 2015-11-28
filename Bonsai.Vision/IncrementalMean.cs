@@ -9,6 +9,7 @@ using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
+    [Obsolete]
     [Description("Incrementally computes the mean of the incoming image sequence.")]
     public class IncrementalMean : Transform<IplImage, IplImage>
     {

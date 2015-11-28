@@ -6,12 +6,15 @@ using OpenCV.Net;
 using System.Runtime.InteropServices;
 using System.Reactive.Linq;
 using System.ComponentModel;
+using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
     [Description("Undistorts the input image using the specified intrinsic camera matrix.")]
     public class Undistort : Transform<IplImage, IplImage>
     {
+        double alpha;
+        bool computeOptimalMatrix;
         Point2d focalLength;
         Point2d principalPoint;
         Point3d radialDistortion;
@@ -25,7 +28,32 @@ namespace Bonsai.Vision
             UpdateDistortion();
         }
 
-        [Description("The focal length of the camera, expresse in pixel units.")]
+        [Range(0, 1)]
+        [Precision(2, 0.01)]
+        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Description("The free scaling parameter used when computing the optimal camera matrix.")]
+        public double Alpha
+        {
+            get { return alpha; }
+            set
+            {
+                alpha = value;
+                UpdateIntrinsics();
+            }
+        }
+
+        [Description("Specifies whether to compute the optimal camera matrix for the specified distortion parameters.")]
+        public bool ComputeOptimalMatrix
+        {
+            get { return computeOptimalMatrix; }
+            set
+            {
+                computeOptimalMatrix = value;
+                UpdateIntrinsics();
+            }
+        }
+
+        [Description("The focal length of the camera, expressed in pixel units.")]
         public Point2d FocalLength
         {
             get { return focalLength; }
@@ -111,7 +139,13 @@ namespace Bonsai.Vision
                     {
                         cameraMatrix = intrinsics;
                         distortionCoefficients = distortion;
-                        CV.InitUndistortRectifyMap(cameraMatrix, distortionCoefficients, null, cameraMatrix, mapX, mapY);
+                        var optimalMatrix = cameraMatrix;
+                        if (computeOptimalMatrix)
+                        {
+                            optimalMatrix = new Mat(cameraMatrix.Size, cameraMatrix.Depth, cameraMatrix.Channels);
+                            CV.GetOptimalNewCameraMatrix(cameraMatrix, distortionCoefficients, input.Size, alpha, optimalMatrix);
+                        }
+                        CV.InitUndistortRectifyMap(cameraMatrix, distortionCoefficients, null, optimalMatrix, mapX, mapY);
                     }
 
                     var output = new IplImage(input.Size, input.Depth, input.Channels);
