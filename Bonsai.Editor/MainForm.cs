@@ -524,6 +524,23 @@ namespace Bonsai.Editor
             return Path.ChangeExtension(fileName, Path.GetExtension(fileName) + LayoutExtension);
         }
 
+        static bool TryParseVersion(string versionName, out Version version)
+        {
+            if (string.IsNullOrEmpty(versionName))
+            {
+                version = null;
+                return false;
+            }
+
+            var hyphen = versionName.IndexOf('-');
+            if (hyphen >= 0)
+            {
+                versionName = versionName.Substring(0, hyphen);
+            }
+
+            return Version.TryParse(versionName, out version);
+        }
+
         static bool IsDeprecated(Version version)
         {
             return version < Version.Parse("2.2.0");
@@ -539,7 +556,7 @@ namespace Bonsai.Editor
                 var workflowBuilder = (WorkflowBuilder)serializer.Deserialize(reader);
                 var workflow = workflowBuilder.Workflow;
                 if (string.IsNullOrEmpty(versionName) ||
-                    !Version.TryParse(versionName, out version) ||
+                    !TryParseVersion(versionName, out version) ||
                     IsDeprecated(version))
                 {
                     MessageBox.Show(
