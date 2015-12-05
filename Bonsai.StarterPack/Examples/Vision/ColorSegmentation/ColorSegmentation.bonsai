@@ -2,23 +2,22 @@
 <WorkflowBuilder Version="2.2.0">
   <Workflow xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:q2="clr-namespace:Bonsai.Scripting;assembly=Bonsai.Scripting" xmlns:q1="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision" xmlns="https://horizongir.org/bonsai">
     <Nodes>
-      <Expression xsi:type="Source">
-        <PropertyMappings />
-        <Generator xsi:type="q1:FileCapture">
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q1:FileCapture">
           <q1:FileName>Axis.avi</q1:FileName>
           <q1:PlaybackRate>0</q1:PlaybackRate>
+          <q1:StartPosition>0</q1:StartPosition>
+          <q1:PositionUnits>Frames</q1:PositionUnits>
           <q1:Loop>true</q1:Loop>
           <q1:Playing>true</q1:Playing>
-        </Generator>
+        </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
         <Combinator xsi:type="q1:ConvertColor">
           <q1:Conversion>Bgr2Hsv</q1:Conversion>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
         <Combinator xsi:type="q1:HsvThreshold">
           <q1:Lower>
             <q1:Val0>150</q1:Val0>
@@ -35,7 +34,6 @@
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
         <Combinator xsi:type="q1:HsvThreshold">
           <q1:Lower>
             <q1:Val0>50</q1:Val0>
@@ -52,7 +50,6 @@
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
         <Combinator xsi:type="q1:FindContours">
           <q1:Mode>External</q1:Mode>
           <q1:Method>ChainApproxNone</q1:Method>
@@ -65,11 +62,9 @@
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
         <Combinator xsi:type="q1:BinaryRegionAnalysis" />
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
         <Combinator xsi:type="q1:FindContours">
           <q1:Mode>External</q1:Mode>
           <q1:Method>ChainApproxNone</q1:Method>
@@ -82,15 +77,12 @@
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
         <Combinator xsi:type="q1:BinaryRegionAnalysis" />
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
         <Combinator xsi:type="q1:LargestBinaryRegion" />
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
         <Combinator xsi:type="q1:LargestBinaryRegion" />
       </Expression>
       <Expression xsi:type="q2:PythonTransform">
@@ -100,9 +92,9 @@ from OpenCV.Net import CV, IplImage, Point, Scalar
 
 @returns(IplImage)
 def process(value):
-    red = input.Item1
-    green = input.Item2
-    image = input.Item3
+    red = value.Item1
+    green = value.Item2
+    image = value.Item3
 
     output = image.Clone()
 
@@ -115,7 +107,6 @@ def process(value):
     return output</q2:Script>
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
         <Combinator xsi:type="Zip" />
       </Expression>
     </Nodes>

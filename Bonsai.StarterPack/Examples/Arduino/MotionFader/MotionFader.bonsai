@@ -2,21 +2,17 @@
 <WorkflowBuilder Version="2.2.0">
   <Workflow xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:q3="clr-namespace:Bonsai.Scripting;assembly=Bonsai.Scripting" xmlns:q2="clr-namespace:Bonsai.Arduino;assembly=Bonsai.Arduino" xmlns:q1="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision" xmlns="https://horizongir.org/bonsai">
     <Nodes>
-      <Expression xsi:type="Source">
-        <PropertyMappings />
-        <Generator xsi:type="q1:CameraCapture">
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q1:CameraCapture">
           <q1:Index>0</q1:Index>
           <q1:CaptureProperties />
-        </Generator>
+        </Combinator>
       </Expression>
       <Expression xsi:type="NestedWorkflow">
         <Name>ActivityDetector</Name>
         <Workflow>
           <Nodes>
             <Expression xsi:type="Combinator">
-              <PropertyMappings>
-                <PropertyMapping name="Regions" selector="Source2" />
-              </PropertyMappings>
               <Combinator xsi:type="q1:RoiActivity">
                 <q1:Regions>
                   <q1:ArrayOfPoint>
@@ -59,9 +55,6 @@
               </Combinator>
             </Expression>
             <Expression xsi:type="Combinator">
-              <PropertyMappings>
-                <PropertyMapping name="ThresholdValue" selector="Source2" />
-              </PropertyMappings>
               <Combinator xsi:type="q1:BackgroundSubtraction">
                 <q1:BackgroundFrames>10</q1:BackgroundFrames>
                 <q1:AdaptationRate>0.9</q1:AdaptationRate>
@@ -71,7 +64,6 @@
               </Combinator>
             </Expression>
             <Expression xsi:type="Combinator">
-              <PropertyMappings />
               <Combinator xsi:type="q1:Grayscale" />
             </Expression>
             <Expression xsi:type="WorkflowInput">
@@ -159,10 +151,8 @@
             </Edge>
           </Edges>
         </Workflow>
-        <PropertyMappings />
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
         <Combinator xsi:type="q2:AnalogOutput">
           <q2:PortName>COM4</q2:PortName>
           <q2:Pin>11</q2:Pin>
@@ -171,21 +161,20 @@
       <Expression xsi:type="q3:PythonTransform">
         <q3:Script>@returns(int)
 def process(value):
-    activity = input.Activity.Val0
-    rect = input.Rect
+    activity = value.Activity.Val0
+    rect = value.Rect
     normalizer = rect.Width * rect.Height
     return int(activity / normalizer)</q3:Script>
       </Expression>
       <Expression xsi:type="q3:PythonTransform">
         <q3:Script>@returns(int)
 def process(value):
-    activity = input.Activity.Val0
-    rect = input.Rect
+    activity = value.Activity.Val0
+    rect = value.Rect
     normalizer = rect.Width * rect.Height
     return int(activity / normalizer)</q3:Script>
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
         <Combinator xsi:type="q2:AnalogOutput">
           <q2:PortName>COM4</q2:PortName>
           <q2:Pin>10</q2:Pin>
@@ -241,7 +230,7 @@ def process(value):
     <Type>Bonsai.Vision.RoiActivity, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.Vision.BackgroundSubtraction, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.Vision.Grayscale, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Expressions.ExternalizedProperty`2[[OpenCV.Net.Point[][], OpenCV.Net, Version=3.2.0.0, Culture=neutral, PublicKeyToken=null],[Bonsai.Vision.RoiActivity, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null]], Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Expressions.ExternalizedProperty`2[[OpenCV.Net.Point[][], OpenCV.Net, Version=3.3.0.0, Culture=neutral, PublicKeyToken=null],[Bonsai.Vision.RoiActivity, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null]], Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.Expressions.ExternalizedProperty`2[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[Bonsai.Vision.BackgroundSubtraction, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null]], Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.Arduino.AnalogOutput, Bonsai.Arduino, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.Scripting.PythonTransform, Bonsai.Scripting, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
