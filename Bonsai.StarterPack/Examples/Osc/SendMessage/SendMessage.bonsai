@@ -2,14 +2,12 @@
 <WorkflowBuilder Version="2.2.0">
   <Workflow xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:q1="clr-namespace:Bonsai.Osc;assembly=Bonsai.Osc" xmlns="https://horizongir.org/bonsai">
     <Nodes>
-      <Expression xsi:type="Source">
-        <PropertyMappings />
-        <Generator xsi:type="FloatProperty">
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="FloatProperty">
           <Value>0.23</Value>
-        </Generator>
+        </Combinator>
       </Expression>
       <Expression xsi:type="q1:SendMessage">
-        <q1:PropertyMappings />
         <q1:Connection>UdpSend</q1:Connection>
         <q1:Address>/number</q1:Address>
       </Expression>

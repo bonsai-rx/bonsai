@@ -2,30 +2,27 @@
 <WorkflowBuilder Version="2.2.0">
   <Workflow xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:q1="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision" xmlns="https://horizongir.org/bonsai">
     <Nodes>
-      <Expression xsi:type="Source">
-        <PropertyMappings />
-        <Generator xsi:type="q1:CameraCapture">
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q1:CameraCapture">
           <q1:Index>0</q1:Index>
           <q1:CaptureProperties />
-        </Generator>
-      </Expression>
-      <Expression xsi:type="Source">
-        <PropertyMappings />
-        <Generator xsi:type="Timer">
-          <DueTime>PT0S</DueTime>
-          <Period>PT1S</Period>
-        </Generator>
+        </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
+        <Combinator xsi:type="Timer">
+          <DueTime>PT0S</DueTime>
+          <Period>PT1S</Period>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
         <Combinator xsi:type="Sample" />
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
         <Combinator xsi:type="q1:VideoWriter">
           <q1:FileName>timelapse.avi</q1:FileName>
           <q1:Suffix>None</q1:Suffix>
           <q1:Buffered>true</q1:Buffered>
+          <q1:Overwrite>true</q1:Overwrite>
           <q1:FourCC>FMP4</q1:FourCC>
           <q1:FrameRate>30</q1:FrameRate>
           <q1:FrameSize>
