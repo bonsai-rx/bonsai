@@ -49,11 +49,6 @@
                 <Value>2</Value>
               </Operand>
             </Expression>
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="Take">
-                <Count>1</Count>
-              </Combinator>
-            </Expression>
             <Expression xsi:type="ExternalizedPropertyOfInt32IntProperty">
               <MemberName>Value</MemberName>
               <Name>BufferSize</Name>
@@ -79,17 +74,22 @@
             </Edge>
             <Edge>
               <From>2</From>
-              <To>8</To>
+              <To>7</To>
+              <Label>Source1</Label>
+            </Edge>
+            <Edge>
+              <From>2</From>
+              <To>5</To>
               <Label>Source1</Label>
             </Edge>
             <Edge>
               <From>3</From>
-              <To>10</To>
+              <To>9</To>
               <Label>Source1</Label>
             </Edge>
             <Edge>
               <From>5</From>
-              <To>10</To>
+              <To>9</To>
               <Label>Source2</Label>
             </Edge>
             <Edge>
@@ -104,21 +104,11 @@
             </Edge>
             <Edge>
               <From>8</From>
-              <To>7</To>
-              <Label>Source1</Label>
-            </Edge>
-            <Edge>
-              <From>8</From>
-              <To>5</To>
-              <Label>Source1</Label>
-            </Edge>
-            <Edge>
-              <From>9</From>
               <To>2</To>
               <Label>Source1</Label>
             </Edge>
             <Edge>
-              <From>10</From>
+              <From>9</From>
               <To>1</To>
               <Label>Source1</Label>
             </Edge>
@@ -291,7 +281,6 @@ def unload():
     <Type>Bonsai.Expressions.ExternalizedProperty`2[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[Bonsai.Dsp.ElementCountBuffer, Bonsai.Dsp, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null]], Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.Expressions.ExternalizedProperty`2[[System.Nullable`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[Bonsai.Dsp.Submatrix, Bonsai.Dsp, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null]], Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.Expressions.DivideBuilder, Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Reactive.Take, Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.Expressions.ExternalizedProperty`2[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[Bonsai.Expressions.IntProperty, Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null]], Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.Dsp.Buffer, Bonsai.Dsp, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.Dsp.RunningAverage, Bonsai.Dsp, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
