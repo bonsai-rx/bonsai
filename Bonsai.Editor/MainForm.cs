@@ -209,7 +209,7 @@ namespace Bonsai.Editor
             base.OnShown(e);
         }
 
-        protected override void OnClosed(EventArgs e)
+        protected override void OnFormClosed(FormClosedEventArgs e)
         {
             if (!IsRunningOnMono())
             {
@@ -230,7 +230,7 @@ namespace Bonsai.Editor
             }
             else EditorSettings.Instance.WindowState = WindowState;
             EditorSettings.Instance.Save();
-            base.OnClosed(e);
+            base.OnFormClosed(e);
         }
 
         #endregion
@@ -717,10 +717,10 @@ namespace Bonsai.Editor
             Close();
         }
 
-        protected override void OnClosing(CancelEventArgs e)
+        protected override void OnFormClosing(FormClosingEventArgs e)
         {
             if (!CheckUnsavedChanges()) e.Cancel = true;
-            base.OnClosing(e);
+            base.OnFormClosing(e);
         }
 
         #endregion
