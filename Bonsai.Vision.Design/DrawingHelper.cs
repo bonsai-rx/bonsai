@@ -40,7 +40,7 @@ namespace Bonsai.Vision.Design
                         mask = new IplImage(patch.Size, patch.Depth, 1);
                         mask.SetZero();
                         CV.DrawContours(mask, component.Contour, Scalar.All(255), Scalar.All(0), 0, -1, LineFlags.Connected8, new Point(-rect.X, -rect.Y));
-                        if (image.Width != rect.Width && image.Height != rect.Height)
+                        if (image.Width != rect.Width || image.Height != rect.Height)
                         {
                             target = image.GetSubRect(component.Contour.Rect);
                         }
