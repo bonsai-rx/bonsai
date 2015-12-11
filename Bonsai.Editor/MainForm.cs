@@ -160,6 +160,29 @@ namespace Bonsai.Editor
             WindowState = EditorSettings.Instance.WindowState;
         }
 
+        void CloseEditorForm()
+        {
+            if (!IsRunningOnMono())
+            {
+                hotKeys.UnregisterHotKey(CyclePreviousHotKey);
+                hotKeys.UnregisterHotKey(CycleNextHotKey);
+            }
+
+            var desktopBounds = EditorSettings.Instance.DesktopBounds;
+            if (WindowState != FormWindowState.Normal)
+            {
+                desktopBounds.Size = RestoreBounds.Size;
+            }
+            else desktopBounds = DesktopBounds;
+            EditorSettings.Instance.DesktopBounds = desktopBounds;
+            if (WindowState == FormWindowState.Minimized)
+            {
+                EditorSettings.Instance.WindowState = FormWindowState.Normal;
+            }
+            else EditorSettings.Instance.WindowState = WindowState;
+            EditorSettings.Instance.Save();
+        }
+
         protected override void OnLoad(EventArgs e)
         {
             RestoreEditorBounds();
@@ -211,25 +234,9 @@ namespace Bonsai.Editor
 
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
-            if (!IsRunningOnMono())
-            {
-                hotKeys.UnregisterHotKey(CyclePreviousHotKey);
-                hotKeys.UnregisterHotKey(CycleNextHotKey);
-            }
-
-            var desktopBounds = EditorSettings.Instance.DesktopBounds;
-            if (WindowState != FormWindowState.Normal)
-            {
-                desktopBounds.Size = RestoreBounds.Size;
-            }
-            else desktopBounds = DesktopBounds;
-            EditorSettings.Instance.DesktopBounds = desktopBounds;
-            if (WindowState == FormWindowState.Minimized)
-            {
-                EditorSettings.Instance.WindowState = FormWindowState.Normal;
-            }
-            else EditorSettings.Instance.WindowState = WindowState;
-            EditorSettings.Instance.Save();
+            Action closeEditor = CloseEditorForm;
+            if (InvokeRequired) Invoke(closeEditor);
+            else closeEditor();
             base.OnFormClosed(e);
         }
 
@@ -721,7 +728,9 @@ namespace Bonsai.Editor
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            if (!CloseWorkflow(e.CloseReason)) e.Cancel = true;
+            Action closeWorkflow = () => e.Cancel = !CloseWorkflow(e.CloseReason);
+            if (InvokeRequired) Invoke(closeWorkflow);
+            else closeWorkflow();
             base.OnFormClosing(e);
         }
 
