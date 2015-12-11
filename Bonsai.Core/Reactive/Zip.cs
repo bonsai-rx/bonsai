@@ -29,8 +29,7 @@ namespace Bonsai.Reactive
         /// <param name="source1">The first observable source.</param>
         /// <param name="source2">The second observable source.</param>
         /// <returns>
-        /// An observable sequence containing the result of combining the latest elements of the
-        /// sources into tuples.
+        /// An observable sequence containing the result of combining elements of the sources into tuples.
         /// </returns>
         public IObservable<Tuple<TSource1, TSource2>> Process<TSource1, TSource2>(
             IObservable<TSource1> source1,
@@ -51,8 +50,7 @@ namespace Bonsai.Reactive
         /// <param name="source2">The second observable source.</param>
         /// <param name="source3">The third observable source.</param>
         /// <returns>
-        /// An observable sequence containing the result of combining the latest elements of the
-        /// sources into tuples.
+        /// An observable sequence containing the result of combining elements of the sources into tuples.
         /// </returns>
         public IObservable<Tuple<TSource1, TSource2, TSource3>> Process<TSource1, TSource2, TSource3>(
             IObservable<TSource1> source1,
@@ -76,8 +74,7 @@ namespace Bonsai.Reactive
         /// <param name="source3">The third observable source.</param>
         /// <param name="source4">The fourth observable source.</param>
         /// <returns>
-        /// An observable sequence containing the result of combining the latest elements of the
-        /// sources into tuples.
+        /// An observable sequence containing the result of combining elements of the sources into tuples.
         /// </returns>
         public IObservable<Tuple<TSource1, TSource2, TSource3, TSource4>> Process<TSource1, TSource2, TSource3, TSource4>(
             IObservable<TSource1> source1,
@@ -104,8 +101,7 @@ namespace Bonsai.Reactive
         /// <param name="source4">The fourth observable source.</param>
         /// <param name="source5">The fifth observable source.</param>
         /// <returns>
-        /// An observable sequence containing the result of combining the latest elements of the
-        /// sources into tuples.
+        /// An observable sequence containing the result of combining elements of the sources into tuples.
         /// </returns>
         public IObservable<Tuple<TSource1, TSource2, TSource3, TSource4, TSource5>>
             Process<TSource1, TSource2, TSource3, TSource4, TSource5>(
@@ -137,8 +133,7 @@ namespace Bonsai.Reactive
         /// <param name="source5">The fifth observable source.</param>
         /// <param name="source6">The sixth observable source.</param>
         /// <returns>
-        /// An observable sequence containing the result of combining the latest elements of the
-        /// sources into tuples.
+        /// An observable sequence containing the result of combining elements of the sources into tuples.
         /// </returns>
         public IObservable<Tuple<TSource1, TSource2, TSource3, TSource4, TSource5, TSource6>> Process<TSource1, TSource2, TSource3, TSource4, TSource5, TSource6>(
             IObservable<TSource1> source1,
@@ -172,8 +167,7 @@ namespace Bonsai.Reactive
         /// <param name="source6">The sixth observable source.</param>
         /// <param name="source7">The seventh observable source.</param>
         /// <returns>
-        /// An observable sequence containing the result of combining the latest elements of the
-        /// sources into tuples.
+        /// An observable sequence containing the result of combining elements of the sources into tuples.
         /// </returns>
         public IObservable<Tuple<TSource1, TSource2, TSource3, TSource4, TSource5, TSource6, TSource7>>
             Process<TSource1, TSource2, TSource3, TSource4, TSource5, TSource6, TSource7>(
@@ -203,6 +197,22 @@ namespace Bonsai.Reactive
         public IObservable<IList<TSource>> Process<TSource>(params IObservable<TSource>[] sources)
         {
             return Observable.Zip(sources);
+        }
+
+        /// <summary>
+        /// Merges elements from all inner observable sequences into one observable sequence by emitting
+        /// a list with the elements of each sequence whenever all of the sequences have produced
+        /// a new element.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequences.</typeparam>
+        /// <param name="sources">The observable sequence of inner observable sequences.</param>
+        /// <returns>
+        /// An observable sequence containing the result of combining the elements of the
+        /// inner sequences into lists.
+        /// </returns>
+        public IObservable<IList<TSource>> Process<TSource>(IObservable<IObservable<TSource>> sources)
+        {
+            return sources.ToArray().SelectMany(xs => xs.Zip());
         }
     }
 }

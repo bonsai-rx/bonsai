@@ -9,26 +9,16 @@ namespace Bonsai.Design
 {
     class GraphEdge
     {
-        public GraphEdge(object label, GraphNode successor)
-            : this(null, label, successor)
-        {
-        }
-
         public GraphEdge(ITypeDescriptorContext context, object label, GraphNode successor)
         {
             Label = label;
             Node = successor;
 
             Text = string.Empty;
-            Pen = Pens.Black;
             if (label != null)
             {
                 var typeConverter = TypeDescriptor.GetConverter(label);
                 Text = typeConverter.ConvertToString(context, label);
-                if (typeConverter.CanConvertTo(context, typeof(Pen)))
-                {
-                    Pen = (Pen)typeConverter.ConvertTo(context, null, label, typeof(Pen));
-                }
             }
         }
 
@@ -37,7 +27,6 @@ namespace Bonsai.Design
             Label = edge.Label;
             Node = successor;
             Text = edge.Text;
-            Pen = edge.Pen;
         }
 
         public object Label { get; private set; }
@@ -47,7 +36,5 @@ namespace Bonsai.Design
         public object Tag { get; set; }
 
         public string Text { get; private set; }
-
-        public Pen Pen { get; private set; }
     }
 }

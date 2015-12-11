@@ -1,25 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<WorkflowBuilder Version="2.1.0">
+<WorkflowBuilder Version="2.2.0">
   <Workflow xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:q3="clr-namespace:Bonsai.Audio;assembly=Bonsai.Audio" xmlns:q2="clr-namespace:Bonsai.Dsp;assembly=Bonsai.Dsp" xmlns:q1="clr-namespace:Bonsai.Arduino;assembly=Bonsai.Arduino" xmlns="https://horizongir.org/bonsai">
     <Nodes>
-      <Expression xsi:type="Source">
-        <PropertyMappings />
-        <Generator xsi:type="q1:AnalogInput">
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q1:AnalogInput">
           <q1:PortName>COM4</q1:PortName>
           <q1:Pin>0</q1:Pin>
-        </Generator>
+        </Combinator>
       </Expression>
-      <Expression xsi:type="Source">
-        <PropertyMappings>
-          <PropertyMapping name="Frequency" selector="Source1" />
-          <PropertyMapping name="Waveform" selector="Source2" />
-        </PropertyMappings>
-        <Generator xsi:type="q2:FunctionGenerator">
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q2:FunctionGenerator">
           <q2:BufferLength>441</q2:BufferLength>
           <q2:Frequency>4</q2:Frequency>
           <q2:Waveform>Sine</q2:Waveform>
           <q2:PlaybackRate>100</q2:PlaybackRate>
-        </Generator>
+        </Combinator>
       </Expression>
       <Expression xsi:type="ExternalizedPropertyOfInt32FunctionGenerator">
         <MemberName>Frequency</MemberName>
@@ -30,28 +25,24 @@
         <Operand xsi:type="IntProperty">
           <Value>6</Value>
         </Operand>
-        <PropertyMappings />
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
         <Combinator xsi:type="q3:AudioPlayback">
           <q3:Frequency>44100</q3:Frequency>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
         <Combinator xsi:type="q2:ConvertScale">
           <q2:Depth>S16</q2:Depth>
           <q2:Scale>1000</q2:Scale>
           <q2:Shift>0</q2:Shift>
         </Combinator>
       </Expression>
-      <Expression xsi:type="Source">
-        <PropertyMappings />
-        <Generator xsi:type="q1:DigitalInput">
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q1:DigitalInput">
           <q1:PortName>COM4</q1:PortName>
           <q1:Pin>12</q1:Pin>
-        </Generator>
+        </Combinator>
       </Expression>
       <Expression xsi:type="NestedWorkflow">
         <Name>CycleWaveforms</Name>
@@ -61,21 +52,16 @@
               <Operand xsi:type="IntProperty">
                 <Value>4</Value>
               </Operand>
-              <PropertyMappings />
             </Expression>
             <Expression xsi:type="Accumulate" />
-            <Expression xsi:type="Add">
-              <PropertyMappings />
-            </Expression>
+            <Expression xsi:type="Add" />
             <Expression xsi:type="Combinator">
-              <PropertyMappings />
               <Combinator xsi:type="CombineLatest" />
             </Expression>
-            <Expression xsi:type="Source">
-              <PropertyMappings />
-              <Generator xsi:type="IntProperty">
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="IntProperty">
                 <Value>0</Value>
-              </Generator>
+              </Combinator>
             </Expression>
             <Expression xsi:type="WorkflowOutput" />
             <Expression xsi:type="WorkflowInput">
@@ -115,7 +101,6 @@
             </Edge>
           </Edges>
         </Workflow>
-        <PropertyMappings />
       </Expression>
       <Expression xsi:type="ExternalizedPropertyOfFunctionWaveformFunctionGenerator">
         <MemberName>Waveform</MemberName>
@@ -167,18 +152,18 @@
     </Edges>
   </Workflow>
   <ExtensionTypes>
-    <Type>Bonsai.Arduino.AnalogInput, Bonsai.Arduino, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Dsp.FunctionGenerator, Bonsai.Dsp, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Expressions.ExternalizedProperty`2[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[Bonsai.Dsp.FunctionGenerator, Bonsai.Dsp, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null]], Bonsai.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Expressions.DivideBuilder, Bonsai.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Expressions.IntProperty, Bonsai.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Audio.AudioPlayback, Bonsai.Audio, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Dsp.ConvertScale, Bonsai.Dsp, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Arduino.DigitalInput, Bonsai.Arduino, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Expressions.ModBuilder, Bonsai.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Reactive.AccumulateBuilder, Bonsai.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Expressions.AddBuilder, Bonsai.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Reactive.CombineLatest, Bonsai.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Expressions.ExternalizedProperty`2[[Bonsai.Dsp.FunctionWaveform, Bonsai.Dsp, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null],[Bonsai.Dsp.FunctionGenerator, Bonsai.Dsp, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null]], Bonsai.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Arduino.AnalogInput, Bonsai.Arduino, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Dsp.FunctionGenerator, Bonsai.Dsp, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Expressions.ExternalizedProperty`2[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[Bonsai.Dsp.FunctionGenerator, Bonsai.Dsp, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null]], Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Expressions.DivideBuilder, Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Expressions.IntProperty, Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Audio.AudioPlayback, Bonsai.Audio, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Dsp.ConvertScale, Bonsai.Dsp, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Arduino.DigitalInput, Bonsai.Arduino, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Expressions.ModBuilder, Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Reactive.AccumulateBuilder, Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Expressions.AddBuilder, Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Reactive.CombineLatest, Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Expressions.ExternalizedProperty`2[[Bonsai.Dsp.FunctionWaveform, Bonsai.Dsp, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null],[Bonsai.Dsp.FunctionGenerator, Bonsai.Dsp, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null]], Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
   </ExtensionTypes>
 </WorkflowBuilder>

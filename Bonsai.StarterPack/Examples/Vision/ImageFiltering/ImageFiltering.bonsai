@@ -1,26 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<WorkflowBuilder Version="2.1.0">
+<WorkflowBuilder Version="2.2.0">
   <Workflow xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:q1="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision" xmlns="https://horizongir.org/bonsai">
     <Nodes>
-      <Expression xsi:type="Source">
-        <PropertyMappings />
-        <Generator xsi:type="q1:LoadImage">
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q1:LoadImage">
           <q1:FileName>Lenna.png</q1:FileName>
           <q1:Mode>Unchanged</q1:Mode>
-        </Generator>
+        </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
         <Combinator xsi:type="Repeat" />
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
         <Combinator xsi:type="Delay">
           <DueTime>PT0.1S</DueTime>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
         <Combinator xsi:type="q1:Smooth">
           <q1:SmoothType>Gaussian</q1:SmoothType>
           <q1:Size1>23</q1:Size1>
@@ -30,7 +26,6 @@
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
         <Combinator xsi:type="q1:Canny">
           <q1:Threshold1>50</q1:Threshold1>
           <q1:Threshold2>300</q1:Threshold2>
@@ -38,7 +33,6 @@
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
         <Combinator xsi:type="q1:MorphologicalOperator">
           <q1:Size>
             <q1:Width>3</q1:Width>
@@ -54,11 +48,9 @@
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
         <Combinator xsi:type="q1:Grayscale" />
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
         <Combinator xsi:type="q1:Threshold">
           <q1:ThresholdValue>128</q1:ThresholdValue>
           <q1:MaxValue>255</q1:MaxValue>
@@ -66,7 +58,6 @@
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
-        <PropertyMappings />
         <Combinator xsi:type="q1:EqualizeHistogram" />
       </Expression>
     </Nodes>
@@ -114,14 +105,14 @@
     </Edges>
   </Workflow>
   <ExtensionTypes>
-    <Type>Bonsai.Vision.LoadImage, Bonsai.Vision, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Reactive.Repeat, Bonsai.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Reactive.Delay, Bonsai.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Vision.Smooth, Bonsai.Vision, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Vision.Canny, Bonsai.Vision, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Vision.MorphologicalOperator, Bonsai.Vision, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Vision.Grayscale, Bonsai.Vision, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Vision.Threshold, Bonsai.Vision, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Vision.EqualizeHistogram, Bonsai.Vision, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.LoadImage, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Reactive.Repeat, Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Reactive.Delay, Bonsai.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.Smooth, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.Canny, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.MorphologicalOperator, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.Grayscale, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.Threshold, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.EqualizeHistogram, Bonsai.Vision, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
   </ExtensionTypes>
 </WorkflowBuilder>

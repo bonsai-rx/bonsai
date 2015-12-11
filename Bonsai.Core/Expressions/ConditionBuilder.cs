@@ -17,7 +17,7 @@ namespace Bonsai.Expressions
     [WorkflowElementCategory(ElementCategory.Condition)]
     [XmlType("Condition", Namespace = Constants.XmlNamespace)]
     [Description("Filters the elements of an observable sequence according to a condition specified by the encapsulated workflow.")]
-    public class ConditionBuilder : WorkflowExpressionBuilder
+    public class ConditionBuilder : SingleArgumentWorkflowExpressionBuilder
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ConditionBuilder"/> class.
@@ -58,7 +58,7 @@ namespace Bonsai.Expressions
 
             // Assign input
             var selectorParameter = Expression.Parameter(source.Type);
-            return BuildWorflow(arguments, selectorParameter, selectorBody =>
+            return BuildWorkflow(arguments, selectorParameter, selectorBody =>
             {
                 var selector = Expression.Lambda(selectorBody, selectorParameter);
                 var selectorObservableType = selector.ReturnType.GetGenericArguments()[0];
@@ -76,7 +76,10 @@ namespace Bonsai.Expressions
             return Observable.Defer(() =>
             {
                 var filter = false;
-                return source.Publish(ps => ps.CombineLatest(condition(ps), (xs, ys) => { filter = ys; return xs; }).Sample(ps).Where(xs => filter));
+                return source.Publish(ps => ps
+                    .CombineLatest(condition(ps), (xs, ys) => { filter = ys; return xs; })
+                    .Sample(ps)
+                    .Where(xs => filter));
             });
         }
     }

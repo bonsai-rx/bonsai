@@ -27,8 +27,52 @@ namespace Bonsai.Vision.Design
             var minor1 = new Point((int)(centroid.X + halfMinorAxis * Math.Cos(minorAxisOrientation)), (int)(centroid.Y + halfMinorAxis * Math.Sin(minorAxisOrientation)));
             var minor2 = new Point((int)(centroid.X - halfMinorAxis * Math.Cos(minorAxisOrientation)), (int)(centroid.Y - halfMinorAxis * Math.Sin(minorAxisOrientation)));
 
-            CV.DrawContours(image, component.Contour, Scalar.All(255), Scalar.All(0), 0, -1, LineFlags.Connected8, new Point(offset));
-            CV.DrawContours(image, component.Contour, Scalar.Rgb(255, 0, 0), Scalar.Rgb(0, 0, 255), 0, 1, LineFlags.Connected8, new Point(offset));
+            if (component.Patch != null)
+            {
+                var target = image;
+                var patch = component.Patch;
+                var mask = patch.Channels == 1 ? patch : null;
+                try
+                {
+                    if (component.Contour != null)
+                    {
+                        var rect = component.Contour.Rect;
+                        mask = new IplImage(patch.Size, patch.Depth, 1);
+                        mask.SetZero();
+                        CV.DrawContours(mask, component.Contour, Scalar.All(255), Scalar.All(0), 0, -1, LineFlags.Connected8, new Point(-rect.X, -rect.Y));
+                        if (image.Width != rect.Width || image.Height != rect.Height)
+                        {
+                            target = image.GetSubRect(component.Contour.Rect);
+                        }
+                    }
+
+                    if (patch.Channels != target.Channels)
+                    {
+                        var conversion = patch.Channels > image.Channels
+                            ? ColorConversion.Bgr2Gray
+                            : ColorConversion.Gray2Bgr;
+                        patch = new IplImage(patch.Size, patch.Depth, image.Channels);
+                        CV.CvtColor(component.Patch, patch, conversion);
+                    }
+
+                    CV.Copy(patch, target, mask);
+                }
+                finally
+                {
+                    if (patch != component.Patch) patch.Dispose();
+                    if (mask != component.Patch) mask.Dispose();
+                    if (target != image) target.Dispose();
+                }
+            }
+            else if (component.Contour != null)
+            {
+                CV.DrawContours(image, component.Contour, Scalar.All(255), Scalar.All(0), 0, -1, LineFlags.Connected8, new Point(offset));
+            }
+            
+            if (component.Contour != null)
+            {
+                CV.DrawContours(image, component.Contour, Scalar.Rgb(255, 0, 0), Scalar.Rgb(0, 0, 255), 0, 1, LineFlags.Connected8, new Point(offset));
+            }
             CV.Line(image, major1, major2, Scalar.Rgb(0, 0, 255));
             CV.Line(image, minor1, minor2, Scalar.Rgb(255, 0, 0));
             CV.Circle(image, new Point(centroid), 2, Scalar.Rgb(255, 0, 0), -1);

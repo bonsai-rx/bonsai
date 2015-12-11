@@ -32,6 +32,7 @@ namespace Bonsai.Dsp.Design
             Graph.EnsureWaveform(bufferSize.Height, bufferSize.Width);
             foreach (var spike in spikes)
             {
+                if (spike.Waveform == null) continue;
                 if (samples == null)
                 {
                     samples = new double[spike.Waveform.Cols];

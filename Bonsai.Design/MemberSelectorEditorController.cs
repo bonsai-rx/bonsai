@@ -95,12 +95,14 @@ namespace Bonsai.Design
                 throw new ArgumentNullException("componentType");
             }
 
-            foreach (var field in componentType.GetFields(BindingFlags.Instance | BindingFlags.Public))
+            foreach (var field in componentType.GetFields(BindingFlags.Instance | BindingFlags.Public)
+                                               .OrderBy(member => member.MetadataToken))
             {
                 EnsureNode(nodes, field.Name, field.FieldType);
             }
 
-            foreach (var property in GetProperties(componentType, BindingFlags.Instance | BindingFlags.Public))
+            foreach (var property in GetProperties(componentType, BindingFlags.Instance | BindingFlags.Public)
+                                                  .OrderBy(member => member.MetadataToken))
             {
                 EnsureNode(nodes, property.Name, property.PropertyType);
             }
@@ -108,12 +110,14 @@ namespace Bonsai.Design
 
         void InitializeDummyMembers(TreeNodeCollection nodes, Type componentType)
         {
-            foreach (var field in componentType.GetFields(BindingFlags.Instance | BindingFlags.Public))
+            foreach (var field in componentType.GetFields(BindingFlags.Instance | BindingFlags.Public)
+                                               .OrderBy(member => member.MetadataToken))
             {
                 EnsureNode(nodes, field.Name, field.FieldType, recurse: false);
             }
 
-            foreach (var property in GetProperties(componentType, BindingFlags.Instance | BindingFlags.Public))
+            foreach (var property in GetProperties(componentType, BindingFlags.Instance | BindingFlags.Public)
+                                                  .OrderBy(member => member.MetadataToken))
             {
                 EnsureNode(nodes, property.Name, property.PropertyType, recurse: false);
             }

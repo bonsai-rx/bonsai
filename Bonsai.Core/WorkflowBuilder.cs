@@ -104,6 +104,7 @@ namespace Bonsai
 
             var types = new HashSet<Type>(GetExtensionTypes(workflow));
             var serializer = GetXmlSerializer(types);
+            var serializerNamespaces = GetXmlSerializerNamespaces(types);
             serializer.Serialize(writer, workflow.ToDescriptor(), serializerNamespaces);
 
             writer.WriteStartElement(ExtensionTypeNodeName);
@@ -120,7 +121,6 @@ namespace Bonsai
 
         static HashSet<Type> serializerTypes;
         static XmlSerializer serializerCache;
-        static XmlSerializerNamespaces serializerNamespaces;
         static readonly object cacheLock = new object();
 
         static IEnumerable<Type> GetDefaultSerializerTypes()
@@ -141,6 +141,25 @@ namespace Bonsai
             return string.Format("clr-namespace:{0};assembly={1}", type.Namespace, type.Assembly.GetName().Name);
         }
 
+        static XmlSerializerNamespaces GetXmlSerializerNamespaces(HashSet<Type> types)
+        {
+            int namespaceIndex = 1;
+            var serializerNamespaces = new XmlSerializerNamespaces();
+            serializerNamespaces.Add("xsd", XmlSchema.Namespace);
+            serializerNamespaces.Add("xsi", XmlSchema.InstanceNamespace);
+            foreach (var xmlNamespace in (from type in types
+                                          let xmlNamespace = GetXmlNamespace(type)
+                                          where xmlNamespace != Constants.XmlNamespace
+                                          select xmlNamespace)
+                                         .Distinct())
+            {
+                serializerNamespaces.Add("q" + namespaceIndex, xmlNamespace);
+                namespaceIndex++;
+            }
+
+            return serializerNamespaces;
+        }
+
         static XmlSerializer GetXmlSerializer(HashSet<Type> types)
         {
             lock (cacheLock)
@@ -149,20 +168,6 @@ namespace Bonsai
                 {
                     if (serializerTypes == null) serializerTypes = types;
                     else serializerTypes.UnionWith(types);
-
-                    int namespaceIndex = 1;
-                    serializerNamespaces = new XmlSerializerNamespaces();
-                    serializerNamespaces.Add("xsd", XmlSchema.Namespace);
-                    serializerNamespaces.Add("xsi", XmlSchema.InstanceNamespace);
-                    foreach (var xmlNamespace in (from type in serializerTypes
-                                                  let xmlNamespace = GetXmlNamespace(type)
-                                                  where xmlNamespace != Constants.XmlNamespace
-                                                  select xmlNamespace)
-                                                 .Distinct())
-                    {
-                        serializerNamespaces.Add("q" + namespaceIndex, xmlNamespace);
-                        namespaceIndex++;
-                    }
 
                     XmlAttributeOverrides overrides = new XmlAttributeOverrides();
                     foreach (var type in serializerTypes)
@@ -174,6 +179,7 @@ namespace Bonsai
                         overrides.Add(type, attributes);
                     }
 
+                    overrides.Add(typeof(SourceBuilder), new XmlAttributes { XmlType = new XmlTypeAttribute("Source") { Namespace = Constants.XmlNamespace } });
                     var rootAttribute = new XmlRootAttribute(WorkflowNodeName) { Namespace = Constants.XmlNamespace };
                     serializerCache = new XmlSerializer(typeof(ExpressionBuilderGraphDescriptor), overrides, serializerTypes.ToArray(), rootAttribute, null);
                 }

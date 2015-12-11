@@ -8,7 +8,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bonsai.Shaders
+namespace Bonsai.Shaders.Input
 {
     [Description("Produces a sequence of events whenever the mouse is moved over the shader window.")]
     [Editor("Bonsai.Shaders.Design.ShaderConfigurationComponentEditor, Bonsai.Shaders.Design", typeof(ComponentEditor))]
