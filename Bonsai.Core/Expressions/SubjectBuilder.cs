@@ -17,7 +17,7 @@ namespace Bonsai.Expressions
     /// </summary>
     [WorkflowElementCategory(ElementCategory.Sink)]
     [XmlType("Subject", Namespace = Constants.XmlNamespace)]
-    public abstract class SubjectBuilder : SingleArgumentExpressionBuilder, IRequireBuildContext
+    public abstract class SubjectBuilder : SingleArgumentExpressionBuilder, INamedElement, IRequireBuildContext
     {
         BuildContext buildContext;
 
