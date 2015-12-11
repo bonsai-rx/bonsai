@@ -1139,17 +1139,19 @@ namespace Bonsai.Editor
         static string GetElementName(object component)
         {
             var name = ExpressionBuilder.GetElementDisplayName(component);
-            var workflowExpressionBuilder = component as WorkflowExpressionBuilder;
-            if (workflowExpressionBuilder != null && !string.IsNullOrWhiteSpace(workflowExpressionBuilder.Name))
-            {
-                var elementType = component.GetType();
-                name += " (" + ExpressionBuilder.GetElementDisplayName(elementType) + ")";
-            }
-
             var workflowProperty = component as ExternalizedProperty;
             if (workflowProperty != null && !string.IsNullOrWhiteSpace(workflowProperty.Name) && workflowProperty.Name != workflowProperty.MemberName)
             {
                 name += " (" + workflowProperty.MemberName + ")";
+            }
+            else
+            {
+                var namedExpressionBuilder = component as INamedElement;
+                if (namedExpressionBuilder != null && !string.IsNullOrWhiteSpace(namedExpressionBuilder.Name))
+                {
+                    var elementType = component.GetType();
+                    name += " (" + ExpressionBuilder.GetElementDisplayName(elementType) + ")";
+                }
             }
 
             return name;
