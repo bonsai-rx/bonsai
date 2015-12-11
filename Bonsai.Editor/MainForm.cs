@@ -428,7 +428,7 @@ namespace Bonsai.Editor
 
         void OpenExample(string examplePath)
         {
-            if (CheckUnsavedChanges())
+            if (CloseWorkflow())
             {
                 var tempPath = GetTempPath();
                 var targetDirectory = Directory.CreateDirectory(Path.Combine(tempPath, Path.GetRandomFileName()));
@@ -481,17 +481,19 @@ namespace Bonsai.Editor
             saveVersion = 0;
         }
 
-        bool CheckUnsavedChanges()
+        bool CloseWorkflow(CloseReason reason = CloseReason.UserClosing)
         {
             if (editorSite.WorkflowRunning)
             {
-                var result = MessageBox.Show(
+                var result = reason == CloseReason.UserClosing
+                    ? MessageBox.Show(
                     this,
                     "Do you want to stop the workflow?",
                     "Workflow Running",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Warning,
-                    MessageBoxDefaultButton.Button1);
+                    MessageBoxDefaultButton.Button1)
+                    : DialogResult.Yes;
                 if (result == DialogResult.Yes)
                 {
                     StopWorkflow();
@@ -641,7 +643,7 @@ namespace Bonsai.Editor
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!CheckUnsavedChanges()) return;
+            if (!CloseWorkflow()) return;
 
             saveWorkflowDialog.FileName = null;
             workflowBuilder.Workflow.Clear();
@@ -653,7 +655,7 @@ namespace Bonsai.Editor
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!CheckUnsavedChanges()) return;
+            if (!CloseWorkflow()) return;
 
             if (openWorkflowDialog.ShowDialog() == DialogResult.OK)
             {
@@ -719,7 +721,7 @@ namespace Bonsai.Editor
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            if (!CheckUnsavedChanges()) e.Cancel = true;
+            if (!CloseWorkflow(e.CloseReason)) e.Cancel = true;
             base.OnFormClosing(e);
         }
 
