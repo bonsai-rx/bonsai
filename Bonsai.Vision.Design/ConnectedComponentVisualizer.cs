@@ -16,16 +16,21 @@ namespace Bonsai.Vision.Design
     {
         public override void Show(object value)
         {
+            Rect boundingBox;
             var connectedComponent = (ConnectedComponent)value;
-            var validContour = connectedComponent.Contour != null;
-            var boundingBox = validContour ? connectedComponent.Contour.Rect : new Rect(0, 0, 1, 1);
+            if (connectedComponent.Contour != null)
+            {
+                boundingBox = connectedComponent.Contour.Rect;
+            }
+            else if (connectedComponent.Patch != null)
+            {
+                boundingBox = new Rect(0, 0, connectedComponent.Patch.Width, connectedComponent.Patch.Height);
+            }
+            else boundingBox = new Rect(0, 0, 1, 1);
             var output = new IplImage(new Size(boundingBox.Width, boundingBox.Height), IplDepth.U8, 3);
             output.SetZero();
 
-            if (validContour)
-            {
-                DrawingHelper.DrawConnectedComponent(output, connectedComponent, new Point2f(-boundingBox.X, -boundingBox.Y));
-            }
+            DrawingHelper.DrawConnectedComponent(output, connectedComponent, new Point2f(-boundingBox.X, -boundingBox.Y));
             base.Show(output);
         }
     }

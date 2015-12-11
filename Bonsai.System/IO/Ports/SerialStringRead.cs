@@ -11,13 +11,22 @@ namespace Bonsai.IO
     [Description("Sources individual lines of text data from a serial port.")]
     public class SerialStringRead : Source<string>
     {
+        public SerialStringRead()
+        {
+            NewLine = ObservableSerialPort.DefaultNewLine;
+        }
+
         [Description("The name of the serial port.")]
         [Editor("Bonsai.IO.Design.SerialPortConfigurationEditor, Bonsai.System.Design", typeof(UITypeEditor))]
         public string PortName { get; set; }
 
+        [Description("The value used to interpret lines sourced from the serial port.")]
+        public string NewLine { get; set; }
+
         public override IObservable<string> Generate()
         {
-            return ObservableSerialPort.ReadLine(PortName);
+            var newLine = ObservableSerialPort.Unescape(NewLine);
+            return ObservableSerialPort.ReadLine(PortName, newLine);
         }
     }
 }

@@ -16,7 +16,7 @@ namespace Bonsai.Expressions
     /// </summary>
     [XmlType("WindowWorkflow", Namespace = Constants.XmlNamespace)]
     [Description("Processes each input window using the encapsulated workflow.")]
-    public class WindowWorkflowBuilder : WorkflowExpressionBuilder
+    public class WindowWorkflowBuilder : SingleArgumentWorkflowExpressionBuilder
     {
         static readonly MethodInfo returnMethod = (from method in typeof(Observable).GetMethods()
                                                    where method.Name == "Return" && method.GetParameters().Length == 1
@@ -83,7 +83,7 @@ namespace Bonsai.Expressions
             }
             else inputParameter = selectorParameter;
 
-            return BuildWorflow(arguments, inputParameter, selectorBody =>
+            return BuildWorkflow(arguments, inputParameter, selectorBody =>
             {
                 var selector = Expression.Lambda(selectorBody, selectorParameter);
                 return Expression.Call(selectMethod.MakeGenericMethod(sourceType, selector.ReturnType), source, selector);

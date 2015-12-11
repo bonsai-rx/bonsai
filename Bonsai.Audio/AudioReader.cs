@@ -48,52 +48,64 @@ namespace Bonsai.Audio
             }
         }
 
+        IEnumerable<Mat> CreateReader(double bufferLength)
+        {
+            using (var reader = new BinaryReader(new FileStream(FileName, FileMode.Open, FileAccess.Read)))
+            {
+                var id = new byte[4];
+                CheckId(reader, id, RiffHeader.RiffId);
+                reader.ReadInt32();
+                CheckId(reader, id, RiffHeader.WaveId);
+                CheckId(reader, id, RiffHeader.FmtId);
+
+                AssertFormatValue(16u, reader.ReadUInt32());
+                AssertFormatValue(1u, reader.ReadUInt16());
+
+                var channels = (int)reader.ReadUInt16();
+                var samplingFrequency = (long)reader.ReadUInt32();
+                reader.ReadUInt32();
+                var sampleSize = (int)reader.ReadUInt16();
+                var depth = reader.ReadUInt16() == 8 ? Depth.U8 : Depth.S16;
+
+                var bufferSize = (int)Math.Ceiling(samplingFrequency * bufferLength / 1000);
+                CheckId(reader, id, RiffHeader.DataId);
+                var dataSize = (long)reader.ReadUInt32();
+                var sampleCount = dataSize / sampleSize;
+
+                var sampleData = new byte[bufferSize * sampleSize];
+                for (int i = 0; i < sampleCount / bufferSize; i++)
+                {
+                    var bytesRead = reader.Read(sampleData, 0, sampleData.Length);
+                    if (bytesRead < sampleData.Length) break;
+
+                    var output = new Mat(channels, bufferSize, depth, 1);
+                    using (var bufferHeader = Mat.CreateMatHeader(sampleData, bufferSize, channels, depth, 1))
+                    {
+                        CV.Transpose(bufferHeader, output);
+                    }
+
+                    yield return output;
+                }
+            }
+        }
+
         public override IObservable<Mat> Generate()
         {
             return Observable.Create<Mat>((observer, cancellationToken) =>
             {
                 return Task.Factory.StartNew(() =>
                 {
-                    using (var reader = new BinaryReader(new FileStream(FileName, FileMode.Open, FileAccess.Read)))
+                    var bufferLength = BufferLength;
+                    using (var reader = CreateReader(bufferLength).GetEnumerator())
                     using (var sampleSignal = new ManualResetEvent(false))
                     {
-                        var id = new byte[4];
-                        CheckId(reader, id, RiffHeader.RiffId);
-                        reader.ReadInt32();
-                        CheckId(reader, id, RiffHeader.WaveId);
-                        CheckId(reader, id, RiffHeader.FmtId);
-
-                        AssertFormatValue(16u, reader.ReadUInt32());
-                        AssertFormatValue(1u, reader.ReadUInt16());
-
-                        var channels = (int)reader.ReadUInt16();
-                        var samplingFrequency = (long)reader.ReadUInt32();
-                        reader.ReadUInt32();
-                        var sampleSize = (int)reader.ReadUInt16();
-                        var depth = reader.ReadUInt16() == 8 ? Depth.U8 : Depth.S16;
-
-                        var bufferLength = BufferLength;
-                        var bufferSize = (int)Math.Ceiling(samplingFrequency * bufferLength / 1000);
-                        CheckId(reader, id, RiffHeader.DataId);
-                        var dataSize = (long)reader.ReadUInt32();
-                        var sampleCount = dataSize / sampleSize;
-
                         var stopwatch = new Stopwatch();
-                        var sampleData = new byte[bufferSize * sampleSize];
-                        for (int i = 0; i < sampleCount / bufferSize; i++)
+                        while (!cancellationToken.IsCancellationRequested)
                         {
                             stopwatch.Restart();
-                            if (cancellationToken.IsCancellationRequested) break;
-                            var bytesRead = reader.Read(sampleData, 0, sampleData.Length);
-                            if (bytesRead < sampleData.Length) break;
+                            if (!reader.MoveNext()) break;
+                            observer.OnNext(reader.Current);
 
-                            var output = new Mat(channels, bufferSize, depth, 1);
-                            using (var bufferHeader = Mat.CreateMatHeader(sampleData, bufferSize, channels, depth, 1))
-                            {
-                                CV.Transpose(bufferHeader, output);
-                            }
-
-                            observer.OnNext(output);
                             var sampleInterval = (int)(bufferLength - stopwatch.ElapsedMilliseconds);
                             if (sampleInterval > 0)
                             {
@@ -108,6 +120,11 @@ namespace Bonsai.Audio
                 TaskCreationOptions.LongRunning,
                 TaskScheduler.Default);
             });
+        }
+
+        public IObservable<Mat> Generate<TSource>(IObservable<TSource> source)
+        {
+            return source.Zip(CreateReader(BufferLength), (x, output) => output);
         }
     }
 }

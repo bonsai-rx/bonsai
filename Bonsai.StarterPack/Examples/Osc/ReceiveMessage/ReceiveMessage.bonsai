@@ -1,9 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<WorkflowBuilder Version="2.1.0">
+<WorkflowBuilder Version="2.2.0">
   <Workflow xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:q1="clr-namespace:Bonsai.Osc;assembly=Bonsai.Osc" xmlns="https://horizongir.org/bonsai">
     <Nodes>
       <Expression xsi:type="q1:ReceiveMessage">
-        <q1:PropertyMappings />
         <q1:Connection>UdpReceive</q1:Connection>
         <q1:Address>/number</q1:Address>
         <q1:TypeTag>f</q1:TypeTag>
@@ -12,6 +11,6 @@
     <Edges />
   </Workflow>
   <ExtensionTypes>
-    <Type>Bonsai.Osc.ReceiveMessage, Bonsai.Osc, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Osc.ReceiveMessage, Bonsai.Osc, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
   </ExtensionTypes>
 </WorkflowBuilder>

@@ -8,9 +8,14 @@ using System.ComponentModel;
 
 namespace Bonsai.Vision
 {
-    [Description("Computes image moments of connected component contours to extract binary region properties.")]
+    [Description("Computes image moments from polygon contours or rasterized shapes to extract binary region properties.")]
     public class BinaryRegionAnalysis : Transform<Contours, ConnectedComponentCollection>
     {
+        public IObservable<ConnectedComponent> Process(IObservable<IplImage> source)
+        {
+            return source.Select(input => ConnectedComponent.FromImage(input));
+        }
+
         public override IObservable<ConnectedComponentCollection> Process(IObservable<Contours> source)
         {
             return source.Select(input =>
@@ -20,9 +25,30 @@ namespace Bonsai.Vision
 
                 while (currentContour != null)
                 {
-                    var contour = ConnectedComponent.FromContour(currentContour);
+                    var component = ConnectedComponent.FromContour(currentContour);
                     currentContour = currentContour.HNext;
-                    output.Add(contour);
+                    output.Add(component);
+                }
+
+                return output;
+            });
+        }
+
+        public IObservable<ConnectedComponentCollection> Process(IObservable<Tuple<Contours, IplImage>> source)
+        {
+            return source.Select(input =>
+            {
+                var image = input.Item2;
+                var contours = input.Item1;
+                var currentContour = contours.FirstContour;
+                var output = new ConnectedComponentCollection(image.Size);
+
+                while (currentContour != null)
+                {
+                    var component = ConnectedComponent.FromContour(currentContour);
+                    component.Patch = image.GetSubRect(component.Contour.Rect);
+                    currentContour = currentContour.HNext;
+                    output.Add(component);
                 }
 
                 return output;
