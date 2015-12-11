@@ -11,6 +11,7 @@ using System.Net;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
@@ -265,11 +266,7 @@ namespace Bonsai.NuGet
             WebRequest imageRequest;
             try { imageRequest = WebRequest.Create(iconUrl); }
             catch (InvalidOperationException) { return defaultIcon; }
-            var requestAsync = Observable.FromAsyncPattern(
-                (callback, state) => imageRequest.BeginGetResponse(callback, state),
-                asyncResult => imageRequest.EndGetResponse(asyncResult));
-
-            return (from response in Observable.Defer(() => requestAsync())
+            return (from response in Observable.Defer(() => imageRequest.GetResponseAsync().ToObservable())
                     from image in Observable.If(
                         () => iconUrl == null ||
                               response.ContentType.StartsWith("image/") ||

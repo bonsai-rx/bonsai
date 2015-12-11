@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bonsai.Dag;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace Bonsai.Expressions
     [WorkflowElementCategory(ElementCategory.Property)]
     [TypeDescriptionProvider(typeof(ExternalizedPropertyTypeDescriptionProvider))]
     [Description("Represents a property that has been externalized from a workflow element.")]
-    public abstract class ExternalizedProperty : ExpressionBuilder, INamedElement
+    public abstract class ExternalizedProperty : ExpressionBuilder, INamedElement, IArgumentBuilder
     {
         static readonly Range<int> argumentRange = Range.Create(lowerBound: 0, upperBound: 1);
 
@@ -47,10 +48,8 @@ namespace Bonsai.Expressions
             get
             {
                 var name = Name;
-                var memberName = MemberName;
-                if (string.IsNullOrWhiteSpace(name)) return memberName;
-                else if (name == memberName) return name;
-                else return name + Environment.NewLine + "(" + memberName + ")";
+                if (string.IsNullOrWhiteSpace(name)) return MemberName;
+                else return name;
             }
         }
 
@@ -80,6 +79,14 @@ namespace Bonsai.Expressions
             var generateMethod = sourceType.GetMethods(bindingAttributes)
                                            .Single(m => m.Name == methodName && m.GetParameters().Length == 0);
             return Expression.Call(sourceExpression, generateMethod);
+        }
+
+        bool IArgumentBuilder.BuildArgument(Expression source, Edge<ExpressionBuilder, ExpressionBuilderArgument> successor, out Expression argument)
+        {
+            var workflowElement = GetPropertyMappingElement(successor.Target.Value);
+            var instance = Expression.Constant(workflowElement);
+            argument = BuildPropertyMapping(source, instance, MemberName);
+            return false;
         }
     }
 

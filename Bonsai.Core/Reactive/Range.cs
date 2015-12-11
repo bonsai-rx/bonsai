@@ -38,5 +38,19 @@ namespace Bonsai.Reactive
         {
             return Observable.Range(Start, Count);
         }
+
+        /// <summary>
+        /// Generates an observable sequence of integral numbers within a specified range
+        /// whenever the source sequence emits a new element.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">The source sequence used to advance the range.</param>
+        /// <returns>
+        /// An observable sequence that contains a range of sequential integral numbers.
+        /// </returns>
+        public IObservable<int> Generate<TSource>(IObservable<TSource> source)
+        {
+            return source.Zip(Enumerable.Range(Start, Count), (x, number) => number);
+        }
     }
 }

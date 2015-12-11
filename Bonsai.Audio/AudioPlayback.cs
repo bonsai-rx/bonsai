@@ -48,83 +48,44 @@ namespace Bonsai.Audio
             AL.DeleteBuffers(freeBuffers);
         }
 
-        static Depth GetReducedDepth(Depth depth)
-        {
-            switch (depth)
-            {
-                case Depth.F64:
-                    return Depth.F64;
-                default:
-                case Depth.U8:
-                case Depth.S8:
-                case Depth.U16:
-                case Depth.S16:
-                case Depth.S32:
-                case Depth.F32:
-                    return Depth.F32;
-            }
-        }
-
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
             return Observable.Defer(() =>
             {
-                Mat temp = null;
-                Mat reduced = null;
-                Mat transposed = null;
                 var context = new AudioContext(DeviceName);
                 var sourceId = AL.GenSource();
                 return source.Do(input =>
                 {
-                    var convertDepth = input.Depth != Depth.S16;
-                    var multiChannel = input.Rows > 1 && input.Cols > 1;
-                    if (convertDepth || multiChannel)
+                    var transpose = input.Rows < input.Cols;
+                    var channels = transpose ? input.Rows : input.Cols;
+                    if (channels > 2)
                     {
-                        var rows = multiChannel ? input.Cols : input.Rows;
-                        var cols = multiChannel ? 1 : input.Cols;
-                        if (temp == null || temp.Rows != rows || temp.Cols != cols)
-                        {
-                            temp = new Mat(rows, cols, Depth.S16, 1);
-                            transposed = temp;
-                            reduced = null;
-                        }
+                        throw new InvalidOperationException("Unsupported number of channels for the specified output format.");
+                    }
 
-                        var reducedDepth = multiChannel ? GetReducedDepth(input.Depth) : input.Depth;
-                        if (multiChannel && (reduced == null || reduced.Depth != reducedDepth))
-                        {
-                            reduced = new Mat(1, input.Cols, reducedDepth, 1);
-                        }
-
-                        if (multiChannel &&
-                           (transposed.Depth != reducedDepth ||
-                            transposed.Cols != input.Rows))
-                        {
-                            transposed = new Mat(rows, cols, reducedDepth, 1);
-                        }
-
-                        if (multiChannel)
-                        {
-                            // Reduce multichannel
-                            CV.Reduce(input, reduced, 0, ReduceOperation.Avg);
-                            multiChannel = false;
-                            input = reduced;
-
-                            // Transpose multichannel to column order
-                            CV.Transpose(input, transposed);
-                            input = transposed;
-                        }
-
+                    var format = channels == 2 ? ALFormat.Stereo16 : ALFormat.Mono16;
+                    var convertDepth = input.Depth != Depth.S16;
+                    if (convertDepth || transpose)
+                    {
                         // Convert if needed
-                        if (input.Depth != temp.Depth)
+                        if (convertDepth)
                         {
+                            var temp = new Mat(input.Rows, input.Cols, Depth.S16, 1);
                             CV.Convert(input, temp);
+                            input = temp;
                         }
 
-                        input = temp;
+                        // Transpose multichannel to column order
+                        if (transpose)
+                        {
+                            var temp = new Mat(input.Cols, input.Rows, input.Depth, 1);
+                            CV.Transpose(input, temp);
+                            input = temp;
+                        }
                     }
 
                     var buffer = AL.GenBuffer();
-                    AL.BufferData(buffer, ALFormat.Mono16, input.Data, input.Rows * input.Step, Frequency);
+                    AL.BufferData(buffer, format, input.Data, input.Rows * input.Step, Frequency);
 
                     AL.SourceQueueBuffer(sourceId, buffer);
                     if (AL.GetSourceState(sourceId) != ALSourceState.Playing)

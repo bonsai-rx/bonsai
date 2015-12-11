@@ -50,7 +50,8 @@ namespace Bonsai
             for (int i = 0; i < types.Length; i++)
             {
                 var type = types[i];
-                if (!type.IsAbstract && !type.ContainsGenericParameters && IsWorkflowElement(type))
+                if (type.IsPublic && !type.IsAbstract && !type.ContainsGenericParameters &&
+                    IsWorkflowElement(type) && !type.IsDefined(typeof(ObsoleteAttribute)))
                 {
                     var descriptionAttribute = (DescriptionAttribute)TypeDescriptor.GetAttributes(type)[typeof(DescriptionAttribute)];
                     yield return new WorkflowElementDescriptor

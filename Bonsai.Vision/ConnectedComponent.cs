@@ -20,14 +20,31 @@ namespace Bonsai.Vision
         public double Area { get; set; }
 
         [XmlIgnore]
+        public IplImage Patch { get; set; }
+
+        [XmlIgnore]
         public Contour Contour { get; set; }
+
+        public static ConnectedComponent FromImage(IplImage image)
+        {
+            var moments = new Moments(image);
+            var component = FromMoments(moments);
+            component.Patch = image;
+            return component;
+        }
 
         public static ConnectedComponent FromContour(Seq currentContour)
         {
             var moments = new Moments(currentContour);
+            var component = FromMoments(moments);
+            component.Contour = Contour.FromSeq(currentContour);
+            return component;
+        }
+
+        public static ConnectedComponent FromMoments(Moments moments)
+        {
             var component = new ConnectedComponent();
             component.Area = moments.M00;
-            component.Contour = Contour.FromSeq(currentContour);
 
             // Cemtral moments can only be computed for components with non-zero area
             if (moments.M00 > 0)
