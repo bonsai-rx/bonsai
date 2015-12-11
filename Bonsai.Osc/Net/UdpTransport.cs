@@ -26,28 +26,28 @@ namespace Bonsai.Osc.Net
             }
 
             this.client = client;
-            messageReceived = Observable.Create<Message>(observer =>
-            {
-                var scheduler = new EventLoopScheduler();
-                var dispatcher = new Dispatcher(observer, scheduler);
-                return scheduler.Schedule(recurse =>
+            messageReceived = Observable.Using(
+                () => new EventLoopScheduler(),
+                scheduler => Observable.Create<Message>(observer =>
                 {
-                    try
+                    var dispatcher = new Dispatcher(observer, scheduler);
+                    return scheduler.Schedule(recurse =>
                     {
-                        var endPoint = new IPEndPoint(IPAddress.Any, 0);
-                        var packet = client.Receive(ref endPoint);
-                        dispatcher.ProcessPacket(packet);
-                        recurse();
-                    }
-                    catch (Exception e)
-                    {
-                        observer.OnError(e);
-                        scheduler.Dispose();
-                    }
-                });
-            })
-            .Publish()
-            .RefCount();
+                        try
+                        {
+                            var endPoint = new IPEndPoint(IPAddress.Any, 0);
+                            var packet = client.Receive(ref endPoint);
+                            dispatcher.ProcessPacket(packet);
+                            recurse();
+                        }
+                        catch (Exception e)
+                        {
+                            observer.OnError(e);
+                        }
+                    });
+                }))
+                .Publish()
+                .RefCount();
         }
 
         public IObservable<Message> MessageReceived
