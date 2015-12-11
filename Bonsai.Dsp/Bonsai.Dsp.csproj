@@ -74,6 +74,7 @@
     <Compile Include="IirFilter.cs" />
     <Compile Include="Range.cs" />
     <Compile Include="RasterSpikes.cs" />
+    <Compile Include="Rescale.cs" />
     <Compile Include="Reshape.cs" />
     <Compile Include="Histogram2D.cs" />
     <Compile Include="Histogram1D.cs" />
