@@ -14,6 +14,11 @@ namespace Bonsai.Vision
     [Description("Applies a perspective transformation to the input image.")]
     public class WarpPerspective : Transform<IplImage, IplImage>
     {
+        public WarpPerspective()
+        {
+            Flags = WarpFlags.Linear;
+        }
+
         [Description("Coordinates of the four source quadrangle vertices in the input image.")]
         [Editor("Bonsai.Vision.Design.IplImageInputQuadrangleEditor, Bonsai.Vision.Design", typeof(UITypeEditor))]
         public Point2f[] Source { get; set; }
@@ -21,6 +26,12 @@ namespace Bonsai.Vision
         [Description("Coordinates of the four corresponding quadrangle vertices in the output image.")]
         [Editor("Bonsai.Vision.Design.IplImageOutputQuadrangleEditor, Bonsai.Vision.Design", typeof(UITypeEditor))]
         public Point2f[] Destination { get; set; }
+
+        [Description("Specifies interpolation and operation flags for the image warp.")]
+        public WarpFlags Flags { get; set; }
+
+        [Description("The value to which all outlier pixels will be set to.")]
+        public Scalar FillValue { get; set; }
 
         static Point2f[] InitializeQuadrangle(IplImage image)
         {
@@ -53,7 +64,7 @@ namespace Bonsai.Vision
                         CV.GetPerspectiveTransform(currentSource, currentDestination, mapMatrix);
                     }
 
-                    CV.WarpPerspective(input, output, mapMatrix, WarpFlags.Linear | WarpFlags.FillOutliers, Scalar.All(0));
+                    CV.WarpPerspective(input, output, mapMatrix, Flags | WarpFlags.FillOutliers, FillValue);
                     return output;
                 });
             });

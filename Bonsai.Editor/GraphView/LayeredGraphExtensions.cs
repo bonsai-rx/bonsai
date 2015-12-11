@@ -184,7 +184,7 @@ namespace Bonsai.Design
                                    select (from predecessor in predecessorNodes
                                            from edge in predecessor.Value.Successors
                                            where edge.Node == node
-                                           orderby edge.Text ascending
+                                           orderby predecessor.Value.BuildDependency, edge.Text ascending
                                            select new { predecessor, edge });
                     foreach (var group in ordering)
                     {
@@ -366,13 +366,9 @@ namespace Bonsai.Design
                 var layer = layers[i];
                 if (i > 0)
                 {
-                    //TODO: ExpressionBuilderArgument should implement IComparable so ordering can be generic
                     var nodeOrder = from node in layer
                                     from edge in node.Successors
-                                    let label = edge.Label as ExpressionBuilderArgument
-                                    where label != null
-                                    let successor = edge.Node
-                                    orderby successor.LayerIndex, label.Index
+                                    orderby node.BuildDependency, edge.Node.LayerIndex, edge.Label
                                     group node by node into g
                                     select g.Key;
                     var sortedLayer = new GraphNodeGrouping(layer.Key);

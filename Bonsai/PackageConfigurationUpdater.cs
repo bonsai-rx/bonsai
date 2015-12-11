@@ -15,6 +15,7 @@ namespace Bonsai
     {
         const string PackageTagFilter = "Bonsai";
         const string ExamplesDirectory = "Examples";
+        const string WorkflowsDirectory = "Workflows";
         const string BuildDirectory = "build";
         const string BinDirectory = "bin";
         const string DebugDirectory = "debug";
@@ -234,15 +235,15 @@ namespace Bonsai
             }
         }
 
-        void AddExampleFolders(string installPath)
+        void AddContentFolders(string installPath, string contentPath)
         {
-            var examplesDirectory = new DirectoryInfo(Path.Combine(installPath, Constants.ContentDirectory, ExamplesDirectory));
-            if (examplesDirectory.Exists)
+            var contentDirectory = new DirectoryInfo(Path.Combine(installPath, Constants.ContentDirectory, contentPath));
+            if (contentDirectory.Exists)
             {
                 var bootstrapperPath = Path.GetDirectoryName(bootstrapperExePath);
-                var bootstrapperExamples = new DirectoryInfo(Path.Combine(bootstrapperPath, ExamplesDirectory));
-                if (!bootstrapperExamples.Exists) bootstrapperExamples.Create();
-                CopyDirectory(examplesDirectory, bootstrapperExamples);
+                var bootstrapperContent = new DirectoryInfo(Path.Combine(bootstrapperPath, contentPath));
+                if (!bootstrapperContent.Exists) bootstrapperContent.Create();
+                CopyDirectory(contentDirectory, bootstrapperContent);
             }
         }
 
@@ -265,16 +266,16 @@ namespace Bonsai
             catch (UnauthorizedAccessException) { } //best effort
         }
 
-        void RemoveExampleFolders(IPackage package, string installPath)
+        void RemoveContentFolders(IPackage package, string installPath, string contentPath)
         {
-            var examplesDirectory = new DirectoryInfo(Path.Combine(installPath, Constants.ContentDirectory, ExamplesDirectory));
-            if (examplesDirectory.Exists)
+            var contentDirectory = new DirectoryInfo(Path.Combine(installPath, Constants.ContentDirectory, contentPath));
+            if (contentDirectory.Exists)
             {
                 var bootstrapperPath = Path.GetDirectoryName(bootstrapperExePath);
-                var bootstrapperExamples = new DirectoryInfo(Path.Combine(bootstrapperPath, ExamplesDirectory));
-                if (bootstrapperExamples.Exists)
+                var bootstrapperContent = new DirectoryInfo(Path.Combine(bootstrapperPath, contentPath));
+                if (bootstrapperContent.Exists)
                 {
-                    foreach (var file in package.GetFiles(Path.Combine(Constants.ContentDirectory, ExamplesDirectory)))
+                    foreach (var file in package.GetFiles(Path.Combine(Constants.ContentDirectory, contentPath)))
                     {
                         var path = file.Path.Split(DirectorySeparators, 2)[1];
                         var bootstrapperFilePath = Path.Combine(bootstrapperPath, path);
@@ -284,7 +285,7 @@ namespace Bonsai
                         }
                     }
 
-                    RemoveEmptyDirectories(bootstrapperExamples);
+                    RemoveEmptyDirectories(bootstrapperContent);
                 }
             }
         }
@@ -318,7 +319,8 @@ namespace Bonsai
             }
             else packageConfiguration.Packages[package.Id].Version = package.Version.ToString();
 
-            AddExampleFolders(e.InstallPath);
+            AddContentFolders(e.InstallPath, ExamplesDirectory);
+            AddContentFolders(e.InstallPath, WorkflowsDirectory);
             RegisterLibraryFolders(package, installPath);
             RegisterAssemblyLocations(package, e.InstallPath, installPath, false);
             var pivots = OverlayHelper.FindPivots(package, e.InstallPath).ToArray();
@@ -359,7 +361,8 @@ namespace Bonsai
             var installPath = GetRelativePath(e.InstallPath);
             packageConfiguration.Packages.Remove(package.Id);
 
-            RemoveExampleFolders(package, e.InstallPath);
+            RemoveContentFolders(package, e.InstallPath, ExamplesDirectory);
+            RemoveContentFolders(package, e.InstallPath, WorkflowsDirectory);
             RemoveLibraryFolders(package, installPath);
             RemoveAssemblyLocations(package, e.InstallPath, false);
             var pivots = OverlayHelper.FindPivots(package, e.InstallPath).ToArray();

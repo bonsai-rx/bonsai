@@ -68,10 +68,22 @@ namespace Bonsai.Expressions
         public virtual IObservable<DateTimeOffset> Generate()
         {
             return Observable
-                .Return(value)
+                .Defer(() => Observable.Return(value))
                 .Concat(Observable.FromEvent<DateTimeOffset>(
                     handler => ValueChanged += handler,
                     handler => ValueChanged -= handler));
+        }
+
+        /// <summary>
+        /// Generates an observable sequence that produces a value whenever the
+        /// source sequence emits a new element.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">The source sequence used to generate new values.</param>
+        /// <returns>An observable sequence of property values.</returns>
+        public IObservable<DateTimeOffset> Generate<TSource>(IObservable<TSource> source)
+        {
+            return source.Select(x => value);
         }
     }
 }

@@ -18,8 +18,9 @@ namespace Bonsai.Expressions
     [WorkflowElementCategory(ElementCategory.Nested)]
     [XmlType("Workflow", Namespace = Constants.XmlNamespace)]
     [TypeDescriptionProvider(typeof(WorkflowTypeDescriptionProvider))]
-    public abstract class WorkflowExpressionBuilder : ExpressionBuilder, INamedElement, IPropertyMappingBuilder
+    public abstract class WorkflowExpressionBuilder : ExpressionBuilder, INamedElement, IPropertyMappingBuilder, IRequireBuildContext
     {
+        BuildContext buildContext;
         readonly ExpressionBuilderGraph workflow;
         readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
 
@@ -69,16 +70,7 @@ namespace Bonsai.Expressions
 
         string INamedElement.Name
         {
-            get
-            {
-                var name = Name;
-                if (!string.IsNullOrWhiteSpace(name))
-                {
-                    var elementType = GetType();
-                    return name + Environment.NewLine + "(" + GetElementDisplayName(elementType) + ")";
-                }
-                else return name;
-            }
+            get { return Name; }
         }
 
         /// <summary>
@@ -113,7 +105,9 @@ namespace Bonsai.Expressions
         /// expressions. In the case of an encapsulated workflow, mappings to nested workflow
         /// properties are also allowed.
         /// </summary>
+        [Obsolete]
         [Browsable(false)]
+        [XmlArrayItem("PropertyMapping")]
         public PropertyMappingCollection PropertyMappings
         {
             get { return propertyMappings; }
@@ -131,7 +125,11 @@ namespace Bonsai.Expressions
             }
         }
 
-        internal BuildContext BuildContext { get; set; }
+        BuildContext IRequireBuildContext.BuildContext
+        {
+            get { return buildContext; }
+            set { buildContext = value; }
+        }
 
         internal IEnumerable<WorkflowInputBuilder> GetWorkflowParameters()
         {
@@ -161,7 +159,7 @@ namespace Bonsai.Expressions
         /// workflow to the specified input <paramref name="source"/>. Property mappings are also
         /// resolved in the correct sequence.
         /// </returns>
-        protected Expression BuildWorflow(IEnumerable<Expression> arguments, Expression source, Func<Expression, Expression> selector)
+        protected Expression BuildWorkflow(IEnumerable<Expression> arguments, Expression source, Func<Expression, Expression> selector)
         {
             // Assign sources if available
             var parameters = GetWorkflowParameters();
@@ -171,9 +169,9 @@ namespace Bonsai.Expressions
                 assignment.parameter.Source = assignment.argument;
             }
 
-            var buildContext = BuildContext;
-            var expression = Workflow.Build(buildContext);
-            if (buildContext != null && buildContext.BuildResult != null) return buildContext.BuildResult;
+            var nestedContext = new BuildContext(buildContext);
+            var expression = Workflow.Build(nestedContext);
+            if (nestedContext.BuildResult != null) return nestedContext.BuildResult;
             var output = selector(expression);
 
             var subscriptions = propertyMappings.Select(mapping =>

@@ -10,10 +10,10 @@ namespace Bonsai.Expressions
 {
     class MulticastScope
     {
-        readonly MulticastExpressionBuilder multicastBuilder;
+        readonly MulticastBranchBuilder multicastBuilder;
         readonly List<ExpressionBuilder> references = new List<ExpressionBuilder>();
 
-        public MulticastScope(MulticastExpressionBuilder builder)
+        public MulticastScope(MulticastBranchBuilder builder)
         {
             if (builder == null)
             {

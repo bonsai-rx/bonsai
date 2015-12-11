@@ -66,24 +66,7 @@ namespace Bonsai.Expressions
         /// </returns>
         protected override Expression BuildSelector(Expression expression)
         {
-            var selector = Selector;
-            if (string.IsNullOrWhiteSpace(selector))
-            {
-                selector = ExpressionBuilderArgument.ArgumentNamePrefix;
-            }
-
-            var selectedMemberNames = ExpressionHelper.SelectMemberNames(selector);
-            var inputExpression = Enumerable.Repeat(expression, 1);
-            var selectedMembers = (from memberSelector in selectedMemberNames
-                                   let memberPath = GetArgumentAccess(inputExpression, memberSelector)
-                                   select ExpressionHelper.MemberAccess(expression, memberPath.Item2))
-                                   .ToArray();
-            if (selectedMembers.Length > 1)
-            {
-                var memberTypes = Array.ConvertAll(selectedMembers, member => member.Type);
-                return Expression.Call(typeof(Tuple), "Create", memberTypes, selectedMembers);
-            }
-            else return selectedMembers.Single();
+            return MemberSelector(expression, Selector);
         }
     }
 }

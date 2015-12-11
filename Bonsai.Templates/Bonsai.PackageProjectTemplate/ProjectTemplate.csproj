@@ -27,6 +27,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <BuildPackage>true</BuildPackage>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -40,6 +41,9 @@
   <ItemGroup>
     <Compile Include="Transform1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$safeprojectname$.nuspec" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
