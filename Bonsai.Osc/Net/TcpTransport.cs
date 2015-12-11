@@ -21,47 +21,45 @@ namespace Bonsai.Osc.Net
         public TcpTransport(TcpClient client)
         {
             stream = client.GetStream();
-            messageReceived = Observable.Create<Message>(observer =>
-            {
-                var sizeBuffer = new byte[sizeof(int)];
-                var scheduler = new EventLoopScheduler();
-                var dispatcher = new Dispatcher(observer, scheduler);
-                return scheduler.Schedule(recurse =>
+            messageReceived = Observable.Using(
+                () => new EventLoopScheduler(),
+                scheduler => Observable.Create<Message>(observer =>
                 {
-                    try
+                    var sizeBuffer = new byte[sizeof(int)];
+                    var dispatcher = new Dispatcher(observer, scheduler);
+                    return scheduler.Schedule(recurse =>
                     {
-                        var bytesRead = stream.Read(sizeBuffer, 0, sizeBuffer.Length);
-                        if (bytesRead < sizeBuffer.Length)
+                        try
                         {
-                            observer.OnError(new InvalidOperationException("Unexpected end of stream."));
-                            scheduler.Dispose();
-                        }
-                        else
-                        {
-                            var packetSize = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(sizeBuffer, 0));
-                            var packet = new byte[packetSize];
-                            bytesRead = stream.Read(packet, 0, packet.Length);
-                            if (bytesRead < packet.Length)
+                            var bytesRead = stream.Read(sizeBuffer, 0, sizeBuffer.Length);
+                            if (bytesRead < sizeBuffer.Length)
                             {
                                 observer.OnError(new InvalidOperationException("Unexpected end of stream."));
-                                scheduler.Dispose();
                             }
                             else
                             {
-                                dispatcher.ProcessPacket(packet);
-                                recurse();
+                                var packetSize = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(sizeBuffer, 0));
+                                var packet = new byte[packetSize];
+                                bytesRead = stream.Read(packet, 0, packet.Length);
+                                if (bytesRead < packet.Length)
+                                {
+                                    observer.OnError(new InvalidOperationException("Unexpected end of stream."));
+                                }
+                                else
+                                {
+                                    dispatcher.ProcessPacket(packet);
+                                    recurse();
+                                }
                             }
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        observer.OnError(e);
-                        scheduler.Dispose();
-                    }
-                });
-            })
-            .Publish()
-            .RefCount();
+                        catch (Exception e)
+                        {
+                            observer.OnError(e);
+                        }
+                    });
+                }))
+                .Publish()
+                .RefCount();
         }
 
         public IObservable<Message> MessageReceived
