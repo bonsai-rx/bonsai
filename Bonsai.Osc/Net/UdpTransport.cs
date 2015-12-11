@@ -46,7 +46,7 @@ namespace Bonsai.Osc.Net
                         }
                     });
                 }))
-                .Publish()
+                .PublishReconnectable()
                 .RefCount();
         }
 
