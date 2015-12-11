@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Osc
 {
-    class Dispatcher : IDisposable
+    class Dispatcher
     {
         const byte MessageByte = 0x2F; // '/'
         const byte BundleByte =  0x23; // '#'
@@ -35,20 +35,10 @@ namespace Bonsai.Osc
             this.scheduler = scheduler;
         }
 
-        private void OnError(Exception e)
-        {
-            observer.OnError(e);
-            var disposable = Interlocked.Exchange(ref scheduler, null);
-            if (disposable != null)
-            {
-                disposable.Dispose();
-            }
-        }
-
         public void ProcessPacket(byte[] packet)
         {
             try { ProcessPacket(packet, 0, packet.Length); }
-            catch (Exception e) { OnError(e); }
+            catch (Exception e) { observer.OnError(e); }
         }
 
         private void ProcessPacket(byte[] packet, int index, int count)
@@ -98,7 +88,7 @@ namespace Bonsai.Osc
                         currentIndex += elementSize;
                     }
                 }
-                catch (Exception e) { OnError(e); }
+                catch (Exception e) { observer.OnError(e); }
             };
 
             if (timeTag <= scheduler.Now) processElements();
@@ -131,30 +121,6 @@ namespace Bonsai.Osc
             var result = Encoding.ASCII.GetString(packet, index, terminator - index);
             index = terminator + PadLength - (terminator % PadLength);
             return result;
-        }
-
-        ~Dispatcher()
-        {
-            Dispose(false);
-        }
-
-        private void Dispose(bool disposing)
-        {
-            var disposable = Interlocked.Exchange(ref scheduler, null);
-            if (disposable != null && disposing)
-            {
-                disposable.Schedule(() =>
-                {
-                    observer.OnCompleted();
-                    disposable.Dispose();
-                });
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
     }
 }
