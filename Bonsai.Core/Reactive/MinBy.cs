@@ -26,8 +26,7 @@ namespace Bonsai.Reactive
                                                                           m.GetParameters().Length == 2);
 
         /// <summary>
-        /// Gets or sets a string used to specify a key for each element member in
-        /// the observable sequence.
+        /// Gets or sets a string used to specify a key for each element of the observable sequence.
         /// </summary>
         [Description("The inner properties that will be used as key for each element of the sequence.")]
         [Editor("Bonsai.Design.MultiMemberSelectorEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
