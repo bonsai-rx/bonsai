@@ -27,5 +27,17 @@ namespace Bonsai.Vision
                 return output;
             });
         }
+
+        public IObservable<IplImage> Process(IObservable<Tuple<IplImage, IplImage, IplImage>> source)
+        {
+            return source.Select(input =>
+            {
+                var image = input.Item1;
+                var mask = input.Item2;
+                var output = input.Item3.Clone();
+                CV.Copy(image, output, mask);
+                return output;
+            });
+        }
     }
 }
