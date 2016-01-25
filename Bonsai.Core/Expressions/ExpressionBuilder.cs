@@ -671,6 +671,7 @@ namespace Bonsai.Expressions
             internal Expression[] arguments;
             internal bool generic;
             internal bool expansion;
+            internal bool excluded;
         }
 
         internal static Expression BuildCall(Expression instance, IEnumerable<MethodInfo> methods, params Expression[] arguments)
@@ -721,7 +722,8 @@ namespace Bonsai.Expressions
                         method = method,
                         arguments = callArguments,
                         generic = method.IsGenericMethod,
-                        expansion = ParamExpansionRequired(method.GetParameters(), argumentTypes)
+                        expansion = ParamExpansionRequired(method.GetParameters(), argumentTypes),
+                        excluded = false
                     };
                 })
                 .Where(candidate => candidate != null)
@@ -730,55 +732,42 @@ namespace Bonsai.Expressions
             if (candidates.Length == 0) return CallCandidate.None;
             if (candidates.Length == 1) return candidates[0];
 
-            int best = -1;
             argumentTypes = Array.ConvertAll(argumentTypes, argumentType => GetObservableElementType(argumentType));
             var candidateParameters = Array.ConvertAll(
                 candidates,
                 candidate => ExpandCallParameterTypes(candidate.method.GetParameters(), argumentTypes, candidate.expansion));
 
-            for (int i = 0; i < candidateParameters.Length;)
+            for (int i = 0; i < candidateParameters.Length; i++)
             {
-                for (int j = 0; j < candidateParameters.Length; j++)
+                if (candidates[i].excluded) continue;
+                for (int j = 0; ; j++)
                 {
+                    if (j >= candidateParameters.Length) return candidates[i];
                     if (i == j) continue;
                     var comparison = CompareFunctionMember(
                         candidateParameters[i],
                         candidateParameters[j],
                         argumentTypes);
 
-                    int oldBest = -1;
-                    if (best >= 0) oldBest = best;
-                    if (comparison < 0) best = i;
-                    if (comparison > 0) best = j;
-                    if (comparison == 0)
+                    if (comparison < 0) continue;
+                    if (comparison > 0) break;
+                    else
                     {
-                        var tie = true;
-                        if (!candidates[i].generic && candidates[j].generic) { best = i; tie = false; }
-                        if (!candidates[j].generic && candidates[i].generic) { best = j; tie = false; }
+                        if (!candidates[i].generic && candidates[j].generic) continue;
+                        else if (!candidates[j].generic && candidates[i].generic) break;
 
-                        if (tie)
-                        {
-                            if (!candidates[i].expansion && candidates[j].expansion) best = i;
-                            if (!candidates[j].expansion && candidates[i].expansion) best = j;
-                        }
-                    }
+                        if (!candidates[i].expansion && candidates[j].expansion) continue;
+                        else if (!candidates[j].expansion && candidates[i].expansion) break;
 
-                    if (best != oldBest && oldBest > 0)
-                    {
-                        best = -1;
+                        // if there is a tie, both candidates are dead
+                        // so we can exclude the other candidate
+                        candidates[j].excluded = true;
                         break;
                     }
-
-                    if (best == j) break;
                 }
-
-                if (best < 0) break;
-                if (best == i) break;
-                i = best;
             }
 
-            if (best < 0) return CallCandidate.Ambiguous;
-            return candidates[best];
+            return CallCandidate.Ambiguous;
         }
 
         #endregion

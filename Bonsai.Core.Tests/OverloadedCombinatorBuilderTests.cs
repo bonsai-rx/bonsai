@@ -67,6 +67,25 @@ namespace Bonsai.Core.Tests
             }
         }
 
+        [Combinator]
+        class AmbiguousOverloadedCombinatorMock
+        {
+            public IObservable<int> Process(IObservable<int> source1, IObservable<double> source2)
+            {
+                return source1;
+            }
+
+            public IObservable<int> Process(IObservable<double> source1, IObservable<int> source2)
+            {
+                return source2;
+            }
+
+            public IObservable<int> Process(IObservable<object> source1, IObservable<object> source2)
+            {
+                return null;
+            }
+        }
+
         [TestMethod]
         public void Build_DoubleOverloadedMethodCalledWithDouble_ReturnsDoubleValue()
         {
@@ -118,6 +137,30 @@ namespace Bonsai.Core.Tests
             var combinator = new ListTupleOverloadedCombinatorMock();
             var source = CreateObservableExpression(Observable.Return(Tuple.Create(value, value)));
             var resultProvider = TestCombinatorBuilder<int>(combinator, source);
+            var result = Last(resultProvider).Result;
+            Assert.AreEqual(value, result);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void Build_AmbiguousOverloadedMethodCalledWithIntTuple_ThrowsInvalidOperationException()
+        {
+            var value = 5;
+            var combinator = new AmbiguousOverloadedCombinatorMock();
+            var source1 = CreateObservableExpression(Observable.Return(value));
+            var source2 = CreateObservableExpression(Observable.Return(value));
+            var resultProvider = TestCombinatorBuilder<int>(combinator, source1, source2);
+            var result = Last(resultProvider).Result;
+            Assert.AreEqual(value, result);
+        }
+
+        [TestMethod]
+        public void Build_AverageOverloadedMethodCalledWithLong_ReturnsDoubleValue()
+        {
+            var value = 5L;
+            var combinator = new Bonsai.Reactive.Average();
+            var source = CreateObservableExpression(Observable.Return(value));
+            var resultProvider = TestCombinatorBuilder<double>(combinator, source);
             var result = Last(resultProvider).Result;
             Assert.AreEqual(value, result);
         }
