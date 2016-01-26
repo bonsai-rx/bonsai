@@ -41,11 +41,16 @@ namespace Bonsai.Vision.Design
                                      let displacementX = moveEvt.X - origin.X
                                      let displacementY = moveEvt.Y - origin.Y
                                      select intersect
-                                         ? new Rect(rect.X + displacementX, rect.Y + displacementY, rect.Width, rect.Height)
+                                         ? new Rect(rect.X + displacementX, rect.Y + displacementY, rectangle.Width, rectangle.Height)
                                          : new Rect(origin.X, origin.Y, displacementX, displacementY))
                                      .Do(x =>
                                      {
                                          rectangle = NormalizedRectangle(x);
+                                         if (intersect)
+                                         {
+                                             rectangle.Width = x.Width;
+                                             rectangle.Height = x.Height;
+                                         }
                                          Canvas.Invalidate();
                                      })
                                      .TakeLast(1)
