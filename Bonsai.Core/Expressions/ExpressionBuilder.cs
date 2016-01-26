@@ -739,32 +739,35 @@ namespace Bonsai.Expressions
 
             for (int i = 0; i < candidateParameters.Length; i++)
             {
+                // skip excluded candidates
                 if (candidates[i].excluded) continue;
-                for (int j = 0; ; j++)
+
+                for (int j = 0; j < candidateParameters.Length; j++)
                 {
-                    if (j >= candidateParameters.Length) return candidates[i];
+                    // skip self-test
                     if (i == j) continue;
+
                     var comparison = CompareFunctionMember(
                         candidateParameters[i],
                         candidateParameters[j],
                         argumentTypes);
-
-                    if (comparison < 0) continue;
-                    if (comparison > 0) break;
-                    else
+                    if (comparison == 0) // tie-break
                     {
-                        if (!candidates[i].generic && candidates[j].generic) continue;
-                        else if (!candidates[j].generic && candidates[i].generic) break;
-
-                        if (!candidates[i].expansion && candidates[j].expansion) continue;
-                        else if (!candidates[j].expansion && candidates[i].expansion) break;
-
-                        // if there is a tie, both candidates are dead
-                        // so we can exclude the other candidate
-                        candidates[j].excluded = true;
-                        break;
+                        // non-generic vs generic
+                        if (!candidates[i].generic && candidates[j].generic) comparison = -1;
+                        else if (!candidates[j].generic && candidates[i].generic) comparison = 1;
+                        // non-params vs params
+                        else if (!candidates[i].expansion && candidates[j].expansion) comparison = -1;
+                        else if (!candidates[j].expansion && candidates[i].expansion) comparison = 1;
                     }
+
+                    // exclude self if loss or tied; exclude other if win or tied
+                    if (comparison >= 0) candidates[i].excluded = true;
+                    if (comparison <= 0) candidates[j].excluded = true;
                 }
+
+                // return the single survivor
+                if (!candidates[i].excluded) return candidates[i];
             }
 
             return CallCandidate.Ambiguous;
