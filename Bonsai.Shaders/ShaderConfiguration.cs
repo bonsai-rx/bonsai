@@ -19,6 +19,7 @@ namespace Bonsai.Shaders
         public ShaderConfiguration()
         {
             Enabled = true;
+            AutoDraw = true;
             Iterations = 1;
             VertexShader = DefaultVertexShader;
             FragmentShader = DefaultFragmentShader;
@@ -28,6 +29,9 @@ namespace Bonsai.Shaders
 
         [Category("State")]
         public bool Enabled { get; set; }
+
+        [Category("State")]
+        public bool AutoDraw { get; set; }
 
         [DefaultValue(1)]
         [Category("State")]
@@ -62,6 +66,7 @@ namespace Bonsai.Shaders
         internal virtual void Configure(Shader shader)
         {
             shader.Enabled = Enabled;
+            shader.AutoDraw = AutoDraw;
             shader.Iterations = Iterations;
         }
 

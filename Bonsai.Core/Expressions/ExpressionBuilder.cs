@@ -671,6 +671,7 @@ namespace Bonsai.Expressions
             internal Expression[] arguments;
             internal bool generic;
             internal bool expansion;
+            internal bool excluded;
         }
 
         internal static Expression BuildCall(Expression instance, IEnumerable<MethodInfo> methods, params Expression[] arguments)
@@ -721,7 +722,8 @@ namespace Bonsai.Expressions
                         method = method,
                         arguments = callArguments,
                         generic = method.IsGenericMethod,
-                        expansion = ParamExpansionRequired(method.GetParameters(), argumentTypes)
+                        expansion = ParamExpansionRequired(method.GetParameters(), argumentTypes),
+                        excluded = false
                     };
                 })
                 .Where(candidate => candidate != null)
@@ -730,55 +732,45 @@ namespace Bonsai.Expressions
             if (candidates.Length == 0) return CallCandidate.None;
             if (candidates.Length == 1) return candidates[0];
 
-            int best = -1;
             argumentTypes = Array.ConvertAll(argumentTypes, argumentType => GetObservableElementType(argumentType));
             var candidateParameters = Array.ConvertAll(
                 candidates,
                 candidate => ExpandCallParameterTypes(candidate.method.GetParameters(), argumentTypes, candidate.expansion));
 
-            for (int i = 0; i < candidateParameters.Length;)
+            for (int i = 0; i < candidateParameters.Length; i++)
             {
+                // skip excluded candidates
+                if (candidates[i].excluded) continue;
+
                 for (int j = 0; j < candidateParameters.Length; j++)
                 {
+                    // skip self-test
                     if (i == j) continue;
+
                     var comparison = CompareFunctionMember(
                         candidateParameters[i],
                         candidateParameters[j],
                         argumentTypes);
-
-                    int oldBest = -1;
-                    if (best >= 0) oldBest = best;
-                    if (comparison < 0) best = i;
-                    if (comparison > 0) best = j;
-                    if (comparison == 0)
+                    if (comparison == 0) // tie-break
                     {
-                        var tie = true;
-                        if (!candidates[i].generic && candidates[j].generic) { best = i; tie = false; }
-                        if (!candidates[j].generic && candidates[i].generic) { best = j; tie = false; }
-
-                        if (tie)
-                        {
-                            if (!candidates[i].expansion && candidates[j].expansion) best = i;
-                            if (!candidates[j].expansion && candidates[i].expansion) best = j;
-                        }
+                        // non-generic vs generic
+                        if (!candidates[i].generic && candidates[j].generic) comparison = -1;
+                        else if (!candidates[j].generic && candidates[i].generic) comparison = 1;
+                        // non-params vs params
+                        else if (!candidates[i].expansion && candidates[j].expansion) comparison = -1;
+                        else if (!candidates[j].expansion && candidates[i].expansion) comparison = 1;
                     }
 
-                    if (best != oldBest && oldBest > 0)
-                    {
-                        best = -1;
-                        break;
-                    }
-
-                    if (best == j) break;
+                    // exclude self if loss or tied; exclude other if win or tied
+                    if (comparison >= 0) candidates[i].excluded = true;
+                    if (comparison <= 0) candidates[j].excluded = true;
                 }
 
-                if (best < 0) break;
-                if (best == i) break;
-                i = best;
+                // return the single survivor
+                if (!candidates[i].excluded) return candidates[i];
             }
 
-            if (best < 0) return CallCandidate.Ambiguous;
-            return candidates[best];
+            return CallCandidate.Ambiguous;
         }
 
         #endregion
