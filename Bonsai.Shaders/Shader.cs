@@ -75,6 +75,8 @@ namespace Bonsai.Shaders
 
         public bool Enabled { get; set; }
 
+        public bool AutoDraw { get; set; }
+
         public int Iterations { get; set; }
 
         public string Name { get; private set; }
@@ -205,7 +207,38 @@ namespace Bonsai.Shaders
             timeLocation = GL.GetUniformLocation(program, "time");
         }
 
-        public void RenderFrame(FrameEventArgs e)
+        public void Draw()
+        {
+            if (VertexCount > 0)
+            {
+                for (int i = 0; i < Iterations; i++)
+                {
+                    foreach (var texture in shaderTextures)
+                    {
+                        texture.Bind(this);
+                    }
+
+                    GL.BindVertexArray(vao);
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+                    if (eao > 0)
+                    {
+                        GL.BindBuffer(BufferTarget.ElementArrayBuffer, eao);
+                        GL.DrawElements(DrawMode, VertexCount, DrawElementsType.UnsignedShort, IntPtr.Zero);
+                        GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+                    }
+                    else GL.DrawArrays(DrawMode, 0, VertexCount);
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+                    GL.BindVertexArray(0);
+
+                    foreach (var texture in shaderTextures)
+                    {
+                        texture.Unbind(this);
+                    }
+                }
+            }
+        }
+
+        public void Update(FrameEventArgs e)
         {
             if (Enabled)
             {
@@ -227,32 +260,9 @@ namespace Bonsai.Shaders
                     action();
                 }
 
-                if (VertexCount > 0)
+                if (AutoDraw)
                 {
-                    for (int i = 0; i < Iterations; i++)
-                    {
-                        foreach (var texture in shaderTextures)
-                        {
-                            texture.Bind(this);
-                        }
-
-                        GL.BindVertexArray(vao);
-                        GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-                        if (eao > 0)
-                        {
-                            GL.BindBuffer(BufferTarget.ElementArrayBuffer, eao);
-                            GL.DrawElements(DrawMode, VertexCount, DrawElementsType.UnsignedShort, IntPtr.Zero);
-                            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-                        }
-                        else GL.DrawArrays(DrawMode, 0, VertexCount);
-                        GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-                        GL.BindVertexArray(0);
-
-                        foreach (var texture in shaderTextures)
-                        {
-                            texture.Unbind(this);
-                        }   
-                    }
+                    Draw();
                 }
             }
         }

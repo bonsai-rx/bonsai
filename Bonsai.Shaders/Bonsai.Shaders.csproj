@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlendFunctionState.cs" />
+    <Compile Include="DrawShader.cs" />
     <Compile Include="Input\Keyboard.cs" />
     <Compile Include="Input\GamePad.cs" />
     <Compile Include="Input\Mouse.cs" />

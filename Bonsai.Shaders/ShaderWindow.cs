@@ -105,7 +105,7 @@ namespace Bonsai.Shaders
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             foreach (var shader in shaders)
             {
-                shader.RenderFrame(e);
+                shader.Update(e);
             }
 
             lock (syncRoot)
