@@ -60,7 +60,7 @@ namespace Bonsai.Vision.Design
                                          rectangle.Y = Math.Min(rectangle.Y, rectangle.Y + rectangle.Height);
                                          rectangle.Width = Math.Abs(rectangle.Width);
                                          rectangle.Height = Math.Abs(rectangle.Height);
-                                         rectangle = ClipRectangle(rectangle);
+                                         rectangle = intersect ? FitRectangle(rectangle) : ClipRectangle(rectangle);
                                          UpdateRectangle(rectangle, previous);
                                      })).Switch();
 
@@ -100,6 +100,13 @@ namespace Bonsai.Vision.Design
             rect.Y = Math.Max(0, rect.Y);
             rect.Width = rect.Width - clipX;
             rect.Height = rect.Height - clipY;
+            return rect;
+        }
+
+        Rect FitRectangle(Rect rect)
+        {
+            rect.X += rect.X < 0 ? -rect.X : -Math.Max(0, rect.X + rect.Width - Image.Width);
+            rect.Y += rect.Y < 0 ? -rect.Y : -Math.Max(0, rect.Y + rect.Height - Image.Height);
             return rect;
         }
 
