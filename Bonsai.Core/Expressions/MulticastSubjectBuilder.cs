@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,13 +12,13 @@ using System.Xml.Serialization;
 namespace Bonsai.Expressions
 {
     /// <summary>
-    /// Represents an expression builder that generates a sequence of values
-    /// by subscribing to a shared subject.
+    /// Represents an expression builder that pushes a sequence of values
+    /// into a shared subject.
     /// </summary>
-    [WorkflowElementCategory(ElementCategory.Source)]
-    [XmlType("SubscribeSubject", Namespace = Constants.XmlNamespace)]
-    [Description("Generates a sequence of values by subscribing to a shared subject.")]
-    public class SubscribeSubjectBuilder : ZeroArgumentExpressionBuilder, INamedElement, IRequireBuildContext
+    [WorkflowElementCategory(ElementCategory.Sink)]
+    [XmlType("MulticastSubject", Namespace = Constants.XmlNamespace)]
+    [Description("Pushes a sequence of values into a shared subject.")]
+    public class MulticastSubjectBuilder : SingleArgumentExpressionBuilder, INamedElement, IRequireBuildContext
     {
         BuildContext buildContext;
 
@@ -57,14 +58,15 @@ namespace Bonsai.Expressions
                 throw new InvalidOperationException("A valid variable name must be specified.");
             }
 
+            var source = arguments.First();
             var subjectExpression = buildContext.GetVariable(name);
             var parameterType = subjectExpression.Type.GetGenericArguments()[0];
-            return Expression.Call(typeof(SubscribeSubjectBuilder), "Process", new[] { parameterType }, subjectExpression);
+            return Expression.Call(typeof(MulticastSubjectBuilder), "Process", new[] { parameterType }, source, subjectExpression);
         }
 
-        static IObservable<TSource> Process<TSource>(ISubject<TSource> subject)
+        static IObservable<TSource> Process<TSource>(IObservable<TSource> source, ISubject<TSource> subject)
         {
-            return subject;
+            return source.Do(subject.OnNext);
         }
     }
 }
