@@ -24,6 +24,7 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(SelectManyBuilder))]
     [XmlInclude(typeof(PublishBuilder))]
     [XmlInclude(typeof(ReplayBuilder))]
+    [XmlInclude(typeof(BehaviorSubjectBuilder))]
     [XmlInclude(typeof(ReplaySubjectBuilder))]
     [XmlInclude(typeof(PublishSubjectBuilder))]
     [XmlInclude(typeof(SubscribeSubjectBuilder))]
@@ -112,6 +113,19 @@ namespace Bonsai.Expressions
             if (combinatorBuilder != null) return combinatorBuilder.Combinator;
 
             return builder;
+        }
+
+        internal static Type GetWorkflowPropertyType(Type expressionType)
+        {
+            if (expressionType == typeof(bool)) return typeof(BooleanProperty);
+            if (expressionType == typeof(int)) return typeof(IntProperty);
+            if (expressionType == typeof(float)) return typeof(FloatProperty);
+            if (expressionType == typeof(double)) return typeof(DoubleProperty);
+            if (expressionType == typeof(string)) return typeof(StringProperty);
+            if (expressionType == typeof(DateTime)) return typeof(DateTimeProperty);
+            if (expressionType == typeof(TimeSpan)) return typeof(TimeSpanProperty);
+            if (expressionType == typeof(DateTimeOffset)) return typeof(DateTimeOffsetProperty);
+            return typeof(WorkflowProperty<>).MakeGenericType(expressionType);
         }
 
         internal static object GetPropertyMappingElement(ExpressionBuilder builder)
