@@ -34,7 +34,7 @@ namespace Bonsai.Shaders
 #version 410
 layout(location = 0) in vec3 vp;
 layout(location = 1) in vec2 vt;
-layout(location = 2) out vec3 vn;
+layout(location = 2) in vec3 vn;
 out vec2 tex_coord;
 out vec3 normal;
 uniform mat4 mvp;
