@@ -30,6 +30,7 @@ namespace Bonsai.Shaders
                 for (int i = 0; i < values.Length; i++)
                 {
                     int value;
+                    if (string.IsNullOrEmpty(values[i])) continue;
                     if (!int.TryParse(values[i], NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
                     {
                         throw new InvalidOperationException(string.Format(
@@ -139,7 +140,10 @@ namespace Bonsai.Shaders
                             if (!indexMap.TryGetValue(face, out index))
                             {
                                 AddVertexAttribute(position, face.V, vertices);
-                                AddVertexAttribute(texCoord, face.VT, vertices);
+                                if (texCoord != null)
+                                {
+                                    AddVertexAttribute(texCoord, face.VT, vertices);
+                                }
                                 AddVertexAttribute(normals, face.VN, vertices);
                                 index = vertexCount++;
                                 indexMap.Add(face, index);
