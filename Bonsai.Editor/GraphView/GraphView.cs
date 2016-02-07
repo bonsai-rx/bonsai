@@ -25,8 +25,7 @@ namespace Bonsai.Design
         const int HalfSize = NodeSize / 2;
         const int IconOffset = HalfSize - (IconSize / 2);
         const int LabelTextOffset = (int)(5 * DrawScale);
-        static readonly SizeF TextOffset = new SizeF(9 * DrawScale, 9 * DrawScale);
-        static readonly SizeF VectorTextOffset = new SizeF(11.3f * DrawScale, 8.3f * DrawScale);
+        static readonly SizeF VectorTextOffset = new SizeF(0, 1.375f * DrawScale);
         static readonly Size EntryOffset = new Size(-PenWidth / 2, NodeSize / 2);
         static readonly Size ExitOffset = new Size(NodeSize + PenWidth / 2, NodeSize / 2);
         static readonly Pen RubberBandPen = new Pen(Color.FromArgb(51, 153, 255));
@@ -36,6 +35,11 @@ namespace Bonsai.Design
         static readonly Pen WhitePen = new Pen(Brushes.White, PenWidth);
         static readonly Pen BlackPen = new Pen(Brushes.Black, PenWidth);
         static readonly StringFormat TextFormat = new StringFormat(StringFormatFlags.NoWrap);
+        static readonly StringFormat CenteredTextFormat = new StringFormat(StringFormat.GenericTypographic)
+        {
+            Alignment = StringAlignment.Center,
+            LineAlignment = StringAlignment.Center
+        };
         static readonly StringFormat VectorTextFormat = new StringFormat(StringFormat.GenericTypographic)
         {
             FormatFlags = StringFormatFlags.NoWrap,
@@ -972,7 +976,10 @@ namespace Bonsai.Design
                             graphics.DrawString(
                                 layout.Label.Substring(0, 1),
                                 Font, textBrush,
-                                PointF.Add(layout.Location, VectorTextOffset));
+                                new RectangleF(
+                                    nodeRectangle.Location,
+                                    SizeF.Add(nodeRectangle.Size, VectorTextOffset)),
+                                CenteredTextFormat);
                         }
 
                         var labelRect = layout.LabelRectangle;
@@ -1050,7 +1057,7 @@ namespace Bonsai.Design
                         e.Graphics.DrawString(
                             layout.Label.Substring(0, 1),
                             Font, textBrush,
-                            PointF.Add(layout.Location, SizeF.Add(offset, TextOffset)));
+                            nodeRectangle, CenteredTextFormat);
                     }
 
                     if (TextDrawMode == GraphViewTextDrawMode.All || layout.Node == hot)
