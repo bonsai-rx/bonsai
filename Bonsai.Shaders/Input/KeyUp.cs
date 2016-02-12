@@ -18,7 +18,8 @@ namespace Bonsai.Shaders.Input
         {
             return ShaderManager.WindowSource.SelectMany(window => Observable.FromEventPattern<KeyboardKeyEventArgs>(
                 handler => window.KeyUp += handler,
-                handler => window.KeyUp -= handler));
+                handler => window.KeyUp -= handler)
+                .TakeUntil(window.WindowClosed()));
         }
     }
 }

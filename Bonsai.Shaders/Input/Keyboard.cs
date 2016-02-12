@@ -23,8 +23,9 @@ namespace Bonsai.Shaders.Input
         {
             return ShaderManager.WindowSource.SelectMany(window => Observable.FromEventPattern<FrameEventArgs>(
                 handler => window.UpdateFrame += handler,
-                handler => window.UpdateFrame -= handler))
-                .Select(evt => GetKeyboardState(Index));
+                handler => window.UpdateFrame -= handler)
+                .Select(evt => GetKeyboardState(Index))
+                .TakeUntil(window.WindowClosed()));
         }
 
         public IObservable<KeyboardState> Generate<TSource>(IObservable<TSource> source)

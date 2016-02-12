@@ -18,7 +18,8 @@ namespace Bonsai.Shaders
         {
             return ShaderManager.WindowSource.SelectMany(window => Observable.FromEventPattern<FrameEventArgs>(
                 handler => window.UpdateFrame += handler,
-                handler => window.UpdateFrame -= handler));
+                handler => window.UpdateFrame -= handler)
+                .TakeUntil(window.WindowClosed()));
         }
     }
 }
