@@ -32,6 +32,7 @@ namespace Bonsai.Shaders
                     {
                         observer.OnNext(window);
                         window.Run();
+                        observer.OnCompleted();
                     }
                 },
                 cancellationToken,

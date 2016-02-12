@@ -18,7 +18,8 @@ namespace Bonsai.Shaders.Input
         {
             return ShaderManager.WindowSource.SelectMany(window => Observable.FromEventPattern<MouseWheelEventArgs>(
                 handler => window.MouseWheel += handler,
-                handler => window.MouseWheel -= handler));
+                handler => window.MouseWheel -= handler)
+                .TakeUntil(window.WindowClosed()));
         }
     }
 }

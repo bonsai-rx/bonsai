@@ -23,8 +23,9 @@ namespace Bonsai.Shaders.Input
         {
             return ShaderManager.WindowSource.SelectMany(window => Observable.FromEventPattern<FrameEventArgs>(
                 handler => window.UpdateFrame += handler,
-                handler => window.UpdateFrame -= handler))
-                .Select(evt => GetMouseState(Index));
+                handler => window.UpdateFrame -= handler)
+                .Select(evt => GetMouseState(Index))
+                .TakeUntil(window.WindowClosed()));
         }
 
         public IObservable<MouseState> Generate<TSource>(IObservable<TSource> source)
