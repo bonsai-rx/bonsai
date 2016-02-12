@@ -114,6 +114,7 @@
     <Compile Include="VertexHelper.cs" />
     <Compile Include="ViewportState.cs" />
     <Compile Include="WarpPerspective.cs" />
+    <Compile Include="WindowClosed.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Bonsai.Shaders.nuspec">
