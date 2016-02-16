@@ -23,6 +23,7 @@ using System.Reactive;
 using System.Diagnostics;
 using System.Reflection;
 using System.Globalization;
+using System.Reactive.Subjects;
 
 namespace Bonsai.Editor
 {
@@ -53,6 +54,10 @@ namespace Bonsai.Editor
         List<TreeNode> treeCache;
         Label statusTextLabel;
         Bitmap statusReadyImage;
+        ToolStripButton statusUpdateAvailableLabel;
+        BehaviorSubject<bool> updatesAvailable;
+        object formClosedGate;
+        bool formClosed;
 
         XmlSerializer serializer;
         XmlSerializer layoutSerializer;
@@ -74,6 +79,13 @@ namespace Bonsai.Editor
             statusTextLabel = new Label();
             statusTextLabel.AutoSize = true;
             statusTextLabel.Text = Resources.ReadyStatus;
+            formClosedGate = new object();
+            updatesAvailable = new BehaviorSubject<bool>(false);
+            statusUpdateAvailableLabel = new ToolStripButton();
+            statusUpdateAvailableLabel.Click += packageManagerToolStripMenuItem_Click;
+            statusUpdateAvailableLabel.ToolTipText = Resources.PackageUpdatesAvailable_Notification;
+            statusUpdateAvailableLabel.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            statusUpdateAvailableLabel.Image = Resources.StatusUpdateAvailable;
             statusReadyImage = Resources.StatusReadyImage;
             searchTextBox.CueBanner = Resources.SearchModuleCueBanner;
             statusStrip.Items.Add(new ToolStripControlHost(statusTextLabel));
@@ -123,6 +135,12 @@ namespace Bonsai.Editor
         public bool LaunchPackageManager { get; set; }
 
         public string InitialFileName { get; set; }
+
+        public bool UpdatesAvailable
+        {
+            get { return updatesAvailable.Value; }
+            set { updatesAvailable.OnNext(value); }
+        }
 
         public bool StartOnLoad { get; set; }
 
@@ -185,6 +203,21 @@ namespace Bonsai.Editor
             EditorSettings.Instance.Save();
         }
 
+        void HandleUpdatesAvailable(bool value)
+        {
+            lock (formClosedGate)
+            {
+                if (!formClosed)
+                {
+                    BeginInvoke((Action)(() =>
+                    {
+                        if (value) toolStrip.Items.Add(statusUpdateAvailableLabel);
+                        else toolStrip.Items.Remove(statusUpdateAvailableLabel);
+                    }));
+                }
+            }
+        }
+
         protected override void OnLoad(EventArgs e)
         {
             RestoreEditorBounds();
@@ -221,6 +254,7 @@ namespace Bonsai.Editor
 
             initialization.Subscribe();
             RefreshWorkflowElements().Subscribe();
+            updatesAvailable.Subscribe(HandleUpdatesAvailable);
             base.OnLoad(e);
         }
 
@@ -236,6 +270,7 @@ namespace Bonsai.Editor
 
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
+            lock (formClosedGate) { formClosed = true; }
             Action closeEditor = CloseEditorForm;
             if (InvokeRequired) Invoke(closeEditor);
             else closeEditor();

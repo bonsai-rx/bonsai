@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -31,6 +32,16 @@ namespace Bonsai
             }
         }
 
+        static LicenseAwarePackageManager CreatePackageManager(string path)
+        {
+            var logger = new EventLogger();
+            var machineWideSettings = new BonsaiMachineWideSettings();
+            var settings = Settings.LoadDefaultSettings(null, null, machineWideSettings);
+            var sourceProvider = new PackageSourceProvider(settings);
+            var sourceRepository = sourceProvider.CreateAggregateRepository(PackageRepositoryFactory.Default, true);
+            return new LicenseAwarePackageManager(sourceRepository, path) { Logger = logger };
+        }
+
         internal static IPackage LaunchEditorBootstrapper(
             PackageConfiguration packageConfiguration,
             string editorRepositoryPath,
@@ -39,13 +50,7 @@ namespace Bonsai
             SemanticVersion editorPackageVersion,
             ref bool launchPackageManager)
         {
-            var logger = new EventLogger();
-            var machineWideSettings = new BonsaiMachineWideSettings();
-            var settings = Settings.LoadDefaultSettings(null, null, machineWideSettings);
-            var sourceProvider = new PackageSourceProvider(settings);
-            var sourceRepository = sourceProvider.CreateAggregateRepository(PackageRepositoryFactory.Default, true);
-            var packageManager = new LicenseAwarePackageManager(sourceRepository, editorRepositoryPath) { Logger = logger };
-
+            var packageManager = CreatePackageManager(editorRepositoryPath);
             var editorPackage = packageManager.LocalRepository.FindPackage(editorPackageId);
             if (editorPackage == null)
             {
@@ -129,12 +134,19 @@ namespace Bonsai
 
         internal static int LaunchWorkflowEditor(
             PackageConfiguration packageConfiguration,
+            string editorRepositoryPath,
             string initialFileName,
             bool start,
             Dictionary<string, string> propertyAssignments)
         {
             var elementProvider = WorkflowElementLoader.GetWorkflowElementTypes(packageConfiguration);
             var visualizerProvider = TypeVisualizerLoader.GetTypeVisualizerDictionary(packageConfiguration);
+            var packageManager = CreatePackageManager(editorRepositoryPath);
+            var updatesAvailable = Observable.Start(() => packageManager.SourceRepository.GetUpdates(
+                packageManager.LocalRepository.GetPackages(),
+                includePrerelease: false,
+                includeAllVersions: false).Any())
+                .Catch(Observable.Return(false));
 
             EnableVisualStyles();
             var mainForm = new MainForm(elementProvider, visualizerProvider)
@@ -143,6 +155,7 @@ namespace Bonsai
                 StartOnLoad = start
             };
             mainForm.PropertyAssignments.AddRange(propertyAssignments);
+            updatesAvailable.Subscribe(value => mainForm.UpdatesAvailable = value);
             Application.Run(mainForm);
             return mainForm.LaunchPackageManager ? Program.RequirePackageManagerExitCode : Program.NormalExitCode;
         }

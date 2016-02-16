@@ -216,4 +216,16 @@ Copyright 2010-2012 Outercurve Foundation</value>
     <value>There was an error saving the visualizer layout:
 {0}</value>
   </data>
+  <data name="StatusUpdateAvailable" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        wwAADsMBx2+oZAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAAKdJREFUOE+lkMEN
+        wyAQBCktooV8U4KLyTuklnxSkJ0P300WaZ3jwDaSLY18HLeDTQDQkHPG7f5CuD4LrNnzc6Rp+PCRpFps
+        hUVP8i9+Dzc1PD3eVVD1kEAn2ZAkjYANi8LECvyeKIKUEmKM5V1tOgHxs0ENiw1Y/Byz1S/0ZB6dLNbL
+        UINDy/wpKGTXmlsv0QguowJlSFewx5Dg9BecFuxxKBhBGQDhC/DB5AQ227rCAAAAAElFTkSuQmCC
+</value>
+  </data>
+  <data name="PackageUpdatesAvailable_Notification" xml:space="preserve">
+    <value>Package updates are available</value>
+  </data>
 </root>
