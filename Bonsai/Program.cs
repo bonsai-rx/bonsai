@@ -82,7 +82,7 @@ namespace Bonsai
                     libFolders.ForEach(path => Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, path));
                     Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
                     if (!launchEditor) Launcher.LaunchWorkflowPlayer(initialFileName, propertyAssignments);
-                    else return Launcher.LaunchWorkflowEditor(packageConfiguration, initialFileName, start, propertyAssignments);
+                    else return Launcher.LaunchWorkflowEditor(packageConfiguration, editorRepositoryPath, initialFileName, start, propertyAssignments);
                 }
             }
             else
