@@ -166,7 +166,7 @@ namespace Bonsai.Expressions
                 var operand = Operand;
                 if (operand == null || operand.PropertyType != expression.Type)
                 {
-                    var propertyType = GetPropertyType(expression.Type);
+                    var propertyType = GetWorkflowPropertyType(expression.Type);
                     Operand = operand = (WorkflowProperty)Activator.CreateInstance(propertyType);
                 }
 
@@ -176,19 +176,6 @@ namespace Bonsai.Expressions
             }
 
             return ConvertAndBuildSelector(left, right);
-        }
-
-        static Type GetPropertyType(Type expressionType)
-        {
-            if (expressionType == typeof(bool)) return typeof(BooleanProperty);
-            if (expressionType == typeof(int)) return typeof(IntProperty);
-            if (expressionType == typeof(float)) return typeof(FloatProperty);
-            if (expressionType == typeof(double)) return typeof(DoubleProperty);
-            if (expressionType == typeof(string)) return typeof(StringProperty);
-            if (expressionType == typeof(DateTime)) return typeof(DateTimeProperty);
-            if (expressionType == typeof(TimeSpan)) return typeof(TimeSpanProperty);
-            if (expressionType == typeof(DateTimeOffset)) return typeof(DateTimeOffsetProperty);
-            return typeof(WorkflowProperty<>).MakeGenericType(expressionType);
         }
     }
 }
