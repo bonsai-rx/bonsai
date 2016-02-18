@@ -31,7 +31,7 @@ namespace Bonsai.Shaders
                     ShaderName));
             }
 
-            shader.Update(() =>
+            shader.Window.Update(() =>
             {
                 var textureUnit = referenceShader.TextureUnits.FirstOrDefault(t => t.Name == TextureName);
                 if (textureUnit == null)
