@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
@@ -17,6 +18,7 @@ namespace Bonsai.Shaders
         List<Shader> shaders = new List<Shader>();
         const string DefaultTitle = "Bonsai Shader Window";
         static readonly object syncRoot = string.Intern("A1105A50-BBB0-4EC6-B8B2-B5EF38A9CC3E");
+        event Action update;
 
         public ShaderWindow(ShaderWindowSettings configuration)
             : base(configuration.Width, configuration.Height, GraphicsMode.Default,
@@ -69,6 +71,11 @@ namespace Bonsai.Shaders
                 (int)(viewport.Height * height));
         }
 
+        internal void Update(Action action)
+        {
+            update += action;
+        }
+
         protected override void OnLoad(EventArgs e)
         {
             foreach (var shader in shaders)
@@ -97,6 +104,17 @@ namespace Bonsai.Shaders
         {
             UpdateViewport();
             base.OnResize(e);
+        }
+
+        protected override void OnUpdateFrame(FrameEventArgs e)
+        {
+            var action = Interlocked.Exchange(ref update, null);
+            if (action != null)
+            {
+                action();
+            }
+
+            base.OnUpdateFrame(e);
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)

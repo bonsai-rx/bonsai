@@ -211,30 +211,17 @@ namespace Bonsai.Shaders
         {
             if (VertexCount > 0)
             {
-                for (int i = 0; i < Iterations; i++)
+                GL.BindVertexArray(vao);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+                if (eao > 0)
                 {
-                    foreach (var texture in shaderTextures)
-                    {
-                        texture.Bind(this);
-                    }
-
-                    GL.BindVertexArray(vao);
-                    GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-                    if (eao > 0)
-                    {
-                        GL.BindBuffer(BufferTarget.ElementArrayBuffer, eao);
-                        GL.DrawElements(DrawMode, VertexCount, DrawElementsType.UnsignedShort, IntPtr.Zero);
-                        GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-                    }
-                    else GL.DrawArrays(DrawMode, 0, VertexCount);
-                    GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-                    GL.BindVertexArray(0);
-
-                    foreach (var texture in shaderTextures)
-                    {
-                        texture.Unbind(this);
-                    }
+                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, eao);
+                    GL.DrawElements(DrawMode, VertexCount, DrawElementsType.UnsignedShort, IntPtr.Zero);
+                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
                 }
+                else GL.DrawArrays(DrawMode, 0, VertexCount);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+                GL.BindVertexArray(0);
             }
         }
 
@@ -255,14 +242,27 @@ namespace Bonsai.Shaders
                 }
 
                 var action = Interlocked.Exchange(ref update, null);
-                if (action != null)
+                for (int i = 0; i < Iterations; i++)
                 {
-                    action();
-                }
+                    foreach (var texture in shaderTextures)
+                    {
+                        texture.Bind(this);
+                    }
 
-                if (AutoDraw)
-                {
-                    Draw();
+                    if (action != null)
+                    {
+                        action();
+                    }
+
+                    if (AutoDraw)
+                    {
+                        Draw();
+                    }
+
+                    foreach (var texture in shaderTextures)
+                    {
+                        texture.Unbind(this);
+                    }
                 }
             }
         }
