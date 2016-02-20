@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenTK.Graphics.OpenGL4;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing.Design;
@@ -16,13 +17,21 @@ namespace Bonsai.Shaders
         [Editor("Bonsai.Shaders.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string ShaderName { get; set; }
 
+        [Description("Specifies the kind of primitives to render with the shader vertex data.")]
+        public PrimitiveType? DrawMode { get; set; }
+
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
             return source.CombineEither(
                 ShaderManager.ReserveShader(ShaderName),
                 (input, shader) =>
                 {
-                    shader.Update(() => shader.Draw());
+                    shader.Update(() =>
+                    {
+                        var drawMode = DrawMode;
+                        if(drawMode.HasValue) shader.DrawMode = drawMode.Value;
+                        shader.Draw();
+                    });
                     return input;
                 });
         }
