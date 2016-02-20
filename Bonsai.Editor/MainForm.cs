@@ -641,7 +641,7 @@ namespace Bonsai.Editor
             try { workflowBuilder = LoadWorkflow(fileName, out version); }
             catch (InvalidOperationException ex)
             {
-                var errorMessage = string.Format(Resources.OpenWorkflow_Error, ex.InnerException.Message);
+                var errorMessage = string.Format(Resources.OpenWorkflow_Error, ex.InnerException != null ? ex.InnerException.Message : ex.Message);
                 MessageBox.Show(this, errorMessage, Resources.OpenWorkflow_Error_Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
@@ -697,7 +697,7 @@ namespace Bonsai.Editor
                 var writerException = ex.InnerException as InvalidOperationException;
                 if (writerException != null) ex = writerException;
 
-                var errorMessage = string.Format(error, ex.InnerException.Message);
+                var errorMessage = string.Format(error, ex.InnerException != null ? ex.InnerException.Message : ex.Message);
                 MessageBox.Show(this, errorMessage, Resources.SaveElement_Error_Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
