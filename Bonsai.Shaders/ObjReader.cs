@@ -163,7 +163,6 @@ namespace Bonsai.Shaders
             stride = stride * BlittableValueType<float>.Stride;
 
             shader.EnsureElementArray();
-            shader.DrawMode = PrimitiveType.Triangles;
             shader.VertexCount = indices.Count;
             GL.BindVertexArray(shader.VertexArray);
             GL.BindBuffer(BufferTarget.ArrayBuffer, shader.VertexBuffer);

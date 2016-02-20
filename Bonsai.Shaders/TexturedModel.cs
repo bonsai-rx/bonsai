@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenTK.Graphics.OpenGL4;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing.Design;
@@ -12,6 +13,7 @@ namespace Bonsai.Shaders
     {
         public TexturedModel()
         {
+            DrawMode = PrimitiveType.Triangles;
             VertexShader = DefaultVertexShader;
             FragmentShader = DefaultFragmentShader;
         }
@@ -21,11 +23,15 @@ namespace Bonsai.Shaders
         [Description("The name of the model file.")]
         public string FileName { get; set; }
 
+        [Description("Specifies the kind of primitives to render with the vertex buffer data.")]
+        public PrimitiveType DrawMode { get; set; }
+
         internal override void Configure(Shader shader)
         {
             base.Configure(shader);
             shader.Update(() =>
             {
+                shader.DrawMode = DrawMode;
                 ObjReader.ReadObject(shader, FileName);
             });
         }
