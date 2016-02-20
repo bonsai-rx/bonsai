@@ -21,7 +21,7 @@ namespace Bonsai.Shaders
         public string ShaderName { get; set; }
 
         [Description("Specifies the kind of primitives to render with the vertex buffer data.")]
-        public PrimitiveType DrawMode { get; set; }
+        public PrimitiveType? DrawMode { get; set; }
 
         static int GetAttribPointerChannels(ActiveAttribType type)
         {
@@ -117,7 +117,8 @@ namespace Bonsai.Shaders
                         {
                             shader.Update(() =>
                             {
-                                shader.DrawMode = DrawMode;
+                                var drawMode = DrawMode;
+                                if (drawMode.HasValue) shader.DrawMode = drawMode.Value;
                                 shader.VertexCount = VertexHelper.UpdateVertexBuffer(shader.VertexBuffer, channelCount, buffer);
                                 Interlocked.Exchange(ref buffer, null);
                             });
@@ -152,7 +153,8 @@ namespace Bonsai.Shaders
                         {
                             shader.Update(() =>
                             {
-                                shader.DrawMode = DrawMode;
+                                var drawMode = DrawMode;
+                                if (drawMode.HasValue) shader.DrawMode = drawMode.Value;
                                 shader.VertexCount = ProcessBuffer(shader.VertexBuffer, channelCount, buffer);
                                 Interlocked.Exchange(ref buffer, null);
                             });
