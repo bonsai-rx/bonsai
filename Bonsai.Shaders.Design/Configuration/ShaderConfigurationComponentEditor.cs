@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Bonsai.Shaders.Design
+namespace Bonsai.Shaders.Configuration.Design
 {
     public class ShaderConfigurationComponentEditor : WorkflowComponentEditor
     {

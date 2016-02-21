@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bonsai.Shaders.Design
+namespace Bonsai.Shaders.Configuration.Design
 {
     public class ShaderConfigurationControl : ConfigurationControl
     {

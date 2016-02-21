@@ -13,7 +13,7 @@ namespace Bonsai.Shaders
     public class UpdateShaderState : Sink
     {
         [Description("The name of the shader program.")]
-        [Editor("Bonsai.Shaders.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string ShaderName { get; set; }
 
         [Description("Specifies whether the shader program is active.")]

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace Bonsai.Shaders
+namespace Bonsai.Shaders.Configuration
 {
     [XmlInclude(typeof(PointSprite))]
     [XmlInclude(typeof(TexturedQuad))]
@@ -50,14 +50,14 @@ namespace Bonsai.Shaders
         public string FragmentShader { get; set; }
 
         [Category("State")]
-        [Editor("Bonsai.Shaders.Design.StateConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        [Editor("Bonsai.Shaders.Configuration.Design.StateConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public StateConfigurationCollection RenderState
         {
             get { return renderState; }
         }
 
         [Category("State")]
-        [Editor("Bonsai.Shaders.Design.TextureConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        [Editor("Bonsai.Shaders.Configuration.Design.TextureConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public TextureConfigurationCollection TextureUnits
         {
             get { return textureUnits; }

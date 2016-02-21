@@ -13,7 +13,7 @@ using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace Bonsai.Shaders.Design
+namespace Bonsai.Shaders.Configuration.Design
 {
     class ShaderConfigurationCollectionEditor : DescriptiveCollectionEditor
     {

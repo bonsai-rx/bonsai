@@ -21,7 +21,7 @@ namespace Bonsai.Shaders
         public string UniformName { get; set; }
 
         [Description("The name of the shader program.")]
-        [Editor("Bonsai.Shaders.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string ShaderName { get; set; }
 
         IObservable<TSource> Process<TSource>(IObservable<TSource> source, Action<int, TSource> update, ActiveUniformType type)

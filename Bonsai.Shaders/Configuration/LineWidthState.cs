@@ -5,20 +5,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bonsai.Shaders
+namespace Bonsai.Shaders.Configuration
 {
-    public class EnableState : StateConfiguration
+    public class LineWidthState : StateConfiguration
     {
-        public EnableCap Capability { get; set; }
+        public float Width { get; set; }
 
         public override void Execute(Shader shader)
         {
-            GL.Enable(Capability);
+            GL.LineWidth(Width);
         }
 
         public override string ToString()
         {
-            return string.Format("Enable({0})", Capability);
+            return string.Format("LineWidth({0})", Width);
         }
     }
 }

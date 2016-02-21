@@ -1,4 +1,5 @@
-﻿using OpenTK;
+﻿using Bonsai.Shaders.Configuration;
+using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
