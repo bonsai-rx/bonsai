@@ -35,13 +35,6 @@ namespace Bonsai.Shaders
                     throw new InvalidOperationException("A uniform variable name must be specified.");
                 }
 
-                var selector = default(Func<TSource>);
-                Action updateAction = () =>
-                {
-                    update(location, selector());
-                    Interlocked.Exchange(ref selector, null);
-                };
-
                 return source.CombineEither(
                     ShaderManager.ReserveShader(ShaderName).Do(shader =>
                     {
@@ -77,11 +70,7 @@ namespace Bonsai.Shaders
                     }),
                     (input, shader) =>
                     {
-                        Func<TSource> inputSelector = () => input;
-                        if (Interlocked.Exchange(ref selector, inputSelector) == null)
-                        {
-                            shader.Update(updateAction);
-                        }
+                        shader.Update(() => update(location, input));
                         return input;
                     });
             });

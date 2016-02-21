@@ -102,7 +102,6 @@ namespace Bonsai.Shaders
             return Observable.Defer(() =>
             {
                 var channelCount = 0;
-                var buffer = default(TVertex[]);
                 return source.CombineEither(
                     ShaderManager.ReserveShader(ShaderName).Do(shader =>
                     {
@@ -113,16 +112,12 @@ namespace Bonsai.Shaders
                     }),
                     (input, shader) =>
                     {
-                        if (Interlocked.Exchange(ref buffer, input) == null)
+                        shader.Update(() =>
                         {
-                            shader.Update(() =>
-                            {
-                                var drawMode = DrawMode;
-                                if (drawMode.HasValue) shader.DrawMode = drawMode.Value;
-                                shader.VertexCount = VertexHelper.UpdateVertexBuffer(shader.VertexBuffer, channelCount, buffer);
-                                Interlocked.Exchange(ref buffer, null);
-                            });
-                        }
+                            var drawMode = DrawMode;
+                            if (drawMode.HasValue) shader.DrawMode = drawMode.Value;
+                            shader.VertexCount = VertexHelper.UpdateVertexBuffer(shader.VertexBuffer, channelCount, input);
+                        });
                         return input;
                     });
             });
@@ -133,7 +128,6 @@ namespace Bonsai.Shaders
             return Observable.Defer(() =>
             {
                 var channelCount = 0;
-                var buffer = default(Mat);
                 return source.CombineEither(
                     ShaderManager.ReserveShader(ShaderName).Do(shader =>
                     {
@@ -149,16 +143,12 @@ namespace Bonsai.Shaders
                             throw new InvalidOperationException("The type of array elements must be 32-bit floating point.");
                         }
 
-                        if (Interlocked.Exchange(ref buffer, input) == null)
+                        shader.Update(() =>
                         {
-                            shader.Update(() =>
-                            {
-                                var drawMode = DrawMode;
-                                if (drawMode.HasValue) shader.DrawMode = drawMode.Value;
-                                shader.VertexCount = ProcessBuffer(shader.VertexBuffer, channelCount, buffer);
-                                Interlocked.Exchange(ref buffer, null);
-                            });
-                        }
+                            var drawMode = DrawMode;
+                            if (drawMode.HasValue) shader.DrawMode = drawMode.Value;
+                            shader.VertexCount = ProcessBuffer(shader.VertexBuffer, channelCount, input);
+                        });
                         return input;
                     });
             });
