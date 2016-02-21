@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace Bonsai.Shaders
+namespace Bonsai.Shaders.Configuration
 {
     [XmlInclude(typeof(Texture2D))]
     [XmlInclude(typeof(ImageTexture))]

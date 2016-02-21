@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Bonsai.Shaders
 {
     [Description("Produces a sequence of events whenever it is time to update a frame.")]
-    [Editor("Bonsai.Shaders.Design.ShaderConfigurationComponentEditor, Bonsai.Shaders.Design", typeof(ComponentEditor))]
+    [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationComponentEditor, Bonsai.Shaders.Design", typeof(ComponentEditor))]
     public class UpdateFrame : Source<EventPattern<FrameEventArgs>>
     {
         public override IObservable<EventPattern<FrameEventArgs>> Generate()

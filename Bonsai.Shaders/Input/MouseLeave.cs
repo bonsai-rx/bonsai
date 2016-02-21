@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Bonsai.Shaders.Input
 {
     [Description("Produces a sequence of events whenever the mouse cursor leaves the shader window bounds.")]
-    [Editor("Bonsai.Shaders.Design.ShaderConfigurationComponentEditor, Bonsai.Shaders.Design", typeof(ComponentEditor))]
+    [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationComponentEditor, Bonsai.Shaders.Design", typeof(ComponentEditor))]
     public class MouseLeave : Source<EventPattern<EventArgs>>
     {
         public override IObservable<EventPattern<EventArgs>> Generate()

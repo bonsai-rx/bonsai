@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace Bonsai.Shaders
+namespace Bonsai.Shaders.Configuration
 {
     [XmlRoot("ShaderConfigurationSettings")]
     public class ShaderConfigurationCollection : KeyedCollection<string, ShaderConfiguration>

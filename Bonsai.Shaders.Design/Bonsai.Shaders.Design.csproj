@@ -65,10 +65,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigurationEditorService.cs" />
-    <Compile Include="ShaderConfigurationCollectionEditor.cs" />
-    <Compile Include="ShaderConfigurationComponentEditor.cs" />
-    <Compile Include="TextureConfigurationCollectionEditor.cs" />
+    <Compile Include="Configuration\ConfigurationEditorService.cs" />
+    <Compile Include="Configuration\ShaderConfigurationCollectionEditor.cs" />
+    <Compile Include="Configuration\ShaderConfigurationComponentEditor.cs" />
+    <Compile Include="Configuration\TextureConfigurationCollectionEditor.cs" />
     <Compile Include="GlslScriptEditorDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -76,12 +76,12 @@
       <DependentUpon>GlslScriptEditorDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="GlslScriptEditor.cs" />
-    <Compile Include="ShaderConfigurationControl.cs">
+    <Compile Include="Configuration\ShaderConfigurationControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ShaderConfigurationEditor.cs" />
-    <Compile Include="StateConfigurationCollectionEditor.cs" />
+    <Compile Include="Configuration\ShaderConfigurationEditor.cs" />
+    <Compile Include="Configuration\StateConfigurationCollectionEditor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Bonsai.Shaders.Design.nuspec">

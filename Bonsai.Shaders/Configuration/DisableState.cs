@@ -5,20 +5,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bonsai.Shaders
+namespace Bonsai.Shaders.Configuration
 {
-    public class PointSizeState : StateConfiguration
+    public class DisableState : StateConfiguration
     {
-        public float Size { get; set; }
+        public EnableCap Capability { get; set; }
 
         public override void Execute(Shader shader)
         {
-            GL.PointSize(Size);
+            GL.Disable(Capability);
         }
 
         public override string ToString()
         {
-            return string.Format("PointSize({0})", Size);
+            return string.Format("Disable({0})", Capability);
         }
     }
 }

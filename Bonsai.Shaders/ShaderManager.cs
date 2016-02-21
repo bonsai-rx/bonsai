@@ -1,4 +1,5 @@
-﻿using OpenTK;
+﻿using Bonsai.Shaders.Configuration;
+using OpenTK;
 using OpenTK.Graphics;
 using System;
 using System.Collections.Generic;

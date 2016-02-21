@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Bonsai.Shaders.Input
 {
     [Description("Produces a sequence of events whenever the mouse is moved over the shader window.")]
-    [Editor("Bonsai.Shaders.Design.ShaderConfigurationComponentEditor, Bonsai.Shaders.Design", typeof(ComponentEditor))]
+    [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationComponentEditor, Bonsai.Shaders.Design", typeof(ComponentEditor))]
     public class MouseMove : Source<EventPattern<MouseMoveEventArgs>>
     {
         public override IObservable<EventPattern<MouseMoveEventArgs>> Generate()

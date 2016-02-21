@@ -17,7 +17,7 @@ namespace Bonsai.Shaders
     public class UpdateVertexBuffer : Sink<Mat>
     {
         [Description("The name of the shader program.")]
-        [Editor("Bonsai.Shaders.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string ShaderName { get; set; }
 
         [Description("Specifies the kind of primitives to render with the vertex buffer data.")]

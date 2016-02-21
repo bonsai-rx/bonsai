@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 
-namespace Bonsai.Shaders.Design
+namespace Bonsai.Shaders.Configuration.Design
 {
     //TODO: Consider removing class duplication by exposing editor service in Bonsai.Design project.
     class ConfigurationEditorService : IWindowsFormsEditorService, IServiceProvider, ITypeDescriptorContext

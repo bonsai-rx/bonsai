@@ -22,7 +22,7 @@ namespace Bonsai.Shaders
         }
 
         [Description("The name of the shader program.")]
-        [Editor("Bonsai.Shaders.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string ShaderName { get; set; }
 
         public string TextureName { get; set; }

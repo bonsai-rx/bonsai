@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Bonsai.Shaders
 {
     [Description("Produces a sequence of events whenever the shader window is closed.")]
-    [Editor("Bonsai.Shaders.Design.ShaderConfigurationComponentEditor, Bonsai.Shaders.Design", typeof(ComponentEditor))]
+    [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationComponentEditor, Bonsai.Shaders.Design", typeof(ComponentEditor))]
     public class WindowClosed : Source<EventPattern<EventArgs>>
     {
         public override IObservable<EventPattern<EventArgs>> Generate()
