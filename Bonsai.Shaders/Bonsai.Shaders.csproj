@@ -60,6 +60,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\BlendFunctionState.cs" />
+    <Compile Include="CreatePerspectiveFieldOfView.cs" />
+    <Compile Include="CreateAxisAngleRotation.cs" />
+    <Compile Include="CreateScale.cs" />
+    <Compile Include="CreateTranslation.cs" />
+    <Compile Include="CreateLookAt.cs" />
+    <Compile Include="CreateVector3.cs" />
     <Compile Include="SampleOnUpdateFrame.cs" />
     <Compile Include="ShaderWindowExtensions.cs" />
     <Compile Include="DrawShader.cs" />
