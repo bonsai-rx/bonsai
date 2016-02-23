@@ -29,6 +29,8 @@ namespace Bonsai.Shaders
             Title = configuration.Title ?? DefaultTitle;
             WindowState = configuration.WindowState;
             Viewport = new RectangleF(0, 0, 1, 1);
+            TargetRenderFrequency = configuration.TargetRenderFrequency;
+            TargetUpdateFrequency = configuration.TargetRenderFrequency;
             foreach (var shaderConfiguration in configuration.Shaders)
             {
                 var shader = new Shader(

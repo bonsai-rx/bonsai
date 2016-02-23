@@ -32,6 +32,8 @@ namespace Bonsai.Shaders.Configuration
 
         public DisplayIndex DisplayDevice { get; set; }
 
+        public double TargetRenderFrequency { get; set; }
+
         public ShaderConfigurationCollection Shaders
         {
             get { return shaders; }
