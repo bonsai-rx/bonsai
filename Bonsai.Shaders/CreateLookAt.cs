@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
+    [Description("Creates a view matrix representing a camera looking at a target position.")]
     public class CreateLookAt : Source<Matrix4>
     {
         Vector3 eye;
@@ -21,6 +22,7 @@ namespace Bonsai.Shaders
         }
 
         [TypeConverter("OpenCV.Net.NumericAggregateConverter, OpenCV.Net")]
+        [Description("The eye, or camera position, in the world coordinate frame.")]
         public Vector3 Eye
         {
             get { return eye; }
@@ -28,6 +30,7 @@ namespace Bonsai.Shaders
         }
 
         [TypeConverter("OpenCV.Net.NumericAggregateConverter, OpenCV.Net")]
+        [Description("The target position in the world coordinate frame.")]
         public Vector3 Target
         {
             get { return target; }
@@ -35,6 +38,7 @@ namespace Bonsai.Shaders
         }
 
         [TypeConverter("OpenCV.Net.NumericAggregateConverter, OpenCV.Net")]
+        [Description("The up vector of the camera, in the world coordinate frame. Should not be parallel to the camera direction.")]
         public Vector3 Up
         {
             get { return up; }

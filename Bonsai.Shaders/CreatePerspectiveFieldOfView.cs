@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
+    [Description("Creates a perspective projection matrix from field of view information.")]
     public class CreatePerspectiveFieldOfView : Source<Matrix4>
     {
         [Description("The angle of the field of view in the y direction, in radians.")]

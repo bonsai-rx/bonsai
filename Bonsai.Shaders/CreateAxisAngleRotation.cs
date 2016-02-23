@@ -9,11 +9,14 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
+    [Description("Creates a rotation matrix from an axis-angle representation.")]
     public class CreateAxisAngleRotation : Source<Matrix4>
     {
         [TypeConverter("OpenCV.Net.NumericAggregateConverter, OpenCV.Net")]
+        [Description("The vector specifying the direction of the axis of rotation.")]
         public Vector3 Axis { get; set; }
 
+        [Description("The angle describing the magnitude of the rotation about the axis.")]
         public float Angle { get; set; }
 
         public override IObservable<Matrix4> Generate()
