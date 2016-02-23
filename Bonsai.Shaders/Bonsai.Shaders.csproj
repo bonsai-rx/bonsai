@@ -60,6 +60,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\BlendFunctionState.cs" />
+    <Compile Include="CreateRotationZ.cs" />
+    <Compile Include="CreateRotationY.cs" />
+    <Compile Include="CreateRotationX.cs" />
     <Compile Include="CreateQuaternionRotation.cs" />
     <Compile Include="CreatePerspectiveFieldOfView.cs" />
     <Compile Include="CreateAxisAngleRotation.cs" />
