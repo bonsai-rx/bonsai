@@ -48,7 +48,7 @@ namespace Bonsai.Editor
         WorkflowBuilder workflowBuilder;
         WorkflowGraphView workflowGraphView;
         WorkflowSelectionModel selectionModel;
-        List<TypeDescriptionProvider> selectionDescriptionProviders;
+        List<TypeDescriptorAssociation> selectionDescriptionProviders;
         Dictionary<string, string> propertyAssignments;
         Dictionary<string, TreeNode> toolboxCategories;
         List<TreeNode> treeCache;
@@ -110,7 +110,7 @@ namespace Bonsai.Editor
             workflowElements = new List<WorkflowElementDescriptor>();
             exceptionCache = new WorkflowRuntimeExceptionCache();
             selectionModel = new WorkflowSelectionModel();
-            selectionDescriptionProviders = new List<TypeDescriptionProvider>();
+            selectionDescriptionProviders = new List<TypeDescriptorAssociation>();
             propertyAssignments = new Dictionary<string, string>();
             workflowGraphView = new WorkflowGraphView(editorSite);
             workflowGraphView.Workflow = workflowBuilder.Workflow;
@@ -1209,8 +1209,7 @@ namespace Bonsai.Editor
         {
             if (selectionDescriptionProviders.Count > 0)
             {
-                foreach (var association in propertyGrid.SelectedObjects.Zip(selectionDescriptionProviders,
-                                                                             (instance, provider) => new { instance, provider }))
+                foreach (var association in selectionDescriptionProviders)
                 {
                     TypeDescriptor.RemoveProvider(association.provider, association.instance);
                 }
@@ -1232,7 +1231,11 @@ namespace Bonsai.Editor
                     provider.TypeDescriptor = new PropertyFilterTypeDescriptor(parentDescriptor, externalizedProperties);
                     provider.ExtendedTypeDescriptor = new PropertyFilterTypeDescriptor(parentExtendedDescriptor, externalizedProperties);
                     TypeDescriptor.AddProvider(provider, instance);
-                    selectionDescriptionProviders.Add(provider);
+                    selectionDescriptionProviders.Add(new TypeDescriptorAssociation
+                    {
+                        provider = provider,
+                        instance = instance
+                    });
                 }
                 return instance;
             }).ToArray();
@@ -2111,6 +2114,16 @@ namespace Bonsai.Editor
         void statusStrip_SizeChanged(object sender, EventArgs e)
         {
             UpdateStatusLabelSize();
+        }
+
+        #endregion
+
+        #region TypeDescriptorAssociation Class
+
+        class TypeDescriptorAssociation
+        {
+            public TypeDescriptionProvider provider;
+            public object instance;
         }
 
         #endregion
