@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Net;
 using System.Reactive;
@@ -28,6 +29,8 @@ namespace Bonsai.NuGet
         const string SortByNameDescending = "Name: Descending";
         const string SortByRelevance = "Relevance";
         static readonly Uri PackageDefaultIconUrl = new Uri("https://www.nuget.org/Content/Images/packageDefaultIcon.png");
+        static readonly TimeSpan DefaultIconTimeout = TimeSpan.FromSeconds(10);
+        static readonly Image DefaultIconImage = new Bitmap(32, 32, PixelFormat.Format32bppArgb);
         readonly IObservable<Image> defaultIcon;
 
         bool loaded;
@@ -51,7 +54,10 @@ namespace Bonsai.NuGet
         {
             InitializeComponent();
             packageManagerPath = path;
-            var defaultIconRequest = GetPackageIcon(PackageDefaultIconUrl).PublishLast();
+            var defaultIconRequest =
+                GetPackageIcon(PackageDefaultIconUrl)
+                .Timeout(DefaultIconTimeout, Observable.Return(DefaultIconImage))
+                .PublishLast();
             defaultIcon = defaultIconRequest;
             defaultIconRequest.Connect();
 
@@ -268,8 +274,7 @@ namespace Bonsai.NuGet
             catch (InvalidOperationException) { return defaultIcon; }
             return (from response in Observable.Defer(() => imageRequest.GetResponseAsync().ToObservable())
                     from image in Observable.If(
-                        () => iconUrl == null ||
-                              response.ContentType.StartsWith("image/") ||
+                        () => response.ContentType.StartsWith("image/") ||
                               response.ContentType.StartsWith("application/octet-stream"),
                         Observable.Defer(() =>
                             Observable.Return(new Bitmap(Image.FromStream(response.GetResponseStream()), packageIcons.ImageSize))),
@@ -344,6 +349,11 @@ namespace Bonsai.NuGet
             var requestIcon = GetPackageIcon(package.IconUrl);
             var iconRequest = requestIcon.ObserveOn(this).Subscribe(image =>
             {
+                if (packageIcons.Images.Count == 0)
+                {
+                    var defaultImage = defaultIcon.Wait();
+                    packageIcons.Images.Add(defaultImage);
+                }
                 packageIcons.Images.Add(package.Id, image);
                 node.ImageKey = package.Id;
                 node.SelectedImageKey = package.Id;
