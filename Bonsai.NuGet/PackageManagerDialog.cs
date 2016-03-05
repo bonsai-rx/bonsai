@@ -2,6 +2,7 @@
 using Bonsai.NuGet.Properties;
 using NuGet;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -31,6 +32,7 @@ namespace Bonsai.NuGet
         static readonly Uri PackageDefaultIconUrl = new Uri("https://www.nuget.org/Content/Images/packageDefaultIcon.png");
         static readonly TimeSpan DefaultIconTimeout = TimeSpan.FromSeconds(10);
         static readonly Image DefaultIconImage = new Bitmap(32, 32, PixelFormat.Format32bppArgb);
+        readonly ConcurrentDictionary<Uri, IObservable<Image>> iconCache;
         readonly IObservable<Image> defaultIcon;
 
         bool loaded;
@@ -54,12 +56,8 @@ namespace Bonsai.NuGet
         {
             InitializeComponent();
             packageManagerPath = path;
-            var defaultIconRequest =
-                GetPackageIcon(PackageDefaultIconUrl)
-                .Timeout(DefaultIconTimeout, Observable.Return(DefaultIconImage))
-                .PublishLast();
-            defaultIcon = defaultIconRequest;
-            defaultIconRequest.Connect();
+            iconCache = new ConcurrentDictionary<Uri, IObservable<Image>>();
+            defaultIcon = GetPackageIcon(PackageDefaultIconUrl);
 
             activeRequests = new List<IDisposable>();
             var machineWideSettings = new BonsaiMachineWideSettings();
@@ -81,6 +79,7 @@ namespace Bonsai.NuGet
 
         void ClearActiveRequests()
         {
+            iconCache.Clear();
             activeRequests.RemoveAll(request =>
             {
                 request.Dispose();
@@ -269,18 +268,33 @@ namespace Bonsai.NuGet
         {
             if (iconUrl == null) return defaultIcon;
 
-            WebRequest imageRequest;
-            try { imageRequest = WebRequest.Create(iconUrl); }
-            catch (InvalidOperationException) { return defaultIcon; }
-            return (from response in Observable.Defer(() => imageRequest.GetResponseAsync().ToObservable())
-                    from image in Observable.If(
-                        () => response.ContentType.StartsWith("image/") ||
-                              response.ContentType.StartsWith("application/octet-stream"),
-                        Observable.Defer(() =>
-                            Observable.Return(new Bitmap(Image.FromStream(response.GetResponseStream()), packageIcons.ImageSize))),
-                        defaultIcon)
-                    select image)
-                    .Catch<Image, WebException>(ex => defaultIcon);
+            IObservable<Image> result;
+            if (!iconCache.TryGetValue(iconUrl, out result))
+            {
+                WebRequest imageRequest;
+                try { imageRequest = WebRequest.Create(iconUrl); }
+                catch (InvalidOperationException) { return defaultIcon; }
+                var iconStream = (from response in Observable.Defer(() => imageRequest.GetResponseAsync().ToObservable())
+                                  from image in Observable.If(
+                                      () => response.ContentType.StartsWith("image/") ||
+                                            response.ContentType.StartsWith("application/octet-stream"),
+                                      Observable.Using(
+                                          () => response.GetResponseStream(),
+                                          stream => Observable.Return(new Bitmap(Image.FromStream(stream), packageIcons.ImageSize))),
+                                      defaultIcon)
+                                  select image)
+                                  .Catch<Image, WebException>(ex => defaultIcon)
+                                  .Timeout(DefaultIconTimeout, defaultIcon ?? Observable.Return(DefaultIconImage))
+                                  .PublishLast();
+                result = iconCache.GetOrAdd(iconUrl, iconStream);
+                if (iconStream == result)
+                {
+                    var iconRequest = iconStream.Connect();
+                    if (defaultIcon != null) activeRequests.Add(iconRequest);
+                }
+            }
+
+            return result;
         }
 
         private void SetPackageViewStatus(string text, Image image = null)
