@@ -155,13 +155,13 @@
             // 
             // packagePageSelector
             // 
-            this.packagePageSelector.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.packagePageSelector.AutoSize = true;
-            this.packagePageSelector.Location = new System.Drawing.Point(64, 3);
+            this.packagePageSelector.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.packagePageSelector.Location = new System.Drawing.Point(0, 0);
             this.packagePageSelector.Name = "packagePageSelector";
             this.packagePageSelector.PageCount = 0;
             this.packagePageSelector.SelectedIndex = -1;
-            this.packagePageSelector.Size = new System.Drawing.Size(188, 26);
+            this.packagePageSelector.Size = new System.Drawing.Size(314, 34);
             this.packagePageSelector.TabIndex = 0;
             this.packagePageSelector.SelectedIndexChanged += new System.EventHandler(this.packagePageSelector_SelectedIndexChanged);
             // 
