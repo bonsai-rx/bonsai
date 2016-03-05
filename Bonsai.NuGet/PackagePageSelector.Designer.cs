@@ -52,70 +52,75 @@
             this.flowLayoutPanel.Location = new System.Drawing.Point(26, 0);
             this.flowLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
             this.flowLayoutPanel.Name = "flowLayoutPanel";
-            this.flowLayoutPanel.Size = new System.Drawing.Size(130, 26);
+            this.flowLayoutPanel.Size = new System.Drawing.Size(115, 27);
             this.flowLayoutPanel.TabIndex = 0;
             // 
             // button1
             // 
-            this.button1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.button1.AutoSize = true;
             this.button1.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
             this.button1.FlatAppearance.BorderSize = 0;
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button1.Location = new System.Drawing.Point(3, 3);
+            this.button1.Location = new System.Drawing.Point(0, 2);
+            this.button1.Margin = new System.Windows.Forms.Padding(0, 2, 0, 2);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(20, 20);
+            this.button1.Size = new System.Drawing.Size(23, 23);
             this.button1.TabIndex = 2;
             this.button1.Text = "1";
             this.button1.UseVisualStyleBackColor = true;
             // 
             // button2
             // 
-            this.button2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.button2.AutoSize = true;
             this.button2.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
             this.button2.FlatAppearance.BorderSize = 0;
             this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button2.Location = new System.Drawing.Point(29, 3);
+            this.button2.Location = new System.Drawing.Point(23, 2);
+            this.button2.Margin = new System.Windows.Forms.Padding(0, 2, 0, 2);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(20, 20);
+            this.button2.Size = new System.Drawing.Size(23, 23);
             this.button2.TabIndex = 3;
             this.button2.Text = "2";
             this.button2.UseVisualStyleBackColor = true;
             // 
             // button3
             // 
-            this.button3.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.button3.AutoSize = true;
             this.button3.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
             this.button3.FlatAppearance.BorderSize = 0;
             this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button3.Location = new System.Drawing.Point(55, 3);
+            this.button3.Location = new System.Drawing.Point(46, 2);
+            this.button3.Margin = new System.Windows.Forms.Padding(0, 2, 0, 2);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(20, 20);
+            this.button3.Size = new System.Drawing.Size(23, 23);
             this.button3.TabIndex = 4;
             this.button3.Text = "3";
             this.button3.UseVisualStyleBackColor = true;
             // 
             // button4
             // 
-            this.button4.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.button4.AutoSize = true;
             this.button4.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
             this.button4.FlatAppearance.BorderSize = 0;
             this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button4.Location = new System.Drawing.Point(81, 3);
+            this.button4.Location = new System.Drawing.Point(69, 2);
+            this.button4.Margin = new System.Windows.Forms.Padding(0, 2, 0, 2);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(20, 20);
+            this.button4.Size = new System.Drawing.Size(23, 23);
             this.button4.TabIndex = 5;
             this.button4.Text = "4";
             this.button4.UseVisualStyleBackColor = true;
             // 
             // button5
             // 
-            this.button5.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.button5.AutoSize = true;
             this.button5.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
             this.button5.FlatAppearance.BorderSize = 0;
             this.button5.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button5.Location = new System.Drawing.Point(107, 3);
+            this.button5.Location = new System.Drawing.Point(92, 2);
+            this.button5.Margin = new System.Windows.Forms.Padding(0, 2, 0, 2);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(20, 20);
+            this.button5.Size = new System.Drawing.Size(23, 23);
             this.button5.TabIndex = 6;
             this.button5.Text = "5";
             this.button5.UseVisualStyleBackColor = true;
@@ -139,7 +144,7 @@
             this.nextButton.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
             this.nextButton.FlatAppearance.BorderSize = 0;
             this.nextButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.nextButton.Location = new System.Drawing.Point(159, 3);
+            this.nextButton.Location = new System.Drawing.Point(144, 3);
             this.nextButton.Name = "nextButton";
             this.nextButton.Size = new System.Drawing.Size(20, 20);
             this.nextButton.TabIndex = 1;
@@ -162,7 +167,7 @@
             this.tableLayoutPanel.Name = "tableLayoutPanel";
             this.tableLayoutPanel.RowCount = 1;
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel.Size = new System.Drawing.Size(182, 26);
+            this.tableLayoutPanel.Size = new System.Drawing.Size(167, 27);
             this.tableLayoutPanel.TabIndex = 1;
             // 
             // PackagePageSelector
@@ -171,8 +176,9 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.tableLayoutPanel);
             this.Name = "PackagePageSelector";
-            this.Size = new System.Drawing.Size(188, 26);
+            this.Size = new System.Drawing.Size(168, 26);
             this.flowLayoutPanel.ResumeLayout(false);
+            this.flowLayoutPanel.PerformLayout();
             this.tableLayoutPanel.ResumeLayout(false);
             this.tableLayoutPanel.PerformLayout();
             this.ResumeLayout(false);
