@@ -109,6 +109,7 @@
     <Compile Include="Configuration\TexturedModel.cs" />
     <Compile Include="Configuration\TextureReference.cs" />
     <Compile Include="Configuration\TextureBase.cs" />
+    <Compile Include="Timer.cs" />
     <Compile Include="UpdateFrame.cs" />
     <Compile Include="Configuration\TexturedQuad.cs" />
     <Compile Include="UpdateShaderState.cs" />
