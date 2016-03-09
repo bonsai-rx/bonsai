@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
-    [Description("Samples notifications of the input sequence whenever it is time to update a frame.")]
-    public class SampleOnUpdateFrame : Combinator
+    [Description("Samples the latest notifications of the input sequence in the render loop.")]
+    public class LatestOnUpdateFrame : Combinator
     {
         static readonly UpdateFrame updateFrame = new UpdateFrame();
 
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
             var update = updateFrame.Generate();
-            return source.Sample(update);
+            return source.CombineLatest(update, (x, evt) => x).Sample(update);
         }
     }
 }

@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\BlendFunctionState.cs" />
+    <Compile Include="LatestOnUpdateFrame.cs" />
     <Compile Include="CreateRotationZ.cs" />
     <Compile Include="CreateRotationY.cs" />
     <Compile Include="CreateRotationX.cs" />
