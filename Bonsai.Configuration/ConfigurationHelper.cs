@@ -31,7 +31,7 @@ namespace Bonsai.Configuration
         {
             path = Path.GetFullPath(path);
             var currentPath = Environment.GetEnvironmentVariable(PathEnvironmentVariable);
-            currentPath = string.Join(new string(Path.PathSeparator, 1), currentPath, path);
+            currentPath = string.Join(new string(Path.PathSeparator, 1), path, currentPath);
             Environment.SetEnvironmentVariable(PathEnvironmentVariable, currentPath);
         }
 
