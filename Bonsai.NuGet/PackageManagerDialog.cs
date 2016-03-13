@@ -238,10 +238,10 @@ namespace Bonsai.NuGet
                 IQueryable<IPackage> packages;
                 if (updateFeed)
                 {
-                    packages = selectedRepository.GetUpdates(
-                        selectedManager.LocalRepository.GetPackages(),
-                        allowPrereleaseVersions,
-                        false).AsQueryable();
+                    var localPackages = selectedManager.LocalRepository.GetPackages();
+                    try { packages = selectedRepository.GetUpdates(localPackages, allowPrereleaseVersions, false).AsQueryable(); }
+                    catch (AggregateException e) { return Observable.Throw<IPackage>(e.InnerException).ToEnumerable().AsQueryable(); }
+                    catch (WebException e) { return Observable.Throw<IPackage>(e).ToEnumerable().AsQueryable(); }
                 }
                 else
                 {
