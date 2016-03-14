@@ -117,7 +117,7 @@ namespace Bonsai.Expressions
 
         ReplaySubject<IObservable<TSource>> CreateInspectorSubject<TSource>()
         {
-            var subject = new ReplaySubject<IObservable<TSource>>(1, Scheduler.Immediate);
+            var subject = new ReplaySubject<IObservable<TSource>>(1);
             Output = subject.Select(ys => ys.Select(xs => (object)xs));
             Error = subject.Merge().IgnoreElements().Select(xs => Unit.Default);
             ErrorEx = subject.SelectMany(xs => xs
