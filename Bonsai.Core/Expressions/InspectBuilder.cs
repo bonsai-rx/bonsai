@@ -141,6 +141,7 @@ namespace Bonsai.Expressions
                     {
                         throw new WorkflowRuntimeException(ex.Message, this, ex);
                     }
+                    finally { sourceInspector.OnCompleted(); }
                 });
             });
         }
