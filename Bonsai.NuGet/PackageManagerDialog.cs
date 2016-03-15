@@ -418,7 +418,7 @@ namespace Bonsai.NuGet
             activeRequests.Add(feedRequest);
         }
 
-        private void UpdatePackageFeed()
+        private void UpdatePackageFeed(int selectedPage = 0)
         {
             feedExceptionMessage = null;
             SetPackageViewStatus(Resources.RetrievingInformationLabel, Resources.WaitImage);
@@ -435,7 +435,7 @@ namespace Bonsai.NuGet
                     var pageCount = count / PackagesPerPage;
                     if (count % PackagesPerPage != 0) pageCount++;
                     packagePageSelector.PageCount = pageCount;
-                    packagePageSelector.SelectedIndex = 0;
+                    packagePageSelector.SelectedIndex = selectedPage < pageCount ? selectedPage : 0;
                 }));
         }
 
@@ -488,7 +488,7 @@ namespace Bonsai.NuGet
                         ex => logger.Log(MessageLevel.Error, ex.Message),
                         () => dialog.Close());
                     dialog.ShowDialog();
-                    UpdatePackageFeed();
+                    UpdatePackageFeed(packagePageSelector.SelectedIndex);
                 }
                 finally { operationDialog = null; }
             }
