@@ -486,9 +486,11 @@ namespace Bonsai.NuGet
                     operation.ObserveOn(this).Subscribe(
                         xs => { },
                         ex => logger.Log(MessageLevel.Error, ex.Message),
-                        () => dialog.Close());
-                    dialog.ShowDialog();
-                    UpdatePackageFeed(packagePageSelector.SelectedIndex);
+                        () => dialog.Complete());
+                    if (dialog.ShowDialog() == DialogResult.OK)
+                    {
+                        UpdatePackageFeed(packagePageSelector.SelectedIndex);
+                    }
                 }
                 finally { operationDialog = null; }
             }

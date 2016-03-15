@@ -48,6 +48,12 @@ namespace Bonsai.NuGet
             eventLogger = logger;
         }
 
+        public void Complete()
+        {
+            DialogResult = DialogResult.OK;
+            Close();
+        }
+
         void logger_Log(object sender, LogEventArgs e)
         {
             if (InvokeRequired) BeginInvoke((EventHandler<LogEventArgs>)logger_Log, sender, e);
