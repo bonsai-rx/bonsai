@@ -23,14 +23,14 @@ namespace Bonsai.Vision
 
         [Precision(0, 2)]
         [Range(1, int.MaxValue)]
-        [TypeConverter(typeof(OddKernelSizeConverter))]
+        [TypeConverter(typeof(SmoothKernelSizeConverter))]
         [Description("The aperture width of the smoothing kernel.")]
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
         public int Size1 { get; set; }
 
         [Precision(0, 2)]
         [Range(1, int.MaxValue)]
-        [TypeConverter(typeof(OddKernelSizeConverter))]
+        [TypeConverter(typeof(SmoothKernelSizeConverter))]
         [Description("The aperture height of the smoothing kernel.")]
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
         public int Size2 { get; set; }
@@ -55,6 +55,29 @@ namespace Bonsai.Vision
                 CV.Smooth(input, output, SmoothType, Size1, Size2, Sigma1, Sigma2);
                 return output;
             });
+        }
+
+        class SmoothKernelSizeConverter : Int32Converter
+        {
+            public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value)
+            {
+                var kernelSize = (int)base.ConvertFrom(context, culture, value);
+                var smooth = context.Instance as Smooth;
+                if (smooth != null)
+                {
+                    var smoothType = smooth.SmoothType;
+                    if (smoothType == SmoothMethod.Gaussian ||
+                        smoothType == SmoothMethod.Median)
+                    {
+                        if (kernelSize % 2 == 0)
+                        {
+                            throw new ArgumentOutOfRangeException("value", "The size of the filter kernel must be an odd number.");
+                        }
+                    }
+                }
+
+                return kernelSize;
+            }
         }
     }
 }
