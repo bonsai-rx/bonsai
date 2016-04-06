@@ -19,9 +19,6 @@ namespace Bonsai.Shaders
         int eao;
         int program;
         int timeLocation;
-        int vertexShader;
-        int geometryShader;
-        int fragmentShader;
         string vertexSource;
         string geometrySource;
         string fragmentSource;
@@ -124,65 +121,77 @@ namespace Bonsai.Shaders
         int CreateShader()
         {
             int status;
-            vertexShader = GL.CreateShader(ShaderType.VertexShader);
-            GL.ShaderSource(vertexShader, vertexSource);
-            GL.CompileShader(vertexShader);
-            GL.GetShader(vertexShader, ShaderParameter.CompileStatus, out status);
-            if (status == 0)
+            int vertexShader = 0;
+            int geometryShader = 0;
+            int fragmentShader = 0;
+            try
             {
-                var message = string.Format(
-                    "Failed to compile vertex shader.\nShader name: {0}\n{1}",
-                    Name,
-                    GL.GetShaderInfoLog(vertexShader));
-                throw new ShaderException(message);
-            }
-
-            geometryShader = 0;
-            if (!string.IsNullOrWhiteSpace(geometrySource))
-            {
-                geometryShader = GL.CreateShader(ShaderType.GeometryShader);
-                GL.ShaderSource(geometryShader, geometrySource);
-                GL.CompileShader(geometryShader);
-                GL.GetShader(geometryShader, ShaderParameter.CompileStatus, out status);
+                vertexShader = GL.CreateShader(ShaderType.VertexShader);
+                GL.ShaderSource(vertexShader, vertexSource);
+                GL.CompileShader(vertexShader);
+                GL.GetShader(vertexShader, ShaderParameter.CompileStatus, out status);
                 if (status == 0)
                 {
                     var message = string.Format(
-                        "Failed to compile geometry shader.\nShader name: {0}\n{1}",
+                        "Failed to compile vertex shader.\nShader name: {0}\n{1}",
                         Name,
-                        GL.GetShaderInfoLog(geometryShader));
+                        GL.GetShaderInfoLog(vertexShader));
                     throw new ShaderException(message);
                 }
-            }
 
-            fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
-            GL.ShaderSource(fragmentShader, fragmentSource);
-            GL.CompileShader(fragmentShader);
-            GL.GetShader(fragmentShader, ShaderParameter.CompileStatus, out status);
-            if (status == 0)
+                geometryShader = 0;
+                if (!string.IsNullOrWhiteSpace(geometrySource))
+                {
+                    geometryShader = GL.CreateShader(ShaderType.GeometryShader);
+                    GL.ShaderSource(geometryShader, geometrySource);
+                    GL.CompileShader(geometryShader);
+                    GL.GetShader(geometryShader, ShaderParameter.CompileStatus, out status);
+                    if (status == 0)
+                    {
+                        var message = string.Format(
+                            "Failed to compile geometry shader.\nShader name: {0}\n{1}",
+                            Name,
+                            GL.GetShaderInfoLog(geometryShader));
+                        throw new ShaderException(message);
+                    }
+                }
+
+                fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
+                GL.ShaderSource(fragmentShader, fragmentSource);
+                GL.CompileShader(fragmentShader);
+                GL.GetShader(fragmentShader, ShaderParameter.CompileStatus, out status);
+                if (status == 0)
+                {
+                    var message = string.Format(
+                        "Failed to compile fragment shader.\nShader name: {0}\n{1}",
+                        Name,
+                        GL.GetShaderInfoLog(fragmentShader));
+                    throw new ShaderException(message);
+                }
+
+                var shaderProgram = GL.CreateProgram();
+                GL.AttachShader(shaderProgram, vertexShader);
+                if (geometryShader > 0) GL.AttachShader(shaderProgram, geometryShader);
+                GL.AttachShader(shaderProgram, fragmentShader);
+                GL.LinkProgram(shaderProgram);
+                GL.GetProgram(shaderProgram, GetProgramParameterName.LinkStatus, out status);
+                if (status == 0)
+                {
+                    var message = string.Format(
+                        "Failed to link shader program.\nShader name: {0}\n{1}",
+                        Name,
+                        GL.GetProgramInfoLog(shaderProgram));
+                    throw new ShaderException(message);
+                }
+
+                return shaderProgram;
+            }
+            finally
             {
-                var message = string.Format(
-                    "Failed to compile fragment shader.\nShader name: {0}\n{1}",
-                    Name,
-                    GL.GetShaderInfoLog(fragmentShader));
-                throw new ShaderException(message);
+                GL.DeleteShader(fragmentShader);
+                GL.DeleteShader(geometryShader);
+                GL.DeleteShader(vertexShader);
             }
-
-            var shaderProgram = GL.CreateProgram();
-            GL.AttachShader(shaderProgram, vertexShader);
-            if (geometryShader > 0) GL.AttachShader(shaderProgram, geometryShader);
-            GL.AttachShader(shaderProgram, fragmentShader);
-            GL.LinkProgram(shaderProgram);
-            GL.GetProgram(shaderProgram, GetProgramParameterName.LinkStatus, out status);
-            if (status == 0)
-            {
-                var message = string.Format(
-                    "Failed to link shader program.\nShader name: {0}\n{1}",
-                    Name,
-                    GL.GetProgramInfoLog(shaderProgram));
-                throw new ShaderException(message);
-            }
-
-            return shaderProgram;
         }
 
         internal void EnsureElementArray()
@@ -281,9 +290,6 @@ namespace Bonsai.Shaders
                 GL.DeleteVertexArrays(1, ref vao);
                 GL.DeleteBuffers(1, ref vbo);
                 GL.DeleteProgram(program);
-                GL.DeleteShader(fragmentShader);
-                GL.DeleteShader(geometryShader);
-                GL.DeleteShader(vertexShader);
                 shaderWindow = null;
                 update = null;
             }
