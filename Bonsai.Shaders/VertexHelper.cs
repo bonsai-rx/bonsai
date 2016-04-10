@@ -46,7 +46,7 @@ namespace Bonsai.Shaders
             return 4;
         }
 
-        public static int UpdateVertexBuffer<TVertex>(int vertexBuffer, int channelCount, TVertex[] buffer)
+        public static int UpdateVertexBuffer<TVertex>(int vertexBuffer, TVertex[] buffer)
             where TVertex : struct
         {
             var bufferSize = buffer.Length * BlittableValueType<TVertex>.Stride;
@@ -54,7 +54,7 @@ namespace Bonsai.Shaders
             GL.BufferData(BufferTarget.ArrayBuffer,
                           new IntPtr(bufferSize), buffer,
                           BufferUsageHint.StaticDraw);
-            return bufferSize / (channelCount * BlittableValueType<float>.Stride);
+            return bufferSize;
         }
 
         public static int UpdateVertexBuffer(int vertexBuffer, Mat buffer)

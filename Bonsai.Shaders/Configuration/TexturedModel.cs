@@ -9,62 +9,28 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders.Configuration
 {
-    public class TexturedModel : ShaderConfiguration
+    public class TexturedModel : MeshConfiguration
     {
-        public TexturedModel()
-        {
-            DrawMode = PrimitiveType.Triangles;
-            VertexShader = DefaultVertexShader;
-            FragmentShader = DefaultFragmentShader;
-        }
-
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
         [FileNameFilter("OBJ Files (*.obj)|*.obj")]
         [Description("The name of the model file.")]
         public string FileName { get; set; }
 
-        [Description("Specifies the kind of primitives to render with the vertex buffer data.")]
-        public PrimitiveType DrawMode { get; set; }
-
-        internal override void Configure(Shader shader)
+        public override Mesh CreateResource()
         {
-            base.Configure(shader);
-            shader.Update(() =>
-            {
-                shader.DrawMode = DrawMode;
-                ObjReader.ReadObject(shader, FileName);
-            });
+            var mesh = base.CreateResource();
+            ObjReader.ReadObject(mesh, FileName);
+            return mesh;
         }
 
-        const string DefaultVertexShader = @"
-#version 410
-layout(location = 0) in vec3 vp;
-layout(location = 1) in vec2 vt;
-layout(location = 2) in vec3 vn;
-out vec2 tex_coord;
-out vec3 normal;
-uniform mat4 mvp;
-
-void main()
-{
-  vec4 v = vec4(vp, 1.0);
-  gl_Position = mvp * v;
-  tex_coord = vt;
-  normal = vn;
-}
-";
-
-        const string DefaultFragmentShader = @"
-#version 400
-uniform sampler2D tex;
-in vec2 tex_coord;
-out vec4 frag_colour;
-
-void main()
-{
-  vec4 texel = texture(tex, tex_coord);
-  frag_colour = texel;
-}
-";
+        public override string ToString()
+        {
+            var name = Name;
+            var fileName = FileName;
+            var typeName = GetType().Name;
+            if (string.IsNullOrEmpty(name)) return typeName;
+            else if (string.IsNullOrEmpty(fileName)) return name;
+            else return string.Format("{0} [{1}]", name, fileName);
+        }
     }
 }

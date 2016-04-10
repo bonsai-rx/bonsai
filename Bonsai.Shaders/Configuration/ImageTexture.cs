@@ -25,13 +25,23 @@ namespace Bonsai.Shaders.Configuration
         [Description("Specifies optional conversions applied to the loaded image.")]
         public LoadImageFlags Mode { get; set; }
 
-        public override void Load(Shader shader)
+        public override Texture CreateResource()
         {
-            base.Load(shader);
-            var texture = GetTexture();
+            var texture = base.CreateResource();
             var image = CV.LoadImage(FileName, Mode);
-            TextureHelper.UpdateTexture(texture, PixelInternalFormat.Rgba, image);
+            TextureHelper.UpdateTexture(texture.Id, PixelInternalFormat.Rgba, image);
             GL.BindTexture(TextureTarget.Texture2D, 0);
+            return texture;
+        }
+
+        public override string ToString()
+        {
+            var name = Name;
+            var fileName = FileName;
+            var typeName = GetType().Name;
+            if (string.IsNullOrEmpty(name)) return typeName;
+            else if (string.IsNullOrEmpty(fileName)) return name;
+            else return string.Format("{0} [{1}]", name, fileName);
         }
     }
 }

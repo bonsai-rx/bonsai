@@ -60,6 +60,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\BlendFunctionState.cs" />
+    <Compile Include="Configuration\FramebufferAttachmentConfiguration.cs" />
+    <Compile Include="Configuration\MeshConfigurationCollection.cs" />
+    <Compile Include="Configuration\MeshConfiguration.cs" />
+    <Compile Include="Configuration\TextureConfigurationCollection.cs" />
+    <Compile Include="Configuration\ImageTexture.cs" />
+    <Compile Include="Configuration\Texture2D.cs" />
+    <Compile Include="Configuration\ResourceConfiguration.cs" />
+    <Compile Include="Configuration\TextureConfiguration.cs" />
+    <Compile Include="MeshNameConverter.cs" />
+    <Compile Include="TextureNameConverter.cs" />
     <Compile Include="CreateOrthographic.cs" />
     <Compile Include="LatestOnUpdateFrame.cs" />
     <Compile Include="CreateRotationZ.cs" />
@@ -72,15 +82,13 @@
     <Compile Include="CreateTranslation.cs" />
     <Compile Include="CreateLookAt.cs" />
     <Compile Include="CreateVector3.cs" />
+    <Compile Include="Mesh.cs" />
     <Compile Include="SampleOnUpdateFrame.cs" />
     <Compile Include="ShaderWindowExtensions.cs" />
     <Compile Include="DrawShader.cs" />
     <Compile Include="Input\Keyboard.cs" />
     <Compile Include="Input\GamePad.cs" />
     <Compile Include="Input\Mouse.cs" />
-    <Compile Include="Configuration\PointSprite.cs" />
-    <Compile Include="Configuration\FramebufferTextureReference.cs" />
-    <Compile Include="Configuration\ImageTexture.cs" />
     <Compile Include="Input\KeyPress.cs" />
     <Compile Include="Input\KeyUp.cs" />
     <Compile Include="Input\KeyDown.cs" />
@@ -90,7 +98,7 @@
     <Compile Include="Input\MouseUp.cs" />
     <Compile Include="Input\MouseDown.cs" />
     <Compile Include="Configuration\DepthFunctionState.cs" />
-    <Compile Include="Configuration\FramebufferTexture.cs" />
+    <Compile Include="Configuration\FramebufferConfiguration.cs" />
     <Compile Include="Input\MouseMove.cs" />
     <Compile Include="ObjReader.cs" />
     <Compile Include="Configuration\PointSizeState.cs" />
@@ -103,12 +111,10 @@
     <Compile Include="Configuration\DisableState.cs" />
     <Compile Include="Configuration\EnableState.cs" />
     <Compile Include="Configuration\StateConfiguration.cs" />
-    <Compile Include="Configuration\Texture2D.cs" />
-    <Compile Include="Configuration\TextureConfiguration.cs" />
-    <Compile Include="Configuration\TextureConfigurationCollection.cs" />
+    <Compile Include="Configuration\TextureBindingConfigurationCollection.cs" />
     <Compile Include="Configuration\TexturedModel.cs" />
-    <Compile Include="Configuration\TextureReference.cs" />
-    <Compile Include="Configuration\TextureBase.cs" />
+    <Compile Include="Configuration\TextureBindingConfiguration.cs" />
+    <Compile Include="Texture.cs" />
     <Compile Include="Timer.cs" />
     <Compile Include="UpdateFrame.cs" />
     <Compile Include="Configuration\TexturedQuad.cs" />
@@ -125,6 +131,8 @@
     <Compile Include="UpdateTexture.cs" />
     <Compile Include="ShaderManager.cs" />
     <Compile Include="UpdateUniform.cs" />
+    <Compile Include="VertexAttributeMapping.cs" />
+    <Compile Include="VertexAttributeMappingCollection.cs" />
     <Compile Include="VertexHelper.cs" />
     <Compile Include="Configuration\ViewportState.cs" />
     <Compile Include="WarpPerspective.cs" />

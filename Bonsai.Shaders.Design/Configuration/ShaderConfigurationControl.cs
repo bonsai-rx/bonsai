@@ -1,23 +1,21 @@
 ﻿using Bonsai.Design;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.Design;
+using System.Drawing.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms.Design;
 
 namespace Bonsai.Shaders.Configuration.Design
 {
-    public class ShaderConfigurationControl : ConfigurationControl
+    class ShaderConfigurationControl : ConfigurationControl
     {
         public ShaderConfigurationControl()
         {
-            //TODO: Extend configuration control to allow updating button text
-            var button = Controls.Find("configurationManagerButton", true);
-            if (button.Length > 0)
-            {
-                button[0].Text = "Manage Shaders";
-            }
+            Text = "Manage Shaders";
         }
 
         protected override IEnumerable<string> GetConfigurationNames()
@@ -41,9 +39,37 @@ namespace Bonsai.Shaders.Configuration.Design
             ShaderManager.SaveConfiguration(shaderConfiguration);
         }
 
-        protected override CollectionEditor CreateConfigurationEditor(Type type)
+        protected override UITypeEditor CreateConfigurationEditor(Type type)
         {
-            return new ShaderConfigurationCollectionEditor(type);
+            return new ShaderWindowEditor
+            {
+                SelectedPage = ShaderConfigurationEditorPage.Shaders
+            };
+        }
+
+        protected class ShaderWindowEditor : UITypeEditor
+        {
+            public ShaderConfigurationEditorPage SelectedPage { get; set; }
+
+            public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
+            {
+                return UITypeEditorEditStyle.Modal;
+            }
+
+            public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
+            {
+                var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
+                if (editorService != null)
+                {
+                    var form = new ShaderConfigurationEditorDialog();
+                    form.SelectedPage = SelectedPage;
+                    form.SelectedObject = value as ShaderWindowSettings;
+                    editorService.ShowDialog(form);
+                    return value;
+                }
+
+                return base.EditValue(context, provider, value);
+            }
         }
     }
 }

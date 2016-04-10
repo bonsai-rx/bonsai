@@ -21,10 +21,7 @@ namespace Bonsai.Shaders
             InternalFormat = PixelInternalFormat.Rgba;
         }
 
-        [Description("The name of the shader program.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
-        public string ShaderName { get; set; }
-
+        [Editor("Bonsai.Shaders.Configuration.Design.TextureConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string TextureName { get; set; }
 
         public PixelInternalFormat InternalFormat { get; set; }
@@ -41,25 +38,24 @@ namespace Bonsai.Shaders
                 }
 
                 return source.CombineEither(
-                    ShaderManager.ReserveShader(ShaderName).Do(shader =>
+                    ShaderManager.WindowSource.Do(window =>
                     {
-                        shader.Update(() =>
+                        window.Update(() =>
                         {
-                            var textureUnit = shader.TextureUnits.FirstOrDefault(t => t.Name == name);
-                            if (textureUnit == null)
+                            var tex = window.Textures[name];
+                            if (tex == null)
                             {
                                 throw new InvalidOperationException(string.Format(
-                                    "The texture unit \"{0}\" was not found in shader program \"{1}\".",
-                                    name,
-                                    ShaderName));
+                                    "The texture \"{0}\" was not found.",
+                                    name));
                             }
 
-                            texture = textureUnit.GetTexture();
+                            texture = tex.Id;
                         });
                     }),
-                    (input, shader) =>
+                    (input, window) =>
                     {
-                        shader.Update(() =>
+                        window.Update(() =>
                         {
                             TextureHelper.UpdateTexture(texture, InternalFormat, input);
                         });

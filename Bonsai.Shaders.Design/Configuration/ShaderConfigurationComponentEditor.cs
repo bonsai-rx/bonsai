@@ -22,9 +22,9 @@ namespace Bonsai.Shaders.Configuration.Design
                 }
 
                 var editorService = new ConfigurationEditorService(owner);
-                var configurationManager = new ShaderConfigurationCollectionEditor(configuration.GetType());
-                configurationManager.EditValue(editorService, editorService, configuration);
-                if (editorService.DialogResult == DialogResult.OK)
+                var form = new ShaderConfigurationEditorDialog();
+                form.SelectedObject = configuration;
+                if (editorService.ShowDialog(form) == DialogResult.OK)
                 {
                     ShaderManager.SaveConfiguration(configuration);
                 }

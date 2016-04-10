@@ -17,23 +17,38 @@ namespace Bonsai.Shaders
         [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string ShaderName { get; set; }
 
-        [Description("Specifies the kind of primitives to render with the shader vertex data.")]
-        public PrimitiveType? DrawMode { get; set; }
+        [Description("The name of the shader program.")]
+        [Editor("Bonsai.Shaders.Configuration.Design.MeshConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
+        public string MeshName { get; set; }
 
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
-            return source.CombineEither(
-                ShaderManager.ReserveShader(ShaderName),
-                (input, shader) =>
+            return Observable.Defer(() =>
+            {
+                var name = MeshName;
+                if (string.IsNullOrEmpty(name))
                 {
-                    shader.Update(() =>
+                    throw new InvalidOperationException("A mesh name must be specified.");
+                }
+
+                Mesh mesh = null;
+                return source.CombineEither(
+                    ShaderManager.ReserveShader(ShaderName).Do(shader =>
                     {
-                        var drawMode = DrawMode;
-                        if(drawMode.HasValue) shader.DrawMode = drawMode.Value;
-                        shader.Draw();
+                        shader.Update(() =>
+                        {
+                            mesh = shader.Window.Meshes[name];
+                        });
+                    }),
+                    (input, shader) =>
+                    {
+                        shader.Update(() =>
+                        {
+                            mesh.Draw();
+                        });
+                        return input;
                     });
-                    return input;
-                });
+            });
         }
     }
 }
