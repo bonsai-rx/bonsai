@@ -1,4 +1,5 @@
-﻿using OpenCV.Net;
+﻿using Bonsai.Shaders.Configuration;
+using OpenCV.Net;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
@@ -16,107 +17,93 @@ namespace Bonsai.Shaders
     [Description("Updates the vertex buffer data used by the specified shader.")]
     public class UpdateVertexBuffer : Sink<Mat>
     {
+        readonly VertexAttributeMappingCollection vertexAttributes = new VertexAttributeMappingCollection();
+
         [Description("The name of the shader program.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
-        public string ShaderName { get; set; }
+        [Editor("Bonsai.Shaders.Configuration.Design.MeshConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
+        public string MeshName { get; set; }
 
-        [Description("Specifies the kind of primitives to render with the vertex buffer data.")]
-        public PrimitiveType? DrawMode { get; set; }
+        public VertexAttributeMappingCollection VertexAttributes
+        {
+            get { return vertexAttributes; }
+        }
 
-        static int GetAttribPointerChannels(ActiveAttribType type)
+        static int GetVertexAttributeSize(VertexAttribPointerType type)
         {
             switch (type)
             {
-                case ActiveAttribType.Float: return 1;
-                case ActiveAttribType.FloatVec2: return 2;
-                case ActiveAttribType.FloatVec3: return 3;
-                case ActiveAttribType.FloatVec4: return 4;
-                default: return 0;
+                case VertexAttribPointerType.Byte:
+                case VertexAttribPointerType.UnsignedByte:
+                    return 1;
+                case VertexAttribPointerType.Short:
+                case VertexAttribPointerType.HalfFloat:
+                case VertexAttribPointerType.UnsignedShort:
+                    return 2;
+                case VertexAttribPointerType.Int:
+                case VertexAttribPointerType.Float:
+                case VertexAttribPointerType.Fixed:
+                case VertexAttribPointerType.UnsignedInt:
+                    return 4;
+                case VertexAttribPointerType.Double:
+                    return 8;
+                case VertexAttribPointerType.Int2101010Rev:
+                case VertexAttribPointerType.UnsignedInt2101010Rev:
+                default:
+                    throw new InvalidOperationException("Unsupported attribute type.");
             }
         }
 
-        int GetVertexChannels(Shader shader)
+        static void BindVertexAttributes(int vbo, int vao, int stride, VertexAttributeMappingCollection attributes)
         {
-            int attribCount;
-            GL.BindVertexArray(shader.VertexBuffer);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, shader.VertexArray);
-            GL.GetProgramInterface(
-                shader.Program,
-                ProgramInterface.ProgramInput,
-                ProgramInterfaceParameter.ActiveResources,
-                out attribCount);
-
-            var channelCount = 0;
-            var attribChannels = new int[attribCount];
-            for (int index = 0; index < attribChannels.Length; index++)
-            {
-                int attribSize;
-                ActiveAttribType attribType;
-                var name = GL.GetActiveAttrib(shader.Program, index, out attribSize, out attribType);
-                var channels = GetAttribPointerChannels(attribType);
-                if (attribSize != 1 || channels < 1)
-                {
-                    throw new InvalidOperationException(string.Format(
-                        "The type of vertex attribute \"{0}\" is not supported in shader program \"{1}\".",
-                        name,
-                        ShaderName));
-                }
-
-                channelCount += channels;
-                attribChannels[index] = channels;
-            }
+            GL.BindVertexArray(vao);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
 
             var offset = 0;
-            for (int index = 0; index < attribChannels.Length; index++)
+            for (int i = 0; i < attributes.Count; i++)
             {
-                GL.EnableVertexAttribArray(index);
+                var attribute = attributes[i];
+                GL.EnableVertexAttribArray(i);
                 GL.VertexAttribPointer(
-                    index, attribChannels[index],
-                    VertexAttribPointerType.Float,
-                    false,
-                    channelCount * BlittableValueType<float>.Stride,
-                    offset);
-                offset += attribChannels[index] * BlittableValueType<float>.Stride;
+                    i, attribute.Size,
+                    attribute.Type,
+                    attribute.Normalized,
+                    stride, offset);
+                offset += attribute.Size * GetVertexAttributeSize(attribute.Type);
             }
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
             GL.BindVertexArray(0);
-            return channelCount;
-        }
-
-        int ProcessBuffer(int vertexBuffer, int channelCount, Mat buffer)
-        {
-            if (buffer.Rows > 1 && buffer.Cols > 1 && buffer.Cols != channelCount)
-            {
-                throw new InvalidOperationException(string.Format(
-                    "The size of the input buffer does not match vertex array specification in shader program \"{1}\". Expected {0}-channel buffer, or packed one-dimensional buffer.",
-                    channelCount,
-                    ShaderName));
-            }
-
-            return VertexHelper.UpdateVertexBuffer(vertexBuffer, buffer);
         }
 
         public IObservable<TVertex[]> Process<TVertex>(IObservable<TVertex[]> source) where TVertex : struct
         {
             return Observable.Defer(() =>
             {
-                var channelCount = 0;
+                Mesh mesh = null;
                 return source.CombineEither(
-                    ShaderManager.ReserveShader(ShaderName).Do(shader =>
+                    ShaderManager.WindowSource.Do(window =>
                     {
-                        shader.Update(() =>
+                        var name = MeshName;
+                        if (string.IsNullOrEmpty(name))
                         {
-                            channelCount = GetVertexChannels(shader);
+                            throw new InvalidOperationException("A mesh name must be specified.");
+                        }
+
+                        window.Update(() =>
+                        {
+                            mesh = window.Meshes[name];
+                            BindVertexAttributes(
+                                mesh.VertexBuffer,
+                                mesh.VertexArray,
+                                BlittableValueType<TVertex>.Stride,
+                                vertexAttributes);
                         });
                     }),
-                    (input, shader) =>
+                    (input, window) =>
                     {
-                        shader.Update(() =>
+                        window.Update(() =>
                         {
-                            var drawMode = DrawMode;
-                            if (drawMode.HasValue) shader.DrawMode = drawMode.Value;
-                            shader.VertexCount = VertexHelper.UpdateVertexBuffer(shader.VertexBuffer, channelCount, input);
+                            mesh.VertexCount = VertexHelper.UpdateVertexBuffer(mesh.VertexBuffer, input);
                         });
                         return input;
                     });
@@ -127,27 +114,28 @@ namespace Bonsai.Shaders
         {
             return Observable.Defer(() =>
             {
-                var channelCount = 0;
+                var name = MeshName;
+                if (string.IsNullOrEmpty(name))
+                {
+                    throw new InvalidOperationException("A mesh name must be specified.");
+                }
+
+                Mesh mesh = null;
                 return source.CombineEither(
-                    ShaderManager.ReserveShader(ShaderName).Do(shader =>
+                    ShaderManager.WindowSource.Do(window =>
                     {
-                        shader.Update(() =>
-                        {
-                            channelCount = GetVertexChannels(shader);
-                        });
+                        mesh = window.Meshes[name];
                     }),
-                    (input, shader) =>
+                    (input, window) =>
                     {
                         if (input.Depth != Depth.F32)
                         {
                             throw new InvalidOperationException("The type of array elements must be 32-bit floating point.");
                         }
 
-                        shader.Update(() =>
+                        window.Update(() =>
                         {
-                            var drawMode = DrawMode;
-                            if (drawMode.HasValue) shader.DrawMode = drawMode.Value;
-                            shader.VertexCount = ProcessBuffer(shader.VertexBuffer, channelCount, input);
+                            mesh.VertexCount = VertexHelper.UpdateVertexBuffer(mesh.VertexBuffer, input);
                         });
                         return input;
                     });

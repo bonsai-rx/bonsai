@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -8,19 +9,15 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
-    [XmlInclude(typeof(PointSprite))]
-    [XmlInclude(typeof(TexturedQuad))]
-    [XmlInclude(typeof(TexturedModel))]
     public class ShaderConfiguration
     {
+        readonly FramebufferConfiguration framebuffer = new FramebufferConfiguration();
         readonly StateConfigurationCollection renderState = new StateConfigurationCollection();
-        readonly TextureConfigurationCollection textureUnits = new TextureConfigurationCollection();
+        readonly TextureBindingConfigurationCollection textureBindings = new TextureBindingConfigurationCollection();
 
         public ShaderConfiguration()
         {
             Enabled = true;
-            AutoDraw = true;
-            Iterations = 1;
             VertexShader = DefaultVertexShader;
             FragmentShader = DefaultFragmentShader;
         }
@@ -29,13 +26,6 @@ namespace Bonsai.Shaders.Configuration
 
         [Category("State")]
         public bool Enabled { get; set; }
-
-        [Category("State")]
-        public bool AutoDraw { get; set; }
-
-        [DefaultValue(1)]
-        [Category("State")]
-        public int Iterations { get; set; }
 
         [Category("Shaders")]
         [Editor("Bonsai.Shaders.Design.GlslScriptEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
@@ -50,6 +40,10 @@ namespace Bonsai.Shaders.Configuration
         public string FragmentShader { get; set; }
 
         [Category("State")]
+        [TypeConverter(typeof(MeshNameConverter))]
+        public string MeshName { get; set; }
+
+        [Category("State")]
         [Editor("Bonsai.Shaders.Configuration.Design.StateConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public StateConfigurationCollection RenderState
         {
@@ -57,17 +51,37 @@ namespace Bonsai.Shaders.Configuration
         }
 
         [Category("State")]
-        [Editor("Bonsai.Shaders.Configuration.Design.TextureConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
-        public TextureConfigurationCollection TextureUnits
+        [Editor("Bonsai.Shaders.Configuration.Design.TextureBindingConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        public TextureBindingConfigurationCollection TextureBindings
         {
-            get { return textureUnits; }
+            get { return textureBindings; }
         }
 
-        internal virtual void Configure(Shader shader)
+        [Category("State")]
+        [Editor("Bonsai.Shaders.Configuration.Design.FramebufferAttachmentConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        public Collection<FramebufferAttachmentConfiguration> FramebufferAttachments
         {
+            get { return framebuffer.FramebufferAttachments; }
+        }
+
+        public Shader CreateShader(ShaderWindow window)
+        {
+            var shader = new Shader(
+                Name, window,
+                VertexShader,
+                GeometryShader,
+                FragmentShader,
+                renderState,
+                textureBindings,
+                framebuffer);
             shader.Enabled = Enabled;
-            shader.AutoDraw = AutoDraw;
-            shader.Iterations = Iterations;
+            return shader;
+        }
+
+        public override string ToString()
+        {
+            var name = Name;
+            return string.IsNullOrEmpty(name) ? GetType().Name : name;
         }
 
         const string DefaultVertexShader = @"

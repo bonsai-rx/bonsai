@@ -14,9 +14,6 @@ namespace Bonsai.Shaders
 {
     public class Shader : IDisposable
     {
-        int vbo;
-        int vao;
-        int eao;
         int program;
         int timeLocation;
         string vertexSource;
@@ -25,7 +22,9 @@ namespace Bonsai.Shaders
         event Action update;
         ShaderWindow shaderWindow;
         List<StateConfiguration> shaderState;
-        List<TextureConfiguration> shaderTextures;
+        List<TextureBindingConfiguration> shaderTextures;
+        FramebufferConfiguration shaderFramebuffer;
+        Mesh shaderMesh;
         double time;
 
         internal Shader(
@@ -35,7 +34,8 @@ namespace Bonsai.Shaders
             string geometryShader,
             string fragmentShader,
             IEnumerable<StateConfiguration> renderState,
-            IEnumerable<TextureConfiguration> textureUnits)
+            IEnumerable<TextureBindingConfiguration> textureBindings,
+            FramebufferConfiguration framebuffer)
         {
             if (window == null)
             {
@@ -57,9 +57,14 @@ namespace Bonsai.Shaders
                 throw new ArgumentNullException("renderState");
             }
 
-            if (textureUnits == null)
+            if (textureBindings == null)
             {
                 throw new ArgumentNullException("textureUnits");
+            }
+
+            if (framebuffer == null)
+            {
+                throw new ArgumentNullException("framebuffer");
             }
 
             Name = name;
@@ -68,34 +73,18 @@ namespace Bonsai.Shaders
             geometrySource = geometryShader;
             fragmentSource = fragmentShader;
             shaderState = renderState.ToList();
-            shaderTextures = textureUnits.ToList();
+            shaderTextures = textureBindings.ToList();
+            shaderFramebuffer = framebuffer;
         }
 
         public bool Enabled { get; set; }
 
-        public bool AutoDraw { get; set; }
-
-        public int Iterations { get; set; }
-
         public string Name { get; private set; }
 
-        public PrimitiveType DrawMode { get; set; }
-
-        public int VertexCount { get; set; }
-
-        public int VertexBuffer
+        public Mesh Mesh
         {
-            get { return vbo; }
-        }
-
-        public int VertexArray
-        {
-            get { return vao; }
-        }
-
-        public int ElementArray
-        {
-            get { return eao; }
+            get { return shaderMesh; }
+            internal set { shaderMesh = value; }
         }
 
         public int Program
@@ -108,7 +97,7 @@ namespace Bonsai.Shaders
             get { return shaderWindow; }
         }
 
-        public IEnumerable<TextureConfiguration> TextureUnits
+        public IEnumerable<TextureBindingConfiguration> TextureBindings
         {
             get { return shaderTextures; }
         }
@@ -194,14 +183,6 @@ namespace Bonsai.Shaders
             }
         }
 
-        internal void EnsureElementArray()
-        {
-            if (eao == 0)
-            {
-                GL.GenBuffers(1, out eao);
-            }
-        }
-
         public void Load()
         {
             time = 0;
@@ -212,27 +193,8 @@ namespace Bonsai.Shaders
                 texture.Load(this);
             }
 
-            GL.GenBuffers(1, out vbo);
-            GL.GenVertexArrays(1, out vao);
+            shaderFramebuffer.Load(this);
             timeLocation = GL.GetUniformLocation(program, "time");
-        }
-
-        public void Draw()
-        {
-            if (VertexCount > 0)
-            {
-                GL.BindVertexArray(vao);
-                GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-                if (eao > 0)
-                {
-                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, eao);
-                    GL.DrawElements(DrawMode, VertexCount, DrawElementsType.UnsignedShort, IntPtr.Zero);
-                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-                }
-                else GL.DrawArrays(DrawMode, 0, VertexCount);
-                GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-                GL.BindVertexArray(0);
-            }
         }
 
         public void Update(FrameEventArgs e)
@@ -252,27 +214,27 @@ namespace Bonsai.Shaders
                 }
 
                 var action = Interlocked.Exchange(ref update, null);
-                for (int i = 0; i < Iterations; i++)
+                foreach (var texture in shaderTextures)
                 {
-                    foreach (var texture in shaderTextures)
-                    {
-                        texture.Bind(this);
-                    }
+                    texture.Bind(this);
+                }
 
-                    if (action != null)
-                    {
-                        action();
-                    }
+                shaderFramebuffer.Bind(this);
+                if (action != null)
+                {
+                    action();
+                }
 
-                    if (AutoDraw)
-                    {
-                        Draw();
-                    }
+                var mesh = shaderMesh;
+                if (mesh != null)
+                {
+                    mesh.Draw();
+                }
 
-                    foreach (var texture in shaderTextures)
-                    {
-                        texture.Unbind(this);
-                    }
+                shaderFramebuffer.Unbind(this);
+                foreach (var texture in shaderTextures)
+                {
+                    texture.Unbind(this);
                 }
             }
         }
@@ -281,14 +243,12 @@ namespace Bonsai.Shaders
         {
             if (shaderWindow != null)
             {
+                shaderFramebuffer.Unload(this);
                 foreach (var texture in shaderTextures)
                 {
                     texture.Unload(this);
                 }
 
-                if (eao != 0) GL.DeleteBuffers(1, ref eao);
-                GL.DeleteVertexArrays(1, ref vao);
-                GL.DeleteBuffers(1, ref vbo);
                 GL.DeleteProgram(program);
                 shaderWindow = null;
                 update = null;

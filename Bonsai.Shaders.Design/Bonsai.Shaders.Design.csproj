@@ -65,10 +65,35 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\CollectionEditorControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Configuration\CollectionEditorControl.Designer.cs">
+      <DependentUpon>CollectionEditorControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Configuration\ConfigurationControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Configuration\ConfigurationControl.Designer.cs">
+      <DependentUpon>ConfigurationControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Configuration\ConfigurationEditorService.cs" />
-    <Compile Include="Configuration\ShaderConfigurationCollectionEditor.cs" />
-    <Compile Include="Configuration\ShaderConfigurationComponentEditor.cs" />
+    <Compile Include="Configuration\ContextMenuButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Configuration\MeshConfigurationEditor.cs" />
+    <Compile Include="Configuration\FramebufferAttachmentConfigurationCollectionEditor.cs" />
+    <Compile Include="Configuration\ShaderConfigurationEditorPage.cs" />
     <Compile Include="Configuration\TextureConfigurationCollectionEditor.cs" />
+    <Compile Include="Configuration\ShaderConfigurationComponentEditor.cs" />
+    <Compile Include="Configuration\ShaderConfigurationEditorDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Configuration\ShaderConfigurationEditorDialog.designer.cs">
+      <DependentUpon>ShaderConfigurationEditorDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Configuration\TextureConfigurationEditor.cs" />
+    <Compile Include="Configuration\TextureBindingConfigurationCollectionEditor.cs" />
     <Compile Include="GlslScriptEditorDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -104,6 +129,15 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Configuration\CollectionEditorControl.resx">
+      <DependentUpon>CollectionEditorControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Configuration\ConfigurationControl.resx">
+      <DependentUpon>ConfigurationControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Configuration\ShaderConfigurationEditorDialog.resx">
+      <DependentUpon>ShaderConfigurationEditorDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="GlslScriptEditorDialog.resx">
       <DependentUpon>GlslScriptEditorDialog.cs</DependentUpon>
       <SubType>Designer</SubType>

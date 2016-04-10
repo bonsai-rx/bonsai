@@ -16,7 +16,10 @@ namespace Bonsai.Shaders
     public class ShaderWindow : GameWindow
     {
         RectangleF viewport;
-        List<Shader> shaders = new List<Shader>();
+        List<Shader> shaders;
+        Dictionary<string, Texture> textures;
+        Dictionary<string, Mesh> meshes;
+        ShaderWindowSettings settings;
         const string DefaultTitle = "Bonsai Shader Window";
         static readonly object syncRoot = string.Intern("A1105A50-BBB0-4EC6-B8B2-B5EF38A9CC3E");
         event Action update;
@@ -25,24 +28,18 @@ namespace Bonsai.Shaders
             : base(configuration.Width, configuration.Height, GraphicsMode.Default,
                    DefaultTitle, GameWindowFlags.Default, DisplayDevice.GetDisplay(configuration.DisplayDevice))
         {
+            settings = configuration;
             VSync = configuration.VSync;
             Title = configuration.Title ?? DefaultTitle;
             WindowState = configuration.WindowState;
             Viewport = new RectangleF(0, 0, 1, 1);
             TargetRenderFrequency = configuration.TargetRenderFrequency;
             TargetUpdateFrequency = configuration.TargetRenderFrequency;
-            foreach (var shaderConfiguration in configuration.Shaders)
-            {
-                var shader = new Shader(
-                    shaderConfiguration.Name, this,
-                    shaderConfiguration.VertexShader,
-                    shaderConfiguration.GeometryShader,
-                    shaderConfiguration.FragmentShader,
-                    shaderConfiguration.RenderState,
-                    shaderConfiguration.TextureUnits);
-                shaderConfiguration.Configure(shader);
-                shaders.Add(shader);
-            }
+            textures = new Dictionary<string, Texture>();
+            meshes = new Dictionary<string, Mesh>();
+            shaders = settings.Shaders
+                .Select(shaderConfiguration => shaderConfiguration.CreateShader(this))
+                .ToList();
         }
 
         public RectangleF Viewport
@@ -58,6 +55,16 @@ namespace Bonsai.Shaders
         public IEnumerable<Shader> Shaders
         {
             get { return shaders; }
+        }
+
+        public Dictionary<string, Texture> Textures
+        {
+            get { return textures; }
+        }
+
+        public Dictionary<string, Mesh> Meshes
+        {
+            get { return meshes; }
         }
 
         internal void UpdateViewport()
@@ -81,11 +88,26 @@ namespace Bonsai.Shaders
 
         protected override void OnLoad(EventArgs e)
         {
-            foreach (var shader in shaders)
+            foreach (var configuration in settings.Textures)
             {
-                shader.Load();
+                textures.Add(configuration.Name, configuration.CreateResource());
             }
 
+            foreach (var configuration in settings.Meshes)
+            {
+                meshes.Add(configuration.Name, configuration.CreateResource());
+            }
+
+            foreach (var shader in shaders)
+            {
+                var configuration = settings.Shaders[shader.Name];
+                if (!string.IsNullOrEmpty(configuration.MeshName))
+                {
+                    shader.Mesh = meshes[configuration.MeshName];
+                }
+
+                shader.Load();
+            }
             base.OnLoad(e);
         }
 
@@ -141,6 +163,16 @@ namespace Bonsai.Shaders
             foreach (var shader in shaders)
             {
                 shader.Dispose();
+            }
+
+            foreach (var texture in textures.Values)
+            {
+                texture.Dispose();
+            }
+
+            foreach (var resource in meshes.Values)
+            {
+                resource.Dispose();
             }
             base.OnUnload(e);
         }

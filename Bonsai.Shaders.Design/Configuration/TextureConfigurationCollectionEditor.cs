@@ -31,10 +31,7 @@ namespace Bonsai.Shaders.Configuration.Design
             return new[]
             {
                 typeof(Texture2D),
-                typeof(ImageTexture),
-                typeof(TextureReference),
-                typeof(FramebufferTexture),
-                typeof(FramebufferTextureReference),
+                typeof(ImageTexture)
             };
         }
     }

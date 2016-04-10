@@ -1,4 +1,5 @@
-﻿using OpenTK;
+﻿using Bonsai.Shaders.Configuration;
+using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
@@ -108,8 +109,9 @@ namespace Bonsai.Shaders
             return offset + buffer.ElementSize * BlittableValueType<float>.Stride;
         }
 
-        internal static void ReadObject(Shader shader, string fileName)
+        internal static void ReadObject(Mesh mesh, string fileName)
         {
+            var faceLength = 0;
             ushort vertexCount = 0;
             VertexAttribute position = null;
             VertexAttribute texCoord = null;
@@ -133,6 +135,13 @@ namespace Bonsai.Shaders
                         ParseValues(ref normals, values);
                         break;
                     case "f":
+                        var length = values.Length - 1;
+                        if (faceLength == 0) faceLength = length;
+                        else if (faceLength != length)
+                        {
+                            throw new InvalidOperationException("Invalid face specification. All faces must have the same number of vertices.");
+                        }
+
                         for (int i = 1; i < values.Length; i++)
                         {
                             ushort index;
@@ -162,11 +171,12 @@ namespace Bonsai.Shaders
             var stride = GetElementSize(position) + GetElementSize(texCoord) + GetElementSize(normals);
             stride = stride * BlittableValueType<float>.Stride;
 
-            shader.EnsureElementArray();
-            shader.VertexCount = indices.Count;
-            GL.BindVertexArray(shader.VertexArray);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, shader.VertexBuffer);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, shader.ElementArray);
+            mesh.EnsureElementArray();
+            mesh.VertexCount = indices.Count;
+            mesh.DrawMode = faceLength == 4 ? PrimitiveType.Quads : PrimitiveType.Triangles;
+            GL.BindVertexArray(mesh.VertexArray);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, mesh.VertexBuffer);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.ElementArray);
             GL.BufferData(BufferTarget.ArrayBuffer,
                           new IntPtr(vertices.Count * BlittableValueType<float>.Stride),
                           vertices.ToArray(),
