@@ -353,7 +353,7 @@ namespace Bonsai.Shaders.Design
                 {
                     var message = string.Format(
                         "Failed to compile shader.\nShader name: {0}\n{1}",
-                        Name,
+                        saveFileDialog.FileName ?? BaseTitle,
                         GL.GetShaderInfoLog(shader));
                     ShowError(message, ErrorCaption);
                 }
