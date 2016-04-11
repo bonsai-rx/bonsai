@@ -1,4 +1,6 @@
 ﻿using Bonsai.Design;
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL4;
 using ScintillaNET;
 using System;
 using System.Collections.Generic;
@@ -19,6 +21,7 @@ namespace Bonsai.Shaders.Design
         int maxLineNumberLength;
         const string BaseTitle = "GLSL Script";
         const string ModifiedMark = "*";
+        GraphicsContext context;
 
         public GlslScriptEditorDialog()
         {
@@ -46,6 +49,19 @@ namespace Bonsai.Shaders.Design
         }
 
         public string FileName { get; set; }
+
+        public ShaderType? ShaderType { get; set; }
+
+        void EnsureGraphicsContext()
+        {
+            if (context == null)
+            {
+                var windowInfo = OpenTK.Platform.Utilities.CreateWindowsWindowInfo(Handle);
+                context = new GraphicsContext(GraphicsMode.Default, windowInfo);
+                context.MakeCurrent(windowInfo);
+                context.LoadAll();
+            }
+        }
 
         void UpdateUndoStatus()
         {
@@ -85,6 +101,11 @@ namespace Bonsai.Shaders.Design
             }
             var title = FileName = saveFileDialog.FileName = fileName;
             Text = title ?? BaseTitle;
+        }
+
+        void ShowMessage(string message, string caption)
+        {
+            MessageBox.Show(this, message, caption);
         }
 
         void ShowError(string message, string caption)
@@ -197,6 +218,16 @@ namespace Bonsai.Shaders.Design
             base.OnFormClosing(e);
         }
 
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            if (context != null)
+            {
+                context.Dispose();
+                context = null;
+            }
+            base.OnFormClosed(e);
+        }
+
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (keyData == Keys.Escape)
@@ -296,6 +327,45 @@ namespace Bonsai.Shaders.Design
         {
             UpdateUndoStatus();
             UpdateLineNumberMargin();
+        }
+
+        private void validateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            const string ErrorCaption = "Validation Error";
+            const string SuccessCaption = "Validation Completed";
+            var shaderType = ShaderType;
+            if (!shaderType.HasValue)
+            {
+                var message = "No specified shader type. Unable to validate source code.";
+                ShowError(message, ErrorCaption);
+            }
+
+            int status;
+            int shader = 0;
+            try
+            {
+                EnsureGraphicsContext();
+                shader = GL.CreateShader(shaderType.Value);
+                GL.ShaderSource(shader, scintilla.Text);
+                GL.CompileShader(shader);
+                GL.GetShader(shader, ShaderParameter.CompileStatus, out status);
+                if (status == 0)
+                {
+                    var message = string.Format(
+                        "Failed to compile shader.\nShader name: {0}\n{1}",
+                        Name,
+                        GL.GetShaderInfoLog(shader));
+                    ShowError(message, ErrorCaption);
+                }
+                else ShowMessage("The shader object compiled successfully.", SuccessCaption);
+            }
+            finally
+            {
+                if (shader != 0)
+                {
+                    GL.DeleteShader(shader);
+                }
+            }
         }
     }
 }
