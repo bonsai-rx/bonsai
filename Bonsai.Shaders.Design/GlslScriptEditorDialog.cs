@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -91,6 +92,38 @@ namespace Bonsai.Shaders.Design
             MessageBox.Show(this, message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
+        private void StartBrowser(string url)
+        {
+            Uri uriResult;
+            var validUrl = Uri.TryCreate(url, UriKind.Absolute, out uriResult) &&
+                (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+            if (!validUrl)
+            {
+                throw new ArgumentException("The URL is malformed.");
+            }
+
+            try
+            {
+                var result = MessageBox.Show(
+                    this,
+                    "The help pages for GLSL will now open in a new window.",
+                    "Help Request",
+                    MessageBoxButtons.OKCancel,
+                    MessageBoxIcon.Warning,
+                    MessageBoxDefaultButton.Button1);
+                if (result == DialogResult.OK)
+                {
+                    Cursor = Cursors.AppStarting;
+                    Process.Start(url);
+                }
+            }
+            catch { } //best effort
+            finally
+            {
+                Cursor = null;
+            }
+        }
+
         void OpenScript(string fileName)
         {
             if (!string.IsNullOrEmpty(fileName))
@@ -156,6 +189,12 @@ namespace Bonsai.Shaders.Design
             OpenScript(FileName);
             UpdateLineNumberMargin();
             base.OnShown(e);
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            e.Cancel = !CloseScript();
+            base.OnFormClosing(e);
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -234,6 +273,11 @@ namespace Bonsai.Shaders.Design
         private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
             scintilla.SelectAll();
+        }
+
+        private void helpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            StartBrowser("https://www.opengl.org/documentation/glsl/");
         }
 
         private void scintilla_SavePointLeft(object sender, EventArgs e)
