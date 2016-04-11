@@ -20,6 +20,11 @@ namespace Bonsai.Shaders.Design
             return null;
         }
 
+        protected virtual GlslScriptExample[] GetShaderExamples()
+        {
+            return null;
+        }
+
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
             return UITypeEditorEditStyle.Modal;
@@ -34,6 +39,15 @@ namespace Bonsai.Shaders.Design
                 var editorDialog = new GlslScriptEditorDialog();
                 editorDialog.FileName = fileName;
                 editorDialog.ShaderType = GetShaderType();
+                var examples = GetShaderExamples();
+                if (examples != null)
+                {
+                    foreach (var example in examples)
+                    {
+                        editorDialog.ShaderExamples.Add(example);
+                    }
+                }
+
                 if (editorService.ShowDialog(editorDialog) == DialogResult.OK)
                 {
                     return editorDialog.FileName;
@@ -50,6 +64,30 @@ namespace Bonsai.Shaders.Design
         {
             return ShaderType.VertexShader;
         }
+
+        protected override GlslScriptExample[] GetShaderExamples()
+        {
+            return new[]
+            {
+                new GlslScriptExample
+                {
+                    Name = "Clip-space Textured",
+                    Source = @"#version 400
+uniform vec2 scale = vec2(1, 1);
+uniform vec2 shift;
+in vec2 vp;
+in vec2 vt;
+out vec2 tex_coord;
+
+void main()
+{
+  gl_Position = vec4(vp * scale + shift, 0.0, 1.0);
+  tex_coord = vt;
+}
+"
+                }
+            };
+        }
     }
 
     class FragScriptEditor : GlslScriptEditor
@@ -57,6 +95,28 @@ namespace Bonsai.Shaders.Design
         protected override ShaderType? GetShaderType()
         {
             return ShaderType.FragmentShader;
+        }
+
+        protected override GlslScriptExample[] GetShaderExamples()
+        {
+            return new[]
+            {
+                new GlslScriptExample
+                {
+                    Name = "Diffuse Texture",
+                    Source = @"#version 400
+uniform sampler2D tex;
+in vec2 tex_coord;
+out vec4 frag_colour;
+
+void main()
+{
+  vec4 texel = texture(tex, tex_coord);
+  frag_colour = texel;
+}
+"
+                }
+            };
         }
     }
 
