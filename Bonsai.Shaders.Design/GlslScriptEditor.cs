@@ -24,12 +24,12 @@ namespace Bonsai.Shaders.Design
             var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
             if (editorService != null)
             {
-                var script = value as string;
+                var fileName = value as string;
                 var editorDialog = new GlslScriptEditorDialog();
-                editorDialog.Script = script;
+                editorDialog.FileName = fileName;
                 if (editorService.ShowDialog(editorDialog) == DialogResult.OK)
                 {
-                    return editorDialog.Script;
+                    return editorDialog.FileName;
                 }
             }
 

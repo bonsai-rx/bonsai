@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -66,11 +67,15 @@ namespace Bonsai.Shaders.Configuration
 
         public Shader CreateShader(ShaderWindow window)
         {
+            var vertexSource = File.ReadAllText(VertexShader);
+            var geometrySource = !string.IsNullOrEmpty(GeometryShader) ? File.ReadAllText(GeometryShader) : null;
+            var fragmentSource = File.ReadAllText(FragmentShader);
+
             var shader = new Shader(
                 Name, window,
-                VertexShader,
-                GeometryShader,
-                FragmentShader,
+                vertexSource,
+                geometrySource,
+                fragmentSource,
                 renderState,
                 textureBindings,
                 framebuffer);
