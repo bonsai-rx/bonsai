@@ -19,8 +19,6 @@ namespace Bonsai.Shaders.Configuration
         public ShaderConfiguration()
         {
             Enabled = true;
-            VertexShader = DefaultVertexShader;
-            FragmentShader = DefaultFragmentShader;
         }
 
         public string Name { get; set; }
@@ -88,31 +86,5 @@ namespace Bonsai.Shaders.Configuration
             var name = Name;
             return string.IsNullOrEmpty(name) ? GetType().Name : name;
         }
-
-        const string DefaultVertexShader = @"
-#version 400
-uniform vec2 scale = vec2(1, 1);
-uniform vec2 shift;
-in vec2 vp;
-in vec2 vt;
-out vec2 tex_coord;
-
-void main()
-{
-  gl_Position = vec4(vp * scale + shift, 0.0, 1.0);
-  tex_coord = vt;
-}
-";
-
-        const string DefaultFragmentShader = @"
-#version 400
-in vec2 tex_coord;
-out vec4 frag_colour;
-
-void main()
-{
-  frag_colour = vec4(1.0, 0.0, 0.0, 1.0);
-}
-";
     }
 }
