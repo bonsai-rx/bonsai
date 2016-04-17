@@ -23,6 +23,9 @@ namespace Bonsai.Shaders
         [Editor("Bonsai.Shaders.Configuration.Design.MeshConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string MeshName { get; set; }
 
+        [Description("Specifies the kind of primitives to render with the vertex buffer data.")]
+        public PrimitiveType DrawMode { get; set; }
+
         public VertexAttributeMappingCollection VertexAttributes
         {
             get { return vertexAttributes; }
@@ -79,16 +82,16 @@ namespace Bonsai.Shaders
         {
             return Observable.Defer(() =>
             {
+                var name = MeshName;
+                if (string.IsNullOrEmpty(name))
+                {
+                    throw new InvalidOperationException("A mesh name must be specified.");
+                }
+
                 Mesh mesh = null;
                 return source.CombineEither(
                     ShaderManager.WindowSource.Do(window =>
                     {
-                        var name = MeshName;
-                        if (string.IsNullOrEmpty(name))
-                        {
-                            throw new InvalidOperationException("A mesh name must be specified.");
-                        }
-
                         window.Update(() =>
                         {
                             mesh = window.Meshes[name];
@@ -103,6 +106,7 @@ namespace Bonsai.Shaders
                     {
                         window.Update(() =>
                         {
+                            mesh.DrawMode = DrawMode;
                             mesh.VertexCount = VertexHelper.UpdateVertexBuffer(mesh.VertexBuffer, input);
                         });
                         return input;
@@ -122,10 +126,7 @@ namespace Bonsai.Shaders
 
                 Mesh mesh = null;
                 return source.CombineEither(
-                    ShaderManager.WindowSource.Do(window =>
-                    {
-                        mesh = window.Meshes[name];
-                    }),
+                    ShaderManager.WindowSource,
                     (input, window) =>
                     {
                         if (input.Depth != Depth.F32)
@@ -135,6 +136,17 @@ namespace Bonsai.Shaders
 
                         window.Update(() =>
                         {
+                            if (mesh == null)
+                            {
+                                mesh = window.Meshes[name];
+                                BindVertexAttributes(
+                                    mesh.VertexBuffer,
+                                    mesh.VertexArray,
+                                    input.Cols * BlittableValueType<float>.Stride,
+                                    vertexAttributes);
+                            }
+
+                            mesh.DrawMode = DrawMode;
                             mesh.VertexCount = VertexHelper.UpdateVertexBuffer(mesh.VertexBuffer, input);
                         });
                         return input;
