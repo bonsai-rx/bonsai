@@ -31,31 +31,6 @@ namespace Bonsai.Shaders
             get { return vertexAttributes; }
         }
 
-        static int GetVertexAttributeSize(VertexAttribPointerType type)
-        {
-            switch (type)
-            {
-                case VertexAttribPointerType.Byte:
-                case VertexAttribPointerType.UnsignedByte:
-                    return 1;
-                case VertexAttribPointerType.Short:
-                case VertexAttribPointerType.HalfFloat:
-                case VertexAttribPointerType.UnsignedShort:
-                    return 2;
-                case VertexAttribPointerType.Int:
-                case VertexAttribPointerType.Float:
-                case VertexAttribPointerType.Fixed:
-                case VertexAttribPointerType.UnsignedInt:
-                    return 4;
-                case VertexAttribPointerType.Double:
-                    return 8;
-                case VertexAttribPointerType.Int2101010Rev:
-                case VertexAttribPointerType.UnsignedInt2101010Rev:
-                default:
-                    throw new InvalidOperationException("Unsupported attribute type.");
-            }
-        }
-
         static void BindVertexAttributes(int vbo, int vao, int stride, VertexAttributeMappingCollection attributes)
         {
             GL.BindVertexArray(vao);
@@ -71,7 +46,7 @@ namespace Bonsai.Shaders
                     attribute.Type,
                     attribute.Normalized,
                     stride, offset);
-                offset += attribute.Size * GetVertexAttributeSize(attribute.Type);
+                offset += attribute.Size * VertexHelper.GetVertexAttributeSize(attribute.Type);
             }
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
