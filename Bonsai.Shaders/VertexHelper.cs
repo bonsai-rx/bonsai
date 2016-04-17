@@ -54,7 +54,7 @@ namespace Bonsai.Shaders
             GL.BufferData(BufferTarget.ArrayBuffer,
                           new IntPtr(bufferSize), buffer,
                           BufferUsageHint.StaticDraw);
-            return bufferSize;
+            return buffer.Length;
         }
 
         public static int UpdateVertexBuffer(int vertexBuffer, Mat buffer)
