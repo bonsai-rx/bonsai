@@ -52,7 +52,6 @@ namespace Bonsai.Shaders
             if (vertexCount > 0)
             {
                 GL.BindVertexArray(vao);
-                GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
                 if (eao > 0)
                 {
                     GL.BindBuffer(BufferTarget.ElementArrayBuffer, eao);
@@ -60,7 +59,6 @@ namespace Bonsai.Shaders
                     GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
                 }
                 else GL.DrawArrays(DrawMode, 0, vertexCount);
-                GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
                 GL.BindVertexArray(0);
             }
         }
