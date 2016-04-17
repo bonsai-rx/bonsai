@@ -131,21 +131,16 @@ namespace Bonsai.Shaders
             base.OnResize(e);
         }
 
-        protected override void OnUpdateFrame(FrameEventArgs e)
+        protected override void OnRenderFrame(FrameEventArgs e)
         {
+            GL.ClearColor(Color4.Black);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             var action = Interlocked.Exchange(ref update, null);
             if (action != null)
             {
                 action();
             }
 
-            base.OnUpdateFrame(e);
-        }
-
-        protected override void OnRenderFrame(FrameEventArgs e)
-        {
-            GL.ClearColor(Color4.Black);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             foreach (var shader in shaders)
             {
                 shader.Update(e);
