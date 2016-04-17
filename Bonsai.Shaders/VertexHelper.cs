@@ -66,5 +66,30 @@ namespace Bonsai.Shaders
                           BufferUsageHint.StaticDraw);
             return buffer.Rows;
         }
+
+        public static int GetVertexAttributeSize(VertexAttribPointerType type)
+        {
+            switch (type)
+            {
+                case VertexAttribPointerType.Byte:
+                case VertexAttribPointerType.UnsignedByte:
+                    return 1;
+                case VertexAttribPointerType.Short:
+                case VertexAttribPointerType.HalfFloat:
+                case VertexAttribPointerType.UnsignedShort:
+                    return 2;
+                case VertexAttribPointerType.Int:
+                case VertexAttribPointerType.Float:
+                case VertexAttribPointerType.Fixed:
+                case VertexAttribPointerType.UnsignedInt:
+                    return 4;
+                case VertexAttribPointerType.Double:
+                    return 8;
+                case VertexAttribPointerType.Int2101010Rev:
+                case VertexAttribPointerType.UnsignedInt2101010Rev:
+                default:
+                    throw new InvalidOperationException("Unsupported attribute type.");
+            }
+        }
     }
 }
