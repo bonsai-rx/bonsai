@@ -68,6 +68,10 @@
     <Compile Include="Configuration\Texture2D.cs" />
     <Compile Include="Configuration\ResourceConfiguration.cs" />
     <Compile Include="Configuration\TextureConfiguration.cs" />
+    <Compile Include="InstanceAttributeMappingCollection.cs" />
+    <Compile Include="InstanceAttributeMapping.cs" />
+    <Compile Include="MeshInstanced.cs" />
+    <Compile Include="DrawShaderInstanced.cs" />
     <Compile Include="MeshNameConverter.cs" />
     <Compile Include="TextureNameConverter.cs" />
     <Compile Include="CreateOrthographic.cs" />
