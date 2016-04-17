@@ -129,11 +129,6 @@ namespace Bonsai.Shaders
                     ShaderManager.WindowSource,
                     (input, window) =>
                     {
-                        if (input.Depth != Depth.F32)
-                        {
-                            throw new InvalidOperationException("The type of array elements must be 32-bit floating point.");
-                        }
-
                         window.Update(() =>
                         {
                             if (mesh == null)
@@ -142,7 +137,7 @@ namespace Bonsai.Shaders
                                 BindVertexAttributes(
                                     mesh.VertexBuffer,
                                     mesh.VertexArray,
-                                    input.Cols * BlittableValueType<float>.Stride,
+                                    input.Cols * input.ElementSize,
                                     vertexAttributes);
                             }
 
