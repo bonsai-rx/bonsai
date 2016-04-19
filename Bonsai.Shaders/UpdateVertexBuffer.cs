@@ -14,18 +14,19 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
-    [Description("Updates the vertex buffer data used by the specified shader.")]
+    [Description("Updates the vertex buffer data used by the specified mesh.")]
     public class UpdateVertexBuffer : Sink<Mat>
     {
         readonly VertexAttributeMappingCollection vertexAttributes = new VertexAttributeMappingCollection();
 
-        [Description("The name of the shader program.")]
+        [Description("The name of the mesh geometry to update.")]
         [Editor("Bonsai.Shaders.Configuration.Design.MeshConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string MeshName { get; set; }
 
         [Description("Specifies the kind of primitives to render with the vertex buffer data.")]
         public PrimitiveType DrawMode { get; set; }
 
+        [Description("Specifies the attributes used to interpret the vertex buffer data.")]
         public VertexAttributeMappingCollection VertexAttributes
         {
             get { return vertexAttributes; }

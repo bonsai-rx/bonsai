@@ -20,15 +20,19 @@ namespace Bonsai.Shaders.Configuration
         }
 
         [Category("TextureParameter")]
+        [Description("Specifies wrapping parameters for the column coordinates of the texture sampler.")]
         public TextureWrapMode WrapS { get; set; }
 
         [Category("TextureParameter")]
+        [Description("Specifies wrapping parameters for the row coordinates of the texture sampler.")]
         public TextureWrapMode WrapT { get; set; }
 
         [Category("TextureParameter")]
+        [Description("Specifies the texture minification filter.")]
         public TextureMinFilter MinFilter { get; set; }
 
         [Category("TextureParameter")]
+        [Description("Specifies the texture magnification filter.")]
         public TextureMinFilter MagFilter { get; set; }
 
         public override Texture CreateResource()

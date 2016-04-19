@@ -1,6 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -10,12 +11,16 @@ namespace Bonsai.Shaders.Configuration
 {
     public class ViewportState : StateConfiguration
     {
+        [Description("The x-coordinate of the lower left corner of the viewport.")]
         public float X { get; set; }
 
+        [Description("The y-coordinate of the lower left corner of the viewport.")]
         public float Y { get; set; }
 
+        [Description("The width of the viewport rectangle.")]
         public float Width { get; set; }
 
+        [Description("The height of the viewport rectangle.")]
         public float Height { get; set; }
 
         public override void Execute(Shader shader)

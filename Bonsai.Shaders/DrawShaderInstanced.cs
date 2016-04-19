@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
-    [Description("Updates the vertex buffer data used by the specified shader.")]
+    [Description("Issues a draw command on the specified shader using instance data.")]
     public class DrawShaderInstanced : Sink<Mat>
     {
         readonly InstanceAttributeMappingCollection instanceAttributes = new InstanceAttributeMappingCollection();
@@ -23,10 +23,11 @@ namespace Bonsai.Shaders
         [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string ShaderName { get; set; }
 
-        [Description("The name of the shader program.")]
+        [Description("The name of the mesh geometry to draw.")]
         [Editor("Bonsai.Shaders.Configuration.Design.MeshConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string MeshName { get; set; }
 
+        [Description("Specifies the attributes used to interpret the instance buffer data.")]
         public InstanceAttributeMappingCollection InstanceAttributes
         {
             get { return instanceAttributes; }

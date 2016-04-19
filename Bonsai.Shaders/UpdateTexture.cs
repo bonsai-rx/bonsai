@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
-    [Description("Updates the pixel store of a texture bound to the specified shader.")]
+    [Description("Updates the pixel store of the specified texture.")]
     public class UpdateTexture : Sink<IplImage>
     {
         public UpdateTexture()
@@ -21,9 +21,11 @@ namespace Bonsai.Shaders
             InternalFormat = PixelInternalFormat.Rgba;
         }
 
+        [Description("The name of the texture to update.")]
         [Editor("Bonsai.Shaders.Configuration.Design.TextureConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string TextureName { get; set; }
 
+        [Description("The internal storage format of the texture data.")]
         public PixelInternalFormat InternalFormat { get; set; }
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
