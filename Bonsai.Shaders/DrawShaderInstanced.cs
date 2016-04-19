@@ -133,7 +133,10 @@ namespace Bonsai.Shaders
                                     instanceAttributes);
                             }
 
-                            instance.InstanceCount = VertexHelper.UpdateVertexBuffer(instance.VertexBuffer, input, Usage);
+                            if (input != null)
+                            {
+                                instance.InstanceCount = VertexHelper.UpdateVertexBuffer(instance.VertexBuffer, input, Usage);
+                            }
                             instance.Draw();
                         });
                         return input;
@@ -164,7 +167,7 @@ namespace Bonsai.Shaders
                     {
                         window.Update(() =>
                         {
-                            if (instance == null)
+                            if (instance == null && input != null)
                             {
                                 var mesh = window.Meshes[name];
                                 instance = new MeshInstanced(mesh);
@@ -174,7 +177,11 @@ namespace Bonsai.Shaders
                                     instanceAttributes);
                             }
 
-                            instance.InstanceCount = VertexHelper.UpdateVertexBuffer(instance.VertexBuffer, input, Usage);
+                            if (instance == null) return;
+                            if (input != null)
+                            {
+                                instance.InstanceCount = VertexHelper.UpdateVertexBuffer(instance.VertexBuffer, input, Usage);
+                            }
                             instance.Draw();
                         });
                         return input;
