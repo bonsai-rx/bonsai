@@ -19,12 +19,20 @@ namespace Bonsai.Shaders
     {
         readonly VertexAttributeMappingCollection vertexAttributes = new VertexAttributeMappingCollection();
 
+        public UpdateVertexBuffer()
+        {
+            Usage = BufferUsageHint.DynamicDraw;
+        }
+
         [Description("The name of the mesh geometry to update.")]
         [Editor("Bonsai.Shaders.Configuration.Design.MeshConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string MeshName { get; set; }
 
         [Description("Specifies the kind of primitives to render with the vertex buffer data.")]
         public PrimitiveType DrawMode { get; set; }
+
+        [Description("Specifies the expected usage pattern of the vertex buffer.")]
+        public BufferUsageHint Usage { get; set; }
 
         [Description("Specifies the attributes used to interpret the vertex buffer data.")]
         public VertexAttributeMappingCollection VertexAttributes
@@ -83,7 +91,7 @@ namespace Bonsai.Shaders
                         window.Update(() =>
                         {
                             mesh.DrawMode = DrawMode;
-                            mesh.VertexCount = VertexHelper.UpdateVertexBuffer(mesh.VertexBuffer, input);
+                            mesh.VertexCount = VertexHelper.UpdateVertexBuffer(mesh.VertexBuffer, input, Usage);
                         });
                         return input;
                     });
@@ -118,7 +126,7 @@ namespace Bonsai.Shaders
                             }
 
                             mesh.DrawMode = DrawMode;
-                            mesh.VertexCount = VertexHelper.UpdateVertexBuffer(mesh.VertexBuffer, input);
+                            mesh.VertexCount = VertexHelper.UpdateVertexBuffer(mesh.VertexBuffer, input, Usage);
                         });
                         return input;
                     });
