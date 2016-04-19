@@ -46,24 +46,23 @@ namespace Bonsai.Shaders
             return 4;
         }
 
-        public static int UpdateVertexBuffer<TVertex>(int vertexBuffer, TVertex[] buffer)
+        public static int UpdateVertexBuffer<TVertex>(int vertexBuffer, TVertex[] buffer, BufferUsageHint usage)
             where TVertex : struct
         {
             var bufferSize = buffer.Length * BlittableValueType<TVertex>.Stride;
             GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBuffer);
             GL.BufferData(BufferTarget.ArrayBuffer,
-                          new IntPtr(bufferSize), buffer,
-                          BufferUsageHint.StaticDraw);
+                          new IntPtr(bufferSize),
+                          buffer, usage);
             return buffer.Length;
         }
 
-        public static int UpdateVertexBuffer(int vertexBuffer, Mat buffer)
+        public static int UpdateVertexBuffer(int vertexBuffer, Mat buffer, BufferUsageHint usage)
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBuffer);
             GL.BufferData(BufferTarget.ArrayBuffer,
                           new IntPtr(buffer.Rows * buffer.Step),
-                          buffer.Data,
-                          BufferUsageHint.StaticDraw);
+                          buffer.Data, usage);
             return buffer.Rows;
         }
 

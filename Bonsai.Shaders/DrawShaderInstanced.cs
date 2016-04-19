@@ -19,6 +19,11 @@ namespace Bonsai.Shaders
     {
         readonly InstanceAttributeMappingCollection instanceAttributes = new InstanceAttributeMappingCollection();
 
+        public DrawShaderInstanced()
+        {
+            Usage = BufferUsageHint.DynamicDraw;
+        }
+
         [Description("The name of the shader program.")]
         [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string ShaderName { get; set; }
@@ -26,6 +31,9 @@ namespace Bonsai.Shaders
         [Description("The name of the mesh geometry to draw.")]
         [Editor("Bonsai.Shaders.Configuration.Design.MeshConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string MeshName { get; set; }
+
+        [Description("Specifies the expected usage pattern of the instance buffer data.")]
+        public BufferUsageHint Usage { get; set; }
 
         [Description("Specifies the attributes used to interpret the instance buffer data.")]
         public InstanceAttributeMappingCollection InstanceAttributes
@@ -125,7 +133,7 @@ namespace Bonsai.Shaders
                                     instanceAttributes);
                             }
 
-                            instance.InstanceCount = VertexHelper.UpdateVertexBuffer(instance.VertexBuffer, input);
+                            instance.InstanceCount = VertexHelper.UpdateVertexBuffer(instance.VertexBuffer, input, Usage);
                             instance.Draw();
                         });
                         return input;
@@ -166,7 +174,7 @@ namespace Bonsai.Shaders
                                     instanceAttributes);
                             }
 
-                            instance.InstanceCount = VertexHelper.UpdateVertexBuffer(instance.VertexBuffer, input);
+                            instance.InstanceCount = VertexHelper.UpdateVertexBuffer(instance.VertexBuffer, input, Usage);
                             instance.Draw();
                         });
                         return input;
