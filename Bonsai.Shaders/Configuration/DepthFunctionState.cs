@@ -1,6 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace Bonsai.Shaders.Configuration
             Function = DepthFunction.Less;
         }
 
+        [Description("Specifies the function used for depth buffer comparisons.")]
         public DepthFunction Function { get; set; }
 
         public override void Execute(Shader shader)

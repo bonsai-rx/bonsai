@@ -1,6 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,8 +16,10 @@ namespace Bonsai.Shaders.Configuration
             DestinationFactor = BlendingFactorDest.OneMinusSrcAlpha;
         }
 
+        [Description("Specifies the scale factor for blending source color values.")]
         public BlendingFactorSrc SourceFactor { get; set; }
 
+        [Description("Specifies the scale factor for blending destination color values.")]
         public BlendingFactorDest DestinationFactor { get; set; }
 
         public override void Execute(Shader shader)

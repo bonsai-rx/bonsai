@@ -11,6 +11,7 @@ namespace Bonsai.Shaders.Configuration
     public class TexturedQuad : MeshConfiguration
     {
         [Category("State")]
+        [Description("Optional quad geometry transformation effects.")]
         public QuadEffects QuadEffects { get; set; }
 
         public override Mesh CreateResource()

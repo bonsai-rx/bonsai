@@ -17,12 +17,15 @@ namespace Bonsai.Shaders.Configuration
             TextureSlot = TextureUnit.Texture0;
         }
 
+        [Description("The name of the shader sampler binding.")]
         public string Name { get; set; }
 
+        [Description("The slot on which to bind the texture.")]
         public TextureUnit TextureSlot { get; set; }
 
         [Category("Reference")]
         [TypeConverter(typeof(TextureNameConverter))]
+        [Description("The name of the texture that will be bound to the shader.")]
         public string TextureName { get; set; }
 
         public void Load(Shader shader)

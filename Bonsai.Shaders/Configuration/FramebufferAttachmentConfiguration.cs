@@ -21,19 +21,25 @@ namespace Bonsai.Shaders.Configuration
 
         [Category("Reference")]
         [TypeConverter(typeof(TextureNameConverter))]
+        [Description("The name of the texture that will be attached to the framebuffer.")]
         public string TextureName { get; set; }
 
         [Category("TextureSize")]
+        [Description("The optional width of the framebuffer texture attachment.")]
         public int? Width { get; set; }
 
         [Category("TextureSize")]
+        [Description("The optional height of the framebuffer texture attachment.")]
         public int? Height { get; set; }
 
+        [Description("The framebuffer attachment slot.")]
         public FramebufferAttachment Attachment { get; set; }
 
+        [Description("The internal pixel format of the framebuffer texture.")]
         public PixelInternalFormat Format { get; set; }
 
         [XmlIgnore]
+        [Description("The optional color used to clear the framebuffer before rendering.")]
         public Color? ClearColor { get; set; }
 
         [Browsable(false)]
