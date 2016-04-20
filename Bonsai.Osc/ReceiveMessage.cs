@@ -39,25 +39,22 @@ namespace Bonsai.Osc
 
         protected override Expression BuildCombinator(IEnumerable<Expression> arguments)
         {
-            var addressReaderParameter = Expression.Parameter(typeof(BinaryReader));
             var readerParameter = Expression.Parameter(typeof(BinaryReader));
-            var parseAddress = MessageParser.Address(addressReaderParameter);
-            var addressParser = Expression.Lambda(parseAddress, addressReaderParameter);
             var builder = Expression.Constant(this);
 
             if (string.IsNullOrEmpty(TypeTag))
             {
-                return Expression.Call(builder, "Generate", null, addressParser);
+                return Expression.Call(builder, "Generate", null);
             }
             else
             {
                 var parseMessage = MessageParser.Content(TypeTag, readerParameter);
                 var messageParser = Expression.Lambda(parseMessage, readerParameter);
-                return Expression.Call(builder, "Generate", new[] { messageParser.ReturnType }, addressParser, messageParser);
+                return Expression.Call(builder, "Generate", new[] { messageParser.ReturnType }, messageParser);
             }
         }
 
-        IObservable<Message> Generate(Func<BinaryReader, string> addressReader)
+        IObservable<Message> Generate()
         {
             return Observable.Using(
                 () => TransportManager.ReserveConnection(Connection),
@@ -66,9 +63,9 @@ namespace Bonsai.Osc
                     .SubscribeOn(TaskPoolScheduler.Default);
         }
 
-        IObservable<TSource> Generate<TSource>(Func<BinaryReader, string> addressReader, Func<BinaryReader, TSource> messageReader)
+        IObservable<TSource> Generate<TSource>(Func<BinaryReader, TSource> messageReader)
         {
-            return Generate(addressReader).Select(message =>
+            return Generate().Select(message =>
             {
                 var contents = message.GetStream();
                 using (var reader = new BigEndianReader(contents))
