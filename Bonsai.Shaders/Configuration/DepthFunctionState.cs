@@ -18,7 +18,7 @@ namespace Bonsai.Shaders.Configuration
         [Description("Specifies the function used for depth buffer comparisons.")]
         public DepthFunction Function { get; set; }
 
-        public override void Execute(Shader shader)
+        public override void Execute(ShaderWindow window)
         {
             GL.DepthFunc(Function);
         }

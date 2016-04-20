@@ -13,7 +13,7 @@ namespace Bonsai.Shaders.Configuration
         [Description("Specifies the width of rasterized lines.")]
         public float Width { get; set; }
 
-        public override void Execute(Shader shader)
+        public override void Execute(ShaderWindow window)
         {
             GL.LineWidth(Width);
         }
