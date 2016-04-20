@@ -16,6 +16,6 @@ namespace Bonsai.Shaders.Configuration
     [XmlInclude(typeof(DepthFunctionState))]
     public abstract class StateConfiguration
     {
-        public abstract void Execute(Shader shader);
+        public abstract void Execute(ShaderWindow window);
     }
 }

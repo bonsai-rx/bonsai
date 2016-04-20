@@ -13,7 +13,7 @@ namespace Bonsai.Shaders.Configuration
         [Description("Specifies the diameter of rasterized points.")]
         public float Size { get; set; }
 
-        public override void Execute(Shader shader)
+        public override void Execute(ShaderWindow window)
         {
             GL.PointSize(Size);
         }

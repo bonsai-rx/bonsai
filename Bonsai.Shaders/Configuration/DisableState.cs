@@ -13,7 +13,7 @@ namespace Bonsai.Shaders.Configuration
         [Description("The render state capability to disable.")]
         public EnableCap Capability { get; set; }
 
-        public override void Execute(Shader shader)
+        public override void Execute(ShaderWindow window)
         {
             GL.Disable(Capability);
         }

@@ -22,7 +22,7 @@ namespace Bonsai.Shaders.Configuration
         [Description("Specifies the scale factor for blending destination color values.")]
         public BlendingFactorDest DestinationFactor { get; set; }
 
-        public override void Execute(Shader shader)
+        public override void Execute(ShaderWindow window)
         {
             GL.BlendFunc(SourceFactor, DestinationFactor);
         }

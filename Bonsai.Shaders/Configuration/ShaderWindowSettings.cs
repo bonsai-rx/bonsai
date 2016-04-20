@@ -11,6 +11,7 @@ namespace Bonsai.Shaders.Configuration
     [TypeConverter(typeof(SettingsConverter))]
     public class ShaderWindowSettings
     {
+        readonly StateConfigurationCollection renderState = new StateConfigurationCollection();
         readonly ShaderConfigurationCollection shaders = new ShaderConfigurationCollection();
         readonly TextureConfigurationCollection textures = new TextureConfigurationCollection();
         readonly MeshConfigurationCollection meshes = new MeshConfigurationCollection();
@@ -51,6 +52,14 @@ namespace Bonsai.Shaders.Configuration
         [Category("Render Settings")]
         [Description("The target render frequency.")]
         public double TargetRenderFrequency { get; set; }
+
+        [Category("Render Settings")]
+        [Description("Specifies the initial shader window render state.")]
+        [Editor("Bonsai.Shaders.Configuration.Design.StateConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        public StateConfigurationCollection RenderState
+        {
+            get { return renderState; }
+        }
 
         [Browsable(false)]
         public ShaderConfigurationCollection Shaders

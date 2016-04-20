@@ -23,9 +23,9 @@ namespace Bonsai.Shaders.Configuration
         [Description("The height of the viewport rectangle.")]
         public float Height { get; set; }
 
-        public override void Execute(Shader shader)
+        public override void Execute(ShaderWindow window)
         {
-            shader.Window.Viewport = new RectangleF(X, Y, Width, Height);
+            window.Viewport = new RectangleF(X, Y, Width, Height);
         }
 
         public override string ToString()

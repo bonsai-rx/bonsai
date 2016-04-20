@@ -108,6 +108,11 @@ namespace Bonsai.Shaders
 
                 shader.Load();
             }
+
+            foreach (var state in settings.RenderState)
+            {
+                state.Execute(this);
+            }
             base.OnLoad(e);
         }
 
