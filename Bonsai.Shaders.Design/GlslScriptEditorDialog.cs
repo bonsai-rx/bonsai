@@ -52,9 +52,9 @@ namespace Bonsai.Shaders.Design
 
         public string FileName { get; set; }
 
-        public ShaderType? ShaderType { get; set; }
+        public ShaderType? ScriptType { get; set; }
 
-        public GlslScriptExampleCollection ShaderExamples
+        public GlslScriptExampleCollection ScriptExamples
         {
             get { return shaderExamples; }
         }
@@ -108,6 +108,12 @@ namespace Bonsai.Shaders.Design
             }
             var title = FileName = saveFileDialog.FileName = fileName;
             Text = title ?? BaseTitle;
+        }
+
+        void SetFileFilter(string name, string extension)
+        {
+            var filter = string.Format("{0} Shader Files (*{1})|*{1}|All Files (*.*)|*.*", name, extension);
+            openFileDialog.Filter = saveFileDialog.Filter = filter;
         }
 
         void ShowMessage(string message, string caption)
@@ -236,6 +242,33 @@ namespace Bonsai.Shaders.Design
                 };
             }
 
+            var scriptType = ScriptType;
+            if (scriptType.HasValue)
+            {
+                switch (scriptType.Value)
+                {
+                    case ShaderType.ComputeShader:
+                        SetFileFilter("Compute", ".comp");
+                        break;
+                    case ShaderType.FragmentShader:
+                        SetFileFilter("Fragment", ".frag");
+                        break;
+                    case ShaderType.GeometryShader:
+                        SetFileFilter("Geometry", ".geom");
+                        break;
+                    case ShaderType.TessControlShader:
+                        SetFileFilter("Tessellation Control", ".tesc");
+                        break;
+                    case ShaderType.TessEvaluationShader:
+                        SetFileFilter("Tessellation Evaluation", ".tese");
+                        break;
+                    case ShaderType.VertexShader:
+                        SetFileFilter("Vertex", ".vert");
+                        break;
+                    default:
+                        break;
+                }
+            }
             base.OnLoad(e);
         }
 
@@ -363,7 +396,7 @@ namespace Bonsai.Shaders.Design
         {
             const string ErrorCaption = "Validation Error";
             const string SuccessCaption = "Validation Completed";
-            var shaderType = ShaderType;
+            var shaderType = ScriptType;
             if (!shaderType.HasValue)
             {
                 var message = "No specified shader type. Unable to validate source code.";
