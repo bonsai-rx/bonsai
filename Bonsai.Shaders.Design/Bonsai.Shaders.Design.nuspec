@@ -15,7 +15,7 @@
     <tags>Bonsai Shaders Design Graphics OpenGL</tags>
     <dependencies>
       <dependency id="Bonsai.Design" version="2.2.0" />
-      <dependency id="Bonsai.Shaders" version="0.11.0" />
+      <dependency id="Bonsai.Shaders" version="0.12.0" />
       <dependency id="OpenCV.Net" version="3.3.0" />
     </dependencies>
   </metadata>

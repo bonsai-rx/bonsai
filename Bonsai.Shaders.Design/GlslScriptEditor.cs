@@ -38,13 +38,13 @@ namespace Bonsai.Shaders.Design
                 var fileName = value as string;
                 var editorDialog = new GlslScriptEditorDialog();
                 editorDialog.FileName = fileName;
-                editorDialog.ShaderType = GetShaderType();
+                editorDialog.ScriptType = GetShaderType();
                 var examples = GetShaderExamples();
                 if (examples != null)
                 {
                     foreach (var example in examples)
                     {
-                        editorDialog.ShaderExamples.Add(example);
+                        editorDialog.ScriptExamples.Add(example);
                     }
                 }
 
