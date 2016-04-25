@@ -23,8 +23,8 @@ namespace Bonsai.Shaders
         {
             return first.Publish(ps1 => second.Publish(ps2 =>
                 ps1.CombineLatest(ps2, resultSelector)
-                   .TakeUntil(ps1.LastAsync())
-                   .TakeUntil(ps2.LastAsync())));
+                   .TakeUntil(ps1.LastOrDefaultAsync())
+                   .TakeUntil(ps2.LastOrDefaultAsync())));
         }
     }
 }
