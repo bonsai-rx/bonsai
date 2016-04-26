@@ -23,6 +23,7 @@ namespace Bonsai.Shaders.Configuration
             VSync = VSyncMode.On;
             WindowState = WindowState.Normal;
             DisplayDevice = DisplayIndex.Default;
+            GraphicsMode = new GraphicsModeConfiguration();
         }
 
         [Category("Window Style")]
@@ -60,6 +61,11 @@ namespace Bonsai.Shaders.Configuration
         {
             get { return renderState; }
         }
+
+        [Category("Render Settings")]
+        [Description("Specifies the graphics mode of the shader window.")]
+        [TypeConverter(typeof(ExpandableObjectConverter))]
+        public GraphicsModeConfiguration GraphicsMode { get; set; }
 
         [Browsable(false)]
         public ShaderConfigurationCollection Shaders

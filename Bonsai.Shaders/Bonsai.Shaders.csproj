@@ -60,7 +60,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\BlendFunctionState.cs" />
+    <Compile Include="Configuration\ColorFormatConfiguration.cs" />
     <Compile Include="Configuration\FramebufferAttachmentConfiguration.cs" />
+    <Compile Include="Configuration\GraphicsModeConfiguration.cs" />
     <Compile Include="Configuration\MeshConfigurationCollection.cs" />
     <Compile Include="Configuration\MeshConfiguration.cs" />
     <Compile Include="Configuration\TextureConfigurationCollection.cs" />
