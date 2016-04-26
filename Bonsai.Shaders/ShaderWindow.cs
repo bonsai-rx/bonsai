@@ -25,7 +25,8 @@ namespace Bonsai.Shaders
         event Action update;
 
         public ShaderWindow(ShaderWindowSettings configuration)
-            : base(configuration.Width, configuration.Height, GraphicsMode.Default,
+            : base(configuration.Width, configuration.Height,
+                   configuration.GraphicsMode == null ? GraphicsMode.Default : configuration.GraphicsMode.CreateGraphicsMode(),
                    DefaultTitle, GameWindowFlags.Default, DisplayDevice.GetDisplay(configuration.DisplayDevice))
         {
             settings = configuration;
