@@ -24,6 +24,7 @@ namespace Bonsai.Audio
 
         public AudioCapture()
         {
+            SampleFormat = ALFormat.Mono16;
             BufferLength = 10;
             Frequency = 44100;
 
@@ -33,13 +34,16 @@ namespace Bonsai.Audio
                 {
                     var frequency = Frequency;
                     var bufferLength = BufferLength;
+                    var sampleFormat = SampleFormat;
+                    var channelCount = SampleFormat == ALFormat.Stereo16 ? 2 : 1;
                     var bufferSize = (int)Math.Ceiling(frequency * bufferLength / 1000);
+                    var readBuffer = sampleFormat == ALFormat.Stereo16 ? new Mat(bufferSize, channelCount, Depth.S16, 1) : null;
                     var captureInterval = TimeSpan.FromMilliseconds((int)(bufferLength / 2 + 0.5));
                     var captureBufferSize = bufferSize * 4;
 
                     lock (captureLock)
                     {
-                        using (var capture = new OpenTK.Audio.AudioCapture(DeviceName, frequency, ALFormat.Mono16, captureBufferSize))
+                        using (var capture = new OpenTK.Audio.AudioCapture(DeviceName, frequency, sampleFormat, captureBufferSize))
                         using (var captureSignal = new ManualResetEvent(false))
                         {
                             capture.Start();
@@ -47,8 +51,13 @@ namespace Bonsai.Audio
                             {
                                 while (capture.AvailableSamples >= bufferSize)
                                 {
-                                    var buffer = new Mat(1, bufferSize, Depth.S16, 1);
-                                    capture.ReadSamples(buffer.Data, bufferSize);
+                                    var buffer = new Mat(channelCount, bufferSize, Depth.S16, 1);
+                                    if (readBuffer != null)
+                                    {
+                                        capture.ReadSamples(readBuffer.Data, bufferSize);
+                                        CV.Transpose(readBuffer, buffer);
+                                    }
+                                    else capture.ReadSamples(buffer.Data, bufferSize);
                                     observer.OnNext(buffer);
                                 }
 
@@ -73,12 +82,39 @@ namespace Bonsai.Audio
         [Description("The sampling frequency (Hz) used by the audio capture device.")]
         public int Frequency { get; set; }
 
-        [Description("The length of the sample buffer (ms).")]
+        [TypeConverter(typeof(SampleFormatConverter))]
+        [Description("The requested capture buffer format.")]
+        public ALFormat SampleFormat { get; set; }
+
+        [Description("The length of the capture buffer (ms).")]
         public double BufferLength { get; set; }
 
         public override IObservable<Mat> Generate()
         {
             return source;
+        }
+
+        class SampleFormatConverter : EnumConverter
+        {
+            public SampleFormatConverter(Type type)
+                : base(type)
+            {
+            }
+
+            public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
+            {
+                return true;
+            }
+
+            public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
+            {
+                return true;
+            }
+
+            public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+            {
+                return new StandardValuesCollection(new[] { ALFormat.Mono16, ALFormat.Stereo16 });
+            }
         }
     }
 }
