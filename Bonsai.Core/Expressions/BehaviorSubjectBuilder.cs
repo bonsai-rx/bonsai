@@ -17,17 +17,9 @@ namespace Bonsai.Expressions
     /// sequence to all subscribed and future observers using a shared subject.
     /// </summary>
     [XmlType("BehaviorSubject", Namespace = Constants.XmlNamespace)]
-    [TypeDescriptionProvider(typeof(BehaviorSubjectTypeDescriptionProvider))]
     [Description("Broadcasts the latest value of an observable sequence to all subscribed and future observers using a shared subject.")]
     public class BehaviorSubjectBuilder : SubjectBuilder
     {
-        /// <summary>
-        /// Gets or sets the initial value sent to observers when no other value
-        /// has been received by the subject yet.
-        /// </summary>
-        [Browsable(false)]
-        public WorkflowProperty Value { get; set; }
-
         /// <summary>
         /// When overridden in a derived class, returns the expression
         /// that creates the shared subject.
@@ -40,21 +32,43 @@ namespace Bonsai.Expressions
         /// </returns>
         protected override Expression BuildSubject(Expression expression)
         {
-            var value = Value;
             var builderExpression = Expression.Constant(this);
             var parameterType = expression.Type.GetGenericArguments()[0];
-            if (value == null || value.PropertyType != parameterType)
-            {
-                var propertyType = GetWorkflowPropertyType(parameterType);
-                Value = value = (WorkflowProperty)Activator.CreateInstance(propertyType);
-            }
-
-            return Expression.Call(builderExpression, "CreateSubject", new[] { parameterType }, Expression.Constant(value));
+            return Expression.Call(builderExpression, "CreateSubject", new[] { parameterType });
         }
 
-        BehaviorSubject<TSource> CreateSubject<TSource>(WorkflowProperty<TSource> value)
+        BehaviorSubject<TSource> CreateSubject<TSource>()
         {
-            return new BehaviorSubject<TSource>(value.Value);
+            return new BehaviorSubject<TSource>();
+        }
+
+        class BehaviorSubject<TSource> : ISubject<TSource>, IDisposable
+        {
+            readonly ReplaySubject<TSource> subject = new ReplaySubject<TSource>();
+
+            public void OnCompleted()
+            {
+            }
+
+            public void OnError(Exception error)
+            {
+                subject.OnError(error);
+            }
+
+            public void OnNext(TSource value)
+            {
+                subject.OnNext(value);
+            }
+
+            public IDisposable Subscribe(IObserver<TSource> observer)
+            {
+                return subject.Subscribe(observer);
+            }
+
+            public void Dispose()
+            {
+                subject.Dispose();
+            }
         }
     }
 }
