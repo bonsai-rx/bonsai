@@ -137,6 +137,7 @@
     <Compile Include="Reactive\Buffer.cs" />
     <Compile Include="Reactive\Catch.cs" />
     <Compile Include="Reactive\Concat.cs" />
+    <Compile Include="Reactive\DistinctBy.cs" />
     <Compile Include="Reactive\DistinctUntilChangedBy.cs" />
     <Compile Include="Reactive\Synchronize.cs" />
     <Compile Include="Reactive\GroupBy.cs" />
