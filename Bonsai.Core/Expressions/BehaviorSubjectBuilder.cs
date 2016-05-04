@@ -52,7 +52,6 @@ namespace Bonsai.Expressions
 
             public void OnError(Exception error)
             {
-                subject.OnError(error);
             }
 
             public void OnNext(TSource value)
