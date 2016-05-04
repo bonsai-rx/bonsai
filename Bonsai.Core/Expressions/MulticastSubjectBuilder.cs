@@ -66,7 +66,7 @@ namespace Bonsai.Expressions
 
         static IObservable<TSource> Process<TSource>(IObservable<TSource> source, ISubject<TSource> subject)
         {
-            return source.Do(subject.OnNext);
+            return source.Do(subject);
         }
     }
 }
