@@ -955,10 +955,15 @@ namespace Bonsai.Expressions
                 else
                 {
                     var arguments = SelectMembers(parameter, sourceSelector).ToArray();
-                    var constructor = OverloadResolution(property.Type.GetConstructors(), arguments);
+                    var propertyType = Nullable.GetUnderlyingType(property.Type) ?? property.Type;
+                    var constructor = OverloadResolution(propertyType.GetConstructors(), arguments);
                     if (constructor.method != null)
                     {
                         body = Expression.New((ConstructorInfo)constructor.method, constructor.arguments);
+                        if (propertyType != property.Type)
+                        {
+                            body = Expression.Convert(body, property.Type);
+                        }
                     }
                 }
             }
