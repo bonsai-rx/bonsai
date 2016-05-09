@@ -18,7 +18,7 @@ namespace Bonsai.Configuration
         readonly LibraryFolderCollection libraryFolders = new LibraryFolderCollection();
 
         [XmlIgnore]
-        internal string ConfigurationFile { get; set; }
+        public string ConfigurationFile { get; internal set; }
 
         [XmlArrayItem("Package")]
         public PackageReferenceCollection Packages
