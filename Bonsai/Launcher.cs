@@ -101,11 +101,22 @@ namespace Bonsai
                             foreach (var task in operations)
                             {
                                 if (task.IsFaulted || task.IsCanceled) continue;
-                                packageManager.InstallPackage(
-                                    task.Result,
-                                    ignoreDependencies: true,
-                                    allowPrereleaseVersions: true,
-                                    ignoreWalkInfo: true);
+                                var package = task.Result;
+                                if (packageManager.LocalRepository.Exists(package.Id))
+                                {
+                                    packageManager.UpdatePackage(
+                                        package,
+                                        updateDependencies: false,
+                                        allowPrereleaseVersions: true);
+                                }
+                                else
+                                {
+                                    packageManager.InstallPackage(
+                                        package,
+                                        ignoreDependencies: true,
+                                        allowPrereleaseVersions: true,
+                                        ignoreWalkInfo: true);
+                                }
                             }
 
                             Task.WaitAll(operations);
