@@ -86,14 +86,13 @@ namespace Bonsai.Audio
 
                     var buffer = AL.GenBuffer();
                     AL.BufferData(buffer, format, input.Data, input.Rows * input.Step, Frequency);
-
                     AL.SourceQueueBuffer(sourceId, buffer);
+
+                    ClearBuffers(sourceId, 0);
                     if (AL.GetSourceState(sourceId) != ALSourceState.Playing)
                     {
                         AL.SourcePlay(sourceId);
                     }
-
-                    ClearBuffers(sourceId, 0);
                 }).Finally(() =>
                 {
                     int queuedBuffers;
