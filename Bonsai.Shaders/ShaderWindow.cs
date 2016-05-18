@@ -82,7 +82,7 @@ namespace Bonsai.Shaders
                 (int)(viewport.Height * height));
         }
 
-        internal void Update(Action action)
+        public void Update(Action action)
         {
             update += action;
         }
