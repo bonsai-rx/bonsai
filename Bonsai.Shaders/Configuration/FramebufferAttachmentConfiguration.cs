@@ -17,6 +17,9 @@ namespace Bonsai.Shaders.Configuration
         public FramebufferAttachmentConfiguration()
         {
             ClearColor = Color.Transparent;
+            InternalFormat = PixelInternalFormat.Rgba;
+            Format = PixelFormat.Rgba;
+            Type = PixelType.UnsignedByte;
         }
 
         [Category("Reference")]
@@ -36,7 +39,13 @@ namespace Bonsai.Shaders.Configuration
         public FramebufferAttachment Attachment { get; set; }
 
         [Description("The internal pixel format of the framebuffer texture.")]
-        public PixelInternalFormat Format { get; set; }
+        public PixelInternalFormat InternalFormat { get; set; }
+
+        [Description("The pixel format of the framebuffer texture.")]
+        public PixelFormat Format { get; set; }
+
+        [Description("The pixel type of the framebuffer texture.")]
+        public PixelType Type { get; set; }
 
         [XmlIgnore]
         [Description("The optional color used to clear the framebuffer before rendering.")]
@@ -64,9 +73,9 @@ namespace Bonsai.Shaders.Configuration
             GL.BindTexture(TextureTarget.Texture2D, texture);
             GL.TexImage2D(
                 TextureTarget.Texture2D, 0,
-                Format, width, height, 0,
-                PixelFormat.Rgba,
-                PixelType.UnsignedByte,
+                InternalFormat, width, height, 0,
+                Format,
+                Type,
                 IntPtr.Zero);
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
