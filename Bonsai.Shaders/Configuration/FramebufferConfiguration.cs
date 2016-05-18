@@ -64,12 +64,12 @@ namespace Bonsai.Shaders.Configuration
         {
             if (fbo > 0)
             {
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
                 foreach (var attachment in framebufferAttachments)
                 {
                     attachment.Clear();
                 }
 
-                GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
                 shader.Window.UpdateViewport(framebufferWidth, framebufferHeight);
             }
         }
