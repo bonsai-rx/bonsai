@@ -38,7 +38,7 @@ namespace Bonsai.Shaders
             get { return eao; }
         }
 
-        internal void EnsureElementArray()
+        public void EnsureElementArray()
         {
             if (eao == 0)
             {
