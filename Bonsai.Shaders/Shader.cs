@@ -21,9 +21,7 @@ namespace Bonsai.Shaders
         string fragmentSource;
         event Action update;
         ShaderWindow shaderWindow;
-        List<StateConfiguration> shaderState;
-        List<TextureBindingConfiguration> shaderTextures;
-        FramebufferConfiguration shaderFramebuffer;
+        ShaderState shaderState;
         Mesh shaderMesh;
         double time;
 
@@ -52,29 +50,12 @@ namespace Bonsai.Shaders
                 throw new ArgumentNullException("fragmentShader");
             }
 
-            if (renderState == null)
-            {
-                throw new ArgumentNullException("renderState");
-            }
-
-            if (textureBindings == null)
-            {
-                throw new ArgumentNullException("textureUnits");
-            }
-
-            if (framebuffer == null)
-            {
-                throw new ArgumentNullException("framebuffer");
-            }
-
             Name = name;
             shaderWindow = window;
             vertexSource = vertexShader;
             geometrySource = geometryShader;
             fragmentSource = fragmentShader;
-            shaderState = renderState.ToList();
-            shaderTextures = textureBindings.ToList();
-            shaderFramebuffer = framebuffer;
+            shaderState = new ShaderState(this, renderState, textureBindings, framebuffer);
         }
 
         public bool Enabled { get; set; }
@@ -95,11 +76,6 @@ namespace Bonsai.Shaders
         public ShaderWindow Window
         {
             get { return shaderWindow; }
-        }
-
-        public IEnumerable<TextureBindingConfiguration> TextureBindings
-        {
-            get { return shaderTextures; }
         }
 
         public void Update(Action action)
@@ -188,12 +164,8 @@ namespace Bonsai.Shaders
             time = 0;
             program = CreateShader();
             GL.UseProgram(program);
-            foreach (var texture in shaderTextures)
-            {
-                texture.Load(this);
-            }
+            shaderState.Load();
 
-            shaderFramebuffer.Load(this);
             timeLocation = GL.GetUniformLocation(program, "time");
         }
 
@@ -202,11 +174,6 @@ namespace Bonsai.Shaders
             if (Enabled)
             {
                 time += e.Time;
-                foreach (var state in shaderState)
-                {
-                    state.Execute(shaderWindow);
-                }
-
                 GL.UseProgram(program);
                 if (timeLocation >= 0)
                 {
@@ -214,12 +181,7 @@ namespace Bonsai.Shaders
                 }
 
                 var action = Interlocked.Exchange(ref update, null);
-                foreach (var texture in shaderTextures)
-                {
-                    texture.Bind(this);
-                }
-
-                shaderFramebuffer.Bind(this);
+                shaderState.Bind();
                 if (action != null)
                 {
                     action();
@@ -231,11 +193,7 @@ namespace Bonsai.Shaders
                     mesh.Draw();
                 }
 
-                shaderFramebuffer.Unbind(this);
-                foreach (var texture in shaderTextures)
-                {
-                    texture.Unbind(this);
-                }
+                shaderState.Unbind();
             }
         }
 
@@ -243,12 +201,7 @@ namespace Bonsai.Shaders
         {
             if (shaderWindow != null)
             {
-                shaderFramebuffer.Unload(this);
-                foreach (var texture in shaderTextures)
-                {
-                    texture.Unload(this);
-                }
-
+                shaderState.Unload();
                 GL.DeleteProgram(program);
                 shaderWindow = null;
                 update = null;

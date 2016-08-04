@@ -12,8 +12,6 @@ namespace Bonsai.Shaders.Configuration
 {
     public class FramebufferAttachmentConfiguration
     {
-        Texture texture;
-
         public FramebufferAttachmentConfiguration()
         {
             ClearColor = Color.Transparent;
@@ -66,52 +64,6 @@ namespace Bonsai.Shaders.Configuration
                 if (string.IsNullOrEmpty(value)) ClearColor = null;
                 else ClearColor = ColorTranslator.FromHtml(value);
             }
-        }
-
-        void ClearTexture(int texture, int width, int height)
-        {
-            GL.BindTexture(TextureTarget.Texture2D, texture);
-            GL.TexImage2D(
-                TextureTarget.Texture2D, 0,
-                InternalFormat, width, height, 0,
-                Format,
-                Type,
-                IntPtr.Zero);
-            GL.BindTexture(TextureTarget.Texture2D, 0);
-        }
-
-        public void Load(Shader shader, out int width, out int height)
-        {
-            if (!shader.Window.Textures.TryGetValue(TextureName, out texture))
-            {
-                throw new InvalidOperationException(string.Format(
-                    "The texture reference \"{0}\" was not found.",
-                    TextureName));
-            }
-
-            width = Width.GetValueOrDefault(shader.Window.Width);
-            height = Height.GetValueOrDefault(shader.Window.Height);
-            ClearTexture(texture.Id, width, height);
-        }
-
-        public void Attach()
-        {
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, Attachment, TextureTarget.Texture2D, texture.Id, 0);
-        }
-
-        public void Clear()
-        {
-            var color = ClearColor;
-            if (color.HasValue)
-            {
-                GL.ClearColor(color.Value);
-                GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            }
-        }
-
-        public void Unload(Shader shader)
-        {
-            texture = null;
         }
     }
 }

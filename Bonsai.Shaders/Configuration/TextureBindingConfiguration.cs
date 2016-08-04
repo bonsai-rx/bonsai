@@ -27,33 +27,5 @@ namespace Bonsai.Shaders.Configuration
         [TypeConverter(typeof(TextureNameConverter))]
         [Description("The name of the texture that will be bound to the shader.")]
         public string TextureName { get; set; }
-
-        public void Load(Shader shader)
-        {
-            shader.SetTextureSlot(Name, TextureSlot);
-            if (!shader.Window.Textures.TryGetValue(TextureName, out texture))
-            {
-                throw new InvalidOperationException(string.Format(
-                    "The texture reference \"{0}\" was not found.",
-                    TextureName));
-            }
-        }
-
-        public void Bind(Shader shader)
-        {
-            GL.ActiveTexture(TextureSlot);
-            GL.BindTexture(TextureTarget.Texture2D, texture.Id);
-        }
-
-        public void Unbind(Shader shader)
-        {
-            GL.ActiveTexture(TextureSlot);
-            GL.BindTexture(TextureTarget.Texture2D, 0);
-        }
-
-        public void Unload(Shader shader)
-        {
-            texture = null;
-        }
     }
 }
