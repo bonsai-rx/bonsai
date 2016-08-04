@@ -78,6 +78,7 @@
     <Compile Include="DrawShaderInstanced.cs" />
     <Compile Include="MeshName.cs" />
     <Compile Include="MeshNameConverter.cs" />
+    <Compile Include="ShaderState.cs" />
     <Compile Include="TextureNameConverter.cs" />
     <Compile Include="CreateOrthographic.cs" />
     <Compile Include="LatestOnUpdateFrame.cs" />
