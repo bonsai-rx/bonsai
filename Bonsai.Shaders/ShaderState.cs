@@ -13,12 +13,14 @@ namespace Bonsai.Shaders
     {
         readonly Shader shader;
         readonly List<StateConfiguration> renderState;
+        readonly List<UniformBinding> uniformBindings;
         readonly List<TextureBinding> textureBindings;
         readonly Framebuffer framebuffer;
 
         public ShaderState(
             Shader shaderTarget,
             IEnumerable<StateConfiguration> renderStateConfiguration,
+            IEnumerable<UniformConfiguration> shaderUniforms,
             IEnumerable<TextureBindingConfiguration> textureBindingConfiguration,
             FramebufferConfiguration framebufferConfiguration)
         {
@@ -30,6 +32,11 @@ namespace Bonsai.Shaders
             if (renderStateConfiguration == null)
             {
                 throw new ArgumentNullException("renderStateConfiguration");
+            }
+
+            if (shaderUniforms == null)
+            {
+                throw new ArgumentNullException("shaderUniforms");
             }
 
             if (textureBindingConfiguration == null)
@@ -44,12 +51,18 @@ namespace Bonsai.Shaders
 
             shader = shaderTarget;
             renderState = renderStateConfiguration.ToList();
+            uniformBindings = shaderUniforms.Select(configuration => new UniformBinding(configuration)).ToList();
             textureBindings = textureBindingConfiguration.Select(configuration => new TextureBinding(configuration)).ToList();
             framebuffer = new Framebuffer(framebufferConfiguration);
         }
         
         public void Load()
         {
+            foreach (var binding in uniformBindings)
+            {
+                binding.Load(shader);
+            }
+
             foreach (var binding in textureBindings)
             {
                 binding.Load(shader);
@@ -63,6 +76,11 @@ namespace Bonsai.Shaders
             foreach (var state in renderState)
             {
                 state.Execute(shader.Window);
+            }
+
+            foreach (var binding in uniformBindings)
+            {
+                binding.Bind(shader);
             }
 
             foreach (var binding in textureBindings)
@@ -247,6 +265,39 @@ namespace Bonsai.Shaders
             public void Unload(Shader shader)
             {
                 texture = null;
+            }
+        }
+
+        class UniformBinding
+        {
+            int location;
+            UniformConfiguration configuration;
+
+            public UniformBinding(UniformConfiguration uniformConfiguration)
+            {
+                if (uniformConfiguration == null)
+                {
+                    throw new ArgumentNullException("uniformConfiguration");
+                }
+
+                configuration = uniformConfiguration;
+            }
+
+            public void Load(Shader shader)
+            {
+                location = GL.GetUniformLocation(shader.Program, configuration.Name);
+                if (location < 0)
+                {
+                    throw new InvalidOperationException(string.Format(
+                        "The uniform variable \"{0}\" was not found in shader program \"{1}\".",
+                        configuration.Name,
+                        shader.Name));
+                }
+            }
+
+            public void Bind(Shader shader)
+            {
+                configuration.SetUniform(location);
             }
         }
 

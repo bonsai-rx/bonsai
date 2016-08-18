@@ -14,6 +14,7 @@ namespace Bonsai.Shaders.Configuration
     {
         readonly FramebufferConfiguration framebuffer = new FramebufferConfiguration();
         readonly StateConfigurationCollection renderState = new StateConfigurationCollection();
+        readonly UniformConfigurationCollection shaderUniforms = new UniformConfigurationCollection();
         readonly TextureBindingConfigurationCollection textureBindings = new TextureBindingConfigurationCollection();
 
         public ShaderConfiguration()
@@ -57,6 +58,14 @@ namespace Bonsai.Shaders.Configuration
         }
 
         [Category("State")]
+        [Description("Specifies any uniform values that are required to run the shader.")]
+        [Editor("Bonsai.Shaders.Configuration.Design.UniformConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        public UniformConfigurationCollection ShaderUniforms
+        {
+            get { return shaderUniforms; }
+        }
+
+        [Category("State")]
         [Description("Specifies any texture bindings that are required to run the shader.")]
         [Editor("Bonsai.Shaders.Configuration.Design.TextureBindingConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public TextureBindingConfigurationCollection TextureBindings
@@ -84,6 +93,7 @@ namespace Bonsai.Shaders.Configuration
                 geometrySource,
                 fragmentSource,
                 renderState,
+                shaderUniforms,
                 textureBindings,
                 framebuffer);
             shader.Enabled = Enabled;

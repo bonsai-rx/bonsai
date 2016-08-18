@@ -32,6 +32,7 @@ namespace Bonsai.Shaders
             string geometryShader,
             string fragmentShader,
             IEnumerable<StateConfiguration> renderState,
+            IEnumerable<UniformConfiguration> shaderUniforms,
             IEnumerable<TextureBindingConfiguration> textureBindings,
             FramebufferConfiguration framebuffer)
         {
@@ -55,7 +56,7 @@ namespace Bonsai.Shaders
             vertexSource = vertexShader;
             geometrySource = geometryShader;
             fragmentSource = fragmentShader;
-            shaderState = new ShaderState(this, renderState, textureBindings, framebuffer);
+            shaderState = new ShaderState(this, renderState, shaderUniforms, textureBindings, framebuffer);
         }
 
         public bool Enabled { get; set; }
