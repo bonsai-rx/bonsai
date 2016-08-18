@@ -61,6 +61,9 @@
   <ItemGroup>
     <Compile Include="Configuration\BlendFunctionState.cs" />
     <Compile Include="Configuration\ColorFormatConfiguration.cs" />
+    <Compile Include="Configuration\Vec4Uniform.cs" />
+    <Compile Include="Configuration\Vec3Uniform.cs" />
+    <Compile Include="Configuration\Vec2Uniform.cs" />
     <Compile Include="Configuration\FramebufferAttachmentConfiguration.cs" />
     <Compile Include="Configuration\GraphicsModeConfiguration.cs" />
     <Compile Include="Configuration\MeshConfigurationCollection.cs" />
@@ -70,6 +73,9 @@
     <Compile Include="Configuration\Texture2D.cs" />
     <Compile Include="Configuration\ResourceConfiguration.cs" />
     <Compile Include="Configuration\TextureConfiguration.cs" />
+    <Compile Include="Configuration\UniformConfiguration.cs" />
+    <Compile Include="Configuration\UniformConfigurationCollection.cs" />
+    <Compile Include="Configuration\FloatUniform.cs" />
     <Compile Include="DrawShaderAggregate.cs" />
     <Compile Include="MeshAggregate.cs" />
     <Compile Include="InstanceAttributeMappingCollection.cs" />
