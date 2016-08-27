@@ -15,7 +15,6 @@ namespace Bonsai.Shaders
     public class Shader : IDisposable
     {
         int program;
-        int timeLocation;
         string vertexSource;
         string geometrySource;
         string fragmentSource;
@@ -23,7 +22,6 @@ namespace Bonsai.Shaders
         ShaderWindow shaderWindow;
         ShaderState shaderState;
         Mesh shaderMesh;
-        double time;
 
         internal Shader(
             string name,
@@ -162,24 +160,16 @@ namespace Bonsai.Shaders
 
         public void Load()
         {
-            time = 0;
             program = CreateShader();
             GL.UseProgram(program);
             shaderState.Load();
-
-            timeLocation = GL.GetUniformLocation(program, "time");
         }
 
-        public void Update(FrameEventArgs e)
+        public void Draw()
         {
             if (Enabled)
             {
-                time += e.Time;
                 GL.UseProgram(program);
-                if (timeLocation >= 0)
-                {
-                    GL.Uniform1(timeLocation, (float)time);
-                }
 
                 var action = Interlocked.Exchange(ref update, null);
                 shaderState.Bind();

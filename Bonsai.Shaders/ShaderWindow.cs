@@ -149,7 +149,7 @@ namespace Bonsai.Shaders
 
             foreach (var shader in shaders)
             {
-                shader.Update(e);
+                shader.Draw();
             }
 
             lock (syncRoot)
