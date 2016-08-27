@@ -76,6 +76,7 @@
     <Compile Include="Configuration\UniformConfiguration.cs" />
     <Compile Include="Configuration\UniformConfigurationCollection.cs" />
     <Compile Include="Configuration\FloatUniform.cs" />
+    <Compile Include="RenderFrame.cs" />
     <Compile Include="DrawShaderAggregate.cs" />
     <Compile Include="MeshAggregate.cs" />
     <Compile Include="InstanceAttributeMappingCollection.cs" />

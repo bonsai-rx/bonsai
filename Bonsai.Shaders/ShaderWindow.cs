@@ -147,6 +147,7 @@ namespace Bonsai.Shaders
                 action();
             }
 
+            base.OnRenderFrame(e);
             foreach (var shader in shaders)
             {
                 shader.Draw();
@@ -156,7 +157,6 @@ namespace Bonsai.Shaders
             {
                 SwapBuffers();
             }
-            base.OnRenderFrame(e);
         }
 
         protected override void OnUnload(EventArgs e)
