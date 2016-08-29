@@ -35,6 +35,9 @@
   <PropertyGroup>
     <ApplicationIcon>..\Bonsai.Editor\Bonsai.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>App.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -51,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="App.manifest" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai\Bonsai.csproj">
