@@ -29,28 +29,10 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.canvas = new Bonsai.Design.GraphViewPanel();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.tooltipTimer = new System.Windows.Forms.Timer(this.components);
+            this.canvas = new Bonsai.Design.GraphViewPanel();
             this.SuspendLayout();
-            // 
-            // canvas
-            // 
-            this.canvas.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.canvas.AutoScroll = true;
-            this.canvas.Location = new System.Drawing.Point(3, 3);
-            this.canvas.Name = "canvas";
-            this.canvas.Size = new System.Drawing.Size(144, 144);
-            this.canvas.TabIndex = 0;
-            this.canvas.Paint += new System.Windows.Forms.PaintEventHandler(this.canvas_Paint);
-            this.canvas.MouseClick += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseClick);
-            this.canvas.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseDoubleClick);
-            this.canvas.MouseDown += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseDown);
-            this.canvas.MouseHover += new System.EventHandler(this.canvas_MouseHover);
-            this.canvas.MouseMove += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseMove);
-            this.canvas.MouseUp += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseUp);
             // 
             // toolTip
             // 
@@ -61,12 +43,30 @@
             // 
             this.tooltipTimer.Interval = 200;
             // 
+            // canvas
+            // 
+            this.canvas.AutoScroll = true;
+            this.canvas.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.canvas.Location = new System.Drawing.Point(3, 3);
+            this.canvas.Name = "canvas";
+            this.canvas.Size = new System.Drawing.Size(294, 282);
+            this.canvas.TabIndex = 0;
+            this.canvas.Paint += new System.Windows.Forms.PaintEventHandler(this.canvas_Paint);
+            this.canvas.MouseClick += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseClick);
+            this.canvas.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseDoubleClick);
+            this.canvas.MouseDown += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseDown);
+            this.canvas.MouseHover += new System.EventHandler(this.canvas_MouseHover);
+            this.canvas.MouseMove += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseMove);
+            this.canvas.MouseUp += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseUp);
+            // 
             // GraphView
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.canvas);
             this.Name = "GraphView";
+            this.Padding = new System.Windows.Forms.Padding(3);
+            this.Size = new System.Drawing.Size(300, 288);
             this.ResumeLayout(false);
 
         }
