@@ -85,6 +85,31 @@ void main()
   tex_coord = vt;
 }
 "
+                },
+
+                new GlslScriptExample
+                {
+                    Name = "Textured Model",
+                    Source = @"#version 400
+uniform mat4 modelview;
+uniform mat4 projection;
+in vec3 vp;
+in vec2 vt;
+in vec3 vn;
+out vec3 position;
+out vec2 tex_coord;
+out vec3 normal;
+
+void main()
+{
+  mat4 normalmat = transpose(inverse(modelview));
+  vec4 v = modelview * vec4(vp, 1.0);
+  gl_Position = projection * v;
+  position = vec3(v);
+  tex_coord = vt;
+  normal = normalize(vec3(normalmat * vec4(vn, 0.0)));
+}
+"
                 }
             };
         }
@@ -113,6 +138,36 @@ void main()
 {
   vec4 texel = texture(tex, tex_coord);
   frag_colour = texel;
+}
+"
+                },
+
+                new GlslScriptExample
+                {
+                    Name = "Phong Shading",
+                    Source = @"#version 400
+uniform vec3 Ka;
+uniform vec3 Kd;
+uniform vec3 Ks;
+uniform float Ns;
+uniform sampler2D map_Kd;
+uniform vec3 light;
+in vec3 position;
+in vec2 tex_coord;
+in vec3 normal;
+out vec4 frag_colour;
+
+void main()
+{
+  vec3 L = normalize(light - position);
+  vec3 R = normalize(-reflect(L,normal));
+  vec3 V = normalize(-position);
+
+  vec3 Iamb = Ka;
+  vec3 Idiff = Kd * texture(map_Kd, tex_coord).rgb * max(dot(normal,L), 0.0);
+  vec3 Ispec = Ks * pow(max(dot(R,V),0.0),Ns);
+
+  frag_colour = vec4(Iamb + Idiff + Ispec,1.0);
 }
 "
                 }
