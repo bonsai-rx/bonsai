@@ -11,6 +11,7 @@ namespace Bonsai.Shaders.Configuration
 {
     public class TexturedModel : MeshConfiguration
     {
+        [TypeConverter(typeof(ResourceFileNameConverter))]
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
         [FileNameFilter("OBJ Files (*.obj)|*.obj")]
         [Description("The name of the model file.")]
