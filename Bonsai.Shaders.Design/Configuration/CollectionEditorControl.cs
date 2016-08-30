@@ -21,6 +21,8 @@ namespace Bonsai.Shaders.Configuration.Design
         int initialHeight;
         int initialListHeight;
         const int ButtonMargin = 2;
+        const float DefaultDpi = 96f;
+        const float DefaultFontSize = 8.25f;
         static readonly object AfterExpandEvent = new object();
         static readonly object BeforeExpandEvent = new object();
         static readonly object SelectedItemChangedEvent = new object();
@@ -99,7 +101,23 @@ namespace Bonsai.Shaders.Configuration.Design
                 }
                 addButton.ContextMenuStrip = menuStrip;
             }
+            UpdateDrawScale();
             base.OnLoad(e);
+        }
+
+        protected override void OnFontChanged(EventArgs e)
+        {
+            UpdateDrawScale();
+            base.OnFontChanged(e);
+        }
+
+        void UpdateDrawScale()
+        {
+            using (var graphics = CreateGraphics())
+            {
+                var drawScale = Font.Size / DefaultFontSize * graphics.DpiY / DefaultDpi;
+                selectionListBox.ItemHeight = (int)(13 * drawScale);
+            }
         }
 
         protected override void OnResize(EventArgs e)
