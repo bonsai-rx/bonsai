@@ -17,23 +17,11 @@ namespace Bonsai.Design
 {
     partial class GraphView : UserControl
     {
-        const float DrawScale = 1f;
-        const int PenWidth = (int)(3 * DrawScale);
-        const int NodeAirspace = (int)(80 * DrawScale);
-        const int NodeSize = (int)(30 * DrawScale);
-        const int IconSize = (int)(16 * DrawScale);
-        const int HalfSize = NodeSize / 2;
-        const int IconOffset = HalfSize - (IconSize / 2);
-        const int LabelTextOffset = (int)(5 * DrawScale);
-        static readonly SizeF VectorTextOffset = new SizeF(0, 1.375f * DrawScale);
-        static readonly Size EntryOffset = new Size(-PenWidth / 2, NodeSize / 2);
-        static readonly Size ExitOffset = new Size(NodeSize + PenWidth / 2, NodeSize / 2);
+        const float DefaultDpi = 96f;
+        const float DefaultFontSize = 8.25f;
         static readonly Pen RubberBandPen = new Pen(Color.FromArgb(51, 153, 255));
         static readonly Brush RubberBandBrush = new SolidBrush(Color.FromArgb(128, 170, 204, 238));
         static readonly Brush HotBrush = new SolidBrush(Color.FromArgb(128, 229, 243, 251));
-        static readonly Pen CursorPen = new Pen(Brushes.DarkGray, PenWidth);
-        static readonly Pen WhitePen = new Pen(Brushes.White, PenWidth);
-        static readonly Pen BlackPen = new Pen(Brushes.Black, PenWidth);
         static readonly StringFormat TextFormat = new StringFormat(StringFormatFlags.NoWrap);
         static readonly StringFormat CenteredTextFormat = new StringFormat(StringFormat.GenericTypographic)
         {
@@ -53,6 +41,21 @@ namespace Bonsai.Design
         static readonly object EventNodeMouseLeave = new object();
         static readonly object EventNodeMouseHover = new object();
         static readonly object EventSelectedNodeChanged = new object();
+
+        float DrawScale;
+        int PenWidth;
+        int NodeAirspace;
+        int NodeSize;
+        int IconSize;
+        int HalfSize;
+        int IconOffset;
+        int LabelTextOffset;
+        SizeF VectorTextOffset;
+        Size EntryOffset;
+        Size ExitOffset;
+        Pen CursorPen;
+        Pen WhitePen;
+        Pen BlackPen;
 
         bool ignoreMouseUp;
         bool mouseDownHandled;
@@ -312,6 +315,44 @@ namespace Bonsai.Design
             }
         }
 
+        void DisposeDrawResources()
+        {
+            if (CursorPen != null)
+            {
+                CursorPen.Dispose();
+                WhitePen.Dispose();
+                BlackPen.Dispose();
+                CursorPen = WhitePen = BlackPen = null;
+            }
+        }
+
+        void UpdateDrawScale()
+        {
+            using (var graphics = CreateGraphics())
+            {
+                var drawScale = Font.Size / DefaultFontSize * graphics.DpiY / DefaultDpi;
+                if (drawScale != DrawScale)
+                {
+                    DisposeDrawResources();
+                    DrawScale = drawScale;
+                    PenWidth = (int)(3 * DrawScale);
+                    NodeAirspace = (int)(80 * DrawScale);
+                    NodeSize = (int)(30 * DrawScale);
+                    IconSize = (int)(16 * DrawScale);
+                    HalfSize = NodeSize / 2;
+                    IconOffset = HalfSize - (IconSize / 2);
+                    LabelTextOffset = (int)(5 * DrawScale);
+                    VectorTextOffset = new SizeF(0, 1.375f * DrawScale);
+                    EntryOffset = new Size(-PenWidth / 2, NodeSize / 2);
+                    ExitOffset = new Size(NodeSize + PenWidth / 2, NodeSize / 2);
+                    CursorPen = new Pen(Brushes.DarkGray, PenWidth);
+                    WhitePen = new Pen(Brushes.White, PenWidth);
+                    BlackPen = new Pen(Brushes.Black, PenWidth);
+                    UpdateModelLayout();
+                }
+            }
+        }
+
         Rectangle GetBoundingRectangle(GraphNode node)
         {
             var offset = new Point(-canvas.HorizontalScroll.Value, -canvas.VerticalScroll.Value);
@@ -428,6 +469,18 @@ namespace Bonsai.Design
             {
                 handler(this, e);
             }
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            UpdateDrawScale();
+            base.OnLoad(e);
+        }
+
+        protected override void OnFontChanged(EventArgs e)
+        {
+            UpdateDrawScale();
+            base.OnFontChanged(e);
         }
 
         protected override void OnGotFocus(EventArgs e)
@@ -766,6 +819,7 @@ namespace Bonsai.Design
 
         private void UpdateModelLayout()
         {
+            if (!IsHandleCreated) return;
             layoutNodes.Clear();
             var model = Nodes;
             Size size = Size.Empty;
@@ -783,7 +837,7 @@ namespace Bonsai.Design
                             if (pivot == null) pivot = cursor = node;
                             var row = node.LayerIndex;
                             var location = new Point(column * NodeAirspace + PenWidth, row * NodeAirspace + PenWidth);
-                            var layout = new LayoutNode(node, location);
+                            var layout = new LayoutNode(this, node, location);
                             layout.SetNodeLabel(node.Text, Font, graphics, WrapLabels);
                             layoutNodes.Add(layout);
                             maxRow = Math.Max(row, maxRow);
@@ -1172,11 +1226,14 @@ namespace Bonsai.Design
 
         class LayoutNode
         {
-            public LayoutNode(GraphNode node, Point location)
+            public LayoutNode(GraphView view, GraphNode node, Point location)
             {
+                View = view;
                 Node = node;
                 Location = location;
             }
+
+            private GraphView View { get; set; }
 
             public GraphNode Node { get; private set; }
 
@@ -1190,17 +1247,17 @@ namespace Bonsai.Design
 
             public Point Center
             {
-                get { return Point.Add(Location, new Size(HalfSize, HalfSize)); }
+                get { return Point.Add(Location, new Size(View.HalfSize, View.HalfSize)); }
             }
 
             public Point EntryPoint
             {
-                get { return Point.Add(Location, EntryOffset); }
+                get { return Point.Add(Location, View.EntryOffset); }
             }
 
             public Point ExitPoint
             {
-                get { return Point.Add(Location, ExitOffset); }
+                get { return Point.Add(Location, View.ExitOffset); }
             }
 
             public Rectangle BoundingRectangle
@@ -1208,8 +1265,8 @@ namespace Bonsai.Design
                 get
                 {
                     return new Rectangle(
-                        Location.X - PenWidth, Location.Y - PenWidth,
-                        NodeSize + 2 * PenWidth, NodeSize + 2 * PenWidth);
+                        Location.X - View.PenWidth, Location.Y - View.PenWidth,
+                        View.NodeSize + 2 * View.PenWidth, View.NodeSize + 2 * View.PenWidth);
                 }
             }
 
@@ -1218,13 +1275,13 @@ namespace Bonsai.Design
                 Text = text;
                 var labelSize = SizeF.Empty;
                 var labelLocation = (PointF)Location;
-                labelLocation.Y += NodeSize + LabelTextOffset;
+                labelLocation.Y += View.NodeSize + View.LabelTextOffset;
                 var labelBuilder = new StringBuilder(text.Length);
-                foreach (var word in WordWrap(graphics, text, font, NodeAirspace))
+                foreach (var word in WordWrap(graphics, text, font, View.NodeAirspace))
                 {
                     if (labelBuilder.Length > 0) labelBuilder.AppendLine();
                     labelBuilder.Append(word);
-                    var size = graphics.MeasureString(word, font, NodeAirspace, TextFormat);
+                    var size = graphics.MeasureString(word, font, View.NodeAirspace, TextFormat);
                     labelSize.Width = Math.Max(size.Width, labelSize.Width);
                     labelSize.Height += size.Height;
                 }

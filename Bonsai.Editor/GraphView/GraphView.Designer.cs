@@ -15,6 +15,7 @@
         {
             if (disposing && (components != null))
             {
+                DisposeDrawResources();
                 components.Dispose();
             }
             base.Dispose(disposing);
