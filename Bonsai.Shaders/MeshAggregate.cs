@@ -10,7 +10,7 @@ namespace Bonsai.Shaders
     class MeshAggregate : IDisposable
     {
         int vao;
-        IEnumerable<Mesh> meshes;
+        readonly IEnumerable<Mesh> meshes;
 
         internal MeshAggregate(IEnumerable<Mesh> source)
         {
