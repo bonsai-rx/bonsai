@@ -53,17 +53,16 @@ namespace Bonsai.Vision
                     CV.Copy(input, roi, mask);
                     for (int i = 0; i < boundingRegions.Length; i++)
                     {
-                        var region = boundingRegions[i];
+                        var rect = boundingRegions[i];
                         var polygon = currentRegions[i];
-                        roi.RegionOfInterest = region;
+                        var region = roi.GetSubRect(rect);
                         output.Add(new RegionActivity
                         {
                             Roi = polygon,
-                            Rect = region,
-                            Activity = CV.Sum(roi)
+                            Rect = rect,
+                            Activity = CV.Sum(region)
                         });
                     }
-                    roi.ResetRegionOfInterest();
                 }
 
                 return output;
