@@ -12,7 +12,6 @@ namespace Bonsai.Shaders.Configuration
     {
         public Texture2D()
         {
-            Name = "tex";
             WrapS = TextureWrapMode.Repeat;
             WrapT = TextureWrapMode.Repeat;
             MinFilter = TextureMinFilter.Linear;
