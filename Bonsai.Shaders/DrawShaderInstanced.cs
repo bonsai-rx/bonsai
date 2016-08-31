@@ -118,14 +118,14 @@ namespace Bonsai.Shaders
 
                 MeshInstanced instance = null;
                 return source.CombineEither(
-                    ShaderManager.WindowSource,
-                    (input, window) =>
+                    ShaderManager.ReserveShader(ShaderName),
+                    (input, shader) =>
                     {
-                        window.Update(() =>
+                        shader.Update(() =>
                         {
                             if (instance == null)
                             {
-                                var mesh = window.Meshes[name];
+                                var mesh = shader.Window.Meshes[name];
                                 instance = new MeshInstanced(mesh);
                                 BindInstanceAttributes(
                                     instance,
