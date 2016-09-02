@@ -253,10 +253,35 @@ namespace Bonsai.Expressions
             return methodGenericArguments.Zip(bindingCandidates, (argument, match) => match).Concat(methodGenericArguments.Skip(bindingCandidates.Length)).ToArray();
         }
 
+        static bool MatchGenericConstraints(Type parameterType, Type argumentType)
+        {
+            if (!parameterType.IsGenericParameter)
+            {
+                throw new ArgumentException("The specified parameter is not generic.", "parameterType");
+            }
+
+            if (!parameterType.BaseType.IsAssignableFrom(argumentType))
+            {
+                return false;
+            }
+
+            var interfaces = parameterType.GetInterfaces();
+            foreach (var interfaceType in interfaces)
+            {
+                if (!interfaceType.IsAssignableFrom(argumentType))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         internal static IEnumerable<Tuple<Type, int>> GetParameterBindings(Type parameterType, Type argumentType)
         {
             // If parameter is a generic parameter, just bind it to the input type
-            if (parameterType.IsGenericParameter)
+            // Any generic constraints on the parameter type must be compatible with the input type
+            if (parameterType.IsGenericParameter && MatchGenericConstraints(parameterType, argumentType))
             {
                 return Enumerable.Repeat(Tuple.Create(argumentType, parameterType.GenericParameterPosition), 1);
             }
