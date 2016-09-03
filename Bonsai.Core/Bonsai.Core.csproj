@@ -62,6 +62,7 @@
     <Compile Include="BinaryCombinator.cs" />
     <Compile Include="Combinator.cs" />
     <Compile Include="Expressions\AddBuilder.cs" />
+    <Compile Include="Expressions\AsyncSubjectBuilder.cs" />
     <Compile Include="Expressions\BinaryOperatorBuilder.cs" />
     <Compile Include="Expressions\BuildContext.cs" />
     <Compile Include="Expressions\CombinatorExpressionBuilder.cs" />
