@@ -13,11 +13,11 @@ using System.Xml.Serialization;
 namespace Bonsai.Expressions
 {
     /// <summary>
-    /// Represents an expression builder that broadcasts the values of an observable
+    /// Represents an expression builder that replays the values of an observable
     /// sequence to all subscribed and future observers using a shared subject.
     /// </summary>
     [XmlType("ReplaySubject", Namespace = Constants.XmlNamespace)]
-    [Description("Broadcasts the values of an observable sequence to all subscribed and future observers using a shared subject.")]
+    [Description("Replays the values of an observable sequence to all subscribed and future observers using a shared subject.")]
     public class ReplaySubjectBuilder : SubjectBuilder
     {
         /// <summary>
