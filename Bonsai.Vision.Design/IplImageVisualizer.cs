@@ -23,7 +23,7 @@ namespace Bonsai.Vision.Design
     public class IplImageVisualizer : DialogMashupVisualizer
     {
         const int TargetInterval = 16;
-        Panel imagePanel;
+        UserControl imagePanel;
         StatusStrip statusStrip;
         ToolStripStatusLabel statusLabel;
         VisualizerCanvas visualizerCanvas;
@@ -125,9 +125,15 @@ namespace Bonsai.Vision.Design
                 }
             };
 
-            imagePanel = new Panel { Dock = DockStyle.Fill, Size = new Size(320, 240) };
+            imagePanel = new UserControl();
+            imagePanel.SuspendLayout();
+            imagePanel.Dock = DockStyle.Fill;
+            imagePanel.Size = new Size(320, 240);
+            imagePanel.AutoScaleDimensions = new SizeF(6F, 13F);
+            imagePanel.AutoScaleMode = AutoScaleMode.Font;
             imagePanel.Controls.Add(visualizerCanvas);
             imagePanel.Controls.Add(statusStrip);
+            imagePanel.ResumeLayout(false);
 
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
             if (visualizerService != null)
