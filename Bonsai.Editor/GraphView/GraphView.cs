@@ -17,8 +17,6 @@ namespace Bonsai.Design
 {
     partial class GraphView : UserControl
     {
-        const float DefaultDpi = 96f;
-        const float DefaultFontSize = 8.25f;
         static readonly Pen RubberBandPen = new Pen(Color.FromArgb(51, 153, 255));
         static readonly Brush RubberBandBrush = new SolidBrush(Color.FromArgb(128, 170, 204, 238));
         static readonly Brush HotBrush = new SolidBrush(Color.FromArgb(128, 229, 243, 251));
@@ -42,7 +40,6 @@ namespace Bonsai.Design
         static readonly object EventNodeMouseHover = new object();
         static readonly object EventSelectedNodeChanged = new object();
 
-        float DrawScale;
         int PenWidth;
         int NodeAirspace;
         int NodeSize;
@@ -326,31 +323,25 @@ namespace Bonsai.Design
             }
         }
 
-        void UpdateDrawScale()
+        protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {
-            using (var graphics = CreateGraphics())
-            {
-                var drawScale = Font.Size / DefaultFontSize * graphics.DpiY / DefaultDpi;
-                if (drawScale != DrawScale)
-                {
-                    DisposeDrawResources();
-                    DrawScale = drawScale;
-                    PenWidth = (int)(3 * DrawScale);
-                    NodeAirspace = (int)(80 * DrawScale);
-                    NodeSize = (int)(30 * DrawScale);
-                    IconSize = (int)(16 * DrawScale);
-                    HalfSize = NodeSize / 2;
-                    IconOffset = HalfSize - (IconSize / 2);
-                    LabelTextOffset = (int)(5 * DrawScale);
-                    VectorTextOffset = new SizeF(0, 1.375f * DrawScale);
-                    EntryOffset = new Size(-PenWidth / 2, NodeSize / 2);
-                    ExitOffset = new Size(NodeSize + PenWidth / 2, NodeSize / 2);
-                    CursorPen = new Pen(Brushes.DarkGray, PenWidth);
-                    WhitePen = new Pen(Brushes.White, PenWidth);
-                    BlackPen = new Pen(Brushes.Black, PenWidth);
-                    UpdateModelLayout();
-                }
-            }
+            DisposeDrawResources();
+            var drawScale = factor.Height;
+            PenWidth = (int)(3 * drawScale);
+            NodeAirspace = (int)(80 * drawScale);
+            NodeSize = (int)(30 * drawScale);
+            IconSize = (int)(16 * drawScale);
+            HalfSize = NodeSize / 2;
+            IconOffset = HalfSize - (IconSize / 2);
+            LabelTextOffset = (int)(5 * drawScale);
+            VectorTextOffset = new SizeF(0, 1.375f * drawScale);
+            EntryOffset = new Size(-PenWidth / 2, NodeSize / 2);
+            ExitOffset = new Size(NodeSize + PenWidth / 2, NodeSize / 2);
+            CursorPen = new Pen(Brushes.DarkGray, PenWidth);
+            WhitePen = new Pen(Brushes.White, PenWidth);
+            BlackPen = new Pen(Brushes.Black, PenWidth);
+            UpdateModelLayout();
+            base.ScaleControl(factor, specified);
         }
 
         Rectangle GetBoundingRectangle(GraphNode node)
@@ -469,18 +460,6 @@ namespace Bonsai.Design
             {
                 handler(this, e);
             }
-        }
-
-        protected override void OnLoad(EventArgs e)
-        {
-            UpdateDrawScale();
-            base.OnLoad(e);
-        }
-
-        protected override void OnFontChanged(EventArgs e)
-        {
-            UpdateDrawScale();
-            base.OnFontChanged(e);
         }
 
         protected override void OnGotFocus(EventArgs e)
