@@ -96,12 +96,15 @@ namespace Bonsai.Design
             };
 
             workflowGraphView = new WorkflowGraphView(provider);
+            workflowGraphView.SuspendLayout();
             workflowGraphView.Launcher = this;
             workflowGraphView.Font = ParentView.Font;
             workflowGraphView.Dock = DockStyle.Fill;
+            workflowGraphView.AutoScaleDimensions = new SizeF(6F, 13F);
             workflowGraphView.Size = new Size(300, 200);
             workflowGraphView.Workflow = builder.Workflow;
             workflowGraphView.VisualizerLayout = VisualizerLayout;
+            workflowGraphView.ResumeLayout(false);
             visualizerDialog.Padding = new Padding(10);
             visualizerDialog.AddControl(workflowGraphView);
         }
