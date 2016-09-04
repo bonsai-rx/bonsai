@@ -23,8 +23,6 @@ namespace Bonsai.NuGet
 {
     public partial class PackageManagerDialog : Form, IPackageManager
     {
-        const float DefaultDpi = 96f;
-        const float DefaultFontSize = 8.25f;
         const int PackagesPerPage = 10;
         const string SortByMostDownloads = "Most Downloads";
         const string SortByPublishedDate = "Published Date";
@@ -194,24 +192,14 @@ namespace Bonsai.NuGet
                 });
 
             loaded = true;
-            UpdateDrawScale();
             SelectDefaultNode();
             base.OnLoad(e);
         }
 
-        protected override void OnFontChanged(EventArgs e)
+        protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {
-            UpdateDrawScale();
-            base.OnFontChanged(e);
-        }
-
-        void UpdateDrawScale()
-        {
-            using (var graphics = CreateGraphics())
-            {
-                var drawScale = Font.Size / DefaultFontSize * graphics.DpiY / DefaultDpi;
-                packageView.ItemHeight = (int)(64 * drawScale);
-            }
+            packageView.ItemHeight = (int)(64 * factor.Height);
+            base.ScaleControl(factor, specified);
         }
 
         protected override void OnHandleDestroyed(EventArgs e)

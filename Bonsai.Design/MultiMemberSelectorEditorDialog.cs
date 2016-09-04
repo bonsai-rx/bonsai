@@ -17,8 +17,6 @@ namespace Bonsai.Design
     {
         int mouseClicks;
         const int ButtonMargin = 2;
-        const float DefaultDpi = 96f;
-        const float DefaultFontSize = 8.25f;
         MemberSelectorEditorController controller;
 
         public MultiMemberSelectorEditorDialog()
@@ -86,25 +84,10 @@ namespace Bonsai.Design
             controller.EnsureNode(treeView.Nodes, name, type);
         }
 
-        protected override void OnLoad(EventArgs e)
+        protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {
-            UpdateDrawScale();
-            base.OnLoad(e);
-        }
-
-        protected override void OnFontChanged(EventArgs e)
-        {
-            UpdateDrawScale();
-            base.OnFontChanged(e);
-        }
-
-        void UpdateDrawScale()
-        {
-            using (var graphics = CreateGraphics())
-            {
-                var drawScale = Font.Size / DefaultFontSize * graphics.DpiY / DefaultDpi;
-                selectionListBox.ItemHeight = (int)(13 * drawScale);
-            }
+            selectionListBox.ItemHeight = (int)(13 * factor.Height);
+            base.ScaleControl(factor, specified);
         }
 
         protected override void OnFormClosed(FormClosedEventArgs e)
