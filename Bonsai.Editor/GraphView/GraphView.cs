@@ -798,7 +798,6 @@ namespace Bonsai.Design
 
         private void UpdateModelLayout()
         {
-            if (!IsHandleCreated) return;
             layoutNodes.Clear();
             var model = Nodes;
             Size size = Size.Empty;
