@@ -47,7 +47,13 @@ namespace Bonsai.Shaders
             {
                 var framebuffer = new FramebufferState(framebufferConfiguration);
                 return source.CombineEither(
-                    ShaderManager.WindowSource.Do(window => framebuffer.Load(window)),
+                    ShaderManager.WindowSource.Do(window =>
+                    {
+                        window.Update(() =>
+                        {
+                            framebuffer.Load(window);
+                        });
+                    }),
                     (input, window) =>
                     {
                         foreach (var state in renderState)
