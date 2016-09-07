@@ -45,6 +45,7 @@
             this.pictureBox.Margin = new System.Windows.Forms.Padding(0, 0, 0, 60);
             this.pictureBox.Name = "pictureBox";
             this.pictureBox.Size = new System.Drawing.Size(640, 480);
+            this.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox.TabIndex = 0;
             this.pictureBox.TabStop = false;
             // 
