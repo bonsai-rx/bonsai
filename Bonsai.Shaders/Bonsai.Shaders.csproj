@@ -77,6 +77,8 @@
     <Compile Include="Configuration\UniformConfiguration.cs" />
     <Compile Include="Configuration\UniformConfigurationCollection.cs" />
     <Compile Include="Configuration\FloatUniform.cs" />
+    <Compile Include="CreateVector2.cs" />
+    <Compile Include="CreateVector4.cs" />
     <Compile Include="FramebufferState.cs" />
     <Compile Include="DrawFramebuffer.cs" />
     <Compile Include="RenderFrame.cs" />
