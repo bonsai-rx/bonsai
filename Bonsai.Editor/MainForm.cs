@@ -2058,7 +2058,8 @@ namespace Bonsai.Editor
         private void propertyGrid_DragEnter(object sender, DragEventArgs e)
         {
             var gridItem = propertyGrid.SelectedGridItem;
-            if (gridItem != null && !gridItem.PropertyDescriptor.IsReadOnly &&
+            if (gridItem != null && gridItem.PropertyDescriptor != null &&
+                !gridItem.PropertyDescriptor.IsReadOnly &&
                 gridItem.PropertyDescriptor.Converter.CanConvertFrom(typeof(string)) &&
                 (e.Data.GetDataPresent(typeof(string)) ||
                  e.Data.GetDataPresent(DataFormats.FileDrop)))
@@ -2070,7 +2071,7 @@ namespace Bonsai.Editor
         private void propertyGrid_DragDrop(object sender, DragEventArgs e)
         {
             var gridItem = propertyGrid.SelectedGridItem;
-            if (gridItem != null)
+            if (gridItem != null && gridItem.PropertyDescriptor != null)
             {
                 string text = null;
                 if (e.Data.GetDataPresent(typeof(string)))
