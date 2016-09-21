@@ -14,7 +14,8 @@ namespace Bonsai.Shaders.Configuration
     {
         public FramebufferAttachmentConfiguration()
         {
-            ClearColor = Color.Transparent;
+            ClearColor = Color.Black;
+            ClearMask = ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit;
             InternalFormat = PixelInternalFormat.Rgba;
             Format = PixelFormat.Rgba;
             Type = PixelType.UnsignedByte;
@@ -46,24 +47,18 @@ namespace Bonsai.Shaders.Configuration
         public PixelType Type { get; set; }
 
         [XmlIgnore]
-        [Description("The optional color used to clear the framebuffer before rendering.")]
-        public Color? ClearColor { get; set; }
+        [Description("The color used to clear the framebuffer before rendering.")]
+        public Color ClearColor { get; set; }
 
         [Browsable(false)]
         [XmlElement("ClearColor")]
         public string ClearColorHtml
         {
-            get
-            {
-                var color = ClearColor;
-                if (color.HasValue) return ColorTranslator.ToHtml(color.Value);
-                else return null;
-            }
-            set
-            {
-                if (string.IsNullOrEmpty(value)) ClearColor = null;
-                else ClearColor = ColorTranslator.FromHtml(value);
-            }
+            get { return ColorTranslator.ToHtml(ClearColor); }
+            set { ClearColor = ColorTranslator.FromHtml(value); }
         }
+
+        [Description("Specifies which buffers to clear before rendering.")]
+        public ClearBufferMask ClearMask { get; set; }
     }
 }

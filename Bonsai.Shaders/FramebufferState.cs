@@ -107,7 +107,8 @@ namespace Bonsai.Shaders
             readonly PixelInternalFormat internalFormat;
             readonly PixelFormat format;
             readonly PixelType type;
-            readonly Color? clearColor;
+            readonly Color clearColor;
+            readonly ClearBufferMask clearMask;
 
             public FramebufferAttachment(FramebufferAttachmentConfiguration attachmentConfiguration)
             {
@@ -119,6 +120,7 @@ namespace Bonsai.Shaders
                 format = attachmentConfiguration.Format;
                 type = attachmentConfiguration.Type;
                 clearColor = attachmentConfiguration.ClearColor;
+                clearMask = attachmentConfiguration.ClearMask;
             }
 
             void ClearTexture(int texture, int width, int height)
@@ -154,10 +156,10 @@ namespace Bonsai.Shaders
 
             public void Clear()
             {
-                if (clearColor.HasValue)
+                if (clearMask != ClearBufferMask.None)
                 {
-                    GL.ClearColor(clearColor.Value);
-                    GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+                    GL.ClearColor(clearColor);
+                    GL.Clear(clearMask);
                 }
             }
 

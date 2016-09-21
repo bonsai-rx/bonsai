@@ -1,4 +1,5 @@
 ﻿using OpenTK;
+using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -24,6 +25,7 @@ namespace Bonsai.Shaders.Configuration
             Height = 480;
             VSync = VSyncMode.On;
             ClearColor = Color.Black;
+            ClearMask = ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit;
             WindowState = WindowState.Normal;
             DisplayDevice = DisplayIndex.Default;
             GraphicsMode = new GraphicsModeConfiguration();
@@ -57,6 +59,10 @@ namespace Bonsai.Shaders.Configuration
             get { return ColorTranslator.ToHtml(ClearColor); }
             set { ClearColor = ColorTranslator.FromHtml(value); }
         }
+
+        [Category("Render Settings")]
+        [Description("Specifies which buffers to clear before rendering.")]
+        public ClearBufferMask ClearMask { get; set; }
 
         [Category("Window Style")]
         [Description("The initial shader window state.")]
