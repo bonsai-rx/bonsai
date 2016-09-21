@@ -15,6 +15,7 @@ namespace Bonsai.Shaders
 {
     public class ShaderWindow : GameWindow
     {
+        Color4 clearColor;
         RectangleF viewport;
         List<Shader> shaders;
         Dictionary<string, Texture> textures;
@@ -31,6 +32,7 @@ namespace Bonsai.Shaders
         {
             settings = configuration;
             VSync = configuration.VSync;
+            clearColor = configuration.ClearColor;
             Title = configuration.Title ?? DefaultTitle;
             WindowState = configuration.WindowState;
             Viewport = new RectangleF(0, 0, 1, 1);
@@ -42,6 +44,8 @@ namespace Bonsai.Shaders
                 .Select(shaderConfiguration => shaderConfiguration.CreateShader(this))
                 .ToList();
         }
+
+        public Color ClearColor { get; set; }
 
         public RectangleF Viewport
         {
@@ -139,8 +143,9 @@ namespace Bonsai.Shaders
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            GL.ClearColor(Color4.Black);
+            GL.ClearColor(clearColor);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
             var action = Interlocked.Exchange(ref update, null);
             if (action != null)
             {

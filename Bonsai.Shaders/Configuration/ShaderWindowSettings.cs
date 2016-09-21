@@ -2,9 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
@@ -21,6 +23,7 @@ namespace Bonsai.Shaders.Configuration
             Width = 640;
             Height = 480;
             VSync = VSyncMode.On;
+            ClearColor = Color.Black;
             WindowState = WindowState.Normal;
             DisplayDevice = DisplayIndex.Default;
             GraphicsMode = new GraphicsModeConfiguration();
@@ -41,6 +44,19 @@ namespace Bonsai.Shaders.Configuration
         [Category("Render Settings")]
         [Description("Specifies V-Sync configuration for the shader window.")]
         public VSyncMode VSync { get; set; }
+
+        [XmlIgnore]
+        [Category("Render Settings")]
+        [Description("The color used to clear the framebuffer before rendering.")]
+        public Color ClearColor { get; set; }
+
+        [Browsable(false)]
+        [XmlElement("ClearColor")]
+        public string ClearColorHtml
+        {
+            get { return ColorTranslator.ToHtml(ClearColor); }
+            set { ClearColor = ColorTranslator.FromHtml(value); }
+        }
 
         [Category("Window Style")]
         [Description("The initial shader window state.")]
