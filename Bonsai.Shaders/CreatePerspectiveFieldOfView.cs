@@ -12,6 +12,14 @@ namespace Bonsai.Shaders
     [Description("Creates a perspective projection matrix from field of view information.")]
     public class CreatePerspectiveFieldOfView : Source<Matrix4>
     {
+        public CreatePerspectiveFieldOfView()
+        {
+            NearClip = 0.1f;
+            FarClip = 1000f;
+            AspectRatio = 1;
+            FovY = MathHelper.PiOver3;
+        }
+
         [Description("The angle of the field of view in the y direction, in radians.")]
         public float FovY { get; set; }
 

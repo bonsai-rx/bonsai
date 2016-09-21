@@ -12,6 +12,14 @@ namespace Bonsai.Shaders
     [Description("Creates an orthographic projection matrix.")]
     public class CreateOrthographic : Source<Matrix4>
     {
+        public CreateOrthographic()
+        {
+            Width = 2;
+            Height = 2;
+            NearClip = 0.1f;
+            FarClip = 1000f;
+        }
+
         [Description("The width of the projection volume.")]
         public float Width { get; set; }
 
