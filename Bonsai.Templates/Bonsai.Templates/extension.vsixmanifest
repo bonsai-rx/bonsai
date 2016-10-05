@@ -29,6 +29,7 @@
         <Edition>Pro</Edition>
         <Edition>Community</Edition>
         <Edition>IntegratedShell</Edition>
+        <Edition>VSWinDesktopExpress</Edition>
       </VisualStudio>
     </SupportedProducts>
     <SupportedFrameworkRuntimeEdition MinVersion="4.0" />
