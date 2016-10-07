@@ -149,7 +149,7 @@ void main()
 uniform vec3 Ka;
 uniform vec3 Kd;
 uniform vec3 Ks;
-uniform float Ns;
+uniform float Ns = 1.0;
 uniform sampler2D map_Kd;
 uniform vec3 light;
 in vec3 position;
