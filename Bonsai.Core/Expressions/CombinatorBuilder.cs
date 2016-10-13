@@ -51,9 +51,11 @@ namespace Bonsai.Expressions
 
         void UpdateArgumentRange()
         {
-            if (combinator == null)
+            var combinatorBuilder = combinator as ExpressionBuilder;
+            if (combinatorBuilder != null)
             {
-                SetArgumentRange(0, maxArgumentCount = 0);
+                var range = combinatorBuilder.ArgumentRange;
+                SetArgumentRange(range.LowerBound, range.UpperBound);
             }
             else
             {
@@ -91,8 +93,14 @@ namespace Bonsai.Expressions
         /// <returns>An <see cref="Expression"/> tree node.</returns>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
+            var combinatorBuilder = combinator as ExpressionBuilder;
+            if (combinatorBuilder != null)
+            {
+                return combinatorBuilder.Build(arguments);
+            }
+
             var output = BuildCombinator(arguments);
-            var combinatorExpression = Expression.Constant(Combinator);
+            var combinatorExpression = Expression.Constant(combinator);
             return BuildMappingOutput(arguments, combinatorExpression, output);
         }
 
@@ -108,7 +116,7 @@ namespace Bonsai.Expressions
         /// </returns>
         protected override Expression BuildCombinator(IEnumerable<Expression> arguments)
         {
-            var combinatorExpression = Expression.Constant(Combinator);
+            var combinatorExpression = Expression.Constant(combinator);
             var processMethods = GetProcessMethods(combinatorExpression.Type);
             return BuildCall(combinatorExpression, processMethods, arguments.Take(maxArgumentCount).ToArray());
         }
