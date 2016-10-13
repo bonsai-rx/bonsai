@@ -53,7 +53,7 @@ namespace Bonsai.Expressions
             var source = arguments.FirstOrDefault();
             if (source == null)
             {
-                throw new InvalidOperationException("There must be at least one workflow input to Condition.");
+                throw new InvalidOperationException("There must be at least one input to the condition workflow.");
             }
 
             // Assign input

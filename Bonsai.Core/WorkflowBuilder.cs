@@ -13,6 +13,8 @@ using System.Reflection;
 using System.Xml.Schema;
 using System.Xml;
 using System.Diagnostics;
+using System.Reflection.Emit;
+using Bonsai.Properties;
 
 namespace Bonsai
 {
@@ -78,7 +80,16 @@ namespace Bonsai
             var types = new HashSet<Type>();
             while (reader.ReadToNextSibling(TypeNodeName))
             {
-                var type = Type.GetType(reader.ReadElementString(), true);
+                var typeName = reader.ReadElementString();
+                var type = Type.GetType(typeName, false);
+                if (type == null)
+                {
+                    lock (typeResolverLock)
+                    {
+                        type = Type.GetType(typeName, TypeResolver.ResolveAssembly, TypeResolver.ResolveType, true);
+                    }
+                }
+
                 types.Add(type);
             }
 
@@ -110,6 +121,11 @@ namespace Bonsai
             writer.WriteStartElement(ExtensionTypeNodeName);
             foreach (var type in types)
             {
+                if (type.BaseType == typeof(UnknownTypeBuilder))
+                {
+                    throw new InvalidOperationException(Resources.Exception_SerializingUnknownTypeBuilder);
+                }
+
                 writer.WriteElementString(TypeNodeName, type.AssemblyQualifiedName);
             }
             writer.WriteEndElement();
@@ -138,7 +154,8 @@ namespace Bonsai
 
         static string GetClrNamespace(Type type)
         {
-            return string.Format("clr-namespace:{0};assembly={1}", type.Namespace, type.Assembly.GetName().Name);
+            var assemblyName = type.Assembly.GetName().Name.Replace(UnknownTypeResolver.DynamicAssemblyPrefix, string.Empty);
+            return string.Format("clr-namespace:{0};assembly={1}", type.Namespace, assemblyName);
         }
 
         static XmlSerializerNamespaces GetXmlSerializerNamespaces(HashSet<Type> types)
@@ -213,6 +230,77 @@ namespace Bonsai
             return workflow.SelectMany(node => GetWorkflowElementTypes(node.Value)
                 .Concat(Enumerable.Repeat(node.Value.GetType(), 1)))
                 .Except(GetDefaultSerializerTypes());
+        }
+
+        #endregion
+
+        #region UnknownTypeResolver
+
+        static readonly UnknownTypeResolver TypeResolver = new UnknownTypeResolver();
+        static readonly object typeResolverLock = new object();
+
+        class UnknownTypeResolver
+        {
+            internal const string DynamicAssemblyPrefix = "@Dynamic";
+            readonly Dictionary<string, AssemblyBuilder> dynamicAssemblies = new Dictionary<string, AssemblyBuilder>();
+            readonly Dictionary<string, ModuleBuilder> dynamicModules = new Dictionary<string, ModuleBuilder>();
+            readonly Dictionary<string, Type> dynamicTypes = new Dictionary<string, Type>();
+
+            AssemblyBuilder GetDynamicAssembly(string name)
+            {
+                AssemblyBuilder assemblyBuilder;
+                if (!dynamicAssemblies.TryGetValue(name, out assemblyBuilder))
+                {
+                    var assemblyName = new AssemblyName(DynamicAssemblyPrefix + name);
+                    assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+                    dynamicAssemblies.Add(name, assemblyBuilder);
+                }
+                return assemblyBuilder;
+            }
+
+            public Assembly ResolveAssembly(AssemblyName assemblyName)
+            {
+                try { return Assembly.Load(assemblyName); }
+                catch (IOException)
+                {
+                    return GetDynamicAssembly(assemblyName.FullName);
+                }
+            }
+
+            public Type ResolveType(Assembly assembly, string typeName, bool ignoreCase)
+            {
+                var type = assembly.GetType(typeName, false, ignoreCase);
+                if (type == null)
+                {
+                    var assemblyBuilder = assembly as AssemblyBuilder;
+                    if (assemblyBuilder == null)
+                    {
+                        assemblyBuilder = GetDynamicAssembly(assembly.FullName);
+                    }
+
+                    if (!dynamicTypes.TryGetValue(typeName, out type))
+                    {
+                        ModuleBuilder moduleBuilder;
+                        if (!dynamicModules.TryGetValue(assembly.FullName, out moduleBuilder))
+                        {
+                            moduleBuilder = assemblyBuilder.DefineDynamicModule(assembly.FullName);
+                            dynamicModules.Add(assembly.FullName, moduleBuilder);
+                        }
+
+                        var typeBuilder = moduleBuilder.DefineType(
+                            typeName,
+                            TypeAttributes.Public | TypeAttributes.Class,
+                            typeof(UnknownTypeBuilder));
+                        var obsoleteAttributeConstructor = typeof(ObsoleteAttribute).GetConstructor(Type.EmptyTypes);
+                        var obsoleteAttributeBuilder = new CustomAttributeBuilder(obsoleteAttributeConstructor, new object[0]);
+                        typeBuilder.SetCustomAttribute(obsoleteAttributeBuilder);
+                        type = typeBuilder.CreateType();
+                        dynamicTypes.Add(typeName, type);
+                    }
+                }
+
+                return type;
+            }
         }
 
         #endregion

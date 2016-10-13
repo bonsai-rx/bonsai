@@ -62,6 +62,7 @@
     <Compile Include="BinaryCombinator.cs" />
     <Compile Include="Combinator.cs" />
     <Compile Include="Expressions\AddBuilder.cs" />
+    <Compile Include="Expressions\AsyncSubjectBuilder.cs" />
     <Compile Include="Expressions\BinaryOperatorBuilder.cs" />
     <Compile Include="Expressions\BuildContext.cs" />
     <Compile Include="Expressions\CombinatorExpressionBuilder.cs" />
@@ -70,6 +71,10 @@
     <Compile Include="Expressions\BitwiseOrBuilder.cs" />
     <Compile Include="Expressions\BitwiseNotBuilder.cs" />
     <Compile Include="Expressions\BinaryOperatorTypeDescriptionProvider.cs" />
+    <Compile Include="Expressions\BehaviorSubjectBuilder.cs" />
+    <Compile Include="Expressions\SkipWhileBuilder.cs" />
+    <Compile Include="Expressions\TakeWhileBuilder.cs" />
+    <Compile Include="Expressions\MulticastSubjectBuilder.cs" />
     <Compile Include="Expressions\PublishBuilder.cs" />
     <Compile Include="Expressions\SingleArgumentWorkflowExpressionBuilder.cs" />
     <Compile Include="Expressions\SinkBuilder.cs" />
@@ -96,7 +101,9 @@
     <Compile Include="Expressions\PublishBranchBuilder.cs" />
     <Compile Include="Expressions\ReplayBuilder.cs" />
     <Compile Include="Expressions\SubjectBuilder.cs" />
+    <Compile Include="Expressions\SubjectNameConverter.cs" />
     <Compile Include="Expressions\SubscribeSubjectBuilder.cs" />
+    <Compile Include="Expressions\UnknownTypeBuilder.cs" />
     <Compile Include="Expressions\VariableArgumentExpressionBuilder.cs" />
     <Compile Include="Expressions\WorkflowPropertyDescriptor.cs" />
     <Compile Include="Expressions\WorkflowTypeDescriptor.cs" />
@@ -132,6 +139,9 @@
     <Compile Include="Reactive\Buffer.cs" />
     <Compile Include="Reactive\Catch.cs" />
     <Compile Include="Reactive\Concat.cs" />
+    <Compile Include="Reactive\DistinctBy.cs" />
+    <Compile Include="Reactive\DistinctUntilChangedBy.cs" />
+    <Compile Include="Reactive\Synchronize.cs" />
     <Compile Include="Reactive\GroupBy.cs" />
     <Compile Include="Reactive\LastOrDefault.cs" />
     <Compile Include="Reactive\Last.cs" />
