@@ -18,7 +18,7 @@ namespace Bonsai.Expressions
     [WorkflowElementCategory(ElementCategory.Sink)]
     [XmlType("MulticastSubject", Namespace = Constants.XmlNamespace)]
     [Description("Pushes a sequence of values into a shared subject.")]
-    public class MulticastSubjectBuilder : SingleArgumentExpressionBuilder, INamedElement, IRequireBuildContext
+    public class MulticastSubjectBuilder : SingleArgumentExpressionBuilder, IRequireSubject
     {
         BuildContext buildContext;
 

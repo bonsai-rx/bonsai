@@ -314,14 +314,14 @@ namespace Bonsai.Expressions
                     }
                 }
 
-                var subscribeSubject = workflowElement as SubscribeSubjectBuilder;
-                if (subscribeSubject != null && !string.IsNullOrEmpty(subscribeSubject.Name))
+                var requireSubject = workflowElement as IRequireSubject;
+                if (requireSubject != null && !string.IsNullOrEmpty(requireSubject.Name))
                 {
                     // Connect to publisher (if available)
-                    var dependency = GetOrCreateDependency(ref dependencies, subscribeSubject.Name);
+                    var dependency = GetOrCreateDependency(ref dependencies, requireSubject.Name);
                     if (dependency.Publish != null)
                     {
-                        yield return new DependencyLink(subscribeSubject.Name, source, dependency.Publish, node);
+                        yield return new DependencyLink(requireSubject.Name, source, dependency.Publish, node);
                     }
                     else dependency.Subscribe.Add(node);
                 }
