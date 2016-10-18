@@ -72,6 +72,7 @@
     <Compile Include="Expressions\BitwiseNotBuilder.cs" />
     <Compile Include="Expressions\BinaryOperatorTypeDescriptionProvider.cs" />
     <Compile Include="Expressions\BehaviorSubjectBuilder.cs" />
+    <Compile Include="Expressions\IRequireSubject.cs" />
     <Compile Include="Expressions\SkipWhileBuilder.cs" />
     <Compile Include="Expressions\TakeWhileBuilder.cs" />
     <Compile Include="Expressions\MulticastSubjectBuilder.cs" />

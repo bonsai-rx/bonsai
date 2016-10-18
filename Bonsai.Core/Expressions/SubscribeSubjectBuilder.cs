@@ -17,7 +17,7 @@ namespace Bonsai.Expressions
     [WorkflowElementCategory(ElementCategory.Source)]
     [XmlType("SubscribeSubject", Namespace = Constants.XmlNamespace)]
     [Description("Generates a sequence of values by subscribing to a shared subject.")]
-    public class SubscribeSubjectBuilder : ZeroArgumentExpressionBuilder, INamedElement, IRequireBuildContext
+    public class SubscribeSubjectBuilder : ZeroArgumentExpressionBuilder, IRequireSubject
     {
         BuildContext buildContext;
 
