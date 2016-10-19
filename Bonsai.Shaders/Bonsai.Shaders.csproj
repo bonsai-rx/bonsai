@@ -77,6 +77,7 @@
     <Compile Include="Configuration\UniformConfiguration.cs" />
     <Compile Include="Configuration\UniformConfigurationCollection.cs" />
     <Compile Include="Configuration\FloatUniform.cs" />
+    <Compile Include="Delay.cs" />
     <Compile Include="CreateVector2.cs" />
     <Compile Include="CreateVector4.cs" />
     <Compile Include="FramebufferState.cs" />
