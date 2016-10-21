@@ -23,6 +23,7 @@ namespace Bonsai.Shaders.Configuration.Design
                 typeof(ViewportState),
                 typeof(LineWidthState),
                 typeof(PointSizeState),
+                typeof(DepthMaskState),
                 typeof(BlendFunctionState),
                 typeof(DepthFunctionState)
             };
