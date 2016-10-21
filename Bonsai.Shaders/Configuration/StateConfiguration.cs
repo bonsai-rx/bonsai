@@ -12,6 +12,7 @@ namespace Bonsai.Shaders.Configuration
     [XmlInclude(typeof(ViewportState))]
     [XmlInclude(typeof(LineWidthState))]
     [XmlInclude(typeof(PointSizeState))]
+    [XmlInclude(typeof(DepthMaskState))]
     [XmlInclude(typeof(BlendFunctionState))]
     [XmlInclude(typeof(DepthFunctionState))]
     public abstract class StateConfiguration

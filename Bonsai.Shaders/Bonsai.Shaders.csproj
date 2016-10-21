@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="Configuration\BlendFunctionState.cs" />
     <Compile Include="Configuration\ColorFormatConfiguration.cs" />
+    <Compile Include="Configuration\DepthMaskState.cs" />
     <Compile Include="Configuration\ResourceFileNameConverter.cs" />
     <Compile Include="Configuration\Vec4Uniform.cs" />
     <Compile Include="Configuration\Vec3Uniform.cs" />
