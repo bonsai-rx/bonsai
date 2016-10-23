@@ -147,6 +147,7 @@ namespace Bonsai.Shaders
         {
             if (clearMask != ClearBufferMask.None)
             {
+                GL.DepthMask(true);
                 GL.ClearColor(clearColor);
                 GL.Clear(clearMask);
             }
