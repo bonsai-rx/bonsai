@@ -100,6 +100,7 @@ namespace Bonsai.Vision.Design
             }
 
             GL.BindTexture(TextureTarget.Texture2D, texture);
+            GL.PixelStore(PixelStoreParameter.UnpackAlignment, image.WidthStep % 4 == 0 ? 4 : 1);
             GL.PixelStore(PixelStoreParameter.UnpackRowLength, image.WidthStep / image.Channels);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0, pixelFormat, PixelType.UnsignedByte, image.ImageData);
         }
