@@ -233,14 +233,14 @@
             // 
             // channelOffsetNumericUpDown
             // 
-            this.channelOffsetNumericUpDown.DecimalPlaces = 0;
+            this.channelOffsetNumericUpDown.DecimalPlaces = 1;
             this.channelOffsetNumericUpDown.Increment = new decimal(new int[] {
             1,
             0,
             0,
             0});
             this.channelOffsetNumericUpDown.Maximum = new decimal(new int[] {
-            100,
+            60000,
             0,
             0,
             0});
@@ -268,7 +268,7 @@
             0,
             0});
             this.channelsPerPageNumericUpDown.Maximum = new decimal(new int[] {
-            100,
+            1000,
             0,
             0,
             0});
