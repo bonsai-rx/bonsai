@@ -113,6 +113,13 @@ namespace Bonsai.Vision
                 case ColorConversion.Bgra2Bgr555:
                 case ColorConversion.Rgba2Bgr555:
                 case ColorConversion.Gray2Bgr555:
+                case ColorConversion.BayerBG2Gray:
+                case ColorConversion.BayerGB2Gray:
+                case ColorConversion.BayerGR2Gray:
+                case ColorConversion.BayerRG2Gray:
+                case ColorConversion.Yuv2Gray420:
+                case ColorConversion.Yuv2GrayUyvy:
+                case ColorConversion.Yuv2GrayYuy2:
                 case ColorConversion.Bgr2Gray: return 1;
                 default: throw new ArgumentException("Unsupported color conversion code.");
             }

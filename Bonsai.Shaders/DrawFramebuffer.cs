@@ -24,6 +24,7 @@ namespace Bonsai.Shaders
         [XmlArrayItem(typeof(ViewportState))]
         [XmlArrayItem(typeof(LineWidthState))]
         [XmlArrayItem(typeof(PointSizeState))]
+        [XmlArrayItem(typeof(DepthMaskState))]
         [XmlArrayItem(typeof(BlendFunctionState))]
         [XmlArrayItem(typeof(DepthFunctionState))]
         [Description("Specifies any render states that are required to render the framebuffer.")]
