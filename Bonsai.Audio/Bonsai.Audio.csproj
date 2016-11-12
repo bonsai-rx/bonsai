@@ -79,6 +79,7 @@
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="RiffHeader.cs" />
     <Compile Include="RiffWriter.cs" />
+    <Compile Include="UpdateListener.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj">
