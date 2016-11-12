@@ -30,6 +30,26 @@ namespace Bonsai.Audio
         [Description("The length of the sample buffer (ms).")]
         public double BufferLength { get; set; }
 
+        static void FindId(BinaryReader reader, byte[] bytes, string id)
+        {
+            while (true)
+            {
+                var count = reader.Read(bytes, 0, bytes.Length);
+                if (count < bytes.Length)
+                {
+                    var message = string.Format("No {0} chunk found in the specified WAV file.", id);
+                    throw new InvalidOperationException(message);
+                }
+
+                if (string.Compare(Encoding.ASCII.GetString(bytes), id, true) != 0)
+                {
+                    var size = reader.ReadUInt32();
+                    reader.BaseStream.Seek(size, SeekOrigin.Current);
+                }
+                else break;
+            }
+        }
+
         static void CheckId(BinaryReader reader, byte[] bytes, string id)
         {
             var count = reader.Read(bytes, 0, bytes.Length);
@@ -68,7 +88,7 @@ namespace Bonsai.Audio
                 var depth = reader.ReadUInt16() == 8 ? Depth.U8 : Depth.S16;
 
                 var bufferSize = (int)Math.Ceiling(samplingFrequency * bufferLength / 1000);
-                CheckId(reader, id, RiffHeader.DataId);
+                FindId(reader, id, RiffHeader.DataId);
                 var dataSize = (long)reader.ReadUInt32();
                 var sampleCount = dataSize / sampleSize;
 
