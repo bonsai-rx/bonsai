@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Bonsai - System Library")]
-[assembly: AssemblyDescription("Bonsai System Library containing reactive infrastructure to interface with the underlying operating system.")]
+[assembly: AssemblyTitle("Bonsai.System.Tests")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Gonçalo Lopes")]
-[assembly: AssemblyProduct("Bonsai.System")]
-[assembly: AssemblyCopyright("Copyright © Gonçalo Lopes 2011-2015")]
+[assembly: AssemblyProduct("Bonsai.System.Tests")]
+[assembly: AssemblyCopyright("Copyright © Gonçalo Lopes 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("56dfaa58-745b-4410-801b-45613b52d316")]
+[assembly: Guid("a25c7cc8-bbd9-44b9-9c53-e127702d45cf")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -33,4 +33,4 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("2.2.0.0")]
-[assembly: AssemblyInformationalVersion("2.2.1")]
+[assembly: AssemblyFileVersion("2.2.0.0")]
