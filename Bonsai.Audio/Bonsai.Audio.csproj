@@ -63,6 +63,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AudioCapture.cs" />
+    <Compile Include="AudioContextConfiguration.cs" />
+    <Compile Include="AudioContextConfigurationCollection.cs" />
+    <Compile Include="AudioContextDisposable.cs" />
+    <Compile Include="AudioManager.cs" />
     <Compile Include="AudioPlayback.cs" />
     <Compile Include="AudioReader.cs" />
     <Compile Include="AudioWriter.cs" />
