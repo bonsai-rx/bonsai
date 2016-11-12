@@ -62,15 +62,16 @@ namespace Bonsai.IO
         /// </returns>
         public static string AppendSuffix(string path, string suffix)
         {
+            if (string.IsNullOrEmpty(path)) return suffix;
             var directory = Path.GetDirectoryName(path);
             var basePath = Path.GetFileNameWithoutExtension(path);
+            var extension = Path.GetExtension(path);
             var suffixPath = basePath + suffix;
-            if (!string.IsNullOrEmpty(basePath))
+            if (!string.IsNullOrEmpty(extension))
             {
-                return Path.Combine(directory, Path.ChangeExtension(suffixPath, Path.GetExtension(path)));
+                suffixPath = Path.ChangeExtension(suffixPath, extension);
             }
-
-            return suffixPath;
+            return Path.Combine(directory, suffixPath);
         }
 
         /// <summary>

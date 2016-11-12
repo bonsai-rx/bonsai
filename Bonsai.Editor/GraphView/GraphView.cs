@@ -17,6 +17,7 @@ namespace Bonsai.Design
 {
     partial class GraphView : UserControl
     {
+        const float DefaultDpi = 96f;
         static readonly Pen RubberBandPen = new Pen(Color.FromArgb(51, 153, 255));
         static readonly Brush RubberBandBrush = new SolidBrush(Color.FromArgb(128, 170, 204, 238));
         static readonly Brush HotBrush = new SolidBrush(Color.FromArgb(128, 229, 243, 251));
@@ -53,6 +54,7 @@ namespace Bonsai.Design
         Pen CursorPen;
         Pen WhitePen;
         Pen BlackPen;
+        Font ExportFont;
 
         bool ignoreMouseUp;
         bool mouseDownHandled;
@@ -320,6 +322,12 @@ namespace Bonsai.Design
                 WhitePen.Dispose();
                 BlackPen.Dispose();
                 CursorPen = WhitePen = BlackPen = null;
+            }
+
+            if (ExportFont != null)
+            {
+                ExportFont.Dispose();
+                ExportFont = null;
             }
         }
 
@@ -983,6 +991,14 @@ namespace Bonsai.Design
 
             using (var measureGraphics = CreateGraphics())
             {
+                var font = Font;
+                var fontScale = measureGraphics.DpiY / DefaultDpi;
+                if (fontScale != 1.0)
+                {
+                    ExportFont = ExportFont ?? new Font(Font.FontFamily, Font.SizeInPoints * fontScale);
+                    font = ExportFont;
+                }
+
                 foreach (var layout in layoutNodes)
                 {
                     if (layout.Node.Value != null)
@@ -1007,7 +1023,7 @@ namespace Bonsai.Design
                         {
                             graphics.DrawString(
                                 layout.Label.Substring(0, 1),
-                                Font, textBrush,
+                                font, textBrush,
                                 new RectangleF(
                                     nodeRectangle.Location,
                                     SizeF.Add(nodeRectangle.Size, VectorTextOffset)),
@@ -1026,7 +1042,7 @@ namespace Bonsai.Design
                                 VectorTextFormat,
                                 out charactersFitted, out linesFilled);
                             var lineLabel = line.Length > charactersFitted ? line.Substring(0, charactersFitted) : line;
-                            graphics.DrawString(lineLabel, Font, textBrush, labelRect);
+                            graphics.DrawString(lineLabel, font, textBrush, labelRect);
                             labelRect.Y += size.Height;
                         }
                         boundingRect = RectangleF.Union(boundingRect, layoutBounds);
