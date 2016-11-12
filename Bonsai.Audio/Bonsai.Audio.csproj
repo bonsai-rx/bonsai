@@ -72,6 +72,7 @@
     <Compile Include="AudioSource.cs" />
     <Compile Include="AudioWriter.cs" />
     <Compile Include="CaptureDeviceNameConverter.cs" />
+    <Compile Include="UpdateSource.cs" />
     <Compile Include="CreateSource.cs" />
     <Compile Include="NumericAggregateConverter.cs" />
     <Compile Include="PlaybackDeviceNameConverter.cs" />
