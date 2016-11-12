@@ -44,7 +44,7 @@ namespace Bonsai.Editor
         Font regularFont;
         Font selectionFont;
         EditorSite editorSite;
-        HotKeyManager hotKeys;
+        HotKeyMessageFilter hotKeys;
         WorkflowBuilder workflowBuilder;
         WorkflowGraphView workflowGraphView;
         WorkflowSelectionModel selectionModel;
@@ -98,9 +98,9 @@ namespace Bonsai.Editor
                 toolboxCategories.Add(node.Name, node);
             }
 
-            hotKeys = new HotKeyManager(this);
             treeCache = new List<TreeNode>();
             editorSite = new EditorSite(this);
+            hotKeys = new HotKeyMessageFilter();
             workflowBuilder = new WorkflowBuilder();
             serializer = new XmlSerializer(typeof(WorkflowBuilder));
             layoutSerializer = new XmlSerializer(typeof(VisualizerLayout));
@@ -123,11 +123,7 @@ namespace Bonsai.Editor
 
             toolboxElements = elementProvider;
             visualizerElements = visualizerProvider;
-            if (!IsRunningOnMono())
-            {
-                hotKeys.RegisterHotKey(CycleNextHotKey, Keys.Control | Keys.Tab);
-                hotKeys.RegisterHotKey(CyclePreviousHotKey, Keys.Control | Keys.Shift | Keys.Tab);
-            }
+            Application.AddMessageFilter(hotKeys);
         }
 
         #region Loading
@@ -147,11 +143,6 @@ namespace Bonsai.Editor
         public IDictionary<string, string> PropertyAssignments
         {
             get { return propertyAssignments; }
-        }
-
-        static bool IsRunningOnMono()
-        {
-            return Type.GetType("Mono.Runtime") != null;
         }
 
         void ShowWelcomeDialog()
@@ -182,12 +173,7 @@ namespace Bonsai.Editor
 
         void CloseEditorForm()
         {
-            if (!IsRunningOnMono())
-            {
-                hotKeys.UnregisterHotKey(CyclePreviousHotKey);
-                hotKeys.UnregisterHotKey(CycleNextHotKey);
-            }
-
+            Application.RemoveMessageFilter(hotKeys);
             var desktopBounds = EditorSettings.Instance.DesktopBounds;
             if (WindowState != FormWindowState.Normal)
             {
@@ -1573,39 +1559,6 @@ namespace Bonsai.Editor
         private void redoToolStripMenuItem_Click(object sender, EventArgs e)
         {
             editorSite.Redo();
-        }
-
-        #endregion
-
-        #region Cycle Active Forms
-
-        protected override void WndProc(ref Message m)
-        {
-            base.WndProc(ref m);
-            if (m.Msg == NativeMethods.WM_HOTKEY)
-            {
-                if ((ushort)m.WParam == CycleNextHotKey) CycleActiveForm(1);
-                if ((ushort)m.WParam == CyclePreviousHotKey) CycleActiveForm(-1);
-            }
-        }
-
-        static void CycleActiveForm(int step)
-        {
-            var activeForm = Form.ActiveForm;
-            if (activeForm != null && !activeForm.Modal && Application.OpenForms.Count > 1)
-            {
-                for (int i = 0; i < Application.OpenForms.Count; i++)
-                {
-                    var form = Application.OpenForms[i];
-                    if (form == activeForm)
-                    {
-                        i = (i + Application.OpenForms.Count + step) % Application.OpenForms.Count;
-                        activeForm = Application.OpenForms[i];
-                        activeForm.Activate();
-                        break;
-                    }
-                }
-            }
         }
 
         #endregion
