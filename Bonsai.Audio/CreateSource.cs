@@ -15,13 +15,13 @@ namespace Bonsai.Audio
         [TypeConverter(typeof(PlaybackDeviceNameConverter))]
         public string DeviceName { get; set; }
 
-        [TypeConverter("OpenCV.Net.NumericAggregateConverter, OpenCV.Net")]
+        [TypeConverter(typeof(NumericAggregateConverter))]
         public Vector3 Direction { get; set; }
 
-        [TypeConverter("OpenCV.Net.NumericAggregateConverter, OpenCV.Net")]
+        [TypeConverter(typeof(NumericAggregateConverter))]
         public Vector3 Position { get; set; }
 
-        [TypeConverter("OpenCV.Net.NumericAggregateConverter, OpenCV.Net")]
+        [TypeConverter(typeof(NumericAggregateConverter))]
         public Vector3 Velocity { get; set; }
 
         public bool Looping { get; set; }
