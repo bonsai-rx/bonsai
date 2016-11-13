@@ -384,6 +384,34 @@ namespace Bonsai.Design
             return layers;
         }
 
+        public static IEnumerable<GraphNodeGrouping> RemoveSuccessorKinks(this IEnumerable<GraphNodeGrouping> source)
+        {
+            var layers = source.ToArray();
+            for (int i = 0; i < layers.Length; i++)
+            {
+                var layer = layers[i];
+                if (i > 0)
+                {
+                    var sortedLayer = new GraphNodeGrouping(layer.Key);
+                    foreach (var node in layer)
+                    {
+                        var minSuccessorLayer = node.Successors.Min(edge => edge.Node.LayerIndex);
+                        while (sortedLayer.Count < minSuccessorLayer)
+                        {
+                            var dummyNode = new GraphNode(null, layer.Key, Enumerable.Empty<GraphEdge>());
+                            sortedLayer.Add(dummyNode);
+                        }
+
+                        sortedLayer.Add(node);
+                    }
+
+                    layers[i] = sortedLayer;
+                }
+            }
+
+            return layers;
+        }
+
         class ConnectedComponent<TNodeValue, TEdgeLabel> : DirectedGraph<TNodeValue, TEdgeLabel>
         {
             public ConnectedComponent(int index)
@@ -458,6 +486,7 @@ namespace Bonsai.Design
                     .LongestPathLayering()
                     .EnsureLayerPriority()
                     .SortLayerEdgeLabels()
+                    .RemoveSuccessorKinks()
                     .ToList();
 
                 foreach (var layer in layeredComponent)

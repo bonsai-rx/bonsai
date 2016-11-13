@@ -1047,7 +1047,10 @@ namespace Bonsai.Design
                         }
                         boundingRect = RectangleF.Union(boundingRect, layoutBounds);
                     }
-                    else graphics.DrawLine(layout.Node.Pen, layout.EntryPoint, layout.ExitPoint);
+                    else if (layout.Node.Tag != null)
+                    {
+                        graphics.DrawLine(layout.Node.Pen, layout.EntryPoint, layout.ExitPoint);
+                    }
 
                     foreach (var successor in layout.Node.Successors)
                     {
@@ -1115,12 +1118,21 @@ namespace Bonsai.Design
                         e.Graphics.DrawString(layout.Label, Font, Brushes.Black, labelRect, TextFormat);
                     }
                 }
-                else e.Graphics.DrawLine(layout.Node.Pen, Point.Add(layout.EntryPoint, offset), Point.Add(layout.ExitPoint, offset));
+                else if (layout.Node.Tag != null)
+                {
+                    e.Graphics.DrawLine(
+                        layout.Node.Pen,
+                        Point.Add(layout.EntryPoint, offset),
+                        Point.Add(layout.ExitPoint, offset));
+                }
 
                 foreach (var successor in layout.Node.Successors)
                 {
                     var successorLayout = layoutNodes[successor.Node];
-                    e.Graphics.DrawLine(layout.Node.Pen, Point.Add(layout.ExitPoint, offset), Point.Add(successorLayout.EntryPoint, offset));
+                    e.Graphics.DrawLine(
+                        layout.Node.Pen,
+                        Point.Add(layout.ExitPoint, offset),
+                        Point.Add(successorLayout.EntryPoint, offset));
                 }
             }
 
