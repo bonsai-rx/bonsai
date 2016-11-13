@@ -126,7 +126,16 @@ namespace Bonsai.Configuration
         {
             if (!Directory.Exists(path)) return;
             var platform = GetEnvironmentPlatform();
-            configuration.LibraryFolders.Add(path, platform);
+            if (!configuration.LibraryFolders.Contains(path))
+            {
+                configuration.LibraryFolders.Add(path, platform);
+            }
+            else if (configuration.LibraryFolders[path].Platform != platform)
+            {
+                var message = string.Format("The library path '{0}' is already registered for a different platform.", path);
+                throw new InvalidOperationException(message);
+            }
+
             foreach (var assemblyFile in Directory.GetFiles(path, "*.dll"))
             {
                 AssemblyName assemblyName;
