@@ -8,6 +8,11 @@ using ZedGraph;
 using System.Windows.Forms;
 
 [assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(int))]
+[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(uint))]
+[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(long))]
+[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(ulong))]
+[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(short))]
+[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(ushort))]
 [assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(float))]
 [assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(double))]
 
