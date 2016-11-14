@@ -1050,6 +1050,7 @@ namespace Bonsai.Design
                     else if (layout.Node.Tag != null)
                     {
                         graphics.DrawLine(layout.Node.Pen, layout.EntryPoint, layout.ExitPoint);
+                        boundingRect = RectangleF.Union(boundingRect, layout.BoundingRectangle);
                     }
 
                     foreach (var successor in layout.Node.Successors)
