@@ -28,7 +28,20 @@ namespace Bonsai.IO
                     if (configuration.Contains(portName))
                     {
                         var serialPortConfiguration = configuration[portName];
-                        serialPort = new SerialPort(portName, serialPortConfiguration.BaudRate);
+                        serialPort = new SerialPort(
+                            portName,
+                            serialPortConfiguration.BaudRate,
+                            serialPortConfiguration.Parity,
+                            serialPortConfiguration.DataBits,
+                            serialPortConfiguration.StopBits);
+                        serialPort.ReceivedBytesThreshold = serialPortConfiguration.ReceivedBytesThreshold;
+                        serialPort.ReadBufferSize = serialPortConfiguration.ReadBufferSize;
+                        serialPort.WriteBufferSize = serialPortConfiguration.WriteBufferSize;
+                        serialPort.ParityReplace = serialPortConfiguration.ParityReplace;
+                        serialPort.Handshake = serialPortConfiguration.Handshake;
+                        serialPort.DiscardNull = serialPortConfiguration.DiscardNull;
+                        serialPort.DtrEnable = serialPortConfiguration.DtrEnable;
+                        serialPort.RtsEnable = serialPortConfiguration.RtsEnable;
                     }
                     else
                     {
