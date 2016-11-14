@@ -37,6 +37,12 @@ namespace Bonsai.Design
             ResumeLayout();
         }
 
+        public override string Text
+        {
+            get { return configurationManagerButton.Text; }
+            set { configurationManagerButton.Text = value; }
+        }
+
         public object SelectedValue
         {
             get { return configurationNameListbox.SelectedItem; }
