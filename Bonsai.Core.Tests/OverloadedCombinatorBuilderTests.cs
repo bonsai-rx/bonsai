@@ -6,6 +6,7 @@ using Bonsai.Expressions;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Reactive;
 
 namespace Bonsai.Core.Tests
 {
@@ -86,6 +87,20 @@ namespace Bonsai.Core.Tests
             }
         }
 
+        [Combinator]
+        class SpecializedGenericOverloadedCombinatorMock
+        {
+            public IObservable<TSource> Process<TSource>(IObservable<TSource> source)
+            {
+                return source;
+            }
+
+            public IObservable<TSource> Process<TSource>(IObservable<Timestamped<TSource>> source)
+            {
+                return source.Select(x => x.Value);
+            }
+        }
+
         [TestMethod]
         public void Build_DoubleOverloadedMethodCalledWithDouble_ReturnsDoubleValue()
         {
@@ -161,6 +176,17 @@ namespace Bonsai.Core.Tests
             var combinator = new Bonsai.Reactive.Average();
             var source = CreateObservableExpression(Observable.Return(value));
             var resultProvider = TestCombinatorBuilder<double>(combinator, source);
+            var result = Last(resultProvider).Result;
+            Assert.AreEqual(value, result);
+        }
+
+        [TestMethod]
+        public void Build_SpecializedGenericOverloadedMethod_ReturnsValue()
+        {
+            var value = 5;
+            var combinator = new SpecializedGenericOverloadedCombinatorMock();
+            var source = CreateObservableExpression(Observable.Return(value).Timestamp());
+            var resultProvider = TestCombinatorBuilder<int>(combinator, source);
             var result = Last(resultProvider).Result;
             Assert.AreEqual(value, result);
         }
