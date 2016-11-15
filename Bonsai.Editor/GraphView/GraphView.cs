@@ -982,7 +982,7 @@ namespace Bonsai.Design
             }
         }
 
-        public RectangleF DrawGraphics(IGraphics graphics)
+        public RectangleF DrawGraphics(IGraphics graphics, bool scaleFont)
         {
             var textBrush = Brushes.Black;
             var boundingRect = RectangleF.Empty;
@@ -993,7 +993,7 @@ namespace Bonsai.Design
             {
                 var font = Font;
                 var fontScale = measureGraphics.DpiY / DefaultDpi;
-                if (fontScale != 1.0)
+                if (scaleFont && fontScale != 1.0)
                 {
                     ExportFont = ExportFont ?? new Font(Font.FontFamily, Font.SizeInPoints * fontScale);
                     font = ExportFont;

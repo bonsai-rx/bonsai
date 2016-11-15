@@ -45,7 +45,7 @@
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveSelectionAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
-            this.exportSVGImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -119,7 +119,7 @@
             this.createSourceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.commandExecutor = new Bonsai.Design.CommandExecutor();
             this.workflowFileWatcher = new System.IO.FileSystemWatcher();
-            this.exportSvgDialog = new System.Windows.Forms.SaveFileDialog();
+            this.exportImageDialog = new System.Windows.Forms.SaveFileDialog();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -175,7 +175,7 @@
             this.saveAsToolStripMenuItem,
             this.saveSelectionAsToolStripMenuItem,
             this.toolStripSeparator6,
-            this.exportSVGImageToolStripMenuItem,
+            this.exportImageToolStripMenuItem,
             this.toolStripSeparator1,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
@@ -245,14 +245,14 @@
             this.toolStripSeparator6.Name = "toolStripSeparator6";
             this.toolStripSeparator6.Size = new System.Drawing.Size(245, 6);
             // 
-            // exportSVGImageToolStripMenuItem
+            // exportImageToolStripMenuItem
             // 
-            this.exportSVGImageToolStripMenuItem.Name = "exportSVGImageToolStripMenuItem";
-            this.exportSVGImageToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            this.exportImageToolStripMenuItem.Name = "exportImageToolStripMenuItem";
+            this.exportImageToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.E)));
-            this.exportSVGImageToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
-            this.exportSVGImageToolStripMenuItem.Text = "Export SVG Image...";
-            this.exportSVGImageToolStripMenuItem.Click += new System.EventHandler(this.exportSVGImageToolStripMenuItem_Click);
+            this.exportImageToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.exportImageToolStripMenuItem.Text = "Export Image...";
+            this.exportImageToolStripMenuItem.Click += new System.EventHandler(this.exportImageToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
@@ -975,9 +975,10 @@
             this.workflowFileWatcher.IncludeSubdirectories = true;
             this.workflowFileWatcher.SynchronizingObject = this;
             // 
-            // exportSvgDialog
+            // exportImageDialog
             // 
-            this.exportSvgDialog.Filter = "SVG Files (*.svg)|*.svg";
+            this.exportImageDialog.Filter = "BMP (*.bmp)|*.bmp|JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg|GIF (*.gif)|*.gif|TIFF (*.tif;*.tiff)|*.tif;*.tiff|PNG (*.png)|*.png|SVG (*.svg)|*.svg";
+            this.exportImageDialog.FilterIndex = 6;
             // 
             // MainForm
             // 
@@ -1118,8 +1119,8 @@
         private System.Windows.Forms.ToolStripMenuItem selectAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ungroupToolStripMenuItem;
         private System.IO.FileSystemWatcher workflowFileWatcher;
-        private System.Windows.Forms.ToolStripMenuItem exportSVGImageToolStripMenuItem;
-        private System.Windows.Forms.SaveFileDialog exportSvgDialog;
+        private System.Windows.Forms.ToolStripMenuItem exportImageToolStripMenuItem;
+        private System.Windows.Forms.SaveFileDialog exportImageDialog;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
     }
 }
