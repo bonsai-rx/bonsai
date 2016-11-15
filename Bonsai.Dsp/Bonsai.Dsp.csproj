@@ -123,6 +123,7 @@
     <Compile Include="ScalarBuffer.cs" />
     <Compile Include="SelectChannels.cs" />
     <Compile Include="DetectSpikes.cs" />
+    <Compile Include="Shift.cs" />
     <Compile Include="Skip.cs" />
     <Compile Include="SpikeWaveform.cs" />
     <Compile Include="SpikeWaveformCollection.cs" />
