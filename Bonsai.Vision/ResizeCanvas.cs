@@ -19,10 +19,10 @@ namespace Bonsai.Vision
         [Description("The size of the output image.")]
         public Size Size { get; set; }
 
-        [Description("The interpolation method used to transform individual image elements.")]
+        [Description("The method used to generate values on the canvas border.")]
         public IplBorder BorderType { get; set; }
 
-        [Description("The value to which all border pixels will be set to.")]
+        [Description("The value to which constant border pixels will be set to.")]
         public Scalar FillValue { get; set; }
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
