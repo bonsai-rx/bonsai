@@ -88,5 +88,10 @@ namespace Bonsai.Dsp
         {
             return filter.Process(source);
         }
+
+        public IObservable<double> Process(IObservable<double> source)
+        {
+            return filter.Process(source);
+        }
     }
 }
