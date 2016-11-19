@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
+using System.Reactive.Linq;
 
 namespace Bonsai.Dsp
 {
@@ -59,6 +60,11 @@ namespace Bonsai.Dsp
         }
 
         public override IObservable<Mat> Process(IObservable<Mat> source)
+        {
+            return filter.Process(source);
+        }
+
+        public IObservable<double> Process(IObservable<double> source)
         {
             return filter.Process(source);
         }

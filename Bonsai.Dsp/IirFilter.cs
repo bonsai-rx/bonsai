@@ -168,5 +168,17 @@ namespace Bonsai.Dsp
                 });
             });
         }
+
+        public IObservable<double> Process(IObservable<double> source)
+        {
+            return Observable.Using(
+                () => new Mat(1, 1, Depth.F64, 1),
+                buffer =>
+                {
+                    return Process(source.Do(x => buffer.SetReal(0, x))
+                                         .Select(x => buffer))
+                                         .Select(x => x.GetReal(0));
+                });
+        }
     }
 }
