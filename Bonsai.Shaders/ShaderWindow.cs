@@ -18,7 +18,7 @@ namespace Bonsai.Shaders
         Color4 clearColor;
         ClearBufferMask clearMask;
         RectangleF viewport;
-        List<Shader> shaders;
+        List<Material> materials;
         Dictionary<string, Texture> textures;
         Dictionary<string, Mesh> meshes;
         ShaderWindowSettings settings;
@@ -42,8 +42,8 @@ namespace Bonsai.Shaders
             TargetUpdateFrequency = configuration.TargetRenderFrequency;
             textures = new Dictionary<string, Texture>();
             meshes = new Dictionary<string, Mesh>();
-            shaders = settings.Shaders
-                .Select(shaderConfiguration => shaderConfiguration.CreateShader(this))
+            materials = settings.Materials
+                .Select(materialConfiguration => materialConfiguration.CreateMaterial(this))
                 .ToList();
         }
 
@@ -59,9 +59,9 @@ namespace Bonsai.Shaders
             }
         }
 
-        public IEnumerable<Shader> Shaders
+        public IEnumerable<Material> Materials
         {
-            get { return shaders; }
+            get { return materials; }
         }
 
         public Dictionary<string, Texture> Textures
@@ -105,15 +105,15 @@ namespace Bonsai.Shaders
                 meshes.Add(configuration.Name, configuration.CreateResource());
             }
 
-            foreach (var shader in shaders)
+            foreach (var material in materials)
             {
-                var configuration = settings.Shaders[shader.Name];
+                var configuration = settings.Materials[material.Name];
                 if (!string.IsNullOrEmpty(configuration.MeshName))
                 {
-                    shader.Mesh = meshes[configuration.MeshName];
+                    material.Mesh = meshes[configuration.MeshName];
                 }
 
-                shader.Load();
+                material.Load();
             }
 
             foreach (var state in settings.RenderState)
@@ -159,9 +159,9 @@ namespace Bonsai.Shaders
             }
 
             base.OnRenderFrame(e);
-            foreach (var shader in shaders)
+            foreach (var material in materials)
             {
-                shader.Draw();
+                material.Draw();
             }
 
             lock (syncRoot)
@@ -172,9 +172,9 @@ namespace Bonsai.Shaders
 
         protected override void OnUnload(EventArgs e)
         {
-            foreach (var shader in shaders)
+            foreach (var material in materials)
             {
-                shader.Dispose();
+                material.Dispose();
             }
 
             foreach (var texture in textures.Values)

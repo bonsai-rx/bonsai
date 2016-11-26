@@ -10,23 +10,23 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
-    public class ShaderConfiguration
+    public class MaterialConfiguration
     {
         readonly FramebufferConfiguration framebuffer = new FramebufferConfiguration();
         readonly StateConfigurationCollection renderState = new StateConfigurationCollection();
         readonly UniformConfigurationCollection shaderUniforms = new UniformConfigurationCollection();
         readonly TextureBindingConfigurationCollection textureBindings = new TextureBindingConfigurationCollection();
 
-        public ShaderConfiguration()
+        public MaterialConfiguration()
         {
             Enabled = true;
         }
 
-        [Description("The name of the shader.")]
+        [Description("The name of the material.")]
         public string Name { get; set; }
 
         [Category("State")]
-        [Description("Specifies whether the shader program is active.")]
+        [Description("Specifies whether the material is active.")]
         public bool Enabled { get; set; }
 
         [Category("Shaders")]
@@ -50,7 +50,7 @@ namespace Bonsai.Shaders.Configuration
         public string MeshName { get; set; }
 
         [Category("State")]
-        [Description("Specifies any render states that are required to run the shader.")]
+        [Description("Specifies any render states that are required to draw the material.")]
         [Editor("Bonsai.Shaders.Configuration.Design.StateConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public StateConfigurationCollection RenderState
         {
@@ -58,7 +58,7 @@ namespace Bonsai.Shaders.Configuration
         }
 
         [Category("State")]
-        [Description("Specifies any uniform values that are required to run the shader.")]
+        [Description("Specifies any shader uniform values that are required to draw the material.")]
         [Editor("Bonsai.Shaders.Configuration.Design.UniformConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public UniformConfigurationCollection ShaderUniforms
         {
@@ -66,7 +66,7 @@ namespace Bonsai.Shaders.Configuration
         }
 
         [Category("State")]
-        [Description("Specifies any texture bindings that are required to run the shader.")]
+        [Description("Specifies any texture bindings that are required to draw the material.")]
         [Editor("Bonsai.Shaders.Configuration.Design.TextureBindingConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public TextureBindingConfigurationCollection TextureBindings
         {
@@ -74,20 +74,20 @@ namespace Bonsai.Shaders.Configuration
         }
 
         [Category("State")]
-        [Description("Specifies any framebuffer attachments that are required to run the shader.")]
+        [Description("Specifies any framebuffer attachments that are required to draw the material.")]
         [Editor("Bonsai.Shaders.Configuration.Design.FramebufferAttachmentConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public Collection<FramebufferAttachmentConfiguration> FramebufferAttachments
         {
             get { return framebuffer.FramebufferAttachments; }
         }
 
-        public Shader CreateShader(ShaderWindow window)
+        public Material CreateMaterial(ShaderWindow window)
         {
             var vertexSource = File.ReadAllText(VertexShader);
             var geometrySource = !string.IsNullOrEmpty(GeometryShader) ? File.ReadAllText(GeometryShader) : null;
             var fragmentSource = File.ReadAllText(FragmentShader);
 
-            var shader = new Shader(
+            var material = new Material(
                 Name, window,
                 vertexSource,
                 geometrySource,
@@ -96,8 +96,8 @@ namespace Bonsai.Shaders.Configuration
                 shaderUniforms,
                 textureBindings,
                 framebuffer);
-            shader.Enabled = Enabled;
-            return shader;
+            material.Enabled = Enabled;
+            return material;
         }
 
         public override string ToString()

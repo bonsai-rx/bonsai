@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
-    class ShaderNameConverter : StringConverter
+    class MaterialNameConverter : StringConverter
     {
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
         {
@@ -16,8 +16,8 @@ namespace Bonsai.Shaders
 
         public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
-            var shaderNames = ShaderManager.LoadConfiguration().Shaders.Select(configuration => configuration.Name);
-            return new StandardValuesCollection(shaderNames.ToArray());
+            var materialNames = ShaderManager.LoadConfiguration().Materials.Select(configuration => configuration.Name);
+            return new StandardValuesCollection(materialNames.ToArray());
         }
     }
 }
