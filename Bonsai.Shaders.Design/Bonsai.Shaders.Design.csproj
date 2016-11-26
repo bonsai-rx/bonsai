@@ -78,6 +78,7 @@
       <DependentUpon>ConfigurationControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Configuration\ConfigurationEditorService.cs" />
+    <Compile Include="Configuration\ConfigurationHelper.cs" />
     <Compile Include="Configuration\ContextMenuButton.cs">
       <SubType>Component</SubType>
     </Compile>
