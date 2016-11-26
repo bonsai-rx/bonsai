@@ -11,14 +11,14 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
-    [Description("Issues a draw command on the specified shader.")]
-    public class DrawShaderAggregate : Sink
+    [Description("Aggregates the specified mesh geometries into a single draw command.")]
+    public class DrawMeshAggregate : Sink
     {
         readonly Collection<MeshName> meshNames = new Collection<MeshName>();
 
-        [Description("The name of the shader program.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
-        public string ShaderName { get; set; }
+        [Description("The name of the material.")]
+        [Editor("Bonsai.Shaders.Configuration.Design.MaterialConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
+        public string MaterialName { get; set; }
 
         [Description("The name of the mesh geometry to draw.")]
         public Collection<MeshName> MeshNames
@@ -37,17 +37,17 @@ namespace Bonsai.Shaders
 
                 MeshAggregate mesh = null;
                 return source.CombineEither(
-                    ShaderManager.ReserveShader(ShaderName).Do(shader =>
+                    ShaderManager.ReserveMaterial(MaterialName).Do(material =>
                     {
-                        shader.Update(() =>
+                        material.Update(() =>
                         {
-                            var meshes = meshNames.Select(meshName => shader.Window.Meshes[meshName.Name]);
+                            var meshes = meshNames.Select(meshName => material.Window.Meshes[meshName.Name]);
                             mesh = new MeshAggregate(meshes);
                         });
                     }),
-                    (input, shader) =>
+                    (input, material) =>
                     {
-                        shader.Update(() =>
+                        material.Update(() =>
                         {
                             mesh.Draw();
                         });

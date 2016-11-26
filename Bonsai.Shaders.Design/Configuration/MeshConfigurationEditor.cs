@@ -7,15 +7,20 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders.Configuration.Design
 {
-    class MeshConfigurationEditor : ShaderConfigurationEditor
+    class MeshConfigurationEditor : MaterialConfigurationEditor
     {
-        protected override ShaderConfigurationControl CreateEditorControl()
+        protected override MaterialConfigurationControl CreateEditorControl()
         {
             return new MeshConfigurationControl();
         }
 
-        class MeshConfigurationControl : ShaderConfigurationControl
+        class MeshConfigurationControl : MaterialConfigurationControl
         {
+            public MeshConfigurationControl()
+            {
+                Text = "Manage Meshes";
+            }
+
             protected override IEnumerable<string> GetConfigurationNames()
             {
                 return ShaderManager.LoadConfiguration().Meshes.Select(configuration => configuration.Name);

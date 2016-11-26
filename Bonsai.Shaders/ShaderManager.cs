@@ -49,21 +49,21 @@ namespace Bonsai.Shaders
             get { return windowSource; }
         }
 
-        public static IObservable<Shader> ReserveShader(string shaderName)
+        public static IObservable<Material> ReserveMaterial(string materialName)
         {
-            if (string.IsNullOrEmpty(shaderName))
+            if (string.IsNullOrEmpty(materialName))
             {
-                throw new ArgumentException("A shader name must be specified.", "shaderName");
+                throw new ArgumentException("A material name must be specified.", "materialName");
             }
 
             return windowSource.Select(window =>
             {
-                var shader = window.Shaders.FirstOrDefault(s => s.Name == shaderName);
-                if (shader == null)
+                var material = window.Materials.FirstOrDefault(s => s.Name == materialName);
+                if (material == null)
                 {
-                    throw new ArgumentException("No matching shader configuration was found.", "shaderName");
+                    throw new ArgumentException("No matching material configuration was found.", "materialName");
                 }
-                return shader;
+                return material;
             });
         }
 

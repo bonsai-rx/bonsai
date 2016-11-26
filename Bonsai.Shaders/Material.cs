@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
-    public class Shader : IDisposable
+    public class Material : IDisposable
     {
         int program;
         string vertexSource;
@@ -20,10 +20,10 @@ namespace Bonsai.Shaders
         string fragmentSource;
         event Action update;
         ShaderWindow shaderWindow;
-        ShaderState shaderState;
-        Mesh shaderMesh;
+        MaterialState materialState;
+        Mesh materialMesh;
 
-        internal Shader(
+        internal Material(
             string name,
             ShaderWindow window,
             string vertexShader,
@@ -54,7 +54,7 @@ namespace Bonsai.Shaders
             vertexSource = vertexShader;
             geometrySource = geometryShader;
             fragmentSource = fragmentShader;
-            shaderState = new ShaderState(this, renderState, shaderUniforms, textureBindings, framebuffer);
+            materialState = new MaterialState(this, renderState, shaderUniforms, textureBindings, framebuffer);
         }
 
         public bool Enabled { get; set; }
@@ -63,8 +63,8 @@ namespace Bonsai.Shaders
 
         public Mesh Mesh
         {
-            get { return shaderMesh; }
-            internal set { shaderMesh = value; }
+            get { return materialMesh; }
+            internal set { materialMesh = value; }
         }
 
         public int Program
@@ -162,7 +162,7 @@ namespace Bonsai.Shaders
         {
             program = CreateShader();
             GL.UseProgram(program);
-            shaderState.Load();
+            materialState.Load();
         }
 
         public void Draw()
@@ -172,19 +172,19 @@ namespace Bonsai.Shaders
                 GL.UseProgram(program);
 
                 var action = Interlocked.Exchange(ref update, null);
-                shaderState.Bind();
+                materialState.Bind();
                 if (action != null)
                 {
                     action();
                 }
 
-                var mesh = shaderMesh;
+                var mesh = materialMesh;
                 if (mesh != null)
                 {
                     mesh.Draw();
                 }
 
-                shaderState.Unbind();
+                materialState.Unbind();
             }
         }
 
@@ -192,7 +192,7 @@ namespace Bonsai.Shaders
         {
             if (shaderWindow != null)
             {
-                shaderState.Unload();
+                materialState.Unload();
                 GL.DeleteProgram(program);
                 shaderWindow = null;
                 update = null;

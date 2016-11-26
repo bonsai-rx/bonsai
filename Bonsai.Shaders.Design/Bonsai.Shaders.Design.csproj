@@ -102,13 +102,13 @@
       <DependentUpon>GlslScriptEditorDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="GlslScriptEditor.cs" />
-    <Compile Include="Configuration\ShaderConfigurationControl.cs">
+    <Compile Include="Configuration\MaterialConfigurationControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="GlslScriptExample.cs" />
     <Compile Include="GlslScriptExampleCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Configuration\ShaderConfigurationEditor.cs" />
+    <Compile Include="Configuration\MaterialConfigurationEditor.cs" />
     <Compile Include="Configuration\StateConfigurationCollectionEditor.cs" />
   </ItemGroup>
   <ItemGroup>

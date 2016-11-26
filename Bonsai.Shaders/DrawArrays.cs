@@ -24,9 +24,9 @@ namespace Bonsai.Shaders
             Usage = BufferUsageHint.DynamicDraw;
         }
 
-        [Description("The name of the shader program.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
-        public string ShaderName { get; set; }
+        [Description("The name of the material.")]
+        [Editor("Bonsai.Shaders.Configuration.Design.MaterialConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
+        public string MaterialName { get; set; }
 
         [Description("Specifies the kind of primitives to render with the vertex array data.")]
         public PrimitiveType DrawMode { get; set; }
@@ -68,9 +68,9 @@ namespace Bonsai.Shaders
             {
                 Mesh mesh = null;
                 return source.CombineEither(
-                    ShaderManager.ReserveShader(ShaderName).Do(shader =>
+                    ShaderManager.ReserveMaterial(MaterialName).Do(material =>
                     {
-                        shader.Update(() =>
+                        material.Update(() =>
                         {
                             mesh = new Mesh();
                             BindVertexAttributes(
@@ -80,9 +80,9 @@ namespace Bonsai.Shaders
                                 vertexAttributes);
                         });
                     }),
-                    (input, shader) =>
+                    (input, material) =>
                     {
-                        shader.Update(() =>
+                        material.Update(() =>
                         {
                             mesh.DrawMode = DrawMode;
                             mesh.VertexCount = VertexHelper.UpdateVertexBuffer(mesh.VertexBuffer, input, Usage);
@@ -99,10 +99,10 @@ namespace Bonsai.Shaders
             {
                 Mesh mesh = null;
                 return source.CombineEither(
-                    ShaderManager.ReserveShader(ShaderName),
-                    (input, shader) =>
+                    ShaderManager.ReserveMaterial(MaterialName),
+                    (input, material) =>
                     {
-                        shader.Update(() =>
+                        material.Update(() =>
                         {
                             if (mesh == null)
                             {
