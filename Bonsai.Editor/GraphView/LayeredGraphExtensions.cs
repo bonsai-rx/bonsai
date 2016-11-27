@@ -387,6 +387,7 @@ namespace Bonsai.Design
         public static IEnumerable<GraphNodeGrouping> RemoveSuccessorKinks(this IEnumerable<GraphNodeGrouping> source)
         {
             var layers = source.ToArray();
+            // Backward pass
             for (int i = 0; i < layers.Length; i++)
             {
                 var layer = layers[i];
@@ -406,6 +407,42 @@ namespace Bonsai.Design
                     }
 
                     layers[i] = sortedLayer;
+                }
+            }
+
+            // Forward pass
+            var predecessorMap = new Dictionary<GraphNode, IEnumerable<GraphEdge>>();
+            for (int i = layers.Length - 1; i >= 0; i--)
+            {
+                var layer = layers[i];
+                if (i < layers.Length - 1)
+                {
+                    var sortedLayer = new GraphNodeGrouping(layer.Key);
+                    foreach (var node in layer)
+                    {
+                        IEnumerable<GraphEdge> nodePredecessors;
+                        if (predecessorMap.TryGetValue(node, out nodePredecessors))
+                        {
+                            var minSuccessorLayer = nodePredecessors.Min(edge => edge.Node.LayerIndex);
+                            while (sortedLayer.Count < minSuccessorLayer)
+                            {
+                                var dummyNode = new GraphNode(null, layer.Key, Enumerable.Empty<GraphEdge>());
+                                sortedLayer.Add(dummyNode);
+                            }
+                        }
+
+                        sortedLayer.Add(node);
+                    }
+
+                    layers[i] = sortedLayer;
+                }
+
+                predecessorMap.Clear();
+                foreach (var group in (from node in layers[i]
+                                       from successor in node.Successors
+                                       group new GraphEdge(null, null, node) by successor.Node))
+                {
+                    predecessorMap.Add(group.Key, group);
                 }
             }
 
