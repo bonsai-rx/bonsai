@@ -37,10 +37,10 @@
             this.windowButton = new System.Windows.Forms.RadioButton();
             this.meshButton = new System.Windows.Forms.RadioButton();
             this.textureButton = new System.Windows.Forms.RadioButton();
-            this.shaderButton = new System.Windows.Forms.RadioButton();
+            this.materialButton = new System.Windows.Forms.RadioButton();
             this.meshCollectionEditor = new Bonsai.Shaders.Configuration.Design.CollectionEditorControl();
             this.textureCollectionEditor = new Bonsai.Shaders.Configuration.Design.CollectionEditorControl();
-            this.shaderCollectionEditor = new Bonsai.Shaders.Configuration.Design.CollectionEditorControl();
+            this.materialCollectionEditor = new Bonsai.Shaders.Configuration.Design.CollectionEditorControl();
             this.flowLayoutPanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -108,8 +108,8 @@
             this.flowLayoutPanel.Controls.Add(this.meshCollectionEditor);
             this.flowLayoutPanel.Controls.Add(this.textureButton);
             this.flowLayoutPanel.Controls.Add(this.textureCollectionEditor);
-            this.flowLayoutPanel.Controls.Add(this.shaderButton);
-            this.flowLayoutPanel.Controls.Add(this.shaderCollectionEditor);
+            this.flowLayoutPanel.Controls.Add(this.materialButton);
+            this.flowLayoutPanel.Controls.Add(this.materialCollectionEditor);
             this.flowLayoutPanel.Location = new System.Drawing.Point(12, 25);
             this.flowLayoutPanel.Name = "flowLayoutPanel";
             this.flowLayoutPanel.Size = new System.Drawing.Size(200, 346);
@@ -139,7 +139,7 @@
             this.meshButton.Text = "Meshes";
             this.meshButton.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.meshButton.UseVisualStyleBackColor = true;
-            this.meshButton.CheckedChanged += new System.EventHandler(this.shaderButton_CheckedChanged);
+            this.meshButton.CheckedChanged += new System.EventHandler(this.materialButton_CheckedChanged);
             // 
             // textureButton
             // 
@@ -152,20 +152,20 @@
             this.textureButton.Text = "Textures";
             this.textureButton.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.textureButton.UseVisualStyleBackColor = true;
-            this.textureButton.CheckedChanged += new System.EventHandler(this.shaderButton_CheckedChanged);
+            this.textureButton.CheckedChanged += new System.EventHandler(this.materialButton_CheckedChanged);
             // 
-            // shaderButton
+            // materialButton
             // 
-            this.shaderButton.Appearance = System.Windows.Forms.Appearance.Button;
-            this.shaderButton.Location = new System.Drawing.Point(7, 516);
-            this.shaderButton.Margin = new System.Windows.Forms.Padding(7, 7, 7, 4);
-            this.shaderButton.Name = "shaderButton";
-            this.shaderButton.Size = new System.Drawing.Size(185, 24);
-            this.shaderButton.TabIndex = 5;
-            this.shaderButton.Text = "Shaders";
-            this.shaderButton.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.shaderButton.UseVisualStyleBackColor = true;
-            this.shaderButton.CheckedChanged += new System.EventHandler(this.shaderButton_CheckedChanged);
+            this.materialButton.Appearance = System.Windows.Forms.Appearance.Button;
+            this.materialButton.Location = new System.Drawing.Point(7, 516);
+            this.materialButton.Margin = new System.Windows.Forms.Padding(7, 7, 7, 4);
+            this.materialButton.Name = "materialButton";
+            this.materialButton.Size = new System.Drawing.Size(185, 24);
+            this.materialButton.TabIndex = 5;
+            this.materialButton.Text = "Materials";
+            this.materialButton.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.materialButton.UseVisualStyleBackColor = true;
+            this.materialButton.CheckedChanged += new System.EventHandler(this.materialButton_CheckedChanged);
             // 
             // meshCollectionEditor
             // 
@@ -195,19 +195,19 @@
             this.textureCollectionEditor.Visible = false;
             this.textureCollectionEditor.SelectedItemChanged += new System.EventHandler(this.collectionEditor_SelectedItemChanged);
             // 
-            // shaderCollectionEditor
+            // materialCollectionEditor
             // 
-            this.shaderCollectionEditor.AutoSize = true;
-            this.shaderCollectionEditor.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.shaderCollectionEditor.CollectionItemType = null;
-            this.shaderCollectionEditor.Location = new System.Drawing.Point(3, 547);
-            this.shaderCollectionEditor.Name = "shaderCollectionEditor";
-            this.shaderCollectionEditor.NewItemTypes = null;
-            this.shaderCollectionEditor.SelectedItem = null;
-            this.shaderCollectionEditor.Size = new System.Drawing.Size(192, 196);
-            this.shaderCollectionEditor.TabIndex = 8;
-            this.shaderCollectionEditor.Visible = false;
-            this.shaderCollectionEditor.SelectedItemChanged += new System.EventHandler(this.collectionEditor_SelectedItemChanged);
+            this.materialCollectionEditor.AutoSize = true;
+            this.materialCollectionEditor.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.materialCollectionEditor.CollectionItemType = null;
+            this.materialCollectionEditor.Location = new System.Drawing.Point(3, 547);
+            this.materialCollectionEditor.Name = "materialCollectionEditor";
+            this.materialCollectionEditor.NewItemTypes = null;
+            this.materialCollectionEditor.SelectedItem = null;
+            this.materialCollectionEditor.Size = new System.Drawing.Size(192, 196);
+            this.materialCollectionEditor.TabIndex = 8;
+            this.materialCollectionEditor.Visible = false;
+            this.materialCollectionEditor.SelectedItemChanged += new System.EventHandler(this.collectionEditor_SelectedItemChanged);
             // 
             // ShaderConfigurationEditorDialog
             // 
@@ -241,11 +241,11 @@
         private System.Windows.Forms.Label propertiesLabel;
         private System.Windows.Forms.PropertyGrid propertyGrid;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel;
-        private CollectionEditorControl shaderCollectionEditor;
+        private CollectionEditorControl materialCollectionEditor;
         private CollectionEditorControl textureCollectionEditor;
         private CollectionEditorControl meshCollectionEditor;
         private System.Windows.Forms.Label memberLabel;
-        private System.Windows.Forms.RadioButton shaderButton;
+        private System.Windows.Forms.RadioButton materialButton;
         private System.Windows.Forms.RadioButton meshButton;
         private System.Windows.Forms.RadioButton textureButton;
         private System.Windows.Forms.RadioButton windowButton;

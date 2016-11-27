@@ -808,21 +808,37 @@ namespace Bonsai.Editor
             finally { saveWorkflowDialog.FileName = currentFileName; }
         }
 
-        private void exportSVGImageToolStripMenuItem_Click(object sender, EventArgs e)
+        private void exportImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var model = selectionModel.SelectedView;
             if (model.Workflow.Count > 0)
             {
-                var graphics = new SvgNet.SvgGdi.SvgGraphics();
-                var bounds = model.GraphView.DrawGraphics(graphics);
-                if (exportSvgDialog.ShowDialog() == DialogResult.OK)
+                if (exportImageDialog.ShowDialog() == DialogResult.OK)
                 {
-                    var svg = graphics.WriteSVGString();
-                    var attributes = string.Format(
-                        "<svg width=\"{0}\" height=\"{1}\" ",
-                        bounds.Width, bounds.Height);
-                    svg = svg.Replace("<svg ", attributes);
-                    File.WriteAllText(exportSvgDialog.FileName, svg);
+                    var extension = Path.GetExtension(exportImageDialog.FileName);
+                    if (extension == "svg")
+                    {
+                        var graphics = new SvgNet.SvgGdi.SvgGraphics();
+                        var bounds = model.GraphView.DrawGraphics(graphics, true);
+                        var svg = graphics.WriteSVGString();
+                        var attributes = string.Format(
+                            "<svg width=\"{0}\" height=\"{1}\" ",
+                            bounds.Width, bounds.Height);
+                        svg = svg.Replace("<svg ", attributes);
+                        File.WriteAllText(exportImageDialog.FileName, svg);
+                    }
+                    else
+                    {
+                        var drawGraphics = new DeferredGraphics();
+                        var bounds = model.GraphView.DrawGraphics(drawGraphics, false);
+                        using (var bitmap = new Bitmap((int)bounds.Width, (int)bounds.Height))
+                        using (var graphics = Graphics.FromImage(bitmap))
+                        {
+                            drawGraphics.Execute(graphics);
+                            drawGraphics.Clear();
+                            bitmap.Save(exportImageDialog.FileName);
+                        }
+                    }
                 }
             }
         }
@@ -1727,7 +1743,7 @@ namespace Bonsai.Editor
                 HandleMenuItemShortcutKeys(e, siteForm.openToolStripMenuItem, siteForm.openToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.saveToolStripMenuItem, siteForm.saveToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.saveSelectionAsToolStripMenuItem, siteForm.saveSelectionAsToolStripMenuItem_Click);
-                HandleMenuItemShortcutKeys(e, siteForm.exportSVGImageToolStripMenuItem, siteForm.exportSVGImageToolStripMenuItem_Click);
+                HandleMenuItemShortcutKeys(e, siteForm.exportImageToolStripMenuItem, siteForm.exportImageToolStripMenuItem_Click);
             }
 
             public void OnKeyPress(KeyPressEventArgs e)

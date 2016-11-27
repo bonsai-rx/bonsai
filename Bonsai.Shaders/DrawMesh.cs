@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
-    [Description("Issues a draw command on the specified shader.")]
-    public class DrawShader : Sink
+    [Description("Draws the specified mesh geometry.")]
+    public class DrawMesh : Sink
     {
-        [Description("The name of the shader program.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
-        public string ShaderName { get; set; }
+        [Description("The name of the material.")]
+        [Editor("Bonsai.Shaders.Configuration.Design.MaterialConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
+        public string MaterialName { get; set; }
 
         [Description("The name of the mesh geometry to draw.")]
         [Editor("Bonsai.Shaders.Configuration.Design.MeshConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
@@ -33,16 +33,16 @@ namespace Bonsai.Shaders
 
                 Mesh mesh = null;
                 return source.CombineEither(
-                    ShaderManager.ReserveShader(ShaderName).Do(shader =>
+                    ShaderManager.ReserveMaterial(MaterialName).Do(material =>
                     {
-                        shader.Update(() =>
+                        material.Update(() =>
                         {
-                            mesh = shader.Window.Meshes[name];
+                            mesh = material.Window.Meshes[name];
                         });
                     }),
-                    (input, shader) =>
+                    (input, material) =>
                     {
-                        shader.Update(() =>
+                        material.Update(() =>
                         {
                             mesh.Draw();
                         });

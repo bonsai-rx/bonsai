@@ -649,19 +649,36 @@ namespace Bonsai.Expressions
             return 0;
         }
 
-        static int CompareFunctionMember(Type[] parametersA, Type[] parametersB, Type[] arguments)
+        static int CompareSpecialization(Type t1, Type t2, Type s)
+        {
+            if (t1 == t2) return 0;
+            if (s == t1) return -1;
+            if (s == t2) return 1;
+
+            // Check if t2 is reducible to t1 and vice-versa:
+            //   - if they are both reducible to each other or if neither is reducible, we have a tie
+            //   - if only t2 is reducible to t1, then take t2 (it is more specialized); conversely for t1
+            var bindingT2T1 = GetParameterBindings(t1, t2).Any();
+            var bindingT1T2 = GetParameterBindings(t2, t1).Any();
+            if (bindingT2T1 && bindingT1T2) return 0;
+            else if (bindingT2T1) return 1;
+            else if (bindingT1T2) return -1;
+            else return 0;
+        }
+
+        static int CompareFunctionMember(Type[] parametersA, Type[] parametersB, Type[] arguments, Func<Type, Type, Type, int> comparison)
         {
             bool? betterA = null;
             bool? betterB = null;
             for (int i = 0; i < arguments.Length; i++)
             {
-                var comparison = CompareConversion(parametersA[i], parametersB[i], arguments[i]);
-                if (comparison < 0)
+                var result = comparison(parametersA[i], parametersB[i], arguments[i]);
+                if (result < 0)
                 {
                     if (!betterA.HasValue) betterA = true;
                     betterB = false;
                 }
-                else if (comparison > 0)
+                else if (result > 0)
                 {
                     if (!betterB.HasValue) betterB = true;
                     betterA = false;
@@ -735,6 +752,7 @@ namespace Bonsai.Expressions
                 .Select(method =>
                 {
                     Expression[] callArguments;
+                    ParameterInfo[] parameters;
                     try
                     {
                         if (method.IsGenericMethodDefinition)
@@ -744,7 +762,7 @@ namespace Bonsai.Expressions
                         }
 
                         callArguments = arguments;
-                        var parameters = method.GetParameters();
+                        parameters = method.GetParameters();
                         if (ParamExpansionRequired(parameters, argumentTypes))
                         {
                             if (!CanExpandParamArguments(parameters, argumentTypes)) return null;
@@ -761,7 +779,7 @@ namespace Bonsai.Expressions
                         method = method,
                         arguments = callArguments,
                         generic = method.IsGenericMethod,
-                        expansion = ParamExpansionRequired(method.GetParameters(), argumentTypes),
+                        expansion = ParamExpansionRequired(parameters, argumentTypes),
                         excluded = false
                     };
                 })
@@ -772,6 +790,14 @@ namespace Bonsai.Expressions
             if (candidates.Length == 1) return candidates[0];
 
             argumentTypes = Array.ConvertAll(argumentTypes, argumentType => GetObservableElementType(argumentType));
+            var genericParameters = Array.ConvertAll(
+                candidates,
+                candidate => ExpandCallParameterTypes(
+                    (candidate.method.IsGenericMethod
+                    ? ((MethodInfo)candidate.method).GetGenericMethodDefinition()
+                    : candidate.method).GetParameters(),
+                    argumentTypes,
+                    candidate.expansion));
             var candidateParameters = Array.ConvertAll(
                 candidates,
                 candidate => ExpandCallParameterTypes(candidate.method.GetParameters(), argumentTypes, candidate.expansion));
@@ -786,10 +812,12 @@ namespace Bonsai.Expressions
                     // skip self-test
                     if (i == j) continue;
 
+                    // compare implicit type conversion
                     var comparison = CompareFunctionMember(
                         candidateParameters[i],
                         candidateParameters[j],
-                        argumentTypes);
+                        argumentTypes,
+                        CompareConversion);
                     if (comparison == 0) // tie-break
                     {
                         // non-generic vs generic
@@ -798,6 +826,14 @@ namespace Bonsai.Expressions
                         // non-params vs params
                         else if (!candidates[i].expansion && candidates[j].expansion) comparison = -1;
                         else if (!candidates[j].expansion && candidates[i].expansion) comparison = 1;
+                        else
+                        {   // compare parameter specialization
+                            comparison = CompareFunctionMember(
+                                genericParameters[i],
+                                genericParameters[j],
+                                argumentTypes,
+                                CompareSpecialization);
+                        }
                     }
 
                     // exclude self if loss or tied; exclude other if win or tied
