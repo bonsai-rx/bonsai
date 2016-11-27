@@ -13,9 +13,12 @@ namespace Bonsai.Osc.Net
 
         public int Port { get; set; }
 
+        public bool NoDelay { get; set; }
+
         internal override ITransport CreateTransport()
         {
             var tcpClient = new TcpClient();
+            tcpClient.NoDelay = NoDelay;
             tcpClient.Connect(HostName, Port);
             return new TcpTransport(tcpClient);
         }
