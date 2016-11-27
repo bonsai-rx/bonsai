@@ -198,7 +198,11 @@ namespace Bonsai.NuGet
 
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {
+            const int MaxImageSize = 256;
             packageView.ItemHeight = (int)(64 * factor.Height);
+            packageIcons.ImageSize = new Size(
+                Math.Min(MaxImageSize, (int)(32 * factor.Height)),
+                Math.Min(MaxImageSize, (int)(32 * factor.Height)));
             base.ScaleControl(factor, specified);
         }
 
