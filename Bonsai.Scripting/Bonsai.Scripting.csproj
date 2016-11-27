@@ -69,15 +69,15 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\IronPython.2.7.5\lib\Net45\Microsoft.Scripting.Metadata.dll</HintPath>
     </Reference>
-    <Reference Include="ScintillaNET, Version=3.5.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\jacobslusser.ScintillaNET.3.5.4\lib\net40\ScintillaNET.dll</HintPath>
+    <Reference Include="ScintillaNET, Version=3.5.10.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\jacobslusser.ScintillaNET.3.5.10\lib\net40\ScintillaNET.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Linq.Dynamic, Version=1.0.5840.25917, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Linq.Dynamic.1.0.6\lib\net40\System.Linq.Dynamic.dll</HintPath>
+    <Reference Include="System.Linq.Dynamic, Version=1.0.6132.35681, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Linq.Dynamic.1.0.7\lib\net40\System.Linq.Dynamic.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Reactive.Core, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -100,6 +100,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExpressionSink.cs" />
     <Compile Include="ExpressionCondition.cs" />
     <Compile Include="PythonEngine.cs" />
     <Compile Include="PythonHelper.cs" />
