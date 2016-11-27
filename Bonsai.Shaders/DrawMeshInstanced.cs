@@ -14,19 +14,19 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
-    [Description("Issues a draw command on the specified shader using instance data.")]
-    public class DrawShaderInstanced : Sink<Mat>
+    [Description("Draws the specified mesh geometry using input instance data.")]
+    public class DrawMeshInstanced : Sink<Mat>
     {
         readonly InstanceAttributeMappingCollection instanceAttributes = new InstanceAttributeMappingCollection();
 
-        public DrawShaderInstanced()
+        public DrawMeshInstanced()
         {
             Usage = BufferUsageHint.DynamicDraw;
         }
 
-        [Description("The name of the shader program.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
-        public string ShaderName { get; set; }
+        [Description("The name of the material.")]
+        [Editor("Bonsai.Shaders.Configuration.Design.MaterialConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
+        public string MaterialName { get; set; }
 
         [Description("The name of the mesh geometry to draw.")]
         [Editor("Bonsai.Shaders.Configuration.Design.MeshConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
@@ -118,14 +118,14 @@ namespace Bonsai.Shaders
 
                 MeshInstanced instance = null;
                 return source.CombineEither(
-                    ShaderManager.ReserveShader(ShaderName),
-                    (input, shader) =>
+                    ShaderManager.ReserveMaterial(MaterialName),
+                    (input, material) =>
                     {
-                        shader.Update(() =>
+                        material.Update(() =>
                         {
                             if (instance == null)
                             {
-                                var mesh = shader.Window.Meshes[name];
+                                var mesh = material.Window.Meshes[name];
                                 instance = new MeshInstanced(mesh);
                                 BindInstanceAttributes(
                                     instance,

@@ -9,16 +9,16 @@ using System.Windows.Forms.Design;
 
 namespace Bonsai.Shaders.Configuration.Design
 {
-    class ShaderConfigurationEditor : UITypeEditor
+    class MaterialConfigurationEditor : UITypeEditor
     {
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
             return UITypeEditorEditStyle.DropDown;
         }
 
-        protected virtual ShaderConfigurationControl CreateEditorControl()
+        protected virtual MaterialConfigurationControl CreateEditorControl()
         {
-            return new ShaderConfigurationControl();
+            return new MaterialConfigurationControl();
         }
 
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)

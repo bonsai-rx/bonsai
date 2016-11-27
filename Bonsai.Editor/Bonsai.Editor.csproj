@@ -91,6 +91,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="GraphView\GraphViewTextDrawMode.cs" />
+    <Compile Include="GraphView\DeferredGraphics.cs" />
     <Compile Include="GraphView\WorkflowGraphViewEditorService.cs" />
     <Compile Include="HotKeyMessageFilter.cs" />
     <Compile Include="IWorkflowEditorService.cs" />

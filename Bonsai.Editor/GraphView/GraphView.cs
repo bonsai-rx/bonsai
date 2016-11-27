@@ -982,7 +982,7 @@ namespace Bonsai.Design
             }
         }
 
-        public RectangleF DrawGraphics(IGraphics graphics)
+        public RectangleF DrawGraphics(IGraphics graphics, bool scaleFont)
         {
             var textBrush = Brushes.Black;
             var boundingRect = RectangleF.Empty;
@@ -993,7 +993,7 @@ namespace Bonsai.Design
             {
                 var font = Font;
                 var fontScale = measureGraphics.DpiY / DefaultDpi;
-                if (fontScale != 1.0)
+                if (scaleFont && fontScale != 1.0)
                 {
                     ExportFont = ExportFont ?? new Font(Font.FontFamily, Font.SizeInPoints * fontScale);
                     font = ExportFont;
@@ -1047,7 +1047,11 @@ namespace Bonsai.Design
                         }
                         boundingRect = RectangleF.Union(boundingRect, layoutBounds);
                     }
-                    else graphics.DrawLine(layout.Node.Pen, layout.EntryPoint, layout.ExitPoint);
+                    else if (layout.Node.Tag != null)
+                    {
+                        graphics.DrawLine(layout.Node.Pen, layout.EntryPoint, layout.ExitPoint);
+                        boundingRect = RectangleF.Union(boundingRect, layout.BoundingRectangle);
+                    }
 
                     foreach (var successor in layout.Node.Successors)
                     {
@@ -1115,12 +1119,21 @@ namespace Bonsai.Design
                         e.Graphics.DrawString(layout.Label, Font, Brushes.Black, labelRect, TextFormat);
                     }
                 }
-                else e.Graphics.DrawLine(layout.Node.Pen, Point.Add(layout.EntryPoint, offset), Point.Add(layout.ExitPoint, offset));
+                else if (layout.Node.Tag != null)
+                {
+                    e.Graphics.DrawLine(
+                        layout.Node.Pen,
+                        Point.Add(layout.EntryPoint, offset),
+                        Point.Add(layout.ExitPoint, offset));
+                }
 
                 foreach (var successor in layout.Node.Successors)
                 {
                     var successorLayout = layoutNodes[successor.Node];
-                    e.Graphics.DrawLine(layout.Node.Pen, Point.Add(layout.ExitPoint, offset), Point.Add(successorLayout.EntryPoint, offset));
+                    e.Graphics.DrawLine(
+                        layout.Node.Pen,
+                        Point.Add(layout.ExitPoint, offset),
+                        Point.Add(successorLayout.EntryPoint, offset));
                 }
             }
 

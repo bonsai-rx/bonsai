@@ -15,7 +15,9 @@ namespace Bonsai.Shaders.Configuration.Design
         {
             if (provider != null)
             {
-                var configuration = ShaderManager.LoadConfiguration();
+                DialogResult loadResult;
+                var configuration = ConfigurationHelper.LoadConfiguration(out loadResult);
+                if (loadResult == DialogResult.Cancel) return false;
                 if (configuration == null)
                 {
                     throw new InvalidOperationException("Failed to load configuration.");
@@ -24,7 +26,8 @@ namespace Bonsai.Shaders.Configuration.Design
                 var editorService = new ConfigurationEditorService(owner);
                 var form = new ShaderConfigurationEditorDialog();
                 form.SelectedObject = configuration;
-                if (editorService.ShowDialog(form) == DialogResult.OK)
+                if (editorService.ShowDialog(form) == DialogResult.OK &&
+                    loadResult == DialogResult.OK)
                 {
                     ShaderManager.SaveConfiguration(configuration);
                 }

@@ -7,15 +7,20 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders.Configuration.Design
 {
-    class TextureConfigurationEditor : ShaderConfigurationEditor
+    class TextureConfigurationEditor : MaterialConfigurationEditor
     {
-        protected override ShaderConfigurationControl CreateEditorControl()
+        protected override MaterialConfigurationControl CreateEditorControl()
         {
             return new TextureConfigurationControl();
         }
 
-        class TextureConfigurationControl : ShaderConfigurationControl
+        class TextureConfigurationControl : MaterialConfigurationControl
         {
+            public TextureConfigurationControl()
+            {
+                Text = "Manage Textures";
+            }
+
             protected override IEnumerable<string> GetConfigurationNames()
             {
                 return ShaderManager.LoadConfiguration().Textures.Select(configuration => configuration.Name);

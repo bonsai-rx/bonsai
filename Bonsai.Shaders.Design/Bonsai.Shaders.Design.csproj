@@ -78,6 +78,7 @@
       <DependentUpon>ConfigurationControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Configuration\ConfigurationEditorService.cs" />
+    <Compile Include="Configuration\ConfigurationHelper.cs" />
     <Compile Include="Configuration\ContextMenuButton.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -102,13 +103,13 @@
       <DependentUpon>GlslScriptEditorDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="GlslScriptEditor.cs" />
-    <Compile Include="Configuration\ShaderConfigurationControl.cs">
+    <Compile Include="Configuration\MaterialConfigurationControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="GlslScriptExample.cs" />
     <Compile Include="GlslScriptExampleCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Configuration\ShaderConfigurationEditor.cs" />
+    <Compile Include="Configuration\MaterialConfigurationEditor.cs" />
     <Compile Include="Configuration\StateConfigurationCollectionEditor.cs" />
   </ItemGroup>
   <ItemGroup>
