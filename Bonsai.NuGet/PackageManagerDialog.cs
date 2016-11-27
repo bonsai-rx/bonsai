@@ -286,7 +286,15 @@ namespace Bonsai.NuGet
                                             response.ContentType.StartsWith("application/octet-stream"),
                                       Observable.Using(
                                           () => response.GetResponseStream(),
-                                          stream => Observable.Return(new Bitmap(Image.FromStream(stream), packageIcons.ImageSize))),
+                                          stream =>
+                                          {
+                                              try
+                                              {
+                                                  var image = Image.FromStream(stream);
+                                                  return Observable.Return(new Bitmap(image, packageIcons.ImageSize));
+                                              }
+                                              catch (ArgumentException) { return defaultIcon; }
+                                          }),
                                       defaultIcon)
                                   select image)
                                   .Catch<Image, WebException>(ex => defaultIcon)
