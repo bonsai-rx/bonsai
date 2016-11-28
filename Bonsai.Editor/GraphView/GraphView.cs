@@ -357,7 +357,7 @@ namespace Bonsai.Design
             DisposeDrawResources();
             using (var graphics = CreateGraphics())
             {
-                drawScale = graphics.DpiX / DefaultDpi * Font.SizeInPoints / DefaultFontSize;
+                drawScale = graphics.DpiY / DefaultDpi * Font.SizeInPoints / DefaultFontSize;
             }
 
             PenWidth = (int)(3 * drawScale);
