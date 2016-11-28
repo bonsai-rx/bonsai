@@ -18,6 +18,7 @@ namespace Bonsai.Design
     partial class GraphView : UserControl
     {
         const float DefaultDpi = 96f;
+        const float DefaultFontSize = 8.25f;
         static readonly Pen RubberBandPen = new Pen(Color.FromArgb(51, 153, 255));
         static readonly Brush RubberBandBrush = new SolidBrush(Color.FromArgb(128, 170, 204, 238));
         static readonly Brush HotBrush = new SolidBrush(Color.FromArgb(128, 229, 243, 251));
@@ -354,7 +355,11 @@ namespace Bonsai.Design
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {
             DisposeDrawResources();
-            var drawScale = factor.Height;
+            using (var graphics = CreateGraphics())
+            {
+                drawScale = graphics.DpiX / DefaultDpi * Font.SizeInPoints / DefaultFontSize;
+            }
+
             PenWidth = (int)(3 * drawScale);
             NodeAirspace = (int)(80 * drawScale);
             NodeSize = (int)(30 * drawScale);
