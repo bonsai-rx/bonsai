@@ -16,7 +16,6 @@
     <dependencies>
       <dependency id="Bonsai.Core" version="2.2.0" />
       <dependency id="Bonsai.System" version="2.2.0" />
-      <dependency id="OpenCV.Net" version="3.3.0" />
     </dependencies>
   </metadata>
 </package>
