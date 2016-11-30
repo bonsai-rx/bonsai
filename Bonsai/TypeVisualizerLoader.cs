@@ -73,30 +73,6 @@ namespace Bonsai
             return typeVisualizers.Distinct().Select(data => new TypeVisualizerDescriptor(data)).ToArray();
         }
 
-        class LoaderResource : IDisposable
-        {
-            AppDomain reflectionDomain;
-
-            public LoaderResource(PackageConfiguration configuration)
-            {
-                var currentEvidence = AppDomain.CurrentDomain.Evidence;
-                var setupInfo = AppDomain.CurrentDomain.SetupInformation;
-                reflectionDomain = AppDomain.CreateDomain("ReflectionOnly", currentEvidence, setupInfo);
-                Loader = (TypeVisualizerLoader)reflectionDomain.CreateInstanceAndUnwrap(
-                    typeof(TypeVisualizerLoader).Assembly.FullName,
-                    typeof(TypeVisualizerLoader).FullName,
-                    false, (BindingFlags)0, null,
-                    new[] { configuration }, null, null);
-            }
-
-            public TypeVisualizerLoader Loader { get; private set; }
-
-            public void Dispose()
-            {
-                AppDomain.Unload(reflectionDomain);
-            }
-        }
-
         public static IObservable<TypeVisualizerDescriptor> GetTypeVisualizerDictionary(PackageConfiguration configuration)
         {
             if (configuration == null)
@@ -106,7 +82,7 @@ namespace Bonsai
 
             var assemblies = configuration.AssemblyReferences.Select(reference => reference.AssemblyName);
             return Observable.Using(
-                () => new LoaderResource(configuration),
+                () => new LoaderResource<TypeVisualizerLoader>(configuration),
                 resource => from assemblyRef in assemblies.ToObservable()
                             let typeVisualizers = resource.Loader.GetReflectionTypeVisualizerAttributes(assemblyRef)
                             from typeVisualizer in typeVisualizers

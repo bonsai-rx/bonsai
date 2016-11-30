@@ -81,30 +81,6 @@ namespace Bonsai
             return types.Distinct().ToArray();
         }
 
-        class LoaderResource : IDisposable
-        {
-            AppDomain reflectionDomain;
-
-            public LoaderResource(PackageConfiguration configuration)
-            {
-                var currentEvidence = AppDomain.CurrentDomain.Evidence;
-                var setupInfo = AppDomain.CurrentDomain.SetupInformation;
-                reflectionDomain = AppDomain.CreateDomain("ReflectionOnly", currentEvidence, setupInfo);
-                Loader = (WorkflowElementLoader)reflectionDomain.CreateInstanceAndUnwrap(
-                    typeof(WorkflowElementLoader).Assembly.FullName,
-                    typeof(WorkflowElementLoader).FullName,
-                    false, (BindingFlags)0, null,
-                    new[] { configuration }, null, null);
-            }
-
-            public WorkflowElementLoader Loader { get; private set; }
-
-            public void Dispose()
-            {
-                AppDomain.Unload(reflectionDomain);
-            }
-        }
-
         class WorkflowElementGroup : IGrouping<string, WorkflowElementDescriptor>
         {
             IEnumerable<WorkflowElementDescriptor> elementTypes;
@@ -137,7 +113,7 @@ namespace Bonsai
 
             var assemblies = configuration.AssemblyReferences.Select(reference => reference.AssemblyName);
             return Observable.Using(
-                () => new LoaderResource(configuration),
+                () => new LoaderResource<WorkflowElementLoader>(configuration),
                 resource => from assemblyRef in assemblies.ToObservable()
                             from package in resource.Loader
                                 .GetReflectionWorkflowElementTypes(assemblyRef)
