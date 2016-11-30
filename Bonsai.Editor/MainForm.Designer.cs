@@ -413,7 +413,7 @@
             this.stopToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.F5)));
             this.stopToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
             this.stopToolStripMenuItem.Text = "S&top";
-            this.stopToolStripMenuItem.Visible = false;
+            this.stopToolStripMenuItem.Enabled = false;
             this.stopToolStripMenuItem.Click += new System.EventHandler(this.stopToolStripMenuItem_Click);
             // 
             // restartToolStripMenuItem
@@ -424,7 +424,7 @@
             | System.Windows.Forms.Keys.F5)));
             this.restartToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
             this.restartToolStripMenuItem.Text = "&Restart";
-            this.restartToolStripMenuItem.Visible = false;
+            this.restartToolStripMenuItem.Enabled = false;
             this.restartToolStripMenuItem.Click += new System.EventHandler(this.restartToolStripMenuItem_Click);
             // 
             // toolsToolStripMenuItem
