@@ -56,6 +56,7 @@ namespace Bonsai.Design
         Pen BlackPen;
         Font ExportFont;
 
+        float drawScale;
         bool ignoreMouseUp;
         bool mouseDownHandled;
         Rectangle rubberBand;
@@ -63,6 +64,7 @@ namespace Bonsai.Design
         Point? previousScrollOffset;
         GraphNode[] selectionBeforeDrag;
         GraphViewTextDrawMode textDrawMode;
+        Dictionary<Pen, Pen> customPens = new Dictionary<Pen, Pen>();
         LayoutNodeCollection layoutNodes = new LayoutNodeCollection();
         HashSet<GraphNode> selectedNodes = new HashSet<GraphNode>();
         IEnumerable<GraphNodeGrouping> nodes;
@@ -329,12 +331,34 @@ namespace Bonsai.Design
                 ExportFont.Dispose();
                 ExportFont = null;
             }
+
+            foreach (var customPen in customPens.Values)
+            {
+                customPen.Dispose();
+            }
+            customPens.Clear();
+        }
+
+        Pen GetCustomPen(Pen pen)
+        {
+            Pen customPen;
+            if (!customPens.TryGetValue(pen, out customPen))
+            {
+                customPen = new Pen(pen.Color, pen.Width * drawScale);
+                customPens.Add(pen, customPen);
+            }
+
+            return customPen;
         }
 
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {
             DisposeDrawResources();
-            var drawScale = factor.Height;
+            using (var graphics = CreateGraphics())
+            {
+                drawScale = graphics.DpiY / DefaultDpi * Font.SizeInPoints / Control.DefaultFont.SizeInPoints;
+            }
+
             PenWidth = (int)(3 * drawScale);
             NodeAirspace = (int)(80 * drawScale);
             NodeSize = (int)(30 * drawScale);
@@ -1049,14 +1073,14 @@ namespace Bonsai.Design
                     }
                     else if (layout.Node.Tag != null)
                     {
-                        graphics.DrawLine(layout.Node.Pen, layout.EntryPoint, layout.ExitPoint);
+                        graphics.DrawLine(GetCustomPen(layout.Node.Pen), layout.EntryPoint, layout.ExitPoint);
                         boundingRect = RectangleF.Union(boundingRect, layout.BoundingRectangle);
                     }
 
                     foreach (var successor in layout.Node.Successors)
                     {
                         var successorLayout = layoutNodes[successor.Node];
-                        graphics.DrawLine(layout.Node.Pen, layout.ExitPoint, successorLayout.EntryPoint);
+                        graphics.DrawLine(GetCustomPen(layout.Node.Pen), layout.ExitPoint, successorLayout.EntryPoint);
                     }
                 }
             }
@@ -1122,7 +1146,7 @@ namespace Bonsai.Design
                 else if (layout.Node.Tag != null)
                 {
                     e.Graphics.DrawLine(
-                        layout.Node.Pen,
+                        GetCustomPen(layout.Node.Pen),
                         Point.Add(layout.EntryPoint, offset),
                         Point.Add(layout.ExitPoint, offset));
                 }
@@ -1131,7 +1155,7 @@ namespace Bonsai.Design
                 {
                     var successorLayout = layoutNodes[successor.Node];
                     e.Graphics.DrawLine(
-                        layout.Node.Pen,
+                        GetCustomPen(layout.Node.Pen),
                         Point.Add(layout.ExitPoint, offset),
                         Point.Add(successorLayout.EntryPoint, offset));
                 }

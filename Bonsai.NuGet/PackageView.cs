@@ -12,10 +12,6 @@ namespace Bonsai.NuGet
 {
     class PackageView : TreeView
     {
-        Font boldFont;
-        readonly Image packageViewNodeCheckedImage;
-        static readonly Rectangle OperationButtonBounds = new Rectangle(10, 2, 75, 23);
-        const int BoundsMargin = 5;
         const int WM_NCMOUSEHOVER = 0x02a0;
         const int WM_MOUSEHOVER = 0x02a1;
         const int WM_NCMOUSELEAVE = 0x02a2;
@@ -29,12 +25,23 @@ namespace Bonsai.NuGet
         const int TVM_SETEXTENDEDSTYLE = 0x112C;
         const int TVS_EX_DOUBLEBUFFER = 0x0004;
 
+        Font boldFont;
+        int boundsMargin;
+        int verticalScrollBarWidth;
+        Rectangle operationButtonBounds;
+        readonly Image packageViewNodeCheckedImage;
+        static readonly Rectangle DefaultOperationButtonBounds = new Rectangle(10, 2, 75, 23);
+        const int DefaultBoundsMargin = 5;
+
         public PackageView()
         {
             ShowLines = false;
             FullRowSelect = true;
             DrawMode = TreeViewDrawMode.OwnerDrawText;
             packageViewNodeCheckedImage = Resources.PackageViewNodeCheckedImage;
+            boundsMargin = DefaultBoundsMargin;
+            verticalScrollBarWidth = SystemInformation.VerticalScrollBarWidth;
+            operationButtonBounds = DefaultOperationButtonBounds;
         }
 
         public override Font Font
@@ -76,6 +83,20 @@ namespace Bonsai.NuGet
         static bool IsRunningOnMono()
         {
             return Type.GetType("Mono.Runtime") != null;
+        }
+
+        protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
+        {
+            // slightly dampened scale factor for right margin
+            var widthScaleFactor = factor.Height * 0.5f + 0.5f;
+            verticalScrollBarWidth = (int)(SystemInformation.VerticalScrollBarWidth * widthScaleFactor);
+            boundsMargin = (int)(DefaultBoundsMargin * factor.Height);
+            operationButtonBounds = new Rectangle(
+                (int)(DefaultOperationButtonBounds.X * factor.Height),
+                (int)(DefaultOperationButtonBounds.Y * factor.Height),
+                (int)(DefaultOperationButtonBounds.Width * factor.Height),
+                (int)(DefaultOperationButtonBounds.Height * factor.Height));
+            base.ScaleControl(factor, specified);
         }
 
         protected override void OnHandleCreated(EventArgs e)
@@ -146,14 +167,14 @@ namespace Bonsai.NuGet
 
         private int RightMargin
         {
-            get { return Width - SystemInformation.VerticalScrollBarWidth; }
+            get { return Width - verticalScrollBarWidth; }
         }
 
         private Rectangle GetOperationButtonBounds(Rectangle nodeBounds)
         {
-            nodeBounds.X = RightMargin - OperationButtonBounds.Width - OperationButtonBounds.X;
-            nodeBounds.Y += OperationButtonBounds.Y;
-            nodeBounds.Size = OperationButtonBounds.Size;
+            nodeBounds.X = RightMargin - operationButtonBounds.Width - operationButtonBounds.X;
+            nodeBounds.Y += operationButtonBounds.Y;
+            nodeBounds.Size = operationButtonBounds.Size;
             return nodeBounds;
         }
 
@@ -172,8 +193,8 @@ namespace Bonsai.NuGet
             {
                 if (e.Node.Checked)
                 {
-                    var checkedImageX = RightMargin - packageViewNodeCheckedImage.Width - BoundsMargin;
-                    var checkedImageY = bounds.Y + OperationButtonBounds.Y;
+                    var checkedImageX = RightMargin - packageViewNodeCheckedImage.Width - boundsMargin;
+                    var checkedImageY = bounds.Y + operationButtonBounds.Y;
                     e.Graphics.DrawImage(packageViewNodeCheckedImage, checkedImageX, checkedImageY);
                     bounds.Width -= packageViewNodeCheckedImage.Width;
                 }
@@ -181,7 +202,7 @@ namespace Bonsai.NuGet
                 {
                     var font = Font;
                     var buttonBounds = GetOperationButtonBounds(bounds);
-                    bounds.Width -= buttonBounds.Width + BoundsMargin * 2;
+                    bounds.Width -= buttonBounds.Width + boundsMargin * 2;
 
                     if (VisualStyleRenderer.IsSupported)
                     {
