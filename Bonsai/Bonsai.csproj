@@ -71,6 +71,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LoaderResource.cs" />
     <Compile Include="CommandLineParser.cs" />
     <Compile Include="Launcher.cs" />
     <Compile Include="OverlayHelper.cs" />
