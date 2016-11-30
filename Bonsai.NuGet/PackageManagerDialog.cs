@@ -198,7 +198,11 @@ namespace Bonsai.NuGet
 
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {
+            const int MaxImageSize = 256;
             packageView.ItemHeight = (int)(64 * factor.Height);
+            packageIcons.ImageSize = new Size(
+                Math.Min(MaxImageSize, (int)(32 * factor.Height)),
+                Math.Min(MaxImageSize, (int)(32 * factor.Height)));
             base.ScaleControl(factor, specified);
         }
 
@@ -286,7 +290,15 @@ namespace Bonsai.NuGet
                                             response.ContentType.StartsWith("application/octet-stream"),
                                       Observable.Using(
                                           () => response.GetResponseStream(),
-                                          stream => Observable.Return(new Bitmap(Image.FromStream(stream), packageIcons.ImageSize))),
+                                          stream =>
+                                          {
+                                              try
+                                              {
+                                                  var image = Image.FromStream(stream);
+                                                  return Observable.Return(new Bitmap(image, packageIcons.ImageSize));
+                                              }
+                                              catch (ArgumentException) { return defaultIcon; }
+                                          }),
                                       defaultIcon)
                                   select image)
                                   .Catch<Image, WebException>(ex => defaultIcon)

@@ -816,7 +816,7 @@ namespace Bonsai.Editor
                 if (exportImageDialog.ShowDialog() == DialogResult.OK)
                 {
                     var extension = Path.GetExtension(exportImageDialog.FileName);
-                    if (extension == "svg")
+                    if (extension == ".svg")
                     {
                         var graphics = new SvgNet.SvgGdi.SvgGraphics();
                         var bounds = model.GraphView.DrawGraphics(graphics, true);
