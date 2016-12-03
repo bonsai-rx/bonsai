@@ -39,6 +39,7 @@
             this.configurationNameListbox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.configurationNameListbox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.configurationNameListbox.FormattingEnabled = true;
+            this.configurationNameListbox.IntegralHeight = false;
             this.configurationNameListbox.Location = new System.Drawing.Point(0, 1);
             this.configurationNameListbox.Margin = new System.Windows.Forms.Padding(0, 1, 3, 0);
             this.configurationNameListbox.MinimumSize = new System.Drawing.Size(0, 17);
