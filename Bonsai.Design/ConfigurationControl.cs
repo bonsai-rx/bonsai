@@ -16,6 +16,7 @@ namespace Bonsai.Design
 {
     public abstract partial class ConfigurationControl : UserControl
     {
+        const float DefaultDpi = 96f;
         ConfigurationEditorService editorService;
 
         public ConfigurationControl()
@@ -23,18 +24,22 @@ namespace Bonsai.Design
             InitializeComponent();
             editorService = new ConfigurationEditorService(this);
 
-            SuspendLayout();
-            foreach (var configurationName in GetConfigurationNames())
+            using (var graphics = Graphics.FromHwnd(IntPtr.Zero))
             {
-                if (!string.IsNullOrWhiteSpace(configurationName))
+                SuspendLayout();
+                foreach (var configurationName in GetConfigurationNames())
                 {
-                    configurationNameListbox.Items.Add(configurationName);
+                    if (!string.IsNullOrWhiteSpace(configurationName))
+                    {
+                        configurationNameListbox.Items.Add(configurationName);
+                    }
                 }
-            }
 
-            configurationNameListbox.Height = configurationNameListbox.ItemHeight * (configurationNameListbox.Items.Count + 0);
-            Height = configurationNameListbox.PreferredHeight + configurationManagerButton.Height;
-            ResumeLayout();
+                var drawScale = graphics.DpiY / DefaultDpi;
+                configurationNameListbox.Height = (int)Math.Ceiling(configurationNameListbox.ItemHeight * configurationNameListbox.Items.Count * drawScale);
+                Height = configurationNameListbox.Height + configurationManagerButton.Height;
+                ResumeLayout();
+            }
         }
 
         public override string Text
