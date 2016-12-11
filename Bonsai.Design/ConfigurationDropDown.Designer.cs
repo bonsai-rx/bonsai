@@ -1,6 +1,6 @@
 ﻿namespace Bonsai.Design
 {
-    partial class ConfigurationControl
+    partial class ConfigurationDropDown
     {
         /// <summary> 
         /// Required designer variable.
@@ -30,7 +30,7 @@
         {
             this.configurationNameListbox = new System.Windows.Forms.ListBox();
             this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.configurationManagerButton = new Bonsai.Design.ConfigurationControl.FlatButton();
+            this.configurationManagerButton = new Bonsai.Design.ConfigurationDropDown.FlatButton();
             this.tableLayoutPanel.SuspendLayout();
             this.SuspendLayout();
             // 

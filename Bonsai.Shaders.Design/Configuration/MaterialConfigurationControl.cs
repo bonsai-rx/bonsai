@@ -11,7 +11,7 @@ using System.Windows.Forms.Design;
 
 namespace Bonsai.Shaders.Configuration.Design
 {
-    class MaterialConfigurationControl : ConfigurationControl
+    class MaterialConfigurationControl : ConfigurationDropDown
     {
         public MaterialConfigurationControl()
         {
