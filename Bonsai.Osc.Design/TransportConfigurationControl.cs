@@ -12,10 +12,11 @@ using System.Windows.Forms.Design;
 using System.IO.Ports;
 using Bonsai.Design;
 using Bonsai.Osc.Net;
+using System.Drawing.Design;
 
 namespace Bonsai.Osc.Design
 {
-    public partial class TransportConfigurationControl : ConfigurationControl
+    public partial class TransportConfigurationControl : ConfigurationDropDown
     {
         protected override IEnumerable<string> GetConfigurationNames()
         {
@@ -38,7 +39,7 @@ namespace Bonsai.Osc.Design
             TransportManager.SaveConfiguration(serialPortConfiguration);
         }
 
-        protected override CollectionEditor CreateConfigurationEditor(Type type)
+        protected override UITypeEditor CreateConfigurationEditor(Type type)
         {
             return new TransportConfigurationCollectionEditor(type);
         }

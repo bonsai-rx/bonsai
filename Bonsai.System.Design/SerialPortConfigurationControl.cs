@@ -11,10 +11,11 @@ using System.Collections.ObjectModel;
 using System.Windows.Forms.Design;
 using System.IO.Ports;
 using Bonsai.Design;
+using System.Drawing.Design;
 
 namespace Bonsai.IO.Design
 {
-    public partial class SerialPortConfigurationControl : ConfigurationControl
+    public partial class SerialPortConfigurationControl : ConfigurationDropDown
     {
         protected override IEnumerable<string> GetConfigurationNames()
         {
@@ -37,7 +38,7 @@ namespace Bonsai.IO.Design
             SerialPortManager.SaveConfiguration(serialPortConfiguration);
         }
 
-        protected override CollectionEditor CreateConfigurationEditor(Type type)
+        protected override UITypeEditor CreateConfigurationEditor(Type type)
         {
             return new SerialPortConfigurationCollectionEditor(type);
         }

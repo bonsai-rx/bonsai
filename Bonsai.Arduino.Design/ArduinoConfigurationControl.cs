@@ -11,10 +11,11 @@ using System.Collections.ObjectModel;
 using System.Windows.Forms.Design;
 using System.IO.Ports;
 using Bonsai.Design;
+using System.Drawing.Design;
 
 namespace Bonsai.Arduino.Design
 {
-    public partial class ArduinoConfigurationControl : ConfigurationControl
+    public partial class ArduinoConfigurationControl : ConfigurationDropDown
     {
         protected override IEnumerable<string> GetConfigurationNames()
         {
@@ -37,7 +38,7 @@ namespace Bonsai.Arduino.Design
             ArduinoManager.SaveConfiguration(arduinoConfiguration);
         }
 
-        protected override CollectionEditor CreateConfigurationEditor(Type type)
+        protected override UITypeEditor CreateConfigurationEditor(Type type)
         {
             return new ArduinoConfigurationCollectionEditor(type);
         }

@@ -67,8 +67,11 @@
     <Compile Include="ConfigurationControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ConfigurationControl.Designer.cs">
-      <DependentUpon>ConfigurationControl.cs</DependentUpon>
+    <Compile Include="ConfigurationDropDown.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ConfigurationDropDown.Designer.cs">
+      <DependentUpon>ConfigurationDropDown.cs</DependentUpon>
     </Compile>
     <Compile Include="ConfigurationEditorService.cs" />
     <Compile Include="ControlObservable.cs" />
@@ -138,8 +141,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="ConfigurationControl.resx">
-      <DependentUpon>ConfigurationControl.cs</DependentUpon>
+    <EmbeddedResource Include="ConfigurationDropDown.resx">
+      <DependentUpon>ConfigurationDropDown.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MultiMemberSelectorEditorDialog.resx">
       <DependentUpon>MultiMemberSelectorEditorDialog.cs</DependentUpon>

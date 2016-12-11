@@ -71,12 +71,6 @@
     <Compile Include="Configuration\CollectionEditorControl.Designer.cs">
       <DependentUpon>CollectionEditorControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Configuration\ConfigurationControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Configuration\ConfigurationControl.Designer.cs">
-      <DependentUpon>ConfigurationControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="Configuration\ConfigurationEditorService.cs" />
     <Compile Include="Configuration\ConfigurationHelper.cs" />
     <Compile Include="Configuration\ContextMenuButton.cs">
@@ -135,9 +129,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Configuration\CollectionEditorControl.resx">
       <DependentUpon>CollectionEditorControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Configuration\ConfigurationControl.resx">
-      <DependentUpon>ConfigurationControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Configuration\ShaderConfigurationEditorDialog.resx">
       <DependentUpon>ShaderConfigurationEditorDialog.cs</DependentUpon>
