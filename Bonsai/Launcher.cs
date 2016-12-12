@@ -164,13 +164,15 @@ namespace Bonsai
             EnableVisualStyles();
             var mainForm = new MainForm(elementProvider, visualizerProvider)
             {
-                InitialFileName = initialFileName,
+                FileName = initialFileName,
                 StartOnLoad = start
             };
             mainForm.PropertyAssignments.AddRange(propertyAssignments);
             updatesAvailable.Subscribe(value => mainForm.UpdatesAvailable = value);
             Application.Run(mainForm);
-            return mainForm.LaunchPackageManager ? Program.RequirePackageManagerExitCode : Program.NormalExitCode;
+            return mainForm.EditorResult == EditorResult.ManagePackages
+                ? Program.RequirePackageManagerExitCode
+                : Program.NormalExitCode;
         }
 
         internal static int LaunchWorkflowPlayer(string fileName, Dictionary<string, string> propertyAssignments)

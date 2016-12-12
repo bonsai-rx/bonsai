@@ -128,9 +128,31 @@ namespace Bonsai.Editor
 
         #region Loading
 
-        public bool LaunchPackageManager { get; set; }
+        [Obsolete]
+        public bool LaunchPackageManager
+        {
+            get { return EditorResult == EditorResult.ManagePackages; }
+            set
+            {
+                if (value) EditorResult = EditorResult.ManagePackages;
+                else EditorResult = EditorResult.Exit;
+            }
+        }
 
-        public string InitialFileName { get; set; }
+        [Obsolete]
+        public string InitialFileName
+        {
+            get { return FileName; }
+            set { FileName = value; }
+        }
+
+        public EditorResult EditorResult { get; set; }
+
+        public string FileName
+        {
+            get { return saveWorkflowDialog.FileName; }
+            set { saveWorkflowDialog.FileName = value; }
+        }
 
         public bool UpdatesAvailable
         {
@@ -207,7 +229,7 @@ namespace Bonsai.Editor
         protected override void OnLoad(EventArgs e)
         {
             RestoreEditorBounds();
-            var initialFileName = InitialFileName;
+            var initialFileName = FileName;
             var validFileName =
                 !string.IsNullOrEmpty(initialFileName) &&
                 Path.GetExtension(initialFileName) == BonsaiExtension &&
@@ -227,9 +249,8 @@ namespace Bonsai.Editor
             examplesToolStripMenuItem.Enabled = InitializeExampleDirectory(examplesPath, examplesToolStripMenuItem);
             DeleteTempDirectory();
 
-            if (validFileName)
+            if (validFileName && OpenWorkflow(initialFileName, false))
             {
-                OpenWorkflow(initialFileName, false);
                 foreach (var assignment in propertyAssignments)
                 {
                     workflowBuilder.Workflow.SetWorkflowProperty(assignment.Key, assignment.Value);
@@ -237,6 +258,7 @@ namespace Bonsai.Editor
 
                 if (StartOnLoad) initialization = initialization.Do(xs => BeginInvoke((Action)(() => StartWorkflow())));
             }
+            else FileName = null;
 
             initialization.Subscribe();
             RefreshWorkflowElements().Subscribe();
@@ -616,12 +638,12 @@ namespace Bonsai.Editor
             }
         }
 
-        void OpenWorkflow(string fileName)
+        bool OpenWorkflow(string fileName)
         {
-            OpenWorkflow(fileName, true);
+            return OpenWorkflow(fileName, true);
         }
 
-        void OpenWorkflow(string fileName, bool setWorkingDirectory)
+        bool OpenWorkflow(string fileName, bool setWorkingDirectory)
         {
             Version version;
             try { workflowBuilder = LoadWorkflow(fileName, out version); }
@@ -629,7 +651,7 @@ namespace Bonsai.Editor
             {
                 var errorMessage = string.Format(Resources.OpenWorkflow_Error, ex.InnerException != null ? ex.InnerException.Message : ex.Message);
                 MessageBox.Show(this, errorMessage, Resources.OpenWorkflow_Error_Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                return false;
             }
 
             if (IsDeprecated(version)) saveWorkflowDialog.FileName = null;
@@ -656,6 +678,8 @@ namespace Bonsai.Editor
             {
                 directoryToolStripTextBox.Text = Path.GetDirectoryName(fileName);
             }
+
+            return true;
         }
 
         void SaveElement(XmlSerializer serializer, string fileName, object o, string error)
@@ -1584,7 +1608,7 @@ namespace Bonsai.Editor
         private void packageManagerToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
-            LaunchPackageManager = true;
+            EditorResult = EditorResult.ManagePackages;
         }
 
         #endregion
