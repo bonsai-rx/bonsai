@@ -35,7 +35,7 @@ namespace Bonsai.Configuration
             Environment.SetEnvironmentVariable(PathEnvironmentVariable, currentPath);
         }
 
-        static string GetAssemblyLocation(PackageConfiguration configuration, string assemblyName)
+        public static string GetAssemblyLocation(PackageConfiguration configuration, string assemblyName)
         {
             var msilAssembly = Tuple.Create(assemblyName, ProcessorArchitecture.MSIL);
             if (configuration.AssemblyLocations.Contains(msilAssembly))

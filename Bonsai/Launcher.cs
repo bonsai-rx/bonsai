@@ -48,7 +48,7 @@ namespace Bonsai
             string editorPath,
             string editorPackageId,
             SemanticVersion editorPackageVersion,
-            ref bool launchPackageManager)
+            ref EditorResult launchResult)
         {
             var packageManager = CreatePackageManager(editorRepositoryPath);
             var editorPackage = packageManager.LocalRepository.FindPackage(editorPackageId);
@@ -71,7 +71,7 @@ namespace Bonsai
                         MessageBox.Show("Unable to install editor package.", assemblyName.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return null;
                     }
-                    launchPackageManager = true;
+                    launchResult = EditorResult.ManagePackages;
                 }
             }
 
@@ -87,7 +87,7 @@ namespace Bonsai
                             .StartUpdatePackage(editorPackageId, editorPackageVersion)
                             .ContinueWith(task => editorPackage = task.Result),
                         operationLabel: "Updating...");
-                    launchPackageManager = true;
+                    launchResult = EditorResult.ManagePackages;
                 }
             }
 
@@ -170,9 +170,8 @@ namespace Bonsai
             mainForm.PropertyAssignments.AddRange(propertyAssignments);
             updatesAvailable.Subscribe(value => mainForm.UpdatesAvailable = value);
             Application.Run(mainForm);
-            return mainForm.EditorResult == EditorResult.ManagePackages
-                ? Program.RequirePackageManagerExitCode
-                : Program.NormalExitCode;
+            AppResult.SetResult(mainForm.FileName);
+            return (int)mainForm.EditorResult;
         }
 
         internal static int LaunchWorkflowPlayer(string fileName, Dictionary<string, string> propertyAssignments)
@@ -206,6 +205,22 @@ namespace Bonsai
                 ex => { Console.WriteLine(ex); workflowCompleted.Set(); },
                 () => workflowCompleted.Set());
             workflowCompleted.WaitOne();
+            return Program.NormalExitCode;
+        }
+
+        internal static int LaunchExportPackage(string fileName, PackageConfiguration packageConfiguration)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                Console.WriteLine("No workflow file was specified.");
+                return Program.NormalExitCode;
+            }
+
+            EnableVisualStyles();
+            var builder = PackageBuilderHelper.CreateWorkflowPackage(fileName, packageConfiguration);
+            var builderDialog = new PackageBuilderDialog();
+            builderDialog.SetPackageBuilder(builder);
+            builderDialog.ShowDialog();
             return Program.NormalExitCode;
         }
     }
