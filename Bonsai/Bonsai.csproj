@@ -50,6 +50,7 @@
       <HintPath>..\packages\NuGet.Core.2.8.3\lib\net40-Client\NuGet.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Reactive.Core, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -71,11 +72,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppResult.cs" />
     <Compile Include="LoaderResource.cs" />
     <Compile Include="CommandLineParser.cs" />
+    <Compile Include="DependencyInspector.cs" />
     <Compile Include="Launcher.cs" />
     <Compile Include="OverlayHelper.cs" />
     <Compile Include="OverlayPackagePathResolver.cs" />
+    <Compile Include="PackageBuilderHelper.cs" />
     <Compile Include="PackageConfigurationUpdater.cs" />
     <Compile Include="PackageHelper.cs" />
     <Compile Include="Program.cs" />

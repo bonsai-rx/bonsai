@@ -9,6 +9,7 @@ namespace Bonsai.Editor
     public enum EditorResult
     {
         Exit,
-        ManagePackages
+        ManagePackages,
+        ExportPackage
     }
 }

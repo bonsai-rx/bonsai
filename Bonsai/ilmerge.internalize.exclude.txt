@@ -1,1 +1,2 @@
 ﻿Bonsai.Configuration.*
+NuGet.Manifest

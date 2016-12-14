@@ -867,6 +867,26 @@ namespace Bonsai.Editor
             }
         }
 
+        private void exportPackageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(FileName))
+            {
+                var result = MessageBox.Show(
+                    this,
+                    "The workflow needs to be saved before creating the package. Do you want to save the workflow?",
+                    "Unsaved Workflow",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning,
+                    MessageBoxDefaultButton.Button1);
+                if (result != DialogResult.Yes) return;
+                saveToolStripMenuItem_Click(sender, e);
+                if (string.IsNullOrEmpty(FileName)) return;
+            }
+
+            EditorResult = EditorResult.ExportPackage;
+            Close();
+        }
+
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
@@ -877,6 +897,8 @@ namespace Bonsai.Editor
             Action closeWorkflow = () => e.Cancel = !CloseWorkflow(e.CloseReason);
             if (InvokeRequired) Invoke(closeWorkflow);
             else closeWorkflow();
+
+            if (e.Cancel) EditorResult = EditorResult.Exit;
             base.OnFormClosing(e);
         }
 
@@ -1607,8 +1629,8 @@ namespace Bonsai.Editor
 
         private void packageManagerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Close();
             EditorResult = EditorResult.ManagePackages;
+            Close();
         }
 
         #endregion

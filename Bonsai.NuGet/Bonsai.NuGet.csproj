@@ -44,6 +44,7 @@
       <HintPath>..\packages\Nuget.Core.2.8.3\lib\net40-Client\NuGet.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Reactive.Core, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -78,6 +79,12 @@
     <Compile Include="EventLogger.cs" />
     <Compile Include="LogEventArgs.cs" />
     <Compile Include="NativeMethods.cs" />
+    <Compile Include="PackageBuilderDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PackageBuilderDialog.Designer.cs">
+      <DependentUpon>PackageBuilderDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="PackageDetails.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -129,6 +136,9 @@
   <ItemGroup>
     <EmbeddedResource Include="LicenseAcceptanceDialog.resx">
       <DependentUpon>LicenseAcceptanceDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PackageBuilderDialog.resx">
+      <DependentUpon>PackageBuilderDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="PackageDetails.resx">
       <DependentUpon>PackageDetails.cs</DependentUpon>
