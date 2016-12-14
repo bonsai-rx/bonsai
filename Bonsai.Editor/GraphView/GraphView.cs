@@ -238,6 +238,7 @@ namespace Bonsai.Design
             get { return nodes; }
             set
             {
+                cursor = null;
                 pivot = null;
                 nodes = value;
                 hot = null;
@@ -264,7 +265,11 @@ namespace Bonsai.Design
                     UpdateSelection(() =>
                     {
                         selectedNodes.Clear();
-                        if (value != null) selectedNodes.Add(value);
+                        if (value != null)
+                        {
+                            selectedNodes.Add(value);
+                            SetCursor(value);
+                        }
                     });
                 }
             }
@@ -281,11 +286,20 @@ namespace Bonsai.Design
                 {
                     UpdateSelection(() =>
                     {
-                        var selection = value.ToArray();
+                        var cursorNode = cursor;
                         selectedNodes.Clear();
-                        foreach (var node in selection)
+                        if (value != null)
                         {
-                            selectedNodes.Add(node);
+                            foreach (var node in value)
+                            {
+                                selectedNodes.Add(node);
+                                cursorNode = node;
+                            }
+
+                            if (cursorNode != cursor)
+                            {
+                                SetCursor(cursorNode);
+                            }
                         }
                     });
                 }
