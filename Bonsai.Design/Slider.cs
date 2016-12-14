@@ -23,6 +23,7 @@ namespace Bonsai.Design
         {
             maximum = 100;
             InitializeComponent();
+            trackBar.Top = -10;
         }
 
         public decimal Minimum
