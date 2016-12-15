@@ -33,6 +33,7 @@ namespace Bonsai
             var packageBuilder = new PackageBuilder();
             var basePath = Path.GetDirectoryName(path) + "\\";
 
+            var files = new HashSet<ManifestFile>();
             var metadataPath = Path.ChangeExtension(path, global::NuGet.Constants.ManifestExtension);
             if (File.Exists(metadataPath))
             {
@@ -40,32 +41,36 @@ namespace Bonsai
                 {
                     var manifest = Manifest.ReadFrom(stream, true);
                     packageBuilder.Populate(manifest.Metadata);
+                    if (manifest.Files != null)
+                    {
+                        files.AddRange(manifest.Files);
+                    }
                 }
             }
             else
             {
-                var metadata = new ManifestMetadata()
+                packageBuilder.Populate(new ManifestMetadata()
                 {
                     Authors = Environment.UserName,
                     Version = "1.0.0",
                     Id = Path.GetFileNameWithoutExtension(path),
                     Description = "My workflow description.",
                     Tags = "Bonsai Workflow"
-                };
-
-                var files = from file in Directory.GetFiles(basePath, "*", SearchOption.AllDirectories)
-                            let extension = Path.GetExtension(file)
-                            where extension != global::NuGet.Constants.ManifestExtension &&
-                                  extension != global::NuGet.Constants.PackageExtension
-                            select new ManifestFile
-                            {
-                                Source = file,
-                                Target = Path.Combine("content", GetRelativePath(file, basePath))
-                            };
-                packageBuilder.PopulateFiles(basePath, files);
-                packageBuilder.Populate(metadata);
+                });
             }
 
+            files.AddRange(from file in Directory.GetFiles(basePath, "*", SearchOption.AllDirectories)
+                           let extension = Path.GetExtension(file)
+                           where extension != global::NuGet.Constants.ManifestExtension &&
+                                 extension != global::NuGet.Constants.PackageExtension
+                           select new ManifestFile
+                           {
+                               Source = file,
+                               Target = Path.Combine("content", GetRelativePath(file, basePath))
+                           });
+            packageBuilder.PopulateFiles(basePath, files);
+
+            packageBuilder.DependencySets.Clear();
             var dependencies = DependencyInspector.GetWorkflowPackageDependencies(path, configuration).ToArray().Wait();
             var dependencySet = new PackageDependencySet(null, dependencies);
             packageBuilder.DependencySets.Add(dependencySet);
