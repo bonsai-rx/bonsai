@@ -45,7 +45,7 @@
             this.metadataProperties.Location = new System.Drawing.Point(12, 25);
             this.metadataProperties.Name = "metadataProperties";
             this.metadataProperties.PropertySort = System.Windows.Forms.PropertySort.NoSort;
-            this.metadataProperties.Size = new System.Drawing.Size(130, 245);
+            this.metadataProperties.Size = new System.Drawing.Size(283, 375);
             this.metadataProperties.TabIndex = 2;
             // 
             // contentView
@@ -53,9 +53,9 @@
             this.contentView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.contentView.Location = new System.Drawing.Point(150, 51);
+            this.contentView.Location = new System.Drawing.Point(301, 51);
             this.contentView.Name = "contentView";
-            this.contentView.Size = new System.Drawing.Size(272, 219);
+            this.contentView.Size = new System.Drawing.Size(311, 349);
             this.contentView.TabIndex = 3;
             // 
             // metadataLabel
@@ -71,7 +71,7 @@
             // contentLabel
             // 
             this.contentLabel.AutoSize = true;
-            this.contentLabel.Location = new System.Drawing.Point(148, 9);
+            this.contentLabel.Location = new System.Drawing.Point(301, 9);
             this.contentLabel.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.contentLabel.Name = "contentLabel";
             this.contentLabel.Size = new System.Drawing.Size(97, 13);
@@ -82,7 +82,7 @@
             // 
             this.exportButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.exportButton.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.exportButton.Location = new System.Drawing.Point(266, 276);
+            this.exportButton.Location = new System.Drawing.Point(456, 406);
             this.exportButton.Margin = new System.Windows.Forms.Padding(6);
             this.exportButton.Name = "exportButton";
             this.exportButton.Size = new System.Drawing.Size(75, 23);
@@ -94,7 +94,7 @@
             // 
             this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cancelButton.Location = new System.Drawing.Point(347, 276);
+            this.cancelButton.Location = new System.Drawing.Point(537, 406);
             this.cancelButton.Margin = new System.Windows.Forms.Padding(6);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
@@ -110,14 +110,14 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(434, 311);
+            this.ClientSize = new System.Drawing.Size(624, 441);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.exportButton);
             this.Controls.Add(this.contentLabel);
             this.Controls.Add(this.metadataLabel);
             this.Controls.Add(this.contentView);
             this.Controls.Add(this.metadataProperties);
-            this.MinimumSize = new System.Drawing.Size(400, 300);
+            this.MinimumSize = new System.Drawing.Size(500, 400);
             this.Name = "PackageBuilderDialog";
             this.ShowIcon = false;
             this.Text = "Bonsai - Export Package";
