@@ -1,4 +1,5 @@
 ﻿using Bonsai.Configuration;
+using Bonsai.Design;
 using NuGet;
 using System;
 using System.Collections.Generic;
@@ -9,12 +10,15 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Serialization;
 
 namespace Bonsai
 {
     sealed class DependencyInspector : MarshalByRefObject
     {
         readonly PackageConfiguration packageConfiguration;
+        const string BonsaiExtension = ".bonsai";
+        const string LayoutExtension = ".layout";
         const string RepositoryPath = "Packages";
         const string ExtensionTypeNodeName = "ExtensionTypes";
         const string TypeNodeName = "Type";
@@ -23,6 +27,25 @@ namespace Bonsai
         {
             ConfigurationHelper.SetAssemblyResolve(configuration);
             packageConfiguration = configuration;
+        }
+
+        IEnumerable<VisualizerDialogSettings> GetVisualizerSettings(VisualizerLayout root)
+        {
+            var stack = new Stack<VisualizerLayout>();
+            stack.Push(root);
+            while (stack.Count > 0)
+            {
+                var layout = stack.Pop();
+                foreach (var settings in layout.DialogSettings)
+                {
+                    yield return settings;
+                    var editorSettings = settings as WorkflowEditorSettings;
+                    if (editorSettings != null)
+                    {
+                        stack.Push(editorSettings.EditorVisualizerLayout);
+                    }
+                }
+            }
         }
 
         Configuration.PackageReference[] GetWorkflowPackageDependencies(string path)
@@ -44,6 +67,36 @@ namespace Bonsai
                     }
 
                     assemblies.Add(type.Assembly);
+                }
+            }
+
+            var layoutPath = Path.ChangeExtension(path, BonsaiExtension + LayoutExtension);
+            if (File.Exists(layoutPath))
+            {
+                var layoutSerializer = new XmlSerializer(typeof(VisualizerLayout));
+                var visualizerMap = new Lazy<IDictionary<string, Type>>(() =>
+                    TypeVisualizerLoader.GetTypeVisualizerDictionary(packageConfiguration)
+                                        .Select(descriptor => descriptor.VisualizerTypeName).Distinct()
+                                        .Select(typeName => Type.GetType(typeName, false))
+                                        .Where(type => type != null)
+                                        .ToDictionary(type => type.FullName)
+                                        .Wait());
+
+                using (var reader = XmlReader.Create(layoutPath))
+                {
+                    var layout = (VisualizerLayout)layoutSerializer.Deserialize(reader);
+                    foreach (var settings in GetVisualizerSettings(layout))
+                    {
+                        Type type;
+                        var typeName = settings.VisualizerTypeName;
+                        if (typeName == null) continue;
+                        if (!visualizerMap.Value.TryGetValue(typeName, out type))
+                        {
+                            throw new InvalidOperationException("The specified workflow has unresolved visualizer dependencies.");
+                        }
+
+                        assemblies.Add(type.Assembly);
+                    }
                 }
             }
 
