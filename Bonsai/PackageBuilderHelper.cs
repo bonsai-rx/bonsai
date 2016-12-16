@@ -13,8 +13,6 @@ namespace Bonsai
 {
     static class PackageBuilderHelper
     {
-        const string NuspecExtension = ".nuspec";
-
         static string GetRelativePath(string path, string basePath)
         {
             var pathUri = new Uri(path);
