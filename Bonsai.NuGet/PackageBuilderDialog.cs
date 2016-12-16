@@ -78,6 +78,8 @@ namespace Bonsai.NuGet
         {
             if (DialogResult == DialogResult.OK)
             {
+                var packageFileName = packageBuilder.Id + "." + packageBuilder.Version + Constants.PackageExtension;
+                saveFileDialog.FileName = packageFileName;
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     using (var dialog = new PackageOperationDialog())
