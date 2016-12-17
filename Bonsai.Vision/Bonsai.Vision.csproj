@@ -74,7 +74,10 @@
     <Compile Include="Canny.cs" />
     <Compile Include="CapturePropertyAssignment.cs" />
     <Compile Include="CapturePropertyCollection.cs" />
+    <Compile Include="Circle.cs" />
     <Compile Include="ColorBalance.cs" />
+    <Compile Include="HoughCircles.cs" />
+    <Compile Include="MinimumEnclosingCircle.cs" />
     <Compile Include="UndistortPoints.cs" />
     <Compile Include="ResizeCanvas.cs" />
     <Compile Include="PolarTransform.cs" />
