@@ -112,7 +112,6 @@
             this.descriptionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panelSplitContainer = new System.Windows.Forms.SplitContainer();
             this.workflowSplitContainer = new System.Windows.Forms.SplitContainer();
-            this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.toolboxContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.insertAfterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.insertBeforeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -450,7 +449,7 @@
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.packageManagerToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
             this.toolsToolStripMenuItem.Text = "&Tools";
             // 
             // packageManagerToolStripMenuItem
@@ -1102,7 +1101,6 @@
         private System.Windows.Forms.ToolStripSeparator helpToolStripSeparator;
         private System.Windows.Forms.ToolStripTextBox directoryToolStripTextBox;
         private System.Windows.Forms.ToolStripButton browseDirectoryToolStripButton;
-        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
         private System.Windows.Forms.SplitContainer toolboxSplitContainer;
         private Bonsai.Editor.BorderPanel toolboxDescriptionPanel;
         private System.Windows.Forms.RichTextBox toolboxDescriptionTextBox;
