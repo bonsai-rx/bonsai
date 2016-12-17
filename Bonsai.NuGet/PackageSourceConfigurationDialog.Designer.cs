@@ -44,7 +44,7 @@
             this.bottomLine = new System.Windows.Forms.Label();
             this.packageSourceListLabel = new System.Windows.Forms.Label();
             this.updateButton = new System.Windows.Forms.Button();
-            this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.folderBrowserDialog = new Bonsai.Design.FolderBrowserDialog();
             this.packageSourceListView = new System.Windows.Forms.ListView();
             this.nameHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.sourceHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -309,7 +309,7 @@
         private System.Windows.Forms.Label bottomLine;
         private System.Windows.Forms.Label packageSourceListLabel;
         private System.Windows.Forms.Button updateButton;
-        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
+        private Bonsai.Design.FolderBrowserDialog folderBrowserDialog;
         private System.Windows.Forms.ListView packageSourceListView;
         private System.Windows.Forms.ColumnHeader nameHeader;
         private System.Windows.Forms.ColumnHeader sourceHeader;
