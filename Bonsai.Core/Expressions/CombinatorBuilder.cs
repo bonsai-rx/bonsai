@@ -62,8 +62,8 @@ namespace Bonsai.Expressions
                 var combinatorType = combinator.GetType();
                 var processMethodParameters = GetProcessMethods(combinatorType).Select(m => m.GetParameters()).ToArray();
                 var paramArray = processMethodParameters.Any(p =>
-                    p.Length == 1 &&
-                    Attribute.IsDefined(p[0], typeof(ParamArrayAttribute)));
+                    p.Length >= 1 &&
+                    Attribute.IsDefined(p[p.Length - 1], typeof(ParamArrayAttribute)));
 
                 if (paramArray) SetArgumentRange(1, maxArgumentCount = int.MaxValue);
                 else
