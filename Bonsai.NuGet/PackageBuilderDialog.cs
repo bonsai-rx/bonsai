@@ -447,7 +447,7 @@ namespace Bonsai.NuGet
                     public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
                     {
                         var text = value as string;
-                        if (!string.IsNullOrEmpty(text))
+                        if (text != null)
                         {
                             var names = text.Split(new[] { SetSeparator }, StringSplitOptions.RemoveEmptyEntries);
                             var set = context.PropertyDescriptor.GetValue(context.Instance) as ISet<string>;
