@@ -266,6 +266,17 @@ namespace Bonsai.Editor
             base.OnLoad(e);
         }
 
+        protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
+        {
+            const float DefaultToolboxSplitterDistance = 208f;
+            panelSplitContainer.SplitterDistance = (int)(panelSplitContainer.SplitterDistance * factor.Height);
+            workflowSplitContainer.SplitterDistance = (int)(workflowSplitContainer.SplitterDistance * factor.Height);
+            propertiesSplitContainer.SplitterDistance = (int)(propertiesSplitContainer.SplitterDistance * factor.Height);
+            var splitterScale = DefaultToolboxSplitterDistance / toolboxSplitContainer.SplitterDistance;
+            toolboxSplitContainer.SplitterDistance = (int)(toolboxSplitContainer.SplitterDistance * splitterScale * factor.Height);
+            base.ScaleControl(factor, specified);
+        }
+
         protected override void OnShown(EventArgs e)
         {
             if (EditorSettings.Instance.ShowWelcomeDialog)
