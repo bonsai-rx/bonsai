@@ -44,7 +44,7 @@ namespace Bonsai.Expressions
 
         class BehaviorSubject<TSource> : ISubject<TSource>, IDisposable
         {
-            readonly ReplaySubject<TSource> subject = new ReplaySubject<TSource>();
+            readonly ReplaySubject<TSource> subject = new ReplaySubject<TSource>(1);
 
             public void OnCompleted()
             {
