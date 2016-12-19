@@ -32,7 +32,7 @@
             this.cancelButton = new System.Windows.Forms.Button();
             this.memberLabel = new System.Windows.Forms.Label();
             this.propertiesLabel = new System.Windows.Forms.Label();
-            this.propertyGrid = new System.Windows.Forms.PropertyGrid();
+            this.propertyGrid = new Bonsai.Design.PropertyGrid();
             this.flowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.windowButton = new System.Windows.Forms.RadioButton();
             this.meshButton = new System.Windows.Forms.RadioButton();
@@ -239,7 +239,7 @@
         private System.Windows.Forms.Button okButton;
         private System.Windows.Forms.Button cancelButton;
         private System.Windows.Forms.Label propertiesLabel;
-        private System.Windows.Forms.PropertyGrid propertyGrid;
+        private Bonsai.Design.PropertyGrid propertyGrid;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel;
         private CollectionEditorControl materialCollectionEditor;
         private CollectionEditorControl textureCollectionEditor;
