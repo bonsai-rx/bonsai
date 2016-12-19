@@ -97,6 +97,9 @@
     <Compile Include="MemberSelectorEditorController.cs" />
     <Compile Include="PathConvert.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
+    <Compile Include="PropertyGrid.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="PropertyMappingNameConverter.cs" />
     <Compile Include="SeekBar.cs">
       <SubType>Component</SubType>

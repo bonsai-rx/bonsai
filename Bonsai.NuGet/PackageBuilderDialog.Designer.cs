@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.metadataProperties = new System.Windows.Forms.PropertyGrid();
+            this.metadataProperties = new Bonsai.Design.PropertyGrid();
             this.contentView = new System.Windows.Forms.TreeView();
             this.metadataLabel = new System.Windows.Forms.Label();
             this.contentLabel = new System.Windows.Forms.Label();
@@ -128,7 +128,7 @@
 
         #endregion
 
-        private System.Windows.Forms.PropertyGrid metadataProperties;
+        private Bonsai.Design.PropertyGrid metadataProperties;
         private System.Windows.Forms.TreeView contentView;
         private System.Windows.Forms.Label metadataLabel;
         private System.Windows.Forms.Label contentLabel;

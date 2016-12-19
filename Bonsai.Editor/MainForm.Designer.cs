@@ -106,7 +106,7 @@
             this.propertiesSplitContainer = new System.Windows.Forms.SplitContainer();
             this.propertiesDescriptionPanel = new Bonsai.Editor.BorderPanel();
             this.propertiesDescriptionTextBox = new System.Windows.Forms.RichTextBox();
-            this.propertyGrid = new System.Windows.Forms.PropertyGrid();
+            this.propertyGrid = new Bonsai.Design.PropertyGrid();
             this.propertyGridContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.resetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.descriptionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -1091,7 +1091,7 @@
         private System.Windows.Forms.TreeView toolboxTreeView;
         private System.Windows.Forms.GroupBox workflowGroupBox;
         private System.Windows.Forms.GroupBox propertiesGroupBox;
-        private System.Windows.Forms.PropertyGrid propertyGrid;
+        private Bonsai.Design.PropertyGrid propertyGrid;
         private System.Windows.Forms.ToolStripMenuItem startToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem stopToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
