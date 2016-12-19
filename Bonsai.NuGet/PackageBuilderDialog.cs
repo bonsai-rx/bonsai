@@ -78,7 +78,9 @@ namespace Bonsai.NuGet
         {
             if (DialogResult == DialogResult.OK)
             {
-                var packageFileName = packageBuilder.Id + "." + packageBuilder.Version + Constants.PackageExtension;
+                var packageFileName =
+                    packageBuilder.Id + "." +
+                    packageBuilder.Version + global::NuGet.Constants.PackageExtension;
                 saveFileDialog.FileName = packageFileName;
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
@@ -253,7 +255,7 @@ namespace Bonsai.NuGet
 
                     if (descriptor.Name == "Tags")
                     {
-                        var typeConverterAttribute = new TypeConverterAttribute(typeof(SpaceDelimitedSetConverter));
+                        var typeConverterAttribute = new TypeConverterAttribute(typeof(TagSetConverter));
                         var attributes = new Attribute[] { descriptionAttribute, typeConverterAttribute };
                         return new SetPropertyDescriptor(descriptor, attributes);
                     }
@@ -429,7 +431,7 @@ namespace Bonsai.NuGet
 
                     public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
                     {
-                        var set = value as ISet<string>;
+                        var set = value as IEnumerable<string>;
                         if (set != null)
                         {
                             return string.Join(SetSeparator, set);
@@ -467,11 +469,35 @@ namespace Bonsai.NuGet
                     }
                 }
 
-                class SpaceDelimitedSetConverter : CommaDelimitedSetConverter
+                class TagSetConverter : CommaDelimitedSetConverter
                 {
                     public override string SetSeparator
                     {
                         get { return " "; }
+                    }
+
+                    public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+                    {
+                        var set = value as IEnumerable<string>;
+                        if (set != null)
+                        {
+                            value = set.Where(tag => tag != Constants.BonsaiDirectory && tag != Constants.GalleryDirectory);
+                        }
+
+                        return base.ConvertTo(context, culture, value, destinationType);
+                    }
+
+                    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+                    {
+                        var result = base.ConvertFrom(context, culture, value);
+                        var set = result as ISet<string>;
+                        if (set != null)
+                        {
+                            set.Add(Constants.BonsaiDirectory);
+                            set.Add(Constants.GalleryDirectory);
+                        }
+
+                        return result;
                     }
                 }
 

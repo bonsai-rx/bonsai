@@ -52,11 +52,12 @@ namespace Bonsai
                     Authors = Environment.UserName,
                     Version = "1.0.0",
                     Id = Path.GetFileNameWithoutExtension(path),
-                    Description = "My workflow description.",
-                    Tags = "Bonsai Workflow"
+                    Description = "My workflow description."
                 });
             }
 
+            packageBuilder.Tags.Add(NuGet.Constants.BonsaiDirectory);
+            packageBuilder.Tags.Add(NuGet.Constants.GalleryDirectory);
             files.AddRange(from file in Directory.GetFiles(basePath, "*", SearchOption.AllDirectories)
                            let extension = Path.GetExtension(file)
                            where extension != global::NuGet.Constants.ManifestExtension &&
