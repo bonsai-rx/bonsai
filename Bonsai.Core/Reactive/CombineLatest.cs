@@ -195,14 +195,19 @@ namespace Bonsai.Reactive
         /// element.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements in the source sequences.</typeparam>
-        /// <param name="sources">Observable sources.</param>
+        /// <param name="first">The first observable sequence.</param>
+        /// <param name="second">The second observable sequence.</param>
+        /// <param name="remainder">The remaining observable sequences to combine.</param>
         /// <returns>
         /// An observable sequence containing the result of combining the latest elements of the
         /// sources into lists.
         /// </returns>
-        public IObservable<IList<TSource>> Process<TSource>(params IObservable<TSource>[] sources)
+        public IObservable<IList<TSource>> Process<TSource>(
+            IObservable<TSource> first,
+            IObservable<TSource> second,
+            params IObservable<TSource>[] remainder)
         {
-            return Observable.CombineLatest(sources);
+            return Observable.CombineLatest(EnumerableEx.Concat(first, second, remainder));
         }
 
         /// <summary>

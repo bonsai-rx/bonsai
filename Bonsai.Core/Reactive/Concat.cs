@@ -36,6 +36,26 @@ namespace Bonsai.Reactive
         }
 
         /// <summary>
+        /// Concatenates all of the specified observable sequences, as long as the previous
+        /// observable sequence terminated successfully.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequences.</typeparam>
+        /// <param name="first">The first observable sequence.</param>
+        /// <param name="second">The second observable sequence.</param>
+        /// <param name="remainder">The remaining observable sequences to concatenate.</param>
+        /// <returns>
+        /// An observable sequence that contains the elements of each given sequence,
+        /// in sequential order.
+        /// </returns>
+        public IObservable<TSource> Process<TSource>(
+            IObservable<TSource> first,
+            IObservable<TSource> second,
+            params IObservable<TSource>[] remainder)
+        {
+            return Observable.Concat(EnumerableEx.Concat(first, second, remainder));
+        }
+
+        /// <summary>
         /// Concatenates all inner observable sequences, as long as the previous observable
         /// sequence terminated successfully.
         /// </summary>
@@ -48,21 +68,6 @@ namespace Bonsai.Reactive
         public IObservable<TSource> Process<TSource>(IObservable<IObservable<TSource>> sources)
         {
             return sources.Concat();
-        }
-
-        /// <summary>
-        /// Concatenates all of the specified observable sequences, as long as the previous
-        /// observable sequence terminated successfully.
-        /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequences.</typeparam>
-        /// <param name="sources">The observable sequences to concatenate.</param>
-        /// <returns>
-        /// An observable sequence that contains the elements of each given sequence,
-        /// in sequential order.
-        /// </returns>
-        public IObservable<TSource> Process<TSource>(params IObservable<TSource>[] sources)
-        {
-            return Observable.Concat(sources);
         }
     }
 }
