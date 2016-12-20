@@ -702,8 +702,9 @@ namespace Bonsai.Expressions
 
         static Type[] ExpandCallParameterTypes(ParameterInfo[] parameters, Type[] arguments, bool expansion)
         {
+            var parameterCount = expansion ? parameters.Length - 1 : parameters.Length;
             var expandedParameters = new Type[arguments.Length];
-            for (int i = 0; i < parameters.Length; i++)
+            for (int i = 0; i < parameterCount; i++)
             {
                 expandedParameters[i] = GetObservableElementType(parameters[i].ParameterType);
             }
