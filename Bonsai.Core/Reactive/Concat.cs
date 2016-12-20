@@ -69,5 +69,19 @@ namespace Bonsai.Reactive
         {
             return sources.Concat();
         }
+
+        /// <summary>
+        /// Concatenates all inner enumerable sequences into one observable sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequences.</typeparam>
+        /// <param name="sources">The observable sequence of inner enumerable sequences.</param>
+        /// <returns>
+        /// An observable sequence that contains the elements of each inner enumerable
+        /// sequence, in sequential order.
+        /// </returns>
+        public IObservable<TSource> Process<TSource>(IObservable<IEnumerable<TSource>> sources)
+        {
+            return sources.SelectMany(xs => xs);
+        }
     }
 }
