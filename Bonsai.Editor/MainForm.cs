@@ -604,11 +604,6 @@ namespace Bonsai.Editor
             return Version.TryParse(versionName, out version);
         }
 
-        static bool IsDeprecated(Version version)
-        {
-            return version < Version.Parse("2.2.0");
-        }
-
         WorkflowBuilder LoadWorkflow(string fileName, out Version version)
         {
             using (var reader = XmlReader.Create(fileName))
@@ -620,7 +615,7 @@ namespace Bonsai.Editor
                 var workflow = workflowBuilder.Workflow;
                 if (string.IsNullOrEmpty(versionName) ||
                     !TryParseVersion(versionName, out version) ||
-                    IsDeprecated(version))
+                    UpgradeHelper.IsDeprecated(version))
                 {
                     MessageBox.Show(
                         this,
@@ -629,19 +624,9 @@ namespace Bonsai.Editor
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning,
                         MessageBoxDefaultButton.Button1);
-                    workflow = workflow.Convert(builder =>
-                    {
-                        var sourceBuilder = builder as SourceBuilder;
-                        if (sourceBuilder != null)
-                        {
-                            return new CombinatorBuilder
-                            {
-                                Combinator = sourceBuilder.Generator
-                            };
-                        }
 
-                        return builder;
-                    });
+                    UpgradeHelper.UpgradeEnumerableUnfoldingRules(workflowBuilder);
+                    workflow = UpgradeHelper.UpgradeSourceBuilderNodes(workflow);
                 }
 
                 workflowBuilder = new WorkflowBuilder(workflow.ToInspectableGraph());
@@ -665,7 +650,7 @@ namespace Bonsai.Editor
                 return false;
             }
 
-            if (IsDeprecated(version)) saveWorkflowDialog.FileName = null;
+            if (UpgradeHelper.IsDeprecated(version)) saveWorkflowDialog.FileName = null;
             else saveWorkflowDialog.FileName = fileName;
             ResetProjectStatus();
             UpdateTitle();

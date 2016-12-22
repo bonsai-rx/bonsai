@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using System.Globalization;
 using System.Reactive;
+using Bonsai.Expressions;
 
 namespace Bonsai
 {
@@ -29,6 +30,25 @@ namespace Bonsai
         const char IndexBegin = '[';
         const char IndexEnd = ']';
         const char IndexArgumentSeparator = ',';
+
+        /// <summary>
+        /// Tests whether the specified type implements the generic enumerable interface.
+        /// </summary>
+        /// <param name="type">The <see cref="Type"/> to test.</param>
+        /// <returns>
+        /// <b>true</b> if the type implements the generic enumerable interface;
+        /// otherwise, <b>false</b>.
+        /// </returns>
+        public static bool IsEnumerableType(Type type)
+        {
+            if (type == null)
+            {
+                throw new ArgumentNullException("type");
+            }
+
+            var enumerableBindings = ExpressionBuilder.GetParameterBindings(typeof(IEnumerable<>), type);
+            return enumerableBindings.Any();
+        }
 
         internal static Expression CreateTuple(Expression[] arguments)
         {
