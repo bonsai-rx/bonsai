@@ -10,9 +10,11 @@ namespace Bonsai.Editor
 {
     static class UpgradeHelper
     {
-        internal static bool IsDeprecated(Version version)
+        static readonly SemanticVersion DeprecationTarget = SemanticVersion.Parse("2.3.0");
+
+        internal static bool IsDeprecated(SemanticVersion version)
         {
-            return version < Version.Parse("2.3.0");
+            return version < DeprecationTarget;
         }
 
         internal static ExpressionBuilderGraph UpgradeSourceBuilderNodes(ExpressionBuilderGraph workflow)
