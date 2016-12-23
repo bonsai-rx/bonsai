@@ -587,24 +587,7 @@ namespace Bonsai.Editor
             return Path.ChangeExtension(fileName, Path.GetExtension(fileName) + LayoutExtension);
         }
 
-        static bool TryParseVersion(string versionName, out Version version)
-        {
-            if (string.IsNullOrEmpty(versionName))
-            {
-                version = null;
-                return false;
-            }
-
-            var hyphen = versionName.IndexOf('-');
-            if (hyphen >= 0)
-            {
-                versionName = versionName.Substring(0, hyphen);
-            }
-
-            return Version.TryParse(versionName, out version);
-        }
-
-        WorkflowBuilder LoadWorkflow(string fileName, out Version version)
+        WorkflowBuilder LoadWorkflow(string fileName, out SemanticVersion version)
         {
             using (var reader = XmlReader.Create(fileName))
             {
@@ -614,7 +597,7 @@ namespace Bonsai.Editor
                 var workflowBuilder = (WorkflowBuilder)serializer.Deserialize(reader);
                 var workflow = workflowBuilder.Workflow;
                 if (string.IsNullOrEmpty(versionName) ||
-                    !TryParseVersion(versionName, out version) ||
+                    !SemanticVersion.TryParse(versionName, out version) ||
                     UpgradeHelper.IsDeprecated(version))
                 {
                     MessageBox.Show(
@@ -641,7 +624,7 @@ namespace Bonsai.Editor
 
         bool OpenWorkflow(string fileName, bool setWorkingDirectory)
         {
-            Version version;
+            SemanticVersion version;
             try { workflowBuilder = LoadWorkflow(fileName, out version); }
             catch (InvalidOperationException ex)
             {
@@ -1805,7 +1788,7 @@ namespace Bonsai.Editor
 
             public WorkflowBuilder LoadWorkflow(string fileName)
             {
-                Version version;
+                SemanticVersion version;
                 return siteForm.LoadWorkflow(fileName, out version);
             }
 
