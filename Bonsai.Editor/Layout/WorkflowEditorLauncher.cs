@@ -90,6 +90,7 @@ namespace Bonsai.Design
                     {
                         e.Cancel = true;
                         ParentView.CloseWorkflowView(builder);
+                        ParentView.UpdateSelection();
                     }
                     else UpdateEditorLayout();
                 }
