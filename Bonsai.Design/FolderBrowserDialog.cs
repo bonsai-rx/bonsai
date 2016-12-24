@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -16,11 +17,17 @@ namespace Bonsai.Design
         const uint SIGDN_FILESYSPATH = 0x80058000;
         const uint S_OK = 0;
 
+        public FolderBrowserDialog()
+        {
+            SelectedPath = string.Empty;
+        }
+
+        [DefaultValue("")]
         public string SelectedPath { get; set; }
 
         public override void Reset()
         {
-            SelectedPath = null;
+            SelectedPath = string.Empty;
         }
 
         protected override bool RunDialog(IntPtr hwndOwner)
