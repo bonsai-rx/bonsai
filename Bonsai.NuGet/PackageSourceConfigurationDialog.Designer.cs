@@ -43,8 +43,6 @@
             this.sourceEditorButton = new System.Windows.Forms.Button();
             this.bottomLine = new System.Windows.Forms.Label();
             this.packageSourceListLabel = new System.Windows.Forms.Label();
-            this.updateButton = new System.Windows.Forms.Button();
-            this.folderBrowserDialog = new Bonsai.Design.FolderBrowserDialog();
             this.packageSourceListView = new System.Windows.Forms.ListView();
             this.nameHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.sourceHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -53,6 +51,7 @@
             this.machineWideListView = new System.Windows.Forms.ListView();
             this.machineWideNameHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.machineWideSourceHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.folderBrowserDialog = new Bonsai.Design.FolderBrowserDialog();
             this.SuspendLayout();
             // 
             // moveDownButton
@@ -133,6 +132,7 @@
             this.nameTextBox.Name = "nameTextBox";
             this.nameTextBox.Size = new System.Drawing.Size(296, 20);
             this.nameTextBox.TabIndex = 7;
+            this.nameTextBox.Leave += new System.EventHandler(this.UpdatePackageSource);
             // 
             // sourceTextBox
             // 
@@ -140,6 +140,7 @@
             this.sourceTextBox.Name = "sourceTextBox";
             this.sourceTextBox.Size = new System.Drawing.Size(296, 20);
             this.sourceTextBox.TabIndex = 8;
+            this.sourceTextBox.Leave += new System.EventHandler(this.UpdatePackageSource);
             // 
             // sourceLabel
             // 
@@ -177,16 +178,6 @@
             this.packageSourceListLabel.Size = new System.Drawing.Size(138, 13);
             this.packageSourceListLabel.TabIndex = 14;
             this.packageSourceListLabel.Text = "Available package sources:";
-            // 
-            // updateButton
-            // 
-            this.updateButton.Location = new System.Drawing.Point(397, 334);
-            this.updateButton.Name = "updateButton";
-            this.updateButton.Size = new System.Drawing.Size(75, 23);
-            this.updateButton.TabIndex = 10;
-            this.updateButton.Text = "Update";
-            this.updateButton.UseVisualStyleBackColor = true;
-            this.updateButton.Click += new System.EventHandler(this.updateButton_Click);
             // 
             // packageSourceListView
             // 
@@ -265,7 +256,6 @@
             this.ClientSize = new System.Drawing.Size(484, 411);
             this.Controls.Add(this.machineWideListLabel);
             this.Controls.Add(this.machineWideListView);
-            this.Controls.Add(this.updateButton);
             this.Controls.Add(this.packageSourceListLabel);
             this.Controls.Add(this.bottomLine);
             this.Controls.Add(this.sourceEditorButton);
@@ -308,7 +298,6 @@
         private System.Windows.Forms.Button sourceEditorButton;
         private System.Windows.Forms.Label bottomLine;
         private System.Windows.Forms.Label packageSourceListLabel;
-        private System.Windows.Forms.Button updateButton;
         private Bonsai.Design.FolderBrowserDialog folderBrowserDialog;
         private System.Windows.Forms.ListView packageSourceListView;
         private System.Windows.Forms.ColumnHeader nameHeader;
