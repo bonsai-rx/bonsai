@@ -102,7 +102,6 @@ namespace Bonsai.NuGet
             nameTextBox.Enabled = editActive;
             sourceTextBox.Enabled = editActive;
             removeButton.Enabled = editActive;
-            updateButton.Enabled = editActive;
             sourceEditorButton.Enabled = editActive;
             if (item.Selected)
             {
@@ -173,7 +172,7 @@ namespace Bonsai.NuGet
             UpdateItemActionButtons(e.Item);
         }
 
-        private void updateButton_Click(object sender, EventArgs e)
+        private void UpdatePackageSource(object sender, EventArgs e)
         {
             if (packageSourceListView.SelectedItems.Count > 0)
             {
@@ -189,6 +188,7 @@ namespace Bonsai.NuGet
             if (folderBrowserDialog.ShowDialog(this) == DialogResult.OK)
             {
                 sourceTextBox.Text = folderBrowserDialog.SelectedPath;
+                UpdatePackageSource(sender, e);
             }
         }
 
