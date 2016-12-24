@@ -420,6 +420,7 @@ namespace Bonsai
         {
             packageManager.PackageInstalled -= packageManager_PackageInstalled;
             packageManager.PackageUninstalling -= packageManager_PackageUninstalling;
+            OptimizedZipPackage.PurgeCache();
         }
     }
 }
