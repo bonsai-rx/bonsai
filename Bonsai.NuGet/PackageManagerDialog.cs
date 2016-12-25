@@ -126,7 +126,7 @@ namespace Bonsai.NuGet
         {
             var logger = new EventLogger();
             var managers = new Dictionary<string, PackageManager>();
-            var aggregateRepository = packageSourceProvider.CreateAggregateRepository(PackageRepositoryFactory.Default, false);
+            var aggregateRepository = packageSourceProvider.CreateAggregateRepository(PackageRepositoryFactory.Default, true);
             managers.Add(Resources.AllNodeName, CreatePackageManager(aggregateRepository, logger));
             var packageRepositories = packageSourceProvider
                 .GetEnabledPackageSources()
@@ -257,7 +257,7 @@ namespace Bonsai.NuGet
                 }
                 else
                 {
-                    try { packages = selectedRepository.Search(searchTerm, allowPrereleaseVersions); }
+                    try { packages = selectedRepository.GetPackages().Find(searchTerm); }
                     catch (WebException e) { return Observable.Throw<IPackage>(e).ToEnumerable().AsQueryable(); }
                     if (allowPrereleaseVersions) packages = packages.Where(p => p.IsAbsoluteLatestVersion);
                     else packages = packages.Where(p => p.IsLatestVersion);
