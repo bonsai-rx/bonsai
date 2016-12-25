@@ -137,7 +137,7 @@ namespace Bonsai
         {
             EnableVisualStyles();
             var packageManagerDialog = new PackageManagerDialog(editorRepositoryPath);
-            using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManagerDialog, editorPath, editorPackageId))
+            using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManagerDialog.PackageManager, editorPath, editorPackageId))
             {
                 Application.Run(packageManagerDialog);
             }

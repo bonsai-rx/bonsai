@@ -21,7 +21,7 @@ using System.Windows.Forms;
 
 namespace Bonsai.NuGet
 {
-    public partial class PackageManagerDialog : Form, IPackageManager
+    public partial class PackageManagerDialog : Form
     {
         const int PackagesPerPage = 10;
         const string SortByMostDownloads = "Most Downloads";
@@ -39,7 +39,7 @@ namespace Bonsai.NuGet
         readonly string packageManagerPath;
         readonly IPackageSourceProvider packageSourceProvider;
         Dictionary<string, PackageManager> packageManagers;
-        PackageManager selectedManager;
+        PackageManagerProxy packageManagerProxy;
         IPackageRepository selectedRepository;
         string feedExceptionMessage;
         List<IDisposable> activeRequests;
@@ -60,6 +60,7 @@ namespace Bonsai.NuGet
             defaultIcon = GetPackageIcon(PackageDefaultIconUrl);
 
             activeRequests = new List<IDisposable>();
+            packageManagerProxy = new PackageManagerProxy();
             var machineWideSettings = new BonsaiMachineWideSettings();
             var settings = Settings.LoadDefaultSettings(null, null, machineWideSettings);
             packageSourceProvider = new PackageSourceProvider(settings);
@@ -77,6 +78,11 @@ namespace Bonsai.NuGet
             releaseFilterComboBox.SelectedIndex = 0;
         }
 
+        public IPackageManager PackageManager
+        {
+            get { return packageManagerProxy; }
+        }
+
         void ClearActiveRequests()
         {
             iconCache.Clear();
@@ -90,12 +96,8 @@ namespace Bonsai.NuGet
         PackageManager CreatePackageManager(IPackageRepository sourceRepository, EventLogger logger)
         {
             var packageManager = new LicenseAwarePackageManager(sourceRepository, packageManagerPath);
-            packageManager.Logger = logger;
-            packageManager.PackageInstalled += (sender, e) => OnPackageInstalled(e);
-            packageManager.PackageInstalling += (sender, e) => OnPackageInstalling(e);
-            packageManager.PackageUninstalled += (sender, e) => OnPackageUninstalled(e);
-            packageManager.PackageUninstalling += (sender, e) => OnPackageUninstalling(e);
             packageManager.RequiringLicenseAcceptance += packageManager_RequiringLicenseAcceptance;
+            packageManager.Logger = logger;
             return packageManager;
         }
 
@@ -240,7 +242,7 @@ namespace Bonsai.NuGet
             var updateFeed = updatesNode.IsExpanded;
             return () =>
             {
-                if (selectedRepository == null || selectedManager == null)
+                if (selectedRepository == null || packageManagerProxy.PackageManager == null)
                 {
                     return Enumerable.Empty<IPackage>().AsQueryable();
                 }
@@ -248,7 +250,7 @@ namespace Bonsai.NuGet
                 IQueryable<IPackage> packages;
                 if (updateFeed)
                 {
-                    var localPackages = selectedManager.LocalRepository.GetPackages();
+                    var localPackages = packageManagerProxy.LocalRepository.GetPackages();
                     try { packages = selectedRepository.GetUpdates(localPackages, allowPrereleaseVersions, false).AsQueryable(); }
                     catch (AggregateException e) { return Observable.Throw<IPackage>(e.InnerException).ToEnumerable().AsQueryable(); }
                     catch (WebException e) { return Observable.Throw<IPackage>(e).ToEnumerable().AsQueryable(); }
@@ -361,10 +363,10 @@ namespace Bonsai.NuGet
         private void AddPackage(IPackage package)
         {
             var installCheck = false;
-            if (selectedRepository != selectedManager.LocalRepository &&
+            if (selectedRepository != packageManagerProxy.LocalRepository &&
                 packageView.OperationText != Resources.UpdateOperationName)
             {
-                var installedPackage = selectedManager.LocalRepository.FindPackage(package.Id);
+                var installedPackage = packageManagerProxy.LocalRepository.FindPackage(package.Id);
                 installCheck = installedPackage != null && installedPackage.Version >= package.Version;
             }
 
@@ -461,17 +463,17 @@ namespace Bonsai.NuGet
         {
             using (var dialog = new PackageOperationDialog())
             {
-                var logger = selectedManager.Logger;
+                var logger = packageManagerProxy.Logger;
                 dialog.RegisterEventLogger((EventLogger)logger);
 
                 IObservable<Unit> operation;
-                if (selectedRepository == selectedManager.LocalRepository)
+                if (selectedRepository == packageManagerProxy.LocalRepository)
                 {
                     operation = Observable.Start(() =>
                     {
                         foreach (var package in packages)
                         {
-                            selectedManager.UninstallPackage(package, false, handleDependencies);
+                            packageManagerProxy.UninstallPackage(package, false, handleDependencies);
                         }
                     });
                     dialog.Text = Resources.UninstallOperationLabel;
@@ -486,13 +488,13 @@ namespace Bonsai.NuGet
                     {
                         foreach (var package in packages)
                         {
-                            if (update || selectedManager.LocalRepository.FindPackage(package.Id) != null)
+                            if (update || packageManagerProxy.LocalRepository.FindPackage(package.Id) != null)
                             {
-                                selectedManager.UpdatePackage(package, handleDependencies, allowPrereleaseVersions);
+                                packageManagerProxy.UpdatePackage(package, handleDependencies, allowPrereleaseVersions);
                             }
                             else
                             {
-                                selectedManager.InstallPackage(package, !handleDependencies, allowPrereleaseVersions);
+                                packageManagerProxy.InstallPackage(package, !handleDependencies, allowPrereleaseVersions);
                             }
                         }
                     });
@@ -572,7 +574,7 @@ namespace Bonsai.NuGet
             var package = (IPackage)e.Node.Tag;
             if (package != null)
             {
-                if (selectedRepository == selectedManager.LocalRepository)
+                if (selectedRepository == packageManagerProxy.LocalRepository)
                 {
                     var dependencies = (from dependency in package.GetCompatiblePackageDependencies(null)
                                         let dependencyPackage = selectedRepository.ResolveDependency(dependency, true, true)
@@ -623,18 +625,18 @@ namespace Bonsai.NuGet
         private void repositoriesView_AfterSelect(object sender, TreeViewEventArgs e)
         {
             selectingNode = null;
-            selectedManager = e.Node.Tag as PackageManager;
-            if (selectedManager == null) return;
+            packageManagerProxy.PackageManager = e.Node.Tag as PackageManager;
+            if (packageManagerProxy.PackageManager == null) return;
             if (e.Node == installedPackagesNode || e.Node.Parent == installedPackagesNode)
             {
                 releaseFilterComboBox.Visible = false;
                 packageView.OperationText = Resources.UninstallOperationName;
-                selectedRepository = selectedManager.LocalRepository;
+                selectedRepository = packageManagerProxy.LocalRepository;
             }
             else
             {
                 releaseFilterComboBox.Visible = true;
-                selectedRepository = selectedManager.SourceRepository;
+                selectedRepository = packageManagerProxy.SourceRepository;
                 if (e.Node == updatesNode || e.Node.Parent == updatesNode)
                 {
                     packageView.OperationText = Resources.UpdateOperationName;
@@ -670,9 +672,9 @@ namespace Bonsai.NuGet
             {
                 if (dialog.ShowDialog(this) == DialogResult.OK)
                 {
-                    selectedManager = null;
                     selectedRepository = null;
                     feedExceptionMessage = null;
+                    packageManagerProxy.PackageManager = null;
                     packageManagers = CreatePackageManagers();
                     InitializeRepositoryViewNodes();
                     SelectDefaultNode();
@@ -684,179 +686,6 @@ namespace Bonsai.NuGet
         private void closeButton_Click(object sender, EventArgs e)
         {
             Close();
-        }
-
-        #region IPackageManager Members
-
-        public IFileSystem FileSystem
-        {
-            get { return selectedManager != null ? selectedManager.FileSystem : null; }
-            set { if (selectedManager != null)selectedManager.FileSystem = value; }
-        }
-
-        public void InstallPackage(string packageId, SemanticVersion version, bool ignoreDependencies, bool allowPrereleaseVersions)
-        {
-            var manager = selectedManager;
-            if (manager != null)
-            {
-                manager.InstallPackage(packageId, version, ignoreDependencies, allowPrereleaseVersions);
-            }
-        }
-
-        public void InstallPackage(IPackage package, bool ignoreDependencies, bool allowPrereleaseVersions, bool ignoreWalkInfo)
-        {
-            var manager = selectedManager;
-            if (manager != null)
-            {
-                manager.InstallPackage(package, ignoreDependencies, allowPrereleaseVersions, ignoreWalkInfo);
-            }
-        }
-
-        public void InstallPackage(IPackage package, bool ignoreDependencies, bool allowPrereleaseVersions)
-        {
-            var manager = selectedManager;
-            if (manager != null)
-            {
-                manager.InstallPackage(package, ignoreDependencies, allowPrereleaseVersions);
-            }
-        }
-
-        public IPackageRepository LocalRepository
-        {
-            get { return selectedManager != null ? selectedManager.LocalRepository : null; }
-        }
-
-        public ILogger Logger
-        {
-            get { return selectedManager != null ? selectedManager.Logger : null; }
-            set { if (selectedManager != null) selectedManager.Logger = value; }
-        }
-
-        public event EventHandler<PackageOperationEventArgs> PackageInstalled;
-
-        public event EventHandler<PackageOperationEventArgs> PackageInstalling;
-
-        public event EventHandler<PackageOperationEventArgs> PackageUninstalled;
-
-        public event EventHandler<PackageOperationEventArgs> PackageUninstalling;
-
-        private void OnPackageInstalled(PackageOperationEventArgs e)
-        {
-            var handler = PackageInstalled;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
-
-        private void OnPackageInstalling(PackageOperationEventArgs e)
-        {
-            var handler = PackageInstalling;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
-
-        private void OnPackageUninstalled(PackageOperationEventArgs e)
-        {
-            var handler = PackageUninstalled;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
-
-        private void OnPackageUninstalling(PackageOperationEventArgs e)
-        {
-            var handler = PackageUninstalling;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
-
-        public IPackagePathResolver PathResolver
-        {
-            get { return selectedManager != null ? selectedManager.PathResolver : null; }
-        }
-
-        public IPackageRepository SourceRepository
-        {
-            get { return selectedManager != null ? selectedManager.SourceRepository : null; }
-        }
-
-        public void UninstallPackage(string packageId, SemanticVersion version, bool forceRemove, bool removeDependencies)
-        {
-            var manager = selectedManager;
-            if (manager != null)
-            {
-                manager.UninstallPackage(packageId, version, forceRemove, removeDependencies);
-            }
-        }
-
-        public void UninstallPackage(IPackage package, bool forceRemove, bool removeDependencies)
-        {
-            var manager = selectedManager;
-            if (manager != null)
-            {
-                manager.UninstallPackage(package, forceRemove, removeDependencies);
-            }
-        }
-
-        public void UpdatePackage(string packageId, IVersionSpec versionSpec, bool updateDependencies, bool allowPrereleaseVersions)
-        {
-            var manager = selectedManager;
-            if (manager != null)
-            {
-                manager.UpdatePackage(packageId, versionSpec, updateDependencies, allowPrereleaseVersions);
-            }
-        }
-
-        public void UpdatePackage(string packageId, SemanticVersion version, bool updateDependencies, bool allowPrereleaseVersions)
-        {
-            var manager = selectedManager;
-            if (manager != null)
-            {
-                manager.UpdatePackage(packageId, version, updateDependencies, allowPrereleaseVersions);
-            }
-        }
-
-        public void UpdatePackage(IPackage newPackage, bool updateDependencies, bool allowPrereleaseVersions)
-        {
-            var manager = selectedManager;
-            if (manager != null)
-            {
-                manager.UpdatePackage(newPackage, updateDependencies, allowPrereleaseVersions);
-            }
-        }
-
-        #endregion
-
-        public DependencyVersion DependencyVersion
-        {
-            get { return selectedManager != null ? selectedManager.DependencyVersion : default(DependencyVersion); }
-            set
-            {
-                var manager = selectedManager;
-                if (manager != null)
-                {
-                    manager.DependencyVersion = value;
-                }
-            }
-        }
-
-        public bool WhatIf
-        {
-            get { return selectedManager != null ? selectedManager.WhatIf : default(bool); }
-            set
-            {
-                var manager = selectedManager;
-                if (manager != null)
-                {
-                    manager.WhatIf = value;
-                }
-            }
         }
     }
 }
