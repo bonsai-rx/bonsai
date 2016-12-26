@@ -227,4 +227,7 @@
   <data name="MissingWorkflowEntryPoint" xml:space="preserve">
     <value>Unable to open gallery package. No '{0}' was found in package contents.</value>
   </data>
+  <data name="PackageExported" xml:space="preserve">
+    <value>Package '{0} {1}' exported successfully.</value>
+  </data>
 </root>

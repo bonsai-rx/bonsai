@@ -233,6 +233,15 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Package &apos;{0} {1}&apos; exported successfully..
+        /// </summary>
+        internal static string PackageExported {
+            get {
+                return ResourceManager.GetString("PackageExported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap PackageViewNodeCheckedImage {
