@@ -15,6 +15,7 @@ namespace Bonsai
     {
         const string PackageTagFilter = "Bonsai";
         const string ExamplesDirectory = "Examples";
+        const string GalleryDirectory = "Gallery";
         const string WorkflowsDirectory = "Workflows";
         const string BuildDirectory = "build";
         const string BinDirectory = "bin";
@@ -24,7 +25,9 @@ namespace Bonsai
 
         readonly string bootstrapperExePath;
         readonly string bootstrapperPackageId;
+        readonly string bootstrapperDirectory;
         readonly IPackageManager packageManager;
+        readonly IPackageRepository galleryRepository;
         readonly PackageConfiguration packageConfiguration;
         static readonly char[] DirectorySeparators = new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
         static readonly FrameworkName NativeFramework = new FrameworkName("native,Version=v0.0");
@@ -53,9 +56,15 @@ namespace Bonsai
             packageConfiguration = configuration;
             bootstrapperExePath = bootstrapperPath ?? string.Empty;
             bootstrapperPackageId = bootstrapperId ?? string.Empty;
+            bootstrapperDirectory = Path.GetDirectoryName(bootstrapperExePath);
             packageManager.PackageInstalling += packageManager_PackageInstalling;
             packageManager.PackageInstalled += packageManager_PackageInstalled;
             packageManager.PackageUninstalling += packageManager_PackageUninstalling;
+
+            var galleryPath = Path.Combine(bootstrapperDirectory, GalleryDirectory);
+            var galleryFileSystem = new PhysicalFileSystem(galleryPath);
+            var galleryPathResolver = new GalleryPackagePathResolver(galleryPath);
+            galleryRepository = new LocalPackageRepository(galleryPathResolver, galleryFileSystem);
         }
 
         string GetRelativePath(string path)
@@ -240,8 +249,7 @@ namespace Bonsai
             var contentDirectory = new DirectoryInfo(Path.Combine(installPath, Constants.ContentDirectory, contentPath));
             if (contentDirectory.Exists)
             {
-                var bootstrapperPath = Path.GetDirectoryName(bootstrapperExePath);
-                var bootstrapperContent = new DirectoryInfo(Path.Combine(bootstrapperPath, contentPath));
+                var bootstrapperContent = new DirectoryInfo(Path.Combine(bootstrapperDirectory, contentPath));
                 if (!bootstrapperContent.Exists) bootstrapperContent.Create();
                 CopyDirectory(contentDirectory, bootstrapperContent);
             }
@@ -271,14 +279,13 @@ namespace Bonsai
             var contentDirectory = new DirectoryInfo(Path.Combine(installPath, Constants.ContentDirectory, contentPath));
             if (contentDirectory.Exists)
             {
-                var bootstrapperPath = Path.GetDirectoryName(bootstrapperExePath);
-                var bootstrapperContent = new DirectoryInfo(Path.Combine(bootstrapperPath, contentPath));
+                var bootstrapperContent = new DirectoryInfo(Path.Combine(bootstrapperDirectory, contentPath));
                 if (bootstrapperContent.Exists)
                 {
                     foreach (var file in package.GetFiles(Path.Combine(Constants.ContentDirectory, contentPath)))
                     {
                         var path = file.Path.Split(DirectorySeparators, 2)[1];
-                        var bootstrapperFilePath = Path.Combine(bootstrapperPath, path);
+                        var bootstrapperFilePath = Path.Combine(bootstrapperDirectory, path);
                         if (File.Exists(bootstrapperFilePath))
                         {
                             File.Delete(bootstrapperFilePath);
@@ -292,18 +299,28 @@ namespace Bonsai
 
         void packageManager_PackageInstalling(object sender, PackageOperationEventArgs e)
         {
-            var installPath = e.InstallPath;
-            var pivots = OverlayHelper.FindPivots(e.Package, installPath).ToArray();
-            if (pivots.Length > 0)
+            var galleryPackage = e.Package.GetContentFiles()
+                                          .Any(file => Path.GetFileNameWithoutExtension(file.EffectivePath) == e.Package.Id);
+            if (galleryPackage)
             {
-                var overlayVersion = OverlayHelper.FindOverlayVersion(e.Package);
-                var overlayManager = OverlayHelper.CreateOverlayManager(packageManager.SourceRepository, installPath);
-                overlayManager.Logger = packageManager.Logger;
-                foreach (var pivot in pivots)
+                galleryRepository.AddPackage(e.Package);
+                e.Cancel = true;
+            }
+            else
+            {
+                var installPath = e.InstallPath;
+                var pivots = OverlayHelper.FindPivots(e.Package, installPath).ToArray();
+                if (pivots.Length > 0)
                 {
-                    var package = overlayManager.SourceRepository.FindPackage(pivot, overlayVersion);
-                    if (package == null) throw new InvalidOperationException(string.Format("The package '{0}' could not be found.", pivot));
-                    overlayManager.InstallPackage(package, false, false);
+                    var overlayVersion = OverlayHelper.FindOverlayVersion(e.Package);
+                    var overlayManager = OverlayHelper.CreateOverlayManager(packageManager.SourceRepository, installPath);
+                    overlayManager.Logger = packageManager.Logger;
+                    foreach (var pivot in pivots)
+                    {
+                        var package = overlayManager.SourceRepository.FindPackage(pivot, overlayVersion);
+                        if (package == null) throw new InvalidOperationException(string.Format("The package '{0}' could not be found.", pivot));
+                        overlayManager.InstallPackage(package, false, false);
+                    }
                 }
             }
         }
