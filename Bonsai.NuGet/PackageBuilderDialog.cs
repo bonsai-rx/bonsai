@@ -11,6 +11,7 @@ using System.Drawing.Design;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Media;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -112,6 +113,12 @@ namespace Bonsai.NuGet
                             if (dialog.ShowDialog() != DialogResult.OK)
                             {
                                 e.Cancel = true;
+                            }
+                            else
+                            {
+                                SystemSounds.Asterisk.Play();
+                                var message = string.Format(Resources.PackageExported, packageBuilder.Id, packageBuilder.Version);
+                                MessageBox.Show(this, message, Text, MessageBoxButtons.OK, MessageBoxIcon.None);
                             }
                         }
                     }
