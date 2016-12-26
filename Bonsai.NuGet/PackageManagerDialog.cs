@@ -611,6 +611,8 @@ namespace Bonsai.NuGet
             if (repositoriesView.SelectedNode == e.Node && selectingNode == null)
             {
                 repositoriesView.SelectedNode = null;
+                SetPackageViewStatus(Resources.NoItemsFoundLabel);
+                ClearActiveRequests();
             }
         }
 
