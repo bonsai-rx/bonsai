@@ -10,6 +10,7 @@ namespace Bonsai.Editor
     {
         Exit,
         ManagePackages,
-        ExportPackage
+        ExportPackage,
+        OpenGallery
     }
 }

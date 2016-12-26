@@ -69,6 +69,7 @@
             this.restartToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.packageManagerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.galleryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.wikiToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.forumToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -261,14 +262,14 @@
             this.exportImageToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.E)));
             this.exportImageToolStripMenuItem.Size = new System.Drawing.Size(225, 22);
-            this.exportImageToolStripMenuItem.Text = "Create Image...";
+            this.exportImageToolStripMenuItem.Text = "Image...";
             this.exportImageToolStripMenuItem.Click += new System.EventHandler(this.exportImageToolStripMenuItem_Click);
             // 
             // exportPackageToolStripMenuItem
             // 
             this.exportPackageToolStripMenuItem.Name = "exportPackageToolStripMenuItem";
             this.exportPackageToolStripMenuItem.Size = new System.Drawing.Size(225, 22);
-            this.exportPackageToolStripMenuItem.Text = "Create Workflow Package...";
+            this.exportPackageToolStripMenuItem.Text = "To Gallery...";
             this.exportPackageToolStripMenuItem.Click += new System.EventHandler(this.exportPackageToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
@@ -447,7 +448,8 @@
             // toolsToolStripMenuItem
             // 
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.packageManagerToolStripMenuItem});
+            this.packageManagerToolStripMenuItem,
+            this.galleryToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
             this.toolsToolStripMenuItem.Text = "&Tools";
@@ -459,6 +461,13 @@
             this.packageManagerToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
             this.packageManagerToolStripMenuItem.Text = "&Manage Packages...";
             this.packageManagerToolStripMenuItem.Click += new System.EventHandler(this.packageManagerToolStripMenuItem_Click);
+            // 
+            // galleryToolStripMenuItem
+            // 
+            this.galleryToolStripMenuItem.Name = "galleryToolStripMenuItem";
+            this.galleryToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
+            this.galleryToolStripMenuItem.Text = "Bonsai &Gallery";
+            this.galleryToolStripMenuItem.Click += new System.EventHandler(this.galleryToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -1141,6 +1150,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
         private System.Windows.Forms.ToolStripMenuItem exportImageToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exportPackageToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem galleryToolStripMenuItem;
     }
 }
 

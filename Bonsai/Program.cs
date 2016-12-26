@@ -19,6 +19,7 @@ namespace Bonsai
         const string SuppressEditorCommand = "--noeditor";
         const string PackageManagerCommand = "--packagemanager";
         const string ExportPackageCommand = "--exportpackage";
+        const string GalleryCommand = "--gallery";
         const string EditorDomainName = "EditorDomain";
         const string RepositoryPath = "Packages";
         const string ExtensionsPath = "Extensions";
@@ -45,6 +46,7 @@ namespace Bonsai
             parser.RegisterCommand(SuppressEditorCommand, () => launchEditor = false);
             parser.RegisterCommand(PackageManagerCommand, () => { launchResult = EditorResult.ManagePackages; bootstrap = false; });
             parser.RegisterCommand(ExportPackageCommand, () => { launchResult = EditorResult.ExportPackage; bootstrap = false; });
+            parser.RegisterCommand(GalleryCommand, () => { launchResult = EditorResult.OpenGallery; bootstrap = false; });
             parser.RegisterCommand(command => initialFileName = command);
             parser.RegisterCommand(PropertyCommand, property =>
             {
@@ -74,6 +76,10 @@ namespace Bonsai
                 else if (launchResult == EditorResult.ManagePackages)
                 {
                     return Launcher.LaunchPackageManager(packageConfiguration, editorRepositoryPath, editorPath, editorPackageId);
+                }
+                else if (launchResult == EditorResult.OpenGallery)
+                {
+                    return Launcher.LaunchGallery(packageConfiguration, editorRepositoryPath, editorPath, editorPackageId);
                 }
                 else
                 {
@@ -105,6 +111,7 @@ namespace Bonsai
                     string[] editorArgs;
                     if (launchResult == EditorResult.ExportPackage) editorArgs = new[] { initialFileName, ExportPackageCommand };
                     else if (launchResult == EditorResult.ManagePackages) editorArgs = new[] { PackageManagerCommand };
+                    else if (launchResult == EditorResult.OpenGallery) editorArgs = new[] { GalleryCommand };
                     else
                     {
                         var extraArgs = string.IsNullOrEmpty(initialFileName) ? 1 : 2;
@@ -125,6 +132,15 @@ namespace Bonsai
 
                     if (launchResult != EditorResult.Exit)
                     {
+                        if (launchResult == EditorResult.OpenGallery)
+                        {
+                            var result = AppResult.GetResult<string>(editorDomain);
+                            if (!string.IsNullOrEmpty(result) && File.Exists(result))
+                            {
+                                initialFileName = result;
+                                Environment.CurrentDirectory = Path.GetDirectoryName(initialFileName);
+                            }
+                        }
                         launchResult = EditorResult.Exit;
                         exit = false;
                     }

@@ -76,6 +76,12 @@
     <Compile Include="CueBannerComboBox.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="GalleryDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GalleryDialog.Designer.cs">
+      <DependentUpon>GalleryDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="LicenseAwarePackageManager.cs" />
     <Compile Include="EventLogger.cs" />
     <Compile Include="LogEventArgs.cs" />
@@ -136,6 +142,9 @@
     <Compile Include="RequiringLicenseAcceptanceEventArgs.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="GalleryDialog.resx">
+      <DependentUpon>GalleryDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="LicenseAcceptanceDialog.resx">
       <DependentUpon>LicenseAcceptanceDialog.cs</DependentUpon>
     </EmbeddedResource>
