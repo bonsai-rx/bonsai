@@ -208,7 +208,7 @@ namespace Bonsai
             return Program.NormalExitCode;
         }
 
-        internal static int LaunchExportPackage(string fileName, PackageConfiguration packageConfiguration)
+        internal static int LaunchExportPackage(PackageConfiguration packageConfiguration, string fileName, string editorFolder)
         {
             if (string.IsNullOrEmpty(fileName))
             {
@@ -219,6 +219,7 @@ namespace Bonsai
             EnableVisualStyles();
             var builder = PackageBuilderHelper.CreateWorkflowPackage(fileName, packageConfiguration);
             var builderDialog = new PackageBuilderDialog();
+            builderDialog.InitialDirectory = Path.Combine(editorFolder, NuGet.Constants.GalleryDirectory);
             builderDialog.SetPackageBuilder(builder);
             builderDialog.ShowDialog();
             return Program.NormalExitCode;
