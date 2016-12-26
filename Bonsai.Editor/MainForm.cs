@@ -552,6 +552,8 @@ namespace Bonsai.Editor
                 return false;
             }
 
+            var workflowDirectory = Path.GetDirectoryName(fileName);
+            openWorkflowDialog.InitialDirectory = saveWorkflowDialog.InitialDirectory = workflowDirectory;
             if (UpgradeHelper.IsDeprecated(version)) saveWorkflowDialog.FileName = null;
             else saveWorkflowDialog.FileName = fileName;
             ResetProjectStatus();
@@ -574,7 +576,7 @@ namespace Bonsai.Editor
 
             if (setWorkingDirectory || string.IsNullOrEmpty(directoryToolStripTextBox.Text))
             {
-                directoryToolStripTextBox.Text = Path.GetDirectoryName(fileName);
+                directoryToolStripTextBox.Text = workflowDirectory;
             }
 
             return true;
@@ -711,6 +713,7 @@ namespace Bonsai.Editor
             {
                 saveToolStripMenuItem_Click(this, e);
                 var workflowDirectory = Path.GetDirectoryName(saveWorkflowDialog.FileName);
+                openWorkflowDialog.InitialDirectory = saveWorkflowDialog.InitialDirectory = workflowDirectory;
                 directoryToolStripTextBox.Text = workflowDirectory;
                 UpdateTitle();
             }
