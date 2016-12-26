@@ -67,6 +67,8 @@ namespace Bonsai.NuGet
             packageManagers = CreatePackageManagers();
             InitializeRepositoryViewNodes();
             multiOperationPanel.Visible = false;
+            multiOperationLabel.Text = Resources.MultipleUpdatesLabel;
+            multiOperationButton.Text = Resources.MultipleUpdatesOperationName;
             searchComboBox.CueBanner = Resources.SearchOnlineCueBanner;
             searchComboBox.Select();
 
@@ -343,8 +345,6 @@ namespace Bonsai.NuGet
                 if (packages.Count > 1 && packagePageSelector.SelectedIndex == 0 &&
                     operationName == Resources.UpdateOperationName)
                 {
-                    multiOperationLabel.Text = Resources.MultipleUpdatesLabel;
-                    multiOperationButton.Text = Resources.MultipleUpdatesOperationName;
                     multiOperationPanel.Visible = true;
                 }
 
