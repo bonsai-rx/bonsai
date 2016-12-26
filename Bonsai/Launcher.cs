@@ -223,5 +223,24 @@ namespace Bonsai
             builderDialog.ShowDialog();
             return Program.NormalExitCode;
         }
+
+        internal static int LaunchGallery(
+            PackageConfiguration packageConfiguration,
+            string editorRepositoryPath,
+            string editorPath,
+            string editorPackageId)
+        {
+            EnableVisualStyles();
+            using (var galleryDialog = new GalleryDialog(editorRepositoryPath))
+            using (var monitor = new PackageConfigurationUpdater(packageConfiguration, galleryDialog.PackageManager, editorPath, editorPackageId))
+            {
+                if (galleryDialog.ShowDialog() == DialogResult.OK)
+                {
+                    AppResult.SetResult(galleryDialog.InstallPath);
+                }
+            }
+
+            return Program.NormalExitCode;
+        }
     }
 }

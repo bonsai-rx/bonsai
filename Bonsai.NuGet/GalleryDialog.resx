@@ -117,114 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AllNodeName" xml:space="preserve">
-    <value>All</value>
-  </data>
-  <data name="FailedOperationLabel" xml:space="preserve">
-    <value>Operation failed.</value>
-  </data>
-  <data name="InstalledPackagesNodeName" xml:space="preserve">
-    <value>Installed packages</value>
-  </data>
-  <data name="InstallOperationLabel" xml:space="preserve">
-    <value>Installing...</value>
-  </data>
-  <data name="InstallOperationName" xml:space="preserve">
-    <value>Install</value>
-  </data>
-  <data name="OnlineNodeName" xml:space="preserve">
-    <value>Online</value>
-  </data>
-  <data name="UninstallOperationLabel" xml:space="preserve">
-    <value>Uninstalling...</value>
-  </data>
-  <data name="UninstallOperationName" xml:space="preserve">
-    <value>Uninstall</value>
-  </data>
-  <data name="UpdatesNodeName" xml:space="preserve">
-    <value>Updates</value>
-  </data>
-  <data name="NoItemsFoundLabel" xml:space="preserve">
-    <value>No items found.</value>
-  </data>
-  <data name="DependencyLicenseWarningLabel" xml:space="preserve">
-    <value>Each item above may have sub-dependencies subject to additional license agreements.</value>
-  </data>
-  <data name="NoDependenciesLabel" xml:space="preserve">
-    <value>No Dependencies</value>
-  </data>
-  <data name="PackageDependencyNotice" xml:space="preserve">
-    <value>Package '{0}' depends on the following packages. Do you want to uninstall them too?
-</value>
-  </data>
-  <data name="PrereleaseLabel" xml:space="preserve">
-    <value> (Prerelease)</value>
-  </data>
-  <data name="UnpublishedLabel" xml:space="preserve">
-    <value>(unpublished)</value>
-  </data>
-  <data name="UpdateOperationLabel" xml:space="preserve">
-    <value>Updating...</value>
-  </data>
-  <data name="UpdateOperationName" xml:space="preserve">
-    <value>Update</value>
-  </data>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="PackageViewNodeCheckedImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wgAADsIBFShKgAAAANdJREFUOE+dU7kNwzAM1CjZwQtpBA/gwqVX8CKpAggI4FojuHNrwIVahZeQhh7a
-        cXLAFSJ5Rz2UKRFCsERHjAURs1xWg5I3op/mKbb3NjZjkxEx5FCDWpZ9wOK1e3SVsOTwHGCyZia08Eho
-        Ao1s4kVssTWtUNi7PgLLtuwxPo6FgdPOnBJCAEYSgwZaGGTFJbXuQmi/GmjdhapBKjjrDqoGqeisOygG
-        1SWKEDjqnl5i9YyyC+Co+/6MPAv+yhQKs0ECaPEe5SvTqI4ywCb/faYUlPzhOxvzAkO1WA01cJaNAAAA
-        AElFTkSuQmCC
-</value>
-  </data>
-  <data name="LicenseAuthorshipLabel" xml:space="preserve">
-    <value>(Author: {0})</value>
-  </data>
-  <data name="LicenseViewLicenseLabel" xml:space="preserve">
-    <value>View License</value>
-  </data>
-  <data name="PackageAlreadyInstalled" xml:space="preserve">
-    <value>'{0}' already installed.</value>
-  </data>
-  <data name="RetrievingInformationLabel" xml:space="preserve">
-    <value>Retrieving information...</value>
-  </data>
-  <data name="SearchOnlineCueBanner" xml:space="preserve">
-    <value>Search Online (Ctrl+E)</value>
-  </data>
-  <data name="WaitImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wQAADsEBuJFr7QAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTFH80I3AAABzElEQVRYR82X
-        y23DMAyGM0JH6QhF7hkgm6RZwsgMzQa5uyPk3Pba9uoWyOOo6gtElZEpy3aBuAQ+IBHJn4xedmbOuUkx
-        B2/J74eCHQ6H+9PpVHn2HmfAeEVcSMnaoAbO5/PD8Xh8Top1Qjx5QaJlvRvwYvxis0hPqiB1ZcUGmqa5
-        88mtqd7tdm69Xrv5fN6CcfxpjmePXpC+WLEBkrRIXdduuVyahVOII17ne/ZB+mKdDfjgq2nfbDZmoRLk
-        aR1PXI5sA2wcnZQWXywWbvu0da8vb+6r+Y7wnXH8Oj5tQjZmtgG925lGLbZaPbqP989YVMZ1I/iJ03l6
-        OdDPNhDOeQzWa46oLgTiS8dBN4GO1qWO2YB3xrVnN4sA06p/uSD+dByI18uRnI4q10Dc+fqosbZWEfFb
-        PiBPYtATberkGohBkgjphhPEb/mAPK2j9aUmFBuwxKHkB62j9aUm/LmBlFyM1pea8P8byO2BEmP2wKBT
-        UGLMKRh0D3Qx6h4YehN2MeomHPossMCvi0PvZwE2+dMQ84HTvQ+I+eDp3oiwyd8JxXzyNG/F2tg4+nT0
-        gXjZcJYNakAs3BPMSGtpAoyP/2c0FebgLTEHb4eb/QDNdfWdozOECQAAAABJRU5ErkJggg==
-</value>
-  </data>
-  <data name="MultipleUpdatesLabel" xml:space="preserve">
-    <value>There are multiple updates available.</value>
-  </data>
-  <data name="MultipleUpdatesOperationName" xml:space="preserve">
-    <value>Update All</value>
-  </data>
-  <data name="NoUpdatesAvailableLabel" xml:space="preserve">
-    <value>No package updates are available.</value>
-  </data>
-  <data name="ExportOperationLabel" xml:space="preserve">
-    <value>Exporting...</value>
-  </data>
-  <data name="OpenOperationName" xml:space="preserve">
-    <value>Open</value>
-  </data>
-  <data name="MissingWorkflowEntryPoint" xml:space="preserve">
-    <value>Unable to open gallery package. No '{0}' was found in package contents.</value>
-  </data>
+  <metadata name="packageIcons.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <metadata name="saveFileDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>142, 17</value>
+  </metadata>
+  <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>49</value>
+  </metadata>
 </root>

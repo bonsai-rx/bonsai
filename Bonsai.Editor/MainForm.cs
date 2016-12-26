@@ -1614,6 +1614,16 @@ namespace Bonsai.Editor
 
         #endregion
 
+        #region Gallery
+
+        private void galleryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            EditorResult = EditorResult.OpenGallery;
+            Close();
+        }
+
+        #endregion
+
         #region Help Menu
 
         private void StartBrowser(string url)

@@ -142,6 +142,15 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to open gallery package. No &apos;{0}&apos; was found in package contents..
+        /// </summary>
+        internal static string MissingWorkflowEntryPoint {
+            get {
+                return ResourceManager.GetString("MissingWorkflowEntryPoint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There are multiple updates available..
         /// </summary>
         internal static string MultipleUpdatesLabel {
@@ -192,6 +201,15 @@ namespace Bonsai.NuGet.Properties {
         internal static string OnlineNodeName {
             get {
                 return ResourceManager.GetString("OnlineNodeName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open.
+        /// </summary>
+        internal static string OpenOperationName {
+            get {
+                return ResourceManager.GetString("OpenOperationName", resourceCulture);
             }
         }
         
