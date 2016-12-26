@@ -32,7 +32,6 @@ namespace Bonsai.Editor
         const string BonsaiExtension = ".bonsai";
         const string LayoutExtension = ".layout";
         const string BonsaiPackageName = "Bonsai";
-        const string ExamplesDirectory = "Examples";
         const string WorkflowsDirectory = "Workflows";
         const string WorkflowCategoryName = "Workflow";
         const string VersionAttributeName = "Version";
@@ -245,9 +244,6 @@ namespace Bonsai.Editor
             var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory || currentDirectory == systemPath || currentDirectory == systemX86Path;
             directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
             var initialization = InitializeToolbox().Merge(InitializeTypeVisualizers()).TakeLast(1).ObserveOn(Scheduler.Default);
-            var examplesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ExamplesDirectory);
-            examplesToolStripMenuItem.Enabled = InitializeExampleDirectory(examplesPath, examplesToolStripMenuItem);
-            DeleteTempDirectory();
 
             if (validFileName && OpenWorkflow(initialFileName, false))
             {
@@ -451,83 +447,6 @@ namespace Bonsai.Editor
                     node.Tag = elementType;
                     node.ToolTipText = type.Description;
                 }
-            }
-        }
-
-        #endregion
-
-        #region Workflow Examples
-
-        static void DeleteTempDirectory()
-        {
-            var tempPath = GetTempPath();
-            try { Directory.Delete(tempPath, true); }
-            catch { } //best effort
-        }
-
-        static string GetTempPath()
-        {
-            return Path.Combine(Path.GetTempPath(), BonsaiPackageName);
-        }
-
-        static void CopyDirectory(DirectoryInfo source, DirectoryInfo target)
-        {
-            if (source.FullName.Equals(target.FullName, StringComparison.OrdinalIgnoreCase)) return;
-            if (!target.Exists) Directory.CreateDirectory(target.FullName);
-
-            foreach (var file in source.GetFiles())
-            {
-                file.CopyTo(Path.Combine(target.FullName, file.Name), true);
-            }
-
-            foreach (var directory in source.GetDirectories())
-            {
-                var targetDirectory = target.CreateSubdirectory(directory.Name);
-                CopyDirectory(directory, targetDirectory);
-            }
-        }
-
-        void OpenExample(string examplePath)
-        {
-            if (CloseWorkflow())
-            {
-                var tempPath = GetTempPath();
-                var targetDirectory = Directory.CreateDirectory(Path.Combine(tempPath, Path.GetRandomFileName()));
-                var sourceDirectory = new DirectoryInfo(Path.GetDirectoryName(examplePath));
-                CopyDirectory(sourceDirectory, targetDirectory);
-
-                examplePath = Path.Combine(targetDirectory.FullName, Path.GetFileName(examplePath));
-                OpenWorkflow(examplePath);
-                saveWorkflowDialog.FileName = null;
-            }
-        }
-
-        bool InitializeExampleDirectory(string path, ToolStripMenuItem exampleMenuItem)
-        {
-            if (!Directory.Exists(path)) return false;
-
-            var examplePath = Path.Combine(path, Path.ChangeExtension(exampleMenuItem.Text, BonsaiExtension));
-            if (File.Exists(examplePath))
-            {
-                exampleMenuItem.Tag = examplePath;
-                exampleMenuItem.Click += (sender, e) => OpenExample(examplePath);
-                return true;
-            }
-            else
-            {
-                var containsExamples = false;
-                foreach (var directory in Directory.GetDirectories(path))
-                {
-                    var menuItem = new ToolStripMenuItem(Path.GetFileNameWithoutExtension(directory));
-                    var examplesFound = InitializeExampleDirectory(directory, menuItem);
-                    if (examplesFound)
-                    {
-                        exampleMenuItem.DropDownItems.Add(menuItem);
-                        containsExamples = true;
-                    }
-                }
-
-                return containsExamples;
             }
         }
 
