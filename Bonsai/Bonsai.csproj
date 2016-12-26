@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppResult.cs" />
+    <Compile Include="GalleryPackagePathResolver.cs" />
     <Compile Include="LoaderResource.cs" />
     <Compile Include="CommandLineParser.cs" />
     <Compile Include="DependencyInspector.cs" />
