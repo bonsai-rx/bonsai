@@ -14,7 +14,6 @@ namespace Bonsai
     class PackageConfigurationUpdater : IDisposable
     {
         const string PackageTagFilter = "Bonsai";
-        const string ExamplesDirectory = "Examples";
         const string GalleryDirectory = "Gallery";
         const string WorkflowsDirectory = "Workflows";
         const string BuildDirectory = "build";
@@ -336,7 +335,6 @@ namespace Bonsai
             }
             else packageConfiguration.Packages[package.Id].Version = package.Version.ToString();
 
-            AddContentFolders(e.InstallPath, ExamplesDirectory);
             AddContentFolders(e.InstallPath, WorkflowsDirectory);
             RegisterLibraryFolders(package, installPath);
             RegisterAssemblyLocations(package, e.InstallPath, installPath, false);
@@ -378,7 +376,6 @@ namespace Bonsai
             var installPath = GetRelativePath(e.InstallPath);
             packageConfiguration.Packages.Remove(package.Id);
 
-            RemoveContentFolders(package, e.InstallPath, ExamplesDirectory);
             RemoveContentFolders(package, e.InstallPath, WorkflowsDirectory);
             RemoveLibraryFolders(package, installPath);
             RemoveAssemblyLocations(package, e.InstallPath, false);

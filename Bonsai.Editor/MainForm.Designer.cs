@@ -39,7 +39,6 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.examplesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -171,7 +170,6 @@
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newToolStripMenuItem,
             this.openToolStripMenuItem,
-            this.examplesToolStripMenuItem,
             this.toolStripSeparator,
             this.saveToolStripMenuItem,
             this.saveAsToolStripMenuItem,
@@ -203,12 +201,6 @@
             this.openToolStripMenuItem.Size = new System.Drawing.Size(246, 22);
             this.openToolStripMenuItem.Text = "&Open...";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
-            // 
-            // examplesToolStripMenuItem
-            // 
-            this.examplesToolStripMenuItem.Name = "examplesToolStripMenuItem";
-            this.examplesToolStripMenuItem.Size = new System.Drawing.Size(246, 22);
-            this.examplesToolStripMenuItem.Text = "&Examples";
             // 
             // toolStripSeparator
             // 
@@ -261,14 +253,14 @@
             this.exportImageToolStripMenuItem.Name = "exportImageToolStripMenuItem";
             this.exportImageToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.E)));
-            this.exportImageToolStripMenuItem.Size = new System.Drawing.Size(225, 22);
+            this.exportImageToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
             this.exportImageToolStripMenuItem.Text = "Image...";
             this.exportImageToolStripMenuItem.Click += new System.EventHandler(this.exportImageToolStripMenuItem_Click);
             // 
             // exportPackageToolStripMenuItem
             // 
             this.exportPackageToolStripMenuItem.Name = "exportPackageToolStripMenuItem";
-            this.exportPackageToolStripMenuItem.Size = new System.Drawing.Size(225, 22);
+            this.exportPackageToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
             this.exportPackageToolStripMenuItem.Text = "To Gallery...";
             this.exportPackageToolStripMenuItem.Click += new System.EventHandler(this.exportPackageToolStripMenuItem_Click);
             // 
@@ -1114,7 +1106,6 @@
         private Bonsai.Editor.BorderPanel toolboxDescriptionPanel;
         private System.Windows.Forms.RichTextBox toolboxDescriptionTextBox;
         private System.Windows.Forms.ToolStripMenuItem welcomeToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem examplesToolStripMenuItem;
         private System.Windows.Forms.ContextMenuStrip propertyGridContextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem resetToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem descriptionToolStripMenuItem;
