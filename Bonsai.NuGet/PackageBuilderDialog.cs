@@ -31,6 +31,12 @@ namespace Bonsai.NuGet
             InitializeComponent();
         }
 
+        public string InitialDirectory
+        {
+            get { return saveFileDialog.InitialDirectory; }
+            set { saveFileDialog.InitialDirectory = value; }
+        }
+
         void AddPackageFile(IPackageFile file)
         {
             var nodes = contentView.Nodes;

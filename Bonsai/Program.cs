@@ -71,7 +71,7 @@ namespace Bonsai
             {
                 if (launchResult == EditorResult.ExportPackage)
                 {
-                    return Launcher.LaunchExportPackage(initialFileName, packageConfiguration);
+                    return Launcher.LaunchExportPackage(packageConfiguration, initialFileName, editorFolder);
                 }
                 else if (launchResult == EditorResult.ManagePackages)
                 {
