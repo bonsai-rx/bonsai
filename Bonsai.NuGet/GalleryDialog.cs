@@ -170,7 +170,7 @@ namespace Bonsai.NuGet
                 });
 
             loaded = true;
-            repositoriesView_AfterSelect(this, new TreeViewEventArgs(null));
+            UpdateSelectedRepository();
             searchComboBox.Select();
             base.OnLoad(e);
         }
@@ -491,9 +491,8 @@ namespace Bonsai.NuGet
             }
         }
 
-        private void repositoriesView_AfterSelect(object sender, TreeViewEventArgs e)
+        private void UpdateSelectedRepository()
         {
-            //selectedManager = e.Node.Tag as PackageManager;
             if (packageManagerProxy.PackageManager == null) return;
             selectedRepository = packageManagerProxy.SourceRepository;
             packageView.OperationText = Resources.OpenOperationName;
@@ -512,6 +511,7 @@ namespace Bonsai.NuGet
                     feedExceptionMessage = null;
                     packageManagerProxy.PackageManager = null;
                     packageManagers = CreatePackageManagers();
+                    UpdateSelectedRepository();
                 }
             }
             Show();
