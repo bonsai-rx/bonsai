@@ -33,6 +33,7 @@ namespace Bonsai.NuGet
         static readonly Uri PackageDefaultIconUrl = new Uri("https://www.nuget.org/Content/Images/packageDefaultIcon.png");
         static readonly TimeSpan DefaultIconTimeout = TimeSpan.FromSeconds(10);
         static readonly Image DefaultIconImage = new Bitmap(32, 32, PixelFormat.Format32bppArgb);
+        static readonly IEnumerable<string> TagProperties = Enumerable.Repeat("Tags", 1);
         readonly ConcurrentDictionary<Uri, IObservable<Image>> iconCache;
         readonly IObservable<Image> defaultIcon;
 
@@ -214,7 +215,13 @@ namespace Bonsai.NuGet
                 }
 
                 IQueryable<IPackage> packages;
-                try { packages = selectedRepository.GetPackages().Find(searchTerm); }
+                try
+                {
+                    packages = selectedRepository.GetPackages()
+                                                 .Find(searchTerm)
+                                                 .Find(TagProperties, Constants.BonsaiDirectory)
+                                                 .Find(TagProperties, Constants.GalleryDirectory);
+                }
                 catch (WebException e) { return Observable.Throw<IPackage>(e).ToEnumerable().AsQueryable(); }
                 if (allowPrereleaseVersions) packages = packages.Where(p => p.IsAbsoluteLatestVersion);
                 else packages = packages.Where(p => p.IsLatestVersion);
