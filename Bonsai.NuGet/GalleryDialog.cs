@@ -527,20 +527,20 @@ namespace Bonsai.NuGet
             var package = e.Package;
             if (package == targetPackage)
             {
-                var targetFileSystem = new PhysicalFileSystem(targetPath);
                 var workflowPath = package.Id + Constants.BonsaiExtension;
+                if (!package.GetContentFiles().Any(file => file.EffectivePath == workflowPath))
+                {
+                    var message = string.Format(Resources.MissingWorkflowEntryPoint, workflowPath);
+                    throw new InvalidOperationException(message);
+                }
+
+                var targetFileSystem = new PhysicalFileSystem(targetPath);
                 foreach (var file in package.GetContentFiles())
                 {
                     using (var stream = file.GetStream())
                     {
                         targetFileSystem.AddFile(file.EffectivePath, stream);
                     }
-                }
-
-                if (!targetFileSystem.FileExists(workflowPath))
-                {
-                    var message = string.Format(Resources.MissingWorkflowEntryPoint, workflowPath);
-                    throw new InvalidOperationException(message);
                 }
 
                 var manifest = Manifest.Create(package);
