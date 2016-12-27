@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reactive;
@@ -61,6 +62,7 @@ namespace Bonsai.NuGet
 
             activeRequests = new List<IDisposable>();
             packageManagerProxy = new PackageManagerProxy();
+            packageManagerProxy.PackageInstalling += packageManagerProxy_PackageInstalling;
             var machineWideSettings = new BonsaiMachineWideSettings();
             var settings = Settings.LoadDefaultSettings(null, null, machineWideSettings);
             packageSourceProvider = new PackageSourceProvider(settings);
@@ -79,6 +81,8 @@ namespace Bonsai.NuGet
             sortComboBox.SelectedIndex = 0;
             releaseFilterComboBox.SelectedIndex = 0;
         }
+
+        public string InstallPath { get; set; }
 
         public IPackageManager PackageManager
         {
@@ -597,6 +601,61 @@ namespace Bonsai.NuGet
                 }
 
                 RunPackageOperation(new[] { package }, handleDependencies);
+                if (DialogResult == DialogResult.OK)
+                {
+                    Close();
+                }
+            }
+        }
+
+        private void saveFileDialog_FileOk(object sender, CancelEventArgs e)
+        {
+            if (File.Exists(saveFileDialog.FileName))
+            {
+                var message = string.Format(Resources.SaveFolderExists, Path.GetFileName(saveFileDialog.FileName));
+                MessageBox.Show(message, Resources.SaveFolderExistsCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                e.Cancel = true;
+            }
+        }
+
+        void packageManagerProxy_PackageInstalling(object sender, PackageOperationEventArgs e)
+        {
+            var package = e.Package;
+            var workflowPath = package.Id + Constants.BonsaiExtension;
+            if (package.GetContentFiles().Any(file => file.EffectivePath == workflowPath))
+            {
+                Invoke((Action)(() =>
+                {
+                    var message = string.Format(Resources.InstallGalleryPackageWarning, package.Id);
+                    var result = MessageBox.Show(this, message, Resources.InstallGalleryPackageCaption, MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
+                    if (result == DialogResult.Yes)
+                    {
+                        saveFileDialog.FileName = package.Id;
+                        if (saveFileDialog.ShowDialog(this) == DialogResult.OK)
+                        {
+                            var targetPath = saveFileDialog.FileName;
+                            var targetFileSystem = new PhysicalFileSystem(targetPath);
+                            foreach (var file in package.GetContentFiles())
+                            {
+                                using (var stream = file.GetStream())
+                                {
+                                    targetFileSystem.AddFile(file.EffectivePath, stream);
+                                }
+                            }
+
+                            var manifest = Manifest.Create(package);
+                            var metadata = Manifest.Create(manifest.Metadata);
+                            var metadataPath = package.Id + global::NuGet.Constants.ManifestExtension;
+                            using (var stream = targetFileSystem.CreateFile(metadataPath))
+                            {
+                                metadata.Save(stream);
+                            }
+
+                            InstallPath = targetFileSystem.GetFullPath(workflowPath);
+                            DialogResult = DialogResult.OK;
+                        }
+                    }
+                }));
             }
         }
 

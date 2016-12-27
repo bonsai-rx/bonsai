@@ -230,6 +230,12 @@
   <data name="PackageExported" xml:space="preserve">
     <value>Package '{0} {1}' exported successfully.</value>
   </data>
+  <data name="InstallGalleryPackageCaption" xml:space="preserve">
+    <value>Gallery package</value>
+  </data>
+  <data name="InstallGalleryPackageWarning" xml:space="preserve">
+    <value>Package '{0}' is a gallery package. Do you want to open the workflow?</value>
+  </data>
   <data name="SaveFolderExists" xml:space="preserve">
     <value>A file with the name '{0}' already exists. Please select a different folder name.</value>
   </data>

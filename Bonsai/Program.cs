@@ -132,7 +132,8 @@ namespace Bonsai
 
                     if (launchResult != EditorResult.Exit)
                     {
-                        if (launchResult == EditorResult.OpenGallery)
+                        if (launchResult == EditorResult.OpenGallery ||
+                            launchResult == EditorResult.ManagePackages)
                         {
                             var result = AppResult.GetResult<string>(editorDomain);
                             if (!string.IsNullOrEmpty(result) && File.Exists(result))
