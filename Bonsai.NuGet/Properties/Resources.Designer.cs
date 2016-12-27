@@ -270,6 +270,24 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to A file with the name &apos;{0}&apos; already exists. Please select a different folder name..
+        /// </summary>
+        internal static string SaveFolderExists {
+            get {
+                return ResourceManager.GetString("SaveFolderExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Location already exists.
+        /// </summary>
+        internal static string SaveFolderExistsCaption {
+            get {
+                return ResourceManager.GetString("SaveFolderExistsCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Search Online (Ctrl+E).
         /// </summary>
         internal static string SearchOnlineCueBanner {

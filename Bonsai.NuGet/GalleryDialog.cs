@@ -491,6 +491,16 @@ namespace Bonsai.NuGet
             }
         }
 
+        private void saveFileDialog_FileOk(object sender, CancelEventArgs e)
+        {
+            if (File.Exists(saveFileDialog.FileName))
+            {
+                var message = string.Format(Resources.SaveFolderExists, Path.GetFileName(saveFileDialog.FileName));
+                MessageBox.Show(message, Resources.SaveFolderExistsCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                e.Cancel = true;
+            }
+        }
+
         private void UpdateSelectedRepository()
         {
             if (packageManagerProxy.PackageManager == null) return;

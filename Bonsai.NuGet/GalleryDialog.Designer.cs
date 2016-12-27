@@ -286,6 +286,11 @@
             this.settingsButton.UseVisualStyleBackColor = true;
             this.settingsButton.Click += new System.EventHandler(this.settingsButton_Click);
             // 
+            // saveFileDialog
+            // 
+            this.saveFileDialog.OverwritePrompt = false;
+            this.saveFileDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.saveFileDialog_FileOk);
+            // 
             // GalleryDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
