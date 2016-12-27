@@ -139,7 +139,10 @@ namespace Bonsai
             var packageManagerDialog = new PackageManagerDialog(editorRepositoryPath);
             using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManagerDialog.PackageManager, editorPath, editorPackageId))
             {
-                Application.Run(packageManagerDialog);
+                if (packageManagerDialog.ShowDialog() == DialogResult.OK)
+                {
+                    AppResult.SetResult(packageManagerDialog.InstallPath);
+                }
             }
 
             return Program.NormalExitCode;

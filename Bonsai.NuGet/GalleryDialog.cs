@@ -501,37 +501,6 @@ namespace Bonsai.NuGet
             }
         }
 
-        private void UpdateSelectedRepository()
-        {
-            if (packageManagerProxy.PackageManager == null) return;
-            selectedRepository = packageManagerProxy.SourceRepository;
-            packageView.OperationText = Resources.OpenOperationName;
-            searchComboBox.Text = string.Empty;
-            UpdatePackageFeed();
-        }
-
-        private void settingsButton_Click(object sender, EventArgs e)
-        {
-            Hide();
-            using (var dialog = new PackageSourceConfigurationDialog(packageSourceProvider))
-            {
-                if (dialog.ShowDialog(this) == DialogResult.OK)
-                {
-                    selectedRepository = null;
-                    feedExceptionMessage = null;
-                    packageManagerProxy.PackageManager = null;
-                    packageManagers = CreatePackageManagers();
-                    UpdateSelectedRepository();
-                }
-            }
-            Show();
-        }
-
-        private void closeButton_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
-
         void packageManagerProxy_PackageInstalling(object sender, PackageOperationEventArgs e)
         {
             var package = e.Package;
@@ -564,6 +533,37 @@ namespace Bonsai.NuGet
                 InstallPath = targetFileSystem.GetFullPath(workflowPath);
                 DialogResult = DialogResult.OK;
             }
+        }
+
+        private void UpdateSelectedRepository()
+        {
+            if (packageManagerProxy.PackageManager == null) return;
+            selectedRepository = packageManagerProxy.SourceRepository;
+            packageView.OperationText = Resources.OpenOperationName;
+            searchComboBox.Text = string.Empty;
+            UpdatePackageFeed();
+        }
+
+        private void settingsButton_Click(object sender, EventArgs e)
+        {
+            Hide();
+            using (var dialog = new PackageSourceConfigurationDialog(packageSourceProvider))
+            {
+                if (dialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    selectedRepository = null;
+                    feedExceptionMessage = null;
+                    packageManagerProxy.PackageManager = null;
+                    packageManagers = CreatePackageManagers();
+                    UpdateSelectedRepository();
+                }
+            }
+            Show();
+        }
+
+        private void closeButton_Click(object sender, EventArgs e)
+        {
+            Close();
         }
     }
 }
