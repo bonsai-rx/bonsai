@@ -342,12 +342,12 @@ namespace Bonsai.NuGet
             packageView.EndUpdate();
         }
 
-        private void AddPackageRange(IList<IPackage> packages, string operationName)
+        private void AddPackageRange(IList<IPackage> packages)
         {
             if (packages.Count > 0)
             {
                 if (packages.Count > 1 && packagePageSelector.SelectedIndex == 0 &&
-                    operationName == Resources.UpdateOperationName)
+                    packageView.OperationText == Resources.UpdateOperationName)
                 {
                     multiOperationPanel.Visible = true;
                 }
@@ -406,7 +406,6 @@ namespace Bonsai.NuGet
             SetPackageViewStatus(Resources.RetrievingInformationLabel, Resources.WaitImage);
 
             var packageFeed = GetPackageFeed();
-            var operationName = packageView.OperationText;
             var pageIndex = packagePageSelector.SelectedIndex;
             var feedRequest = Observable.Defer(() =>
                 packageFeed().AsBufferedEnumerable(PackagesPerPage * 3)
@@ -419,7 +418,7 @@ namespace Bonsai.NuGet
                 .Buffer(PackagesPerPage)
                 .SubscribeOn(NewThreadScheduler.Default)
                 .ObserveOn(this)
-                .Do(packages => AddPackageRange(packages, operationName))
+                .Do(packages => AddPackageRange(packages))
                 .Sum(packages => packages.Count)
                 .Subscribe(packageCount =>
                 {
