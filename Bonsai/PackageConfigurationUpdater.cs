@@ -19,6 +19,7 @@ namespace Bonsai
         const string BuildDirectory = "build";
         const string BinDirectory = "bin";
         const string DebugDirectory = "debug";
+        const string BonsaiExtension = ".bonsai";
         const string AssemblyExtension = ".dll";
         const string OldExtension = ".old";
 
@@ -298,8 +299,8 @@ namespace Bonsai
 
         void packageManager_PackageInstalling(object sender, PackageOperationEventArgs e)
         {
-            var galleryPackage = e.Package.GetContentFiles()
-                                          .Any(file => Path.GetFileNameWithoutExtension(file.EffectivePath) == e.Package.Id);
+            var entryPoint = e.Package.Id + BonsaiExtension;
+            var galleryPackage = e.Package.GetContentFiles().Any(file => file.EffectivePath == entryPoint);
             if (galleryPackage)
             {
                 galleryRepository.AddPackage(e.Package);
