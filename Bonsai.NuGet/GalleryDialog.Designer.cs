@@ -118,7 +118,6 @@
             this.releaseFilterComboBox.Name = "releaseFilterComboBox";
             this.releaseFilterComboBox.Size = new System.Drawing.Size(121, 21);
             this.releaseFilterComboBox.TabIndex = 0;
-            this.releaseFilterComboBox.SelectedIndexChanged += new System.EventHandler(this.filterComboBox_SelectedIndexChanged);
             // 
             // sortLabel
             // 
@@ -137,7 +136,6 @@
             this.sortComboBox.Name = "sortComboBox";
             this.sortComboBox.Size = new System.Drawing.Size(121, 21);
             this.sortComboBox.TabIndex = 2;
-            this.sortComboBox.SelectedIndexChanged += new System.EventHandler(this.filterComboBox_SelectedIndexChanged);
             // 
             // pageSelectorPanel
             // 
@@ -158,7 +156,6 @@
             this.packagePageSelector.SelectedIndex = -1;
             this.packagePageSelector.Size = new System.Drawing.Size(539, 34);
             this.packagePageSelector.TabIndex = 0;
-            this.packagePageSelector.SelectedIndexChanged += new System.EventHandler(this.packagePageSelector_SelectedIndexChanged);
             // 
             // packageViewPanel
             // 
@@ -195,7 +192,6 @@
             this.packageView.Size = new System.Drawing.Size(533, 408);
             this.packageView.TabIndex = 1;
             this.packageView.OperationClick += new System.Windows.Forms.TreeViewEventHandler(this.packageView_OperationClick);
-            this.packageView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.packageView_AfterSelect);
             // 
             // packageIcons
             // 
@@ -304,7 +300,6 @@
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Bonsai - Gallery";
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.PackageManagerDialog_KeyDown);
             this.mainLayoutPanel.ResumeLayout(false);
             this.packageViewLayoutPanel.ResumeLayout(false);
             this.filterLayoutPanel.ResumeLayout(false);
