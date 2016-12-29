@@ -65,7 +65,6 @@ namespace Bonsai.Design
                 }
 
                 decimalPlaces = value;
-                Value = decimal.Round(this.value, decimalPlaces);
             }
         }
 
@@ -79,9 +78,8 @@ namespace Bonsai.Design
                     throw new ArgumentOutOfRangeException("value");
                 }
 
-                this.value = decimal.Round(value, decimalPlaces);
+                UpdateValue(value);
                 trackBar.Value = (int)(trackBar.Maximum * (this.value - minimum) / (maximum - minimum));
-                UpdateValueLabel();
             }
         }
 
@@ -98,9 +96,11 @@ namespace Bonsai.Design
             Value = value;
         }
 
-        private void UpdateValueLabel()
+        private void UpdateValue(decimal value)
         {
+            value = Math.Max(minimum, Math.Min(decimal.Round(value, decimalPlaces), maximum));
             valueLabel.Text = value.ToString(CultureInfo.InvariantCulture);
+            this.value = value;
         }
 
         protected override void OnSizeChanged(EventArgs e)
@@ -111,8 +111,7 @@ namespace Bonsai.Design
 
         private void trackBar_Scroll(object sender, EventArgs e)
         {
-            value = decimal.Round(minimum + (maximum - minimum) * trackBar.Value / (decimal)trackBar.Maximum, decimalPlaces);
-            UpdateValueLabel();
+            UpdateValue(minimum + (maximum - minimum) * trackBar.Value / (decimal)trackBar.Maximum);
         }
     }
 }
