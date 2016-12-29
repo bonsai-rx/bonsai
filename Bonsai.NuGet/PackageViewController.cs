@@ -577,5 +577,24 @@ namespace Bonsai.NuGet
                 return result;
             }
         }
+
+        public void InstallExecutablePackage(IPackage package, IFileSystem fileSystem)
+        {
+            foreach (var file in package.GetContentFiles())
+            {
+                using (var stream = file.GetStream())
+                {
+                    fileSystem.AddFile(file.EffectivePath, stream);
+                }
+            }
+
+            var manifest = Manifest.Create(package);
+            var metadata = Manifest.Create(manifest.Metadata);
+            var metadataPath = package.Id + global::NuGet.Constants.ManifestExtension;
+            using (var stream = fileSystem.CreateFile(metadataPath))
+            {
+                metadata.Save(stream);
+            }
+        }
     }
 }
