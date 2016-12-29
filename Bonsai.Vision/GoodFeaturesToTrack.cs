@@ -29,6 +29,11 @@ namespace Bonsai.Vision
 
         public override IObservable<KeyPointCollection> Process(IObservable<IplImage> source)
         {
+            return Process(source.Select(input => Tuple.Create(input, default(IplImage))));
+        }
+
+        public IObservable<KeyPointCollection> Process(IObservable<Tuple<IplImage, IplImage>> source)
+        {
             return Observable.Defer(() =>
             {
                 IplImage temp = null;
@@ -36,16 +41,18 @@ namespace Bonsai.Vision
                 Point2f[] corners = null;
                 return source.Select(input =>
                 {
-                    var result = new KeyPointCollection(input);
-                    temp = IplImageHelper.EnsureImageFormat(temp, input.Size, IplDepth.F32, 1);
-                    eigen = IplImageHelper.EnsureImageFormat(eigen, input.Size, IplDepth.F32, 1);
+                    var image = input.Item1;
+                    var mask = input.Item2;
+                    var result = new KeyPointCollection(image);
+                    temp = IplImageHelper.EnsureImageFormat(temp, image.Size, IplDepth.F32, 1);
+                    eigen = IplImageHelper.EnsureImageFormat(eigen, image.Size, IplDepth.F32, 1);
                     if (corners == null || corners.Length != MaxFeatures)
                     {
                         corners = new Point2f[MaxFeatures];
                     }
 
                     int cornerCount = corners.Length;
-                    CV.GoodFeaturesToTrack(input, eigen, temp, corners, out cornerCount, QualityLevel, MinDistance);
+                    CV.GoodFeaturesToTrack(image, eigen, temp, corners, out cornerCount, QualityLevel, MinDistance, mask);
                     for (int i = 0; i < cornerCount; i++)
                     {
                         result.Add(corners[i]);
