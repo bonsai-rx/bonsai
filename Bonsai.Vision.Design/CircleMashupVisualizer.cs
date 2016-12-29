@@ -15,31 +15,11 @@ namespace Bonsai.Vision.Design
 {
     public class CircleMashupVisualizer : MashupTypeVisualizer
     {
-        const float DefaultHeight = 480;
-        const int DefaultThickness = 2;
         IplImageVisualizer visualizer;
 
         public override void Show(object value)
         {
-            var image = visualizer.VisualizerImage;
-            if (image != null)
-            {
-                var color = image.Channels == 1 ? Scalar.Real(255) : Scalar.Rgb(255, 0, 0);
-                var thickness = DefaultThickness * (int)Math.Ceiling(image.Height / DefaultHeight);
-                var circles = value as IEnumerable<Circle>;
-                if (circles != null)
-                {
-                    foreach (var circle in circles)
-                    {
-                        CV.Circle(image, new Point(circle.Center), (int)circle.Radius, color, thickness);
-                    }
-                }
-                else
-                {
-                    var circle = (Circle)value;
-                    CV.Circle(image, new Point(circle.Center), (int)circle.Radius, color, thickness);                    
-                }
-            }
+            CircleVisualizer.Draw(visualizer.VisualizerImage, value);
         }
 
         public override void Load(IServiceProvider provider)
