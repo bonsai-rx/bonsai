@@ -300,8 +300,8 @@ namespace Bonsai
         void packageManager_PackageInstalling(object sender, PackageOperationEventArgs e)
         {
             var entryPoint = e.Package.Id + BonsaiExtension;
-            var galleryPackage = e.Package.GetContentFiles().Any(file => file.EffectivePath == entryPoint);
-            if (galleryPackage)
+            var executablePackage = e.Package.GetContentFiles().Any(file => file.EffectivePath == entryPoint);
+            if (executablePackage)
             {
                 galleryRepository.AddPackage(e.Package);
                 e.Cancel = true;
