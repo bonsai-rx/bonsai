@@ -201,8 +201,8 @@ namespace Bonsai.NuGet
             {
                 Invoke((Action)(() =>
                 {
-                    var message = string.Format(Resources.InstallGalleryPackageWarning, package.Id);
-                    var result = MessageBox.Show(this, message, Resources.InstallGalleryPackageCaption, MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
+                    var message = string.Format(Resources.InstallExecutablePackageWarning, package.Id);
+                    var result = MessageBox.Show(this, message, Resources.InstallExecutablePackageCaption, MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
                     if (result == DialogResult.Yes)
                     {
                         saveFileDialog.FileName = package.Id;

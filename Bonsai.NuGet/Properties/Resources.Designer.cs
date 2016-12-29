@@ -106,20 +106,20 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Gallery package.
+        ///   Looks up a localized string similar to Executable package.
         /// </summary>
-        internal static string InstallGalleryPackageCaption {
+        internal static string InstallExecutablePackageCaption {
             get {
-                return ResourceManager.GetString("InstallGalleryPackageCaption", resourceCulture);
+                return ResourceManager.GetString("InstallExecutablePackageCaption", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Package &apos;{0}&apos; is a gallery package. Do you want to open the workflow?.
+        ///   Looks up a localized string similar to Package &apos;{0}&apos; is an executable package. Do you want to open the workflow?.
         /// </summary>
-        internal static string InstallGalleryPackageWarning {
+        internal static string InstallExecutablePackageWarning {
             get {
-                return ResourceManager.GetString("InstallGalleryPackageWarning", resourceCulture);
+                return ResourceManager.GetString("InstallExecutablePackageWarning", resourceCulture);
             }
         }
         
