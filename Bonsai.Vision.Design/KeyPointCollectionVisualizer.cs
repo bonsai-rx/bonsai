@@ -13,17 +13,29 @@ namespace Bonsai.Vision.Design
 {
     public class KeyPointCollectionVisualizer : IplImageVisualizer
     {
+        const float DefaultHeight = 480;
+        const int DefaultRadius = 2;
+
+        internal static void Draw(IplImage image, KeyPointCollection keyPoints)
+        {
+            if (image != null)
+            {
+                var color = image.Channels == 1 ? Scalar.Real(255) : Scalar.Rgb(255, 0, 0);
+                var radius = DefaultRadius * (int)Math.Ceiling(image.Height / DefaultHeight);
+                foreach (var keyPoint in keyPoints)
+                {
+                    CV.Circle(image, new Point(keyPoint), radius, color, -1);
+                }
+            }
+        }
+
         public override void Show(object value)
         {
             var keyPoints = (KeyPointCollection)value;
-            var output = new IplImage(keyPoints.Image.Size, IplDepth.U8, 3);
-            CV.CvtColor(keyPoints.Image, output, ColorConversion.Gray2Bgr);
-
-            foreach (var keyPoint in keyPoints)
-            {
-                CV.Circle(output, new Point(keyPoint), 2, Scalar.Rgb(255, 0, 0), -1);
-            }
-
+            var image = keyPoints.Image;
+            var output = new IplImage(image.Size, IplDepth.U8, 3);
+            CV.CvtColor(image, output, ColorConversion.Gray2Bgr);
+            Draw(output, keyPoints);
             base.Show(output);
         }
     }
