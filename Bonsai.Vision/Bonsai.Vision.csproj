@@ -77,6 +77,8 @@
     <Compile Include="Circle.cs" />
     <Compile Include="ColorBalance.cs" />
     <Compile Include="HoughCircles.cs" />
+    <Compile Include="HoughLines.cs" />
+    <Compile Include="LineSegment.cs" />
     <Compile Include="MinimumEnclosingCircle.cs" />
     <Compile Include="UndistortPoints.cs" />
     <Compile Include="ResizeCanvas.cs" />
