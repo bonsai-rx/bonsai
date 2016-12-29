@@ -136,22 +136,7 @@ namespace Bonsai.NuGet
                 }
 
                 var targetFileSystem = new PhysicalFileSystem(targetPath);
-                foreach (var file in package.GetContentFiles())
-                {
-                    using (var stream = file.GetStream())
-                    {
-                        targetFileSystem.AddFile(file.EffectivePath, stream);
-                    }
-                }
-
-                var manifest = Manifest.Create(package);
-                var metadata = Manifest.Create(manifest.Metadata);
-                var metadataPath = package.Id + global::NuGet.Constants.ManifestExtension;
-                using (var stream = targetFileSystem.CreateFile(metadataPath))
-                {
-                    metadata.Save(stream);
-                }
-
+                packageViewController.InstallExecutablePackage(package, targetFileSystem);
                 InstallPath = targetFileSystem.GetFullPath(workflowPath);
                 DialogResult = DialogResult.OK;
             }
