@@ -81,6 +81,7 @@
     <Compile Include="HoughLines.cs" />
     <Compile Include="LineSegment.cs" />
     <Compile Include="MinimumEnclosingCircle.cs" />
+    <Compile Include="Centroid.cs" />
     <Compile Include="SparseOpticalFlow.cs" />
     <Compile Include="UndistortPoints.cs" />
     <Compile Include="ResizeCanvas.cs" />
