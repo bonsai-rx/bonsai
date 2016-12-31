@@ -101,7 +101,16 @@ namespace Bonsai.Vision
                     var previousKeyPoints = new KeyPointCollection(previous.Image);
                     for (int i = 0; i < status.Length; i++)
                     {
-                        if (status[i] == 0 || trackError[i] > MaxError) continue;
+                        if (status[i] == 0 ||
+                            trackError[i] > MaxError ||
+                            currentFeatures[i].X < 0 ||
+                            currentFeatures[i].Y < 0 ||
+                            currentFeatures[i].X > currentImage.Width - 1 ||
+                            currentFeatures[i].Y > currentImage.Height - 1)
+                        {
+                            continue;
+                        }
+
                         previousKeyPoints.Add(previousFeatures[i]);
                         currentKeyPoints.Add(currentFeatures[i]);
                     }
