@@ -89,6 +89,8 @@
     <Compile Include="BinaryRegionExtremesMashupVisualizer.cs" />
     <Compile Include="ContourConvexityMashupVisualizer.cs" />
     <Compile Include="CircleVisualizer.cs" />
+    <Compile Include="RectMashupVisualizer.cs" />
+    <Compile Include="RectVisualizer.cs" />
     <Compile Include="KeyPointOpticalFlowMashupVisualizer.cs" />
     <Compile Include="KeyPointOpticalFlowVisualizer.cs" />
     <Compile Include="ImageCirclePicker.cs">
