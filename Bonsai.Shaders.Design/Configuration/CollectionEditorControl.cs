@@ -199,7 +199,9 @@ namespace Bonsai.Shaders.Configuration.Design
 
         private void addButton_Click(object sender, EventArgs e)
         {
-            var item = CreateInstance(CollectionItemType);
+            var itemTypes = NewItemTypes;
+            var itemType = itemTypes != null && itemTypes.Length > 0 ? itemTypes[0] : CollectionItemType;
+            var item = CreateInstance(itemType);
             AddItem(item);
         }
 
