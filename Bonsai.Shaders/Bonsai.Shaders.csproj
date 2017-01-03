@@ -64,6 +64,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\MemoryBarrierState.cs" />
     <Compile Include="Configuration\BlendFunctionState.cs" />
     <Compile Include="Configuration\ColorFormatConfiguration.cs" />
     <Compile Include="Configuration\DepthMaskState.cs" />
