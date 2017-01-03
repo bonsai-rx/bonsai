@@ -23,7 +23,19 @@ namespace Bonsai.Shaders.Configuration
 
         [Category("Reference")]
         [TypeConverter(typeof(TextureNameConverter))]
-        [Description("The name of the texture that will be bound to the material.")]
+        [Description("The name of the texture that will be bound to the shader.")]
         public string TextureName { get; set; }
+
+        public virtual void Bind(Texture texture)
+        {
+            GL.ActiveTexture(TextureSlot);
+            GL.BindTexture(TextureTarget.Texture2D, texture.Id);
+        }
+
+        public virtual void Unbind(Texture texture)
+        {
+            GL.ActiveTexture(TextureSlot);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+        }
     }
 }

@@ -8,9 +8,9 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
-    public class MaterialConfigurationCollection : KeyedCollection<string, MaterialConfiguration>
+    public class ShaderConfigurationCollection : KeyedCollection<string, ShaderConfiguration>
     {
-        protected override string GetKeyForItem(MaterialConfiguration item)
+        protected override string GetKeyForItem(ShaderConfiguration item)
         {
             return item.Name;
         }

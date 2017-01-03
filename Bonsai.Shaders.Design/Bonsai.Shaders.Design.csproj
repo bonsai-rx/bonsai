@@ -76,6 +76,7 @@
     <Compile Include="Configuration\ContextMenuButton.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Configuration\MaterialConfigurationEditor.cs" />
     <Compile Include="Configuration\UniformConfigurationCollectionEditor.cs" />
     <Compile Include="Configuration\MeshConfigurationEditor.cs" />
     <Compile Include="Configuration\FramebufferAttachmentConfigurationCollectionEditor.cs" />
@@ -97,13 +98,13 @@
       <DependentUpon>GlslScriptEditorDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="GlslScriptEditor.cs" />
-    <Compile Include="Configuration\MaterialConfigurationControl.cs">
+    <Compile Include="Configuration\ShaderConfigurationControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="GlslScriptExample.cs" />
     <Compile Include="GlslScriptExampleCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Configuration\MaterialConfigurationEditor.cs" />
+    <Compile Include="Configuration\ShaderConfigurationEditor.cs" />
     <Compile Include="Configuration\StateConfigurationCollectionEditor.cs" />
   </ItemGroup>
   <ItemGroup>
