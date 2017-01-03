@@ -16,7 +16,7 @@ namespace Bonsai.Shaders.Configuration.Design
         protected override void OnClick(EventArgs e)
         {
             var menu = ContextMenuStrip;
-            if (menu == null || !menu.IsHandleCreated)
+            if (menu == null || !menu.Visible)
             {
                 base.OnClick(e);
             }
@@ -25,7 +25,9 @@ namespace Bonsai.Shaders.Configuration.Design
         protected override void OnMouseDown(MouseEventArgs mevent)
         {
             var menu = ContextMenuStrip;
-            if (menu != null && mevent.Button == MouseButtons.Left)
+            if (menu != null &&
+                mevent.Button == MouseButtons.Left &&
+                mevent.X >= ClientRectangle.Width - ArrowOffset.Width)
             {
                 var location = Point.Empty;
                 location.Y += Height;
