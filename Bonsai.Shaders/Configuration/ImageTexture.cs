@@ -30,7 +30,15 @@ namespace Bonsai.Shaders.Configuration
         {
             var texture = base.CreateResource();
             var image = CV.LoadImage(FileName, Mode);
-            TextureHelper.UpdateTexture(texture.Id, PixelInternalFormat.Rgba, image);
+            var width = Width.GetValueOrDefault();
+            var height = Height.GetValueOrDefault();
+            if (width > 0 && height > 0 && (image.Width != width || image.Height != height))
+            {
+                var resized = new IplImage(new Size(width, height), image.Depth, image.Channels);
+                CV.Resize(image, resized);
+                image = resized;
+            }
+            TextureHelper.UpdateTexture(texture.Id, InternalFormat, image);
             GL.BindTexture(TextureTarget.Texture2D, 0);
             return texture;
         }
