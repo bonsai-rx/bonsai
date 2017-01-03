@@ -9,24 +9,24 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
-    internal class MaterialState
+    internal class ShaderState
     {
-        readonly Material material;
+        readonly Shader shader;
         readonly List<StateConfiguration> renderState;
         readonly List<UniformBinding> uniformBindings;
         readonly List<TextureBinding> textureBindings;
         readonly FramebufferState framebuffer;
 
-        public MaterialState(
-            Material materialTarget,
+        public ShaderState(
+            Shader shaderTarget,
             IEnumerable<StateConfiguration> renderStateConfiguration,
             IEnumerable<UniformConfiguration> shaderUniforms,
             IEnumerable<TextureBindingConfiguration> textureBindingConfiguration,
             FramebufferConfiguration framebufferConfiguration)
         {
-            if (materialTarget == null)
+            if (shaderTarget == null)
             {
-                throw new ArgumentNullException("materialTarget");
+                throw new ArgumentNullException("shaderTarget");
             }
 
             if (renderStateConfiguration == null)
@@ -49,7 +49,7 @@ namespace Bonsai.Shaders
                 throw new ArgumentNullException("framebufferConfiguration");
             }
 
-            material = materialTarget;
+            shader = shaderTarget;
             renderState = renderStateConfiguration.ToList();
             uniformBindings = shaderUniforms.Select(configuration => new UniformBinding(configuration)).ToList();
             textureBindings = textureBindingConfiguration.Select(configuration => new TextureBinding(configuration)).ToList();
@@ -60,52 +60,52 @@ namespace Bonsai.Shaders
         {
             foreach (var binding in uniformBindings)
             {
-                binding.Load(material);
+                binding.Load(shader);
             }
 
             foreach (var binding in textureBindings)
             {
-                binding.Load(material);
+                binding.Load(shader);
             }
 
-            framebuffer.Load(material.Window);
+            framebuffer.Load(shader.Window);
         }
 
         public void Bind()
         {
             foreach (var state in renderState)
             {
-                state.Execute(material.Window);
+                state.Execute(shader.Window);
             }
 
             foreach (var binding in uniformBindings)
             {
-                binding.Bind(material);
+                binding.Bind(shader);
             }
 
             foreach (var binding in textureBindings)
             {
-                binding.Bind(material);
+                binding.Bind(shader);
             }
 
-            framebuffer.Bind(material.Window);
+            framebuffer.Bind(shader.Window);
         }
 
         public void Unbind()
         {
-            framebuffer.Unbind(material.Window);
+            framebuffer.Unbind(shader.Window);
             foreach (var binding in textureBindings)
             {
-                binding.Unbind(material);
+                binding.Unbind(shader);
             }
         }
 
         public void Unload()
         {
-            framebuffer.Unload(material.Window);
+            framebuffer.Unload(shader.Window);
             foreach (var binding in textureBindings)
             {
-                binding.Unload(material);
+                binding.Unload(shader);
             }
         }
 
@@ -124,19 +124,19 @@ namespace Bonsai.Shaders
                 configuration = uniformConfiguration;
             }
 
-            public void Load(Material material)
+            public void Load(Shader shader)
             {
-                location = GL.GetUniformLocation(material.Program, configuration.Name);
+                location = GL.GetUniformLocation(shader.Program, configuration.Name);
                 if (location < 0)
                 {
                     throw new InvalidOperationException(string.Format(
-                        "The uniform variable \"{0}\" was not found in material \"{1}\".",
+                        "The uniform variable \"{0}\" was not found in shader \"{1}\".",
                         configuration.Name,
-                        material.Name));
+                        shader.Name));
                 }
             }
 
-            public void Bind(Material material)
+            public void Bind(Shader shader)
             {
                 configuration.SetUniform(location);
             }
@@ -145,41 +145,35 @@ namespace Bonsai.Shaders
         class TextureBinding
         {
             Texture texture;
-            readonly string name;
-            readonly string textureName;
-            readonly TextureUnit textureSlot;
+            readonly TextureBindingConfiguration binding;
 
             public TextureBinding(TextureBindingConfiguration bindingConfiguration)
             {
-                name = bindingConfiguration.Name;
-                textureName = bindingConfiguration.TextureName;
-                textureSlot = bindingConfiguration.TextureSlot;
+                binding = bindingConfiguration;
             }
 
-            public void Load(Material material)
+            public void Load(Shader shader)
             {
-                material.SetTextureSlot(name, textureSlot);
-                if (!material.Window.Textures.TryGetValue(textureName, out texture))
+                shader.SetTextureSlot(binding.Name, binding.TextureSlot);
+                if (!shader.Window.Textures.TryGetValue(binding.TextureName, out texture))
                 {
                     throw new InvalidOperationException(string.Format(
                         "The texture reference \"{0}\" was not found.",
-                        textureName));
+                        binding.TextureName));
                 }
             }
 
-            public void Bind(Material material)
+            public void Bind(Shader shader)
             {
-                GL.ActiveTexture(textureSlot);
-                GL.BindTexture(TextureTarget.Texture2D, texture.Id);
+                binding.Bind(texture);
             }
 
-            public void Unbind(Material material)
+            public void Unbind(Shader shader)
             {
-                GL.ActiveTexture(textureSlot);
-                GL.BindTexture(TextureTarget.Texture2D, 0);
+                binding.Unbind(texture);
             }
 
-            public void Unload(Material material)
+            public void Unload(Shader shader)
             {
                 texture = null;
             }

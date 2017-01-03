@@ -63,9 +63,9 @@ namespace Bonsai.Shaders
                         }
 
                         framebuffer.Bind(window);
-                        foreach (var material in window.Materials)
+                        foreach (var shader in window.Shaders)
                         {
-                            material.Draw();
+                            shader.Dispatch();
                         }
 
                         framebuffer.Unbind(window);

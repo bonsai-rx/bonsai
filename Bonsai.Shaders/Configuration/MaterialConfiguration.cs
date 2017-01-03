@@ -10,37 +10,23 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
-    public class MaterialConfiguration
+    [XmlType(TypeName = XmlTypeName)]
+    public class MaterialConfiguration : ShaderConfiguration
     {
-        readonly FramebufferConfiguration framebuffer = new FramebufferConfiguration();
-        readonly StateConfigurationCollection renderState = new StateConfigurationCollection();
-        readonly UniformConfigurationCollection shaderUniforms = new UniformConfigurationCollection();
-        readonly TextureBindingConfigurationCollection textureBindings = new TextureBindingConfigurationCollection();
-
-        public MaterialConfiguration()
-        {
-            Enabled = true;
-        }
-
-        [Description("The name of the material.")]
-        public string Name { get; set; }
-
-        [Category("State")]
-        [Description("Specifies whether the material is active.")]
-        public bool Enabled { get; set; }
+        const string XmlTypeName = "Material";
 
         [Category("Shaders")]
-        [Description("Specifies the path to the vertex shader program.")]
+        [Description("Specifies the path to the vertex shader.")]
         [Editor("Bonsai.Shaders.Design.VertScriptEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public string VertexShader { get; set; }
 
         [Category("Shaders")]
-        [Description("Specifies the path to the geometry shader program.")]
+        [Description("Specifies the path to the geometry shader.")]
         [Editor("Bonsai.Shaders.Design.GeomScriptEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public string GeometryShader { get; set; }
 
         [Category("Shaders")]
-        [Description("Specifies the path to the fragment shader program.")]
+        [Description("Specifies the path to the fragment shader.")]
         [Editor("Bonsai.Shaders.Design.FragScriptEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public string FragmentShader { get; set; }
 
@@ -49,39 +35,7 @@ namespace Bonsai.Shaders.Configuration
         [TypeConverter(typeof(MeshNameConverter))]
         public string MeshName { get; set; }
 
-        [Category("State")]
-        [Description("Specifies any render states that are required to draw the material.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.StateConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
-        public StateConfigurationCollection RenderState
-        {
-            get { return renderState; }
-        }
-
-        [Category("State")]
-        [Description("Specifies any shader uniform values that are required to draw the material.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.UniformConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
-        public UniformConfigurationCollection ShaderUniforms
-        {
-            get { return shaderUniforms; }
-        }
-
-        [Category("State")]
-        [Description("Specifies any texture bindings that are required to draw the material.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.TextureBindingConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
-        public TextureBindingConfigurationCollection TextureBindings
-        {
-            get { return textureBindings; }
-        }
-
-        [Category("State")]
-        [Description("Specifies any framebuffer attachments that are required to draw the material.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.FramebufferAttachmentConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
-        public Collection<FramebufferAttachmentConfiguration> FramebufferAttachments
-        {
-            get { return framebuffer.FramebufferAttachments; }
-        }
-
-        public Material CreateMaterial(ShaderWindow window)
+        public override Shader CreateShader(ShaderWindow window)
         {
             var vertexSource = File.ReadAllText(VertexShader);
             var geometrySource = !string.IsNullOrEmpty(GeometryShader) ? File.ReadAllText(GeometryShader) : null;
@@ -92,10 +46,10 @@ namespace Bonsai.Shaders.Configuration
                 vertexSource,
                 geometrySource,
                 fragmentSource,
-                renderState,
-                shaderUniforms,
-                textureBindings,
-                framebuffer);
+                RenderState,
+                ShaderUniforms,
+                TextureBindings,
+                Framebuffer);
             material.Enabled = Enabled;
             return material;
         }
@@ -103,7 +57,7 @@ namespace Bonsai.Shaders.Configuration
         public override string ToString()
         {
             var name = Name;
-            return string.IsNullOrEmpty(name) ? GetType().Name : name;
+            return string.IsNullOrEmpty(name) ? XmlTypeName : name;
         }
     }
 }

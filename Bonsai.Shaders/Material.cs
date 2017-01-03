@@ -12,15 +12,11 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
-    public class Material : IDisposable
+    public class Material : Shader
     {
-        int program;
         string vertexSource;
         string geometrySource;
         string fragmentSource;
-        event Action update;
-        ShaderWindow shaderWindow;
-        MaterialState materialState;
         Mesh materialMesh;
 
         internal Material(
@@ -33,12 +29,8 @@ namespace Bonsai.Shaders
             IEnumerable<UniformConfiguration> shaderUniforms,
             IEnumerable<TextureBindingConfiguration> textureBindings,
             FramebufferConfiguration framebuffer)
+            : base(name, window, renderState, shaderUniforms, textureBindings, framebuffer)
         {
-            if (window == null)
-            {
-                throw new ArgumentNullException("window");
-            }
-
             if (vertexShader == null)
             {
                 throw new ArgumentNullException("vertexShader");
@@ -49,17 +41,10 @@ namespace Bonsai.Shaders
                 throw new ArgumentNullException("fragmentShader");
             }
 
-            Name = name;
-            shaderWindow = window;
             vertexSource = vertexShader;
             geometrySource = geometryShader;
             fragmentSource = fragmentShader;
-            materialState = new MaterialState(this, renderState, shaderUniforms, textureBindings, framebuffer);
         }
-
-        public bool Enabled { get; set; }
-
-        public string Name { get; private set; }
 
         public Mesh Mesh
         {
@@ -67,22 +52,7 @@ namespace Bonsai.Shaders
             internal set { materialMesh = value; }
         }
 
-        public int Program
-        {
-            get { return program; }
-        }
-
-        public ShaderWindow Window
-        {
-            get { return shaderWindow; }
-        }
-
-        public void Update(Action action)
-        {
-            update += action;
-        }
-
-        int CreateShader()
+        protected override int CreateShader()
         {
             int status;
             int vertexShader = 0;
@@ -158,44 +128,12 @@ namespace Bonsai.Shaders
             }
         }
 
-        public void Load()
+        protected override void OnDispatch()
         {
-            program = CreateShader();
-            GL.UseProgram(program);
-            materialState.Load();
-        }
-
-        public void Draw()
-        {
-            if (Enabled)
+            var mesh = materialMesh;
+            if (mesh != null)
             {
-                GL.UseProgram(program);
-
-                var action = Interlocked.Exchange(ref update, null);
-                materialState.Bind();
-                if (action != null)
-                {
-                    action();
-                }
-
-                var mesh = materialMesh;
-                if (mesh != null)
-                {
-                    mesh.Draw();
-                }
-
-                materialState.Unbind();
-            }
-        }
-
-        public void Dispose()
-        {
-            if (shaderWindow != null)
-            {
-                materialState.Unload();
-                GL.DeleteProgram(program);
-                shaderWindow = null;
-                update = null;
+                mesh.Draw();
             }
         }
     }

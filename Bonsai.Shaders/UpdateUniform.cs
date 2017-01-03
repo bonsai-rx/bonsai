@@ -14,15 +14,15 @@ namespace Bonsai.Shaders
 {
     [Combinator]
     [WorkflowElementCategory(ElementCategory.Sink)]
-    [Description("Updates an active uniform variable on the specified material.")]
+    [Description("Updates an active uniform variable on the specified shader.")]
     public class UpdateUniform
     {
         [Description("The name of the uniform variable to update.")]
         public string UniformName { get; set; }
 
-        [Description("The name of the material.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.MaterialConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
-        public string MaterialName { get; set; }
+        [Description("The name of the shader program.")]
+        [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
+        public string ShaderName { get; set; }
 
         IObservable<TSource> Process<TSource>(IObservable<TSource> source, Action<int, TSource> update, ActiveUniformType type)
         {
@@ -36,41 +36,41 @@ namespace Bonsai.Shaders
                 }
 
                 return source.CombineEither(
-                    ShaderManager.ReserveMaterial(MaterialName).Do(material =>
+                    ShaderManager.ReserveShader(ShaderName).Do(shader =>
                     {
-                        material.Update(() =>
+                        shader.Update(() =>
                         {
-                            location = GL.GetUniformLocation(material.Program, name);
+                            location = GL.GetUniformLocation(shader.Program, name);
                             if (location < 0)
                             {
                                 throw new InvalidOperationException(string.Format(
-                                    "The uniform variable \"{0}\" was not found in material \"{1}\".",
+                                    "The uniform variable \"{0}\" was not found in shader \"{1}\".",
                                     name,
-                                    MaterialName));
+                                    ShaderName));
                             }
 
                             int uniformIndex;
-                            GL.GetUniformIndices(material.Program, 1, new[] { name }, out uniformIndex);
+                            GL.GetUniformIndices(shader.Program, 1, new[] { name }, out uniformIndex);
                             if (uniformIndex >= 0)
                             {
                                 int uniformSize;
                                 ActiveUniformType uniformType;
-                                GL.GetActiveUniform(material.Program, uniformIndex, out uniformSize, out uniformType);
+                                GL.GetActiveUniform(shader.Program, uniformIndex, out uniformSize, out uniformType);
                                 if (uniformType != type)
                                 {
                                     throw new InvalidOperationException(string.Format(
-                                        "Expected a {2} uniform, but the variable \"{0}\" in material \"{1}\" has type {3}.",
+                                        "Expected a {2} uniform, but the variable \"{0}\" in shader \"{1}\" has type {3}.",
                                         name,
-                                        MaterialName,
+                                        ShaderName,
                                         type,
                                         uniformType));
                                 }
                             }
                         });
                     }),
-                    (input, material) =>
+                    (input, shader) =>
                     {
-                        material.Update(() => update(location, input));
+                        shader.Update(() => update(location, input));
                         return input;
                     });
             });

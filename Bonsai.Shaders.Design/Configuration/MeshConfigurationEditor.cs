@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders.Configuration.Design
 {
-    class MeshConfigurationEditor : MaterialConfigurationEditor
+    class MeshConfigurationEditor : ShaderConfigurationEditor
     {
-        protected override MaterialConfigurationControl CreateEditorControl()
+        protected override ShaderConfigurationControl CreateEditorControl()
         {
             return new MeshConfigurationControl();
         }
 
-        class MeshConfigurationControl : MaterialConfigurationControl
+        class MeshConfigurationControl : ShaderConfigurationControl
         {
             public MeshConfigurationControl()
             {

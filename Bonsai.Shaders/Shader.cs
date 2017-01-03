@@ -1,0 +1,111 @@
+﻿using Bonsai.Shaders.Configuration;
+using OpenTK;
+using OpenTK.Graphics.OpenGL4;
+using OpenTK.Platform;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Bonsai.Shaders
+{
+    public abstract class Shader : IDisposable
+    {
+        int program;
+        event Action update;
+        ShaderWindow shaderWindow;
+        ShaderState shaderState;
+
+        internal Shader(
+            string name,
+            ShaderWindow window,
+            IEnumerable<StateConfiguration> renderState,
+            IEnumerable<UniformConfiguration> shaderUniforms,
+            IEnumerable<TextureBindingConfiguration> textureBindings,
+            FramebufferConfiguration framebuffer)
+        {
+            if (window == null)
+            {
+                throw new ArgumentNullException("window");
+            }
+
+            Name = name;
+            shaderWindow = window;
+            shaderState = new ShaderState(this, renderState, shaderUniforms, textureBindings, framebuffer);
+        }
+
+        public bool Enabled { get; set; }
+
+        public string Name { get; private set; }
+
+        public int Program
+        {
+            get { return program; }
+        }
+
+        public ShaderWindow Window
+        {
+            get { return shaderWindow; }
+        }
+
+        public void Update(Action action)
+        {
+            update += action;
+        }
+
+        protected abstract int CreateShader();
+
+        public void Load()
+        {
+            program = CreateShader();
+            GL.UseProgram(program);
+            shaderState.Load();
+        }
+
+        protected virtual void OnDispatch()
+        {
+        }
+
+        public void Dispatch()
+        {
+            if (Enabled)
+            {
+                GL.UseProgram(program);
+
+                var action = Interlocked.Exchange(ref update, null);
+                shaderState.Bind();
+                if (action != null)
+                {
+                    action();
+                }
+
+                OnDispatch();
+                shaderState.Unbind();
+            }
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (program != 0)
+            {
+                if (disposing)
+                {
+                    shaderState.Unload();
+                    GL.DeleteProgram(program);
+                    shaderWindow = null;
+                    update = null;
+                    program = 0;
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+            Dispose(true);
+        }
+    }
+}

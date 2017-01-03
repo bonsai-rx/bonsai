@@ -13,7 +13,7 @@ namespace Bonsai.Shaders
     [Description("Draws the specified mesh geometry.")]
     public class DrawMesh : Sink
     {
-        [Description("The name of the material.")]
+        [Description("The name of the material shader program.")]
         [Editor("Bonsai.Shaders.Configuration.Design.MaterialConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string MaterialName { get; set; }
 

@@ -23,7 +23,8 @@ namespace Bonsai.Shaders.Configuration.Design
             var olderVersion = false;
             using (var reader = XmlReader.Create(ShaderManager.DefaultConfigurationFile))
             {
-                olderVersion = reader.ReadToDescendant("Shaders");
+                olderVersion = reader.ReadToDescendant("ShaderConfiguration") &&
+                               reader.AttributeCount == 0;
             }
 
             if (olderVersion)
@@ -35,13 +36,12 @@ namespace Bonsai.Shaders.Configuration.Design
                 if (result == DialogResult.Cancel) return null;
 
                 var overrides = new XmlAttributeOverrides();
-                var materialAttributes = new XmlAttributes();
+                var shaderAttributes = new XmlAttributes();
                 var materialElement = new XmlArrayItemAttribute();
                 materialElement.ElementName = "ShaderConfiguration";
                 materialElement.Type = typeof(MaterialConfiguration);
-                materialAttributes.XmlArray = new XmlArrayAttribute("Shaders");
-                materialAttributes.XmlArrayItems.Add(materialElement);
-                overrides.Add(typeof(ShaderWindowSettings), "Materials", materialAttributes);
+                shaderAttributes.XmlArrayItems.Add(materialElement);
+                overrides.Add(typeof(ShaderWindowSettings), "Shaders", shaderAttributes);
 
                 ShaderWindowSettings configuration;
                 var serializer = new XmlSerializer(typeof(ShaderWindowSettings), overrides);

@@ -11,6 +11,6 @@ namespace Bonsai.Shaders.Configuration.Design
         Window,
         Meshes,
         Textures,
-        Materials
+        Shaders
     }
 }

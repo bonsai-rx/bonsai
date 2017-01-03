@@ -68,6 +68,7 @@
     <Compile Include="Configuration\ColorFormatConfiguration.cs" />
     <Compile Include="Configuration\DepthMaskState.cs" />
     <Compile Include="Configuration\ResourceFileNameConverter.cs" />
+    <Compile Include="Configuration\ShaderConfiguration.cs" />
     <Compile Include="Configuration\Vec4Uniform.cs" />
     <Compile Include="Configuration\Vec3Uniform.cs" />
     <Compile Include="Configuration\Vec2Uniform.cs" />
@@ -98,7 +99,8 @@
     <Compile Include="DrawMeshInstanced.cs" />
     <Compile Include="MeshName.cs" />
     <Compile Include="MeshNameConverter.cs" />
-    <Compile Include="MaterialState.cs" />
+    <Compile Include="ShaderState.cs" />
+    <Compile Include="Shader.cs" />
     <Compile Include="TextureNameConverter.cs" />
     <Compile Include="CreateOrthographic.cs" />
     <Compile Include="LatestOnUpdateFrame.cs" />
@@ -134,8 +136,8 @@
     <Compile Include="Configuration\PointSizeState.cs" />
     <Compile Include="Configuration\LineWidthState.cs" />
     <Compile Include="QuadEffects.cs" />
-    <Compile Include="MaterialExtensions.cs" />
-    <Compile Include="MaterialNameConverter.cs" />
+    <Compile Include="ShaderExtensions.cs" />
+    <Compile Include="ShaderNameConverter.cs" />
     <Compile Include="Configuration\ShaderWindowSettings.cs" />
     <Compile Include="Configuration\StateConfigurationCollection.cs" />
     <Compile Include="Configuration\DisableState.cs" />
@@ -148,13 +150,13 @@
     <Compile Include="Timer.cs" />
     <Compile Include="UpdateFrame.cs" />
     <Compile Include="Configuration\TexturedQuad.cs" />
-    <Compile Include="UpdateMaterialState.cs" />
+    <Compile Include="UpdateShaderState.cs" />
     <Compile Include="UpdateVertexBuffer.cs" />
     <Compile Include="ObservableCombinators.cs" />
     <Compile Include="Material.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Configuration\MaterialConfiguration.cs" />
-    <Compile Include="Configuration\MaterialConfigurationCollection.cs" />
+    <Compile Include="Configuration\ShaderConfigurationCollection.cs" />
     <Compile Include="ShaderException.cs" />
     <Compile Include="ShaderWindow.cs" />
     <Compile Include="TextureHelper.cs" />

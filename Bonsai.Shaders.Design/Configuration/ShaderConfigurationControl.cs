@@ -11,16 +11,16 @@ using System.Windows.Forms.Design;
 
 namespace Bonsai.Shaders.Configuration.Design
 {
-    class MaterialConfigurationControl : ConfigurationDropDown
+    class ShaderConfigurationControl : ConfigurationDropDown
     {
-        public MaterialConfigurationControl()
+        public ShaderConfigurationControl()
         {
-            Text = "Manage Materials";
+            Text = "Manage Shaders";
         }
 
         protected override IEnumerable<string> GetConfigurationNames()
         {
-            return ShaderManager.LoadConfiguration().Materials.Select(configuration => configuration.Name);
+            return ShaderManager.LoadConfiguration().Shaders.Select(configuration => configuration.Name);
         }
 
         protected override object LoadConfiguration()
@@ -43,7 +43,7 @@ namespace Bonsai.Shaders.Configuration.Design
         {
             return new ShaderWindowEditor
             {
-                SelectedPage = ShaderConfigurationEditorPage.Materials
+                SelectedPage = ShaderConfigurationEditorPage.Shaders
             };
         }
 

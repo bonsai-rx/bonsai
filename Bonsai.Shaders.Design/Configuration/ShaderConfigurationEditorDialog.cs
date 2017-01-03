@@ -20,10 +20,11 @@ namespace Bonsai.Shaders.Configuration.Design
         public ShaderConfigurationEditorDialog()
         {
             InitializeComponent();
-            materialButton.Tag = materialCollectionEditor;
+            shaderButton.Tag = shaderCollectionEditor;
             meshButton.Tag = meshCollectionEditor;
             textureButton.Tag = textureCollectionEditor;
-            materialCollectionEditor.CollectionItemType = typeof(MaterialConfiguration);
+            shaderCollectionEditor.CollectionItemType = typeof(ShaderConfiguration);
+            shaderCollectionEditor.NewItemTypes = new[] { typeof(MaterialConfiguration) };
             meshCollectionEditor.CollectionItemType = typeof(MeshConfiguration);
             meshCollectionEditor.NewItemTypes = new[] { typeof(MeshConfiguration), typeof(TexturedQuad), typeof(TexturedModel) };
             textureCollectionEditor.CollectionItemType = typeof(TextureConfiguration);
@@ -38,7 +39,7 @@ namespace Bonsai.Shaders.Configuration.Design
             set
             {
                 selectedObject = value;
-                materialCollectionEditor.Items = selectedObject.Materials;
+                shaderCollectionEditor.Items = selectedObject.Shaders;
                 meshCollectionEditor.Items = selectedObject.Meshes;
                 textureCollectionEditor.Items = selectedObject.Textures;
             }
@@ -47,7 +48,7 @@ namespace Bonsai.Shaders.Configuration.Design
         protected override void OnLoad(EventArgs e)
         {
             initialHeight = Height;
-            initialCollectionEditorHeight = materialCollectionEditor.Height;
+            initialCollectionEditorHeight = shaderCollectionEditor.Height;
             switch (SelectedPage)
             {
                 case ShaderConfigurationEditorPage.Meshes:
@@ -56,8 +57,8 @@ namespace Bonsai.Shaders.Configuration.Design
                 case ShaderConfigurationEditorPage.Textures:
                     textureButton.Checked = true;
                     break;
-                case ShaderConfigurationEditorPage.Materials:
-                    materialButton.Checked = true;
+                case ShaderConfigurationEditorPage.Shaders:
+                    shaderButton.Checked = true;
                     break;
                 default:
                 case ShaderConfigurationEditorPage.Window:
@@ -72,7 +73,7 @@ namespace Bonsai.Shaders.Configuration.Design
             if (initialHeight > 0)
             {
                 var expansion = Height - initialHeight;
-                materialCollectionEditor.Height = initialCollectionEditorHeight + expansion;
+                shaderCollectionEditor.Height = initialCollectionEditorHeight + expansion;
                 meshCollectionEditor.Height = initialCollectionEditorHeight + expansion;
                 textureCollectionEditor.Height = initialCollectionEditorHeight + expansion;
             }
@@ -83,7 +84,7 @@ namespace Bonsai.Shaders.Configuration.Design
         {
             if (DialogResult == DialogResult.OK)
             {
-                SetCollectionItems(materialCollectionEditor, selectedObject.Materials);
+                SetCollectionItems(shaderCollectionEditor, selectedObject.Shaders);
                 SetCollectionItems(meshCollectionEditor, selectedObject.Meshes);
                 SetCollectionItems(textureCollectionEditor, selectedObject.Textures);
             }
@@ -117,7 +118,7 @@ namespace Bonsai.Shaders.Configuration.Design
             propertyGrid.SelectedObject = windowButton.Checked ? SelectedObject : null;
         }
 
-        private void materialButton_CheckedChanged(object sender, EventArgs e)
+        private void shaderButton_CheckedChanged(object sender, EventArgs e)
         {
             var radioButton = (RadioButton)sender;
             var collectionEditor = (CollectionEditorControl)radioButton.Tag;
@@ -127,7 +128,7 @@ namespace Bonsai.Shaders.Configuration.Design
 
         private void propertyGrid_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
         {
-            if (materialCollectionEditor.Visible) materialCollectionEditor.Refresh();
+            if (shaderCollectionEditor.Visible) shaderCollectionEditor.Refresh();
             if (meshCollectionEditor.Visible) meshCollectionEditor.Refresh();
             if (textureCollectionEditor.Visible) textureCollectionEditor.Refresh();
         }

@@ -9,31 +9,25 @@ using System.Windows.Forms.Design;
 
 namespace Bonsai.Shaders.Configuration.Design
 {
-    class MaterialConfigurationEditor : UITypeEditor
+    class MaterialConfigurationEditor : ShaderConfigurationEditor
     {
-        public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
-        {
-            return UITypeEditorEditStyle.DropDown;
-        }
-
-        protected virtual MaterialConfigurationControl CreateEditorControl()
+        protected override ShaderConfigurationControl CreateEditorControl()
         {
             return new MaterialConfigurationControl();
         }
 
-        public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
+        class MaterialConfigurationControl : ShaderConfigurationControl
         {
-            var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
-            if (editorService != null)
+            public MaterialConfigurationControl()
             {
-                var configurationControl = CreateEditorControl();
-                configurationControl.SelectedValue = value;
-                configurationControl.SelectedValueChanged += delegate { editorService.CloseDropDown(); };
-                editorService.DropDownControl(configurationControl);
-                return configurationControl.SelectedValue;
+                Text = "Manage Materials";
             }
 
-            return base.EditValue(context, provider, value);
+            protected override IEnumerable<string> GetConfigurationNames()
+            {
+                return ShaderManager.LoadConfiguration().Shaders.Where(configuration => configuration is MaterialConfiguration)
+                                                                .Select(configuration => configuration.Name);
+            }
         }
     }
 }

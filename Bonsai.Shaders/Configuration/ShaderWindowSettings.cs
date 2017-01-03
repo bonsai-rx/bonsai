@@ -15,7 +15,7 @@ namespace Bonsai.Shaders.Configuration
     public class ShaderWindowSettings
     {
         readonly StateConfigurationCollection renderState = new StateConfigurationCollection();
-        readonly MaterialConfigurationCollection materials = new MaterialConfigurationCollection();
+        readonly ShaderConfigurationCollection shaders = new ShaderConfigurationCollection();
         readonly TextureConfigurationCollection textures = new TextureConfigurationCollection();
         readonly MeshConfigurationCollection meshes = new MeshConfigurationCollection();
 
@@ -90,9 +90,9 @@ namespace Bonsai.Shaders.Configuration
         public GraphicsModeConfiguration GraphicsMode { get; set; }
 
         [Browsable(false)]
-        public MaterialConfigurationCollection Materials
+        public ShaderConfigurationCollection Shaders
         {
-            get { return materials; }
+            get { return shaders; }
         }
 
         [Browsable(false)]
