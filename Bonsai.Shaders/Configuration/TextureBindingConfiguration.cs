@@ -5,9 +5,11 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
+    [XmlInclude(typeof(ImageTextureBindingConfiguration))]
     public class TextureBindingConfiguration
     {
         public TextureBindingConfiguration()

@@ -16,6 +16,11 @@ namespace Bonsai.Shaders.Configuration.Design
         {
         }
 
+        protected override Type[] CreateNewItemTypes()
+        {
+            return new[] { typeof(TextureBindingConfiguration), typeof(ImageTextureBindingConfiguration) };
+        }
+
         protected override string GetDisplayText(object value)
         {
             var configuration = (TextureBindingConfiguration)value;
