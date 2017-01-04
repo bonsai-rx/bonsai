@@ -28,5 +28,10 @@ namespace Bonsai.Shaders.Configuration
         {
             return new ImageTextureBinding(this);
         }
+
+        public override string ToString()
+        {
+            return ToString("BindImageTexture", TextureName);
+        }
     }
 }

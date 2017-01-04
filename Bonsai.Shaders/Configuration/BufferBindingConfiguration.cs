@@ -18,5 +18,19 @@ namespace Bonsai.Shaders.Configuration
         public string Name { get; set; }
 
         internal abstract BufferBinding CreateBufferBinding();
+
+        internal string ToString(string baseText, string referenceName)
+        {
+            var name = Name;
+            if (string.IsNullOrEmpty(name))
+            {
+                return GetType().Name;
+            }
+            else if (string.IsNullOrEmpty(referenceName))
+            {
+                return string.Format("{0}({1})", baseText, name);
+            }
+            else return string.Format("{0}({1} : {2})", baseText, name, referenceName);
+        }
     }
 }

@@ -24,5 +24,10 @@ namespace Bonsai.Shaders.Configuration
         {
             return new MeshBinding(this);
         }
+
+        public override string ToString()
+        {
+            return ToString("BindBuffer", MeshName);
+        }
     }
 }
