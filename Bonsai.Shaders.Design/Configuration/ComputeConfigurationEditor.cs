@@ -1,26 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms.Design;
 
 namespace Bonsai.Shaders.Configuration.Design
 {
-    class MaterialConfigurationEditor : ShaderConfigurationEditor
+    class ComputeConfigurationEditor : ShaderConfigurationEditor
     {
         protected override ShaderConfigurationControl CreateEditorControl()
         {
-            return new MaterialConfigurationControl();
+            return new ComputeConfigurationControl();
         }
 
-        class MaterialConfigurationControl : ShaderConfigurationControl
+        class ComputeConfigurationControl : ShaderConfigurationControl
         {
             protected override IEnumerable<string> GetConfigurationNames()
             {
-                return ShaderManager.LoadConfiguration().Shaders.Where(configuration => configuration is MaterialConfiguration)
+                return ShaderManager.LoadConfiguration().Shaders.Where(configuration => configuration is ComputeConfiguration)
                                                                 .Select(configuration => configuration.Name);
             }
         }
