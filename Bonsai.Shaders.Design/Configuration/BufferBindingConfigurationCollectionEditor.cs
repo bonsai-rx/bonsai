@@ -28,26 +28,7 @@ namespace Bonsai.Shaders.Configuration.Design
 
         protected override string GetDisplayText(object value)
         {
-            var referenceName = string.Empty;
-            var configuration = (BufferBindingConfiguration)value;
-            var textureBinding = configuration as TextureBindingConfiguration;
-            if (textureBinding != null) referenceName = textureBinding.TextureName;
-            else
-            {
-                var meshBinding = configuration as MeshBindingConfiguration;
-                if (meshBinding != null) referenceName = meshBinding.MeshName;
-            }
-
-            var name = configuration.Name;
-            if (string.IsNullOrEmpty(name))
-            {
-                return configuration.GetType().Name;
-            }
-            else if (string.IsNullOrEmpty(referenceName))
-            {
-                return string.Format("{0}({1})", BaseText, name);
-            }
-            else return string.Format("{0}({1} : {2})", BaseText, name, referenceName);
+            return value.ToString();
         }
     }
 }
