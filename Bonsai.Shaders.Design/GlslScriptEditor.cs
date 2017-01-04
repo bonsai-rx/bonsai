@@ -182,4 +182,12 @@ void main()
             return ShaderType.GeometryShader;
         }
     }
+
+    class CompScriptEditor : GlslScriptEditor
+    {
+        protected override ShaderType? GetShaderType()
+        {
+            return ShaderType.ComputeShader;
+        }
+    }
 }

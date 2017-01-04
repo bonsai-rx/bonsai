@@ -24,7 +24,7 @@ namespace Bonsai.Shaders.Configuration.Design
             meshButton.Tag = meshCollectionEditor;
             textureButton.Tag = textureCollectionEditor;
             shaderCollectionEditor.CollectionItemType = typeof(ShaderConfiguration);
-            shaderCollectionEditor.NewItemTypes = new[] { typeof(MaterialConfiguration) };
+            shaderCollectionEditor.NewItemTypes = new[] { typeof(MaterialConfiguration), typeof(ComputeConfiguration) };
             meshCollectionEditor.CollectionItemType = typeof(MeshConfiguration);
             meshCollectionEditor.NewItemTypes = new[] { typeof(MeshConfiguration), typeof(TexturedQuad), typeof(TexturedModel) };
             textureCollectionEditor.CollectionItemType = typeof(TextureConfiguration);

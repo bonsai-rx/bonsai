@@ -71,6 +71,7 @@
     <Compile Include="Configuration\CollectionEditorControl.Designer.cs">
       <DependentUpon>CollectionEditorControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Configuration\ComputeConfigurationEditor.cs" />
     <Compile Include="Configuration\ConfigurationEditorService.cs" />
     <Compile Include="Configuration\ConfigurationHelper.cs" />
     <Compile Include="Configuration\ContextMenuButton.cs">

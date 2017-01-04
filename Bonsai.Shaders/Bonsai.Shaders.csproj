@@ -65,11 +65,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BufferBinding.cs" />
+    <Compile Include="Compute.cs" />
+    <Compile Include="DispatchCompute.cs" />
     <Compile Include="Configuration\BufferBindingConfiguration.cs" />
     <Compile Include="Configuration\MemoryBarrierState.cs" />
     <Compile Include="Configuration\MeshBindingConfiguration.cs" />
+    <Compile Include="DispatchParameters.cs" />
     <Compile Include="Configuration\BlendFunctionState.cs" />
     <Compile Include="Configuration\ColorFormatConfiguration.cs" />
+    <Compile Include="Configuration\ComputeConfiguration.cs" />
     <Compile Include="Configuration\DepthMaskState.cs" />
     <Compile Include="Configuration\ImageTextureBindingConfiguration.cs" />
     <Compile Include="Configuration\ResourceFileNameConverter.cs" />

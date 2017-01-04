@@ -86,6 +86,25 @@ namespace Bonsai.Shaders
             });
         }
 
+        public static IObservable<Compute> ReserveCompute(string shaderName)
+        {
+            if (string.IsNullOrEmpty(shaderName))
+            {
+                throw new ArgumentException("A compute shader name must be specified.", "shaderName");
+            }
+
+            return windowSource.Select(window =>
+            {
+                var computation = window.Shaders.Select(shader => shader as Compute)
+                                                .FirstOrDefault(m => m != null && m.Name == shaderName);
+                if (computation == null)
+                {
+                    throw new ArgumentException("No matching compute shader configuration was found.", "shaderName");
+                }
+                return computation;
+            });
+        }
+
         public static ShaderWindowSettings LoadConfiguration()
         {
             if (!File.Exists(DefaultConfigurationFile))
