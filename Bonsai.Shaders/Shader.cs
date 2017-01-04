@@ -24,7 +24,7 @@ namespace Bonsai.Shaders
             ShaderWindow window,
             IEnumerable<StateConfiguration> renderState,
             IEnumerable<UniformConfiguration> shaderUniforms,
-            IEnumerable<TextureBindingConfiguration> textureBindings,
+            IEnumerable<BufferBindingConfiguration> bufferBindings,
             FramebufferConfiguration framebuffer)
         {
             if (window == null)
@@ -34,7 +34,7 @@ namespace Bonsai.Shaders
 
             Name = name;
             shaderWindow = window;
-            shaderState = new ShaderState(this, renderState, shaderUniforms, textureBindings, framebuffer);
+            shaderState = new ShaderState(this, renderState, shaderUniforms, bufferBindings, framebuffer);
         }
 
         public bool Enabled { get; set; }

@@ -64,7 +64,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BufferBinding.cs" />
+    <Compile Include="Configuration\BufferBindingConfiguration.cs" />
     <Compile Include="Configuration\MemoryBarrierState.cs" />
+    <Compile Include="Configuration\MeshBindingConfiguration.cs" />
     <Compile Include="Configuration\BlendFunctionState.cs" />
     <Compile Include="Configuration\ColorFormatConfiguration.cs" />
     <Compile Include="Configuration\DepthMaskState.cs" />
@@ -92,6 +95,8 @@
     <Compile Include="DrawArrays.cs" />
     <Compile Include="FramebufferState.cs" />
     <Compile Include="DrawFramebuffer.cs" />
+    <Compile Include="ImageTextureBinding.cs" />
+    <Compile Include="MeshBinding.cs" />
     <Compile Include="RenderFrame.cs" />
     <Compile Include="DrawMeshAggregate.cs" />
     <Compile Include="MeshAggregate.cs" />
@@ -103,6 +108,7 @@
     <Compile Include="MeshNameConverter.cs" />
     <Compile Include="ShaderState.cs" />
     <Compile Include="Shader.cs" />
+    <Compile Include="TextureBinding.cs" />
     <Compile Include="TextureNameConverter.cs" />
     <Compile Include="CreateOrthographic.cs" />
     <Compile Include="LatestOnUpdateFrame.cs" />
@@ -145,7 +151,7 @@
     <Compile Include="Configuration\DisableState.cs" />
     <Compile Include="Configuration\EnableState.cs" />
     <Compile Include="Configuration\StateConfiguration.cs" />
-    <Compile Include="Configuration\TextureBindingConfigurationCollection.cs" />
+    <Compile Include="Configuration\BufferBindingConfigurationCollection.cs" />
     <Compile Include="Configuration\TexturedModel.cs" />
     <Compile Include="Configuration\TextureBindingConfiguration.cs" />
     <Compile Include="Texture.cs" />

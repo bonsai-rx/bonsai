@@ -43,6 +43,14 @@ namespace Bonsai.Shaders.Configuration.Design
                 shaderAttributes.XmlArrayItems.Add(materialElement);
                 overrides.Add(typeof(ShaderWindowSettings), "Shaders", shaderAttributes);
 
+                var bufferBindingAttributes = new XmlAttributes();
+                var textureBindingElement = new XmlArrayItemAttribute();
+                textureBindingElement.ElementName = "TextureBindingConfiguration";
+                textureBindingElement.Type = typeof(TextureBindingConfiguration);
+                bufferBindingAttributes.XmlArray = new XmlArrayAttribute("TextureBindings");
+                bufferBindingAttributes.XmlArrayItems.Add(textureBindingElement);
+                overrides.Add(typeof(ShaderConfiguration), "BufferBindings", bufferBindingAttributes);
+
                 ShaderWindowSettings configuration;
                 var serializer = new XmlSerializer(typeof(ShaderWindowSettings), overrides);
                 using (var reader = XmlReader.Create(ShaderManager.DefaultConfigurationFile))

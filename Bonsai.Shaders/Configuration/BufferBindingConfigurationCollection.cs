@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders.Configuration
 {
-    public class TextureBindingConfigurationCollection : KeyedCollection<string, TextureBindingConfiguration>
+    public class BufferBindingConfigurationCollection : KeyedCollection<string, BufferBindingConfiguration>
     {
-        protected override string GetKeyForItem(TextureBindingConfiguration item)
+        protected override string GetKeyForItem(BufferBindingConfiguration item)
         {
             return item.Name;
         }

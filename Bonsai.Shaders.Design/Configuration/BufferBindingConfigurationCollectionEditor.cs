@@ -7,18 +7,23 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders.Configuration.Design
 {
-    public class TextureBindingConfigurationCollectionEditor : DescriptiveCollectionEditor
+    public class BufferBindingConfigurationCollectionEditor : DescriptiveCollectionEditor
     {
         const string BaseText = "Bind";
 
-        public TextureBindingConfigurationCollectionEditor(Type type)
+        public BufferBindingConfigurationCollectionEditor(Type type)
             : base(type)
         {
         }
 
         protected override Type[] CreateNewItemTypes()
         {
-            return new[] { typeof(TextureBindingConfiguration), typeof(ImageTextureBindingConfiguration) };
+            return new[]
+            {
+                typeof(TextureBindingConfiguration),
+                typeof(ImageTextureBindingConfiguration),
+                typeof(MeshBindingConfiguration)
+            };
         }
 
         protected override string GetDisplayText(object value)
