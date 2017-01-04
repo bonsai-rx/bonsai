@@ -10,6 +10,8 @@ namespace Bonsai.Shaders.Configuration.Design
 {
     class ContextMenuButton : Button
     {
+        const int ArrowSeparatorThickness = 2;
+        static readonly Size ArrowSeparatorOffset = new Size(21, 4);
         static readonly Size ArrowOffset = new Size(14, 1);
         static readonly Size ArrowSize = new Size(7, 4);
 
@@ -27,7 +29,7 @@ namespace Bonsai.Shaders.Configuration.Design
             var menu = ContextMenuStrip;
             if (menu != null &&
                 mevent.Button == MouseButtons.Left &&
-                mevent.X >= ClientRectangle.Width - ArrowOffset.Width)
+                mevent.X >= ClientRectangle.Width - ArrowSeparatorOffset.Width)
             {
                 var location = Point.Empty;
                 location.Y += Height;
@@ -54,6 +56,13 @@ namespace Bonsai.Shaders.Configuration.Design
                     new Point(originX + ArrowSize.Width / 2, originY + ArrowSize.Height)
                 };
                 pevent.Graphics.FillPolygon(brush, points);
+
+                var separatorX = rectangle.Width - ArrowSeparatorOffset.Width;
+                var separatorY = ArrowSeparatorOffset.Height;
+                var separatorWidth = ArrowSeparatorThickness;
+                var separatorHeight = rectangle.Height - ArrowSeparatorOffset.Height - separatorY;
+                var separator = new Rectangle(separatorX, separatorY, separatorWidth, separatorHeight);
+                pevent.Graphics.FillRectangle(SystemBrushes.ButtonHighlight, separator);
             }
         }
     }
