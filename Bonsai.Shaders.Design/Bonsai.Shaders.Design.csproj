@@ -90,7 +90,7 @@
       <DependentUpon>ShaderConfigurationEditorDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Configuration\TextureConfigurationEditor.cs" />
-    <Compile Include="Configuration\TextureBindingConfigurationCollectionEditor.cs" />
+    <Compile Include="Configuration\BufferBindingConfigurationCollectionEditor.cs" />
     <Compile Include="GlslScriptEditorDialog.cs">
       <SubType>Form</SubType>
     </Compile>

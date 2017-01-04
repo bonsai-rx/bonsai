@@ -14,14 +14,14 @@ namespace Bonsai.Shaders
         readonly Shader shader;
         readonly List<StateConfiguration> renderState;
         readonly List<UniformBinding> uniformBindings;
-        readonly List<TextureBinding> textureBindings;
+        readonly List<BufferBinding> bufferBindings;
         readonly FramebufferState framebuffer;
 
         public ShaderState(
             Shader shaderTarget,
             IEnumerable<StateConfiguration> renderStateConfiguration,
             IEnumerable<UniformConfiguration> shaderUniforms,
-            IEnumerable<TextureBindingConfiguration> textureBindingConfiguration,
+            IEnumerable<BufferBindingConfiguration> bufferBindingConfiguration,
             FramebufferConfiguration framebufferConfiguration)
         {
             if (shaderTarget == null)
@@ -39,9 +39,9 @@ namespace Bonsai.Shaders
                 throw new ArgumentNullException("shaderUniforms");
             }
 
-            if (textureBindingConfiguration == null)
+            if (bufferBindingConfiguration == null)
             {
-                throw new ArgumentNullException("textureBindingConfiguration");
+                throw new ArgumentNullException("bufferBindingConfiguration");
             }
 
             if (framebufferConfiguration == null)
@@ -52,7 +52,7 @@ namespace Bonsai.Shaders
             shader = shaderTarget;
             renderState = renderStateConfiguration.ToList();
             uniformBindings = shaderUniforms.Select(configuration => new UniformBinding(configuration)).ToList();
-            textureBindings = textureBindingConfiguration.Select(configuration => new TextureBinding(configuration)).ToList();
+            bufferBindings = bufferBindingConfiguration.Select(configuration => configuration.CreateBufferBinding()).ToList();
             framebuffer = new FramebufferState(framebufferConfiguration);
         }
         
@@ -63,7 +63,7 @@ namespace Bonsai.Shaders
                 binding.Load(shader);
             }
 
-            foreach (var binding in textureBindings)
+            foreach (var binding in bufferBindings)
             {
                 binding.Load(shader);
             }
@@ -83,7 +83,7 @@ namespace Bonsai.Shaders
                 binding.Bind(shader);
             }
 
-            foreach (var binding in textureBindings)
+            foreach (var binding in bufferBindings)
             {
                 binding.Bind(shader);
             }
@@ -94,7 +94,7 @@ namespace Bonsai.Shaders
         public void Unbind()
         {
             framebuffer.Unbind(shader.Window);
-            foreach (var binding in textureBindings)
+            foreach (var binding in bufferBindings)
             {
                 binding.Unbind(shader);
             }
@@ -103,7 +103,7 @@ namespace Bonsai.Shaders
         public void Unload()
         {
             framebuffer.Unload(shader.Window);
-            foreach (var binding in textureBindings)
+            foreach (var binding in bufferBindings)
             {
                 binding.Unload(shader);
             }
@@ -139,43 +139,6 @@ namespace Bonsai.Shaders
             public void Bind(Shader shader)
             {
                 configuration.SetUniform(location);
-            }
-        }
-
-        class TextureBinding
-        {
-            Texture texture;
-            readonly TextureBindingConfiguration binding;
-
-            public TextureBinding(TextureBindingConfiguration bindingConfiguration)
-            {
-                binding = bindingConfiguration;
-            }
-
-            public void Load(Shader shader)
-            {
-                shader.SetTextureSlot(binding.Name, binding.TextureSlot);
-                if (!shader.Window.Textures.TryGetValue(binding.TextureName, out texture))
-                {
-                    throw new InvalidOperationException(string.Format(
-                        "The texture reference \"{0}\" was not found.",
-                        binding.TextureName));
-                }
-            }
-
-            public void Bind(Shader shader)
-            {
-                binding.Bind(texture);
-            }
-
-            public void Unbind(Shader shader)
-            {
-                binding.Unbind(texture);
-            }
-
-            public void Unload(Shader shader)
-            {
-                texture = null;
             }
         }
     }

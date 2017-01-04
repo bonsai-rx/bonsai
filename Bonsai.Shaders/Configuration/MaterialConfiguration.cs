@@ -48,7 +48,7 @@ namespace Bonsai.Shaders.Configuration
                 fragmentSource,
                 RenderState,
                 ShaderUniforms,
-                TextureBindings,
+                BufferBindings,
                 Framebuffer);
             material.Enabled = Enabled;
             return material;

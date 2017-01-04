@@ -9,16 +9,13 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
-    [XmlInclude(typeof(ImageTextureBindingConfiguration))]
-    public class TextureBindingConfiguration
+    [XmlType(TypeName = "TextureBinding")]
+    public class TextureBindingConfiguration : BufferBindingConfiguration
     {
         public TextureBindingConfiguration()
         {
             TextureSlot = TextureUnit.Texture0;
         }
-
-        [Description("The name of the uniform sampler binding.")]
-        public string Name { get; set; }
 
         [Description("The slot on which to bind the texture.")]
         public TextureUnit TextureSlot { get; set; }
@@ -28,16 +25,9 @@ namespace Bonsai.Shaders.Configuration
         [Description("The name of the texture that will be bound to the shader.")]
         public string TextureName { get; set; }
 
-        public virtual void Bind(Texture texture)
+        internal override BufferBinding CreateBufferBinding()
         {
-            GL.ActiveTexture(TextureSlot);
-            GL.BindTexture(TextureTarget.Texture2D, texture.Id);
-        }
-
-        public virtual void Unbind(Texture texture)
-        {
-            GL.ActiveTexture(TextureSlot);
-            GL.BindTexture(TextureTarget.Texture2D, 0);
+            return new TextureBinding(this);
         }
     }
 }

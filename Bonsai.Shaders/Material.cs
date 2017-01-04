@@ -27,9 +27,9 @@ namespace Bonsai.Shaders
             string fragmentShader,
             IEnumerable<StateConfiguration> renderState,
             IEnumerable<UniformConfiguration> shaderUniforms,
-            IEnumerable<TextureBindingConfiguration> textureBindings,
+            IEnumerable<BufferBindingConfiguration> bufferBindings,
             FramebufferConfiguration framebuffer)
-            : base(name, window, renderState, shaderUniforms, textureBindings, framebuffer)
+            : base(name, window, renderState, shaderUniforms, bufferBindings, framebuffer)
         {
             if (vertexShader == null)
             {
