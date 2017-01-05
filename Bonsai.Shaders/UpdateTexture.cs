@@ -17,7 +17,6 @@ namespace Bonsai.Shaders
     {
         public UpdateTexture()
         {
-            TextureName = "tex";
             InternalFormat = PixelInternalFormat.Rgba;
         }
 
