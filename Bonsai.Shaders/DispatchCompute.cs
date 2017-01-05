@@ -26,9 +26,9 @@ namespace Bonsai.Shaders
                 ShaderManager.ReserveCompute(ShaderName),
                 (input, shader) =>
                 {
-                    var workGroups = WorkGroups;
                     shader.Update(() =>
                     {
+                        var workGroups = WorkGroups;
                         GL.DispatchCompute(workGroups.NumGroupsX, workGroups.NumGroupsY, workGroups.NumGroupsZ);
                     });
                     return input;
