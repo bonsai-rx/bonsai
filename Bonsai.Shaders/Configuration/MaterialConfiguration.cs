@@ -57,7 +57,8 @@ namespace Bonsai.Shaders.Configuration
         public override string ToString()
         {
             var name = Name;
-            return string.IsNullOrEmpty(name) ? XmlTypeName : name;
+            if (string.IsNullOrEmpty(name)) return XmlTypeName;
+            else return string.Format("{0} [{1}]", name, XmlTypeName);
         }
     }
 }
