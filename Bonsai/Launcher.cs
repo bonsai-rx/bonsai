@@ -220,7 +220,14 @@ namespace Bonsai
             }
 
             EnableVisualStyles();
-            var builder = PackageBuilderHelper.CreateWorkflowPackage(fileName, packageConfiguration);
+            PackageBuilder builder;
+            try { builder = PackageBuilderHelper.CreateWorkflowPackage(fileName, packageConfiguration); }
+            catch (InvalidOperationException ex)
+            {
+                MessageBox.Show(ex.Message, typeof(Launcher).Namespace, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return Program.NormalExitCode;
+            }
+
             var builderDialog = new PackageBuilderDialog();
             builderDialog.InitialDirectory = Path.Combine(editorFolder, NuGet.Constants.GalleryDirectory);
             builderDialog.SetPackageBuilder(builder);
