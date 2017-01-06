@@ -1,5 +1,6 @@
 ﻿using Bonsai.Configuration;
 using Bonsai.Design;
+using Bonsai.Properties;
 using NuGet;
 using System;
 using System.Collections.Generic;
@@ -63,7 +64,7 @@ namespace Bonsai
                     var type = Type.GetType(typeName, false);
                     if (type == null)
                     {
-                        throw new InvalidOperationException("The specified workflow has unresolved dependencies.");
+                        throw new InvalidOperationException(Resources.WorkflowUnresolvedDependencies);
                     }
 
                     assemblies.Add(type.Assembly);
@@ -92,7 +93,7 @@ namespace Bonsai
                         if (typeName == null) continue;
                         if (!visualizerMap.Value.TryGetValue(typeName, out type))
                         {
-                            throw new InvalidOperationException("The specified workflow has unresolved visualizer dependencies.");
+                            throw new InvalidOperationException(Resources.WorkflowUnresolvedVisualizerDependencies);
                         }
 
                         assemblies.Add(type.Assembly);

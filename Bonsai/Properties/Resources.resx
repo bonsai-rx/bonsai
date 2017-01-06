@@ -126,4 +126,10 @@
   <data name="LibraryFolderPlatformMismatchException" xml:space="preserve">
     <value>The library folder '{0}' has already been assigned to a different platform. Consider uninstalling the conflicting package.</value>
   </data>
+  <data name="WorkflowUnresolvedDependencies" xml:space="preserve">
+    <value>The specified workflow has unresolved dependencies. Please install any missing packages and make sure the workflow can run successfully.</value>
+  </data>
+  <data name="WorkflowUnresolvedVisualizerDependencies" xml:space="preserve">
+    <value>The specified workflow has unresolved visualizer dependencies. Please install any missing packages or and make sure the workflow can run successfully.</value>
+  </data>
 </root>
