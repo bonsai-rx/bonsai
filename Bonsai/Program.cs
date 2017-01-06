@@ -70,14 +70,17 @@ namespace Bonsai
             {
                 if (launchResult == EditorResult.ExportPackage)
                 {
+                    Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
                     return Launcher.LaunchExportPackage(packageConfiguration, initialFileName, editorFolder);
                 }
                 else if (launchResult == EditorResult.ManagePackages)
                 {
+                    Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
                     return Launcher.LaunchPackageManager(packageConfiguration, editorRepositoryPath, editorPath, editorPackageId);
                 }
                 else if (launchResult == EditorResult.OpenGallery)
                 {
+                    Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
                     return Launcher.LaunchGallery(packageConfiguration, editorRepositoryPath, editorPath, editorPackageId);
                 }
                 else
