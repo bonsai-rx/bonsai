@@ -1,5 +1,4 @@
-﻿using Bonsai.Editor;
-using NuGet;
+﻿using NuGet;
 using System;
 using System.Collections.Generic;
 using System.IO;
