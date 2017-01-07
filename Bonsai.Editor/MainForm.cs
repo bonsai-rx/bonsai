@@ -69,6 +69,8 @@ namespace Bonsai.Editor
 
         IObservable<IGrouping<string, WorkflowElementDescriptor>> toolboxElements;
         IObservable<TypeVisualizerDescriptor> visualizerElements;
+        SizeF inverseScaleFactor;
+        SizeF scaleFactor;
 
         public MainForm(
             IObservable<IGrouping<string, WorkflowElementDescriptor>> elementProvider,
@@ -181,12 +183,19 @@ namespace Bonsai.Editor
             }
         }
 
+        static Rectangle ScaleBounds(Rectangle bounds, SizeF scaleFactor)
+        {
+            bounds.Location = Point.Round(new PointF(bounds.X * scaleFactor.Width, bounds.Y * scaleFactor.Height));
+            bounds.Size = Size.Round(new SizeF(bounds.Width * scaleFactor.Width, bounds.Height * scaleFactor.Height));
+            return bounds;
+        }
+
         void RestoreEditorBounds()
         {
-            var desktopBounds = EditorSettings.Instance.DesktopBounds;
+            var desktopBounds = ScaleBounds(EditorSettings.Instance.DesktopBounds, scaleFactor);
             if (desktopBounds.Width > 0)
             {
-                DesktopBounds = EditorSettings.Instance.DesktopBounds;
+                DesktopBounds = desktopBounds;
             }
 
             WindowState = EditorSettings.Instance.WindowState;
@@ -200,7 +209,7 @@ namespace Bonsai.Editor
             {
                 desktopBounds.Size = RestoreBounds.Size;
             }
-            else desktopBounds = DesktopBounds;
+            else desktopBounds = ScaleBounds(DesktopBounds, inverseScaleFactor);
             EditorSettings.Instance.DesktopBounds = desktopBounds;
             if (WindowState == FormWindowState.Minimized)
             {
@@ -264,6 +273,9 @@ namespace Bonsai.Editor
 
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {
+            scaleFactor = factor;
+            inverseScaleFactor = new SizeF(1f / factor.Width, 1f / factor.Height);
+
             const float DefaultToolboxSplitterDistance = 208f;
             panelSplitContainer.SplitterDistance = (int)(panelSplitContainer.SplitterDistance * factor.Height);
             workflowSplitContainer.SplitterDistance = (int)(workflowSplitContainer.SplitterDistance * factor.Height);
