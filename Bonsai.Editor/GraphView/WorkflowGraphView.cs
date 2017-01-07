@@ -58,6 +58,8 @@ namespace Bonsai.Design
         VisualizerLayout visualizerLayout;
         IServiceProvider serviceProvider;
         IUIService uiService;
+        SizeF inverseScaleFactor;
+        SizeF scaleFactor;
 
         public WorkflowGraphView(IServiceProvider provider)
         {
@@ -347,6 +349,13 @@ namespace Bonsai.Design
             return launcher;
         }
 
+        private static Rectangle ScaleBounds(Rectangle bounds, SizeF scaleFactor)
+        {
+            bounds.Location = Point.Round(new PointF(bounds.X * scaleFactor.Width, bounds.Y * scaleFactor.Height));
+            bounds.Size = Size.Round(new SizeF(bounds.Width * scaleFactor.Width, bounds.Height * scaleFactor.Height));
+            return bounds;
+        }
+
         private void InitializeVisualizerMapping()
         {
             if (workflow == null) return;
@@ -382,7 +391,7 @@ namespace Bonsai.Design
                         }
                     }
 
-                    visualizerLauncher.Bounds = layoutSettings.Bounds;
+                    visualizerLauncher.Bounds = ScaleBounds(layoutSettings.Bounds, scaleFactor);
                     visualizerLauncher.WindowState = layoutSettings.WindowState;
                     if (layoutSettings.Visible)
                     {
@@ -1607,7 +1616,7 @@ namespace Bonsai.Design
                     EditorDialogSettings = new VisualizerDialogSettings
                     {
                         Visible = editorLauncher.Visible,
-                        Bounds = editorLauncher.Bounds,
+                        Bounds = ScaleBounds(editorLauncher.Bounds, inverseScaleFactor),
                         Tag = editorLauncher
                     }
                 };
@@ -1638,9 +1647,11 @@ namespace Bonsai.Design
                     var editorLauncher = GetWorkflowEditorLauncher(graphNode);
                     if (workflowEditorSettings.EditorDialogSettings.Visible)
                     {
+                        var editorLayout = workflowEditorSettings.EditorVisualizerLayout;
+                        var editorBounds = ScaleBounds(workflowEditorSettings.EditorDialogSettings.Bounds, scaleFactor);
                         LaunchWorkflowView(graphNode,
-                                           workflowEditorSettings.EditorVisualizerLayout,
-                                           workflowEditorSettings.EditorDialogSettings.Bounds,
+                                           editorLayout,
+                                           editorBounds,
                                            activate: false);
                     }
                 }
@@ -1679,7 +1690,7 @@ namespace Bonsai.Design
                     }
 
                     dialogSettings.Visible = visible;
-                    dialogSettings.Bounds = visualizerDialog.Bounds;
+                    dialogSettings.Bounds = ScaleBounds(visualizerDialog.Bounds, inverseScaleFactor);
                     dialogSettings.WindowState = visualizerDialog.WindowState;
 
                     if (visualizer.IsValueCreated)
@@ -1767,6 +1778,13 @@ namespace Bonsai.Design
         #endregion
 
         #region Controller
+
+        protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
+        {
+            scaleFactor = factor;
+            inverseScaleFactor = new SizeF(1f / factor.Width, 1f / factor.Height);
+            base.ScaleControl(factor, specified);
+        }
 
         private void OnDragFileDrop(DragEventArgs e)
         {
