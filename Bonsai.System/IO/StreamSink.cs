@@ -72,13 +72,27 @@ namespace Bonsai.IO
         /// Writes all elements of an observable sequence into the specified stream.
         /// </summary>
         /// <param name="source">The source sequence for which to write elements.</param>
+        /// <param name="selector">
+        /// The transform function used to convert each element of the sequence into the type
+        /// of inputs accepted by the stream writer.
+        /// </param>
         /// <returns>
         /// An observable sequence that is identical to the source sequence but where
         /// there is an additional side effect of writing the elements to a stream.
         /// </returns>
-        public override IObservable<TSource> Process(IObservable<TSource> source)
+        protected IObservable<TElement> Process<TElement>(IObservable<TElement> source, Func<TElement, TSource> selector)
         {
-            return Observable.Create<TSource>(observer =>
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+
+            if (selector == null)
+            {
+                throw new ArgumentNullException("selector");
+            }
+
+            return Observable.Create<TElement>(observer =>
             {
                 var path = Path;
                 Task<TWriter> writerTask = null;
@@ -123,7 +137,7 @@ namespace Bonsai.IO
                     {
                         if (task.Result != null)
                         {
-                            try { Write(task.Result, input); }
+                            try { Write(task.Result, selector(input)); }
                             catch (Exception ex)
                             {
                                 observer.OnError(ex);
@@ -136,6 +150,19 @@ namespace Bonsai.IO
 
                 return new CompositeDisposable(process, close);
             });
+        }
+
+        /// <summary>
+        /// Writes all elements of an observable sequence into the specified stream.
+        /// </summary>
+        /// <param name="source">The source sequence for which to write elements.</param>
+        /// <returns>
+        /// An observable sequence that is identical to the source sequence but where
+        /// there is an additional side effect of writing the elements to a stream.
+        /// </returns>
+        public override IObservable<TSource> Process(IObservable<TSource> source)
+        {
+            return Process(source, input => input);
         }
     }
 }
