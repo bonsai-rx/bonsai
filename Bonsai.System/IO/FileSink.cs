@@ -74,13 +74,27 @@ namespace Bonsai.IO
         /// Writes all elements of an observable sequence into the specified file.
         /// </summary>
         /// <param name="source">The source sequence for which to write elements.</param>
+        /// <param name="selector">
+        /// The transform function used to convert each element of the sequence into the type
+        /// of inputs accepted by the file writer.
+        /// </param>
         /// <returns>
         /// An observable sequence that is identical to the source sequence but where
         /// there is an additional side effect of writing the elements to a file.
         /// </returns>
-        public override IObservable<TSource> Process(IObservable<TSource> source)
+        protected IObservable<TElement> Process<TElement>(IObservable<TElement> source, Func<TElement, TSource> selector)
         {
-            return Observable.Create<TSource>(observer =>
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+
+            if (selector == null)
+            {
+                throw new ArgumentNullException("selector");
+            }
+
+            return Observable.Create<TElement>(observer =>
             {
                 Task writerTask = null;
                 TWriter writer = null;
@@ -106,12 +120,13 @@ namespace Bonsai.IO
                     else writerTask.ContinueWith(task => closingTask());
                 });
 
-                var process = source.Do(input =>
+                var process = source.Do(element =>
                 {
                     Action writeTask = () =>
                     {
                         try
                         {
+                            var input = selector(element);
                             var runningWriter = writer;
                             if (runningWriter == null)
                             {
@@ -142,6 +157,19 @@ namespace Bonsai.IO
 
                 return new CompositeDisposable(process, close);
             });
+        }
+
+        /// <summary>
+        /// Writes all elements of an observable sequence into the specified file.
+        /// </summary>
+        /// <param name="source">The source sequence for which to write elements.</param>
+        /// <returns>
+        /// An observable sequence that is identical to the source sequence but where
+        /// there is an additional side effect of writing the elements to a file.
+        /// </returns>
+        public override IObservable<TSource> Process(IObservable<TSource> source)
+        {
+            return Process(source, input => input);
         }
     }
 }

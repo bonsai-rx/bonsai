@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 namespace Bonsai.Dsp
 {
     [Description("Writes the incoming signal into a raw binary file.")]
-    public class MatrixWriter : StreamSink<Mat, BinaryWriter>
+    public class MatrixWriter : StreamSink<byte[], BinaryWriter>
     {
         public MatrixWriter()
         {
@@ -27,10 +27,14 @@ namespace Bonsai.Dsp
             return new BinaryWriter(stream);
         }
 
-        protected override void Write(BinaryWriter writer, Mat input)
+        protected override void Write(BinaryWriter writer, byte[] input)
         {
-            var data = ArrHelper.ToArray(input, Layout);
-            writer.Write(data);
+            writer.Write(input);
+        }
+
+        public IObservable<Mat> Process(IObservable<Mat> source)
+        {
+            return Process(source, input => ArrHelper.ToArray(input, Layout));
         }
     }
 }
