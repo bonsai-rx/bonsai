@@ -25,6 +25,8 @@ namespace Bonsai.NuGet
         const int HighDpiGridOffset = 13;
         bool splitterMoving;
         PackageBuilder packageBuilder;
+        PhysicalPackageFile entryPoint;
+        PhysicalPackageFile entryPointLayout;
         static readonly PackageBuilderTypeDescriptionProvider descriptionProvider = new PackageBuilderTypeDescriptionProvider();
 
         public PackageBuilderDialog()
@@ -36,6 +38,14 @@ namespace Bonsai.NuGet
         {
             get { return saveFileDialog.InitialDirectory; }
             set { saveFileDialog.InitialDirectory = value; }
+        }
+
+        void RenamePackageFile(PhysicalPackageFile file, string fileName)
+        {
+            var extension = Path.GetExtension(file.SourcePath);
+            if (extension == Constants.LayoutExtension) extension = Constants.BonsaiExtension + extension;
+            var basePath = Path.GetDirectoryName(file.TargetPath);
+            file.TargetPath = Path.Combine(basePath, fileName + extension);
         }
 
         void AddPackageFile(IPackageFile file)
@@ -61,8 +71,12 @@ namespace Bonsai.NuGet
             TypeDescriptor.AddProvider(descriptionProvider, packageBuilder);
             metadataProperties.SelectedObject = packageBuilder;
             metadataProperties.ExpandAllGridItems();
+            var entryPointPath = packageBuilder.Id + Constants.BonsaiExtension;
+            var entryPointLayoutPath = entryPointPath + Constants.LayoutExtension;
             foreach (var file in packageBuilder.Files)
             {
+                if (file.EffectivePath == entryPointPath) entryPoint = file as PhysicalPackageFile;
+                if (file.EffectivePath == entryPointLayoutPath) entryPointLayout = file as PhysicalPackageFile;
                 AddPackageFile(file);
             }
             contentView.ExpandAll();
@@ -89,6 +103,12 @@ namespace Bonsai.NuGet
                     packageBuilder.Id + "." +
                     packageBuilder.Version + global::NuGet.Constants.PackageExtension;
                 saveFileDialog.FileName = packageFileName;
+                if (entryPoint != null)
+                {
+                    RenamePackageFile(entryPoint, packageBuilder.Id);
+                    if (entryPointLayout != null) RenamePackageFile(entryPointLayout, packageBuilder.Id);
+                }
+
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     using (var dialog = new PackageOperationDialog())
