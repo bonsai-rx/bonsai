@@ -177,6 +177,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj">
+      <Project>{e4d03ba3-54a2-4ff8-9dc6-52ba4cc14fed}</Project>
+      <Name>Bonsai.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj">
       <Project>{765d928a-b147-46ff-8a59-bde73f88a844}</Project>
       <Name>Bonsai.Design</Name>
