@@ -24,11 +24,12 @@ namespace Bonsai.Dsp
         [Description("The maximum value of the output range.")]
         public double RangeMax { get; set; }
 
-        void GetScaleShift(out double scale, out double shift)
+        [Description("The method used to rescale the input range.")]
+        public RescaleMethod RescaleType { get; set; }
+
+        static void GetScaleShift(double min, double max, double rangeMin, double rangeMax, out double scale, out double shift)
         {
-            var min = Min;
-            var rangeMin = RangeMin;
-            scale = (RangeMax - rangeMin) / (Max - min);
+            scale = (rangeMax - rangeMin) / (max - min);
             shift = -min * scale + rangeMin;
         }
 
@@ -37,8 +38,21 @@ namespace Bonsai.Dsp
             return source.Select(input =>
             {
                 double scale, shift;
-                GetScaleShift(out scale, out shift);
-                return input * scale + shift;
+                var rangeMin = RangeMin;
+                var rangeMax = RangeMax;
+                GetScaleShift(Min, Max, rangeMin, rangeMax, out scale, out shift);
+                var output = input * scale + shift;
+                if (RescaleType == RescaleMethod.Clamp)
+                {
+                    if (rangeMin > rangeMax)
+                    {
+                        shift = rangeMin;
+                        rangeMin = rangeMax;
+                        rangeMax = shift;
+                    }
+                    output = Math.Max(rangeMin, Math.Min(output, rangeMax));
+                }
+                return output;
             });
         }
 
@@ -48,9 +62,22 @@ namespace Bonsai.Dsp
             return source.Select(input =>
             {
                 double scale, shift;
-                GetScaleShift(out scale, out shift);
+                var rangeMin = RangeMin;
+                var rangeMax = RangeMax;
+                GetScaleShift(Min, Max, rangeMin, rangeMax, out scale, out shift);
                 var output = outputFactory(input, Depth.F32);
                 CV.ConvertScale(input, output, scale, shift);
+                if (RescaleType == RescaleMethod.Clamp)
+                {
+                    if (rangeMin > rangeMax)
+                    {
+                        shift = rangeMin;
+                        rangeMin = rangeMax;
+                        rangeMax = shift;
+                    }
+                    CV.MinS(output, rangeMax, output);
+                    CV.MaxS(output, rangeMin, output);
+                }
                 return output;
             });
         }
