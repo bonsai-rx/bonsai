@@ -293,6 +293,12 @@ namespace Bonsai.NuGet
                         return new SetPropertyDescriptor(descriptor, attributes);
                     }
 
+                    if (descriptor.Name == "Description" || descriptor.Name == "Summary" || descriptor.Name == "ReleaseNotes")
+                    {
+                        var editorAttribute = new EditorAttribute(DesignTypes.MultilineStringEditor, typeof(UITypeEditor));
+                        return new SimplePropertyDescriptor(descriptor, new Attribute[] { descriptionAttribute, editorAttribute });
+                    }
+
                     return new SimplePropertyDescriptor(descriptor, new Attribute[] { descriptionAttribute });
                 }
 
