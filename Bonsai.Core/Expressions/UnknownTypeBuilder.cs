@@ -12,9 +12,11 @@ namespace Bonsai.Expressions
     /// <summary>
     /// Represents an expression builder that is a proxy for an unknown type.
     /// </summary>
-    [Description("This is a proxy for an unknown type. Please install any missing packages or replace this module.")]
+    [Description(ErrorMessage)]
     public abstract class UnknownTypeBuilder : ExpressionBuilder
     {
+        const string ErrorMessage = "This is a proxy for an unknown type. Please install any missing packages or replace this module.";
+
         /// <summary>
         /// Gets the range of input arguments that this expression builder accepts.
         /// </summary>
@@ -36,7 +38,7 @@ namespace Bonsai.Expressions
         /// </exception>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException(ErrorMessage);
         }
     }
 }
