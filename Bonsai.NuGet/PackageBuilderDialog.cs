@@ -22,7 +22,6 @@ namespace Bonsai.NuGet
 {
     public partial class PackageBuilderDialog : Form
     {
-        const int HighDpiGridOffset = 13;
         bool splitterMoving;
         PackageBuilder packageBuilder;
         PhysicalPackageFile entryPoint;
@@ -85,6 +84,7 @@ namespace Bonsai.NuGet
 
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {
+            const int HighDpiGridOffset = 13;
             if (factor.Height > 1.5f)
             {
                 contentView.SuspendLayout();
