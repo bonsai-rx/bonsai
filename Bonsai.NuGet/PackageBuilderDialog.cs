@@ -23,6 +23,9 @@ namespace Bonsai.NuGet
     public partial class PackageBuilderDialog : Form
     {
         bool splitterMoving;
+        string metadataPath;
+        int metadataVersion;
+        int metadataSaveVersion;
         PackageBuilder packageBuilder;
         PhysicalPackageFile entryPoint;
         PhysicalPackageFile entryPointLayout;
@@ -31,12 +34,48 @@ namespace Bonsai.NuGet
         public PackageBuilderDialog()
         {
             InitializeComponent();
+            metadataProperties.PropertyValueChanged += (sender, e) => metadataVersion++;
+        }
+
+        public string MetadataPath
+        {
+            get { return metadataPath; }
+            set { metadataPath = value; }
         }
 
         public string InitialDirectory
         {
             get { return saveFileDialog.InitialDirectory; }
             set { saveFileDialog.InitialDirectory = value; }
+        }
+
+        bool MetadataSpecified
+        {
+            get { return !string.IsNullOrEmpty(metadataPath); }
+        }
+
+        bool SaveMetadata()
+        {
+            if (!MetadataSpecified)
+            {
+                throw new InvalidOperationException("No valid metadata path was specified.");
+            }
+
+            if (metadataSaveVersion >= 0 ||
+                MessageBox.Show(this,
+                                Resources.CreatePackageMetadata, Text,
+                                MessageBoxButtons.YesNo,
+                                MessageBoxIcon.Warning) == DialogResult.Yes)
+            {
+                var manifest = Manifest.Create(packageBuilder);
+                using (var stream = File.OpenWrite(metadataPath))
+                {
+                    manifest.Save(stream);
+                    metadataSaveVersion = metadataVersion;
+                    return true;
+                }
+            }
+            else return false;
         }
 
         void RenamePackageFile(PhysicalPackageFile file, string fileName)
@@ -67,6 +106,7 @@ namespace Bonsai.NuGet
         {
             SuspendLayout();
             packageBuilder = builder;
+            metadataSaveVersion = MetadataSpecified && File.Exists(metadataPath) ? 0 : -1;
             TypeDescriptor.AddProvider(descriptionProvider, packageBuilder);
             metadataProperties.SelectedObject = packageBuilder;
             metadataProperties.ExpandAllGridItems();
@@ -97,6 +137,20 @@ namespace Bonsai.NuGet
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+            if (MetadataSpecified && metadataVersion > metadataSaveVersion)
+            {
+                var result = MessageBox.Show(
+                    this, Resources.SavePackageMetadata, Text,
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Warning);
+                if (result == DialogResult.Cancel ||
+                    result == DialogResult.Yes && !SaveMetadata())
+                {
+                    DialogResult = DialogResult.None;
+                    e.Cancel = true;
+                }
+            }
+
             if (DialogResult == DialogResult.OK)
             {
                 var packageFileName =

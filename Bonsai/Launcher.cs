@@ -229,6 +229,7 @@ namespace Bonsai
             }
 
             var builderDialog = new PackageBuilderDialog();
+            builderDialog.MetadataPath = Path.ChangeExtension(fileName, global::NuGet.Constants.ManifestExtension);
             builderDialog.InitialDirectory = Path.Combine(editorFolder, NuGet.Constants.GalleryDirectory);
             builderDialog.SetPackageBuilder(builder);
             builderDialog.ShowDialog();

@@ -242,4 +242,10 @@
   <data name="SaveFolderExistsCaption" xml:space="preserve">
     <value>Location already exists</value>
   </data>
+  <data name="CreatePackageMetadata" xml:space="preserve">
+    <value>No existing package metadata file exists. Do you want to create a new file?</value>
+  </data>
+  <data name="SavePackageMetadata" xml:space="preserve">
+    <value>Package metadata has unsaved changes. Save metadata file?</value>
+  </data>
 </root>

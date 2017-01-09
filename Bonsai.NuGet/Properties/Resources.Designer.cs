@@ -70,6 +70,15 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No existing package metadata file exists. Do you want to create a new file?.
+        /// </summary>
+        internal static string CreatePackageMetadata {
+            get {
+                return ResourceManager.GetString("CreatePackageMetadata", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Each item above may have sub-dependencies subject to additional license agreements..
         /// </summary>
         internal static string DependencyLicenseWarningLabel {
@@ -302,6 +311,15 @@ namespace Bonsai.NuGet.Properties {
         internal static string SaveFolderExistsCaption {
             get {
                 return ResourceManager.GetString("SaveFolderExistsCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Package metadata has unsaved changes. Save metadata file?.
+        /// </summary>
+        internal static string SavePackageMetadata {
+            get {
+                return ResourceManager.GetString("SavePackageMetadata", resourceCulture);
             }
         }
         
