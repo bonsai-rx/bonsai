@@ -14,6 +14,25 @@ namespace Bonsai.NuGet
 {
     public static class PackageHelper
     {
+        public static void InstallExecutablePackage(IPackage package, IFileSystem fileSystem)
+        {
+            foreach (var file in package.GetContentFiles())
+            {
+                using (var stream = file.GetStream())
+                {
+                    fileSystem.AddFile(file.EffectivePath, stream);
+                }
+            }
+
+            var manifest = Manifest.Create(package);
+            var metadata = Manifest.Create(manifest.Metadata);
+            var metadataPath = package.Id + global::NuGet.Constants.ManifestExtension;
+            using (var stream = fileSystem.CreateFile(metadataPath))
+            {
+                metadata.Save(stream);
+            }
+        }
+
         public static void RunPackageOperation(LicenseAwarePackageManager packageManager, Func<Task> operationFactory, string operationLabel = null)
         {
             EventHandler<RequiringLicenseAcceptanceEventArgs> requiringLicenseHandler = null;
