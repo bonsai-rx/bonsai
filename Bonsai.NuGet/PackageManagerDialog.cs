@@ -211,7 +211,7 @@ namespace Bonsai.NuGet
                         {
                             var targetPath = saveFileDialog.FileName;
                             var targetFileSystem = new PhysicalFileSystem(targetPath);
-                            packageViewController.InstallExecutablePackage(package, targetFileSystem);
+                            PackageHelper.InstallExecutablePackage(package, targetFileSystem);
                             InstallPath = targetFileSystem.GetFullPath(workflowPath);
                             DialogResult = DialogResult.OK;
                         }

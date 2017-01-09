@@ -137,7 +137,7 @@ namespace Bonsai.NuGet
                 }
 
                 var targetFileSystem = new PhysicalFileSystem(targetPath);
-                packageViewController.InstallExecutablePackage(package, targetFileSystem);
+                PackageHelper.InstallExecutablePackage(package, targetFileSystem);
                 InstallPath = targetFileSystem.GetFullPath(workflowPath);
                 DialogResult = DialogResult.OK;
             }
