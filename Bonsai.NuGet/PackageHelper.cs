@@ -9,6 +9,7 @@ using Bonsai.Expressions;
 using NuGet;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Bonsai.NuGet.Properties;
 
 namespace Bonsai.NuGet
 {
@@ -78,9 +79,14 @@ namespace Bonsai.NuGet
             {
                 try
                 {
-                    packageManager.Logger.Log(MessageLevel.Info, "Checking for latest version of '{0}'.", packageId);
+                    var logMessage = version == null ? Resources.InstallPackageLatestVersion : Resources.InstallPackageVersion;
+                    packageManager.Logger.Log(MessageLevel.Info, logMessage, packageId, version);
                     var package = packageManager.SourceRepository.FindPackage(packageId, version);
-                    if (package == null) throw new InvalidOperationException(string.Format("The package '{0}' could not be found.", packageId));
+                    if (package == null)
+                    {
+                        var errorMessage = version == null ? Resources.MissingPackageLatestVersion : Resources.MissingPackageVersion;
+                        throw new InvalidOperationException(string.Format(errorMessage, packageId, version));
+                    }
                     packageManager.InstallPackage(package, false, true);
                     return package;
                 }
@@ -98,9 +104,13 @@ namespace Bonsai.NuGet
             {
                 try
                 {
-                    packageManager.Logger.Log(MessageLevel.Info, "Checking for latest version of '{0}'.", packageId);
+                    packageManager.Logger.Log(MessageLevel.Info, Resources.UpdatePackageLatestVersion, packageId);
                     var package = packageManager.SourceRepository.FindPackage(packageId, version);
-                    if (package == null) throw new InvalidOperationException(string.Format("The package '{0}' could not be found.", packageId));
+                    if (package == null)
+                    {
+                        var errorMessage = string.Format(Resources.MissingPackageLatestVersion, packageId);
+                        throw new InvalidOperationException(errorMessage);
+                    }
                     packageManager.UpdatePackage(package, true, true);
                     return package;
                 }
@@ -118,11 +128,11 @@ namespace Bonsai.NuGet
             {
                 try
                 {
-                    packageManager.Logger.Log(MessageLevel.Info, "Restoring '{0}' package.", id);
+                    packageManager.Logger.Log(MessageLevel.Info, Resources.RestorePackageVersion, id, version);
                     var package = packageManager.SourceRepository.FindPackage(id, version);
                     if (package == null)
                     {
-                        var errorMessage = string.Format("Unable to find version '{1}' of package '{0}'.", id, version);
+                        var errorMessage = string.Format(Resources.MissingPackageVersion, id, version);
                         throw new InvalidOperationException(errorMessage);
                     }
                     return package;
