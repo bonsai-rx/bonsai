@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Serialization;
+using PackageReference = Bonsai.Configuration.PackageReference;
 
 namespace Bonsai
 {
@@ -40,6 +41,20 @@ namespace Bonsai
             var sourceProvider = new PackageSourceProvider(settings);
             var sourceRepository = sourceProvider.CreateAggregateRepository(PackageRepositoryFactory.Default, true);
             return new LicenseAwarePackageManager(sourceRepository, path) { Logger = logger };
+        }
+
+        static SemanticVersion ParseVersion(string version)
+        {
+            if (string.IsNullOrEmpty(version)) return null;
+            return SemanticVersion.Parse(version);
+        }
+
+        static IEnumerable<PackageReference> GetMissingPackages(IEnumerable<PackageReference> packages, IPackageRepository repository)
+        {
+            return from package in packages
+                   let version = ParseVersion(package.Version)
+                   where !repository.Exists(package.Id, version)
+                   select package;
         }
 
         internal static IPackage LaunchEditorBootstrapper(
@@ -91,14 +106,15 @@ namespace Bonsai
                 }
             }
 
-            var missingPackages = PackageHelper.GetMissingPackages(packageConfiguration.Packages, packageManager.LocalRepository).ToList();
+            var missingPackages = GetMissingPackages(packageConfiguration.Packages, packageManager.LocalRepository).ToList();
             if (missingPackages.Count > 0)
             {
                 EnableVisualStyles();
                 using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageId))
                 {
                     PackageHelper.RunPackageOperation(packageManager, () =>
-                        Task.Factory.ContinueWhenAll(packageManager.StartRestorePackages(missingPackages).ToArray(), operations =>
+                        Task.Factory.ContinueWhenAll(missingPackages.Select(package =>
+                        packageManager.StartRestorePackage(package.Id, ParseVersion(package.Version))).ToArray(), operations =>
                         {
                             foreach (var task in operations)
                             {
