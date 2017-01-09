@@ -6,12 +6,10 @@ using System.IO;
 using System.Reflection;
 using Bonsai.Design;
 using Bonsai.Expressions;
-using Bonsai.Configuration;
 using NuGet;
 using System.Threading.Tasks;
 using Bonsai.NuGet;
 using System.Windows.Forms;
-using PackageReference = Bonsai.Configuration.PackageReference;
 
 namespace Bonsai
 {
@@ -56,12 +54,6 @@ namespace Bonsai
             }
         }
 
-        static SemanticVersion ParseVersion(string version)
-        {
-            if (string.IsNullOrEmpty(version)) return null;
-            return SemanticVersion.Parse(version);
-        }
-
         internal static Task<IPackage> StartInstallPackage(this IPackageManager packageManager, string packageId, SemanticVersion version)
         {
             return Task.Factory.StartNew(() =>
@@ -100,24 +92,6 @@ namespace Bonsai
                     throw;
                 }
             });
-        }
-
-        internal static IEnumerable<PackageReference> GetMissingPackages(IEnumerable<PackageReference> packages, IPackageRepository repository)
-        {
-            return from package in packages
-                   let version = ParseVersion(package.Version)
-                   where !repository.Exists(package.Id, version)
-                   select package;
-        }
-
-        internal static IEnumerable<Task<IPackage>> StartRestorePackages(this IPackageManager packageManager, IEnumerable<PackageReference> packages)
-        {
-            return packages.Select(package => StartRestorePackage(packageManager, package));
-        }
-
-        internal static Task<IPackage> StartRestorePackage(this IPackageManager packageManager, PackageReference package)
-        {
-            return StartRestorePackage(packageManager, package.Id, ParseVersion(package.Version));
         }
 
         internal static Task<IPackage> StartRestorePackage(this IPackageManager packageManager, string id, SemanticVersion version)
