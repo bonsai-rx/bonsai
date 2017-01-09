@@ -16,6 +16,7 @@ using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Serialization;
 using PackageReference = Bonsai.Configuration.PackageReference;
+using PackageHelper = Bonsai.NuGet.PackageHelper;
 
 namespace Bonsai
 {

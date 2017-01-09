@@ -8,14 +8,13 @@ using Bonsai.Design;
 using Bonsai.Expressions;
 using NuGet;
 using System.Threading.Tasks;
-using Bonsai.NuGet;
 using System.Windows.Forms;
 
-namespace Bonsai
+namespace Bonsai.NuGet
 {
-    static class PackageHelper
+    public static class PackageHelper
     {
-        internal static void RunPackageOperation(LicenseAwarePackageManager packageManager, Func<Task> operationFactory, string operationLabel = null)
+        public static void RunPackageOperation(LicenseAwarePackageManager packageManager, Func<Task> operationFactory, string operationLabel = null)
         {
             EventHandler<RequiringLicenseAcceptanceEventArgs> requiringLicenseHandler = null;
             using (var dialog = new PackageOperationDialog { ShowInTaskbar = true })
@@ -54,7 +53,7 @@ namespace Bonsai
             }
         }
 
-        internal static Task<IPackage> StartInstallPackage(this IPackageManager packageManager, string packageId, SemanticVersion version)
+        public static Task<IPackage> StartInstallPackage(this IPackageManager packageManager, string packageId, SemanticVersion version)
         {
             return Task.Factory.StartNew(() =>
             {
@@ -74,7 +73,7 @@ namespace Bonsai
             });
         }
 
-        internal static Task<IPackage> StartUpdatePackage(this IPackageManager packageManager, string packageId, SemanticVersion version)
+        public static Task<IPackage> StartUpdatePackage(this IPackageManager packageManager, string packageId, SemanticVersion version)
         {
             return Task.Factory.StartNew(() =>
             {
@@ -94,7 +93,7 @@ namespace Bonsai
             });
         }
 
-        internal static Task<IPackage> StartRestorePackage(this IPackageManager packageManager, string id, SemanticVersion version)
+        public static Task<IPackage> StartRestorePackage(this IPackageManager packageManager, string id, SemanticVersion version)
         {
             return Task.Factory.StartNew(() =>
             {
