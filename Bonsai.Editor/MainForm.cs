@@ -246,15 +246,7 @@ namespace Bonsai.Editor
             try { workflowFileWatcher.Path = WorkflowsDirectory; }
             catch (ArgumentException) { workflowFileWatcher.EnableRaisingEvents = false; }
 
-            var currentDirectory = Path.GetFullPath(Environment.CurrentDirectory).TrimEnd('\\');
-            var appDomainBaseDirectory = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\');
-            var systemPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.System)).TrimEnd('\\');
-            var systemX86Path = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86)).TrimEnd('\\');
-            var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory || currentDirectory == systemPath || currentDirectory == systemX86Path;
-            directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
-            openWorkflowDialog.InitialDirectory = saveWorkflowDialog.InitialDirectory = directoryToolStripTextBox.Text;
             var initialization = InitializeToolbox().Merge(InitializeTypeVisualizers()).TakeLast(1).ObserveOn(Scheduler.Default);
-
             if (validFileName && OpenWorkflow(initialFileName, false))
             {
                 foreach (var assignment in propertyAssignments)
@@ -265,6 +257,14 @@ namespace Bonsai.Editor
                 if (StartOnLoad) initialization = initialization.Do(xs => BeginInvoke((Action)(() => StartWorkflow())));
             }
             else FileName = null;
+
+            var currentDirectory = Path.GetFullPath(Environment.CurrentDirectory).TrimEnd('\\');
+            var appDomainBaseDirectory = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\');
+            var systemPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.System)).TrimEnd('\\');
+            var systemX86Path = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86)).TrimEnd('\\');
+            var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory || currentDirectory == systemPath || currentDirectory == systemX86Path;
+            directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+            openWorkflowDialog.InitialDirectory = saveWorkflowDialog.InitialDirectory = directoryToolStripTextBox.Text;
 
             initialization.Subscribe();
             RefreshWorkflowElements().Subscribe();
