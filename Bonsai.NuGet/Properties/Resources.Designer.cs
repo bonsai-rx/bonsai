@@ -151,6 +151,24 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Installing &apos;{0}&apos;..
+        /// </summary>
+        internal static string InstallPackageLatestVersion {
+            get {
+                return ResourceManager.GetString("InstallPackageLatestVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Installing &apos;{0} {1}&apos;..
+        /// </summary>
+        internal static string InstallPackageVersion {
+            get {
+                return ResourceManager.GetString("InstallPackageVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (Author: {0}).
         /// </summary>
         internal static string LicenseAuthorshipLabel {
@@ -165,6 +183,24 @@ namespace Bonsai.NuGet.Properties {
         internal static string LicenseViewLicenseLabel {
             get {
                 return ResourceManager.GetString("LicenseViewLicenseLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The package &apos;{0}&apos; could not be found..
+        /// </summary>
+        internal static string MissingPackageLatestVersion {
+            get {
+                return ResourceManager.GetString("MissingPackageLatestVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The package &apos;{0} {1}&apos; could not be found..
+        /// </summary>
+        internal static string MissingPackageVersion {
+            get {
+                return ResourceManager.GetString("MissingPackageVersion", resourceCulture);
             }
         }
         
@@ -288,6 +324,15 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Restoring dependency &apos;{0} {1}&apos;..
+        /// </summary>
+        internal static string RestorePackageVersion {
+            get {
+                return ResourceManager.GetString("RestorePackageVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Retrieving information....
         /// </summary>
         internal static string RetrievingInformationLabel {
@@ -374,6 +419,15 @@ namespace Bonsai.NuGet.Properties {
         internal static string UpdateOperationName {
             get {
                 return ResourceManager.GetString("UpdateOperationName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Checking for latest version of &apos;{0}&apos;..
+        /// </summary>
+        internal static string UpdatePackageLatestVersion {
+            get {
+                return ResourceManager.GetString("UpdatePackageLatestVersion", resourceCulture);
             }
         }
         

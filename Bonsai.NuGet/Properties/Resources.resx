@@ -248,4 +248,22 @@
   <data name="SavePackageMetadata" xml:space="preserve">
     <value>Package metadata has unsaved changes. Save metadata file?</value>
   </data>
+  <data name="InstallPackageLatestVersion" xml:space="preserve">
+    <value>Installing '{0}'.</value>
+  </data>
+  <data name="InstallPackageVersion" xml:space="preserve">
+    <value>Installing '{0} {1}'.</value>
+  </data>
+  <data name="MissingPackageLatestVersion" xml:space="preserve">
+    <value>The package '{0}' could not be found.</value>
+  </data>
+  <data name="MissingPackageVersion" xml:space="preserve">
+    <value>The package '{0} {1}' could not be found.</value>
+  </data>
+  <data name="RestorePackageVersion" xml:space="preserve">
+    <value>Restoring dependency '{0} {1}'.</value>
+  </data>
+  <data name="UpdatePackageLatestVersion" xml:space="preserve">
+    <value>Checking for latest version of '{0}'.</value>
+  </data>
 </root>
