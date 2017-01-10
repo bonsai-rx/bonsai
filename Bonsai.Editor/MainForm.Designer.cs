@@ -456,6 +456,7 @@
             // 
             // galleryToolStripMenuItem
             // 
+            this.galleryToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("galleryToolStripMenuItem.Image")));
             this.galleryToolStripMenuItem.Name = "galleryToolStripMenuItem";
             this.galleryToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
             this.galleryToolStripMenuItem.Text = "Bonsai &Gallery";
