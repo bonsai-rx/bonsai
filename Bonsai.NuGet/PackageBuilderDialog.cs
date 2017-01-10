@@ -61,13 +61,26 @@ namespace Bonsai.NuGet
                 throw new InvalidOperationException("No valid metadata path was specified.");
             }
 
-            if (metadataSaveVersion >= 0 ||
+            var metadataExists = metadataSaveVersion >= 0;
+            if (metadataExists ||
                 MessageBox.Show(this,
                                 Resources.CreatePackageMetadata, Text,
                                 MessageBoxButtons.YesNo,
                                 MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 var manifest = Manifest.Create(packageBuilder);
+                if (metadataExists)
+                {
+                    using (var stream = File.OpenRead(metadataPath))
+                    {
+                        var existingManifest = Manifest.ReadFrom(stream, true);
+                        if (existingManifest.Files != null)
+                        {
+                            manifest.Files = existingManifest.Files;
+                        }
+                    }
+                }
+
                 using (var stream = File.OpenWrite(metadataPath))
                 {
                     manifest.Save(stream);

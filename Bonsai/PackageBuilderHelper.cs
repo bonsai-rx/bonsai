@@ -21,6 +21,19 @@ namespace Bonsai
             return relativeUri.ToString().Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
         }
 
+        static IEnumerable<ManifestFile> GetContentFiles(string basePath)
+        {
+            return from file in Directory.GetFiles(basePath, "*", SearchOption.AllDirectories)
+                   let extension = Path.GetExtension(file)
+                   where extension != global::NuGet.Constants.ManifestExtension &&
+                         extension != global::NuGet.Constants.PackageExtension
+                   select new ManifestFile
+                   {
+                       Source = file,
+                       Target = Path.Combine("content", GetRelativePath(file, basePath))
+                   };
+        }
+
         public static PackageBuilder CreateWorkflowPackage(string path, PackageConfiguration configuration)
         {
             if (string.IsNullOrEmpty(path) || !File.Exists(path))
@@ -28,45 +41,33 @@ namespace Bonsai
                 throw new ArgumentException("Invalid workflow file path.", "path");
             }
 
+            Manifest manifest;
             var packageBuilder = new PackageBuilder();
             var basePath = Path.GetDirectoryName(path) + "\\";
-
-            var files = new HashSet<ManifestFile>();
             var metadataPath = Path.ChangeExtension(path, global::NuGet.Constants.ManifestExtension);
             if (File.Exists(metadataPath))
             {
                 using (var stream = File.OpenRead(metadataPath))
                 {
-                    var manifest = Manifest.ReadFrom(stream, true);
-                    packageBuilder.Populate(manifest.Metadata);
-                    if (manifest.Files != null)
-                    {
-                        files.AddRange(manifest.Files);
-                    }
+                    manifest = Manifest.ReadFrom(stream, true);
                 }
             }
             else
             {
-                packageBuilder.Populate(new ManifestMetadata()
+                manifest = new Manifest();
+                manifest.Metadata = new ManifestMetadata()
                 {
                     Authors = Environment.UserName,
                     Version = "1.0.0",
                     Id = Path.GetFileNameWithoutExtension(path),
                     Description = "My workflow description."
-                });
+                };
             }
 
+            packageBuilder.Populate(manifest.Metadata);
             packageBuilder.Tags.Add(NuGet.Constants.BonsaiDirectory);
             packageBuilder.Tags.Add(NuGet.Constants.GalleryDirectory);
-            files.AddRange(from file in Directory.GetFiles(basePath, "*", SearchOption.AllDirectories)
-                           let extension = Path.GetExtension(file)
-                           where extension != global::NuGet.Constants.ManifestExtension &&
-                                 extension != global::NuGet.Constants.PackageExtension
-                           select new ManifestFile
-                           {
-                               Source = file,
-                               Target = Path.Combine("content", GetRelativePath(file, basePath))
-                           });
+            var files = manifest.Files ?? GetContentFiles(basePath);
             packageBuilder.PopulateFiles(basePath, files);
 
             packageBuilder.DependencySets.Clear();
