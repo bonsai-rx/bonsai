@@ -111,6 +111,10 @@ namespace Bonsai
                                 initialFileName,
                                 launchPackageId,
                                 launchPackageVersion);
+                            if (string.IsNullOrEmpty(initialFileName))
+                            {
+                                return NormalExitCode;
+                            }
                         }
 
                         var initialPath = Path.GetDirectoryName(initialFileName);
