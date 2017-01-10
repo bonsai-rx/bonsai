@@ -362,6 +362,7 @@ namespace Bonsai.NuGet
                                      where property.Name != "Files" &&
                                            property.Name != "Language" &&
                                            property.Name != "MinClientVersion" &&
+                                           property.Name != "ContentFiles" &&
                                            property.Name != "DevelopmentDependency" &&
                                            property.Name != "FrameworkReferences" &&
                                            property.Name != "PackageAssemblyReferences"
