@@ -24,6 +24,7 @@ namespace Bonsai.NuGet
 {
     public partial class PackageManagerDialog : Form
     {
+        const string DefaultRepository = "Bonsai Packages";
         PackageManagerProxy packageManagerProxy;
         PackageViewController packageViewController;
 
@@ -117,7 +118,7 @@ namespace Bonsai.NuGet
         {
             var selectedNode = onlineNode.Nodes
                 .Cast<TreeNode>()
-                .FirstOrDefault(node => node.Text == BonsaiMachineWideSettings.SettingsName)
+                .FirstOrDefault(node => node.Text == DefaultRepository)
                 ?? onlineNode.FirstNode;
             repositoriesView.SelectedNode = selectedNode;
             repositoriesView.Select();

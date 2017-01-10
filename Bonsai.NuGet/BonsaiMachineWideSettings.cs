@@ -10,7 +10,7 @@ namespace Bonsai.NuGet
     public class BonsaiMachineWideSettings : IMachineWideSettings
     {
         Lazy<IEnumerable<Settings>> settings;
-        internal const string SettingsName = "Bonsai";
+        const string SettingsName = "Bonsai";
 
         public BonsaiMachineWideSettings()
         {
