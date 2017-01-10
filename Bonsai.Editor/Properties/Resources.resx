@@ -228,4 +228,7 @@ Copyright 2010-2012 Outercurve Foundation</value>
   <data name="PackageUpdatesAvailable_Notification" xml:space="preserve">
     <value>Package updates are available</value>
   </data>
+  <data name="UpdateWorkflow_Error" xml:space="preserve">
+    <value>There was an error while updating the workflow. Please check if there are any missing packages that need to be installed before trying to upgrade again.</value>
+  </data>
 </root>
