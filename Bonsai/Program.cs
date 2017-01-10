@@ -13,7 +13,6 @@ namespace Bonsai
         const string StartCommand = "--start";
         const string LibraryCommand = "--lib";
         const string PropertyCommand = "-p";
-        const string PropertyAssignmentSeparator = "=";
         const string SuppressBootstrapCommand = "--noboot";
         const string SuppressEditorCommand = "--noeditor";
         const string PackageManagerCommand = "--packagemanager";
@@ -35,6 +34,8 @@ namespace Bonsai
             var bootstrap = true;
             var launchEditor = true;
             var launchResult = default(EditorResult);
+            var launchPackageId = default(string);
+            var launchPackageVersion = default(SemanticVersion);
             var initialFileName = default(string);
             var libFolders = new List<string>();
             var propertyAssignments = new Dictionary<string, string>();
@@ -45,15 +46,29 @@ namespace Bonsai
             parser.RegisterCommand(SuppressEditorCommand, () => launchEditor = false);
             parser.RegisterCommand(PackageManagerCommand, () => { launchResult = EditorResult.ManagePackages; bootstrap = false; });
             parser.RegisterCommand(ExportPackageCommand, () => { launchResult = EditorResult.ExportPackage; bootstrap = false; });
-            parser.RegisterCommand(GalleryCommand, () => { launchResult = EditorResult.OpenGallery; bootstrap = false; });
+            parser.RegisterCommand(GalleryCommand, option =>
+            {
+                if (string.IsNullOrEmpty(option))
+                {
+                    launchResult = EditorResult.OpenGallery;
+                    bootstrap = false;
+                }
+                else
+                {
+                    var assignment = PropertyAssignment.Parse(option);
+                    switch (assignment.Name)
+                    {
+                        case "id": launchPackageId = assignment.Value; break;
+                        case "version": launchPackageVersion = SemanticVersion.Parse(assignment.Value); break;
+                        default: throw new InvalidOperationException("Invalid gallery command option");
+                    }
+                }
+            });
             parser.RegisterCommand(command => initialFileName = command);
             parser.RegisterCommand(PropertyCommand, property =>
             {
-                var assignment = property.Split(new[] { PropertyAssignmentSeparator }, 2, StringSplitOptions.None);
-                if (assignment.Length == 2)
-                {
-                    propertyAssignments.Add(assignment[0], assignment[1]);
-                }
+                var assignment = PropertyAssignment.Parse(property);
+                propertyAssignments.Add(assignment.Name, assignment.Value);
             });
             parser.Parse(args);
 
@@ -87,6 +102,17 @@ namespace Bonsai
                 {
                     if (!string.IsNullOrEmpty(initialFileName))
                     {
+                        if (!string.IsNullOrEmpty(launchPackageId))
+                        {
+                            initialFileName = Launcher.LaunchPackageBootstrapper(
+                                packageConfiguration,
+                                editorRepositoryPath,
+                                editorPath,
+                                initialFileName,
+                                launchPackageId,
+                                launchPackageVersion);
+                        }
+
                         var initialPath = Path.GetDirectoryName(initialFileName);
                         Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, initialPath);
                     }

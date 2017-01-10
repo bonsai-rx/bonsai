@@ -146,6 +146,36 @@ namespace Bonsai
             return editorPackage;
         }
 
+        internal static string LaunchPackageBootstrapper(
+            PackageConfiguration packageConfiguration,
+            string editorRepositoryPath,
+            string editorPath,
+            string targetPath,
+            string packageId,
+            SemanticVersion packageVersion)
+        {
+            EnableVisualStyles();
+            var installPath = string.Empty;
+            var targetFileSystem = new PhysicalFileSystem(targetPath);
+            var packageManager = CreatePackageManager(editorRepositoryPath);
+            using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath))
+            {
+                PackageHelper.RunPackageOperation(packageManager, () =>
+                {
+                    packageManager.PackageInstalling += (sender, e) =>
+                    {
+                        var package = e.Package;
+                        var workflowPath = package.Id + NuGet.Constants.BonsaiExtension;
+                        PackageHelper.InstallExecutablePackage(package, targetFileSystem);
+                        installPath = targetFileSystem.GetFullPath(workflowPath);
+                    };
+                    return packageManager.StartInstallPackage(packageId, packageVersion);
+                });
+            }
+
+            return installPath;
+        }
+
         internal static int LaunchPackageManager(
             PackageConfiguration packageConfiguration,
             string editorRepositoryPath,
