@@ -548,8 +548,21 @@ namespace Bonsai.Editor
                         MessageBoxIcon.Warning,
                         MessageBoxDefaultButton.Button1);
 
-                    UpgradeHelper.UpgradeEnumerableUnfoldingRules(workflowBuilder);
-                    workflow = UpgradeHelper.UpgradeSourceBuilderNodes(workflow);
+                    try
+                    {
+                        UpgradeHelper.UpgradeEnumerableUnfoldingRules(workflowBuilder);
+                        workflow = UpgradeHelper.UpgradeSourceBuilderNodes(workflow);
+                    }
+                    catch (WorkflowBuildException)
+                    {
+                        MessageBox.Show(
+                            this,
+                            Resources.UpdateWorkflow_Error,
+                            Resources.UpdateWorkflow_Warning_Caption,
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning,
+                            MessageBoxDefaultButton.Button1);
+                    }
                 }
 
                 workflowBuilder = new WorkflowBuilder(workflow.ToInspectableGraph());
