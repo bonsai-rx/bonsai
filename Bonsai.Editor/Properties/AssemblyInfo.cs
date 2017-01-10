@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Bonsai - Editor")]
-[assembly: AssemblyDescription("A visual development environment for the Bonsai framework.")]
+[assembly: AssemblyDescription("An integrated development environment for the Bonsai visual programming language.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Gonçalo Lopes")]
 [assembly: AssemblyProduct("Bonsai.Editor")]
