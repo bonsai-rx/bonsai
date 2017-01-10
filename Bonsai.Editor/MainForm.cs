@@ -283,6 +283,14 @@ namespace Bonsai.Editor
             propertiesSplitContainer.SplitterDistance = (int)(propertiesSplitContainer.SplitterDistance * factor.Height);
             var splitterScale = DefaultToolboxSplitterDistance / toolboxSplitContainer.SplitterDistance;
             toolboxSplitContainer.SplitterDistance = (int)(toolboxSplitContainer.SplitterDistance * splitterScale * factor.Height);
+
+            var imageSize = toolStrip.ImageScalingSize;
+            var scalingFactor = ((int)(factor.Height * 100) / 50 * 50) / 100f;
+            if (scalingFactor > 1)
+            {
+                toolStrip.ImageScalingSize = new Size((int)(imageSize.Width * scalingFactor), (int)(imageSize.Height * scalingFactor));
+                menuStrip.ImageScalingSize = toolStrip.ImageScalingSize;
+            }
             base.ScaleControl(factor, specified);
         }
 
