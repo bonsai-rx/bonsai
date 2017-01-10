@@ -60,6 +60,7 @@ namespace Bonsai.NuGet
             else
             {
                 loggerListBox.Items.Add(e);
+                loggerListBox.TopIndex = loggerListBox.Items.Count - 1;
                 if (e.Level == MessageLevel.Error)
                 {
                     progressBar.ForeColor = Color.Red;
