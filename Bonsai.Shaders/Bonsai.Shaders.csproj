@@ -98,6 +98,7 @@
     <Compile Include="CreateVector4.cs" />
     <Compile Include="DispatchShaderQueue.cs" />
     <Compile Include="DrawArrays.cs" />
+    <Compile Include="DrawShader.cs" />
     <Compile Include="FramebufferState.cs" />
     <Compile Include="DrawFramebuffer.cs" />
     <Compile Include="ImageTextureBinding.cs" />
