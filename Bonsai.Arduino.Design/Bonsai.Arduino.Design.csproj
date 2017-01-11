@@ -55,7 +55,6 @@
     <Compile Include="ArduinoConfigurationEditor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
-    <Compile Include="SysexConfigurationCollectionEditor.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Arduino\Bonsai.Arduino.csproj">

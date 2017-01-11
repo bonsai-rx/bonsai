@@ -36,10 +36,6 @@ namespace Bonsai.Arduino
                         arduino.Open();
 
                         arduino.SamplingInterval(arduinoConfiguration.SamplingInterval);
-                        foreach (var section in arduinoConfiguration.SysexConfigurationSettings)
-                        {
-                            section.Configure(arduino);
-                        }
                     }
                     else
                     {
