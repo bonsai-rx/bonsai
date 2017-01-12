@@ -25,7 +25,7 @@
       <Feature Id="RuntimeFeature" Title="Runtime" Level="1">
         <ComponentGroupRef Id="ProductComponents" />
         <ComponentRef Id="NuGetMachineWideSettings" />
-        <ComponentRef Id="WorkflowExtensionDoc" />
+        <ComponentRef Id="SnippetExtensionDoc" />
         <ComponentRef Id="ProgramMenuDir" />
       </Feature>
 
@@ -40,9 +40,9 @@
 			<Directory Id="$(var.ProgramFilesFolder)">
         <Directory Id="INSTALLFOLDER" Name="$(var.ProductDisplayName)">
           <Directory Id="VSEXTENSIONSFOLDER" Name="Extensions"/>
-          <Directory Id="WORKFLOWFOLDER" Name="Workflows">
-            <Component Id="WorkflowExtensionDoc" Guid="*" Win64="$(var.Win64)">
-              <File Id="README" Name="README.txt" Source="WorkflowReadme.txt" KeyPath="yes"/>
+          <Directory Id="SNIPPETFOLDER" Name="Snippets">
+            <Component Id="SnippetExtensionDoc" Guid="*" Win64="$(var.Win64)">
+              <File Id="README" Name="README.txt" Source="SnippetReadme.txt" KeyPath="yes"/>
             </Component>
           </Directory>
           <Directory Id="NUGETFOLDER" Name="NuGet">
