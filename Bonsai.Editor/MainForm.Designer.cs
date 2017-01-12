@@ -231,7 +231,7 @@
             this.saveSnippetAsToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.S)));
             this.saveSnippetAsToolStripMenuItem.Size = new System.Drawing.Size(246, 22);
-            this.saveSnippetAsToolStripMenuItem.Text = "Save Snippet As...";
+            this.saveSnippetAsToolStripMenuItem.Text = "Save Sni&ppet As...";
             this.saveSnippetAsToolStripMenuItem.Click += new System.EventHandler(this.saveSnippetAsToolStripMenuItem_Click);
             // 
             // toolStripSeparator6
@@ -246,7 +246,7 @@
             this.exportPackageToolStripMenuItem});
             this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
             this.exportToolStripMenuItem.Size = new System.Drawing.Size(246, 22);
-            this.exportToolStripMenuItem.Text = "Export";
+            this.exportToolStripMenuItem.Text = "Expor&t";
             // 
             // exportImageToolStripMenuItem
             // 
@@ -254,14 +254,14 @@
             this.exportImageToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.E)));
             this.exportImageToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
-            this.exportImageToolStripMenuItem.Text = "Image...";
+            this.exportImageToolStripMenuItem.Text = "&Image...";
             this.exportImageToolStripMenuItem.Click += new System.EventHandler(this.exportImageToolStripMenuItem_Click);
             // 
             // exportPackageToolStripMenuItem
             // 
             this.exportPackageToolStripMenuItem.Name = "exportPackageToolStripMenuItem";
             this.exportPackageToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
-            this.exportPackageToolStripMenuItem.Text = "To Gallery...";
+            this.exportPackageToolStripMenuItem.Text = "To &Gallery...";
             this.exportPackageToolStripMenuItem.Click += new System.EventHandler(this.exportPackageToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
