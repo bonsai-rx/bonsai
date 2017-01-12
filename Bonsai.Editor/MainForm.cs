@@ -32,8 +32,8 @@ namespace Bonsai.Editor
         const string BonsaiExtension = ".bonsai";
         const string LayoutExtension = ".layout";
         const string BonsaiPackageName = "Bonsai";
-        const string WorkflowsDirectory = "Workflows";
-        const string WorkflowCategoryName = "Workflow";
+        const string SnippetsDirectory = "Snippets";
+        const string SnippetCategoryName = "Workflow";
         const string VersionAttributeName = "Version";
         const int CycleNextHotKey = 0;
         const int CyclePreviousHotKey = 1;
@@ -243,8 +243,8 @@ namespace Bonsai.Editor
                 Path.GetExtension(initialFileName) == BonsaiExtension &&
                 File.Exists(initialFileName);
 
-            try { workflowFileWatcher.Path = WorkflowsDirectory; }
-            catch (ArgumentException) { workflowFileWatcher.EnableRaisingEvents = false; }
+            try { snippetFileWatcher.Path = SnippetsDirectory; }
+            catch (ArgumentException) { snippetFileWatcher.EnableRaisingEvents = false; }
 
             var initialization = InitializeToolbox().Merge(InitializeTypeVisualizers()).TakeLast(1).ObserveOn(Scheduler.Default);
             if (validFileName && OpenWorkflow(initialFileName, false))
@@ -267,7 +267,7 @@ namespace Bonsai.Editor
             openWorkflowDialog.InitialDirectory = saveWorkflowDialog.InitialDirectory = directoryToolStripTextBox.Text;
 
             initialization.Subscribe();
-            RefreshWorkflowElements().Subscribe();
+            RefreshSnippets().Subscribe();
             updatesAvailable.Subscribe(HandleUpdatesAvailable);
             base.OnLoad(e);
         }
@@ -317,31 +317,31 @@ namespace Bonsai.Editor
 
         #region Toolbox
 
-        IObservable<Unit> RefreshWorkflowElements()
+        IObservable<Unit> RefreshSnippets()
         {
             var start = Observable.Return(new EventPattern<EventArgs>(this, EventArgs.Empty));
             var changed = Observable.FromEventPattern<FileSystemEventHandler, EventArgs>(
-                handler => workflowFileWatcher.Changed += handler,
-                handler => workflowFileWatcher.Changed -= handler);
+                handler => snippetFileWatcher.Changed += handler,
+                handler => snippetFileWatcher.Changed -= handler);
             var created = Observable.FromEventPattern<FileSystemEventHandler, EventArgs>(
-                handler => workflowFileWatcher.Created += handler,
-                handler => workflowFileWatcher.Created -= handler);
+                handler => snippetFileWatcher.Created += handler,
+                handler => snippetFileWatcher.Created -= handler);
             var deleted = Observable.FromEventPattern<FileSystemEventHandler, EventArgs>(
-                handler => workflowFileWatcher.Deleted += handler,
-                handler => workflowFileWatcher.Deleted -= handler);
+                handler => snippetFileWatcher.Deleted += handler,
+                handler => snippetFileWatcher.Deleted -= handler);
             var renamed = Observable.FromEventPattern<RenamedEventHandler, EventArgs>(
-                handler => workflowFileWatcher.Renamed += handler,
-                handler => workflowFileWatcher.Renamed -= handler);
+                handler => snippetFileWatcher.Renamed += handler,
+                handler => snippetFileWatcher.Renamed -= handler);
             return Observable
                 .Merge(start, changed, created, deleted, renamed)
                 .Throttle(TimeSpan.FromSeconds(1), Scheduler.Default)
-                .Select(evt => FindWorkflowElements(WorkflowsDirectory).GroupBy(x => x.Namespace).ToList())
+                .Select(evt => FindSnippets(SnippetsDirectory).GroupBy(x => x.Namespace).ToList())
                 .ObserveOn(this)
                 .Do(elements =>
                 {
                     toolboxTreeView.BeginUpdate();
-                    var workflowCategory = toolboxCategories[WorkflowCategoryName];
-                    workflowCategory.Nodes.Clear();
+                    var snippetCategory = toolboxCategories[SnippetCategoryName];
+                    snippetCategory.Nodes.Clear();
                     foreach (var package in elements)
                     {
                         InitializeToolboxCategory(package.Key, package);
@@ -352,7 +352,7 @@ namespace Bonsai.Editor
                 .Select(xs => Unit.Default);
         }
 
-        static IEnumerable<WorkflowElementDescriptor> FindWorkflowElements(string basePath)
+        static IEnumerable<WorkflowElementDescriptor> FindSnippets(string basePath)
         {
             var workflowFiles = default(string[]);
             basePath = Path.IsPathRooted(basePath) ? basePath : Path.Combine(AppDomain.CurrentDomain.BaseDirectory, basePath);
@@ -753,7 +753,7 @@ namespace Bonsai.Editor
             }
         }
 
-        private void saveSelectionAsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void saveSnippetAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var currentFileName = saveWorkflowDialog.FileName;
             try
@@ -1231,7 +1231,7 @@ namespace Bonsai.Editor
             var description = objectDescriptions.Length == 1 ? objectDescriptions[0] : string.Empty;
             UpdateDescriptionTextBox(displayName, description, propertiesDescriptionTextBox);
 
-            saveSelectionAsToolStripMenuItem.Enabled = selectedObjects.Length > 0;
+            saveSnippetAsToolStripMenuItem.Enabled = selectedObjects.Length > 0;
             if (selectedObjects.Length == 0)
             {
                 // Select externalized properties
@@ -1733,7 +1733,7 @@ namespace Bonsai.Editor
                 HandleMenuItemShortcutKeys(e, siteForm.newToolStripMenuItem, siteForm.newToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.openToolStripMenuItem, siteForm.openToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.saveToolStripMenuItem, siteForm.saveToolStripMenuItem_Click);
-                HandleMenuItemShortcutKeys(e, siteForm.saveSelectionAsToolStripMenuItem, siteForm.saveSelectionAsToolStripMenuItem_Click);
+                HandleMenuItemShortcutKeys(e, siteForm.saveSnippetAsToolStripMenuItem, siteForm.saveSnippetAsToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.exportImageToolStripMenuItem, siteForm.exportImageToolStripMenuItem_Click);
             }
 
