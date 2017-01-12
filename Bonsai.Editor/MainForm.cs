@@ -55,6 +55,7 @@ namespace Bonsai.Editor
         Bitmap statusReadyImage;
         ToolStripButton statusUpdateAvailableLabel;
         BehaviorSubject<bool> updatesAvailable;
+        DirectoryInfo snippetPath;
         object formClosedGate;
         bool formClosed;
 
@@ -243,9 +244,6 @@ namespace Bonsai.Editor
                 Path.GetExtension(initialFileName) == BonsaiExtension &&
                 File.Exists(initialFileName);
 
-            try { snippetFileWatcher.Path = SnippetsDirectory; }
-            catch (ArgumentException) { snippetFileWatcher.EnableRaisingEvents = false; }
-
             var initialization = InitializeToolbox().Merge(InitializeTypeVisualizers()).TakeLast(1).ObserveOn(Scheduler.Default);
             if (validFileName && OpenWorkflow(initialFileName, false))
             {
@@ -265,6 +263,7 @@ namespace Bonsai.Editor
             var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory || currentDirectory == systemPath || currentDirectory == systemX86Path;
             directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
             openWorkflowDialog.InitialDirectory = saveWorkflowDialog.InitialDirectory = directoryToolStripTextBox.Text;
+            snippetPath = new DirectoryInfo(Path.Combine(appDomainBaseDirectory, SnippetsDirectory));
 
             initialization.Subscribe();
             RefreshSnippets().Subscribe();
@@ -319,6 +318,17 @@ namespace Bonsai.Editor
 
         IObservable<Unit> RefreshSnippets()
         {
+            try
+            {
+                snippetFileWatcher.Path = snippetPath.FullName;
+                snippetFileWatcher.EnableRaisingEvents = true;
+            }
+            catch (ArgumentException)
+            {
+                snippetFileWatcher.EnableRaisingEvents = false;
+                return Observable.Empty<Unit>();
+            }
+
             var start = Observable.Return(new EventPattern<EventArgs>(this, EventArgs.Empty));
             var changed = Observable.FromEventPattern<FileSystemEventHandler, EventArgs>(
                 handler => snippetFileWatcher.Changed += handler,
@@ -758,13 +768,24 @@ namespace Bonsai.Editor
             var currentFileName = saveWorkflowDialog.FileName;
             try
             {
+                if (string.IsNullOrEmpty(snippetFileWatcher.Path) && !snippetPath.Exists)
+                {
+                    snippetPath.Create();
+                    RefreshSnippets().Subscribe();
+                }
+
+                saveWorkflowDialog.InitialDirectory = snippetFileWatcher.Path;
                 if (saveWorkflowDialog.ShowDialog() == DialogResult.OK)
                 {
                     var serializerWorkflowBuilder = selectionModel.SelectedNodes.ToWorkflowBuilder();
                     SaveWorkflow(saveWorkflowDialog.FileName, serializerWorkflowBuilder);
                 }
             }
-            finally { saveWorkflowDialog.FileName = currentFileName; }
+            finally
+            {
+                saveWorkflowDialog.FileName = currentFileName;
+                saveWorkflowDialog.InitialDirectory = openWorkflowDialog.InitialDirectory;
+            }
         }
 
         private void exportImageToolStripMenuItem_Click(object sender, EventArgs e)
