@@ -352,10 +352,31 @@ namespace Bonsai.Editor
                 {
                     toolboxTreeView.BeginUpdate();
                     var snippetCategory = toolboxCategories[SnippetCategoryName];
-                    snippetCategory.Nodes.Clear();
+                    foreach (TreeNode node in snippetCategory.Nodes)
+                    {
+                        node.Nodes.Clear();
+                    }
+
                     foreach (var package in elements)
                     {
                         InitializeToolboxCategory(package.Key, package);
+                    }
+
+                    var sortedNodes = new TreeNode[snippetCategory.Nodes.Count];
+                    snippetCategory.Nodes.CopyTo(sortedNodes, 0);
+                    Array.Sort(sortedNodes, (n1, n2) =>
+                    {
+                        if (n1.Nodes.Count == 0) return n2.Nodes.Count == 0 ? 0 : 1;
+                        else if (n2.Nodes.Count == 0) return -1;
+                        else return string.Compare(n1.Text, n2.Text);
+                    });
+
+                    snippetCategory.Nodes.Clear();
+                    for (int i = 0; i < sortedNodes.Length; i++)
+                    {
+                        var node = sortedNodes[i];
+                        if (node.Nodes.Count == 0) break;
+                        snippetCategory.Nodes.Add(node);
                     }
                     toolboxTreeView.EndUpdate();
                 })
