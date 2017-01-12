@@ -2167,7 +2167,7 @@ namespace Bonsai.Design
             LaunchDefaultEditor(graphView.SelectedNode);
         }
 
-        private void saveSelectionAsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void saveSnippetAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             editorService.OnKeyDown(new KeyEventArgs(Keys.Control | Keys.Shift | Keys.S));
         }
@@ -2515,7 +2515,7 @@ namespace Bonsai.Design
                     disconnectToolStripMenuItem.Enabled = true;
                     groupToolStripMenuItem.Enabled = true;
                     ungroupToolStripMenuItem.Enabled = true;
-                    saveSelectionAsToolStripMenuItem.Enabled = true;
+                    saveSnippetAsToolStripMenuItem.Enabled = true;
                     CreateGroupMenuItems(selectedNodes);
                 }
             }

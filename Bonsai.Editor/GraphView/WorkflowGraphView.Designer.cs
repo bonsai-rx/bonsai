@@ -37,7 +37,7 @@
             this.visualizerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.defaultEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-            this.saveSelectionAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveSnippetAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.cutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -61,7 +61,7 @@
             this.visualizerToolStripMenuItem,
             this.defaultEditorToolStripMenuItem,
             this.toolStripSeparator4,
-            this.saveSelectionAsToolStripMenuItem,
+            this.saveSnippetAsToolStripMenuItem,
             this.toolStripSeparator2,
             this.cutToolStripMenuItem,
             this.copyToolStripMenuItem,
@@ -117,15 +117,15 @@
             this.toolStripSeparator4.Name = "toolStripSeparator4";
             this.toolStripSeparator4.Size = new System.Drawing.Size(245, 6);
             // 
-            // saveSelectionAsToolStripMenuItem
+            // saveSnippetAsToolStripMenuItem
             // 
-            this.saveSelectionAsToolStripMenuItem.Enabled = false;
-            this.saveSelectionAsToolStripMenuItem.Name = "saveSelectionAsToolStripMenuItem";
-            this.saveSelectionAsToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            this.saveSnippetAsToolStripMenuItem.Enabled = false;
+            this.saveSnippetAsToolStripMenuItem.Name = "saveSnippetAsToolStripMenuItem";
+            this.saveSnippetAsToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.S)));
-            this.saveSelectionAsToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
-            this.saveSelectionAsToolStripMenuItem.Text = "Save Selection As...";
-            this.saveSelectionAsToolStripMenuItem.Click += new System.EventHandler(this.saveSelectionAsToolStripMenuItem_Click);
+            this.saveSnippetAsToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.saveSnippetAsToolStripMenuItem.Text = "Save Snippet As...";
+            this.saveSnippetAsToolStripMenuItem.Click += new System.EventHandler(this.saveSnippetAsToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
@@ -271,7 +271,7 @@
         private System.Windows.Forms.ToolStripMenuItem disconnectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem defaultEditorToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
-        private System.Windows.Forms.ToolStripMenuItem saveSelectionAsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveSnippetAsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ungroupToolStripMenuItem;
     }
 }
