@@ -35,6 +35,7 @@ namespace Bonsai.Editor
         const string SnippetsDirectory = "Snippets";
         const string SnippetCategoryName = "Workflow";
         const string VersionAttributeName = "Version";
+        const string DefaultSnippetNamespace = "Unspecified";
         const int CycleNextHotKey = 0;
         const int CyclePreviousHotKey = 1;
 
@@ -391,17 +392,16 @@ namespace Bonsai.Editor
                 var fileNamespace = Path.GetDirectoryName(relativePath)
                                         .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar)
                                         .Replace(Path.DirectorySeparatorChar, ExpressionHelper.MemberSeparator.First());
-                if (!string.IsNullOrEmpty(fileNamespace))
+                if (string.IsNullOrEmpty(fileNamespace)) fileNamespace = DefaultSnippetNamespace;
+
+                yield return new WorkflowElementDescriptor
                 {
-                    yield return new WorkflowElementDescriptor
-                    {
-                        Name = Path.GetFileNameWithoutExtension(relativePath),
-                        Namespace = fileNamespace,
-                        FullyQualifiedName = fileName,
-                        Description = description,
-                        ElementTypes = new[] { ElementCategory.Workflow }
-                    };
-                }
+                    Name = Path.GetFileNameWithoutExtension(relativePath),
+                    Namespace = fileNamespace,
+                    FullyQualifiedName = fileName,
+                    Description = description,
+                    ElementTypes = new[] { ElementCategory.Workflow }
+                };
             }
         }
 
