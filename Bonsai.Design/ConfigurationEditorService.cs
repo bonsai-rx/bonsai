@@ -12,20 +12,24 @@ namespace Bonsai.Design
     class ConfigurationEditorService : IWindowsFormsEditorService, IServiceProvider, ITypeDescriptorContext
     {
         Control ownerControl;
+        IServiceProvider parentProvider;
 
-        public ConfigurationEditorService(Control owner)
+        public ConfigurationEditorService(Control owner, IServiceProvider provider)
         {
             ownerControl = owner;
+            parentProvider = provider;
         }
 
         public DialogResult DialogResult { get; private set; }
 
         public void CloseDropDown()
         {
+            throw new NotSupportedException();
         }
 
         public void DropDownControl(Control control)
         {
+            throw new NotSupportedException();
         }
 
         public DialogResult ShowDialog(Form dialog)
@@ -56,6 +60,11 @@ namespace Bonsai.Design
             if (serviceType == typeof(IWindowsFormsEditorService))
             {
                 return this;
+            }
+
+            if (parentProvider != null)
+            {
+                return parentProvider.GetService(serviceType);
             }
 
             return null;
