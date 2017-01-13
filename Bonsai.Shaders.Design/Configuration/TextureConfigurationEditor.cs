@@ -9,14 +9,15 @@ namespace Bonsai.Shaders.Configuration.Design
 {
     class TextureConfigurationEditor : ShaderConfigurationEditor
     {
-        protected override ShaderConfigurationControl CreateEditorControl()
+        protected override ShaderConfigurationControl CreateEditorControl(IServiceProvider provider)
         {
-            return new TextureConfigurationControl();
+            return new TextureConfigurationControl(provider);
         }
 
         class TextureConfigurationControl : ShaderConfigurationControl
         {
-            public TextureConfigurationControl()
+            public TextureConfigurationControl(IServiceProvider provider)
+                : base(provider)
             {
                 Text = "Manage Textures";
             }
