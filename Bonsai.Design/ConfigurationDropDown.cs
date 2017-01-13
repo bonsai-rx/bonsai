@@ -21,9 +21,14 @@ namespace Bonsai.Design
         ConfigurationEditorService editorService;
 
         public ConfigurationDropDown()
+            : this(null)
+        {
+        }
+
+        public ConfigurationDropDown(IServiceProvider provider)
         {
             InitializeComponent();
-            editorService = new ConfigurationEditorService(this);
+            editorService = new ConfigurationEditorService(this, provider);
 
             using (var graphics = Graphics.FromHwnd(IntPtr.Zero))
             {
