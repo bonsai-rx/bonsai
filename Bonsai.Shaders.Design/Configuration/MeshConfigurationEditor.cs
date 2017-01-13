@@ -9,14 +9,15 @@ namespace Bonsai.Shaders.Configuration.Design
 {
     class MeshConfigurationEditor : ShaderConfigurationEditor
     {
-        protected override ShaderConfigurationControl CreateEditorControl()
+        protected override ShaderConfigurationControl CreateEditorControl(IServiceProvider provider)
         {
-            return new MeshConfigurationControl();
+            return new MeshConfigurationControl(provider);
         }
 
         class MeshConfigurationControl : ShaderConfigurationControl
         {
-            public MeshConfigurationControl()
+            public MeshConfigurationControl(IServiceProvider provider)
+                : base(provider)
             {
                 Text = "Manage Meshes";
             }

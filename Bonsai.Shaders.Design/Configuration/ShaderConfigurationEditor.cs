@@ -16,9 +16,9 @@ namespace Bonsai.Shaders.Configuration.Design
             return UITypeEditorEditStyle.DropDown;
         }
 
-        protected virtual ShaderConfigurationControl CreateEditorControl()
+        protected virtual ShaderConfigurationControl CreateEditorControl(IServiceProvider provider)
         {
-            return new ShaderConfigurationControl();
+            return new ShaderConfigurationControl(provider);
         }
 
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
@@ -26,7 +26,7 @@ namespace Bonsai.Shaders.Configuration.Design
             var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
             if (editorService != null)
             {
-                var configurationControl = CreateEditorControl();
+                var configurationControl = CreateEditorControl(provider);
                 configurationControl.SelectedValue = value;
                 configurationControl.SelectedValueChanged += delegate { editorService.CloseDropDown(); };
                 editorService.DropDownControl(configurationControl);

@@ -11,13 +11,18 @@ namespace Bonsai.Shaders.Configuration.Design
 {
     class MaterialConfigurationEditor : ShaderConfigurationEditor
     {
-        protected override ShaderConfigurationControl CreateEditorControl()
+        protected override ShaderConfigurationControl CreateEditorControl(IServiceProvider provider)
         {
-            return new MaterialConfigurationControl();
+            return new MaterialConfigurationControl(provider);
         }
 
         class MaterialConfigurationControl : ShaderConfigurationControl
         {
+            public MaterialConfigurationControl(IServiceProvider provider)
+                : base(provider)
+            {
+            }
+
             protected override IEnumerable<string> GetConfigurationNames()
             {
                 return ShaderManager.LoadConfiguration().Shaders.Where(configuration => configuration is MaterialConfiguration)

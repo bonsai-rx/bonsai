@@ -13,7 +13,8 @@ namespace Bonsai.Shaders.Configuration.Design
 {
     class ShaderConfigurationControl : ConfigurationDropDown
     {
-        public ShaderConfigurationControl()
+        public ShaderConfigurationControl(IServiceProvider provider)
+            : base(provider)
         {
             Text = "Manage Shaders";
         }

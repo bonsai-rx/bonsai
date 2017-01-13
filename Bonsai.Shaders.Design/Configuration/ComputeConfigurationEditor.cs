@@ -8,13 +8,18 @@ namespace Bonsai.Shaders.Configuration.Design
 {
     class ComputeConfigurationEditor : ShaderConfigurationEditor
     {
-        protected override ShaderConfigurationControl CreateEditorControl()
+        protected override ShaderConfigurationControl CreateEditorControl(IServiceProvider provider)
         {
-            return new ComputeConfigurationControl();
+            return new ComputeConfigurationControl(provider);
         }
 
         class ComputeConfigurationControl : ShaderConfigurationControl
         {
+            public ComputeConfigurationControl(IServiceProvider provider)
+                : base(provider)
+            {
+            }
+
             protected override IEnumerable<string> GetConfigurationNames()
             {
                 return ShaderManager.LoadConfiguration().Shaders.Where(configuration => configuration is ComputeConfiguration)
