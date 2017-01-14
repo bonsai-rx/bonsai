@@ -16,8 +16,8 @@ namespace Bonsai.Scripting
 {
     [DefaultProperty("Script")]
     [WorkflowElementCategory(ElementCategory.Source)]
-    [Description("A Python script used to generate individual elements of an observable sequence.")]
-    public class PythonSource : ZeroArgumentExpressionBuilder, INamedElement
+    [TypeDescriptionProvider(typeof(PythonSourceTypeDescriptionProvider))]
+    public class PythonSource : ZeroArgumentExpressionBuilder, IScriptingElement
     {
         public PythonSource()
         {
@@ -92,6 +92,22 @@ namespace Bonsai.Scripting
                     }
                 });
             });
+        }
+
+        class PythonSourceTypeDescriptionProvider : TypeDescriptionProvider
+        {
+            static readonly TypeDescriptionProvider parentProvider = TypeDescriptor.GetProvider(typeof(PythonSource));
+
+            public PythonSourceTypeDescriptionProvider()
+                : base(parentProvider)
+            {
+            }
+
+            public override ICustomTypeDescriptor GetExtendedTypeDescriptor(object instance)
+            {
+                return new ScriptingElementTypeDescriptor(instance,
+                    "A Python script used to generate individual elements of an observable sequence.");
+            }
         }
     }
 }

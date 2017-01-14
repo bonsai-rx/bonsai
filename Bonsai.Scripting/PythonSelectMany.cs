@@ -14,8 +14,8 @@ namespace Bonsai.Scripting
 {
     [DefaultProperty("Script")]
     [WorkflowElementCategory(ElementCategory.Combinator)]
-    [Description("A Python script used to project each element of the input sequence into an enumerable sequence.")]
-    public class PythonSelectMany : SingleArgumentExpressionBuilder, INamedElement
+    [TypeDescriptionProvider(typeof(PythonSelectManyTypeDescriptionProvider))]
+    public class PythonSelectMany : SingleArgumentExpressionBuilder, IScriptingElement
     {
         public PythonSelectMany()
         {
@@ -120,6 +120,22 @@ namespace Bonsai.Scripting
             }
 
             return result;
+        }
+
+        class PythonSelectManyTypeDescriptionProvider : TypeDescriptionProvider
+        {
+            static readonly TypeDescriptionProvider parentProvider = TypeDescriptor.GetProvider(typeof(PythonSelectMany));
+
+            public PythonSelectManyTypeDescriptionProvider()
+                : base(parentProvider)
+            {
+            }
+
+            public override ICustomTypeDescriptor GetExtendedTypeDescriptor(object instance)
+            {
+                return new ScriptingElementTypeDescriptor(instance,
+                    "A Python script used to project each element of the input sequence into an enumerable sequence.");
+            }
         }
     }
 }

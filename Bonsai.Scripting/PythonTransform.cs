@@ -14,8 +14,8 @@ namespace Bonsai.Scripting
 {
     [DefaultProperty("Script")]
     [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("A Python script used to process and convert individual elements of the input sequence.")]
-    public class PythonTransform : SingleArgumentExpressionBuilder, INamedElement
+    [TypeDescriptionProvider(typeof(PythonTransformTypeDescriptionProvider))]
+    public class PythonTransform : SingleArgumentExpressionBuilder, IScriptingElement
     {
         public PythonTransform()
         {
@@ -120,6 +120,22 @@ namespace Bonsai.Scripting
             }
 
             return result;
+        }
+
+        class PythonTransformTypeDescriptionProvider : TypeDescriptionProvider
+        {
+            static readonly TypeDescriptionProvider parentProvider = TypeDescriptor.GetProvider(typeof(PythonTransform));
+
+            public PythonTransformTypeDescriptionProvider()
+                : base(parentProvider)
+            {
+            }
+
+            public override ICustomTypeDescriptor GetExtendedTypeDescriptor(object instance)
+            {
+                return new ScriptingElementTypeDescriptor(instance,
+                    "A Python script used to process and convert individual elements of the input sequence.");
+            }
         }
     }
 }
