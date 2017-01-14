@@ -15,12 +15,29 @@ namespace Bonsai.Scripting
     [DefaultProperty("Script")]
     [WorkflowElementCategory(ElementCategory.Transform)]
     [Description("A Python script used to process and convert individual elements of the input sequence.")]
-    public class PythonTransform : SingleArgumentExpressionBuilder
+    public class PythonTransform : SingleArgumentExpressionBuilder, INamedElement
     {
         public PythonTransform()
         {
             Script = "@returns(bool)\ndef process(value):\n  return True";
         }
+
+        /// <summary>
+        /// Gets or sets the name of the python transform.
+        /// </summary>
+        [Category("Design")]
+        [Externalizable(false)]
+        [Description("The name of the python transform.")]
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets a description for the python transform.
+        /// </summary>
+        [Category("Design")]
+        [Externalizable(false)]
+        [Description("A description for the python transform.")]
+        [Editor(DesignTypes.MultilineStringEditor, typeof(UITypeEditor))]
+        public string Description { get; set; }
 
         [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
         [Description("The script that determines the operation of the transform.")]
