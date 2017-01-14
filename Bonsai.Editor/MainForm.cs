@@ -617,13 +617,6 @@ namespace Bonsai.Editor
                 return false;
             }
 
-            var workflowDirectory = Path.GetDirectoryName(fileName);
-            openWorkflowDialog.InitialDirectory = saveWorkflowDialog.InitialDirectory = workflowDirectory;
-            if (UpgradeHelper.IsDeprecated(version)) saveWorkflowDialog.FileName = null;
-            else saveWorkflowDialog.FileName = fileName;
-            ResetProjectStatus();
-            UpdateTitle();
-
             var layoutPath = GetLayoutPath(fileName);
             workflowGraphView.VisualizerLayout = null;
             workflowGraphView.Workflow = workflowBuilder.Workflow;
@@ -636,9 +629,14 @@ namespace Bonsai.Editor
                 }
             }
 
-            editorSite.ValidateWorkflow();
+            var workflowDirectory = Path.GetDirectoryName(fileName);
+            openWorkflowDialog.InitialDirectory = saveWorkflowDialog.InitialDirectory = workflowDirectory;
+            if (UpgradeHelper.IsDeprecated(version)) saveWorkflowDialog.FileName = null;
+            else saveWorkflowDialog.FileName = fileName;
             ResetProjectStatus();
+            UpdateTitle();
 
+            editorSite.ValidateWorkflow();
             if (setWorkingDirectory || string.IsNullOrEmpty(directoryToolStripTextBox.Text))
             {
                 directoryToolStripTextBox.Text = workflowDirectory;
