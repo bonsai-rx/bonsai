@@ -15,12 +15,29 @@ namespace Bonsai.Scripting
     [DefaultProperty("Script")]
     [WorkflowElementCategory(ElementCategory.Combinator)]
     [Description("A Python script used to project each element of the input sequence into an enumerable sequence.")]
-    public class PythonSelectMany : SingleArgumentExpressionBuilder
+    public class PythonSelectMany : SingleArgumentExpressionBuilder, INamedElement
     {
         public PythonSelectMany()
         {
             Script = "@returns(bool)\ndef process(value):\n  yield True";
         }
+
+        /// <summary>
+        /// Gets or sets the name of the python script.
+        /// </summary>
+        [Category("Design")]
+        [Externalizable(false)]
+        [Description("The name of the python script.")]
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets a description for the python script.
+        /// </summary>
+        [Category("Design")]
+        [Externalizable(false)]
+        [Description("A description for the python script.")]
+        [Editor(DesignTypes.MultilineStringEditor, typeof(UITypeEditor))]
+        public string Description { get; set; }
 
         [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
         [Description("The script that determines how each element is projected into a sequence.")]

@@ -17,12 +17,29 @@ namespace Bonsai.Scripting
     [DefaultProperty("Script")]
     [WorkflowElementCategory(ElementCategory.Source)]
     [Description("A Python script used to generate individual elements of an observable sequence.")]
-    public class PythonSource : ZeroArgumentExpressionBuilder
+    public class PythonSource : ZeroArgumentExpressionBuilder, INamedElement
     {
         public PythonSource()
         {
             Script = "@returns(int)\ndef generate():\n  yield 0";
         }
+
+        /// <summary>
+        /// Gets or sets the name of the python source.
+        /// </summary>
+        [Category("Design")]
+        [Externalizable(false)]
+        [Description("The name of the python source.")]
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets a description for the python source.
+        /// </summary>
+        [Category("Design")]
+        [Externalizable(false)]
+        [Description("A description for the python source.")]
+        [Editor(DesignTypes.MultilineStringEditor, typeof(UITypeEditor))]
+        public string Description { get; set; }
 
         [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
         [Description("The script that determines the operation of the source.")]
