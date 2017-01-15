@@ -123,6 +123,12 @@
   <data name="ConfigurationDirectoryChanged_Message" xml:space="preserve">
     <value>The active shader configuration directory has changed. Saving this configuration will create and store a file in the new directory. Are you sure you want to continue?</value>
   </data>
+  <data name="ConfigurationFileUpgrade_Caption" xml:space="preserve">
+    <value>Obsolete Configuration File</value>
+  </data>
+  <data name="ConfigurationFileUpgrade_Message" xml:space="preserve">
+    <value>The current shader configuration file was created with an older version of the shaders module. Would you like to upgrade? Note: you need to upgrade in order to change any settings but this operation is non-reversible.</value>
+  </data>
   <data name="ConfigurationReadError_Caption" xml:space="preserve">
     <value>Read Error</value>
   </data>

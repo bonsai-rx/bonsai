@@ -79,6 +79,24 @@ namespace Bonsai.Shaders.Design.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Obsolete Configuration File.
+        /// </summary>
+        internal static string ConfigurationFileUpgrade_Caption {
+            get {
+                return ResourceManager.GetString("ConfigurationFileUpgrade_Caption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The current shader configuration file was created with an older version of the shaders module. Would you like to upgrade? Note: you need to upgrade in order to change any settings but this operation is non-reversible..
+        /// </summary>
+        internal static string ConfigurationFileUpgrade_Message {
+            get {
+                return ResourceManager.GetString("ConfigurationFileUpgrade_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Read Error.
         /// </summary>
         internal static string ConfigurationReadError_Caption {
