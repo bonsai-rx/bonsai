@@ -50,6 +50,13 @@ namespace Bonsai.Shaders.Configuration.Design
 
         protected class ShaderWindowEditor : UITypeEditor
         {
+            readonly ShaderConfigurationComponentEditor editor;
+
+            public ShaderWindowEditor()
+            {
+                editor = new ShaderConfigurationComponentEditor();
+            }
+
             public ShaderConfigurationEditorPage SelectedPage { get; set; }
 
             public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
@@ -59,13 +66,11 @@ namespace Bonsai.Shaders.Configuration.Design
 
             public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
             {
-                var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
+                var editorService = (IUIService)provider.GetService(typeof(IUIService));
                 if (editorService != null)
                 {
-                    var form = new ShaderConfigurationEditorDialog();
-                    form.SelectedPage = SelectedPage;
-                    form.SelectedObject = value as ShaderWindowSettings;
-                    editorService.ShowDialog(form);
+                    var owner = editorService.GetDialogOwnerWindow();
+                    editor.EditConfiguration((ShaderWindowSettings)value, SelectedPage, owner);
                     return value;
                 }
 

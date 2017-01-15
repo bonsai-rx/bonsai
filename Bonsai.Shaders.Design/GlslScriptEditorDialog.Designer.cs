@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GlslScriptEditorDialog));
-            this.scintilla = new ScintillaNET.Scintilla();
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -64,28 +63,13 @@
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
-            this.okButton = new System.Windows.Forms.Button();
-            this.cancelButton = new System.Windows.Forms.Button();
+            this.editorTabControl = new Bonsai.Shaders.Design.EditorTabControl();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.editorPanel = new System.Windows.Forms.Panel();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
+            this.editorPanel.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // scintilla
-            // 
-            this.scintilla.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.scintilla.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.scintilla.Location = new System.Drawing.Point(0, 49);
-            this.scintilla.Name = "scintilla";
-            this.scintilla.Size = new System.Drawing.Size(624, 233);
-            this.scintilla.TabIndex = 3;
-            this.scintilla.TabWidth = 2;
-            this.scintilla.UseTabs = false;
-            this.scintilla.WrapMode = ScintillaNET.WrapMode.Word;
-            this.scintilla.SavePointLeft += new System.EventHandler<System.EventArgs>(this.scintilla_SavePointLeft);
-            this.scintilla.SavePointReached += new System.EventHandler<System.EventArgs>(this.scintilla_SavePointReached);
-            this.scintilla.TextChanged += new System.EventHandler(this.scintilla_TextChanged);
             // 
             // menuStrip
             // 
@@ -253,7 +237,7 @@
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.validateToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
             this.toolsToolStripMenuItem.Text = "&Tools";
             // 
             // validateToolStripMenuItem
@@ -262,7 +246,7 @@
             this.validateToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.validateToolStripMenuItem.Name = "validateToolStripMenuItem";
             this.validateToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F5;
-            this.validateToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.validateToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
             this.validateToolStripMenuItem.Text = "&Validate";
             this.validateToolStripMenuItem.Click += new System.EventHandler(this.validateToolStripMenuItem_Click);
             // 
@@ -377,47 +361,53 @@
             this.toolStripSeparator2.Name = "toolStripSeparator2";
             this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
             // 
-            // okButton
+            // editorTabControl
             // 
-            this.okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.okButton.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.okButton.Location = new System.Drawing.Point(456, 288);
-            this.okButton.Name = "okButton";
-            this.okButton.Size = new System.Drawing.Size(75, 23);
-            this.okButton.TabIndex = 6;
-            this.okButton.Text = "OK";
-            this.okButton.UseVisualStyleBackColor = true;
+            this.editorTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.editorTabControl.Location = new System.Drawing.Point(0, 0);
+            this.editorTabControl.Name = "editorTabControl";
+            this.editorTabControl.SelectedIndex = 0;
+            this.editorTabControl.Size = new System.Drawing.Size(624, 250);
+            this.editorTabControl.TabIndex = 8;
+            this.editorTabControl.Selected += new System.Windows.Forms.TabControlEventHandler(this.editorTabControl_Selected);
+            this.editorTabControl.MouseDown += new System.Windows.Forms.MouseEventHandler(this.editorTabControl_MouseDown);
             // 
-            // cancelButton
+            // statusStrip
             // 
-            this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cancelButton.Location = new System.Drawing.Point(537, 288);
-            this.cancelButton.Name = "cancelButton";
-            this.cancelButton.Size = new System.Drawing.Size(75, 23);
-            this.cancelButton.TabIndex = 7;
-            this.cancelButton.Text = "Cancel";
-            this.cancelButton.UseVisualStyleBackColor = true;
+            this.statusStrip.Location = new System.Drawing.Point(0, 299);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(624, 22);
+            this.statusStrip.TabIndex = 9;
+            this.statusStrip.Text = "statusStrip";
+            // 
+            // editorPanel
+            // 
+            this.editorPanel.Controls.Add(this.editorTabControl);
+            this.editorPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.editorPanel.Location = new System.Drawing.Point(0, 49);
+            this.editorPanel.Name = "editorPanel";
+            this.editorPanel.Size = new System.Drawing.Size(624, 250);
+            this.editorPanel.TabIndex = 10;
             // 
             // GlslScriptEditorDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(624, 321);
-            this.Controls.Add(this.cancelButton);
-            this.Controls.Add(this.okButton);
-            this.Controls.Add(this.scintilla);
+            this.Controls.Add(this.editorPanel);
+            this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.toolStrip);
             this.Controls.Add(this.menuStrip);
             this.MainMenuStrip = this.menuStrip;
             this.MinimumSize = new System.Drawing.Size(640, 360);
             this.Name = "GlslScriptEditorDialog";
             this.ShowIcon = false;
-            this.Text = "GLSL Script";
+            this.Text = "GLSL Script Editor";
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
             this.toolStrip.ResumeLayout(false);
             this.toolStrip.PerformLayout();
+            this.editorPanel.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -425,7 +415,6 @@
 
         #endregion
 
-        private ScintillaNET.Scintilla scintilla;
         private System.Windows.Forms.MenuStrip menuStrip;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
@@ -457,10 +446,11 @@
         private System.Windows.Forms.ToolStrip toolStrip;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
-        private System.Windows.Forms.Button okButton;
-        private System.Windows.Forms.Button cancelButton;
         private System.Windows.Forms.ToolStripMenuItem validateToolStripMenuItem;
         private System.Windows.Forms.ToolStripButton validateToolStripButton;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private EditorTabControl editorTabControl;
+        private System.Windows.Forms.StatusStrip statusStrip;
+        private System.Windows.Forms.Panel editorPanel;
     }
 }

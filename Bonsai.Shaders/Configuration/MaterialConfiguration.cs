@@ -17,17 +17,20 @@ namespace Bonsai.Shaders.Configuration
 
         [Category("Shaders")]
         [Description("Specifies the path to the vertex shader.")]
-        [Editor("Bonsai.Shaders.Design.VertScriptEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        [FileNameFilter("Vertex Shader Files (*.vert)|*.vert|All Files (*.*)|*.*")]
+        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public string VertexShader { get; set; }
 
         [Category("Shaders")]
         [Description("Specifies the path to the geometry shader.")]
-        [Editor("Bonsai.Shaders.Design.GeomScriptEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        [FileNameFilter("Geometry Shader Files (*.geom)|*.geom|All Files (*.*)|*.*")]
+        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public string GeometryShader { get; set; }
 
         [Category("Shaders")]
         [Description("Specifies the path to the fragment shader.")]
-        [Editor("Bonsai.Shaders.Design.FragScriptEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        [FileNameFilter("Fragment Shader Files (*.frag)|*.frag|All Files (*.*)|*.*")]
+        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public string FragmentShader { get; set; }
 
         [Category("State")]

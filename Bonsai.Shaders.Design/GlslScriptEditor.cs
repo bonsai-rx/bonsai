@@ -37,8 +37,6 @@ namespace Bonsai.Shaders.Design
             {
                 var fileName = value as string;
                 var editorDialog = new GlslScriptEditorDialog();
-                editorDialog.FileName = fileName;
-                editorDialog.ScriptType = GetShaderType();
                 var examples = GetShaderExamples();
                 if (examples != null)
                 {
@@ -48,10 +46,7 @@ namespace Bonsai.Shaders.Design
                     }
                 }
 
-                if (editorService.ShowDialog(editorDialog) == DialogResult.OK)
-                {
-                    return editorDialog.FileName;
-                }
+                editorService.ShowDialog(editorDialog);
             }
 
             return base.EditValue(context, provider, value);
