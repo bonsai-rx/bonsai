@@ -43,6 +43,7 @@
             this.selectionListBox.IntegralHeight = false;
             this.selectionListBox.Location = new System.Drawing.Point(3, 4);
             this.selectionListBox.Name = "selectionListBox";
+            this.selectionListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
             this.selectionListBox.Size = new System.Drawing.Size(156, 160);
             this.selectionListBox.TabIndex = 0;
             this.selectionListBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.selectionListBox_DrawItem);

@@ -24,6 +24,7 @@ namespace Bonsai.Shaders.Configuration.Design
         static readonly object AfterExpandEvent = new object();
         static readonly object BeforeExpandEvent = new object();
         static readonly object SelectedItemChangedEvent = new object();
+        Lazy<XmlSerializer> itemCollectionSerializer;
 
         public CollectionEditorControl()
         {
@@ -51,6 +52,11 @@ namespace Bonsai.Shaders.Configuration.Design
         {
             get { return selectionListBox.SelectedItem; }
             set { selectionListBox.SelectedItem = value; }
+        }
+
+        public IEnumerable SelectedItems
+        {
+            get { return selectionListBox.SelectedItems; }
         }
 
         public event EventHandler SelectedItemChanged
@@ -84,6 +90,8 @@ namespace Bonsai.Shaders.Configuration.Design
             removeTop = removeButton.Top;
             initialHeight = Height;
             initialListHeight = selectionListBox.Height;
+            itemCollectionSerializer = new Lazy<XmlSerializer>(() =>
+                new XmlSerializer(typeof(List<>).MakeGenericType(CollectionItemType)));
             var itemTypes = NewItemTypes ?? new[] { CollectionItemType };
             if (itemTypes.Length > 1)
             {
@@ -132,49 +140,102 @@ namespace Bonsai.Shaders.Configuration.Design
                 var index = selectionListBox.SelectedIndex + 1;
                 if (index == 0) index = selectionListBox.Items.Count;
                 selectionListBox.Items.Insert(index, item);
+                selectionListBox.SelectedItem = null;
                 selectionListBox.SelectedIndex = index;
             }
         }
 
-        private void RemoveSelectedItem()
+        private void RemoveSelectedItems()
         {
-            if (selectionListBox.SelectedItem != null)
+            if (selectionListBox.SelectedIndices.Count > 0)
             {
                 var selectedIndex = selectionListBox.SelectedIndex;
-                selectionListBox.Items.RemoveAt(selectedIndex);
+                for (int i = selectionListBox.SelectedIndices.Count - 1; i >= 0; i--)
+                {
+                    var index = selectionListBox.SelectedIndices[i];
+                    selectionListBox.Items.RemoveAt(index);
+                }
+
                 selectionListBox.SelectedIndex = Math.Min(selectedIndex, selectionListBox.Items.Count - 1);
                 selectionListBox.HorizontalExtent = 0;
             }
         }
 
-        private void SwapSelectedIndex(int newIndex)
+        private void SwapItemIndex(int index, int newIndex)
         {
-            var selectedIndex = selectionListBox.SelectedIndex;
             if (newIndex >= 0 && newIndex < selectionListBox.Items.Count)
             {
                 var temp = selectionListBox.Items[newIndex];
-                selectionListBox.Items[newIndex] = selectionListBox.SelectedItem;
-                selectionListBox.Items[selectedIndex] = temp;
-                selectionListBox.SelectedIndex = newIndex;
+                selectionListBox.Items[newIndex] = selectionListBox.Items[index];
+                selectionListBox.Items[index] = temp;
             }
         }
 
-        private void CopySelectedItem()
+        private void MoveSelectedIndicesUp()
         {
-            if (selectionListBox.SelectedItem != null)
+            if (selectionListBox.SelectedIndices.Count > 0)
+            {
+                if (selectionListBox.SelectedIndices[0] <= 0) return;
+                var indices = new int[selectionListBox.SelectedIndices.Count];
+                selectionListBox.SelectedIndices.CopyTo(indices, 0);
+                selectionListBox.SelectedItem = null;
+
+                for (int i = 0; i < indices.Length; i++)
+                {
+                    var newIndex = indices[i] - 1;
+                    SwapItemIndex(indices[i], newIndex);
+                    selectionListBox.SelectedIndices.Add(newIndex);
+                }
+            }
+        }
+
+        private void MoveSelectedIndicesDown()
+        {
+            var selectedIndices = selectionListBox.SelectedIndices;
+            if (selectedIndices.Count > 0)
+            {
+                if (selectedIndices[selectedIndices.Count - 1] >= selectionListBox.Items.Count - 1) return;
+                var indices = new int[selectedIndices.Count];
+                selectionListBox.SelectedIndices.CopyTo(indices, 0);
+                selectionListBox.SelectedItem = null;
+
+                for (int i = indices.Length - 1; i >= 0; i--)
+                {
+                    var newIndex = indices[i] + 1;
+                    SwapItemIndex(indices[i], newIndex);
+                    selectionListBox.SelectedIndices.Add(newIndex);
+                }
+            }
+        }
+
+        public void Cut()
+        {
+            Copy();
+            RemoveSelectedItems();
+        }
+
+        public void Copy()
+        {
+            if (selectionListBox.SelectedItems.Count > 0)
             {
                 var stringBuilder = new StringBuilder();
                 using (var writer = XmlWriter.Create(stringBuilder, new XmlWriterSettings { Indent = true }))
                 {
-                    var serializer = new XmlSerializer(CollectionItemType);
-                    serializer.Serialize(writer, selectionListBox.SelectedItem);
+                    var serializer = itemCollectionSerializer.Value;
+                    var items = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(CollectionItemType));
+                    foreach (var item in selectionListBox.SelectedItems)
+                    {
+                        items.Add(item);
+                    }
+
+                    serializer.Serialize(writer, items);
                 }
 
                 Clipboard.SetText(stringBuilder.ToString());
             }
         }
 
-        private void PasteCollectionItem()
+        public void Paste()
         {
             if (Clipboard.ContainsText())
             {
@@ -184,11 +245,15 @@ namespace Bonsai.Shaders.Configuration.Design
                 {
                     try
                     {
-                        var serializer = new XmlSerializer(CollectionItemType);
+                        var serializer = itemCollectionSerializer.Value;
                         if (serializer.CanDeserialize(reader))
                         {
-                            var item = serializer.Deserialize(reader);
-                            AddItem(item);
+                            var items = (IList)serializer.Deserialize(reader);
+                            var index = selectionListBox.SelectedIndex;
+                            foreach (var item in items)
+                            {
+                                AddItem(item);
+                            }
                         }
                     }
                     catch (XmlException) { }
@@ -207,29 +272,29 @@ namespace Bonsai.Shaders.Configuration.Design
 
         private void removeButton_Click(object sender, EventArgs e)
         {
-            RemoveSelectedItem();
+            RemoveSelectedItems();
         }
 
         private void upButton_Click(object sender, EventArgs e)
         {
-            SwapSelectedIndex(selectionListBox.SelectedIndex - 1);
+            MoveSelectedIndicesUp();
         }
 
         private void downButton_Click(object sender, EventArgs e)
         {
-            SwapSelectedIndex(selectionListBox.SelectedIndex + 1);
+            MoveSelectedIndicesDown();
         }
 
         private void selectionListBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.C && e.Modifiers == Keys.Control)
             {
-                CopySelectedItem();
+                Copy();
             }
 
             if (e.KeyCode == Keys.V && e.Modifiers == Keys.Control)
             {
-                PasteCollectionItem();
+                Paste();
             }
         }
 
