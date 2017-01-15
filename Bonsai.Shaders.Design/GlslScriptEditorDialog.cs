@@ -19,6 +19,13 @@ namespace Bonsai.Shaders.Design
     public partial class GlslScriptEditorDialog : Form
     {
         const string DefaultTabName = "script";
+        const string DefaultScript = @"#version 400
+
+void main()
+{
+}
+";
+
         readonly GlslScriptExampleCollection shaderExamples;
         GraphicsContext context;
         TabPageController activeTab;
@@ -70,6 +77,34 @@ namespace Bonsai.Shaders.Design
             }
         }
 
+        static string GetShaderTypePrefix(ShaderType shaderType)
+        {
+            switch (shaderType)
+            {
+                case ShaderType.ComputeShader: return "Compute ";
+                case ShaderType.FragmentShader: return "Fragment ";
+                case ShaderType.GeometryShader: return "Geometry ";
+                case ShaderType.TessControlShader: return "Tessellation Control ";
+                case ShaderType.TessEvaluationShader: return "Tessellation Evaluation ";
+                case ShaderType.VertexShader: return "Vertex ";
+                default: throw new ArgumentException("Invalid shader type.");
+            }
+        }
+
+        static string GetShaderExtension(ShaderType shaderType)
+        {
+            switch (shaderType)
+            {
+                case ShaderType.ComputeShader: return ".comp";
+                case ShaderType.FragmentShader: return ".frag";
+                case ShaderType.GeometryShader: return ".geom";
+                case ShaderType.TessControlShader: return ".tesc";
+                case ShaderType.TessEvaluationShader: return ".tese";
+                case ShaderType.VertexShader: return ".vert";
+                default: throw new ArgumentException("Invalid shader type.");
+            }
+        }
+
         void ShowError(string message, string caption)
         {
             MessageBox.Show(this, message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -107,7 +142,7 @@ namespace Bonsai.Shaders.Design
             }
         }
 
-        TabPage CreateTabPage(string fileName)
+        TabPage CreateTabPage(string fileName, string script)
         {
             var tabPage = new TabPage();
             var scintilla = new Scintilla();
@@ -118,9 +153,6 @@ namespace Bonsai.Shaders.Design
             scintilla.TabWidth = 2;
             scintilla.UseTabs = false;
             scintilla.WrapMode = WrapMode.Word;
-            scintilla.SavePointLeft += scintilla_SavePointLeft;
-            scintilla.SavePointReached += scintilla_SavePointReached;
-            scintilla.TextChanged += scintilla_TextChanged;
 
             scintilla.StyleResetDefault();
             scintilla.Styles[Style.Default].Font = "Consolas";
@@ -142,6 +174,12 @@ namespace Bonsai.Shaders.Design
 
             scintilla.SetKeywords(0, "attribute const uniform varying buffer shared coherent volatile restrict readonly writeonly atomic_uint layout centroid flat smooth noperspective patch sample break continue do for while switch case default if else subroutine in out inout float double int void bool true false invariant precise discard return mat2 mat3 mat4 dmat2 dmat3 dmat4 mat2x2 mat2x3 mat2x4 dmat2x2 dmat2x3 dmat2x4 mat3x2 mat3x3 mat3x4 dmat3x2 dmat3x3 dmat3x4 mat4x2 mat4x3 mat4x4 dmat4x2 dmat4x3 dmat4x4 vec2 vec3 vec4 ivec2 ivec3 ivec4 bvec2 bvec3 bvec4 dvec2 dvec3 dvec4 uint uvec2 uvec3 uvec4 lowp mediump highp precision sampler1D sampler2D sampler3D samplerCube sampler1DShadow sampler2DShadow samplerCubeShadow sampler1DArray sampler2DArray sampler1DArrayShadow sampler2DArrayShadow isampler1D isampler2D isampler3D isamplerCube isampler1DArray isampler2DArray usampler1D usampler2D usampler3D usamplerCube usampler1DArray usampler2DArray sampler2DRect sampler2DRectShadow isampler2DRect usampler2DRect samplerBuffer isamplerBuffer usamplerBuffer sampler2DMS isampler2DMS usampler2DMS sampler2DMSArray isampler2DMSArray usampler2DMSArray samplerCubeArray samplerCubeArrayShadow isamplerCubeArray usamplerCubeArray image1D iimage1D uimage1D image2D iimage2D uimage2D image3D iimage3D uimage3D image2DRect iimage2DRect uimage2DRect imageCube iimageCube uimageCube imageBuffer iimageBuffer uimageBuffer image1DArray iimage1DArray uimage1DArray image2DArray iimage2DArray uimage2DArray imageCubeArray iimageCubeArray uimageCubeArray image2DMS iimage2DMS uimage2DMS image2DMSArray iimage2DMSArray uimage2DMSArray struct common partition active asm class union enum typedef template this resource goto inline noinline public static extern external interface long short half fixed unsigned superp input output hvec2 hvec3 hvec4 fvec2 fvec3 fvec4 sampler3DRect filter sizeof cast namespace using gl_VertexID gl_InstanceID gl_Position gl_PointSize gl_ClipDistance gl_CullDistance gl_MaxPatchVertices gl_PatchVerticesIn gl_InvocationID gl_TessLevelOuter gl_TessLevelInner gl_TessCoord gl_PrimitiveIDIn gl_Layer gl_ViewportIndex gl_FragCoord gl_FrontFacing gl_PointCoord gl_PrimitiveID gl_SampleID gl_SamplePosition gl_SampleMaskIn gl_HelperInvocation gl_FragDepth gl_SampleMask gl_NumWorkGroups gl_WorkGroupSize gl_LocalGroupSize gl_WorkGroupID gl_LocalInvocationID gl_GlobalInvocationID gl_LocalInvocationIndex gl_MaxComputeWorkGroupCount gl_MaxComputeWorkGroupSize gl_MaxComputeUniformComponents gl_MaxComputeTextureImageUnits gl_MaxComputeImageUniforms gl_MaxComputeAtomicCounters gl_MaxComputeAtomicCounterBuffers gl_MaxVertexAttribs gl_MaxVertexUniformComponents gl_MaxVaryingComponents gl_MaxVertexOutputComponents gl_MaxGeometryInputComponents gl_MaxGeometryOutputComponents gl_MaxFragmentInputComponents gl_MaxVertexTextureImageUnits gl_MaxCombinedTextureImageUnits gl_MaxTextureImageUnits gl_MaxImageUnits gl_MaxCombinedImageUnitsAndFragmentOutputs gl_MaxImageSamples gl_MaxVertexImageUniforms gl_MaxTessControlImageUniforms gl_MaxTessEvaluationImageUniforms gl_MaxGeometryImageUniforms gl_MaxFragmentImageUniforms gl_MaxCombinedImageUniforms gl_MaxFragmentUniformComponents gl_MaxDrawBuffers gl_MaxClipDistances gl_MaxGeometryTextureImageUnits gl_MaxGeometryOutputVertices gl_MaxGeometryTotalOutputComponents gl_MaxGeometryUniformComponents gl_MaxGeometryVaryingComponents gl_MaxTessControlInputComponents gl_MaxTessControlOutputComponents gl_MaxTessControlTextureImageUnits gl_MaxTessControlUniformComponents gl_MaxTessControlTotalOutputComponents gl_MaxTessEvaluationInputComponents gl_MaxTessEvaluationOutputComponents gl_MaxTessEvaluationTextureImageUnits gl_MaxTessEvaluationUniformComponents gl_MaxTessPatchComponents gl_MaxPatchVertices gl_MaxTessGenLevel gl_MaxViewports gl_MaxVertexUniformVectors gl_MaxFragmentUniformVectors gl_MaxVaryingVectors gl_MaxVertexAtomicCounters gl_MaxTessControlAtomicCounters gl_MaxTessEvaluationAtomicCounters gl_MaxGeometryAtomicCounters gl_MaxFragmentAtomicCounters gl_MaxCombinedAtomicCounters gl_MaxAtomicCounterBindings gl_MaxVertexAtomicCounterBuffers gl_MaxTessControlAtomicCounterBuffers gl_MaxTessEvaluationAtomicCounterBuffers gl_MaxGeometryAtomicCounterBuffers gl_MaxFragmentAtomicCounterBuffers gl_MaxCombinedAtomicCounterBuffers gl_MaxAtomicCounterBufferSize gl_MinProgramTexelOffset gl_MaxProgramTexelOffset gl_MaxTransformFeedbackBuffers gl_MaxTransformFeedbackInterleavedComponents gl_MaxCullDistances gl_MaxCombinedClipAndCullDistances gl_MaxSamples gl_MaxVertexImageUniforms gl_MaxFragmentImageUniforms gl_MaxComputeImageUniforms gl_MaxCombinedImageUniforms gl_MaxCombinedShaderOutputResources");
             scintilla.SetKeywords(1, "abs acos acosh all any asin asinh atan atanh atomicAdd atomicAnd atomicCompSwap atomicCounter atomicCounterDecrement atomicCounterIncrement atomicExchange atomicMax atomicMin atomicOr atomicXor barrier bitCount bitfieldExtract bitfieldInsert bitfieldReverse ceil clamp cos cosh cross degrees determinant dFdx dFdxCoarse dFdxFine dFdy dFdyCoarse dFdyFine distance dot EmitStreamVertex EmitVertex EndPrimitive EndStreamPrimitive equal exp exp2 faceforward findLSB findMSB floatBitsToInt floatBitsToUint floor fma fract frexp fwidth fwidthCoarse fwidthFine greaterThan greaterThanEqual groupMemoryBarrier imageAtomicAdd imageAtomicAnd imageAtomicCompSwap imageAtomicExchange imageAtomicMax imageAtomicMin imageAtomicOr imageAtomicXor imageLoad imageSamples imageSize imageStore imulExtended intBitsToFloat interpolateAtCentroid interpolateAtOffset interpolateAtSample inverse inversesqrt isinf isnan ldexp length lessThan lessThanEqual log log2 matrixCompMult max memoryBarrier memoryBarrierAtomicCounter memoryBarrierBuffer memoryBarrierImage memoryBarrierShared min mix mod modf noise noise1 noise2 noise3 noise4 normalize not notEqual outerProduct packDouble2x32 packHalf2x16 packSnorm2x16 packSnorm4x8 packUnorm packUnorm2x16 packUnorm4x8 pow radians reflect refract removedTypes round roundEven sign sin sinh smoothstep sqrt step tan tanh texelFetch texelFetchOffset texture textureGather textureGatherOffset textureGatherOffsets textureGrad textureGradOffset textureLod textureLodOffset textureOffset textureProj textureProjGrad textureProjGradOffset textureProjLod textureProjLodOffset textureProjOffset textureQueryLevels textureQueryLod textureSamples textureSize transpose trunc uaddCarry uintBitsToFloat umulExtended unpackDouble2x32 unpackHalf2x16 unpackSnorm2x16 unpackSnorm4x8 unpackUnorm unpackUnorm2x16 unpackUnorm4x8 usubBorrow");
+            scintilla.Text = script;
+            scintilla.EmptyUndoBuffer();
+            scintilla.SetSavePoint();
+            scintilla.SavePointLeft += scintilla_SavePointLeft;
+            scintilla.SavePointReached += scintilla_SavePointReached;
+            scintilla.TextChanged += scintilla_TextChanged;
 
             var tabState = new TabPageController(tabPage, scintilla);
             tabState.FileName = fileName;
@@ -166,12 +204,12 @@ namespace Bonsai.Shaders.Design
             }
         }
 
-        void NewScript()
+        void NewScript(string script)
         {
             var newScriptCount = editorTabControl
                 .TabPages.Cast<TabPage>()
                 .Count(page => string.IsNullOrEmpty(((TabPageController)page.Tag).FileName));
-            var tabPage = CreateTabPage(null);
+            var tabPage = CreateTabPage(null, script);
             var tabState = (TabPageController)tabPage.Tag;
             tabState.Text = DefaultTabName + (newScriptCount + 1);
             editorTabControl.SelectTab(tabPage);
@@ -188,11 +226,7 @@ namespace Bonsai.Shaders.Design
                     if (tabPage == null)
                     {
                         var script = File.ReadAllText(fileName);
-                        tabPage = CreateTabPage(fileName);
-                        var editor = ((TabPageController)tabPage.Tag).Editor;
-                        editor.Text = script;
-                        editor.EmptyUndoBuffer();
-                        editor.SetSavePoint();
+                        tabPage = CreateTabPage(fileName, script);
                     }
 
                     editorTabControl.SelectTab(tabPage);
@@ -221,28 +255,30 @@ namespace Bonsai.Shaders.Design
             exampleToolStripMenuItem.Visible = shaderExamples.Count > 0;
             foreach (var exampleType in shaderExamples.GroupBy(example => example.Type))
             {
-                var groupMenuItem = new ToolStripMenuItem(exampleType.Key.ToString());
+                var groupName = GetShaderTypePrefix(exampleType.Key) + "Shader";
+                var groupMenuItem = new ToolStripMenuItem(groupName);
                 exampleToolStripMenuItem.DropDownItems.Add(groupMenuItem);
                 foreach (var example in exampleType)
                 {
                     var name = example.Name;
                     var source = example.Source;
+                    var extension = GetShaderExtension(exampleType.Key);
                     var menuItem = groupMenuItem.DropDownItems.Add(name);
                     menuItem.Click += delegate
                     {
-                        NewScript();
-                        activeTab.Editor.Text = source;
+                        NewScript(source);
+                        activeTab.Text += extension;
                     };
                 }
             }
 
             var filter = string.Join("|",
-                GetFileFilter("Compute ", "*.comp"),
-                GetFileFilter("Fragment ", "*.frag"),
-                GetFileFilter("Geometry ", "*.geom"),
-                GetFileFilter("Tessellation Control ", "*.tesc"),
-                GetFileFilter("Tessellation Evaluation ", "*.tese"),
-                GetFileFilter("Vertex ", "*.vert"),
+                GetFileFilter(GetShaderTypePrefix(ShaderType.ComputeShader), "*.comp"),
+                GetFileFilter(GetShaderTypePrefix(ShaderType.FragmentShader), "*.frag"),
+                GetFileFilter(GetShaderTypePrefix(ShaderType.GeometryShader), "*.geom"),
+                GetFileFilter(GetShaderTypePrefix(ShaderType.TessControlShader), "*.tesc"),
+                GetFileFilter(GetShaderTypePrefix(ShaderType.TessEvaluationShader), "*.tese"),
+                GetFileFilter(GetShaderTypePrefix(ShaderType.VertexShader), "*.vert"),
                 GetFileFilter(string.Empty, "*.comp; *.frag; *.geom; *.tesc; *.tese; *.vert"),
                 "All Files (*.*)|*.*");
             openFileDialog.Filter = saveFileDialog.Filter = filter;
@@ -252,7 +288,7 @@ namespace Bonsai.Shaders.Design
 
         protected override void OnShown(EventArgs e)
         {
-            NewScript();
+            NewScript(DefaultScript);
             base.OnShown(e);
         }
 
@@ -294,7 +330,7 @@ namespace Bonsai.Shaders.Design
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            NewScript();
+            NewScript(DefaultScript);
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -473,6 +509,17 @@ namespace Bonsai.Shaders.Design
                 {
                     displayText = value;
                     UpdateDisplayText();
+                    var extension = Path.GetExtension(displayText);
+                    switch (extension)
+                    {
+                        case ".comp": ScriptType = ShaderType.ComputeShader; break;
+                        case ".frag": ScriptType = ShaderType.FragmentShader; break;
+                        case ".geom": ScriptType = ShaderType.GeometryShader; break;
+                        case ".tesc": ScriptType = ShaderType.TessControlShader; break;
+                        case ".tese": ScriptType = ShaderType.TessEvaluationShader; break;
+                        case ".vert": ScriptType = ShaderType.VertexShader; break;
+                        default: ScriptType = null; break;
+                    }
                 }
             }
 
@@ -484,17 +531,6 @@ namespace Bonsai.Shaders.Design
                     fileName = value;
                     TabPage.Name = fileName;
                     Text = GetProjectFileName(fileName);
-                    var extension = Path.GetExtension(fileName);
-                    switch (extension)
-                    {
-                        case ".comp": ScriptType = ShaderType.ComputeShader; break;
-                        case ".frag": ScriptType = ShaderType.FragmentShader; break;
-                        case ".geom": ScriptType = ShaderType.GeometryShader; break;
-                        case ".tesc": ScriptType = ShaderType.TessControlShader; break;
-                        case ".tese": ScriptType = ShaderType.TessEvaluationShader; break;
-                        case ".vert": ScriptType = ShaderType.VertexShader; break;
-                        default: ScriptType = null; break;
-                    }
                 }
             }
 
