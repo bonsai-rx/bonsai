@@ -82,11 +82,6 @@ namespace Bonsai.Design
         private void configurationManagerButton_Click(object sender, EventArgs e)
         {
             var configuration = LoadConfiguration();
-            if (configuration == null)
-            {
-                throw new InvalidOperationException("Failed to load configuration.");
-            }
-
             var configurationManager = CreateConfigurationEditor(configuration.GetType());
             configurationManager.EditValue(editorService, editorService, configuration);
             if (editorService.DialogResult == DialogResult.OK)
