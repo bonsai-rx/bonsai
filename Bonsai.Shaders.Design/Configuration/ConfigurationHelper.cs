@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bonsai.Shaders.Design.Properties;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -30,8 +31,8 @@ namespace Bonsai.Shaders.Configuration.Design
             if (olderVersion)
             {
                 result = MessageBox.Show(
-                    "The current shader configuration file was created with an older version of the shaders module. Would you like to upgrade? Note: you need to upgrade in order to change any settings but this operation is non-reversible.",
-                    "Shader Configuration Editor",
+                    Resources.ConfigurationFileUpgrade_Message,
+                    Resources.ConfigurationFileUpgrade_Caption,
                     MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
                 if (result == DialogResult.Cancel) return null;
 
