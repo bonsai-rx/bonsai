@@ -142,13 +142,6 @@ namespace Bonsai.Shaders.Configuration.Design
 
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
-            if (DialogResult == DialogResult.OK)
-            {
-                SetCollectionItems(shaderCollectionEditor, configuration.Shaders);
-                SetCollectionItems(meshCollectionEditor, configuration.Meshes);
-                SetCollectionItems(textureCollectionEditor, configuration.Textures);
-            }
-
             propertyGrid.SelectedObject = null;
             base.OnFormClosed(e);
         }
@@ -214,6 +207,9 @@ namespace Bonsai.Shaders.Configuration.Design
                 currentDirectory = Environment.CurrentDirectory;
             }
 
+            SetCollectionItems(shaderCollectionEditor, configuration.Shaders);
+            SetCollectionItems(meshCollectionEditor, configuration.Meshes);
+            SetCollectionItems(textureCollectionEditor, configuration.Textures);
             ShaderManager.SaveConfiguration(configuration);
         }
 
