@@ -65,6 +65,7 @@ namespace Bonsai.Editor
         TypeVisualizerMap typeVisualizers;
         List<WorkflowElementDescriptor> workflowElements;
         WorkflowRuntimeExceptionCache exceptionCache;
+        HashSet<Module> typeDescriptorCache;
         WorkflowException workflowError;
         IDisposable running;
         bool building;
@@ -112,6 +113,7 @@ namespace Bonsai.Editor
             typeVisualizers = new TypeVisualizerMap();
             workflowElements = new List<WorkflowElementDescriptor>();
             exceptionCache = new WorkflowRuntimeExceptionCache();
+            typeDescriptorCache = new HashSet<Module>();
             selectionModel = new WorkflowSelectionModel();
             selectionDescriptionProviders = new List<TypeDescriptorAssociation>();
             propertyAssignments = new Dictionary<string, string>();
@@ -508,6 +510,11 @@ namespace Bonsai.Editor
 
         void ResetProjectStatus()
         {
+            typeDescriptorCache.RemoveWhere(module =>
+            {
+                TypeDescriptor.Refresh(module);
+                return true;
+            });
             commandExecutor.Clear();
             version = 0;
             saveVersion = 0;
@@ -1270,6 +1277,10 @@ namespace Bonsai.Editor
             var objectDescriptions = selectedObjects.Select(obj => GetElementDescription(obj)).Distinct().Reverse().ToArray();
             var description = objectDescriptions.Length == 1 ? objectDescriptions[0] : string.Empty;
             UpdateDescriptionTextBox(displayName, description, propertiesDescriptionTextBox);
+            for (int i = 0; i < selectedObjects.Length; i++)
+            {
+                typeDescriptorCache.Add(selectedObjects[i].GetType().Module);
+            }
 
             saveSnippetAsToolStripMenuItem.Enabled = selectedObjects.Length > 0;
             if (selectedObjects.Length == 0)
