@@ -148,7 +148,9 @@ namespace Bonsai.Shaders.Configuration.Design
 
         void RefreshCollectionEditor(CollectionEditorControl collectionEditor)
         {
-            propertyGrid.SelectedObject = collectionEditor.Visible ? collectionEditor.SelectedItem : null;
+            propertyGrid.SelectedObjects = collectionEditor.Visible
+                ? collectionEditor.SelectedItems.Cast<object>().ToArray()
+                : null;
         }
 
         void SetCollectionItems(CollectionEditorControl collectionEditor, IList collection)
@@ -215,17 +217,23 @@ namespace Bonsai.Shaders.Configuration.Design
 
         private void cutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            if (shaderCollectionEditor.Visible) shaderCollectionEditor.Cut();
+            if (meshCollectionEditor.Visible) meshCollectionEditor.Cut();
+            if (textureCollectionEditor.Visible) textureCollectionEditor.Cut();
         }
 
         private void copyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            if (shaderCollectionEditor.Visible) shaderCollectionEditor.Copy();
+            if (meshCollectionEditor.Visible) meshCollectionEditor.Copy();
+            if (textureCollectionEditor.Visible) textureCollectionEditor.Copy();
         }
 
         private void pasteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            if (shaderCollectionEditor.Visible) shaderCollectionEditor.Paste();
+            if (meshCollectionEditor.Visible) meshCollectionEditor.Paste();
+            if (textureCollectionEditor.Visible) textureCollectionEditor.Paste();
         }
 
         private void glslScriptEditorToolStripMenuItem_Click(object sender, EventArgs e)
