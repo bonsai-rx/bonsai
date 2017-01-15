@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bonsai.Shaders.Design;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,7 +16,10 @@ namespace Bonsai.Shaders.Configuration.Design
     {
         int initialHeight;
         int initialCollectionEditorHeight;
-        ShaderWindowSettings selectedObject;
+        GlslScriptEditorDialog glslEditor;
+        FormClosingEventArgs closingEventArgs;
+        ShaderConfigurationEditorPage selectedPage;
+        ShaderWindowSettings configuration;
 
         public ShaderConfigurationEditorDialog()
         {
@@ -31,40 +35,53 @@ namespace Bonsai.Shaders.Configuration.Design
             textureCollectionEditor.NewItemTypes = new[] { typeof(Texture2D), typeof(ImageTexture) };
         }
 
-        public ShaderConfigurationEditorPage SelectedPage { get; set; }
-
-        public ShaderWindowSettings SelectedObject
+        public ShaderConfigurationEditorPage SelectedPage
         {
-            get { return selectedObject; }
+            get { return selectedPage; }
             set
             {
-                selectedObject = value;
-                shaderCollectionEditor.Items = selectedObject.Shaders;
-                meshCollectionEditor.Items = selectedObject.Meshes;
-                textureCollectionEditor.Items = selectedObject.Textures;
+                selectedPage = value;
+                switch (selectedPage)
+                {
+                    case ShaderConfigurationEditorPage.Meshes:
+                        meshButton.Checked = true;
+                        break;
+                    case ShaderConfigurationEditorPage.Textures:
+                        textureButton.Checked = true;
+                        break;
+                    case ShaderConfigurationEditorPage.Shaders:
+                        shaderButton.Checked = true;
+                        break;
+                    default:
+                    case ShaderConfigurationEditorPage.Window:
+                        windowButton.Checked = true;
+                        break;
+                }
+            }
+        }
+
+        public ShaderWindowSettings Configuration
+        {
+            get { return configuration; }
+            set
+            {
+                configuration = value;
+                shaderCollectionEditor.Items = configuration.Shaders;
+                meshCollectionEditor.Items = configuration.Meshes;
+                textureCollectionEditor.Items = configuration.Textures;
             }
         }
 
         protected override void OnLoad(EventArgs e)
         {
+            if (Owner != null)
+            {
+                Icon = Owner.Icon;
+                ShowIcon = true;
+            }
+
             initialHeight = Height;
             initialCollectionEditorHeight = shaderCollectionEditor.Height;
-            switch (SelectedPage)
-            {
-                case ShaderConfigurationEditorPage.Meshes:
-                    meshButton.Checked = true;
-                    break;
-                case ShaderConfigurationEditorPage.Textures:
-                    textureButton.Checked = true;
-                    break;
-                case ShaderConfigurationEditorPage.Shaders:
-                    shaderButton.Checked = true;
-                    break;
-                default:
-                case ShaderConfigurationEditorPage.Window:
-                    windowButton.Checked = true;
-                    break;
-            }
             base.OnLoad(e);
         }
 
@@ -80,17 +97,31 @@ namespace Bonsai.Shaders.Configuration.Design
             base.OnResize(e);
         }
 
-        protected override void OnClosed(EventArgs e)
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            closingEventArgs = e;
+            try
+            {
+                if (glslEditor != null)
+                {
+                    glslEditor.Close();
+                }
+            }
+            finally { closingEventArgs = null; }
+            base.OnFormClosing(e);
+        }
+
+        protected override void OnFormClosed(FormClosedEventArgs e)
         {
             if (DialogResult == DialogResult.OK)
             {
-                SetCollectionItems(shaderCollectionEditor, selectedObject.Shaders);
-                SetCollectionItems(meshCollectionEditor, selectedObject.Meshes);
-                SetCollectionItems(textureCollectionEditor, selectedObject.Textures);
+                SetCollectionItems(shaderCollectionEditor, configuration.Shaders);
+                SetCollectionItems(meshCollectionEditor, configuration.Meshes);
+                SetCollectionItems(textureCollectionEditor, configuration.Textures);
             }
 
             propertyGrid.SelectedObject = null;
-            base.OnClosed(e);
+            base.OnFormClosed(e);
         }
 
         void RefreshCollectionEditor(CollectionEditorControl collectionEditor)
@@ -115,7 +146,7 @@ namespace Bonsai.Shaders.Configuration.Design
 
         private void windowButton_CheckedChanged(object sender, EventArgs e)
         {
-            propertyGrid.SelectedObject = windowButton.Checked ? SelectedObject : null;
+            propertyGrid.SelectedObject = windowButton.Checked ? Configuration : null;
         }
 
         private void shaderButton_CheckedChanged(object sender, EventArgs e)
@@ -131,6 +162,62 @@ namespace Bonsai.Shaders.Configuration.Design
             if (shaderCollectionEditor.Visible) shaderCollectionEditor.Refresh();
             if (meshCollectionEditor.Visible) meshCollectionEditor.Refresh();
             if (textureCollectionEditor.Visible) textureCollectionEditor.Refresh();
+        }
+
+        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ShaderManager.SaveConfiguration(configuration);
+        }
+
+        private void cutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pasteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void glslScriptEditorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (glslEditor == null)
+            {
+                glslEditor = new GlslScriptEditorDialog();
+                glslEditor.FormClosing += glslEditor_FormClosing;
+                if (ShowIcon)
+                {
+                    glslEditor.Icon = Icon;
+                    glslEditor.ShowIcon = true;
+                }
+            }
+
+            if (glslEditor.Visible) glslEditor.Activate();
+            else
+            {
+                var owner = Owner ?? this;
+                glslEditor.Show(owner);
+            }
+        }
+
+        void glslEditor_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (closingEventArgs != null) closingEventArgs.Cancel = e.Cancel;
+            else if (!e.Cancel && e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true;
+                glslEditor.Hide();
+            }
         }
     }
 }
