@@ -15,7 +15,7 @@ namespace Bonsai.Shaders.Configuration.Design
     {
         static ShaderConfigurationEditorDialog editorDialog;
 
-        internal void EditConfiguration(ShaderWindowSettings configuration, IWin32Window owner)
+        internal void EditConfiguration(IWin32Window owner)
         {
             if (editorDialog == null)
             {
@@ -28,7 +28,6 @@ namespace Bonsai.Shaders.Configuration.Design
                     TypeDescriptor.Refreshed -= editorRefreshed;
                     editorDialog = null;
                 };
-                editorDialog.Configuration = configuration;
                 editorDialog.SelectedPage = ShaderConfigurationEditorPage.Window;
                 foreach (var example in GetShaderExamples())
                 {
@@ -39,27 +38,15 @@ namespace Bonsai.Shaders.Configuration.Design
             else editorDialog.Activate();
         }
 
-        internal void EditConfiguration(ShaderWindowSettings configuration, ShaderConfigurationEditorPage selectedPage, IWin32Window owner)
+        internal void EditConfiguration(ShaderConfigurationEditorPage selectedPage, IWin32Window owner)
         {
-            EditConfiguration(configuration, owner);
+            EditConfiguration(owner);
             editorDialog.SelectedPage = selectedPage;
         }
 
         public override bool EditComponent(ITypeDescriptorContext context, object component, IServiceProvider provider, IWin32Window owner)
         {
-            if (provider != null)
-            {
-                DialogResult loadResult;
-                var configuration = ConfigurationHelper.LoadConfiguration(out loadResult);
-                if (loadResult == DialogResult.Cancel) return false;
-                if (configuration == null)
-                {
-                    throw new InvalidOperationException("Failed to load configuration.");
-                }
-
-                EditConfiguration(configuration, owner);
-            }
-
+            EditConfiguration(owner);
             return false;
         }
 
