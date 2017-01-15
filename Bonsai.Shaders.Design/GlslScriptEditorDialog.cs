@@ -218,16 +218,22 @@ namespace Bonsai.Shaders.Design
 
         protected override void OnLoad(EventArgs e)
         {
-            foreach (var example in shaderExamples)
+            exampleToolStripMenuItem.Visible = shaderExamples.Count > 0;
+            foreach (var exampleType in shaderExamples.GroupBy(example => example.Type))
             {
-                var name = example.Name;
-                var source = example.Source;
-                var item = newToolStripMenuItem.DropDownItems.Add(name);
-                item.Click += delegate
+                var groupMenuItem = new ToolStripMenuItem(exampleType.Key.ToString());
+                exampleToolStripMenuItem.DropDownItems.Add(groupMenuItem);
+                foreach (var example in exampleType)
                 {
-                    NewScript();
-                    activeTab.Editor.Text = source;
-                };
+                    var name = example.Name;
+                    var source = example.Source;
+                    var menuItem = groupMenuItem.DropDownItems.Add(name);
+                    menuItem.Click += delegate
+                    {
+                        NewScript();
+                        activeTab.Editor.Text = source;
+                    };
+                }
             }
 
             var filter = string.Join("|",

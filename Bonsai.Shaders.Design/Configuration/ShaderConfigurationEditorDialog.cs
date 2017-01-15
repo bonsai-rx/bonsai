@@ -24,6 +24,8 @@ namespace Bonsai.Shaders.Configuration.Design
         public ShaderConfigurationEditorDialog()
         {
             InitializeComponent();
+            glslEditor = new GlslScriptEditorDialog();
+            glslEditor.FormClosing += glslEditor_FormClosing;
             shaderButton.Tag = shaderCollectionEditor;
             meshButton.Tag = meshCollectionEditor;
             textureButton.Tag = textureCollectionEditor;
@@ -33,6 +35,11 @@ namespace Bonsai.Shaders.Configuration.Design
             meshCollectionEditor.NewItemTypes = new[] { typeof(MeshConfiguration), typeof(TexturedQuad), typeof(TexturedModel) };
             textureCollectionEditor.CollectionItemType = typeof(TextureConfiguration);
             textureCollectionEditor.NewItemTypes = new[] { typeof(Texture2D), typeof(ImageTexture) };
+        }
+
+        public GlslScriptExampleCollection ScriptExamples
+        {
+            get { return glslEditor.ScriptExamples; }
         }
 
         public ShaderConfigurationEditorPage SelectedPage
@@ -76,8 +83,8 @@ namespace Bonsai.Shaders.Configuration.Design
         {
             if (Owner != null)
             {
-                Icon = Owner.Icon;
-                ShowIcon = true;
+                glslEditor.Icon = Icon = Owner.Icon;
+                glslEditor.ShowIcon = ShowIcon = true;
             }
 
             initialHeight = Height;
@@ -100,13 +107,7 @@ namespace Bonsai.Shaders.Configuration.Design
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             closingEventArgs = e;
-            try
-            {
-                if (glslEditor != null)
-                {
-                    glslEditor.Close();
-                }
-            }
+            try { glslEditor.Close(); }
             finally { closingEventArgs = null; }
             base.OnFormClosing(e);
         }
@@ -191,17 +192,6 @@ namespace Bonsai.Shaders.Configuration.Design
 
         private void glslScriptEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (glslEditor == null)
-            {
-                glslEditor = new GlslScriptEditorDialog();
-                glslEditor.FormClosing += glslEditor_FormClosing;
-                if (ShowIcon)
-                {
-                    glslEditor.Icon = Icon;
-                    glslEditor.ShowIcon = true;
-                }
-            }
-
             if (glslEditor.Visible) glslEditor.Activate();
             else
             {

@@ -100,7 +100,6 @@
     <Compile Include="GlslScriptEditorDialog.Designer.cs">
       <DependentUpon>GlslScriptEditorDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="GlslScriptEditor.cs" />
     <Compile Include="Configuration\ShaderConfigurationControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
