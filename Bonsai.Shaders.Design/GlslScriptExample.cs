@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenTK.Graphics.OpenGL4;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,5 +12,7 @@ namespace Bonsai.Shaders.Design
         public string Name { get; set; }
 
         public string Source { get; set; }
+
+        public ShaderType Type { get; set; }
     }
 }
