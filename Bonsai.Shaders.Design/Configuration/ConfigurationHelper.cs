@@ -63,7 +63,12 @@ namespace Bonsai.Shaders.Configuration.Design
             }
 
             result = DialogResult.OK;
-            return ShaderManager.LoadConfiguration();
+            try { return ShaderManager.LoadConfiguration(); }
+            catch
+            {
+                result = DialogResult.Cancel;
+                throw;
+            }
         }
     }
 }

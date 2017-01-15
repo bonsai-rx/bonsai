@@ -1,14 +1,18 @@
 ﻿using Bonsai.Shaders.Design;
+using Bonsai.Shaders.Design.Properties;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
 
 namespace Bonsai.Shaders.Configuration.Design
 {
@@ -20,6 +24,7 @@ namespace Bonsai.Shaders.Configuration.Design
         FormClosingEventArgs closingEventArgs;
         ShaderConfigurationEditorPage selectedPage;
         ShaderWindowSettings configuration;
+        string currentDirectory;
 
         public ShaderConfigurationEditorDialog()
         {
@@ -48,39 +53,58 @@ namespace Bonsai.Shaders.Configuration.Design
             set
             {
                 selectedPage = value;
-                switch (selectedPage)
+                if (configuration != null)
                 {
-                    case ShaderConfigurationEditorPage.Meshes:
-                        meshButton.Checked = true;
-                        break;
-                    case ShaderConfigurationEditorPage.Textures:
-                        textureButton.Checked = true;
-                        break;
-                    case ShaderConfigurationEditorPage.Shaders:
-                        shaderButton.Checked = true;
-                        break;
-                    default:
-                    case ShaderConfigurationEditorPage.Window:
-                        windowButton.Checked = true;
-                        break;
+                    UpdateSelectedPage();
                 }
             }
         }
 
-        public ShaderWindowSettings Configuration
+        void UpdateSelectedPage()
         {
-            get { return configuration; }
-            set
+            switch (selectedPage)
             {
-                configuration = value;
-                shaderCollectionEditor.Items = configuration.Shaders;
-                meshCollectionEditor.Items = configuration.Meshes;
-                textureCollectionEditor.Items = configuration.Textures;
+                case ShaderConfigurationEditorPage.Meshes:
+                    meshButton.Checked = true;
+                    break;
+                case ShaderConfigurationEditorPage.Textures:
+                    textureButton.Checked = true;
+                    break;
+                case ShaderConfigurationEditorPage.Shaders:
+                    shaderButton.Checked = true;
+                    break;
+                default:
+                case ShaderConfigurationEditorPage.Window:
+                    windowButton.Checked = true;
+                    break;
             }
+        }
+
+        void ShowReadError(string message)
+        {
+            message = string.Format(Resources.ConfigurationReadError_Message, message);
+            MessageBox.Show(this, message, Resources.ConfigurationReadError_Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         protected override void OnLoad(EventArgs e)
         {
+            var loadResult = DialogResult.Cancel;
+            currentDirectory = Environment.CurrentDirectory;
+            try { configuration = ConfigurationHelper.LoadConfiguration(out loadResult); }
+            catch (SecurityException ex) { ShowReadError(ex.Message); }
+            catch (IOException ex) { ShowReadError(ex.Message); }
+            catch (XmlException ex) { ShowReadError(ex.Message); }
+            catch (InvalidOperationException ex)
+            {
+                ShowReadError(ex.InnerException != null ? ex.InnerException.Message : ex.Message);
+            }
+
+            if (loadResult == DialogResult.Cancel)
+            {
+                Close();
+                return;
+            }
+
             if (Owner != null)
             {
                 glslEditor.Icon = Icon = Owner.Icon;
@@ -88,7 +112,11 @@ namespace Bonsai.Shaders.Configuration.Design
             }
 
             initialHeight = Height;
+            shaderCollectionEditor.Items = configuration.Shaders;
+            meshCollectionEditor.Items = configuration.Meshes;
+            textureCollectionEditor.Items = configuration.Textures;
             initialCollectionEditorHeight = shaderCollectionEditor.Height;
+            UpdateSelectedPage();
             base.OnLoad(e);
         }
 
@@ -147,7 +175,7 @@ namespace Bonsai.Shaders.Configuration.Design
 
         private void windowButton_CheckedChanged(object sender, EventArgs e)
         {
-            propertyGrid.SelectedObject = windowButton.Checked ? Configuration : null;
+            propertyGrid.SelectedObject = windowButton.Checked ? configuration : null;
         }
 
         private void shaderButton_CheckedChanged(object sender, EventArgs e)
@@ -172,6 +200,20 @@ namespace Bonsai.Shaders.Configuration.Design
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (currentDirectory != Environment.CurrentDirectory)
+            {
+                if (MessageBox.Show(this,
+                    Resources.ConfigurationDirectoryChanged_Message,
+                    Resources.ConfigurationDirectoryChanged_Caption,
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning) == DialogResult.No)
+                {
+                    return;
+                }
+
+                currentDirectory = Environment.CurrentDirectory;
+            }
+
             ShaderManager.SaveConfiguration(configuration);
         }
 

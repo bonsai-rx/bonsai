@@ -26,18 +26,11 @@ namespace Bonsai.Shaders.Configuration.Design
 
         protected override object LoadConfiguration()
         {
-            return ShaderManager.LoadConfiguration();
+            return null;
         }
 
         protected override void SaveConfiguration(object configuration)
         {
-            var shaderConfiguration = configuration as ShaderWindowSettings;
-            if (shaderConfiguration == null)
-            {
-                throw new ArgumentNullException("configuration");
-            }
-
-            ShaderManager.SaveConfiguration(shaderConfiguration);
         }
 
         protected override UITypeEditor CreateConfigurationEditor(Type type)
@@ -70,7 +63,7 @@ namespace Bonsai.Shaders.Configuration.Design
                 if (editorService != null)
                 {
                     var owner = editorService.GetDialogOwnerWindow();
-                    editor.EditConfiguration((ShaderWindowSettings)value, SelectedPage, owner);
+                    editor.EditConfiguration(SelectedPage, owner);
                     return value;
                 }
 
