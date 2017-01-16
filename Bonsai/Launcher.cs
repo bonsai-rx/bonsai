@@ -184,16 +184,15 @@ namespace Bonsai
             string editorPackageId)
         {
             EnableVisualStyles();
-            var packageManagerDialog = new PackageManagerDialog(editorRepositoryPath);
+            using (var packageManagerDialog = new PackageManagerDialog(editorRepositoryPath))
             using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManagerDialog.PackageManager, editorPath, editorPackageId))
             {
                 if (packageManagerDialog.ShowDialog() == DialogResult.OK)
                 {
                     AppResult.SetResult(packageManagerDialog.InstallPath);
                 }
+                return Program.NormalExitCode;
             }
-
-            return Program.NormalExitCode;
         }
 
         internal static int LaunchWorkflowEditor(
@@ -213,16 +212,16 @@ namespace Bonsai
                 .Catch(Observable.Return(false));
 
             EnableVisualStyles();
-            var mainForm = new MainForm(elementProvider, visualizerProvider)
+            using (var mainForm = new MainForm(elementProvider, visualizerProvider))
             {
-                FileName = initialFileName,
-                StartOnLoad = start
-            };
-            mainForm.PropertyAssignments.AddRange(propertyAssignments);
-            updatesAvailable.Subscribe(value => mainForm.UpdatesAvailable = value);
-            Application.Run(mainForm);
-            AppResult.SetResult(mainForm.FileName);
-            return (int)mainForm.EditorResult;
+                mainForm.FileName = initialFileName;
+                mainForm.StartOnLoad = start;
+                mainForm.PropertyAssignments.AddRange(propertyAssignments);
+                updatesAvailable.Subscribe(value => mainForm.UpdatesAvailable = value);
+                Application.Run(mainForm);
+                AppResult.SetResult(mainForm.FileName);
+                return (int)mainForm.EditorResult;
+            }
         }
 
         internal static int LaunchWorkflowPlayer(string fileName, Dictionary<string, string> propertyAssignments)
@@ -315,9 +314,8 @@ namespace Bonsai
                 {
                     AppResult.SetResult(galleryDialog.InstallPath);
                 }
+                return Program.NormalExitCode;
             }
-
-            return Program.NormalExitCode;
         }
     }
 }
