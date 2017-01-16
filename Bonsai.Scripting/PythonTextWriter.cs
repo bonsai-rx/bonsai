@@ -15,6 +15,7 @@ using Bonsai.IO;
 
 namespace Bonsai.Scripting
 {
+    [Obsolete]
     [Description("A Python script used to write individual elements of the input sequence to a text file.")]
     public class PythonTextWriter : PythonSink
     {

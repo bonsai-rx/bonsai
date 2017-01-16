@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Scripting
 {
+    [Obsolete]
     [DefaultProperty("Script")]
     [Description("A Python script used to operate on individual elements of the input sequence.")]
     public class PythonSink : Sink
