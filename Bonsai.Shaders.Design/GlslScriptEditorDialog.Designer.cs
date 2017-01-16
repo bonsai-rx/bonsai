@@ -410,7 +410,7 @@
             this.MinimumSize = new System.Drawing.Size(640, 360);
             this.Name = "GlslScriptEditorDialog";
             this.ShowIcon = false;
-            this.Text = "GLSL Script Editor";
+            this.Text = "Shader Editor";
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
             this.toolStrip.ResumeLayout(false);

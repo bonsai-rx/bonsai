@@ -270,7 +270,7 @@
             // 
             this.glslScriptEditorToolStripMenuItem.Name = "glslScriptEditorToolStripMenuItem";
             this.glslScriptEditorToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
-            this.glslScriptEditorToolStripMenuItem.Text = "&GLSL Script Editor";
+            this.glslScriptEditorToolStripMenuItem.Text = "S&hader Editor";
             this.glslScriptEditorToolStripMenuItem.Click += new System.EventHandler(this.glslScriptEditorToolStripMenuItem_Click);
             // 
             // meshCollectionEditor
@@ -334,7 +334,7 @@
             this.MinimumSize = new System.Drawing.Size(456, 415);
             this.Name = "ShaderConfigurationEditorDialog";
             this.ShowIcon = false;
-            this.Text = "Shader Configuration Editor";
+            this.Text = "Shader Configuration";
             this.flowLayoutPanel.ResumeLayout(false);
             this.flowLayoutPanel.PerformLayout();
             this.menuStrip.ResumeLayout(false);
