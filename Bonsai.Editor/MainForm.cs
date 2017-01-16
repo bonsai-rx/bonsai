@@ -265,7 +265,6 @@ namespace Bonsai.Editor
             var systemX86Path = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86)).TrimEnd('\\');
             var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory || currentDirectory == systemPath || currentDirectory == systemX86Path;
             directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
-            openWorkflowDialog.InitialDirectory = saveWorkflowDialog.InitialDirectory = directoryToolStripTextBox.Text;
             snippetPath = new DirectoryInfo(Path.Combine(appDomainBaseDirectory, SnippetsDirectory));
 
             initialization.Subscribe();
