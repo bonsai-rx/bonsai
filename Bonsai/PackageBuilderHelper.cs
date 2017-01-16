@@ -34,36 +34,38 @@ namespace Bonsai
                    };
         }
 
-        public static PackageBuilder CreateWorkflowPackage(string path, PackageConfiguration configuration)
+        public static Manifest CreatePackageManifest(string metadataPath)
+        {
+            if (File.Exists(metadataPath))
+            {
+                using (var stream = File.OpenRead(metadataPath))
+                {
+                    return Manifest.ReadFrom(stream, true);
+                }
+            }
+            else
+            {
+                var manifest = new Manifest();
+                manifest.Metadata = new ManifestMetadata()
+                {
+                    Authors = Environment.UserName,
+                    Version = "1.0.0",
+                    Id = Path.GetFileNameWithoutExtension(metadataPath),
+                    Description = "My workflow description."
+                };
+                return manifest;
+            }
+        }
+
+        public static PackageBuilder CreateExecutablePackage(string path, Manifest manifest, PackageConfiguration configuration)
         {
             if (string.IsNullOrEmpty(path) || !File.Exists(path))
             {
                 throw new ArgumentException("Invalid workflow file path.", "path");
             }
 
-            Manifest manifest;
             var packageBuilder = new PackageBuilder();
             var basePath = Path.GetDirectoryName(path) + "\\";
-            var metadataPath = Path.ChangeExtension(path, global::NuGet.Constants.ManifestExtension);
-            if (File.Exists(metadataPath))
-            {
-                using (var stream = File.OpenRead(metadataPath))
-                {
-                    manifest = Manifest.ReadFrom(stream, true);
-                }
-            }
-            else
-            {
-                manifest = new Manifest();
-                manifest.Metadata = new ManifestMetadata()
-                {
-                    Authors = Environment.UserName,
-                    Version = "1.0.0",
-                    Id = Path.GetFileNameWithoutExtension(path),
-                    Description = "My workflow description."
-                };
-            }
-
             packageBuilder.Populate(manifest.Metadata);
             packageBuilder.Tags.Add(NuGet.Constants.BonsaiDirectory);
             packageBuilder.Tags.Add(NuGet.Constants.GalleryDirectory);

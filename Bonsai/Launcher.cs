@@ -17,6 +17,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using PackageReference = Bonsai.Configuration.PackageReference;
 using PackageHelper = Bonsai.NuGet.PackageHelper;
+using Bonsai.Properties;
 
 namespace Bonsai
 {
@@ -258,6 +259,17 @@ namespace Bonsai
             return Program.NormalExitCode;
         }
 
+        static int ShowManifestReadError(string path, string message)
+        {
+            MessageBox.Show(
+                string.Format(Resources.ExportPackageManifestReadError,
+                Path.GetFileName(path), message),
+                typeof(Launcher).Namespace,
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
+            return Program.NormalExitCode;
+        }
+
         internal static int LaunchExportPackage(PackageConfiguration packageConfiguration, string fileName, string editorFolder)
         {
             if (string.IsNullOrEmpty(fileName))
@@ -267,20 +279,26 @@ namespace Bonsai
             }
 
             EnableVisualStyles();
-            PackageBuilder builder;
-            try { builder = PackageBuilderHelper.CreateWorkflowPackage(fileName, packageConfiguration); }
+            Manifest manifest;
+            var metadataPath = Path.ChangeExtension(fileName, global::NuGet.Constants.ManifestExtension);
+            try { manifest = PackageBuilderHelper.CreatePackageManifest(metadataPath); }
+            catch (XmlException ex) { return ShowManifestReadError(metadataPath, ex.Message); }
             catch (InvalidOperationException ex)
             {
-                MessageBox.Show(ex.Message, typeof(Launcher).Namespace, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return Program.NormalExitCode;
+                return ShowManifestReadError(
+                    metadataPath,
+                    ex.InnerException != null ? ex.InnerException.Message : ex.Message);
             }
 
-            var builderDialog = new PackageBuilderDialog();
-            builderDialog.MetadataPath = Path.ChangeExtension(fileName, global::NuGet.Constants.ManifestExtension);
-            builderDialog.InitialDirectory = Path.Combine(editorFolder, NuGet.Constants.GalleryDirectory);
-            builderDialog.SetPackageBuilder(builder);
-            builderDialog.ShowDialog();
-            return Program.NormalExitCode;
+            var builder = PackageBuilderHelper.CreateExecutablePackage(fileName, manifest, packageConfiguration);
+            using (var builderDialog = new PackageBuilderDialog())
+            {
+                builderDialog.MetadataPath = Path.ChangeExtension(fileName, global::NuGet.Constants.ManifestExtension);
+                builderDialog.InitialDirectory = Path.Combine(editorFolder, NuGet.Constants.GalleryDirectory);
+                builderDialog.SetPackageBuilder(builder);
+                builderDialog.ShowDialog();
+                return Program.NormalExitCode;
+            }
         }
 
         internal static int LaunchGallery(
