@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 
 namespace Bonsai.Dsp
 {
-    [Description("Writes the incoming signal into a raw binary file.")]
+    [Description("Writes the incoming signal into the specified raw binary output stream.")]
     public class MatrixWriter : StreamSink<byte[], BinaryWriter>
     {
         public MatrixWriter()
@@ -19,7 +19,7 @@ namespace Bonsai.Dsp
             Layout = MatrixLayout.ColumnMajor;
         }
 
-        [Description("The memory layout used to store the signal on disk.")]
+        [Description("The sequential memory layout used to store the sample buffers.")]
         public MatrixLayout Layout { get; set; }
 
         protected override BinaryWriter CreateWriter(Stream stream)
