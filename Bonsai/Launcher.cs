@@ -191,6 +191,7 @@ namespace Bonsai
                 {
                     AppResult.SetResult(packageManagerDialog.InstallPath);
                 }
+
                 return Program.NormalExitCode;
             }
         }
@@ -314,6 +315,7 @@ namespace Bonsai
                 {
                     AppResult.SetResult(galleryDialog.InstallPath);
                 }
+
                 return Program.NormalExitCode;
             }
         }
