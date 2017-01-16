@@ -102,6 +102,7 @@
     <Compile Include="FramebufferState.cs" />
     <Compile Include="DrawFramebuffer.cs" />
     <Compile Include="ImageTextureBinding.cs" />
+    <Compile Include="Input\MouseCursor.cs" />
     <Compile Include="Input\NormalizedDeviceCoordinates.cs" />
     <Compile Include="MeshBinding.cs" />
     <Compile Include="RenderFrame.cs" />
