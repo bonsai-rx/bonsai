@@ -291,6 +291,7 @@ namespace Bonsai.Editor
             {
                 toolStrip.ImageScalingSize = new Size((int)(imageSize.Width * scalingFactor), (int)(imageSize.Height * scalingFactor));
                 menuStrip.ImageScalingSize = toolStrip.ImageScalingSize;
+                statusStrip.ImageScalingSize = toolStrip.ImageScalingSize;
             }
             base.ScaleControl(factor, specified);
         }
