@@ -79,6 +79,17 @@ namespace Bonsai.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There was an error reading the existing package manifest file &apos;{0}&apos;. Please make sure that the file is accessible and that it has a correct format. Detailed error message:
+        ///
+        ///{1}.
+        /// </summary>
+        internal static string ExportPackageManifestReadError {
+            get {
+                return ResourceManager.GetString("ExportPackageManifestReadError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The library folder &apos;{0}&apos; has already been assigned to a different platform. Consider uninstalling the conflicting package..
         /// </summary>
         internal static string LibraryFolderPlatformMismatchException {
