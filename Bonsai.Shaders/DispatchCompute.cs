@@ -23,7 +23,7 @@ namespace Bonsai.Shaders
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
             return source.CombineEither(
-                ShaderManager.ReserveCompute(ShaderName),
+                ShaderManager.ReserveComputeProgram(ShaderName),
                 (input, shader) =>
                 {
                     shader.Update(() =>
