@@ -99,7 +99,9 @@ namespace Bonsai.Shaders.Configuration.Design
                 foreach (var type in itemTypes)
                 {
                     var itemType = type;
-                    menuStrip.Items.Add(type.Name, null, delegate
+                    var displayNameAttributes = (DisplayNameAttribute[])type.GetCustomAttributes(typeof(DisplayNameAttribute), true);
+                    var displayName = displayNameAttributes.Length > 0 ? displayNameAttributes[0].DisplayName : type.Name;
+                    menuStrip.Items.Add(displayName, null, delegate
                     {
                         var item = CreateInstance(itemType);
                         AddItem(item);
