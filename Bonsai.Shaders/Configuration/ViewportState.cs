@@ -11,6 +11,12 @@ namespace Bonsai.Shaders.Configuration
 {
     public class ViewportState : StateConfiguration
     {
+        public ViewportState()
+        {
+            Width = 1;
+            Height = 1;
+        }
+
         [Description("The x-coordinate of the lower left corner of the viewport.")]
         public float X { get; set; }
 
