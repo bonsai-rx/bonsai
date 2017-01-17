@@ -692,7 +692,7 @@ void main()
                     {
                         var message = string.Format(
                             "Failed to compile shader.\nShader name: {0}\n{1}",
-                            TabPage.Text,
+                            displayText,
                             GL.GetShaderInfoLog(shader));
                         ShowError(message, ErrorCaption);
                     }
