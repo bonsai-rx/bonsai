@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="BufferBinding.cs" />
     <Compile Include="ComputeProgram.cs" />
+    <Compile Include="Configuration\ViewportEffectConfiguration.cs" />
     <Compile Include="DispatchCompute.cs" />
     <Compile Include="Configuration\BufferBindingConfiguration.cs" />
     <Compile Include="Configuration\MemoryBarrierState.cs" />
@@ -99,8 +100,10 @@
     <Compile Include="DispatchShaderQueue.cs" />
     <Compile Include="DrawArrays.cs" />
     <Compile Include="DrawShader.cs" />
+    <Compile Include="Effect.cs" />
     <Compile Include="FramebufferState.cs" />
     <Compile Include="DrawFramebuffer.cs" />
+    <Compile Include="ViewportEffect.cs" />
     <Compile Include="ImageTextureBinding.cs" />
     <Compile Include="Input\MouseCursor.cs" />
     <Compile Include="Input\NormalizedDeviceCoordinates.cs" />
