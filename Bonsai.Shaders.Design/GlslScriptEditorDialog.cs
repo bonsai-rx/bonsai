@@ -37,6 +37,12 @@ void main()
             shaderExamples = new GlslScriptExampleCollection();
         }
 
+        public string InitialDirectory
+        {
+            get { return openFileDialog.InitialDirectory; }
+            set { openFileDialog.InitialDirectory = saveFileDialog.InitialDirectory = value; }
+        }
+
         public GlslScriptExampleCollection ScriptExamples
         {
             get { return shaderExamples; }

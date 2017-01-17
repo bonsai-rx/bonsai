@@ -60,6 +60,16 @@ namespace Bonsai.Shaders.Configuration.Design
             }
         }
 
+        string CurrentDirectory
+        {
+            get { return currentDirectory; }
+            set
+            {
+                currentDirectory = value;
+                glslEditor.InitialDirectory = currentDirectory;
+            }
+        }
+
         void UpdateSelectedPage()
         {
             switch (selectedPage)
@@ -89,7 +99,7 @@ namespace Bonsai.Shaders.Configuration.Design
         protected override void OnLoad(EventArgs e)
         {
             var loadResult = DialogResult.Cancel;
-            currentDirectory = Environment.CurrentDirectory;
+            CurrentDirectory = Environment.CurrentDirectory;
             try { configuration = ConfigurationHelper.LoadConfiguration(out loadResult); }
             catch (SecurityException ex) { ShowReadError(ex.Message); }
             catch (IOException ex) { ShowReadError(ex.Message); }
@@ -195,7 +205,7 @@ namespace Bonsai.Shaders.Configuration.Design
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (currentDirectory != Environment.CurrentDirectory)
+            if (CurrentDirectory != Environment.CurrentDirectory)
             {
                 if (MessageBox.Show(this,
                     Resources.ConfigurationDirectoryChanged_Message,
@@ -206,7 +216,7 @@ namespace Bonsai.Shaders.Configuration.Design
                     return;
                 }
 
-                currentDirectory = Environment.CurrentDirectory;
+                CurrentDirectory = Environment.CurrentDirectory;
             }
 
             SetCollectionItems(shaderCollectionEditor, configuration.Shaders);
