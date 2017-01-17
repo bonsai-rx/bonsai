@@ -58,11 +58,16 @@ namespace Bonsai.Shaders
 
         protected abstract int CreateShader();
 
+        protected virtual void OnLoad()
+        {
+        }
+
         public void Load()
         {
             program = CreateShader();
             GL.UseProgram(program);
             shaderState.Load();
+            OnLoad();
         }
 
         protected virtual void OnDispatch()
