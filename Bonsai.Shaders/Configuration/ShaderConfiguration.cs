@@ -11,6 +11,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Shaders.Configuration
 {
     [XmlInclude(typeof(MaterialConfiguration))]
+    [XmlInclude(typeof(ViewportEffectConfiguration))]
     [XmlInclude(typeof(ComputeProgramConfiguration))]
     public abstract class ShaderConfiguration
     {
