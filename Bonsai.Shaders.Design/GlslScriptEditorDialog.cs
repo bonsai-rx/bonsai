@@ -29,6 +29,7 @@ void main()
         readonly GlslScriptExampleCollection shaderExamples;
         GraphicsContext context;
         TabPageController activeTab;
+        bool defaultActiveTab;
 
         public GlslScriptEditorDialog()
         {
@@ -198,6 +199,7 @@ void main()
             if (tabState != null && activeTab != tabState)
             {
                 activeTab = tabState;
+                defaultActiveTab = false;
                 activeTab.UpdateLineNumberMargin();
                 activeTab.UpdateDirtyStatus();
                 UpdateUndoStatus();
@@ -228,8 +230,21 @@ void main()
             return indices.Count;
         }
 
+        void RemoveDefaultTabPage()
+        {
+            if (editorTabControl.TabCount == 1 && defaultActiveTab && !activeTab.Editor.Modified)
+            {
+                editorTabControl.TabPages.Clear();
+            }
+        }
+
         void NewScript(string script)
         {
+            if (!string.ReferenceEquals(script, DefaultScript))
+            {
+                RemoveDefaultTabPage();
+            }
+
             var newScriptIndex = GetNewScriptIndex();
             var tabPage = CreateTabPage(null, script);
             var tabState = (TabPageController)tabPage.Tag;
@@ -247,11 +262,13 @@ void main()
                     var tabPage = editorTabControl.TabPages[fileName];
                     if (tabPage == null)
                     {
+                        RemoveDefaultTabPage();
                         var script = File.ReadAllText(fileName);
                         tabPage = CreateTabPage(fileName, script);
                     }
 
                     editorTabControl.SelectTab(tabPage);
+                    ActivateTabPage(tabPage);
                 }
                 catch (SystemException ex)
                 {
@@ -311,6 +328,7 @@ void main()
         protected override void OnShown(EventArgs e)
         {
             NewScript(DefaultScript);
+            defaultActiveTab = true;
             base.OnShown(e);
         }
 
