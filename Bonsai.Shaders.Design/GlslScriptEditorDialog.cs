@@ -204,14 +204,36 @@ void main()
             }
         }
 
+        int GetNewScriptIndex()
+        {
+            var indices = new List<int>();
+            for (int i = 0; i < editorTabControl.TabCount; i++)
+            {
+                var tabPage = editorTabControl.TabPages[i];
+                var tabState = (TabPageController)tabPage.Tag;
+                if (!string.IsNullOrEmpty(tabState.FileName)) continue;
+
+                int index;
+                var tabName = Path.GetFileNameWithoutExtension(tabState.Text);
+                if (!int.TryParse(tabName.Substring(DefaultTabName.Length), out index)) continue;
+                indices.Add(index - 1);
+            }
+
+            indices.Sort();
+            for (int i = 0; i < indices.Count; i++)
+            {
+                if (indices[i] != i) return i;
+            }
+
+            return indices.Count;
+        }
+
         void NewScript(string script)
         {
-            var newScriptCount = editorTabControl
-                .TabPages.Cast<TabPage>()
-                .Count(page => string.IsNullOrEmpty(((TabPageController)page.Tag).FileName));
+            var newScriptIndex = GetNewScriptIndex();
             var tabPage = CreateTabPage(null, script);
             var tabState = (TabPageController)tabPage.Tag;
-            tabState.Text = DefaultTabName + (newScriptCount + 1);
+            tabState.Text = DefaultTabName + (newScriptIndex + 1);
             editorTabControl.SelectTab(tabPage);
             ActivateTabPage(tabPage);
         }
