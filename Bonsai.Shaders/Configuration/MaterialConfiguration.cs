@@ -10,6 +10,7 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
+    [DisplayName(XmlTypeName)]
     [XmlType(TypeName = XmlTypeName)]
     public class MaterialConfiguration : ShaderConfiguration
     {

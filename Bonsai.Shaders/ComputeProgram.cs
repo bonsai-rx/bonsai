@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
-    public class Compute : Shader
+    public class ComputeProgram : Shader
     {
         string computeSource;
 
-        internal Compute(
+        internal ComputeProgram(
             string name,
             ShaderWindow window,
             string computeShader,

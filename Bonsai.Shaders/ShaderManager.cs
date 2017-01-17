@@ -86,7 +86,7 @@ namespace Bonsai.Shaders
             });
         }
 
-        public static IObservable<Compute> ReserveCompute(string shaderName)
+        public static IObservable<ComputeProgram> ReserveComputeProgram(string shaderName)
         {
             if (string.IsNullOrEmpty(shaderName))
             {
@@ -95,7 +95,7 @@ namespace Bonsai.Shaders
 
             return windowSource.Select(window =>
             {
-                var computation = window.Shaders.Select(shader => shader as Compute)
+                var computation = window.Shaders.Select(shader => shader as ComputeProgram)
                                                 .FirstOrDefault(m => m != null && m.Name == shaderName);
                 if (computation == null)
                 {

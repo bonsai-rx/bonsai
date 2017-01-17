@@ -22,7 +22,7 @@ namespace Bonsai.Shaders.Configuration.Design
 
             protected override IEnumerable<string> GetConfigurationNames()
             {
-                return ShaderManager.LoadConfiguration().Shaders.Where(configuration => configuration is ComputeConfiguration)
+                return ShaderManager.LoadConfiguration().Shaders.Where(configuration => configuration is ComputeProgramConfiguration)
                                                                 .Select(configuration => configuration.Name);
             }
         }

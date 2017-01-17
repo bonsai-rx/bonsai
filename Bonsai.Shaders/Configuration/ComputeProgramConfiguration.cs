@@ -10,10 +10,11 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
+    [DisplayName(XmlTypeName)]
     [XmlType(TypeName = XmlTypeName)]
-    public class ComputeConfiguration : ShaderConfiguration
+    public class ComputeProgramConfiguration : ShaderConfiguration
     {
-        const string XmlTypeName = "Compute";
+        const string XmlTypeName = "ComputeProgram";
 
         [Category("Shaders")]
         [Description("Specifies the path to the compute shader.")]
@@ -28,7 +29,7 @@ namespace Bonsai.Shaders.Configuration
         public override Shader CreateShader(ShaderWindow window)
         {
             var computeSource = File.ReadAllText(ComputeShader);
-            var computation = new Compute(
+            var computation = new ComputeProgram(
                 Name, window,
                 computeSource,
                 RenderState,

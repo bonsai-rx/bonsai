@@ -11,7 +11,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Shaders.Configuration
 {
     [XmlInclude(typeof(MaterialConfiguration))]
-    [XmlInclude(typeof(ComputeConfiguration))]
+    [XmlInclude(typeof(ComputeProgramConfiguration))]
     public abstract class ShaderConfiguration
     {
         readonly FramebufferConfiguration framebuffer = new FramebufferConfiguration();
