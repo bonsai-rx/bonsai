@@ -269,6 +269,7 @@
             // glslScriptEditorToolStripMenuItem
             // 
             this.glslScriptEditorToolStripMenuItem.Name = "glslScriptEditorToolStripMenuItem";
+            this.glslScriptEditorToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
             this.glslScriptEditorToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
             this.glslScriptEditorToolStripMenuItem.Text = "S&hader Editor";
             this.glslScriptEditorToolStripMenuItem.Click += new System.EventHandler(this.glslScriptEditorToolStripMenuItem_Click);
