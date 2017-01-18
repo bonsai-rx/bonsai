@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>Public release of editors for the video source infrastructure.</releaseNotes>
-    <copyright>Gonçalo Lopes © 2014</copyright>
+    <copyright>Gonçalo Lopes © 2017</copyright>
     <tags>Bonsai Rx Reactive Extensions Video Editors</tags>
     <dependencies>
       <dependency id="Bonsai.Core" version="2.2.0" />

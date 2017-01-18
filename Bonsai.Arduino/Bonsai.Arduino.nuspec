@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>Public release of Arduino communication infrastructure for Bonsai.</releaseNotes>
-    <copyright>Gonçalo Lopes © 2013</copyright>
+    <copyright>Gonçalo Lopes © 2017</copyright>
     <tags>Bonsai Rx Reactive Extensions Arduino</tags>
     <dependencies>
       <dependency id="Bonsai.System" version="2.3.0" />
