@@ -384,6 +384,7 @@ void main()
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 OpenScript(openFileDialog.FileName);
+                InitialDirectory = string.Empty;
             }
         }
 
