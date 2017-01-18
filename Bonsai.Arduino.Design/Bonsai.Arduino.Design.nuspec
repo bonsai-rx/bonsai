@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>Public release containing editors for Arduino configuration in Bonsai.</releaseNotes>
-    <copyright>Gonçalo Lopes © 2013</copyright>
+    <copyright>Gonçalo Lopes © 2017</copyright>
     <tags>Bonsai Arduino Design</tags>
     <dependencies>
       <dependency id="Bonsai.Arduino" version="2.3.0" />
