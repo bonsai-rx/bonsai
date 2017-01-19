@@ -69,6 +69,7 @@
     <Compile Include="AbsoluteDifference.cs" />
     <Compile Include="Accumulate.cs" />
     <Compile Include="ArrayExtrema.cs" />
+    <Compile Include="BitBuffer.cs" />
     <Compile Include="Butterworth.cs" />
     <Compile Include="IncrementalMean.cs" />
     <Compile Include="KernelLengthConverter.cs" />
