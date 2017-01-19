@@ -47,8 +47,11 @@ namespace Bonsai.Design.Visualizers
 
         public ChartControl()
         {
+            SuspendLayout();
             AutoScaleAxis = true;
             Size = new Size(320, 240);
+            AutoScaleDimensions = new SizeF(6F, 13F);
+            AutoScaleMode = AutoScaleMode.Font;
             GraphPane.Title.IsVisible = false;
             GraphPane.Border.IsVisible = false;
             GraphPane.Chart.Border.IsVisible = false;
@@ -67,6 +70,7 @@ namespace Bonsai.Design.Visualizers
             GraphPane.XAxis.Scale.MagAuto = false;
             MasterPane.Border.IsVisible = false;
             InitializeReactiveEvents();
+            ResumeLayout(false);
         }
 
         [DefaultValue(true)]
