@@ -82,7 +82,8 @@ namespace Bonsai.Design
         private void configurationManagerButton_Click(object sender, EventArgs e)
         {
             var configuration = LoadConfiguration();
-            var configurationManager = CreateConfigurationEditor(configuration.GetType());
+            var configurationType = configuration != null ? configuration.GetType() : null;
+            var configurationManager = CreateConfigurationEditor(configurationType);
             configurationManager.EditValue(editorService, editorService, configuration);
             if (editorService.DialogResult == DialogResult.OK)
             {
