@@ -60,14 +60,19 @@ namespace Bonsai.Vision.Design
                 var image = Image;
                 if (image != null)
                 {
-                    commandExecutor.BeginCompositeCommand();
-                    commandExecutor.Execute(() => { }, UpdateQuadrangle);
-                    UpdatePoint(0, new Point2f(0, 0));
-                    UpdatePoint(1, new Point2f(0, image.Height));
-                    UpdatePoint(2, new Point2f(image.Width, image.Height));
-                    UpdatePoint(3, new Point2f(image.Width, 0));
-                    commandExecutor.Execute(UpdateQuadrangle, () => { });
-                    commandExecutor.EndCompositeCommand();
+                    InitializeQuadrangle(
+                        new Point2f(0, 0),
+                        new Point2f(0, image.Height),
+                        new Point2f(image.Width, image.Height),
+                        new Point2f(image.Width, 0));
+                }
+                else
+                {
+                    InitializeQuadrangle(
+                        new Point2f(-1, -1),
+                        new Point2f(-1, 1),
+                        new Point2f(1, 1),
+                        new Point2f(1, -1));
                 }
             });
         }
@@ -86,6 +91,18 @@ namespace Bonsai.Vision.Design
             {
                 handler(this, e);
             }
+        }
+
+        void InitializeQuadrangle(Point2f point0, Point2f point1, Point2f point2, Point2f point3)
+        {
+            commandExecutor.BeginCompositeCommand();
+            commandExecutor.Execute(() => { }, UpdateQuadrangle);
+            UpdatePoint(0, point0);
+            UpdatePoint(1, point1);
+            UpdatePoint(2, point2);
+            UpdatePoint(3, point3);
+            commandExecutor.Execute(UpdateQuadrangle, () => { });
+            commandExecutor.EndCompositeCommand();
         }
 
         int CornerIndex(Point2f point)
