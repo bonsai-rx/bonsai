@@ -34,6 +34,7 @@ namespace Bonsai.Dsp.Design
 
         bool autoScaleX;
         bool autoScaleY;
+        SizeF scaleFactor;
         int[] sequenceIndices;
         int selectedPage;
         int channelsPerPage;
@@ -63,7 +64,7 @@ namespace Bonsai.Dsp.Design
             MasterPane.InnerPaneGap = 0;
             GraphPane.Border.Color = Color.Red;
             GraphPane.Title.FontSpec.IsBold = false;
-            GraphPane.Title.FontSpec.Size = TitleFontSize;
+            GraphPane.Title.FontSpec.Size = TitleFontSize * scaleFactor.Height;
             GraphPane.Title.Text = (0).ToString(CultureInfo.InvariantCulture);
             GraphPane.XAxis.Type = AxisType.Linear;
             GraphPane.XAxis.MinorTic.IsAllTics = false;
@@ -75,6 +76,12 @@ namespace Bonsai.Dsp.Design
             GraphPane.AxisChangeEvent += GraphPane_AxisChangeEvent;
             ZoomEvent += chart_ZoomEvent;
             InitializeReactiveEvents();
+        }
+
+        protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
+        {
+            scaleFactor = factor;
+            base.ScaleControl(factor, specified);
         }
 
         private void InitializeReactiveEvents()
