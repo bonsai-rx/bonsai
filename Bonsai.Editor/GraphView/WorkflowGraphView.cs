@@ -523,14 +523,6 @@ namespace Bonsai.Design
             return Tuple.Create(addConnection, removeConnection);
         }
 
-        static bool IsBuildDependency(ExpressionBuilder builder)
-        {
-            //TODO: Refactor this test into the core API
-            builder = ExpressionBuilder.Unwrap(builder);
-            return !(builder is InputMappingBuilder) && builder is PropertyMappingBuilder ||
-                   builder is ExternalizedProperty;
-        }
-
         bool CanConnect(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget)
         {
             var target = GetGraphNodeTag(workflow, graphViewTarget, false);
@@ -550,7 +542,7 @@ namespace Bonsai.Design
             Node<ExpressionBuilder, ExpressionBuilderArgument> target)
         {
             var connectionCount = workflow.Contains(target)
-                ? workflow.Predecessors(target).Count(node => !IsBuildDependency(node.Value))
+                ? workflow.Predecessors(target).Count(node => !node.Value.IsBuildDependency())
                 : 0;
             foreach (var source in sources)
             {
@@ -560,7 +552,7 @@ namespace Bonsai.Design
                 }
 
                 if (connectionCount++ >= target.Value.ArgumentRange.UpperBound &&
-                    !IsBuildDependency(source.Value) ||
+                    !source.Value.IsBuildDependency() ||
                     target.DepthFirstSearch().Contains(source))
                 {
                     return false;
