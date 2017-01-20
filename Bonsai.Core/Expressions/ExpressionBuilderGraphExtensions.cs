@@ -36,6 +36,21 @@ namespace Bonsai.Expressions
         }
 
         /// <summary>
+        /// Determines whether the specified <see cref="ExpressionBuilder"/> represents a build dependency.
+        /// </summary>
+        /// <param name="builder">The <see cref="ExpressionBuilder"/> to test.</param>
+        /// <returns>
+        /// true if the specified <see cref="ExpressionBuilder"/> represents a
+        /// build dependency; otherwise, false.
+        /// </returns>
+        public static bool IsBuildDependency(this ExpressionBuilder builder)
+        {
+            builder = ExpressionBuilder.Unwrap(builder);
+            return !(builder is InputMappingBuilder) && builder is PropertyMappingBuilder ||
+                   builder is ExternalizedProperty;
+        }
+
+        /// <summary>
         /// Sets the value of a workflow property to a different value.
         /// </summary>
         /// <param name="source">The expression builder workflow for which to set the property.</param>
