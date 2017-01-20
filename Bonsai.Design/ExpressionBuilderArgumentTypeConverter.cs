@@ -10,6 +10,7 @@ using Bonsai.Dag;
 
 namespace Bonsai.Design
 {
+    [Obsolete]
     public class ExpressionBuilderArgumentTypeConverter : TypeConverter
     {
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
