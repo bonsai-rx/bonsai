@@ -166,79 +166,6 @@ namespace Bonsai.Design
                 return x.CompareTo(y);
             }
         }
-
-        public static IEnumerable<GraphNodeGrouping> EnsureEdgeLabelPriority(this IEnumerable<GraphNodeGrouping> source)
-        {
-            GraphNodeGrouping successorLayer = null;
-            var implicitOrder = new List<GraphEdge>();
-            var partialOrder = new DirectedGraph<GraphNode, int>();
-            var predecessorNodes = new List<Node<GraphNode, int>>();
-            var result = new List<GraphNodeGrouping>();
-            foreach (var layer in source)
-            {
-                var predecessorLayer = layer;
-                if (successorLayer != null)
-                {
-                    predecessorNodes.AddRange(predecessorLayer.Select(node => new Node<GraphNode, int>(node)));
-                    var ordering = from node in successorLayer
-                                   select (from predecessor in predecessorNodes
-                                           from edge in predecessor.Value.Successors
-                                           where edge.Node == node
-                                           orderby predecessor.Value.BuildDependency, edge.Text ascending
-                                           select new { predecessor, edge });
-                    foreach (var group in ordering)
-                    {
-                        Node<GraphNode, int> previous = null;
-                        foreach (var link in group)
-                        {
-                            partialOrder.Add(link.predecessor);
-                            if (previous != null) partialOrder.AddEdge(previous, link.predecessor, 0);
-                            implicitOrder.Add(link.edge);
-                            previous = link.predecessor;
-                        }
-                    }
-
-                    // Compute partial ordering of all predecessor nodes
-                    var orderedLayer = new GraphNodeGrouping(successorLayer.Key + 1);
-                    foreach (var node in partialOrder.TopologicalSort())
-                    {
-                        orderedLayer.Add(node.Value);
-                    }
-
-                    // If no compatible partial ordering was found, we need to introduce a dummy layer
-                    if (orderedLayer.Count == 0)
-                    {
-                        var dummyLayer = orderedLayer;
-                        orderedLayer = new GraphNodeGrouping(dummyLayer.Key + 1);
-                        foreach (var link in implicitOrder)
-                        {
-                            var edge = new GraphEdge(link, link.Node);
-                            var dummyNode = new GraphNode(null, dummyLayer.Key, Enumerable.Repeat(edge, 1));
-                            dummyNode.Tag = edge;
-                            dummyLayer.Add(dummyNode);
-                            link.Node = dummyNode;
-                        }
-
-                        foreach (var node in predecessorLayer)
-                        {
-                            orderedLayer.Add(node);
-                        }
-
-                        result.Add(dummyLayer);
-                    }
-
-                    implicitOrder.Clear();
-                    partialOrder.Clear();
-                    predecessorNodes.Clear();
-                    predecessorLayer = orderedLayer;
-                }
-
-                result.Add(predecessorLayer);
-                successorLayer = predecessorLayer;
-            }
-
-            return result;
-        }
         
         public static IEnumerable<GraphNodeGrouping> SortLayeringByConnectionKey(this IEnumerable<GraphNodeGrouping> source)
         {
@@ -368,7 +295,7 @@ namespace Bonsai.Design
                 {
                     var nodeOrder = from node in layer
                                     from edge in node.Successors
-                                    orderby node.BuildDependency, edge.Node.LayerIndex, edge.Label
+                                    orderby edge.Node.LayerIndex, edge.Label
                                     group node by node into g
                                     select g.Key;
                     var sortedLayer = new GraphNodeGrouping(layer.Key);

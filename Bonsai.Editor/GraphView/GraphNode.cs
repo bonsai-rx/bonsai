@@ -79,11 +79,6 @@ namespace Bonsai.Design
             get { return typeConverter != null ? typeConverter.ConvertToString(Value) : string.Empty; }
         }
 
-        public bool BuildDependency
-        {
-            get { return Pen != null && Pen.Color.R > 0; }
-        }
-
         /// <summary>
         /// Returns a string that represents the value of this <see cref="GraphNode"/> instance.
         /// </summary>
