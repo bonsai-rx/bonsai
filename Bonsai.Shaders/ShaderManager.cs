@@ -67,20 +67,20 @@ namespace Bonsai.Shaders
             });
         }
 
-        public static IObservable<Material> ReserveMaterial(string materialName)
+        public static IObservable<Material> ReserveMaterial(string shaderName)
         {
-            if (string.IsNullOrEmpty(materialName))
+            if (string.IsNullOrEmpty(shaderName))
             {
-                throw new ArgumentException("A material name must be specified.", "materialName");
+                throw new ArgumentException("A material name must be specified.", "shaderName");
             }
 
             return windowSource.Select(window =>
             {
                 var material = window.Shaders.Select(shader => shader as Material)
-                                             .FirstOrDefault(m => m != null && m.Name == materialName);
+                                             .FirstOrDefault(m => m != null && m.Name == shaderName);
                 if (material == null)
                 {
-                    throw new ArgumentException("No matching material configuration was found.", "materialName");
+                    throw new ArgumentException("No matching material configuration was found.", "shaderName");
                 }
                 return material;
             });
@@ -95,13 +95,13 @@ namespace Bonsai.Shaders
 
             return windowSource.Select(window =>
             {
-                var computation = window.Shaders.Select(shader => shader as ComputeProgram)
-                                                .FirstOrDefault(m => m != null && m.Name == shaderName);
-                if (computation == null)
+                var computeProgram = window.Shaders.Select(shader => shader as ComputeProgram)
+                                                   .FirstOrDefault(m => m != null && m.Name == shaderName);
+                if (computeProgram == null)
                 {
-                    throw new ArgumentException("No matching compute shader configuration was found.", "shaderName");
+                    throw new ArgumentException("No matching compute program configuration was found.", "shaderName");
                 }
-                return computation;
+                return computeProgram;
             });
         }
 
