@@ -35,7 +35,14 @@ namespace Bonsai.Shaders.Configuration.Design
                 }
                 editorDialog.Show(owner);
             }
-            else editorDialog.Activate();
+            else
+            {
+                if (editorDialog.WindowState == FormWindowState.Minimized)
+                {
+                    editorDialog.WindowState = FormWindowState.Normal;
+                }
+                editorDialog.Activate();
+            }
         }
 
         internal void EditConfiguration(ShaderConfigurationEditorPage selectedPage, IWin32Window owner)
