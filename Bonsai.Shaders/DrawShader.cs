@@ -19,8 +19,8 @@ namespace Bonsai.Shaders
         [Editor("Bonsai.Shaders.Configuration.Design.MaterialConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string ShaderName
         {
-            get { return drawMesh.MaterialName; }
-            set { drawMesh.MaterialName = value; }
+            get { return drawMesh.ShaderName; }
+            set { drawMesh.ShaderName = value; }
         }
 
         [Description("The name of the mesh geometry to draw.")]

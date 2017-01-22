@@ -15,7 +15,7 @@ namespace Bonsai.Shaders
     {
         [Description("The name of the material shader program.")]
         [Editor("Bonsai.Shaders.Configuration.Design.MaterialConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
-        public string MaterialName { get; set; }
+        public string ShaderName { get; set; }
 
         [Description("The name of the mesh geometry to draw.")]
         [Editor("Bonsai.Shaders.Configuration.Design.MeshConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
@@ -33,7 +33,7 @@ namespace Bonsai.Shaders
 
                 Mesh mesh = null;
                 return source.CombineEither(
-                    ShaderManager.ReserveMaterial(MaterialName).Do(material =>
+                    ShaderManager.ReserveMaterial(ShaderName).Do(material =>
                     {
                         material.Update(() =>
                         {
