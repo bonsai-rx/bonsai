@@ -248,7 +248,14 @@ namespace Bonsai.Shaders.Configuration.Design
 
         private void glslScriptEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (glslEditor.Visible) glslEditor.Activate();
+            if (glslEditor.Visible)
+            {
+                if (glslEditor.WindowState == FormWindowState.Minimized)
+                {
+                    glslEditor.WindowState = FormWindowState.Normal;
+                }
+                glslEditor.Activate();
+            }
             else
             {
                 var owner = Owner ?? this;
