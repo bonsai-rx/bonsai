@@ -81,7 +81,7 @@ namespace Bonsai.NuGet
                     }
                 }
 
-                using (var stream = File.OpenWrite(metadataPath))
+                using (var stream = File.Open(metadataPath, FileMode.Create))
                 {
                     manifest.Save(stream);
                     metadataSaveVersion = metadataVersion;
