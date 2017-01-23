@@ -47,7 +47,6 @@
   <ItemGroup>
     <Content Include="Bonsai.config" />
     <Content Include="vsix.ico" />
-    <Content Include="SnippetReadme.txt" />
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <!--
