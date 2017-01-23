@@ -91,7 +91,13 @@ namespace Bonsai.NuGet
             else return false;
         }
 
-        void RenamePackageFile(PhysicalPackageFile file, string fileName)
+        static void EnsureDirectory(string path)
+        {
+            path = Path.GetFullPath(path);
+            Directory.CreateDirectory(path);
+        }
+
+        static void RenamePackageFile(PhysicalPackageFile file, string fileName)
         {
             var extension = Path.GetExtension(file.SourcePath);
             if (extension == Constants.LayoutExtension) extension = Constants.BonsaiExtension + extension;
@@ -176,6 +182,7 @@ namespace Bonsai.NuGet
                     if (entryPointLayout != null) RenamePackageFile(entryPointLayout, packageBuilder.Id);
                 }
 
+                EnsureDirectory(saveFileDialog.InitialDirectory);
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     using (var dialog = new PackageOperationDialog())
