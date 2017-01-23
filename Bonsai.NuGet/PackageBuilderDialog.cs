@@ -34,7 +34,7 @@ namespace Bonsai.NuGet
         public PackageBuilderDialog()
         {
             InitializeComponent();
-            metadataProperties.PropertyValueChanged += (sender, e) => metadataVersion++;
+            metadataProperties.PropertyValueChanged += (sender, e) => UpdateMetadataVersion();
         }
 
         public string MetadataPath
@@ -119,6 +119,11 @@ namespace Bonsai.NuGet
 
                 nodes = node.Nodes;
             }
+        }
+
+        public void UpdateMetadataVersion()
+        {
+            metadataVersion++;
         }
 
         public void SetPackageBuilder(PackageBuilder builder)

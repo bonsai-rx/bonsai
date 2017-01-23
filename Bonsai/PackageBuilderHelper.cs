@@ -57,7 +57,7 @@ namespace Bonsai
             }
         }
 
-        public static PackageBuilder CreateExecutablePackage(string path, Manifest manifest, PackageConfiguration configuration)
+        public static PackageBuilder CreateExecutablePackage(string path, Manifest manifest, PackageConfiguration configuration, out bool updateDependencies)
         {
             if (string.IsNullOrEmpty(path) || !File.Exists(path))
             {
@@ -72,12 +72,33 @@ namespace Bonsai
             var files = manifest.Files ?? GetContentFiles(basePath);
             packageBuilder.PopulateFiles(basePath, files);
 
-            packageBuilder.DependencySets.Clear();
+            var manifestDependencies = packageBuilder.DependencySets.SelectMany(set => set.Dependencies);
             var dependencies = DependencyInspector.GetWorkflowPackageDependencies(path, configuration).ToArray().Wait();
             var dependencySet = new PackageDependencySet(null, dependencies);
-            packageBuilder.DependencySets.Add(dependencySet);
+            updateDependencies = !manifestDependencies.SequenceEqual(dependencies, DependencyEqualityComparer.Default);
 
+            packageBuilder.DependencySets.Clear();
+            packageBuilder.DependencySets.Add(dependencySet);
             return packageBuilder;
+        }
+
+        class DependencyEqualityComparer : IEqualityComparer<PackageDependency>
+        {
+            public static readonly DependencyEqualityComparer Default = new DependencyEqualityComparer();
+
+            public bool Equals(PackageDependency x, PackageDependency y)
+            {
+                return x.Id.Equals(y.Id, StringComparison.OrdinalIgnoreCase) &&
+                       x.VersionSpec.IsMaxInclusive == y.VersionSpec.IsMaxInclusive &&
+                       x.VersionSpec.IsMinInclusive == y.VersionSpec.IsMinInclusive &&
+                       x.VersionSpec.MaxVersion == y.VersionSpec.MaxVersion &&
+                       x.VersionSpec.MinVersion == y.VersionSpec.MinVersion;
+            }
+
+            public int GetHashCode(PackageDependency obj)
+            {
+                return obj.Id.GetHashCode() ^ obj.VersionSpec.GetHashCode();
+            }
         }
     }
 }

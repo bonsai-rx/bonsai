@@ -290,12 +290,17 @@ namespace Bonsai
                     ex.InnerException != null ? ex.InnerException.Message : ex.Message);
             }
 
-            var builder = PackageBuilderHelper.CreateExecutablePackage(fileName, manifest, packageConfiguration);
+            bool updateDependencies;
+            var builder = PackageBuilderHelper.CreateExecutablePackage(fileName, manifest, packageConfiguration, out updateDependencies);
             using (var builderDialog = new PackageBuilderDialog())
             {
                 builderDialog.MetadataPath = Path.ChangeExtension(fileName, global::NuGet.Constants.ManifestExtension);
                 builderDialog.InitialDirectory = Path.Combine(editorFolder, NuGet.Constants.GalleryDirectory);
                 builderDialog.SetPackageBuilder(builder);
+                if (updateDependencies)
+                {
+                    builderDialog.UpdateMetadataVersion();
+                }
                 builderDialog.ShowDialog();
                 return Program.NormalExitCode;
             }
