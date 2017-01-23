@@ -12,7 +12,7 @@
           <Shortcut Id="startmenuBonsaiTemplates"
                     Directory="ProgramMenuDir"
                     WorkingDirectory="VSEXTENSIONSFOLDER"
-                    Name="Register Visual Studio Extensions"
+                    Name="Install Bonsai VS Extensions"
                     Icon="vsix.ico"
                     Advertise="yes"/>
         </File>
