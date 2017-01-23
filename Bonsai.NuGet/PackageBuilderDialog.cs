@@ -129,7 +129,7 @@ namespace Bonsai.NuGet
             TypeDescriptor.AddProvider(descriptionProvider, packageBuilder);
             metadataProperties.SelectedObject = packageBuilder;
             metadataProperties.ExpandAllGridItems();
-            var entryPointPath = packageBuilder.Id + Constants.BonsaiExtension;
+            var entryPointPath = Path.GetFileNameWithoutExtension(metadataPath) + Constants.BonsaiExtension;
             var entryPointLayoutPath = entryPointPath + Constants.LayoutExtension;
             foreach (var file in packageBuilder.Files)
             {
