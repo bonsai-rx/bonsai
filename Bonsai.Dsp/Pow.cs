@@ -15,6 +15,11 @@ namespace Bonsai.Dsp
         [Description("Specifies the power exponent.")]
         public double Power { get; set; }
 
+        public IObservable<double> Process(IObservable<double> source)
+        {
+            return source.Select(input => Math.Pow(input, Power));
+        }
+
         public override IObservable<TArray> Process<TArray>(IObservable<TArray> source)
         {
             var outputFactory = ArrFactory<TArray>.TemplateFactory;
