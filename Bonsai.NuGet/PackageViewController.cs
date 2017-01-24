@@ -262,14 +262,7 @@ namespace Bonsai.NuGet
                 }
                 else
                 {
-                    try
-                    {
-                        packages = selectedRepository.GetPackages().Find(searchTerm);
-                        foreach (var term in tagSearchTerms)
-                        {
-                            packages = packages.Find(TagProperties, term);
-                        }
-                    }
+                    try { packages = selectedRepository.GetPackages().Find(searchTerm).WithTags(tagSearchTerms); }
                     catch (WebException e) { return Observable.Throw<IPackage>(e).ToEnumerable().AsQueryable(); }
                     if (allowPrereleaseVersions) packages = packages.Where(p => p.IsAbsoluteLatestVersion);
                     else packages = packages.Where(p => p.IsLatestVersion);

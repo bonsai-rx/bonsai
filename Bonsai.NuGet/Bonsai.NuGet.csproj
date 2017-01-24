@@ -141,6 +141,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="PackageManagerProxy.cs" />
+    <Compile Include="QueryHelper.cs" />
     <Compile Include="RequiringLicenseAcceptanceEventArgs.cs" />
   </ItemGroup>
   <ItemGroup>
