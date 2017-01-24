@@ -70,12 +70,12 @@ uniform vec2 scale = vec2(1, 1);
 uniform vec2 shift;
 in vec2 vp;
 in vec2 vt;
-out vec2 tex_coord;
+out vec2 texCoord;
 
 void main()
 {
   gl_Position = vec4(vp * scale + shift, 0.0, 1.0);
-  tex_coord = vt;
+  texCoord = vt;
 }
 "
                 },
@@ -91,7 +91,7 @@ in vec3 vp;
 in vec2 vt;
 in vec3 vn;
 out vec3 position;
-out vec2 tex_coord;
+out vec2 texCoord;
 out vec3 normal;
 
 void main()
@@ -100,7 +100,7 @@ void main()
   vec4 v = modelview * vec4(vp, 1.0);
   gl_Position = projection * v;
   position = vec3(v);
-  tex_coord = vt;
+  texCoord = vt;
   normal = normalize(vec3(normalmat * vec4(vn, 0.0)));
 }
 "
@@ -112,13 +112,13 @@ void main()
                     Type = ShaderType.FragmentShader,
                     Source = @"#version 400
 uniform sampler2D tex;
-in vec2 tex_coord;
-out vec4 frag_colour;
+in vec2 texCoord;
+out vec4 fragColor;
 
 void main()
 {
-  vec4 texel = texture(tex, tex_coord);
-  frag_colour = texel;
+  vec4 texel = texture(tex, texCoord);
+  fragColor = texel;
 }
 "
                 },
@@ -132,24 +132,24 @@ uniform vec3 Ka;
 uniform vec3 Kd;
 uniform vec3 Ks;
 uniform float Ns = 1.0;
-uniform sampler2D map_Kd;
+uniform sampler2D mapKd;
 uniform vec3 light;
 in vec3 position;
-in vec2 tex_coord;
+in vec2 texCoord;
 in vec3 normal;
-out vec4 frag_colour;
+out vec4 fragColor;
 
 void main()
 {
   vec3 L = normalize(light - position);
-  vec3 R = normalize(-reflect(L,normal));
+  vec3 R = normalize(-reflect(L, normal));
   vec3 V = normalize(-position);
 
   vec3 Iamb = Ka;
-  vec3 Idiff = Kd * texture(map_Kd, tex_coord).rgb * max(dot(normal,L), 0.0);
-  vec3 Ispec = Ks * pow(max(dot(R,V),0.0),Ns);
+  vec3 Idiff = Kd * texture(mapKd, texCoord).rgb * max(dot(normal, L), 0.0);
+  vec3 Ispec = Ks * pow(max(dot(R, V), 0.0), Ns);
 
-  frag_colour = vec4(Iamb + Idiff + Ispec,1.0);
+  fragColor = vec4(Iamb + Idiff + Ispec, 1.0);
 }
 "
                 }
