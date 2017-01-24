@@ -11,7 +11,6 @@
     <iconUrl>https://bitbucket.org/horizongir/bonsai/raw/7aacc64dc4647e57362ab310238591dc197fef0d/Resources/Bonsai.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>The Bonsai Starter Pack includes everything you need to build your own data processing workflows.</description>
-    <releaseNotes>Public release of the starter pack including simple workflow examples for Bonsai.</releaseNotes>
     <copyright>Gonçalo Lopes © 2017</copyright>
     <tags>Bonsai Starter Pack Examples</tags>
     <dependencies>
@@ -28,7 +27,5 @@
       <dependency id="Bonsai.Windows.Input" version="2.2.0" />
     </dependencies>
   </metadata>
-  <files>
-    <file src="Examples\**\*.*" target="content\Examples" />
-  </files>
+  <files />
 </package>

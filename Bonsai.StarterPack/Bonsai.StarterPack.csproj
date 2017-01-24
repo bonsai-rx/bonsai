@@ -41,32 +41,9 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <Content Include="Examples\Audio\VolumeLevel\Level.png" />
-    <Content Include="Examples\Vision\ColorSegmentation\Axis.avi" />
-    <Content Include="Examples\Vision\ColorSegmentation\ColorSegmentation.bonsai" />
-    <Content Include="Examples\Vision\ColorSegmentation\ColorSegmentation.bonsai.layout" />
-    <Content Include="Examples\Vision\ImageFiltering\Lenna.png" />
-    <Content Include="Examples\Vision\TimeLapse\TimeLapse.bonsai" />
-    <Content Include="Examples\Vision\TimeLapse\TimeLapse.bonsai.layout" />
     <None Include="Bonsai.StarterPack.nuspec">
       <SubType>Designer</SubType>
     </None>
-    <Content Include="Examples\Arduino\MotionFader\MotionFader.bonsai" />
-    <Content Include="Examples\Arduino\MotionFader\MotionFader.bonsai.layout" />
-    <Content Include="Examples\Arduino\ToneGenerator\ToneGenerator.bonsai" />
-    <Content Include="Examples\Arduino\ToneGenerator\ToneGenerator.bonsai.layout" />
-    <Content Include="Examples\Audio\VoicePaint\VoicePaint.bonsai" />
-    <Content Include="Examples\Audio\VoicePaint\VoicePaint.bonsai.layout" />
-    <Content Include="Examples\Vision\ImageFiltering\ImageFiltering.bonsai" />
-    <Content Include="Examples\Vision\ImageFiltering\ImageFiltering.bonsai.layout" />
-    <Content Include="Examples\Audio\VolumeLevel\VolumeLevel.bonsai" />
-    <Content Include="Examples\Audio\VolumeLevel\VolumeLevel.bonsai.layout" />
-    <Content Include="Examples\Osc\ReceiveMessage\Osc.config" />
-    <Content Include="Examples\Osc\ReceiveMessage\ReceiveMessage.bonsai" />
-    <Content Include="Examples\Osc\ReceiveMessage\ReceiveMessage.bonsai.layout" />
-    <Content Include="Examples\Osc\SendMessage\Osc.config" />
-    <Content Include="Examples\Osc\SendMessage\SendMessage.bonsai" />
-    <Content Include="Examples\Osc\SendMessage\SendMessage.bonsai.layout" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
