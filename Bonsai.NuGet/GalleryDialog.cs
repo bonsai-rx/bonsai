@@ -60,7 +60,6 @@ namespace Bonsai.NuGet
 
         protected override void OnLoad(EventArgs e)
         {
-            saveFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             packageViewController.OnLoad(e);
             UpdateSelectedRepository();
             searchComboBox.Select();
