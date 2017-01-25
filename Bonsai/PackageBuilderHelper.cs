@@ -72,10 +72,13 @@ namespace Bonsai
             var files = manifest.Files ?? GetContentFiles(basePath);
             packageBuilder.PopulateFiles(basePath, files);
 
-            var manifestDependencies = packageBuilder.DependencySets.SelectMany(set => set.Dependencies);
             var dependencies = DependencyInspector.GetWorkflowPackageDependencies(path, configuration).ToArray().Wait();
-            var dependencySet = new PackageDependencySet(null, dependencies);
-            updateDependencies = !manifestDependencies.SequenceEqual(dependencies, DependencyEqualityComparer.Default);
+            var manifestDependencies = new HashSet<PackageDependency>(
+                packageBuilder.DependencySets.Where(set => set.TargetFramework == null).SelectMany(set => set.Dependencies),
+                DependencyEqualityComparer.Default);
+            updateDependencies = !manifestDependencies.IsSupersetOf(dependencies);
+            if (updateDependencies) manifestDependencies.UnionWith(dependencies);
+            var dependencySet = new PackageDependencySet(null, manifestDependencies);
 
             packageBuilder.DependencySets.Clear();
             packageBuilder.DependencySets.Add(dependencySet);
@@ -97,7 +100,11 @@ namespace Bonsai
 
             public int GetHashCode(PackageDependency obj)
             {
-                return obj.Id.GetHashCode() ^ obj.VersionSpec.GetHashCode();
+                return obj.Id.GetHashCode() ^
+                       obj.VersionSpec.IsMaxInclusive.GetHashCode() ^
+                       obj.VersionSpec.IsMinInclusive.GetHashCode() ^
+                       EqualityComparer<SemanticVersion>.Default.GetHashCode(obj.VersionSpec.MaxVersion) ^
+                       EqualityComparer<SemanticVersion>.Default.GetHashCode(obj.VersionSpec.MinVersion);
             }
         }
     }
