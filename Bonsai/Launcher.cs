@@ -279,6 +279,18 @@ namespace Bonsai
             }
 
             EnableVisualStyles();
+            var directoryName = Path.GetDirectoryName(fileName);
+            if (Path.GetFileName(directoryName) != Path.GetFileNameWithoutExtension(fileName))
+            {
+                MessageBox.Show(
+                    string.Format(Resources.ExportPackageInvalidDirectory,
+                    Path.GetFileNameWithoutExtension(fileName)),
+                    typeof(Launcher).Namespace,
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return Program.NormalExitCode;
+            }
+
             Manifest manifest;
             var metadataPath = Path.ChangeExtension(fileName, global::NuGet.Constants.ManifestExtension);
             try { manifest = PackageBuilderHelper.CreatePackageManifest(metadataPath); }
