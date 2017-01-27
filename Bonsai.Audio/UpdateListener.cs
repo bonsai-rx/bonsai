@@ -10,20 +10,25 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Audio
 {
+    [Description("Updates the properties of the audio listener.")]
     public class UpdateListener : Sink
     {
         static Vector3 Up = Vector3.UnitY;
         static Vector3 Forward = Vector3.UnitZ;
 
         [TypeConverter(typeof(NumericAggregateConverter))]
+        [Description("The current location of the listener in three-dimensional space.")]
         public Vector3? Position { get; set; }
 
         [TypeConverter(typeof(NumericAggregateConverter))]
+        [Description("The current velocity of the listener in three-dimensional space.")]
         public Vector3? Velocity { get; set; }
 
         [TypeConverter(typeof(NumericAggregateConverter))]
-        public Quaternion? Orientation { get; set; } 
+        [Description("The current orientation of the listener in three-dimensional space.")]
+        public Quaternion? Orientation { get; set; }
 
+        [Description("The amount of amplification applied to the listener. Each multiplication by 2 increases gain by +6dB.")]
         public float? Gain { get; set; }
 
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)

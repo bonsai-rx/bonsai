@@ -10,15 +10,19 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Audio
 {
+    [Description("Updates the properties of an audio source.")]
     public class UpdateSource : Sink<AudioSource>
     {
         [TypeConverter(typeof(NumericAggregateConverter))]
+        [Description("The current location of the audio source in three-dimensional space.")]
         public Vector3? Position { get; set; }
 
         [TypeConverter(typeof(NumericAggregateConverter))]
+        [Description("The current velocity of the audio source in three-dimensional space.")]
         public Vector3? Velocity { get; set; }
 
         [TypeConverter(typeof(NumericAggregateConverter))]
+        [Description("The current direction vector of the audio source.")]
         public Vector3? Direction { get; set; }
 
         public override IObservable<AudioSource> Process(IObservable<AudioSource> source)
