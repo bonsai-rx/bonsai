@@ -894,12 +894,11 @@ namespace Bonsai.Expressions
 
         #region Error Handling
 
-        static readonly ConstructorInfo buildExceptionConstructor = typeof(WorkflowBuildException).GetConstructor(new[] { typeof(string), typeof(ExpressionBuilder), typeof(Exception) });
         static readonly MethodInfo throwMethod = typeof(Observable).GetMethods()
                                                                    .Where(m => m.Name == "Throw")
                                                                    .Single(m => m.GetParameters().Length == 1);
 
-        internal static Expression HandleBuildException(Expression expression, ExpressionBuilder builder)
+        internal static Expression HandleObservableCreationException(Expression expression, ExpressionBuilder builder)
         {
             var exceptionVariable = Expression.Variable(typeof(Exception));
             var observableType = expression.Type.GetGenericArguments()[0];
@@ -909,11 +908,7 @@ namespace Bonsai.Expressions
                     exceptionVariable,
                     Expression.Call(
                         throwMethod.MakeGenericMethod(observableType),
-                        Expression.New(
-                            buildExceptionConstructor,
-                            Expression.Property(exceptionVariable, "Message"),
-                            Expression.Constant(builder),
-                            exceptionVariable))));
+                        exceptionVariable)));
         }
 
         #endregion
