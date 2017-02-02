@@ -98,12 +98,13 @@ namespace Bonsai.Expressions
             ObservableType = source.Type.GetGenericArguments()[0];
 
             // If source is already an inspect node, use it
+            // for output notifications, but not for errors
             var methodCall = source as MethodCallExpression;
             if (methodCall != null && methodCall.Object != null && methodCall.Object.Type == typeof(InspectBuilder))
             {
                 var inspectBuilder = (InspectBuilder)((ConstantExpression)methodCall.Object).Value;
                 Output = inspectBuilder.Output;
-                ErrorEx = inspectBuilder.ErrorEx;
+                ErrorEx = Observable.Empty<Exception>();
                 return source;
             }
             else
