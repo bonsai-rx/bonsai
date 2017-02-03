@@ -870,24 +870,22 @@ namespace Bonsai.Expressions
 
         internal static Expression BuildOutput(Expression output, IEnumerable<Expression> connections)
         {
-            var ignoredConnections = from connection in connections
-                                     where connection != output
-                                     let observableType = connection.Type.GetGenericArguments()[0]
-                                     select Expression.Call(typeof(ExpressionBuilder), "IgnoreConnection", new[] { observableType }, connection);
+            var ignoredConnections = (from connection in connections
+                                      let observableType = connection.Type.GetGenericArguments()[0]
+                                      select Expression.Call(typeof(ExpressionBuilder), "IgnoreConnection", new[] { observableType }, connection))
+                                      .ToArray();
+            if (output != null && ignoredConnections.Length == 0)
+            {
+                return output;
+            }
 
-            var connectionArrayExpression = Expression.NewArrayInit(typeof(IObservable<Unit>), ignoredConnections.ToArray());
+            var connectionArrayExpression = Expression.NewArrayInit(typeof(IObservable<Unit>), ignoredConnections);
             if (output != null)
             {
                 var outputType = output.Type.GetGenericArguments()[0];
                 return Expression.Call(typeof(ExpressionBuilder), "MergeOutput", new[] { outputType }, output, connectionArrayExpression);
             }
             else return Expression.Call(typeof(ExpressionBuilder), "MergeOutput", null, connectionArrayExpression);
-        }
-
-        internal static Expression BuildWorkflowOutput(Expression workflowOutput, IEnumerable<Expression> connections)
-        {
-            var output = workflowOutput != null ? connections.FirstOrDefault(connection => connection == workflowOutput) : null;
-            return BuildOutput(output, connections);
         }
 
         #endregion

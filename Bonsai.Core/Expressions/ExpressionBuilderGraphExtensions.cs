@@ -553,7 +553,7 @@ namespace Bonsai.Expressions
                 }
             }
 
-            var output = ExpressionBuilder.BuildWorkflowOutput(workflowOutput, connections);
+            var output = ExpressionBuilder.BuildOutput(workflowOutput, connections);
             multicastMap.RemoveAll(scope =>
             {
                 output = scope.Close(output);
