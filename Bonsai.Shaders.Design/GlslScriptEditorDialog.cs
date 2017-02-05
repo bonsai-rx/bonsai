@@ -383,7 +383,10 @@ void main()
         {
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                OpenScript(openFileDialog.FileName);
+                foreach (var fileName in openFileDialog.FileNames)
+                {
+                    OpenScript(fileName);
+                }
                 InitialDirectory = string.Empty;
             }
         }
