@@ -26,7 +26,7 @@ namespace Bonsai.Shaders
 
         [Description("The name of the material shader program.")]
         [Editor("Bonsai.Shaders.Configuration.Design.MaterialConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
-        public string MaterialName { get; set; }
+        public string ShaderName { get; set; }
 
         [Description("Specifies the kind of primitives to render with the vertex array data.")]
         public PrimitiveType DrawMode { get; set; }
@@ -68,7 +68,7 @@ namespace Bonsai.Shaders
             {
                 Mesh mesh = null;
                 return source.CombineEither(
-                    ShaderManager.ReserveMaterial(MaterialName).Do(material =>
+                    ShaderManager.ReserveMaterial(ShaderName).Do(material =>
                     {
                         material.Update(() =>
                         {
@@ -99,7 +99,7 @@ namespace Bonsai.Shaders
             {
                 Mesh mesh = null;
                 return source.CombineEither(
-                    ShaderManager.ReserveMaterial(MaterialName),
+                    ShaderManager.ReserveMaterial(ShaderName),
                     (input, material) =>
                     {
                         material.Update(() =>
