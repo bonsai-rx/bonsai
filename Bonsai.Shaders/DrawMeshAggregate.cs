@@ -41,8 +41,10 @@ namespace Bonsai.Shaders
                     {
                         material.Update(() =>
                         {
-                            var meshes = meshNames.Select(meshName => material.Window.Meshes[meshName.Name]);
-                            mesh = new MeshAggregate(meshes);
+                            var meshAttributes = meshNames.Select(meshName => new MeshAttributeMapping(
+                                material.Window.Meshes[meshName.Name],
+                                meshName.Divisor));
+                            mesh = new MeshAggregate(meshAttributes);
                         });
                     }),
                     (input, material) =>
