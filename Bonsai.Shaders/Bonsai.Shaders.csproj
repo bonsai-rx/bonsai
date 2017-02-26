@@ -103,6 +103,7 @@
     <Compile Include="Effect.cs" />
     <Compile Include="FramebufferState.cs" />
     <Compile Include="DrawFramebuffer.cs" />
+    <Compile Include="MeshAttributeMapping.cs" />
     <Compile Include="QuaternionConverter.cs" />
     <Compile Include="ViewportEffect.cs" />
     <Compile Include="ImageTextureBinding.cs" />
