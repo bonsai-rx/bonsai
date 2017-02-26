@@ -71,15 +71,27 @@ namespace Bonsai
             packageBuilder.Tags.Add(NuGet.Constants.GalleryDirectory);
             var files = manifest.Files ?? GetContentFiles(basePath);
             packageBuilder.PopulateFiles(basePath, files);
+            var manifestDependencies = new Dictionary<string, PackageDependency>(StringComparer.OrdinalIgnoreCase);
+            foreach (var dependency in packageBuilder.DependencySets.Where(set => set.TargetFramework == null)
+                                                                    .SelectMany(set => set.Dependencies))
+            {
+                manifestDependencies.Add(dependency.Id, dependency);
+            }
 
-            var dependencies = DependencyInspector.GetWorkflowPackageDependencies(path, configuration).ToArray().Wait();
-            var manifestDependencies = new HashSet<PackageDependency>(
-                packageBuilder.DependencySets.Where(set => set.TargetFramework == null).SelectMany(set => set.Dependencies),
-                DependencyEqualityComparer.Default);
-            updateDependencies = !manifestDependencies.IsSupersetOf(dependencies);
-            if (updateDependencies) manifestDependencies.UnionWith(dependencies);
-            var dependencySet = new PackageDependencySet(null, manifestDependencies);
+            updateDependencies = false;
+            var workflowDependencies = DependencyInspector.GetWorkflowPackageDependencies(path, configuration).ToArray().Wait();
+            foreach (var dependency in workflowDependencies)
+            {
+                PackageDependency manifestDependency;
+                if (!manifestDependencies.TryGetValue(dependency.Id, out manifestDependency) ||
+                    !DependencyEqualityComparer.Default.Equals(dependency, manifestDependency))
+                {
+                    updateDependencies = true;
+                    manifestDependencies[dependency.Id] = dependency;
+                }
+            }
 
+            var dependencySet = new PackageDependencySet(null, manifestDependencies.Values);
             packageBuilder.DependencySets.Clear();
             packageBuilder.DependencySets.Add(dependencySet);
             return packageBuilder;
