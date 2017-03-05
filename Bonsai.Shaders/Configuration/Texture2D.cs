@@ -15,7 +15,7 @@ namespace Bonsai.Shaders.Configuration
             WrapS = TextureWrapMode.Repeat;
             WrapT = TextureWrapMode.Repeat;
             MinFilter = TextureMinFilter.Linear;
-            MagFilter = TextureMinFilter.Linear;
+            MagFilter = TextureMagFilter.Linear;
             InternalFormat = PixelInternalFormat.Rgba;
         }
 
@@ -45,7 +45,7 @@ namespace Bonsai.Shaders.Configuration
 
         [Category("TextureParameter")]
         [Description("Specifies the texture magnification filter.")]
-        public TextureMinFilter MagFilter { get; set; }
+        public TextureMagFilter MagFilter { get; set; }
 
         public override Texture CreateResource()
         {
