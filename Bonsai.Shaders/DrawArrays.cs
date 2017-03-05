@@ -40,28 +40,6 @@ namespace Bonsai.Shaders
             get { return vertexAttributes; }
         }
 
-        static void BindVertexAttributes(int vbo, int vao, int stride, VertexAttributeMappingCollection attributes)
-        {
-            GL.BindVertexArray(vao);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-
-            var offset = 0;
-            for (int i = 0; i < attributes.Count; i++)
-            {
-                var attribute = attributes[i];
-                GL.EnableVertexAttribArray(i);
-                GL.VertexAttribPointer(
-                    i, attribute.Size,
-                    attribute.Type,
-                    attribute.Normalized,
-                    stride, offset);
-                offset += attribute.Size * VertexHelper.GetVertexAttributeSize(attribute.Type);
-            }
-
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            GL.BindVertexArray(0);
-        }
-
         public IObservable<TVertex[]> Process<TVertex>(IObservable<TVertex[]> source) where TVertex : struct
         {
             return Observable.Defer(() =>
@@ -73,7 +51,7 @@ namespace Bonsai.Shaders
                         material.Update(() =>
                         {
                             mesh = new Mesh();
-                            BindVertexAttributes(
+                            VertexHelper.BindVertexAttributes(
                                 mesh.VertexBuffer,
                                 mesh.VertexArray,
                                 BlittableValueType<TVertex>.Stride,
@@ -107,7 +85,7 @@ namespace Bonsai.Shaders
                             if (mesh == null)
                             {
                                 mesh = new Mesh();
-                                BindVertexAttributes(
+                                VertexHelper.BindVertexAttributes(
                                     mesh.VertexBuffer,
                                     mesh.VertexArray,
                                     input.Cols * input.ElementSize,
