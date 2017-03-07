@@ -67,6 +67,7 @@
     <Compile Include="BufferBinding.cs" />
     <Compile Include="ComputeProgram.cs" />
     <Compile Include="Configuration\ViewportEffectConfiguration.cs" />
+    <Compile Include="CreateTransform.cs" />
     <Compile Include="DispatchCompute.cs" />
     <Compile Include="Configuration\BufferBindingConfiguration.cs" />
     <Compile Include="Configuration\MemoryBarrierState.cs" />
