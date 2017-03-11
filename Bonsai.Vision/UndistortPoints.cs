@@ -124,8 +124,8 @@ namespace Bonsai.Vision
                     }
 
                     var output = new Point2f[input.Length];
-                    using (var inputHeader = Mat.CreateMatHeader(input, input.Length, 2, Depth.F32, 1))
-                    using (var outputHeader = Mat.CreateMatHeader(output, output.Length, 2, Depth.F32, 1))
+                    using (var inputHeader = Mat.CreateMatHeader(input, input.Length, 1, Depth.F32, 2))
+                    using (var outputHeader = Mat.CreateMatHeader(output, output.Length, 1, Depth.F32, 2))
                     {
                         CV.UndistortPoints(inputHeader, outputHeader, cameraMatrix, distortionCoefficients);
                     }

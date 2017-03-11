@@ -210,6 +210,14 @@ namespace Bonsai.Shaders.Configuration.Design
             }
         }
 
+        private void SelectAll()
+        {
+            for (int i = 0; i < selectionListBox.Items.Count; i++)
+            {
+                selectionListBox.SetSelected(i, true);
+            }
+        }
+
         public void Cut()
         {
             Copy();
@@ -297,6 +305,17 @@ namespace Bonsai.Shaders.Configuration.Design
             if (e.KeyCode == Keys.V && e.Modifiers == Keys.Control)
             {
                 Paste();
+            }
+
+            if (e.KeyCode == Keys.A && e.Modifiers == Keys.Control)
+            {
+                e.SuppressKeyPress = true;
+                SelectAll();
+            }
+
+            if (e.KeyCode == Keys.Delete)
+            {
+                RemoveSelectedItems();
             }
         }
 

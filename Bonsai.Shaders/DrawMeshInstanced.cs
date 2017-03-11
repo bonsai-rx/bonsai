@@ -26,7 +26,7 @@ namespace Bonsai.Shaders
 
         [Description("The name of the material shader program.")]
         [Editor("Bonsai.Shaders.Configuration.Design.MaterialConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
-        public string MaterialName { get; set; }
+        public string ShaderName { get; set; }
 
         [Description("The name of the mesh geometry to draw.")]
         [Editor("Bonsai.Shaders.Configuration.Design.MeshConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
@@ -118,7 +118,7 @@ namespace Bonsai.Shaders
 
                 MeshInstanced instance = null;
                 return source.CombineEither(
-                    ShaderManager.ReserveMaterial(MaterialName),
+                    ShaderManager.ReserveMaterial(ShaderName),
                     (input, material) =>
                     {
                         material.Update(() =>
@@ -162,14 +162,14 @@ namespace Bonsai.Shaders
 
                 MeshInstanced instance = null;
                 return source.CombineEither(
-                    ShaderManager.WindowSource,
-                    (input, window) =>
+                    ShaderManager.ReserveMaterial(ShaderName),
+                    (input, material) =>
                     {
-                        window.Update(() =>
+                        material.Update(() =>
                         {
                             if (instance == null && input != null)
                             {
-                                var mesh = window.Meshes[name];
+                                var mesh = material.Window.Meshes[name];
                                 instance = new MeshInstanced(mesh);
                                 BindInstanceAttributes(
                                     instance,

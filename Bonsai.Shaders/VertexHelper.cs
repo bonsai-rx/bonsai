@@ -46,6 +46,28 @@ namespace Bonsai.Shaders
             return 4;
         }
 
+        public static void BindVertexAttributes(int vbo, int vao, int stride, VertexAttributeMappingCollection attributes)
+        {
+            GL.BindVertexArray(vao);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+
+            var offset = 0;
+            for (int i = 0; i < attributes.Count; i++)
+            {
+                var attribute = attributes[i];
+                GL.EnableVertexAttribArray(i);
+                GL.VertexAttribPointer(
+                    i, attribute.Size,
+                    attribute.Type,
+                    attribute.Normalized,
+                    stride, offset);
+                offset += attribute.Size * VertexHelper.GetVertexAttributeSize(attribute.Type);
+            }
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            GL.BindVertexArray(0);
+        }
+
         public static int UpdateVertexBuffer<TVertex>(int vertexBuffer, TVertex[] buffer, BufferUsageHint usage)
             where TVertex : struct
         {

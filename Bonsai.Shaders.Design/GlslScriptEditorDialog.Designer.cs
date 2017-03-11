@@ -363,6 +363,10 @@
             this.toolStripSeparator2.Name = "toolStripSeparator2";
             this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
             // 
+            // openFileDialog
+            // 
+            this.openFileDialog.Multiselect = true;
+            // 
             // editorTabControl
             // 
             this.editorTabControl.Dock = System.Windows.Forms.DockStyle.Fill;

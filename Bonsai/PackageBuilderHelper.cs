@@ -71,12 +71,27 @@ namespace Bonsai
             packageBuilder.Tags.Add(NuGet.Constants.GalleryDirectory);
             var files = manifest.Files ?? GetContentFiles(basePath);
             packageBuilder.PopulateFiles(basePath, files);
+            var manifestDependencies = new Dictionary<string, PackageDependency>(StringComparer.OrdinalIgnoreCase);
+            foreach (var dependency in packageBuilder.DependencySets.Where(set => set.TargetFramework == null)
+                                                                    .SelectMany(set => set.Dependencies))
+            {
+                manifestDependencies.Add(dependency.Id, dependency);
+            }
 
-            var manifestDependencies = packageBuilder.DependencySets.SelectMany(set => set.Dependencies);
-            var dependencies = DependencyInspector.GetWorkflowPackageDependencies(path, configuration).ToArray().Wait();
-            var dependencySet = new PackageDependencySet(null, dependencies);
-            updateDependencies = !manifestDependencies.SequenceEqual(dependencies, DependencyEqualityComparer.Default);
+            updateDependencies = false;
+            var workflowDependencies = DependencyInspector.GetWorkflowPackageDependencies(path, configuration).ToArray().Wait();
+            foreach (var dependency in workflowDependencies)
+            {
+                PackageDependency manifestDependency;
+                if (!manifestDependencies.TryGetValue(dependency.Id, out manifestDependency) ||
+                    !DependencyEqualityComparer.Default.Equals(dependency, manifestDependency))
+                {
+                    updateDependencies = true;
+                    manifestDependencies[dependency.Id] = dependency;
+                }
+            }
 
+            var dependencySet = new PackageDependencySet(null, manifestDependencies.Values);
             packageBuilder.DependencySets.Clear();
             packageBuilder.DependencySets.Add(dependencySet);
             return packageBuilder;
@@ -97,7 +112,11 @@ namespace Bonsai
 
             public int GetHashCode(PackageDependency obj)
             {
-                return obj.Id.GetHashCode() ^ obj.VersionSpec.GetHashCode();
+                return obj.Id.GetHashCode() ^
+                       obj.VersionSpec.IsMaxInclusive.GetHashCode() ^
+                       obj.VersionSpec.IsMinInclusive.GetHashCode() ^
+                       EqualityComparer<SemanticVersion>.Default.GetHashCode(obj.VersionSpec.MaxVersion) ^
+                       EqualityComparer<SemanticVersion>.Default.GetHashCode(obj.VersionSpec.MinVersion);
             }
         }
     }
