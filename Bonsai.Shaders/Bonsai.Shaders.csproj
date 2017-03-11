@@ -67,6 +67,7 @@
     <Compile Include="BufferBinding.cs" />
     <Compile Include="ComputeProgram.cs" />
     <Compile Include="Configuration\ViewportEffectConfiguration.cs" />
+    <Compile Include="CreateTransform.cs" />
     <Compile Include="DispatchCompute.cs" />
     <Compile Include="Configuration\BufferBindingConfiguration.cs" />
     <Compile Include="Configuration\MemoryBarrierState.cs" />
@@ -103,6 +104,8 @@
     <Compile Include="Effect.cs" />
     <Compile Include="FramebufferState.cs" />
     <Compile Include="DrawFramebuffer.cs" />
+    <Compile Include="MeshAttributeMapping.cs" />
+    <Compile Include="QuaternionConverter.cs" />
     <Compile Include="ViewportEffect.cs" />
     <Compile Include="ImageTextureBinding.cs" />
     <Compile Include="Input\MouseCursor.cs" />

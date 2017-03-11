@@ -10,19 +10,19 @@ namespace Bonsai.Shaders
     class MeshAggregate : IDisposable
     {
         int vao;
-        readonly IEnumerable<Mesh> meshes;
+        readonly MeshAttributeMapping[] meshAttributes;
 
-        internal MeshAggregate(IEnumerable<Mesh> source)
+        internal MeshAggregate(IEnumerable<MeshAttributeMapping> source)
         {
-            meshes = source;
+            meshAttributes = source.ToArray();
             GL.GenVertexArrays(1, out vao);
 
             var indexOffset = 0;
-            var vertexAttributes = new List<VertexAttributeMapping>();
-            foreach (var mesh in meshes)
+            var vertexAttributes = new List<InstanceAttributeMapping>();
+            foreach (var mapping in meshAttributes)
             {
                 var vertexStride = 0;
-                GL.BindVertexArray(mesh.VertexArray);
+                GL.BindVertexArray(mapping.Mesh.VertexArray);
                 for (int i = 0; ; i++)
                 {
                     int enabled;
@@ -30,7 +30,7 @@ namespace Bonsai.Shaders
                     if (enabled == 0) break;
 
                     int size, type, normalized, vstride;
-                    var attribute = new VertexAttributeMapping();
+                    var attribute = new InstanceAttributeMapping();
                     GL.GetVertexAttrib(i, VertexAttribParameter.ArraySize, out size);
                     GL.GetVertexAttrib(i, VertexAttribParameter.ArrayType, out type);
                     GL.GetVertexAttrib(i, VertexAttribParameter.ArrayNormalized, out normalized);
@@ -44,12 +44,13 @@ namespace Bonsai.Shaders
                     attribute.Size = size;
                     attribute.Type = (VertexAttribPointerType)type;
                     attribute.Normalized = normalized != 0 ? true : false;
+                    attribute.Divisor = mapping.Divisor;
                     vertexAttributes.Add(attribute);
                 }
 
                 var offset = 0;
                 GL.BindVertexArray(vao);
-                GL.BindBuffer(BufferTarget.ArrayBuffer, mesh.VertexBuffer);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, mapping.Mesh.VertexBuffer);
                 for (int i = 0; i < vertexAttributes.Count; i++)
                 {
                     var index = i + indexOffset;
@@ -60,6 +61,7 @@ namespace Bonsai.Shaders
                         attribute.Type,
                         attribute.Normalized,
                         vertexStride, offset);
+                    if (attribute.Divisor > 0) GL.VertexAttribDivisor(index, attribute.Divisor);
                     offset += attribute.Size * VertexHelper.GetVertexAttributeSize(attribute.Type);
                 }
 
@@ -73,7 +75,7 @@ namespace Bonsai.Shaders
 
         public IEnumerable<Mesh> Meshes
         {
-            get { return meshes; }
+            get { return meshAttributes.Select(mapping => mapping.Mesh); }
         }
 
         public int VertexArray
@@ -83,12 +85,78 @@ namespace Bonsai.Shaders
 
         public void Draw()
         {
-            var drawMode = meshes.Select(mesh => mesh.DrawMode).Distinct().Single();
-            var vertexCount = meshes.Select(mesh => mesh.VertexCount).Distinct().Single();
-            if (vertexCount > 0)
+            var eao = 0;
+            var vertexCount = -1;
+            var instanceCount = -1;
+            var drawMode = default(PrimitiveType);
+            for (int i = 0; i < meshAttributes.Length; i++)
+            {
+                var mesh = meshAttributes[i].Mesh;
+                var divisor = meshAttributes[i].Divisor;
+                if (divisor > 0)
+                {
+                    if (mesh.ElementArray > 0)
+                    {
+                        throw new NotSupportedException("Only non-instance data meshes can specify an element array buffer when aggregating.");
+                    }
+
+                    var count = mesh.VertexCount * divisor;
+                    if (instanceCount >= 0 && count != instanceCount)
+                    {
+                        throw new NotSupportedException("All aggregated instance data must specify the same number of instances.");
+                    }
+
+                    instanceCount = count;
+                }
+                else
+                {
+                    var mode = mesh.DrawMode;
+                    if (vertexCount >= 0 && mode != drawMode)
+                    {
+                        throw new NotSupportedException("All aggregated vertex data must specify the same draw mode.");
+                    }
+
+                    var count = mesh.VertexCount;
+                    if (vertexCount >= 0 && count != vertexCount)
+                    {
+                        throw new NotSupportedException("All aggregated vertex data must specify the same number of vertices.");
+                    }
+
+                    drawMode = mode;
+                    vertexCount = count;
+                    if (mesh.ElementArray > 0)
+                    {
+                        if (eao > 0)
+                        {
+                            throw new NotSupportedException("Aggregated mesh data can specify only a single element array buffer.");
+                        }
+                        eao = mesh.ElementArray;
+                    }
+                }
+            }
+
+            if (vertexCount > 0 && instanceCount > 0)
             {
                 GL.BindVertexArray(vao);
-                GL.DrawArrays(drawMode, 0, vertexCount);
+                if (eao > 0)
+                {
+                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, eao);
+                    GL.DrawElementsInstanced(drawMode, vertexCount, DrawElementsType.UnsignedShort, IntPtr.Zero, instanceCount);
+                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+                }
+                else GL.DrawArraysInstanced(drawMode, 0, vertexCount, instanceCount);
+                GL.BindVertexArray(0);
+            }
+            else if (vertexCount > 0 && instanceCount < 0)
+            {
+                GL.BindVertexArray(vao);
+                if (eao > 0)
+                {
+                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, eao);
+                    GL.DrawElements(drawMode, vertexCount, DrawElementsType.UnsignedShort, IntPtr.Zero);
+                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+                }
+                else GL.DrawArrays(drawMode, 0, vertexCount);
                 GL.BindVertexArray(0);
             }
         }

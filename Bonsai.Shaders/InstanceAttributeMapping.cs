@@ -15,7 +15,7 @@ namespace Bonsai.Shaders
             Divisor = 1;
         }
 
-        [Description("Specifies the divisor used to scale the current instance data.")]
+        [Description("Specifies the number of instances populated by the buffer attribute.")]
         public int Divisor { get; set; }
 
         public override string ToString()

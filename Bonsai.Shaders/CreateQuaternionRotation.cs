@@ -12,7 +12,12 @@ namespace Bonsai.Shaders
     [Description("Creates a rotation matrix from a quaternion representation.")]
     public class CreateQuaternionRotation : Source<Matrix4>
     {
-        [TypeConverter("OpenCV.Net.NumericAggregateConverter, OpenCV.Net")]
+        public CreateQuaternionRotation()
+        {
+            Rotation = Quaternion.Identity;
+        }
+
+        [TypeConverter(typeof(QuaternionConverter))]
         [Description("The quaternion representing the rotation transformation.")]
         public Quaternion Rotation { get; set; }
 

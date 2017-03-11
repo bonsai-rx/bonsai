@@ -870,12 +870,16 @@ namespace Bonsai.Expressions
 
         internal static Expression BuildOutput(Expression output, IEnumerable<Expression> connections)
         {
-            var ignoredConnections = from connection in connections
-                                     where connection != output
-                                     let observableType = connection.Type.GetGenericArguments()[0]
-                                     select Expression.Call(typeof(ExpressionBuilder), "IgnoreConnection", new[] { observableType }, connection);
+            var ignoredConnections = (from connection in connections
+                                      let observableType = connection.Type.GetGenericArguments()[0]
+                                      select Expression.Call(typeof(ExpressionBuilder), "IgnoreConnection", new[] { observableType }, connection))
+                                      .ToArray();
+            if (output != null && ignoredConnections.Length == 0)
+            {
+                return output;
+            }
 
-            var connectionArrayExpression = Expression.NewArrayInit(typeof(IObservable<Unit>), ignoredConnections.ToArray());
+            var connectionArrayExpression = Expression.NewArrayInit(typeof(IObservable<Unit>), ignoredConnections);
             if (output != null)
             {
                 var outputType = output.Type.GetGenericArguments()[0];
@@ -884,22 +888,15 @@ namespace Bonsai.Expressions
             else return Expression.Call(typeof(ExpressionBuilder), "MergeOutput", null, connectionArrayExpression);
         }
 
-        internal static Expression BuildWorkflowOutput(Expression workflowOutput, IEnumerable<Expression> connections)
-        {
-            var output = workflowOutput != null ? connections.FirstOrDefault(connection => connection == workflowOutput) : null;
-            return BuildOutput(output, connections);
-        }
-
         #endregion
 
         #region Error Handling
 
-        static readonly ConstructorInfo buildExceptionConstructor = typeof(WorkflowBuildException).GetConstructor(new[] { typeof(string), typeof(ExpressionBuilder), typeof(Exception) });
         static readonly MethodInfo throwMethod = typeof(Observable).GetMethods()
                                                                    .Where(m => m.Name == "Throw")
                                                                    .Single(m => m.GetParameters().Length == 1);
 
-        internal static Expression HandleBuildException(Expression expression, ExpressionBuilder builder)
+        internal static Expression HandleObservableCreationException(Expression expression, ExpressionBuilder builder)
         {
             var exceptionVariable = Expression.Variable(typeof(Exception));
             var observableType = expression.Type.GetGenericArguments()[0];
@@ -909,11 +906,7 @@ namespace Bonsai.Expressions
                     exceptionVariable,
                     Expression.Call(
                         throwMethod.MakeGenericMethod(observableType),
-                        Expression.New(
-                            buildExceptionConstructor,
-                            Expression.Property(exceptionVariable, "Message"),
-                            Expression.Constant(builder),
-                            exceptionVariable))));
+                        exceptionVariable)));
         }
 
         #endregion
