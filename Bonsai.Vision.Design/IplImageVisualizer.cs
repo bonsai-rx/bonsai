@@ -68,15 +68,23 @@ namespace Bonsai.Vision.Design
             }
 
             visualizerCanvas.MakeCurrent();
-            if (visualizerImage != null) imageTexture.Update(visualizerImage);
+            if (visualizerImage != null)
+            {
+                imageTexture.Update(visualizerImage);
+                if (values.Count == 1) visualizerImage = null;
+            }
             visualizerCanvas.Canvas.Invalidate();
         }
 
         public override void Show(object value)
         {
             var inputImage = (IplImage)value;
-            visualizerImage = IplImageHelper.EnsureImageFormat(visualizerImage, inputImage.Size, inputImage.Depth, inputImage.Channels);
-            CV.Copy(inputImage, visualizerImage);
+            if (Mashups.Count > 0)
+            {
+                visualizerImage = IplImageHelper.EnsureImageFormat(visualizerImage, inputImage.Size, inputImage.Depth, inputImage.Channels);
+                CV.Copy(inputImage, visualizerImage);
+            }
+            else visualizerImage = inputImage;
             UpdateStatus();
         }
 
