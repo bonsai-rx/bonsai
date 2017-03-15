@@ -13,6 +13,7 @@ namespace Bonsai.Shaders
         Mesh mesh;
         TexturedQuad quad;
         const string VertexShader = @"
+#version 400
 in vec2 vp;
 in vec2 vt;
 out vec2 texCoord;
