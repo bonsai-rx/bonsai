@@ -17,7 +17,6 @@ namespace Bonsai.Shaders
             this INativeWindow window,
             Action<EventHandler<TEventArgs>> addHandler,
             Action<EventHandler<TEventArgs>> removeHandler)
-            where TEventArgs : EventArgs
         {
             return Observable.Create<EventPattern<INativeWindow, TEventArgs>>(observer =>
             {
