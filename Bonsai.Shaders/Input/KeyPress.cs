@@ -13,14 +13,13 @@ namespace Bonsai.Shaders.Input
 {
     [Description("Produces a sequence of characters whenever a key is pressed while the shader window has focus.")]
     [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationComponentEditor, Bonsai.Shaders.Design", typeof(ComponentEditor))]
-    public class KeyPress : Source<EventPattern<KeyPressEventArgs>>
+    public class KeyPress : Source<EventPattern<INativeWindow, KeyPressEventArgs>>
     {
-        public override IObservable<EventPattern<KeyPressEventArgs>> Generate()
+        public override IObservable<EventPattern<INativeWindow, KeyPressEventArgs>> Generate()
         {
-            return ShaderManager.WindowSource.SelectMany(window => Observable.FromEventPattern<KeyPressEventArgs>(
+            return ShaderManager.WindowSource.SelectMany(window => window.EventPattern<KeyPressEventArgs>(
                 handler => window.KeyPress += handler,
-                handler => window.KeyPress -= handler)
-                .TakeUntil(window.WindowClosed()));
+                handler => window.KeyPress -= handler));
         }
     }
 }
