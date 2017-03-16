@@ -17,11 +17,14 @@ namespace Bonsai.Shaders
         {
             GL.GenBuffers(1, out vbo);
             GL.GenVertexArrays(1, out vao);
+            ElementArrayType = DrawElementsType.UnsignedShort;
         }
 
         public int VertexCount { get; set; }
 
         public PrimitiveType DrawMode { get; set; }
+
+        public DrawElementsType ElementArrayType { get; set; }
 
         public int VertexBuffer
         {
@@ -55,7 +58,7 @@ namespace Bonsai.Shaders
                 if (eao > 0)
                 {
                     GL.BindBuffer(BufferTarget.ElementArrayBuffer, eao);
-                    GL.DrawElements(DrawMode, vertexCount, DrawElementsType.UnsignedShort, IntPtr.Zero);
+                    GL.DrawElements(DrawMode, vertexCount, ElementArrayType, IntPtr.Zero);
                     GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
                 }
                 else GL.DrawArrays(DrawMode, 0, vertexCount);
