@@ -24,11 +24,10 @@ namespace Bonsai.Shaders.Input
 
         public override IObservable<KeyboardState> Generate()
         {
-            return ShaderManager.WindowSource.SelectMany(window => Observable.FromEventPattern<FrameEventArgs>(
+            return ShaderManager.WindowSource.SelectMany(window => window.EventPattern<FrameEventArgs>(
                 handler => window.UpdateFrame += handler,
                 handler => window.UpdateFrame -= handler)
-                .Select(evt => GetKeyboardState(Index))
-                .TakeUntil(window.WindowClosed()));
+                .Select(evt => GetKeyboardState(Index)));
         }
 
         public IObservable<KeyboardState> Generate<TSource>(IObservable<TSource> source)

@@ -1,4 +1,5 @@
-﻿using OpenTK.Input;
+﻿using OpenTK;
+using OpenTK.Input;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,14 +13,13 @@ namespace Bonsai.Shaders.Input
 {
     [Description("Produces a sequence of events whenever a mouse button is pressed over the shader window.")]
     [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationComponentEditor, Bonsai.Shaders.Design", typeof(ComponentEditor))]
-    public class MouseDown : Source<EventPattern<MouseButtonEventArgs>>
+    public class MouseDown : Source<EventPattern<INativeWindow, MouseButtonEventArgs>>
     {
-        public override IObservable<EventPattern<MouseButtonEventArgs>> Generate()
+        public override IObservable<EventPattern<INativeWindow, MouseButtonEventArgs>> Generate()
         {
-            return ShaderManager.WindowSource.SelectMany(window => Observable.FromEventPattern<MouseButtonEventArgs>(
+            return ShaderManager.WindowSource.SelectMany(window => window.EventPattern<MouseButtonEventArgs>(
                 handler => window.MouseDown += handler,
-                handler => window.MouseDown -= handler)
-                .TakeUntil(window.WindowClosed()));
+                handler => window.MouseDown -= handler));
         }
     }
 }
