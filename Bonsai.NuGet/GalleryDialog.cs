@@ -99,27 +99,17 @@ namespace Bonsai.NuGet
             var package = (IPackage)e.Node.Tag;
             if (package != null)
             {
-                saveFileDialog.FileName = package.Id;
-                if (saveFileDialog.ShowDialog(this) == DialogResult.OK)
+                saveFolderDialog.FileName = package.Id;
+                if (saveFolderDialog.ShowDialog(this) == DialogResult.OK)
                 {
                     targetPackage = package;
-                    targetPath = saveFileDialog.FileName;
+                    targetPath = saveFolderDialog.FileName;
                     packageViewController.RunPackageOperation(new[] { package }, true);
                     if (DialogResult == DialogResult.OK)
                     {
                         Close();
                     }
                 }
-            }
-        }
-
-        private void saveFileDialog_FileOk(object sender, CancelEventArgs e)
-        {
-            if (File.Exists(saveFileDialog.FileName))
-            {
-                var message = string.Format(Resources.SaveFolderExists, Path.GetFileName(saveFileDialog.FileName));
-                MessageBox.Show(message, Resources.SaveFolderExistsCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                e.Cancel = true;
             }
         }
 

@@ -143,6 +143,9 @@
     <Compile Include="PackageManagerProxy.cs" />
     <Compile Include="QueryHelper.cs" />
     <Compile Include="RequiringLicenseAcceptanceEventArgs.cs" />
+    <Compile Include="SaveFolderDialog.cs">
+      <SubType>Component</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="GalleryDialog.resx">
