@@ -166,9 +166,7 @@ namespace Bonsai
                     packageManager.PackageInstalling += (sender, e) =>
                     {
                         var package = e.Package;
-                        var workflowPath = package.Id + NuGet.Constants.BonsaiExtension;
-                        PackageHelper.InstallExecutablePackage(package, targetFileSystem);
-                        installPath = targetFileSystem.GetFullPath(workflowPath);
+                        installPath = PackageHelper.InstallExecutablePackage(package, targetFileSystem);
                     };
                     return packageManager.StartInstallPackage(packageId, packageVersion);
                 });
