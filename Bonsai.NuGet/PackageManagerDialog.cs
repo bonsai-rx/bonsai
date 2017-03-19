@@ -197,8 +197,8 @@ namespace Bonsai.NuGet
         void packageManagerProxy_PackageInstalling(object sender, PackageOperationEventArgs e)
         {
             var package = e.Package;
-            var workflowPath = package.Id + Constants.BonsaiExtension;
-            if (package.GetContentFiles().Any(file => file.EffectivePath == workflowPath))
+            var entryPoint = package.Id + Constants.BonsaiExtension;
+            if (package.GetContentFiles().Any(file => file.EffectivePath == entryPoint))
             {
                 Invoke((Action)(() =>
                 {
@@ -211,8 +211,7 @@ namespace Bonsai.NuGet
                         {
                             var targetPath = saveFileDialog.FileName;
                             var targetFileSystem = new PhysicalFileSystem(targetPath);
-                            PackageHelper.InstallExecutablePackage(package, targetFileSystem);
-                            InstallPath = targetFileSystem.GetFullPath(workflowPath);
+                            InstallPath = PackageHelper.InstallExecutablePackage(package, targetFileSystem);
                             DialogResult = DialogResult.OK;
                         }
                     }

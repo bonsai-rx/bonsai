@@ -15,23 +15,35 @@ namespace Bonsai.NuGet
 {
     public static class PackageHelper
     {
-        public static void InstallExecutablePackage(IPackage package, IFileSystem fileSystem)
+        public static string InstallExecutablePackage(IPackage package, IFileSystem fileSystem)
         {
+            var targetId = Path.GetFileName(fileSystem.Root);
+            var targetEntryPoint = targetId + Constants.BonsaiExtension;
+            var targetEntryPointLayout = targetEntryPoint + Constants.LayoutExtension;
+            var packageEntryPoint = package.Id + Constants.BonsaiExtension;
+            var packageEntryPointLayout = packageEntryPoint + Constants.LayoutExtension;
+
             foreach (var file in package.GetContentFiles())
             {
+                var effectivePath = file.EffectivePath;
+                if (effectivePath == packageEntryPoint) effectivePath = targetEntryPoint;
+                else if (effectivePath == packageEntryPointLayout) effectivePath = targetEntryPointLayout;
+
                 using (var stream = file.GetStream())
                 {
-                    fileSystem.AddFile(file.EffectivePath, stream);
+                    fileSystem.AddFile(effectivePath, stream);
                 }
             }
 
             var manifest = Manifest.Create(package);
             var metadata = Manifest.Create(manifest.Metadata);
-            var metadataPath = package.Id + global::NuGet.Constants.ManifestExtension;
+            var metadataPath = targetId + global::NuGet.Constants.ManifestExtension;
             using (var stream = fileSystem.CreateFile(metadataPath))
             {
                 metadata.Save(stream);
             }
+
+            return fileSystem.GetFullPath(targetEntryPoint);
         }
 
         public static void RunPackageOperation(LicenseAwarePackageManager packageManager, Func<Task> operationFactory, string operationLabel = null)

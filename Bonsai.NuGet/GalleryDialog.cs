@@ -128,16 +128,15 @@ namespace Bonsai.NuGet
             var package = e.Package;
             if (package == targetPackage)
             {
-                var workflowPath = package.Id + Constants.BonsaiExtension;
-                if (!package.GetContentFiles().Any(file => file.EffectivePath == workflowPath))
+                var entryPoint = package.Id + Constants.BonsaiExtension;
+                if (!package.GetContentFiles().Any(file => file.EffectivePath == entryPoint))
                 {
-                    var message = string.Format(Resources.MissingWorkflowEntryPoint, workflowPath);
+                    var message = string.Format(Resources.MissingWorkflowEntryPoint, entryPoint);
                     throw new InvalidOperationException(message);
                 }
 
                 var targetFileSystem = new PhysicalFileSystem(targetPath);
-                PackageHelper.InstallExecutablePackage(package, targetFileSystem);
-                InstallPath = targetFileSystem.GetFullPath(workflowPath);
+                InstallPath = PackageHelper.InstallExecutablePackage(package, targetFileSystem);
                 DialogResult = DialogResult.OK;
             }
         }
