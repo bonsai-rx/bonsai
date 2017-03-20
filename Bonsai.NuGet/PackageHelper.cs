@@ -85,6 +85,28 @@ namespace Bonsai.NuGet
             }
         }
 
+        public static Task StartInstallPackage(this IPackageManager packageManager, IPackage package)
+        {
+            if (package == null)
+            {
+                throw new ArgumentNullException("package");
+            }
+
+            return Task.Factory.StartNew(() =>
+            {
+                try
+                {
+                    packageManager.Logger.Log(MessageLevel.Info, Resources.InstallPackageVersion, package.Id, package.Version);
+                    packageManager.InstallPackage(package, false, true);
+                }
+                catch (Exception ex)
+                {
+                    packageManager.Logger.Log(MessageLevel.Error, ex.Message);
+                    throw;
+                }
+            });
+        }
+
         public static Task<IPackage> StartInstallPackage(this IPackageManager packageManager, string packageId, SemanticVersion version)
         {
             return Task.Factory.StartNew(() =>
