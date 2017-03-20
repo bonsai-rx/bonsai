@@ -151,27 +151,86 @@ namespace Bonsai
             PackageConfiguration packageConfiguration,
             string editorRepositoryPath,
             string editorPath,
+            IPackage package)
+        {
+            return LaunchPackageBootstrapper(
+                packageConfiguration,
+                editorRepositoryPath,
+                editorPath,
+                null,
+                package.Id,
+                packageManager => packageManager.StartInstallPackage(package));
+        }
+
+        internal static string LaunchPackageBootstrapper(
+            PackageConfiguration packageConfiguration,
+            string editorRepositoryPath,
+            string editorPath,
             string targetPath,
             string packageId,
             SemanticVersion packageVersion)
         {
+            return LaunchPackageBootstrapper(
+                packageConfiguration,
+                editorRepositoryPath,
+                editorPath,
+                targetPath,
+                packageId,
+                packageManager => packageManager.StartInstallPackage(packageId, packageVersion));
+        }
+
+        static string LaunchPackageBootstrapper(
+            PackageConfiguration packageConfiguration,
+            string editorRepositoryPath,
+            string editorPath,
+            string targetPath,
+            string packageId,
+            Func<IPackageManager, Task> installPackage)
+        {
             EnableVisualStyles();
             var installPath = string.Empty;
-            var targetFileSystem = new PhysicalFileSystem(targetPath);
+            var executablePackage = default(IPackage);
             var packageManager = CreatePackageManager(editorRepositoryPath);
             using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath))
             {
-                PackageHelper.RunPackageOperation(packageManager, () =>
+                packageManager.PackageInstalling += (sender, e) =>
                 {
-                    packageManager.PackageInstalling += (sender, e) =>
+                    var package = e.Package;
+                    if (package.Id == packageId && e.Cancel)
                     {
-                        var package = e.Package;
-                        installPath = PackageHelper.InstallExecutablePackage(package, targetFileSystem);
-                    };
-                    return packageManager.StartInstallPackage(packageId, packageVersion);
-                });
+                        executablePackage = package;
+                    }
+                };
+
+                PackageHelper.RunPackageOperation(packageManager, () => installPackage(packageManager));
             }
 
+            if (executablePackage != null)
+            {
+                if (string.IsNullOrEmpty(targetPath))
+                {
+                    var entryPoint = executablePackage.Id + NuGet.Constants.BonsaiExtension;
+                    var message = string.Format(Resources.InstallExecutablePackageWarning, executablePackage.Id);
+                    var result = MessageBox.Show(message, Resources.InstallExecutablePackageCaption, MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
+                    if (result == DialogResult.Yes)
+                    {
+                        using (var dialog = new SaveFolderDialog())
+                        {
+                            dialog.FileName = executablePackage.Id;
+                            if (dialog.ShowDialog() == DialogResult.OK)
+                            {
+                                targetPath = dialog.FileName;
+                            }
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(targetPath))
+                {
+                    var targetFileSystem = new PhysicalFileSystem(targetPath);
+                    installPath = PackageHelper.InstallExecutablePackage(executablePackage, targetFileSystem);
+                }
+            }
             return installPath;
         }
 

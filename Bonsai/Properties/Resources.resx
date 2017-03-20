@@ -131,6 +131,12 @@
 
 {1}</value>
   </data>
+  <data name="InstallExecutablePackageCaption" xml:space="preserve">
+    <value>Executable package</value>
+  </data>
+  <data name="InstallExecutablePackageWarning" xml:space="preserve">
+    <value>Package '{0}' is an executable package. Do you want to open the workflow?</value>
+  </data>
   <data name="LibraryFolderPlatformMismatchException" xml:space="preserve">
     <value>The library folder '{0}' has already been assigned to a different platform. Consider uninstalling the conflicting package.</value>
   </data>

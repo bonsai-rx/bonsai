@@ -100,23 +100,28 @@ namespace Bonsai
                 }
                 else
                 {
+                    if (!string.IsNullOrEmpty(launchPackageId))
+                    {
+                        initialFileName = Launcher.LaunchPackageBootstrapper(
+                            packageConfiguration,
+                            editorRepositoryPath,
+                            editorPath,
+                            initialFileName,
+                            launchPackageId,
+                            launchPackageVersion);
+                    }
+                    else if (Path.GetExtension(initialFileName) == Constants.PackageExtension)
+                    {
+                        var package = new OptimizedZipPackage(initialFileName);
+                        initialFileName = Launcher.LaunchPackageBootstrapper(
+                            packageConfiguration,
+                            editorRepositoryPath,
+                            editorPath,
+                            package);
+                    }
+
                     if (!string.IsNullOrEmpty(initialFileName))
                     {
-                        if (!string.IsNullOrEmpty(launchPackageId))
-                        {
-                            initialFileName = Launcher.LaunchPackageBootstrapper(
-                                packageConfiguration,
-                                editorRepositoryPath,
-                                editorPath,
-                                initialFileName,
-                                launchPackageId,
-                                launchPackageVersion);
-                            if (string.IsNullOrEmpty(initialFileName))
-                            {
-                                return NormalExitCode;
-                            }
-                        }
-
                         var initialPath = Path.GetDirectoryName(initialFileName);
                         Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, initialPath);
                     }
