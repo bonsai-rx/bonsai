@@ -14,6 +14,12 @@ namespace Bonsai.IO
     [Description("Returns the names of the files that match the specified search pattern.")]
     public class GetFiles : Source<string[]>
     {
+        public GetFiles()
+        {
+            Path = ".";
+            SearchPattern = "*";
+        }
+
         [Description("The path to search.")]
         [Editor("Bonsai.Design.FolderNameEditor, Bonsai.Design", typeof(UITypeEditor))]
         public string Path { get; set; }
