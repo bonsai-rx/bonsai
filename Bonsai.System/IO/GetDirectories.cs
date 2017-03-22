@@ -14,6 +14,12 @@ namespace Bonsai.IO
     [Description("Returns the names of the subdirectories that match the specified search pattern.")]
     public class GetDirectories : Source<string[]>
     {
+        public GetDirectories()
+        {
+            Path = ".";
+            SearchPattern = "*";
+        }
+
         [Description("The path to search.")]
         [Editor("Bonsai.Design.FolderNameEditor, Bonsai.Design", typeof(UITypeEditor))]
         public string Path { get; set; }
