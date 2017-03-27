@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
-    [Description("Samples the latest notifications of the input sequence in the render loop.")]
+    [Description("Samples the latest notifications of the input sequence on the update frame event.")]
     public class LatestOnUpdateFrame : Combinator
     {
         static readonly UpdateFrame updateFrame = new UpdateFrame();
