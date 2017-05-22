@@ -18,45 +18,86 @@ using System.Windows.Forms;
 
 namespace Bonsai.Design.Visualizers
 {
-    public class TimeSeriesVisualizer : DialogTypeVisualizer
+    public class TimeSeriesVisualizer : TimeSeriesVisualizerBase
     {
-        const int DefaultBufferSize = 640;
-        static readonly TimeSpan TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 30);
-
-        ChartControl chart;
-        RollingPointPairList[] values;
-        DateTimeOffset updateTime;
-
         public TimeSeriesVisualizer()
             : this(1)
         {
         }
 
         public TimeSeriesVisualizer(int numSeries)
+            : base(numSeries)
         {
-            values = new RollingPointPairList[numSeries];
-            for (int i = 0; i < values.Length; i++)
+            AutoScale = true;
+            Capacity = 640;
+            Max = 1;
+        }
+
+        public int Capacity { get; set; }
+
+        public double Min { get; set; }
+
+        public double Max { get; set; }
+
+        public bool AutoScale { get; set; }
+
+        internal override TimeSeriesView CreateView()
+        {
+            var graph = base.CreateView();
+            graph.Capacity = Capacity;
+            graph.AutoScale = AutoScale;
+            if (!AutoScale)
             {
-                values[i] = new RollingPointPairList(DefaultBufferSize);
+                graph.Min = Min;
+                graph.Max = Max;
             }
+
+            graph.HandleDestroyed += delegate
+            {
+                Min = graph.Min;
+                Max = graph.Max;
+                AutoScale = graph.AutoScale;
+                Capacity = graph.Capacity;
+            };
+            return graph;
+        }
+    }
+
+    public class TimeSeriesVisualizerBase : DialogTypeVisualizer
+    {
+        static readonly TimeSpan TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 30);
+
+        readonly int numSeries;
+        TimeSeriesView graph;
+        DateTimeOffset updateTime;
+
+        public TimeSeriesVisualizerBase()
+            : this(1)
+        {
+        }
+
+        public TimeSeriesVisualizerBase(int numSeries)
+        {
+            this.numSeries = numSeries;
         }
 
         protected ChartControl Chart
         {
-            get { return chart; }
+            get { return graph.Chart; }
+        }
+
+        internal virtual TimeSeriesView CreateView()
+        {
+            return new TimeSeriesView();
         }
 
         protected void AddValue(DateTime time, params object[] value)
         {
-            var ordinalTime = new XDate(time);
-            for (int i = 0; i < values.Length; i++)
-            {
-                values[i].Add(ordinalTime, Convert.ToDouble(value[i]));
-            }
+            graph.AddValues(time, value);
 
             if ((time - updateTime) > TargetElapsedTime)
             {
-                chart.Invalidate();
+                Chart.Invalidate();
                 updateTime = time;
             }
         }
@@ -68,37 +109,21 @@ namespace Bonsai.Design.Visualizers
 
         public override void Load(IServiceProvider provider)
         {
-            chart = new ChartControl();
-            chart.Dock = DockStyle.Fill;
-            chart.GraphPane.XAxis.Type = AxisType.DateAsOrdinal;
-            chart.GraphPane.XAxis.Title.Text = "Time";
-            chart.GraphPane.XAxis.Title.IsVisible = true;
-            chart.GraphPane.XAxis.Scale.Format = "HH:mm:ss";
-            chart.GraphPane.XAxis.Scale.MajorUnit = DateUnit.Second;
-            chart.GraphPane.XAxis.Scale.MinorUnit = DateUnit.Millisecond;
-            chart.GraphPane.XAxis.MinorTic.IsAllTics = false;
-
-            for (int i = 0; i < values.Length; i++)
-            {
-                var series = new LineItem(string.Empty, values[i], chart.GetNextColor(), SymbolType.None);
-                series.Line.IsAntiAlias = true;
-                series.Line.IsOptimizedDraw = true;
-                series.Label.IsVisible = false;
-                chart.GraphPane.CurveList.Add(series);
-            }
+            graph = CreateView();
+            graph.Dock = DockStyle.Fill;
+            graph.NumSeries = numSeries;
 
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
             if (visualizerService != null)
             {
-                visualizerService.AddControl(chart);
+                visualizerService.AddControl(graph);
             }
         }
 
         public override void Unload()
         {
-            Array.ForEach(values, y => y.Clear());
-            chart.Dispose();
-            chart = null;
+            graph.Dispose();
+            graph = null;
         }
     }
 }
