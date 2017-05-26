@@ -131,6 +131,14 @@ namespace Bonsai.Vision
                                 targetFrame = nextFrame;
                             }
 
+                            // unable to switch to a valid frame; possibly truncated file
+                            if (targetFrame == null)
+                            {
+                                targetPosition = null;
+                                image = null;
+                                continue;
+                            }
+
                             // successfully switched frame; clone it for cache
                             image = targetFrame.Clone();
                         }
