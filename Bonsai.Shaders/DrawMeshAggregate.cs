@@ -54,6 +54,12 @@ namespace Bonsai.Shaders
                             mesh.Draw();
                         });
                         return input;
+                    }).Finally(() =>
+                    {
+                        if (mesh != null)
+                        {
+                            mesh.Dispose();
+                        }
                     });
             });
         }

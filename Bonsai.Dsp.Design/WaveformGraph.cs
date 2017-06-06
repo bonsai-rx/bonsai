@@ -621,8 +621,6 @@ namespace Bonsai.Dsp.Design
 
         private void GraphPane_AxisChangeEvent(GraphPane pane)
         {
-            var xscale = pane.XAxis.Scale;
-            var yscale = pane.YAxis.Scale;
             AutoScaleX = pane.XAxis.Scale.MaxAuto;
             AutoScaleY = pane.YAxis.Scale.MaxAuto;
             OnAxisChanged(EventArgs.Empty);

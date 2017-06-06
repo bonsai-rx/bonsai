@@ -24,11 +24,10 @@ namespace Bonsai.Shaders.Input
 
         public override IObservable<MouseState> Generate()
         {
-            return ShaderManager.WindowSource.SelectMany(window => Observable.FromEventPattern<FrameEventArgs>(
+            return ShaderManager.WindowSource.SelectMany(window => window.EventPattern<FrameEventArgs>(
                 handler => window.UpdateFrame += handler,
                 handler => window.UpdateFrame -= handler)
-                .Select(evt => GetMouseState(Index))
-                .TakeUntil(window.WindowClosed()));
+                .Select(evt => GetMouseState(Index)));
         }
 
         public IObservable<MouseState> Generate<TSource>(IObservable<TSource> source)

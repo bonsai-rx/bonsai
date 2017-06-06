@@ -64,6 +64,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AspectRatio.cs" />
     <Compile Include="BufferBinding.cs" />
     <Compile Include="ComputeProgram.cs" />
     <Compile Include="Configuration\ViewportEffectConfiguration.cs" />
@@ -104,8 +105,11 @@
     <Compile Include="Effect.cs" />
     <Compile Include="FramebufferState.cs" />
     <Compile Include="DrawFramebuffer.cs" />
+    <Compile Include="Invert.cs" />
+    <Compile Include="LatestOnRenderFrame.cs" />
     <Compile Include="MeshAttributeMapping.cs" />
     <Compile Include="QuaternionConverter.cs" />
+    <Compile Include="SampleOnRenderFrame.cs" />
     <Compile Include="ViewportEffect.cs" />
     <Compile Include="ImageTextureBinding.cs" />
     <Compile Include="Input\MouseCursor.cs" />

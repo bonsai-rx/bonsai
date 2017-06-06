@@ -369,6 +369,7 @@
             // 
             // editorTabControl
             // 
+            this.editorTabControl.AllowDrop = true;
             this.editorTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.editorTabControl.Location = new System.Drawing.Point(0, 0);
             this.editorTabControl.Name = "editorTabControl";
@@ -376,6 +377,8 @@
             this.editorTabControl.Size = new System.Drawing.Size(624, 250);
             this.editorTabControl.TabIndex = 8;
             this.editorTabControl.Selected += new System.Windows.Forms.TabControlEventHandler(this.editorTabControl_Selected);
+            this.editorTabControl.DragDrop += new System.Windows.Forms.DragEventHandler(this.editorTabControl_DragDrop);
+            this.editorTabControl.DragEnter += new System.Windows.Forms.DragEventHandler(this.editorTabControl_DragEnter);
             this.editorTabControl.MouseDown += new System.Windows.Forms.MouseEventHandler(this.editorTabControl_MouseDown);
             // 
             // statusStrip

@@ -5,37 +5,30 @@ using System.Text;
 using Bonsai;
 using Bonsai.Design.Visualizers;
 using ZedGraph;
+using System.Windows.Forms;
 
 [assembly: TypeVisualizer(typeof(BooleanTimeSeriesVisualizer), Target = typeof(bool))]
 
 namespace Bonsai.Design.Visualizers
 {
-    public class BooleanTimeSeriesVisualizer : TimeSeriesVisualizer
+    public class BooleanTimeSeriesVisualizer : TimeSeriesVisualizerBase
     {
-        object previous;
-
-        public override void Show(object value)
+        public BooleanTimeSeriesVisualizer()
         {
-            var time = DateTime.Now;
-            if (previous != null)
+            Capacity = 640;
+        }
+
+        public int Capacity { get; set; }
+
+        internal override TimeSeriesView CreateView()
+        {
+            var graph = new BooleanTimeSeriesView();
+            graph.Capacity = Capacity;
+            graph.HandleDestroyed += delegate
             {
-                AddValue(time, previous);
-            }
-
-            AddValue(time, value);
-            previous = value;
-        }
-
-        public override void Load(IServiceProvider provider)
-        {
-            base.Load(provider);
-            ((LineItem)Chart.GraphPane.CurveList[0]).Line.Width = 2;
-        }
-
-        public override void Unload()
-        {
-            previous = null;
-            base.Unload();
+                Capacity = graph.Capacity;
+            };
+            return graph;
         }
     }
 }

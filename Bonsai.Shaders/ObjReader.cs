@@ -112,13 +112,13 @@ namespace Bonsai.Shaders
         internal static void ReadObject(Mesh mesh, string fileName)
         {
             var faceLength = 0;
-            ushort vertexCount = 0;
+            uint vertexCount = 0;
             VertexAttribute position = null;
             VertexAttribute texCoord = null;
             VertexAttribute normals = null;
             var vertices = new List<float>();
-            var indices = new List<ushort>();
-            var indexMap = new Dictionary<Index, ushort>();
+            var indices = new List<uint>();
+            var indexMap = new Dictionary<Index, uint>();
             foreach (var line in File.ReadAllLines(fileName))
             {
                 var values = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -144,7 +144,7 @@ namespace Bonsai.Shaders
 
                         for (int i = 1; i < values.Length; i++)
                         {
-                            ushort index;
+                            uint index;
                             var face = Index.Create(values[i]);
                             if (!indexMap.TryGetValue(face, out index))
                             {
@@ -181,10 +181,31 @@ namespace Bonsai.Shaders
                           new IntPtr(vertices.Count * BlittableValueType<float>.Stride),
                           vertices.ToArray(),
                           BufferUsageHint.StaticDraw);
-            GL.BufferData(BufferTarget.ElementArrayBuffer,
-                          new IntPtr(indices.Count * BlittableValueType<ushort>.Stride),
-                          indices.ToArray(),
-                          BufferUsageHint.StaticDraw);
+            if (vertexCount <= byte.MaxValue)
+            {
+                mesh.ElementArrayType = DrawElementsType.UnsignedByte;
+                GL.BufferData(BufferTarget.ElementArrayBuffer,
+                              new IntPtr(indices.Count * BlittableValueType<byte>.Stride),
+                              indices.Select(x => (byte)x).ToArray(),
+                              BufferUsageHint.StaticDraw);
+            }
+            else if (vertexCount <= ushort.MaxValue)
+            {
+                mesh.ElementArrayType = DrawElementsType.UnsignedShort;
+                GL.BufferData(BufferTarget.ElementArrayBuffer,
+                              new IntPtr(indices.Count * BlittableValueType<ushort>.Stride),
+                              indices.Select(x => (ushort)x).ToArray(),
+                              BufferUsageHint.StaticDraw);
+            }
+            else
+            {
+                mesh.ElementArrayType = DrawElementsType.UnsignedInt;
+                GL.BufferData(BufferTarget.ElementArrayBuffer,
+                              new IntPtr(indices.Count * BlittableValueType<uint>.Stride),
+                              indices.ToArray(),
+                              BufferUsageHint.StaticDraw);
+            }
+
             if (position != null) offset = PushAttribArray(position, attrib++, stride, offset);
             if (texCoord != null) offset = PushAttribArray(texCoord, attrib++, stride, offset);
             if (normals != null) offset = PushAttribArray(normals, attrib++, stride, offset);

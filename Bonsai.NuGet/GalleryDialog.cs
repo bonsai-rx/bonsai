@@ -99,11 +99,11 @@ namespace Bonsai.NuGet
             var package = (IPackage)e.Node.Tag;
             if (package != null)
             {
-                saveFileDialog.FileName = package.Id;
-                if (saveFileDialog.ShowDialog(this) == DialogResult.OK)
+                saveFolderDialog.FileName = package.Id;
+                if (saveFolderDialog.ShowDialog(this) == DialogResult.OK)
                 {
                     targetPackage = package;
-                    targetPath = saveFileDialog.FileName;
+                    targetPath = saveFolderDialog.FileName;
                     packageViewController.RunPackageOperation(new[] { package }, true);
                     if (DialogResult == DialogResult.OK)
                     {
@@ -113,31 +113,20 @@ namespace Bonsai.NuGet
             }
         }
 
-        private void saveFileDialog_FileOk(object sender, CancelEventArgs e)
-        {
-            if (File.Exists(saveFileDialog.FileName))
-            {
-                var message = string.Format(Resources.SaveFolderExists, Path.GetFileName(saveFileDialog.FileName));
-                MessageBox.Show(message, Resources.SaveFolderExistsCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                e.Cancel = true;
-            }
-        }
-
         void packageManagerProxy_PackageInstalling(object sender, PackageOperationEventArgs e)
         {
             var package = e.Package;
             if (package == targetPackage)
             {
-                var workflowPath = package.Id + Constants.BonsaiExtension;
-                if (!package.GetContentFiles().Any(file => file.EffectivePath == workflowPath))
+                var entryPoint = package.Id + Constants.BonsaiExtension;
+                if (!package.GetContentFiles().Any(file => file.EffectivePath == entryPoint))
                 {
-                    var message = string.Format(Resources.MissingWorkflowEntryPoint, workflowPath);
+                    var message = string.Format(Resources.MissingWorkflowEntryPoint, entryPoint);
                     throw new InvalidOperationException(message);
                 }
 
                 var targetFileSystem = new PhysicalFileSystem(targetPath);
-                PackageHelper.InstallExecutablePackage(package, targetFileSystem);
-                InstallPath = targetFileSystem.GetFullPath(workflowPath);
+                InstallPath = PackageHelper.InstallExecutablePackage(package, targetFileSystem);
                 DialogResult = DialogResult.OK;
             }
         }

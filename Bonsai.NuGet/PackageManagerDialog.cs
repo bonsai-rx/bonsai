@@ -184,21 +184,11 @@ namespace Bonsai.NuGet
             }
         }
 
-        private void saveFileDialog_FileOk(object sender, CancelEventArgs e)
-        {
-            if (File.Exists(saveFileDialog.FileName))
-            {
-                var message = string.Format(Resources.SaveFolderExists, Path.GetFileName(saveFileDialog.FileName));
-                MessageBox.Show(message, Resources.SaveFolderExistsCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                e.Cancel = true;
-            }
-        }
-
         void packageManagerProxy_PackageInstalling(object sender, PackageOperationEventArgs e)
         {
             var package = e.Package;
-            var workflowPath = package.Id + Constants.BonsaiExtension;
-            if (package.GetContentFiles().Any(file => file.EffectivePath == workflowPath))
+            var entryPoint = package.Id + Constants.BonsaiExtension;
+            if (package.GetContentFiles().Any(file => file.EffectivePath == entryPoint))
             {
                 Invoke((Action)(() =>
                 {
@@ -206,13 +196,12 @@ namespace Bonsai.NuGet
                     var result = MessageBox.Show(this, message, Resources.InstallExecutablePackageCaption, MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
                     if (result == DialogResult.Yes)
                     {
-                        saveFileDialog.FileName = package.Id;
-                        if (saveFileDialog.ShowDialog(this) == DialogResult.OK)
+                        saveFolderDialog.FileName = package.Id;
+                        if (saveFolderDialog.ShowDialog(this) == DialogResult.OK)
                         {
-                            var targetPath = saveFileDialog.FileName;
+                            var targetPath = saveFolderDialog.FileName;
                             var targetFileSystem = new PhysicalFileSystem(targetPath);
-                            PackageHelper.InstallExecutablePackage(package, targetFileSystem);
-                            InstallPath = targetFileSystem.GetFullPath(workflowPath);
+                            InstallPath = PackageHelper.InstallExecutablePackage(package, targetFileSystem);
                             DialogResult = DialogResult.OK;
                         }
                     }
