@@ -48,7 +48,7 @@
             this.closeButton = new System.Windows.Forms.Button();
             this.settingsPanel = new System.Windows.Forms.Panel();
             this.settingsButton = new System.Windows.Forms.Button();
-            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+            this.saveFolderDialog = new Bonsai.NuGet.SaveFolderDialog();
             this.mainLayoutPanel.SuspendLayout();
             this.packageViewLayoutPanel.SuspendLayout();
             this.filterLayoutPanel.SuspendLayout();
@@ -282,11 +282,6 @@
             this.settingsButton.UseVisualStyleBackColor = true;
             this.settingsButton.Click += new System.EventHandler(this.settingsButton_Click);
             // 
-            // saveFileDialog
-            // 
-            this.saveFileDialog.OverwritePrompt = false;
-            this.saveFileDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.saveFileDialog_FileOk);
-            // 
             // GalleryDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -335,6 +330,6 @@
         private System.Windows.Forms.TableLayoutPanel packageViewPanel;
         private PackageView packageView;
         private System.Windows.Forms.Panel settingsPanel;
-        private System.Windows.Forms.SaveFileDialog saveFileDialog;
+        private SaveFolderDialog saveFolderDialog;
     }
 }

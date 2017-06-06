@@ -99,6 +99,24 @@ namespace Bonsai.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Executable package.
+        /// </summary>
+        internal static string InstallExecutablePackageCaption {
+            get {
+                return ResourceManager.GetString("InstallExecutablePackageCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Package &apos;{0}&apos; is an executable package. Do you want to open the workflow?.
+        /// </summary>
+        internal static string InstallExecutablePackageWarning {
+            get {
+                return ResourceManager.GetString("InstallExecutablePackageWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The library folder &apos;{0}&apos; has already been assigned to a different platform. Consider uninstalling the conflicting package..
         /// </summary>
         internal static string LibraryFolderPlatformMismatchException {

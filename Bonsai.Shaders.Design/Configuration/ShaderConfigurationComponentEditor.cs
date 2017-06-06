@@ -68,8 +68,8 @@ namespace Bonsai.Shaders.Configuration.Design
                     Source = @"#version 400
 uniform vec2 scale = vec2(1, 1);
 uniform vec2 shift;
-in vec2 vp;
-in vec2 vt;
+layout(location = 0) in vec2 vp;
+layout(location = 1) in vec2 vt;
 out vec2 texCoord;
 
 void main()
@@ -87,9 +87,9 @@ void main()
                     Source = @"#version 400
 uniform mat4 modelview;
 uniform mat4 projection;
-in vec3 vp;
-in vec2 vt;
-in vec3 vn;
+layout(location = 0) in vec3 vp;
+layout(location = 1) in vec2 vt;
+layout(location = 2) in vec3 vn;
 out vec3 position;
 out vec2 texCoord;
 out vec3 normal;

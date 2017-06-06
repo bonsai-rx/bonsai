@@ -6,6 +6,7 @@ using OpenCV.Net;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using System.ComponentModel;
+using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
@@ -28,6 +29,7 @@ namespace Bonsai.Vision
         public double MinDistance { get; set; }
 
         [Description("The optional region of interest used to find image corners.")]
+        [Editor("Bonsai.Vision.Design.IplImageInputRectangleEditor, Bonsai.Vision.Design", typeof(UITypeEditor))]
         public Rect RegionOfInterest { get; set; }
 
         public override IObservable<KeyPointCollection> Process(IObservable<IplImage> source)

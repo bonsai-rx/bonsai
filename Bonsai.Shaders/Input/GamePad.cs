@@ -18,11 +18,10 @@ namespace Bonsai.Shaders.Input
 
         public override IObservable<GamePadState> Generate()
         {
-            return ShaderManager.WindowSource.SelectMany(window => Observable.FromEventPattern<FrameEventArgs>(
+            return ShaderManager.WindowSource.SelectMany(window => window.EventPattern<FrameEventArgs>(
                 handler => window.UpdateFrame += handler,
                 handler => window.UpdateFrame -= handler)
-                .Select(evt => OpenTK.Input.GamePad.GetState(Index))
-                .TakeUntil(window.WindowClosed()));
+                .Select(evt => OpenTK.Input.GamePad.GetState(Index)));
         }
 
         public IObservable<GamePadState> Generate<TSource>(IObservable<TSource> source)
