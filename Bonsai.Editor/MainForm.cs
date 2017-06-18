@@ -1463,7 +1463,7 @@ namespace Bonsai.Editor
 
         private void toolboxTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Button == MouseButtons.Left && e.Node.Tag != null)
+            if (e.Button == MouseButtons.Left && e.Node.Tag != null && !editorSite.WorkflowRunning)
             {
                 var typeNode = e.Node;
                 CreateGraphNode(typeNode, Control.ModifierKeys);
