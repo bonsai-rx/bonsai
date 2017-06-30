@@ -121,6 +121,7 @@ namespace Bonsai.Editor
             workflowGraphView.Workflow = workflowBuilder.Workflow;
             workflowGraphView.Dock = DockStyle.Fill;
             workflowGroupBox.Controls.Add(workflowGraphView);
+            propertyGrid.LineColor = SystemColors.InactiveBorder;
             propertyGrid.Site = editorSite;
 
             selectionModel.UpdateSelection(workflowGraphView);
