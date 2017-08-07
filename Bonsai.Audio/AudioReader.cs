@@ -91,6 +91,7 @@ namespace Bonsai.Audio
                 FindId(reader, id, RiffHeader.DataId);
                 var dataSize = (long)reader.ReadUInt32();
                 var sampleCount = dataSize / sampleSize;
+                bufferSize = bufferSize <= 0 ? (int)sampleCount : bufferSize;
 
                 var sampleData = new byte[bufferSize * sampleSize];
                 for (int i = 0; i < sampleCount / bufferSize; i++)
