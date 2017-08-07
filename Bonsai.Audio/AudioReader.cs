@@ -115,22 +115,26 @@ namespace Bonsai.Audio
             {
                 return Task.Factory.StartNew(() =>
                 {
+                    var i = 1L;
                     var bufferLength = BufferLength;
                     using (var reader = CreateReader(bufferLength).GetEnumerator())
                     using (var sampleSignal = new ManualResetEvent(false))
                     {
                         var stopwatch = new Stopwatch();
+                        stopwatch.Start();
+
                         while (!cancellationToken.IsCancellationRequested)
                         {
-                            stopwatch.Restart();
                             if (!reader.MoveNext()) break;
                             observer.OnNext(reader.Current);
 
-                            var sampleInterval = (int)(bufferLength - stopwatch.ElapsedMilliseconds);
+                            var sampleInterval = (int)(bufferLength * i - stopwatch.ElapsedMilliseconds);
                             if (sampleInterval > 0)
                             {
                                 sampleSignal.WaitOne(sampleInterval);
                             }
+
+                            i++;
                         }
 
                         observer.OnCompleted();
