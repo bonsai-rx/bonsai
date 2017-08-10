@@ -59,6 +59,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IO\EnumerateFileSystemEntries.cs" />
+    <Compile Include="IO\EnumerateFiles.cs" />
+    <Compile Include="IO\EnumerateDirectories.cs" />
     <Compile Include="IO\GetFileSystemEntries.cs" />
     <Compile Include="IO\GetDirectories.cs" />
     <Compile Include="IO\CsvReader.cs" />
