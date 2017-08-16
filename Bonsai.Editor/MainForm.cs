@@ -1656,9 +1656,9 @@ namespace Bonsai.Editor
             }
         }
 
-        private void wikiToolStripMenuItem_Click(object sender, EventArgs e)
+        private void docsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            StartBrowser("https://bitbucket.org/horizongir/bonsai/wiki");
+            StartBrowser("http://bonsai-rx.org/docs/editor/");
         }
 
         private void forumToolStripMenuItem_Click(object sender, EventArgs e)

@@ -4,7 +4,7 @@
     <Identity Id="BonsaiTemplatesVsix.ac37e8b9-5d6c-407c-b2ca-2e550a8ab918" Version="2.3.1" Language="en-US" Publisher="Gonçalo Lopes" />
     <DisplayName>Bonsai Templates</DisplayName>
     <Description>A collection of project and item templates for extending the Bonsai programming language.</Description>
-    <MoreInfo>https://bitbucket.org/horizongir/bonsai</MoreInfo>
+    <MoreInfo>http://bonsai-rx.org</MoreInfo>
     <License>eula.rtf</License>
     <Icon>Images\icon.png</Icon>
     <PreviewImage>Images\preview.png</PreviewImage>
