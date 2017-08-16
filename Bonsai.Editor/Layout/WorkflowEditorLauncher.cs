@@ -75,11 +75,7 @@ namespace Bonsai.Design
             visualizerDialog.Activated += delegate
             {
                 workflowGraphView.UpdateSelection();
-                if (!string.IsNullOrWhiteSpace(builder.Name))
-                {
-                    visualizerDialog.Text = builder.Name;
-                }
-                else visualizerDialog.Text = "Workflow Editor";
+                visualizerDialog.Text = ExpressionBuilder.GetElementDisplayName(builder);
             };
 
             visualizerDialog.FormClosing += (sender, e) =>
