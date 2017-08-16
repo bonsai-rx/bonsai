@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" Type="Item">
+  <TemplateData>
+    <DefaultName>Workflow.bonsai</DefaultName>
+    <Name>Workflow</Name>
+    <Description>A project item for creating a Bonsai workflow</Description>
+    <ProjectType>CSharp</ProjectType>
+    <SortOrder>10</SortOrder>
+    <Icon>__TemplateIcon.ico</Icon>
+  </TemplateData>
+  <TemplateContent>
+    <References />
+    <ProjectItem SubType="Code" TargetFileName="$fileinputname$.bonsai" ReplaceParameters="false">WorkflowTemplate.bonsai</ProjectItem>
+  </TemplateContent>
+</VSTemplate>

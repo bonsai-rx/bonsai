@@ -9,11 +9,11 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectTypeGuids>{82b43b9b-a64c-4715-b499-d71e9ca2bd60};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <ProjectGuid>{13535295-C1F7-44AD-8CB8-F7279C704F59}</ProjectGuid>
+    <ProjectGuid>{7F4DD318-5BE7-4C12-9A59-273E220CE192}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Bonsai.VisualizerTemplate</RootNamespace>
-    <AssemblyName>Bonsai.VisualizerTemplate</AssemblyName>
+    <RootNamespace>Bonsai.TransformTemplate</RootNamespace>
+    <AssemblyName>Bonsai.TransformTemplate</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <GeneratePkgDefFile>false</GeneratePkgDefFile>
@@ -55,10 +55,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <None Include="VisualizerTemplate.cs" />
+    <None Include="TransformTemplate.cs" />
   </ItemGroup>
   <ItemGroup>
-    <VSTemplate Include="Bonsai.VisualizerTemplate.vstemplate">
+    <VSTemplate Include="Bonsai.TransformTemplate.vstemplate">
+      <SubType>Designer</SubType>
       <OutputSubPath>Bonsai</OutputSubPath>
     </VSTemplate>
   </ItemGroup>

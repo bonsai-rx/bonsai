@@ -1,16 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>15.0</MinimumVisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{37676E90-A510-4260-A777-CCC1BDBC86D0}</ProjectGuid>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectTypeGuids>{82b43b9b-a64c-4715-b499-d71e9ca2bd60};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ProjectGuid>{731B2111-D4F3-436C-B015-B324DC32DC10}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Bonsai.Templates</RootNamespace>
     <AssemblyName>Bonsai.Templates</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <GeneratePkgDefFile>false</GeneratePkgDefFile>
+    <IncludeAssemblyInVSIXContainer>false</IncludeAssemblyInVSIXContainer>
+    <IncludeDebugSymbolsInVSIXContainer>false</IncludeDebugSymbolsInVSIXContainer>
+    <IncludeDebugSymbolsInLocalVSIXDeployment>false</IncludeDebugSymbolsInLocalVSIXDeployment>
+    <CopyBuildOutputToOutputDirectory>false</CopyBuildOutputToOutputDirectory>
+    <CopyOutputSymbolsToOutputDirectory>false</CopyOutputSymbolsToOutputDirectory>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,109 +41,93 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ICSharpCode.SharpZipLib">
-      <HintPath>..\packages\ICSharpCode.SharpZipLib.dll.0.85.4.369\lib\net20\ICSharpCode.SharpZipLib.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Reactive.Core, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Rx-Core.2.2.5\lib\net45\System.Reactive.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.Interfaces, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Rx-Interfaces.2.2.5\lib\net45\System.Reactive.Interfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.Linq, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Rx-Linq.2.2.5\lib\net45\System.Reactive.Linq.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Bonsai.TemplateWizards\bin\Release\Bonsai.TemplateWizards.dll">
-      <Link>Assemblies\Bonsai.TemplateWizards.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="eula.rtf" />
-    <None Include="..\..\bin\Bonsai.Core.2.3.0.nupkg">
+    <Content Include="..\..\bin\Bonsai.Core.2.3.0.nupkg">
       <Link>Packages\Bonsai.Core.2.3.0.nupkg</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\bin\Bonsai.Design.2.3.0.nupkg">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="..\..\bin\Bonsai.Design.2.3.0.nupkg">
       <Link>Packages\Bonsai.Design.2.3.0.nupkg</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Bonsai.PackageProjectTemplate\bin\Release\BonsaiPackage.zip">
-      <Link>ProjectTemplates\Bonsai\BonsaiPackage.zip</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Bonsai.SinkItemTemplate\bin\Release\BonsaiSink.zip">
-      <Link>ItemTemplates\Bonsai\BonsaiSink.zip</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Bonsai.SourceItemTemplate\bin\Release\BonsaiSource.zip">
-      <Link>ItemTemplates\Bonsai\BonsaiSource.zip</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Bonsai.TransformItemTemplate\bin\Release\BonsaiTransform.zip">
-      <Link>ItemTemplates\Bonsai\BonsaiTransform.zip</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Bonsai.VisualizerTemplate\bin\Release\BonsaiVisualizer.zip">
-      <Link>ItemTemplates\Bonsai\BonsaiVisualizer.zip</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Bonsai.WorkflowItemTemplate\bin\Release\BonsaiWorkflow.zip">
-      <Link>ItemTemplates\Bonsai\BonsaiWorkflow.zip</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\packages\Rx-Core.2.2.5\Rx-Core.2.2.5.nupkg">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="..\packages\Rx-Core.2.2.5\Rx-Core.2.2.5.nupkg">
       <Link>Packages\Rx-Core.2.2.5.nupkg</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\packages\Rx-Interfaces.2.2.5\Rx-Interfaces.2.2.5.nupkg">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="..\packages\Rx-Interfaces.2.2.5\Rx-Interfaces.2.2.5.nupkg">
       <Link>Packages\Rx-Interfaces.2.2.5.nupkg</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\packages\Rx-Linq.2.2.5\Rx-Linq.2.2.5.nupkg">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="..\packages\Rx-Linq.2.2.5\Rx-Linq.2.2.5.nupkg">
       <Link>Packages\Rx-Linq.2.2.5.nupkg</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="packages.config" />
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Images\preview.png" />
-    <Content Include="Images\icon.png" />
-    <Content Include="[Content_Types].xml">
-      <SubType>Designer</SubType>
+    <Content Include="eula.rtf">
+      <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="extension.vsixmanifest">
+    <None Include="packages.config" />
+    <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Images\icon.png">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Images\preview.png">
+      <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Bonsai.PackageTemplate\Bonsai.PackageTemplate.csproj">
+      <Project>{9BC48895-1D5E-49FF-97A6-8443962AE517}</Project>
+      <Name>Bonsai.PackageTemplate</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <VSIXSubPath>ProjectTemplates</VSIXSubPath>
+    </ProjectReference>
+    <ProjectReference Include="..\Bonsai.SinkTemplate\Bonsai.SinkTemplate.csproj">
+      <Project>{DCA91714-1EA8-4A58-A1C4-9099F583E021}</Project>
+      <Name>Bonsai.SinkTemplate</Name>
+      <VSIXSubPath>ItemTemplates</VSIXSubPath>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+    </ProjectReference>
+    <ProjectReference Include="..\Bonsai.SourceTemplate\Bonsai.SourceTemplate.csproj">
+      <Project>{0A58BE56-B471-4783-8E0E-7D47DB576EFD}</Project>
+      <Name>Bonsai.SourceTemplate</Name>
+      <VSIXSubPath>ItemTemplates</VSIXSubPath>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+    </ProjectReference>
+    <ProjectReference Include="..\Bonsai.TransformTemplate\Bonsai.TransformTemplate.csproj">
+      <Project>{7F4DD318-5BE7-4C12-9A59-273E220CE192}</Project>
+      <Name>Bonsai.TransformTemplate</Name>
+      <VSIXSubPath>ItemTemplates</VSIXSubPath>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+    </ProjectReference>
+    <ProjectReference Include="..\Bonsai.VisualizerTemplate\Bonsai.VisualizerTemplate.csproj">
+      <Project>{13535295-C1F7-44AD-8CB8-F7279C704F59}</Project>
+      <Name>Bonsai.VisualizerTemplate</Name>
+      <VSIXSubPath>ItemTemplates</VSIXSubPath>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+    </ProjectReference>
+    <ProjectReference Include="..\Bonsai.WorkflowTemplate\Bonsai.WorkflowTemplate.csproj">
+      <Project>{02EFCD9D-BC87-4857-964E-901DAEADD45B}</Project>
+      <Name>Bonsai.WorkflowTemplate</Name>
+      <VSIXSubPath>ItemTemplates</VSIXSubPath>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <MSBuildCommunityTasksPath>$(SolutionDir)\.build</MSBuildCommunityTasksPath>
-  </PropertyGroup>
-  <Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.targets" />
-  <Target Name="BuildTemplate" AfterTargets="AfterBuild">
-    <ItemGroup>
-      <ZipContent Include="$(TargetDir)Assemblies\*.dll" />
-      <ZipContent Include="$(TargetDir)Packages\*.nupkg" />
-      <ZipContent Include="$(TargetDir)ItemTemplates\**\*.zip" />
-      <ZipContent Include="$(TargetDir)ProjectTemplates\**\*.zip" />
-    </ItemGroup>
-    <Zip Files="@(Content);@(ZipContent)" WorkingDirectory="$(TargetDir)" ZipFileName="$(TargetDir)\BonsaiTemplates.vsix" />
-  </Target>
+  <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
