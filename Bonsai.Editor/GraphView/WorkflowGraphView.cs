@@ -1688,20 +1688,23 @@ namespace Bonsai.Design
                     if (visualizer.IsValueCreated)
                     {
                         var visualizerType = visualizer.Value.GetType();
-                        var visualizerSettings = new XDocument();
-                        var serializer = new XmlSerializer(visualizerType);
-                        using (var writer = visualizerSettings.CreateWriter())
+                        if (visualizerType.IsPublic)
                         {
-                            serializer.Serialize(writer, visualizer.Value);
+                            var visualizerSettings = new XDocument();
+                            var serializer = new XmlSerializer(visualizerType);
+                            using (var writer = visualizerSettings.CreateWriter())
+                            {
+                                serializer.Serialize(writer, visualizer.Value);
+                            }
+                            var root = visualizerSettings.Root;
+                            root.Remove();
+                            var xsdAttribute = root.Attribute(XsdAttributeName);
+                            if (xsdAttribute != null) xsdAttribute.Remove();
+                            var xsiAttribute = root.Attribute(XsiAttributeName);
+                            if (xsiAttribute != null) xsiAttribute.Remove();
+                            dialogSettings.VisualizerTypeName = visualizerType.FullName;
+                            dialogSettings.VisualizerSettings = root;
                         }
-                        var root = visualizerSettings.Root;
-                        root.Remove();
-                        var xsdAttribute = root.Attribute(XsdAttributeName);
-                        if (xsdAttribute != null) xsdAttribute.Remove();
-                        var xsiAttribute = root.Attribute(XsiAttributeName);
-                        if (xsiAttribute != null) xsiAttribute.Remove();
-                        dialogSettings.VisualizerTypeName = visualizerType.FullName;
-                        dialogSettings.VisualizerSettings = root;
                     }
 
                     visualizerLayout.DialogSettings.Add(dialogSettings);
