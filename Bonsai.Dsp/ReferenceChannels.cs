@@ -41,16 +41,19 @@ namespace Bonsai.Dsp
                 }
                 else
                 {
-                    reference.SetZero();
+                    var sum = input.Depth != Depth.F32
+                        ? new Mat(reference.Rows, reference.Cols, Depth.F32, reference.Channels)
+                        : reference;
+                    sum.SetZero();
                     for (int i = 0; i < channels.Length; i++)
                     {
                         using (var referenceChannel = input.GetRow(channels[i]))
                         {
-                            CV.Add(reference, referenceChannel, reference);
+                            CV.Add(sum, referenceChannel, sum);
                         }
                     }
 
-                    CV.ConvertScale(reference, reference, 1f / channels.Length);
+                    CV.ConvertScale(sum, reference, 1f / channels.Length);
                 }
 
                 CV.Repeat(reference, output);
