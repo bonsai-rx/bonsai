@@ -14,7 +14,7 @@ namespace Bonsai.Shaders.Configuration
     {
         public ImageTexture()
         {
-            Mode = LoadImageFlags.Unchanged;
+            ColorType = LoadImageFlags.Unchanged;
         }
 
         [TypeConverter(typeof(ResourceFileNameConverter))]
@@ -24,12 +24,15 @@ namespace Bonsai.Shaders.Configuration
         public string FileName { get; set; }
 
         [Description("Specifies optional conversions applied to the loaded image.")]
-        public LoadImageFlags Mode { get; set; }
+        public LoadImageFlags ColorType { get; set; }
+
+        [Description("Specifies the optional flip mode applied to the loaded image.")]
+        public FlipMode? FlipMode { get; set; }
 
         public override Texture CreateResource()
         {
             var texture = base.CreateResource();
-            var image = CV.LoadImage(FileName, Mode);
+            var image = CV.LoadImage(FileName, ColorType);
             var width = Width.GetValueOrDefault();
             var height = Height.GetValueOrDefault();
             if (width > 0 && height > 0 && (image.Width != width || image.Height != height))
@@ -38,6 +41,9 @@ namespace Bonsai.Shaders.Configuration
                 CV.Resize(image, resized);
                 image = resized;
             }
+
+            var flipMode = FlipMode;
+            if (flipMode.HasValue) CV.Flip(image, null, flipMode.Value);
             TextureHelper.UpdateTexture(texture.Id, InternalFormat, image);
             GL.BindTexture(TextureTarget.Texture2D, 0);
             return texture;

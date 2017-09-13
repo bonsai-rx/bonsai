@@ -121,6 +121,7 @@ namespace Bonsai.Editor
             workflowGraphView.Workflow = workflowBuilder.Workflow;
             workflowGraphView.Dock = DockStyle.Fill;
             workflowGroupBox.Controls.Add(workflowGraphView);
+            propertyGrid.LineColor = SystemColors.InactiveBorder;
             propertyGrid.Site = editorSite;
 
             selectionModel.UpdateSelection(workflowGraphView);
@@ -1463,7 +1464,7 @@ namespace Bonsai.Editor
 
         private void toolboxTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Button == MouseButtons.Left && e.Node.Tag != null)
+            if (e.Button == MouseButtons.Left && e.Node.Tag != null && !editorSite.WorkflowRunning)
             {
                 var typeNode = e.Node;
                 CreateGraphNode(typeNode, Control.ModifierKeys);
@@ -1655,9 +1656,9 @@ namespace Bonsai.Editor
             }
         }
 
-        private void wikiToolStripMenuItem_Click(object sender, EventArgs e)
+        private void docsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            StartBrowser("https://bitbucket.org/horizongir/bonsai/wiki");
+            StartBrowser("http://bonsai-rx.org/docs/editor/");
         }
 
         private void forumToolStripMenuItem_Click(object sender, EventArgs e)

@@ -86,26 +86,31 @@ namespace Bonsai.Dsp
             {
                 return Task.Factory.StartNew(() =>
                 {
-                    var stopwatch = new Stopwatch();
+                    var i = 1L;
                     using (var sampleSignal = new ManualResetEvent(false))
                     {
+                        var stopwatch = new Stopwatch();
+                        stopwatch.Start();
+
+                        var playbackRate = PlaybackRate;
+                        if (playbackRate <= 0)
+                        {
+                            throw new InvalidOperationException("Playback rate must be a positive integer.");
+                        }
+
+                        var playbackInterval = 1000.0 / playbackRate;
                         while (!cancellationToken.IsCancellationRequested)
                         {
-                            stopwatch.Restart();
                             var buffer = CreateBuffer();
                             observer.OnNext(buffer);
 
-                            var playbackRate = PlaybackRate;
-                            if (playbackRate <= 0)
+                            var sampleInterval = (int)(playbackInterval * i - stopwatch.ElapsedMilliseconds);
+                            if (sampleInterval > 0)
                             {
-                                throw new InvalidOperationException("Playback rate must be a positive integer.");
+                                sampleSignal.WaitOne(sampleInterval);
                             }
 
-                            var dueTime = Math.Max(0, (1000.0 / playbackRate) - stopwatch.Elapsed.TotalMilliseconds);
-                            if (dueTime > 0)
-                            {
-                                sampleSignal.WaitOne(TimeSpan.FromMilliseconds(dueTime));
-                            }
+                            i++;
                         }
                     }
                 },
