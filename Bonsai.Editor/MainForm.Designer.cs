@@ -70,7 +70,7 @@
             this.packageManagerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.galleryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.wikiToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.docsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.forumToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reportBugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
@@ -465,7 +465,7 @@
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.wikiToolStripMenuItem,
+            this.docsToolStripMenuItem,
             this.forumToolStripMenuItem,
             this.reportBugToolStripMenuItem,
             this.toolStripSeparator5,
@@ -475,13 +475,13 @@
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.helpToolStripMenuItem.Text = "&Help";
             // 
-            // wikiToolStripMenuItem
+            // docsToolStripMenuItem
             // 
-            this.wikiToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("wikiToolStripMenuItem.Image")));
-            this.wikiToolStripMenuItem.Name = "wikiToolStripMenuItem";
-            this.wikiToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.wikiToolStripMenuItem.Text = "Wi&ki";
-            this.wikiToolStripMenuItem.Click += new System.EventHandler(this.wikiToolStripMenuItem_Click);
+            this.docsToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("docsToolStripMenuItem.Image")));
+            this.docsToolStripMenuItem.Name = "docsToolStripMenuItem";
+            this.docsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.docsToolStripMenuItem.Text = "&Documentation";
+            this.docsToolStripMenuItem.Click += new System.EventHandler(this.docsToolStripMenuItem_Click);
             // 
             // forumToolStripMenuItem
             // 
@@ -1075,7 +1075,7 @@
         private System.Windows.Forms.ToolStripMenuItem pasteToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem workflowToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem wikiToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem docsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem forumToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem reportBugToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
