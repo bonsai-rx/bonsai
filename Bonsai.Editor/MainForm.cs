@@ -48,7 +48,6 @@ namespace Bonsai.Editor
         WorkflowBuilder workflowBuilder;
         WorkflowGraphView workflowGraphView;
         WorkflowSelectionModel selectionModel;
-        List<TypeDescriptorAssociation> selectionDescriptionProviders;
         Dictionary<string, string> propertyAssignments;
         Dictionary<string, TreeNode> toolboxCategories;
         List<TreeNode> treeCache;
@@ -111,7 +110,6 @@ namespace Bonsai.Editor
             exceptionCache = new WorkflowRuntimeExceptionCache();
             typeDescriptorCache = new HashSet<Module>();
             selectionModel = new WorkflowSelectionModel();
-            selectionDescriptionProviders = new List<TypeDescriptorAssociation>();
             propertyAssignments = new Dictionary<string, string>();
             workflowGraphView = new WorkflowGraphView(editorSite);
             workflowGraphView.Workflow = workflowBuilder.Workflow;
@@ -586,7 +584,7 @@ namespace Bonsai.Editor
                     try
                     {
                         UpgradeHelper.UpgradeEnumerableUnfoldingRules(workflowBuilder);
-                        workflow = UpgradeHelper.UpgradeSourceBuilderNodes(workflow);
+                        workflow = UpgradeHelper.UpgradeBuilderNodes(workflow);
                     }
                     catch (WorkflowBuildException)
                     {
@@ -1234,36 +1232,11 @@ namespace Bonsai.Editor
 
         private void selectionModel_SelectionChanged(object sender, EventArgs e)
         {
-            if (selectionDescriptionProviders.Count > 0)
-            {
-                foreach (var association in selectionDescriptionProviders)
-                {
-                    TypeDescriptor.RemoveProvider(association.provider, association.instance);
-                }
-                selectionDescriptionProviders.Clear();
-            }
-
             var selectedObjects = selectionModel.SelectedNodes.Select(node =>
             {
                 var builder = ExpressionBuilder.Unwrap((ExpressionBuilder)node.Value);
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
                 var instance = workflowElement ?? builder;
-                var externalizedProperties = selectionModel.SelectedView.GetExternalizedProperties(node).ToArray();
-                if (externalizedProperties.Length > 0)
-                {
-                    var parentProvider = TypeDescriptor.GetProvider(instance);
-                    var parentDescriptor = parentProvider.GetTypeDescriptor(instance);
-                    var parentExtendedDescriptor = parentProvider.GetExtendedTypeDescriptor(instance);
-                    var provider = new OverrideTypeDescriptionProvider(parentProvider);
-                    provider.TypeDescriptor = new PropertyFilterTypeDescriptor(parentDescriptor, externalizedProperties);
-                    provider.ExtendedTypeDescriptor = new PropertyFilterTypeDescriptor(parentExtendedDescriptor, externalizedProperties);
-                    TypeDescriptor.AddProvider(provider, instance);
-                    selectionDescriptionProviders.Add(new TypeDescriptorAssociation
-                    {
-                        provider = provider,
-                        instance = instance
-                    });
-                }
                 return instance;
             }).ToArray();
 
@@ -2123,16 +2096,6 @@ namespace Bonsai.Editor
         void statusStrip_SizeChanged(object sender, EventArgs e)
         {
             UpdateStatusLabelSize();
-        }
-
-        #endregion
-
-        #region TypeDescriptorAssociation Class
-
-        class TypeDescriptorAssociation
-        {
-            public TypeDescriptionProvider provider;
-            public object instance;
         }
 
         #endregion

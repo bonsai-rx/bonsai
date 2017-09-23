@@ -10,14 +10,14 @@ namespace Bonsai.Editor
 {
     static class UpgradeHelper
     {
-        static readonly SemanticVersion DeprecationTarget = SemanticVersion.Parse("2.3.0");
+        static readonly SemanticVersion DeprecationTarget = SemanticVersion.Parse("2.4.0");
 
         internal static bool IsDeprecated(SemanticVersion version)
         {
             return version < DeprecationTarget;
         }
 
-        internal static ExpressionBuilderGraph UpgradeSourceBuilderNodes(ExpressionBuilderGraph workflow)
+        internal static ExpressionBuilderGraph UpgradeBuilderNodes(ExpressionBuilderGraph workflow)
         {
             return workflow.Convert(builder =>
             {
@@ -27,6 +27,16 @@ namespace Bonsai.Editor
                     return new CombinatorBuilder
                     {
                         Combinator = sourceBuilder.Generator
+                    };
+                }
+
+                var property = builder as ExternalizedProperty;
+                if (property != null)
+                {
+                    return new ExternalizedProperty
+                    {
+                        MemberName = property.MemberName,
+                        Name = property.Name
                     };
                 }
 

@@ -333,7 +333,12 @@ namespace Bonsai.Design
                 }
             }
 
-            visualizerType = visualizerType ?? visualizerTypes.First();
+            visualizerType = visualizerType ?? visualizerTypes.FirstOrDefault();
+            if (visualizerType == null)
+            {
+                return null;
+            }
+
             if (visualizerFactory == null)
             {
                 var visualizerActivation = Expression.New(visualizerType);
@@ -362,9 +367,11 @@ namespace Bonsai.Design
             visualizerMapping = (from node in workflow
                                  let key = (InspectBuilder)node.Value
                                  let graphNode = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == key)
-                                 select new { key, graphNode })
+                                 let visualizerLauncher = CreateVisualizerLauncher(key, graphNode)
+                                 where visualizerLauncher != null
+                                 select new { key, visualizerLauncher })
                                  .ToDictionary(mapping => mapping.key,
-                                               mapping => CreateVisualizerLauncher(mapping.key, mapping.graphNode));
+                                               mapping => mapping.visualizerLauncher);
 
             foreach (var mapping in visualizerMapping)
             {
@@ -2310,27 +2317,12 @@ namespace Bonsai.Design
 
         private void CreateExternalizeMenuItems(object workflowElement, ToolStripMenuItem ownerItem, GraphNode selectedNode)
         {
-            var workflowElementType = workflowElement.GetType();
-            var workflowBuilder = workflowElement as WorkflowExpressionBuilder;
+            var elementType = workflowElement.GetType();
             foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(workflowElement))
             {
                 if (property.IsReadOnly || !property.IsBrowsable) continue;
                 var externalizableAttribute = (ExternalizableAttribute)property.Attributes[typeof(ExternalizableAttribute)];
                 if (externalizableAttribute != null && !externalizableAttribute.Externalizable) continue;
-
-                var elementType = workflowElementType;
-                if (workflowBuilder != null)
-                {
-                    var externalizedProperty = (from node in workflowBuilder.Workflow
-                                                let workflowProperty = ExpressionBuilder.Unwrap(node.Value) as ExternalizedProperty
-                                                where workflowProperty != null && workflowProperty.Name == property.Name
-                                                select workflowProperty)
-                                                .FirstOrDefault();
-                    if (externalizedProperty != null)
-                    {
-                        elementType = externalizedProperty.GetType().GetGenericArguments().Last();
-                    }
-                }
 
                 var memberSelector = string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, property.Name);
                 var memberValue = property.GetValue(workflowElement);
@@ -2355,20 +2347,7 @@ namespace Bonsai.Design
         {
             var menuItem = new ToolStripMenuItem(name, null, delegate
             {
-                Type propertyType;
-                if (memberType == typeof(DateTimeOffset))
-                {
-                    propertyType = typeof(ExternalizedDateTimeOffset<>).MakeGenericType(elementType);
-                }
-                else if (memberType == typeof(TimeSpan))
-                {
-                    propertyType = typeof(ExternalizedTimeSpan<>).MakeGenericType(elementType);
-                }
-                else propertyType = typeof(ExternalizedProperty<,>).MakeGenericType(memberType, elementType);
-
-                var property = (ExternalizedProperty)Activator.CreateInstance(propertyType);
-                var valueProperty = propertyType.GetProperty("Value");
-                valueProperty.SetValue(property, memberValue);
+                var property = new ExternalizedProperty();
                 property.MemberName = memberName;
                 property.Name = name;
 
@@ -2549,11 +2528,14 @@ namespace Bonsai.Design
                     var activeVisualizer = layoutSettings.VisualizerTypeName;
                     if (editorState.WorkflowRunning)
                     {
-                        var visualizerLauncher = visualizerMapping[inspectBuilder];
-                        var visualizer = visualizerLauncher.Visualizer;
-                        if (visualizer.IsValueCreated)
+                        VisualizerDialogLauncher visualizerLauncher;
+                        if (visualizerMapping.TryGetValue(inspectBuilder, out visualizerLauncher))
                         {
-                            activeVisualizer = visualizer.Value.GetType().FullName;
+                            var visualizer = visualizerLauncher.Visualizer;
+                            if (visualizer.IsValueCreated)
+                            {
+                                activeVisualizer = visualizer.Value.GetType().FullName;
+                            }
                         }
                     }
 

@@ -95,6 +95,7 @@ namespace Bonsai.Expressions
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             var source = Builder.Build(arguments);
+            if (source == ExpressionBuilder.EmptyExpression) return source;
             ObservableType = source.Type.GetGenericArguments()[0];
 
             // If source is already an inspect node, use it
