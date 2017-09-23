@@ -207,10 +207,17 @@ namespace Bonsai
                     XmlAttributeOverrides overrides = new XmlAttributeOverrides();
                     foreach (var type in serializerTypes)
                     {
-                        if (Attribute.IsDefined(type, typeof(XmlTypeAttribute), false)) continue;
+                        var obsolete = Attribute.IsDefined(type, typeof(ObsoleteAttribute), false);
+                        var xmlTypeDefined = Attribute.IsDefined(type, typeof(XmlTypeAttribute), false);
+                        if (xmlTypeDefined && !obsolete) continue;
 
                         var attributes = new XmlAttributes();
-                        attributes.XmlType = new XmlTypeAttribute { Namespace = GetClrNamespace(type) };
+                        if (obsolete && xmlTypeDefined)
+                        {
+                            var xmlType = (XmlTypeAttribute)Attribute.GetCustomAttribute(type, typeof(XmlTypeAttribute));
+                            attributes.XmlType = xmlType;
+                        }
+                        else attributes.XmlType = new XmlTypeAttribute { Namespace = GetClrNamespace(type) };
                         overrides.Add(type, attributes);
                     }
 
