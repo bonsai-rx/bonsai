@@ -74,7 +74,6 @@ namespace Bonsai
             var layoutPath = Path.ChangeExtension(path, BonsaiExtension + LayoutExtension);
             if (File.Exists(layoutPath))
             {
-                var layoutSerializer = new XmlSerializer(typeof(VisualizerLayout));
                 var visualizerMap = new Lazy<IDictionary<string, Type>>(() =>
                     TypeVisualizerLoader.GetTypeVisualizerDictionary(packageConfiguration)
                                         .Select(descriptor => descriptor.VisualizerTypeName).Distinct()
@@ -85,7 +84,7 @@ namespace Bonsai
 
                 using (var reader = XmlReader.Create(layoutPath))
                 {
-                    var layout = (VisualizerLayout)layoutSerializer.Deserialize(reader);
+                    var layout = (VisualizerLayout)VisualizerLayout.Serializer.Deserialize(reader);
                     foreach (var settings in GetVisualizerSettings(layout))
                     {
                         Type type;

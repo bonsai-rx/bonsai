@@ -298,8 +298,7 @@ namespace Bonsai
             WorkflowBuilder workflowBuilder;
             using (var reader = XmlReader.Create(fileName))
             {
-                var serializer = new XmlSerializer(typeof(WorkflowBuilder));
-                workflowBuilder = (WorkflowBuilder)serializer.Deserialize(reader);
+                workflowBuilder = (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
             }
 
             foreach (var assignment in propertyAssignments)

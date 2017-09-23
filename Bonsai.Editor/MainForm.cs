@@ -60,8 +60,6 @@ namespace Bonsai.Editor
         object formClosedGate;
         bool formClosed;
 
-        XmlSerializer serializer;
-        XmlSerializer layoutSerializer;
         TypeVisualizerMap typeVisualizers;
         List<WorkflowElementDescriptor> workflowElements;
         WorkflowRuntimeExceptionCache exceptionCache;
@@ -106,8 +104,6 @@ namespace Bonsai.Editor
             editorSite = new EditorSite(this);
             hotKeys = new HotKeyMessageFilter();
             workflowBuilder = new WorkflowBuilder();
-            serializer = new XmlSerializer(typeof(WorkflowBuilder));
-            layoutSerializer = new XmlSerializer(typeof(VisualizerLayout));
             regularFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Regular);
             selectionFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Bold);
             typeVisualizers = new TypeVisualizerMap();
@@ -573,7 +569,7 @@ namespace Bonsai.Editor
                 version = null;
                 reader.MoveToContent();
                 var versionName = reader.GetAttribute(VersionAttributeName);
-                var workflowBuilder = (WorkflowBuilder)serializer.Deserialize(reader);
+                var workflowBuilder = (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
                 var workflow = workflowBuilder.Workflow;
                 if (string.IsNullOrEmpty(versionName) ||
                     !SemanticVersion.TryParse(versionName, out version) ||
@@ -632,7 +628,7 @@ namespace Bonsai.Editor
             {
                 using (var reader = XmlReader.Create(layoutPath))
                 {
-                    try { workflowGraphView.VisualizerLayout = (VisualizerLayout)layoutSerializer.Deserialize(reader); }
+                    try { workflowGraphView.VisualizerLayout = (VisualizerLayout)VisualizerLayout.Serializer.Deserialize(reader); }
                     catch (InvalidOperationException) { }
                 }
             }
@@ -685,12 +681,12 @@ namespace Bonsai.Editor
 
         void SaveWorkflow(string fileName, WorkflowBuilder workflowBuilder)
         {
-            SaveElement(serializer, fileName, workflowBuilder, Resources.SaveWorkflow_Error);
+            SaveElement(WorkflowBuilder.Serializer, fileName, workflowBuilder, Resources.SaveWorkflow_Error);
         }
 
         void SaveVisualizerLayout(string fileName, VisualizerLayout layout)
         {
-            SaveElement(layoutSerializer, fileName, layout, Resources.SaveLayout_Error);
+            SaveElement(VisualizerLayout.Serializer, fileName, layout, Resources.SaveLayout_Error);
         }
 
         void UpdateCurrentDirectory()
@@ -1827,7 +1823,7 @@ namespace Bonsai.Editor
                     var stringBuilder = new StringBuilder();
                     using (var writer = XmlWriter.Create(stringBuilder, new XmlWriterSettings { Indent = true }))
                     {
-                        siteForm.serializer.Serialize(writer, builder);
+                        WorkflowBuilder.Serializer.Serialize(writer, builder);
                     }
 
                     Clipboard.SetText(stringBuilder.ToString());
@@ -1844,9 +1840,9 @@ namespace Bonsai.Editor
                     {
                         try
                         {
-                            if (siteForm.serializer.CanDeserialize(reader))
+                            if (WorkflowBuilder.Serializer.CanDeserialize(reader))
                             {
-                                return (WorkflowBuilder)siteForm.serializer.Deserialize(reader);
+                                return (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
                             }
                         }
                         catch (XmlException) { }

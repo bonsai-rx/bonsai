@@ -62,6 +62,15 @@ namespace Bonsai
             get { return workflow; }
         }
 
+        /// <summary>
+        /// Gets a <see cref="XmlSerializer"/> instance that can be used to serialize
+        /// or deserialize a <see cref="WorkflowBuilder"/>.
+        /// </summary>
+        public static XmlSerializer Serializer
+        {
+            get { return SerializerFactory.instance; }
+        }
+
         #region IXmlSerializable Members
 
         System.Xml.Schema.XmlSchema IXmlSerializable.GetSchema()
@@ -129,6 +138,15 @@ namespace Bonsai
                 writer.WriteElementString(TypeNodeName, type.AssemblyQualifiedName);
             }
             writer.WriteEndElement();
+        }
+
+        #endregion
+
+        #region SerializerFactory
+
+        static class SerializerFactory
+        {
+            internal static readonly XmlSerializer instance = new XmlSerializer(typeof(WorkflowBuilder));
         }
 
         #endregion
