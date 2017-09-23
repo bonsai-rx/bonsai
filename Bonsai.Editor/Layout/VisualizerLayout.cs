@@ -15,5 +15,19 @@ namespace Bonsai.Design
         {
             get { return dialogSettings; }
         }
+
+        public static XmlSerializer Serializer
+        {
+            get { return SerializerFactory.instance; }
+        }
+
+        #region SerializerFactory
+
+        static class SerializerFactory
+        {
+            internal static readonly XmlSerializer instance = new XmlSerializer(typeof(VisualizerLayout));
+        }
+
+        #endregion
     }
 }
