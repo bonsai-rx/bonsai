@@ -93,7 +93,6 @@
     <Compile Include="Expressions\ExternalizedTimeSpan.cs" />
     <Compile Include="Expressions\ExternalizedDateTimeOffset.cs" />
     <Compile Include="Expressions\ExternalizedProperty.cs" />
-    <Compile Include="Expressions\ExternalizedPropertyTypeDescriptionProvider.cs" />
     <Compile Include="Expressions\IExpressionBuilder.cs" />
     <Compile Include="Expressions\IPropertyMappingBuilder.cs" />
     <Compile Include="Expressions\MulticastBuilder.cs" />

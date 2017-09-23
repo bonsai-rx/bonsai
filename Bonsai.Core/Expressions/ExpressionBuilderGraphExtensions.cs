@@ -151,7 +151,7 @@ namespace Bonsai.Expressions
         {
             foreach (var builder in from node in source
                                     let inspectBuilder = node.Value as InspectBuilder
-                                    where inspectBuilder != null
+                                    where inspectBuilder != null && inspectBuilder.ObservableType != null
                                     select inspectBuilder)
             {
                 var inspectBuilder = builder;
@@ -482,6 +482,9 @@ namespace Bonsai.Expressions
                     }
                     return false;
                 });
+
+                // Externalized property nodes do not generate observable sequences
+                if (expression == ExpressionBuilder.EmptyExpression) continue;
 
                 MulticastScope multicastScope = null;
                 var argumentBuilder = workflowElement as IArgumentBuilder;

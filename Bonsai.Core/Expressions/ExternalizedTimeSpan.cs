@@ -13,6 +13,7 @@ namespace Bonsai.Expressions
     /// Represents a <see cref="TimeSpan"/> property that has been externalized
     /// from a workflow element.
     /// </summary>
+    [Obsolete]
     [XmlType(Namespace = Constants.XmlNamespace)]
     public class ExternalizedTimeSpan<TElement> : ExternalizedProperty
     {
@@ -38,16 +39,6 @@ namespace Bonsai.Expressions
         {
             get { return property.ValueXml; }
             set { property.ValueXml = value; }
-        }
-
-        internal override Type ElementType
-        {
-            get { return typeof(TElement); }
-        }
-
-        internal override WorkflowProperty Property
-        {
-            get { return property; }
         }
 
         /// <summary>

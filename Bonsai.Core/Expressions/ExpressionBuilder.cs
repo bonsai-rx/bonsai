@@ -34,11 +34,15 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(WorkflowInputBuilder))]
     [XmlInclude(typeof(WorkflowOutputBuilder))]
     [XmlInclude(typeof(WorkflowExpressionBuilder))]
+    [XmlInclude(typeof(InputMappingBuilder))]
+    [XmlInclude(typeof(PropertyMappingBuilder))]
+    [XmlInclude(typeof(ExternalizedProperty))]
     [XmlType("Expression", Namespace = Constants.XmlNamespace)]
     [TypeConverter("Bonsai.Design.ExpressionBuilderTypeConverter, Bonsai.Design")]
     public abstract class ExpressionBuilder : IExpressionBuilder
     {
         const string ExpressionBuilderSuffix = "Builder";
+        internal static readonly Expression EmptyExpression = Expression.Empty();
 
         /// <summary>
         /// When overridden in a derived class, gets the range of input arguments
@@ -126,19 +130,6 @@ namespace Bonsai.Expressions
             if (expressionType == typeof(TimeSpan)) return typeof(TimeSpanProperty);
             if (expressionType == typeof(DateTimeOffset)) return typeof(DateTimeOffsetProperty);
             return typeof(WorkflowProperty<>).MakeGenericType(expressionType);
-        }
-
-        internal static object GetPropertyMappingElement(ExpressionBuilder builder)
-        {
-            //TODO: The special case for binary operator operands should be avoided in the future
-            var element = ExpressionBuilder.GetWorkflowElement(builder);
-            var binaryOperator = element as BinaryOperatorBuilder;
-            if (binaryOperator != null && binaryOperator.Operand != null)
-            {
-                return binaryOperator.Operand;
-            }
-
-            return element;
         }
 
         /// <summary>
@@ -985,13 +976,14 @@ namespace Bonsai.Expressions
         {
             if (instance.NodeType == ExpressionType.Constant)
             {
-                var workflowBuilder = ((ConstantExpression)instance).Value as WorkflowExpressionBuilder;
+                var element = ((ConstantExpression)instance).Value;
+                var workflowBuilder = element as WorkflowExpressionBuilder;
                 if (workflowBuilder != null)
                 {
                     var inputBuilder = (from node in workflowBuilder.Workflow
                                         let workflowProperty = Unwrap(node.Value) as ExternalizedProperty
                                         where workflowProperty != null && workflowProperty.Name == propertyName
-                                        select workflowProperty).FirstOrDefault();
+                                        select new { node, workflowProperty }).FirstOrDefault();
                     if (inputBuilder == null)
                     {
                         throw new InvalidOperationException(string.Format(
@@ -999,8 +991,19 @@ namespace Bonsai.Expressions
                             propertyName));
                     }
 
-                    var inputExpression = Expression.Constant(inputBuilder);
-                    return BuildPropertyMapping(source, inputExpression, "Value", sourceSelector);
+                    var argument = source;
+                    foreach (var successor in inputBuilder.node.Successors)
+                    {
+                        inputBuilder.workflowProperty.BuildArgument(argument, successor, out argument);
+                    }
+                    return argument;
+                }
+
+                //TODO: The special case for binary operator operands should be avoided in the future
+                var binaryOperator = element as BinaryOperatorBuilder;
+                if (binaryOperator != null && binaryOperator.Operand != null)
+                {
+                    instance = Expression.Constant(binaryOperator.Operand);
                 }
             }
 
