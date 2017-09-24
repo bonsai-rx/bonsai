@@ -85,23 +85,18 @@ namespace Bonsai.Expressions
             }
 
             name = memberChain[memberChain.Length - 1];
-            var property = (from node in source
-                            let workflowProperty = ExpressionBuilder.Unwrap(node.Value) as ExternalizedProperty
-                            where workflowProperty != null && workflowProperty.Name == name
-                            select workflowProperty)
-                            .FirstOrDefault();
-            if (property == null)
+            var propertyDescriptor = TypeDescriptor.GetProperties(source).Find(name, false);
+            if (propertyDescriptor == null)
             {
                 throw new KeyNotFoundException(string.Format(Resources.Exception_PropertyNotFound, name));
             }
 
-            var propertyDescriptor = TypeDescriptor.GetProperties(property).Find("Value", false);
             if (value != null && value.GetType() != propertyDescriptor.PropertyType)
             {
                 value = propertyDescriptor.Converter.ConvertFrom(value);
             }
 
-            propertyDescriptor.SetValue(property, value);
+            propertyDescriptor.SetValue(source, value);
         }
 
         #region Error Handling

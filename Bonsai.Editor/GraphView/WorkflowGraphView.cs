@@ -569,16 +569,6 @@ namespace Bonsai.Design
             return true;
         }
 
-        internal IEnumerable<string> GetExternalizedProperties(GraphNode node)
-        {
-            var target = GetGraphNodeTag(workflow, node, false);
-            var predecessors = workflow.Predecessors(target);
-            return from predecessor in predecessors
-                   let property = ExpressionBuilder.Unwrap(predecessor.Value) as ExternalizedProperty
-                   where property != null
-                   select property.MemberName;
-        }
-
         IEnumerable<PropertyMapping> GetEdgeMappings(Edge<ExpressionBuilder, ExpressionBuilderArgument> edge)
         {
             var mappingBuilder = ExpressionBuilder.Unwrap(edge.Target.Value) as IPropertyMappingBuilder;
