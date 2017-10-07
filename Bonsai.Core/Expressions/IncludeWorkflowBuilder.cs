@@ -82,7 +82,7 @@ namespace Bonsai.Expressions
             set
             {
                 path = value;
-                workflow = null;
+                writeTime = DateTime.MinValue;
                 workflowPath = ResolvePath(path);
             }
         }
@@ -97,23 +97,37 @@ namespace Bonsai.Expressions
             get
             {
                 EnsureWorkflow();
-                return (from property in TypeDescriptor.GetProperties(this).Cast<PropertyDescriptor>()
-                        let externalizedProperty = property as ExternalizedPropertyDescriptor
-                        where externalizedProperty != null && !externalizedProperty.IsReadOnly
-                        select SerializeProperty(externalizedProperty))
-                        .ToArray();
+                return GetXmlProperties();
             }
             set
             {
                 EnsureWorkflow();
-                var properties = (from property in TypeDescriptor.GetProperties(this).Cast<PropertyDescriptor>()
-                                  let externalizedProperty = property as ExternalizedPropertyDescriptor
-                                  where externalizedProperty != null && !externalizedProperty.IsReadOnly
-                                  select externalizedProperty)
-                                  .ToArray();
-                for (int i = 0; i < properties.Length; i++)
+                SetXmlProperties(value);
+            }
+        }
+
+        XmlElement[] GetXmlProperties()
+        {
+            return (from property in TypeDescriptor.GetProperties(this).Cast<PropertyDescriptor>()
+                    let externalizedProperty = property as ExternalizedPropertyDescriptor
+                    where externalizedProperty != null && !externalizedProperty.IsReadOnly
+                    select SerializeProperty(externalizedProperty))
+                    .ToArray();
+        }
+
+        void SetXmlProperties(XmlElement[] xmlProperties)
+        {
+            var properties = (from property in TypeDescriptor.GetProperties(this).Cast<PropertyDescriptor>()
+                              let externalizedProperty = property as ExternalizedPropertyDescriptor
+                              where externalizedProperty != null && !externalizedProperty.IsReadOnly
+                              select externalizedProperty)
+                              .ToDictionary(property => property.Name);
+            for (int i = 0; i < xmlProperties.Length; i++)
+            {
+                ExternalizedPropertyDescriptor property;
+                if (properties.TryGetValue(xmlProperties[i].Name, out property))
                 {
-                    DeserializeProperty(value[i], properties[i]);
+                    DeserializeProperty(xmlProperties[i], property);
                 }
             }
         }
@@ -177,6 +191,7 @@ namespace Bonsai.Expressions
                 var lastWriteTime = File.GetLastWriteTime(path);
                 if (workflow == null || lastWriteTime > writeTime)
                 {
+                    var properties = workflow != null ? GetXmlProperties() : null;
                     using (var reader = XmlReader.Create(path))
                     {
                         var builder = (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
@@ -189,6 +204,11 @@ namespace Bonsai.Expressions
                         if (inspectWorkflow)
                         {
                             workflow = workflow.ToInspectableGraph();
+                        }
+
+                        if (properties != null)
+                        {
+                            SetXmlProperties(properties);
                         }
                     }
                 }
