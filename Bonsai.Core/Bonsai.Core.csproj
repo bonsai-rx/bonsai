@@ -72,6 +72,8 @@
     <Compile Include="Expressions\BitwiseNotBuilder.cs" />
     <Compile Include="Expressions\BinaryOperatorTypeDescriptionProvider.cs" />
     <Compile Include="Expressions\BehaviorSubjectBuilder.cs" />
+    <Compile Include="Expressions\ExternalizedPropertyDescriptor.cs" />
+    <Compile Include="Expressions\IncludeWorkflowBuilder.cs" />
     <Compile Include="Expressions\RightShiftBuilder.cs" />
     <Compile Include="Expressions\LeftShiftBuilder.cs" />
     <Compile Include="Expressions\IRequireSubject.cs" />

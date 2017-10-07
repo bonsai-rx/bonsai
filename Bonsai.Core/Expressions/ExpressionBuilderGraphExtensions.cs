@@ -372,6 +372,41 @@ namespace Bonsai.Expressions
 
         #endregion
 
+        #region Nested Workflows
+
+        internal static IEnumerable<WorkflowInputBuilder> GetNestedParameters(this ExpressionBuilderGraph source)
+        {
+            return from node in source
+                   let inputBuilder = ExpressionBuilder.Unwrap(node.Value) as WorkflowInputBuilder
+                   where inputBuilder != null
+                   orderby inputBuilder.Index ascending
+                   select inputBuilder;
+        }
+
+        internal static IEnumerable<ExternalizedProperty> GetExternalizedProperties(this ExpressionBuilderGraph source)
+        {
+            return from node in source
+                   let externalizedProperty = ExpressionBuilder.Unwrap(node.Value) as ExternalizedProperty
+                   where externalizedProperty != null
+                   select externalizedProperty;
+        }
+
+        internal static Expression BuildNested(this ExpressionBuilderGraph source, IEnumerable<Expression> arguments, BuildContext buildContext)
+        {
+            var parameters = source.GetNestedParameters();
+            foreach (var assignment in parameters.Zip(arguments, (parameter, argument) => new { parameter, argument }))
+            {
+                assignment.parameter.Source = assignment.argument;
+            }
+
+            var nestedContext = new BuildContext(buildContext);
+            var expression = source.Build(nestedContext);
+            if (nestedContext.BuildResult != null) return nestedContext.BuildResult;
+            return expression;
+        }
+
+        #endregion
+
         #region Build Sequence
 
         internal static Expression Build(this ExpressionBuilderGraph source, BuildContext buildContext)
@@ -388,6 +423,18 @@ namespace Bonsai.Expressions
                 Expression expression;
                 var builder = node.Value;
                 var arguments = GetArgumentList(argumentLists, builder);
+
+                // Propagate build target in case of a nested workflow
+                var workflowElement = ExpressionBuilder.Unwrap(builder);
+                var requireBuildContext = workflowElement as IRequireBuildContext;
+                if (requireBuildContext != null)
+                {
+                    try { requireBuildContext.BuildContext = buildContext; }
+                    catch (Exception e)
+                    {
+                        throw new WorkflowBuildException(e.Message, builder, e);
+                    }
+                }
 
                 var argumentRange = builder.ArgumentRange;
                 if (argumentRange == null)
@@ -407,14 +454,6 @@ namespace Bonsai.Expressions
                     throw new WorkflowBuildException(
                         string.Format("Unsupported number of arguments. This node supports at most {0} input connection(s).", argumentRange.LowerBound),
                         builder);
-                }
-
-                // Propagate build target in case of a nested workflow
-                var workflowElement = ExpressionBuilder.Unwrap(builder);
-                var requireBuildContext = workflowElement as IRequireBuildContext;
-                if (requireBuildContext != null)
-                {
-                    requireBuildContext.BuildContext = buildContext;
                 }
 
                 var workflowProperty = workflowElement as ExternalizedProperty;
@@ -682,6 +721,36 @@ namespace Bonsai.Expressions
         }
 
         /// <summary>
+        /// Decorates the specified expression builder with an <see cref="InspectBuilder"/>
+        /// instance allowing for runtime inspection and error redirection.
+        /// </summary>
+        /// <param name="builder">The expression builder instance to decorate.</param>
+        /// <returns>
+        /// An <see cref="InspectBuilder"/> instance decorating the
+        /// specified expression builder.
+        /// </returns>
+        public static InspectBuilder AsInspectBuilder(this ExpressionBuilder builder)
+        {
+            var includeWorkflow = builder as IncludeWorkflowBuilder;
+            if (includeWorkflow != null)
+            {
+                builder = new IncludeWorkflowBuilder(includeWorkflow, true);
+            }
+            return new InspectBuilder(builder);
+        }
+
+        static ExpressionBuilder RemoveInspectBuilder(InspectBuilder inspectBuilder)
+        {
+            var builder = inspectBuilder.Builder;
+            var includeWorkflow = builder as IncludeWorkflowBuilder;
+            if (includeWorkflow != null)
+            {
+                builder = new IncludeWorkflowBuilder(includeWorkflow, false);
+            }
+            return builder;
+        }
+
+        /// <summary>
         /// Converts the specified expression builder workflow into an equivalent representation
         /// where all the nodes are decorated by <see cref="InspectBuilder"/> instances that allow
         /// for runtime inspection and error redirection of workflow values.
@@ -711,7 +780,7 @@ namespace Bonsai.Expressions
         /// </returns>
         public static ExpressionBuilderGraph ToInspectableGraph(this ExpressionBuilderGraph source, bool recurse)
         {
-            return Convert(source, builder => new InspectBuilder(builder), recurse);
+            return Convert(source, builder => AsInspectBuilder(builder), recurse);
         }
 
         /// <summary>
@@ -744,7 +813,7 @@ namespace Bonsai.Expressions
         /// </returns>
         public static ExpressionBuilderGraph FromInspectableGraph(this IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> source, bool recurse)
         {
-            return Convert(source, builder => ((InspectBuilder)builder).Builder, recurse);
+            return Convert(source, builder => RemoveInspectBuilder((InspectBuilder)builder), recurse);
         }
 
         /// <summary>

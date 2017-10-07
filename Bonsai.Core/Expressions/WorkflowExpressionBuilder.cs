@@ -120,7 +120,7 @@ namespace Bonsai.Expressions
         {
             get
             {
-                var parameterCount = GetWorkflowParameters().Count();
+                var parameterCount = workflow.GetNestedParameters().Count();
                 return Range.Create(parameterCount, parameterCount);
             }
         }
@@ -129,15 +129,6 @@ namespace Bonsai.Expressions
         {
             get { return buildContext; }
             set { buildContext = value; }
-        }
-
-        internal IEnumerable<WorkflowInputBuilder> GetWorkflowParameters()
-        {
-            return from node in workflow
-                   let inputBuilder = Unwrap(node.Value) as WorkflowInputBuilder
-                   where inputBuilder != null
-                   orderby inputBuilder.Index ascending
-                   select inputBuilder;
         }
 
         /// <summary>
@@ -162,16 +153,8 @@ namespace Bonsai.Expressions
         protected Expression BuildWorkflow(IEnumerable<Expression> arguments, Expression source, Func<Expression, Expression> selector)
         {
             // Assign sources if available
-            var parameters = GetWorkflowParameters();
             var inputArguments = source != null ? Enumerable.Repeat(source, 1).Concat(arguments.Skip(1)) : arguments;
-            foreach (var assignment in parameters.Zip(inputArguments, (parameter, argument) => new { parameter, argument }))
-            {
-                assignment.parameter.Source = assignment.argument;
-            }
-
-            var nestedContext = new BuildContext(buildContext);
-            var expression = Workflow.Build(nestedContext);
-            if (nestedContext.BuildResult != null) return nestedContext.BuildResult;
+            var expression = workflow.BuildNested(inputArguments, buildContext);
             var output = selector(expression);
 
             var subscriptions = propertyMappings.Select(mapping =>
