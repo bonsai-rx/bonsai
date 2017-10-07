@@ -792,7 +792,7 @@ namespace Bonsai.Design
                 workflowInput.Index = workflow.Count(node => ExpressionBuilder.Unwrap(node.Value) is WorkflowInputBuilder);
             }
 
-            var inspectBuilder = new InspectBuilder(builder);
+            var inspectBuilder = builder.AsInspectBuilder();
             var inspectNode = new Node<ExpressionBuilder, ExpressionBuilderArgument>(inspectBuilder);
             var inspectParameter = new ExpressionBuilderArgument();
             Action addNode = () => { AddWorkflowNode(workflow, inspectNode); };
