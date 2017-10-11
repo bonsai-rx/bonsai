@@ -14,7 +14,27 @@ namespace Bonsai.Expressions
             return true;
         }
 
-        bool GetCallContext(ExpressionBuilderGraph source, ExpressionBuilderGraph target, Stack<ExpressionBuilderGraph> context)
+        static IEnumerable<ExpressionBuilder> SelectContextElements(ExpressionBuilderGraph source)
+        {
+            foreach (var node in source)
+            {
+                var element = ExpressionBuilder.Unwrap(node.Value);
+                yield return element;
+
+                var includeBuilder = element as IncludeWorkflowBuilder;
+                if (includeBuilder != null)
+                {
+                    var workflow = includeBuilder.Workflow;
+                    if (workflow == null) continue;
+                    foreach (var includedElement in SelectContextElements(workflow))
+                    {
+                        yield return includedElement;
+                    }
+                }
+            }
+        }
+
+        static bool GetCallContext(ExpressionBuilderGraph source, ExpressionBuilderGraph target, Stack<ExpressionBuilderGraph> context)
         {
             context.Push(source);
             if (source == target)
@@ -22,9 +42,12 @@ namespace Bonsai.Expressions
                 return true;
             }
 
-            foreach (var node in source)
+            foreach (var element in SelectContextElements(source))
             {
-                var workflowBuilder = ExpressionBuilder.Unwrap(node.Value) as WorkflowExpressionBuilder;
+                var includeBuilder = element as IncludeWorkflowBuilder;
+                if (includeBuilder != null && includeBuilder.Workflow == target) return true;
+
+                var workflowBuilder = element as WorkflowExpressionBuilder;
                 if (workflowBuilder != null)
                 {
                     if (GetCallContext(workflowBuilder.Workflow, target, context))
@@ -50,8 +73,8 @@ namespace Bonsai.Expressions
                     if (GetCallContext(workflowBuilder.Workflow, workflow, callContext))
                     {
                         var names = (from level in callContext
-                                     from node in level
-                                     let subjectBuilder = ExpressionBuilder.Unwrap(node.Value) as SubjectBuilder
+                                     from element in SelectContextElements(level)
+                                     let subjectBuilder = element as SubjectBuilder
                                      where subjectBuilder != null
                                      select subjectBuilder.Name)
                                      .Distinct()

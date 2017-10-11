@@ -20,7 +20,7 @@ namespace Bonsai.Expressions
     [Description("Pushes a sequence of values into a shared subject.")]
     public class MulticastSubjectBuilder : SingleArgumentExpressionBuilder, IRequireSubject
     {
-        BuildContext buildContext;
+        IBuildContext buildContext;
 
         /// <summary>
         /// Gets or sets the name of the shared subject.
@@ -31,7 +31,7 @@ namespace Bonsai.Expressions
         [Description("The name of the shared subject.")]
         public string Name { get; set; }
 
-        BuildContext IRequireBuildContext.BuildContext
+        IBuildContext IRequireBuildContext.BuildContext
         {
             get { return buildContext; }
             set { buildContext = value; }

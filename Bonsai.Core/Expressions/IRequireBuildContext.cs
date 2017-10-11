@@ -8,6 +8,6 @@ namespace Bonsai.Expressions
 {
     interface IRequireBuildContext
     {
-        BuildContext BuildContext { get; set; }
+        IBuildContext BuildContext { get; set; }
     }
 }
