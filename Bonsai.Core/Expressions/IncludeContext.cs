@@ -11,16 +11,23 @@ namespace Bonsai.Expressions
     {
         IBuildContext parent;
         Expression buildResult;
+        string includePath;
 
-        public IncludeContext(IBuildContext parentContext)
+        public IncludeContext(IBuildContext parentContext, string path)
         {
             if (parentContext == null)
             {
                 throw new ArgumentNullException("parentContext");
             }
 
+            includePath = path;
             parent = parentContext;
             BuildTarget = parentContext.BuildTarget;
+        }
+
+        public string Path
+        {
+            get { return includePath; }
         }
 
         public ExpressionBuilder BuildTarget { get; private set; }
@@ -36,6 +43,11 @@ namespace Bonsai.Expressions
                     parent.BuildResult = buildResult;
                 }
             }
+        }
+
+        public IBuildContext ParentContext
+        {
+            get { return parent; }
         }
 
         public ParameterExpression AddVariable(string name, Expression expression)
