@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Expressions
 {
-    class BuildContext
+    class BuildContext : IBuildContext
     {
-        BuildContext parent;
+        IBuildContext parent;
         Expression buildResult;
         Dictionary<string, Variable> variables;
 
@@ -20,7 +20,7 @@ namespace Bonsai.Expressions
             BuildTarget = buildTarget;
         }
 
-        public BuildContext(BuildContext parentContext)
+        public BuildContext(IBuildContext parentContext)
         {
             if (parentContext == null)
             {
@@ -36,7 +36,7 @@ namespace Bonsai.Expressions
         public Expression BuildResult
         {
             get { return buildResult; }
-            internal set
+            set
             {
                 buildResult = value;
                 if (parent != null)

@@ -19,7 +19,7 @@ namespace Bonsai.Expressions
     [Description("Generates a sequence of values by subscribing to a shared subject.")]
     public class SubscribeSubjectBuilder : ZeroArgumentExpressionBuilder, IRequireSubject
     {
-        BuildContext buildContext;
+        IBuildContext buildContext;
 
         /// <summary>
         /// Gets or sets the name of the shared subject.
@@ -30,7 +30,7 @@ namespace Bonsai.Expressions
         [Description("The name of the shared subject.")]
         public string Name { get; set; }
 
-        BuildContext IRequireBuildContext.BuildContext
+        IBuildContext IRequireBuildContext.BuildContext
         {
             get { return buildContext; }
             set { buildContext = value; }

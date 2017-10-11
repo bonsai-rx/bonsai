@@ -22,7 +22,7 @@ namespace Bonsai.Expressions
     [TypeDescriptionProvider(typeof(IncludeWorkflowTypeDescriptionProvider))]
     public sealed class IncludeWorkflowBuilder : VariableArgumentExpressionBuilder, INamedElement, IRequireBuildContext
     {
-        BuildContext buildContext;
+        IBuildContext buildContext;
         ExpressionBuilderGraph workflow;
         readonly bool inspectWorkflow;
         DateTime writeTime;
@@ -54,12 +54,23 @@ namespace Bonsai.Expressions
             workflowPath = builder.workflowPath;
         }
 
+        /// <summary>
+        /// Gets the expression builder workflow that will be used to generate the
+        /// output expression tree.
+        /// </summary>
+        [XmlIgnore]
+        [Browsable(false)]
+        public ExpressionBuilderGraph Workflow
+        {
+            get { return workflow; }
+        }
+
         string INamedElement.Name
         {
             get { return workflow != null ? name : null; }
         }
 
-        BuildContext IRequireBuildContext.BuildContext
+        IBuildContext IRequireBuildContext.BuildContext
         {
             get { return buildContext; }
             set
@@ -234,7 +245,8 @@ namespace Bonsai.Expressions
                 else throw new InvalidOperationException("The specified workflow could not be found.");
             }
 
-            return workflow.BuildNested(arguments, buildContext);
+            var includeContext = new IncludeContext(buildContext);
+            return workflow.BuildNested(arguments, includeContext);
         }
 
         class IncludeWorkflowTypeDescriptionProvider : TypeDescriptionProvider

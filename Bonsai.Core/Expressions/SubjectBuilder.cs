@@ -19,7 +19,7 @@ namespace Bonsai.Expressions
     [XmlType("Subject", Namespace = Constants.XmlNamespace)]
     public abstract class SubjectBuilder : SingleArgumentExpressionBuilder, INamedElement, IRequireBuildContext
     {
-        BuildContext buildContext;
+        IBuildContext buildContext;
 
         /// <summary>
         /// Gets or sets the name of the shared subject.
@@ -29,7 +29,7 @@ namespace Bonsai.Expressions
         [Description("The name of the shared subject.")]
         public string Name { get; set; }
 
-        BuildContext IRequireBuildContext.BuildContext
+        IBuildContext IRequireBuildContext.BuildContext
         {
             get { return buildContext; }
             set { buildContext = value; }

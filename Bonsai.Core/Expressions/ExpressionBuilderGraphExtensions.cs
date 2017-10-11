@@ -303,12 +303,44 @@ namespace Bonsai.Expressions
             return dependency;
         }
 
+        struct DependencyElement
+        {
+            public ExpressionBuilder Element;
+            public Node<ExpressionBuilder, ExpressionBuilderArgument> Node;
+
+            public DependencyElement(ExpressionBuilder element, Node<ExpressionBuilder, ExpressionBuilderArgument> node)
+            {
+                Element = element;
+                Node = node;
+            }
+        }
+
+        static IEnumerable<DependencyElement> SelectDependencyElements(ExpressionBuilderGraph source)
+        {
+            foreach (var node in source)
+            {
+                var element = ExpressionBuilder.Unwrap(node.Value);
+                var includeBuilder = element as IncludeWorkflowBuilder;
+                if (includeBuilder != null)
+                {
+                    var workflow = includeBuilder.Workflow;
+                    if (workflow == null) continue;
+                    foreach (var dependencyElement in SelectDependencyElements(workflow))
+                    {
+                        yield return new DependencyElement(dependencyElement.Element, node);
+                    }
+                }
+                else yield return new DependencyElement(element, node);
+            }
+        }
+
         static IEnumerable<DependencyLink> FindBuildDependencies(ExpressionBuilderGraph source)
         {
             Dictionary<string, DependencyNode> dependencies = null;
-            foreach (var node in source)
+            foreach (var dependencyElement in SelectDependencyElements(source))
             {
-                var workflowElement = ExpressionBuilder.Unwrap(node.Value);
+                var node = dependencyElement.Node;
+                var workflowElement = dependencyElement.Element;
                 var subjectBuilder = workflowElement as SubjectBuilder;
                 if (subjectBuilder != null && !string.IsNullOrEmpty(subjectBuilder.Name))
                 {
@@ -391,7 +423,7 @@ namespace Bonsai.Expressions
                    select externalizedProperty;
         }
 
-        internal static Expression BuildNested(this ExpressionBuilderGraph source, IEnumerable<Expression> arguments, BuildContext buildContext)
+        internal static Expression BuildNested(this ExpressionBuilderGraph source, IEnumerable<Expression> arguments, IBuildContext buildContext)
         {
             var parameters = source.GetNestedParameters();
             foreach (var assignment in parameters.Zip(arguments, (parameter, argument) => new { parameter, argument }))
@@ -399,9 +431,8 @@ namespace Bonsai.Expressions
                 assignment.parameter.Source = assignment.argument;
             }
 
-            var nestedContext = new BuildContext(buildContext);
-            var expression = source.Build(nestedContext);
-            if (nestedContext.BuildResult != null) return nestedContext.BuildResult;
+            var expression = source.Build(buildContext);
+            if (buildContext.BuildResult != null) return buildContext.BuildResult;
             return expression;
         }
 
@@ -409,7 +440,7 @@ namespace Bonsai.Expressions
 
         #region Build Sequence
 
-        internal static Expression Build(this ExpressionBuilderGraph source, BuildContext buildContext)
+        internal static Expression Build(this ExpressionBuilderGraph source, IBuildContext buildContext)
         {
             Expression workflowOutput = null;
             HashSet<string> namedElements = null;
