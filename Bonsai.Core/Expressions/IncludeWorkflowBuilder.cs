@@ -22,6 +22,9 @@ namespace Bonsai.Expressions
     [TypeDescriptionProvider(typeof(IncludeWorkflowTypeDescriptionProvider))]
     public sealed class IncludeWorkflowBuilder : VariableArgumentExpressionBuilder, INamedElement, IRequireBuildContext
     {
+        static readonly XmlElement[] EmptyProperties = new XmlElement[0];
+        XmlElement[] xmlProperties;
+
         IBuildContext buildContext;
         ExpressionBuilderGraph workflow;
         readonly bool inspectWorkflow;
@@ -52,6 +55,7 @@ namespace Bonsai.Expressions
             name = builder.name;
             path = builder.path;
             workflowPath = builder.workflowPath;
+            xmlProperties = builder.xmlProperties;
         }
 
         /// <summary>
@@ -67,7 +71,7 @@ namespace Bonsai.Expressions
 
         string INamedElement.Name
         {
-            get { return workflow != null ? name : null; }
+            get { return name; }
         }
 
         IBuildContext IRequireBuildContext.BuildContext
@@ -75,8 +79,9 @@ namespace Bonsai.Expressions
             get { return buildContext; }
             set
             {
-                EnsureWorkflow();
                 buildContext = value;
+                EnsureWorkflow();
+                xmlProperties = null;
             }
         }
 
@@ -95,6 +100,7 @@ namespace Bonsai.Expressions
                 path = value;
                 writeTime = DateTime.MinValue;
                 workflowPath = ResolvePath(path);
+                name = SystemPath.GetFileNameWithoutExtension(workflowPath);
             }
         }
 
@@ -107,14 +113,14 @@ namespace Bonsai.Expressions
         {
             get
             {
-                EnsureWorkflow();
-                return GetXmlProperties();
+                if (xmlProperties != null) return xmlProperties;
+                else if (workflow != null)
+                {
+                    return GetXmlProperties();
+                }
+                else return EmptyProperties;
             }
-            set
-            {
-                EnsureWorkflow();
-                SetXmlProperties(value);
-            }
+            set { xmlProperties = value; }
         }
 
         XmlElement[] GetXmlProperties()
@@ -192,6 +198,19 @@ namespace Bonsai.Expressions
         void EnsureWorkflow()
         {
             var path = workflowPath;
+            var context = buildContext;
+            while (context != null)
+            {
+                var includeContext = context as IncludeContext;
+                if (includeContext != null && includeContext.Path == path)
+                {
+                    var message = string.Format("Included workflow '{0}' includes itself.", path);
+                    throw new InvalidOperationException(message);
+                }
+
+                context = context.ParentContext;
+            }
+
             if (string.IsNullOrEmpty(path) || !File.Exists(path))
             {
                 workflow = null;
@@ -202,11 +221,10 @@ namespace Bonsai.Expressions
                 var lastWriteTime = File.GetLastWriteTime(path);
                 if (workflow == null || lastWriteTime > writeTime)
                 {
-                    var properties = workflow != null ? GetXmlProperties() : null;
+                    var properties = workflow != null ? GetXmlProperties() : xmlProperties;
                     using (var reader = XmlReader.Create(path))
                     {
                         var builder = (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
-                        name = SystemPath.GetFileNameWithoutExtension(path);
                         workflow = builder.Workflow;
                         writeTime = lastWriteTime;
 
@@ -245,7 +263,7 @@ namespace Bonsai.Expressions
                 else throw new InvalidOperationException("The specified workflow could not be found.");
             }
 
-            var includeContext = new IncludeContext(buildContext);
+            var includeContext = new IncludeContext(buildContext, workflowPath);
             return workflow.BuildNested(arguments, includeContext);
         }
 

@@ -46,6 +46,11 @@ namespace Bonsai.Expressions
             }
         }
 
+        public IBuildContext ParentContext
+        {
+            get { return parent; }
+        }
+
         public ParameterExpression AddVariable(string name, Expression expression)
         {
             if (variables == null)
