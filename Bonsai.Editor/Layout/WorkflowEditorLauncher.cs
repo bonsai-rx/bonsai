@@ -104,6 +104,8 @@ namespace Bonsai.Design
             workflowGraphView.ResumeLayout(false);
             visualizerDialog.Padding = new Padding(10);
             visualizerDialog.AddControl(workflowGraphView);
+            visualizerDialog.Icon = Bonsai.Editor.Properties.Resources.Icon;
+            visualizerDialog.ShowIcon = true;
         }
     }
 }
