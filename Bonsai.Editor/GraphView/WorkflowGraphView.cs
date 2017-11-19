@@ -1349,7 +1349,8 @@ namespace Bonsai.Design
             var writerException = ex.InnerException as InvalidOperationException;
             if (writerException != null) ex = writerException;
 
-            uiService.ShowError(ex.InnerException, message);
+            var errorMessage = string.Format(message, ex.InnerException != null ? ex.InnerException.Message : ex.Message);
+            uiService.ShowError(errorMessage);
         }
 
         public void CutToClipboard()
