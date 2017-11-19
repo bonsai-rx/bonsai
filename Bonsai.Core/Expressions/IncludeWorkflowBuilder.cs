@@ -16,6 +16,7 @@ namespace Bonsai.Expressions
     /// Represents an expression builder that uses an encapsulated workflow stored
     /// externally to generate its output.
     /// </summary>
+    [DefaultProperty("Path")]
     [WorkflowElementCategory(ElementCategory.Nested)]
     [XmlType("IncludeWorkflow", Namespace = Constants.XmlNamespace)]
     [Description("Includes an encapsulated workflow from the specified path.")]
