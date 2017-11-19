@@ -14,6 +14,7 @@ namespace Bonsai.Design
     {
         bool userClosing;
         WorkflowExpressionBuilder builder;
+        WorkflowEditorControl workflowEditor;
         WorkflowGraphView workflowGraphView;
         Func<WorkflowGraphView> parentSelector;
 
@@ -92,18 +93,19 @@ namespace Bonsai.Design
                 }
             };
 
-            workflowGraphView = new WorkflowGraphView(provider);
-            workflowGraphView.SuspendLayout();
+            workflowEditor = new WorkflowEditorControl(provider);
+            workflowEditor.SuspendLayout();
+            workflowEditor.Font = ParentView.Font;
+            workflowEditor.Dock = DockStyle.Fill;
+            workflowEditor.Size = new Size(300, 200);
+            workflowEditor.AutoScaleDimensions = new SizeF(6F, 13F);
+            workflowEditor.Workflow = builder.Workflow;
+            workflowEditor.VisualizerLayout = VisualizerLayout;
+
+            workflowGraphView = workflowEditor.WorkflowGraphView;
             workflowGraphView.Launcher = this;
-            workflowGraphView.Font = ParentView.Font;
-            workflowGraphView.Dock = DockStyle.Fill;
-            workflowGraphView.AutoScaleDimensions = new SizeF(6F, 13F);
-            workflowGraphView.Size = new Size(300, 200);
-            workflowGraphView.Workflow = builder.Workflow;
-            workflowGraphView.VisualizerLayout = VisualizerLayout;
-            workflowGraphView.ResumeLayout(false);
-            visualizerDialog.Padding = new Padding(10);
-            visualizerDialog.AddControl(workflowGraphView);
+            workflowEditor.ResumeLayout(false);
+            visualizerDialog.AddControl(workflowEditor);
             visualizerDialog.Icon = Bonsai.Editor.Properties.Resources.Icon;
             visualizerDialog.ShowIcon = true;
         }

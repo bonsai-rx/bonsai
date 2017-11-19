@@ -46,6 +46,7 @@ namespace Bonsai.Design
         bool editorLaunching;
         bool isContextMenuSource;
         GraphNode dragHighlight;
+        WorkflowEditorControl editorControl;
         IEnumerable<GraphNode> dragSelection;
         CommandExecutor commandExecutor;
         ExpressionBuilderGraph workflow;
@@ -62,6 +63,11 @@ namespace Bonsai.Design
         SizeF scaleFactor;
 
         public WorkflowGraphView(IServiceProvider provider)
+            : this(provider, null)
+        {
+        }
+
+        public WorkflowGraphView(IServiceProvider provider, WorkflowEditorControl owner)
         {
             if (provider == null)
             {
@@ -69,6 +75,7 @@ namespace Bonsai.Design
             }
 
             InitializeComponent();
+            editorControl = owner;
             serviceProvider = provider;
             uiService = (IUIService)provider.GetService(typeof(IUIService));
             commandExecutor = (CommandExecutor)provider.GetService(typeof(CommandExecutor));
@@ -1427,11 +1434,11 @@ namespace Bonsai.Design
             return false;
         }
 
-        public void LaunchDefaultEditor(GraphNode node)
+        private void LaunchDefaultEditor(GraphNode node)
         {
             var builder = GetGraphNodeBuilder(node);
-            var workflowExpressionBuilder = builder as WorkflowExpressionBuilder;
-            if (workflowExpressionBuilder != null) LaunchWorkflowView(node);
+            if (builder is IncludeWorkflowBuilder) LaunchEditorTab(node);
+            else if (builder is WorkflowExpressionBuilder) LaunchWorkflowView(node);
             else if (builder != null)
             {
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
@@ -1476,7 +1483,7 @@ namespace Bonsai.Design
             }
         }
 
-        public void LaunchVisualizer(GraphNode node)
+        private void LaunchVisualizer(GraphNode node)
         {
             var visualizerLauncher = GetVisualizerDialogLauncher(node);
             if (visualizerLauncher != null)
@@ -1485,12 +1492,19 @@ namespace Bonsai.Design
             }
         }
 
+        private void LaunchEditorTab(GraphNode node)
+        {
+            var includeBuilder = GetGraphNodeBuilder(node) as IncludeWorkflowBuilder;
+            if (includeBuilder == null || editorControl == null) return;
+            editorControl.OpenWorkflow(includeBuilder);
+        }
+
         public void LaunchWorkflowView(GraphNode node, bool activate = true)
         {
             LaunchWorkflowView(node, null, Rectangle.Empty, activate);
         }
 
-        public void LaunchWorkflowView(GraphNode node, VisualizerLayout editorLayout, Rectangle bounds, bool activate)
+        private void LaunchWorkflowView(GraphNode node, VisualizerLayout editorLayout, Rectangle bounds, bool activate)
         {
             var workflowExpressionBuilder = GetGraphNodeBuilder(node) as WorkflowExpressionBuilder;
             if (workflowExpressionBuilder == null || editorLaunching) return;
@@ -1591,7 +1605,7 @@ namespace Bonsai.Design
                 : null;
         }
 
-        public VisualizerDialogSettings CreateLayoutSettings(ExpressionBuilder builder)
+        private VisualizerDialogSettings CreateLayoutSettings(ExpressionBuilder builder)
         {
             VisualizerDialogSettings dialogSettings;
             WorkflowEditorLauncher editorLauncher;
