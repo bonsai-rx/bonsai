@@ -641,12 +641,11 @@ namespace Bonsai.Editor
             ResetProjectStatus();
             UpdateTitle();
 
-            editorSite.ValidateWorkflow();
             if (setWorkingDirectory || string.IsNullOrEmpty(directoryToolStripTextBox.Text))
             {
                 directoryToolStripTextBox.Text = workflowDirectory;
             }
-
+            editorSite.ValidateWorkflow();
             return true;
         }
 
