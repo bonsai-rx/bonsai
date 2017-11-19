@@ -90,11 +90,21 @@
     <Compile Include="CueBannerTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="GraphView\WorkflowEditorControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="GraphView\WorkflowEditorControl.Designer.cs">
+      <DependentUpon>WorkflowEditorControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="EditorResult.cs" />
+    <Compile Include="GraphView\WorkflowEditorTabControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="GraphView\GraphViewTextDrawMode.cs" />
     <Compile Include="GraphView\DeferredGraphics.cs" />
     <Compile Include="GraphView\WorkflowGraphViewEditorService.cs" />
     <Compile Include="HotKeyMessageFilter.cs" />
+    <Compile Include="GraphView\IWorkflowEditorView.cs" />
     <Compile Include="IWorkflowEditorService.cs" />
     <Compile Include="IWorkflowToolboxService.cs" />
     <Compile Include="Layout\DialogLauncher.cs" />
@@ -151,6 +161,9 @@
     <Compile Include="UpgradeHelper.cs" />
     <EmbeddedResource Include="AboutBox.resx">
       <DependentUpon>AboutBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GraphView\WorkflowEditorControl.resx">
+      <DependentUpon>WorkflowEditorControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="GraphView\WorkflowGraphView.resx">
       <DependentUpon>WorkflowGraphView.cs</DependentUpon>

@@ -50,8 +50,8 @@ namespace Bonsai.Editor
         Font selectionFont;
         EditorSite editorSite;
         HotKeyMessageFilter hotKeys;
+        WorkflowEditorControl editorControl;
         WorkflowBuilder workflowBuilder;
-        WorkflowGraphView workflowGraphView;
         WorkflowSelectionModel selectionModel;
         Dictionary<string, string> propertyAssignments;
         Dictionary<string, TreeNode> toolboxCategories;
@@ -116,16 +116,14 @@ namespace Bonsai.Editor
             typeDescriptorCache = new HashSet<Module>();
             selectionModel = new WorkflowSelectionModel();
             propertyAssignments = new Dictionary<string, string>();
-            workflowGraphView = new WorkflowGraphView(editorSite);
-            workflowGraphView.Workflow = workflowBuilder.Workflow;
-            workflowGraphView.Dock = DockStyle.Fill;
-            workflowGroupBox.Controls.Add(workflowGraphView);
+            editorControl = new WorkflowEditorControl(editorSite);
+            editorControl.Workflow = workflowBuilder.Workflow;
+            editorControl.Dock = DockStyle.Fill;
+            workflowSplitContainer.Panel1.Controls.Add(editorControl);
             propertyGrid.LineColor = SystemColors.InactiveBorder;
             propertyGrid.Site = editorSite;
 
-            selectionModel.UpdateSelection(workflowGraphView);
             selectionModel.SelectionChanged += new EventHandler(selectionModel_SelectionChanged);
-
             toolboxElements = elementProvider;
             visualizerElements = visualizerProvider;
             Application.AddMessageFilter(hotKeys);
@@ -625,13 +623,13 @@ namespace Bonsai.Editor
             }
 
             var layoutPath = GetLayoutPath(fileName);
-            workflowGraphView.VisualizerLayout = null;
-            workflowGraphView.Workflow = workflowBuilder.Workflow;
+            editorControl.VisualizerLayout = null;
+            editorControl.Workflow = workflowBuilder.Workflow;
             if (File.Exists(layoutPath))
             {
                 using (var reader = XmlReader.Create(layoutPath))
                 {
-                    try { workflowGraphView.VisualizerLayout = (VisualizerLayout)VisualizerLayout.Serializer.Deserialize(reader); }
+                    try { editorControl.VisualizerLayout = (VisualizerLayout)VisualizerLayout.Serializer.Deserialize(reader); }
                     catch (InvalidOperationException) { }
                 }
             }
@@ -738,8 +736,8 @@ namespace Bonsai.Editor
 
             saveWorkflowDialog.FileName = null;
             workflowBuilder.Workflow.Clear();
-            workflowGraphView.VisualizerLayout = null;
-            workflowGraphView.Workflow = workflowBuilder.Workflow;
+            editorControl.VisualizerLayout = null;
+            editorControl.Workflow = workflowBuilder.Workflow;
             ResetProjectStatus();
             UpdateTitle();
         }
@@ -763,11 +761,11 @@ namespace Bonsai.Editor
                 SaveWorkflow(saveWorkflowDialog.FileName, serializerWorkflowBuilder);
                 saveVersion = version;
 
-                workflowGraphView.UpdateVisualizerLayout();
-                if (workflowGraphView.VisualizerLayout != null)
+                editorControl.UpdateVisualizerLayout();
+                if (editorControl.VisualizerLayout != null)
                 {
                     var layoutPath = GetLayoutPath(saveWorkflowDialog.FileName);
-                    SaveVisualizerLayout(layoutPath, workflowGraphView.VisualizerLayout);
+                    SaveVisualizerLayout(layoutPath, editorControl.VisualizerLayout);
                 }
 
                 if (string.IsNullOrEmpty(directoryToolStripTextBox.Text))
@@ -909,7 +907,7 @@ namespace Bonsai.Editor
 
                 running = null;
                 building = false;
-                workflowGraphView.UpdateVisualizerLayout();
+                editorControl.UpdateVisualizerLayout();
                 UpdateTitle();
             }));
         }
@@ -1002,7 +1000,7 @@ namespace Bonsai.Editor
         {
             if (workflowError != null)
             {
-                ClearExceptionBuilderNode(workflowGraphView, workflowError);
+                ClearExceptionBuilderNode(editorControl.WorkflowGraphView, workflowError);
             }
 
             exceptionCache.Clear();
@@ -1013,7 +1011,7 @@ namespace Bonsai.Editor
         {
             if (workflowError != null)
             {
-                HighlightExceptionBuilderNode(workflowGraphView, workflowError, false);
+                HighlightExceptionBuilderNode(editorControl.WorkflowGraphView, workflowError, false);
             }
         }
 
@@ -1115,7 +1113,7 @@ namespace Bonsai.Editor
                 if (workflowException != null || exceptionCache.TryGetValue(e, out workflowException))
                 {
                     workflowError = workflowException;
-                    HighlightExceptionBuilderNode(workflowGraphView, workflowException, building);
+                    HighlightExceptionBuilderNode(editorControl.WorkflowGraphView, workflowException, building);
                 }
                 else editorSite.ShowError(e.Message, Name);
             };
@@ -1185,7 +1183,7 @@ namespace Bonsai.Editor
 
         protected override void OnDeactivate(EventArgs e)
         {
-            if (workflowGraphView.Focused)
+            if (editorControl.Focused)
             {
                 ActiveControl = propertyGrid;
             }
@@ -1765,7 +1763,7 @@ namespace Bonsai.Editor
 
             public void OnKeyPress(KeyPressEventArgs e)
             {
-                var model = siteForm.selectionModel.SelectedView ?? siteForm.workflowGraphView;
+                var model = siteForm.selectionModel.SelectedView ?? siteForm.editorControl.WorkflowGraphView;
                 if (!WorkflowRunning && model.GraphView.Focused)
                 {
                     if (char.IsLetter(e.KeyChar))
