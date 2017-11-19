@@ -1973,7 +1973,7 @@ namespace Bonsai.Editor
 
             public void ShowError(string message)
             {
-                ShowError(message, siteForm.Name);
+                ShowError(message, Resources.Editor_Error_Caption);
             }
 
             public void ShowError(string message, string caption)
