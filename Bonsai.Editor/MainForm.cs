@@ -29,6 +29,8 @@ namespace Bonsai.Editor
 {
     public partial class MainForm : Form
     {
+        const int CycleNextHotKey = 0;
+        const int CyclePreviousHotKey = 1;
         const string BonsaiExtension = ".bonsai";
         const string LayoutExtension = ".layout";
         const string BonsaiPackageName = "Bonsai";
@@ -36,8 +38,11 @@ namespace Bonsai.Editor
         const string SnippetCategoryName = "Workflow";
         const string VersionAttributeName = "Version";
         const string DefaultSnippetNamespace = "Unspecified";
-        const int CycleNextHotKey = 0;
-        const int CyclePreviousHotKey = 1;
+        static readonly XmlWriterSettings DefaultWriterSettings = new XmlWriterSettings
+        {
+            NamespaceHandling = NamespaceHandling.OmitDuplicates,
+            Indent = true
+        };
 
         int version;
         int saveVersion;
@@ -652,7 +657,7 @@ namespace Bonsai.Editor
             try
             {
                 using (var memoryStream = new MemoryStream())
-                using (var writer = XmlWriter.Create(memoryStream, new XmlWriterSettings { Indent = true }))
+                using (var writer = XmlWriter.Create(memoryStream, DefaultWriterSettings))
                 {
                     serializer.Serialize(writer, o);
                     using (var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
@@ -1794,7 +1799,7 @@ namespace Bonsai.Editor
                 if (builder.Workflow.Count > 0)
                 {
                     var stringBuilder = new StringBuilder();
-                    using (var writer = XmlWriter.Create(stringBuilder, new XmlWriterSettings { Indent = true }))
+                    using (var writer = XmlWriter.Create(stringBuilder, DefaultWriterSettings))
                     {
                         WorkflowBuilder.Serializer.Serialize(writer, builder);
                     }
