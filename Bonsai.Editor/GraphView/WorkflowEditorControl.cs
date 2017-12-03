@@ -37,7 +37,7 @@ namespace Bonsai.Design
             serviceProvider = provider;
             selectionModel = (WorkflowSelectionModel)provider.GetService(typeof(WorkflowSelectionModel));
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
-            InitializeTabPage(workflowTabPage, readOnly);
+            InitializeTabState(workflowTabPage, readOnly);
             workflowTab = (TabPageController)workflowTabPage.Tag;
         }
 
@@ -81,7 +81,7 @@ namespace Bonsai.Design
         {
         }
 
-        void InitializeTabPage(TabPage tabPage, bool readOnly)
+        TabPageController InitializeTabState(TabPage tabPage, bool readOnly)
         {
             var workflowGraphView = new WorkflowGraphView(serviceProvider, this, readOnly);
             workflowGraphView.AutoScaleDimensions = new SizeF(6F, 13F);
@@ -95,23 +95,43 @@ namespace Bonsai.Design
             tabPage.BackColor = workflowGraphView.BackColor;
             tabPage.ResumeLayout(false);
             tabPage.PerformLayout();
+            return tabState;
         }
 
         public void OpenWorkflow(IncludeWorkflowBuilder builder)
         {
-            var name = ExpressionBuilder.GetElementDisplayName(builder);
-            var tabPage = CreateTabPage(name);
-            var tabState = (TabPageController)tabPage.Tag;
-            tabState.WorkflowGraphView.Workflow = builder.Workflow;
+            var tabPage = FindTabPage(builder);
+            if (tabPage == null)
+            {
+                tabPage = CreateTabPage(builder);
+            }
+
             tabControl.SelectTab(tabPage);
         }
 
-        TabPage CreateTabPage(string text)
+        TabPage FindTabPage(IncludeWorkflowBuilder builder)
         {
-            var tabPage = new TabPage(text);
+            foreach (TabPage tabPage in tabControl.TabPages)
+            {
+                var tabState = (TabPageController)tabPage.Tag;
+                if (tabState.Builder == builder)
+                {
+                    return tabPage;
+                }
+            }
+
+            return null;
+        }
+
+        TabPage CreateTabPage(IncludeWorkflowBuilder builder)
+        {
+            var name = ExpressionBuilder.GetElementDisplayName(builder);
+            var tabPage = new TabPage(name);
             tabPage.Padding = workflowTabPage.Padding;
             tabPage.UseVisualStyleBackColor = workflowTabPage.UseVisualStyleBackColor;
-            InitializeTabPage(tabPage, true);
+            var tabState = InitializeTabState(tabPage, true);
+            tabState.WorkflowGraphView.Workflow = builder.Workflow;
+            tabState.Builder = builder;
             tabControl.TabPages.Add(tabPage);
             return tabPage;
         }
@@ -164,6 +184,8 @@ namespace Bonsai.Design
             }
 
             public TabPage TabPage { get; private set; }
+
+            public IncludeWorkflowBuilder Builder { get; set; }
 
             public WorkflowGraphView WorkflowGraphView { get; private set; }
 
