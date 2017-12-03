@@ -45,6 +45,7 @@ namespace Bonsai.Design
         int dragKeyState;
         bool editorLaunching;
         bool isContextMenuSource;
+        readonly bool editorReadOnly;
         GraphNode dragHighlight;
         WorkflowEditorControl editorControl;
         IEnumerable<GraphNode> dragSelection;
@@ -63,11 +64,11 @@ namespace Bonsai.Design
         SizeF scaleFactor;
 
         public WorkflowGraphView(IServiceProvider provider)
-            : this(provider, null)
+            : this(provider, null, false)
         {
         }
 
-        public WorkflowGraphView(IServiceProvider provider, WorkflowEditorControl owner)
+        public WorkflowGraphView(IServiceProvider provider, WorkflowEditorControl owner, bool readOnly)
         {
             if (provider == null)
             {
@@ -77,6 +78,7 @@ namespace Bonsai.Design
             InitializeComponent();
             editorControl = owner;
             serviceProvider = provider;
+            editorReadOnly = readOnly;
             uiService = (IUIService)provider.GetService(typeof(IUIService));
             commandExecutor = (CommandExecutor)provider.GetService(typeof(CommandExecutor));
             selectionModel = (WorkflowSelectionModel)provider.GetService(typeof(WorkflowSelectionModel));
@@ -90,6 +92,11 @@ namespace Bonsai.Design
         }
 
         internal WorkflowEditorLauncher Launcher { get; set; }
+
+        internal bool ReadOnly
+        {
+            get { return editorReadOnly || editorState.WorkflowRunning; }
+        }
 
         public GraphView GraphView
         {
@@ -1834,7 +1841,7 @@ namespace Bonsai.Design
 
         private void graphView_DragEnter(object sender, DragEventArgs e)
         {
-            if (editorState.WorkflowRunning) return;
+            if (ReadOnly) return;
             dragKeyState = e.KeyState;
             if (e.Data.GetDataPresent(typeof(TreeNode)))
             {
@@ -1877,7 +1884,7 @@ namespace Bonsai.Design
         private void graphView_DragOver(object sender, DragEventArgs e)
         {
             EnsureDragVisible(e);
-            if (editorState.WorkflowRunning) return;
+            if (ReadOnly) return;
             if (e.Effect != DragDropEffects.None && e.Data.GetDataPresent(DataFormats.FileDrop, true))
             {
                 OnDragFileDrop(e);
@@ -2045,7 +2052,7 @@ namespace Bonsai.Design
                 }
             }
 
-            if (!editorState.WorkflowRunning)
+            if (!ReadOnly)
             {
                 if (e.KeyCode == Keys.Delete)
                 {
@@ -2489,7 +2496,7 @@ namespace Bonsai.Design
                 saveSnippetAsToolStripMenuItem.Enabled = true;
             }
 
-            if (!editorState.WorkflowRunning)
+            if (!ReadOnly)
             {
                 pasteToolStripMenuItem.Enabled = true;
                 if (selectedNodes.Length > 0)
@@ -2510,7 +2517,7 @@ namespace Bonsai.Design
                 var inspectBuilder = (InspectBuilder)selectedNode.Value;
                 if (inspectBuilder != null && inspectBuilder.ObservableType != null)
                 {
-                    outputToolStripMenuItem.Enabled = !editorState.WorkflowRunning;
+                    outputToolStripMenuItem.Enabled = !ReadOnly;
                     InitializeOutputMenuItem(outputToolStripMenuItem, ExpressionBuilderArgument.ArgumentNamePrefix, inspectBuilder.ObservableType);
                     if (outputToolStripMenuItem.Enabled)
                     {
@@ -2524,7 +2531,7 @@ namespace Bonsai.Design
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
                 if (workflowElement != null)
                 {
-                    if (!editorState.WorkflowRunning)
+                    if (!ReadOnly)
                     {
                         CreateExternalizeMenuItems(workflowElement, externalizeToolStripMenuItem, selectedNode);
                     }

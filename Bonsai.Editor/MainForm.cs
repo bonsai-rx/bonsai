@@ -1375,6 +1375,8 @@ namespace Bonsai.Editor
             const string ErrorCaption = "Type Error";
             const string ErrorMessage = "Failed to create {0}:\n{1}";
             var model = selectionModel.SelectedView;
+            if (model.ReadOnly) return;
+
             var branch = modifiers.HasFlag(WorkflowGraphView.BranchModifier);
             var predecessor = modifiers.HasFlag(WorkflowGraphView.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
             try { model.CreateGraphNode(typeNode, selectionModel.SelectedNodes.FirstOrDefault(), predecessor, branch); }
@@ -1422,7 +1424,6 @@ namespace Bonsai.Editor
         private void toolboxTreeView_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Return &&
-                !editorSite.WorkflowRunning &&
                 toolboxTreeView.SelectedNode != null &&
                 toolboxTreeView.SelectedNode.Tag != null)
             {
@@ -1435,7 +1436,7 @@ namespace Bonsai.Editor
 
         private void toolboxTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Button == MouseButtons.Left && e.Node.Tag != null && !editorSite.WorkflowRunning)
+            if (e.Button == MouseButtons.Left && e.Node.Tag != null)
             {
                 var typeNode = e.Node;
                 CreateGraphNode(typeNode, Control.ModifierKeys);
@@ -1763,7 +1764,7 @@ namespace Bonsai.Editor
             public void OnKeyPress(KeyPressEventArgs e)
             {
                 var model = siteForm.selectionModel.SelectedView ?? siteForm.editorControl.WorkflowGraphView;
-                if (!WorkflowRunning && model.GraphView.Focused)
+                if (!model.ReadOnly && model.GraphView.Focused)
                 {
                     if (char.IsLetter(e.KeyChar))
                     {
