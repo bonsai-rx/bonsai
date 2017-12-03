@@ -2498,7 +2498,12 @@ namespace Bonsai.Design
             }
 
             var selectedNodes = selectionModel.SelectedNodes.ToArray();
-            if (selectedNodes.Length > 0) copyToolStripMenuItem.Enabled = true;
+            if (selectedNodes.Length > 0)
+            {
+                copyToolStripMenuItem.Enabled = true;
+                saveSnippetAsToolStripMenuItem.Enabled = true;
+            }
+
             if (!editorState.WorkflowRunning)
             {
                 pasteToolStripMenuItem.Enabled = true;
@@ -2510,7 +2515,6 @@ namespace Bonsai.Design
                     disconnectToolStripMenuItem.Enabled = true;
                     groupToolStripMenuItem.Enabled = true;
                     ungroupToolStripMenuItem.Enabled = true;
-                    saveSnippetAsToolStripMenuItem.Enabled = true;
                     CreateGroupMenuItems(selectedNodes);
                 }
             }
