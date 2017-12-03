@@ -122,6 +122,7 @@ namespace Bonsai.Design
             if (tabState != null && activeTab != tabState)
             {
                 activeTab = tabState;
+                activeTab.WorkflowGraphView.Select();
                 selectionModel.UpdateSelection(activeTab.WorkflowGraphView);
             }
         }
