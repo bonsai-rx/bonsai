@@ -24,7 +24,7 @@ namespace Bonsai.Vision
 
         public Undistort()
         {
-            UpdateIntrinsics();
+            FocalLength = new Point2d(1, 1);
             UpdateDistortion();
         }
 
