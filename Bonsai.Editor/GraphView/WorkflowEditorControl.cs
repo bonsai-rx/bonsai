@@ -22,6 +22,11 @@ namespace Bonsai.Design
         TabPageController activeTab;
 
         public WorkflowEditorControl(IServiceProvider provider)
+            : this(provider, false)
+        {
+        }
+
+        public WorkflowEditorControl(IServiceProvider provider, bool readOnly)
         {
             if (provider == null)
             {
@@ -32,7 +37,7 @@ namespace Bonsai.Design
             serviceProvider = provider;
             selectionModel = (WorkflowSelectionModel)provider.GetService(typeof(WorkflowSelectionModel));
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
-            InitializeTabPage(workflowTabPage);
+            InitializeTabPage(workflowTabPage, readOnly);
             workflowTab = (TabPageController)workflowTabPage.Tag;
         }
 
@@ -76,9 +81,9 @@ namespace Bonsai.Design
         {
         }
 
-        void InitializeTabPage(TabPage tabPage)
+        void InitializeTabPage(TabPage tabPage, bool readOnly)
         {
-            var workflowGraphView = new WorkflowGraphView(serviceProvider, this);
+            var workflowGraphView = new WorkflowGraphView(serviceProvider, this, readOnly);
             workflowGraphView.AutoScaleDimensions = new SizeF(6F, 13F);
             workflowGraphView.Dock = DockStyle.Fill;
             workflowGraphView.Font = Font;
@@ -106,7 +111,7 @@ namespace Bonsai.Design
             var tabPage = new TabPage(text);
             tabPage.Padding = workflowTabPage.Padding;
             tabPage.UseVisualStyleBackColor = workflowTabPage.UseVisualStyleBackColor;
-            InitializeTabPage(tabPage);
+            InitializeTabPage(tabPage, true);
             tabControl.TabPages.Add(tabPage);
             return tabPage;
         }

@@ -93,7 +93,7 @@ namespace Bonsai.Design
                 }
             };
 
-            workflowEditor = new WorkflowEditorControl(provider);
+            workflowEditor = new WorkflowEditorControl(provider, ParentView.ReadOnly);
             workflowEditor.SuspendLayout();
             workflowEditor.Font = ParentView.Font;
             workflowEditor.Dock = DockStyle.Fill;
