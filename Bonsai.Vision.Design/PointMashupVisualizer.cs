@@ -31,12 +31,15 @@ namespace Bonsai.Vision.Design
             }
             else if (value is Point2f)
             {
-                point = new Point((Point2f)value);
+                var point2f = (Point2f)value;
+                point.X = float.IsNaN(point2f.X) ? -1 : (int)point2f.X;
+                point.Y = float.IsNaN(point2f.Y) ? -1 : (int)point2f.Y;
             }
             else
             {
                 var point2d = (Point2d)value;
-                point = new Point((int)point2d.X, (int)point2d.Y);
+                point.X = double.IsNaN(point2d.X) ? -1 : (int)point2d.X;
+                point.Y = double.IsNaN(point2d.Y) ? -1 : (int)point2d.Y;
             }
 
             var image = visualizer.VisualizerImage;
