@@ -109,6 +109,19 @@ namespace Bonsai.Design
             tabControl.SelectTab(tabPage);
         }
 
+        public void CloseWorkflow(IncludeWorkflowBuilder builder)
+        {
+            var tabPage = FindTabPage(builder);
+            if (tabPage != null)
+            {
+                tabControl.SuspendLayout();
+                var tabIndex = tabControl.TabPages.IndexOf(tabPage);
+                tabControl.SelectTab(tabIndex - 1);
+                tabControl.TabPages.Remove(tabPage);
+                tabControl.ResumeLayout();
+            }
+        }
+
         TabPage FindTabPage(IncludeWorkflowBuilder builder)
         {
             foreach (TabPage tabPage in tabControl.TabPages)
@@ -125,11 +138,11 @@ namespace Bonsai.Design
 
         TabPage CreateTabPage(IncludeWorkflowBuilder builder)
         {
-            var name = ExpressionBuilder.GetElementDisplayName(builder);
-            var tabPage = new TabPage(name);
+            var tabPage = new TabPage();
             tabPage.Padding = workflowTabPage.Padding;
             tabPage.UseVisualStyleBackColor = workflowTabPage.UseVisualStyleBackColor;
             var tabState = InitializeTabState(tabPage, true);
+            tabState.Text = ExpressionBuilder.GetElementDisplayName(builder);
             tabState.WorkflowGraphView.Workflow = builder.Workflow;
             tabState.Builder = builder;
             tabControl.TabPages.Add(tabPage);
@@ -155,8 +168,7 @@ namespace Bonsai.Design
 
         class TabPageController
         {
-            const string ModifiedMark = "*";
-            const string CloseSuffix = "    \u2A2F";
+            const string CloseSuffix = "   \u2715";
 
             string displayText;
             WorkflowEditorControl owner;
@@ -210,6 +222,63 @@ namespace Bonsai.Design
             if (e.Action == TabControlAction.Selected)
             {
                 ActivateTabPage(e.TabPage);
+            }
+        }
+
+        void tabControl_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.F4)
+            {
+                var selectedTab = tabControl.SelectedTab;
+                if (selectedTab == null) return;
+                var tabState = (TabPageController)selectedTab.Tag;
+                if (tabState.Builder != null)
+                {
+                    CloseWorkflow(tabState.Builder);
+                }
+            }
+        }
+
+        void tabControl_MouseUp(object sender, MouseEventArgs e)
+        {
+            var selectedTab = tabControl.SelectedTab;
+            if (selectedTab == null) return;
+
+            var tabState = (TabPageController)selectedTab.Tag;
+            var tabRect = tabControl.GetTabRect(tabControl.SelectedIndex);
+            if (tabState.Builder != null && tabRect.Contains(e.Location))
+            {
+                using (var graphics = selectedTab.CreateGraphics())
+                {
+                    var textSize = TextRenderer.MeasureText(
+                        graphics,
+                        selectedTab.Text,
+                        selectedTab.Font,
+                        tabRect.Size,
+                        TextFormatFlags.Default |
+                        TextFormatFlags.NoPadding);
+                    var padSize = TextRenderer.MeasureText(
+                        graphics,
+                        selectedTab.Text.Substring(0, selectedTab.Text.Length - 1),
+                        selectedTab.Font,
+                        tabRect.Size,
+                        TextFormatFlags.Default |
+                        TextFormatFlags.NoPadding);
+                    const float DefaultDpi = 96f;
+                    var offset = graphics.DpiX / DefaultDpi;
+                    var margin = (tabRect.Width - textSize.Width) / 2;
+                    var buttonWidth = textSize.Width - padSize.Width;
+                    var buttonRight = tabRect.Right - margin;
+                    var buttonLeft = buttonRight - buttonWidth;
+                    var buttonTop = tabRect.Top + 2 * selectedTab.Margin.Top;
+                    var buttonBottom = tabRect.Bottom - 2 * selectedTab.Margin.Bottom;
+                    var buttonHeight = buttonBottom - buttonTop;
+                    var buttonBounds = new Rectangle(buttonLeft, buttonTop, (int)(buttonWidth + offset), buttonHeight);
+                    if (buttonBounds.Contains(e.Location))
+                    {
+                        CloseWorkflow(tabState.Builder);
+                    }
+                }
             }
         }
     }
