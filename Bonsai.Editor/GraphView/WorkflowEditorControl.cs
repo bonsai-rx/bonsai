@@ -13,7 +13,7 @@ using Bonsai.Editor;
 
 namespace Bonsai.Design
 {
-    partial class WorkflowEditorControl : UserControl, IWorkflowEditorView
+    partial class WorkflowEditorControl : UserControl
     {
         IServiceProvider serviceProvider;
         IWorkflowEditorService editorService;
@@ -41,11 +41,6 @@ namespace Bonsai.Design
             workflowTab = (TabPageController)workflowTabPage.Tag;
         }
 
-        public GraphView GraphView
-        {
-            get { return null; }
-        }
-
         public WorkflowGraphView WorkflowGraphView
         {
             get { return workflowTab.WorkflowGraphView; }
@@ -63,22 +58,9 @@ namespace Bonsai.Design
             set { workflowTab.WorkflowGraphView.Workflow = value; }
         }
 
-        public GraphNode FindGraphNode(object value)
-        {
-            return null;
-        }
-
-        public void LaunchWorkflowView(GraphNode node)
-        {
-        }
-
-        public WorkflowEditorLauncher GetWorkflowEditorLauncher(GraphNode node)
-        {
-            return null;
-        }
-
         public void UpdateVisualizerLayout()
         {
+            workflowTab.WorkflowGraphView.UpdateVisualizerLayout();
         }
 
         TabPageController InitializeTabState(TabPage tabPage, bool readOnly)
