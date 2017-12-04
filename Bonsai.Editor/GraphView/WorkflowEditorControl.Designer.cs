@@ -28,10 +28,39 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            this.tabContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.closeAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl = new Bonsai.Design.WorkflowEditorTabControl();
             this.workflowTabPage = new System.Windows.Forms.TabPage();
+            this.tabContextMenuStrip.SuspendLayout();
             this.tabControl.SuspendLayout();
             this.SuspendLayout();
+            // 
+            // tabContextMenuStrip
+            // 
+            this.tabContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.closeToolStripMenuItem,
+            this.closeAllToolStripMenuItem});
+            this.tabContextMenuStrip.Name = "tabContextMenuStrip";
+            this.tabContextMenuStrip.Size = new System.Drawing.Size(153, 70);
+            this.tabContextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.tabContextMenuStrip_Opening);
+            // 
+            // closeToolStripMenuItem
+            // 
+            this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
+            this.closeToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F4)));
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.closeToolStripMenuItem.Text = "Close";
+            this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
+            // 
+            // closeAllToolStripMenuItem
+            // 
+            this.closeAllToolStripMenuItem.Name = "closeAllToolStripMenuItem";
+            this.closeAllToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.closeAllToolStripMenuItem.Text = "Close All";
+            this.closeAllToolStripMenuItem.Click += new System.EventHandler(this.closeAllToolStripMenuItem_Click);
             // 
             // tabControl
             // 
@@ -63,6 +92,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.tabControl);
             this.Name = "WorkflowEditorControl";
+            this.tabContextMenuStrip.ResumeLayout(false);
             this.tabControl.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -72,5 +102,8 @@
 
         private Bonsai.Design.WorkflowEditorTabControl tabControl;
         private System.Windows.Forms.TabPage workflowTabPage;
+        private System.Windows.Forms.ContextMenuStrip tabContextMenuStrip;
+        private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem closeAllToolStripMenuItem;
     }
 }
