@@ -39,27 +39,30 @@
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl.Location = new System.Drawing.Point(0, 0);
             this.tabControl.Name = "tabControl";
+            this.tabControl.Padding = new System.Drawing.Point(9, 6);
             this.tabControl.SelectedIndex = 0;
             this.tabControl.Size = new System.Drawing.Size(150, 150);
             this.tabControl.TabIndex = 0;
             this.tabControl.Selected += new System.Windows.Forms.TabControlEventHandler(this.tabControl_Selected);
+            this.tabControl.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tabControl_KeyDown);
+            this.tabControl.MouseUp += new System.Windows.Forms.MouseEventHandler(this.tabControl_MouseUp);
             // 
-            // workflowTab
+            // workflowTabPage
             // 
-            this.workflowTabPage.Location = new System.Drawing.Point(-1, 18);
-            this.workflowTabPage.Name = "workflowTab";
+            this.workflowTabPage.Location = new System.Drawing.Point(-1, 24);
+            this.workflowTabPage.Name = "workflowTabPage";
             this.workflowTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.workflowTabPage.Size = new System.Drawing.Size(151, 132);
+            this.workflowTabPage.Size = new System.Drawing.Size(151, 126);
             this.workflowTabPage.TabIndex = 0;
             this.workflowTabPage.Text = "Workflow";
             this.workflowTabPage.UseVisualStyleBackColor = true;
             // 
-            // EditorControl
+            // WorkflowEditorControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.tabControl);
-            this.Name = "EditorControl";
+            this.Name = "WorkflowEditorControl";
             this.tabControl.ResumeLayout(false);
             this.ResumeLayout(false);
 
