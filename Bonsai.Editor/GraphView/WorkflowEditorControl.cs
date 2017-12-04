@@ -244,6 +244,12 @@ namespace Bonsai.Design
             var selectedTab = tabControl.SelectedTab;
             if (selectedTab == null) return;
 
+            if (e.Button == MouseButtons.Right)
+            {
+                tabContextMenuStrip.Show(tabControl, e.Location);
+                return;
+            }
+
             var tabState = (TabPageController)selectedTab.Tag;
             var tabRect = tabControl.GetTabRect(tabControl.SelectedIndex);
             if (tabState.Builder != null && tabRect.Contains(e.Location))
@@ -278,6 +284,38 @@ namespace Bonsai.Design
                     {
                         CloseWorkflow(tabState.Builder);
                     }
+                }
+            }
+        }
+
+        private void tabContextMenuStrip_Opening(object sender, CancelEventArgs e)
+        {
+            var selectedTab = tabControl.SelectedTab;
+            if (selectedTab == null) return;
+            closeToolStripMenuItem.Enabled = tabControl.SelectedTab != workflowTabPage;
+            closeAllToolStripMenuItem.Enabled = tabControl.TabCount > 1;
+        }
+
+        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var selectedTab = tabControl.SelectedTab;
+            if (selectedTab == null) return;
+
+            var tabState = (TabPageController)selectedTab.Tag;
+            if (tabState.Builder != null)
+            {
+                CloseWorkflow(tabState.Builder);
+            }
+        }
+
+        private void closeAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            while (tabControl.TabCount > 1)
+            {
+                var tabState = (TabPageController)tabControl.TabPages[1].Tag;
+                if (tabState.Builder != null)
+                {
+                    CloseWorkflow(tabState.Builder);
                 }
             }
         }
