@@ -13,12 +13,17 @@ namespace Bonsai.Design
     class WorkflowEditorLauncher : DialogLauncher
     {
         bool userClosing;
-        WorkflowExpressionBuilder builder;
+        IWorkflowExpressionBuilder builder;
         WorkflowEditorControl workflowEditor;
         WorkflowGraphView workflowGraphView;
         Func<WorkflowGraphView> parentSelector;
 
-        public WorkflowEditorLauncher(WorkflowExpressionBuilder builder, Func<WorkflowGraphView> parentSelector)
+        public WorkflowEditorLauncher(IWorkflowExpressionBuilder builder, Func<WorkflowGraphView> parentSelector)
+            : this(builder, parentSelector, null)
+        {
+        }
+
+        public WorkflowEditorLauncher(IWorkflowExpressionBuilder builder, Func<WorkflowGraphView> parentSelector, WorkflowEditorControl container)
         {
             if (builder == null)
             {
@@ -31,6 +36,7 @@ namespace Bonsai.Design
             }
 
             this.builder = builder;
+            this.workflowEditor = container;
             this.parentSelector = parentSelector;
         }
 
@@ -64,10 +70,23 @@ namespace Bonsai.Design
             }
         }
 
+        public override void Show(IWin32Window owner, IServiceProvider provider)
+        {
+            if (VisualizerDialog != null && VisualizerDialog.TopLevel == false)
+            {
+                workflowEditor.SelectTab(builder);
+            }
+            else base.Show(owner, provider);
+        }
+
         public override void Hide()
         {
             userClosing = false;
-            base.Hide();
+            if (VisualizerDialog != null && VisualizerDialog.TopLevel == false)
+            {
+                workflowEditor.CloseTab(builder);
+            }
+            else base.Hide();
         }
 
         protected override void InitializeComponents(TypeVisualizerDialog visualizerDialog, IServiceProvider provider)
@@ -93,21 +112,31 @@ namespace Bonsai.Design
                 }
             };
 
-            workflowEditor = new WorkflowEditorControl(provider, ParentView.ReadOnly);
-            workflowEditor.SuspendLayout();
-            workflowEditor.Font = ParentView.Font;
-            workflowEditor.Dock = DockStyle.Fill;
-            workflowEditor.Size = new Size(300, 200);
-            workflowEditor.AutoScaleDimensions = new SizeF(6F, 13F);
-            workflowEditor.Workflow = builder.Workflow;
-            workflowEditor.VisualizerLayout = VisualizerLayout;
+            if (workflowEditor == null)
+            {
+                workflowEditor = new WorkflowEditorControl(provider, ParentView.ReadOnly);
+                workflowEditor.SuspendLayout();
+                workflowEditor.Dock = DockStyle.Fill;
+                workflowEditor.Font = ParentView.Font;
+                workflowEditor.Workflow = builder.Workflow;
+                workflowEditor.VisualizerLayout = VisualizerLayout;
+                workflowGraphView = workflowEditor.WorkflowGraphView;
+                workflowEditor.ResumeLayout(false);
+                visualizerDialog.AddControl(workflowEditor);
+                visualizerDialog.Icon = Bonsai.Editor.Properties.Resources.Icon;
+                visualizerDialog.ShowIcon = true;
+                visualizerDialog.HandleDestroyed += (sender, e) => workflowEditor = null;
+            }
+            else
+            {
+                visualizerDialog.FormBorderStyle = FormBorderStyle.None;
+                visualizerDialog.Dock = DockStyle.Fill;
+                visualizerDialog.TopLevel = false;
+                visualizerDialog.Visible = true;
+                workflowGraphView = workflowEditor.ShowTab(builder, visualizerDialog);
+            }
 
-            workflowGraphView = workflowEditor.WorkflowGraphView;
             workflowGraphView.Launcher = this;
-            workflowEditor.ResumeLayout(false);
-            visualizerDialog.AddControl(workflowEditor);
-            visualizerDialog.Icon = Bonsai.Editor.Properties.Resources.Icon;
-            visualizerDialog.ShowIcon = true;
         }
     }
 }

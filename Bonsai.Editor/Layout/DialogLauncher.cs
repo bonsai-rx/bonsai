@@ -68,15 +68,18 @@ namespace Bonsai.Design
                     else WindowState = visualizerDialog.WindowState;
                 };
 
-                visualizerDialog.FormClosed += delegate
+                visualizerDialog.HandleDestroyed += delegate
                 {
                     visualizerDialog.Dispose();
                     visualizerDialog = null;
                 };
 
                 InitializeComponents(visualizerDialog, provider);
-                if (owner != null) visualizerDialog.Show(owner);
-                else visualizerDialog.Show();
+                if (visualizerDialog.TopLevel)
+                {
+                    if (owner != null) visualizerDialog.Show(owner);
+                    else visualizerDialog.Show();
+                }
             }
 
             visualizerDialog.Activate();
