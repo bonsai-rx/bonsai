@@ -625,15 +625,6 @@ namespace Bonsai.Editor
             var layoutPath = GetLayoutPath(fileName);
             editorControl.VisualizerLayout = null;
             editorControl.Workflow = workflowBuilder.Workflow;
-            if (File.Exists(layoutPath))
-            {
-                using (var reader = XmlReader.Create(layoutPath))
-                {
-                    try { editorControl.VisualizerLayout = (VisualizerLayout)VisualizerLayout.Serializer.Deserialize(reader); }
-                    catch (InvalidOperationException) { }
-                }
-            }
-
             var workflowDirectory = Path.GetDirectoryName(fileName);
             openWorkflowDialog.InitialDirectory = saveWorkflowDialog.InitialDirectory = workflowDirectory;
             if (UpgradeHelper.IsDeprecated(version)) saveWorkflowDialog.FileName = null;
@@ -645,7 +636,16 @@ namespace Bonsai.Editor
             {
                 directoryToolStripTextBox.Text = workflowDirectory;
             }
+
             editorSite.ValidateWorkflow();
+            if (File.Exists(layoutPath))
+            {
+                using (var reader = XmlReader.Create(layoutPath))
+                {
+                    try { editorControl.VisualizerLayout = (VisualizerLayout)VisualizerLayout.Serializer.Deserialize(reader); }
+                    catch (InvalidOperationException) { }
+                }
+            }
             return true;
         }
 
