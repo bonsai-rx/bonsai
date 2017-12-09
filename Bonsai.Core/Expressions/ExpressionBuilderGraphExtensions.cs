@@ -762,19 +762,24 @@ namespace Bonsai.Expressions
         /// </returns>
         public static InspectBuilder AsInspectBuilder(this ExpressionBuilder builder)
         {
+            return AsInspectBuilder(builder, true);
+        }
+
+        static InspectBuilder AsInspectBuilder(this ExpressionBuilder builder, bool recurse)
+        {
             var includeWorkflow = builder as IncludeWorkflowBuilder;
-            if (includeWorkflow != null)
+            if (includeWorkflow != null && recurse)
             {
                 builder = new IncludeWorkflowBuilder(includeWorkflow, true);
             }
             return new InspectBuilder(builder);
         }
 
-        static ExpressionBuilder RemoveInspectBuilder(InspectBuilder inspectBuilder)
+        static ExpressionBuilder RemoveInspectBuilder(InspectBuilder inspectBuilder, bool recurse)
         {
             var builder = inspectBuilder.Builder;
             var includeWorkflow = builder as IncludeWorkflowBuilder;
-            if (includeWorkflow != null)
+            if (includeWorkflow != null && recurse)
             {
                 builder = new IncludeWorkflowBuilder(includeWorkflow, false);
             }
@@ -811,7 +816,7 @@ namespace Bonsai.Expressions
         /// </returns>
         public static ExpressionBuilderGraph ToInspectableGraph(this ExpressionBuilderGraph source, bool recurse)
         {
-            return Convert(source, builder => AsInspectBuilder(builder), recurse);
+            return Convert(source, builder => AsInspectBuilder(builder, recurse), recurse);
         }
 
         /// <summary>
@@ -844,7 +849,7 @@ namespace Bonsai.Expressions
         /// </returns>
         public static ExpressionBuilderGraph FromInspectableGraph(this IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> source, bool recurse)
         {
-            return Convert(source, builder => RemoveInspectBuilder((InspectBuilder)builder), recurse);
+            return Convert(source, builder => RemoveInspectBuilder((InspectBuilder)builder, recurse), recurse);
         }
 
         /// <summary>
