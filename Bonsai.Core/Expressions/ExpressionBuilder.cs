@@ -978,7 +978,7 @@ namespace Bonsai.Expressions
             if (instance.NodeType == ExpressionType.Constant)
             {
                 var element = ((ConstantExpression)instance).Value;
-                var workflowBuilder = element as WorkflowExpressionBuilder;
+                var workflowBuilder = element as IWorkflowExpressionBuilder;
                 if (workflowBuilder != null)
                 {
                     var inputBuilder = (from node in workflowBuilder.Workflow
