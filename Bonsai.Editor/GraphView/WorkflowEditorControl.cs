@@ -83,7 +83,7 @@ namespace Bonsai.Design
             return tabState;
         }
 
-        public WorkflowGraphView ShowTab(IWorkflowExpressionBuilder builder, Control owner)
+        public TabPageController CreateTab(IWorkflowExpressionBuilder builder, Control owner)
         {
             var tabPage = new TabPage();
             tabPage.Padding = workflowTabPage.Padding;
@@ -95,7 +95,7 @@ namespace Bonsai.Design
             tabState.Builder = builder;
             tabControl.TabPages.Add(tabPage);
             tabControl.SelectTab(tabPage);
-            return tabState.WorkflowGraphView;
+            return tabState;
         }
 
         public void SelectTab(IWorkflowExpressionBuilder builder)
@@ -112,12 +112,18 @@ namespace Bonsai.Design
             var tabPage = FindTab(builder);
             if (tabPage != null)
             {
-                tabControl.SuspendLayout();
-                var tabIndex = tabControl.TabPages.IndexOf(tabPage);
-                tabControl.SelectTab(tabIndex - 1);
-                tabControl.TabPages.Remove(tabPage);
-                tabControl.ResumeLayout();
-                tabPage.Dispose();
+                var tabState = (TabPageController)tabPage.Tag;
+                var cancelEventArgs = new CancelEventArgs();
+                tabState.OnTabClosing(cancelEventArgs);
+                if (!cancelEventArgs.Cancel)
+                {
+                    tabControl.SuspendLayout();
+                    var tabIndex = tabControl.TabPages.IndexOf(tabPage);
+                    tabControl.SelectTab(tabIndex - 1);
+                    tabControl.TabPages.Remove(tabPage);
+                    tabControl.ResumeLayout();
+                    tabPage.Dispose();
+                }
             }
         }
 
@@ -152,7 +158,7 @@ namespace Bonsai.Design
             base.OnLoad(e);
         }
 
-        class TabPageController
+        internal class TabPageController
         {
             const string CloseSuffix = "   \u2715";
 
@@ -200,6 +206,17 @@ namespace Bonsai.Design
             void UpdateDisplayText()
             {
                 TabPage.Text = displayText + CloseSuffix;
+            }
+
+            public event CancelEventHandler TabClosing;
+
+            internal void OnTabClosing(CancelEventArgs e)
+            {
+                var handler = TabClosing;
+                if (handler != null)
+                {
+                    handler(this, e);
+                }
             }
         }
 

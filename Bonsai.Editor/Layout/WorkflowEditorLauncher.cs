@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.ComponentModel.Design;
 using Bonsai.Expressions;
 using Bonsai.Dag;
+using System.ComponentModel;
 
 namespace Bonsai.Design
 {
@@ -89,6 +90,17 @@ namespace Bonsai.Design
             else base.Hide();
         }
 
+        void EditorClosing(object sender, CancelEventArgs e)
+        {
+            if (userClosing)
+            {
+                e.Cancel = true;
+                ParentView.CloseWorkflowView(builder);
+                ParentView.UpdateSelection();
+            }
+            else UpdateEditorLayout();
+        }
+
         protected override void InitializeComponents(TypeVisualizerDialog visualizerDialog, IServiceProvider provider)
         {
             userClosing = true;
@@ -96,20 +108,6 @@ namespace Bonsai.Design
             {
                 workflowGraphView.UpdateSelection();
                 visualizerDialog.Text = ExpressionBuilder.GetElementDisplayName(builder);
-            };
-
-            visualizerDialog.FormClosing += (sender, e) =>
-            {
-                if (e.CloseReason == CloseReason.UserClosing)
-                {
-                    if (userClosing)
-                    {
-                        e.Cancel = true;
-                        ParentView.CloseWorkflowView(builder);
-                        ParentView.UpdateSelection();
-                    }
-                    else UpdateEditorLayout();
-                }
             };
 
             if (workflowEditor == null)
@@ -126,6 +124,13 @@ namespace Bonsai.Design
                 visualizerDialog.Icon = Bonsai.Editor.Properties.Resources.Icon;
                 visualizerDialog.ShowIcon = true;
                 visualizerDialog.HandleDestroyed += (sender, e) => workflowEditor = null;
+                visualizerDialog.FormClosing += (sender, e) =>
+                {
+                    if (e.CloseReason == CloseReason.UserClosing)
+                    {
+                        EditorClosing(sender, e);
+                    }
+                };
             }
             else
             {
@@ -133,7 +138,9 @@ namespace Bonsai.Design
                 visualizerDialog.Dock = DockStyle.Fill;
                 visualizerDialog.TopLevel = false;
                 visualizerDialog.Visible = true;
-                workflowGraphView = workflowEditor.ShowTab(builder, visualizerDialog);
+                var tabState = workflowEditor.CreateTab(builder, visualizerDialog);
+                workflowGraphView = tabState.WorkflowGraphView;
+                tabState.TabClosing += EditorClosing;
             }
 
             workflowGraphView.Launcher = this;
