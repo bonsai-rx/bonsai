@@ -15,16 +15,11 @@ namespace Bonsai.Design
     {
         bool userClosing;
         IWorkflowExpressionBuilder builder;
-        WorkflowEditorControl workflowEditor;
         WorkflowGraphView workflowGraphView;
         Func<WorkflowGraphView> parentSelector;
+        Func<WorkflowEditorControl> containerSelector;
 
-        public WorkflowEditorLauncher(IWorkflowExpressionBuilder builder, Func<WorkflowGraphView> parentSelector)
-            : this(builder, parentSelector, null)
-        {
-        }
-
-        public WorkflowEditorLauncher(IWorkflowExpressionBuilder builder, Func<WorkflowGraphView> parentSelector, WorkflowEditorControl container)
+        public WorkflowEditorLauncher(IWorkflowExpressionBuilder builder, Func<WorkflowGraphView> parentSelector, Func<WorkflowEditorControl> containerSelector)
         {
             if (builder == null)
             {
@@ -36,14 +31,24 @@ namespace Bonsai.Design
                 throw new ArgumentNullException("parentSelector");
             }
 
+            if (containerSelector == null)
+            {
+                throw new ArgumentNullException("containerSelector");
+            }
+
             this.builder = builder;
-            this.workflowEditor = container;
             this.parentSelector = parentSelector;
+            this.containerSelector = containerSelector;
         }
 
         internal WorkflowGraphView ParentView
         {
             get { return parentSelector(); }
+        }
+
+        internal WorkflowEditorControl Container
+        {
+            get { return containerSelector(); }
         }
 
         internal IWin32Window Owner
@@ -75,7 +80,7 @@ namespace Bonsai.Design
         {
             if (VisualizerDialog != null && VisualizerDialog.TopLevel == false)
             {
-                workflowEditor.SelectTab(builder);
+                Container.SelectTab(builder);
             }
             else base.Show(owner, provider);
         }
@@ -85,7 +90,7 @@ namespace Bonsai.Design
             userClosing = false;
             if (VisualizerDialog != null && VisualizerDialog.TopLevel == false)
             {
-                workflowEditor.CloseTab(builder);
+                Container.CloseTab(builder);
             }
             else base.Hide();
         }
@@ -110,6 +115,7 @@ namespace Bonsai.Design
                 visualizerDialog.Text = ExpressionBuilder.GetElementDisplayName(builder);
             };
 
+            var workflowEditor = Container;
             if (workflowEditor == null)
             {
                 workflowEditor = new WorkflowEditorControl(provider, ParentView.ReadOnly);
