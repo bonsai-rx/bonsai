@@ -123,7 +123,6 @@ namespace Bonsai.Design
                 workflowEditor.Dock = DockStyle.Fill;
                 workflowEditor.Font = ParentView.Font;
                 workflowEditor.Workflow = builder.Workflow;
-                workflowEditor.VisualizerLayout = VisualizerLayout;
                 workflowGraphView = workflowEditor.WorkflowGraphView;
                 workflowEditor.ResumeLayout(false);
                 visualizerDialog.AddControl(workflowEditor);
@@ -150,6 +149,7 @@ namespace Bonsai.Design
             }
 
             workflowGraphView.Launcher = this;
+            workflowGraphView.VisualizerLayout = VisualizerLayout;
         }
     }
 }
