@@ -1617,7 +1617,7 @@ namespace Bonsai.Design
         {
             VisualizerDialogSettings dialogSettings;
             WorkflowEditorLauncher editorLauncher;
-            var workflowExpressionBuilder = ExpressionBuilder.GetWorkflowElement(builder) as WorkflowExpressionBuilder;
+            var workflowExpressionBuilder = ExpressionBuilder.GetWorkflowElement(builder) as IWorkflowExpressionBuilder;
             if (workflowExpressionBuilder != null &&
                 workflowEditorMapping.TryGetValue(workflowExpressionBuilder, out editorLauncher))
             {
@@ -1654,18 +1654,14 @@ namespace Bonsai.Design
 
                 var graphNode = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == node.Value);
                 var workflowEditorSettings = layoutSettings as WorkflowEditorSettings;
-                if (workflowEditorSettings != null)
+                if (workflowEditorSettings != null && workflowEditorSettings.EditorDialogSettings.Visible)
                 {
-                    var editorLauncher = GetWorkflowEditorLauncher(graphNode);
-                    if (workflowEditorSettings.EditorDialogSettings.Visible)
-                    {
-                        var editorLayout = workflowEditorSettings.EditorVisualizerLayout;
-                        var editorBounds = ScaleBounds(workflowEditorSettings.EditorDialogSettings.Bounds, scaleFactor);
-                        LaunchWorkflowView(graphNode,
-                                           editorLayout,
-                                           editorBounds,
-                                           activate: false);
-                    }
+                    var editorLayout = workflowEditorSettings.EditorVisualizerLayout;
+                    var editorBounds = ScaleBounds(workflowEditorSettings.EditorDialogSettings.Bounds, scaleFactor);
+                    LaunchWorkflowView(graphNode,
+                                       editorLayout,
+                                       editorBounds,
+                                       activate: false);
                 }
 
                 visualizerLayout.DialogSettings.Add(layoutSettings);
@@ -1745,7 +1741,7 @@ namespace Bonsai.Design
                     if (dialogSettings == null) dialogSettings = CreateLayoutSettings(builder);
                     else
                     {
-                        var workflowExpressionBuilder = ExpressionBuilder.Unwrap(builder) as WorkflowExpressionBuilder;
+                        var workflowExpressionBuilder = ExpressionBuilder.Unwrap(builder) as IWorkflowExpressionBuilder;
                         if (workflowExpressionBuilder != null)
                         {
                             var updatedEditorSettings = CreateLayoutSettings(builder);
