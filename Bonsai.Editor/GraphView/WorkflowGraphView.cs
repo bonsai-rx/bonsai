@@ -1522,10 +1522,16 @@ namespace Bonsai.Design
             WorkflowEditorLauncher editorLauncher;
             if (!workflowEditorMapping.TryGetValue(workflowExpressionBuilder, out editorLauncher))
             {
-                editorLauncher = new WorkflowEditorLauncher(
-                    workflowExpressionBuilder,
-                    () => launcher != null ? launcher.WorkflowGraphView : this,
-                    workflowExpressionBuilder is IncludeWorkflowBuilder ? editorControl : null);
+                Func<WorkflowGraphView> parentSelector;
+                Func<WorkflowEditorControl> containerSelector;
+                if (workflowExpressionBuilder is IncludeWorkflowBuilder)
+                {
+                    containerSelector = () => launcher != null ? launcher.WorkflowGraphView.editorControl : editorControl;
+                }
+                else containerSelector = () => null;
+                parentSelector = () => launcher != null ? launcher.WorkflowGraphView : this;
+
+                editorLauncher = new WorkflowEditorLauncher(workflowExpressionBuilder, parentSelector, containerSelector);
                 editorLauncher.VisualizerLayout = editorLayout;
                 editorLauncher.Bounds = bounds;
                 var addEditorMapping = CreateUpdateEditorMappingDelegate(editorMapping => editorMapping.Add(workflowExpressionBuilder, editorLauncher));
