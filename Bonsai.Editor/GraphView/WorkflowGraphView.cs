@@ -1029,7 +1029,7 @@ namespace Bonsai.Design
                 removeEdge();
             });
 
-            var workflowExpressionBuilder = GetGraphNodeBuilder(node) as WorkflowExpressionBuilder;
+            var workflowExpressionBuilder = GetGraphNodeBuilder(node) as IWorkflowExpressionBuilder;
             if (workflowExpressionBuilder != null)
             {
                 RemoveEditorMapping(workflowExpressionBuilder);
@@ -1046,7 +1046,7 @@ namespace Bonsai.Design
                     var workflowGraphView = editorLauncher.WorkflowGraphView;
                     foreach (var node in workflowGraphView.workflow)
                     {
-                        var nestedBuilder = ExpressionBuilder.Unwrap(node.Value) as WorkflowExpressionBuilder;
+                        var nestedBuilder = ExpressionBuilder.Unwrap(node.Value) as IWorkflowExpressionBuilder;
                         if (nestedBuilder != null)
                         {
                             workflowGraphView.RemoveEditorMapping(nestedBuilder);
@@ -1417,7 +1417,7 @@ namespace Bonsai.Design
 
         private bool HasDefaultEditor(ExpressionBuilder builder)
         {
-            var workflowExpressionBuilder = builder as WorkflowExpressionBuilder;
+            var workflowExpressionBuilder = builder as IWorkflowExpressionBuilder;
             if (workflowExpressionBuilder != null) return true;
             else if (builder != null)
             {
