@@ -37,8 +37,7 @@ namespace Bonsai.Design
             serviceProvider = provider;
             selectionModel = (WorkflowSelectionModel)provider.GetService(typeof(WorkflowSelectionModel));
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
-            InitializeTabState(workflowTabPage, readOnly);
-            workflowTab = (TabPageController)workflowTabPage.Tag;
+            workflowTab = InitializeTab(workflowTabPage, readOnly, null);
         }
 
         public WorkflowGraphView WorkflowGraphView
@@ -63,37 +62,54 @@ namespace Bonsai.Design
             workflowTab.WorkflowGraphView.UpdateVisualizerLayout();
         }
 
-        TabPageController InitializeTabState(TabPage tabPage, bool readOnly)
+        TabPageController InitializeTab(TabPage tabPage, bool readOnly, Control container)
         {
             var workflowGraphView = new WorkflowGraphView(serviceProvider, this, readOnly);
-            workflowGraphView.AutoScaleDimensions = new SizeF(6F, 13F);
             workflowGraphView.Dock = DockStyle.Fill;
             workflowGraphView.Font = Font;
 
             var tabState = new TabPageController(tabPage, workflowGraphView, this);
             tabPage.Tag = tabState;
             tabPage.SuspendLayout();
-            tabPage.Controls.Add(workflowGraphView);
+            if (container != null)
+            {
+                container.Controls.Add(workflowGraphView);
+                tabPage.Controls.Add(container);
+            }
+            else tabPage.Controls.Add(workflowGraphView);
             tabPage.BackColor = workflowGraphView.BackColor;
             tabPage.ResumeLayout(false);
             tabPage.PerformLayout();
             return tabState;
         }
 
-        public void OpenWorkflow(IncludeWorkflowBuilder builder)
+        public WorkflowGraphView ShowTab(IWorkflowExpressionBuilder builder, Control owner)
         {
-            var tabPage = FindTabPage(builder);
-            if (tabPage == null)
-            {
-                tabPage = CreateTabPage(builder);
-            }
+            var tabPage = new TabPage();
+            tabPage.Padding = workflowTabPage.Padding;
+            tabPage.UseVisualStyleBackColor = workflowTabPage.UseVisualStyleBackColor;
 
+            var tabState = InitializeTab(tabPage, true, owner);
+            tabState.Text = ExpressionBuilder.GetElementDisplayName(builder);
+            tabState.WorkflowGraphView.Workflow = builder.Workflow;
+            tabState.Builder = builder;
+            tabControl.TabPages.Add(tabPage);
             tabControl.SelectTab(tabPage);
+            return tabState.WorkflowGraphView;
         }
 
-        public void CloseWorkflow(IncludeWorkflowBuilder builder)
+        public void SelectTab(IWorkflowExpressionBuilder builder)
         {
-            var tabPage = FindTabPage(builder);
+            var tabPage = FindTab(builder);
+            if (tabPage != null)
+            {
+                tabControl.SelectTab(tabPage);
+            }
+        }
+
+        public void CloseTab(IWorkflowExpressionBuilder builder)
+        {
+            var tabPage = FindTab(builder);
             if (tabPage != null)
             {
                 tabControl.SuspendLayout();
@@ -101,10 +117,11 @@ namespace Bonsai.Design
                 tabControl.SelectTab(tabIndex - 1);
                 tabControl.TabPages.Remove(tabPage);
                 tabControl.ResumeLayout();
+                tabPage.Dispose();
             }
         }
 
-        TabPage FindTabPage(IncludeWorkflowBuilder builder)
+        TabPage FindTab(IWorkflowExpressionBuilder builder)
         {
             foreach (TabPage tabPage in tabControl.TabPages)
             {
@@ -118,20 +135,7 @@ namespace Bonsai.Design
             return null;
         }
 
-        TabPage CreateTabPage(IncludeWorkflowBuilder builder)
-        {
-            var tabPage = new TabPage();
-            tabPage.Padding = workflowTabPage.Padding;
-            tabPage.UseVisualStyleBackColor = workflowTabPage.UseVisualStyleBackColor;
-            var tabState = InitializeTabState(tabPage, true);
-            tabState.Text = ExpressionBuilder.GetElementDisplayName(builder);
-            tabState.WorkflowGraphView.Workflow = builder.Workflow;
-            tabState.Builder = builder;
-            tabControl.TabPages.Add(tabPage);
-            return tabPage;
-        }
-
-        void ActivateTabPage(TabPage tabPage)
+        void ActivateTab(TabPage tabPage)
         {
             var tabState = tabPage != null ? (TabPageController)tabPage.Tag : null;
             if (tabState != null && activeTab != tabState)
@@ -144,7 +148,7 @@ namespace Bonsai.Design
 
         protected override void OnLoad(EventArgs e)
         {
-            ActivateTabPage(workflowTabPage);
+            ActivateTab(workflowTabPage);
             base.OnLoad(e);
         }
 
@@ -179,7 +183,7 @@ namespace Bonsai.Design
 
             public TabPage TabPage { get; private set; }
 
-            public IncludeWorkflowBuilder Builder { get; set; }
+            public IWorkflowExpressionBuilder Builder { get; set; }
 
             public WorkflowGraphView WorkflowGraphView { get; private set; }
 
@@ -203,7 +207,7 @@ namespace Bonsai.Design
         {
             if (e.Action == TabControlAction.Selected)
             {
-                ActivateTabPage(e.TabPage);
+                ActivateTab(e.TabPage);
             }
         }
 
@@ -216,7 +220,7 @@ namespace Bonsai.Design
                 var tabState = (TabPageController)selectedTab.Tag;
                 if (tabState.Builder != null)
                 {
-                    CloseWorkflow(tabState.Builder);
+                    CloseTab(tabState.Builder);
                 }
             }
         }
@@ -264,7 +268,7 @@ namespace Bonsai.Design
                     var buttonBounds = new Rectangle(buttonLeft, buttonTop, (int)(buttonWidth + offset), buttonHeight);
                     if (buttonBounds.Contains(e.Location))
                     {
-                        CloseWorkflow(tabState.Builder);
+                        CloseTab(tabState.Builder);
                     }
                 }
             }
@@ -286,7 +290,7 @@ namespace Bonsai.Design
             var tabState = (TabPageController)selectedTab.Tag;
             if (tabState.Builder != null)
             {
-                CloseWorkflow(tabState.Builder);
+                CloseTab(tabState.Builder);
             }
         }
 
@@ -297,7 +301,7 @@ namespace Bonsai.Design
                 var tabState = (TabPageController)tabControl.TabPages[1].Tag;
                 if (tabState.Builder != null)
                 {
-                    CloseWorkflow(tabState.Builder);
+                    CloseTab(tabState.Builder);
                 }
             }
         }

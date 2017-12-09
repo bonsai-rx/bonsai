@@ -21,7 +21,7 @@ namespace Bonsai.Expressions
     [XmlType("IncludeWorkflow", Namespace = Constants.XmlNamespace)]
     [Description("Includes an encapsulated workflow from the specified path.")]
     [TypeDescriptionProvider(typeof(IncludeWorkflowTypeDescriptionProvider))]
-    public sealed class IncludeWorkflowBuilder : VariableArgumentExpressionBuilder, INamedElement, IRequireBuildContext
+    public sealed class IncludeWorkflowBuilder : VariableArgumentExpressionBuilder, IWorkflowExpressionBuilder, INamedElement, IRequireBuildContext
     {
         static readonly XmlElement[] EmptyProperties = new XmlElement[0];
         XmlElement[] xmlProperties;

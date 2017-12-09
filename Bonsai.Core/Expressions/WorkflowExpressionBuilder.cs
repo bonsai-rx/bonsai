@@ -18,7 +18,7 @@ namespace Bonsai.Expressions
     [WorkflowElementCategory(ElementCategory.Nested)]
     [XmlType("Workflow", Namespace = Constants.XmlNamespace)]
     [TypeDescriptionProvider(typeof(WorkflowTypeDescriptionProvider))]
-    public abstract class WorkflowExpressionBuilder : ExpressionBuilder, INamedElement, IPropertyMappingBuilder, IRequireBuildContext
+    public abstract class WorkflowExpressionBuilder : ExpressionBuilder, IWorkflowExpressionBuilder, INamedElement, IPropertyMappingBuilder, IRequireBuildContext
     {
         IBuildContext buildContext;
         readonly ExpressionBuilderGraph workflow;

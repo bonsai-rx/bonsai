@@ -76,6 +76,7 @@
     <Compile Include="Expressions\IBuildContext.cs" />
     <Compile Include="Expressions\IncludeContext.cs" />
     <Compile Include="Expressions\IncludeWorkflowBuilder.cs" />
+    <Compile Include="Expressions\IWorkflowExpressionBuilder.cs" />
     <Compile Include="Expressions\RightShiftBuilder.cs" />
     <Compile Include="Expressions\LeftShiftBuilder.cs" />
     <Compile Include="Expressions\IRequireSubject.cs" />
