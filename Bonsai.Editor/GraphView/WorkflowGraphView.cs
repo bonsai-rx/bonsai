@@ -1444,9 +1444,8 @@ namespace Bonsai.Design
         private void LaunchDefaultEditor(GraphNode node)
         {
             var builder = GetGraphNodeBuilder(node);
-            //var includeBuilder = builder as IncludeWorkflowBuilder;
-            //if (includeBuilder != null && includeBuilder.Workflow != null) LaunchEditorTab(node);
-            if (builder is IWorkflowExpressionBuilder) LaunchWorkflowView(node);
+            var workflowBuilder = builder as IWorkflowExpressionBuilder;
+            if (workflowBuilder != null && workflowBuilder.Workflow != null) LaunchWorkflowView(node);
             else if (builder != null)
             {
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
