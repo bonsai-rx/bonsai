@@ -131,6 +131,9 @@
 
 {1}</value>
   </data>
+  <data name="InstallEditorPackageError" xml:space="preserve">
+    <value>Unable to install editor package. Please confirm that there is an active network or local connection to the package repository. The Bonsai bootstrapper will now close.</value>
+  </data>
   <data name="InstallExecutablePackageCaption" xml:space="preserve">
     <value>Executable package</value>
   </data>
@@ -139,6 +142,9 @@
   </data>
   <data name="LibraryFolderPlatformMismatchException" xml:space="preserve">
     <value>The library folder '{0}' has already been assigned to a different platform. Consider uninstalling the conflicting package.</value>
+  </data>
+  <data name="UpdateEditorPackageError" xml:space="preserve">
+    <value>Unable to update editor package. Please confirm that there is an active network or local connection to the package repository. The Bonsai bootstrapper will now close.</value>
   </data>
   <data name="WorkflowUnresolvedDependencies" xml:space="preserve">
     <value>The specified workflow has unresolved dependencies. Please install any missing packages and make sure the workflow can run successfully.</value>
