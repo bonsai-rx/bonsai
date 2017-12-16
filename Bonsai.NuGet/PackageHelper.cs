@@ -70,17 +70,20 @@ namespace Bonsai.NuGet
                 };
 
                 dialog.RegisterEventLogger((EventLogger)packageManager.Logger);
-                var operation = operationFactory();
-                operation.ContinueWith(task =>
-                {
-                    if (!task.IsFaulted)
-                    {
-                        dialog.BeginInvoke((Action)dialog.Close);
-                    }
-                });
-
                 packageManager.RequiringLicenseAcceptance += requiringLicenseHandler;
-                try { dialog.ShowDialog(); }
+                try
+                {
+                    var operation = operationFactory();
+                    operation.ContinueWith(task =>
+                    {
+                        if (!task.IsFaulted)
+                        {
+                            dialog.BeginInvoke((Action)dialog.Close);
+                        }
+                    });
+
+                    dialog.ShowDialog();
+                }
                 finally { packageManager.RequiringLicenseAcceptance -= requiringLicenseHandler; }
             }
         }
