@@ -85,7 +85,7 @@ namespace Bonsai
                     if (editorPackage == null)
                     {
                         var assemblyName = Assembly.GetEntryAssembly().GetName();
-                        MessageBox.Show("Unable to install editor package.", assemblyName.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(Resources.InstallEditorPackageError, assemblyName.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return null;
                     }
                     launchResult = EditorResult.ManagePackages;
@@ -104,6 +104,12 @@ namespace Bonsai
                             .StartUpdatePackage(editorPackageId, editorPackageVersion)
                             .ContinueWith(task => editorPackage = task.Result),
                         operationLabel: "Updating...");
+                    if (editorPackage == null)
+                    {
+                        var assemblyName = Assembly.GetEntryAssembly().GetName();
+                        MessageBox.Show(Resources.UpdateEditorPackageError, assemblyName.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return null;
+                    }
                     launchResult = EditorResult.ManagePackages;
                 }
             }
