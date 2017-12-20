@@ -98,7 +98,6 @@ namespace Bonsai.Design
             var lostFocusEvent = Observable.FromEventPattern<EventHandler, EventArgs>(
                 handler => LostFocus += handler,
                 handler => LostFocus -= handler)
-                .Do(evt => ignoreMouseUp = true)
                 .Select(evt => evt.EventArgs);
 
             var mouseMoveEvent = Observable.FromEventPattern<MouseEventHandler, MouseEventArgs>(
@@ -516,6 +515,7 @@ namespace Bonsai.Design
 
         protected override void OnLostFocus(EventArgs e)
         {
+            ignoreMouseUp = true;
             InvalidateSelection();
             base.OnLostFocus(e);
         }
