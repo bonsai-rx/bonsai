@@ -73,6 +73,7 @@ namespace Bonsai.Design
             tabPage.SuspendLayout();
             if (container != null)
             {
+                container.TextChanged += (sender, e) => tabState.Text = container.Text;
                 container.Controls.Add(workflowGraphView);
                 tabPage.Controls.Add(container);
             }
@@ -160,7 +161,6 @@ namespace Bonsai.Design
                     {
                         workflowGraphView.VisualizerLayout = null;
                         workflowGraphView.Workflow = builder.Workflow;
-                        activeTab.Text = ExpressionBuilder.GetElementDisplayName(builder);
                     }
                 }
                 workflowGraphView.Select();

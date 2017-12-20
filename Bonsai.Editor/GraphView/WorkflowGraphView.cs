@@ -1474,11 +1474,7 @@ namespace Bonsai.Design
                                     editorService.ValidateWorkflow();
                                 }
 
-                                //TODO: Find more economical way to deal with visual node changes after editor
-                                foreach (var graphNode in graphView.Nodes.SelectMany(layer => layer))
-                                {
-                                    graphView.Invalidate(graphNode);
-                                }
+                                RefreshEditorNode(node);
                             }
                         }
                     }
@@ -1762,6 +1758,24 @@ namespace Bonsai.Design
                 }
 
                 visualizerLayout = updatedLayout;
+            }
+        }
+
+        public void RefreshSelection()
+        {
+            foreach (var node in graphView.SelectedNodes)
+            {
+                RefreshEditorNode(node);
+            }
+        }
+
+        void RefreshEditorNode(GraphNode node)
+        {
+            graphView.Invalidate(node);
+            var editor = GetWorkflowEditorLauncher(node);
+            if (editor != null && editor.Visible)
+            {
+                editor.UpdateEditorText();
             }
         }
 

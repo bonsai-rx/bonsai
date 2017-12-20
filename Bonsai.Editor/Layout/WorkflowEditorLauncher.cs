@@ -76,6 +76,14 @@ namespace Bonsai.Design
             }
         }
 
+        public void UpdateEditorText()
+        {
+            if (VisualizerDialog != null)
+            {
+                VisualizerDialog.Text = ExpressionBuilder.GetElementDisplayName(builder);
+            }
+        }
+
         public override void Show(IWin32Window owner, IServiceProvider provider)
         {
             if (VisualizerDialog != null && VisualizerDialog.TopLevel == false)
@@ -108,13 +116,6 @@ namespace Bonsai.Design
 
         protected override void InitializeComponents(TypeVisualizerDialog visualizerDialog, IServiceProvider provider)
         {
-            userClosing = true;
-            visualizerDialog.Activated += delegate
-            {
-                workflowGraphView.UpdateSelection();
-                visualizerDialog.Text = ExpressionBuilder.GetElementDisplayName(builder);
-            };
-
             var workflowEditor = Container;
             if (workflowEditor == null)
             {
@@ -128,6 +129,7 @@ namespace Bonsai.Design
                 visualizerDialog.AddControl(workflowEditor);
                 visualizerDialog.Icon = Bonsai.Editor.Properties.Resources.Icon;
                 visualizerDialog.ShowIcon = true;
+                visualizerDialog.Activated += (sender, e) => workflowGraphView.UpdateSelection();
                 visualizerDialog.HandleDestroyed += (sender, e) => workflowEditor = null;
                 visualizerDialog.FormClosing += (sender, e) =>
                 {
@@ -148,8 +150,10 @@ namespace Bonsai.Design
                 tabState.TabClosing += EditorClosing;
             }
 
+            userClosing = true;
             workflowGraphView.Launcher = this;
             workflowGraphView.VisualizerLayout = VisualizerLayout;
+            UpdateEditorText();
         }
     }
 }

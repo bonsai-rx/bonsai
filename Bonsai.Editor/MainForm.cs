@@ -2037,6 +2037,11 @@ namespace Bonsai.Editor
         private void propertyGrid_Validated(object sender, EventArgs e)
         {
             editorSite.ValidateWorkflow();
+            var view = selectionModel.SelectedView;
+            if (view != null)
+            {
+                view.RefreshSelection();
+            }
         }
 
         private void propertyGrid_DragEnter(object sender, DragEventArgs e)
