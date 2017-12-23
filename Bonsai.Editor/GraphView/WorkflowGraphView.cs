@@ -278,13 +278,17 @@ namespace Bonsai.Design
             }
         }
 
-        private void ClearEditorMapping()
+        internal void HideEditorMapping()
         {
             foreach (var mapping in workflowEditorMapping)
             {
                 mapping.Value.Hide();
             }
+        }
 
+        private void ClearEditorMapping()
+        {
+            HideEditorMapping();
             workflowEditorMapping.Clear();
         }
 
