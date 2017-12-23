@@ -114,16 +114,52 @@ namespace Bonsai.Design
             if (tabPage != null)
             {
                 var tabState = (TabPageController)tabPage.Tag;
-                var cancelEventArgs = new CancelEventArgs();
-                tabState.OnTabClosing(cancelEventArgs);
-                if (!cancelEventArgs.Cancel)
+                CloseTab(tabState);
+            }
+        }
+
+        void CloseTab(TabPageController tabState)
+        {
+            var tabPage = tabState.TabPage;
+            var cancelEventArgs = new CancelEventArgs();
+            tabState.OnTabClosing(cancelEventArgs);
+            if (!cancelEventArgs.Cancel)
+            {
+                tabControl.SuspendLayout();
+                var tabIndex = tabControl.TabPages.IndexOf(tabPage);
+                tabControl.SelectTab(tabIndex - 1);
+                tabControl.TabPages.Remove(tabPage);
+                tabControl.ResumeLayout();
+                tabPage.Dispose();
+            }
+
+        }
+
+        public void RefreshTab(IWorkflowExpressionBuilder builder)
+        {
+            var tabPage = FindTab(builder);
+            if (tabPage != null)
+            {
+                var tabState = (TabPageController)tabPage.Tag;
+                RefreshTab(tabState);
+            }
+        }
+
+        void RefreshTab(TabPageController tabState)
+        {
+            var builder = tabState.Builder;
+            var workflowGraphView = tabState.WorkflowGraphView;
+            if (builder != null && builder.Workflow != workflowGraphView.Workflow)
+            {
+                if (builder.Workflow == null)
                 {
-                    tabControl.SuspendLayout();
-                    var tabIndex = tabControl.TabPages.IndexOf(tabPage);
-                    tabControl.SelectTab(tabIndex - 1);
-                    tabControl.TabPages.Remove(tabPage);
-                    tabControl.ResumeLayout();
-                    tabPage.Dispose();
+                    CloseTab(tabState);
+                    return;
+                }
+                else
+                {
+                    workflowGraphView.VisualizerLayout = null;
+                    workflowGraphView.Workflow = builder.Workflow;
                 }
             }
         }
@@ -148,23 +184,11 @@ namespace Bonsai.Design
             if (tabState != null && activeTab != tabState)
             {
                 activeTab = tabState;
-                var builder = activeTab.Builder;
+                RefreshTab(activeTab);
+
                 var workflowGraphView = activeTab.WorkflowGraphView;
-                if (builder != null && builder.Workflow != workflowGraphView.Workflow)
-                {
-                    if (builder.Workflow == null)
-                    {
-                        CloseTab(builder);
-                        return;
-                    }
-                    else
-                    {
-                        workflowGraphView.VisualizerLayout = null;
-                        workflowGraphView.Workflow = builder.Workflow;
-                    }
-                }
+                workflowGraphView.UpdateSelection();
                 workflowGraphView.Select();
-                selectionModel.UpdateSelection(workflowGraphView);
             }
         }
 
@@ -253,7 +277,7 @@ namespace Bonsai.Design
                 var tabState = (TabPageController)selectedTab.Tag;
                 if (tabState.Builder != null)
                 {
-                    CloseTab(tabState.Builder);
+                    CloseTab(tabState);
                 }
             }
         }
@@ -301,7 +325,7 @@ namespace Bonsai.Design
                     var buttonBounds = new Rectangle(buttonLeft, buttonTop, (int)(buttonWidth + offset), buttonHeight);
                     if (buttonBounds.Contains(e.Location))
                     {
-                        CloseTab(tabState.Builder);
+                        CloseTab(tabState);
                     }
                 }
             }
@@ -323,7 +347,7 @@ namespace Bonsai.Design
             var tabState = (TabPageController)selectedTab.Tag;
             if (tabState.Builder != null)
             {
-                CloseTab(tabState.Builder);
+                CloseTab(tabState);
             }
         }
 
@@ -334,7 +358,7 @@ namespace Bonsai.Design
                 var tabState = (TabPageController)tabControl.TabPages[1].Tag;
                 if (tabState.Builder != null)
                 {
-                    CloseTab(tabState.Builder);
+                    CloseTab(tabState);
                 }
             }
         }
