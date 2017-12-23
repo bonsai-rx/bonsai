@@ -81,6 +81,10 @@ namespace Bonsai.Design
             if (VisualizerDialog != null)
             {
                 VisualizerDialog.Text = ExpressionBuilder.GetElementDisplayName(builder);
+                if (VisualizerDialog.TopLevel == false)
+                {
+                    Container.RefreshTab(builder);
+                }
             }
         }
 
