@@ -111,7 +111,11 @@ namespace Bonsai.Design
                 ParentView.CloseWorkflowView(builder);
                 ParentView.UpdateSelection();
             }
-            else UpdateEditorLayout();
+            else
+            {
+                UpdateEditorLayout();
+                workflowGraphView.HideEditorMapping();
+            }
         }
 
         protected override void InitializeComponents(TypeVisualizerDialog visualizerDialog, IServiceProvider provider)
