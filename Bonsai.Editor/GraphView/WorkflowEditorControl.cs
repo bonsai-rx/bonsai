@@ -62,6 +62,11 @@ namespace Bonsai.Design
             workflowTab.WorkflowGraphView.UpdateVisualizerLayout();
         }
 
+        public TabPageController ActiveTab
+        {
+            get { return activeTab; }
+        }
+
         TabPageController InitializeTab(TabPage tabPage, bool readOnly, Control container)
         {
             var workflowGraphView = new WorkflowGraphView(serviceProvider, this, readOnly);
@@ -96,7 +101,6 @@ namespace Bonsai.Design
             tabState.WorkflowGraphView.Workflow = builder.Workflow;
             tabState.Builder = builder;
             tabControl.TabPages.Add(tabPage);
-            tabControl.SelectTab(tabPage);
             return tabState;
         }
 
