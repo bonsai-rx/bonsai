@@ -262,7 +262,7 @@ namespace Bonsai.Design
                 editorLauncher.Hide,
                 () =>
                 {
-                    if (visible)
+                    if (visible && editorLauncher.Builder.Workflow != null)
                     {
                         editorLauncher.Show(windowSelector(), serviceProvider);
                     }
@@ -1547,10 +1547,13 @@ namespace Bonsai.Design
                 var windowSelector = CreateWindowOwnerSelectorDelegate();
                 Action launchEditor = () =>
                 {
-                    editorLauncher.Show(windowSelector(), serviceProvider);
-                    if (highlight && !visible)
+                    if (editorLauncher.Builder.Workflow != null)
                     {
-                        editorService.RefreshEditor();
+                        editorLauncher.Show(windowSelector(), serviceProvider);
+                        if (highlight && !visible)
+                        {
+                            editorService.RefreshEditor();
+                        }
                     }
                 };
 
