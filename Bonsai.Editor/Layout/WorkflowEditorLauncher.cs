@@ -41,6 +41,11 @@ namespace Bonsai.Design
             this.containerSelector = containerSelector;
         }
 
+        internal IWorkflowExpressionBuilder Builder
+        {
+            get { return builder; }
+        }
+
         internal WorkflowGraphView ParentView
         {
             get { return parentSelector(); }
