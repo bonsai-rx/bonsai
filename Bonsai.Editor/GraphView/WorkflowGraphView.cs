@@ -63,16 +63,16 @@ namespace Bonsai.Design
         SizeF inverseScaleFactor;
         SizeF scaleFactor;
 
-        public WorkflowGraphView(IServiceProvider provider)
-            : this(provider, null, false)
-        {
-        }
-
         public WorkflowGraphView(IServiceProvider provider, WorkflowEditorControl owner, bool readOnly)
         {
             if (provider == null)
             {
                 throw new ArgumentNullException("provider");
+            }
+
+            if (owner == null)
+            {
+                throw new ArgumentNullException("owner");
             }
 
             InitializeComponent();
@@ -1799,6 +1799,7 @@ namespace Bonsai.Design
             }
 
             UpdateVisualizerLayout();
+            editorControl.SelectTab(this);
             UpdateSelection();
             return result;
         }
