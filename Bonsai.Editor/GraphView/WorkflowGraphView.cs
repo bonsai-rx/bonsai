@@ -258,6 +258,9 @@ namespace Bonsai.Design
             var visible = editorLauncher.Visible;
             var serviceProvider = this.serviceProvider;
             var windowSelector = CreateWindowOwnerSelectorDelegate();
+            var activeTabClosing = editorLauncher.Container != null &&
+                                   editorLauncher.Container.ActiveTab != null &&
+                                   editorLauncher.Container.ActiveTab.WorkflowGraphView == editorLauncher.WorkflowGraphView;
             commandExecutor.Execute(
                 editorLauncher.Hide,
                 () =>
@@ -265,6 +268,10 @@ namespace Bonsai.Design
                     if (visible && editorLauncher.Builder.Workflow != null)
                     {
                         editorLauncher.Show(windowSelector(), serviceProvider);
+                        if (editorLauncher.Container != null && activeTabClosing)
+                        {
+                            editorLauncher.Container.SelectTab(editorLauncher.WorkflowGraphView);
+                        }
                     }
                 });
         }
@@ -1550,6 +1557,11 @@ namespace Bonsai.Design
                     if (editorLauncher.Builder.Workflow != null)
                     {
                         editorLauncher.Show(windowSelector(), serviceProvider);
+                        if (editorLauncher.Container != null && !parentLaunching)
+                        {
+                            editorLauncher.Container.SelectTab(editorLauncher.WorkflowGraphView);
+                        }
+
                         if (highlight && !visible)
                         {
                             editorService.RefreshEditor();
