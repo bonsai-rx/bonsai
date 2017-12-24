@@ -99,12 +99,15 @@ namespace Bonsai.Design
 
         public override void Hide()
         {
-            userClosing = false;
-            if (VisualizerDialog != null && VisualizerDialog.TopLevel == false)
+            if (VisualizerDialog != null)
             {
-                Container.CloseTab(builder);
+                userClosing = false;
+                if (VisualizerDialog.TopLevel == false)
+                {
+                    Container.CloseTab(builder);
+                }
+                else base.Hide();
             }
-            else base.Hide();
         }
 
         void EditorClosing(object sender, CancelEventArgs e)
