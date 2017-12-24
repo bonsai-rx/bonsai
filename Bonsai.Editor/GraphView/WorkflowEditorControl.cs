@@ -67,6 +67,7 @@ namespace Bonsai.Design
             var workflowGraphView = new WorkflowGraphView(serviceProvider, this, readOnly);
             workflowGraphView.Dock = DockStyle.Fill;
             workflowGraphView.Font = Font;
+            workflowGraphView.Tag = tabPage;
 
             var tabState = new TabPageController(tabPage, workflowGraphView, this);
             tabPage.Tag = tabState;
@@ -105,6 +106,16 @@ namespace Bonsai.Design
             if (tabPage != null)
             {
                 tabControl.SelectTab(tabPage);
+            }
+        }
+
+        public void SelectTab(WorkflowGraphView workflowGraphView)
+        {
+            var tabPage = (TabPage)workflowGraphView.Tag;
+            if (tabPage != null)
+            {
+                var tabIndex = tabControl.TabPages.IndexOf(tabPage);
+                if (tabIndex >= 0) tabControl.SelectTab(tabIndex);
             }
         }
 
