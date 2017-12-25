@@ -115,6 +115,7 @@
             this.insertAfterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.insertBeforeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createBranchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.createGroupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolboxSourceContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.createSourceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.commandExecutor = new Bonsai.Design.CommandExecutor();
@@ -142,7 +143,6 @@
             this.panelSplitContainer.Panel2.SuspendLayout();
             this.panelSplitContainer.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.workflowSplitContainer)).BeginInit();
-            this.workflowSplitContainer.Panel1.SuspendLayout();
             this.workflowSplitContainer.Panel2.SuspendLayout();
             this.workflowSplitContainer.SuspendLayout();
             this.toolboxContextMenuStrip.SuspendLayout();
@@ -927,9 +927,10 @@
             this.toolboxContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.insertAfterToolStripMenuItem,
             this.insertBeforeToolStripMenuItem,
-            this.createBranchToolStripMenuItem});
+            this.createBranchToolStripMenuItem,
+            this.createGroupToolStripMenuItem});
             this.toolboxContextMenuStrip.Name = "toolboxContextMenuStrip";
-            this.toolboxContextMenuStrip.Size = new System.Drawing.Size(207, 70);
+            this.toolboxContextMenuStrip.Size = new System.Drawing.Size(207, 92);
             // 
             // insertAfterToolStripMenuItem
             // 
@@ -954,6 +955,14 @@
             this.createBranchToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             this.createBranchToolStripMenuItem.Text = "Create Branch";
             this.createBranchToolStripMenuItem.Click += new System.EventHandler(this.createBranchToolStripMenuItem_Click);
+            // 
+            // createGroupToolStripMenuItem
+            // 
+            this.createGroupToolStripMenuItem.Name = "createGroupToolStripMenuItem";
+            this.createGroupToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Enter";
+            this.createGroupToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
+            this.createGroupToolStripMenuItem.Text = "Create Group";
+            this.createGroupToolStripMenuItem.Click += new System.EventHandler(this.createGroupToolStripMenuItem_Click);
             // 
             // toolboxSourceContextMenuStrip
             // 
@@ -1029,7 +1038,6 @@
             this.panelSplitContainer.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelSplitContainer)).EndInit();
             this.panelSplitContainer.ResumeLayout(false);
-            this.workflowSplitContainer.Panel1.ResumeLayout(false);
             this.workflowSplitContainer.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.workflowSplitContainer)).EndInit();
             this.workflowSplitContainer.ResumeLayout(false);
@@ -1128,6 +1136,7 @@
         private System.Windows.Forms.ToolStripMenuItem exportImageToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exportPackageToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem galleryToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem createGroupToolStripMenuItem;
     }
 }
 

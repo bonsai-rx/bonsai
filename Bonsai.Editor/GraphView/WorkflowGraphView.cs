@@ -38,6 +38,7 @@ namespace Bonsai.Design
         const int ShiftModifier = 0x4;
         const int CtrlModifier = 0x8;
         const int AltModifier = 0x20;
+        public const Keys GroupModifier = Keys.Control;
         public const Keys BranchModifier = Keys.Alt;
         public const Keys PredecessorModifier = Keys.Shift;
         public const string BonsaiExtension = ".bonsai";
@@ -768,6 +769,12 @@ namespace Bonsai.Design
             return builder;
         }
 
+        WorkflowExpressionBuilder CreateWorkflowBuilder(TreeNode typeNode, ExpressionBuilderGraph graph)
+        {
+            var typeName = typeNode.Name;
+            return CreateWorkflowBuilder(typeName, graph);
+        }
+
         WorkflowExpressionBuilder CreateWorkflowBuilder(string typeName, ExpressionBuilderGraph graph)
         {
             var type = Type.GetType(typeName);
@@ -779,8 +786,13 @@ namespace Bonsai.Design
             return (WorkflowExpressionBuilder)Activator.CreateInstance(type, graph);
         }
 
-        public void CreateGraphNode(TreeNode typeNode, GraphNode closestGraphViewNode, CreateGraphNodeType nodeType, bool branch)
+        public void InsertGraphNode(TreeNode typeNode, CreateGraphNodeType nodeType, bool branch, bool group)
         {
+            if (typeNode == null)
+            {
+                throw new ArgumentNullException("typeNode");
+            }
+
             if (Path.IsPathRooted(typeNode.Name))
             {
                 var workflowBuilder = editorService.LoadWorkflow(typeNode.Name);
@@ -791,19 +803,19 @@ namespace Bonsai.Design
             }
             else
             {
-                var builder = CreateBuilder(typeNode);
-                var elementCategory = (ElementCategory)typeNode.Tag;
-                CreateGraphNode(builder, elementCategory, closestGraphViewNode, nodeType, branch);
+                var selectedNodes = graphView.SelectedNodes;
+                var selectedNode = selectedNodes.FirstOrDefault();
+                if (group && selectedNode != null) CreateOrReplaceGroupNode(selectedNodes.ToArray(), typeNode);
+                else
+                {
+                    var builder = CreateBuilder(typeNode);
+                    var elementCategory = (ElementCategory)typeNode.Tag;
+                    CreateGraphNode(builder, elementCategory, selectedNode, nodeType, branch);
+                }
             }
         }
 
-        public void CreateGraphNode(string typeName, ElementCategory elementCategory, GraphNode closestGraphViewNode, CreateGraphNodeType nodeType, bool branch)
-        {
-            var builder = CreateBuilder(typeName, elementCategory);
-            CreateGraphNode(builder, elementCategory, closestGraphViewNode, nodeType, branch);
-        }
-
-        public void CreateGraphNode(ExpressionBuilder builder, ElementCategory elementCategory, GraphNode closestGraphViewNode, CreateGraphNodeType nodeType, bool branch, bool validate = true)
+        public void CreateGraphNode(ExpressionBuilder builder, ElementCategory elementCategory, GraphNode selectedNode, CreateGraphNodeType nodeType, bool branch, bool validate = true)
         {
             if (builder == null)
             {
@@ -827,7 +839,7 @@ namespace Bonsai.Design
             var updateGraphLayoutValidation = CreateUpdateGraphLayoutValidationDelegate();
             var updateSelectedNode = CreateUpdateSelectionDelegate(builder);
 
-            var closestNode = closestGraphViewNode != null ? GetGraphNodeTag(workflow, closestGraphViewNode) : null;
+            var closestNode = selectedNode != null ? GetGraphNodeTag(workflow, selectedNode) : null;
             var restoreSelectedNode = CreateUpdateSelectionDelegate(closestNode);
 
             var workflowBuilder = builder as WorkflowExpressionBuilder;
@@ -1111,14 +1123,22 @@ namespace Bonsai.Design
                      select successor).Any();
         }
 
+        public void CreateOrReplaceGroupNode(GraphNode[] selectedNodes, TreeNode typeNode)
+        {
+            var selectedNode = selectedNodes.Length == 1 ? selectedNodes[0] : null;
+            var workflowBuilder = selectedNode != null ? GetGraphNodeBuilder(selectedNode) as WorkflowExpressionBuilder : null;
+            if (workflowBuilder != null) ReplaceGroupNode(selectedNode, typeNode);
+            else GroupGraphNodes(selectedNodes, typeNode);
+        }
+
         public void GroupGraphNodes(IEnumerable<GraphNode> nodes)
         {
             GroupGraphNodes(nodes, graph => new NestedWorkflowBuilder(graph));
         }
 
-        private void GroupGraphNodes(IEnumerable<GraphNode> nodes, string typeName)
+        private void GroupGraphNodes(IEnumerable<GraphNode> nodes, TreeNode typeNode)
         {
-            GroupGraphNodes(nodes, graph => CreateWorkflowBuilder(typeName, graph));
+            GroupGraphNodes(nodes, graph => CreateWorkflowBuilder(typeNode, graph));
         }
 
         private void GroupGraphNodes(IEnumerable<GraphNode> nodes, Func<ExpressionBuilderGraph, WorkflowExpressionBuilder> groupFactory)
@@ -1248,6 +1268,40 @@ namespace Bonsai.Design
             });
 
             if (replacementNode != null) DeleteGraphNode(replacementNode);
+            commandExecutor.Execute(() =>
+            {
+                updateGraphLayout();
+                updateSelectedNode();
+            },
+            () => { });
+            commandExecutor.EndCompositeCommand();
+        }
+
+        private void ReplaceGroupNode(GraphNode node, TreeNode typeNode)
+        {
+            var typeName = typeNode.Name;
+            var elementCategory = (ElementCategory)typeNode.Tag;
+            ReplaceGroupNode(node, typeName, elementCategory);
+        }
+
+        private void ReplaceGroupNode(GraphNode node, string typeName, ElementCategory elementCategory)
+        {
+            var workflowBuilder = GetGraphNodeBuilder(node) as WorkflowExpressionBuilder;
+            if (workflowBuilder == null)
+            {
+                return;
+            }
+
+            var builder = CreateWorkflowBuilder(typeName, workflowBuilder.Workflow);
+            var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
+            var updateSelectedNode = CreateUpdateSelectionDelegate(builder);
+
+            builder.Name = workflowBuilder.Name;
+            builder.Description = workflowBuilder.Description;
+            commandExecutor.BeginCompositeCommand();
+            commandExecutor.Execute(() => { }, updateGraphLayout);
+            CreateGraphNode(builder, elementCategory, node, CreateGraphNodeType.Successor, branch: false, validate: false);
+            DeleteGraphNode(node);
             commandExecutor.Execute(() =>
             {
                 updateGraphLayout();
@@ -1957,6 +2011,7 @@ namespace Bonsai.Design
                 var dropLocation = graphView.PointToClient(new Point(e.X, e.Y));
                 if (e.Effect == DragDropEffects.Copy)
                 {
+                    var group = (e.KeyState & CtrlModifier) != 0;
                     var branch = (e.KeyState & AltModifier) != 0;
                     var nodeType = (e.KeyState & ShiftModifier) != 0 ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
                     var targetNode = graphView.GetNodeAt(dropLocation);
@@ -1979,9 +2034,8 @@ namespace Bonsai.Design
                     }
                     else
                     {
-                        var linkNode = targetNode ?? graphView.SelectedNode;
                         var typeNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
-                        CreateGraphNode(typeNode, linkNode, nodeType, branch);
+                        InsertGraphNode(typeNode, nodeType, branch, group);
                     }
                 }
 
@@ -2452,67 +2506,6 @@ namespace Bonsai.Design
             return menuItem;
         }
 
-        private void CreateGroupMenuItems(GraphNode[] selectedNodes)
-        {
-            var toolboxService = (IWorkflowToolboxService)serviceProvider.GetService(typeof(IWorkflowToolboxService));
-            if (toolboxService != null)
-            {
-                var selectedNode = selectedNodes.Length == 1 ? selectedNodes[0] : null;
-                var workflowBuilder = selectedNode != null ? GetGraphNodeBuilder(selectedNode) as WorkflowExpressionBuilder : null;
-                foreach (var element in from element in toolboxService.GetToolboxElements()
-                                        where element.ElementTypes.Length == 1 &&
-                                              (element.ElementTypes.Contains(ElementCategory.Nested) ||
-                                               element.FullyQualifiedName == typeof(ConditionBuilder).AssemblyQualifiedName ||
-                                               element.FullyQualifiedName == typeof(SinkBuilder).AssemblyQualifiedName)
-                                        select element)
-                {
-                    ToolStripMenuItem menuItem = null;
-                    var name = string.Format("{0} ({1})", element.Name, toolboxService.GetPackageDisplayName(element.Namespace));
-                    menuItem = new ToolStripMenuItem(name, null, (sender, e) =>
-                    {
-                        if (workflowBuilder != null)
-                        {
-                            if (menuItem.Checked) return;
-                            var builder = CreateWorkflowBuilder(element.FullyQualifiedName, workflowBuilder.Workflow);
-                            var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
-                            var updateSelectedNode = CreateUpdateSelectionDelegate(builder);
-
-                            builder.Name = workflowBuilder.Name;
-                            builder.Description = workflowBuilder.Description;
-                            commandExecutor.BeginCompositeCommand();
-                            commandExecutor.Execute(() => { }, updateGraphLayout);
-                            CreateGraphNode(
-                                builder, element.ElementTypes[0], selectedNode,
-                                CreateGraphNodeType.Successor, branch: false, validate: false);
-                            DeleteGraphNode(selectedNode);
-                            commandExecutor.Execute(() =>
-                            {
-                                updateGraphLayout();
-                                updateSelectedNode();
-                            },
-                            () => { });
-                            commandExecutor.EndCompositeCommand();
-                        }
-                        else GroupGraphNodes(selectedNodes, element.FullyQualifiedName);
-                    });
-
-                    if (workflowBuilder != null &&
-                        workflowBuilder.GetType().AssemblyQualifiedName == element.FullyQualifiedName)
-                    {
-                        menuItem.Checked = true;
-                    }
-
-                    if (element.FullyQualifiedName == typeof(NestedWorkflowBuilder).AssemblyQualifiedName)
-                    {
-                        //make nested workflow the first on the list and display shortcut key string
-                        menuItem.ShortcutKeys = Keys.Control | Keys.G;
-                        groupToolStripMenuItem.DropDownItems.Insert(0, menuItem);
-                    }
-                    else groupToolStripMenuItem.DropDownItems.Add(menuItem);
-                }
-            }
-        }
-
         private void contextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
             // Ensure that the current view is selected 
@@ -2539,7 +2532,6 @@ namespace Bonsai.Design
                     disconnectToolStripMenuItem.Enabled = true;
                     groupToolStripMenuItem.Enabled = true;
                     ungroupToolStripMenuItem.Enabled = true;
-                    CreateGroupMenuItems(selectedNodes);
                 }
             }
 

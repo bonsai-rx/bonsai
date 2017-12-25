@@ -1377,9 +1377,10 @@ namespace Bonsai.Editor
             var model = selectionModel.SelectedView;
             if (model.ReadOnly) return;
 
+            var group = modifiers.HasFlag(WorkflowGraphView.GroupModifier);
             var branch = modifiers.HasFlag(WorkflowGraphView.BranchModifier);
             var predecessor = modifiers.HasFlag(WorkflowGraphView.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
-            try { model.CreateGraphNode(typeNode, selectionModel.SelectedNodes.FirstOrDefault(), predecessor, branch); }
+            try { model.InsertGraphNode(typeNode, predecessor, branch, group); }
             catch (TargetInvocationException e)
             {
                 var message = string.Format(ErrorMessage, typeNode.Text, e.InnerException.Message);
@@ -1458,11 +1459,19 @@ namespace Bonsai.Editor
                     toolboxTreeView.SelectedNode = selectedNode;
                     if (selectedNode.Tag != null)
                     {
-                        if (selectedNode.Tag.Equals(ElementCategory.Source))
+                        var elementCategory = (ElementCategory)selectedNode.Tag;
+                        if (elementCategory == ElementCategory.Source)
                         {
                             toolboxSourceContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);
                         }
-                        else toolboxContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);
+                        else
+                        {
+                            createGroupToolStripMenuItem.Visible =
+                                elementCategory == ElementCategory.Nested ||
+                                selectedNode.Name == typeof(ConditionBuilder).AssemblyQualifiedName ||
+                                selectedNode.Name == typeof(SinkBuilder).AssemblyQualifiedName;
+                            toolboxContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);
+                        }
                     }
                 }
             }
@@ -1481,6 +1490,11 @@ namespace Bonsai.Editor
         private void createBranchToolStripMenuItem_Click(object sender, EventArgs e)
         {
             toolboxTreeView_KeyDown(sender, new KeyEventArgs(Keys.Alt | Keys.Return));
+        }
+
+        private void createGroupToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            toolboxTreeView_KeyDown(sender, new KeyEventArgs(Keys.Control | Keys.Return));
         }
 
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
