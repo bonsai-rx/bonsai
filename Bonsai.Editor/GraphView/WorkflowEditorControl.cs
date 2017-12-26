@@ -147,7 +147,6 @@ namespace Bonsai.Design
                 tabControl.ResumeLayout();
                 tabPage.Dispose();
             }
-
         }
 
         public void RefreshTab(IWorkflowExpressionBuilder builder)
