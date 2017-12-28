@@ -12,21 +12,12 @@ namespace Bonsai
 {
     sealed class TypeVisualizerLoader : MarshalByRefObject
     {
-        Type typeVisualizerAttributeType;
-
         public TypeVisualizerLoader(PackageConfiguration configuration)
         {
             ConfigurationHelper.SetAssemblyResolve(configuration);
-            InitializeReflectionTypes();
         }
 
-        void InitializeReflectionTypes()
-        {
-            var typeVisualizerAttributeAssembly = Assembly.Load(typeof(TypeVisualizerAttribute).Assembly.FullName);
-            typeVisualizerAttributeType = typeVisualizerAttributeAssembly.GetType(typeof(TypeVisualizerAttribute).FullName);
-        }
-
-        IEnumerable<TypeVisualizerAttribute> GetCustomAttributeTypes(Assembly assembly, Type attributeType)
+        static IEnumerable<TypeVisualizerAttribute> GetCustomAttributeTypes(Assembly assembly)
         {
             Type[] types;
             var typeVisualizers = Enumerable.Empty<TypeVisualizerAttribute>();
@@ -39,7 +30,7 @@ namespace Bonsai
                 var type = types[i];
                 if (type.IsPublic && !type.IsAbstract && !type.ContainsGenericParameters)
                 {
-                    var visualizerAttributes = Array.ConvertAll(type.GetCustomAttributes(attributeType, true), attribute =>
+                    var visualizerAttributes = Array.ConvertAll(type.GetCustomAttributes(typeof(TypeVisualizerAttribute), true), attribute =>
                     {
                         var visualizerAttribute = (TypeVisualizerAttribute)attribute;
                         visualizerAttribute.TargetTypeName = type.AssemblyQualifiedName;
@@ -62,9 +53,9 @@ namespace Bonsai
             try
             {
                 var assembly = Assembly.Load(assemblyRef);
-                var visualizerAttributes = assembly.GetCustomAttributes(typeVisualizerAttributeType, true).Cast<TypeVisualizerAttribute>();
+                var visualizerAttributes = assembly.GetCustomAttributes(typeof(TypeVisualizerAttribute), true).Cast<TypeVisualizerAttribute>();
                 typeVisualizers = typeVisualizers.Concat(visualizerAttributes);
-                typeVisualizers = typeVisualizers.Concat(GetCustomAttributeTypes(assembly, typeVisualizerAttributeType));
+                typeVisualizers = typeVisualizers.Concat(GetCustomAttributeTypes(assembly));
             }
             catch (FileLoadException) { }
             catch (FileNotFoundException) { }
