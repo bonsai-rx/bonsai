@@ -985,7 +985,7 @@
             // 
             // snippetFileWatcher
             // 
-            this.snippetFileWatcher.EnableRaisingEvents = true;
+            this.snippetFileWatcher.EnableRaisingEvents = false;
             this.snippetFileWatcher.IncludeSubdirectories = true;
             this.snippetFileWatcher.SynchronizingObject = this;
             // 

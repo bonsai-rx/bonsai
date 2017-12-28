@@ -34,10 +34,11 @@ namespace Bonsai.Editor
         const string BonsaiExtension = ".bonsai";
         const string LayoutExtension = ".layout";
         const string BonsaiPackageName = "Bonsai";
-        const string SnippetsDirectory = "Snippets";
+        const string SnippetsDirectory = "Extensions";
         const string SnippetCategoryName = "Workflow";
         const string VersionAttributeName = "Version";
         const string DefaultSnippetNamespace = "Unspecified";
+        static readonly object SnippetsDirectoryChanged = new object();
         static readonly XmlWriterSettings DefaultWriterSettings = new XmlWriterSettings
         {
             NamespaceHandling = NamespaceHandling.OmitDuplicates,
@@ -66,6 +67,7 @@ namespace Bonsai.Editor
 
         TypeVisualizerMap typeVisualizers;
         List<WorkflowElementDescriptor> workflowElements;
+        List<WorkflowElementDescriptor> workflowSnippets;
         WorkflowRuntimeExceptionCache exceptionCache;
         HashSet<Module> typeDescriptorCache;
         WorkflowException workflowError;
@@ -112,6 +114,7 @@ namespace Bonsai.Editor
             selectionFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Bold);
             typeVisualizers = new TypeVisualizerMap();
             workflowElements = new List<WorkflowElementDescriptor>();
+            workflowSnippets = new List<WorkflowElementDescriptor>();
             exceptionCache = new WorkflowRuntimeExceptionCache();
             typeDescriptorCache = new HashSet<Module>();
             selectionModel = new WorkflowSelectionModel();
@@ -262,12 +265,13 @@ namespace Bonsai.Editor
             var systemPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.System)).TrimEnd('\\');
             var systemX86Path = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86)).TrimEnd('\\');
             var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory || currentDirectory == systemPath || currentDirectory == systemX86Path;
-            directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
-            snippetPath = new DirectoryInfo(Path.Combine(appDomainBaseDirectory, SnippetsDirectory));
+            var snippetDirectory = Path.Combine(appDomainBaseDirectory, SnippetsDirectory);
 
-            initialization.Subscribe();
-            RefreshSnippets().Subscribe();
+            InitializeSnippetFileWatcher().Subscribe();
             updatesAvailable.Subscribe(HandleUpdatesAvailable);
+            workflowSnippets.AddRange(FindSnippets(snippetDirectory));
+            directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+            initialization.Subscribe();
             base.OnLoad(e);
         }
 
@@ -317,6 +321,14 @@ namespace Bonsai.Editor
 
         #region Toolbox
 
+        IObservable<Unit> InitializeSnippetFileWatcher()
+        {
+            var snippetsDirectoryChanged = Observable.FromEventPattern<EventHandler, EventArgs>(
+                handler => Events.AddHandler(SnippetsDirectoryChanged, handler),
+                handler => Events.RemoveHandler(SnippetsDirectoryChanged, handler));
+            return snippetsDirectoryChanged.Select(evt => Observable.Defer(RefreshSnippets)).Switch();
+        }
+
         IObservable<Unit> RefreshSnippets()
         {
             try
@@ -327,7 +339,6 @@ namespace Bonsai.Editor
             catch (ArgumentException)
             {
                 snippetFileWatcher.EnableRaisingEvents = false;
-                return Observable.Empty<Unit>();
             }
 
             var start = Observable.Return(new EventPattern<EventArgs>(this, EventArgs.Empty));
@@ -346,7 +357,10 @@ namespace Bonsai.Editor
             return Observable
                 .Merge(start, changed, created, deleted, renamed)
                 .Throttle(TimeSpan.FromSeconds(1), Scheduler.Default)
-                .Select(evt => FindSnippets(SnippetsDirectory).GroupBy(x => x.Namespace).ToList())
+                .Select(evt => workflowSnippets
+                    .Concat(FindSnippets(SnippetsDirectory))
+                    .GroupBy(x => x.Namespace)
+                    .ToList())
                 .ObserveOn(this)
                 .Do(elements =>
                 {
@@ -386,8 +400,16 @@ namespace Bonsai.Editor
 
         static IEnumerable<WorkflowElementDescriptor> FindSnippets(string basePath)
         {
+            int basePathLength;
             var workflowFiles = default(string[]);
-            basePath = Path.IsPathRooted(basePath) ? basePath : Path.Combine(AppDomain.CurrentDomain.BaseDirectory, basePath);
+            if (!Path.IsPathRooted(basePath))
+            {
+                var currentDirectory = Environment.CurrentDirectory;
+                basePath = Path.Combine(currentDirectory, basePath);
+                basePathLength = currentDirectory.Length;
+            }
+            else basePathLength = basePath.Length;
+
             try { workflowFiles = Directory.GetFiles(basePath, "*" + BonsaiExtension, SearchOption.AllDirectories); }
             catch (DirectoryNotFoundException) { yield break; }
 
@@ -408,7 +430,7 @@ namespace Bonsai.Editor
                 }
                 catch (SystemException) { continue; }
                 
-                var relativePath = fileName.Substring(basePath.Length)
+                var relativePath = fileName.Substring(basePathLength)
                                            .TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
                 var fileNamespace = Path.GetDirectoryName(relativePath)
                                         .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar)
@@ -419,7 +441,7 @@ namespace Bonsai.Editor
                 {
                     Name = Path.GetFileNameWithoutExtension(relativePath),
                     Namespace = fileNamespace,
-                    FullyQualifiedName = fileName,
+                    FullyQualifiedName = Path.ChangeExtension(relativePath, null),
                     Description = description,
                     ElementTypes = new[] { ElementCategory.Workflow }
                 };
@@ -689,11 +711,22 @@ namespace Bonsai.Editor
             SaveElement(VisualizerLayout.Serializer, fileName, layout, Resources.SaveLayout_Error);
         }
 
+        void OnSnippetsDirectoryChanged(EventArgs e)
+        {
+            var handler = Events[SnippetsDirectoryChanged] as EventHandler;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
         void UpdateCurrentDirectory()
         {
             if (Directory.Exists(directoryToolStripTextBox.Text))
             {
                 Environment.CurrentDirectory = directoryToolStripTextBox.Text;
+                snippetPath = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, SnippetsDirectory));
+                OnSnippetsDirectoryChanged(EventArgs.Empty);
             }
             else directoryToolStripTextBox.Text = Environment.CurrentDirectory;
         }
@@ -788,15 +821,21 @@ namespace Bonsai.Editor
 
         private void saveSnippetAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (!snippetFileWatcher.EnableRaisingEvents && !snippetPath.Exists)
+            {
+                var createExtensions = MessageBox.Show(
+                    Resources.CreateExtensionsFolder_Question,
+                    Resources.CreateExtensionsFolder_Question_Caption,
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+                if (createExtensions == DialogResult.No) return;
+                snippetPath.Create();
+                OnSnippetsDirectoryChanged(EventArgs.Empty);
+            }
+
             var currentFileName = saveWorkflowDialog.FileName;
             try
             {
-                if (string.IsNullOrEmpty(snippetFileWatcher.Path) && !snippetPath.Exists)
-                {
-                    snippetPath.Create();
-                    RefreshSnippets().Subscribe();
-                }
-
                 saveWorkflowDialog.InitialDirectory = snippetFileWatcher.Path;
                 if (saveWorkflowDialog.ShowDialog() == DialogResult.OK)
                 {
