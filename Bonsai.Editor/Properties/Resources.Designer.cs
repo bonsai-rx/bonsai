@@ -131,6 +131,24 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Extensions folder does not exist in the current working directory. Do you want to create it?.
+        /// </summary>
+        internal static string CreateExtensionsFolder_Question {
+            get {
+                return ResourceManager.GetString("CreateExtensionsFolder_Question", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create Extensions Folder.
+        /// </summary>
+        internal static string CreateExtensionsFolder_Question_Caption {
+            get {
+                return ResourceManager.GetString("CreateExtensionsFolder_Question_Caption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Interface Error.
         /// </summary>
         internal static string Editor_Error_Caption {

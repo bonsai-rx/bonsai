@@ -234,4 +234,10 @@ Copyright 2010-2012 Outercurve Foundation</value>
   <data name="Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Bonsai.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="CreateExtensionsFolder_Question" xml:space="preserve">
+    <value>Extensions folder does not exist in the current working directory. Do you want to create it?</value>
+  </data>
+  <data name="CreateExtensionsFolder_Question_Caption" xml:space="preserve">
+    <value>Create Extensions Folder</value>
+  </data>
 </root>
