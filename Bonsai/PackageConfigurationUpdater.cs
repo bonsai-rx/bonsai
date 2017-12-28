@@ -15,7 +15,7 @@ namespace Bonsai
     {
         const string PackageTagFilter = "Bonsai";
         const string GalleryDirectory = "Gallery";
-        const string SnippetsDirectory = "Snippets";
+        const string ExtensionsDirectory = "Extensions";
         const string BuildDirectory = "build";
         const string BinDirectory = "bin";
         const string DebugDirectory = "debug";
@@ -336,7 +336,7 @@ namespace Bonsai
             }
             else packageConfiguration.Packages[package.Id].Version = package.Version.ToString();
 
-            AddContentFolders(e.InstallPath, SnippetsDirectory);
+            AddContentFolders(e.InstallPath, ExtensionsDirectory);
             RegisterLibraryFolders(package, installPath);
             RegisterAssemblyLocations(package, e.InstallPath, installPath, false);
             var pivots = OverlayHelper.FindPivots(package, e.InstallPath).ToArray();
@@ -377,7 +377,7 @@ namespace Bonsai
             var installPath = GetRelativePath(e.InstallPath);
             packageConfiguration.Packages.Remove(package.Id);
 
-            RemoveContentFolders(package, e.InstallPath, SnippetsDirectory);
+            RemoveContentFolders(package, e.InstallPath, ExtensionsDirectory);
             RemoveLibraryFolders(package, installPath);
             RemoveAssemblyLocations(package, e.InstallPath, false);
             var pivots = OverlayHelper.FindPivots(package, e.InstallPath).ToArray();
