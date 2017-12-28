@@ -793,13 +793,11 @@ namespace Bonsai.Design
                 throw new ArgumentNullException("typeNode");
             }
 
-            if (Path.IsPathRooted(typeNode.Name))
+            var elementCategory = (ElementCategory)typeNode.Tag;
+            if (elementCategory == ElementCategory.Workflow)
             {
-                var workflowBuilder = editorService.LoadWorkflow(typeNode.Name);
-                if (workflowBuilder.Workflow.Count > 0)
-                {
-                    InsertGraphElements(workflowBuilder.Workflow, nodeType, branch);
-                }
+                var includeBuilder = new IncludeWorkflowBuilder { Path = typeNode.Name };
+                CreateGraphNode(includeBuilder, ElementCategory.Nested, graphView.SelectedNodes.FirstOrDefault(), nodeType, branch);
             }
             else
             {
@@ -809,7 +807,6 @@ namespace Bonsai.Design
                 else
                 {
                     var builder = CreateBuilder(typeNode);
-                    var elementCategory = (ElementCategory)typeNode.Tag;
                     CreateGraphNode(builder, elementCategory, selectedNode, nodeType, branch);
                 }
             }
