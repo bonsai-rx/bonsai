@@ -9,23 +9,25 @@ namespace Bonsai.Expressions
 {
     class WorkflowTypeDescriptor : CustomTypeDescriptor
     {
+        AttributeCollection attributes;
         ExpressionBuilderGraph workflow;
         static readonly Attribute[] emptyAttributes = new Attribute[0];
         static readonly PropertyDescriptor[] emptyProperties = new PropertyDescriptor[0];
 
-        public WorkflowTypeDescriptor(object instance)
+        public WorkflowTypeDescriptor(object instance, params Attribute[] attrs)
         {
-            if (instance == null)
-            {
-                throw new ArgumentNullException("instance");
-            }
-
-            var builder = instance as WorkflowExpressionBuilder;
+            attributes = new AttributeCollection(attrs ?? emptyAttributes);
+            var builder = instance as IWorkflowExpressionBuilder;
             if (builder != null)
             {
                 workflow = builder.Workflow;
             }
             else workflow = (ExpressionBuilderGraph)instance;
+        }
+
+        public override AttributeCollection GetAttributes()
+        {
+            return attributes;
         }
 
         public override PropertyDescriptorCollection GetProperties()
@@ -35,6 +37,7 @@ namespace Bonsai.Expressions
 
         public override PropertyDescriptorCollection GetProperties(Attribute[] attributes)
         {
+            if (workflow == null) return base.GetProperties(attributes);
             var properties = (from node in workflow
                               let property = ExpressionBuilder.Unwrap(node.Value) as ExternalizedProperty
                               where property != null
