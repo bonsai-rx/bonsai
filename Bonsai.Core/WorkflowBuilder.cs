@@ -26,6 +26,7 @@ namespace Bonsai
         readonly ExpressionBuilderGraph workflow;
         const string VersionAttributeName = "Version";
         const string ExtensionTypeNodeName = "ExtensionTypes";
+        const string DescriptionElementName = "Description";
         const string WorkflowNodeName = "Workflow";
         const string TypeNodeName = "Type";
 
@@ -55,6 +56,11 @@ namespace Bonsai
         }
 
         /// <summary>
+        /// Gets or sets a description for the serializable workflow.
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
         /// Gets the <see cref="ExpressionBuilderGraph"/> instance used by this builder.
         /// </summary>
         public ExpressionBuilderGraph Workflow
@@ -80,9 +86,18 @@ namespace Bonsai
 
         void IXmlSerializable.ReadXml(System.Xml.XmlReader reader)
         {
-            reader.ReadToFollowing(WorkflowNodeName);
+            reader.ReadStartElement(typeof(WorkflowBuilder).Name);
 
-            var workflowMarkup = reader.ReadOuterXml();
+            if (reader.IsStartElement(DescriptionElementName))
+            {
+                Description = reader.ReadElementContentAsString();
+            }
+
+            var workflowMarkup = string.Empty;
+            if (reader.IsStartElement(WorkflowNodeName))
+            {
+                workflowMarkup = reader.ReadOuterXml();
+            }
 
             reader.ReadToFollowing(ExtensionTypeNodeName);
             reader.ReadStartElement();
@@ -121,6 +136,12 @@ namespace Bonsai
             var assembly = Assembly.GetExecutingAssembly();
             var versionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
             writer.WriteAttributeString(VersionAttributeName, versionInfo.ProductVersion);
+
+            var description = Description;
+            if (!string.IsNullOrEmpty(description))
+            {
+                writer.WriteElementString(DescriptionElementName, description);
+            }
 
             var types = new HashSet<Type>(GetExtensionTypes(workflow));
             var serializer = GetXmlSerializer(types);
