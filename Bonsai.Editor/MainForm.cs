@@ -836,10 +836,22 @@ namespace Bonsai.Editor
             var currentFileName = saveWorkflowDialog.FileName;
             try
             {
+                saveWorkflowDialog.FileName = null;
+                var serializerWorkflowBuilder = selectionModel.SelectedNodes.ToWorkflowBuilder();
+                if (serializerWorkflowBuilder.Workflow.Count == 1)
+                {
+                    var groupBuilder = serializerWorkflowBuilder.Workflow.Single().Value as GroupWorkflowBuilder;
+                    if (groupBuilder != null)
+                    {
+                        serializerWorkflowBuilder = new WorkflowBuilder(groupBuilder.Workflow);
+                        serializerWorkflowBuilder.Description = groupBuilder.Description;
+                        saveWorkflowDialog.FileName = groupBuilder.Name;
+                    }
+                }
+
                 saveWorkflowDialog.InitialDirectory = snippetFileWatcher.Path;
                 if (saveWorkflowDialog.ShowDialog() == DialogResult.OK)
                 {
-                    var serializerWorkflowBuilder = selectionModel.SelectedNodes.ToWorkflowBuilder();
                     SaveWorkflow(saveWorkflowDialog.FileName, serializerWorkflowBuilder);
                 }
             }
