@@ -20,7 +20,7 @@ namespace Bonsai.Expressions
     [WorkflowElementCategory(ElementCategory.Nested)]
     [XmlType("IncludeWorkflow", Namespace = Constants.XmlNamespace)]
     [TypeDescriptionProvider(typeof(IncludeWorkflowTypeDescriptionProvider))]
-    public sealed class IncludeWorkflowBuilder : VariableArgumentExpressionBuilder, IWorkflowExpressionBuilder, INamedElement, IRequireBuildContext
+    public sealed class IncludeWorkflowBuilder : VariableArgumentExpressionBuilder, IGroupWorkflowBuilder, INamedElement, IRequireBuildContext
     {
         static readonly XmlElement[] EmptyProperties = new XmlElement[0];
         XmlElement[] xmlProperties;

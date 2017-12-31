@@ -320,10 +320,10 @@ namespace Bonsai.Expressions
             foreach (var node in source)
             {
                 var element = ExpressionBuilder.Unwrap(node.Value);
-                var includeBuilder = element as IncludeWorkflowBuilder;
-                if (includeBuilder != null)
+                var groupBuilder = element as IGroupWorkflowBuilder;
+                if (groupBuilder != null)
                 {
-                    var workflow = includeBuilder.Workflow;
+                    var workflow = groupBuilder.Workflow;
                     if (workflow == null) continue;
                     foreach (var dependencyElement in SelectDependencyElements(workflow))
                     {
