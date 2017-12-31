@@ -1281,11 +1281,9 @@ namespace Bonsai.Editor
                 return instance;
             }).ToArray();
 
-            var displayNames = selectedObjects
-                .Select(obj => GetElementName(obj))
-                .Distinct().Reverse().ToArray();
+            var displayNames = selectedObjects.Select(GetElementName).Distinct().Reverse().ToArray();
             var displayName = string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ", displayNames);
-            var objectDescriptions = selectedObjects.Select(obj => GetElementDescription(obj)).Distinct().Reverse().ToArray();
+            var objectDescriptions = selectedObjects.Select(GetElementDescription).Distinct().Reverse().ToArray();
             var description = objectDescriptions.Length == 1 ? objectDescriptions[0] : string.Empty;
             UpdateDescriptionTextBox(displayName, description, propertiesDescriptionTextBox);
             for (int i = 0; i < selectedObjects.Length; i++)
