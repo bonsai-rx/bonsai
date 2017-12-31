@@ -1130,7 +1130,7 @@ namespace Bonsai.Design
 
         public void GroupGraphNodes(IEnumerable<GraphNode> nodes)
         {
-            GroupGraphNodes(nodes, graph => new NestedWorkflowBuilder(graph));
+            GroupGraphNodes(nodes, graph => new GroupWorkflowBuilder(graph));
         }
 
         private void GroupGraphNodes(IEnumerable<GraphNode> nodes, TreeNode typeNode)
@@ -1581,7 +1581,8 @@ namespace Bonsai.Design
             {
                 Func<WorkflowGraphView> parentSelector;
                 Func<WorkflowEditorControl> containerSelector;
-                if (workflowExpressionBuilder is IncludeWorkflowBuilder)
+                if (workflowExpressionBuilder is IncludeWorkflowBuilder ||
+                    workflowExpressionBuilder is GroupWorkflowBuilder)
                 {
                     containerSelector = () => launcher != null ? launcher.WorkflowGraphView.editorControl : editorControl;
                 }

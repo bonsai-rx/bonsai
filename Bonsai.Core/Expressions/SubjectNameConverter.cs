@@ -21,14 +21,14 @@ namespace Bonsai.Expressions
                 var element = ExpressionBuilder.Unwrap(node.Value);
                 yield return element;
 
-                var includeBuilder = element as IncludeWorkflowBuilder;
-                if (includeBuilder != null)
+                var groupBuilder = element as IGroupWorkflowBuilder;
+                if (groupBuilder != null)
                 {
-                    var workflow = includeBuilder.Workflow;
+                    var workflow = groupBuilder.Workflow;
                     if (workflow == null) continue;
-                    foreach (var includedElement in SelectContextElements(workflow))
+                    foreach (var groupElement in SelectContextElements(workflow))
                     {
-                        yield return includedElement;
+                        yield return groupElement;
                     }
                 }
             }
@@ -44,8 +44,8 @@ namespace Bonsai.Expressions
 
             foreach (var element in SelectContextElements(source))
             {
-                var includeBuilder = element as IncludeWorkflowBuilder;
-                if (includeBuilder != null && includeBuilder.Workflow == target) return true;
+                var groupBuilder = element as IGroupWorkflowBuilder;
+                if (groupBuilder != null && groupBuilder.Workflow == target) return true;
 
                 var workflowBuilder = element as WorkflowExpressionBuilder;
                 if (workflowBuilder != null)

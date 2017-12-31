@@ -131,6 +131,11 @@ namespace Bonsai.Expressions
             set { buildContext = value; }
         }
 
+        internal IBuildContext BuildContext
+        {
+            get { return buildContext; }
+        }
+
         /// <summary>
         /// Builds the output of the encapsulated workflow for the specified source and applies
         /// a selector taking into account any available workflow mappings.
