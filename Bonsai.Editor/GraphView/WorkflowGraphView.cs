@@ -1313,16 +1313,21 @@ namespace Bonsai.Design
         private void ReplaceGroupNode(GraphNode node, WorkflowExpressionBuilder builder, ElementCategory elementCategory)
         {
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
-            var updateSelectedNode = CreateUpdateSelectionDelegate(builder);
+            var selectCreatedNode = CreateUpdateSelectionDelegate(builder);
+            var selectDeletedNode = CreateUpdateSelectionDelegate(node);
 
             commandExecutor.BeginCompositeCommand();
-            commandExecutor.Execute(() => { }, updateGraphLayout);
+            commandExecutor.Execute(() => { }, () =>
+            {
+                updateGraphLayout();
+                selectDeletedNode();
+            });
             CreateGraphNode(builder, elementCategory, node, CreateGraphNodeType.Successor, branch: false, validate: false);
             DeleteGraphNode(node);
             commandExecutor.Execute(() =>
             {
                 updateGraphLayout();
-                updateSelectedNode();
+                selectCreatedNode();
             },
             () => { });
             commandExecutor.EndCompositeCommand();
