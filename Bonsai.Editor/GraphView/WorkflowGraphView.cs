@@ -1124,9 +1124,23 @@ namespace Bonsai.Design
         public void CreateOrReplaceGroupNode(GraphNode[] selectedNodes, TreeNode typeNode)
         {
             var selectedNode = selectedNodes.Length == 1 ? selectedNodes[0] : null;
-            var workflowBuilder = selectedNode != null ? GetGraphNodeBuilder(selectedNode) as WorkflowExpressionBuilder : null;
-            if (workflowBuilder != null) ReplaceGroupNode(selectedNode, typeNode);
-            else GroupGraphNodes(selectedNodes, typeNode);
+            var selectedNodeBuilder = selectedNode != null ? GetGraphNodeBuilder(selectedNode) : null;
+
+            var includeBuilder = selectedNodeBuilder as IncludeWorkflowBuilder;
+            if (includeBuilder != null && includeBuilder.Workflow != null &&
+                typeNode.Name == typeof(GroupWorkflowBuilder).AssemblyQualifiedName)
+            {
+                var groupBuilder = new GroupWorkflowBuilder(includeBuilder.Workflow);
+                groupBuilder.Name = includeBuilder.Name;
+                groupBuilder.Description = includeBuilder.Description;
+                ReplaceGroupNode(selectedNode, groupBuilder, (ElementCategory)typeNode.Tag);
+            }
+            else
+            {
+                var workflowBuilder = selectedNodeBuilder as WorkflowExpressionBuilder;
+                if (workflowBuilder != null) ReplaceGroupNode(selectedNode, typeNode);
+                else GroupGraphNodes(selectedNodes, typeNode);
+            }
         }
 
         public void GroupGraphNodes(IEnumerable<GraphNode> nodes)
@@ -1287,15 +1301,20 @@ namespace Bonsai.Design
             var workflowBuilder = GetGraphNodeBuilder(node) as WorkflowExpressionBuilder;
             if (workflowBuilder == null)
             {
-                return;
+                throw new ArgumentException("Replaced node must be workflow expression builder.", "node");
             }
 
             var builder = CreateWorkflowBuilder(typeName, workflowBuilder.Workflow);
+            builder.Name = workflowBuilder.Name;
+            builder.Description = workflowBuilder.Description;
+            ReplaceGroupNode(node, builder, elementCategory);
+        }
+
+        private void ReplaceGroupNode(GraphNode node, WorkflowExpressionBuilder builder, ElementCategory elementCategory)
+        {
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             var updateSelectedNode = CreateUpdateSelectionDelegate(builder);
 
-            builder.Name = workflowBuilder.Name;
-            builder.Description = workflowBuilder.Description;
             commandExecutor.BeginCompositeCommand();
             commandExecutor.Execute(() => { }, updateGraphLayout);
             CreateGraphNode(builder, elementCategory, node, CreateGraphNodeType.Successor, branch: false, validate: false);
