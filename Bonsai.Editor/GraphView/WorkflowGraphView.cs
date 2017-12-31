@@ -831,6 +831,7 @@ namespace Bonsai.Design
             var inspectParameter = new ExpressionBuilderArgument();
             Action addNode = () => { AddWorkflowNode(workflow, inspectNode); };
             Action removeNode = () => { RemoveWorkflowNode(workflow, inspectNode); };
+            builder = inspectBuilder.Builder;
 
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             var updateGraphLayoutValidation = CreateUpdateGraphLayoutValidationDelegate();
