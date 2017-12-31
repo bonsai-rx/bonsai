@@ -19,7 +19,6 @@ namespace Bonsai.Expressions
     [DefaultProperty("Path")]
     [WorkflowElementCategory(ElementCategory.Nested)]
     [XmlType("IncludeWorkflow", Namespace = Constants.XmlNamespace)]
-    [Description("Includes an encapsulated workflow from the specified path.")]
     [TypeDescriptionProvider(typeof(IncludeWorkflowTypeDescriptionProvider))]
     public sealed class IncludeWorkflowBuilder : VariableArgumentExpressionBuilder, IWorkflowExpressionBuilder, INamedElement, IRequireBuildContext
     {
@@ -31,6 +30,7 @@ namespace Bonsai.Expressions
         readonly bool inspectWorkflow;
         DateTime writeTime;
         string workflowPath;
+        string description;
         string path;
         string name;
 
@@ -55,6 +55,7 @@ namespace Bonsai.Expressions
             writeTime = builder.writeTime;
             name = builder.name;
             path = builder.path;
+            description = builder.description;
             workflowPath = builder.workflowPath;
             xmlProperties = builder.xmlProperties;
         }
@@ -70,9 +71,22 @@ namespace Bonsai.Expressions
             get { return workflow; }
         }
 
-        string INamedElement.Name
+        /// <summary>
+        /// Gets the name of the included workflow.
+        /// </summary>
+        [Browsable(false)]
+        public string Name
         {
             get { return name; }
+        }
+
+        /// <summary>
+        /// Gets a description for the included workflow.
+        /// </summary>
+        [Browsable(false)]
+        public string Description
+        {
+            get { return description; }
         }
 
         IBuildContext IRequireBuildContext.BuildContext
@@ -215,6 +229,7 @@ namespace Bonsai.Expressions
             if (string.IsNullOrEmpty(path) || !File.Exists(path))
             {
                 workflow = null;
+                description = null;
                 SetArgumentRange(0, 1);
             }
             else
@@ -226,6 +241,7 @@ namespace Bonsai.Expressions
                     using (var reader = XmlReader.Create(path))
                     {
                         var builder = (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
+                        description = builder.Description;
                         workflow = builder.Workflow;
                         writeTime = lastWriteTime;
 
@@ -270,6 +286,7 @@ namespace Bonsai.Expressions
 
         class IncludeWorkflowTypeDescriptionProvider : TypeDescriptionProvider
         {
+            const string DefaultDescription = "Includes an encapsulated workflow from the specified path.";
             static readonly TypeDescriptionProvider parentProvider = TypeDescriptor.GetProvider(typeof(IncludeWorkflowBuilder));
 
             public IncludeWorkflowTypeDescriptionProvider()
@@ -282,11 +299,40 @@ namespace Bonsai.Expressions
                 var builder = (IncludeWorkflowBuilder)instance;
                 if (builder != null)
                 {
-                    var workflow = builder.workflow;
-                    if (workflow != null) return new WorkflowTypeDescriptor(workflow);
+                    var description = new IncludeWorkflowDescriptionAttribute(builder, DefaultDescription);
+                    return new WorkflowTypeDescriptor(instance, description);
                 }
 
                 return base.GetExtendedTypeDescriptor(instance);
+            }
+        }
+
+        class IncludeWorkflowDescriptionAttribute : DescriptionAttribute
+        {
+            IncludeWorkflowBuilder includeBuilder;
+
+            public IncludeWorkflowDescriptionAttribute(IncludeWorkflowBuilder builder, string description)
+                : base(description)
+            {
+                if (builder == null)
+                {
+                    throw new ArgumentNullException("builder");
+                }
+
+                includeBuilder = builder;
+            }
+
+            public override string Description
+            {
+                get
+                {
+                    var description = includeBuilder.Description;
+                    if (!string.IsNullOrEmpty(description))
+                    {
+                        return description;
+                    }
+                    else return DescriptionValue;
+                }
             }
         }
     }
