@@ -62,16 +62,10 @@ namespace Bonsai.Expressions
                 throw new InvalidOperationException("No valid build context was provided.");
             }
 
-            var name = Name;
-            if (string.IsNullOrEmpty(name))
-            {
-                throw new InvalidOperationException("A valid variable name must be specified.");
-            }
-
             var source = arguments.First();
             var subjectFactory = BuildSubject(source);
             var parameterType = source.Type.GetGenericArguments()[0];
-            var subjectExpression = buildContext.AddVariable(name, subjectFactory);
+            var subjectExpression = buildContext.AddVariable(Name, subjectFactory);
             return Expression.Call(typeof(SubjectBuilder), "Process", new[] { parameterType }, source, subjectExpression);
         }
 
