@@ -75,7 +75,7 @@ namespace Bonsai.Expressions
                         var names = (from level in callContext
                                      from element in SelectContextElements(level)
                                      let subjectBuilder = element as SubjectBuilder
-                                     where subjectBuilder != null
+                                     where subjectBuilder != null && !string.IsNullOrEmpty(subjectBuilder.Name)
                                      select subjectBuilder.Name)
                                      .Distinct()
                                      .ToList();
