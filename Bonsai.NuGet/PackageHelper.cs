@@ -172,7 +172,7 @@ namespace Bonsai.NuGet
                         var errorMessage = string.Format(Resources.MissingPackageVersion, packageId, version);
                         throw new InvalidOperationException(errorMessage);
                     }
-                    return packageManager.LocalRepository.FindPackage(packageId, version);
+                    return package;
                 }
                 catch (Exception ex)
                 {
