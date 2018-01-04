@@ -69,6 +69,8 @@
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.packageManagerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.galleryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
+            this.reloadExtensionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.docsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.forumToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -440,7 +442,9 @@
             // 
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.packageManagerToolStripMenuItem,
-            this.galleryToolStripMenuItem});
+            this.galleryToolStripMenuItem,
+            this.toolStripSeparator7,
+            this.reloadExtensionsToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
             this.toolsToolStripMenuItem.Text = "&Tools";
@@ -460,6 +464,18 @@
             this.galleryToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
             this.galleryToolStripMenuItem.Text = "Bonsai &Gallery";
             this.galleryToolStripMenuItem.Click += new System.EventHandler(this.galleryToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator7
+            // 
+            this.toolStripSeparator7.Name = "toolStripSeparator7";
+            this.toolStripSeparator7.Size = new System.Drawing.Size(175, 6);
+            // 
+            // reloadExtensionsToolStripMenuItem
+            // 
+            this.reloadExtensionsToolStripMenuItem.Name = "reloadExtensionsToolStripMenuItem";
+            this.reloadExtensionsToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
+            this.reloadExtensionsToolStripMenuItem.Text = "&Reload Extensions";
+            this.reloadExtensionsToolStripMenuItem.Click += new System.EventHandler(this.reloadExtensionsToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -1137,6 +1153,8 @@
         private System.Windows.Forms.ToolStripMenuItem exportPackageToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem galleryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem createGroupToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem reloadExtensionsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
     }
 }
 
