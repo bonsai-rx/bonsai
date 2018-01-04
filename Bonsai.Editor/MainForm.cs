@@ -248,6 +248,18 @@ namespace Bonsai.Editor
                 Path.GetExtension(initialFileName) == BonsaiExtension &&
                 File.Exists(initialFileName);
 
+            var currentDirectory = Path.GetFullPath(Environment.CurrentDirectory).TrimEnd('\\');
+            var appDomainBaseDirectory = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\');
+            var systemPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.System)).TrimEnd('\\');
+            var systemX86Path = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86)).TrimEnd('\\');
+            var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory || currentDirectory == systemPath || currentDirectory == systemX86Path;
+            var snippetDirectory = Path.Combine(appDomainBaseDirectory, SnippetsDirectory);
+
+            InitializeSnippetFileWatcher().Subscribe();
+            updatesAvailable.Subscribe(HandleUpdatesAvailable);
+            workflowSnippets.AddRange(FindSnippets(snippetDirectory));
+            directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+
             var initialization = InitializeToolbox().Merge(InitializeTypeVisualizers()).TakeLast(1).ObserveOn(Scheduler.Default);
             if (validFileName && OpenWorkflow(initialFileName, false))
             {
@@ -260,17 +272,6 @@ namespace Bonsai.Editor
             }
             else FileName = null;
 
-            var currentDirectory = Path.GetFullPath(Environment.CurrentDirectory).TrimEnd('\\');
-            var appDomainBaseDirectory = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\');
-            var systemPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.System)).TrimEnd('\\');
-            var systemX86Path = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86)).TrimEnd('\\');
-            var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory || currentDirectory == systemPath || currentDirectory == systemX86Path;
-            var snippetDirectory = Path.Combine(appDomainBaseDirectory, SnippetsDirectory);
-
-            InitializeSnippetFileWatcher().Subscribe();
-            updatesAvailable.Subscribe(HandleUpdatesAvailable);
-            workflowSnippets.AddRange(FindSnippets(snippetDirectory));
-            directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
             initialization.Subscribe();
             base.OnLoad(e);
         }
@@ -1662,6 +1663,16 @@ namespace Bonsai.Editor
         private void galleryToolStripMenuItem_Click(object sender, EventArgs e)
         {
             EditorResult = EditorResult.OpenGallery;
+            Close();
+        }
+
+        #endregion
+
+        #region Reload Extensions
+
+        private void reloadExtensionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            EditorResult = EditorResult.ReloadEditor;
             Close();
         }
 

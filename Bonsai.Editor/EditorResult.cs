@@ -11,6 +11,7 @@ namespace Bonsai.Editor
         Exit,
         ManagePackages,
         ExportPackage,
-        OpenGallery
+        OpenGallery,
+        ReloadEditor
     }
 }

@@ -10,6 +10,7 @@ namespace Bonsai
 {
     static class Program
     {
+        const string PathEnvironmentVariable = "PATH";
         const string StartCommand = "--start";
         const string LibraryCommand = "--lib";
         const string PropertyCommand = "-p";
@@ -123,7 +124,8 @@ namespace Bonsai
                     if (!string.IsNullOrEmpty(initialFileName))
                     {
                         var initialPath = Path.GetDirectoryName(initialFileName);
-                        Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, initialPath);
+                        var customExtensionsPath = Path.Combine(initialPath, ExtensionsPath);
+                        Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, customExtensionsPath);
                     }
 
                     Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, editorExtensionsPath);
@@ -162,10 +164,12 @@ namespace Bonsai
                     setupInfo.ApplicationBase = editorFolder;
                     setupInfo.PrivateBinPath = editorFolder;
                     var currentEvidence = AppDomain.CurrentDomain.Evidence;
+                    var currentPath = Environment.GetEnvironmentVariable(PathEnvironmentVariable);
                     setupInfo.ConfigurationFile = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
                     setupInfo.LoaderOptimization = LoaderOptimization.MultiDomainHost;
                     var editorDomain = AppDomain.CreateDomain(EditorDomainName, currentEvidence, setupInfo);
                     var exitCode = (EditorResult)editorDomain.ExecuteAssembly(editorPath, editorArgs);
+                    Environment.SetEnvironmentVariable(PathEnvironmentVariable, currentPath);
 
                     if (launchResult != EditorResult.Exit)
                     {
@@ -180,16 +184,15 @@ namespace Bonsai
                             }
                         }
                         launchResult = EditorResult.Exit;
-                        exit = false;
                     }
                     else
                     {
-                        launchResult = exitCode;
-                        exit = exitCode == EditorResult.Exit;
+                        launchResult = exitCode == EditorResult.ReloadEditor ? EditorResult.Exit : exitCode;
                         if (exitCode != EditorResult.Exit)
                         {
                             initialFileName = AppResult.GetResult<string>(editorDomain);
                         }
+                        else exit = true;
                     }
 
                     AppDomain.Unload(editorDomain);
