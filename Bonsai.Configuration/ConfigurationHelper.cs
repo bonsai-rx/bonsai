@@ -38,6 +38,13 @@ namespace Bonsai.Configuration
             }
         }
 
+        public static string GetConfigurationRoot(PackageConfiguration configuration)
+        {
+            return string.IsNullOrWhiteSpace(configuration.ConfigurationFile)
+                ? string.Empty
+                : Path.GetDirectoryName(configuration.ConfigurationFile);
+        }
+
         public static string GetAssemblyLocation(PackageConfiguration configuration, string assemblyName)
         {
             var msilAssembly = Tuple.Create(assemblyName, ProcessorArchitecture.MSIL);
@@ -57,12 +64,8 @@ namespace Bonsai.Configuration
 
         public static void SetAssemblyResolve(PackageConfiguration configuration)
         {
-            var configurationFile = configuration.ConfigurationFile;
-            var configurationRoot = string.IsNullOrWhiteSpace(configurationFile)
-                ? string.Empty
-                : Path.GetDirectoryName(configuration.ConfigurationFile);
-
             var platform = GetEnvironmentPlatform();
+            var configurationRoot = GetConfigurationRoot(configuration);
             foreach (var libraryFolder in configuration.LibraryFolders)
             {
                 if (libraryFolder.Platform == platform)
@@ -78,6 +81,13 @@ namespace Bonsai.Configuration
                 var assemblyLocation = GetAssemblyLocation(configuration, assemblyName);
                 if (assemblyLocation != null)
                 {
+                    Uri uri;
+                    if (Uri.TryCreate(assemblyLocation, UriKind.Absolute, out uri))
+                    {
+                        var assemblyBytes = File.ReadAllBytes(uri.LocalPath);
+                        return Assembly.Load(assemblyBytes);
+                    }
+
                     if (!Path.IsPathRooted(assemblyLocation))
                     {
                         assemblyLocation = Path.Combine(configurationRoot, assemblyLocation);

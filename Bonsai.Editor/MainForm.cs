@@ -477,6 +477,7 @@ namespace Bonsai.Editor
 
         static string GetPackageDisplayName(string packageKey)
         {
+            if (packageKey == null) return SnippetsDirectory;
             if (packageKey == BonsaiPackageName) return packageKey;
             return packageKey.Replace(BonsaiPackageName + ".", string.Empty);
         }

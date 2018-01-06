@@ -130,9 +130,12 @@ namespace Bonsai
 
                     Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, editorExtensionsPath);
                     libFolders.ForEach(path => Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, path));
-                    Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
-                    if (!launchEditor) Launcher.LaunchWorkflowPlayer(initialFileName, propertyAssignments);
-                    else return Launcher.LaunchWorkflowEditor(packageConfiguration, editorRepositoryPath, initialFileName, start, propertyAssignments);
+                    using (var tempFolder = ScriptExtensionsProvider.CompileAssembly(packageConfiguration, ExtensionsPath))
+                    {
+                        Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
+                        if (!launchEditor) Launcher.LaunchWorkflowPlayer(initialFileName, propertyAssignments);
+                        else return Launcher.LaunchWorkflowEditor(packageConfiguration, editorRepositoryPath, initialFileName, start, propertyAssignments);
+                    }
                 }
             }
             else

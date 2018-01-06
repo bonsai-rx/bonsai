@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppResult.cs" />
+    <Compile Include="TempDirectory.cs" />
     <Compile Include="GalleryPackagePathResolver.cs" />
     <Compile Include="EditorResult.cs" />
     <Compile Include="LoaderResource.cs" />
@@ -92,6 +93,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="PropertyAssignment.cs" />
+    <Compile Include="ScriptExtensionsCompiler.cs" />
     <Compile Include="TypeVisualizerLoader.cs" />
     <Compile Include="WorkflowElementCategoryConverter.cs" />
     <Compile Include="WorkflowElementLoader.cs" />
