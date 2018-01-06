@@ -153,7 +153,7 @@ namespace Bonsai.Expressions
                 yield return inspectBuilder.ErrorEx.Select(xs => BuildRuntimeExceptionStack(xs.Message, inspectBuilder, xs, callStack));
 
                 var workflowExpression = inspectBuilder.Builder as IWorkflowExpressionBuilder;
-                if (workflowExpression != null)
+                if (workflowExpression != null && workflowExpression.Workflow != null)
                 {
                     foreach (var error in workflowExpression.Workflow.InspectErrors(Enumerable.Repeat(inspectBuilder, 1).Concat(callStack)))
                     {
