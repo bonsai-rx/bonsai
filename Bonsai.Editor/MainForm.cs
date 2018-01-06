@@ -656,9 +656,12 @@ namespace Bonsai.Editor
             ResetProjectStatus();
             UpdateTitle();
 
-            if (setWorkingDirectory || string.IsNullOrEmpty(directoryToolStripTextBox.Text))
+            if (setWorkingDirectory && directoryToolStripTextBox.Text != workflowDirectory)
             {
                 directoryToolStripTextBox.Text = workflowDirectory;
+                EditorResult = EditorResult.ReloadEditor;
+                Close();
+                return false;
             }
 
             editorSite.ValidateWorkflow();
