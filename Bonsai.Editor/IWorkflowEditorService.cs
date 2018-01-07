@@ -23,7 +23,7 @@ namespace Bonsai.Editor
 
         IEnumerable<Type> GetTypeVisualizers(Type targetType);
 
-        void StartWorkflow();
+        void StartWorkflow(bool debugging);
 
         void StopWorkflow();
 

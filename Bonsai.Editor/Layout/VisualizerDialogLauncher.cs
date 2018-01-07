@@ -194,12 +194,12 @@ namespace Bonsai.Design
             {
                 var graphViewSource = (GraphNode)e.Data.GetData(typeof(GraphNode));
                 var visualizerDialog = workflowGraphView.GetVisualizerDialogLauncher(graphViewSource);
-                var editorService = (IWorkflowEditorService)visualizerContext.GetService(typeof(IWorkflowEditorService));
                 if (visualizerDialog != null)
                 {
                     var visualizerType = visualizer.Value.GetType();
                     if (visualizerType.IsSubclassOf(typeof(DialogMashupVisualizer)))
                     {
+                        var editorService = (IWorkflowEditorService)visualizerContext.GetService(typeof(IWorkflowEditorService));
                         var mashup = typeof(VisualizerMashup<,>).MakeGenericType(visualizer.Value.GetType(), visualizerDialog.Visualizer.Value.GetType());
                         var mashupVisualizer = editorService.GetTypeVisualizers(mashup);
                         if (mashupVisualizer != null)

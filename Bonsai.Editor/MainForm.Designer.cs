@@ -64,6 +64,7 @@
             this.ungroupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.workflowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.startToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.startWithoutDebuggingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.stopToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.restartToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -403,6 +404,7 @@
             // 
             this.workflowToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.startToolStripMenuItem,
+            this.startWithoutDebuggingToolStripMenuItem,
             this.stopToolStripMenuItem,
             this.restartToolStripMenuItem});
             this.workflowToolStripMenuItem.Name = "workflowToolStripMenuItem";
@@ -414,9 +416,18 @@
             this.startToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("startToolStripMenuItem.Image")));
             this.startToolStripMenuItem.Name = "startToolStripMenuItem";
             this.startToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F5;
-            this.startToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
+            this.startToolStripMenuItem.Size = new System.Drawing.Size(252, 22);
             this.startToolStripMenuItem.Text = "&Start";
             this.startToolStripMenuItem.Click += new System.EventHandler(this.startToolStripMenuItem_Click);
+            // 
+            // startWithoutDebuggingToolStripMenuItem
+            // 
+            this.startWithoutDebuggingToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("startWithoutDebuggingToolStripMenuItem.Image")));
+            this.startWithoutDebuggingToolStripMenuItem.Name = "startWithoutDebuggingToolStripMenuItem";
+            this.startWithoutDebuggingToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F5)));
+            this.startWithoutDebuggingToolStripMenuItem.Size = new System.Drawing.Size(252, 22);
+            this.startWithoutDebuggingToolStripMenuItem.Text = "Start Wit&hout Debugging";
+            this.startWithoutDebuggingToolStripMenuItem.Click += new System.EventHandler(this.startWithoutDebuggingToolStripMenuItem_Click);
             // 
             // stopToolStripMenuItem
             // 
@@ -424,7 +435,7 @@
             this.stopToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("stopToolStripMenuItem.Image")));
             this.stopToolStripMenuItem.Name = "stopToolStripMenuItem";
             this.stopToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.F5)));
-            this.stopToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
+            this.stopToolStripMenuItem.Size = new System.Drawing.Size(252, 22);
             this.stopToolStripMenuItem.Text = "S&top";
             this.stopToolStripMenuItem.Click += new System.EventHandler(this.stopToolStripMenuItem_Click);
             // 
@@ -435,7 +446,7 @@
             this.restartToolStripMenuItem.Name = "restartToolStripMenuItem";
             this.restartToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.F5)));
-            this.restartToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
+            this.restartToolStripMenuItem.Size = new System.Drawing.Size(252, 22);
             this.restartToolStripMenuItem.Text = "&Restart";
             this.restartToolStripMenuItem.Click += new System.EventHandler(this.restartToolStripMenuItem_Click);
             // 
@@ -1113,6 +1124,7 @@
         private System.Windows.Forms.GroupBox propertiesGroupBox;
         private Bonsai.Design.PropertyGrid propertyGrid;
         private System.Windows.Forms.ToolStripMenuItem startToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem startWithoutDebuggingToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem stopToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
         private System.Windows.Forms.SplitContainer panelSplitContainer;
