@@ -331,13 +331,16 @@ namespace Bonsai.Design
 
         private VisualizerDialogLauncher CreateVisualizerLauncher(InspectBuilder inspectBuilder, GraphNode graphNode)
         {
-            var workflowElementType = ExpressionBuilder.GetWorkflowElement(inspectBuilder).GetType();
-            var visualizerTypes = GetTypeVisualizers(graphNode);
+            if (inspectBuilder.ObservableType == null || !inspectBuilder.PublishNotifications)
+            {
+                return null;
+            }
 
             Type visualizerType = null;
             var deserializeVisualizer = false;
             Func<DialogTypeVisualizer> visualizerFactory = null;
             var layoutSettings = GetLayoutSettings(graphNode.Value);
+            var visualizerTypes = GetTypeVisualizers(graphNode);
             if (layoutSettings != null && !string.IsNullOrEmpty(layoutSettings.VisualizerTypeName))
             {
                 visualizerType = visualizerTypes.FirstOrDefault(type => type.FullName == layoutSettings.VisualizerTypeName);
@@ -2122,7 +2125,7 @@ namespace Bonsai.Design
                     if (e.Control) editorService.RestartWorkflow();
                     else editorService.StopWorkflow();
                 }
-                else editorService.StartWorkflow();
+                else editorService.StartWorkflow(!e.Control);
             }
 
             if (e.KeyCode == Keys.Return)
@@ -2607,17 +2610,21 @@ namespace Bonsai.Design
                         }
                     }
 
-                    var visualizerTypes = Enumerable.Repeat<Type>(null, 1);
-                    visualizerTypes = visualizerTypes.Concat(GetTypeVisualizers(selectedNode));
-                    visualizerToolStripMenuItem.Enabled = true;
-                    foreach (var type in visualizerTypes)
+                    if (inspectBuilder != null && inspectBuilder.ObservableType != null &&
+                        (!editorState.WorkflowRunning || inspectBuilder.PublishNotifications))
                     {
-                        var typeName = type != null ? type.FullName : string.Empty;
-                        var menuItem = CreateVisualizerMenuItem(typeName, layoutSettings, selectedNode);
-                        visualizerToolStripMenuItem.DropDownItems.Add(menuItem);
-                        menuItem.Checked = type == null
-                            ? string.IsNullOrEmpty(activeVisualizer)
-                            : typeName == activeVisualizer;
+                        var visualizerTypes = Enumerable.Repeat<Type>(null, 1);
+                        visualizerTypes = visualizerTypes.Concat(GetTypeVisualizers(selectedNode));
+                        visualizerToolStripMenuItem.Enabled = true;
+                        foreach (var type in visualizerTypes)
+                        {
+                            var typeName = type != null ? type.FullName : string.Empty;
+                            var menuItem = CreateVisualizerMenuItem(typeName, layoutSettings, selectedNode);
+                            visualizerToolStripMenuItem.DropDownItems.Add(menuItem);
+                            menuItem.Checked = type == null
+                                ? string.IsNullOrEmpty(activeVisualizer)
+                                : typeName == activeVisualizer;
+                        }
                     }
                 }
             }

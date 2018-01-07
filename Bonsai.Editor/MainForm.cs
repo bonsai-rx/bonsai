@@ -72,6 +72,7 @@ namespace Bonsai.Editor
         HashSet<Module> typeDescriptorCache;
         WorkflowException workflowError;
         IDisposable running;
+        bool debugging;
         bool building;
 
         IObservable<IGrouping<string, WorkflowElementDescriptor>> toolboxElements;
@@ -972,12 +973,53 @@ namespace Bonsai.Editor
             }));
         }
 
+        static void SetWorkflowNotifications(ExpressionBuilderGraph source, bool publishNotifications)
+        {
+            foreach (var builder in from node in source
+                                    let inspectBuilder = node.Value as InspectBuilder
+                                    where inspectBuilder != null
+                                    select inspectBuilder)
+            {
+                var inspectBuilder = builder;
+                inspectBuilder.PublishNotifications = publishNotifications;
+                var workflowExpression = inspectBuilder.Builder as IWorkflowExpressionBuilder;
+                if (workflowExpression != null && workflowExpression.Workflow != null)
+                {
+                    SetWorkflowNotifications(workflowExpression.Workflow, publishNotifications);
+                }
+            }
+        }
+
+        static void SetLayoutNotifications(VisualizerLayout root)
+        {
+            foreach (var settings in root.DialogSettings)
+            {
+                var inspectBuilder = settings.Tag as InspectBuilder;
+                if (inspectBuilder != null)
+                {
+                    inspectBuilder.PublishNotifications = !string.IsNullOrEmpty(settings.VisualizerTypeName);
+                }
+
+                var editorSettings = settings as WorkflowEditorSettings;
+                if (editorSettings != null && editorSettings.EditorVisualizerLayout != null)
+                {
+                    SetLayoutNotifications(editorSettings.EditorVisualizerLayout);
+                }
+            }
+        }
+
         void StartWorkflow()
         {
             if (running == null)
             {
                 building = true;
                 ClearWorkflowError();
+                SetWorkflowNotifications(workflowBuilder.Workflow, debugging);
+                if (!debugging && editorControl.VisualizerLayout != null)
+                {
+                    SetLayoutNotifications(editorControl.VisualizerLayout);
+                }
+
                 running = Observable.Using(
                     () =>
                     {
@@ -1328,12 +1370,19 @@ namespace Bonsai.Editor
 
         private void startToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (Control.ModifierKeys.HasFlag(Keys.Shift))
+            var shift = Control.ModifierKeys.HasFlag(Keys.Shift);
+            var control = Control.ModifierKeys.HasFlag(Keys.Control);
+            if (shift)
             {
-                if (Control.ModifierKeys.HasFlag(Keys.Control)) RestartWorkflow();
+                if (control) RestartWorkflow();
                 else StopWorkflow();
             }
-            StartWorkflow();
+            else editorSite.StartWorkflow(!control);
+        }
+
+        private void startWithoutDebuggingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            editorSite.StartWorkflow(false);
         }
 
         private void stopToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1932,8 +1981,9 @@ namespace Bonsai.Editor
                 return siteForm.workflowElements;
             }
 
-            public void StartWorkflow()
+            public void StartWorkflow(bool debugging)
             {
+                siteForm.debugging = debugging;
                 siteForm.StartWorkflow();
             }
 
