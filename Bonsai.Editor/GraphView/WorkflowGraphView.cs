@@ -1771,12 +1771,14 @@ namespace Bonsai.Design
 
         public void UpdateVisualizerLayout()
         {
-            if (visualizerMapping != null)
+            var updatedLayout = new VisualizerLayout();
+            foreach (var node in workflow)
             {
-                visualizerLayout = new VisualizerLayout();
-                foreach (var mapping in visualizerMapping)
+                var builder = node.Value;
+                VisualizerDialogSettings dialogSettings;
+                VisualizerDialogLauncher visualizerDialog;
+                if (visualizerMapping != null && visualizerMapping.TryGetValue(builder as InspectBuilder, out visualizerDialog))
                 {
-                    var visualizerDialog = mapping.Value;
                     var visible = visualizerDialog.Visible;
                     if (!editorState.WorkflowRunning)
                     {
@@ -1784,15 +1786,15 @@ namespace Bonsai.Design
                     }
 
                     var visualizer = visualizerDialog.Visualizer;
-                    var dialogSettings = CreateLayoutSettings(mapping.Key);
+                    dialogSettings = CreateLayoutSettings(builder);
                     var mashupVisualizer = visualizer.IsValueCreated ? visualizer.Value as DialogMashupVisualizer : null;
                     if (mashupVisualizer != null)
                     {
                         foreach (var mashup in mashupVisualizer.Mashups)
                         {
-                            var predecessorIndex = (from indexedNode in visualizerMapping.Select((node, index) => new { node, index })
-                                                    where indexedNode.node.Value.Source.Output == mashup.Source
-                                                    select indexedNode.index)
+                            var predecessorIndex = (from element in visualizerMapping.Select((mapping, index) => new { mapping, index })
+                                                    where element.mapping.Value.Source.Output == mashup.Source
+                                                    select element.index)
                                                    .FirstOrDefault();
                             dialogSettings.Mashups.Add(predecessorIndex);
                         }
@@ -1823,22 +1825,10 @@ namespace Bonsai.Design
                             dialogSettings.VisualizerSettings = root;
                         }
                     }
-
-                    visualizerLayout.DialogSettings.Add(dialogSettings);
                 }
-
-                if (!editorState.WorkflowRunning)
+                else
                 {
-                    visualizerMapping = null;
-                }
-            }
-            else
-            {
-                var updatedLayout = new VisualizerLayout();
-                foreach (var node in workflow)
-                {
-                    var builder = node.Value;
-                    var dialogSettings = GetLayoutSettings(builder);
+                    dialogSettings = GetLayoutSettings(builder);
                     if (dialogSettings == null) dialogSettings = CreateLayoutSettings(builder);
                     else
                     {
@@ -1859,11 +1849,15 @@ namespace Bonsai.Design
                             dialogSettings = updatedEditorSettings;
                         }
                     }
-
-                    updatedLayout.DialogSettings.Add(dialogSettings);
                 }
 
-                visualizerLayout = updatedLayout;
+                updatedLayout.DialogSettings.Add(dialogSettings);
+            }
+
+            visualizerLayout = updatedLayout;
+            if (!editorState.WorkflowRunning)
+            {
+                visualizerMapping = null;
             }
         }
 
