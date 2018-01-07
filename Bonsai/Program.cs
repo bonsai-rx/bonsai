@@ -14,6 +14,7 @@ namespace Bonsai
         const string StartCommand = "--start";
         const string LibraryCommand = "--lib";
         const string PropertyCommand = "-p";
+        const string DebugScriptCommand = "--debug";
         const string SuppressBootstrapCommand = "--noboot";
         const string SuppressEditorCommand = "--noeditor";
         const string PackageManagerCommand = "--packagemanager";
@@ -34,6 +35,7 @@ namespace Bonsai
             var start = false;
             var bootstrap = true;
             var launchEditor = true;
+            var debugScripts = false;
             var launchResult = default(EditorResult);
             var launchPackageId = default(string);
             var launchPackageVersion = default(SemanticVersion);
@@ -43,6 +45,7 @@ namespace Bonsai
             var parser = new CommandLineParser();
             parser.RegisterCommand(StartCommand, () => start = true);
             parser.RegisterCommand(LibraryCommand, path => libFolders.Add(path));
+            parser.RegisterCommand(DebugScriptCommand, () => debugScripts = true);
             parser.RegisterCommand(SuppressBootstrapCommand, () => bootstrap = false);
             parser.RegisterCommand(SuppressEditorCommand, () => launchEditor = false);
             parser.RegisterCommand(PackageManagerCommand, () => { launchResult = EditorResult.ManagePackages; bootstrap = false; });
@@ -130,7 +133,7 @@ namespace Bonsai
 
                     Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, editorExtensionsPath);
                     libFolders.ForEach(path => Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, path));
-                    using (var tempFolder = ScriptExtensionsProvider.CompileAssembly(packageConfiguration, ExtensionsPath))
+                    using (var tempFolder = ScriptExtensionsProvider.CompileAssembly(packageConfiguration, ExtensionsPath, debugScripts))
                     {
                         Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
                         if (!launchEditor) Launcher.LaunchWorkflowPlayer(initialFileName, propertyAssignments);
@@ -140,6 +143,7 @@ namespace Bonsai
             }
             else
             {
+                args = Array.FindAll(args, arg => arg != DebugScriptCommand);
                 var editorPackage = Launcher.LaunchEditorBootstrapper(
                     packageConfiguration,
                     editorRepositoryPath,
@@ -156,11 +160,11 @@ namespace Bonsai
                     else if (launchResult == EditorResult.OpenGallery) editorArgs = new[] { GalleryCommand };
                     else
                     {
-                        var extraArgs = string.IsNullOrEmpty(initialFileName) ? 1 : 2;
-                        editorArgs = new string[args.Length + extraArgs];
-                        editorArgs[editorArgs.Length - 1] = SuppressBootstrapCommand;
-                        if (extraArgs > 1) editorArgs[editorArgs.Length - 2] = initialFileName;
-                        Array.Copy(args, editorArgs, args.Length);
+                        var extraArgs = new List<string>(args);
+                        extraArgs.Add(SuppressBootstrapCommand);
+                        if (debugScripts) extraArgs.Add(DebugScriptCommand);
+                        if (!string.IsNullOrEmpty(initialFileName)) extraArgs.Add(initialFileName);
+                        editorArgs = extraArgs.ToArray();
                     }
 
                     var setupInfo = new AppDomainSetup();
@@ -188,14 +192,12 @@ namespace Bonsai
                         }
                         launchResult = EditorResult.Exit;
                     }
+                    else if (exitCode == EditorResult.Exit) exit = true;
                     else
                     {
+                        debugScripts = AppResult.GetResult<bool>(editorDomain);
+                        initialFileName = AppResult.GetResult<string>(editorDomain);
                         launchResult = exitCode == EditorResult.ReloadEditor ? EditorResult.Exit : exitCode;
-                        if (exitCode != EditorResult.Exit)
-                        {
-                            initialFileName = AppResult.GetResult<string>(editorDomain);
-                        }
-                        else exit = true;
                     }
 
                     AppDomain.Unload(editorDomain);

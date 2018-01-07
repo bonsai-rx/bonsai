@@ -284,6 +284,7 @@ namespace Bonsai
                 updatesAvailable.Subscribe(value => mainForm.UpdatesAvailable = value);
                 Application.Run(mainForm);
                 AppResult.SetResult(mainForm.FileName);
+                AppResult.SetResult(mainForm.DebugScripts);
                 return (int)mainForm.EditorResult;
             }
         }

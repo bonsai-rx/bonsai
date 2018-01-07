@@ -17,7 +17,7 @@ namespace Bonsai
         const string ScriptExtension = "*.csx";
         const string DllExtension = ".dll";
 
-        public static TempDirectory CompileAssembly(PackageConfiguration configuration, string output)
+        public static TempDirectory CompileAssembly(PackageConfiguration configuration, string output, bool includeDebugInformation)
         {
             var configurationRoot = ConfigurationHelper.GetConfigurationRoot(configuration);
             var scriptFiles = (from libraryFolder in configuration.LibraryFolders
@@ -60,7 +60,12 @@ namespace Bonsai
             var compilerParameters = new CompilerParameters(assemblyReferences, assemblyFile);
             compilerParameters.GenerateExecutable = false;
             compilerParameters.GenerateInMemory = false;
-            compilerParameters.IncludeDebugInformation = true;
+            compilerParameters.IncludeDebugInformation = includeDebugInformation;
+            if (!includeDebugInformation)
+            {
+                compilerParameters.CompilerOptions = "/optimize";
+            }
+
             using (var codeProvider = new CSharpCodeProvider())
             {
                 var results = codeProvider.CompileAssemblyFromSource(compilerParameters, sources);

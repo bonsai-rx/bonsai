@@ -152,6 +152,8 @@ namespace Bonsai.Editor
             set { FileName = value; }
         }
 
+        public bool DebugScripts { get; set; }
+
         public EditorResult EditorResult { get; set; }
 
         public string FileName
@@ -1678,6 +1680,12 @@ namespace Bonsai.Editor
         {
             EditorResult = EditorResult.ReloadEditor;
             Close();
+        }
+
+        private void reloadExtensionsDebugToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DebugScripts = true;
+            reloadExtensionsToolStripMenuItem_Click(sender, e);
         }
 
         #endregion
