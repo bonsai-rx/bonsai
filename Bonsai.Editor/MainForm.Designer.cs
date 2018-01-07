@@ -71,6 +71,7 @@
             this.galleryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
             this.reloadExtensionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.reloadExtensionsDebugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.docsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.forumToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -444,7 +445,8 @@
             this.packageManagerToolStripMenuItem,
             this.galleryToolStripMenuItem,
             this.toolStripSeparator7,
-            this.reloadExtensionsToolStripMenuItem});
+            this.reloadExtensionsToolStripMenuItem,
+            this.reloadExtensionsDebugToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
             this.toolsToolStripMenuItem.Text = "&Tools";
@@ -453,7 +455,7 @@
             // 
             this.packageManagerToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("packageManagerToolStripMenuItem.Image")));
             this.packageManagerToolStripMenuItem.Name = "packageManagerToolStripMenuItem";
-            this.packageManagerToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
+            this.packageManagerToolStripMenuItem.Size = new System.Drawing.Size(256, 22);
             this.packageManagerToolStripMenuItem.Text = "&Manage Packages...";
             this.packageManagerToolStripMenuItem.Click += new System.EventHandler(this.packageManagerToolStripMenuItem_Click);
             // 
@@ -461,21 +463,28 @@
             // 
             this.galleryToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("galleryToolStripMenuItem.Image")));
             this.galleryToolStripMenuItem.Name = "galleryToolStripMenuItem";
-            this.galleryToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
+            this.galleryToolStripMenuItem.Size = new System.Drawing.Size(256, 22);
             this.galleryToolStripMenuItem.Text = "Bonsai &Gallery";
             this.galleryToolStripMenuItem.Click += new System.EventHandler(this.galleryToolStripMenuItem_Click);
             // 
             // toolStripSeparator7
             // 
             this.toolStripSeparator7.Name = "toolStripSeparator7";
-            this.toolStripSeparator7.Size = new System.Drawing.Size(175, 6);
+            this.toolStripSeparator7.Size = new System.Drawing.Size(253, 6);
             // 
             // reloadExtensionsToolStripMenuItem
             // 
             this.reloadExtensionsToolStripMenuItem.Name = "reloadExtensionsToolStripMenuItem";
-            this.reloadExtensionsToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
+            this.reloadExtensionsToolStripMenuItem.Size = new System.Drawing.Size(256, 22);
             this.reloadExtensionsToolStripMenuItem.Text = "&Reload Extensions";
             this.reloadExtensionsToolStripMenuItem.Click += new System.EventHandler(this.reloadExtensionsToolStripMenuItem_Click);
+            // 
+            // reloadExtensionsDebugToolStripMenuItem
+            // 
+            this.reloadExtensionsDebugToolStripMenuItem.Name = "reloadExtensionsDebugToolStripMenuItem";
+            this.reloadExtensionsDebugToolStripMenuItem.Size = new System.Drawing.Size(256, 22);
+            this.reloadExtensionsDebugToolStripMenuItem.Text = "Reload Extensions with &Debugging";
+            this.reloadExtensionsDebugToolStripMenuItem.Click += new System.EventHandler(this.reloadExtensionsDebugToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -1153,8 +1162,9 @@
         private System.Windows.Forms.ToolStripMenuItem exportPackageToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem galleryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem createGroupToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem reloadExtensionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
+        private System.Windows.Forms.ToolStripMenuItem reloadExtensionsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem reloadExtensionsDebugToolStripMenuItem;
     }
 }
 
