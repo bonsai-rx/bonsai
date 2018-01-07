@@ -11,6 +11,7 @@ namespace Bonsai.Editor
     static class UpgradeHelper
     {
         static readonly SemanticVersion DeprecationTarget = SemanticVersion.Parse("2.4.0");
+        static readonly SemanticVersion EnumerableUnfoldingVersion = SemanticVersion.Parse("2.3.0");
 
         internal static bool IsDeprecated(SemanticVersion version)
         {
@@ -44,12 +45,15 @@ namespace Bonsai.Editor
             });
         }
 
-        internal static void UpgradeEnumerableUnfoldingRules(WorkflowBuilder workflowBuilder)
+        internal static void UpgradeEnumerableUnfoldingRules(WorkflowBuilder workflowBuilder, SemanticVersion version)
         {
-            var upgradeTargets = GetEnumerableUpgradeTargets(workflowBuilder.Workflow).ToList();
-            foreach (var upgradeTarget in upgradeTargets)
+            if (version < EnumerableUnfoldingVersion)
             {
-                UpgradeEnumerableInputDependency(workflowBuilder, upgradeTarget);
+                var upgradeTargets = GetEnumerableUpgradeTargets(workflowBuilder.Workflow).ToList();
+                foreach (var upgradeTarget in upgradeTargets)
+                {
+                    UpgradeEnumerableInputDependency(workflowBuilder, upgradeTarget);
+                }
             }
         }
 
