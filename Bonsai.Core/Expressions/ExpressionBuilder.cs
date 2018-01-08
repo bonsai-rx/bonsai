@@ -112,9 +112,6 @@ namespace Bonsai.Expressions
         {
             builder = Unwrap(builder);
 
-            var sourceBuilder = builder as SourceBuilder;
-            if (sourceBuilder != null) return sourceBuilder.Generator;
-
             var combinatorBuilder = builder as CombinatorBuilder;
             if (combinatorBuilder != null) return combinatorBuilder.Combinator;
 
