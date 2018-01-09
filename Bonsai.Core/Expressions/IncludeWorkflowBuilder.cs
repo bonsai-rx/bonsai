@@ -104,6 +104,7 @@ namespace Bonsai.Expressions
         /// Gets or sets the path of the workflow to include.
         /// </summary>
         [XmlAttribute]
+        [Category("Design")]
         [FileNameFilter("Bonsai Files (*.bonsai)|*.bonsai")]
         [Description("The path of the workflow to include.")]
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
