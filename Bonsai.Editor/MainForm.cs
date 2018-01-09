@@ -1355,11 +1355,19 @@ namespace Bonsai.Editor
                 typeDescriptorCache.Add(selectedObjects[i].GetType().Module);
             }
 
-            saveSnippetAsToolStripMenuItem.Enabled = selectedObjects.Length > 0;
-            if (selectedObjects.Length == 0)
+            var selectedView = selectionModel.SelectedView;
+            var readOnly = selectedView == null || selectedView.ReadOnly;
+            var hasSelectedObjects = selectedObjects.Length > 0;
+            saveSnippetAsToolStripMenuItem.Enabled = hasSelectedObjects;
+            pasteToolStripMenuItem.Enabled = !readOnly;
+            copyToolStripMenuItem.Enabled = hasSelectedObjects;
+            cutToolStripMenuItem.Enabled = !readOnly && hasSelectedObjects;
+            deleteToolStripMenuItem.Enabled = !readOnly && hasSelectedObjects;
+            groupToolStripMenuItem.Enabled = !readOnly && hasSelectedObjects;
+            ungroupToolStripMenuItem.Enabled = !readOnly && hasSelectedObjects;
+            if (!hasSelectedObjects)
             {
                 // Select externalized properties
-                var selectedView = selectionModel.SelectedView;
                 if (selectedView != null)
                 {
                     propertyGrid.SelectedObject = selectedView.Workflow;
