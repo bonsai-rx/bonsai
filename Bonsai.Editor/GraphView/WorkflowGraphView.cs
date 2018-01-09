@@ -2156,6 +2156,11 @@ namespace Bonsai.Design
                 SelectAllGraphNodes();
             }
 
+            if (e.KeyCode == Keys.C && e.Modifiers.HasFlag(Keys.Control))
+            {
+                CopyToClipboard();
+            }
+
             if (e.KeyCode == Keys.Back && e.Modifiers == Keys.Control)
             {
                 var owner = graphView.ParentForm.Owner;
@@ -2188,11 +2193,6 @@ namespace Bonsai.Design
                 if (e.KeyCode == Keys.X && e.Modifiers.HasFlag(Keys.Control))
                 {
                     CutToClipboard();
-                }
-
-                if (e.KeyCode == Keys.C && e.Modifiers.HasFlag(Keys.Control))
-                {
-                    CopyToClipboard();
                 }
 
                 if (e.KeyCode == Keys.V && e.Modifiers.HasFlag(Keys.Control))
