@@ -215,6 +215,7 @@ namespace Bonsai.Design
         internal class TabPageController
         {
             const string CloseSuffix = "   \u2715";
+            const string ReadOnlySuffix = " [Read-only]";
 
             string displayText;
             WorkflowEditorControl owner;
@@ -259,7 +260,7 @@ namespace Bonsai.Design
 
             void UpdateDisplayText()
             {
-                TabPage.Text = displayText + CloseSuffix;
+                TabPage.Text = displayText + (WorkflowGraphView.ReadOnly ? ReadOnlySuffix : string.Empty) + CloseSuffix;
             }
 
             public event CancelEventHandler TabClosing;
