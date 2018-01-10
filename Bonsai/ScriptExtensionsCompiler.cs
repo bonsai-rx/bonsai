@@ -29,6 +29,7 @@ namespace Bonsai
             if (scriptFiles.Length == 0) return new TempDirectory(null);
 
             var references = new HashSet<string>();
+            references.Add(typeof(Enumerable).Assembly.GetName().Name);
             var sources = new string[scriptFiles.Length];
             var regex = new Regex(@"#r ""(.*).dll""" + Environment.NewLine);
             for (int i = 0; i < scriptFiles.Length; i++)
