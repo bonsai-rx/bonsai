@@ -275,7 +275,8 @@ namespace Bonsai
         {
             return workflow.SelectMany(node => GetWorkflowElementTypes(node.Value)
                 .Concat(Enumerable.Repeat(node.Value.GetType(), 1)))
-                .Except(GetDefaultSerializerTypes());
+                .Except(GetDefaultSerializerTypes())
+                .Where(type => type.IsPublic);
         }
 
         #endregion
