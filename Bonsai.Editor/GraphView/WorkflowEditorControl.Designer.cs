@@ -32,7 +32,7 @@
             this.tabContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tabControl = new Bonsai.Design.WorkflowEditorTabControl();
+            this.tabControl = new System.Windows.Forms.TabControl();
             this.workflowTabPage = new System.Windows.Forms.TabPage();
             this.tabContextMenuStrip.SuspendLayout();
             this.tabControl.SuspendLayout();
@@ -101,7 +101,7 @@
 
         #endregion
 
-        private Bonsai.Design.WorkflowEditorTabControl tabControl;
+        private System.Windows.Forms.TabControl tabControl;
         private System.Windows.Forms.TabPage workflowTabPage;
         private System.Windows.Forms.ContextMenuStrip tabContextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;

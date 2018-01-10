@@ -290,6 +290,7 @@ namespace Bonsai.Editor
             propertiesSplitContainer.SplitterDistance = (int)(propertiesSplitContainer.SplitterDistance * factor.Height);
             var splitterScale = DefaultToolboxSplitterDistance / toolboxSplitContainer.SplitterDistance;
             toolboxSplitContainer.SplitterDistance = (int)(toolboxSplitContainer.SplitterDistance * splitterScale * factor.Height);
+            workflowSplitContainer.Panel1.Padding = new Padding(0, 6, 0, 2);
 
             var imageSize = toolStrip.ImageScalingSize;
             var scalingFactor = ((int)(factor.Height * 100) / 50 * 50) / 100f;
