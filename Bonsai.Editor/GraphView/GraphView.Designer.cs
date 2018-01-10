@@ -47,6 +47,7 @@
             // canvas
             // 
             this.canvas.AutoScroll = true;
+            this.canvas.BackColor = System.Drawing.Color.White;
             this.canvas.Dock = System.Windows.Forms.DockStyle.Fill;
             this.canvas.Location = new System.Drawing.Point(3, 3);
             this.canvas.Name = "canvas";
@@ -64,6 +65,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.White;
             this.Controls.Add(this.canvas);
             this.Name = "GraphView";
             this.Padding = new System.Windows.Forms.Padding(3);
