@@ -11,6 +11,12 @@ namespace Bonsai.Design
 {
     public class ExpressionBuilderTypeConverter : TypeConverter
     {
+        static readonly Pen SolidPen = Pens.DarkGray;
+        static readonly Pen DashPen = new Pen(Brushes.DarkGray)
+        {
+            DashPattern = new[] { 4f, 2f }
+        };
+
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
             if (destinationType == typeof(Brush)) return true;
@@ -85,7 +91,7 @@ namespace Bonsai.Design
             if (destinationType == typeof(Pen))
             {
                 var expressionBuilder = (ExpressionBuilder)value;
-                return expressionBuilder.IsBuildDependency() ? Pens.Red : Pens.Black;
+                return expressionBuilder.IsBuildDependency() ? DashPen : SolidPen;
             }
 
             return base.ConvertTo(context, culture, value, destinationType);
