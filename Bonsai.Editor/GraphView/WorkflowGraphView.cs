@@ -1103,6 +1103,12 @@ namespace Bonsai.Design
             commandExecutor.EndCompositeCommand();
         }
 
+        private void ReplaceNode(GraphNode node, ExpressionBuilder builder, ElementCategory elementCategory)
+        {
+            CreateGraphNode(builder, elementCategory, node, CreateGraphNodeType.Successor, branch: false, validate: false);
+            DeleteGraphNode(node);
+        }
+
         private bool CanGroup(IEnumerable<GraphNode> nodes, WorkflowBuilder groupBuilder)
         {
             if (nodes == null)
@@ -1335,14 +1341,38 @@ namespace Bonsai.Design
                 updateGraphLayout();
                 selectDeletedNode();
             });
-            CreateGraphNode(builder, elementCategory, node, CreateGraphNodeType.Successor, branch: false, validate: false);
-            DeleteGraphNode(node);
+            ReplaceNode(node, builder, elementCategory);
             commandExecutor.Execute(() =>
             {
                 updateGraphLayout();
                 selectCreatedNode();
             },
             () => { });
+            commandExecutor.EndCompositeCommand();
+        }
+
+        private void UpdateGraphNodes(IEnumerable<GraphNode> nodes, Action<GraphNode> action)
+        {
+            if (nodes == null)
+            {
+                throw new ArgumentNullException("nodes");
+            }
+
+            if (!nodes.Any()) return;
+            var selectedNodes = nodes.ToArray();
+            var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
+            var updateSelectedNode = CreateUpdateSelectionDelegate();
+            var restoreSelectedNodes = CreateUpdateSelectionDelegate(selectedNodes);
+
+            commandExecutor.BeginCompositeCommand();
+            commandExecutor.Execute(() => { }, restoreSelectedNodes);
+            commandExecutor.Execute(updateSelectedNode, updateGraphLayout);
+            foreach (var node in selectedNodes)
+            {
+                action(node);
+            }
+
+            commandExecutor.Execute(updateGraphLayout, () => { });
             commandExecutor.EndCompositeCommand();
         }
 
@@ -1414,27 +1444,39 @@ namespace Bonsai.Design
 
         public void UngroupGraphNodes(IEnumerable<GraphNode> nodes)
         {
-            if (nodes == null)
+            UpdateGraphNodes(nodes, UngroupGraphNode);
+        }
+
+        void DisableGraphNode(GraphNode node)
+        {
+            var builder = GetGraphNodeBuilder(node);
+            var disableBuilder = builder as DisableBuilder;
+            if (builder != null && disableBuilder == null)
             {
-                throw new ArgumentNullException("nodes");
+                builder = new DisableBuilder { Builder = builder };
+                ReplaceNode(node, builder, ElementCategory.Combinator);
             }
+        }
 
-            if (!nodes.Any()) return;
-            var selectedNodes = nodes.ToArray();
-            var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
-            var updateSelectedNode = CreateUpdateSelectionDelegate();
-            var restoreSelectedNodes = CreateUpdateSelectionDelegate(selectedNodes);
-
-            commandExecutor.BeginCompositeCommand();
-            commandExecutor.Execute(() => { }, restoreSelectedNodes);
-            commandExecutor.Execute(updateSelectedNode, updateGraphLayout);
-            foreach (var node in selectedNodes)
+        void EnableGraphNode(GraphNode node)
+        {
+            var builder = GetGraphNodeBuilder(node);
+            var disableBuilder = builder as DisableBuilder;
+            if (disableBuilder != null)
             {
-                UngroupGraphNode(node);
+                builder = disableBuilder.Builder;
+                ReplaceNode(node, builder, ElementCategory.Combinator);
             }
+        }
 
-            commandExecutor.Execute(updateGraphLayout, () => { });
-            commandExecutor.EndCompositeCommand();
+        public void DisableGraphNodes(IEnumerable<GraphNode> nodes)
+        {
+            UpdateGraphNodes(nodes, DisableGraphNode);
+        }
+
+        public void EnableGraphNodes(IEnumerable<GraphNode> nodes)
+        {
+            UpdateGraphNodes(nodes, EnableGraphNode);
         }
 
         private void InsertWorkflow(ExpressionBuilderGraph workflow)
@@ -2188,6 +2230,15 @@ namespace Bonsai.Design
                 if (e.KeyCode == Keys.Delete)
                 {
                     DeleteGraphNodes(selectionModel.SelectedNodes);
+                }
+
+                if (e.KeyCode == Keys.D && e.Modifiers.HasFlag(Keys.Control) && selectionModel.SelectedNodes.Any())
+                {
+                    if (e.Modifiers.HasFlag(Keys.Shift))
+                    {
+                        EnableGraphNodes(selectionModel.SelectedNodes);
+                    }
+                    else DisableGraphNodes(selectionModel.SelectedNodes);
                 }
 
                 if (e.KeyCode == Keys.X && e.Modifiers.HasFlag(Keys.Control))

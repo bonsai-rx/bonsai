@@ -33,6 +33,7 @@ namespace Bonsai.Design
                 var elementAttributes = TypeDescriptor.GetAttributes(expressionBuilder);
                 var elementCategoryAttribute = (WorkflowElementCategoryAttribute)elementAttributes[typeof(WorkflowElementCategoryAttribute)];
                 var obsolete = (ObsoleteAttribute)elementAttributes[typeof(ObsoleteAttribute)] != null;
+                var disabled = expressionBuilder is DisableBuilder;
 
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(expressionBuilder);
                 if (workflowElement != expressionBuilder)
@@ -50,20 +51,20 @@ namespace Bonsai.Design
                 switch (elementCategoryAttribute.Category)
                 {
                     case ElementCategory.Source:
-                        return obsolete ? HatchBrushes.Violet : Brushes.Violet;
+                        return obsolete ? HatchBrushes.DiagonalViolet : disabled ? HatchBrushes.CrossViolet : Brushes.Violet;
                     case ElementCategory.Condition:
-                        return obsolete ? HatchBrushes.LightGreen : Brushes.LightGreen;
+                        return obsolete ? HatchBrushes.DiagonalLightGreen : disabled ? HatchBrushes.CrossLightGreen : Brushes.LightGreen;
                     case ElementCategory.Transform:
-                        return obsolete ? HatchBrushes.White : Brushes.White;
+                        return obsolete ? HatchBrushes.DiagonalWhite : disabled ? HatchBrushes.CrossWhite : Brushes.White;
                     case ElementCategory.Sink:
-                        return obsolete ? HatchBrushes.DarkGray : Brushes.DarkGray;
+                        return obsolete ? HatchBrushes.DiagonalDarkGray : disabled ? HatchBrushes.CrossDarkGray : Brushes.DarkGray;
                     case ElementCategory.Nested:
-                        return obsolete ? HatchBrushes.Goldenrod : Brushes.Goldenrod;
+                        return obsolete ? HatchBrushes.DiagonalGoldenrod : disabled ? HatchBrushes.CrossGoldenrod : Brushes.Goldenrod;
                     case ElementCategory.Property:
-                        return obsolete ? HatchBrushes.Orange : Brushes.Orange;
+                        return obsolete ? HatchBrushes.DiagonalOrange : disabled ? HatchBrushes.CrossOrange : Brushes.Orange;
                     case ElementCategory.Combinator:
                     default:
-                        return obsolete ? HatchBrushes.LightBlue : Brushes.LightBlue;
+                        return obsolete ? HatchBrushes.DiagonalLightBlue : disabled ? HatchBrushes.CrossLightBlue : Brushes.LightBlue;
                 }
             }
 

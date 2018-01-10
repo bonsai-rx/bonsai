@@ -19,6 +19,7 @@ namespace Bonsai.Expressions
     /// </summary>
     [XmlInclude(typeof(UnitBuilder))]
     [XmlInclude(typeof(SourceBuilder))]
+    [XmlInclude(typeof(DisableBuilder))]
     [XmlInclude(typeof(ConditionBuilder))]
     [XmlInclude(typeof(CombinatorBuilder))]
     [XmlInclude(typeof(SelectManyBuilder))]
@@ -111,6 +112,9 @@ namespace Bonsai.Expressions
         public static object GetWorkflowElement(ExpressionBuilder builder)
         {
             builder = Unwrap(builder);
+
+            var disableBuilder = builder as DisableBuilder;
+            if (disableBuilder != null) builder = disableBuilder.Builder;
 
             var combinatorBuilder = builder as CombinatorBuilder;
             if (combinatorBuilder != null) return combinatorBuilder.Combinator;
