@@ -54,8 +54,9 @@ namespace Bonsai
             var assemblyFile = Path.Combine(assemblyFolder.Path, Path.ChangeExtension(output, DllExtension));
             var assemblyReferences = (from assemblyName in references
                                       let assemblyLocation = ConfigurationHelper.GetAssemblyLocation(configuration, assemblyName)
-                                      where assemblyLocation != null
-                                      select Path.IsPathRooted(assemblyLocation) ? assemblyLocation : Path.Combine(configurationRoot, assemblyLocation))
+                                      select assemblyLocation == null ? assemblyName + DllExtension :
+                                      Path.IsPathRooted(assemblyLocation) ? assemblyLocation :
+                                      Path.Combine(configurationRoot, assemblyLocation))
                                       .ToArray();
             var compilerParameters = new CompilerParameters(assemblyReferences, assemblyFile);
             compilerParameters.GenerateExecutable = false;
