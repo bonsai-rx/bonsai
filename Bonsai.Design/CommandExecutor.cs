@@ -95,9 +95,13 @@ namespace Bonsai.Design
                 );
                 history.Add(composite);
                 OnStatusChanged(EventArgs.Empty);
+                composite = null;
             }
-            else Clear();
-            composite = null;
+            else
+            {
+                composite = null;
+                Clear();
+            }
         }
 
         public void Undo()
