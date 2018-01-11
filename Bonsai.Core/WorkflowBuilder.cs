@@ -24,6 +24,7 @@ namespace Bonsai
     public class WorkflowBuilder : IXmlSerializable
     {
         readonly ExpressionBuilderGraph workflow;
+        const string DynamicAssemblyPrefix = "@Dynamic";
         const string VersionAttributeName = "Version";
         const string ExtensionTypeNodeName = "ExtensionTypes";
         const string DescriptionElementName = "Description";
@@ -156,7 +157,7 @@ namespace Bonsai
                     throw new InvalidOperationException(Resources.Exception_SerializingUnknownTypeBuilder);
                 }
 
-                writer.WriteElementString(TypeNodeName, type.AssemblyQualifiedName);
+                writer.WriteElementString(TypeNodeName, type.AssemblyQualifiedName.Replace(DynamicAssemblyPrefix, string.Empty));
             }
             writer.WriteEndElement();
         }
@@ -193,7 +194,7 @@ namespace Bonsai
 
         static string GetClrNamespace(Type type)
         {
-            var assemblyName = type.Assembly.GetName().Name.Replace(UnknownTypeResolver.DynamicAssemblyPrefix, string.Empty);
+            var assemblyName = type.Assembly.GetName().Name.Replace(DynamicAssemblyPrefix, string.Empty);
             return string.Format("clr-namespace:{0};assembly={1}", type.Namespace, assemblyName);
         }
 
@@ -288,7 +289,6 @@ namespace Bonsai
 
         class UnknownTypeResolver
         {
-            internal const string DynamicAssemblyPrefix = "@Dynamic";
             readonly Dictionary<string, AssemblyBuilder> dynamicAssemblies = new Dictionary<string, AssemblyBuilder>();
             readonly Dictionary<string, ModuleBuilder> dynamicModules = new Dictionary<string, ModuleBuilder>();
             readonly Dictionary<string, Type> dynamicTypes = new Dictionary<string, Type>();
