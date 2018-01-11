@@ -93,7 +93,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="PropertyAssignment.cs" />
-    <Compile Include="ScriptExtensionsCompiler.cs" />
+    <Compile Include="ScriptExtensionsProvider.cs" />
     <Compile Include="TypeVisualizerLoader.cs" />
     <Compile Include="WorkflowElementCategoryConverter.cs" />
     <Compile Include="WorkflowElementLoader.cs" />
