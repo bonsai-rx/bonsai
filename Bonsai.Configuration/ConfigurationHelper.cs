@@ -23,13 +23,12 @@ namespace Bonsai.Configuration
 
         static string GetDefaultConfigurationFilePath()
         {
-            var configurationRoot = Path.GetDirectoryName(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+            var configurationRoot = GetConfigurationRoot();
             return Path.Combine(configurationRoot, DefaultConfigurationFileName);
         }
 
         static void AddLibraryPath(string path)
         {
-            path = Path.GetFullPath(path);
             var currentPath = Environment.GetEnvironmentVariable(PathEnvironmentVariable);
             if (!currentPath.Contains(path))
             {
@@ -38,10 +37,10 @@ namespace Bonsai.Configuration
             }
         }
 
-        public static string GetConfigurationRoot(PackageConfiguration configuration)
+        public static string GetConfigurationRoot(PackageConfiguration configuration = null)
         {
-            return string.IsNullOrWhiteSpace(configuration.ConfigurationFile)
-                ? string.Empty
+            return configuration == null || string.IsNullOrWhiteSpace(configuration.ConfigurationFile)
+                ? Path.GetDirectoryName(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile)
                 : Path.GetDirectoryName(configuration.ConfigurationFile);
         }
 
@@ -70,7 +69,11 @@ namespace Bonsai.Configuration
             {
                 if (libraryFolder.Platform == platform)
                 {
-                    var libraryPath = Path.Combine(configurationRoot, libraryFolder.Path);
+                    var libraryPath = libraryFolder.Path;
+                    if (!Path.IsPathRooted(libraryPath))
+                    {
+                        libraryPath = Path.Combine(configurationRoot, libraryPath);
+                    }
                     AddLibraryPath(libraryPath);
                 }
             }
