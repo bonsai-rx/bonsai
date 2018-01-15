@@ -51,6 +51,7 @@ namespace Bonsai.Editor
         Font selectionFont;
         EditorSite editorSite;
         HotKeyMessageFilter hotKeys;
+        IServiceProvider serviceProvider;
         WorkflowEditorControl editorControl;
         WorkflowBuilder workflowBuilder;
         WorkflowSelectionModel selectionModel;
@@ -83,6 +84,14 @@ namespace Bonsai.Editor
         public MainForm(
             IObservable<IGrouping<string, WorkflowElementDescriptor>> elementProvider,
             IObservable<TypeVisualizerDescriptor> visualizerProvider)
+            : this(elementProvider, visualizerProvider, null)
+        {
+        }
+
+        public MainForm(
+            IObservable<IGrouping<string, WorkflowElementDescriptor>> elementProvider,
+            IObservable<TypeVisualizerDescriptor> visualizerProvider,
+            IServiceProvider provider)
         {
             InitializeComponent();
             statusTextLabel = new Label();
@@ -107,6 +116,7 @@ namespace Bonsai.Editor
                 toolboxCategories.Add(node.Name, node);
             }
 
+            serviceProvider = provider;
             treeCache = new List<TreeNode>();
             editorSite = new EditorSite(this);
             hotKeys = new HotKeyMessageFilter();
@@ -152,8 +162,6 @@ namespace Bonsai.Editor
             get { return FileName; }
             set { FileName = value; }
         }
-
-        public bool DebugScripts { get; set; }
 
         public EditorResult EditorResult { get; set; }
 
@@ -1745,7 +1753,8 @@ namespace Bonsai.Editor
 
         private void reloadExtensionsDebugToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            DebugScripts = true;
+            var scriptEnvironment = (IScriptEnvironment)editorSite.GetService(typeof(IScriptEnvironment));
+            if (scriptEnvironment != null) scriptEnvironment.DebugScripts = true;
             reloadExtensionsToolStripMenuItem_Click(sender, e);
         }
 
@@ -1879,6 +1888,11 @@ namespace Bonsai.Editor
                     serviceType == typeof(IUIService))
                 {
                     return this;
+                }
+
+                if (siteForm.serviceProvider != null)
+                {
+                    return siteForm.serviceProvider.GetService(serviceType);
                 }
 
                 return null;

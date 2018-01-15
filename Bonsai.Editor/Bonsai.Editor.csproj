@@ -101,6 +101,7 @@
     <Compile Include="GraphView\DeferredGraphics.cs" />
     <Compile Include="GraphView\WorkflowGraphViewEditorService.cs" />
     <Compile Include="HotKeyMessageFilter.cs" />
+    <Compile Include="IScriptEnvironment.cs" />
     <Compile Include="IWorkflowEditorService.cs" />
     <Compile Include="IWorkflowToolboxService.cs" />
     <Compile Include="Layout\DialogLauncher.cs" />
