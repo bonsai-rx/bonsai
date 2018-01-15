@@ -261,6 +261,7 @@ namespace Bonsai
 
         internal static int LaunchWorkflowEditor(
             PackageConfiguration packageConfiguration,
+            ScriptExtensionsEnvironment scriptEnvironment,
             string editorRepositoryPath,
             string initialFileName,
             bool start,
@@ -276,7 +277,7 @@ namespace Bonsai
                 .Catch(Observable.Return(false));
 
             EnableVisualStyles();
-            using (var mainForm = new MainForm(elementProvider, visualizerProvider))
+            using (var mainForm = new MainForm(elementProvider, visualizerProvider, scriptEnvironment))
             {
                 mainForm.FileName = initialFileName;
                 mainForm.StartOnLoad = start;
@@ -284,7 +285,7 @@ namespace Bonsai
                 updatesAvailable.Subscribe(value => mainForm.UpdatesAvailable = value);
                 Application.Run(mainForm);
                 AppResult.SetResult(mainForm.FileName);
-                AppResult.SetResult(mainForm.DebugScripts);
+                AppResult.SetResult(scriptEnvironment.DebugScripts);
                 return (int)mainForm.EditorResult;
             }
         }

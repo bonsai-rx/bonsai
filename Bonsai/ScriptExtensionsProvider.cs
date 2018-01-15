@@ -43,7 +43,7 @@ namespace Bonsai
             }
         }
 
-        public static TempDirectory CompileAssembly(PackageConfiguration configuration, string editorRepositoryPath, bool includeDebugInformation)
+        public static ScriptExtensionsEnvironment CompileAssembly(PackageConfiguration configuration, string editorRepositoryPath, bool includeDebugInformation)
         {
             var assemblyNames = new HashSet<string>();
             assemblyNames.Add("System.dll");
@@ -55,7 +55,7 @@ namespace Bonsai
             var output = Path.GetFileNameWithoutExtension(path);
             var configurationRoot = ConfigurationHelper.GetConfigurationRoot(configuration);
             var scriptProjectFile = Path.Combine(path, Path.ChangeExtension(output, ProjectExtension));
-            if (!File.Exists(scriptProjectFile)) return new TempDirectory(null);
+            if (!File.Exists(scriptProjectFile)) return new ScriptExtensionsEnvironment(null);
 
             var document = XmlUtility.LoadSafe(scriptProjectFile);
             var packageRepository = new LocalPackageRepository(editorRepositoryPath);
@@ -67,10 +67,10 @@ namespace Bonsai
             assemblyNames.AddRange(projectReferences);
 
             var scriptFiles = Directory.GetFiles(path, ScriptExtension, SearchOption.AllDirectories);
-            if (scriptFiles.Length == 0) return new TempDirectory(null);
+            if (scriptFiles.Length == 0) return new ScriptExtensionsEnvironment(null);
 
-            var assemblyFolder = new TempDirectory(Path.GetTempPath() + output + "." + Guid.NewGuid().ToString());
-            var assemblyFile = Path.Combine(assemblyFolder.Path, Path.ChangeExtension(output, DllExtension));
+            var assemblyFolder = new ScriptExtensionsEnvironment(Path.GetTempPath() + output + "." + Guid.NewGuid().ToString());
+            var assemblyFile = Path.Combine(assemblyFolder.AssemblyDirectory, Path.ChangeExtension(output, DllExtension));
             var assemblyReferences = (from fileName in assemblyNames
                                       let assemblyName = Path.GetFileNameWithoutExtension(fileName)
                                       let assemblyLocation = ConfigurationHelper.GetAssemblyLocation(configuration, assemblyName)
@@ -101,7 +101,7 @@ namespace Bonsai
                         }
                     }
                     finally { assemblyFolder.Dispose(); }
-                    return new TempDirectory(null);
+                    return new ScriptExtensionsEnvironment(null);
                 }
                 else
                 {
