@@ -1,5 +1,6 @@
 ﻿using Bonsai.Configuration;
 using Microsoft.CSharp;
+using NuGet;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
@@ -9,54 +10,71 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Bonsai
 {
     static class ScriptExtensionsProvider
     {
-        const string ScriptExtension = "*.csx";
+        const string PackageReferenceElement = "PackageReference";
+        const string PackageIncludeAttribute = "Include";
+        const string ProjectExtension = ".csproj";
+        const string ScriptExtension = "*.cs";
         const string DllExtension = ".dll";
 
-        public static TempDirectory CompileAssembly(PackageConfiguration configuration, string output, bool includeDebugInformation)
+        static IEnumerable<string> FindAssemblyReferences(IPackageRepository repository, IPackage package)
         {
-            var configurationRoot = ConfigurationHelper.GetConfigurationRoot(configuration);
-            var scriptFiles = (from libraryFolder in configuration.LibraryFolders
-                               let path = Path.Combine(configurationRoot, libraryFolder.Path)
-                               where Directory.Exists(path)
-                               from file in Directory.EnumerateFiles(path, ScriptExtension)
-                               select file)
-                               .ToArray();
-            if (scriptFiles.Length == 0) return new TempDirectory(null);
-
-            var references = new HashSet<string>();
-            references.Add("System");
-            references.Add("System.Core");
-            var sources = new string[scriptFiles.Length];
-            var regex = new Regex(@"#r ""(.*).dll""" + Environment.NewLine);
-            for (int i = 0; i < scriptFiles.Length; i++)
+            foreach (var assembly in package.AssemblyReferences)
             {
-                sources[i] = File.ReadAllText(scriptFiles[i]);
-                var matches = regex.Matches(sources[i]);
-                for (int k = 0; k < matches.Count; k++)
-                {
-                    var match = matches[k];
-                    if (!match.Success || match.Groups.Count < 2) continue;
-                    references.Add(match.Groups[1].Value);
-                }
+                yield return assembly.Name;
+            }
 
-                var lastMatch = matches.Count > 0 ? matches[matches.Count - 1] : null;
-                if (lastMatch != null)
+            var dependencies = package.GetCompatiblePackageDependencies(null);
+            foreach (var dependency in dependencies)
+            {
+                var dependencyPackage = repository.ResolveDependency(dependency, true, true);
+                if (dependencyPackage != null)
                 {
-                    var lineDirective = "#line " + (matches.Count + 1) + " \"" + scriptFiles[i] + "\"" + Environment.NewLine;
-                    sources[i] = lineDirective + sources[i].Substring(lastMatch.Index + lastMatch.Length);
+                    foreach (var reference in FindAssemblyReferences(repository, dependencyPackage))
+                    {
+                        yield return reference;
+                    }
                 }
             }
+        }
+
+        public static TempDirectory CompileAssembly(PackageConfiguration configuration, string editorRepositoryPath, bool includeDebugInformation)
+        {
+            var assemblyNames = new HashSet<string>();
+            assemblyNames.Add("System.dll");
+            assemblyNames.Add("System.Core.dll");
+            assemblyNames.Add("System.Reactive.Linq.dll");
+            assemblyNames.Add("Bonsai.Core.dll");
+
+            var path = Environment.CurrentDirectory;
+            var output = Path.GetFileNameWithoutExtension(path);
+            var configurationRoot = ConfigurationHelper.GetConfigurationRoot(configuration);
+            var scriptProjectFile = Path.Combine(path, Path.ChangeExtension(output, ProjectExtension));
+            if (!File.Exists(scriptProjectFile)) return new TempDirectory(null);
+
+            var document = XmlUtility.LoadSafe(scriptProjectFile);
+            var packageRepository = new LocalPackageRepository(editorRepositoryPath);
+            var projectReferences = from element in document.Descendants(XName.Get(PackageReferenceElement))
+                                    let package = packageRepository.FindPackage(element.Attribute(XName.Get(PackageIncludeAttribute)).Value)
+                                    where package != null
+                                    from assemblyReference in FindAssemblyReferences(packageRepository, package)
+                                    select assemblyReference;
+            assemblyNames.AddRange(projectReferences);
+
+            var scriptFiles = Directory.GetFiles(path, ScriptExtension, SearchOption.AllDirectories);
+            if (scriptFiles.Length == 0) return new TempDirectory(null);
 
             var assemblyFolder = new TempDirectory(Path.GetTempPath() + output + "." + Guid.NewGuid().ToString());
             var assemblyFile = Path.Combine(assemblyFolder.Path, Path.ChangeExtension(output, DllExtension));
-            var assemblyReferences = (from assemblyName in references
+            var assemblyReferences = (from fileName in assemblyNames
+                                      let assemblyName = Path.GetFileNameWithoutExtension(fileName)
                                       let assemblyLocation = ConfigurationHelper.GetAssemblyLocation(configuration, assemblyName)
-                                      select assemblyLocation == null ? assemblyName + DllExtension :
+                                      select assemblyLocation == null ? fileName :
                                       Path.IsPathRooted(assemblyLocation) ? assemblyLocation :
                                       Path.Combine(configurationRoot, assemblyLocation))
                                       .ToArray();
@@ -71,7 +89,7 @@ namespace Bonsai
 
             using (var codeProvider = new CSharpCodeProvider())
             {
-                var results = codeProvider.CompileAssemblyFromSource(compilerParameters, sources);
+                var results = codeProvider.CompileAssemblyFromFile(compilerParameters, scriptFiles);
                 if (results.Errors.HasErrors)
                 {
                     try
