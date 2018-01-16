@@ -45,7 +45,11 @@ namespace Bonsai.Expressions
     public abstract class ExpressionBuilder : IExpressionBuilder
     {
         const string ExpressionBuilderSuffix = "Builder";
-        internal static readonly Expression EmptyExpression = Expression.Empty();
+
+        /// <summary>
+        /// Represents an empty expression indicating interruption of the build process.
+        /// </summary>
+        public static readonly Expression EmptyExpression = Expression.Empty();
 
         /// <summary>
         /// When overridden in a derived class, gets the range of input arguments

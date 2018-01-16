@@ -16,6 +16,7 @@ namespace Bonsai
 {
     static class ScriptExtensionsProvider
     {
+        const string OutputAssemblyName = "Extensions";
         const string PackageReferenceElement = "PackageReference";
         const string PackageIncludeAttribute = "Include";
         const string ProjectExtension = ".csproj";
@@ -52,10 +53,9 @@ namespace Bonsai
             assemblyNames.Add("Bonsai.Core.dll");
 
             var path = Environment.CurrentDirectory;
-            var output = Path.GetFileNameWithoutExtension(path);
             var configurationRoot = ConfigurationHelper.GetConfigurationRoot(configuration);
-            var scriptProjectFile = Path.Combine(path, Path.ChangeExtension(output, ProjectExtension));
-            if (!File.Exists(scriptProjectFile)) return new ScriptExtensionsEnvironment(null);
+            var scriptProjectFile = Path.Combine(path, Path.ChangeExtension(OutputAssemblyName, ProjectExtension));
+            if (!File.Exists(scriptProjectFile)) return new ScriptExtensionsEnvironment(configuration, null);
 
             var document = XmlUtility.LoadSafe(scriptProjectFile);
             var packageRepository = new LocalPackageRepository(editorRepositoryPath);
@@ -67,10 +67,11 @@ namespace Bonsai
             assemblyNames.AddRange(projectReferences);
 
             var scriptFiles = Directory.GetFiles(path, ScriptExtension, SearchOption.AllDirectories);
-            if (scriptFiles.Length == 0) return new ScriptExtensionsEnvironment(null);
+            if (scriptFiles.Length == 0) return new ScriptExtensionsEnvironment(configuration, null);
 
-            var assemblyFolder = new ScriptExtensionsEnvironment(Path.GetTempPath() + output + "." + Guid.NewGuid().ToString());
-            var assemblyFile = Path.Combine(assemblyFolder.AssemblyDirectory, Path.ChangeExtension(output, DllExtension));
+            var assemblyDirectory = Path.GetTempPath() + OutputAssemblyName + "." + Guid.NewGuid().ToString();
+            var scriptEnvironment = new ScriptExtensionsEnvironment(configuration, assemblyDirectory);
+            var assemblyFile = Path.Combine(assemblyDirectory, Path.ChangeExtension(OutputAssemblyName, DllExtension));
             var assemblyReferences = (from fileName in assemblyNames
                                       let assemblyName = Path.GetFileNameWithoutExtension(fileName)
                                       let assemblyLocation = ConfigurationHelper.GetAssemblyLocation(configuration, assemblyName)
@@ -100,16 +101,17 @@ namespace Bonsai
                             Console.Error.WriteLine(error);
                         }
                     }
-                    finally { assemblyFolder.Dispose(); }
-                    return new ScriptExtensionsEnvironment(null);
+                    finally { scriptEnvironment.Dispose(); }
+                    return new ScriptExtensionsEnvironment(configuration, null);
                 }
                 else
                 {
                     var assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
                     configuration.AssemblyReferences.Add(assemblyName.Name);
                     configuration.AssemblyLocations.Add(assemblyName.Name, ProcessorArchitecture.MSIL, assemblyName.CodeBase);
+                    scriptEnvironment.AssemblyName = assemblyName;
                 }
-                return assemblyFolder;
+                return scriptEnvironment;
             }
         }
     }
