@@ -209,9 +209,6 @@ Copyright 2010-2012 Outercurve Foundation</value>
   <data name="UpdateWorkflow_Warning_Caption" xml:space="preserve">
     <value>Update Workflow</value>
   </data>
-  <data name="LaunchDefaultEditor_Error" xml:space="preserve">
-    <value>Component did not succeed to show the property page.</value>
-  </data>
   <data name="SaveLayout_Error" xml:space="preserve">
     <value>There was an error saving the visualizer layout:
 {0}</value>

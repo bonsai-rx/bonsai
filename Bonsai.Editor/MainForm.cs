@@ -271,6 +271,7 @@ namespace Bonsai.Editor
             workflowSnippets.AddRange(FindSnippets(snippetDirectory));
             directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
 
+            InitializeEditorToolboxTypes();
             var initialization = InitializeToolbox().Merge(InitializeTypeVisualizers()).TakeLast(1).ObserveOn(Scheduler.Default);
             if (validFileName && OpenWorkflow(initialFileName, false))
             {
@@ -333,6 +334,28 @@ namespace Bonsai.Editor
         #endregion
 
         #region Toolbox
+
+        void InitializeEditorToolboxTypes()
+        {
+            foreach (var group in EditorToolboxTypes().GroupBy(descriptor => descriptor.Namespace))
+            {
+                InitializeToolboxCategory(group.Key, group);
+            }
+        }
+
+        IEnumerable<WorkflowElementDescriptor> EditorToolboxTypes()
+        {
+            var createScriptType = typeof(Bonsai.Editor.Scripting.CSharpScript);
+            var descriptionAttribute = (DescriptionAttribute)TypeDescriptor.GetAttributes(createScriptType)[typeof(DescriptionAttribute)];
+            yield return new WorkflowElementDescriptor
+            {
+                Name = ExpressionBuilder.GetElementDisplayName(createScriptType),
+                Namespace = createScriptType.Namespace,
+                FullyQualifiedName = createScriptType.AssemblyQualifiedName,
+                Description = descriptionAttribute.Description,
+                ElementTypes = new[] { ElementCategory.Combinator }
+            };
+        }
 
         IObservable<Unit> InitializeSnippetFileWatcher()
         {
