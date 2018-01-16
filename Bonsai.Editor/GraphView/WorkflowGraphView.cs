@@ -1623,7 +1623,7 @@ namespace Bonsai.Design
                 }
                 catch (Exception ex)
                 {
-                    uiService.ShowError(ex, Resources.LaunchDefaultEditor_Error);
+                    uiService.ShowError(ex);
                 }
             }
         }
