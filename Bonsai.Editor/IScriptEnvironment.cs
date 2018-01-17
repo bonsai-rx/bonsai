@@ -9,6 +9,8 @@ namespace Bonsai.Editor
 {
     public interface IScriptEnvironment
     {
+        string ProjectFileName { get; }
+
         AssemblyName AssemblyName { get; }
 
         bool DebugScripts { get; set; }

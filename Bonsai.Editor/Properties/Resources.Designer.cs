@@ -168,6 +168,25 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to open script editor.
+        ///Do you want to install Visual Studio Code?.
+        /// </summary>
+        internal static string InstallScriptEditor_Question {
+            get {
+                return ResourceManager.GetString("InstallScriptEditor_Question", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Install Script Editor.
+        /// </summary>
+        internal static string InstallScriptEditor_Question_Caption {
+            get {
+                return ResourceManager.GetString("InstallScriptEditor_Question_Caption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There was an error opening the Bonsai workflow:
         ///{0}.
         /// </summary>

@@ -237,4 +237,11 @@ Copyright 2010-2012 Outercurve Foundation</value>
   <data name="CreateExtensionsFolder_Question_Caption" xml:space="preserve">
     <value>Create Extensions Folder</value>
   </data>
+  <data name="InstallScriptEditor_Question" xml:space="preserve">
+    <value>Unable to open script editor.
+Do you want to install Visual Studio Code?</value>
+  </data>
+  <data name="InstallScriptEditor_Question_Caption" xml:space="preserve">
+    <value>Install Script Editor</value>
+  </data>
 </root>
