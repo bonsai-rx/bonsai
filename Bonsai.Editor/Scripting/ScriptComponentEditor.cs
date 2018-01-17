@@ -1,11 +1,13 @@
 ﻿using Bonsai.Dag;
 using Bonsai.Design;
+using Bonsai.Editor.Properties;
 using Bonsai.Expressions;
 using Microsoft.CSharp;
 using System;
 using System.CodeDom;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -19,6 +21,7 @@ namespace Bonsai.Editor.Scripting
 {
     class ScriptComponentEditor : WorkflowComponentEditor
     {
+        const string ScriptEditor = "code";
         const string ScriptExtension = ".cs";
         const string ScriptFilter = "C# Files (*.cs)|*.cs|All Files (*.*)|*.*";
         static readonly string[] IgnoreAssemblyReferences = new[] { "mscorlib.dll", "System.dll", "System.Core.dll", "System.Reactive.Linq.dll" };
@@ -118,9 +121,11 @@ namespace Bonsai.Editor.Scripting
             }
             else inputType = typeof(IObservable<int>);
 
-            using (var dialog = new SaveFileDialog { FileName = scriptComponent.Name + ScriptExtension, Filter = ScriptFilter })
+            var scriptFile = scriptComponent.Name + ScriptExtension;
+            using (var dialog = new SaveFileDialog { FileName = scriptFile, Filter = ScriptFilter })
             {
                 if (dialog.ShowDialog() != DialogResult.OK) return false;
+                scriptFile = dialog.FileName;
 
                 var namespaces = new HashSet<string>();
                 var assemblyReferences = new HashSet<string>();
@@ -162,7 +167,7 @@ namespace Bonsai.Editor.Scripting
                 scriptBuilder.AppendLine("    }");
                 scriptBuilder.AppendLine("}");
 
-                using (var writer = new StreamWriter(dialog.FileName))
+                using (var writer = new StreamWriter(scriptFile))
                 {
                     writer.Write(scriptBuilder);
                 }
@@ -201,6 +206,22 @@ namespace Bonsai.Editor.Scripting
             selectedView.CreateGraphNode(builder, ElementCategory.Combinator, selectedNode, CreateGraphNodeType.Successor, branch: false, validate: false);
             selectedView.DeleteGraphNodes(selectionModel.SelectedNodes);
             commandExecutor.Execute(() => { }, null);
+
+            var projectDirectory = Path.GetDirectoryName(scriptEnvironment.ProjectFileName);
+            try { Process.Start(ScriptEditor, "\"" + projectDirectory + "\" \"" + scriptFile + "\""); }
+            catch (Win32Exception)
+            {
+                var result = MessageBox.Show(
+                    owner,
+                    Resources.InstallScriptEditor_Question,
+                    Resources.InstallScriptEditor_Question_Caption,
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+                if (result == DialogResult.Yes)
+                {
+                    Process.Start("https://code.visualstudio.com/");
+                }
+            }
             return true;
         }
     }

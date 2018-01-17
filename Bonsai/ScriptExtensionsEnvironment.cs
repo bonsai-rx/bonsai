@@ -17,7 +17,7 @@ namespace Bonsai
     {
         const string OuterIndent = "  ";
         const string InnerIndent = "    ";
-        const string ProjectScriptFile = "Extensions.csproj";
+        const string DefaultProjectFileName = "Extensions.csproj";
         const string PackageReferenceElement = "PackageReference";
         const string PackageIncludeAttribute = "Include";
         const string PackageVersionAttribute = "Version";
@@ -39,7 +39,10 @@ namespace Bonsai
             packageConfiguration = configuration;
             packageMap = DependencyInspector.GetPackageReferenceMap(configuration);
             assemblyFolder = new TempDirectory(outputPath);
+            ProjectFileName = Path.GetFullPath(DefaultProjectFileName);
         }
+
+        public string ProjectFileName { get; private set; }
 
         public AssemblyName AssemblyName { get; internal set; }
 
@@ -48,11 +51,11 @@ namespace Bonsai
         public void AddAssemblyReferences(IEnumerable<string> assemblyReferences)
         {
             XElement root;
-            if (!File.Exists(ProjectScriptFile))
+            if (!File.Exists(ProjectFileName))
             {
                 root = XElement.Parse(ProjectFileTemplate, LoadOptions.PreserveWhitespace);
             }
-            else root = XElement.Load(ProjectScriptFile, LoadOptions.PreserveWhitespace);
+            else root = XElement.Load(ProjectFileName, LoadOptions.PreserveWhitespace);
 
             var projectReferences = root.Descendants(PackageReferenceElement).ToArray();
             var lastReference = projectReferences.LastOrDefault();
@@ -102,7 +105,7 @@ namespace Bonsai
                 lastReference = referenceElement;
             }
 
-            File.WriteAllText(ProjectScriptFile, root.ToString(SaveOptions.DisableFormatting));
+            File.WriteAllText(ProjectFileName, root.ToString(SaveOptions.DisableFormatting));
         }
 
         public object GetService(Type serviceType)
