@@ -1591,10 +1591,9 @@ namespace Bonsai.Design
             else if (builder != null)
             {
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
-                var componentEditor = (ComponentEditor)TypeDescriptor.GetEditor(workflowElement, typeof(ComponentEditor));
                 try
                 {
-                    if (componentEditor == null || !uiService.ShowComponentEditor(workflowElement, this))
+                    if (!uiService.CanShowComponentEditor(workflowElement) || !uiService.ShowComponentEditor(workflowElement, this))
                     {
                         var defaultProperty = TypeDescriptor.GetDefaultProperty(workflowElement);
                         if (defaultProperty != null)

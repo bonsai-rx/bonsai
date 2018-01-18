@@ -1,6 +1,5 @@
 ﻿using Bonsai.Dag;
 using Bonsai.Design;
-using Bonsai.Editor.Properties;
 using Bonsai.Expressions;
 using Microsoft.CSharp;
 using System;
@@ -21,8 +20,6 @@ namespace Bonsai.Editor.Scripting
 {
     class ScriptComponentEditor : WorkflowComponentEditor
     {
-        const string ScriptEditor = "code";
-        const string ScriptExtension = ".cs";
         const string ScriptFilter = "C# Files (*.cs)|*.cs|All Files (*.*)|*.*";
         static readonly string[] IgnoreAssemblyReferences = new[] { "mscorlib.dll", "System.dll", "System.Core.dll", "System.Reactive.Linq.dll" };
 
@@ -121,7 +118,7 @@ namespace Bonsai.Editor.Scripting
             }
             else inputType = typeof(IObservable<int>);
 
-            var scriptFile = scriptComponent.Name + ScriptExtension;
+            var scriptFile = scriptComponent.Name;
             using (var dialog = new SaveFileDialog { FileName = scriptFile, Filter = ScriptFilter })
             {
                 if (dialog.ShowDialog() != DialogResult.OK) return false;
@@ -207,21 +204,7 @@ namespace Bonsai.Editor.Scripting
             selectedView.DeleteGraphNodes(selectionModel.SelectedNodes);
             commandExecutor.Execute(() => { }, null);
 
-            var projectDirectory = Path.GetDirectoryName(scriptEnvironment.ProjectFileName);
-            try { Process.Start(ScriptEditor, "\"" + projectDirectory + "\" \"" + scriptFile + "\""); }
-            catch (Win32Exception)
-            {
-                var result = MessageBox.Show(
-                    owner,
-                    Resources.InstallScriptEditor_Question,
-                    Resources.InstallScriptEditor_Question_Caption,
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Warning);
-                if (result == DialogResult.Yes)
-                {
-                    Process.Start("https://code.visualstudio.com/");
-                }
-            }
+            ScriptEditorLauncher.Launch(owner, scriptEnvironment.ProjectFileName, scriptFile);
             return true;
         }
     }
