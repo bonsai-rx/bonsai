@@ -24,6 +24,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Globalization;
 using System.Reactive.Subjects;
+using Bonsai.Editor.Scripting;
 
 namespace Bonsai.Editor
 {
@@ -52,6 +53,7 @@ namespace Bonsai.Editor
         EditorSite editorSite;
         HotKeyMessageFilter hotKeys;
         IServiceProvider serviceProvider;
+        IScriptEnvironment scriptEnvironment;
         WorkflowEditorControl editorControl;
         WorkflowBuilder workflowBuilder;
         WorkflowSelectionModel selectionModel;
@@ -121,6 +123,7 @@ namespace Bonsai.Editor
             editorSite = new EditorSite(this);
             hotKeys = new HotKeyMessageFilter();
             workflowBuilder = new WorkflowBuilder();
+            scriptEnvironment = (IScriptEnvironment)provider.GetService(typeof(IScriptEnvironment));
             regularFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Regular);
             selectionFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Bold);
             typeVisualizers = new TypeVisualizerMap();
@@ -1776,7 +1779,6 @@ namespace Bonsai.Editor
 
         private void reloadExtensionsDebugToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var scriptEnvironment = (IScriptEnvironment)editorSite.GetService(typeof(IScriptEnvironment));
             if (scriptEnvironment != null) scriptEnvironment.DebugScripts = true;
             reloadExtensionsToolStripMenuItem_Click(sender, e);
         }
@@ -1911,6 +1913,11 @@ namespace Bonsai.Editor
                     serviceType == typeof(IUIService))
                 {
                     return this;
+                }
+
+                if (serviceType == typeof(IScriptEnvironment))
+                {
+                    return siteForm.scriptEnvironment;
                 }
 
                 if (siteForm.serviceProvider != null)
@@ -2108,7 +2115,10 @@ namespace Bonsai.Editor
             public bool CanShowComponentEditor(object component)
             {
                 var editor = TypeDescriptor.GetEditor(component, typeof(ComponentEditor));
-                return editor != null;
+                if (editor != null) return true;
+
+                return siteForm.scriptEnvironment != null && siteForm.scriptEnvironment.AssemblyName != null &&
+                       siteForm.scriptEnvironment.AssemblyName.FullName == component.GetType().Assembly.FullName;
             }
 
             public IWin32Window GetDialogOwnerWindow()
@@ -2138,6 +2148,14 @@ namespace Bonsai.Editor
                     }
 
                     return editor.EditComponent(component);
+                }
+                else if (siteForm.scriptEnvironment != null && siteForm.scriptEnvironment.AssemblyName != null)
+                {
+                    var componentType = component.GetType();
+                    if (siteForm.scriptEnvironment.AssemblyName.FullName == componentType.Assembly.FullName)
+                    {
+                        ScriptEditorLauncher.Launch(siteForm, siteForm.scriptEnvironment.ProjectFileName, componentType.Name);
+                    }
                 }
 
                 return false;

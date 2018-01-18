@@ -145,6 +145,7 @@
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="Scripting\CSharpScript.cs" />
     <Compile Include="Scripting\ScriptComponentEditor.cs" />
+    <Compile Include="Scripting\ScriptEditorLauncher.cs" />
     <Compile Include="SemanticVersion.cs" />
     <Compile Include="TypeVisualizerDescriptor.cs" />
     <Compile Include="TypeVisualizerMap.cs" />
