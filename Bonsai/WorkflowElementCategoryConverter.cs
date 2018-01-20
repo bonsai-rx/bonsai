@@ -14,6 +14,7 @@ namespace Bonsai
             return type == typeof(SourceBuilder) ||
                    type == typeof(CombinatorBuilder) ||
                    type == typeof(InspectBuilder) ||
+                   type == typeof(ExternalizedProperty) ||
                    type == typeof(DisableBuilder);
         }
 
