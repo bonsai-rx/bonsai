@@ -9,6 +9,7 @@ namespace Bonsai.Expressions
 {
     class ExternalizedPropertyDescriptor : PropertyDescriptor
     {
+        readonly Type componentType;
         readonly Type propertyType;
         readonly object[] instances;
         readonly PropertyDescriptor[] properties;
@@ -18,6 +19,7 @@ namespace Bonsai.Expressions
         {
             instances = components;
             properties = descriptors;
+            componentType = descriptors.Length > 0 ? descriptors[0].ComponentType : null;
             propertyType = descriptors.Length > 0 ? descriptors[0].PropertyType : null;
         }
 
@@ -36,7 +38,7 @@ namespace Bonsai.Expressions
 
         public override Type ComponentType
         {
-            get { return typeof(WorkflowExpressionBuilder); }
+            get { return componentType; }
         }
 
         public override object GetValue(object component)
