@@ -220,13 +220,17 @@
             // graphView
             // 
             this.graphView.AllowDrop = true;
+            this.graphView.BackColor = System.Drawing.Color.White;
             this.graphView.ContextMenuStrip = this.contextMenuStrip;
             this.graphView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.graphView.Location = new System.Drawing.Point(0, 0);
+            this.graphView.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.graphView.Name = "graphView";
             this.graphView.Nodes = null;
+            this.graphView.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.graphView.Size = new System.Drawing.Size(150, 150);
             this.graphView.TabIndex = 0;
+            this.graphView.TextDrawMode = Bonsai.Design.GraphViewTextDrawMode.All;
             this.graphView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.graphView_ItemDrag);
             this.graphView.NodeMouseDoubleClick += new System.EventHandler<Bonsai.Design.GraphNodeMouseEventArgs>(this.graphView_NodeMouseDoubleClick);
             this.graphView.NodeMouseEnter += new System.EventHandler<Bonsai.Design.GraphNodeMouseEventArgs>(this.graphView_NodeMouseEnter);
