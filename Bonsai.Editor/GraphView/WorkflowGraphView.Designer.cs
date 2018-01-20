@@ -236,7 +236,7 @@
             this.graphView.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.graphView.Name = "graphView";
             this.graphView.Nodes = null;
-            this.graphView.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.graphView.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
             this.graphView.Size = new System.Drawing.Size(150, 150);
             this.graphView.TabIndex = 0;
             this.graphView.TextDrawMode = Bonsai.Design.GraphViewTextDrawMode.All;
