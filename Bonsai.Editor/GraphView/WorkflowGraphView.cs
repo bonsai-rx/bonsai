@@ -2527,6 +2527,42 @@ namespace Bonsai.Design
             return menuItem;
         }
 
+        private void CreatePropertySourceMenuItems(object workflowElement, ToolStripMenuItem ownerItem)
+        {
+            foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(workflowElement))
+            {
+                if (property.IsReadOnly || !property.IsBrowsable) continue;
+                var externalizableAttribute = (ExternalizableAttribute)property.Attributes[typeof(ExternalizableAttribute)];
+                if (externalizableAttribute != null && !externalizableAttribute.Externalizable) continue;
+
+                var memberValue = property.GetValue(workflowElement);
+                var menuItem = CreatePropertySourceMenuItem(property.ComponentType, property.Name, property.PropertyType, memberValue);
+                ownerItem.DropDownItems.Add(menuItem);
+            }
+        }
+
+        private ToolStripMenuItem CreatePropertySourceMenuItem(
+            Type elementType,
+            string memberName,
+            Type memberType,
+            object memberValue)
+        {
+            var menuItem = new ToolStripMenuItem(memberName, null, delegate
+            {
+                var propertySourceType = typeof(PropertySource<,>).MakeGenericType(elementType, memberType);
+                var propertySource = (PropertySource)Activator.CreateInstance(propertySourceType);
+                var valueProperty = propertySourceType.GetProperty("Value");
+                valueProperty.SetValue(propertySource, memberValue);
+                propertySource.MemberName = memberName;
+
+                CreateGraphNode(propertySource, ElementCategory.Source, null, CreateGraphNodeType.Predecessor, true);
+                contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
+            });
+
+            InitializeOutputMenuItem(menuItem, memberName, memberType);
+            return menuItem;
+        }
+
         private ToolStripMenuItem CreateVisualizerMenuItem(string typeName, VisualizerDialogSettings layoutSettings, GraphNode selectedNode)
         {
             ToolStripMenuItem menuItem = null;
@@ -2619,9 +2655,11 @@ namespace Bonsai.Design
                     if (!ReadOnly)
                     {
                         CreateExternalizeMenuItems(workflowElement, externalizeToolStripMenuItem, selectedNode);
+                        CreatePropertySourceMenuItems(workflowElement, createPropertySourceToolStripMenuItem);
                     }
 
                     externalizeToolStripMenuItem.Enabled = externalizeToolStripMenuItem.DropDownItems.Count > 0;
+                    createPropertySourceToolStripMenuItem.Enabled = createPropertySourceToolStripMenuItem.DropDownItems.Count > 0;
                 }
 
                 var layoutSettings = GetLayoutSettings(selectedNode.Value);
@@ -2678,6 +2716,7 @@ namespace Bonsai.Design
             outputToolStripMenuItem.Text = OutputMenuItemLabel;
             outputToolStripMenuItem.DropDownItems.Clear();
             externalizeToolStripMenuItem.DropDownItems.Clear();
+            createPropertySourceToolStripMenuItem.DropDownItems.Clear();
             visualizerToolStripMenuItem.DropDownItems.Clear();
             groupToolStripMenuItem.DropDownItems.Clear();
         }

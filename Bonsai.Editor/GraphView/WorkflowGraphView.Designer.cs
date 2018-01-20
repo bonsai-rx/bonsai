@@ -33,6 +33,7 @@
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.outputToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.externalizeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.createPropertySourceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.visualizerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.defaultEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -57,6 +58,7 @@
             this.contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.outputToolStripMenuItem,
             this.externalizeToolStripMenuItem,
+            this.createPropertySourceToolStripMenuItem,
             this.toolStripSeparator3,
             this.visualizerToolStripMenuItem,
             this.defaultEditorToolStripMenuItem,
@@ -73,7 +75,7 @@
             this.groupToolStripMenuItem,
             this.ungroupToolStripMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip";
-            this.contextMenuStrip.Size = new System.Drawing.Size(249, 336);
+            this.contextMenuStrip.Size = new System.Drawing.Size(249, 358);
             this.contextMenuStrip.Closed += new System.Windows.Forms.ToolStripDropDownClosedEventHandler(this.contextMenuStrip_Closed);
             this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Opening);
             // 
@@ -90,6 +92,13 @@
             this.externalizeToolStripMenuItem.Name = "externalizeToolStripMenuItem";
             this.externalizeToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
             this.externalizeToolStripMenuItem.Text = "Externalize Property";
+            // 
+            // createPropertySourceToolStripMenuItem
+            // 
+            this.createPropertySourceToolStripMenuItem.Enabled = false;
+            this.createPropertySourceToolStripMenuItem.Name = "createPropertySourceToolStripMenuItem";
+            this.createPropertySourceToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.createPropertySourceToolStripMenuItem.Text = "Create Property Source";
             // 
             // toolStripSeparator3
             // 
@@ -272,6 +281,7 @@
         private System.Windows.Forms.ToolStripMenuItem outputToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripMenuItem externalizeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem createPropertySourceToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem connectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem disconnectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem defaultEditorToolStripMenuItem;
