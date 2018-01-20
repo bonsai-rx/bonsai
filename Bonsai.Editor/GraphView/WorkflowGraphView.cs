@@ -2496,44 +2496,25 @@ namespace Bonsai.Design
 
         private void CreateExternalizeMenuItems(object workflowElement, ToolStripMenuItem ownerItem, GraphNode selectedNode)
         {
-            var elementType = workflowElement.GetType();
             foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(workflowElement))
             {
                 if (property.IsReadOnly || !property.IsBrowsable) continue;
                 var externalizableAttribute = (ExternalizableAttribute)property.Attributes[typeof(ExternalizableAttribute)];
                 if (externalizableAttribute != null && !externalizableAttribute.Externalizable) continue;
 
-                var memberSelector = string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, property.Name);
-                var memberValue = property.GetValue(workflowElement);
-                var menuItem = CreateExternalizeMenuItem(
-                    property.Name,
-                    elementType,
-                    property.Name,
-                    property.PropertyType,
-                    memberValue,
-                    selectedNode);
+                var menuItem = CreateExternalizeMenuItem(property.Name, property.PropertyType, selectedNode);
                 ownerItem.DropDownItems.Add(menuItem);
             }
         }
 
         private ToolStripMenuItem CreateExternalizeMenuItem(
-            string name,
-            Type elementType,
             string memberName,
             Type memberType,
-            object memberValue,
             GraphNode selectedNode)
         {
-            var menuItem = new ToolStripMenuItem(name, null, delegate
+            var menuItem = new ToolStripMenuItem(memberName, null, delegate
             {
-                var property = new ExternalizedProperty();
-                property.MemberName = memberName;
-                property.Name = name;
-
-                var closestNode = GetGraphNodeTag(workflow, selectedNode);
-                var predecessors = workflow.PredecessorEdges(closestNode).ToList();
-                var edgeLabel = new ExpressionBuilderArgument(predecessors.Count);
-
+                var property = new ExternalizedProperty { MemberName = memberName, Name = memberName };
                 CreateGraphNode(property, ElementCategory.Property, selectedNode, CreateGraphNodeType.Predecessor, true);
                 contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
             });
@@ -2541,7 +2522,7 @@ namespace Bonsai.Design
             menuItem.Enabled = !workflow
                 .Predecessors(GetGraphNodeTag(workflow, selectedNode))
                 .Select(node => ExpressionBuilder.Unwrap(node.Value) as ExternalizedProperty)
-                .Any(property => property != null && property.MemberName == name);
+                .Any(property => property != null && property.MemberName == memberName);
             InitializeOutputMenuItem(menuItem, memberName, memberType);
             return menuItem;
         }
