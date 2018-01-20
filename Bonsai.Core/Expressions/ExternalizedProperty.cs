@@ -38,6 +38,7 @@ namespace Bonsai.Expressions
         /// Gets or sets the name of the property.
         /// </summary>
         [Category("Design")]
+        [Externalizable(false)]
         [Description("The name of the property. When set, the property will appear on the pages of a nested workflow.")]
         public string Name { get; set; }
 
