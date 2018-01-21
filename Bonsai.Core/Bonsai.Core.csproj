@@ -83,6 +83,7 @@
     <Compile Include="Expressions\IWorkflowExpressionBuilder.cs" />
     <Compile Include="Expressions\PropertySource.cs" />
     <Compile Include="Expressions\PropertySourceTypeDescriptionProvider.cs" />
+    <Compile Include="Expressions\ResourceSubjectBuilder.cs" />
     <Compile Include="Expressions\RightShiftBuilder.cs" />
     <Compile Include="Expressions\LeftShiftBuilder.cs" />
     <Compile Include="Expressions\IRequireSubject.cs" />
