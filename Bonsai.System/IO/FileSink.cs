@@ -11,12 +11,12 @@ using System.IO;
 namespace Bonsai.IO
 {
     /// <summary>
-    /// Provides a base class for sinks that write the elements from the input sequence
+    /// Provides a non-generic base class for sinks that write the elements from the input sequence
     /// into a file.
     /// </summary>
-    /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
-    /// <typeparam name="TWriter">The type of writer that should be used to write the elements.</typeparam>
-    public abstract class FileSink<TSource, TWriter> : Sink<TSource> where TWriter : class, IDisposable
+    [Combinator]
+    [WorkflowElementCategory(ElementCategory.Sink)]
+    public abstract class FileSink
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="FileSink{TSource, TWriter}"/> class.
@@ -53,7 +53,16 @@ namespace Bonsai.IO
         /// </summary>
         [Description("Indicates whether the output file should be overwritten if it already exists.")]
         public bool Overwrite { get; set; }
+    }
 
+    /// <summary>
+    /// Provides a base class for sinks that write the elements from the input sequence
+    /// into a file.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+    /// <typeparam name="TWriter">The type of writer that should be used to write the elements.</typeparam>
+    public abstract class FileSink<TSource, TWriter> : FileSink where TWriter : class, IDisposable
+    {
         /// <summary>
         /// When overridden in a derived class, creates the writer over the specified
         /// <paramref name="fileName"/> that will be responsible for handling the input elements.
@@ -167,7 +176,7 @@ namespace Bonsai.IO
         /// An observable sequence that is identical to the source sequence but where
         /// there is an additional side effect of writing the elements to a file.
         /// </returns>
-        public override IObservable<TSource> Process(IObservable<TSource> source)
+        public virtual IObservable<TSource> Process(IObservable<TSource> source)
         {
             return Process(source, input => input);
         }
