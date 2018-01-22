@@ -52,12 +52,8 @@ namespace Bonsai.Expressions
             }
 
             var name = Name;
-            if (string.IsNullOrEmpty(name))
-            {
-                throw new InvalidOperationException("A valid variable name must be specified.");
-            }
-
             var source = arguments.First();
+            if (string.IsNullOrEmpty(name)) return source;
             var subjectExpression = buildContext.GetVariable(name);
             var parameterType = subjectExpression.Type.GetGenericArguments()[0];
             return Expression.Call(typeof(MulticastSubjectBuilder), "Process", new[] { parameterType }, source, subjectExpression);
