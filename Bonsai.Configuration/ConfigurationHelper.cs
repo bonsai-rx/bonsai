@@ -78,6 +78,7 @@ namespace Bonsai.Configuration
                 }
             }
 
+            Dictionary<string, Assembly> assemblyLoadCache = null;
             ResolveEventHandler assemblyResolveHandler = (sender, args) =>
             {
                 var assemblyName = new AssemblyName(args.Name).Name;
@@ -87,8 +88,15 @@ namespace Bonsai.Configuration
                     Uri uri;
                     if (Uri.TryCreate(assemblyLocation, UriKind.Absolute, out uri))
                     {
-                        var assemblyBytes = File.ReadAllBytes(uri.LocalPath);
-                        return Assembly.Load(assemblyBytes);
+                        Assembly assembly;
+                        assemblyLoadCache = assemblyLoadCache ?? new Dictionary<string, Assembly>();
+                        if (!assemblyLoadCache.TryGetValue(uri.LocalPath, out assembly))
+                        {
+                            var assemblyBytes = File.ReadAllBytes(uri.LocalPath);
+                            assembly = Assembly.Load(assemblyBytes);
+                            assemblyLoadCache.Add(uri.LocalPath, assembly);
+                        }
+                        return assembly;
                     }
 
                     if (!Path.IsPathRooted(assemblyLocation))
