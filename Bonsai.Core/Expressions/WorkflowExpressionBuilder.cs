@@ -161,6 +161,7 @@ namespace Bonsai.Expressions
             var nestedContext = new BuildContext(buildContext);
             var inputArguments = source != null ? Enumerable.Repeat(source, 1).Concat(arguments.Skip(1)) : arguments;
             var expression = workflow.BuildNested(inputArguments, nestedContext);
+            if (nestedContext.BuildResult != null) return nestedContext.BuildResult;
             var output = selector(expression);
 
             var subscriptions = propertyMappings.Select(mapping =>

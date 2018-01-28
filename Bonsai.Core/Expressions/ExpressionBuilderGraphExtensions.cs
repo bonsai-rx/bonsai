@@ -431,9 +431,7 @@ namespace Bonsai.Expressions
                 assignment.parameter.Source = assignment.argument;
             }
 
-            var expression = source.Build(buildContext);
-            if (buildContext.BuildResult != null) return buildContext.BuildResult;
-            return expression;
+            return source.Build(buildContext);
         }
 
         #endregion
