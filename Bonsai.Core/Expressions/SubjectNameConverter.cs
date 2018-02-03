@@ -71,8 +71,15 @@ namespace Bonsai.Expressions
                 var workflowBuilder = (WorkflowBuilder)context.GetService(typeof(WorkflowBuilder));
                 if (workflow != null && workflowBuilder != null)
                 {
+                    Type targetType;
                     var componentType = context.PropertyDescriptor.ComponentType;
-                    var targetType = componentType.IsGenericType ? componentType.GetGenericArguments()[0] : null;
+                    var multicast = componentType == typeof(MulticastSubjectBuilder);
+                    if (multicast)
+                    {
+                        var subjectTargetAttribute = (SubjectTargetAttribute)context.PropertyDescriptor.Attributes[typeof(SubjectTargetAttribute)];
+                        targetType = subjectTargetAttribute.TargetType;
+                    }
+                    else targetType = componentType.IsGenericType ? componentType.GetGenericArguments()[0] : null;
 
                     var callContext = new Stack<ExpressionBuilderGraph>();
                     if (GetCallContext(workflowBuilder.Workflow, workflow, callContext))
@@ -81,7 +88,9 @@ namespace Bonsai.Expressions
                                      from inspectBuilder in SelectContextElements(level)
                                      let subjectBuilder = inspectBuilder.Builder as SubjectBuilder
                                      where subjectBuilder != null && !string.IsNullOrEmpty(subjectBuilder.Name) &&
-                                           (targetType == null || targetType.IsAssignableFrom(inspectBuilder.ObservableType))
+                                           (targetType == null ||
+                                           !multicast && targetType.IsAssignableFrom(inspectBuilder.ObservableType) ||
+                                            multicast && inspectBuilder.ObservableType.IsAssignableFrom(targetType))
                                      select subjectBuilder.Name)
                                      .Distinct()
                                      .ToList();

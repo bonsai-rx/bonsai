@@ -61,61 +61,10 @@ namespace Bonsai.Expressions
                     propertyAttributes = new Attribute[parentPropertyDescriptor.Attributes.Count];
                     parentPropertyDescriptor.Attributes.CopyTo(propertyAttributes, 0);
                 }
-                else propertyAttributes = new Attribute[0];
+                else propertyAttributes = emptyAttributes;
  
                 var extendedProperty = new ExtendedPropertyDescriptor(valuePropertyDescriptor, propertyAttributes);
                 return new PropertyDescriptorCollection(new[] { extendedProperty });
-            }
-        }
-
-        class ExtendedPropertyDescriptor : PropertyDescriptor
-        {
-            PropertyDescriptor propertyDescriptor;
-
-            public ExtendedPropertyDescriptor(PropertyDescriptor descr, Attribute[] attrs)
-                : base(descr, attrs)
-            {
-                propertyDescriptor = descr;
-            }
-
-            public override bool CanResetValue(object component)
-            {
-                return propertyDescriptor.CanResetValue(component);
-            }
-
-            public override Type ComponentType
-            {
-                get { return propertyDescriptor.ComponentType; }
-            }
-
-            public override object GetValue(object component)
-            {
-                return propertyDescriptor.GetValue(component);
-            }
-
-            public override bool IsReadOnly
-            {
-                get { return propertyDescriptor.IsReadOnly; }
-            }
-
-            public override Type PropertyType
-            {
-                get { return propertyDescriptor.PropertyType; }
-            }
-
-            public override void ResetValue(object component)
-            {
-                propertyDescriptor.ResetValue(component);
-            }
-
-            public override void SetValue(object component, object value)
-            {
-                propertyDescriptor.SetValue(component, value);
-            }
-
-            public override bool ShouldSerializeValue(object component)
-            {
-                return propertyDescriptor.ShouldSerializeValue(component);
             }
         }
     }
