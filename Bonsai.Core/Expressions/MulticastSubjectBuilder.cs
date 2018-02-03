@@ -55,11 +55,11 @@ namespace Bonsai.Expressions
             var source = arguments.First();
             if (string.IsNullOrEmpty(name)) return source;
             var subjectExpression = buildContext.GetVariable(name);
-            var parameterType = subjectExpression.Type.GetGenericArguments()[0];
+            var parameterType = source.Type.GetGenericArguments()[0];
             return Expression.Call(typeof(MulticastSubjectBuilder), "Process", new[] { parameterType }, source, subjectExpression);
         }
 
-        static IObservable<TSource> Process<TSource>(IObservable<TSource> source, ISubject<TSource> subject)
+        static IObservable<TSource> Process<TSource>(IObservable<TSource> source, IObserver<TSource> subject)
         {
             return source.Do(subject);
         }
