@@ -1319,8 +1319,25 @@ namespace Bonsai.Editor
             return matchIndex;
         }
 
+        private bool IsActiveControl(Control control)
+        {
+            var activeControl = ActiveControl;
+            while (activeControl != control)
+            {
+                var container = activeControl as IContainerControl;
+                if (container != null)
+                {
+                    activeControl = container.ActiveControl;
+                }
+                else return false;
+            }
+
+            return true;
+        }
+
         protected override void OnDeactivate(EventArgs e)
         {
+            if (IsActiveControl(propertyGrid)) ValidateChildren();
             if (editorControl.Focused)
             {
                 ActiveControl = propertyGrid;
