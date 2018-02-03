@@ -14,14 +14,15 @@ namespace Bonsai.Expressions
             return true;
         }
 
-        static IEnumerable<ExpressionBuilder> SelectContextElements(ExpressionBuilderGraph source)
+        static IEnumerable<InspectBuilder> SelectContextElements(ExpressionBuilderGraph source)
         {
             foreach (var node in source)
             {
-                var element = ExpressionBuilder.Unwrap(node.Value);
-                yield return element;
+                var inspectBuilder = node.Value as InspectBuilder;
+                if (inspectBuilder == null) continue;
+                yield return inspectBuilder;
 
-                var groupBuilder = element as IGroupWorkflowBuilder;
+                var groupBuilder = inspectBuilder.Builder as IGroupWorkflowBuilder;
                 if (groupBuilder != null)
                 {
                     var workflow = groupBuilder.Workflow;
@@ -42,8 +43,9 @@ namespace Bonsai.Expressions
                 return true;
             }
 
-            foreach (var element in SelectContextElements(source))
+            foreach (var inspectBuilder in SelectContextElements(source))
             {
+                var element = inspectBuilder.Builder;
                 var groupBuilder = element as IGroupWorkflowBuilder;
                 if (groupBuilder != null && groupBuilder.Workflow == target) return true;
 
@@ -69,13 +71,17 @@ namespace Bonsai.Expressions
                 var workflowBuilder = (WorkflowBuilder)context.GetService(typeof(WorkflowBuilder));
                 if (workflow != null && workflowBuilder != null)
                 {
+                    var componentType = context.PropertyDescriptor.ComponentType;
+                    var targetType = componentType.IsGenericType ? componentType.GetGenericArguments()[0] : null;
+
                     var callContext = new Stack<ExpressionBuilderGraph>();
                     if (GetCallContext(workflowBuilder.Workflow, workflow, callContext))
                     {
                         var names = (from level in callContext
-                                     from element in SelectContextElements(level)
-                                     let subjectBuilder = element as SubjectBuilder
-                                     where subjectBuilder != null && !string.IsNullOrEmpty(subjectBuilder.Name)
+                                     from inspectBuilder in SelectContextElements(level)
+                                     let subjectBuilder = inspectBuilder.Builder as SubjectBuilder
+                                     where subjectBuilder != null && !string.IsNullOrEmpty(subjectBuilder.Name) &&
+                                           (targetType == null || targetType.IsAssignableFrom(inspectBuilder.ObservableType))
                                      select subjectBuilder.Name)
                                      .Distinct()
                                      .ToList();

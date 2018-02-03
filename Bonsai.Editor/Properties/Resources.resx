@@ -172,7 +172,7 @@ The Bonsai framework includes software from the NuGet Project developed at the O
 
 Copyright 2010-2012 Outercurve Foundation</value>
   </data>
-  <data name="ContextMenu_NoneVisualizerItemLabel" xml:space="preserve">
+  <data name="ContextMenu_NoneMenuItemLabel" xml:space="preserve">
     <value>None</value>
   </data>
   <data name="BonsaiTitle" xml:space="preserve">

@@ -2404,16 +2404,19 @@ namespace Bonsai.Design
 
         private void InitializeOutputMenuItem(ToolStripMenuItem menuItem, string memberSelector, Type memberType)
         {
-            string typeName;
-            using (var provider = new CSharpCodeProvider())
-            {
-                var typeRef = new CodeTypeReference(memberType);
-                typeName = provider.GetTypeOutput(typeRef);
-            }
-
+            var typeName = GetTypeName(memberType);
             menuItem.Text += string.Format(" ({0})", typeName);
             menuItem.Name = memberSelector;
             menuItem.Tag = memberType;
+        }
+
+        static string GetTypeName(Type type)
+        {
+            using (var provider = new CSharpCodeProvider())
+            {
+                var typeRef = new CodeTypeReference(type);
+                return provider.GetTypeOutput(typeRef);
+            }
         }
 
         //TODO: Consider refactoring this method into the core API to avoid redundancy
@@ -2494,6 +2497,51 @@ namespace Bonsai.Design
             return menuItem;
         }
 
+        private void CreateSubjectTypeMenuItems(InspectBuilder inspectBuilder, ToolStripMenuItem ownerItem, GraphNode selectedNode)
+        {
+            var subscribeBuilder = inspectBuilder.Builder as SubscribeSubjectBuilder;
+            if (subscribeBuilder != null)
+            {
+                var subscribeBuilderType = subscribeBuilder.GetType();
+                var subjectType = inspectBuilder.ObservableType ?? subscribeBuilderType.GetGenericArguments().FirstOrDefault();
+                if (subjectType != null)
+                {
+                    var noneMenuItem = CreateSubjectTypeMenuItem(null, subscribeBuilder, selectedNode);
+                    var typeMenuItem = CreateSubjectTypeMenuItem(subjectType, subscribeBuilder, selectedNode);
+                    typeMenuItem.Checked = subscribeBuilderType.IsGenericType;
+                    noneMenuItem.Checked = !typeMenuItem.Checked;
+                    ownerItem.DropDownItems.Add(noneMenuItem);
+                    ownerItem.DropDownItems.Add(typeMenuItem);
+                    ownerItem.Enabled = true;
+                    ownerItem.Visible = true;
+                }
+            }
+        }
+
+        private ToolStripMenuItem CreateSubjectTypeMenuItem(
+            Type memberType,
+            SubscribeSubjectBuilder subscribeSubject,
+            GraphNode selectedNode)
+        {
+            ToolStripMenuItem menuItem = null;
+            var typeName = memberType == null ? Resources.ContextMenu_NoneMenuItemLabel : GetTypeName(memberType);
+            menuItem = new ToolStripMenuItem(typeName, null, delegate
+            {
+                if (!menuItem.Checked)
+                {
+                    var subscribeSubjectType = memberType != null
+                        ? typeof(SubscribeSubject<>).MakeGenericType(memberType)
+                        : typeof(SubscribeSubjectBuilder);
+                    var builder = (SubscribeSubjectBuilder)Activator.CreateInstance(subscribeSubjectType);
+                    builder.Name = subscribeSubject.Name;
+                    UpdateGraphNodes(new[] { selectedNode }, node => ReplaceNode(node, builder, ElementCategory.Combinator));
+                    contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
+                }
+            });
+
+            return menuItem;
+        }
+
         private void CreateExternalizeMenuItems(object workflowElement, ToolStripMenuItem ownerItem, GraphNode selectedNode)
         {
             foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(workflowElement))
@@ -2567,7 +2615,7 @@ namespace Bonsai.Design
         {
             ToolStripMenuItem menuItem = null;
             var emptyVisualizer = string.IsNullOrEmpty(typeName);
-            var itemText = emptyVisualizer ? Resources.ContextMenu_NoneVisualizerItemLabel : typeName;
+            var itemText = emptyVisualizer ? Resources.ContextMenu_NoneMenuItemLabel : typeName;
             menuItem = new ToolStripMenuItem(itemText, null, delegate
             {
                 if (!menuItem.Checked)
@@ -2654,6 +2702,7 @@ namespace Bonsai.Design
                 {
                     if (!ReadOnly)
                     {
+                        CreateSubjectTypeMenuItems(inspectBuilder, subjectTypeToolStripMenuItem, selectedNode);
                         CreateExternalizeMenuItems(workflowElement, externalizeToolStripMenuItem, selectedNode);
                         CreatePropertySourceMenuItems(workflowElement, createPropertySourceToolStripMenuItem);
                     }
@@ -2701,6 +2750,7 @@ namespace Bonsai.Design
 
         private void contextMenuStrip_Closed(object sender, ToolStripDropDownClosedEventArgs e)
         {
+            subjectTypeToolStripMenuItem.Visible = false;
             foreach (ToolStripItem item in contextMenuStrip.Items)
             {
                 item.Enabled = false;
@@ -2715,6 +2765,7 @@ namespace Bonsai.Design
 
             outputToolStripMenuItem.Text = OutputMenuItemLabel;
             outputToolStripMenuItem.DropDownItems.Clear();
+            subjectTypeToolStripMenuItem.DropDownItems.Clear();
             externalizeToolStripMenuItem.DropDownItems.Clear();
             createPropertySourceToolStripMenuItem.DropDownItems.Clear();
             visualizerToolStripMenuItem.DropDownItems.Clear();
