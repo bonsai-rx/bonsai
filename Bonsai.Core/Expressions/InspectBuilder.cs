@@ -101,6 +101,7 @@ namespace Bonsai.Expressions
         /// <returns>An <see cref="Expression"/> tree node.</returns>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
+            ObservableType = null;
             var source = Builder.Build(arguments);
             if (source == ExpressionBuilder.EmptyExpression || Builder is DisableBuilder) return source;
             ObservableType = source.Type.GetGenericArguments()[0];
