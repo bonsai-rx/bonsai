@@ -899,6 +899,7 @@ namespace Bonsai.Editor
                 if (saveWorkflowDialog.ShowDialog() == DialogResult.OK)
                 {
                     SaveWorkflow(saveWorkflowDialog.FileName, serializerWorkflowBuilder);
+                    editorSite.ValidateWorkflow();
                 }
             }
             finally
