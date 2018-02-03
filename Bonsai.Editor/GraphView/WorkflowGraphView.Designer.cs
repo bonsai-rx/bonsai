@@ -50,6 +50,7 @@
             this.groupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ungroupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.graphView = new Bonsai.Design.GraphView();
+            this.subjectTypeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -57,6 +58,7 @@
             // 
             this.contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.outputToolStripMenuItem,
+            this.subjectTypeToolStripMenuItem,
             this.externalizeToolStripMenuItem,
             this.createPropertySourceToolStripMenuItem,
             this.toolStripSeparator3,
@@ -75,7 +77,7 @@
             this.groupToolStripMenuItem,
             this.ungroupToolStripMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip";
-            this.contextMenuStrip.Size = new System.Drawing.Size(249, 358);
+            this.contextMenuStrip.Size = new System.Drawing.Size(249, 380);
             this.contextMenuStrip.Closed += new System.Windows.Forms.ToolStripDropDownClosedEventHandler(this.contextMenuStrip_Closed);
             this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Opening);
             // 
@@ -236,7 +238,7 @@
             this.graphView.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.graphView.Name = "graphView";
             this.graphView.Nodes = null;
-            this.graphView.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.graphView.Padding = new System.Windows.Forms.Padding(3);
             this.graphView.Size = new System.Drawing.Size(150, 150);
             this.graphView.TabIndex = 0;
             this.graphView.TextDrawMode = Bonsai.Design.GraphViewTextDrawMode.All;
@@ -253,6 +255,14 @@
             this.graphView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.graphView_KeyDown);
             this.graphView.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.graphView_KeyPress);
             this.graphView.MouseDown += new System.Windows.Forms.MouseEventHandler(this.graphView_MouseDown);
+            // 
+            // subjectTypeToolStripMenuItem
+            // 
+            this.subjectTypeToolStripMenuItem.Enabled = false;
+            this.subjectTypeToolStripMenuItem.Name = "subjectTypeToolStripMenuItem";
+            this.subjectTypeToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.subjectTypeToolStripMenuItem.Text = "Subject Type";
+            this.subjectTypeToolStripMenuItem.Visible = false;
             // 
             // WorkflowGraphView
             // 
@@ -288,5 +298,6 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripMenuItem saveSnippetAsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ungroupToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem subjectTypeToolStripMenuItem;
     }
 }

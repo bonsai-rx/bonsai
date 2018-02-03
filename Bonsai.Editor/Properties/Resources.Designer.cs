@@ -114,9 +114,9 @@ namespace Bonsai.Editor.Properties {
         /// <summary>
         ///   Looks up a localized string similar to None.
         /// </summary>
-        internal static string ContextMenu_NoneVisualizerItemLabel {
+        internal static string ContextMenu_NoneMenuItemLabel {
             get {
-                return ResourceManager.GetString("ContextMenu_NoneVisualizerItemLabel", resourceCulture);
+                return ResourceManager.GetString("ContextMenu_NoneMenuItemLabel", resourceCulture);
             }
         }
         
