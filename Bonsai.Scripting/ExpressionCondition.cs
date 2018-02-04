@@ -13,8 +13,8 @@ using System.Threading.Tasks;
 namespace Bonsai.Scripting
 {
     [WorkflowElementCategory(ElementCategory.Condition)]
-    [Description("An expression that is used to filter individual elements of the input sequence.")]
-    public class ExpressionCondition : SingleArgumentExpressionBuilder
+    [TypeDescriptionProvider(typeof(ExpressionConditionTypeDescriptionProvider))]
+    public class ExpressionCondition : SingleArgumentExpressionBuilder, IScriptingElement
     {
         static readonly MethodInfo whereMethod = typeof(Observable).GetMethods()
                                                                    .Single(m => m.Name == "Where" &&
@@ -26,6 +26,17 @@ namespace Bonsai.Scripting
             Expression = "it";
         }
 
+        [Category("Design")]
+        [Externalizable(false)]
+        [Description("The name of the expression condition.")]
+        public string Name { get; set; }
+
+        [Category("Design")]
+        [Externalizable(false)]
+        [Description("A description for the expression condition.")]
+        [Editor(DesignTypes.MultilineStringEditor, typeof(UITypeEditor))]
+        public string Description { get; set; }
+
         [Editor(DesignTypes.MultilineStringEditor, typeof(UITypeEditor))]
         [Description("The expression that determines which elements to filter.")]
         public string Expression { get; set; }
@@ -36,6 +47,22 @@ namespace Bonsai.Scripting
             var sourceType = source.Type.GetGenericArguments()[0];
             var predicate = global::System.Linq.Dynamic.DynamicExpression.ParseLambda(sourceType, typeof(bool), Expression);
             return System.Linq.Expressions.Expression.Call(whereMethod.MakeGenericMethod(sourceType), source, predicate);
+        }
+
+        class ExpressionConditionTypeDescriptionProvider : TypeDescriptionProvider
+        {
+            static readonly TypeDescriptionProvider parentProvider = TypeDescriptor.GetProvider(typeof(ExpressionCondition));
+
+            public ExpressionConditionTypeDescriptionProvider()
+                : base(parentProvider)
+            {
+            }
+
+            public override ICustomTypeDescriptor GetExtendedTypeDescriptor(object instance)
+            {
+                return new ScriptingElementTypeDescriptor(instance,
+                    "An expression that is used to filter individual elements of the input sequence.");
+            }
         }
     }
 }
