@@ -48,6 +48,8 @@
             this.selectionListBox.TabIndex = 0;
             this.selectionListBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.selectionListBox_DrawItem);
             this.selectionListBox.SelectedIndexChanged += new System.EventHandler(this.selectionListBox_SelectedIndexChanged);
+            this.selectionListBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.selectionListBox_DragDrop);
+            this.selectionListBox.DragEnter += new System.Windows.Forms.DragEventHandler(this.selectionListBox_DragEnter);
             this.selectionListBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.selectionListBox_KeyDown);
             // 
             // removeButton
