@@ -35,6 +35,12 @@ namespace Bonsai.Shaders.Configuration.Design
 
         public Type[] NewItemTypes { get; set; }
 
+        public override bool AllowDrop
+        {
+            get { return selectionListBox.AllowDrop; }
+            set { selectionListBox.AllowDrop = value; }
+        }
+
         public IEnumerable Items
         {
             get { return selectionListBox.Items; }
@@ -135,7 +141,7 @@ namespace Bonsai.Shaders.Configuration.Design
             return Activator.CreateInstance(itemType);
         }
 
-        private void AddItem(object item)
+        public void AddItem(object item)
         {
             if (item != null)
             {
@@ -354,6 +360,16 @@ namespace Bonsai.Shaders.Configuration.Design
                 e.Graphics.DrawString(itemText, e.Font, itemBrush, itemBounds, StringFormat.GenericDefault);
             }
             e.DrawFocusRectangle();
+        }
+
+        private void selectionListBox_DragDrop(object sender, DragEventArgs e)
+        {
+            OnDragDrop(e);
+        }
+
+        private void selectionListBox_DragEnter(object sender, DragEventArgs e)
+        {
+            OnDragEnter(e);
         }
     }
 }
