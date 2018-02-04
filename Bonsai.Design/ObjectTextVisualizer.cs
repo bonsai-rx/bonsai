@@ -13,7 +13,11 @@ namespace Bonsai.Design
 {
     public class ObjectTextVisualizer : DialogTypeVisualizer
     {
+        const int AutoScaleHeight = 13;
+        const float DefaultDpi = 96f;
+
         TextBox textBox;
+        UserControl textPanel;
         Queue<string> buffer;
         int bufferSize;
 
@@ -31,31 +35,43 @@ namespace Bonsai.Design
         public override void Load(IServiceProvider provider)
         {
             buffer = new Queue<string>();
-            textBox = new TextBox();
+            textBox = new TextBox { Dock = DockStyle.Fill };
             textBox.ReadOnly = true;
             textBox.Multiline = true;
             textBox.WordWrap = false;
-            textBox.HideSelection = true;
-            textBox.Anchor |= AnchorStyles.Right | AnchorStyles.Bottom;
-            textBox.TextChanged += textBox_Changed;
-            textBox.ClientSizeChanged += textBox_Changed;
-            textBox.ClientSize = new Size(320, 2 * textBox.Font.Height);
+            textBox.TextChanged += (sender, e) => textPanel.Invalidate();
+
+            textPanel = new UserControl();
+            textPanel.SuspendLayout();
+            textPanel.Dock = DockStyle.Fill;
+            textPanel.Size = new Size(320, 2 * AutoScaleHeight);
+            textPanel.AutoScaleDimensions = new SizeF(6F, AutoScaleHeight);
+            textPanel.AutoScaleMode = AutoScaleMode.Font;
+            textPanel.Paint += textPanel_Paint;
+            textPanel.Controls.Add(textBox);
+            textPanel.ResumeLayout(false);
+
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
             if (visualizerService != null)
             {
-                visualizerService.AddControl(textBox);
+                visualizerService.AddControl(textPanel);
             }
         }
 
-        void textBox_Changed(object sender, EventArgs e)
+        void textPanel_Paint(object sender, PaintEventArgs e)
         {
-            bufferSize = (textBox.ClientSize.Height - 2) / textBox.Font.Height;
+            var lineHeight = AutoScaleHeight * e.Graphics.DpiY / DefaultDpi;
+            bufferSize = (int)((textBox.ClientSize.Height - 2) / lineHeight);
             var textSize = TextRenderer.MeasureText(textBox.Text, textBox.Font);
-            if (textBox.ClientSize.Width < textSize.Width)
+            if (textBox.ScrollBars == ScrollBars.None && textBox.ClientSize.Width < textSize.Width)
             {
                 textBox.ScrollBars = ScrollBars.Horizontal;
+                var offset = 2 * lineHeight + SystemInformation.HorizontalScrollBarHeight - textPanel.Height;
+                if (offset > 0)
+                {
+                    textPanel.Parent.Height += (int)offset;
+                }
             }
-            else textBox.ScrollBars = ScrollBars.None;
         }
 
         public override void Unload()
