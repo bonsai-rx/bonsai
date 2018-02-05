@@ -95,8 +95,11 @@ namespace Bonsai.Expressions
             set
             {
                 buildContext = value;
-                EnsureWorkflow();
-                xmlProperties = null;
+                if (buildContext != null)
+                {
+                    EnsureWorkflow();
+                    xmlProperties = null;
+                }
             }
         }
 
