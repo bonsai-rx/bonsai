@@ -14,10 +14,10 @@ namespace Bonsai.Design
     public partial class Slider : UserControl
     {
         const int TrackBarPadding = 16;
-        int decimalPlaces;
-        decimal minimum;
-        decimal maximum;
-        decimal value;
+        int? decimalPlaces;
+        double minimum;
+        double maximum;
+        double value;
 
         public Slider()
         {
@@ -26,7 +26,7 @@ namespace Bonsai.Design
             trackBar.Top = -10;
         }
 
-        public decimal Minimum
+        public double Minimum
         {
             get { return minimum; }
             set
@@ -40,7 +40,7 @@ namespace Bonsai.Design
             }
         }
 
-        public decimal Maximum
+        public double Maximum
         {
             get { return maximum; }
             set
@@ -54,7 +54,7 @@ namespace Bonsai.Design
             }
         }
 
-        public int DecimalPlaces
+        public int? DecimalPlaces
         {
             get { return decimalPlaces; }
             set
@@ -68,7 +68,7 @@ namespace Bonsai.Design
             }
         }
 
-        public decimal Value
+        public double Value
         {
             get { return value; }
             set
@@ -96,9 +96,10 @@ namespace Bonsai.Design
             Value = value;
         }
 
-        private void UpdateValue(decimal value)
+        private void UpdateValue(double value)
         {
-            value = Math.Max(minimum, Math.Min(decimal.Round(value, decimalPlaces), maximum));
+            if (decimalPlaces.HasValue) value = Math.Round(value, decimalPlaces.Value);
+            value = Math.Max(minimum, Math.Min(value, maximum));
             valueLabel.Text = value.ToString(CultureInfo.InvariantCulture);
             this.value = value;
         }
@@ -111,7 +112,7 @@ namespace Bonsai.Design
 
         private void trackBar_Scroll(object sender, EventArgs e)
         {
-            UpdateValue(minimum + (maximum - minimum) * trackBar.Value / (decimal)trackBar.Maximum);
+            UpdateValue(minimum + (maximum - minimum) * trackBar.Value / (double)trackBar.Maximum);
         }
     }
 }
