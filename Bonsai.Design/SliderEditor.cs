@@ -21,7 +21,7 @@ namespace Bonsai.Design
             var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
             if (context != null && editorService != null)
             {
-                var decimalPlaces = 0;
+                int? decimalPlaces = null;
                 var propertyDescriptor = context.PropertyDescriptor;
                 var range = (RangeAttribute)propertyDescriptor.Attributes[typeof(RangeAttribute)];
                 var typeCode = Type.GetTypeCode(propertyDescriptor.PropertyType);
@@ -33,12 +33,13 @@ namespace Bonsai.Design
                         decimalPlaces = precision.DecimalPlaces;
                     }
                 }
+                else decimalPlaces = 0;
 
                 var slider = new Slider();
-                slider.Minimum = range.Minimum;
-                slider.Maximum = range.Maximum;
+                slider.Minimum = (double)range.Minimum;
+                slider.Maximum = (double)range.Maximum;
                 slider.DecimalPlaces = decimalPlaces;
-                slider.Value = Convert.ToDecimal(value);
+                slider.Value = Math.Max(slider.Minimum, Math.Min(Convert.ToDouble(value), slider.Maximum));
                 slider.ValueChanged += (sender, e) => propertyDescriptor.SetValue(context.Instance, Convert.ChangeType(slider.Value, propertyDescriptor.PropertyType));
                 editorService.DropDownControl(slider);
                 return Convert.ChangeType(slider.Value, propertyDescriptor.PropertyType);
