@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Expressions
 {
-    interface IGroupWorkflowBuilder : IWorkflowExpressionBuilder
+    interface IGroupWorkflowBuilder : IWorkflowExpressionBuilder, IRequireBuildContext
     {
     }
 }

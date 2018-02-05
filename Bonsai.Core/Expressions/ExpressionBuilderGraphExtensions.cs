@@ -198,7 +198,7 @@ namespace Bonsai.Expressions
         {
             // Add/remove build dependencies
             var buildContext = new BuildContext(buildTarget);
-            var dependencies = (from link in FindBuildDependencies(source)
+            var dependencies = (from link in FindBuildDependencies(source, buildContext)
                                 where link.Publish != null && link.Subscribe != null
                                 select new { link, edge = link.Workflow.AddEdge(link.Publish, link.Subscribe, null) })
                                 .ToList();
@@ -315,29 +315,52 @@ namespace Bonsai.Expressions
             }
         }
 
-        static IEnumerable<DependencyElement> SelectDependencyElements(ExpressionBuilderGraph source)
+        static IEnumerable<DependencyElement> SelectDependencyElements(ExpressionBuilderGraph source, IBuildContext buildContext)
         {
             foreach (var node in source)
             {
-                var element = ExpressionBuilder.Unwrap(node.Value);
+                var builder = node.Value;
+                var element = ExpressionBuilder.Unwrap(builder);
                 var groupBuilder = element as IGroupWorkflowBuilder;
                 if (groupBuilder != null)
                 {
-                    var workflow = groupBuilder.Workflow;
-                    if (workflow == null) continue;
-                    foreach (var dependencyElement in SelectDependencyElements(workflow))
+                    try { groupBuilder.BuildContext = buildContext; }
+                    catch (Exception e)
                     {
-                        yield return new DependencyElement(dependencyElement.Element, node);
+                        throw new WorkflowBuildException(e.Message, builder, e);
                     }
+
+                    try
+                    {
+                        var workflow = groupBuilder.Workflow;
+                        if (workflow == null) continue;
+
+                        var includeBuilder = groupBuilder as IncludeWorkflowBuilder;
+                        var dependencyContext = includeBuilder != null ? new IncludeContext(buildContext, includeBuilder.Path) : buildContext;
+
+                        var enumerator = SelectDependencyElements(workflow, dependencyContext).GetEnumerator();
+                        while (true)
+                        {
+                            try { if (!enumerator.MoveNext()) break; }
+                            catch (Exception e)
+                            {
+                                throw new WorkflowBuildException(e.Message, builder, e);
+                            }
+
+                            var dependencyElement = enumerator.Current;
+                            yield return new DependencyElement(dependencyElement.Element, node);
+                        }
+                    }
+                    finally { groupBuilder.BuildContext = null; }
                 }
                 else yield return new DependencyElement(element, node);
             }
         }
 
-        static IEnumerable<DependencyLink> FindBuildDependencies(ExpressionBuilderGraph source)
+        static IEnumerable<DependencyLink> FindBuildDependencies(ExpressionBuilderGraph source, IBuildContext buildContext)
         {
             Dictionary<string, DependencyNode> dependencies = null;
-            foreach (var dependencyElement in SelectDependencyElements(source))
+            foreach (var dependencyElement in SelectDependencyElements(source, buildContext))
             {
                 var node = dependencyElement.Node;
                 var workflowElement = dependencyElement.Element;
@@ -372,8 +395,16 @@ namespace Bonsai.Expressions
                 if (workflowBuilder != null)
                 {
                     // Recurse through nested workflows and handle any unsatisfied dependencies
-                    foreach (var link in FindBuildDependencies(workflowBuilder.Workflow))
+                    var enumerator = FindBuildDependencies(workflowBuilder.Workflow, buildContext).GetEnumerator();
+                    while (true)
                     {
+                        try { if (!enumerator.MoveNext()) break; }
+                        catch (Exception e)
+                        {
+                            throw new WorkflowBuildException(e.Message, node.Value, e);
+                        }
+
+                        var link = enumerator.Current;
                         if (link.Publish == null)
                         {
                             var dependency = GetOrCreateDependency(ref dependencies, link.Name);
