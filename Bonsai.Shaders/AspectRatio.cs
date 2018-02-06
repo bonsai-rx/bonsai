@@ -1,6 +1,7 @@
 ﻿using OpenTK;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Reactive;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
+    [Description("Calculates the ratio of the window width to its height.")]
     public class AspectRatio : Transform<Size, float>
     {
         float GetAspectRatio(float width, float height)
