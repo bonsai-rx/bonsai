@@ -13,6 +13,28 @@ namespace Bonsai.Shaders
 {
     static class ObjReader
     {
+        class VertexBounds
+        {
+            Vector3 minimum = Vector3.One * float.MaxValue;
+            Vector3 maximum = Vector3.One * float.MinValue;
+
+            public Vector3 Center
+            {
+                get { return (maximum + minimum) / 2; }
+            }
+
+            public Vector3 Extents
+            {
+                get { return (maximum - minimum) / 2; }
+            }
+
+            public void Add(ref Vector3 vertex)
+            {
+                Vector3.ComponentMin(ref minimum, ref vertex, out minimum);
+                Vector3.ComponentMax(ref maximum, ref vertex, out maximum);
+            }
+        }
+
         class VertexAttribute : List<float>
         {
             public int ElementSize;
@@ -89,6 +111,22 @@ namespace Bonsai.Shaders
             }
         }
 
+        static void UpdateVertexBounds(VertexAttribute buffer, int index, VertexBounds bounds)
+        {
+            if (buffer == null && index <= 0) return;
+            if (bounds == null)
+            {
+                bounds = new VertexBounds();
+            }
+
+            Vector3 vertex;
+            var offset = (index - 1) * buffer.ElementSize;
+            vertex.X = buffer.ElementSize > 0 ? buffer[offset + 0] : 0;
+            vertex.Y = buffer.ElementSize > 1 ? buffer[offset + 1] : 0;
+            vertex.Z = buffer.ElementSize > 2 ? buffer[offset + 2] : 0;
+            bounds.Add(ref vertex);
+        }
+
         static int GetElementSize(VertexAttribute buffer)
         {
             return buffer == null ? 0 : buffer.ElementSize;
@@ -113,6 +151,7 @@ namespace Bonsai.Shaders
         {
             var faceLength = 0;
             uint vertexCount = 0;
+            VertexBounds bounds = new VertexBounds();
             VertexAttribute position = null;
             VertexAttribute texCoord = null;
             VertexAttribute normals = null;
@@ -149,6 +188,7 @@ namespace Bonsai.Shaders
                             if (!indexMap.TryGetValue(face, out index))
                             {
                                 AddVertexAttribute(position, face.V, vertices);
+                                UpdateVertexBounds(position, face.V, bounds);
                                 if (texCoord != null)
                                 {
                                     AddVertexAttribute(texCoord, face.VT, vertices);
@@ -173,6 +213,7 @@ namespace Bonsai.Shaders
 
             mesh.EnsureElementArray();
             mesh.VertexCount = indices.Count;
+            mesh.Bounds = new Bounds(bounds.Center, bounds.Extents);
             mesh.DrawMode = faceLength == 4 ? PrimitiveType.Quads : PrimitiveType.Triangles;
             GL.BindVertexArray(mesh.VertexArray);
             GL.BindBuffer(BufferTarget.ArrayBuffer, mesh.VertexBuffer);
