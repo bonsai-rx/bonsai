@@ -262,8 +262,8 @@ namespace Bonsai.Expressions
 
         class DependencyNode
         {
-            public Node<ExpressionBuilder, ExpressionBuilderArgument> Publish;
-            public List<Node<ExpressionBuilder, ExpressionBuilderArgument>> Subscribe = new List<Node<ExpressionBuilder, ExpressionBuilderArgument>>();
+            public DependencyElement Publish;
+            public List<DependencyElement> Subscribe = new List<DependencyElement>();
         }
 
         class DependencyLink
@@ -303,15 +303,22 @@ namespace Bonsai.Expressions
             return dependency;
         }
 
-        struct DependencyElement
+        class DependencyElement
         {
             public ExpressionBuilder Element;
             public Node<ExpressionBuilder, ExpressionBuilderArgument> Node;
+            public DependencyElement InnerDependency;
 
             public DependencyElement(ExpressionBuilder element, Node<ExpressionBuilder, ExpressionBuilderArgument> node)
+                : this(element, node, null)
+            {
+            }
+
+            public DependencyElement(ExpressionBuilder element, Node<ExpressionBuilder, ExpressionBuilderArgument> node, DependencyElement innerDependency)
             {
                 Element = element;
                 Node = node;
+                InnerDependency = innerDependency;
             }
         }
 
@@ -348,13 +355,25 @@ namespace Bonsai.Expressions
                             }
 
                             var dependencyElement = enumerator.Current;
-                            yield return new DependencyElement(dependencyElement.Element, node);
+                            yield return new DependencyElement(dependencyElement.Element, node, dependencyElement);
                         }
                     }
                     finally { groupBuilder.BuildContext = null; }
                 }
                 else yield return new DependencyElement(element, node);
             }
+        }
+
+        static DependencyLink CreateDependencyLink(string name, ExpressionBuilderGraph workflow, DependencyElement publish, DependencyElement subscribe)
+        {
+            var publishNode = publish != null ? publish.Node : null;
+            var subscribeNode = subscribe != null ? subscribe.Node : null;
+            if (publishNode == subscribeNode && publishNode != null)
+            {
+                var group = (IGroupWorkflowBuilder)ExpressionBuilder.Unwrap(publishNode.Value);
+                return CreateDependencyLink(name, group.Workflow, publish.InnerDependency, subscribe.InnerDependency);
+            }
+            else return new DependencyLink(name, workflow, publishNode, subscribeNode);
         }
 
         static IEnumerable<DependencyLink> FindBuildDependencies(ExpressionBuilderGraph source, IBuildContext buildContext)
@@ -371,10 +390,10 @@ namespace Bonsai.Expressions
                     var dependency = GetOrCreateDependency(ref dependencies, subjectBuilder.Name);
                     if (dependency.Publish == null)
                     {
-                        dependency.Publish = node;
+                        dependency.Publish = dependencyElement;
                         foreach (var subscriber in dependency.Subscribe)
                         {
-                            yield return new DependencyLink(subjectBuilder.Name, source, node, subscriber);
+                            yield return CreateDependencyLink(subjectBuilder.Name, source, dependencyElement, subscriber);
                         }
                     }
                 }
@@ -386,9 +405,9 @@ namespace Bonsai.Expressions
                     var dependency = GetOrCreateDependency(ref dependencies, requireSubject.Name);
                     if (dependency.Publish != null)
                     {
-                        yield return new DependencyLink(requireSubject.Name, source, dependency.Publish, node);
+                        yield return CreateDependencyLink(requireSubject.Name, source, dependency.Publish, dependencyElement);
                     }
-                    else dependency.Subscribe.Add(node);
+                    else dependency.Subscribe.Add(dependencyElement);
                 }
 
                 var workflowBuilder = workflowElement as WorkflowExpressionBuilder;
@@ -410,9 +429,9 @@ namespace Bonsai.Expressions
                             var dependency = GetOrCreateDependency(ref dependencies, link.Name);
                             if (dependency.Publish != null)
                             {
-                                yield return new DependencyLink(link.Name, source, dependency.Publish, node);
+                                yield return CreateDependencyLink(link.Name, source, dependency.Publish, dependencyElement);
                             }
-                            else dependency.Subscribe.Add(node);
+                            else dependency.Subscribe.Add(dependencyElement);
                         }
                         else yield return link;
                     }
@@ -427,7 +446,7 @@ namespace Bonsai.Expressions
                     if (dependency.Value.Publish != null) continue;
                     foreach (var subscriber in dependency.Value.Subscribe)
                     {
-                        yield return new DependencyLink(dependency.Key, source, null, subscriber);
+                        yield return CreateDependencyLink(dependency.Key, source, null, subscriber);
                     }
                 }
             }
