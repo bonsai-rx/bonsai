@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing.Design;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -12,6 +13,8 @@ namespace Bonsai.Shaders
     [Description("Creates a rotation matrix for a rotation around the x-axis.")]
     public class CreateRotationX : Source<Matrix4>
     {
+        [Range(-Math.PI, Math.PI)]
+        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Description("The angle describing the magnitude of the rotation about the x-axis.")]
         public float Angle { get; set; }
 
