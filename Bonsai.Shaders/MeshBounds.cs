@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK;
+using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -33,16 +34,13 @@ namespace Bonsai.Shaders
                     throw new InvalidOperationException("A mesh name must be specified.");
                 }
 
-                Mesh mesh = null;
                 return source.CombineEither(
-                    ShaderManager.WindowSource.Do(window =>
-                    {
-                        window.Update(() =>
-                        {
-                            mesh = window.Meshes[name];
-                        });
-                    }),
-                    (input, material) => mesh.Bounds ?? Bounds.Empty);
+                    ShaderManager.WindowSource.SelectMany(window =>
+                        window.EventPattern<FrameEventArgs>(
+                            handler => window.UpdateFrame += handler,
+                            handler => window.UpdateFrame -= handler)
+                        .Select(evt => window.Meshes[name])),
+                    (input, mesh) => mesh.Bounds ?? Bounds.Empty);
             });
         }
     }
