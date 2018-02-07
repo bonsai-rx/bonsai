@@ -1335,9 +1335,18 @@ namespace Bonsai.Editor
             return true;
         }
 
+        private void RefreshSelection()
+        {
+            var view = selectionModel.SelectedView;
+            if (view != null)
+            {
+                view.RefreshSelection();
+            }
+        }
+
         protected override void OnDeactivate(EventArgs e)
         {
-            if (IsActiveControl(propertyGrid)) ValidateChildren();
+            if (IsActiveControl(propertyGrid)) RefreshSelection();
             if (editorControl.Focused)
             {
                 ActiveControl = propertyGrid;
@@ -2258,11 +2267,7 @@ namespace Bonsai.Editor
         private void propertyGrid_Validated(object sender, EventArgs e)
         {
             editorSite.ValidateWorkflow();
-            var view = selectionModel.SelectedView;
-            if (view != null)
-            {
-                view.RefreshSelection();
-            }
+            RefreshSelection();
         }
 
         private void propertyGrid_DragEnter(object sender, DragEventArgs e)
