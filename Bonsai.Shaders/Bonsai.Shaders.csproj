@@ -104,6 +104,9 @@
     <Compile Include="DrawArrays.cs" />
     <Compile Include="DrawShader.cs" />
     <Compile Include="Effect.cs" />
+    <Compile Include="ExtractRotation.cs" />
+    <Compile Include="ExtractScale.cs" />
+    <Compile Include="ExtractTranslation.cs" />
     <Compile Include="FramebufferState.cs" />
     <Compile Include="DrawFramebuffer.cs" />
     <Compile Include="Invert.cs" />
