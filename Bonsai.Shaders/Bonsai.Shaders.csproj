@@ -114,7 +114,16 @@
     <Compile Include="MeshAttributeMapping.cs" />
     <Compile Include="MeshBounds.cs" />
     <Compile Include="QuaternionConverter.cs" />
+    <Compile Include="RotateAxisAngle.cs" />
+    <Compile Include="RotateQuaternion.cs" />
+    <Compile Include="RotateX.cs" />
+    <Compile Include="RotateY.cs" />
+    <Compile Include="RotateZ.cs" />
     <Compile Include="SampleOnRenderFrame.cs" />
+    <Compile Include="Scale.cs" />
+    <Compile Include="MatrixTransform.cs" />
+    <Compile Include="TransformRelative.cs" />
+    <Compile Include="Translate.cs" />
     <Compile Include="ViewportEffect.cs" />
     <Compile Include="ImageTextureBinding.cs" />
     <Compile Include="Input\MouseCursor.cs" />
