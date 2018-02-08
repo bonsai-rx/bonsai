@@ -24,7 +24,7 @@ namespace Bonsai.Shaders
         {
             if (computeShader == null)
             {
-                throw new ArgumentNullException("computeShader");
+                throw new ArgumentNullException("computeShader", "No compute shader was specified for compute program " + name + ".");
             }
 
             computeSource = computeShader;
