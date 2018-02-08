@@ -466,7 +466,6 @@ namespace Bonsai.Design
         Tuple<Action, Action> GetInsertGraphNodeCommands(
             Node<ExpressionBuilder, ExpressionBuilderArgument> sourceNode,
             Node<ExpressionBuilder, ExpressionBuilderArgument> sinkNode,
-            ElementCategory elementType,
             Node<ExpressionBuilder, ExpressionBuilderArgument> closestNode,
             CreateGraphNodeType nodeType,
             bool branch,
@@ -475,19 +474,7 @@ namespace Bonsai.Design
             var workflow = this.workflow;
             Action addConnection = () => { };
             Action removeConnection = () => { };
-            if (!branch && elementType == ElementCategory.Source)
-            {
-                if (closestNode != null && (!validate || CanConnect(sinkNode, closestNode)) &&
-                    !(ExpressionBuilder.Unwrap(closestNode.Value) is SourceBuilder) &&
-                    !workflow.Predecessors(closestNode).Any())
-                {
-                    var parameter = new ExpressionBuilderArgument();
-                    var edge = Edge.Create(closestNode, parameter);
-                    addConnection = () => workflow.AddEdge(sinkNode, edge);
-                    removeConnection = () => workflow.RemoveEdge(sinkNode, edge);
-                }
-            }
-            else if (closestNode != null)
+            if (closestNode != null)
             {
                 var parameter = new ExpressionBuilderArgument();
                 if (nodeType == CreateGraphNodeType.Predecessor)
@@ -798,7 +785,7 @@ namespace Bonsai.Design
             if (elementCategory == ElementCategory.Workflow)
             {
                 var includeBuilder = new IncludeWorkflowBuilder { Path = typeNode.Name };
-                CreateGraphNode(includeBuilder, ElementCategory.Nested, graphView.SelectedNodes.FirstOrDefault(), nodeType, branch);
+                CreateGraphNode(includeBuilder, graphView.SelectedNodes.FirstOrDefault(), nodeType, branch);
             }
             else
             {
@@ -808,12 +795,12 @@ namespace Bonsai.Design
                 else
                 {
                     var builder = CreateBuilder(typeNode);
-                    CreateGraphNode(builder, elementCategory, selectedNode, nodeType, branch);
+                    CreateGraphNode(builder, selectedNode, nodeType, branch);
                 }
             }
         }
 
-        public void CreateGraphNode(ExpressionBuilder builder, ElementCategory elementCategory, GraphNode selectedNode, CreateGraphNodeType nodeType, bool branch, bool validate = true)
+        public void CreateGraphNode(ExpressionBuilder builder, GraphNode selectedNode, CreateGraphNodeType nodeType, bool branch, bool validate = true)
         {
             if (builder == null)
             {
@@ -854,7 +841,7 @@ namespace Bonsai.Design
                 workflowBuilder.Workflow.AddEdge(nestedInputNode, nestedOutputNode, new ExpressionBuilderArgument());
             }
 
-            var insertCommands = GetInsertGraphNodeCommands(inspectNode, inspectNode, elementCategory, closestNode, nodeType, branch, validate);
+            var insertCommands = GetInsertGraphNodeCommands(inspectNode, inspectNode, closestNode, nodeType, branch, validate);
             var addConnection = insertCommands.Item1;
             var removeConnection = insertCommands.Item2;
             commandExecutor.Execute(
@@ -899,7 +886,7 @@ namespace Bonsai.Design
                 var sink = elements.Sinks().FirstOrDefault();
                 if (source != null && sink != null)
                 {
-                    var insertCommands = GetInsertGraphNodeCommands(source, sink, ElementCategory.Combinator, selectionNode, nodeType, branch);
+                    var insertCommands = GetInsertGraphNodeCommands(source, sink, selectionNode, nodeType, branch);
                     addConnection = insertCommands.Item1;
                     removeConnection = insertCommands.Item2;
                 }
@@ -1105,7 +1092,7 @@ namespace Bonsai.Design
 
         private void ReplaceNode(GraphNode node, ExpressionBuilder builder, ElementCategory elementCategory)
         {
-            CreateGraphNode(builder, elementCategory, node, CreateGraphNodeType.Successor, branch: false, validate: false);
+            CreateGraphNode(builder, node, CreateGraphNodeType.Successor, branch: false, validate: false);
             DeleteGraphNode(node);
         }
 
@@ -1254,7 +1241,6 @@ namespace Bonsai.Design
             }
 
             CreateGraphNode(workflowExpressionBuilder,
-                            ElementCategory.Nested,
                             replacementNode,
                             nodeType,
                             branch: false,
@@ -2489,7 +2475,7 @@ namespace Bonsai.Design
             {
                 var builder = new MemberSelectorBuilder { Selector = memberSelector };
                 var successor = selectedNode.Successors.Select(edge => GetGraphNodeBuilder(edge.Node)).FirstOrDefault();
-                CreateGraphNode(builder, ElementCategory.Transform, selectedNode, CreateGraphNodeType.Successor, true);
+                CreateGraphNode(builder, selectedNode, CreateGraphNodeType.Successor, branch: true);
                 contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
             });
 
@@ -2563,7 +2549,7 @@ namespace Bonsai.Design
             var menuItem = new ToolStripMenuItem(memberName, null, delegate
             {
                 var property = new ExternalizedProperty { MemberName = memberName, Name = memberName };
-                CreateGraphNode(property, ElementCategory.Property, selectedNode, CreateGraphNodeType.Predecessor, true);
+                CreateGraphNode(property, selectedNode, CreateGraphNodeType.Predecessor, branch: true);
                 contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
             });
 
@@ -2603,7 +2589,7 @@ namespace Bonsai.Design
                 valueProperty.SetValue(propertySource, memberValue);
                 propertySource.MemberName = memberName;
 
-                CreateGraphNode(propertySource, ElementCategory.Source, null, CreateGraphNodeType.Predecessor, true);
+                CreateGraphNode(propertySource, null, CreateGraphNodeType.Predecessor, branch: true);
                 contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
             });
 

@@ -200,7 +200,7 @@ namespace Bonsai.Editor.Scripting
             var type = typeBuilder.CreateType();
             var builder = new CombinatorBuilder();
             builder.Combinator = (object)Activator.CreateInstance(type);
-            selectedView.CreateGraphNode(builder, ElementCategory.Combinator, selectedNode, CreateGraphNodeType.Successor, branch: false, validate: false);
+            selectedView.CreateGraphNode(builder, selectedNode, CreateGraphNodeType.Successor, branch: false, validate: false);
             selectedView.DeleteGraphNodes(selectionModel.SelectedNodes);
             commandExecutor.Execute(() => { }, null);
 
