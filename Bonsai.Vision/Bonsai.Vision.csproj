@@ -76,6 +76,7 @@
     <Compile Include="CapturePropertyCollection.cs" />
     <Compile Include="Circle.cs" />
     <Compile Include="ColorBalance.cs" />
+    <Compile Include="CreateIntrinsics.cs" />
     <Compile Include="Intrinsics.cs" />
     <Compile Include="IntrinsicsTransform.cs" />
     <Compile Include="KeyPointOpticalFlow.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="MinimumEnclosingCircle.cs" />
     <Compile Include="Centroid.cs" />
     <Compile Include="NumericAggregateConverter.cs" />
+    <Compile Include="SaveIntrinsics.cs" />
     <Compile Include="SparseOpticalFlow.cs" />
     <Compile Include="UndistortPoints.cs" />
     <Compile Include="ResizeCanvas.cs" />
