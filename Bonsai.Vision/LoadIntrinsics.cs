@@ -74,8 +74,8 @@ namespace Bonsai.Vision
                             var d2 = distortionCoefficients.GetReal(2);
                             var d3 = distortionCoefficients.GetReal(3);
                             var d4 = distortionCoefficients.GetReal(4);
-                            intrinsics.RadialDistortion = new Point3d(d0, d1, d2);
-                            intrinsics.TangentialDistortion = new Point2d(d3, d4);
+                            intrinsics.RadialDistortion = new Point3d(d0, d1, d4);
+                            intrinsics.TangentialDistortion = new Point2d(d2, d3);
                         }
                         else
                         {
