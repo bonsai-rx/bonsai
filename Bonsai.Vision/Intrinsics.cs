@@ -16,6 +16,19 @@ namespace Bonsai.Vision
         public Point3d RadialDistortion;
         public Point2d TangentialDistortion;
 
+        public double? FovY
+        {
+            get
+            {
+                var imageSize = ImageSize.GetValueOrDefault();
+                if (imageSize.Height > 0)
+                {
+                    return 2 * Math.Atan(0.5 * imageSize.Height / FocalLength.Y);
+                }
+                else return null;
+            }
+        }
+
         public bool Equals(Intrinsics other)
         {
             return ImageSize == other.ImageSize &&
@@ -48,8 +61,8 @@ namespace Bonsai.Vision
         {
             return string.Format(
                 CultureInfo.InvariantCulture,
-                "{{ImageSize: {0}, FocalLength: {1}, PrincipalPoint: {2}, RadialDistortion: {3}, TangentialDistortion: {4}}}",
-                ImageSize, FocalLength, PrincipalPoint, RadialDistortion, TangentialDistortion);
+                "{{ImageSize: {0}, FovY: {1}, FocalLength: {2}, PrincipalPoint: {3}, RadialDistortion: {4}, TangentialDistortion: {5}}}",
+                ImageSize, FovY, FocalLength, PrincipalPoint, RadialDistortion, TangentialDistortion);
         }
 
         public static bool operator ==(Intrinsics left, Intrinsics right)
