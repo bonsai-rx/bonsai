@@ -91,6 +91,7 @@
     <Compile Include="Centroid.cs" />
     <Compile Include="NumericAggregateConverter.cs" />
     <Compile Include="SaveIntrinsics.cs" />
+    <Compile Include="SolvePnP.cs" />
     <Compile Include="SparseOpticalFlow.cs" />
     <Compile Include="UndistortPoints.cs" />
     <Compile Include="ResizeCanvas.cs" />
