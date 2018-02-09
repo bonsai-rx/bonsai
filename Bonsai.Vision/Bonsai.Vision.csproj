@@ -77,7 +77,9 @@
     <Compile Include="Circle.cs" />
     <Compile Include="ColorBalance.cs" />
     <Compile Include="ContourPoints.cs" />
+    <Compile Include="CreateExtrinsics.cs" />
     <Compile Include="CreateIntrinsics.cs" />
+    <Compile Include="Extrinsics.cs" />
     <Compile Include="Intrinsics.cs" />
     <Compile Include="IntrinsicsTransform.cs" />
     <Compile Include="KeyPointOpticalFlow.cs" />
