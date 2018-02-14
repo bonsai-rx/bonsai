@@ -691,8 +691,6 @@ namespace Bonsai.Editor
             openWorkflowDialog.InitialDirectory = saveWorkflowDialog.InitialDirectory = workflowDirectory;
             if (UpgradeHelper.IsDeprecated(version)) saveWorkflowDialog.FileName = null;
             else saveWorkflowDialog.FileName = fileName;
-            ResetProjectStatus();
-            UpdateTitle();
 
             if (setWorkingDirectory && directoryToolStripTextBox.Text != workflowDirectory)
             {
@@ -714,6 +712,9 @@ namespace Bonsai.Editor
                     catch (InvalidOperationException) { }
                 }
             }
+
+            ResetProjectStatus();
+            UpdateTitle();
             return true;
         }
 
