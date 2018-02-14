@@ -1674,7 +1674,7 @@ namespace Bonsai.Design
                     if (editorLauncher.Builder.Workflow != null)
                     {
                         editorLauncher.Show(windowSelector(), serviceProvider);
-                        if (editorLauncher.Container != null && !parentLaunching)
+                        if (editorLauncher.Container != null && !parentLaunching && activate)
                         {
                             editorLauncher.Container.SelectTab(editorLauncher.WorkflowGraphView);
                         }
