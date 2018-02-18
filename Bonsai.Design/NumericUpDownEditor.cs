@@ -11,9 +11,20 @@ namespace Bonsai.Design
 {
     public class NumericUpDownEditor : UITypeEditor
     {
+        static Type GetPropertyType(Type type)
+        {
+            return Nullable.GetUnderlyingType(type) ?? type;
+        }
+
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
-            return UITypeEditorEditStyle.DropDown;
+            if (context != null && context.PropertyDescriptor != null)
+            {
+                var propertyType = GetPropertyType(context.PropertyDescriptor.PropertyType);
+                if (propertyType.IsPrimitive) return UITypeEditorEditStyle.DropDown;
+            }
+
+            return UITypeEditorEditStyle.None;
         }
 
         class PreviewNumericUpDown : NumericUpDown
@@ -32,8 +43,9 @@ namespace Bonsai.Design
             {
                 var decimalPlaces = 0;
                 var propertyDescriptor = context.PropertyDescriptor;
+                var propertyType = GetPropertyType(propertyDescriptor.PropertyType);
                 var range = (RangeAttribute)propertyDescriptor.Attributes[typeof(RangeAttribute)];
-                var typeCode = Type.GetTypeCode(propertyDescriptor.PropertyType);
+                var typeCode = Type.GetTypeCode(propertyType);
                 var precision = (PrecisionAttribute)propertyDescriptor.Attributes[typeof(PrecisionAttribute)];
                 if (precision != null && (typeCode == TypeCode.Single || typeCode == TypeCode.Double || typeCode == TypeCode.Decimal))
                 {
@@ -56,12 +68,12 @@ namespace Bonsai.Design
                 numericUpDown.ValueChanged += (sender, e) =>
                 {
                     changed = true;
-                    propertyDescriptor.SetValue(context.Instance, Convert.ChangeType(numericUpDown.Value, propertyDescriptor.PropertyType));
+                    propertyDescriptor.SetValue(context.Instance, Convert.ChangeType(numericUpDown.Value, propertyType));
                 };
                 editorService.DropDownControl(numericUpDown);
 
                 if (cancelled && changed) propertyDescriptor.SetValue(context.Instance, value);
-                return cancelled ? value : Convert.ChangeType(numericUpDown.Value, propertyDescriptor.PropertyType);
+                return cancelled ? value : Convert.ChangeType(numericUpDown.Value, propertyType);
             }
 
             return base.EditValue(context, provider, value);
