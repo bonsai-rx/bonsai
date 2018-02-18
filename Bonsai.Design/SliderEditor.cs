@@ -16,6 +16,15 @@ namespace Bonsai.Design
             return UITypeEditorEditStyle.DropDown;
         }
 
+        class PreviewSlider : Slider
+        {
+            protected override bool ProcessDialogKey(Keys keyData)
+            {
+                if (keyData == Keys.Escape) OnPreviewKeyDown(new PreviewKeyDownEventArgs(keyData));
+                return base.ProcessDialogKey(keyData);
+            }
+        }
+
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
         {
             var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
@@ -35,14 +44,24 @@ namespace Bonsai.Design
                 }
                 else decimalPlaces = 0;
 
-                var slider = new Slider();
+                var slider = new PreviewSlider();
                 slider.Minimum = (double)range.Minimum;
                 slider.Maximum = (double)range.Maximum;
                 slider.DecimalPlaces = decimalPlaces;
+
+                var changed = false;
+                var cancelled = false;
                 slider.Value = Math.Max(slider.Minimum, Math.Min(Convert.ToDouble(value), slider.Maximum));
-                slider.ValueChanged += (sender, e) => propertyDescriptor.SetValue(context.Instance, Convert.ChangeType(slider.Value, propertyDescriptor.PropertyType));
+                slider.PreviewKeyDown += (sender, e) => cancelled = e.KeyCode == Keys.Escape;
+                slider.ValueChanged += (sender, e) =>
+                {
+                    changed = true;
+                    propertyDescriptor.SetValue(context.Instance, Convert.ChangeType(slider.Value, propertyDescriptor.PropertyType));
+                };
                 editorService.DropDownControl(slider);
-                return Convert.ChangeType(slider.Value, propertyDescriptor.PropertyType);
+
+                if (cancelled && changed) propertyDescriptor.SetValue(context.Instance, value);
+                return cancelled ? value : Convert.ChangeType(slider.Value, propertyDescriptor.PropertyType);
             }
 
             return base.EditValue(context, provider, value);
