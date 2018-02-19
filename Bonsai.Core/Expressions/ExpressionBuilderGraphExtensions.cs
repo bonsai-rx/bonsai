@@ -752,11 +752,9 @@ namespace Bonsai.Expressions
             foreach (var node in source)
             {
                 var builder = node.Value;
-                var workflowExpression = recurse ? ExpressionBuilder.Unwrap(builder) as WorkflowExpressionBuilder : null;
-                if (workflowExpression != null)
+                if (recurse)
                 {
-                    workflowExpression = workflowExpression.Clone(workflowExpression.Workflow.Convert(selector, recurse));
-                    builder = UnwrapConvert(builder, x => workflowExpression);
+                    builder = UnwrapConvert(builder, selector);
                 }
 
                 builder = selector(builder);
@@ -781,7 +779,6 @@ namespace Bonsai.Expressions
             return workflow;
         }
 
-        // This method needs to be kept in sync with the behavior of Unwrap
         static ExpressionBuilder UnwrapConvert(ExpressionBuilder builder, Func<ExpressionBuilder, ExpressionBuilder> selector)
         {
             if (builder == null)
@@ -796,7 +793,20 @@ namespace Bonsai.Expressions
                 return new InspectBuilder(result);
             }
 
-            return selector(builder);
+            var disableBuilder = builder as DisableBuilder;
+            if (disableBuilder != null)
+            {
+                var result = UnwrapConvert(disableBuilder.Builder, selector);
+                return new DisableBuilder { Builder = result };
+            }
+
+            var workflowExpression = builder as WorkflowExpressionBuilder;
+            if (workflowExpression != null)
+            {
+                return workflowExpression.Clone(workflowExpression.Workflow.Convert(selector, true));
+            }
+
+            return builder;
         }
 
         /// <summary>
