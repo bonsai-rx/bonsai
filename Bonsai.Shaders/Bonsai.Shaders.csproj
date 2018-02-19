@@ -114,7 +114,6 @@
     <Compile Include="LatestOnRenderFrame.cs" />
     <Compile Include="MeshAttributeMapping.cs" />
     <Compile Include="MeshBounds.cs" />
-    <Compile Include="QuaternionConverter.cs" />
     <Compile Include="RotateAxisAngle.cs" />
     <Compile Include="RotateQuaternion.cs" />
     <Compile Include="RotateX.cs" />

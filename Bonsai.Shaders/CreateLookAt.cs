@@ -21,7 +21,7 @@ namespace Bonsai.Shaders
             up = Vector3.UnitY;
         }
 
-        [TypeConverter("OpenCV.Net.NumericAggregateConverter, OpenCV.Net")]
+        [TypeConverter(typeof(NumericRecordConverter))]
         [Description("The eye, or camera position, in the world coordinate frame.")]
         public Vector3 Eye
         {
@@ -29,7 +29,7 @@ namespace Bonsai.Shaders
             set { eye = value; }
         }
 
-        [TypeConverter("OpenCV.Net.NumericAggregateConverter, OpenCV.Net")]
+        [TypeConverter(typeof(NumericRecordConverter))]
         [Description("The target position in the world coordinate frame.")]
         public Vector3 Target
         {
@@ -37,7 +37,7 @@ namespace Bonsai.Shaders
             set { target = value; }
         }
 
-        [TypeConverter("OpenCV.Net.NumericAggregateConverter, OpenCV.Net")]
+        [TypeConverter(typeof(NumericRecordConverter))]
         [Description("The up vector of the camera, in the world coordinate frame. Should not be parallel to the camera direction.")]
         public Vector3 Up
         {

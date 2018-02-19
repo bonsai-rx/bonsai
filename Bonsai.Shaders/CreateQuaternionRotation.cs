@@ -17,7 +17,7 @@ namespace Bonsai.Shaders
             Rotation = Quaternion.Identity;
         }
 
-        [TypeConverter(typeof(QuaternionConverter))]
+        [TypeConverter(typeof(NumericRecordConverter))]
         [Description("The quaternion representing the rotation transformation.")]
         public Quaternion Rotation { get; set; }
 

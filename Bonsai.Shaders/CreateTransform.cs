@@ -22,7 +22,7 @@ namespace Bonsai.Shaders
             Scale = Vector3.One;
         }
 
-        [TypeConverter("OpenCV.Net.NumericAggregateConverter, OpenCV.Net")]
+        [TypeConverter(typeof(NumericRecordConverter))]
         [Description("The position of the model, in the local coordinate frame.")]
         public Vector3 Position
         {
@@ -30,7 +30,7 @@ namespace Bonsai.Shaders
             set { position = value; }
         }
 
-        [TypeConverter(typeof(QuaternionConverter))]
+        [TypeConverter(typeof(NumericRecordConverter))]
         [Description("The quaternion representing the rotation of the model, in the local coordinate frame.")]
         public Quaternion Rotation
         {
@@ -38,8 +38,8 @@ namespace Bonsai.Shaders
             set { rotation = value; }
         }
 
+        [TypeConverter(typeof(NumericRecordConverter))]
         [Description("The scale vector applied to the model, in the local coordinate frame.")]
-        [TypeConverter("OpenCV.Net.NumericAggregateConverter, OpenCV.Net")]
         public Vector3 Scale
         {
             get { return scale; }

@@ -12,7 +12,7 @@ namespace Bonsai.Shaders
     [Description("Applies a rotation around an arbitrary axis.")]
     public class RotateAxisAngle : MatrixTransform
     {
-        [TypeConverter("OpenCV.Net.NumericAggregateConverter, OpenCV.Net")]
+        [TypeConverter(typeof(NumericRecordConverter))]
         [Description("The vector specifying the direction of the axis of rotation.")]
         public Vector3 Axis { get; set; }
 
