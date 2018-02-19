@@ -16,12 +16,12 @@ namespace Bonsai.Vision
             Upper = new Scalar(255, 255, 255, 255);
         }
 
+        [TypeConverter(typeof(RangeScalarConverter))]
         [Description("The lower bound of the specified range.")]
-        [TypeConverter("Bonsai.Vision.Design.RangeScalarConverter, Bonsai.Vision.Design")]
         public Scalar Lower { get; set; }
 
+        [TypeConverter(typeof(RangeScalarConverter))]
         [Description("The upper bound of the specified range.")]
-        [TypeConverter("Bonsai.Vision.Design.RangeScalarConverter, Bonsai.Vision.Design")]
         public Scalar Upper { get; set; }
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)

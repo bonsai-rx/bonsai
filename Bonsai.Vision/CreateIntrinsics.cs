@@ -17,7 +17,7 @@ namespace Bonsai.Vision
             FocalLength = new Point2d(1, 1);
         }
 
-        [TypeConverter(typeof(NumericAggregateConverter))]
+        [TypeConverter(typeof(NumericRecordConverter))]
         [Description("The optional image size, in pixels, for the camera intrinsics.")]
         public Size? ImageSize { get; set; }
 

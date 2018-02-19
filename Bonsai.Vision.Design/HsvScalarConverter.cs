@@ -9,6 +9,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.Vision.Design
 {
+    [Obsolete]
     public class HsvScalarConverter : TypeConverter
     {
         public override bool GetPropertiesSupported(ITypeDescriptorContext context)

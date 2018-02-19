@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
+using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
@@ -16,12 +17,12 @@ namespace Bonsai.Vision
             Upper = new Scalar(179, 255, 255, 255);
         }
 
+        [TypeConverter(typeof(HsvScalarConverter))]
         [Description("The lower bound of the HSV color range.")]
-        [TypeConverter("Bonsai.Vision.Design.HsvScalarConverter, Bonsai.Vision.Design")]
         public Scalar Lower { get; set; }
 
+        [TypeConverter(typeof(HsvScalarConverter))]
         [Description("The upper bound of the HSV color range.")]
-        [TypeConverter("Bonsai.Vision.Design.HsvScalarConverter, Bonsai.Vision.Design")]
         public Scalar Upper { get; set; }
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)

@@ -68,6 +68,7 @@
     <Compile Include="AffineTransform.cs" />
     <Compile Include="AverageBinaryRegion.cs" />
     <Compile Include="BackgroundSubtraction.cs" />
+    <Compile Include="BgraScalarConverter.cs" />
     <Compile Include="BinaryRegionAnalysis.cs" />
     <Compile Include="BinaryRegionExtremes.cs" />
     <Compile Include="CameraCapture.cs" />
@@ -82,6 +83,7 @@
     <Compile Include="CreatePoint2d.cs" />
     <Compile Include="CreatePoint3d.cs" />
     <Compile Include="Extrinsics.cs" />
+    <Compile Include="HsvScalarConverter.cs" />
     <Compile Include="Intrinsics.cs" />
     <Compile Include="IntrinsicsTransform.cs" />
     <Compile Include="KeyPointOpticalFlow.cs" />
@@ -91,7 +93,7 @@
     <Compile Include="LoadIntrinsics.cs" />
     <Compile Include="MinimumEnclosingCircle.cs" />
     <Compile Include="Centroid.cs" />
-    <Compile Include="NumericAggregateConverter.cs" />
+    <Compile Include="RangeScalarConverter.cs" />
     <Compile Include="SaveIntrinsics.cs" />
     <Compile Include="SolvePnP.cs" />
     <Compile Include="SparseOpticalFlow.cs" />

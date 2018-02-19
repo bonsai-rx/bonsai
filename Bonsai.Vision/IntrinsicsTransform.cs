@@ -28,7 +28,7 @@ namespace Bonsai.Vision
             FocalLength = new Point2d(1, 1);
         }
 
-        [TypeConverter(typeof(NumericAggregateConverter))]
+        [TypeConverter(typeof(NumericRecordConverter))]
         [Description("The optional new image size used when computing the optimal camera matrix.")]
         public Size? ImageSize
         {
