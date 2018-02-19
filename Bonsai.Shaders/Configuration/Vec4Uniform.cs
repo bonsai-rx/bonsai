@@ -11,7 +11,7 @@ namespace Bonsai.Shaders.Configuration
 {
     public class Vec4Uniform : UniformConfiguration
     {
-        [TypeConverter("OpenCV.Net.NumericAggregateConverter, OpenCV.Net")]
+        [TypeConverter(typeof(NumericRecordConverter))]
         [Description("The value used to initialize the uniform variable.")]
         public Vector4 Value { get; set; }
 

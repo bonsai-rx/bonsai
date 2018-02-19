@@ -13,7 +13,7 @@ namespace Bonsai.Shaders
     [Description("Creates a rotation matrix from an axis-angle representation.")]
     public class CreateAxisAngleRotation : Source<Matrix4>
     {
-        [TypeConverter("OpenCV.Net.NumericAggregateConverter, OpenCV.Net")]
+        [TypeConverter(typeof(NumericRecordConverter))]
         [Description("The vector specifying the direction of the axis of rotation.")]
         public Vector3 Axis { get; set; }
 
