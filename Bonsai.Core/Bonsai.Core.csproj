@@ -144,6 +144,7 @@
     <Compile Include="Expressions\SubtractBuilder.cs" />
     <Compile Include="ExternalizableAttribute.cs" />
     <Compile Include="INamedElement.cs" />
+    <Compile Include="NumericRecordConverter.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
