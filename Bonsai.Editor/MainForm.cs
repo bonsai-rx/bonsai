@@ -698,6 +698,7 @@ namespace Bonsai.Editor
                 if (!string.IsNullOrEmpty(saveWorkflowDialog.FileName))
                 {
                     EditorResult = EditorResult.ReloadEditor;
+                    ResetProjectStatus();
                     Close();
                     return false;
                 }
