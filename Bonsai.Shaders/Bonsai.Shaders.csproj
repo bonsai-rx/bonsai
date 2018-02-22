@@ -69,6 +69,7 @@
     <Compile Include="BufferBinding.cs" />
     <Compile Include="ComputeProgram.cs" />
     <Compile Include="Configuration\ViewportEffectConfiguration.cs" />
+    <Compile Include="CreateMatrix4.cs" />
     <Compile Include="ExtrinsicsModelView.cs" />
     <Compile Include="CreateTransform.cs" />
     <Compile Include="DispatchCompute.cs" />
