@@ -44,12 +44,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\bin\Bonsai.Core.2.3.0.nupkg">
-      <Link>Packages\Bonsai.Core.2.3.0.nupkg</Link>
+    <Content Include="..\..\bin\Bonsai.Core.2.4.0.nupkg">
+      <Link>Packages\Bonsai.Core.2.4.0.nupkg</Link>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="..\..\bin\Bonsai.Design.2.3.0.nupkg">
-      <Link>Packages\Bonsai.Design.2.3.0.nupkg</Link>
+    <Content Include="..\..\bin\Bonsai.Design.2.4.0.nupkg">
+      <Link>Packages\Bonsai.Design.2.4.0.nupkg</Link>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="..\packages\Rx-Core.2.2.5\Rx-Core.2.2.5.nupkg">
