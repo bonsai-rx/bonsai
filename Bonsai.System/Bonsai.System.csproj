@@ -70,6 +70,7 @@
     <Compile Include="IO\FileSink.cs" />
     <Compile Include="IO\PathHelper.cs" />
     <Compile Include="IO\PathSuffix.cs" />
+    <Compile Include="IO\StartProcess.cs" />
     <Compile Include="IO\StreamSink.cs" />
     <Compile Include="IO\Ports\SerialPortConfiguration.cs" />
     <Compile Include="IO\Ports\SerialPortDisposable.cs" />
