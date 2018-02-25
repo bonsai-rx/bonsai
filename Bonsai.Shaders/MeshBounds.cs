@@ -35,12 +35,17 @@ namespace Bonsai.Shaders
                 }
 
                 return source.CombineEither(
-                    ShaderManager.WindowSource.SelectMany(window =>
-                        window.EventPattern<FrameEventArgs>(
-                            handler => window.UpdateFrame += handler,
-                            handler => window.UpdateFrame -= handler)
-                        .Select(evt => window.Meshes[name])),
-                    (input, mesh) => mesh.Bounds ?? Bounds.Empty);
+                    ShaderManager.WindowSource,
+                    (input, window) =>
+                    {
+                        Mesh mesh;
+                        if (window.Meshes.TryGetValue(name, out mesh))
+                        {
+                            return mesh.Bounds ?? Bounds.Empty;
+                        }
+
+                        return Bounds.Empty;
+                    });
             });
         }
     }
