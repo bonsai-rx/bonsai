@@ -632,40 +632,43 @@ namespace Bonsai.Editor
                 version = null;
                 reader.MoveToContent();
                 var versionName = reader.GetAttribute(VersionAttributeName);
-                var workflowBuilder = (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
-                var workflow = workflowBuilder.Workflow;
-                if (string.IsNullOrEmpty(versionName) ||
-                    !SemanticVersion.TryParse(versionName, out version) ||
-                    UpgradeHelper.IsDeprecated(version))
+                SemanticVersion.TryParse(versionName, out version);
+                return (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
+            }
+        }
+
+        WorkflowBuilder UpdateWorkflow(WorkflowBuilder workflowBuilder, SemanticVersion version)
+        {
+            var workflow = workflowBuilder.Workflow;
+            if (version == null || UpgradeHelper.IsDeprecated(version))
+            {
+                MessageBox.Show(
+                    this,
+                    Resources.UpdateWorkflow_Warning,
+                    Resources.UpdateWorkflow_Warning_Caption,
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning,
+                    MessageBoxDefaultButton.Button1);
+
+                try
+                {
+                    UpgradeHelper.UpgradeEnumerableUnfoldingRules(workflowBuilder, version);
+                    workflow = UpgradeHelper.UpgradeBuilderNodes(workflow);
+                }
+                catch (WorkflowBuildException)
                 {
                     MessageBox.Show(
                         this,
-                        Resources.UpdateWorkflow_Warning,
+                        Resources.UpdateWorkflow_Error,
                         Resources.UpdateWorkflow_Warning_Caption,
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning,
                         MessageBoxDefaultButton.Button1);
-
-                    try
-                    {
-                        UpgradeHelper.UpgradeEnumerableUnfoldingRules(workflowBuilder, version);
-                        workflow = UpgradeHelper.UpgradeBuilderNodes(workflow);
-                    }
-                    catch (WorkflowBuildException)
-                    {
-                        MessageBox.Show(
-                            this,
-                            Resources.UpdateWorkflow_Error,
-                            Resources.UpdateWorkflow_Warning_Caption,
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Warning,
-                            MessageBoxDefaultButton.Button1);
-                    }
                 }
-
-                workflowBuilder = new WorkflowBuilder(workflow.ToInspectableGraph());
-                return workflowBuilder;
             }
+
+            workflowBuilder = new WorkflowBuilder(workflow.ToInspectableGraph());
+            return workflowBuilder;
         }
 
         bool OpenWorkflow(string fileName)
@@ -684,27 +687,25 @@ namespace Bonsai.Editor
                 return false;
             }
 
-            var layoutPath = GetLayoutPath(fileName);
+            var workflowDirectory = Path.GetDirectoryName(fileName);
+            if (setWorkingDirectory && directoryToolStripTextBox.Text != workflowDirectory)
+            {
+                saveWorkflowDialog.FileName = fileName;
+                EditorResult = EditorResult.ReloadEditor;
+                ResetProjectStatus();
+                Close();
+                return false;
+            }
+
+            workflowBuilder = UpdateWorkflow(workflowBuilder, version);
             editorControl.VisualizerLayout = null;
             editorControl.Workflow = workflowBuilder.Workflow;
-            var workflowDirectory = Path.GetDirectoryName(fileName);
             openWorkflowDialog.InitialDirectory = saveWorkflowDialog.InitialDirectory = workflowDirectory;
             if (UpgradeHelper.IsDeprecated(version)) saveWorkflowDialog.FileName = null;
             else saveWorkflowDialog.FileName = fileName;
-
-            if (setWorkingDirectory && directoryToolStripTextBox.Text != workflowDirectory)
-            {
-                directoryToolStripTextBox.Text = workflowDirectory;
-                if (!string.IsNullOrEmpty(saveWorkflowDialog.FileName))
-                {
-                    EditorResult = EditorResult.ReloadEditor;
-                    ResetProjectStatus();
-                    Close();
-                    return false;
-                }
-            }
-
             editorSite.ValidateWorkflow();
+
+            var layoutPath = GetLayoutPath(fileName);
             if (File.Exists(layoutPath))
             {
                 using (var reader = XmlReader.Create(layoutPath))
@@ -1999,7 +2000,8 @@ namespace Bonsai.Editor
             public WorkflowBuilder LoadWorkflow(string fileName)
             {
                 SemanticVersion version;
-                return siteForm.LoadWorkflow(fileName, out version);
+                var workflow = siteForm.LoadWorkflow(fileName, out version);
+                return siteForm.UpdateWorkflow(workflow, version);
             }
 
             public void OpenWorkflow(string fileName)
