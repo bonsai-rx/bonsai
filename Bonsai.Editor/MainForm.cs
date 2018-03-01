@@ -697,6 +697,7 @@ namespace Bonsai.Editor
                 return false;
             }
 
+            editorControl.Workflow = workflowBuilder.Workflow;
             workflowBuilder = UpdateWorkflow(workflowBuilder, version);
             editorControl.VisualizerLayout = null;
             editorControl.Workflow = workflowBuilder.Workflow;
