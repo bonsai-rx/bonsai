@@ -57,20 +57,20 @@ namespace Bonsai.Design
                 switch (elementCategoryAttribute.Category)
                 {
                     case ElementCategory.Source:
-                        return obsolete ? HatchBrushes.DiagonalViolet : disabled ? HatchBrushes.CrossViolet : Brushes.Violet;
+                        return disabled ? HatchBrushes.DiagonalViolet : obsolete ? HatchBrushes.CrossViolet : Brushes.Violet;
                     case ElementCategory.Condition:
-                        return obsolete ? HatchBrushes.DiagonalLightGreen : disabled ? HatchBrushes.CrossLightGreen : Brushes.LightGreen;
+                        return disabled ? HatchBrushes.DiagonalLightGreen : obsolete ? HatchBrushes.CrossLightGreen : Brushes.LightGreen;
                     case ElementCategory.Transform:
-                        return obsolete ? HatchBrushes.DiagonalWhite : disabled ? HatchBrushes.CrossWhite : Brushes.White;
+                        return disabled ? HatchBrushes.DiagonalWhite : obsolete ? HatchBrushes.CrossWhite : Brushes.White;
                     case ElementCategory.Sink:
-                        return obsolete ? HatchBrushes.DiagonalDarkGray : disabled ? HatchBrushes.CrossDarkGray : Brushes.DarkGray;
+                        return disabled ? HatchBrushes.DiagonalDarkGray : obsolete ? HatchBrushes.CrossDarkGray : Brushes.DarkGray;
                     case ElementCategory.Nested:
-                        return obsolete ? HatchBrushes.DiagonalGoldenrod : disabled ? HatchBrushes.CrossGoldenrod : Brushes.Goldenrod;
+                        return disabled ? HatchBrushes.DiagonalGoldenrod : obsolete ? HatchBrushes.CrossGoldenrod : Brushes.Goldenrod;
                     case ElementCategory.Property:
-                        return obsolete ? HatchBrushes.DiagonalOrange : disabled ? HatchBrushes.CrossOrange : Brushes.Orange;
+                        return disabled ? HatchBrushes.DiagonalOrange : obsolete ? HatchBrushes.CrossOrange : Brushes.Orange;
                     case ElementCategory.Combinator:
                     default:
-                        return obsolete ? HatchBrushes.DiagonalLightBlue : disabled ? HatchBrushes.CrossLightBlue : Brushes.LightBlue;
+                        return disabled ? HatchBrushes.DiagonalLightBlue : obsolete ? HatchBrushes.CrossLightBlue : Brushes.LightBlue;
                 }
             }
 
