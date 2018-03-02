@@ -2381,6 +2381,16 @@ namespace Bonsai.Design
             dragKeyState = ShiftModifier;
         }
 
+        private void enableToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            EnableGraphNodes(selectionModel.SelectedNodes);
+        }
+
+        private void disableToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DisableGraphNodes(selectionModel.SelectedNodes);
+        }
+
         private void InitializeConnectionSource()
         {
             isContextMenuSource = true;
@@ -2663,6 +2673,8 @@ namespace Bonsai.Design
                     disconnectToolStripMenuItem.Enabled = true;
                     groupToolStripMenuItem.Enabled = true;
                     ungroupToolStripMenuItem.Enabled = true;
+                    enableToolStripMenuItem.Enabled = true;
+                    disableToolStripMenuItem.Enabled = true;
                 }
             }
 
