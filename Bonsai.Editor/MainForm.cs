@@ -1432,6 +1432,8 @@ namespace Bonsai.Editor
             deleteToolStripMenuItem.Enabled = !readOnly && hasSelectedObjects;
             groupToolStripMenuItem.Enabled = !readOnly && hasSelectedObjects;
             ungroupToolStripMenuItem.Enabled = !readOnly && hasSelectedObjects;
+            enableToolStripMenuItem.Enabled = !readOnly && hasSelectedObjects;
+            disableToolStripMenuItem.Enabled = !readOnly && hasSelectedObjects;
             if (!hasSelectedObjects)
             {
                 // Select externalized properties
@@ -1755,6 +1757,24 @@ namespace Bonsai.Editor
             if (model.GraphView.Focused)
             {
                 model.UngroupGraphNodes(selectionModel.SelectedNodes);
+            }
+        }
+
+        private void enableToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var model = selectionModel.SelectedView;
+            if (model.GraphView.Focused)
+            {
+                model.EnableGraphNodes(selectionModel.SelectedNodes);
+            }
+        }
+
+        private void disableToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var model = selectionModel.SelectedView;
+            if (model.GraphView.Focused)
+            {
+                model.DisableGraphNodes(selectionModel.SelectedNodes);
             }
         }
 
