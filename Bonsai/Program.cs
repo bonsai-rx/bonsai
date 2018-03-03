@@ -71,7 +71,7 @@ namespace Bonsai
                     }
                 }
             });
-            parser.RegisterCommand(command => initialFileName = command);
+            parser.RegisterCommand(command => initialFileName = Path.GetFullPath(command));
             parser.RegisterCommand(PropertyCommand, property =>
             {
                 var assignment = PropertyAssignment.Parse(property);
