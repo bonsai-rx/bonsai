@@ -244,4 +244,10 @@ Do you want to install Visual Studio Code?</value>
   <data name="InstallScriptEditor_Question_Caption" xml:space="preserve">
     <value>Install Script Editor</value>
   </data>
+  <data name="CreateExtensionsWorkflow_Warning" xml:space="preserve">
+    <value>The workflow must be saved before adding or saving extensions.</value>
+  </data>
+  <data name="CreateExtensionsWorkflow_Warning_Caption" xml:space="preserve">
+    <value>Save Workflow</value>
+  </data>
 </root>

@@ -2044,16 +2044,27 @@ namespace Bonsai.Editor
             {
                 if (!siteForm.snippetFileWatcher.EnableRaisingEvents && !siteForm.extensionsPath.Exists)
                 {
-                    var createExtensions = MessageBox.Show(
-                        Resources.CreateExtensionsFolder_Question,
-                        Resources.CreateExtensionsFolder_Question_Caption,
-                        MessageBoxButtons.YesNo,
-                        MessageBoxIcon.Warning);
-                    if (createExtensions == DialogResult.Yes)
+                    if (string.IsNullOrEmpty(siteForm.FileName))
                     {
-                        siteForm.extensionsPath.Create();
-                        siteForm.extensionsPath.Refresh();
-                        siteForm.OnExtensionsDirectoryChanged(EventArgs.Empty);
+                        MessageBox.Show(
+                            Resources.CreateExtensionsWorkflow_Warning,
+                            Resources.CreateExtensionsWorkflow_Warning_Caption,
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning);
+                    }
+                    else
+                    {
+                        var createExtensions = MessageBox.Show(
+                            Resources.CreateExtensionsFolder_Question,
+                            Resources.CreateExtensionsFolder_Question_Caption,
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Warning);
+                        if (createExtensions == DialogResult.Yes)
+                        {
+                            siteForm.extensionsPath.Create();
+                            siteForm.extensionsPath.Refresh();
+                            siteForm.OnExtensionsDirectoryChanged(EventArgs.Empty);
+                        }
                     }
                 }
 
