@@ -149,6 +149,24 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The workflow must be saved before adding or saving extensions..
+        /// </summary>
+        internal static string CreateExtensionsWorkflow_Warning {
+            get {
+                return ResourceManager.GetString("CreateExtensionsWorkflow_Warning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save Workflow.
+        /// </summary>
+        internal static string CreateExtensionsWorkflow_Warning_Caption {
+            get {
+                return ResourceManager.GetString("CreateExtensionsWorkflow_Warning_Caption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Interface Error.
         /// </summary>
         internal static string Editor_Error_Caption {
