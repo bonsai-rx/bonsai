@@ -728,7 +728,7 @@ namespace Bonsai.Editor
             return true;
         }
 
-        void SaveElement(XmlSerializer serializer, string fileName, object o, string error)
+        bool SaveElement(XmlSerializer serializer, string fileName, object o, string error)
         {
             try
             {
@@ -741,11 +741,14 @@ namespace Bonsai.Editor
                         memoryStream.WriteTo(fileStream);
                     }
                 }
+
+                return true;
             }
             catch (IOException ex)
             {
                 var errorMessage = string.Format(error, ex.Message);
                 MessageBox.Show(this, errorMessage, Resources.SaveElement_Error_Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
             }
             catch (InvalidOperationException ex)
             {
@@ -755,12 +758,13 @@ namespace Bonsai.Editor
 
                 var errorMessage = string.Format(error, ex.InnerException != null ? ex.InnerException.Message : ex.Message);
                 MessageBox.Show(this, errorMessage, Resources.SaveElement_Error_Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
             }
         }
 
-        void SaveWorkflow(string fileName, WorkflowBuilder workflowBuilder)
+        bool SaveWorkflow(string fileName, WorkflowBuilder workflowBuilder)
         {
-            SaveElement(WorkflowBuilder.Serializer, fileName, workflowBuilder, Resources.SaveWorkflow_Error);
+            return SaveElement(WorkflowBuilder.Serializer, fileName, workflowBuilder, Resources.SaveWorkflow_Error);
         }
 
         void SaveVisualizerLayout(string fileName, VisualizerLayout layout)
@@ -866,19 +870,24 @@ namespace Bonsai.Editor
             else
             {
                 var serializerWorkflowBuilder = new WorkflowBuilder(workflowBuilder.Workflow.FromInspectableGraph());
-                SaveWorkflow(saveWorkflowDialog.FileName, serializerWorkflowBuilder);
-                saveVersion = version;
-
-                editorControl.UpdateVisualizerLayout();
-                if (editorControl.VisualizerLayout != null)
+                if (SaveWorkflow(saveWorkflowDialog.FileName, serializerWorkflowBuilder))
                 {
-                    var layoutPath = GetLayoutPath(saveWorkflowDialog.FileName);
-                    SaveVisualizerLayout(layoutPath, editorControl.VisualizerLayout);
-                }
+                    UpdateWorkflowDirectory(saveWorkflowDialog.FileName);
+                    if (EditorResult == Editor.EditorResult.ReloadEditor) return;
+                    saveVersion = version;
+                    UpdateTitle();
 
-                if (string.IsNullOrEmpty(directoryToolStripTextBox.Text))
-                {
-                    directoryToolStripTextBox.Text = Path.GetDirectoryName(saveWorkflowDialog.FileName);
+                    editorControl.UpdateVisualizerLayout();
+                    if (editorControl.VisualizerLayout != null)
+                    {
+                        var layoutPath = GetLayoutPath(saveWorkflowDialog.FileName);
+                        SaveVisualizerLayout(layoutPath, editorControl.VisualizerLayout);
+                    }
+
+                    if (string.IsNullOrEmpty(directoryToolStripTextBox.Text))
+                    {
+                        directoryToolStripTextBox.Text = Path.GetDirectoryName(saveWorkflowDialog.FileName);
+                    }
                 }
             }
         }
@@ -888,8 +897,6 @@ namespace Bonsai.Editor
             if (saveWorkflowDialog.ShowDialog() == DialogResult.OK)
             {
                 saveToolStripMenuItem_Click(this, e);
-                UpdateWorkflowDirectory(saveWorkflowDialog.FileName);
-                UpdateTitle();
             }
         }
 
