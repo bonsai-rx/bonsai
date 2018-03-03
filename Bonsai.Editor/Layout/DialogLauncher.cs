@@ -51,7 +51,7 @@ namespace Bonsai.Design
                     }
                 };
 
-                visualizerDialog.FormClosing += delegate
+                visualizerDialog.FormClosed += delegate
                 {
                     var desktopBounds = Bounds;
                     if (visualizerDialog.WindowState != FormWindowState.Normal)
@@ -66,10 +66,10 @@ namespace Bonsai.Design
                         WindowState = FormWindowState.Normal;
                     }
                     else WindowState = visualizerDialog.WindowState;
+                    visualizerDialog.Dispose();
                 };
 
                 visualizerDialog.HandleDestroyed += (sender, e) => visualizerDialog = null;
-                visualizerDialog.FormClosed += (sender, e) => visualizerDialog.Dispose();
                 InitializeComponents(visualizerDialog, provider);
                 if (visualizerDialog.TopLevel)
                 {
