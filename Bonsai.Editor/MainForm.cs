@@ -35,11 +35,11 @@ namespace Bonsai.Editor
         const string BonsaiExtension = ".bonsai";
         const string LayoutExtension = ".layout";
         const string BonsaiPackageName = "Bonsai";
-        const string SnippetsDirectory = "Extensions";
+        const string ExtensionsDirectory = "Extensions";
         const string SnippetCategoryName = "Workflow";
         const string VersionAttributeName = "Version";
         const string DefaultSnippetNamespace = "Unspecified";
-        static readonly object SnippetsDirectoryChanged = new object();
+        static readonly object ExtensionsDirectoryChanged = new object();
         static readonly XmlWriterSettings DefaultWriterSettings = new XmlWriterSettings
         {
             NamespaceHandling = NamespaceHandling.OmitDuplicates,
@@ -64,7 +64,7 @@ namespace Bonsai.Editor
         Bitmap statusReadyImage;
         ToolStripButton statusUpdateAvailableLabel;
         BehaviorSubject<bool> updatesAvailable;
-        DirectoryInfo snippetPath;
+        DirectoryInfo extensionsPath;
         object formClosedGate;
         bool formClosed;
 
@@ -274,11 +274,11 @@ namespace Bonsai.Editor
             var systemPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.System)).TrimEnd('\\');
             var systemX86Path = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86)).TrimEnd('\\');
             var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory || currentDirectory == systemPath || currentDirectory == systemX86Path;
-            var snippetDirectory = Path.Combine(appDomainBaseDirectory, SnippetsDirectory);
+            var extensionsDirectory = Path.Combine(appDomainBaseDirectory, ExtensionsDirectory);
 
             InitializeSnippetFileWatcher().Subscribe();
             updatesAvailable.Subscribe(HandleUpdatesAvailable);
-            workflowSnippets.AddRange(FindSnippets(snippetDirectory));
+            workflowSnippets.AddRange(FindSnippets(extensionsDirectory));
             directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
 
             InitializeEditorToolboxTypes();
@@ -377,17 +377,17 @@ namespace Bonsai.Editor
 
         IObservable<Unit> InitializeSnippetFileWatcher()
         {
-            var snippetsDirectoryChanged = Observable.FromEventPattern<EventHandler, EventArgs>(
-                handler => Events.AddHandler(SnippetsDirectoryChanged, handler),
-                handler => Events.RemoveHandler(SnippetsDirectoryChanged, handler));
-            return snippetsDirectoryChanged.Select(evt => Observable.Defer(RefreshSnippets)).Switch();
+            var extensionsDirectoryChanged = Observable.FromEventPattern<EventHandler, EventArgs>(
+                handler => Events.AddHandler(ExtensionsDirectoryChanged, handler),
+                handler => Events.RemoveHandler(ExtensionsDirectoryChanged, handler));
+            return extensionsDirectoryChanged.Select(evt => Observable.Defer(RefreshSnippets)).Switch();
         }
 
         IObservable<Unit> RefreshSnippets()
         {
             try
             {
-                snippetFileWatcher.Path = snippetPath.FullName;
+                snippetFileWatcher.Path = extensionsPath.FullName;
                 snippetFileWatcher.EnableRaisingEvents = true;
             }
             catch (ArgumentException)
@@ -412,7 +412,7 @@ namespace Bonsai.Editor
                 .Merge(start, changed, created, deleted, renamed)
                 .Throttle(TimeSpan.FromSeconds(1), Scheduler.Default)
                 .Select(evt => workflowSnippets
-                    .Concat(FindSnippets(SnippetsDirectory))
+                    .Concat(FindSnippets(ExtensionsDirectory))
                     .GroupBy(x => x.Namespace)
                     .ToList())
                 .ObserveOn(this)
@@ -530,7 +530,7 @@ namespace Bonsai.Editor
 
         static string GetPackageDisplayName(string packageKey)
         {
-            if (packageKey == null) return SnippetsDirectory;
+            if (packageKey == null) return ExtensionsDirectory;
             if (packageKey == BonsaiPackageName) return packageKey;
             return packageKey.Replace(BonsaiPackageName + ".", string.Empty);
         }
@@ -777,9 +777,9 @@ namespace Bonsai.Editor
             SaveElement(VisualizerLayout.Serializer, fileName, layout, Resources.SaveLayout_Error);
         }
 
-        void OnSnippetsDirectoryChanged(EventArgs e)
+        void OnExtensionsDirectoryChanged(EventArgs e)
         {
-            var handler = Events[SnippetsDirectoryChanged] as EventHandler;
+            var handler = Events[ExtensionsDirectoryChanged] as EventHandler;
             if (handler != null)
             {
                 handler(this, e);
@@ -791,8 +791,8 @@ namespace Bonsai.Editor
             if (Directory.Exists(directoryToolStripTextBox.Text))
             {
                 Environment.CurrentDirectory = directoryToolStripTextBox.Text;
-                snippetPath = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, SnippetsDirectory));
-                OnSnippetsDirectoryChanged(EventArgs.Empty);
+                extensionsPath = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, ExtensionsDirectory));
+                OnExtensionsDirectoryChanged(EventArgs.Empty);
             }
             else directoryToolStripTextBox.Text = Environment.CurrentDirectory;
         }
@@ -887,18 +887,8 @@ namespace Bonsai.Editor
 
         private void saveSnippetAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!snippetFileWatcher.EnableRaisingEvents && !snippetPath.Exists)
-            {
-                var createExtensions = MessageBox.Show(
-                    Resources.CreateExtensionsFolder_Question,
-                    Resources.CreateExtensionsFolder_Question_Caption,
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Warning);
-                if (createExtensions == DialogResult.No) return;
-                snippetPath.Create();
-                snippetPath.Refresh();
-                OnSnippetsDirectoryChanged(EventArgs.Empty);
-            }
+            editorSite.EnsureExtensionsDirectory();
+            if (!extensionsPath.Exists) return;
 
             var currentFileName = saveWorkflowDialog.FileName;
             try
@@ -2035,6 +2025,26 @@ namespace Bonsai.Editor
                 }
             }
 
+            public DirectoryInfo EnsureExtensionsDirectory()
+            {
+                if (!siteForm.snippetFileWatcher.EnableRaisingEvents && !siteForm.extensionsPath.Exists)
+                {
+                    var createExtensions = MessageBox.Show(
+                        Resources.CreateExtensionsFolder_Question,
+                        Resources.CreateExtensionsFolder_Question_Caption,
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Warning);
+                    if (createExtensions == DialogResult.Yes)
+                    {
+                        siteForm.extensionsPath.Create();
+                        siteForm.extensionsPath.Refresh();
+                        siteForm.OnExtensionsDirectoryChanged(EventArgs.Empty);
+                    }
+                }
+
+                return siteForm.extensionsPath;
+            }
+
             public WorkflowBuilder LoadWorkflow(string fileName)
             {
                 SemanticVersion version;
@@ -2223,7 +2233,8 @@ namespace Bonsai.Editor
                     var componentType = component.GetType();
                     if (siteForm.scriptEnvironment.AssemblyName.FullName == componentType.Assembly.FullName)
                     {
-                        ScriptEditorLauncher.Launch(siteForm, siteForm.scriptEnvironment.ProjectFileName, componentType.Name);
+                        var scriptFile = Path.Combine(siteForm.extensionsPath.FullName, componentType.Name);
+                        ScriptEditorLauncher.Launch(siteForm, siteForm.scriptEnvironment.ProjectFileName, scriptFile);
                     }
                 }
 

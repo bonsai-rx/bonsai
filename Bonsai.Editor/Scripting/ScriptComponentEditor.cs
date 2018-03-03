@@ -86,6 +86,7 @@ namespace Bonsai.Editor.Scripting
 
             var workflowBuilder = (WorkflowBuilder)provider.GetService(typeof(WorkflowBuilder));
             var commandExecutor = (CommandExecutor)provider.GetService(typeof(CommandExecutor));
+            var editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
             var selectionModel = (WorkflowSelectionModel)provider.GetService(typeof(WorkflowSelectionModel));
             var scriptEnvironment = (IScriptEnvironment)provider.GetService(typeof(IScriptEnvironment));
             if (workflowBuilder == null || commandExecutor == null || selectionModel == null || scriptEnvironment == null)
@@ -119,7 +120,10 @@ namespace Bonsai.Editor.Scripting
             else inputType = typeof(IObservable<int>);
 
             var scriptFile = scriptComponent.Name;
-            using (var dialog = new SaveFileDialog { FileName = scriptFile, Filter = ScriptFilter })
+            var extensionsDirectory = editorService.EnsureExtensionsDirectory();
+            if (!extensionsDirectory.Exists) return false;
+
+            using (var dialog = new SaveFileDialog { InitialDirectory = extensionsDirectory.FullName, FileName = scriptFile, Filter = ScriptFilter })
             {
                 if (dialog.ShowDialog() != DialogResult.OK) return false;
                 scriptFile = dialog.FileName;
