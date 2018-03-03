@@ -762,7 +762,24 @@ namespace Bonsai.Editor
             }
         }
 
-        bool SaveWorkflow(string fileName, WorkflowBuilder workflowBuilder)
+        bool SaveWorkflow(string fileName)
+        {
+            var serializerWorkflowBuilder = new WorkflowBuilder(workflowBuilder.Workflow.FromInspectableGraph());
+            if (!SaveWorkflowBuilder(fileName, serializerWorkflowBuilder)) return false;
+            saveVersion = version;
+
+            editorControl.UpdateVisualizerLayout();
+            if (editorControl.VisualizerLayout != null)
+            {
+                var layoutPath = GetLayoutPath(fileName);
+                SaveVisualizerLayout(layoutPath, editorControl.VisualizerLayout);
+            }
+
+            UpdateWorkflowDirectory(fileName);
+            return true;
+        }
+
+        bool SaveWorkflowBuilder(string fileName, WorkflowBuilder workflowBuilder)
         {
             return SaveElement(WorkflowBuilder.Serializer, fileName, workflowBuilder, Resources.SaveWorkflow_Error);
         }
@@ -867,36 +884,18 @@ namespace Bonsai.Editor
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(saveWorkflowDialog.FileName)) saveAsToolStripMenuItem_Click(this, e);
-            else
-            {
-                var serializerWorkflowBuilder = new WorkflowBuilder(workflowBuilder.Workflow.FromInspectableGraph());
-                if (SaveWorkflow(saveWorkflowDialog.FileName, serializerWorkflowBuilder))
-                {
-                    UpdateWorkflowDirectory(saveWorkflowDialog.FileName);
-                    if (EditorResult == Editor.EditorResult.ReloadEditor) return;
-                    saveVersion = version;
-                    UpdateTitle();
-
-                    editorControl.UpdateVisualizerLayout();
-                    if (editorControl.VisualizerLayout != null)
-                    {
-                        var layoutPath = GetLayoutPath(saveWorkflowDialog.FileName);
-                        SaveVisualizerLayout(layoutPath, editorControl.VisualizerLayout);
-                    }
-
-                    if (string.IsNullOrEmpty(directoryToolStripTextBox.Text))
-                    {
-                        directoryToolStripTextBox.Text = Path.GetDirectoryName(saveWorkflowDialog.FileName);
-                    }
-                }
-            }
+            else SaveWorkflow(saveWorkflowDialog.FileName);
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (saveWorkflowDialog.ShowDialog() == DialogResult.OK)
             {
-                saveToolStripMenuItem_Click(this, e);
+                if (SaveWorkflow(saveWorkflowDialog.FileName))
+                {
+                    UpdateTitle();
+                }
+                else saveWorkflowDialog.FileName = null;
             }
         }
 
@@ -924,7 +923,7 @@ namespace Bonsai.Editor
                 saveWorkflowDialog.InitialDirectory = snippetFileWatcher.Path;
                 if (saveWorkflowDialog.ShowDialog() == DialogResult.OK)
                 {
-                    SaveWorkflow(saveWorkflowDialog.FileName, serializerWorkflowBuilder);
+                    SaveWorkflowBuilder(saveWorkflowDialog.FileName, serializerWorkflowBuilder);
                     editorSite.ValidateWorkflow();
                 }
             }
