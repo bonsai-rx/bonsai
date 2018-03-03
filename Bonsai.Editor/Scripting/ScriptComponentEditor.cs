@@ -20,6 +20,7 @@ namespace Bonsai.Editor.Scripting
 {
     class ScriptComponentEditor : WorkflowComponentEditor
     {
+        const string DefaultScriptName = "Script";
         const string ScriptFilter = "C# Files (*.cs)|*.cs|All Files (*.*)|*.*";
         static readonly string[] IgnoreAssemblyReferences = new[] { "mscorlib.dll", "System.dll", "System.Core.dll", "System.Reactive.Linq.dll" };
 
@@ -82,7 +83,7 @@ namespace Bonsai.Editor.Scripting
         public override bool EditComponent(ITypeDescriptorContext context, object component, IServiceProvider provider, IWin32Window owner)
         {
             var scriptComponent = (CSharpScript)component;
-            if (scriptComponent == null || provider == null || string.IsNullOrWhiteSpace(scriptComponent.Name)) return false;
+            if (scriptComponent == null || provider == null) return false;
 
             var workflowBuilder = (WorkflowBuilder)provider.GetService(typeof(WorkflowBuilder));
             var commandExecutor = (CommandExecutor)provider.GetService(typeof(CommandExecutor));
@@ -100,15 +101,6 @@ namespace Bonsai.Editor.Scripting
             var selectedNode = selectionModel.SelectedNodes.SingleOrDefault();
             if (selectedNode == null) return false;
 
-            if (scriptEnvironment.AssemblyName != null)
-            {
-                var existingType = Type.GetType(scriptComponent.Name + ", " + scriptEnvironment.AssemblyName.FullName);
-                if (existingType != null)
-                {
-                    throw new InvalidOperationException("An extension type with the name " + scriptComponent.Name + " already exists.");
-                }
-            }
-
             Type inputType;
             var builderNode = (Node<ExpressionBuilder, ExpressionBuilderArgument>)selectedNode.Tag;
             var predecessor = selectedView.Workflow.Predecessors(builderNode).FirstOrDefault();
@@ -119,7 +111,7 @@ namespace Bonsai.Editor.Scripting
             }
             else inputType = typeof(IObservable<int>);
 
-            var scriptFile = scriptComponent.Name;
+            var scriptFile = string.IsNullOrWhiteSpace(scriptComponent.Name) ? DefaultScriptName : scriptComponent.Name;
             var extensionsDirectory = editorService.EnsureExtensionsDirectory();
             if (!extensionsDirectory.Exists) return false;
 
@@ -127,6 +119,16 @@ namespace Bonsai.Editor.Scripting
             {
                 if (dialog.ShowDialog() != DialogResult.OK) return false;
                 scriptFile = dialog.FileName;
+
+                scriptComponent.Name = Path.GetFileNameWithoutExtension(scriptFile);
+                if (scriptEnvironment.AssemblyName != null)
+                {
+                    var existingType = Type.GetType(scriptComponent.Name + ", " + scriptEnvironment.AssemblyName.FullName);
+                    if (existingType != null)
+                    {
+                        throw new InvalidOperationException("An extension type with the name " + scriptComponent.Name + " already exists.");
+                    }
+                }
 
                 var namespaces = new HashSet<string>();
                 var assemblyReferences = new HashSet<string>();
