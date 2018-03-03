@@ -166,7 +166,16 @@ namespace Bonsai.Editor
             set { FileName = value; }
         }
 
+        [Obsolete]
+        public bool StartOnLoad
+        {
+            get { return LoadAction != LoadAction.None; }
+            set { LoadAction = value ? LoadAction.Start : LoadAction.None; }
+        }
+
         public EditorResult EditorResult { get; set; }
+
+        public LoadAction LoadAction { get; set; }
 
         public string FileName
         {
@@ -179,8 +188,6 @@ namespace Bonsai.Editor
             get { return updatesAvailable.Value; }
             set { updatesAvailable.OnNext(value); }
         }
-
-        public bool StartOnLoad { get; set; }
 
         public IDictionary<string, string> PropertyAssignments
         {
@@ -283,7 +290,15 @@ namespace Bonsai.Editor
                     workflowBuilder.Workflow.SetWorkflowProperty(assignment.Key, assignment.Value);
                 }
 
-                if (StartOnLoad) initialization = initialization.Do(xs => BeginInvoke((Action)(() => StartWorkflow())));
+                var loadAction = LoadAction;
+                if (loadAction != LoadAction.None)
+                {
+                    initialization = initialization.Do(xs => BeginInvoke((Action)(() =>
+                    {
+                        var debugging = loadAction == LoadAction.Start;
+                        editorSite.StartWorkflow(debugging);
+                    })));
+                }
             }
             else FileName = null;
 
