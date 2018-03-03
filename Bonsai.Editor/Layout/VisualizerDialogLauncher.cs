@@ -82,17 +82,14 @@ namespace Bonsai.Design
                     })));
             };
 
-            visualizerDialog.FormClosing += delegate
+            visualizerDialog.FormClosed += delegate
             {
                 if (visualizerObserver != null)
                 {
                     visualizerObserver.Dispose();
                     visualizerObserver = null;
                 }
-            };
 
-            visualizerDialog.FormClosed += delegate
-            {
                 visualizer.Value.Unload();
                 visualizerContext.RemoveService(typeof(ExpressionBuilderGraph));
                 visualizerContext.RemoveService(typeof(IDialogTypeVisualizerService));
