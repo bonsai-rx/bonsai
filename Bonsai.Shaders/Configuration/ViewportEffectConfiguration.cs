@@ -32,7 +32,7 @@ namespace Bonsai.Shaders.Configuration
 
         public override Shader CreateShader(ShaderWindow window)
         {
-            var fragmentSource = File.ReadAllText(FragmentShader);
+            var fragmentSource = ReadShaderSource(FragmentShader);
             var effect = new ViewportEffect(
                 Name, window,
                 fragmentSource,

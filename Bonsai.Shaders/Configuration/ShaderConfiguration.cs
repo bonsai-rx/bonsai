@@ -69,6 +69,17 @@ namespace Bonsai.Shaders.Configuration
             get { return framebuffer; }
         }
 
+        internal string ReadShaderSource(string path)
+        {
+            if (string.IsNullOrEmpty(path)) return null;
+            if (!File.Exists(path))
+            {
+                throw new ArgumentNullException("path", "The specified path \"" + path + "\" was not found while loading " + Name + " shader.");
+            }
+
+            return File.ReadAllText(path);
+        }
+
         public abstract Shader CreateShader(ShaderWindow window);
 
         public override string ToString()
