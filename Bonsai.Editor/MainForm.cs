@@ -896,6 +896,7 @@ namespace Bonsai.Editor
                     MessageBoxIcon.Warning);
                 if (createExtensions == DialogResult.No) return;
                 snippetPath.Create();
+                snippetPath.Refresh();
                 OnSnippetsDirectoryChanged(EventArgs.Empty);
             }
 
