@@ -265,6 +265,7 @@ namespace Bonsai
             string editorRepositoryPath,
             string initialFileName,
             bool start,
+            bool debugging,
             Dictionary<string, string> propertyAssignments)
         {
             var elementProvider = WorkflowElementLoader.GetWorkflowElementTypes(packageConfiguration);
@@ -280,8 +281,11 @@ namespace Bonsai
             using (var mainForm = new MainForm(elementProvider, visualizerProvider, scriptEnvironment))
             {
                 mainForm.FileName = initialFileName;
-                mainForm.StartOnLoad = start;
                 mainForm.PropertyAssignments.AddRange(propertyAssignments);
+                mainForm.LoadAction =
+                    start && debugging ? LoadAction.Start :
+                    start ? LoadAction.StartWithoutDebugging :
+                    LoadAction.None;
                 updatesAvailable.Subscribe(value => mainForm.UpdatesAvailable = value);
                 Application.Run(mainForm);
                 AppResult.SetResult(mainForm.FileName);

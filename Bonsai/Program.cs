@@ -15,6 +15,7 @@ namespace Bonsai
         const string LibraryCommand = "--lib";
         const string PropertyCommand = "--property";
         const string DebugScriptCommand = "--debug-scripts";
+        const string StartWithoutDebugging = "--start-no-debug";
         const string SuppressBootstrapCommand = "--no-boot";
         const string SuppressEditorCommand = "--no-editor";
         const string PackageManagerCommand = "--package-manager";
@@ -34,6 +35,7 @@ namespace Bonsai
         {
             var start = false;
             var bootstrap = true;
+            var debugging = false;
             var launchEditor = true;
             var debugScripts = false;
             var launchResult = default(EditorResult);
@@ -43,7 +45,8 @@ namespace Bonsai
             var libFolders = new List<string>();
             var propertyAssignments = new Dictionary<string, string>();
             var parser = new CommandLineParser();
-            parser.RegisterCommand(StartCommand, () => start = true);
+            parser.RegisterCommand(StartCommand, () => start = debugging = true);
+            parser.RegisterCommand(StartWithoutDebugging, () => start = true);
             parser.RegisterCommand(LibraryCommand, path => libFolders.Add(path));
             parser.RegisterCommand(DebugScriptCommand, () => debugScripts = true);
             parser.RegisterCommand(SuppressBootstrapCommand, () => bootstrap = false);
@@ -143,6 +146,7 @@ namespace Bonsai
                             editorRepositoryPath,
                             initialFileName,
                             start,
+                            debugging,
                             propertyAssignments);
                     }
                 }

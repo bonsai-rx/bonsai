@@ -147,6 +147,7 @@
     <Compile Include="Scripting\ScriptComponentEditor.cs" />
     <Compile Include="Scripting\ScriptEditorLauncher.cs" />
     <Compile Include="SemanticVersion.cs" />
+    <Compile Include="LoadAction.cs" />
     <Compile Include="TypeVisualizerDescriptor.cs" />
     <Compile Include="TypeVisualizerMap.cs" />
     <Compile Include="WorkflowDisposable.cs" />
