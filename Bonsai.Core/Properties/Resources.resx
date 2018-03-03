@@ -123,6 +123,9 @@
   <data name="Exception_PropertyNotFound" xml:space="preserve">
     <value>The specified property '{0}' was not found in the workflow. </value>
   </data>
+  <data name="Exception_SerializingNonPublicType" xml:space="preserve">
+    <value>The workflow contains non-public types. Please ensure any internal operators have been fully converted or removed before saving the workflow.</value>
+  </data>
   <data name="Exception_SerializingUnknownTypeBuilder" xml:space="preserve">
     <value>The workflow contains unspecified types. Please install any missing packages or replace the affected modules and try again.</value>
   </data>

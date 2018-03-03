@@ -145,6 +145,11 @@ namespace Bonsai
             }
 
             var types = new HashSet<Type>(GetExtensionTypes(workflow));
+            if (types.Any(type => !type.IsPublic))
+            {
+                throw new InvalidOperationException(Resources.Exception_SerializingNonPublicType);
+            }
+
             var serializer = GetXmlSerializer(types);
             var serializerNamespaces = GetXmlSerializerNamespaces(types);
             serializer.Serialize(writer, workflow.ToDescriptor(), serializerNamespaces);
@@ -276,8 +281,7 @@ namespace Bonsai
         {
             return workflow.SelectMany(node => GetWorkflowElementTypes(node.Value)
                 .Concat(Enumerable.Repeat(node.Value.GetType(), 1)))
-                .Except(GetDefaultSerializerTypes())
-                .Where(type => type.IsPublic);
+                .Except(GetDefaultSerializerTypes());
         }
 
         #endregion
