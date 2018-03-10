@@ -2101,8 +2101,10 @@ namespace Bonsai.Design
                 {
                     if (e.Data.GetDataPresent(DataFormats.FileDrop, true))
                     {
+                        var branch = (e.KeyState & AltModifier) != 0;
                         var path = (string[])e.Data.GetData(DataFormats.FileDrop, true);
-                        editorService.OpenWorkflow(path[0]);
+                        var includeBuilder = new IncludeWorkflowBuilder { Path = PathConvert.GetProjectPath(path[0]) };
+                        CreateGraphNode(includeBuilder, graphView.SelectedNodes.FirstOrDefault(), CreateGraphNodeType.Successor, branch);
                     }
                     else
                     {
