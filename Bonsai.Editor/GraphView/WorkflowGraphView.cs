@@ -829,8 +829,9 @@ namespace Bonsai.Design
             var restoreSelectedNode = CreateUpdateSelectionDelegate(closestNode);
 
             var workflowBuilder = builder as WorkflowExpressionBuilder;
-            if (workflowBuilder != null && closestNode != null && validate &&
-                (nodeType == CreateGraphNodeType.Successor || workflow.PredecessorEdges(closestNode).Any()))
+            if (workflowBuilder != null && validate &&
+               (workflowBuilder.ArgumentRange.LowerBound > 0 ||
+                closestNode != null && (nodeType == CreateGraphNodeType.Successor || workflow.PredecessorEdges(closestNode).Any())))
             {
                 var nestedInput = new WorkflowInputBuilder();
                 var nestedOutput = new WorkflowOutputBuilder();
