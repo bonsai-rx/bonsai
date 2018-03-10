@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing.Design;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -17,12 +18,18 @@ namespace Bonsai.Shaders
             X = Y = Z = 1;
         }
 
+        [Range(0, 2)]
+        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Description("The scale factor for the x-axis.")]
         public float X { get; set; }
 
+        [Range(0, 2)]
+        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Description("The scale factor for the y-axis.")]
         public float Y { get; set; }
 
+        [Range(0, 2)]
+        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Description("The scale factor for the z-axis.")]
         public float Z { get; set; }
 

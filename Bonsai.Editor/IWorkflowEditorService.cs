@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,8 @@ namespace Bonsai.Editor
 
         void OnKeyPress(KeyPressEventArgs e);
 
+        DirectoryInfo EnsureExtensionsDirectory();
+
         WorkflowBuilder LoadWorkflow(string fileName);
 
         void OpenWorkflow(string fileName);
@@ -23,7 +26,7 @@ namespace Bonsai.Editor
 
         IEnumerable<Type> GetTypeVisualizers(Type targetType);
 
-        void StartWorkflow();
+        void StartWorkflow(bool debugging);
 
         void StopWorkflow();
 

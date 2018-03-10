@@ -13,14 +13,25 @@ using System.Threading.Tasks;
 namespace Bonsai.Scripting
 {
     [WorkflowElementCategory(ElementCategory.Sink)]
-    [Description("An expression that is used to perform an action on individual elements of the input sequence.")]
-    public class ExpressionSink : SingleArgumentExpressionBuilder
+    [TypeDescriptionProvider(typeof(ExpressionSinkTypeDescriptionProvider))]
+    public class ExpressionSink : SingleArgumentExpressionBuilder, IScriptingElement
     {
         static readonly MethodInfo doMethod = typeof(Observable).GetMethods()
                                                                 .Single(m => m.Name == "Do" &&
                                                                         m.GetParameters().Length == 2 &&
                                                                         m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Action<>));
 
+        [Category("Design")]
+        [Externalizable(false)]
+        [Description("The name of the expression sink.")]
+        public string Name { get; set; }
+
+        [Category("Design")]
+        [Externalizable(false)]
+        [Description("A description for the expression sink.")]
+        [Editor(DesignTypes.MultilineStringEditor, typeof(UITypeEditor))]
+        public string Description { get; set; }
+        
         [Editor(DesignTypes.MultilineStringEditor, typeof(UITypeEditor))]
         [Description("The expression that determines the action to perform on the input elements.")]
         public string Expression { get; set; }
@@ -38,6 +49,22 @@ namespace Bonsai.Scripting
                 return System.Linq.Expressions.Expression.Call(doMethod.MakeGenericMethod(sourceType), source, onNext);
             }
             else return source;
+        }
+
+        class ExpressionSinkTypeDescriptionProvider : TypeDescriptionProvider
+        {
+            static readonly TypeDescriptionProvider parentProvider = TypeDescriptor.GetProvider(typeof(ExpressionSink));
+
+            public ExpressionSinkTypeDescriptionProvider()
+                : base(parentProvider)
+            {
+            }
+
+            public override ICustomTypeDescriptor GetExtendedTypeDescriptor(object instance)
+            {
+                return new ScriptingElementTypeDescriptor(instance,
+                    "An expression that is used to perform an action on individual elements of the input sequence.");
+            }
         }
     }
 }

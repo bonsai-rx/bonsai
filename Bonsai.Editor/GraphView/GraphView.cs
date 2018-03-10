@@ -98,7 +98,6 @@ namespace Bonsai.Design
             var lostFocusEvent = Observable.FromEventPattern<EventHandler, EventArgs>(
                 handler => LostFocus += handler,
                 handler => LostFocus -= handler)
-                .Do(evt => ignoreMouseUp = true)
                 .Select(evt => evt.EventArgs);
 
             var mouseMoveEvent = Observable.FromEventPattern<MouseEventHandler, MouseEventArgs>(
@@ -359,6 +358,11 @@ namespace Bonsai.Design
             if (!customPens.TryGetValue(pen, out customPen))
             {
                 customPen = new Pen(pen.Color, pen.Width * drawScale);
+                customPen.DashStyle = pen.DashStyle;
+                if (pen.DashStyle == DashStyle.Custom)
+                {
+                    customPen.DashPattern = pen.DashPattern;
+                }
                 customPens.Add(pen, customPen);
             }
 
@@ -516,6 +520,7 @@ namespace Bonsai.Design
 
         protected override void OnLostFocus(EventArgs e)
         {
+            ignoreMouseUp = true;
             InvalidateSelection();
             base.OnLostFocus(e);
         }
@@ -1039,6 +1044,15 @@ namespace Bonsai.Design
 
                 foreach (var layout in layoutNodes)
                 {
+                    foreach (var successor in layout.Node.Successors)
+                    {
+                        var successorLayout = layoutNodes[successor.Node];
+                        graphics.DrawLine(GetCustomPen(layout.Node.Pen), layout.ExitPoint, successorLayout.EntryPoint);
+                    }
+                }
+
+                foreach (var layout in layoutNodes)
+                {
                     if (layout.Node.Value != null)
                     {
                         var selected = selectedNodes.Contains(layout.Node);
@@ -1090,12 +1104,6 @@ namespace Bonsai.Design
                         graphics.DrawLine(GetCustomPen(layout.Node.Pen), layout.EntryPoint, layout.ExitPoint);
                         boundingRect = RectangleF.Union(boundingRect, layout.BoundingRectangle);
                     }
-
-                    foreach (var successor in layout.Node.Successors)
-                    {
-                        var successorLayout = layoutNodes[successor.Node];
-                        graphics.DrawLine(GetCustomPen(layout.Node.Pen), layout.ExitPoint, successorLayout.EntryPoint);
-                    }
                 }
             }
 
@@ -1106,6 +1114,18 @@ namespace Bonsai.Design
         {
             var offset = new Size(-canvas.HorizontalScroll.Value, -canvas.VerticalScroll.Value);
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+
+            foreach (var layout in layoutNodes)
+            {
+                foreach (var successor in layout.Node.Successors)
+                {
+                    var successorLayout = layoutNodes[successor.Node];
+                    e.Graphics.DrawLine(
+                        GetCustomPen(layout.Node.Pen),
+                        Point.Add(layout.ExitPoint, offset),
+                        Point.Add(successorLayout.EntryPoint, offset));
+                }
+            }
 
             foreach (var layout in layoutNodes)
             {
@@ -1163,15 +1183,6 @@ namespace Bonsai.Design
                         GetCustomPen(layout.Node.Pen),
                         Point.Add(layout.EntryPoint, offset),
                         Point.Add(layout.ExitPoint, offset));
-                }
-
-                foreach (var successor in layout.Node.Successors)
-                {
-                    var successorLayout = layoutNodes[successor.Node];
-                    e.Graphics.DrawLine(
-                        GetCustomPen(layout.Node.Pen),
-                        Point.Add(layout.ExitPoint, offset),
-                        Point.Add(successorLayout.EntryPoint, offset));
                 }
             }
 

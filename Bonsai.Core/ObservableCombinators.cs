@@ -183,7 +183,25 @@ namespace Bonsai
         /// The factory function used to create the subject that notifications will be pushed into.
         /// </param>
         /// <returns>The reconnectable sequence.</returns>
+        [Obsolete]
         public static IConnectableObservable<TResult> Multicast<TSource, TResult>(this IObservable<TSource> source, Func<ISubject<TSource, TResult>> subjectFactory)
+        {
+            return MulticastReconnectable(source, subjectFactory);
+        }
+
+        /// <summary>
+        /// Returns a connectable observable sequence that upon connection causes the <paramref name="source"/>
+        /// to push results into a new fresh subject, which is created by invoking the specified
+        /// <paramref name="subjectFactory"/>.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <typeparam name="TResult">The type of the elements in the result sequence.</typeparam>
+        /// <param name="source">The source sequence whose elements will be pushed into the specified subject.</param>
+        /// <param name="subjectFactory">
+        /// The factory function used to create the subject that notifications will be pushed into.
+        /// </param>
+        /// <returns>The reconnectable sequence.</returns>
+        public static IConnectableObservable<TResult> MulticastReconnectable<TSource, TResult>(this IObservable<TSource> source, Func<ISubject<TSource, TResult>> subjectFactory)
         {
             return new ReconnectableObservable<TSource, TResult>(source, subjectFactory);
         }
@@ -197,7 +215,7 @@ namespace Bonsai
         /// <returns>The reconnectable sequence.</returns>
         public static IConnectableObservable<TSource> PublishReconnectable<TSource>(this IObservable<TSource> source)
         {
-            return Multicast(source, () => new Subject<TSource>());
+            return MulticastReconnectable(source, () => new Subject<TSource>());
         }
 
         /// <summary>

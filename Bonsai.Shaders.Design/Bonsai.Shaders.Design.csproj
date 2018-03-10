@@ -76,7 +76,12 @@
     <Compile Include="Configuration\ContextMenuButton.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Configuration\DragMaterialConfiguration.cs" />
+    <Compile Include="Configuration\DragMeshConfiguration.cs" />
+    <Compile Include="Configuration\DragResourceConfiguration.cs" />
+    <Compile Include="Configuration\DragTextureConfiguration.cs" />
     <Compile Include="Configuration\MaterialConfigurationEditor.cs" />
+    <Compile Include="Configuration\MtlReader.cs" />
     <Compile Include="Configuration\UniformConfigurationCollectionEditor.cs" />
     <Compile Include="Configuration\MeshConfigurationEditor.cs" />
     <Compile Include="Configuration\FramebufferAttachmentConfigurationCollectionEditor.cs" />

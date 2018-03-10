@@ -25,7 +25,6 @@ namespace Bonsai.Vision
         }
 
         [Range(0, 1)]
-        [Precision(2, 0.01)]
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Description("Specifies the image scale (less than 1) to build the pyramids for each image.")]
         public double PyramidScale { get; set; }

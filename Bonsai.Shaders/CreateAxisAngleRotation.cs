@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing.Design;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -12,10 +13,12 @@ namespace Bonsai.Shaders
     [Description("Creates a rotation matrix from an axis-angle representation.")]
     public class CreateAxisAngleRotation : Source<Matrix4>
     {
-        [TypeConverter("OpenCV.Net.NumericAggregateConverter, OpenCV.Net")]
+        [TypeConverter(typeof(NumericRecordConverter))]
         [Description("The vector specifying the direction of the axis of rotation.")]
         public Vector3 Axis { get; set; }
 
+        [Range(-Math.PI, Math.PI)]
+        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Description("The angle describing the magnitude of the rotation about the axis.")]
         public float Angle { get; set; }
 

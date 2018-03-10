@@ -172,7 +172,7 @@ The Bonsai framework includes software from the NuGet Project developed at the O
 
 Copyright 2010-2012 Outercurve Foundation</value>
   </data>
-  <data name="ContextMenu_NoneVisualizerItemLabel" xml:space="preserve">
+  <data name="ContextMenu_NoneMenuItemLabel" xml:space="preserve">
     <value>None</value>
   </data>
   <data name="BonsaiTitle" xml:space="preserve">
@@ -209,9 +209,6 @@ Copyright 2010-2012 Outercurve Foundation</value>
   <data name="UpdateWorkflow_Warning_Caption" xml:space="preserve">
     <value>Update Workflow</value>
   </data>
-  <data name="LaunchDefaultEditor_Error" xml:space="preserve">
-    <value>Component did not succeed to show the property page.</value>
-  </data>
   <data name="SaveLayout_Error" xml:space="preserve">
     <value>There was an error saving the visualizer layout:
 {0}</value>
@@ -230,5 +227,27 @@ Copyright 2010-2012 Outercurve Foundation</value>
   </data>
   <data name="UpdateWorkflow_Error" xml:space="preserve">
     <value>There was an error while updating the workflow. Please check if there are any missing packages that need to be installed before trying to upgrade again.</value>
+  </data>
+  <data name="Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Bonsai.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CreateExtensionsFolder_Question" xml:space="preserve">
+    <value>Extensions folder does not exist in the current working directory. Do you want to create it?</value>
+  </data>
+  <data name="CreateExtensionsFolder_Question_Caption" xml:space="preserve">
+    <value>Create Extensions Folder</value>
+  </data>
+  <data name="InstallScriptEditor_Question" xml:space="preserve">
+    <value>Unable to open script editor.
+Do you want to install Visual Studio Code?</value>
+  </data>
+  <data name="InstallScriptEditor_Question_Caption" xml:space="preserve">
+    <value>Install Script Editor</value>
+  </data>
+  <data name="CreateExtensionsWorkflow_Warning" xml:space="preserve">
+    <value>The workflow must be saved before adding or saving extensions.</value>
+  </data>
+  <data name="CreateExtensionsWorkflow_Warning_Caption" xml:space="preserve">
+    <value>Save Workflow</value>
   </data>
 </root>

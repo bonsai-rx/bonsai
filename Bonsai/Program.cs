@@ -10,13 +10,16 @@ namespace Bonsai
 {
     static class Program
     {
+        const string PathEnvironmentVariable = "PATH";
         const string StartCommand = "--start";
         const string LibraryCommand = "--lib";
-        const string PropertyCommand = "-p";
-        const string SuppressBootstrapCommand = "--noboot";
-        const string SuppressEditorCommand = "--noeditor";
-        const string PackageManagerCommand = "--packagemanager";
-        const string ExportPackageCommand = "--exportpackage";
+        const string PropertyCommand = "--property";
+        const string DebugScriptCommand = "--debug-scripts";
+        const string StartWithoutDebugging = "--start-no-debug";
+        const string SuppressBootstrapCommand = "--no-boot";
+        const string SuppressEditorCommand = "--no-editor";
+        const string PackageManagerCommand = "--package-manager";
+        const string ExportPackageCommand = "--export-package";
         const string GalleryCommand = "--gallery";
         const string EditorDomainName = "EditorDomain";
         const string RepositoryPath = "Packages";
@@ -32,7 +35,9 @@ namespace Bonsai
         {
             var start = false;
             var bootstrap = true;
+            var debugging = false;
             var launchEditor = true;
+            var debugScripts = false;
             var launchResult = default(EditorResult);
             var launchPackageId = default(string);
             var launchPackageVersion = default(SemanticVersion);
@@ -40,8 +45,10 @@ namespace Bonsai
             var libFolders = new List<string>();
             var propertyAssignments = new Dictionary<string, string>();
             var parser = new CommandLineParser();
-            parser.RegisterCommand(StartCommand, () => start = true);
+            parser.RegisterCommand(StartCommand, () => start = debugging = true);
+            parser.RegisterCommand(StartWithoutDebugging, () => start = true);
             parser.RegisterCommand(LibraryCommand, path => libFolders.Add(path));
+            parser.RegisterCommand(DebugScriptCommand, () => debugScripts = true);
             parser.RegisterCommand(SuppressBootstrapCommand, () => bootstrap = false);
             parser.RegisterCommand(SuppressEditorCommand, () => launchEditor = false);
             parser.RegisterCommand(PackageManagerCommand, () => { launchResult = EditorResult.ManagePackages; bootstrap = false; });
@@ -64,7 +71,7 @@ namespace Bonsai
                     }
                 }
             });
-            parser.RegisterCommand(command => initialFileName = command);
+            parser.RegisterCommand(command => initialFileName = Path.GetFullPath(command));
             parser.RegisterCommand(PropertyCommand, property =>
             {
                 var assignment = PropertyAssignment.Parse(property);
@@ -123,18 +130,30 @@ namespace Bonsai
                     if (!string.IsNullOrEmpty(initialFileName))
                     {
                         var initialPath = Path.GetDirectoryName(initialFileName);
-                        Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, initialPath);
+                        var customExtensionsPath = Path.Combine(initialPath, ExtensionsPath);
+                        Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, customExtensionsPath);
                     }
 
                     Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, editorExtensionsPath);
                     libFolders.ForEach(path => Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, path));
-                    Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
-                    if (!launchEditor) Launcher.LaunchWorkflowPlayer(initialFileName, propertyAssignments);
-                    else return Launcher.LaunchWorkflowEditor(packageConfiguration, editorRepositoryPath, initialFileName, start, propertyAssignments);
+                    using (var scriptEnvironment = ScriptExtensionsProvider.CompileAssembly(packageConfiguration, editorRepositoryPath, debugScripts))
+                    {
+                        Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
+                        if (!launchEditor) return Launcher.LaunchWorkflowPlayer(initialFileName, propertyAssignments);
+                        else return Launcher.LaunchWorkflowEditor(
+                            packageConfiguration,
+                            scriptEnvironment,
+                            editorRepositoryPath,
+                            initialFileName,
+                            start,
+                            debugging,
+                            propertyAssignments);
+                    }
                 }
             }
             else
             {
+                args = Array.FindAll(args, arg => arg != DebugScriptCommand);
                 var editorPackage = Launcher.LaunchEditorBootstrapper(
                     packageConfiguration,
                     editorRepositoryPath,
@@ -151,21 +170,23 @@ namespace Bonsai
                     else if (launchResult == EditorResult.OpenGallery) editorArgs = new[] { GalleryCommand };
                     else
                     {
-                        var extraArgs = string.IsNullOrEmpty(initialFileName) ? 1 : 2;
-                        editorArgs = new string[args.Length + extraArgs];
-                        editorArgs[editorArgs.Length - 1] = SuppressBootstrapCommand;
-                        if (extraArgs > 1) editorArgs[editorArgs.Length - 2] = initialFileName;
-                        Array.Copy(args, editorArgs, args.Length);
+                        var extraArgs = new List<string>(args);
+                        extraArgs.Add(SuppressBootstrapCommand);
+                        if (debugScripts) extraArgs.Add(DebugScriptCommand);
+                        if (!string.IsNullOrEmpty(initialFileName)) extraArgs.Add(initialFileName);
+                        editorArgs = extraArgs.ToArray();
                     }
 
                     var setupInfo = new AppDomainSetup();
                     setupInfo.ApplicationBase = editorFolder;
                     setupInfo.PrivateBinPath = editorFolder;
                     var currentEvidence = AppDomain.CurrentDomain.Evidence;
+                    var currentPath = Environment.GetEnvironmentVariable(PathEnvironmentVariable);
                     setupInfo.ConfigurationFile = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
                     setupInfo.LoaderOptimization = LoaderOptimization.MultiDomainHost;
                     var editorDomain = AppDomain.CreateDomain(EditorDomainName, currentEvidence, setupInfo);
                     var exitCode = (EditorResult)editorDomain.ExecuteAssembly(editorPath, editorArgs);
+                    Environment.SetEnvironmentVariable(PathEnvironmentVariable, currentPath);
 
                     if (launchResult != EditorResult.Exit)
                     {
@@ -180,16 +201,13 @@ namespace Bonsai
                             }
                         }
                         launchResult = EditorResult.Exit;
-                        exit = false;
                     }
+                    else if (exitCode == EditorResult.Exit) exit = true;
                     else
                     {
-                        launchResult = exitCode;
-                        exit = exitCode == EditorResult.Exit;
-                        if (exitCode != EditorResult.Exit)
-                        {
-                            initialFileName = AppResult.GetResult<string>(editorDomain);
-                        }
+                        debugScripts = AppResult.GetResult<bool>(editorDomain);
+                        initialFileName = AppResult.GetResult<string>(editorDomain);
+                        launchResult = exitCode == EditorResult.ReloadEditor ? EditorResult.Exit : exitCode;
                     }
 
                     AppDomain.Unload(editorDomain);

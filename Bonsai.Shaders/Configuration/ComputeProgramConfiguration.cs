@@ -28,7 +28,7 @@ namespace Bonsai.Shaders.Configuration
 
         public override Shader CreateShader(ShaderWindow window)
         {
-            var computeSource = File.ReadAllText(ComputeShader);
+            var computeSource = ReadShaderSource(ComputeShader);
             var computation = new ComputeProgram(
                 Name, window,
                 computeSource,

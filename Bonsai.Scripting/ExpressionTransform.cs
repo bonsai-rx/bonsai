@@ -13,8 +13,8 @@ using System.Threading.Tasks;
 namespace Bonsai.Scripting
 {
     [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("An expression that is used to process and convert individual elements of the input sequence.")]
-    public class ExpressionTransform : SingleArgumentExpressionBuilder
+    [TypeDescriptionProvider(typeof(ExpressionTransformTypeDescriptionProvider))]
+    public class ExpressionTransform : SingleArgumentExpressionBuilder, IScriptingElement
     {
         static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()
                                                                     .Single(m => m.Name == "Select" &&
@@ -26,6 +26,17 @@ namespace Bonsai.Scripting
             Expression = "it";
         }
 
+        [Category("Design")]
+        [Externalizable(false)]
+        [Description("The name of the expression transform.")]
+        public string Name { get; set; }
+
+        [Category("Design")]
+        [Externalizable(false)]
+        [Description("A description for the expression transform.")]
+        [Editor(DesignTypes.MultilineStringEditor, typeof(UITypeEditor))]
+        public string Description { get; set; }
+
         [Editor(DesignTypes.MultilineStringEditor, typeof(UITypeEditor))]
         [Description("The expression that determines the operation of the transform.")]
         public string Expression { get; set; }
@@ -36,6 +47,22 @@ namespace Bonsai.Scripting
             var sourceType = source.Type.GetGenericArguments()[0];
             var selector = global::System.Linq.Dynamic.DynamicExpression.ParseLambda(sourceType, null, Expression);
             return System.Linq.Expressions.Expression.Call(selectMethod.MakeGenericMethod(sourceType, selector.ReturnType), source, selector);
+        }
+
+        class ExpressionTransformTypeDescriptionProvider : TypeDescriptionProvider
+        {
+            static readonly TypeDescriptionProvider parentProvider = TypeDescriptor.GetProvider(typeof(ExpressionTransform));
+
+            public ExpressionTransformTypeDescriptionProvider()
+                : base(parentProvider)
+            {
+            }
+
+            public override ICustomTypeDescriptor GetExtendedTypeDescriptor(object instance)
+            {
+                return new ScriptingElementTypeDescriptor(instance,
+                    "An expression that is used to process and convert individual elements of the input sequence.");
+            }
         }
     }
 }

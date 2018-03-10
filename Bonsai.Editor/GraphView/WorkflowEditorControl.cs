@@ -1,0 +1,381 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.IO;
+using Bonsai.Expressions;
+using Bonsai.Editor;
+
+namespace Bonsai.Design
+{
+    partial class WorkflowEditorControl : UserControl
+    {
+        IServiceProvider serviceProvider;
+        IWorkflowEditorService editorService;
+        WorkflowSelectionModel selectionModel;
+        TabPageController workflowTab;
+        TabPageController activeTab;
+
+        public WorkflowEditorControl(IServiceProvider provider)
+            : this(provider, false)
+        {
+        }
+
+        public WorkflowEditorControl(IServiceProvider provider, bool readOnly)
+        {
+            if (provider == null)
+            {
+                throw new ArgumentNullException("provider");
+            }
+
+            InitializeComponent();
+            serviceProvider = provider;
+            selectionModel = (WorkflowSelectionModel)provider.GetService(typeof(WorkflowSelectionModel));
+            editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
+            workflowTab = InitializeTab(workflowTabPage, readOnly, null);
+        }
+
+        public WorkflowGraphView WorkflowGraphView
+        {
+            get { return workflowTab.WorkflowGraphView; }
+        }
+
+        public VisualizerLayout VisualizerLayout
+        {
+            get { return workflowTab.WorkflowGraphView.VisualizerLayout; }
+            set { workflowTab.WorkflowGraphView.VisualizerLayout = value; }
+        }
+
+        public ExpressionBuilderGraph Workflow
+        {
+            get { return workflowTab.WorkflowGraphView.Workflow; }
+            set { workflowTab.WorkflowGraphView.Workflow = value; }
+        }
+
+        public void UpdateVisualizerLayout()
+        {
+            workflowTab.WorkflowGraphView.UpdateVisualizerLayout();
+        }
+
+        public TabPageController ActiveTab
+        {
+            get { return activeTab; }
+        }
+
+        TabPageController InitializeTab(TabPage tabPage, bool readOnly, Control container)
+        {
+            var workflowGraphView = new WorkflowGraphView(serviceProvider, this, readOnly);
+            workflowGraphView.Dock = DockStyle.Fill;
+            workflowGraphView.Font = Font;
+            workflowGraphView.Tag = tabPage;
+
+            var tabState = new TabPageController(tabPage, workflowGraphView, this);
+            tabPage.Tag = tabState;
+            tabPage.SuspendLayout();
+            if (container != null)
+            {
+                container.TextChanged += (sender, e) => tabState.Text = container.Text;
+                container.Controls.Add(workflowGraphView);
+                tabPage.Controls.Add(container);
+            }
+            else tabPage.Controls.Add(workflowGraphView);
+            tabPage.BackColor = workflowGraphView.BackColor;
+            tabPage.ResumeLayout(false);
+            tabPage.PerformLayout();
+            return tabState;
+        }
+
+        public TabPageController CreateTab(IWorkflowExpressionBuilder builder, Control owner)
+        {
+            var tabPage = new TabPage();
+            tabPage.Padding = workflowTabPage.Padding;
+            tabPage.UseVisualStyleBackColor = workflowTabPage.UseVisualStyleBackColor;
+
+            var tabState = InitializeTab(tabPage, builder is IncludeWorkflowBuilder, owner);
+            tabState.Text = ExpressionBuilder.GetElementDisplayName(builder);
+            tabState.WorkflowGraphView.Workflow = builder.Workflow;
+            tabState.Builder = builder;
+            tabControl.TabPages.Add(tabPage);
+            return tabState;
+        }
+
+        public void SelectTab(IWorkflowExpressionBuilder builder)
+        {
+            var tabPage = FindTab(builder);
+            if (tabPage != null)
+            {
+                tabControl.SelectTab(tabPage);
+            }
+        }
+
+        public void SelectTab(WorkflowGraphView workflowGraphView)
+        {
+            var tabPage = (TabPage)workflowGraphView.Tag;
+            if (tabPage != null)
+            {
+                var tabIndex = tabControl.TabPages.IndexOf(tabPage);
+                if (tabIndex >= 0) tabControl.SelectTab(tabIndex);
+            }
+        }
+
+        public void CloseTab(IWorkflowExpressionBuilder builder)
+        {
+            var tabPage = FindTab(builder);
+            if (tabPage != null)
+            {
+                var tabState = (TabPageController)tabPage.Tag;
+                CloseTab(tabState);
+            }
+        }
+
+        void CloseTab(TabPageController tabState)
+        {
+            var tabPage = tabState.TabPage;
+            var cancelEventArgs = new CancelEventArgs();
+            tabState.OnTabClosing(cancelEventArgs);
+            if (!cancelEventArgs.Cancel)
+            {
+                tabControl.SuspendLayout();
+                var tabIndex = tabControl.TabPages.IndexOf(tabPage);
+                tabControl.SelectTab(tabIndex - 1);
+                tabControl.TabPages.Remove(tabPage);
+                tabControl.ResumeLayout();
+                tabPage.Dispose();
+            }
+        }
+
+        public void RefreshTab(IWorkflowExpressionBuilder builder)
+        {
+            var tabPage = FindTab(builder);
+            if (tabPage != null)
+            {
+                var tabState = (TabPageController)tabPage.Tag;
+                RefreshTab(tabState);
+            }
+        }
+
+        void RefreshTab(TabPageController tabState)
+        {
+            var builder = tabState.Builder;
+            var workflowGraphView = tabState.WorkflowGraphView;
+            if (builder != null && builder.Workflow != workflowGraphView.Workflow)
+            {
+                if (builder.Workflow == null)
+                {
+                    CloseTab(tabState);
+                    return;
+                }
+                else
+                {
+                    workflowGraphView.VisualizerLayout = null;
+                    workflowGraphView.Workflow = builder.Workflow;
+                }
+            }
+        }
+
+        TabPage FindTab(IWorkflowExpressionBuilder builder)
+        {
+            foreach (TabPage tabPage in tabControl.TabPages)
+            {
+                var tabState = (TabPageController)tabPage.Tag;
+                if (tabState.Builder == builder)
+                {
+                    return tabPage;
+                }
+            }
+
+            return null;
+        }
+
+        void ActivateTab(TabPage tabPage)
+        {
+            var tabState = tabPage != null ? (TabPageController)tabPage.Tag : null;
+            if (tabState != null && activeTab != tabState)
+            {
+                activeTab = tabState;
+                RefreshTab(activeTab);
+
+                var workflowGraphView = activeTab.WorkflowGraphView;
+                workflowGraphView.UpdateSelection();
+                workflowGraphView.Select();
+            }
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            ActivateTab(workflowTabPage);
+            base.OnLoad(e);
+        }
+
+        internal class TabPageController
+        {
+            const string CloseSuffix = "   \u2715";
+            const string ReadOnlySuffix = " [Read-only]";
+
+            string displayText;
+            WorkflowEditorControl owner;
+
+            public TabPageController(TabPage tabPage, WorkflowGraphView graphView, WorkflowEditorControl editorControl)
+            {
+                if (tabPage == null)
+                {
+                    throw new ArgumentNullException("tabPage");
+                }
+
+                if (graphView == null)
+                {
+                    throw new ArgumentNullException("graphView");
+                }
+
+                if (editorControl == null)
+                {
+                    throw new ArgumentNullException("editorControl");
+                }
+
+                TabPage = tabPage;
+                WorkflowGraphView = graphView;
+                owner = editorControl;
+            }
+
+            public TabPage TabPage { get; private set; }
+
+            public IWorkflowExpressionBuilder Builder { get; set; }
+
+            public WorkflowGraphView WorkflowGraphView { get; private set; }
+
+            public string Text
+            {
+                get { return displayText; }
+                set
+                {
+                    displayText = value;
+                    UpdateDisplayText();
+                }
+            }
+
+            void UpdateDisplayText()
+            {
+                TabPage.Text = displayText + (WorkflowGraphView.ReadOnly ? ReadOnlySuffix : string.Empty) + CloseSuffix;
+            }
+
+            public event CancelEventHandler TabClosing;
+
+            internal void OnTabClosing(CancelEventArgs e)
+            {
+                var handler = TabClosing;
+                if (handler != null)
+                {
+                    handler(this, e);
+                }
+            }
+        }
+
+        private void tabControl_Selected(object sender, TabControlEventArgs e)
+        {
+            if (e.Action == TabControlAction.Selected)
+            {
+                ActivateTab(e.TabPage);
+            }
+        }
+
+        void tabControl_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.F4)
+            {
+                var selectedTab = tabControl.SelectedTab;
+                if (selectedTab == null) return;
+                var tabState = (TabPageController)selectedTab.Tag;
+                if (tabState.Builder != null)
+                {
+                    CloseTab(tabState);
+                }
+            }
+        }
+
+        void tabControl_MouseUp(object sender, MouseEventArgs e)
+        {
+            var selectedTab = tabControl.SelectedTab;
+            if (selectedTab == null) return;
+
+            if (e.Button == MouseButtons.Right)
+            {
+                tabContextMenuStrip.Show(tabControl, e.Location);
+                return;
+            }
+
+            var tabState = (TabPageController)selectedTab.Tag;
+            var tabRect = tabControl.GetTabRect(tabControl.SelectedIndex);
+            if (tabState.Builder != null && tabRect.Contains(e.Location))
+            {
+                using (var graphics = selectedTab.CreateGraphics())
+                {
+                    var textSize = TextRenderer.MeasureText(
+                        graphics,
+                        selectedTab.Text,
+                        selectedTab.Font,
+                        tabRect.Size,
+                        TextFormatFlags.Default |
+                        TextFormatFlags.NoPadding);
+                    var padSize = TextRenderer.MeasureText(
+                        graphics,
+                        selectedTab.Text.Substring(0, selectedTab.Text.Length - 1),
+                        selectedTab.Font,
+                        tabRect.Size,
+                        TextFormatFlags.Default |
+                        TextFormatFlags.NoPadding);
+                    const float DefaultDpi = 96f;
+                    var offset = graphics.DpiX / DefaultDpi;
+                    var margin = (tabRect.Width - textSize.Width) / 2;
+                    var buttonWidth = textSize.Width - padSize.Width;
+                    var buttonRight = tabRect.Right - margin;
+                    var buttonLeft = buttonRight - buttonWidth;
+                    var buttonTop = tabRect.Top + 2 * selectedTab.Margin.Top;
+                    var buttonBottom = tabRect.Bottom - 2 * selectedTab.Margin.Bottom;
+                    var buttonHeight = buttonBottom - buttonTop;
+                    var buttonBounds = new Rectangle(buttonLeft, buttonTop, (int)(buttonWidth + offset), buttonHeight);
+                    if (buttonBounds.Contains(e.Location))
+                    {
+                        CloseTab(tabState);
+                    }
+                }
+            }
+        }
+
+        private void tabContextMenuStrip_Opening(object sender, CancelEventArgs e)
+        {
+            var selectedTab = tabControl.SelectedTab;
+            if (selectedTab == null) return;
+            closeToolStripMenuItem.Enabled = tabControl.SelectedTab != workflowTabPage;
+            closeAllToolStripMenuItem.Enabled = tabControl.TabCount > 1;
+        }
+
+        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var selectedTab = tabControl.SelectedTab;
+            if (selectedTab == null) return;
+
+            var tabState = (TabPageController)selectedTab.Tag;
+            if (tabState.Builder != null)
+            {
+                CloseTab(tabState);
+            }
+        }
+
+        private void closeAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            while (tabControl.TabCount > 1)
+            {
+                var tabState = (TabPageController)tabControl.TabPages[1].Tag;
+                if (tabState.Builder != null)
+                {
+                    CloseTab(tabState);
+                }
+            }
+        }
+    }
+}

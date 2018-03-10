@@ -16,15 +16,15 @@ namespace Bonsai.Audio
         [Description("The name of the output device used for playback.")]
         public string DeviceName { get; set; }
 
-        [TypeConverter(typeof(NumericAggregateConverter))]
+        [TypeConverter(typeof(NumericRecordConverter))]
         [Description("The direction vector of the audio source.")]
         public Vector3 Direction { get; set; }
 
-        [TypeConverter(typeof(NumericAggregateConverter))]
+        [TypeConverter(typeof(NumericRecordConverter))]
         [Description("The current location of the audio source in three-dimensional space.")]
         public Vector3 Position { get; set; }
 
-        [TypeConverter(typeof(NumericAggregateConverter))]
+        [TypeConverter(typeof(NumericRecordConverter))]
         [Description("The current velocity of the audio source in three-dimensional space.")]
         public Vector3 Velocity { get; set; }
 

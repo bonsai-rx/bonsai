@@ -72,10 +72,24 @@
     <Compile Include="Expressions\BitwiseNotBuilder.cs" />
     <Compile Include="Expressions\BinaryOperatorTypeDescriptionProvider.cs" />
     <Compile Include="Expressions\BehaviorSubjectBuilder.cs" />
+    <Compile Include="Expressions\DisableBuilder.cs" />
+    <Compile Include="Expressions\ExtendedPropertyDescriptor.cs" />
+    <Compile Include="Expressions\GroupContext.cs" />
+    <Compile Include="Expressions\GroupWorkflowBuilder.cs" />
+    <Compile Include="Expressions\ExternalizedPropertyDescriptor.cs" />
+    <Compile Include="Expressions\IBuildContext.cs" />
+    <Compile Include="Expressions\IGroupWorkflowBuilder.cs" />
+    <Compile Include="Expressions\IncludeContext.cs" />
+    <Compile Include="Expressions\IncludeWorkflowBuilder.cs" />
+    <Compile Include="Expressions\IWorkflowExpressionBuilder.cs" />
+    <Compile Include="Expressions\PropertySource.cs" />
+    <Compile Include="Expressions\PropertySourceTypeDescriptionProvider.cs" />
+    <Compile Include="Expressions\ResourceSubjectBuilder.cs" />
     <Compile Include="Expressions\RightShiftBuilder.cs" />
     <Compile Include="Expressions\LeftShiftBuilder.cs" />
     <Compile Include="Expressions\IRequireSubject.cs" />
     <Compile Include="Expressions\SkipWhileBuilder.cs" />
+    <Compile Include="Expressions\SubjectTargetAttribute.cs" />
     <Compile Include="Expressions\TakeWhileBuilder.cs" />
     <Compile Include="Expressions\MulticastSubjectBuilder.cs" />
     <Compile Include="Expressions\PublishBuilder.cs" />
@@ -93,7 +107,6 @@
     <Compile Include="Expressions\ExternalizedTimeSpan.cs" />
     <Compile Include="Expressions\ExternalizedDateTimeOffset.cs" />
     <Compile Include="Expressions\ExternalizedProperty.cs" />
-    <Compile Include="Expressions\ExternalizedPropertyTypeDescriptionProvider.cs" />
     <Compile Include="Expressions\IExpressionBuilder.cs" />
     <Compile Include="Expressions\IPropertyMappingBuilder.cs" />
     <Compile Include="Expressions\MulticastBuilder.cs" />
@@ -131,6 +144,7 @@
     <Compile Include="Expressions\SubtractBuilder.cs" />
     <Compile Include="ExternalizableAttribute.cs" />
     <Compile Include="INamedElement.cs" />
+    <Compile Include="NumericRecordConverter.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

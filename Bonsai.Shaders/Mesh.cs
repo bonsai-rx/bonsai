@@ -20,6 +20,8 @@ namespace Bonsai.Shaders
             ElementArrayType = DrawElementsType.UnsignedShort;
         }
 
+        public Bounds Bounds { get; set; }
+
         public int VertexCount { get; set; }
 
         public PrimitiveType DrawMode { get; set; }

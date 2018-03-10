@@ -54,7 +54,7 @@ namespace Bonsai.Expressions
         internal virtual bool BuildArgument(Expression source, Edge<ExpressionBuilder, ExpressionBuilderArgument> successor, out Expression argument)
         {
             argument = source;
-            var workflowElement = GetPropertyMappingElement(successor.Target.Value);
+            var workflowElement = GetWorkflowElement(successor.Target.Value);
             var instance = Expression.Constant(workflowElement);
             foreach (var mapping in propertyMappings)
             {

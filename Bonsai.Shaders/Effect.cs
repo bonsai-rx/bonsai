@@ -28,12 +28,12 @@ namespace Bonsai.Shaders
         {
             if (vertexShader == null)
             {
-                throw new ArgumentNullException("vertexShader");
+                throw new ArgumentNullException("vertexShader", "No vertex shader was specified for material " + name + ".");
             }
 
             if (fragmentShader == null)
             {
-                throw new ArgumentNullException("fragmentShader");
+                throw new ArgumentNullException("fragmentShader", "No fragment shader was specified for material " + name + ".");
             }
 
             vertexSource = vertexShader;

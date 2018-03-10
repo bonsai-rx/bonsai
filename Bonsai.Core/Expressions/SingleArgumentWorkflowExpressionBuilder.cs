@@ -29,7 +29,7 @@ namespace Bonsai.Expressions
         {
             get
             {
-                var parameterCount = GetWorkflowParameters().Count();
+                var parameterCount = Workflow.GetNestedParameters().Count();
                 return Range.Create(Math.Max(1, parameterCount), Math.Max(1, parameterCount));
             }
         }

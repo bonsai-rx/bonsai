@@ -44,8 +44,18 @@ namespace Bonsai.NuGet
 
         public void RegisterEventLogger(EventLogger logger)
         {
+            ClearEventLogger();
             logger.Log += logger_Log;
             eventLogger = logger;
+        }
+
+        private void ClearEventLogger()
+        {
+            if (eventLogger != null)
+            {
+                eventLogger.Log -= logger_Log;
+                eventLogger = null;
+            }
         }
 
         public void Complete()
@@ -68,16 +78,6 @@ namespace Bonsai.NuGet
                     SetOperationLabel(Resources.FailedOperationLabel);
                 }
             }
-        }
-
-        protected override void OnFormClosed(FormClosedEventArgs e)
-        {
-            if (eventLogger != null)
-            {
-                eventLogger.Log -= logger_Log;
-                eventLogger = null;
-            }
-            base.OnFormClosed(e);
         }
 
         private void closeButton_Click(object sender, EventArgs e)

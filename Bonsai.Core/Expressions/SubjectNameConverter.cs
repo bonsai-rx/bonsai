@@ -14,7 +14,28 @@ namespace Bonsai.Expressions
             return true;
         }
 
-        bool GetCallContext(ExpressionBuilderGraph source, ExpressionBuilderGraph target, Stack<ExpressionBuilderGraph> context)
+        static IEnumerable<InspectBuilder> SelectContextElements(ExpressionBuilderGraph source)
+        {
+            foreach (var node in source)
+            {
+                var inspectBuilder = node.Value as InspectBuilder;
+                if (inspectBuilder == null) continue;
+                yield return inspectBuilder;
+
+                var groupBuilder = inspectBuilder.Builder as IGroupWorkflowBuilder;
+                if (groupBuilder != null)
+                {
+                    var workflow = groupBuilder.Workflow;
+                    if (workflow == null) continue;
+                    foreach (var groupElement in SelectContextElements(workflow))
+                    {
+                        yield return groupElement;
+                    }
+                }
+            }
+        }
+
+        static bool GetCallContext(ExpressionBuilderGraph source, ExpressionBuilderGraph target, Stack<ExpressionBuilderGraph> context)
         {
             context.Push(source);
             if (source == target)
@@ -22,9 +43,13 @@ namespace Bonsai.Expressions
                 return true;
             }
 
-            foreach (var node in source)
+            foreach (var inspectBuilder in SelectContextElements(source))
             {
-                var workflowBuilder = ExpressionBuilder.Unwrap(node.Value) as WorkflowExpressionBuilder;
+                var element = inspectBuilder.Builder;
+                var groupBuilder = element as IGroupWorkflowBuilder;
+                if (groupBuilder != null && groupBuilder.Workflow == target) return true;
+
+                var workflowBuilder = element as WorkflowExpressionBuilder;
                 if (workflowBuilder != null)
                 {
                     if (GetCallContext(workflowBuilder.Workflow, target, context))
@@ -46,13 +71,26 @@ namespace Bonsai.Expressions
                 var workflowBuilder = (WorkflowBuilder)context.GetService(typeof(WorkflowBuilder));
                 if (workflow != null && workflowBuilder != null)
                 {
+                    Type targetType;
+                    var componentType = context.PropertyDescriptor.ComponentType;
+                    var multicast = componentType == typeof(MulticastSubjectBuilder);
+                    if (multicast)
+                    {
+                        var subjectTargetAttribute = (SubjectTargetAttribute)context.PropertyDescriptor.Attributes[typeof(SubjectTargetAttribute)];
+                        targetType = subjectTargetAttribute.TargetType;
+                    }
+                    else targetType = componentType.IsGenericType ? componentType.GetGenericArguments()[0] : null;
+
                     var callContext = new Stack<ExpressionBuilderGraph>();
                     if (GetCallContext(workflowBuilder.Workflow, workflow, callContext))
                     {
                         var names = (from level in callContext
-                                     from node in level
-                                     let subjectBuilder = ExpressionBuilder.Unwrap(node.Value) as SubjectBuilder
-                                     where subjectBuilder != null
+                                     from inspectBuilder in SelectContextElements(level)
+                                     let subjectBuilder = inspectBuilder.Builder as SubjectBuilder
+                                     where subjectBuilder != null && !string.IsNullOrEmpty(subjectBuilder.Name) &&
+                                           (targetType == null ||
+                                           !multicast && targetType.IsAssignableFrom(inspectBuilder.ObservableType) ||
+                                            multicast && inspectBuilder.ObservableType.IsAssignableFrom(targetType))
                                      select subjectBuilder.Name)
                                      .Distinct()
                                      .ToList();

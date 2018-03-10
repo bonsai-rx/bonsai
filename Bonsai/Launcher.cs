@@ -85,7 +85,7 @@ namespace Bonsai
                     if (editorPackage == null)
                     {
                         var assemblyName = Assembly.GetEntryAssembly().GetName();
-                        MessageBox.Show("Unable to install editor package.", assemblyName.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(Resources.InstallEditorPackageError, assemblyName.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return null;
                     }
                     launchResult = EditorResult.ManagePackages;
@@ -104,6 +104,12 @@ namespace Bonsai
                             .StartUpdatePackage(editorPackageId, editorPackageVersion)
                             .ContinueWith(task => editorPackage = task.Result),
                         operationLabel: "Updating...");
+                    if (editorPackage == null)
+                    {
+                        var assemblyName = Assembly.GetEntryAssembly().GetName();
+                        MessageBox.Show(Resources.UpdateEditorPackageError, assemblyName.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return null;
+                    }
                     launchResult = EditorResult.ManagePackages;
                 }
             }
@@ -255,9 +261,11 @@ namespace Bonsai
 
         internal static int LaunchWorkflowEditor(
             PackageConfiguration packageConfiguration,
+            ScriptExtensionsEnvironment scriptEnvironment,
             string editorRepositoryPath,
             string initialFileName,
             bool start,
+            bool debugging,
             Dictionary<string, string> propertyAssignments)
         {
             var elementProvider = WorkflowElementLoader.GetWorkflowElementTypes(packageConfiguration);
@@ -270,14 +278,18 @@ namespace Bonsai
                 .Catch(Observable.Return(false));
 
             EnableVisualStyles();
-            using (var mainForm = new MainForm(elementProvider, visualizerProvider))
+            using (var mainForm = new MainForm(elementProvider, visualizerProvider, scriptEnvironment))
             {
                 mainForm.FileName = initialFileName;
-                mainForm.StartOnLoad = start;
                 mainForm.PropertyAssignments.AddRange(propertyAssignments);
+                mainForm.LoadAction =
+                    start && debugging ? LoadAction.Start :
+                    start ? LoadAction.StartWithoutDebugging :
+                    LoadAction.None;
                 updatesAvailable.Subscribe(value => mainForm.UpdatesAvailable = value);
                 Application.Run(mainForm);
                 AppResult.SetResult(mainForm.FileName);
+                AppResult.SetResult(scriptEnvironment.DebugScripts);
                 return (int)mainForm.EditorResult;
             }
         }
@@ -298,8 +310,7 @@ namespace Bonsai
             WorkflowBuilder workflowBuilder;
             using (var reader = XmlReader.Create(fileName))
             {
-                var serializer = new XmlSerializer(typeof(WorkflowBuilder));
-                workflowBuilder = (WorkflowBuilder)serializer.Deserialize(reader);
+                workflowBuilder = (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
             }
 
             foreach (var assignment in propertyAssignments)

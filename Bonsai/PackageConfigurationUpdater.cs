@@ -15,7 +15,7 @@ namespace Bonsai
     {
         const string PackageTagFilter = "Bonsai";
         const string GalleryDirectory = "Gallery";
-        const string SnippetsDirectory = "Snippets";
+        const string ExtensionsDirectory = "Extensions";
         const string BuildDirectory = "build";
         const string BinDirectory = "bin";
         const string DebugDirectory = "debug";
@@ -299,28 +299,36 @@ namespace Bonsai
 
         void packageManager_PackageInstalling(object sender, PackageOperationEventArgs e)
         {
-            var entryPoint = e.Package.Id + BonsaiExtension;
-            var executablePackage = e.Package.GetContentFiles().Any(file => file.EffectivePath == entryPoint);
+            var package = e.Package;
+            var entryPoint = package.Id + BonsaiExtension;
+            var executablePackage = package.GetContentFiles().Any(file => file.EffectivePath == entryPoint);
             if (executablePackage)
             {
-                galleryRepository.AddPackage(e.Package);
+                galleryRepository.AddPackage(package);
                 e.Cancel = true;
             }
             else
             {
                 var installPath = e.InstallPath;
-                var pivots = OverlayHelper.FindPivots(e.Package, installPath).ToArray();
+                var pivots = OverlayHelper.FindPivots(package, installPath).ToArray();
                 if (pivots.Length > 0)
                 {
-                    var overlayVersion = OverlayHelper.FindOverlayVersion(e.Package);
+                    var overlayVersion = OverlayHelper.FindOverlayVersion(package);
                     var overlayManager = OverlayHelper.CreateOverlayManager(packageManager.SourceRepository, installPath);
                     overlayManager.Logger = packageManager.Logger;
                     foreach (var pivot in pivots)
                     {
-                        var package = overlayManager.SourceRepository.FindPackage(pivot, overlayVersion);
-                        if (package == null) throw new InvalidOperationException(string.Format("The package '{0}' could not be found.", pivot));
-                        overlayManager.InstallPackage(package, false, false);
+                        var pivotPackage = overlayManager.SourceRepository.FindPackage(pivot, overlayVersion);
+                        if (pivotPackage == null) throw new InvalidOperationException(string.Format("The package '{0}' could not be found.", pivot));
+                        overlayManager.InstallPackage(pivotPackage, false, false);
                     }
+                }
+
+                if (package.Id == bootstrapperPackageId)
+                {
+                    string backupExePath = bootstrapperExePath + OldExtension;
+                    try { File.Delete(backupExePath); }
+                    catch (FileNotFoundException) { }
                 }
             }
         }
@@ -336,7 +344,7 @@ namespace Bonsai
             }
             else packageConfiguration.Packages[package.Id].Version = package.Version.ToString();
 
-            AddContentFolders(e.InstallPath, SnippetsDirectory);
+            AddContentFolders(e.InstallPath, ExtensionsDirectory);
             RegisterLibraryFolders(package, installPath);
             RegisterAssemblyLocations(package, e.InstallPath, installPath, false);
             var pivots = OverlayHelper.FindPivots(package, e.InstallPath).ToArray();
@@ -365,7 +373,7 @@ namespace Bonsai
                 }
 
                 string backupExePath = bootstrapperExePath + OldExtension;
-                MoveFile(bootstrapperExePath, backupExePath);
+                File.Move(bootstrapperExePath, backupExePath);
                 UpdateFile(bootstrapperExePath, bootstrapperFile);
             }
         }
@@ -377,7 +385,7 @@ namespace Bonsai
             var installPath = GetRelativePath(e.InstallPath);
             packageConfiguration.Packages.Remove(package.Id);
 
-            RemoveContentFolders(package, e.InstallPath, SnippetsDirectory);
+            RemoveContentFolders(package, e.InstallPath, ExtensionsDirectory);
             RemoveLibraryFolders(package, installPath);
             RemoveAssemblyLocations(package, e.InstallPath, false);
             var pivots = OverlayHelper.FindPivots(package, e.InstallPath).ToArray();
@@ -413,22 +421,6 @@ namespace Bonsai
             {
                 fromStream.CopyTo(toStream);
             }
-        }
-
-        void MoveFile(string sourceFileName, string destinationFileName)
-        {
-            try
-            {
-                if (File.Exists(destinationFileName))
-                {
-                    File.Delete(destinationFileName);
-                }
-            }
-            catch (FileNotFoundException)
-            {
-            }
-
-            File.Move(sourceFileName, destinationFileName);
         }
 
         public void Dispose()

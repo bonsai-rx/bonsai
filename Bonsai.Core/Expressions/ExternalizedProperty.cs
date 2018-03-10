@@ -16,18 +16,20 @@ namespace Bonsai.Expressions
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
     [WorkflowElementCategory(ElementCategory.Property)]
-    [TypeDescriptionProvider(typeof(ExternalizedPropertyTypeDescriptionProvider))]
     [Description("Represents a property that has been externalized from a workflow element.")]
-    public abstract class ExternalizedProperty : ExpressionBuilder, INamedElement, IArgumentBuilder
+    public class ExternalizedProperty : ExpressionBuilder, INamedElement, IArgumentBuilder
     {
         static readonly Range<int> argumentRange = Range.Create(lowerBound: 0, upperBound: 1);
 
-        internal ExternalizedProperty()
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExternalizedProperty"/> class.
+        /// </summary>
+        public ExternalizedProperty()
         {
         }
 
         /// <summary>
-        /// Gets the name of the externalized class member.
+        /// Gets or sets the name of the externalized class member.
         /// </summary>
         [Browsable(false)]
         public string MemberName { get; set; }
@@ -36,12 +38,9 @@ namespace Bonsai.Expressions
         /// Gets or sets the name of the property.
         /// </summary>
         [Category("Design")]
+        [Externalizable(false)]
         [Description("The name of the property. When set, the property will appear on the pages of a nested workflow.")]
         public string Name { get; set; }
-
-        internal abstract Type ElementType { get; }
-
-        internal abstract WorkflowProperty Property { get; }
 
         string INamedElement.Name
         {
@@ -71,19 +70,22 @@ namespace Bonsai.Expressions
         /// <returns>An <see cref="Expression"/> tree node.</returns>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            const BindingFlags bindingAttributes = BindingFlags.Instance | BindingFlags.Public;
-            var sourceType = Property.GetType();
-            var sourceExpression = Expression.Constant(Property);
-            var sourceAttributes = sourceType.GetCustomAttributes(typeof(SourceAttribute), true);
-            var methodName = ((SourceAttribute)sourceAttributes.Single()).MethodName;
-            var generateMethod = sourceType.GetMethods(bindingAttributes)
-                                           .Single(m => m.Name == methodName && m.GetParameters().Length == 0);
-            return Expression.Call(sourceExpression, generateMethod);
+            var source = arguments.FirstOrDefault();
+            if (source == null)
+            {
+                return ExpressionBuilder.EmptyExpression;
+            }
+            else return source;
         }
 
         bool IArgumentBuilder.BuildArgument(Expression source, Edge<ExpressionBuilder, ExpressionBuilderArgument> successor, out Expression argument)
         {
-            var workflowElement = GetPropertyMappingElement(successor.Target.Value);
+            return BuildArgument(source, successor, out argument);
+        }
+
+        internal bool BuildArgument(Expression source, Edge<ExpressionBuilder, ExpressionBuilderArgument> successor, out Expression argument)
+        {
+            var workflowElement = GetWorkflowElement(successor.Target.Value);
             var instance = Expression.Constant(workflowElement);
             argument = BuildPropertyMapping(source, instance, MemberName);
             return false;
@@ -99,6 +101,7 @@ namespace Bonsai.Expressions
     /// <typeparam name="TElement">
     /// The type of the workflow element to which the externalized member is bound to.
     /// </typeparam>
+    [Obsolete]
     [XmlType(Namespace = Constants.XmlNamespace)]
     public class ExternalizedProperty<TValue, TElement> : ExternalizedProperty
     {
@@ -112,16 +115,6 @@ namespace Bonsai.Expressions
         {
             get { return property.Value; }
             set { property.Value = value; }
-        }
-
-        internal override Type ElementType
-        {
-            get { return typeof(TElement); }
-        }
-
-        internal override WorkflowProperty Property
-        {
-            get { return property; }
         }
 
         /// <summary>

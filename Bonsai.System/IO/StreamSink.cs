@@ -12,15 +12,13 @@ using System.Reactive.Disposables;
 namespace Bonsai.IO
 {
     /// <summary>
-    /// Provides a base class for sinks that write the elements from the input sequence
+    /// Provides a non-generic base class for sinks that write the elements from the input sequence
     /// into a named stream (e.g. a named pipe).
     /// </summary>
-    /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
-    /// <typeparam name="TWriter">The type of stream writer that should be used to write the elements.</typeparam>
-    public abstract class StreamSink<TSource, TWriter> : Sink<TSource> where TWriter : class, IDisposable
+    [Combinator]
+    [WorkflowElementCategory(ElementCategory.Sink)]
+    public abstract class StreamSink
     {
-        const string PipeServerPrefix = @"\\.\pipe\";
-
         /// <summary>
         /// Gets or sets the identifier of the named stream on which to write the elements.
         /// </summary>
@@ -39,6 +37,17 @@ namespace Bonsai.IO
         /// </summary>
         [Description("Indicates whether the output should be overwritten if it already exists.")]
         public bool Overwrite { get; set; }
+    }
+
+    /// <summary>
+    /// Provides a base class for sinks that write the elements from the input sequence
+    /// into a named stream (e.g. a named pipe).
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+    /// <typeparam name="TWriter">The type of stream writer that should be used to write the elements.</typeparam>
+    public abstract class StreamSink<TSource, TWriter> : StreamSink where TWriter : class, IDisposable
+    {
+        const string PipeServerPrefix = @"\\.\pipe\";
 
         /// <summary>
         /// When overridden in a derived class, creates the writer over the specified <see cref="Stream"/>
@@ -160,7 +169,7 @@ namespace Bonsai.IO
         /// An observable sequence that is identical to the source sequence but where
         /// there is an additional side effect of writing the elements to a stream.
         /// </returns>
-        public override IObservable<TSource> Process(IObservable<TSource> source)
+        public virtual IObservable<TSource> Process(IObservable<TSource> source)
         {
             return Process(source, input => input);
         }

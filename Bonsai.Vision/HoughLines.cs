@@ -27,7 +27,6 @@ namespace Bonsai.Vision
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
         public double Rho { get; set; }
 
-        [Precision(3, 0.01)]
         [Range(0.01, Math.PI)]
         [Description("The angle resolution in radians.")]
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]

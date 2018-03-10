@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Bonsai.Shaders
 {
     [StructLayout(LayoutKind.Sequential)]
-    [TypeConverter("OpenCV.Net.NumericAggregateConverter, OpenCV.Net")]
+    [TypeConverter(typeof(NumericRecordConverter))]
     public struct DispatchParameters : IEquatable<DispatchParameters>
     {
         public int NumGroupsX;

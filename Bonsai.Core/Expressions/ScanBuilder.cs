@@ -48,7 +48,7 @@ namespace Bonsai.Expressions
         {
             get
             {
-                var parameterCount = GetWorkflowParameters().Count();
+                var parameterCount = Workflow.GetNestedParameters().Count();
                 return Range.Create(parameterCount, parameterCount + 1);
             }
         }
