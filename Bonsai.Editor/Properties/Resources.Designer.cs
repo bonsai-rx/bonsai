@@ -114,9 +114,9 @@ namespace Bonsai.Editor.Properties {
         /// <summary>
         ///   Looks up a localized string similar to None.
         /// </summary>
-        internal static string ContextMenu_NoneVisualizerItemLabel {
+        internal static string ContextMenu_NoneMenuItemLabel {
             get {
-                return ResourceManager.GetString("ContextMenu_NoneVisualizerItemLabel", resourceCulture);
+                return ResourceManager.GetString("ContextMenu_NoneMenuItemLabel", resourceCulture);
             }
         }
         
@@ -131,6 +131,42 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Extensions folder does not exist in the current working directory. Do you want to create it?.
+        /// </summary>
+        internal static string CreateExtensionsFolder_Question {
+            get {
+                return ResourceManager.GetString("CreateExtensionsFolder_Question", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create Extensions Folder.
+        /// </summary>
+        internal static string CreateExtensionsFolder_Question_Caption {
+            get {
+                return ResourceManager.GetString("CreateExtensionsFolder_Question_Caption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The workflow must be saved before adding or saving extensions..
+        /// </summary>
+        internal static string CreateExtensionsWorkflow_Warning {
+            get {
+                return ResourceManager.GetString("CreateExtensionsWorkflow_Warning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save Workflow.
+        /// </summary>
+        internal static string CreateExtensionsWorkflow_Warning_Caption {
+            get {
+                return ResourceManager.GetString("CreateExtensionsWorkflow_Warning_Caption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Interface Error.
         /// </summary>
         internal static string Editor_Error_Caption {
@@ -140,11 +176,31 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Component did not succeed to show the property page..
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static string LaunchDefaultEditor_Error {
+        internal static System.Drawing.Icon Icon {
             get {
-                return ResourceManager.GetString("LaunchDefaultEditor_Error", resourceCulture);
+                object obj = ResourceManager.GetObject("Icon", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to open script editor.
+        ///Do you want to install Visual Studio Code?.
+        /// </summary>
+        internal static string InstallScriptEditor_Question {
+            get {
+                return ResourceManager.GetString("InstallScriptEditor_Question", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Install Script Editor.
+        /// </summary>
+        internal static string InstallScriptEditor_Question_Caption {
+            get {
+                return ResourceManager.GetString("InstallScriptEditor_Question_Caption", resourceCulture);
             }
         }
         

@@ -24,6 +24,9 @@ namespace Bonsai.Shaders.Configuration.Design
         FormClosingEventArgs closingEventArgs;
         ShaderConfigurationEditorPage selectedPage;
         ShaderWindowSettings configuration;
+        DragMeshConfiguration dragMesh;
+        DragTextureConfiguration dragTexture;
+        DragMaterialConfiguration dragMaterial;
         string currentDirectory;
 
         public ShaderConfigurationEditorDialog()
@@ -40,6 +43,9 @@ namespace Bonsai.Shaders.Configuration.Design
             meshCollectionEditor.NewItemTypes = new[] { typeof(MeshConfiguration), typeof(TexturedQuad), typeof(TexturedModel) };
             textureCollectionEditor.CollectionItemType = typeof(TextureConfiguration);
             textureCollectionEditor.NewItemTypes = new[] { typeof(Texture2D), typeof(ImageTexture) };
+            dragMesh = new DragMeshConfiguration(meshCollectionEditor);
+            dragTexture = new DragTextureConfiguration(textureCollectionEditor);
+            dragMaterial = new DragMaterialConfiguration(shaderCollectionEditor);
         }
 
         public GlslScriptExampleCollection ScriptExamples

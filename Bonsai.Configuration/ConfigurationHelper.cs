@@ -23,16 +23,25 @@ namespace Bonsai.Configuration
 
         static string GetDefaultConfigurationFilePath()
         {
-            var configurationRoot = Path.GetDirectoryName(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+            var configurationRoot = GetConfigurationRoot();
             return Path.Combine(configurationRoot, DefaultConfigurationFileName);
         }
 
         static void AddLibraryPath(string path)
         {
-            path = Path.GetFullPath(path);
             var currentPath = Environment.GetEnvironmentVariable(PathEnvironmentVariable);
-            currentPath = string.Join(new string(Path.PathSeparator, 1), path, currentPath);
-            Environment.SetEnvironmentVariable(PathEnvironmentVariable, currentPath);
+            if (!currentPath.Contains(path))
+            {
+                currentPath = string.Join(new string(Path.PathSeparator, 1), path, currentPath);
+                Environment.SetEnvironmentVariable(PathEnvironmentVariable, currentPath);
+            }
+        }
+
+        public static string GetConfigurationRoot(PackageConfiguration configuration = null)
+        {
+            return configuration == null || string.IsNullOrWhiteSpace(configuration.ConfigurationFile)
+                ? Path.GetDirectoryName(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile)
+                : Path.GetDirectoryName(configuration.ConfigurationFile);
         }
 
         public static string GetAssemblyLocation(PackageConfiguration configuration, string assemblyName)
@@ -54,27 +63,42 @@ namespace Bonsai.Configuration
 
         public static void SetAssemblyResolve(PackageConfiguration configuration)
         {
-            var configurationFile = configuration.ConfigurationFile;
-            var configurationRoot = string.IsNullOrWhiteSpace(configurationFile)
-                ? string.Empty
-                : Path.GetDirectoryName(configuration.ConfigurationFile);
-
             var platform = GetEnvironmentPlatform();
+            var configurationRoot = GetConfigurationRoot(configuration);
             foreach (var libraryFolder in configuration.LibraryFolders)
             {
                 if (libraryFolder.Platform == platform)
                 {
-                    var libraryPath = Path.Combine(configurationRoot, libraryFolder.Path);
+                    var libraryPath = libraryFolder.Path;
+                    if (!Path.IsPathRooted(libraryPath))
+                    {
+                        libraryPath = Path.Combine(configurationRoot, libraryPath);
+                    }
                     AddLibraryPath(libraryPath);
                 }
             }
 
+            Dictionary<string, Assembly> assemblyLoadCache = null;
             ResolveEventHandler assemblyResolveHandler = (sender, args) =>
             {
                 var assemblyName = new AssemblyName(args.Name).Name;
                 var assemblyLocation = GetAssemblyLocation(configuration, assemblyName);
                 if (assemblyLocation != null)
                 {
+                    Uri uri;
+                    if (Uri.TryCreate(assemblyLocation, UriKind.Absolute, out uri))
+                    {
+                        Assembly assembly;
+                        assemblyLoadCache = assemblyLoadCache ?? new Dictionary<string, Assembly>();
+                        if (!assemblyLoadCache.TryGetValue(uri.LocalPath, out assembly))
+                        {
+                            var assemblyBytes = File.ReadAllBytes(uri.LocalPath);
+                            assembly = Assembly.Load(assemblyBytes);
+                            assemblyLoadCache.Add(uri.LocalPath, assembly);
+                        }
+                        return assembly;
+                    }
+
                     if (!Path.IsPathRooted(assemblyLocation))
                     {
                         assemblyLocation = Path.Combine(configurationRoot, assemblyLocation);

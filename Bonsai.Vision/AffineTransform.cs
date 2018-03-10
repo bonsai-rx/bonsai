@@ -50,7 +50,6 @@ namespace Bonsai.Vision
             }
         }
 
-        [Precision(3, 0.001)]
         [Range(-Math.PI, Math.PI)]
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Description("The rotation angle around the pivot, in radians.")]

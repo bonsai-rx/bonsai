@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Subjects;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
@@ -19,18 +20,17 @@ namespace Bonsai.Expressions
     [Description("Generates a sequence of values by subscribing to a shared subject.")]
     public class SubscribeSubjectBuilder : ZeroArgumentExpressionBuilder, IRequireSubject
     {
-        BuildContext buildContext;
+        IBuildContext buildContext;
 
         /// <summary>
         /// Gets or sets the name of the shared subject.
         /// </summary>
-        [Category("Design")]
-        [Externalizable(false)]
+        [Category("Subject")]
         [TypeConverter(typeof(SubjectNameConverter))]
         [Description("The name of the shared subject.")]
         public string Name { get; set; }
 
-        BuildContext IRequireBuildContext.BuildContext
+        IBuildContext IRequireBuildContext.BuildContext
         {
             get { return buildContext; }
             set { buildContext = value; }
@@ -52,17 +52,55 @@ namespace Bonsai.Expressions
             }
 
             var name = Name;
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(name)) return EmptyExpression;
+            var subjectExpression = buildContext.GetVariable(name);
+
+            var processMethod = GetType().GetMethod("Process", BindingFlags.Static | BindingFlags.NonPublic);
+            if (processMethod.IsGenericMethod)
             {
-                throw new InvalidOperationException("A valid variable name must be specified.");
+                var typeArgument = subjectExpression.Type.GetGenericArguments()[0];
+                processMethod = processMethod.MakeGenericMethod(typeArgument);
+            }
+            else
+            {
+                var parameterType = processMethod.GetParameters()[0].ParameterType;
+                if (!parameterType.IsAssignableFrom(subjectExpression.Type))
+                {
+                    var targetType = parameterType.GetGenericArguments()[0];
+                    throw new InvalidOperationException("The type of the subscribed subject must be assignable to " + targetType);
+                }
             }
 
-            var subjectExpression = buildContext.GetVariable(name);
-            var parameterType = subjectExpression.Type.GetGenericArguments()[0];
-            return Expression.Call(typeof(SubscribeSubjectBuilder), "Process", new[] { parameterType }, subjectExpression);
+            return Expression.Call(processMethod, subjectExpression);
         }
 
         static IObservable<TSource> Process<TSource>(ISubject<TSource> subject)
+        {
+            return subject;
+        }
+    }
+
+    /// <summary>
+    /// Represents an expression builder that generates a sequence of values
+    /// by subscribing to a shared subject of the specified type.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements processed by the subject.</typeparam>
+    [XmlType(Namespace = Constants.XmlNamespace)]
+    public class SubscribeSubject<TSource> : SubscribeSubjectBuilder
+    {
+        /// <summary>
+        /// Gets or sets the name of the shared subject.
+        /// </summary>
+        [Category("Subject")]
+        [TypeConverter(typeof(SubjectNameConverter))]
+        [Description("The name of the shared subject.")]
+        public new string Name
+        {
+            get { return base.Name; }
+            set { base.Name = value; }
+        }
+
+        static IObservable<TSource> Process(IObservable<TSource> subject)
         {
             return subject;
         }

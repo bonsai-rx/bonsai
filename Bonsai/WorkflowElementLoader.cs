@@ -15,32 +15,19 @@ namespace Bonsai
 {
     sealed class WorkflowElementLoader : MarshalByRefObject
     {
-        Type sourceAttributeType;
-        Type combinatorAttributeType;
-        Type expressionBuilderType;
-
         public WorkflowElementLoader(PackageConfiguration configuration)
         {
             ConfigurationHelper.SetAssemblyResolve(configuration);
-            InitializeReflectionTypes();
         }
 
-        void InitializeReflectionTypes()
+        static bool IsWorkflowElement(Type type)
         {
-            var expressionBuilderAssembly = Assembly.Load(typeof(ExpressionBuilder).Assembly.FullName);
-            sourceAttributeType = expressionBuilderAssembly.GetType(typeof(SourceAttribute).FullName);
-            combinatorAttributeType = expressionBuilderAssembly.GetType(typeof(CombinatorAttribute).FullName);
-            expressionBuilderType = expressionBuilderAssembly.GetType(typeof(ExpressionBuilder).FullName);
+            return type.IsSubclassOf(typeof(ExpressionBuilder)) ||
+                type.IsDefined(typeof(CombinatorAttribute), true) ||
+                type.IsDefined(typeof(SourceAttribute), true);
         }
 
-        bool IsWorkflowElement(Type type)
-        {
-            return type.IsSubclassOf(expressionBuilderType) ||
-                type.IsDefined(combinatorAttributeType, true) ||
-                type.IsDefined(sourceAttributeType, true);
-        }
-
-        IEnumerable<WorkflowElementDescriptor> GetWorkflowElements(Assembly assembly)
+        static IEnumerable<WorkflowElementDescriptor> GetWorkflowElements(Assembly assembly)
         {
             Type[] types;
 
@@ -79,29 +66,6 @@ namespace Bonsai
             catch (BadImageFormatException) { }
 
             return types.Distinct().ToArray();
-        }
-
-        class WorkflowElementGroup : IGrouping<string, WorkflowElementDescriptor>
-        {
-            IEnumerable<WorkflowElementDescriptor> elementTypes;
-
-            public WorkflowElementGroup(string key, IEnumerable<WorkflowElementDescriptor> types)
-            {
-                Key = key;
-                elementTypes = types;
-            }
-
-            public string Key { get; private set; }
-
-            public IEnumerator<WorkflowElementDescriptor> GetEnumerator()
-            {
-                return elementTypes.GetEnumerator();
-            }
-
-            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-            {
-                return elementTypes.GetEnumerator();
-            }
         }
 
         public static IObservable<IGrouping<string, WorkflowElementDescriptor>> GetWorkflowElementTypes(PackageConfiguration configuration)

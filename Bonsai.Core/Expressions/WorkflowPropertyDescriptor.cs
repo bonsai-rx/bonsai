@@ -10,6 +10,7 @@ namespace Bonsai.Expressions
 {
     class WorkflowPropertyDescriptor : PropertyDescriptor
     {
+        Type componentType;
         Type propertyType;
         Func<object> getValue;
         Action<object> setValue;
@@ -22,6 +23,7 @@ namespace Bonsai.Expressions
             var getterBody = Expression.Convert(valueProperty, typeof(object));
             getValue = Expression.Lambda<Func<object>>(getterBody).Compile();
 
+            componentType = propertyExpression.Type;
             propertyType = valueProperty.Type;
             var setterParameter = Expression.Parameter(typeof(object));
             var setterBody = Expression.Assign(valueProperty, Expression.Convert(setterParameter, propertyType));
@@ -35,7 +37,7 @@ namespace Bonsai.Expressions
 
         public override Type ComponentType
         {
-            get { return typeof(WorkflowExpressionBuilder); }
+            get { return componentType; }
         }
 
         public override object GetValue(object component)

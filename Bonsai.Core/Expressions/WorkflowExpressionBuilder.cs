@@ -18,9 +18,9 @@ namespace Bonsai.Expressions
     [WorkflowElementCategory(ElementCategory.Nested)]
     [XmlType("Workflow", Namespace = Constants.XmlNamespace)]
     [TypeDescriptionProvider(typeof(WorkflowTypeDescriptionProvider))]
-    public abstract class WorkflowExpressionBuilder : ExpressionBuilder, INamedElement, IPropertyMappingBuilder, IRequireBuildContext
+    public abstract class WorkflowExpressionBuilder : ExpressionBuilder, IWorkflowExpressionBuilder, INamedElement, IPropertyMappingBuilder, IRequireBuildContext
     {
-        BuildContext buildContext;
+        IBuildContext buildContext;
         readonly ExpressionBuilderGraph workflow;
         readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
 
@@ -120,24 +120,20 @@ namespace Bonsai.Expressions
         {
             get
             {
-                var parameterCount = GetWorkflowParameters().Count();
+                var parameterCount = workflow.GetNestedParameters().Count();
                 return Range.Create(parameterCount, parameterCount);
             }
         }
 
-        BuildContext IRequireBuildContext.BuildContext
+        IBuildContext IRequireBuildContext.BuildContext
         {
             get { return buildContext; }
             set { buildContext = value; }
         }
 
-        internal IEnumerable<WorkflowInputBuilder> GetWorkflowParameters()
+        internal IBuildContext BuildContext
         {
-            return from node in workflow
-                   let inputBuilder = Unwrap(node.Value) as WorkflowInputBuilder
-                   where inputBuilder != null
-                   orderby inputBuilder.Index ascending
-                   select inputBuilder;
+            get { return buildContext; }
         }
 
         /// <summary>
@@ -162,15 +158,9 @@ namespace Bonsai.Expressions
         protected Expression BuildWorkflow(IEnumerable<Expression> arguments, Expression source, Func<Expression, Expression> selector)
         {
             // Assign sources if available
-            var parameters = GetWorkflowParameters();
-            var inputArguments = source != null ? Enumerable.Repeat(source, 1).Concat(arguments.Skip(1)) : arguments;
-            foreach (var assignment in parameters.Zip(inputArguments, (parameter, argument) => new { parameter, argument }))
-            {
-                assignment.parameter.Source = assignment.argument;
-            }
-
             var nestedContext = new BuildContext(buildContext);
-            var expression = Workflow.Build(nestedContext);
+            var inputArguments = source != null ? Enumerable.Repeat(source, 1).Concat(arguments.Skip(1)) : arguments;
+            var expression = workflow.BuildNested(inputArguments, nestedContext);
             if (nestedContext.BuildResult != null) return nestedContext.BuildResult;
             var output = selector(expression);
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
@@ -7,6 +8,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Configuration
 {
     [Serializable]
+    [DebuggerDisplay("{Path} ({Platform,nq})")]
     public sealed class LibraryFolder
     {
         public LibraryFolder()

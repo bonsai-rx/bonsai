@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Disposables;
@@ -9,18 +10,18 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Expressions
 {
-    class BuildContext
+    class BuildContext : IBuildContext
     {
-        BuildContext parent;
+        IBuildContext parent;
         Expression buildResult;
-        Dictionary<string, Variable> variables;
+        VariableCollection variables;
 
         public BuildContext(ExpressionBuilder buildTarget)
         {
             BuildTarget = buildTarget;
         }
 
-        public BuildContext(BuildContext parentContext)
+        public BuildContext(IBuildContext parentContext)
         {
             if (parentContext == null)
             {
@@ -36,7 +37,7 @@ namespace Bonsai.Expressions
         public Expression BuildResult
         {
             get { return buildResult; }
-            internal set
+            set
             {
                 buildResult = value;
                 if (parent != null)
@@ -46,14 +47,19 @@ namespace Bonsai.Expressions
             }
         }
 
+        public IBuildContext ParentContext
+        {
+            get { return parent; }
+        }
+
         public ParameterExpression AddVariable(string name, Expression expression)
         {
             if (variables == null)
             {
-                variables = new Dictionary<string, Variable>();
+                variables = new VariableCollection();
             }
 
-            if (variables.ContainsKey(name))
+            if (!string.IsNullOrEmpty(name) && variables.Contains(name))
             {
                 throw new ArgumentException(
                     string.Format("A variable with the specified name '{0}' already exists.", name),
@@ -61,14 +67,13 @@ namespace Bonsai.Expressions
             }
 
             var variable = new Variable(name, expression);
-            variables.Add(name, variable);
+            variables.Add(variable);
             return variable.Parameter;
         }
 
         public ParameterExpression GetVariable(string name)
         {
-            Variable variable;
-            if (variables == null || !variables.TryGetValue(name, out variable))
+            if (variables == null || !variables.Contains(name))
             {
                 if (parent != null)
                 {
@@ -79,7 +84,7 @@ namespace Bonsai.Expressions
                     "name");
             }
 
-            return variable.Parameter;
+            return variables[name].Parameter;
         }
 
         public Expression CloseContext(Expression source)
@@ -90,7 +95,7 @@ namespace Bonsai.Expressions
             }
 
             var sourceType = source.Type.GetGenericArguments()[0];
-            var parameters = variables.Values.Select(variable => variable.Parameter);
+            var parameters = variables.Select(variable => variable.Parameter).Reverse();
             var disposableConstructor = typeof(CompositeDisposable).GetConstructor(new[] { typeof(IDisposable[]) });
             var disposableExpression = Expression.New(disposableConstructor, Expression.NewArrayInit(typeof(IDisposable), parameters));
             var finallyExpression = (Expression)Expression.Call(
@@ -100,9 +105,8 @@ namespace Bonsai.Expressions
                 source, disposableExpression);
             return Expression.Block(
                 parameters,
-                variables.Values
-                    .Select(variable => Expression.Assign(variable.Parameter, variable.Factory))
-                    .Concat(Enumerable.Repeat(finallyExpression, 1)));
+                variables.Select(variable => Expression.Assign(variable.Parameter, variable.Factory))
+                         .Concat(Enumerable.Repeat(finallyExpression, 1)));
         }
 
         static IObservable<TSource> Finally<TSource>(IObservable<TSource> source, IDisposable disposable)
@@ -121,6 +125,14 @@ namespace Bonsai.Expressions
             public Expression Factory { get; private set; }
 
             public ParameterExpression Parameter { get; private set; }
+        }
+
+        class VariableCollection : KeyedCollection<string, Variable>
+        {
+            protected override string GetKeyForItem(Variable item)
+            {
+                return item.Parameter.Name;
+            }
         }
     }
 }

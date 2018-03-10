@@ -65,9 +65,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AspectRatio.cs" />
+    <Compile Include="Bounds.cs" />
     <Compile Include="BufferBinding.cs" />
     <Compile Include="ComputeProgram.cs" />
     <Compile Include="Configuration\ViewportEffectConfiguration.cs" />
+    <Compile Include="CreateMatrix4.cs" />
+    <Compile Include="ExtrinsicsModelView.cs" />
     <Compile Include="CreateTransform.cs" />
     <Compile Include="DispatchCompute.cs" />
     <Compile Include="Configuration\BufferBindingConfiguration.cs" />
@@ -103,13 +106,25 @@
     <Compile Include="DrawArrays.cs" />
     <Compile Include="DrawShader.cs" />
     <Compile Include="Effect.cs" />
+    <Compile Include="ExtractRotation.cs" />
+    <Compile Include="ExtractScale.cs" />
+    <Compile Include="ExtractTranslation.cs" />
     <Compile Include="FramebufferState.cs" />
     <Compile Include="DrawFramebuffer.cs" />
     <Compile Include="Invert.cs" />
     <Compile Include="LatestOnRenderFrame.cs" />
     <Compile Include="MeshAttributeMapping.cs" />
-    <Compile Include="QuaternionConverter.cs" />
+    <Compile Include="MeshBounds.cs" />
+    <Compile Include="RotateAxisAngle.cs" />
+    <Compile Include="RotateQuaternion.cs" />
+    <Compile Include="RotateX.cs" />
+    <Compile Include="RotateY.cs" />
+    <Compile Include="RotateZ.cs" />
     <Compile Include="SampleOnRenderFrame.cs" />
+    <Compile Include="Scale.cs" />
+    <Compile Include="MatrixTransform.cs" />
+    <Compile Include="TransformRelative.cs" />
+    <Compile Include="Translate.cs" />
     <Compile Include="ViewportEffect.cs" />
     <Compile Include="ImageTextureBinding.cs" />
     <Compile Include="Input\MouseCursor.cs" />

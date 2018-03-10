@@ -35,7 +35,14 @@ namespace Bonsai.Expressions
             }
 
             Builder = builder;
+            PublishNotifications = true;
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether runtime notifications from
+        /// the decorated expression builder should be multicast by this inspector.
+        /// </summary>
+        public bool PublishNotifications { get; set; }
 
         /// <summary>
         /// Gets the expression builder that is being decorated by this inspector.
@@ -94,7 +101,9 @@ namespace Bonsai.Expressions
         /// <returns>An <see cref="Expression"/> tree node.</returns>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
+            ObservableType = null;
             var source = Builder.Build(arguments);
+            if (source == ExpressionBuilder.EmptyExpression || Builder is DisableBuilder) return source;
             ObservableType = source.Type.GetGenericArguments()[0];
 
             // If source is already an inspect node, use it
@@ -107,12 +116,18 @@ namespace Bonsai.Expressions
                 ErrorEx = Observable.Empty<Exception>();
                 return source;
             }
-            else
+            else if (PublishNotifications)
             {
                 source = HandleObservableCreationException(source, this);
                 var subject = CreateSubjectMethod.MakeGenericMethod(ObservableType).Invoke(this, null);
                 var subjectExpression = Expression.Constant(subject);
                 return Expression.Call(Expression.Constant(this), "Process", new[] { ObservableType }, source, subjectExpression);
+            }
+            else
+            {
+                Output = Observable.Empty<IObservable<object>>();
+                ErrorEx = Observable.Empty<Exception>();
+                return source;
             }
         }
 

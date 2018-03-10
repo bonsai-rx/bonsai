@@ -99,6 +99,15 @@ namespace Bonsai.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to install editor package. Please confirm that there is an active network or local connection to the package repository. The Bonsai bootstrapper will now close..
+        /// </summary>
+        internal static string InstallEditorPackageError {
+            get {
+                return ResourceManager.GetString("InstallEditorPackageError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Executable package.
         /// </summary>
         internal static string InstallExecutablePackageCaption {
@@ -122,6 +131,15 @@ namespace Bonsai.Properties {
         internal static string LibraryFolderPlatformMismatchException {
             get {
                 return ResourceManager.GetString("LibraryFolderPlatformMismatchException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to update editor package. Please confirm that there is an active network or local connection to the package repository. The Bonsai bootstrapper will now close..
+        /// </summary>
+        internal static string UpdateEditorPackageError {
+            get {
+                return ResourceManager.GetString("UpdateEditorPackageError", resourceCulture);
             }
         }
         

@@ -19,17 +19,16 @@ namespace Bonsai.Expressions
     [XmlType("Subject", Namespace = Constants.XmlNamespace)]
     public abstract class SubjectBuilder : SingleArgumentExpressionBuilder, INamedElement, IRequireBuildContext
     {
-        BuildContext buildContext;
+        IBuildContext buildContext;
 
         /// <summary>
         /// Gets or sets the name of the shared subject.
         /// </summary>
-        [Category("Design")]
-        [Externalizable(false)]
+        [Category("Subject")]
         [Description("The name of the shared subject.")]
         public string Name { get; set; }
 
-        BuildContext IRequireBuildContext.BuildContext
+        IBuildContext IRequireBuildContext.BuildContext
         {
             get { return buildContext; }
             set { buildContext = value; }
@@ -62,16 +61,10 @@ namespace Bonsai.Expressions
                 throw new InvalidOperationException("No valid build context was provided.");
             }
 
-            var name = Name;
-            if (string.IsNullOrEmpty(name))
-            {
-                throw new InvalidOperationException("A valid variable name must be specified.");
-            }
-
             var source = arguments.First();
             var subjectFactory = BuildSubject(source);
             var parameterType = source.Type.GetGenericArguments()[0];
-            var subjectExpression = buildContext.AddVariable(name, subjectFactory);
+            var subjectExpression = buildContext.AddVariable(Name, subjectFactory);
             return Expression.Call(typeof(SubjectBuilder), "Process", new[] { parameterType }, source, subjectExpression);
         }
 

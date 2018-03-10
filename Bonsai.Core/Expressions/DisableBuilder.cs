@@ -1,0 +1,65 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml.Serialization;
+
+namespace Bonsai.Expressions
+{
+    /// <summary>
+    /// Represents an expression builder that disables the generation of
+    /// expression tree nodes from its decorated builder.
+    /// </summary>
+    [XmlType("Disable", Namespace = Constants.XmlNamespace)]
+    public class DisableBuilder : ExpressionBuilder, INamedElement
+    {
+        static readonly Range<int> argumentRange = Range.Create(lowerBound: 0, upperBound: int.MaxValue);
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DisableBuilder"/> class.
+        /// </summary>
+        public DisableBuilder()
+        {
+        }
+
+        /// <summary>
+        /// Gets or sets the expression builder to be disabled by this decorator.
+        /// </summary>
+        public ExpressionBuilder Builder { get; set; }
+
+        /// <summary>
+        /// Gets the range of input arguments that the decorated expression builder accepts.
+        /// </summary>
+        public override Range<int> ArgumentRange
+        {
+            get { return argumentRange; }
+        }
+
+        /// <summary>
+        /// Gets the display name of the decorated expression builder.
+        /// </summary>
+        public string Name
+        {
+            get { return GetElementDisplayName(Builder); }
+        }
+
+        /// <summary>
+        /// Generates an <see cref="Expression"/> node from a collection of input arguments.
+        /// The result can be chained with other builders in a workflow.
+        /// </summary>
+        /// <param name="arguments">
+        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
+        /// </param>
+        /// <returns>An <see cref="Expression"/> tree node.</returns>
+        public override Expression Build(IEnumerable<Expression> arguments)
+        {
+            try { return arguments.Distinct().SingleOrDefault() ?? EmptyExpression; }
+            catch (InvalidOperationException)
+            {
+                throw new InvalidOperationException("Cannot disable this operator. All conflicting inputs must be removed or disabled.");
+            }
+        }
+    }
+}

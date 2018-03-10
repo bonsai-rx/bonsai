@@ -32,7 +32,9 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WorkflowGraphView));
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.outputToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.subjectTypeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.externalizeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.createPropertySourceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.visualizerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.defaultEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -46,8 +48,12 @@
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.connectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.disconnectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.groupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ungroupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
+            this.enableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.disableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.graphView = new Bonsai.Design.GraphView();
             this.contextMenuStrip.SuspendLayout();
             this.SuspendLayout();
@@ -56,7 +62,9 @@
             // 
             this.contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.outputToolStripMenuItem,
+            this.subjectTypeToolStripMenuItem,
             this.externalizeToolStripMenuItem,
+            this.createPropertySourceToolStripMenuItem,
             this.toolStripSeparator3,
             this.visualizerToolStripMenuItem,
             this.defaultEditorToolStripMenuItem,
@@ -70,10 +78,14 @@
             this.toolStripSeparator1,
             this.connectToolStripMenuItem,
             this.disconnectToolStripMenuItem,
+            this.toolStripSeparator5,
             this.groupToolStripMenuItem,
-            this.ungroupToolStripMenuItem});
+            this.ungroupToolStripMenuItem,
+            this.toolStripSeparator6,
+            this.enableToolStripMenuItem,
+            this.disableToolStripMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip";
-            this.contextMenuStrip.Size = new System.Drawing.Size(249, 336);
+            this.contextMenuStrip.Size = new System.Drawing.Size(249, 436);
             this.contextMenuStrip.Closed += new System.Windows.Forms.ToolStripDropDownClosedEventHandler(this.contextMenuStrip_Closed);
             this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Opening);
             // 
@@ -84,12 +96,27 @@
             this.outputToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
             this.outputToolStripMenuItem.Text = "Output";
             // 
+            // subjectTypeToolStripMenuItem
+            // 
+            this.subjectTypeToolStripMenuItem.Enabled = false;
+            this.subjectTypeToolStripMenuItem.Name = "subjectTypeToolStripMenuItem";
+            this.subjectTypeToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.subjectTypeToolStripMenuItem.Text = "Subject Type";
+            this.subjectTypeToolStripMenuItem.Visible = false;
+            // 
             // externalizeToolStripMenuItem
             // 
             this.externalizeToolStripMenuItem.Enabled = false;
             this.externalizeToolStripMenuItem.Name = "externalizeToolStripMenuItem";
             this.externalizeToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
             this.externalizeToolStripMenuItem.Text = "Externalize Property";
+            // 
+            // createPropertySourceToolStripMenuItem
+            // 
+            this.createPropertySourceToolStripMenuItem.Enabled = false;
+            this.createPropertySourceToolStripMenuItem.Name = "createPropertySourceToolStripMenuItem";
+            this.createPropertySourceToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.createPropertySourceToolStripMenuItem.Text = "Create Property Source";
             // 
             // toolStripSeparator3
             // 
@@ -196,6 +223,11 @@
             this.disconnectToolStripMenuItem.Text = "Remove Connection";
             this.disconnectToolStripMenuItem.Click += new System.EventHandler(this.disconnectToolStripMenuItem_Click);
             // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(245, 6);
+            // 
             // groupToolStripMenuItem
             // 
             this.groupToolStripMenuItem.Enabled = false;
@@ -217,16 +249,46 @@
             this.ungroupToolStripMenuItem.Text = "Ungroup";
             this.ungroupToolStripMenuItem.Click += new System.EventHandler(this.ungroupToolStripMenuItem_Click);
             // 
+            // toolStripSeparator6
+            // 
+            this.toolStripSeparator6.Name = "toolStripSeparator6";
+            this.toolStripSeparator6.Size = new System.Drawing.Size(245, 6);
+            // 
+            // enableToolStripMenuItem
+            // 
+            this.enableToolStripMenuItem.Enabled = false;
+            this.enableToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("enableToolStripMenuItem.Image")));
+            this.enableToolStripMenuItem.Name = "enableToolStripMenuItem";
+            this.enableToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.D)));
+            this.enableToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.enableToolStripMenuItem.Text = "Enable";
+            this.enableToolStripMenuItem.Click += new System.EventHandler(this.enableToolStripMenuItem_Click);
+            // 
+            // disableToolStripMenuItem
+            // 
+            this.disableToolStripMenuItem.Enabled = false;
+            this.disableToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("disableToolStripMenuItem.Image")));
+            this.disableToolStripMenuItem.Name = "disableToolStripMenuItem";
+            this.disableToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.D)));
+            this.disableToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.disableToolStripMenuItem.Text = "Disable";
+            this.disableToolStripMenuItem.Click += new System.EventHandler(this.disableToolStripMenuItem_Click);
+            // 
             // graphView
             // 
             this.graphView.AllowDrop = true;
+            this.graphView.BackColor = System.Drawing.Color.White;
             this.graphView.ContextMenuStrip = this.contextMenuStrip;
             this.graphView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.graphView.Location = new System.Drawing.Point(0, 0);
+            this.graphView.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.graphView.Name = "graphView";
             this.graphView.Nodes = null;
+            this.graphView.Padding = new System.Windows.Forms.Padding(3);
             this.graphView.Size = new System.Drawing.Size(150, 150);
             this.graphView.TabIndex = 0;
+            this.graphView.TextDrawMode = Bonsai.Design.GraphViewTextDrawMode.All;
             this.graphView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.graphView_ItemDrag);
             this.graphView.NodeMouseDoubleClick += new System.EventHandler<Bonsai.Design.GraphNodeMouseEventArgs>(this.graphView_NodeMouseDoubleClick);
             this.graphView.NodeMouseEnter += new System.EventHandler<Bonsai.Design.GraphNodeMouseEventArgs>(this.graphView_NodeMouseEnter);
@@ -245,6 +307,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.White;
             this.Controls.Add(this.graphView);
             this.Name = "WorkflowGraphView";
             this.contextMenuStrip.ResumeLayout(false);
@@ -267,11 +330,17 @@
         private System.Windows.Forms.ToolStripMenuItem outputToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripMenuItem externalizeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem createPropertySourceToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem connectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem disconnectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem defaultEditorToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripMenuItem saveSnippetAsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ungroupToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem subjectTypeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
+        private System.Windows.Forms.ToolStripMenuItem enableToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem disableToolStripMenuItem;
     }
 }

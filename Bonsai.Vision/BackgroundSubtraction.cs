@@ -28,6 +28,7 @@ namespace Bonsai.Vision
         public double AdaptationRate { get; set; }
 
         [Range(0, 255)]
+        [Precision(0, 1)]
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Description("The threshold value used to test whether individual pixels are foreground or background.")]
         public double ThresholdValue { get; set; }

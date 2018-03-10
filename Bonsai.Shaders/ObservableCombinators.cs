@@ -13,7 +13,7 @@ namespace Bonsai.Shaders
     {
         public static IConnectableObservable<TSource> ReplayReconnectable<TSource>(this IObservable<TSource> source)
         {
-            return Bonsai.ObservableCombinators.Multicast(source, () => new ReplaySubject<TSource>());
+            return source.MulticastReconnectable(() => new ReplaySubject<TSource>());
         }
 
         public static IObservable<TResult> CombineEither<TSource1, TSource2, TResult>(

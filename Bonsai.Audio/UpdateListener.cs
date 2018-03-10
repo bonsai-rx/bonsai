@@ -16,15 +16,15 @@ namespace Bonsai.Audio
         static Vector3 Up = Vector3.UnitY;
         static Vector3 Forward = Vector3.UnitZ;
 
-        [TypeConverter(typeof(NumericAggregateConverter))]
+        [TypeConverter(typeof(NumericRecordConverter))]
         [Description("The current location of the listener in three-dimensional space.")]
         public Vector3? Position { get; set; }
 
-        [TypeConverter(typeof(NumericAggregateConverter))]
+        [TypeConverter(typeof(NumericRecordConverter))]
         [Description("The current velocity of the listener in three-dimensional space.")]
         public Vector3? Velocity { get; set; }
 
-        [TypeConverter(typeof(NumericAggregateConverter))]
+        [TypeConverter(typeof(NumericRecordConverter))]
         [Description("The current orientation of the listener in three-dimensional space.")]
         public Quaternion? Orientation { get; set; }
 

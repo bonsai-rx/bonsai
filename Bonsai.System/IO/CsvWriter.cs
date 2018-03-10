@@ -20,10 +20,12 @@ namespace Bonsai.IO
     [Description("Sinks individual elements of the input sequence to a text file.")]
     public class CsvWriter : CombinatorExpressionBuilder
     {
-        static readonly MethodInfo writeLineMethod = typeof(StreamWriter).GetMethods().First(m => m.Name == "WriteLine" && m.GetParameters().Length == 0);
-        static readonly MethodInfo writeMethod = typeof(StreamWriter).GetMethods().First(m => m.Name == "Write" &&
-                                                                                              m.GetParameters().Length == 2 &&
-                                                                                              m.GetParameters()[1].ParameterType == typeof(object));
+        static readonly MethodInfo stringJoinMethod = typeof(string).GetMethods().Single(m => m.Name == "Join" &&
+                                                                                             m.GetParameters().Length == 2 &&
+                                                                                             m.GetParameters()[1].ParameterType == typeof(string[]));
+        static readonly MethodInfo writeLineMethod = typeof(StreamWriter).GetMethods().Single(m => m.Name == "WriteLine" &&
+                                                                                                  m.GetParameters().Length == 1 &&
+                                                                                                  m.GetParameters()[0].ParameterType == typeof(string));
 
         public CsvWriter()
             : base(minArguments: 1, maxArguments: 1)
@@ -34,6 +36,9 @@ namespace Bonsai.IO
         [FileNameFilter("CSV (Comma delimited)|*.csv|All Files|*.*")]
         [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public string FileName { get; set; }
+
+        [Description("The optional delimiter used to separate columns in the output file.")]
+        public string Delimiter { get; set; }
 
         [Description("Indicates whether data should be appended to the output file if it already exists.")]
         public bool Append { get; set; }
@@ -135,38 +140,40 @@ namespace Bonsai.IO
         protected override Expression BuildCombinator(IEnumerable<Expression> arguments)
         {
             const string ParameterName = "input";
-            const string EntryFormat = "{0} ";
 
+            var delimiter = Delimiter;
             var source = arguments.First();
             var parameterType = source.Type.GetGenericArguments()[0];
             var inputParameter = Expression.Parameter(parameterType, ParameterName);
             var writerParameter = Expression.Parameter(typeof(StreamWriter));
             var selectedMembers = SelectMembers(inputParameter, Selector);
-            var formatConstant = Expression.Constant(EntryFormat);
+            var delimiterConstant = Expression.Constant(string.IsNullOrEmpty(delimiter) ? " " : delimiter);
 
-            var memberAccessExpressions = MakeMemberAccess(selectedMembers).ToArray();
+            var legacyCharacter = string.IsNullOrEmpty(delimiter)
+                ? Enumerable.Repeat(Expression.Constant(string.Empty), 1)
+                : Enumerable.Empty<Expression>();
+            var memberAccessExpressions = legacyCharacter.Concat(MakeMemberAccess(selectedMembers))
+                .Select(memberAccess => GetDataString(memberAccess))
+                .ToArray();
             Array.Reverse(memberAccessExpressions);
 
-            var writeParameters = from memberAccess in memberAccessExpressions
-                                  let memberString = GetDataString(memberAccess)
-                                  select Expression.Call(writerParameter, writeMethod, formatConstant, memberString);
-            var writeLineExpression = Expression.Call(writerParameter, writeLineMethod);
-            var bodyExpressions = writeParameters.Concat(Enumerable.Repeat(writeLineExpression, 1)).ToArray();
-
-            var body = Expression.Block(bodyExpressions);
+            var memberAccessArrayExpression = Expression.NewArrayInit(typeof(string), memberAccessExpressions);
+            var lineExpression = Expression.Call(stringJoinMethod, delimiterConstant, memberAccessArrayExpression);
+            var body = Expression.Call(writerParameter, writeLineMethod, lineExpression);
             var writeAction = Expression.Lambda(body, inputParameter, writerParameter);
 
             var header = string.Empty;
             if (IncludeHeader)
             {
-                foreach (var memberAccess in memberAccessExpressions)
+                var headerMembers = memberAccessExpressions.Select(memberAccess =>
                 {
                     var accessExpression = memberAccess.ToString();
-                    header += string.Format(
-                        EntryFormat,
-                        accessExpression.Remove(accessExpression.IndexOf(ParameterName), ParameterName.Length))
-                        .TrimStart('.');
-                }
+                    var firstAccess = accessExpression.IndexOf(ExpressionHelper.MemberSeparator) + 1;
+                    var lastAccess = accessExpression.LastIndexOf(ExpressionHelper.MemberSeparator);
+                    if (lastAccess < firstAccess) return string.Empty;
+                    else return accessExpression.Substring(firstAccess, lastAccess - firstAccess);
+                }).Where(access => !string.IsNullOrEmpty(access)).ToArray();
+                header = string.Join((string)delimiterConstant.Value, headerMembers);
                 header = header.Trim();
             }
 

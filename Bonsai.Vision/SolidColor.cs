@@ -29,9 +29,9 @@ namespace Bonsai.Vision
         public int Channels { get; set; }
 
         [Range(0, 255)]
-        [Precision(2, .01)]
+        [Precision(0, 1)]
+        [TypeConverter(typeof(BgraScalarConverter))]
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
-        [TypeConverter("Bonsai.Vision.Design.BgraScalarConverter, Bonsai.Vision.Design")]
         [Description("The color value to which all pixels in the output image will be set to.")]
         public Scalar Color { get; set; }
 

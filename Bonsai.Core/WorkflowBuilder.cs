@@ -24,8 +24,10 @@ namespace Bonsai
     public class WorkflowBuilder : IXmlSerializable
     {
         readonly ExpressionBuilderGraph workflow;
+        const string DynamicAssemblyPrefix = "@Dynamic";
         const string VersionAttributeName = "Version";
         const string ExtensionTypeNodeName = "ExtensionTypes";
+        const string DescriptionElementName = "Description";
         const string WorkflowNodeName = "Workflow";
         const string TypeNodeName = "Type";
 
@@ -55,11 +57,25 @@ namespace Bonsai
         }
 
         /// <summary>
+        /// Gets or sets a description for the serializable workflow.
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
         /// Gets the <see cref="ExpressionBuilderGraph"/> instance used by this builder.
         /// </summary>
         public ExpressionBuilderGraph Workflow
         {
             get { return workflow; }
+        }
+
+        /// <summary>
+        /// Gets a <see cref="XmlSerializer"/> instance that can be used to serialize
+        /// or deserialize a <see cref="WorkflowBuilder"/>.
+        /// </summary>
+        public static XmlSerializer Serializer
+        {
+            get { return SerializerFactory.instance; }
         }
 
         #region IXmlSerializable Members
@@ -71,9 +87,18 @@ namespace Bonsai
 
         void IXmlSerializable.ReadXml(System.Xml.XmlReader reader)
         {
-            reader.ReadToFollowing(WorkflowNodeName);
+            reader.ReadStartElement(typeof(WorkflowBuilder).Name);
 
-            var workflowMarkup = reader.ReadOuterXml();
+            if (reader.IsStartElement(DescriptionElementName))
+            {
+                Description = reader.ReadElementContentAsString();
+            }
+
+            var workflowMarkup = string.Empty;
+            if (reader.IsStartElement(WorkflowNodeName))
+            {
+                workflowMarkup = reader.ReadOuterXml();
+            }
 
             reader.ReadToFollowing(ExtensionTypeNodeName);
             reader.ReadStartElement();
@@ -113,7 +138,18 @@ namespace Bonsai
             var versionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
             writer.WriteAttributeString(VersionAttributeName, versionInfo.ProductVersion);
 
+            var description = Description;
+            if (!string.IsNullOrEmpty(description))
+            {
+                writer.WriteElementString(DescriptionElementName, description);
+            }
+
             var types = new HashSet<Type>(GetExtensionTypes(workflow));
+            if (types.Any(type => !type.IsPublic))
+            {
+                throw new InvalidOperationException(Resources.Exception_SerializingNonPublicType);
+            }
+
             var serializer = GetXmlSerializer(types);
             var serializerNamespaces = GetXmlSerializerNamespaces(types);
             serializer.Serialize(writer, workflow.ToDescriptor(), serializerNamespaces);
@@ -126,9 +162,18 @@ namespace Bonsai
                     throw new InvalidOperationException(Resources.Exception_SerializingUnknownTypeBuilder);
                 }
 
-                writer.WriteElementString(TypeNodeName, type.AssemblyQualifiedName);
+                writer.WriteElementString(TypeNodeName, type.AssemblyQualifiedName.Replace(DynamicAssemblyPrefix, string.Empty));
             }
             writer.WriteEndElement();
+        }
+
+        #endregion
+
+        #region SerializerFactory
+
+        static class SerializerFactory
+        {
+            internal static readonly XmlSerializer instance = new XmlSerializer(typeof(WorkflowBuilder));
         }
 
         #endregion
@@ -154,7 +199,7 @@ namespace Bonsai
 
         static string GetClrNamespace(Type type)
         {
-            var assemblyName = type.Assembly.GetName().Name.Replace(UnknownTypeResolver.DynamicAssemblyPrefix, string.Empty);
+            var assemblyName = type.Assembly.GetName().Name.Replace(DynamicAssemblyPrefix, string.Empty);
             return string.Format("clr-namespace:{0};assembly={1}", type.Namespace, assemblyName);
         }
 
@@ -189,10 +234,17 @@ namespace Bonsai
                     XmlAttributeOverrides overrides = new XmlAttributeOverrides();
                     foreach (var type in serializerTypes)
                     {
-                        if (Attribute.IsDefined(type, typeof(XmlTypeAttribute), false)) continue;
+                        var obsolete = Attribute.IsDefined(type, typeof(ObsoleteAttribute), false);
+                        var xmlTypeDefined = Attribute.IsDefined(type, typeof(XmlTypeAttribute), false);
+                        if (xmlTypeDefined && !obsolete) continue;
 
                         var attributes = new XmlAttributes();
-                        attributes.XmlType = new XmlTypeAttribute { Namespace = GetClrNamespace(type) };
+                        if (obsolete && xmlTypeDefined)
+                        {
+                            var xmlType = (XmlTypeAttribute)Attribute.GetCustomAttribute(type, typeof(XmlTypeAttribute));
+                            attributes.XmlType = xmlType;
+                        }
+                        else attributes.XmlType = new XmlTypeAttribute { Namespace = GetClrNamespace(type) };
                         overrides.Add(type, attributes);
                     }
 
@@ -241,7 +293,6 @@ namespace Bonsai
 
         class UnknownTypeResolver
         {
-            internal const string DynamicAssemblyPrefix = "@Dynamic";
             readonly Dictionary<string, AssemblyBuilder> dynamicAssemblies = new Dictionary<string, AssemblyBuilder>();
             readonly Dictionary<string, ModuleBuilder> dynamicModules = new Dictionary<string, ModuleBuilder>();
             readonly Dictionary<string, Type> dynamicTypes = new Dictionary<string, Type>();

@@ -85,23 +85,18 @@ namespace Bonsai.Expressions
             }
 
             name = memberChain[memberChain.Length - 1];
-            var property = (from node in source
-                            let workflowProperty = ExpressionBuilder.Unwrap(node.Value) as ExternalizedProperty
-                            where workflowProperty != null && workflowProperty.Name == name
-                            select workflowProperty)
-                            .FirstOrDefault();
-            if (property == null)
+            var propertyDescriptor = TypeDescriptor.GetProperties(source).Find(name, false);
+            if (propertyDescriptor == null)
             {
                 throw new KeyNotFoundException(string.Format(Resources.Exception_PropertyNotFound, name));
             }
 
-            var propertyDescriptor = TypeDescriptor.GetProperties(property).Find("Value", false);
             if (value != null && value.GetType() != propertyDescriptor.PropertyType)
             {
                 value = propertyDescriptor.Converter.ConvertFrom(value);
             }
 
-            propertyDescriptor.SetValue(property, value);
+            propertyDescriptor.SetValue(source, value);
         }
 
         #region Error Handling
@@ -151,14 +146,14 @@ namespace Bonsai.Expressions
         {
             foreach (var builder in from node in source
                                     let inspectBuilder = node.Value as InspectBuilder
-                                    where inspectBuilder != null
+                                    where inspectBuilder != null && inspectBuilder.ObservableType != null
                                     select inspectBuilder)
             {
                 var inspectBuilder = builder;
                 yield return inspectBuilder.ErrorEx.Select(xs => BuildRuntimeExceptionStack(xs.Message, inspectBuilder, xs, callStack));
 
-                var workflowExpression = inspectBuilder.Builder as WorkflowExpressionBuilder;
-                if (workflowExpression != null)
+                var workflowExpression = inspectBuilder.Builder as IWorkflowExpressionBuilder;
+                if (workflowExpression != null && workflowExpression.Workflow != null)
                 {
                     foreach (var error in workflowExpression.Workflow.InspectErrors(Enumerable.Repeat(inspectBuilder, 1).Concat(callStack)))
                     {
@@ -203,7 +198,7 @@ namespace Bonsai.Expressions
         {
             // Add/remove build dependencies
             var buildContext = new BuildContext(buildTarget);
-            var dependencies = (from link in FindBuildDependencies(source)
+            var dependencies = (from link in FindBuildDependencies(source, buildContext)
                                 where link.Publish != null && link.Subscribe != null
                                 select new { link, edge = link.Workflow.AddEdge(link.Publish, link.Subscribe, null) })
                                 .ToList();
@@ -267,8 +262,8 @@ namespace Bonsai.Expressions
 
         class DependencyNode
         {
-            public Node<ExpressionBuilder, ExpressionBuilderArgument> Publish;
-            public List<Node<ExpressionBuilder, ExpressionBuilderArgument>> Subscribe = new List<Node<ExpressionBuilder, ExpressionBuilderArgument>>();
+            public DependencyElement Publish;
+            public List<DependencyElement> Subscribe = new List<DependencyElement>();
         }
 
         class DependencyLink
@@ -308,12 +303,86 @@ namespace Bonsai.Expressions
             return dependency;
         }
 
-        static IEnumerable<DependencyLink> FindBuildDependencies(ExpressionBuilderGraph source)
+        class DependencyElement
         {
-            Dictionary<string, DependencyNode> dependencies = null;
+            public ExpressionBuilder Element;
+            public Node<ExpressionBuilder, ExpressionBuilderArgument> Node;
+            public DependencyElement InnerDependency;
+
+            public DependencyElement(ExpressionBuilder element, Node<ExpressionBuilder, ExpressionBuilderArgument> node)
+                : this(element, node, null)
+            {
+            }
+
+            public DependencyElement(ExpressionBuilder element, Node<ExpressionBuilder, ExpressionBuilderArgument> node, DependencyElement innerDependency)
+            {
+                Element = element;
+                Node = node;
+                InnerDependency = innerDependency;
+            }
+        }
+
+        static IEnumerable<DependencyElement> SelectDependencyElements(ExpressionBuilderGraph source, IBuildContext buildContext)
+        {
             foreach (var node in source)
             {
-                var workflowElement = ExpressionBuilder.Unwrap(node.Value);
+                var builder = node.Value;
+                var element = ExpressionBuilder.Unwrap(builder);
+                var groupBuilder = element as IGroupWorkflowBuilder;
+                if (groupBuilder != null)
+                {
+                    try { groupBuilder.BuildContext = buildContext; }
+                    catch (Exception e)
+                    {
+                        throw new WorkflowBuildException(e.Message, builder, e);
+                    }
+
+                    try
+                    {
+                        var workflow = groupBuilder.Workflow;
+                        if (workflow == null) continue;
+
+                        var includeBuilder = groupBuilder as IncludeWorkflowBuilder;
+                        var dependencyContext = includeBuilder != null ? new IncludeContext(buildContext, includeBuilder.Path) : buildContext;
+
+                        var enumerator = SelectDependencyElements(workflow, dependencyContext).GetEnumerator();
+                        while (true)
+                        {
+                            try { if (!enumerator.MoveNext()) break; }
+                            catch (Exception e)
+                            {
+                                throw new WorkflowBuildException(e.Message, builder, e);
+                            }
+
+                            var dependencyElement = enumerator.Current;
+                            yield return new DependencyElement(dependencyElement.Element, node, dependencyElement);
+                        }
+                    }
+                    finally { groupBuilder.BuildContext = null; }
+                }
+                else yield return new DependencyElement(element, node);
+            }
+        }
+
+        static DependencyLink CreateDependencyLink(string name, ExpressionBuilderGraph workflow, DependencyElement publish, DependencyElement subscribe)
+        {
+            var publishNode = publish != null ? publish.Node : null;
+            var subscribeNode = subscribe != null ? subscribe.Node : null;
+            if (publishNode == subscribeNode && publishNode != null)
+            {
+                var group = (IGroupWorkflowBuilder)ExpressionBuilder.Unwrap(publishNode.Value);
+                return CreateDependencyLink(name, group.Workflow, publish.InnerDependency, subscribe.InnerDependency);
+            }
+            else return new DependencyLink(name, workflow, publishNode, subscribeNode);
+        }
+
+        static IEnumerable<DependencyLink> FindBuildDependencies(ExpressionBuilderGraph source, IBuildContext buildContext)
+        {
+            Dictionary<string, DependencyNode> dependencies = null;
+            foreach (var dependencyElement in SelectDependencyElements(source, buildContext))
+            {
+                var node = dependencyElement.Node;
+                var workflowElement = dependencyElement.Element;
                 var subjectBuilder = workflowElement as SubjectBuilder;
                 if (subjectBuilder != null && !string.IsNullOrEmpty(subjectBuilder.Name))
                 {
@@ -321,10 +390,10 @@ namespace Bonsai.Expressions
                     var dependency = GetOrCreateDependency(ref dependencies, subjectBuilder.Name);
                     if (dependency.Publish == null)
                     {
-                        dependency.Publish = node;
+                        dependency.Publish = dependencyElement;
                         foreach (var subscriber in dependency.Subscribe)
                         {
-                            yield return new DependencyLink(subjectBuilder.Name, source, node, subscriber);
+                            yield return CreateDependencyLink(subjectBuilder.Name, source, dependencyElement, subscriber);
                         }
                     }
                 }
@@ -336,25 +405,33 @@ namespace Bonsai.Expressions
                     var dependency = GetOrCreateDependency(ref dependencies, requireSubject.Name);
                     if (dependency.Publish != null)
                     {
-                        yield return new DependencyLink(requireSubject.Name, source, dependency.Publish, node);
+                        yield return CreateDependencyLink(requireSubject.Name, source, dependency.Publish, dependencyElement);
                     }
-                    else dependency.Subscribe.Add(node);
+                    else dependency.Subscribe.Add(dependencyElement);
                 }
 
                 var workflowBuilder = workflowElement as WorkflowExpressionBuilder;
                 if (workflowBuilder != null)
                 {
                     // Recurse through nested workflows and handle any unsatisfied dependencies
-                    foreach (var link in FindBuildDependencies(workflowBuilder.Workflow))
+                    var enumerator = FindBuildDependencies(workflowBuilder.Workflow, buildContext).GetEnumerator();
+                    while (true)
                     {
+                        try { if (!enumerator.MoveNext()) break; }
+                        catch (Exception e)
+                        {
+                            throw new WorkflowBuildException(e.Message, node.Value, e);
+                        }
+
+                        var link = enumerator.Current;
                         if (link.Publish == null)
                         {
                             var dependency = GetOrCreateDependency(ref dependencies, link.Name);
                             if (dependency.Publish != null)
                             {
-                                yield return new DependencyLink(link.Name, source, dependency.Publish, node);
+                                yield return CreateDependencyLink(link.Name, source, dependency.Publish, dependencyElement);
                             }
-                            else dependency.Subscribe.Add(node);
+                            else dependency.Subscribe.Add(dependencyElement);
                         }
                         else yield return link;
                     }
@@ -369,7 +446,7 @@ namespace Bonsai.Expressions
                     if (dependency.Value.Publish != null) continue;
                     foreach (var subscriber in dependency.Value.Subscribe)
                     {
-                        yield return new DependencyLink(dependency.Key, source, null, subscriber);
+                        yield return CreateDependencyLink(dependency.Key, source, null, subscriber);
                     }
                 }
             }
@@ -377,9 +454,41 @@ namespace Bonsai.Expressions
 
         #endregion
 
+        #region Nested Workflows
+
+        internal static IEnumerable<WorkflowInputBuilder> GetNestedParameters(this ExpressionBuilderGraph source)
+        {
+            return from node in source
+                   let inputBuilder = ExpressionBuilder.Unwrap(node.Value) as WorkflowInputBuilder
+                   where inputBuilder != null
+                   orderby inputBuilder.Index ascending
+                   select inputBuilder;
+        }
+
+        internal static IEnumerable<ExternalizedProperty> GetExternalizedProperties(this ExpressionBuilderGraph source)
+        {
+            return from node in source
+                   let externalizedProperty = ExpressionBuilder.Unwrap(node.Value) as ExternalizedProperty
+                   where externalizedProperty != null
+                   select externalizedProperty;
+        }
+
+        internal static Expression BuildNested(this ExpressionBuilderGraph source, IEnumerable<Expression> arguments, IBuildContext buildContext)
+        {
+            var parameters = source.GetNestedParameters();
+            foreach (var assignment in parameters.Zip(arguments, (parameter, argument) => new { parameter, argument }))
+            {
+                assignment.parameter.Source = assignment.argument;
+            }
+
+            return source.Build(buildContext);
+        }
+
+        #endregion
+
         #region Build Sequence
 
-        internal static Expression Build(this ExpressionBuilderGraph source, BuildContext buildContext)
+        internal static Expression Build(this ExpressionBuilderGraph source, IBuildContext buildContext)
         {
             Expression workflowOutput = null;
             HashSet<string> namedElements = null;
@@ -393,6 +502,18 @@ namespace Bonsai.Expressions
                 Expression expression;
                 var builder = node.Value;
                 var arguments = GetArgumentList(argumentLists, builder);
+
+                // Propagate build target in case of a nested workflow
+                var workflowElement = ExpressionBuilder.Unwrap(builder);
+                var requireBuildContext = workflowElement as IRequireBuildContext;
+                if (requireBuildContext != null)
+                {
+                    try { requireBuildContext.BuildContext = buildContext; }
+                    catch (Exception e)
+                    {
+                        throw new WorkflowBuildException(e.Message, builder, e);
+                    }
+                }
 
                 var argumentRange = builder.ArgumentRange;
                 if (argumentRange == null)
@@ -412,14 +533,6 @@ namespace Bonsai.Expressions
                     throw new WorkflowBuildException(
                         string.Format("Unsupported number of arguments. This node supports at most {0} input connection(s).", argumentRange.LowerBound),
                         builder);
-                }
-
-                // Propagate build target in case of a nested workflow
-                var workflowElement = ExpressionBuilder.Unwrap(builder);
-                var requireBuildContext = workflowElement as IRequireBuildContext;
-                if (requireBuildContext != null)
-                {
-                    requireBuildContext.BuildContext = buildContext;
                 }
 
                 var workflowProperty = workflowElement as ExternalizedProperty;
@@ -482,6 +595,9 @@ namespace Bonsai.Expressions
                     }
                     return false;
                 });
+
+                // Externalized property nodes do not generate observable sequences
+                if (expression == ExpressionBuilder.EmptyExpression) continue;
 
                 MulticastScope multicastScope = null;
                 var argumentBuilder = workflowElement as IArgumentBuilder;
@@ -636,11 +752,9 @@ namespace Bonsai.Expressions
             foreach (var node in source)
             {
                 var builder = node.Value;
-                var workflowExpression = recurse ? ExpressionBuilder.Unwrap(builder) as WorkflowExpressionBuilder : null;
-                if (workflowExpression != null)
+                if (recurse)
                 {
-                    workflowExpression = workflowExpression.Clone(workflowExpression.Workflow.Convert(selector, recurse));
-                    builder = UnwrapConvert(builder, x => workflowExpression);
+                    builder = UnwrapConvert(builder, selector);
                 }
 
                 builder = selector(builder);
@@ -665,7 +779,6 @@ namespace Bonsai.Expressions
             return workflow;
         }
 
-        // This method needs to be kept in sync with the behavior of Unwrap
         static ExpressionBuilder UnwrapConvert(ExpressionBuilder builder, Func<ExpressionBuilder, ExpressionBuilder> selector)
         {
             if (builder == null)
@@ -680,7 +793,55 @@ namespace Bonsai.Expressions
                 return new InspectBuilder(result);
             }
 
-            return selector(builder);
+            var disableBuilder = builder as DisableBuilder;
+            if (disableBuilder != null)
+            {
+                var result = UnwrapConvert(disableBuilder.Builder, selector);
+                return new DisableBuilder { Builder = result };
+            }
+
+            var workflowExpression = builder as WorkflowExpressionBuilder;
+            if (workflowExpression != null)
+            {
+                return workflowExpression.Clone(workflowExpression.Workflow.Convert(selector, true));
+            }
+
+            return builder;
+        }
+
+        /// <summary>
+        /// Decorates the specified expression builder with an <see cref="InspectBuilder"/>
+        /// instance allowing for runtime inspection and error redirection.
+        /// </summary>
+        /// <param name="builder">The expression builder instance to decorate.</param>
+        /// <returns>
+        /// An <see cref="InspectBuilder"/> instance decorating the
+        /// specified expression builder.
+        /// </returns>
+        public static InspectBuilder AsInspectBuilder(this ExpressionBuilder builder)
+        {
+            return AsInspectBuilder(builder, true);
+        }
+
+        static InspectBuilder AsInspectBuilder(this ExpressionBuilder builder, bool recurse)
+        {
+            var includeWorkflow = builder as IncludeWorkflowBuilder;
+            if (includeWorkflow != null && recurse)
+            {
+                builder = new IncludeWorkflowBuilder(includeWorkflow, true);
+            }
+            return new InspectBuilder(builder);
+        }
+
+        static ExpressionBuilder RemoveInspectBuilder(InspectBuilder inspectBuilder, bool recurse)
+        {
+            var builder = inspectBuilder.Builder;
+            var includeWorkflow = builder as IncludeWorkflowBuilder;
+            if (includeWorkflow != null && recurse)
+            {
+                builder = new IncludeWorkflowBuilder(includeWorkflow, false);
+            }
+            return builder;
         }
 
         /// <summary>
@@ -713,7 +874,7 @@ namespace Bonsai.Expressions
         /// </returns>
         public static ExpressionBuilderGraph ToInspectableGraph(this ExpressionBuilderGraph source, bool recurse)
         {
-            return Convert(source, builder => new InspectBuilder(builder), recurse);
+            return Convert(source, builder => AsInspectBuilder(builder, recurse), recurse);
         }
 
         /// <summary>
@@ -746,7 +907,7 @@ namespace Bonsai.Expressions
         /// </returns>
         public static ExpressionBuilderGraph FromInspectableGraph(this IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> source, bool recurse)
         {
-            return Convert(source, builder => ((InspectBuilder)builder).Builder, recurse);
+            return Convert(source, builder => RemoveInspectBuilder((InspectBuilder)builder, recurse), recurse);
         }
 
         /// <summary>

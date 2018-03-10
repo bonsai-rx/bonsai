@@ -11,12 +11,11 @@
     <iconUrl>https://bitbucket.org/horizongir/bonsai/raw/7aacc64dc4647e57362ab310238591dc197fef0d/Resources/Bonsai.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Public release of audio capture and playback infrastructure for Bonsai.</releaseNotes>
-    <copyright>Gonçalo Lopes © 2017</copyright>
+    <copyright>Gonçalo Lopes © 2018</copyright>
     <tags>Bonsai Rx Reactive Extensions Audio</tags>
     <dependencies>
-      <dependency id="Bonsai.Core" version="2.3.0" />
-      <dependency id="Bonsai.System" version="2.3.0" />
+      <dependency id="Bonsai.Core" version="2.4.0" />
+      <dependency id="Bonsai.System" version="2.4.0" />
     </dependencies>
   </metadata>
 </package>

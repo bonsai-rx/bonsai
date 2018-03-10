@@ -24,20 +24,27 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Globalization;
 using System.Reactive.Subjects;
+using Bonsai.Editor.Scripting;
 
 namespace Bonsai.Editor
 {
     public partial class MainForm : Form
     {
+        const int CycleNextHotKey = 0;
+        const int CyclePreviousHotKey = 1;
         const string BonsaiExtension = ".bonsai";
         const string LayoutExtension = ".layout";
         const string BonsaiPackageName = "Bonsai";
-        const string SnippetsDirectory = "Snippets";
+        const string ExtensionsDirectory = "Extensions";
         const string SnippetCategoryName = "Workflow";
         const string VersionAttributeName = "Version";
         const string DefaultSnippetNamespace = "Unspecified";
-        const int CycleNextHotKey = 0;
-        const int CyclePreviousHotKey = 1;
+        static readonly object ExtensionsDirectoryChanged = new object();
+        static readonly XmlWriterSettings DefaultWriterSettings = new XmlWriterSettings
+        {
+            NamespaceHandling = NamespaceHandling.OmitDuplicates,
+            Indent = true
+        };
 
         int version;
         int saveVersion;
@@ -45,10 +52,11 @@ namespace Bonsai.Editor
         Font selectionFont;
         EditorSite editorSite;
         HotKeyMessageFilter hotKeys;
+        IServiceProvider serviceProvider;
+        IScriptEnvironment scriptEnvironment;
+        WorkflowEditorControl editorControl;
         WorkflowBuilder workflowBuilder;
-        WorkflowGraphView workflowGraphView;
         WorkflowSelectionModel selectionModel;
-        List<TypeDescriptorAssociation> selectionDescriptionProviders;
         Dictionary<string, string> propertyAssignments;
         Dictionary<string, TreeNode> toolboxCategories;
         List<TreeNode> treeCache;
@@ -56,18 +64,18 @@ namespace Bonsai.Editor
         Bitmap statusReadyImage;
         ToolStripButton statusUpdateAvailableLabel;
         BehaviorSubject<bool> updatesAvailable;
-        DirectoryInfo snippetPath;
+        DirectoryInfo extensionsPath;
         object formClosedGate;
         bool formClosed;
 
-        XmlSerializer serializer;
-        XmlSerializer layoutSerializer;
         TypeVisualizerMap typeVisualizers;
         List<WorkflowElementDescriptor> workflowElements;
+        List<WorkflowElementDescriptor> workflowSnippets;
         WorkflowRuntimeExceptionCache exceptionCache;
         HashSet<Module> typeDescriptorCache;
         WorkflowException workflowError;
         IDisposable running;
+        bool debugging;
         bool building;
 
         IObservable<IGrouping<string, WorkflowElementDescriptor>> toolboxElements;
@@ -78,6 +86,14 @@ namespace Bonsai.Editor
         public MainForm(
             IObservable<IGrouping<string, WorkflowElementDescriptor>> elementProvider,
             IObservable<TypeVisualizerDescriptor> visualizerProvider)
+            : this(elementProvider, visualizerProvider, null)
+        {
+        }
+
+        public MainForm(
+            IObservable<IGrouping<string, WorkflowElementDescriptor>> elementProvider,
+            IObservable<TypeVisualizerDescriptor> visualizerProvider,
+            IServiceProvider provider)
         {
             InitializeComponent();
             statusTextLabel = new Label();
@@ -102,31 +118,29 @@ namespace Bonsai.Editor
                 toolboxCategories.Add(node.Name, node);
             }
 
+            serviceProvider = provider;
             treeCache = new List<TreeNode>();
             editorSite = new EditorSite(this);
             hotKeys = new HotKeyMessageFilter();
             workflowBuilder = new WorkflowBuilder();
-            serializer = new XmlSerializer(typeof(WorkflowBuilder));
-            layoutSerializer = new XmlSerializer(typeof(VisualizerLayout));
+            scriptEnvironment = (IScriptEnvironment)provider.GetService(typeof(IScriptEnvironment));
             regularFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Regular);
             selectionFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Bold);
             typeVisualizers = new TypeVisualizerMap();
             workflowElements = new List<WorkflowElementDescriptor>();
+            workflowSnippets = new List<WorkflowElementDescriptor>();
             exceptionCache = new WorkflowRuntimeExceptionCache();
             typeDescriptorCache = new HashSet<Module>();
             selectionModel = new WorkflowSelectionModel();
-            selectionDescriptionProviders = new List<TypeDescriptorAssociation>();
             propertyAssignments = new Dictionary<string, string>();
-            workflowGraphView = new WorkflowGraphView(editorSite);
-            workflowGraphView.Workflow = workflowBuilder.Workflow;
-            workflowGraphView.Dock = DockStyle.Fill;
-            workflowGroupBox.Controls.Add(workflowGraphView);
+            editorControl = new WorkflowEditorControl(editorSite);
+            editorControl.Workflow = workflowBuilder.Workflow;
+            editorControl.Dock = DockStyle.Fill;
+            workflowSplitContainer.Panel1.Controls.Add(editorControl);
             propertyGrid.LineColor = SystemColors.InactiveBorder;
             propertyGrid.Site = editorSite;
 
-            selectionModel.UpdateSelection(workflowGraphView);
             selectionModel.SelectionChanged += new EventHandler(selectionModel_SelectionChanged);
-
             toolboxElements = elementProvider;
             visualizerElements = visualizerProvider;
             Application.AddMessageFilter(hotKeys);
@@ -152,7 +166,16 @@ namespace Bonsai.Editor
             set { FileName = value; }
         }
 
+        [Obsolete]
+        public bool StartOnLoad
+        {
+            get { return LoadAction != LoadAction.None; }
+            set { LoadAction = value ? LoadAction.Start : LoadAction.None; }
+        }
+
         public EditorResult EditorResult { get; set; }
+
+        public LoadAction LoadAction { get; set; }
 
         public string FileName
         {
@@ -165,8 +188,6 @@ namespace Bonsai.Editor
             get { return updatesAvailable.Value; }
             set { updatesAvailable.OnNext(value); }
         }
-
-        public bool StartOnLoad { get; set; }
 
         public IDictionary<string, string> PropertyAssignments
         {
@@ -248,6 +269,19 @@ namespace Bonsai.Editor
                 Path.GetExtension(initialFileName) == BonsaiExtension &&
                 File.Exists(initialFileName);
 
+            var currentDirectory = Path.GetFullPath(Environment.CurrentDirectory).TrimEnd('\\');
+            var appDomainBaseDirectory = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\');
+            var systemPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.System)).TrimEnd('\\');
+            var systemX86Path = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86)).TrimEnd('\\');
+            var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory || currentDirectory == systemPath || currentDirectory == systemX86Path;
+            var extensionsDirectory = Path.Combine(appDomainBaseDirectory, ExtensionsDirectory);
+
+            InitializeSnippetFileWatcher().Subscribe();
+            updatesAvailable.Subscribe(HandleUpdatesAvailable);
+            workflowSnippets.AddRange(FindSnippets(extensionsDirectory));
+            directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+
+            InitializeEditorToolboxTypes();
             var initialization = InitializeToolbox().Merge(InitializeTypeVisualizers()).TakeLast(1).ObserveOn(Scheduler.Default);
             if (validFileName && OpenWorkflow(initialFileName, false))
             {
@@ -256,21 +290,19 @@ namespace Bonsai.Editor
                     workflowBuilder.Workflow.SetWorkflowProperty(assignment.Key, assignment.Value);
                 }
 
-                if (StartOnLoad) initialization = initialization.Do(xs => BeginInvoke((Action)(() => StartWorkflow())));
+                var loadAction = LoadAction;
+                if (loadAction != LoadAction.None)
+                {
+                    initialization = initialization.Do(xs => BeginInvoke((Action)(() =>
+                    {
+                        var debugging = loadAction == LoadAction.Start;
+                        editorSite.StartWorkflow(debugging);
+                    })));
+                }
             }
             else FileName = null;
 
-            var currentDirectory = Path.GetFullPath(Environment.CurrentDirectory).TrimEnd('\\');
-            var appDomainBaseDirectory = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\');
-            var systemPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.System)).TrimEnd('\\');
-            var systemX86Path = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86)).TrimEnd('\\');
-            var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory || currentDirectory == systemPath || currentDirectory == systemX86Path;
-            directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
-            snippetPath = new DirectoryInfo(Path.Combine(appDomainBaseDirectory, SnippetsDirectory));
-
             initialization.Subscribe();
-            RefreshSnippets().Subscribe();
-            updatesAvailable.Subscribe(HandleUpdatesAvailable);
             base.OnLoad(e);
         }
 
@@ -285,6 +317,7 @@ namespace Bonsai.Editor
             propertiesSplitContainer.SplitterDistance = (int)(propertiesSplitContainer.SplitterDistance * factor.Height);
             var splitterScale = DefaultToolboxSplitterDistance / toolboxSplitContainer.SplitterDistance;
             toolboxSplitContainer.SplitterDistance = (int)(toolboxSplitContainer.SplitterDistance * splitterScale * factor.Height);
+            workflowSplitContainer.Panel1.Padding = new Padding(0, 6, 0, 2);
 
             var imageSize = toolStrip.ImageScalingSize;
             var scalingFactor = ((int)(factor.Height * 100) / 50 * 50) / 100f;
@@ -320,17 +353,46 @@ namespace Bonsai.Editor
 
         #region Toolbox
 
+        void InitializeEditorToolboxTypes()
+        {
+            foreach (var group in EditorToolboxTypes().GroupBy(descriptor => descriptor.Namespace))
+            {
+                InitializeToolboxCategory(group.Key, group);
+            }
+        }
+
+        IEnumerable<WorkflowElementDescriptor> EditorToolboxTypes()
+        {
+            var createScriptType = typeof(Bonsai.Editor.Scripting.CSharpScript);
+            var descriptionAttribute = (DescriptionAttribute)TypeDescriptor.GetAttributes(createScriptType)[typeof(DescriptionAttribute)];
+            yield return new WorkflowElementDescriptor
+            {
+                Name = ExpressionBuilder.GetElementDisplayName(createScriptType),
+                Namespace = createScriptType.Namespace,
+                FullyQualifiedName = createScriptType.AssemblyQualifiedName,
+                Description = descriptionAttribute.Description,
+                ElementTypes = new[] { ElementCategory.Combinator }
+            };
+        }
+
+        IObservable<Unit> InitializeSnippetFileWatcher()
+        {
+            var extensionsDirectoryChanged = Observable.FromEventPattern<EventHandler, EventArgs>(
+                handler => Events.AddHandler(ExtensionsDirectoryChanged, handler),
+                handler => Events.RemoveHandler(ExtensionsDirectoryChanged, handler));
+            return extensionsDirectoryChanged.Select(evt => Observable.Defer(RefreshSnippets)).Switch();
+        }
+
         IObservable<Unit> RefreshSnippets()
         {
             try
             {
-                snippetFileWatcher.Path = snippetPath.FullName;
+                snippetFileWatcher.Path = extensionsPath.FullName;
                 snippetFileWatcher.EnableRaisingEvents = true;
             }
             catch (ArgumentException)
             {
                 snippetFileWatcher.EnableRaisingEvents = false;
-                return Observable.Empty<Unit>();
             }
 
             var start = Observable.Return(new EventPattern<EventArgs>(this, EventArgs.Empty));
@@ -349,7 +411,10 @@ namespace Bonsai.Editor
             return Observable
                 .Merge(start, changed, created, deleted, renamed)
                 .Throttle(TimeSpan.FromSeconds(1), Scheduler.Default)
-                .Select(evt => FindSnippets(SnippetsDirectory).GroupBy(x => x.Namespace).ToList())
+                .Select(evt => workflowSnippets
+                    .Concat(FindSnippets(ExtensionsDirectory))
+                    .GroupBy(x => x.Namespace)
+                    .ToList())
                 .ObserveOn(this)
                 .Do(elements =>
                 {
@@ -389,8 +454,16 @@ namespace Bonsai.Editor
 
         static IEnumerable<WorkflowElementDescriptor> FindSnippets(string basePath)
         {
+            int basePathLength;
             var workflowFiles = default(string[]);
-            basePath = Path.IsPathRooted(basePath) ? basePath : Path.Combine(AppDomain.CurrentDomain.BaseDirectory, basePath);
+            if (!Path.IsPathRooted(basePath))
+            {
+                var currentDirectory = Environment.CurrentDirectory;
+                basePath = Path.Combine(currentDirectory, basePath);
+                basePathLength = currentDirectory.Length;
+            }
+            else basePathLength = basePath.Length;
+
             try { workflowFiles = Directory.GetFiles(basePath, "*" + BonsaiExtension, SearchOption.AllDirectories); }
             catch (DirectoryNotFoundException) { yield break; }
 
@@ -411,7 +484,7 @@ namespace Bonsai.Editor
                 }
                 catch (SystemException) { continue; }
                 
-                var relativePath = fileName.Substring(basePath.Length)
+                var relativePath = fileName.Substring(basePathLength)
                                            .TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
                 var fileNamespace = Path.GetDirectoryName(relativePath)
                                         .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar)
@@ -422,7 +495,7 @@ namespace Bonsai.Editor
                 {
                     Name = Path.GetFileNameWithoutExtension(relativePath),
                     Namespace = fileNamespace,
-                    FullyQualifiedName = fileName,
+                    FullyQualifiedName = Path.ChangeExtension(relativePath, null),
                     Description = description,
                     ElementTypes = new[] { ElementCategory.Workflow }
                 };
@@ -457,6 +530,7 @@ namespace Bonsai.Editor
 
         static string GetPackageDisplayName(string packageKey)
         {
+            if (packageKey == null) return ExtensionsDirectory;
             if (packageKey == BonsaiPackageName) return packageKey;
             return packageKey.Replace(BonsaiPackageName + ".", string.Empty);
         }
@@ -573,40 +647,43 @@ namespace Bonsai.Editor
                 version = null;
                 reader.MoveToContent();
                 var versionName = reader.GetAttribute(VersionAttributeName);
-                var workflowBuilder = (WorkflowBuilder)serializer.Deserialize(reader);
-                var workflow = workflowBuilder.Workflow;
-                if (string.IsNullOrEmpty(versionName) ||
-                    !SemanticVersion.TryParse(versionName, out version) ||
-                    UpgradeHelper.IsDeprecated(version))
+                SemanticVersion.TryParse(versionName, out version);
+                return (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
+            }
+        }
+
+        WorkflowBuilder UpdateWorkflow(WorkflowBuilder workflowBuilder, SemanticVersion version)
+        {
+            var workflow = workflowBuilder.Workflow;
+            if (version == null || UpgradeHelper.IsDeprecated(version))
+            {
+                MessageBox.Show(
+                    this,
+                    Resources.UpdateWorkflow_Warning,
+                    Resources.UpdateWorkflow_Warning_Caption,
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning,
+                    MessageBoxDefaultButton.Button1);
+
+                try
+                {
+                    UpgradeHelper.UpgradeEnumerableUnfoldingRules(workflowBuilder, version);
+                    workflow = UpgradeHelper.UpgradeBuilderNodes(workflow);
+                }
+                catch (WorkflowBuildException)
                 {
                     MessageBox.Show(
                         this,
-                        Resources.UpdateWorkflow_Warning,
+                        Resources.UpdateWorkflow_Error,
                         Resources.UpdateWorkflow_Warning_Caption,
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning,
                         MessageBoxDefaultButton.Button1);
-
-                    try
-                    {
-                        UpgradeHelper.UpgradeEnumerableUnfoldingRules(workflowBuilder);
-                        workflow = UpgradeHelper.UpgradeSourceBuilderNodes(workflow);
-                    }
-                    catch (WorkflowBuildException)
-                    {
-                        MessageBox.Show(
-                            this,
-                            Resources.UpdateWorkflow_Error,
-                            Resources.UpdateWorkflow_Warning_Caption,
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Warning,
-                            MessageBoxDefaultButton.Button1);
-                    }
                 }
-
-                workflowBuilder = new WorkflowBuilder(workflow.ToInspectableGraph());
-                return workflowBuilder;
             }
+
+            workflowBuilder = new WorkflowBuilder(workflow.ToInspectableGraph());
+            return workflowBuilder;
         }
 
         bool OpenWorkflow(string fileName)
@@ -625,40 +702,38 @@ namespace Bonsai.Editor
                 return false;
             }
 
+            UpdateWorkflowDirectory(fileName, setWorkingDirectory);
+            if (EditorResult == EditorResult.ReloadEditor) return false;
+
+            editorControl.Workflow = workflowBuilder.Workflow;
+            workflowBuilder = UpdateWorkflow(workflowBuilder, version);
+            editorControl.VisualizerLayout = null;
+            editorControl.Workflow = workflowBuilder.Workflow;
+            if (UpgradeHelper.IsDeprecated(version)) saveWorkflowDialog.FileName = null;
+            else saveWorkflowDialog.FileName = fileName;
+            editorSite.ValidateWorkflow();
+
             var layoutPath = GetLayoutPath(fileName);
-            workflowGraphView.VisualizerLayout = null;
-            workflowGraphView.Workflow = workflowBuilder.Workflow;
             if (File.Exists(layoutPath))
             {
                 using (var reader = XmlReader.Create(layoutPath))
                 {
-                    try { workflowGraphView.VisualizerLayout = (VisualizerLayout)layoutSerializer.Deserialize(reader); }
+                    try { editorControl.VisualizerLayout = (VisualizerLayout)VisualizerLayout.Serializer.Deserialize(reader); }
                     catch (InvalidOperationException) { }
                 }
             }
 
-            var workflowDirectory = Path.GetDirectoryName(fileName);
-            openWorkflowDialog.InitialDirectory = saveWorkflowDialog.InitialDirectory = workflowDirectory;
-            if (UpgradeHelper.IsDeprecated(version)) saveWorkflowDialog.FileName = null;
-            else saveWorkflowDialog.FileName = fileName;
             ResetProjectStatus();
             UpdateTitle();
-
-            editorSite.ValidateWorkflow();
-            if (setWorkingDirectory || string.IsNullOrEmpty(directoryToolStripTextBox.Text))
-            {
-                directoryToolStripTextBox.Text = workflowDirectory;
-            }
-
             return true;
         }
 
-        void SaveElement(XmlSerializer serializer, string fileName, object o, string error)
+        bool SaveElement(XmlSerializer serializer, string fileName, object o, string error)
         {
             try
             {
                 using (var memoryStream = new MemoryStream())
-                using (var writer = XmlWriter.Create(memoryStream, new XmlWriterSettings { Indent = true }))
+                using (var writer = XmlWriter.Create(memoryStream, DefaultWriterSettings))
                 {
                     serializer.Serialize(writer, o);
                     using (var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
@@ -666,11 +741,14 @@ namespace Bonsai.Editor
                         memoryStream.WriteTo(fileStream);
                     }
                 }
+
+                return true;
             }
             catch (IOException ex)
             {
                 var errorMessage = string.Format(error, ex.Message);
                 MessageBox.Show(this, errorMessage, Resources.SaveElement_Error_Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
             }
             catch (InvalidOperationException ex)
             {
@@ -680,17 +758,63 @@ namespace Bonsai.Editor
 
                 var errorMessage = string.Format(error, ex.InnerException != null ? ex.InnerException.Message : ex.Message);
                 MessageBox.Show(this, errorMessage, Resources.SaveElement_Error_Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
             }
         }
 
-        void SaveWorkflow(string fileName, WorkflowBuilder workflowBuilder)
+        bool SaveWorkflow(string fileName)
         {
-            SaveElement(serializer, fileName, workflowBuilder, Resources.SaveWorkflow_Error);
+            var serializerWorkflowBuilder = new WorkflowBuilder(workflowBuilder.Workflow.FromInspectableGraph());
+            if (!SaveWorkflowBuilder(fileName, serializerWorkflowBuilder)) return false;
+            saveVersion = version;
+
+            editorControl.UpdateVisualizerLayout();
+            if (editorControl.VisualizerLayout != null)
+            {
+                var layoutPath = GetLayoutPath(fileName);
+                SaveVisualizerLayout(layoutPath, editorControl.VisualizerLayout);
+            }
+
+            UpdateWorkflowDirectory(fileName);
+            return true;
+        }
+
+        bool SaveWorkflowBuilder(string fileName, WorkflowBuilder workflowBuilder)
+        {
+            return SaveElement(WorkflowBuilder.Serializer, fileName, workflowBuilder, Resources.SaveWorkflow_Error);
         }
 
         void SaveVisualizerLayout(string fileName, VisualizerLayout layout)
         {
-            SaveElement(layoutSerializer, fileName, layout, Resources.SaveLayout_Error);
+            SaveElement(VisualizerLayout.Serializer, fileName, layout, Resources.SaveLayout_Error);
+        }
+
+        void OnExtensionsDirectoryChanged(EventArgs e)
+        {
+            var handler = Events[ExtensionsDirectoryChanged] as EventHandler;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        void UpdateWorkflowDirectory(string fileName)
+        {
+            UpdateWorkflowDirectory(fileName, true);
+        }
+
+        void UpdateWorkflowDirectory(string fileName, bool setWorkingDirectory)
+        {
+            var workflowDirectory = Path.GetDirectoryName(fileName);
+            openWorkflowDialog.InitialDirectory = saveWorkflowDialog.InitialDirectory = workflowDirectory;
+            if (setWorkingDirectory && directoryToolStripTextBox.Text != workflowDirectory)
+            {
+                directoryToolStripTextBox.Text = workflowDirectory;
+                saveWorkflowDialog.FileName = fileName;
+                EditorResult = EditorResult.ReloadEditor;
+                ResetProjectStatus();
+                Close();
+            }
         }
 
         void UpdateCurrentDirectory()
@@ -698,6 +822,8 @@ namespace Bonsai.Editor
             if (Directory.Exists(directoryToolStripTextBox.Text))
             {
                 Environment.CurrentDirectory = directoryToolStripTextBox.Text;
+                extensionsPath = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, ExtensionsDirectory));
+                OnExtensionsDirectoryChanged(EventArgs.Empty);
             }
             else directoryToolStripTextBox.Text = Environment.CurrentDirectory;
         }
@@ -739,8 +865,8 @@ namespace Bonsai.Editor
 
             saveWorkflowDialog.FileName = null;
             workflowBuilder.Workflow.Clear();
-            workflowGraphView.VisualizerLayout = null;
-            workflowGraphView.Workflow = workflowBuilder.Workflow;
+            editorControl.VisualizerLayout = null;
+            editorControl.Workflow = workflowBuilder.Workflow;
             ResetProjectStatus();
             UpdateTitle();
         }
@@ -758,54 +884,47 @@ namespace Bonsai.Editor
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(saveWorkflowDialog.FileName)) saveAsToolStripMenuItem_Click(this, e);
-            else
-            {
-                var serializerWorkflowBuilder = new WorkflowBuilder(workflowBuilder.Workflow.FromInspectableGraph());
-                SaveWorkflow(saveWorkflowDialog.FileName, serializerWorkflowBuilder);
-                saveVersion = version;
-
-                workflowGraphView.UpdateVisualizerLayout();
-                if (workflowGraphView.VisualizerLayout != null)
-                {
-                    var layoutPath = GetLayoutPath(saveWorkflowDialog.FileName);
-                    SaveVisualizerLayout(layoutPath, workflowGraphView.VisualizerLayout);
-                }
-
-                if (string.IsNullOrEmpty(directoryToolStripTextBox.Text))
-                {
-                    directoryToolStripTextBox.Text = Path.GetDirectoryName(saveWorkflowDialog.FileName);
-                }
-            }
+            else SaveWorkflow(saveWorkflowDialog.FileName);
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (saveWorkflowDialog.ShowDialog() == DialogResult.OK)
             {
-                saveToolStripMenuItem_Click(this, e);
-                var workflowDirectory = Path.GetDirectoryName(saveWorkflowDialog.FileName);
-                openWorkflowDialog.InitialDirectory = saveWorkflowDialog.InitialDirectory = workflowDirectory;
-                directoryToolStripTextBox.Text = workflowDirectory;
-                UpdateTitle();
+                if (SaveWorkflow(saveWorkflowDialog.FileName))
+                {
+                    UpdateTitle();
+                }
+                else saveWorkflowDialog.FileName = null;
             }
         }
 
         private void saveSnippetAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            editorSite.EnsureExtensionsDirectory();
+            if (!extensionsPath.Exists) return;
+
             var currentFileName = saveWorkflowDialog.FileName;
             try
             {
-                if (string.IsNullOrEmpty(snippetFileWatcher.Path) && !snippetPath.Exists)
+                saveWorkflowDialog.FileName = null;
+                var serializerWorkflowBuilder = selectionModel.SelectedNodes.ToWorkflowBuilder();
+                if (serializerWorkflowBuilder.Workflow.Count == 1)
                 {
-                    snippetPath.Create();
-                    RefreshSnippets().Subscribe();
+                    var groupBuilder = serializerWorkflowBuilder.Workflow.Single().Value as GroupWorkflowBuilder;
+                    if (groupBuilder != null)
+                    {
+                        serializerWorkflowBuilder = new WorkflowBuilder(groupBuilder.Workflow);
+                        serializerWorkflowBuilder.Description = groupBuilder.Description;
+                        saveWorkflowDialog.FileName = groupBuilder.Name;
+                    }
                 }
 
                 saveWorkflowDialog.InitialDirectory = snippetFileWatcher.Path;
                 if (saveWorkflowDialog.ShowDialog() == DialogResult.OK)
                 {
-                    var serializerWorkflowBuilder = selectionModel.SelectedNodes.ToWorkflowBuilder();
-                    SaveWorkflow(saveWorkflowDialog.FileName, serializerWorkflowBuilder);
+                    SaveWorkflowBuilder(saveWorkflowDialog.FileName, serializerWorkflowBuilder);
+                    editorSite.ValidateWorkflow();
                 }
             }
             finally
@@ -910,9 +1029,44 @@ namespace Bonsai.Editor
 
                 running = null;
                 building = false;
-                workflowGraphView.UpdateVisualizerLayout();
+                editorControl.UpdateVisualizerLayout();
                 UpdateTitle();
             }));
+        }
+
+        static void SetWorkflowNotifications(ExpressionBuilderGraph source, bool publishNotifications)
+        {
+            foreach (var builder in from node in source
+                                    let inspectBuilder = node.Value as InspectBuilder
+                                    where inspectBuilder != null
+                                    select inspectBuilder)
+            {
+                var inspectBuilder = builder;
+                inspectBuilder.PublishNotifications = publishNotifications;
+                var workflowExpression = inspectBuilder.Builder as IWorkflowExpressionBuilder;
+                if (workflowExpression != null && workflowExpression.Workflow != null)
+                {
+                    SetWorkflowNotifications(workflowExpression.Workflow, publishNotifications);
+                }
+            }
+        }
+
+        static void SetLayoutNotifications(VisualizerLayout root)
+        {
+            foreach (var settings in root.DialogSettings)
+            {
+                var inspectBuilder = settings.Tag as InspectBuilder;
+                if (inspectBuilder != null)
+                {
+                    inspectBuilder.PublishNotifications = !string.IsNullOrEmpty(settings.VisualizerTypeName);
+                }
+
+                var editorSettings = settings as WorkflowEditorSettings;
+                if (editorSettings != null && editorSettings.EditorVisualizerLayout != null)
+                {
+                    SetLayoutNotifications(editorSettings.EditorVisualizerLayout);
+                }
+            }
         }
 
         void StartWorkflow()
@@ -921,6 +1075,12 @@ namespace Bonsai.Editor
             {
                 building = true;
                 ClearWorkflowError();
+                SetWorkflowNotifications(workflowBuilder.Workflow, debugging);
+                if (!debugging && editorControl.VisualizerLayout != null)
+                {
+                    SetLayoutNotifications(editorControl.VisualizerLayout);
+                }
+
                 running = Observable.Using(
                     () =>
                     {
@@ -1003,7 +1163,7 @@ namespace Bonsai.Editor
         {
             if (workflowError != null)
             {
-                ClearExceptionBuilderNode(workflowGraphView, workflowError);
+                ClearExceptionBuilderNode(editorControl.WorkflowGraphView, workflowError);
             }
 
             exceptionCache.Clear();
@@ -1014,7 +1174,7 @@ namespace Bonsai.Editor
         {
             if (workflowError != null)
             {
-                HighlightExceptionBuilderNode(workflowGraphView, workflowError, false);
+                HighlightExceptionBuilderNode(editorControl.WorkflowGraphView, workflowError, false);
             }
         }
 
@@ -1116,7 +1276,7 @@ namespace Bonsai.Editor
                 if (workflowException != null || exceptionCache.TryGetValue(e, out workflowException))
                 {
                     workflowError = workflowException;
-                    HighlightExceptionBuilderNode(workflowGraphView, workflowException, building);
+                    HighlightExceptionBuilderNode(editorControl.WorkflowGraphView, workflowException, building);
                 }
                 else editorSite.ShowError(e.Message, Name);
             };
@@ -1184,9 +1344,35 @@ namespace Bonsai.Editor
             return matchIndex;
         }
 
+        private bool IsActiveControl(Control control)
+        {
+            var activeControl = ActiveControl;
+            while (activeControl != control)
+            {
+                var container = activeControl as IContainerControl;
+                if (container != null)
+                {
+                    activeControl = container.ActiveControl;
+                }
+                else return false;
+            }
+
+            return true;
+        }
+
+        private void RefreshSelection()
+        {
+            var view = selectionModel.SelectedView;
+            if (view != null)
+            {
+                view.RefreshSelection();
+            }
+        }
+
         protected override void OnDeactivate(EventArgs e)
         {
-            if (workflowGraphView.Focused)
+            if (IsActiveControl(propertyGrid)) RefreshSelection();
+            if (editorControl.Focused)
             {
                 ActiveControl = propertyGrid;
             }
@@ -1238,44 +1424,17 @@ namespace Bonsai.Editor
 
         private void selectionModel_SelectionChanged(object sender, EventArgs e)
         {
-            if (selectionDescriptionProviders.Count > 0)
-            {
-                foreach (var association in selectionDescriptionProviders)
-                {
-                    TypeDescriptor.RemoveProvider(association.provider, association.instance);
-                }
-                selectionDescriptionProviders.Clear();
-            }
-
             var selectedObjects = selectionModel.SelectedNodes.Select(node =>
             {
                 var builder = ExpressionBuilder.Unwrap((ExpressionBuilder)node.Value);
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
                 var instance = workflowElement ?? builder;
-                var externalizedProperties = selectionModel.SelectedView.GetExternalizedProperties(node).ToArray();
-                if (externalizedProperties.Length > 0)
-                {
-                    var parentProvider = TypeDescriptor.GetProvider(instance);
-                    var parentDescriptor = parentProvider.GetTypeDescriptor(instance);
-                    var parentExtendedDescriptor = parentProvider.GetExtendedTypeDescriptor(instance);
-                    var provider = new OverrideTypeDescriptionProvider(parentProvider);
-                    provider.TypeDescriptor = new PropertyFilterTypeDescriptor(parentDescriptor, externalizedProperties);
-                    provider.ExtendedTypeDescriptor = new PropertyFilterTypeDescriptor(parentExtendedDescriptor, externalizedProperties);
-                    TypeDescriptor.AddProvider(provider, instance);
-                    selectionDescriptionProviders.Add(new TypeDescriptorAssociation
-                    {
-                        provider = provider,
-                        instance = instance
-                    });
-                }
                 return instance;
             }).ToArray();
 
-            var displayNames = selectedObjects
-                .Select(obj => GetElementName(obj))
-                .Distinct().Reverse().ToArray();
+            var displayNames = selectedObjects.Select(GetElementName).Distinct().Reverse().ToArray();
             var displayName = string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ", displayNames);
-            var objectDescriptions = selectedObjects.Select(obj => GetElementDescription(obj)).Distinct().Reverse().ToArray();
+            var objectDescriptions = selectedObjects.Select(GetElementDescription).Distinct().Reverse().ToArray();
             var description = objectDescriptions.Length == 1 ? objectDescriptions[0] : string.Empty;
             UpdateDescriptionTextBox(displayName, description, propertiesDescriptionTextBox);
             for (int i = 0; i < selectedObjects.Length; i++)
@@ -1283,11 +1442,21 @@ namespace Bonsai.Editor
                 typeDescriptorCache.Add(selectedObjects[i].GetType().Module);
             }
 
-            saveSnippetAsToolStripMenuItem.Enabled = selectedObjects.Length > 0;
-            if (selectedObjects.Length == 0)
+            var selectedView = selectionModel.SelectedView;
+            var readOnly = selectedView == null || selectedView.ReadOnly;
+            var hasSelectedObjects = selectedObjects.Length > 0;
+            saveSnippetAsToolStripMenuItem.Enabled = hasSelectedObjects;
+            pasteToolStripMenuItem.Enabled = !readOnly;
+            copyToolStripMenuItem.Enabled = hasSelectedObjects;
+            cutToolStripMenuItem.Enabled = !readOnly && hasSelectedObjects;
+            deleteToolStripMenuItem.Enabled = !readOnly && hasSelectedObjects;
+            groupToolStripMenuItem.Enabled = !readOnly && hasSelectedObjects;
+            ungroupToolStripMenuItem.Enabled = !readOnly && hasSelectedObjects;
+            enableToolStripMenuItem.Enabled = !readOnly && hasSelectedObjects;
+            disableToolStripMenuItem.Enabled = !readOnly && hasSelectedObjects;
+            if (!hasSelectedObjects)
             {
                 // Select externalized properties
-                var selectedView = selectionModel.SelectedView;
                 if (selectedView != null)
                 {
                     propertyGrid.SelectedObject = selectedView.Workflow;
@@ -1298,12 +1467,19 @@ namespace Bonsai.Editor
 
         private void startToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (Control.ModifierKeys.HasFlag(Keys.Shift))
+            var shift = Control.ModifierKeys.HasFlag(Keys.Shift);
+            var control = Control.ModifierKeys.HasFlag(Keys.Control);
+            if (shift)
             {
-                if (Control.ModifierKeys.HasFlag(Keys.Control)) RestartWorkflow();
+                if (control) RestartWorkflow();
                 else StopWorkflow();
             }
-            StartWorkflow();
+            else editorSite.StartWorkflow(!control);
+        }
+
+        private void startWithoutDebuggingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            editorSite.StartWorkflow(false);
         }
 
         private void stopToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1404,9 +1580,12 @@ namespace Bonsai.Editor
             const string ErrorCaption = "Type Error";
             const string ErrorMessage = "Failed to create {0}:\n{1}";
             var model = selectionModel.SelectedView;
+            if (model.ReadOnly) return;
+
+            var group = modifiers.HasFlag(WorkflowGraphView.GroupModifier);
             var branch = modifiers.HasFlag(WorkflowGraphView.BranchModifier);
             var predecessor = modifiers.HasFlag(WorkflowGraphView.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
-            try { model.CreateGraphNode(typeNode, selectionModel.SelectedNodes.FirstOrDefault(), predecessor, branch); }
+            try { model.InsertGraphNode(typeNode, predecessor, branch, group); }
             catch (TargetInvocationException e)
             {
                 var message = string.Format(ErrorMessage, typeNode.Text, e.InnerException.Message);
@@ -1451,7 +1630,6 @@ namespace Bonsai.Editor
         private void toolboxTreeView_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Return &&
-                !editorSite.WorkflowRunning &&
                 toolboxTreeView.SelectedNode != null &&
                 toolboxTreeView.SelectedNode.Tag != null)
             {
@@ -1464,7 +1642,7 @@ namespace Bonsai.Editor
 
         private void toolboxTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Button == MouseButtons.Left && e.Node.Tag != null && !editorSite.WorkflowRunning)
+            if (e.Button == MouseButtons.Left && e.Node.Tag != null)
             {
                 var typeNode = e.Node;
                 CreateGraphNode(typeNode, Control.ModifierKeys);
@@ -1486,11 +1664,19 @@ namespace Bonsai.Editor
                     toolboxTreeView.SelectedNode = selectedNode;
                     if (selectedNode.Tag != null)
                     {
-                        if (selectedNode.Tag.Equals(ElementCategory.Source))
+                        var elementCategory = (ElementCategory)selectedNode.Tag;
+                        if (elementCategory == ElementCategory.Source)
                         {
                             toolboxSourceContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);
                         }
-                        else toolboxContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);
+                        else
+                        {
+                            createGroupToolStripMenuItem.Visible =
+                                elementCategory == ElementCategory.Nested ||
+                                selectedNode.Name == typeof(ConditionBuilder).AssemblyQualifiedName ||
+                                selectedNode.Name == typeof(SinkBuilder).AssemblyQualifiedName;
+                            toolboxContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);
+                        }
                     }
                 }
             }
@@ -1509,6 +1695,11 @@ namespace Bonsai.Editor
         private void createBranchToolStripMenuItem_Click(object sender, EventArgs e)
         {
             toolboxTreeView_KeyDown(sender, new KeyEventArgs(Keys.Alt | Keys.Return));
+        }
+
+        private void createGroupToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            toolboxTreeView_KeyDown(sender, new KeyEventArgs(Keys.Control | Keys.Return));
         }
 
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
@@ -1589,6 +1780,24 @@ namespace Bonsai.Editor
             }
         }
 
+        private void enableToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var model = selectionModel.SelectedView;
+            if (model.GraphView.Focused)
+            {
+                model.EnableGraphNodes(selectionModel.SelectedNodes);
+            }
+        }
+
+        private void disableToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var model = selectionModel.SelectedView;
+            if (model.GraphView.Focused)
+            {
+                model.DisableGraphNodes(selectionModel.SelectedNodes);
+            }
+        }
+
         #endregion
 
         #region Undo/Redo
@@ -1628,6 +1837,22 @@ namespace Bonsai.Editor
         {
             EditorResult = EditorResult.OpenGallery;
             Close();
+        }
+
+        #endregion
+
+        #region Reload Extensions
+
+        private void reloadExtensionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            EditorResult = EditorResult.ReloadEditor;
+            Close();
+        }
+
+        private void reloadExtensionsDebugToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (scriptEnvironment != null) scriptEnvironment.DebugScripts = true;
+            reloadExtensionsToolStripMenuItem_Click(sender, e);
         }
 
         #endregion
@@ -1762,6 +1987,16 @@ namespace Bonsai.Editor
                     return this;
                 }
 
+                if (serviceType == typeof(IScriptEnvironment))
+                {
+                    return siteForm.scriptEnvironment;
+                }
+
+                if (siteForm.serviceProvider != null)
+                {
+                    return siteForm.serviceProvider.GetService(serviceType);
+                }
+
                 return null;
             }
 
@@ -1791,8 +2026,8 @@ namespace Bonsai.Editor
 
             public void OnKeyPress(KeyPressEventArgs e)
             {
-                var model = siteForm.selectionModel.SelectedView ?? siteForm.workflowGraphView;
-                if (!WorkflowRunning && model.GraphView.Focused)
+                var model = siteForm.selectionModel.SelectedView ?? siteForm.editorControl.WorkflowGraphView;
+                if (!model.ReadOnly && model.GraphView.Focused)
                 {
                     if (char.IsLetter(e.KeyChar))
                     {
@@ -1804,10 +2039,42 @@ namespace Bonsai.Editor
                 }
             }
 
+            public DirectoryInfo EnsureExtensionsDirectory()
+            {
+                if (!siteForm.snippetFileWatcher.EnableRaisingEvents && !siteForm.extensionsPath.Exists)
+                {
+                    if (string.IsNullOrEmpty(siteForm.FileName))
+                    {
+                        MessageBox.Show(
+                            Resources.CreateExtensionsWorkflow_Warning,
+                            Resources.CreateExtensionsWorkflow_Warning_Caption,
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning);
+                    }
+                    else
+                    {
+                        var createExtensions = MessageBox.Show(
+                            Resources.CreateExtensionsFolder_Question,
+                            Resources.CreateExtensionsFolder_Question_Caption,
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Warning);
+                        if (createExtensions == DialogResult.Yes)
+                        {
+                            siteForm.extensionsPath.Create();
+                            siteForm.extensionsPath.Refresh();
+                            siteForm.OnExtensionsDirectoryChanged(EventArgs.Empty);
+                        }
+                    }
+                }
+
+                return siteForm.extensionsPath;
+            }
+
             public WorkflowBuilder LoadWorkflow(string fileName)
             {
                 SemanticVersion version;
-                return siteForm.LoadWorkflow(fileName, out version);
+                var workflow = siteForm.LoadWorkflow(fileName, out version);
+                return siteForm.UpdateWorkflow(workflow, version);
             }
 
             public void OpenWorkflow(string fileName)
@@ -1825,9 +2092,9 @@ namespace Bonsai.Editor
                 if (builder.Workflow.Count > 0)
                 {
                     var stringBuilder = new StringBuilder();
-                    using (var writer = XmlWriter.Create(stringBuilder, new XmlWriterSettings { Indent = true }))
+                    using (var writer = XmlWriter.Create(stringBuilder, DefaultWriterSettings))
                     {
-                        siteForm.serializer.Serialize(writer, builder);
+                        WorkflowBuilder.Serializer.Serialize(writer, builder);
                     }
 
                     Clipboard.SetText(stringBuilder.ToString());
@@ -1844,9 +2111,9 @@ namespace Bonsai.Editor
                     {
                         try
                         {
-                            if (siteForm.serializer.CanDeserialize(reader))
+                            if (WorkflowBuilder.Serializer.CanDeserialize(reader))
                             {
-                                return (WorkflowBuilder)siteForm.serializer.Deserialize(reader);
+                                return (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
                             }
                         }
                         catch (XmlException) { }
@@ -1871,8 +2138,9 @@ namespace Bonsai.Editor
                 return siteForm.workflowElements;
             }
 
-            public void StartWorkflow()
+            public void StartWorkflow(bool debugging)
             {
+                siteForm.debugging = debugging;
                 siteForm.StartWorkflow();
             }
 
@@ -1951,7 +2219,10 @@ namespace Bonsai.Editor
             public bool CanShowComponentEditor(object component)
             {
                 var editor = TypeDescriptor.GetEditor(component, typeof(ComponentEditor));
-                return editor != null;
+                if (editor != null) return true;
+
+                return siteForm.scriptEnvironment != null && siteForm.scriptEnvironment.AssemblyName != null &&
+                       siteForm.scriptEnvironment.AssemblyName.FullName == component.GetType().Assembly.FullName;
             }
 
             public IWin32Window GetDialogOwnerWindow()
@@ -1982,6 +2253,15 @@ namespace Bonsai.Editor
 
                     return editor.EditComponent(component);
                 }
+                else if (siteForm.scriptEnvironment != null && siteForm.scriptEnvironment.AssemblyName != null)
+                {
+                    var componentType = component.GetType();
+                    if (siteForm.scriptEnvironment.AssemblyName.FullName == componentType.Assembly.FullName)
+                    {
+                        var scriptFile = Path.Combine(siteForm.extensionsPath.FullName, componentType.Name);
+                        ScriptEditorLauncher.Launch(siteForm, siteForm.scriptEnvironment.ProjectFileName, scriptFile);
+                    }
+                }
 
                 return false;
             }
@@ -2004,7 +2284,7 @@ namespace Bonsai.Editor
 
             public void ShowError(string message)
             {
-                ShowError(message, siteForm.Name);
+                ShowError(message, Resources.Editor_Error_Caption);
             }
 
             public void ShowError(string message, string caption)
@@ -2065,6 +2345,7 @@ namespace Bonsai.Editor
         private void propertyGrid_Validated(object sender, EventArgs e)
         {
             editorSite.ValidateWorkflow();
+            RefreshSelection();
         }
 
         private void propertyGrid_DragEnter(object sender, DragEventArgs e)
@@ -2127,16 +2408,6 @@ namespace Bonsai.Editor
         void statusStrip_SizeChanged(object sender, EventArgs e)
         {
             UpdateStatusLabelSize();
-        }
-
-        #endregion
-
-        #region TypeDescriptorAssociation Class
-
-        class TypeDescriptorAssociation
-        {
-            public TypeDescriptionProvider provider;
-            public object instance;
         }
 
         #endregion

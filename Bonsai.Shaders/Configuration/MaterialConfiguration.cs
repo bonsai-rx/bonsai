@@ -41,9 +41,9 @@ namespace Bonsai.Shaders.Configuration
 
         public override Shader CreateShader(ShaderWindow window)
         {
-            var vertexSource = File.ReadAllText(VertexShader);
-            var geometrySource = !string.IsNullOrEmpty(GeometryShader) ? File.ReadAllText(GeometryShader) : null;
-            var fragmentSource = File.ReadAllText(FragmentShader);
+            var vertexSource = ReadShaderSource(VertexShader);
+            var geometrySource = ReadShaderSource(GeometryShader);
+            var fragmentSource = ReadShaderSource(FragmentShader);
 
             var material = new Material(
                 Name, window,

@@ -11,6 +11,12 @@ namespace Bonsai.Design
 {
     public class ExpressionBuilderTypeConverter : TypeConverter
     {
+        static readonly Pen SolidPen = Pens.DarkGray;
+        static readonly Pen DashPen = new Pen(Brushes.DarkGray)
+        {
+            DashPattern = new[] { 4f, 2f }
+        };
+
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
             if (destinationType == typeof(Brush)) return true;
@@ -33,6 +39,7 @@ namespace Bonsai.Design
                 var elementAttributes = TypeDescriptor.GetAttributes(expressionBuilder);
                 var elementCategoryAttribute = (WorkflowElementCategoryAttribute)elementAttributes[typeof(WorkflowElementCategoryAttribute)];
                 var obsolete = (ObsoleteAttribute)elementAttributes[typeof(ObsoleteAttribute)] != null;
+                var disabled = expressionBuilder is DisableBuilder;
 
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(expressionBuilder);
                 if (workflowElement != expressionBuilder)
@@ -50,20 +57,20 @@ namespace Bonsai.Design
                 switch (elementCategoryAttribute.Category)
                 {
                     case ElementCategory.Source:
-                        return obsolete ? HatchBrushes.Violet : Brushes.Violet;
+                        return disabled ? HatchBrushes.DiagonalViolet : obsolete ? HatchBrushes.CrossViolet : Brushes.Violet;
                     case ElementCategory.Condition:
-                        return obsolete ? HatchBrushes.LightGreen : Brushes.LightGreen;
+                        return disabled ? HatchBrushes.DiagonalLightGreen : obsolete ? HatchBrushes.CrossLightGreen : Brushes.LightGreen;
                     case ElementCategory.Transform:
-                        return obsolete ? HatchBrushes.White : Brushes.White;
+                        return disabled ? HatchBrushes.DiagonalWhite : obsolete ? HatchBrushes.CrossWhite : Brushes.White;
                     case ElementCategory.Sink:
-                        return obsolete ? HatchBrushes.DarkGray : Brushes.DarkGray;
+                        return disabled ? HatchBrushes.DiagonalDarkGray : obsolete ? HatchBrushes.CrossDarkGray : Brushes.DarkGray;
                     case ElementCategory.Nested:
-                        return obsolete ? HatchBrushes.Goldenrod : Brushes.Goldenrod;
+                        return disabled ? HatchBrushes.DiagonalGoldenrod : obsolete ? HatchBrushes.CrossGoldenrod : Brushes.Goldenrod;
                     case ElementCategory.Property:
-                        return obsolete ? HatchBrushes.Orange : Brushes.Orange;
+                        return disabled ? HatchBrushes.DiagonalOrange : obsolete ? HatchBrushes.CrossOrange : Brushes.Orange;
                     case ElementCategory.Combinator:
                     default:
-                        return obsolete ? HatchBrushes.LightBlue : Brushes.LightBlue;
+                        return disabled ? HatchBrushes.DiagonalLightBlue : obsolete ? HatchBrushes.CrossLightBlue : Brushes.LightBlue;
                 }
             }
 
@@ -84,7 +91,7 @@ namespace Bonsai.Design
             if (destinationType == typeof(Pen))
             {
                 var expressionBuilder = (ExpressionBuilder)value;
-                return expressionBuilder.IsBuildDependency() ? Pens.Red : Pens.Black;
+                return expressionBuilder.IsBuildDependency() ? DashPen : SolidPen;
             }
 
             return base.ConvertTo(context, culture, value, destinationType);

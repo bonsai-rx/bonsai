@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -8,6 +9,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Configuration
 {
     [Serializable]
+    [DebuggerDisplay("{AssemblyName,nq} ({ProcessorArchitecture,nq}): {Location}")]
     public sealed class AssemblyLocation
     {
         public AssemblyLocation()

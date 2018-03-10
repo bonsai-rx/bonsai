@@ -74,7 +74,6 @@ namespace Bonsai
             var layoutPath = Path.ChangeExtension(path, BonsaiExtension + LayoutExtension);
             if (File.Exists(layoutPath))
             {
-                var layoutSerializer = new XmlSerializer(typeof(VisualizerLayout));
                 var visualizerMap = new Lazy<IDictionary<string, Type>>(() =>
                     TypeVisualizerLoader.GetTypeVisualizerDictionary(packageConfiguration)
                                         .Select(descriptor => descriptor.VisualizerTypeName).Distinct()
@@ -85,7 +84,7 @@ namespace Bonsai
 
                 using (var reader = XmlReader.Create(layoutPath))
                 {
-                    var layout = (VisualizerLayout)layoutSerializer.Deserialize(reader);
+                    var layout = (VisualizerLayout)VisualizerLayout.Serializer.Deserialize(reader);
                     foreach (var settings in GetVisualizerSettings(layout))
                     {
                         Type type;
@@ -101,20 +100,37 @@ namespace Bonsai
                 }
             }
 
+            var packageMap = GetPackageReferenceMap(packageConfiguration);
+            var dependencies = GetAssemblyPackageReferences(
+                packageConfiguration,
+                assemblies.Select(assembly => assembly.GetName().Name),
+                packageMap);
+            return dependencies.ToArray();
+        }
+
+        public static IDictionary<string, Configuration.PackageReference> GetPackageReferenceMap(PackageConfiguration configuration)
+        {
             var placeholderRepository = new LocalPackageRepository(RepositoryPath);
             var pathResolver = new PackageManager(placeholderRepository, RepositoryPath).PathResolver;
             var packageMap = new Dictionary<string, Configuration.PackageReference>();
-            foreach (var package in packageConfiguration.Packages)
+            foreach (var package in configuration.Packages)
             {
                 var packagePath = pathResolver.GetPackageDirectory(package.Id, SemanticVersion.Parse(package.Version));
                 packageMap.Add(packagePath, package);
             }
 
+            return packageMap;
+        }
+
+        public static IEnumerable<Configuration.PackageReference> GetAssemblyPackageReferences(
+            PackageConfiguration configuration,
+            IEnumerable<string> assemblyNames,
+            IDictionary<string, Configuration.PackageReference> packageMap)
+        {
             var dependencies = new List<Configuration.PackageReference>();
-            foreach (var assembly in assemblies)
+            foreach (var assemblyName in assemblyNames)
             {
-                var assemblyName = assembly.GetName().Name;
-                var assemblyLocation = ConfigurationHelper.GetAssemblyLocation(packageConfiguration, assemblyName);
+                var assemblyLocation = ConfigurationHelper.GetAssemblyLocation(configuration, assemblyName);
                 if (assemblyLocation != null)
                 {
                     var pathElements = assemblyLocation.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
@@ -129,7 +145,7 @@ namespace Bonsai
                 }
             }
 
-            return dependencies.ToArray();
+            return dependencies;
         }
 
         public static IObservable<PackageDependency> GetWorkflowPackageDependencies(string path, PackageConfiguration configuration)

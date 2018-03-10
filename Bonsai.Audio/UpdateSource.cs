@@ -13,15 +13,15 @@ namespace Bonsai.Audio
     [Description("Updates the properties of an audio source.")]
     public class UpdateSource : Sink<AudioSource>
     {
-        [TypeConverter(typeof(NumericAggregateConverter))]
+        [TypeConverter(typeof(NumericRecordConverter))]
         [Description("The current location of the audio source in three-dimensional space.")]
         public Vector3? Position { get; set; }
 
-        [TypeConverter(typeof(NumericAggregateConverter))]
+        [TypeConverter(typeof(NumericRecordConverter))]
         [Description("The current velocity of the audio source in three-dimensional space.")]
         public Vector3? Velocity { get; set; }
 
-        [TypeConverter(typeof(NumericAggregateConverter))]
+        [TypeConverter(typeof(NumericRecordConverter))]
         [Description("The current direction vector of the audio source.")]
         public Vector3? Direction { get; set; }
 

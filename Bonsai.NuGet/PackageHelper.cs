@@ -70,17 +70,20 @@ namespace Bonsai.NuGet
                 };
 
                 dialog.RegisterEventLogger((EventLogger)packageManager.Logger);
-                var operation = operationFactory();
-                operation.ContinueWith(task =>
-                {
-                    if (!task.IsFaulted)
-                    {
-                        dialog.BeginInvoke((Action)dialog.Close);
-                    }
-                });
-
                 packageManager.RequiringLicenseAcceptance += requiringLicenseHandler;
-                try { dialog.ShowDialog(); }
+                try
+                {
+                    var operation = operationFactory();
+                    operation.ContinueWith(task =>
+                    {
+                        if (!task.IsFaulted)
+                        {
+                            dialog.BeginInvoke((Action)dialog.Close);
+                        }
+                    });
+
+                    dialog.ShowDialog();
+                }
                 finally { packageManager.RequiringLicenseAcceptance -= requiringLicenseHandler; }
             }
         }
@@ -122,7 +125,7 @@ namespace Bonsai.NuGet
                         throw new InvalidOperationException(string.Format(errorMessage, packageId, version));
                     }
                     packageManager.InstallPackage(package, false, true);
-                    return package;
+                    return packageManager.LocalRepository.FindPackage(packageId, version);
                 }
                 catch (Exception ex)
                 {
@@ -146,7 +149,7 @@ namespace Bonsai.NuGet
                         throw new InvalidOperationException(errorMessage);
                     }
                     packageManager.UpdatePackage(package, true, true);
-                    return package;
+                    return packageManager.LocalRepository.FindPackage(packageId, version);
                 }
                 catch (Exception ex)
                 {
@@ -156,17 +159,17 @@ namespace Bonsai.NuGet
             });
         }
 
-        public static Task<IPackage> StartRestorePackage(this IPackageManager packageManager, string id, SemanticVersion version)
+        public static Task<IPackage> StartRestorePackage(this IPackageManager packageManager, string packageId, SemanticVersion version)
         {
             return Task.Factory.StartNew(() =>
             {
                 try
                 {
-                    packageManager.Logger.Log(MessageLevel.Info, Resources.RestorePackageVersion, id, version);
-                    var package = packageManager.SourceRepository.FindPackage(id, version);
+                    packageManager.Logger.Log(MessageLevel.Info, Resources.RestorePackageVersion, packageId, version);
+                    var package = packageManager.SourceRepository.FindPackage(packageId, version);
                     if (package == null)
                     {
-                        var errorMessage = string.Format(Resources.MissingPackageVersion, id, version);
+                        var errorMessage = string.Format(Resources.MissingPackageVersion, packageId, version);
                         throw new InvalidOperationException(errorMessage);
                     }
                     return package;

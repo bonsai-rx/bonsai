@@ -11,9 +11,29 @@ namespace Bonsai.Design
 {
     public class SliderEditor : UITypeEditor
     {
+        static Type GetPropertyType(Type type)
+        {
+            return Nullable.GetUnderlyingType(type) ?? type;
+        }
+
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
-            return UITypeEditorEditStyle.DropDown;
+            if (context != null && context.PropertyDescriptor != null)
+            {
+                var propertyType = GetPropertyType(context.PropertyDescriptor.PropertyType);
+                if (propertyType.IsPrimitive) return UITypeEditorEditStyle.DropDown;
+            }
+
+            return UITypeEditorEditStyle.None;
+        }
+
+        class PreviewSlider : Slider
+        {
+            protected override bool ProcessDialogKey(Keys keyData)
+            {
+                if (keyData == Keys.Escape) OnPreviewKeyDown(new PreviewKeyDownEventArgs(keyData));
+                return base.ProcessDialogKey(keyData);
+            }
         }
 
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
@@ -21,10 +41,11 @@ namespace Bonsai.Design
             var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
             if (context != null && editorService != null)
             {
-                var decimalPlaces = 0;
+                int? decimalPlaces = null;
                 var propertyDescriptor = context.PropertyDescriptor;
+                var propertyType = GetPropertyType(propertyDescriptor.PropertyType);
                 var range = (RangeAttribute)propertyDescriptor.Attributes[typeof(RangeAttribute)];
-                var typeCode = Type.GetTypeCode(propertyDescriptor.PropertyType);
+                var typeCode = Type.GetTypeCode(propertyType);
                 if (typeCode == TypeCode.Single || typeCode == TypeCode.Double || typeCode == TypeCode.Decimal)
                 {
                     var precision = (PrecisionAttribute)propertyDescriptor.Attributes[typeof(PrecisionAttribute)];
@@ -33,15 +54,26 @@ namespace Bonsai.Design
                         decimalPlaces = precision.DecimalPlaces;
                     }
                 }
+                else decimalPlaces = 0;
 
-                var slider = new Slider();
-                slider.Minimum = range.Minimum;
-                slider.Maximum = range.Maximum;
+                var slider = new PreviewSlider();
+                slider.Minimum = (double)range.Minimum;
+                slider.Maximum = (double)range.Maximum;
                 slider.DecimalPlaces = decimalPlaces;
-                slider.Value = Convert.ToDecimal(value);
-                slider.ValueChanged += (sender, e) => propertyDescriptor.SetValue(context.Instance, Convert.ChangeType(slider.Value, propertyDescriptor.PropertyType));
+
+                var changed = false;
+                var cancelled = false;
+                slider.Value = Math.Max(slider.Minimum, Math.Min(Convert.ToDouble(value), slider.Maximum));
+                slider.PreviewKeyDown += (sender, e) => cancelled = e.KeyCode == Keys.Escape;
+                slider.ValueChanged += (sender, e) =>
+                {
+                    changed = true;
+                    propertyDescriptor.SetValue(context.Instance, Convert.ChangeType(slider.Value, propertyType));
+                };
                 editorService.DropDownControl(slider);
-                return Convert.ChangeType(slider.Value, propertyDescriptor.PropertyType);
+
+                if (cancelled && changed) propertyDescriptor.SetValue(context.Instance, value);
+                return cancelled ? value : Convert.ChangeType(slider.Value, propertyType);
             }
 
             return base.EditValue(context, provider, value);

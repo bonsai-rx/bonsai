@@ -51,7 +51,7 @@ namespace Bonsai.Design
                     }
                 };
 
-                visualizerDialog.FormClosing += delegate
+                visualizerDialog.FormClosed += delegate
                 {
                     var desktopBounds = Bounds;
                     if (visualizerDialog.WindowState != FormWindowState.Normal)
@@ -66,17 +66,16 @@ namespace Bonsai.Design
                         WindowState = FormWindowState.Normal;
                     }
                     else WindowState = visualizerDialog.WindowState;
-                };
-
-                visualizerDialog.FormClosed += delegate
-                {
                     visualizerDialog.Dispose();
-                    visualizerDialog = null;
                 };
 
+                visualizerDialog.HandleDestroyed += (sender, e) => visualizerDialog = null;
                 InitializeComponents(visualizerDialog, provider);
-                if (owner != null) visualizerDialog.Show(owner);
-                else visualizerDialog.Show();
+                if (visualizerDialog.TopLevel)
+                {
+                    if (owner != null) visualizerDialog.Show(owner);
+                    else visualizerDialog.Show();
+                }
             }
 
             visualizerDialog.Activate();
