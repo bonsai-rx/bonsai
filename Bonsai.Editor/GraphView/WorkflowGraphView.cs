@@ -2066,13 +2066,13 @@ namespace Bonsai.Design
             }
             else
             {
+                var branch = (e.KeyState & AltModifier) != 0;
+                var shift = (e.KeyState & ShiftModifier) != 0;
+                var nodeType = shift ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
                 var dropLocation = graphView.PointToClient(new Point(e.X, e.Y));
                 if (e.Effect == DragDropEffects.Copy)
                 {
                     var group = (e.KeyState & CtrlModifier) != 0;
-                    var branch = (e.KeyState & AltModifier) != 0;
-                    var nodeType = (e.KeyState & ShiftModifier) != 0 ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
-                    var targetNode = graphView.GetNodeAt(dropLocation);
                     if (e.Data.GetDataPresent(DataFormats.FileDrop, true))
                     {
                         var path = (string[])e.Data.GetData(DataFormats.FileDrop, true);
@@ -2086,8 +2086,10 @@ namespace Bonsai.Design
                                 return;
                             }
 
-                            if (targetNode != null) graphView.SelectedNode = targetNode;
-                            InsertWorkflow(workflowBuilder.Workflow);
+                            var groupBuilder = new GroupWorkflowBuilder(workflowBuilder.Workflow);
+                            groupBuilder.Name = Path.GetFileNameWithoutExtension(path[0]);
+                            groupBuilder.Description = workflowBuilder.Description;
+                            CreateGraphNode(groupBuilder, graphView.SelectedNodes.FirstOrDefault(), nodeType, branch);
                         }
                     }
                     else
@@ -2101,17 +2103,16 @@ namespace Bonsai.Design
                 {
                     if (e.Data.GetDataPresent(DataFormats.FileDrop, true))
                     {
-                        var branch = (e.KeyState & AltModifier) != 0;
                         var path = (string[])e.Data.GetData(DataFormats.FileDrop, true);
                         var includeBuilder = new IncludeWorkflowBuilder { Path = PathConvert.GetProjectPath(path[0]) };
-                        CreateGraphNode(includeBuilder, graphView.SelectedNodes.FirstOrDefault(), CreateGraphNodeType.Successor, branch);
+                        CreateGraphNode(includeBuilder, graphView.SelectedNodes.FirstOrDefault(), nodeType, branch);
                     }
                     else
                     {
                         var linkNode = graphView.GetNodeAt(dropLocation);
                         if (linkNode != null)
                         {
-                            if ((e.KeyState & ShiftModifier) != 0) DisconnectGraphNodes(dragSelection, linkNode);
+                            if (shift) DisconnectGraphNodes(dragSelection, linkNode);
                             else ConnectGraphNodes(dragSelection, linkNode);
                         }
                     }
