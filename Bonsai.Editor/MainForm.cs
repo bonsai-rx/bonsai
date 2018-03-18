@@ -776,6 +776,7 @@ namespace Bonsai.Editor
             }
 
             UpdateWorkflowDirectory(fileName);
+            UpdateTitle();
             return true;
         }
 
@@ -1299,13 +1300,15 @@ namespace Bonsai.Editor
 
         void UpdateTitle()
         {
+            var modified = saveVersion != version;
             var workflowRunning = running != null;
             var fileName = Path.GetFileName(saveWorkflowDialog.FileName);
             var emptyFileName = string.IsNullOrEmpty(fileName);
-            var title = emptyFileName ? Resources.BonsaiTitle : fileName;
-            if (workflowRunning) title += string.Format(" ({0})", Resources.RunningStatus);
-            if (!emptyFileName) title += string.Format(" - {0}", Resources.BonsaiTitle);
-            Text = title;
+            var title = new StringBuilder(emptyFileName ? Resources.BonsaiTitle : fileName);
+            if (modified) title.Append('*');
+            if (workflowRunning) title.AppendFormat(" ({0})", Resources.RunningStatus);
+            if (!emptyFileName) title.AppendFormat(" - {0}", Resources.BonsaiTitle);
+            Text = title.ToString();
         }
 
         static IEnumerable<TreeNode> GetTreeViewLeafNodes(System.Collections.IEnumerable nodes)
@@ -1807,6 +1810,7 @@ namespace Bonsai.Editor
             undoToolStripButton.Enabled = undoToolStripMenuItem.Enabled = commandExecutor.CanUndo;
             redoToolStripButton.Enabled = redoToolStripMenuItem.Enabled = commandExecutor.CanRedo;
             version++;
+            UpdateTitle();
         }
 
         private void undoToolStripMenuItem_Click(object sender, EventArgs e)
