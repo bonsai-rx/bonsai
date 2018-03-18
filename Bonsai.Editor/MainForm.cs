@@ -890,13 +890,13 @@ namespace Bonsai.Editor
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            var currentFileName = saveWorkflowDialog.FileName;
             if (saveWorkflowDialog.ShowDialog() == DialogResult.OK)
             {
-                if (SaveWorkflow(saveWorkflowDialog.FileName))
+                if (!SaveWorkflow(saveWorkflowDialog.FileName))
                 {
-                    UpdateTitle();
+                    saveWorkflowDialog.FileName = currentFileName;
                 }
-                else saveWorkflowDialog.FileName = null;
             }
         }
 
