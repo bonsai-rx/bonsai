@@ -80,7 +80,9 @@
     <Compile Include="ContourPoints.cs" />
     <Compile Include="CreateExtrinsics.cs" />
     <Compile Include="CreateIntrinsics.cs" />
+    <Compile Include="CreatePoint.cs" />
     <Compile Include="CreatePoint2d.cs" />
+    <Compile Include="CreatePoint2f.cs" />
     <Compile Include="CreatePoint3d.cs" />
     <Compile Include="Extrinsics.cs" />
     <Compile Include="HsvScalarConverter.cs" />
