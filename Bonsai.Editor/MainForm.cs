@@ -2005,6 +2005,7 @@ namespace Bonsai.Editor
                 if (menuItem.Enabled && menuItem.ShortcutKeys == e.KeyData)
                 {
                     onShortcut(this, e);
+                    e.Handled = true;
                 }
             }
 
