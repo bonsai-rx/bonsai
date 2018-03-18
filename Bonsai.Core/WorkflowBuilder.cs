@@ -263,24 +263,23 @@ namespace Bonsai
             var element = ExpressionBuilder.GetWorkflowElement(builder);
             if (element != builder) yield return element;
 
+            var workflowBuilder = element as WorkflowExpressionBuilder;
+            if (workflowBuilder != null)
+            {
+                foreach (var nestedElement in workflowBuilder.Workflow.SelectMany(node => GetWorkflowElements(node.Value)))
+                {
+                    yield return nestedElement;
+                }
+            }
+
             var binaryOperator = builder as BinaryOperatorBuilder;
             if (binaryOperator != null && binaryOperator.Operand != null) yield return binaryOperator.Operand;
         }
 
-        static IEnumerable<Type> GetWorkflowElementTypes(ExpressionBuilder builder)
-        {
-            var workflowExpressionBuilder = ExpressionBuilder.GetWorkflowElement(builder) as WorkflowExpressionBuilder;
-            if (workflowExpressionBuilder != null)
-            {
-                return GetExtensionTypes(workflowExpressionBuilder.Workflow);
-            }
-            else return GetWorkflowElements(builder).Select(element => element.GetType());
-        }
-
         static IEnumerable<Type> GetExtensionTypes(ExpressionBuilderGraph workflow)
         {
-            return workflow.SelectMany(node => GetWorkflowElementTypes(node.Value)
-                .Concat(Enumerable.Repeat(node.Value.GetType(), 1)))
+            return workflow.SelectMany(node => GetWorkflowElements(node.Value))
+                .Select(element => element.GetType())
                 .Except(GetDefaultSerializerTypes());
         }
 
