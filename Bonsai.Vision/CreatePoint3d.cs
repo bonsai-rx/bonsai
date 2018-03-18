@@ -12,13 +12,13 @@ namespace Bonsai.Vision
     [Description("Creates a double-precision 3D point value.")]
     public class CreatePoint3d : Source<Point3d>
     {
-        [Description("The x-component of the vector.")]
+        [Description("The x-component of the point.")]
         public double X { get; set; }
 
-        [Description("The y-component of the vector.")]
+        [Description("The y-component of the point.")]
         public double Y { get; set; }
 
-        [Description("The z-component of the vector.")]
+        [Description("The z-component of the point.")]
         public double Z { get; set; }
 
         public override IObservable<Point3d> Generate()
