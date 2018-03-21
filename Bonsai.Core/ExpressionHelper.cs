@@ -224,6 +224,7 @@ namespace Bonsai
                     switch (token[0])
                     {
                         case 'i': tokenType = typeof(int); break;
+                        case 'l': tokenType = typeof(long); break;
                         case 'f': tokenType = typeof(float); break;
                         case 'd': tokenType = typeof(double); break;
                         case 'b': tokenType = typeof(bool); break;
@@ -264,9 +265,9 @@ namespace Bonsai
                 var groupIndexer = Expression.Property(groupExpression, "Item", Expression.Constant(groupIndex++));
                 var groupValueExpression = Expression.Property(groupIndexer, "Value");
                 if (tokenType == typeof(string)) return (Expression)groupValueExpression;
-                if (tokenType == typeof(int) || tokenType == typeof(float) ||
-                    tokenType == typeof(double) || tokenType == typeof(DateTimeOffset) ||
-                    tokenType == typeof(TimeSpan))
+                if (tokenType == typeof(int) || tokenType == typeof(long) ||
+                    tokenType == typeof(float) || tokenType == typeof(double) ||
+                    tokenType == typeof(DateTimeOffset) || tokenType == typeof(TimeSpan))
                 {
                     return Expression.Call(tokenType, "Parse", null, groupValueExpression, invariantCulture);
                 }

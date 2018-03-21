@@ -64,6 +64,7 @@ namespace Bonsai.Expressions
                 return new StandardValuesCollection(new[]
                 {
                     "%i",
+                    "%l",
                     "%f",
                     "%d",
                     "%b",
