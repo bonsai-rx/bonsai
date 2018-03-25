@@ -630,7 +630,7 @@ namespace Bonsai.Expressions
                 {
                     if (successorCount > 0)
                     {
-                        throw new WorkflowBuildException("The workflow output must be a terminal node.");
+                        throw new WorkflowBuildException("The workflow output must be a terminal node.", builder);
                     }
 
                     if (workflowOutput != null)
