@@ -829,6 +829,43 @@ namespace Bonsai.Editor
             else directoryToolStripTextBox.Text = Environment.CurrentDirectory;
         }
 
+        void ExportImage(WorkflowGraphView model)
+        {
+            ExportImage(model, null);
+        }
+
+        void ExportImage(WorkflowGraphView model, string fileName)
+        {
+            var extension = Path.GetExtension(fileName);
+            if (extension == ".svg")
+            {
+                var graphics = new SvgNet.SvgGdi.SvgGraphics();
+                var bounds = model.GraphView.DrawGraphics(graphics, true);
+                var svg = graphics.WriteSVGString();
+                var attributes = string.Format(
+                    "<svg width=\"{0}\" height=\"{1}\" ",
+                    bounds.Width, bounds.Height);
+                svg = svg.Replace("<svg ", attributes);
+                File.WriteAllText(fileName, svg);
+            }
+            else
+            {
+                var drawGraphics = new DeferredGraphics();
+                var bounds = model.GraphView.DrawGraphics(drawGraphics, false);
+                using (var bitmap = new Bitmap((int)bounds.Width, (int)bounds.Height))
+                using (var graphics = Graphics.FromImage(bitmap))
+                {
+                    drawGraphics.Execute(graphics);
+                    drawGraphics.Clear();
+                    if (string.IsNullOrEmpty(fileName))
+                    {
+                        Clipboard.SetImage(bitmap);
+                    }
+                    else bitmap.Save(fileName);
+                }
+            }
+        }
+
         private void directoryToolStripTextBox_TextChanged(object sender, EventArgs e)
         {
             if (!directoryToolStripTextBox.Focused)
@@ -942,30 +979,7 @@ namespace Bonsai.Editor
             {
                 if (exportImageDialog.ShowDialog() == DialogResult.OK)
                 {
-                    var extension = Path.GetExtension(exportImageDialog.FileName);
-                    if (extension == ".svg")
-                    {
-                        var graphics = new SvgNet.SvgGdi.SvgGraphics();
-                        var bounds = model.GraphView.DrawGraphics(graphics, true);
-                        var svg = graphics.WriteSVGString();
-                        var attributes = string.Format(
-                            "<svg width=\"{0}\" height=\"{1}\" ",
-                            bounds.Width, bounds.Height);
-                        svg = svg.Replace("<svg ", attributes);
-                        File.WriteAllText(exportImageDialog.FileName, svg);
-                    }
-                    else
-                    {
-                        var drawGraphics = new DeferredGraphics();
-                        var bounds = model.GraphView.DrawGraphics(drawGraphics, false);
-                        using (var bitmap = new Bitmap((int)bounds.Width, (int)bounds.Height))
-                        using (var graphics = Graphics.FromImage(bitmap))
-                        {
-                            drawGraphics.Execute(graphics);
-                            drawGraphics.Clear();
-                            bitmap.Save(exportImageDialog.FileName);
-                        }
-                    }
+                    ExportImage(model, exportImageDialog.FileName);
                 }
             }
         }
@@ -1740,6 +1754,11 @@ namespace Bonsai.Editor
             }
         }
 
+        private void copyAsImageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ExportImage(selectionModel.SelectedView);
+        }
+
         private void pasteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (directoryToolStripTextBox.Focused)
@@ -2027,6 +2046,7 @@ namespace Bonsai.Editor
                 HandleMenuItemShortcutKeys(e, siteForm.saveToolStripMenuItem, siteForm.saveToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.saveSnippetAsToolStripMenuItem, siteForm.saveSnippetAsToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.exportImageToolStripMenuItem, siteForm.exportImageToolStripMenuItem_Click);
+                HandleMenuItemShortcutKeys(e, siteForm.copyAsImageToolStripMenuItem, siteForm.copyAsImageToolStripMenuItem_Click);
             }
 
             public void OnKeyPress(KeyPressEventArgs e)
