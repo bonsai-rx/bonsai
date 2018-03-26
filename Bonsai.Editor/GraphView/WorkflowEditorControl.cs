@@ -96,7 +96,7 @@ namespace Bonsai.Design
             tabPage.Padding = workflowTabPage.Padding;
             tabPage.UseVisualStyleBackColor = workflowTabPage.UseVisualStyleBackColor;
 
-            var tabState = InitializeTab(tabPage, builder is IncludeWorkflowBuilder, owner);
+            var tabState = InitializeTab(tabPage, WorkflowGraphView.ReadOnly || builder is IncludeWorkflowBuilder, owner);
             tabState.Text = ExpressionBuilder.GetElementDisplayName(builder);
             tabState.WorkflowGraphView.Workflow = builder.Workflow;
             tabState.Builder = builder;
