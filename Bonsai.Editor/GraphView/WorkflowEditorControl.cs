@@ -47,19 +47,19 @@ namespace Bonsai.Design
 
         public VisualizerLayout VisualizerLayout
         {
-            get { return workflowTab.WorkflowGraphView.VisualizerLayout; }
-            set { workflowTab.WorkflowGraphView.VisualizerLayout = value; }
+            get { return WorkflowGraphView.VisualizerLayout; }
+            set { WorkflowGraphView.VisualizerLayout = value; }
         }
 
         public ExpressionBuilderGraph Workflow
         {
-            get { return workflowTab.WorkflowGraphView.Workflow; }
-            set { workflowTab.WorkflowGraphView.Workflow = value; }
+            get { return WorkflowGraphView.Workflow; }
+            set { WorkflowGraphView.Workflow = value; }
         }
 
         public void UpdateVisualizerLayout()
         {
-            workflowTab.WorkflowGraphView.UpdateVisualizerLayout();
+            WorkflowGraphView.UpdateVisualizerLayout();
         }
 
         public TabPageController ActiveTab
