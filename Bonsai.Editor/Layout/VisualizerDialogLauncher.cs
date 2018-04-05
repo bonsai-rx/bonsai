@@ -82,7 +82,7 @@ namespace Bonsai.Design
                     })));
             };
 
-            visualizerDialog.FormClosed += delegate
+            visualizerDialog.HandleDestroyed += delegate
             {
                 if (visualizerObserver != null)
                 {
