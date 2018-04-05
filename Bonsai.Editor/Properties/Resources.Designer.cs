@@ -364,5 +364,14 @@ namespace Bonsai.Editor.Properties {
                 return ResourceManager.GetString("UpdateWorkflow_Warning_Caption", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Externalized properties of this workflow can be configured below..
+        /// </summary>
+        internal static string WorkflowPropertiesDescription {
+            get {
+                return ResourceManager.GetString("WorkflowPropertiesDescription", resourceCulture);
+            }
+        }
     }
 }

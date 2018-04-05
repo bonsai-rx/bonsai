@@ -934,6 +934,7 @@ namespace Bonsai.Editor
                 {
                     saveWorkflowDialog.FileName = currentFileName;
                 }
+                else selectionModel_SelectionChanged(this, e);
             }
         }
 
@@ -1453,7 +1454,6 @@ namespace Bonsai.Editor
             var displayName = string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ", displayNames);
             var objectDescriptions = selectedObjects.Select(GetElementDescription).Distinct().Reverse().ToArray();
             var description = objectDescriptions.Length == 1 ? objectDescriptions[0] : string.Empty;
-            UpdateDescriptionTextBox(displayName, description, propertiesDescriptionTextBox);
             for (int i = 0; i < selectedObjects.Length; i++)
             {
                 typeDescriptorCache.Add(selectedObjects[i].GetType().Module);
@@ -1476,10 +1476,25 @@ namespace Bonsai.Editor
                 // Select externalized properties
                 if (selectedView != null)
                 {
+                    var launcher = selectedView.Launcher;
+                    if (launcher != null)
+                    {
+                        displayName = GetElementName(launcher.Builder);
+                        description = GetElementDescription(launcher.Builder);
+                    }
+                    else
+                    {
+                        description = workflowBuilder.Description ?? Resources.WorkflowPropertiesDescription;
+                        displayName = !string.IsNullOrEmpty(saveWorkflowDialog.FileName)
+                            ? Path.GetFileNameWithoutExtension(saveWorkflowDialog.FileName)
+                            : editorControl.ActiveTab.TabPage.Text;
+                    }
+
                     propertyGrid.SelectedObject = selectedView.Workflow;
                 }
             }
             else propertyGrid.SelectedObjects = selectedObjects;
+            UpdateDescriptionTextBox(displayName, description, propertiesDescriptionTextBox);
         }
 
         private void startToolStripMenuItem_Click(object sender, EventArgs e)
