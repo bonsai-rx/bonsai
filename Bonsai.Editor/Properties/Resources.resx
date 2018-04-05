@@ -250,4 +250,7 @@ Do you want to install Visual Studio Code?</value>
   <data name="CreateExtensionsWorkflow_Warning_Caption" xml:space="preserve">
     <value>Save Workflow</value>
   </data>
+  <data name="WorkflowPropertiesDescription" xml:space="preserve">
+    <value>Externalized properties of this workflow can be configured below.</value>
+  </data>
 </root>
