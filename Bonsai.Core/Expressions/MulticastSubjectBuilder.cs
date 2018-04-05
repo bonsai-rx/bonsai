@@ -59,6 +59,13 @@ namespace Bonsai.Expressions
             observableType = source.Type.GetGenericArguments()[0];
             if (string.IsNullOrEmpty(name)) return source;
             var subjectExpression = buildContext.GetVariable(name);
+            var subjectType = subjectExpression.Type.GetGenericArguments()[0];
+            if (observableType != subjectType)
+            {
+                source = CoerceMethodArgument(typeof(IObservable<>).MakeGenericType(subjectType), source);
+                observableType = subjectType;
+            }
+
             return Expression.Call(typeof(MulticastSubjectBuilder), "Process", new[] { observableType }, source, subjectExpression);
         }
 

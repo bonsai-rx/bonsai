@@ -545,7 +545,7 @@ namespace Bonsai.Expressions
             return conversion ?? GetUnaryOperator(to, "op_Explicit", from, to);
         }
 
-        static bool HasConversion(Type from, Type to)
+        internal static bool HasConversion(Type from, Type to)
         {
             return HasPrimitiveConversion(from, to) || HasReferenceConversion(from, to) ||
                    GetUserConversion(from, to) != null;

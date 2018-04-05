@@ -90,7 +90,7 @@ namespace Bonsai.Expressions
                                      where subjectBuilder != null && !string.IsNullOrEmpty(subjectBuilder.Name) &&
                                            (targetType == null ||
                                            !multicast && targetType.IsAssignableFrom(inspectBuilder.ObservableType) ||
-                                            multicast && inspectBuilder.ObservableType.IsAssignableFrom(targetType))
+                                            multicast && ExpressionBuilder.HasConversion(inspectBuilder.ObservableType, targetType))
                                      select subjectBuilder.Name)
                                      .Distinct()
                                      .ToList();
