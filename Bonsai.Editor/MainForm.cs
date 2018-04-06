@@ -1602,6 +1602,11 @@ namespace Bonsai.Editor
                     case Keys.Return:
                         toolboxTreeView_KeyDown(sender, e);
                         searchTextBox.Clear();
+                        var selectedView = selectionModel.SelectedView;
+                        if (selectedView != null)
+                        {
+                            selectedView.Focus();
+                        }
                         break;
                 }
             }
