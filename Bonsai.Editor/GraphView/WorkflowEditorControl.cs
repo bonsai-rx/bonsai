@@ -202,7 +202,6 @@ namespace Bonsai.Design
 
                 var workflowGraphView = activeTab.WorkflowGraphView;
                 workflowGraphView.UpdateSelection();
-                workflowGraphView.Select();
             }
         }
 
