@@ -2169,16 +2169,20 @@ namespace Bonsai.Design
                 {
                     LaunchVisualizer(graphView.SelectedNode);
                 }
-                else if (selectionModel.SelectedNodes.Any() && graphView.CursorNode != null)
+                else if (graphView.SelectedNode != null && graphView.CursorNode != graphView.SelectedNode)
                 {
-                    if (e.Modifiers == Keys.Shift && CanDisconnect(selectionModel.SelectedNodes, graphView.CursorNode))
+                    if (e.Modifiers == Keys.Shift && CanDisconnect(graphView.SelectedNodes, graphView.CursorNode))
                     {
-                        DisconnectGraphNodes(selectionModel.SelectedNodes, graphView.CursorNode);
+                        DisconnectGraphNodes(graphView.SelectedNodes, graphView.CursorNode);
                     }
-                    else if (CanConnect(selectionModel.SelectedNodes, graphView.CursorNode))
+                    else if (CanConnect(graphView.SelectedNodes, graphView.CursorNode))
                     {
-                        ConnectGraphNodes(selectionModel.SelectedNodes, graphView.CursorNode);
+                        ConnectGraphNodes(graphView.SelectedNodes, graphView.CursorNode);
                     }
+                }
+                else
+                {
+                    LaunchDefaultEditor(graphView.SelectedNode);
                 }
             }
 
