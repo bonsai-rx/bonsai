@@ -168,6 +168,7 @@ namespace Bonsai.Design
             userClosing = true;
             workflowGraphView.Launcher = this;
             workflowGraphView.VisualizerLayout = VisualizerLayout;
+            workflowGraphView.SelectFirstGraphNode();
             UpdateEditorText();
         }
     }
