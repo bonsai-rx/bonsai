@@ -1531,6 +1531,15 @@ namespace Bonsai.Design
             }
         }
 
+        public void SelectFirstGraphNode()
+        {
+            var layerCount = graphView.Nodes.Count();
+            graphView.SelectedNode = graphView.Nodes
+                .Where(layer => layerCount - layer.Key == 1)
+                .SelectMany(layer => layer)
+                .FirstOrDefault();
+        }
+
         public void SelectAllGraphNodes()
         {
             var graphNodes = graphView.Nodes
