@@ -169,6 +169,7 @@ namespace Bonsai.Design
             workflowGraphView.Launcher = this;
             workflowGraphView.VisualizerLayout = VisualizerLayout;
             workflowGraphView.SelectFirstGraphNode();
+            workflowGraphView.Select();
             UpdateEditorText();
         }
     }
