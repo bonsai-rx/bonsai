@@ -199,9 +199,7 @@ namespace Bonsai.Design
             {
                 activeTab = tabState;
                 RefreshTab(activeTab);
-
-                var workflowGraphView = activeTab.WorkflowGraphView;
-                workflowGraphView.UpdateSelection();
+                activeTab.UpdateSelection();
             }
         }
 
@@ -260,6 +258,11 @@ namespace Bonsai.Design
             void UpdateDisplayText()
             {
                 TabPage.Text = displayText + (WorkflowGraphView.ReadOnly ? ReadOnlySuffix : string.Empty) + CloseSuffix;
+            }
+
+            public void UpdateSelection()
+            {
+                WorkflowGraphView.UpdateSelection();
             }
 
             public event CancelEventHandler TabClosing;

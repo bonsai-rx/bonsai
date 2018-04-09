@@ -145,7 +145,7 @@ namespace Bonsai.Design
                 visualizerDialog.AddControl(workflowEditor);
                 visualizerDialog.Icon = Bonsai.Editor.Properties.Resources.Icon;
                 visualizerDialog.ShowIcon = true;
-                visualizerDialog.Activated += (sender, e) => workflowGraphView.UpdateSelection();
+                visualizerDialog.Activated += (sender, e) => workflowEditor.ActiveTab.UpdateSelection();
                 visualizerDialog.FormClosing += (sender, e) =>
                 {
                     if (e.CloseReason == CloseReason.UserClosing)
