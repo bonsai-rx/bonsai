@@ -39,7 +39,7 @@ namespace Bonsai.Design
         {
             if (visualizerDialog == null)
             {
-                visualizerDialog = new TypeVisualizerDialog();
+                visualizerDialog = CreateVisualizerDialog(provider);
                 visualizerDialog.Load += delegate
                 {
                     var bounds = Bounds;
@@ -79,6 +79,11 @@ namespace Bonsai.Design
             }
 
             visualizerDialog.Activate();
+        }
+
+        protected virtual TypeVisualizerDialog CreateVisualizerDialog(IServiceProvider provider)
+        {
+            return new TypeVisualizerDialog();
         }
 
         protected abstract void InitializeComponents(TypeVisualizerDialog visualizerDialog, IServiceProvider provider);

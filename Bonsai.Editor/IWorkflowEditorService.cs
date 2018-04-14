@@ -26,6 +26,8 @@ namespace Bonsai.Editor
 
         IEnumerable<Type> GetTypeVisualizers(Type targetType);
 
+        void SelectNextControl(bool forward);
+
         void StartWorkflow(bool debugging);
 
         void StopWorkflow();
