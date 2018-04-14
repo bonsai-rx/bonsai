@@ -94,6 +94,11 @@ namespace Bonsai.Design
 
         internal WorkflowEditorLauncher Launcher { get; set; }
 
+        internal WorkflowEditorControl EditorControl
+        {
+            get { return editorControl; }
+        }
+
         internal bool ReadOnly
         {
             get { return editorReadOnly || editorState.WorkflowRunning; }
@@ -2207,10 +2212,25 @@ namespace Bonsai.Design
 
             if (e.KeyCode == Keys.Back && e.Modifiers == Keys.Control)
             {
-                var owner = graphView.ParentForm.Owner;
-                if (owner != null)
+                var launcher = Launcher;
+                if (launcher != null && launcher.ParentView != null)
                 {
-                    owner.Activate();
+                    var parentView = launcher.ParentView;
+                    var parentEditor = parentView.EditorControl;
+                    var parentEditorForm = parentEditor.ParentForm;
+                    if (editorControl.ParentForm != parentEditorForm)
+                    {
+                        parentEditorForm.Activate();
+                    }
+
+                    var parentNode = parentView.Workflow.FirstOrDefault(node => ExpressionBuilder.Unwrap(node.Value) == launcher.Builder);
+                    if (parentNode != null)
+                    {
+                        var graphNode = parentView.FindGraphNode(parentNode.Value);
+                        parentView.GraphView.SelectedNode = graphNode;
+                        parentEditor.SelectTab(parentView);
+                        parentView.GraphView.Select();
+                    }
                 }
             }
 
