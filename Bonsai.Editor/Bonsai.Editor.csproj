@@ -105,6 +105,9 @@
     <Compile Include="IWorkflowEditorService.cs" />
     <Compile Include="IWorkflowToolboxService.cs" />
     <Compile Include="Layout\DialogLauncher.cs" />
+    <Compile Include="Layout\NestedEditorDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Layout\VisualizerDialogLauncher.cs" />
     <Compile Include="Layout\VisualizerDialogSettings.cs" />
     <Compile Include="Layout\VisualizerDialogSettingsCollection.cs" />

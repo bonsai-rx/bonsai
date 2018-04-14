@@ -134,6 +134,7 @@ namespace Bonsai.Editor
             selectionModel = new WorkflowSelectionModel();
             propertyAssignments = new Dictionary<string, string>();
             editorControl = new WorkflowEditorControl(editorSite);
+            editorControl.Enter += new EventHandler(editorControl_Enter);
             editorControl.Workflow = workflowBuilder.Workflow;
             editorControl.Dock = DockStyle.Fill;
             workflowSplitContainer.Panel1.Controls.Add(editorControl);
@@ -1440,6 +1441,21 @@ namespace Bonsai.Editor
             return descriptionAttribute.Description;
         }
 
+        void editorControl_Enter(object sender, EventArgs e)
+        {
+            var selectedView = selectionModel.SelectedView;
+            if (selectedView != null && selectedView.Launcher != null)
+            {
+                var container = selectedView.EditorControl;
+                if (container != null && container != editorControl && hotKeys.TabState)
+                {
+                    container.ParentForm.Activate();
+                    var forward = Form.ModifierKeys.HasFlag(Keys.Shift);
+                    container.SelectNextControl(container.ActiveControl, forward, true, true, false);
+                }
+            }
+        }
+
         private void selectionModel_SelectionChanged(object sender, EventArgs e)
         {
             var selectedObjects = selectionModel.SelectedNodes.Select(node =>
@@ -2181,6 +2197,13 @@ namespace Bonsai.Editor
             public IEnumerable<WorkflowElementDescriptor> GetToolboxElements()
             {
                 return siteForm.workflowElements;
+            }
+
+            public void SelectNextControl(bool forward)
+            {
+                if (forward) siteForm.SelectNextControl(siteForm.editorControl, true, true, true, true);
+                else siteForm.ActiveControl = siteForm.searchTextBox;
+                siteForm.Activate();
             }
 
             public void StartWorkflow(bool debugging)

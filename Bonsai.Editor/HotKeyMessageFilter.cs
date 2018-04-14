@@ -9,40 +9,24 @@ namespace Bonsai.Editor
 {
     class HotKeyMessageFilter : IMessageFilter
     {
-        const int WM_KEYDOWN = 0x100;
+        public bool TabState { get; set; }
 
         public bool PreFilterMessage(ref Message m)
         {
-            if (m.Msg == WM_KEYDOWN)
+            const int WM_KEYUP = 0x101;
+            const int WM_KEYDOWN = 0x100;
+
+            switch (m.Msg)
             {
-                var keyCode = (Keys)m.WParam;
-                if (keyCode == Keys.Tab && Form.ModifierKeys.HasFlag(Keys.Control))
-                {
-                    if (Form.ModifierKeys.HasFlag(Keys.Shift)) CycleActiveForm(-1);
-                    else CycleActiveForm(1);
-                }
+                case WM_KEYDOWN:
+                    if ((Keys)m.WParam == Keys.Tab) TabState = true;
+                    break;
+                case WM_KEYUP:
+                    if ((Keys)m.WParam == Keys.Tab) TabState = false;
+                    break;
             }
 
             return false;
-        }
-
-        static void CycleActiveForm(int step)
-        {
-            var activeForm = Form.ActiveForm;
-            if (activeForm != null && !activeForm.Modal && Application.OpenForms.Count > 1)
-            {
-                for (int i = 0; i < Application.OpenForms.Count; i++)
-                {
-                    var form = Application.OpenForms[i];
-                    if (form == activeForm)
-                    {
-                        i = (i + Application.OpenForms.Count + step) % Application.OpenForms.Count;
-                        activeForm = Application.OpenForms[i];
-                        activeForm.Activate();
-                        break;
-                    }
-                }
-            }
         }
     }
 }

@@ -130,6 +130,11 @@ namespace Bonsai.Design
             }
         }
 
+        protected override TypeVisualizerDialog CreateVisualizerDialog(IServiceProvider provider)
+        {
+            return new NestedEditorDialog(provider);
+        }
+
         protected override void InitializeComponents(TypeVisualizerDialog visualizerDialog, IServiceProvider provider)
         {
             var workflowEditor = Container;
