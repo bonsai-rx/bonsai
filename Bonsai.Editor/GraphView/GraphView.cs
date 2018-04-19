@@ -377,7 +377,7 @@ namespace Bonsai.Design
                 drawScale = graphics.DpiY / DefaultDpi * Font.SizeInPoints / Control.DefaultFont.SizeInPoints;
             }
 
-            PenWidth = (int)(3 * drawScale);
+            PenWidth = (int)Math.Round(1.5 * drawScale);
             NodeAirspace = (int)(80 * drawScale);
             NodeSize = (int)(30 * drawScale);
             IconSize = (int)(16 * drawScale);
@@ -1151,9 +1151,7 @@ namespace Bonsai.Design
                         layout.Location.Y + offset.Height,
                         NodeSize, NodeSize);
 
-                    e.Graphics.DrawEllipse(pen, nodeRectangle);
                     e.Graphics.FillEllipse(brush, nodeRectangle);
-                    if (layout.Node == hot) e.Graphics.FillEllipse(HotBrush, nodeRectangle);
                     if (layout.Node.Image != null)
                     {
                         var imageRect = new Rectangle(
@@ -1169,6 +1167,8 @@ namespace Bonsai.Design
                             Font, textBrush,
                             nodeRectangle, CenteredTextFormat);
                     }
+                    if (layout.Node == hot) e.Graphics.FillEllipse(HotBrush, nodeRectangle);
+                    e.Graphics.DrawEllipse(pen, nodeRectangle);
 
                     if (TextDrawMode == GraphViewTextDrawMode.All || layout.Node == hot)
                     {
