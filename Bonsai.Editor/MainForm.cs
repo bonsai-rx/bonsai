@@ -145,6 +145,7 @@ namespace Bonsai.Editor
             toolboxElements = elementProvider;
             visualizerElements = visualizerProvider;
             Application.AddMessageFilter(hotKeys);
+            components.Add(editorControl);
         }
 
         #region Loading
