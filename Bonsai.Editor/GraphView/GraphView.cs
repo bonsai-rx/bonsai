@@ -1025,10 +1025,29 @@ namespace Bonsai.Design
             }
         }
 
-        public RectangleF DrawGraphics(IGraphics graphics, bool scaleFont)
+        public SizeF GetLayoutSize()
+        {
+            var boundingRect = RectangleF.Empty;
+            foreach (var layout in layoutNodes)
+            {
+                if (layout.Node.Value != null)
+                {
+                    var labelRect = layout.LabelRectangle;
+                    var layoutBounds = RectangleF.Union(layout.BoundingRectangle, labelRect);
+                    boundingRect = RectangleF.Union(boundingRect, layoutBounds);
+                }
+                else if (layout.Node.Tag != null)
+                {
+                    boundingRect = RectangleF.Union(boundingRect, layout.BoundingRectangle);
+                }
+            }
+
+            return boundingRect.Size;
+        }
+
+        public void DrawGraphics(IGraphics graphics, bool scaleFont)
         {
             var textBrush = Brushes.Black;
-            var boundingRect = RectangleF.Empty;
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
             graphics.Clear(Color.White);
 
@@ -1083,7 +1102,6 @@ namespace Bonsai.Design
                         }
 
                         var labelRect = layout.LabelRectangle;
-                        var layoutBounds = RectangleF.Union(layout.BoundingRectangle, labelRect);
                         foreach (var line in layout.Label.Split(Environment.NewLine.ToArray(),
                                                                 StringSplitOptions.RemoveEmptyEntries))
                         {
@@ -1097,17 +1115,13 @@ namespace Bonsai.Design
                             graphics.DrawString(lineLabel, font, textBrush, labelRect);
                             labelRect.Y += size.Height;
                         }
-                        boundingRect = RectangleF.Union(boundingRect, layoutBounds);
                     }
                     else if (layout.Node.Tag != null)
                     {
                         graphics.DrawLine(GetCustomPen(layout.Node.Pen), layout.EntryPoint, layout.ExitPoint);
-                        boundingRect = RectangleF.Union(boundingRect, layout.BoundingRectangle);
                     }
                 }
             }
-
-            return boundingRect;
         }
 
         private void canvas_Paint(object sender, PaintEventArgs e)
