@@ -838,11 +838,12 @@ namespace Bonsai.Editor
 
         void ExportImage(WorkflowGraphView model, string fileName)
         {
+            var bounds = model.GraphView.GetLayoutSize();
             var extension = Path.GetExtension(fileName);
             if (extension == ".svg")
             {
                 var graphics = new SvgNet.SvgGdi.SvgGraphics();
-                var bounds = model.GraphView.DrawGraphics(graphics, true);
+                model.GraphView.DrawGraphics(graphics, true);
                 var svg = graphics.WriteSVGString();
                 var attributes = string.Format(
                     "<svg width=\"{0}\" height=\"{1}\" ",
@@ -852,13 +853,11 @@ namespace Bonsai.Editor
             }
             else
             {
-                var drawGraphics = new DeferredGraphics();
-                var bounds = model.GraphView.DrawGraphics(drawGraphics, false);
                 using (var bitmap = new Bitmap((int)bounds.Width, (int)bounds.Height))
                 using (var graphics = Graphics.FromImage(bitmap))
                 {
-                    drawGraphics.Execute(graphics);
-                    drawGraphics.Clear();
+                    var gdi = new SvgNet.SvgGdi.GdiGraphics(graphics);
+                    model.GraphView.DrawGraphics(gdi, false);
                     if (string.IsNullOrEmpty(fileName))
                     {
                         Clipboard.SetImage(bitmap);
