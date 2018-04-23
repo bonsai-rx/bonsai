@@ -54,6 +54,8 @@ namespace Bonsai.Design
         Pen CursorPen;
         Pen WhitePen;
         Pen BlackPen;
+        Pen WhiteIconPen;
+        Pen BlackIconPen;
         Font ExportFont;
 
         float drawScale;
@@ -67,6 +69,7 @@ namespace Bonsai.Design
         Dictionary<Pen, Pen> customPens = new Dictionary<Pen, Pen>();
         LayoutNodeCollection layoutNodes = new LayoutNodeCollection();
         HashSet<GraphNode> selectedNodes = new HashSet<GraphNode>();
+        SvgRendererState iconRendererState = new SvgRendererState();
         IEnumerable<GraphNodeGrouping> nodes;
         GraphNode pivot;
         GraphNode cursor;
@@ -217,6 +220,8 @@ namespace Bonsai.Design
 
         public Brush UnfocusedSelectionBrush { get; set; }
 
+        public SvgRendererFactory IconRenderer { get; set; }
+
         public GraphViewTextDrawMode TextDrawMode
         {
             get { return textDrawMode; }
@@ -336,7 +341,10 @@ namespace Bonsai.Design
                 CursorPen.Dispose();
                 WhitePen.Dispose();
                 BlackPen.Dispose();
+                WhiteIconPen.Dispose();
+                BlackIconPen.Dispose();
                 CursorPen = WhitePen = BlackPen = null;
+                WhiteIconPen = BlackIconPen = null;
             }
 
             if (ExportFont != null)
@@ -377,6 +385,7 @@ namespace Bonsai.Design
                 drawScale = graphics.DpiY / DefaultDpi * Font.SizeInPoints / Control.DefaultFont.SizeInPoints;
             }
 
+            iconRendererState.Scale = drawScale;
             PenWidth = (int)Math.Round(1.5 * drawScale);
             NodeAirspace = (int)(80 * drawScale);
             NodeSize = (int)(30 * drawScale);
@@ -390,6 +399,8 @@ namespace Bonsai.Design
             CursorPen = new Pen(Brushes.DarkGray, PenWidth);
             WhitePen = new Pen(Brushes.White, PenWidth);
             BlackPen = new Pen(Brushes.Black, PenWidth);
+            WhiteIconPen = new Pen(Brushes.White);
+            BlackIconPen = new Pen(Brushes.Black);
             UpdateModelLayout();
             base.ScaleControl(factor, specified);
         }
@@ -1090,6 +1101,13 @@ namespace Bonsai.Design
                                 IconSize, IconSize);
                             graphics.DrawImage(layout.Node.Image, imageRect);
                         }
+                        else if (IconRenderer != null && layout.Node.Icon != null)
+                        {
+                            var renderer = IconRenderer.GetIconRenderer(layout.Node.Icon);
+                            iconRendererState.Outlining = BlackIconPen;
+                            iconRendererState.Translation = nodeRectangle.Location;
+                            renderer(iconRendererState, graphics);
+                        }
                         else
                         {
                             graphics.DrawString(
@@ -1126,6 +1144,7 @@ namespace Bonsai.Design
 
         private void canvas_Paint(object sender, PaintEventArgs e)
         {
+            var graphics = new GdiGraphics(e.Graphics);
             var offset = new Size(-canvas.HorizontalScroll.Value, -canvas.VerticalScroll.Value);
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
@@ -1146,16 +1165,19 @@ namespace Bonsai.Design
                 if (layout.Node.Value != null)
                 {
                     Pen pen;
+                    Pen iconPen;
                     Brush brush;
                     var selected = selectedNodes.Contains(layout.Node);
                     var textBrush = selected ? Brushes.White : Brushes.Black;
                     if (layout.Node.Highlight)
                     {
                         brush = selected ? HighlightedSelectionBrush : HighlightedBrush;
+                        iconPen = WhiteIconPen;
                         pen = WhitePen;
                     }
                     else
                     {
+                        iconPen = selected ? WhiteIconPen : BlackIconPen;
                         pen = cursor == layout.Node ? CursorPen : selected ? WhitePen : BlackPen;
                         brush = selected ? (Focused ? FocusedSelectionBrush : UnfocusedSelectionBrush) : layout.Node.Brush;
                     }
@@ -1173,6 +1195,13 @@ namespace Bonsai.Design
                             nodeRectangle.Y + IconOffset,
                             IconSize, IconSize);
                         e.Graphics.DrawImage(layout.Node.Image, imageRect);
+                    }
+                    else if (IconRenderer != null && layout.Node.Icon != null)
+                    {
+                        var renderer = IconRenderer.GetIconRenderer(layout.Node.Icon);
+                        iconRendererState.Outlining = iconPen;
+                        iconRendererState.Translation = nodeRectangle.Location;
+                        renderer(iconRendererState, graphics);
                     }
                     else
                     {

@@ -62,6 +62,7 @@ namespace Bonsai.Editor
         List<TreeNode> treeCache;
         Label statusTextLabel;
         Bitmap statusReadyImage;
+        SvgRendererFactory iconRenderer;
         ToolStripButton statusUpdateAvailableLabel;
         BehaviorSubject<bool> updatesAvailable;
         DirectoryInfo extensionsPath;
@@ -99,6 +100,7 @@ namespace Bonsai.Editor
             statusTextLabel.AutoSize = true;
             statusTextLabel.Text = Resources.ReadyStatus;
             formScheduler = new FormScheduler(this);
+            iconRenderer = new SvgRendererFactory();
             updatesAvailable = new BehaviorSubject<bool>(false);
             statusUpdateAvailableLabel = new ToolStripButton();
             statusUpdateAvailableLabel.Click += packageManagerToolStripMenuItem_Click;
@@ -140,6 +142,7 @@ namespace Bonsai.Editor
             propertyGrid.LineColor = SystemColors.InactiveBorder;
             propertyGrid.Site = editorSite;
 
+            editorControl.Disposed += editorControl_Disposed;
             selectionModel.SelectionChanged += new EventHandler(selectionModel_SelectionChanged);
             toolboxElements = elementProvider;
             visualizerElements = visualizerProvider;
@@ -338,6 +341,11 @@ namespace Bonsai.Editor
             if (InvokeRequired) Invoke(closeEditor);
             else closeEditor();
             base.OnFormClosed(e);
+        }
+
+        void editorControl_Disposed(object sender, EventArgs e)
+        {
+            iconRenderer.Dispose();
         }
 
         #endregion
@@ -2010,6 +2018,11 @@ namespace Bonsai.Editor
                 if (serviceType == typeof(WorkflowSelectionModel))
                 {
                     return siteForm.selectionModel;
+                }
+
+                if (serviceType == typeof(SvgRendererFactory))
+                {
+                    return siteForm.iconRenderer;
                 }
 
                 if (serviceType == typeof(DialogTypeVisualizer))
