@@ -65,8 +65,7 @@ namespace Bonsai.Editor
         ToolStripButton statusUpdateAvailableLabel;
         BehaviorSubject<bool> updatesAvailable;
         DirectoryInfo extensionsPath;
-        object formClosedGate;
-        bool formClosed;
+        FormScheduler formScheduler;
 
         TypeVisualizerMap typeVisualizers;
         List<WorkflowElementDescriptor> workflowElements;
@@ -99,7 +98,7 @@ namespace Bonsai.Editor
             statusTextLabel = new Label();
             statusTextLabel.AutoSize = true;
             statusTextLabel.Text = Resources.ReadyStatus;
-            formClosedGate = new object();
+            formScheduler = new FormScheduler(this);
             updatesAvailable = new BehaviorSubject<bool>(false);
             statusUpdateAvailableLabel = new ToolStripButton();
             statusUpdateAvailableLabel.Click += packageManagerToolStripMenuItem_Click;
@@ -249,17 +248,8 @@ namespace Bonsai.Editor
 
         void HandleUpdatesAvailable(bool value)
         {
-            lock (formClosedGate)
-            {
-                if (!formClosed)
-                {
-                    BeginInvoke((Action)(() =>
-                    {
-                        if (value) toolStrip.Items.Add(statusUpdateAvailableLabel);
-                        else toolStrip.Items.Remove(statusUpdateAvailableLabel);
-                    }));
-                }
-            }
+            if (value) toolStrip.Items.Add(statusUpdateAvailableLabel);
+            else toolStrip.Items.Remove(statusUpdateAvailableLabel);
         }
 
         protected override void OnLoad(EventArgs e)
@@ -279,7 +269,7 @@ namespace Bonsai.Editor
             var extensionsDirectory = Path.Combine(appDomainBaseDirectory, ExtensionsDirectory);
 
             InitializeSnippetFileWatcher().Subscribe();
-            updatesAvailable.Subscribe(HandleUpdatesAvailable);
+            updatesAvailable.ObserveOn(formScheduler).Subscribe(HandleUpdatesAvailable);
             workflowSnippets.AddRange(FindSnippets(extensionsDirectory));
             directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
 
@@ -344,7 +334,6 @@ namespace Bonsai.Editor
 
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
-            lock (formClosedGate) { formClosed = true; }
             Action closeEditor = CloseEditorForm;
             if (InvokeRequired) Invoke(closeEditor);
             else closeEditor();
@@ -417,7 +406,7 @@ namespace Bonsai.Editor
                     .Concat(FindSnippets(ExtensionsDirectory))
                     .GroupBy(x => x.Namespace)
                     .ToList())
-                .ObserveOn(this)
+                .ObserveOn(formScheduler)
                 .Do(elements =>
                 {
                     toolboxTreeView.BeginUpdate();
@@ -513,7 +502,7 @@ namespace Bonsai.Editor
                                     select Tuple.Create(targetType, visualizerType);
 
             return visualizerMapping
-                .ObserveOn(this)
+                .ObserveOn(formScheduler)
                 .Do(typeMapping => typeVisualizers.Add(typeMapping.Item1, typeMapping.Item2))
                 .SubscribeOn(Scheduler.Default)
                 .TakeLast(1)
@@ -523,7 +512,7 @@ namespace Bonsai.Editor
         IObservable<Unit> InitializeToolbox()
         {
             return toolboxElements
-                .ObserveOn(this)
+                .ObserveOn(formScheduler)
                 .Do(package => InitializeToolboxCategory(package.Key, package))
                 .SubscribeOn(Scheduler.Default)
                 .TakeLast(1)
