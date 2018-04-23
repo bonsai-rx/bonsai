@@ -32,6 +32,11 @@ namespace Bonsai.Design
                     Image = (Image)typeConverter.ConvertTo(value, typeof(Image));
                 }
 
+                if (typeConverter.CanConvertTo(typeof(WorkflowIcon)))
+                {
+                    Icon = (WorkflowIcon)typeConverter.ConvertTo(value, typeof(WorkflowIcon));
+                }
+
                 if (typeConverter.CanConvertTo(typeof(Pen)))
                 {
                     Pen = (Pen)typeConverter.ConvertTo(value, typeof(Pen));
@@ -71,6 +76,8 @@ namespace Bonsai.Design
         public Brush Brush { get; private set; }
 
         public Image Image { get; private set; }
+
+        public WorkflowIcon Icon { get; private set; }
 
         public Pen Pen { get; private set; }
 

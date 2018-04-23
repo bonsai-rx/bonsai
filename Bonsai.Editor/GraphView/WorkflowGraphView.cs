@@ -82,6 +82,7 @@ namespace Bonsai.Design
             editorReadOnly = readOnly;
             uiService = (IUIService)provider.GetService(typeof(IUIService));
             commandExecutor = (CommandExecutor)provider.GetService(typeof(CommandExecutor));
+            graphView.IconRenderer = (SvgRendererFactory)provider.GetService(typeof(SvgRendererFactory));
             selectionModel = (WorkflowSelectionModel)provider.GetService(typeof(WorkflowSelectionModel));
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
             editorState = (IWorkflowEditorState)provider.GetService(typeof(IWorkflowEditorState));

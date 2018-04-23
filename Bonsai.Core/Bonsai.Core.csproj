@@ -223,6 +223,7 @@
     <Compile Include="MultidimensionalArrayConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="WorkflowElementCategoryAttribute.cs" />
+    <Compile Include="WorkflowIconAttribute.cs" />
     <Compile Include="WorkflowRuntimeException.cs" />
     <Compile Include="WorkflowException.cs" />
     <Compile Include="Reactive\CombineTimestamp.cs" />
