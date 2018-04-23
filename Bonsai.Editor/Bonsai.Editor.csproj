@@ -90,6 +90,7 @@
     <Compile Include="CueBannerTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="FormScheduler.cs" />
     <Compile Include="GraphView\WorkflowEditorControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
