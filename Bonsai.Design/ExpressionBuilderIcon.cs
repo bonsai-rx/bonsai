@@ -14,7 +14,7 @@ namespace Bonsai.Design
         const string SvgExtension = ".svg";
         readonly string defaultName;
         readonly INamedElement namedElement;
-        readonly Type iconQualifier;
+        readonly Type resourceQualifier;
 
         public ExpressionBuilderIcon(object workflowElement)
         {
@@ -26,7 +26,7 @@ namespace Bonsai.Design
             var componentType = workflowElement.GetType();
             var attributes = TypeDescriptor.GetAttributes(workflowElement);
             var iconAttribute = (WorkflowIconAttribute)attributes[typeof(WorkflowIconAttribute)];
-            iconQualifier = Type.GetType(iconAttribute.TypeName ?? string.Empty, false) ?? componentType;
+            resourceQualifier = Type.GetType(iconAttribute.TypeName ?? string.Empty, false) ?? componentType;
             if (!string.IsNullOrEmpty(iconAttribute.Name)) defaultName = iconAttribute.Name;
             else
             {
@@ -39,14 +39,13 @@ namespace Bonsai.Design
         {
             get
             {
-                var name = defaultName;
+                var elementName = string.Empty;
                 if (namedElement != null)
                 {
-                    var elementName = namedElement.Name;
-                    if (!string.IsNullOrEmpty(elementName)) name = elementName;
+                    elementName = namedElement.Name ?? string.Empty;
                 }
 
-                return string.Join(".", iconQualifier.Namespace, name);
+                return string.Join(".", resourceQualifier.Namespace, defaultName, elementName);
             }
         }
 
@@ -84,7 +83,7 @@ namespace Bonsai.Design
             {
                 return new FileStream(iconPath, FileMode.Open, FileAccess.Read);
             }
-            else return iconQualifier.Assembly.GetManifestResourceStream(name);
+            else return resourceQualifier.Assembly.GetManifestResourceStream(name);
         }
     }
 }
