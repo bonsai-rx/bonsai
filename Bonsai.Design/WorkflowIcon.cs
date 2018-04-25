@@ -9,12 +9,11 @@ namespace Bonsai.Design
 {
     public abstract class WorkflowIcon
     {
-        internal WorkflowIcon(string name)
+        internal WorkflowIcon()
         {
-            Name = name;
         }
 
-        public string Name { get; private set; }
+        public abstract string Name { get; }
 
         public abstract Stream GetStream();
     }

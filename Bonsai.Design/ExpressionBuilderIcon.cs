@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Bonsai.Expressions;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,34 +11,76 @@ namespace Bonsai.Design
 {
     class ExpressionBuilderIcon : WorkflowIcon
     {
-        readonly WorkflowIconAttribute attribute;
+        const string SvgExtension = ".svg";
+        readonly string defaultName;
+        readonly INamedElement namedElement;
+        readonly Type iconQualifier;
 
-        public ExpressionBuilderIcon(WorkflowIconAttribute attribute)
-            : base(attribute.Name)
+        public ExpressionBuilderIcon(object workflowElement)
         {
-            this.attribute = attribute;
-            TypeName = attribute.TypeName;
+            if (workflowElement == null)
+            {
+                throw new ArgumentNullException("workflowElement");
+            }
+
+            var componentType = workflowElement.GetType();
+            var attributes = TypeDescriptor.GetAttributes(workflowElement);
+            var iconAttribute = (WorkflowIconAttribute)attributes[typeof(WorkflowIconAttribute)];
+            namedElement = workflowElement as INamedElement;
+            defaultName = !string.IsNullOrEmpty(iconAttribute.Name) ? iconAttribute.Name : ExpressionBuilder.GetElementDisplayName(componentType);
+            iconQualifier = Type.GetType(iconAttribute.TypeName ?? string.Empty, false) ?? componentType;
         }
 
-        public string TypeName { get; private set; }
+        public override string Name
+        {
+            get
+            {
+                var name = defaultName;
+                if (namedElement != null)
+                {
+                    var elementName = namedElement.Name;
+                    if (!string.IsNullOrEmpty(elementName)) name = elementName;
+                }
+
+                return string.Join(".", iconQualifier.Namespace, name);
+            }
+        }
+
+        static string ResolvePath(string path)
+        {
+            const string PathEnvironmentVariable = "PATH";
+            var workflowPath = Path.Combine(Environment.CurrentDirectory, path);
+            if (File.Exists(workflowPath)) return workflowPath;
+
+            var pathLocations = Environment.GetEnvironmentVariable(PathEnvironmentVariable).Split(Path.PathSeparator);
+            for (int i = 0; i < pathLocations.Length; i++)
+            {
+                workflowPath = Path.Combine(pathLocations[i], path);
+                if (File.Exists(workflowPath)) return workflowPath;
+            }
+
+            return string.Empty;
+        }
 
         public override Stream GetStream()
         {
-            if (string.IsNullOrEmpty(Name))
+            var name = Name;
+            if (string.IsNullOrEmpty(name))
             {
                 return null;
             }
 
-            var type = Type.GetType(TypeName, false);
-            if (type != null)
+            if (Path.GetExtension(name) != SvgExtension)
             {
-                return type.Assembly.GetManifestResourceStream(type, Name);
+                name += SvgExtension;
             }
-            else if (File.Exists(Name))
+
+            var iconPath = ResolvePath(name);
+            if (!string.IsNullOrEmpty(iconPath))
             {
-                return new FileStream(Name, FileMode.Open, FileAccess.Read);
+                return new FileStream(iconPath, FileMode.Open, FileAccess.Read);
             }
-            else return null;
+            else return iconQualifier.Assembly.GetManifestResourceStream(name);
         }
     }
 }
