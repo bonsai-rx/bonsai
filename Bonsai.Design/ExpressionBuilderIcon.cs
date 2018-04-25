@@ -26,9 +26,13 @@ namespace Bonsai.Design
             var componentType = workflowElement.GetType();
             var attributes = TypeDescriptor.GetAttributes(workflowElement);
             var iconAttribute = (WorkflowIconAttribute)attributes[typeof(WorkflowIconAttribute)];
-            namedElement = workflowElement as INamedElement;
-            defaultName = !string.IsNullOrEmpty(iconAttribute.Name) ? iconAttribute.Name : ExpressionBuilder.GetElementDisplayName(componentType);
             iconQualifier = Type.GetType(iconAttribute.TypeName ?? string.Empty, false) ?? componentType;
+            if (!string.IsNullOrEmpty(iconAttribute.Name)) defaultName = iconAttribute.Name;
+            else
+            {
+                namedElement = workflowElement as INamedElement;
+                defaultName = ExpressionBuilder.GetElementDisplayName(componentType);
+            }
         }
 
         public override string Name
