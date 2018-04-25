@@ -93,14 +93,7 @@ namespace Bonsai.Design
             {
                 var expressionBuilder = (ExpressionBuilder)value;
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(expressionBuilder);
-                var attributes = TypeDescriptor.GetAttributes(workflowElement);
-                var iconAttribute = (WorkflowIconAttribute)attributes[typeof(WorkflowIconAttribute)];
-                if (iconAttribute != WorkflowIconAttribute.Default)
-                {
-                    return new ExpressionBuilderIcon(iconAttribute);
-                }
-
-                return null;
+                return new ExpressionBuilderIcon(workflowElement);
             }
 
             if (destinationType == typeof(Pen))
