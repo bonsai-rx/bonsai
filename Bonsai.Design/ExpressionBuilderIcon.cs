@@ -16,22 +16,32 @@ namespace Bonsai.Design
         readonly INamedElement namedElement;
         readonly Type resourceQualifier;
 
-        public ExpressionBuilderIcon(object workflowElement)
+        public ExpressionBuilderIcon(ElementCategory category)
         {
-            if (workflowElement == null)
+            defaultName = string.Join(
+                ExpressionHelper.MemberSeparator,
+                typeof(ElementCategory).Name,
+                Enum.GetName(typeof(ElementCategory), category));
+            resourceQualifier = GetType();
+        }
+
+        public ExpressionBuilderIcon(ExpressionBuilder builder)
+        {
+            if (builder == null)
             {
-                throw new ArgumentNullException("workflowElement");
+                throw new ArgumentNullException("builder");
             }
 
-            var componentType = workflowElement.GetType();
+            var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
+            var workflowElementType = workflowElement.GetType();
             var attributes = TypeDescriptor.GetAttributes(workflowElement);
             var iconAttribute = (WorkflowIconAttribute)attributes[typeof(WorkflowIconAttribute)];
-            resourceQualifier = Type.GetType(iconAttribute.TypeName ?? string.Empty, false) ?? componentType;
+            resourceQualifier = Type.GetType(iconAttribute.TypeName ?? string.Empty, false) ?? workflowElementType;
             if (!string.IsNullOrEmpty(iconAttribute.Name)) defaultName = iconAttribute.Name;
             else
             {
                 namedElement = workflowElement as INamedElement;
-                defaultName = ExpressionBuilder.GetElementDisplayName(componentType);
+                defaultName = ExpressionBuilder.GetElementDisplayName(workflowElementType);
             }
         }
 
