@@ -39,13 +39,20 @@ namespace Bonsai.Design
         {
             get
             {
-                var elementName = string.Empty;
                 if (namedElement != null)
                 {
-                    elementName = namedElement.Name ?? string.Empty;
+                    var elementName = namedElement.Name;
+                    if (!string.IsNullOrEmpty(elementName))
+                    {
+                        return string.Join(
+                            ExpressionHelper.MemberSeparator,
+                            resourceQualifier.Namespace,
+                            defaultName,
+                            elementName);
+                    }
                 }
 
-                return string.Join(".", resourceQualifier.Namespace, defaultName, elementName);
+                return string.Join(ExpressionHelper.MemberSeparator, resourceQualifier.Namespace, defaultName);
             }
         }
 
