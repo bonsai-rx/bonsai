@@ -12,6 +12,7 @@ namespace Bonsai.Design
     class ExpressionBuilderIcon : WorkflowIcon
     {
         const string SvgExtension = ".svg";
+        const string GroupPrefix = "gp://";
         readonly string defaultName;
         readonly INamedElement namedElement;
         readonly Type resourceQualifier;
@@ -42,6 +43,12 @@ namespace Bonsai.Design
             {
                 namedElement = workflowElement as INamedElement;
                 defaultName = ExpressionBuilder.GetElementDisplayName(workflowElementType);
+                if (namedElement != null &&
+                   (workflowElement is IncludeWorkflowBuilder ||
+                    workflowElement is GroupWorkflowBuilder))
+                {
+                    defaultName = GroupPrefix + defaultName;
+                }
             }
         }
 
@@ -52,6 +59,16 @@ namespace Bonsai.Design
                 if (namedElement != null)
                 {
                     var elementName = namedElement.Name;
+                    var prefixOffset = defaultName.IndexOf(GroupPrefix, StringComparison.Ordinal);
+                    if (prefixOffset == 0)
+                    {
+                        if (!string.IsNullOrEmpty(elementName)) return elementName;
+                        else return string.Join(
+                            ExpressionHelper.MemberSeparator,
+                            resourceQualifier.Namespace,
+                            defaultName.Substring(GroupPrefix.Length));
+                    }
+
                     if (!string.IsNullOrEmpty(elementName))
                     {
                         return string.Join(
