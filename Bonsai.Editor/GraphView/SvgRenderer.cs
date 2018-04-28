@@ -391,33 +391,34 @@ namespace Bonsai.Design
                 throw new ArgumentNullException("node");
             }
 
-            var renderer = node.Icon != null ? GetIconRenderer(node.Icon) : null;
-            if (renderer == null)
+            SvgRenderer renderer;
+            if (!TryGetIconRenderer(node.Icon, out renderer))
             {
                 var converter = TypeDescriptor.GetConverter(node.Value);
                 if (converter.CanConvertTo(typeof(ElementCategory)))
                 {
                     var category = (ElementCategory)converter.ConvertTo(node.Value, typeof(ElementCategory));
                     var categoryIcon = WorkflowIcon.GetCategoryIcon(category);
-                    renderer = GetIconRenderer(categoryIcon);
+                    TryGetIconRenderer(categoryIcon, out renderer);
                 }
+
+                rendererCache.Add(node.Icon.Name, renderer);
             }
 
             return renderer;
         }
 
-        SvgRenderer GetIconRenderer(WorkflowIcon icon)
+        bool TryGetIconRenderer(WorkflowIcon icon, out SvgRenderer renderer)
         {
             if (icon == null)
             {
                 throw new ArgumentNullException("icon");
             }
 
-            SvgRenderer renderer;
             if (!rendererCache.TryGetValue(icon.Name, out renderer))
             {
                 var iconStream = icon.GetStream();
-                if (iconStream == null) return null;
+                if (iconStream == null) return false;
                 var svgDocument = new XmlDocument();
                 svgDocument.Load(iconStream);
                 var element = SvgFactory.LoadFromXML(svgDocument, null);
@@ -425,7 +426,7 @@ namespace Bonsai.Design
                 rendererCache.Add(icon.Name, renderer);
             }
 
-            return renderer;
+            return true;
         }
 
         public void Dispose()
