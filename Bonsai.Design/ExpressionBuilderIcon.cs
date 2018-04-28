@@ -16,14 +16,16 @@ namespace Bonsai.Design
         readonly string defaultName;
         readonly INamedElement namedElement;
         readonly Type resourceQualifier;
+        string nameCache;
 
         public ExpressionBuilderIcon(ElementCategory category)
         {
+            resourceQualifier = GetType();
             defaultName = string.Join(
                 ExpressionHelper.MemberSeparator,
+                resourceQualifier.Namespace,
                 typeof(ElementCategory).Name,
                 Enum.GetName(typeof(ElementCategory), category));
-            resourceQualifier = GetType();
         }
 
         public ExpressionBuilderIcon(ExpressionBuilder builder)
@@ -43,12 +45,15 @@ namespace Bonsai.Design
             {
                 namedElement = workflowElement as INamedElement;
                 defaultName = ExpressionBuilder.GetElementDisplayName(workflowElementType);
-                if (namedElement != null &&
-                   (workflowElement is IncludeWorkflowBuilder ||
-                    workflowElement is GroupWorkflowBuilder))
-                {
-                    defaultName = GroupPrefix + defaultName;
-                }
+            }
+
+            defaultName = string.Join(ExpressionHelper.MemberSeparator, resourceQualifier.Namespace, defaultName);
+            if (namedElement != null &&
+               (workflowElement is IncludeWorkflowBuilder ||
+                workflowElement is GroupWorkflowBuilder))
+            {
+                nameCache = defaultName;
+                defaultName = GroupPrefix + defaultName;
             }
         }
 
@@ -63,23 +68,26 @@ namespace Bonsai.Design
                     if (prefixOffset == 0)
                     {
                         if (!string.IsNullOrEmpty(elementName)) return elementName;
-                        else return string.Join(
-                            ExpressionHelper.MemberSeparator,
-                            resourceQualifier.Namespace,
-                            defaultName.Substring(GroupPrefix.Length));
+                        else return nameCache;
                     }
 
                     if (!string.IsNullOrEmpty(elementName))
                     {
-                        return string.Join(
-                            ExpressionHelper.MemberSeparator,
-                            resourceQualifier.Namespace,
-                            defaultName,
-                            elementName);
+                        if (nameCache == null ||
+                            string.CompareOrdinal(
+                                nameCache, defaultName.Length + 1,
+                                elementName, 0,
+                                Math.Max(elementName.Length, nameCache.Length - defaultName.Length - 1)) != 0)
+                        {
+                            nameCache = string.Join(ExpressionHelper.MemberSeparator, defaultName, elementName);
+                        }
+
+                        return nameCache;
                     }
+                    else nameCache = null;
                 }
 
-                return string.Join(ExpressionHelper.MemberSeparator, resourceQualifier.Namespace, defaultName);
+                return defaultName;
             }
         }
 
