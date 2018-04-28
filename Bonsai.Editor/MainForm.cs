@@ -932,7 +932,10 @@ namespace Bonsai.Editor
                 {
                     saveWorkflowDialog.FileName = currentFileName;
                 }
-                else selectionModel_SelectionChanged(this, e);
+                else if (!IsDisposed)
+                {
+                    selectionModel_SelectionChanged(this, e);
+                }
             }
         }
 
