@@ -46,17 +46,12 @@ namespace Bonsai
 
         public static ScriptExtensionsEnvironment CompileAssembly(PackageConfiguration configuration, string editorRepositoryPath, bool includeDebugInformation)
         {
-            var assemblyNames = new HashSet<string>();
-            assemblyNames.Add("System.dll");
-            assemblyNames.Add("System.Core.dll");
-            assemblyNames.Add("System.Reactive.Linq.dll");
-            assemblyNames.Add("Bonsai.Core.dll");
-
             var path = Environment.CurrentDirectory;
             var configurationRoot = ConfigurationHelper.GetConfigurationRoot(configuration);
             var scriptProjectFile = Path.Combine(path, Path.ChangeExtension(OutputAssemblyName, ProjectExtension));
             if (!File.Exists(scriptProjectFile)) return new ScriptExtensionsEnvironment(configuration, null);
 
+            var assemblyNames = new HashSet<string>();
             var document = XmlUtility.LoadSafe(scriptProjectFile);
             var packageRepository = new LocalPackageRepository(editorRepositoryPath);
             var projectReferences = from element in document.Descendants(XName.Get(PackageReferenceElement))
@@ -64,6 +59,10 @@ namespace Bonsai
                                     where package != null
                                     from assemblyReference in FindAssemblyReferences(packageRepository, package)
                                     select assemblyReference;
+            assemblyNames.Add("System.dll");
+            assemblyNames.Add("System.Core.dll");
+            assemblyNames.Add("System.Reactive.Linq.dll");
+            assemblyNames.Add("Bonsai.Core.dll");
             assemblyNames.AddRange(projectReferences);
 
             var scriptFiles = Directory.GetFiles(path, ScriptExtension, SearchOption.AllDirectories);
