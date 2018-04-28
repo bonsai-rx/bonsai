@@ -1095,7 +1095,7 @@ namespace Bonsai.Design
                         graphics.FillEllipse(layout.Node.Brush, nodeRectangle);
                         if (IconRenderer != null && layout.Node.Icon != null)
                         {
-                            var renderer = IconRenderer.GetIconRenderer(layout.Node.Icon);
+                            var renderer = IconRenderer.GetIconRenderer(layout.Node);
                             iconRendererState.Outlining = BlackIconPen;
                             iconRendererState.Translation = nodeRectangle.Location;
                             renderer(iconRendererState, graphics);
@@ -1182,7 +1182,7 @@ namespace Bonsai.Design
                     e.Graphics.FillEllipse(brush, nodeRectangle);
                     if (IconRenderer != null && layout.Node.Icon != null)
                     {
-                        var renderer = IconRenderer.GetIconRenderer(layout.Node.Icon);
+                        var renderer = IconRenderer.GetIconRenderer(layout.Node);
                         iconRendererState.Outlining = iconPen;
                         iconRendererState.Translation = nodeRectangle.Location;
                         renderer(iconRendererState, graphics);

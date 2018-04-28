@@ -5,6 +5,7 @@ using SvgNet.SvgTypes;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -371,7 +372,7 @@ namespace Bonsai.Design
             }
         }
 
-        SvgRenderer Create(SvgElement element)
+        SvgRenderer CreateRenderer(SvgElement element)
         {
             var transform = new Matrix();
             var state = Expression.Parameter(typeof(SvgRendererState), "state");
@@ -383,7 +384,29 @@ namespace Bonsai.Design
             return renderer.Compile();
         }
 
-        public SvgRenderer GetIconRenderer(WorkflowIcon icon)
+        public SvgRenderer GetIconRenderer(GraphNode node)
+        {
+            if (node == null)
+            {
+                throw new ArgumentNullException("node");
+            }
+
+            var renderer = node.Icon != null ? GetIconRenderer(node.Icon) : null;
+            if (renderer == null)
+            {
+                var converter = TypeDescriptor.GetConverter(node.Value);
+                if (converter.CanConvertTo(typeof(ElementCategory)))
+                {
+                    var category = (ElementCategory)converter.ConvertTo(node.Value, typeof(ElementCategory));
+                    var categoryIcon = WorkflowIcon.GetCategoryIcon(category);
+                    renderer = GetIconRenderer(categoryIcon);
+                }
+            }
+
+            return renderer;
+        }
+
+        SvgRenderer GetIconRenderer(WorkflowIcon icon)
         {
             if (icon == null)
             {
@@ -394,10 +417,11 @@ namespace Bonsai.Design
             if (!rendererCache.TryGetValue(icon.Name, out renderer))
             {
                 var iconStream = icon.GetStream();
+                if (iconStream == null) return null;
                 var svgDocument = new XmlDocument();
                 svgDocument.Load(iconStream);
                 var element = SvgFactory.LoadFromXML(svgDocument, null);
-                renderer = Create(element);
+                renderer = CreateRenderer(element);
                 rendererCache.Add(icon.Name, renderer);
             }
 
