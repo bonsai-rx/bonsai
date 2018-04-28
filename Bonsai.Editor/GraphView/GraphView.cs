@@ -1091,11 +1091,12 @@ namespace Bonsai.Design
                             layout.Location.Y,
                             NodeSize, NodeSize);
 
+                        SvgRenderer renderer;
                         graphics.DrawEllipse(BlackPen, nodeRectangle);
                         graphics.FillEllipse(layout.Node.Brush, nodeRectangle);
-                        if (IconRenderer != null && layout.Node.Icon != null)
+                        if (IconRenderer != null && layout.Node.Icon != null &&
+                           (renderer = IconRenderer.GetIconRenderer(layout.Node)) != null)
                         {
-                            var renderer = IconRenderer.GetIconRenderer(layout.Node);
                             iconRendererState.Outlining = BlackIconPen;
                             iconRendererState.Translation = nodeRectangle.Location;
                             renderer(iconRendererState, graphics);
@@ -1179,10 +1180,11 @@ namespace Bonsai.Design
                         layout.Location.Y + offset.Height,
                         NodeSize, NodeSize);
 
+                    SvgRenderer renderer;
                     e.Graphics.FillEllipse(brush, nodeRectangle);
-                    if (IconRenderer != null && layout.Node.Icon != null)
+                    if (IconRenderer != null && layout.Node.Icon != null &&
+                       (renderer = IconRenderer.GetIconRenderer(layout.Node)) != null)
                     {
-                        var renderer = IconRenderer.GetIconRenderer(layout.Node);
                         iconRendererState.Outlining = iconPen;
                         iconRendererState.Translation = nodeRectangle.Location;
                         renderer(iconRendererState, graphics);
