@@ -115,11 +115,18 @@ namespace Bonsai.Design
 
         Matrix ParseTransform(SvgElement element, Matrix parent)
         {
+            return ParseTransform(element, parent, "transform");
+        }
+
+        Matrix ParseTransform(SvgElement element, Matrix parent, string attribute)
+        {
             var result = new Matrix();
             disposableResources.Add(result);
-            var transformList = (SvgTransformList)element.Attributes["transform"];
-            if (transformList != null)
+            var transformAttribute = element.Attributes[attribute];
+            if (transformAttribute != null)
             {
+                var transformList = transformAttribute as SvgTransformList;
+                if (transformList == null) transformList = (SvgTransformList)(string)transformAttribute;
                 for (int i = 0; i < transformList.Count; i++)
                 {
                     var transform = transformList[i];
