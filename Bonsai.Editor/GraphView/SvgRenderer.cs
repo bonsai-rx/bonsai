@@ -44,39 +44,39 @@ namespace Bonsai.Design
         }
 
         [DebuggerDisplay("Fill = {Fill}, Stroke = {Stroke}")]
-        struct SvgDrawingStyle
+        class SvgDrawingStyle
         {
-            public Color? Fill;
-            public Color? Stroke;
-            public SvgLength StrokeWidth;
+            public Expression Fill;
+            public Expression Stroke;
+
+            public SvgDrawingStyle(Expression fill, Expression stroke)
+            {
+                Fill = fill;
+                Stroke = stroke;
+            }
         }
 
-        static SvgDrawingStyle ParseStyle(SvgElement element, string attribute)
+        SvgDrawingStyle CreateStyle(SvgElement element, string attribute, Expression state)
         {
-            SvgDrawingStyle result;
             var value = element.Attributes[attribute];
             var style = value as SvgStyle;
             if (style == null)
             {
                 var rawStyle = value as string;
-                if (rawStyle == null)
-                {
-                    result.Fill = null;
-                    result.Stroke = null;
-                    result.StrokeWidth = 0;
-                    return result;
-                }
-
+                if (rawStyle == null) return null;
                 style = (SvgStyle)rawStyle;
             }
 
             var fill = (string)style.Get("fill");
             var stroke = (string)style.Get("stroke");
             var strokeWidth = (string)style.Get("stroke-width");
-            result.Fill = fill == null || fill == "none" ? default(Color?) : ((SvgColor)fill).Color;
-            result.Stroke = stroke == null || stroke == "none" ? default(Color?) : ((SvgColor)stroke).Color;
-            result.StrokeWidth = strokeWidth == null ? 0 : (SvgLength)strokeWidth;
-            return result;
+            var brush = fill == null || fill == "none" ? default(Color?) : ((SvgColor)fill).Color;
+            var pen = stroke == null || stroke == "none" ? default(Color?) : ((SvgColor)stroke).Color;
+            var penWidth = strokeWidth == null ? 0 : ((SvgLength)strokeWidth);
+            if (brush == null && pen == null) return null;
+            else return new SvgDrawingStyle(
+                brush.HasValue ? CreateBrush(brush.Value) : null,
+                pen.HasValue ? CreatePen(pen.Value, penWidth, state) : null);
         }
 
         Matrix ParseTransform(SvgElement element, Matrix parent)
@@ -148,23 +148,21 @@ namespace Bonsai.Design
 
         void CreateDrawRectangle(SvgElement element, Matrix transform, Expression state, Expression graphics, List<Expression> expressions)
         {
-            var style = ParseStyle(element, "style");
-            if (style.Fill.HasValue || style.Stroke.HasValue)
+            var style = CreateStyle(element, "style", state);
+            if (style != null)
             {
                 var x = CreateFloat(element, "x");
                 var y = CreateFloat(element, "y");
                 var width = CreateFloat(element, "width");
                 var height = CreateFloat(element, "height");
                 CreateDrawTransform(element, transform, state, graphics, expressions);
-                if (style.Fill.HasValue)
+                if (style.Fill != null)
                 {
-                    var brush = CreateBrush(style.Fill.Value);
-                    expressions.Add(Expression.Call(graphics, "FillRectangle", null, brush, x, y, width, height));
+                    expressions.Add(Expression.Call(graphics, "FillRectangle", null, style.Fill, x, y, width, height));
                 }
-                if (style.Stroke.HasValue)
+                if (style.Stroke != null)
                 {
-                    var pen = CreatePen(style.Stroke.Value, style.StrokeWidth, state);
-                    expressions.Add(Expression.Call(graphics, "DrawRectangle", null, pen, x, y, width, height));
+                    expressions.Add(Expression.Call(graphics, "DrawRectangle", null, style.Stroke, x, y, width, height));
                 }
                 CreateResetTransform(graphics, expressions);
             }
@@ -172,8 +170,8 @@ namespace Bonsai.Design
 
         void CreateDrawCircle(SvgElement element, Matrix transform, Expression state, Expression graphics, List<Expression> expressions)
         {
-            var style = ParseStyle(element, "style");
-            if (style.Fill.HasValue || style.Stroke.HasValue)
+            var style = CreateStyle(element, "style", state);
+            if (style != null)
             {
                 var cx = CreateFloat(element, "cx");
                 var cy = CreateFloat(element, "cy");
@@ -182,15 +180,13 @@ namespace Bonsai.Design
                 var y = Expression.Subtract(cy, r);
                 var d = Expression.Multiply(Expression.Constant(2f), r);
                 CreateDrawTransform(element, transform, state, graphics, expressions);
-                if (style.Fill.HasValue)
+                if (style.Fill != null)
                 {
-                    var brush = CreateBrush(style.Fill.Value);
-                    expressions.Add(Expression.Call(graphics, "FillEllipse", null, brush, x, y, d, d));
+                    expressions.Add(Expression.Call(graphics, "FillEllipse", null, style.Fill, x, y, d, d));
                 }
-                if (style.Stroke.HasValue)
+                if (style.Stroke != null)
                 {
-                    var pen = CreatePen(style.Stroke.Value, style.StrokeWidth, state);
-                    expressions.Add(Expression.Call(graphics, "DrawEllipse", null, pen, x, y, d, d));
+                    expressions.Add(Expression.Call(graphics, "DrawEllipse", null, style.Stroke, x, y, d, d));
                 }
                 CreateResetTransform(graphics, expressions);
             }
@@ -198,8 +194,8 @@ namespace Bonsai.Design
 
         void CreateDrawEllipse(SvgElement element, Matrix transform, Expression state, Expression graphics, List<Expression> expressions)
         {
-            var style = ParseStyle(element, "style");
-            if (style.Fill.HasValue || style.Stroke.HasValue)
+            var style = CreateStyle(element, "style", state);
+            if (style != null)
             {
                 var cx = CreateFloat(element, "cx");
                 var cy = CreateFloat(element, "cy");
@@ -210,15 +206,13 @@ namespace Bonsai.Design
                 var dx = Expression.Multiply(Expression.Constant(2f), rx);
                 var dy = Expression.Multiply(Expression.Constant(2f), ry);
                 CreateDrawTransform(element, transform, state, graphics, expressions);
-                if (style.Fill.HasValue)
+                if (style.Fill != null)
                 {
-                    var brush = CreateBrush(style.Fill.Value);
-                    expressions.Add(Expression.Call(graphics, "FillEllipse", null, brush, x, y, dx, dy));
+                    expressions.Add(Expression.Call(graphics, "FillEllipse", null, style.Fill, x, y, dx, dy));
                 }
-                if (style.Stroke.HasValue)
+                if (style.Stroke != null)
                 {
-                    var pen = CreatePen(style.Stroke.Value, style.StrokeWidth, state);
-                    expressions.Add(Expression.Call(graphics, "DrawEllipse", null, pen, x, y, dx, dy));
+                    expressions.Add(Expression.Call(graphics, "DrawEllipse", null, style.Stroke, x, y, dx, dy));
                 }
                 CreateResetTransform(graphics, expressions);
             }
@@ -329,20 +323,18 @@ namespace Bonsai.Design
 
         void CreateDrawPath(SvgElement element, Matrix transform, Expression state, Expression graphics, List<Expression> expressions)
         {
-            var style = ParseStyle(element, "style");
-            if (style.Fill.HasValue || style.Stroke.HasValue)
+            var style = CreateStyle(element, "style", state);
+            if (style != null)
             {
                 var path = CreatePath(element, "d");
                 CreateDrawTransform(element, transform, state, graphics, expressions);
-                if (style.Fill.HasValue)
+                if (style.Fill != null)
                 {
-                    var brush = CreateBrush(style.Fill.Value);
-                    expressions.Add(Expression.Call(graphics, "FillPath", null, brush, path));
+                    expressions.Add(Expression.Call(graphics, "FillPath", null, style.Fill, path));
                 }
-                if (style.Stroke.HasValue)
+                if (style.Stroke != null)
                 {
-                    var pen = CreatePen(style.Stroke.Value, style.StrokeWidth, state);
-                    expressions.Add(Expression.Call(graphics, "DrawPath", null, pen, path));
+                    expressions.Add(Expression.Call(graphics, "DrawPath", null, style.Stroke, path));
                 }
                 CreateResetTransform(graphics, expressions);
             }
