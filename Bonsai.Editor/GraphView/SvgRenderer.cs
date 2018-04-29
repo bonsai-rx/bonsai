@@ -27,6 +27,40 @@ namespace Bonsai.Design
         public Pen Outlining;
     }
 
+    class SvgRendererContext
+    {
+        readonly ParameterExpression state;
+        readonly ParameterExpression graphics;
+        readonly List<Expression> expressions;
+
+        public SvgRendererContext()
+        {
+            state = Expression.Parameter(typeof(SvgRendererState), "state");
+            graphics = Expression.Parameter(typeof(IGraphics), "graphics");
+            expressions = new List<Expression>();
+        }
+
+        public ParameterExpression State
+        {
+            get { return state; }
+        }
+
+        public ParameterExpression Graphics
+        {
+            get { return graphics; }
+        }
+
+        public IEnumerable<Expression> Expressions
+        {
+            get { return expressions; }
+        }
+
+        public void AddExpression(Expression expression)
+        {
+            expressions.Add(expression);
+        }
+    }
+
     class SvgRendererFactory : IDisposable
     {
         bool disposed;
@@ -56,7 +90,7 @@ namespace Bonsai.Design
             }
         }
 
-        SvgDrawingStyle CreateStyle(SvgElement element, string attribute, Expression state)
+        SvgDrawingStyle CreateStyle(SvgElement element, string attribute, SvgRendererContext context)
         {
             var value = element.Attributes[attribute];
             var style = value as SvgStyle;
@@ -76,7 +110,7 @@ namespace Bonsai.Design
             if (brush == null && pen == null) return null;
             else return new SvgDrawingStyle(
                 brush.HasValue ? CreateBrush(brush.Value) : null,
-                pen.HasValue ? CreatePen(pen.Value, penWidth, state) : null);
+                pen.HasValue ? CreatePen(pen.Value, penWidth, context.State) : null);
         }
 
         Matrix ParseTransform(SvgElement element, Matrix parent)
@@ -129,48 +163,48 @@ namespace Bonsai.Design
             }
         }
 
-        void CreateDrawTransform(SvgElement element, Matrix transform, Expression state, Expression graphics, List<Expression> expressions)
+        void CreateDrawTransform(SvgElement element, Matrix transform, SvgRendererContext context)
         {
             var localTransform = CreateTransform(element, transform);
-            var scale = Expression.PropertyOrField(state, "Scale");
-            var translation = Expression.PropertyOrField(state, "Translation");
+            var scale = Expression.PropertyOrField(context.State, "Scale");
+            var translation = Expression.PropertyOrField(context.State, "Translation");
             var offsetX = Expression.PropertyOrField(translation, "X");
             var offsetY = Expression.PropertyOrField(translation, "Y");
-            expressions.Add(Expression.Call(graphics, "TranslateTransform", null, offsetX, offsetY));
-            expressions.Add(Expression.Call(graphics, "ScaleTransform", null, scale, scale));
-            expressions.Add(Expression.Call(graphics, "MultiplyTransform", null, localTransform));
+            context.AddExpression(Expression.Call(context.Graphics, "TranslateTransform", null, offsetX, offsetY));
+            context.AddExpression(Expression.Call(context.Graphics, "ScaleTransform", null, scale, scale));
+            context.AddExpression(Expression.Call(context.Graphics, "MultiplyTransform", null, localTransform));
         }
 
-        void CreateResetTransform(Expression graphics, List<Expression> expressions)
+        void CreateResetTransform(SvgRendererContext context)
         {
-            expressions.Add(Expression.Call(graphics, "ResetTransform", null));
+            context.AddExpression(Expression.Call(context.Graphics, "ResetTransform", null));
         }
 
-        void CreateDrawRectangle(SvgElement element, Matrix transform, Expression state, Expression graphics, List<Expression> expressions)
+        void CreateDrawRectangle(SvgElement element, Matrix transform, SvgRendererContext context)
         {
-            var style = CreateStyle(element, "style", state);
+            var style = CreateStyle(element, "style", context);
             if (style != null)
             {
                 var x = CreateFloat(element, "x");
                 var y = CreateFloat(element, "y");
                 var width = CreateFloat(element, "width");
                 var height = CreateFloat(element, "height");
-                CreateDrawTransform(element, transform, state, graphics, expressions);
+                CreateDrawTransform(element, transform, context);
                 if (style.Fill != null)
                 {
-                    expressions.Add(Expression.Call(graphics, "FillRectangle", null, style.Fill, x, y, width, height));
+                    context.AddExpression(Expression.Call(context.Graphics, "FillRectangle", null, style.Fill, x, y, width, height));
                 }
                 if (style.Stroke != null)
                 {
-                    expressions.Add(Expression.Call(graphics, "DrawRectangle", null, style.Stroke, x, y, width, height));
+                    context.AddExpression(Expression.Call(context.Graphics, "DrawRectangle", null, style.Stroke, x, y, width, height));
                 }
-                CreateResetTransform(graphics, expressions);
+                CreateResetTransform(context);
             }
         }
 
-        void CreateDrawCircle(SvgElement element, Matrix transform, Expression state, Expression graphics, List<Expression> expressions)
+        void CreateDrawCircle(SvgElement element, Matrix transform, SvgRendererContext context)
         {
-            var style = CreateStyle(element, "style", state);
+            var style = CreateStyle(element, "style", context);
             if (style != null)
             {
                 var cx = CreateFloat(element, "cx");
@@ -179,22 +213,22 @@ namespace Bonsai.Design
                 var x = Expression.Subtract(cx, r);
                 var y = Expression.Subtract(cy, r);
                 var d = Expression.Multiply(Expression.Constant(2f), r);
-                CreateDrawTransform(element, transform, state, graphics, expressions);
+                CreateDrawTransform(element, transform, context);
                 if (style.Fill != null)
                 {
-                    expressions.Add(Expression.Call(graphics, "FillEllipse", null, style.Fill, x, y, d, d));
+                    context.AddExpression(Expression.Call(context.Graphics, "FillEllipse", null, style.Fill, x, y, d, d));
                 }
                 if (style.Stroke != null)
                 {
-                    expressions.Add(Expression.Call(graphics, "DrawEllipse", null, style.Stroke, x, y, d, d));
+                    context.AddExpression(Expression.Call(context.Graphics, "DrawEllipse", null, style.Stroke, x, y, d, d));
                 }
-                CreateResetTransform(graphics, expressions);
+                CreateResetTransform(context);
             }
         }
 
-        void CreateDrawEllipse(SvgElement element, Matrix transform, Expression state, Expression graphics, List<Expression> expressions)
+        void CreateDrawEllipse(SvgElement element, Matrix transform, SvgRendererContext context)
         {
-            var style = CreateStyle(element, "style", state);
+            var style = CreateStyle(element, "style", context);
             if (style != null)
             {
                 var cx = CreateFloat(element, "cx");
@@ -205,16 +239,16 @@ namespace Bonsai.Design
                 var y = Expression.Subtract(cy, ry);
                 var dx = Expression.Multiply(Expression.Constant(2f), rx);
                 var dy = Expression.Multiply(Expression.Constant(2f), ry);
-                CreateDrawTransform(element, transform, state, graphics, expressions);
+                CreateDrawTransform(element, transform, context);
                 if (style.Fill != null)
                 {
-                    expressions.Add(Expression.Call(graphics, "FillEllipse", null, style.Fill, x, y, dx, dy));
+                    context.AddExpression(Expression.Call(context.Graphics, "FillEllipse", null, style.Fill, x, y, dx, dy));
                 }
                 if (style.Stroke != null)
                 {
-                    expressions.Add(Expression.Call(graphics, "DrawEllipse", null, style.Stroke, x, y, dx, dy));
+                    context.AddExpression(Expression.Call(context.Graphics, "DrawEllipse", null, style.Stroke, x, y, dx, dy));
                 }
-                CreateResetTransform(graphics, expressions);
+                CreateResetTransform(context);
             }
 
         }
@@ -321,45 +355,45 @@ namespace Bonsai.Design
             return Expression.Constant(path);
         }
 
-        void CreateDrawPath(SvgElement element, Matrix transform, Expression state, Expression graphics, List<Expression> expressions)
+        void CreateDrawPath(SvgElement element, Matrix transform, SvgRendererContext context)
         {
-            var style = CreateStyle(element, "style", state);
+            var style = CreateStyle(element, "style", context);
             if (style != null)
             {
                 var path = CreatePath(element, "d");
-                CreateDrawTransform(element, transform, state, graphics, expressions);
+                CreateDrawTransform(element, transform, context);
                 if (style.Fill != null)
                 {
-                    expressions.Add(Expression.Call(graphics, "FillPath", null, style.Fill, path));
+                    context.AddExpression(Expression.Call(context.Graphics, "FillPath", null, style.Fill, path));
                 }
                 if (style.Stroke != null)
                 {
-                    expressions.Add(Expression.Call(graphics, "DrawPath", null, style.Stroke, path));
+                    context.AddExpression(Expression.Call(context.Graphics, "DrawPath", null, style.Stroke, path));
                 }
-                CreateResetTransform(graphics, expressions);
+                CreateResetTransform(context);
             }
         }
 
-        void CreateDrawChildren(SvgElement element, Matrix transform, Expression state, Expression graphics, List<Expression> expressions)
+        void CreateDrawChildren(SvgElement element, Matrix transform, SvgRendererContext context)
         {
             foreach (SvgElement child in element.Children)
             {
-                CreateDrawBody(child, transform, state, graphics, expressions);
+                CreateDrawBody(child, transform, context);
             }
         }
 
-        void CreateDrawBody(SvgElement element, Matrix transform, Expression state, Expression graphics, List<Expression> expressions)
+        void CreateDrawBody(SvgElement element, Matrix transform, SvgRendererContext context)
         {
             switch (element.Name)
             {
-                case "rect": CreateDrawRectangle(element, transform, state, graphics, expressions); break;
-                case "circle": CreateDrawCircle(element, transform, state, graphics, expressions); break;
-                case "ellipse": CreateDrawEllipse(element, transform, state, graphics, expressions); break;
-                case "path": CreateDrawPath(element, transform, state, graphics, expressions); break;
-                case "svg": CreateDrawChildren(element, transform, state, graphics, expressions); break;
+                case "rect": CreateDrawRectangle(element, transform, context); break;
+                case "circle": CreateDrawCircle(element, transform, context); break;
+                case "ellipse": CreateDrawEllipse(element, transform, context); break;
+                case "path": CreateDrawPath(element, transform, context); break;
+                case "svg": CreateDrawChildren(element, transform, context); break;
                 case "g":
                     var localTransform = ParseTransform(element, transform);
-                    CreateDrawChildren(element, localTransform, state, graphics, expressions);
+                    CreateDrawChildren(element, localTransform, context);
                     break;
             }
         }
@@ -367,12 +401,10 @@ namespace Bonsai.Design
         SvgRenderer CreateRenderer(SvgElement element)
         {
             var transform = new Matrix();
-            var state = Expression.Parameter(typeof(SvgRendererState), "state");
-            var graphics = Expression.Parameter(typeof(IGraphics), "graphics");
-            var expressions = new List<Expression>();
-            CreateDrawBody(element, transform, state, graphics, expressions);
-            var body = Expression.Block(expressions);
-            var renderer = Expression.Lambda<SvgRenderer>(body, state, graphics);
+            var context = new SvgRendererContext();
+            CreateDrawBody(element, transform, context);
+            var body = Expression.Block(context.Expressions);
+            var renderer = Expression.Lambda<SvgRenderer>(body, context.State, context.Graphics);
             return renderer.Compile();
         }
 
