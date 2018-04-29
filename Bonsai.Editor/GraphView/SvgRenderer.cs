@@ -31,12 +31,14 @@ namespace Bonsai.Design
     {
         readonly ParameterExpression state;
         readonly ParameterExpression graphics;
+        readonly Dictionary<string, Brush> gradients;
         readonly List<Expression> expressions;
 
         public SvgRendererContext()
         {
             state = Expression.Parameter(typeof(SvgRendererState), "state");
             graphics = Expression.Parameter(typeof(IGraphics), "graphics");
+            gradients = new Dictionary<string, Brush>();
             expressions = new List<Expression>();
         }
 
@@ -48,6 +50,11 @@ namespace Bonsai.Design
         public ParameterExpression Graphics
         {
             get { return graphics; }
+        }
+
+        public IDictionary<string, Brush> Gradients
+        {
+            get { return gradients; }
         }
 
         public IEnumerable<Expression> Expressions
@@ -77,6 +84,17 @@ namespace Bonsai.Design
             return (SvgPath)(string)element.Attributes[attribute];
         }
 
+        static PointF? ParsePoint(SvgElement element, string x, string y)
+        {
+            var valX = (string)element.Attributes[x];
+            var valY = (string)element.Attributes[y];
+            if (valX != null && valY != null)
+            {
+                return new PointF(((SvgLength)valX).Value, ((SvgLength)valY).Value);
+            }
+            else return null;
+        }
+
         [DebuggerDisplay("Fill = {Fill}, Stroke = {Stroke}")]
         class SvgDrawingStyle
         {
@@ -101,16 +119,10 @@ namespace Bonsai.Design
                 style = (SvgStyle)rawStyle;
             }
 
-            var fill = (string)style.Get("fill");
-            var stroke = (string)style.Get("stroke");
-            var strokeWidth = (string)style.Get("stroke-width");
-            var brush = fill == null || fill == "none" ? default(Color?) : ((SvgColor)fill).Color;
-            var pen = stroke == null || stroke == "none" ? default(Color?) : ((SvgColor)stroke).Color;
-            var penWidth = strokeWidth == null ? 0 : ((SvgLength)strokeWidth);
-            if (brush == null && pen == null) return null;
-            else return new SvgDrawingStyle(
-                brush.HasValue ? CreateBrush(brush.Value) : null,
-                pen.HasValue ? CreatePen(pen.Value, penWidth, context.State) : null);
+            var fill = CreateFill(style, context);
+            var stroke = CreateStroke(style, context);
+            if (fill == null && stroke == null) return null;
+            else return new SvgDrawingStyle(fill, stroke);
         }
 
         Matrix ParseTransform(SvgElement element, Matrix parent)
@@ -149,18 +161,37 @@ namespace Bonsai.Design
             return Expression.Constant(transform);
         }
 
-        Expression CreateBrush(Color color)
+        Expression CreateFill(SvgStyle style, SvgRendererContext context)
         {
-            var brush = new SolidBrush(color);
-            disposableResources.Add(brush);
-            return Expression.Constant(brush);
+            const string UrlPrefix = "url(";
+            var fill = (string)style.Get("fill");
+            if (fill == null || fill == "none") return null;
+            if (fill.StartsWith(UrlPrefix))
+            {
+                Brush brush;
+                var href = fill.Substring(UrlPrefix.Length, fill.Length - UrlPrefix.Length - 1);
+                if (!context.Gradients.TryGetValue(href, out brush)) return null;
+                else return Expression.Constant(brush);
+            }
+            else
+            {
+                var color = ((SvgColor)fill).Color;
+                var brush = new SolidBrush(color);
+                disposableResources.Add(brush);
+                return Expression.Constant(brush);
+            }
         }
 
-        Expression CreatePen(Color color, SvgLength width, Expression state)
+        Expression CreateStroke(SvgStyle style, SvgRendererContext context)
         {
+            var stroke = (string)style.Get("stroke");
+            var strokeWidth = (string)style.Get("stroke-width");
+            if (stroke == null || stroke == "none") return null;
+            var color = ((SvgColor)stroke).Color;
+            var width = strokeWidth == null ? 0 : ((SvgLength)strokeWidth);
             if (width.Value == 0)
             {
-                return Expression.PropertyOrField(state, "Outlining");
+                return Expression.PropertyOrField(context.State, "Outlining");
             }
             else
             {
@@ -381,6 +412,69 @@ namespace Bonsai.Design
             }
         }
 
+        Color ParseStopColor(SvgStopElement stop)
+        {
+            var color = new SvgColor((string)stop.Style.Get("stop-color"));
+            var opacity = float.Parse((string)stop.Style.Get("stop-opacity"), CultureInfo.InvariantCulture);
+            return Color.FromArgb((int)(255 * opacity), color.Color);
+        }
+
+        void CreateLinearGradient(SvgElement element, SvgRendererContext context)
+        {
+            var linearGradient = element as SvgLinearGradient;
+            if (linearGradient != null)
+            {
+                var color1 = default(Color);
+                var color2 = default(Color);
+                LinearGradientBrush gradient;
+                if (linearGradient.Children.Count == 2)
+                {
+                    var stop1 = linearGradient.Children[0] as SvgStopElement;
+                    var stop2 = linearGradient.Children[1] as SvgStopElement;
+                    if (stop1 != null && stop2 != null)
+                    {
+                        color1 = ParseStopColor(stop1);
+                        color2 = ParseStopColor(stop2);
+                    }
+                }
+                else
+                {
+                    Brush referenceGradient;
+                    LinearGradientBrush referenceLinearGradient;
+                    var href = new SvgXRef(linearGradient).Href;
+                    if (href != null && context.Gradients.TryGetValue(href, out referenceGradient) &&
+                       (referenceLinearGradient = referenceGradient as LinearGradientBrush) != null)
+                    {
+                        color1 = referenceLinearGradient.LinearColors[0];
+                        color2 = referenceLinearGradient.LinearColors[1];
+                    }
+                }
+
+                var gradientTransform = ParseTransform(linearGradient, null, "gradientTransform");
+                var points = new[]
+                {
+                    ParsePoint(linearGradient, "x1", "y1").GetValueOrDefault(PointF.Empty),
+                    ParsePoint(linearGradient, "x2", "y2").GetValueOrDefault(new PointF(1, 1))
+                };
+                gradientTransform.TransformPoints(points);
+                gradient = new LinearGradientBrush(points[0], points[1], color1, color2);
+                context.Gradients.Add(new SvgUriReference(linearGradient).Href, gradient);
+                disposableResources.Add(gradient);
+            }
+        }
+
+        void CreateDrawDefinitions(SvgElement element, SvgRendererContext context)
+        {
+            foreach (SvgElement child in element.Children)
+            {
+                switch (child.Name)
+                {
+                    case "linearGradient": CreateLinearGradient(child, context); break;
+                    default: continue;
+                }
+            }
+        }
+
         void CreateDrawChildren(SvgElement element, Matrix transform, SvgRendererContext context)
         {
             foreach (SvgElement child in element.Children)
@@ -398,6 +492,7 @@ namespace Bonsai.Design
                 case "ellipse": CreateDrawEllipse(element, transform, context); break;
                 case "path": CreateDrawPath(element, transform, context); break;
                 case "svg": CreateDrawChildren(element, transform, context); break;
+                case "defs": CreateDrawDefinitions(element, context); break;
                 case "g":
                     var localTransform = ParseTransform(element, transform);
                     CreateDrawChildren(element, localTransform, context);
