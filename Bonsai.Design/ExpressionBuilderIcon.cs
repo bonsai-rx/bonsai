@@ -125,7 +125,11 @@ namespace Bonsai.Design
             {
                 return new FileStream(iconPath, FileMode.Open, FileAccess.Read);
             }
-            else return resourceQualifier.Assembly.GetManifestResourceStream(name);
+            else if (!resourceQualifier.Assembly.IsDynamic)
+            {
+                return resourceQualifier.Assembly.GetManifestResourceStream(name);
+            }
+            else return null;
         }
     }
 }
