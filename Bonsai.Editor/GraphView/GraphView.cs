@@ -1098,6 +1098,7 @@ namespace Bonsai.Design
                            (renderer = IconRenderer.GetIconRenderer(layout.Node)) != null)
                         {
                             iconRendererState.Outlining = BlackIconPen;
+                            iconRendererState.Background = layout.Node.Brush;
                             iconRendererState.Translation = nodeRectangle.Location;
                             renderer(iconRendererState, graphics);
                         }
@@ -1186,6 +1187,7 @@ namespace Bonsai.Design
                        (renderer = IconRenderer.GetIconRenderer(layout.Node)) != null)
                     {
                         iconRendererState.Outlining = iconPen;
+                        iconRendererState.Background = brush;
                         iconRendererState.Translation = nodeRectangle.Location;
                         renderer(iconRendererState, graphics);
                     }
