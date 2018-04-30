@@ -162,6 +162,12 @@ namespace Bonsai
                     editorPackageVersion,
                     ref launchResult);
                 var exit = editorPackage == null;
+                if (!exit && string.IsNullOrEmpty(initialFileName))
+                {
+                    launchResult = (EditorResult)Launcher.LaunchLandingPage(out initialFileName);
+                    exit = launchResult == EditorResult.Exit;
+                }
+
                 while (!exit)
                 {
                     string[] editorArgs;

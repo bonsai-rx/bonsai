@@ -105,6 +105,12 @@
     <Compile Include="IScriptEnvironment.cs" />
     <Compile Include="IWorkflowEditorService.cs" />
     <Compile Include="IWorkflowToolboxService.cs" />
+    <Compile Include="LandingPage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LandingPage.Designer.cs">
+      <DependentUpon>LandingPage.cs</DependentUpon>
+    </Compile>
     <Compile Include="Layout\DialogLauncher.cs" />
     <Compile Include="Layout\NestedEditorDialog.cs">
       <SubType>Form</SubType>
@@ -175,6 +181,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="GraphView\GraphView.resx">
       <DependentUpon>GraphView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LandingPage.resx">
+      <DependentUpon>LandingPage.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>

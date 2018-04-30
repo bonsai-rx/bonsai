@@ -294,6 +294,17 @@ namespace Bonsai
             }
         }
 
+        internal static int LaunchLandingPage(out string initialFileName)
+        {
+            EnableVisualStyles();
+            using (var landingPage = new LandingPage())
+            {
+                Application.Run(landingPage);
+                initialFileName = landingPage.FileName;
+                return (int)landingPage.EditorResult;
+            }
+        }
+
         internal static int LaunchWorkflowPlayer(string fileName, Dictionary<string, string> propertyAssignments)
         {
             if (string.IsNullOrEmpty(fileName))
