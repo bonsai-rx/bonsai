@@ -25,6 +25,7 @@ namespace Bonsai.Design
         public float Scale;
         public PointF Translation;
         public Pen Outlining;
+        public Brush Background;
     }
 
     class SvgRendererContext
@@ -176,6 +177,16 @@ namespace Bonsai.Design
             else
             {
                 var color = ((SvgColor)fill).Color;
+                var opacity = (SvgLength)(string)style.Get("fill-opacity");
+                if (opacity != null)
+                {
+                    color = Color.FromArgb((int)(opacity.Value * 255), color);
+                    if (color.A == 0)
+                    {
+                        return Expression.PropertyOrField(context.State, "Background");
+                    }
+                }
+
                 var brush = new SolidBrush(color);
                 disposableResources.Add(brush);
                 return Expression.Constant(brush);
