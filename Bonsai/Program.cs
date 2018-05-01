@@ -165,7 +165,11 @@ namespace Bonsai
                 if (!exit && string.IsNullOrEmpty(initialFileName))
                 {
                     launchResult = (EditorResult)Launcher.LaunchLandingPage(out initialFileName);
-                    exit = launchResult == EditorResult.Exit;
+                    if (launchResult == EditorResult.ReloadEditor)
+                    {
+                        launchResult = EditorResult.Exit;
+                    }
+                    else exit = launchResult == EditorResult.Exit;
                 }
 
                 while (!exit)
