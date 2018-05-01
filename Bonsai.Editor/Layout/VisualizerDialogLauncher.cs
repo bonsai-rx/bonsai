@@ -89,7 +89,10 @@ namespace Bonsai.Design
                     visualizerObserver.Dispose();
                     visualizerObserver = null;
                 }
+            };
 
+            visualizerDialog.FormClosed += delegate
+            {
                 visualizer.Value.Unload();
                 visualizerContext.RemoveService(typeof(ExpressionBuilderGraph));
                 visualizerContext.RemoveService(typeof(IDialogTypeVisualizerService));
