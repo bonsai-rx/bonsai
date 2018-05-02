@@ -15,16 +15,22 @@ namespace Bonsai.Editor
 {
     sealed class EditorSettings
     {
+        const int MaxRecentFiles = 25;
         const string SettingsExtension = ".settings";
+        const string RecentlyUsedFilesElement = "RecentlyUsedFiles";
         const string ShowWelcomeDialogElement = "ShowWelcomeDialog";
         const string DesktopBoundsElement = "DesktopBounds";
         const string WindowStateElement = "WindowState";
+        const string RecentlyUsedFileElement = "RecentlyUsedFile";
+        const string FileTimestampElement = "Timestamp";
+        const string FileNameElement = "Name";
         const string RectangleXElement = "X";
         const string RectangleYElement = "Y";
         const string RectangleWidthElement = "Width";
         const string RectangleHeightElement = "Height";
         static readonly string SettingsFileName = Assembly.GetEntryAssembly().Location + SettingsExtension;
         static readonly Lazy<EditorSettings> instance = new Lazy<EditorSettings>(Load);
+        readonly RecentlyUsedFileCollection recentlyUsedFiles = new RecentlyUsedFileCollection(MaxRecentFiles);
 
         internal EditorSettings()
         {
@@ -41,6 +47,11 @@ namespace Bonsai.Editor
         public Rectangle DesktopBounds { get; set; }
 
         public FormWindowState WindowState { get; set; }
+
+        public RecentlyUsedFileCollection RecentlyUsedFiles
+        {
+            get { return recentlyUsedFiles; }
+        }
 
         static EditorSettings Load()
         {
@@ -80,6 +91,23 @@ namespace Bonsai.Editor
                                 int.TryParse(reader.ReadElementContentAsString(), out height);
                                 settings.DesktopBounds = new Rectangle(x, y, width, height);
                             }
+                            else if (reader.Name == RecentlyUsedFilesElement)
+                            {
+                                var fileReader = reader.ReadSubtree();
+                                while (fileReader.ReadToFollowing(RecentlyUsedFileElement))
+                                {
+                                    if (fileReader.Name == RecentlyUsedFileElement)
+                                    {
+                                        string fileName;
+                                        DateTimeOffset timestamp;
+                                        fileReader.ReadToFollowing(FileTimestampElement);
+                                        DateTimeOffset.TryParse(fileReader.ReadElementContentAsString(), out timestamp);
+                                        fileReader.ReadToFollowing(FileNameElement);
+                                        fileName = fileReader.ReadElementContentAsString();
+                                        settings.recentlyUsedFiles.Add(timestamp, fileName);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -96,12 +124,27 @@ namespace Bonsai.Editor
                 writer.WriteStartElement(typeof(EditorSettings).Name);
                 writer.WriteElementString(ShowWelcomeDialogElement, ShowWelcomeDialog.ToString(CultureInfo.InvariantCulture));
                 writer.WriteElementString(WindowStateElement, WindowState.ToString());
+
                 writer.WriteStartElement(DesktopBoundsElement);
                 writer.WriteElementString(RectangleXElement, DesktopBounds.X.ToString(CultureInfo.InvariantCulture));
                 writer.WriteElementString(RectangleYElement, DesktopBounds.Y.ToString(CultureInfo.InvariantCulture));
                 writer.WriteElementString(RectangleWidthElement, DesktopBounds.Width.ToString(CultureInfo.InvariantCulture));
                 writer.WriteElementString(RectangleHeightElement, DesktopBounds.Height.ToString(CultureInfo.InvariantCulture));
                 writer.WriteEndElement();
+
+                if (recentlyUsedFiles.Count > 0)
+                {
+                    writer.WriteStartElement(RecentlyUsedFilesElement);
+                    foreach (var file in recentlyUsedFiles)
+                    {
+                        writer.WriteStartElement(RecentlyUsedFileElement);
+                        writer.WriteElementString(FileTimestampElement, file.Timestamp.ToString("o"));
+                        writer.WriteElementString(FileNameElement, file.FileName);
+                        writer.WriteEndElement();
+                    }
+                    writer.WriteEndElement();
+                }
+
                 writer.WriteEndElement();
             }
         }
