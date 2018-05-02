@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace Bonsai.Editor
 {
-    public partial class LandingPage : Form
+    public partial class StartScreen : Form
     {
         bool tabSelect;
         TreeNode newProjectNode = new TreeNode("New Project");
@@ -22,7 +22,7 @@ namespace Bonsai.Editor
         TreeNode documentationNode = new TreeNode("Documentation");
         TreeNode forumNode = new TreeNode("Forums");
 
-        public LandingPage()
+        public StartScreen()
         {
             InitializeComponent();
             getStartedTreeView.Nodes.Add(documentationNode);

@@ -294,14 +294,14 @@ namespace Bonsai
             }
         }
 
-        internal static int LaunchLandingPage(out string initialFileName)
+        internal static int LaunchStartScreen(out string initialFileName)
         {
             EnableVisualStyles();
-            using (var landingPage = new LandingPage())
+            using (var startScreen = new StartScreen())
             {
-                Application.Run(landingPage);
-                initialFileName = landingPage.FileName;
-                return (int)landingPage.EditorResult;
+                Application.Run(startScreen);
+                initialFileName = startScreen.FileName;
+                return (int)startScreen.EditorResult;
             }
         }
 

@@ -1,6 +1,6 @@
 ﻿namespace Bonsai.Editor
 {
-    partial class LandingPage
+    partial class StartScreen
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LandingPage));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(StartScreen));
             this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.recentLabel = new System.Windows.Forms.Label();
             this.openTreeView = new System.Windows.Forms.TreeView();
