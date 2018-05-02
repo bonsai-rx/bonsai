@@ -153,6 +153,7 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
+    <Compile Include="RecentlyUsedFile.cs" />
     <Compile Include="Scripting\CSharpScript.cs" />
     <Compile Include="Scripting\ScriptComponentEditor.cs" />
     <Compile Include="Scripting\ScriptEditorLauncher.cs" />
