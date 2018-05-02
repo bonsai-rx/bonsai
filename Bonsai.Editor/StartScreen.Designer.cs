@@ -28,19 +28,19 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(StartScreen));
             this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.recentLabel = new System.Windows.Forms.Label();
             this.openTreeView = new System.Windows.Forms.TreeView();
             this.openLabel = new System.Windows.Forms.Label();
-            this.getStartedTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.startLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.getStartedLabel = new System.Windows.Forms.Label();
             this.getStartedTreeView = new System.Windows.Forms.TreeView();
             this.recentTreeView = new System.Windows.Forms.TreeView();
             this.openWorkflowDialog = new System.Windows.Forms.OpenFileDialog();
-            this.logoPanel = new System.Windows.Forms.Panel();
+            this.recentLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel.SuspendLayout();
-            this.getStartedTableLayoutPanel.SuspendLayout();
+            this.startLayoutPanel.SuspendLayout();
+            this.recentLayoutPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // tableLayoutPanel
@@ -48,19 +48,13 @@
             this.tableLayoutPanel.ColumnCount = 2;
             this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel.Controls.Add(this.recentLabel, 1, 1);
-            this.tableLayoutPanel.Controls.Add(this.openTreeView, 0, 2);
-            this.tableLayoutPanel.Controls.Add(this.openLabel, 0, 1);
-            this.tableLayoutPanel.Controls.Add(this.getStartedTableLayoutPanel, 0, 0);
-            this.tableLayoutPanel.Controls.Add(this.recentTreeView, 1, 2);
-            this.tableLayoutPanel.Controls.Add(this.logoPanel, 1, 0);
+            this.tableLayoutPanel.Controls.Add(this.startLayoutPanel, 0, 0);
+            this.tableLayoutPanel.Controls.Add(this.recentLayoutPanel, 1, 0);
             this.tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel.Name = "tableLayoutPanel";
-            this.tableLayoutPanel.RowCount = 3;
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 128F));
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 39F));
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel.RowCount = 1;
+            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 190F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel.Size = new System.Drawing.Size(484, 361);
             this.tableLayoutPanel.TabIndex = 0;
@@ -71,10 +65,10 @@
             this.recentLabel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.recentLabel.Font = new System.Drawing.Font("Calibri Light", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.recentLabel.ForeColor = System.Drawing.Color.SeaGreen;
-            this.recentLabel.Location = new System.Drawing.Point(250, 128);
+            this.recentLabel.Location = new System.Drawing.Point(8, 0);
             this.recentLabel.Margin = new System.Windows.Forms.Padding(8, 0, 3, 0);
             this.recentLabel.Name = "recentLabel";
-            this.recentLabel.Size = new System.Drawing.Size(231, 39);
+            this.recentLabel.Size = new System.Drawing.Size(225, 46);
             this.recentLabel.TabIndex = 5;
             this.recentLabel.Text = "Recent";
             this.recentLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -87,10 +81,10 @@
             this.openTreeView.Font = new System.Drawing.Font("Calibri Light", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.openTreeView.HotTracking = true;
             this.openTreeView.ItemHeight = 20;
-            this.openTreeView.Location = new System.Drawing.Point(3, 170);
+            this.openTreeView.Location = new System.Drawing.Point(3, 171);
             this.openTreeView.Name = "openTreeView";
             this.openTreeView.ShowLines = false;
-            this.openTreeView.Size = new System.Drawing.Size(236, 188);
+            this.openTreeView.Size = new System.Drawing.Size(230, 181);
             this.openTreeView.TabIndex = 1;
             this.openTreeView.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.treeView_DrawNode);
             this.openTreeView.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeView_BeforeSelect);
@@ -103,28 +97,32 @@
             this.openLabel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.openLabel.Font = new System.Drawing.Font("Calibri Light", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.openLabel.ForeColor = System.Drawing.Color.SeaGreen;
-            this.openLabel.Location = new System.Drawing.Point(20, 128);
+            this.openLabel.Location = new System.Drawing.Point(20, 122);
             this.openLabel.Margin = new System.Windows.Forms.Padding(20, 0, 3, 0);
             this.openLabel.Name = "openLabel";
-            this.openLabel.Size = new System.Drawing.Size(219, 39);
+            this.openLabel.Size = new System.Drawing.Size(213, 46);
             this.openLabel.TabIndex = 4;
             this.openLabel.Text = "Open";
             this.openLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // getStartedTableLayoutPanel
             // 
-            this.getStartedTableLayoutPanel.ColumnCount = 1;
-            this.getStartedTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.getStartedTableLayoutPanel.Controls.Add(this.getStartedLabel, 0, 0);
-            this.getStartedTableLayoutPanel.Controls.Add(this.getStartedTreeView, 0, 1);
-            this.getStartedTableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.getStartedTableLayoutPanel.Location = new System.Drawing.Point(3, 3);
-            this.getStartedTableLayoutPanel.Name = "getStartedTableLayoutPanel";
-            this.getStartedTableLayoutPanel.RowCount = 2;
-            this.getStartedTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 46F));
-            this.getStartedTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.getStartedTableLayoutPanel.Size = new System.Drawing.Size(236, 122);
-            this.getStartedTableLayoutPanel.TabIndex = 7;
+            this.startLayoutPanel.ColumnCount = 1;
+            this.startLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.startLayoutPanel.Controls.Add(this.openTreeView, 0, 3);
+            this.startLayoutPanel.Controls.Add(this.getStartedLabel, 0, 0);
+            this.startLayoutPanel.Controls.Add(this.openLabel, 0, 2);
+            this.startLayoutPanel.Controls.Add(this.getStartedTreeView, 0, 1);
+            this.startLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.startLayoutPanel.Location = new System.Drawing.Point(3, 3);
+            this.startLayoutPanel.Name = "getStartedTableLayoutPanel";
+            this.startLayoutPanel.RowCount = 4;
+            this.startLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 46F));
+            this.startLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.startLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 46F));
+            this.startLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 187F));
+            this.startLayoutPanel.Size = new System.Drawing.Size(236, 355);
+            this.startLayoutPanel.TabIndex = 7;
             // 
             // getStartedLabel
             // 
@@ -164,24 +162,33 @@
             // 
             this.recentTreeView.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.recentTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.recentTreeView.Location = new System.Drawing.Point(245, 170);
+            this.recentTreeView.Font = new System.Drawing.Font("Calibri Light", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.recentTreeView.Location = new System.Drawing.Point(3, 49);
             this.recentTreeView.Name = "recentTreeView";
-            this.recentTreeView.Size = new System.Drawing.Size(236, 188);
+            this.recentTreeView.ShowLines = false;
+            this.recentTreeView.Size = new System.Drawing.Size(230, 303);
             this.recentTreeView.TabIndex = 2;
             // 
             // openWorkflowDialog
             // 
             this.openWorkflowDialog.Filter = "Bonsai Files|*.bonsai";
             // 
-            // logoPanel
+            // tableLayoutPanel1
             // 
-            this.logoPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.logoPanel.Location = new System.Drawing.Point(245, 3);
-            this.logoPanel.Name = "logoPanel";
-            this.logoPanel.Size = new System.Drawing.Size(236, 122);
-            this.logoPanel.TabIndex = 8;
+            this.recentLayoutPanel.ColumnCount = 1;
+            this.recentLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.recentLayoutPanel.Controls.Add(this.recentLabel, 0, 0);
+            this.recentLayoutPanel.Controls.Add(this.recentTreeView, 0, 1);
+            this.recentLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.recentLayoutPanel.Location = new System.Drawing.Point(245, 3);
+            this.recentLayoutPanel.Name = "tableLayoutPanel1";
+            this.recentLayoutPanel.RowCount = 2;
+            this.recentLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 46F));
+            this.recentLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.recentLayoutPanel.Size = new System.Drawing.Size(236, 355);
+            this.recentLayoutPanel.TabIndex = 8;
             // 
-            // LandingPage
+            // StartScreen
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -191,12 +198,13 @@
             this.Icon = global::Bonsai.Editor.Properties.Resources.Icon;
             this.KeyPreview = true;
             this.MinimumSize = new System.Drawing.Size(400, 300);
-            this.Name = "LandingPage";
+            this.Name = "StartScreen";
             this.Text = "Bonsai";
             this.tableLayoutPanel.ResumeLayout(false);
-            this.tableLayoutPanel.PerformLayout();
-            this.getStartedTableLayoutPanel.ResumeLayout(false);
-            this.getStartedTableLayoutPanel.PerformLayout();
+            this.startLayoutPanel.ResumeLayout(false);
+            this.startLayoutPanel.PerformLayout();
+            this.recentLayoutPanel.ResumeLayout(false);
+            this.recentLayoutPanel.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -207,12 +215,12 @@
         private System.Windows.Forms.TreeView openTreeView;
         private System.Windows.Forms.Label openLabel;
         private System.Windows.Forms.Label recentLabel;
-        private System.Windows.Forms.TableLayoutPanel getStartedTableLayoutPanel;
+        private System.Windows.Forms.TableLayoutPanel startLayoutPanel;
         private System.Windows.Forms.Label getStartedLabel;
         private System.Windows.Forms.TreeView getStartedTreeView;
         private System.Windows.Forms.OpenFileDialog openWorkflowDialog;
         private System.Windows.Forms.TreeView recentTreeView;
-        private System.Windows.Forms.Panel logoPanel;
+        private System.Windows.Forms.TableLayoutPanel recentLayoutPanel;
     }
 }
 

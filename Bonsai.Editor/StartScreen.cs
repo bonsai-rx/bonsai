@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -78,6 +79,17 @@ namespace Bonsai.Editor
             {
                 Close();
             }
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            var recentlyUsedFiles = EditorSettings.Instance.RecentlyUsedFiles;
+            foreach (var file in recentlyUsedFiles)
+            {
+                recentTreeView.Nodes.Add(file.FileName, Path.GetFileName(file.FileName));
+            }
+
+            base.OnLoad(e);
         }
 
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
