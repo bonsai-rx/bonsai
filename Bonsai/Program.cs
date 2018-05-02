@@ -168,6 +168,10 @@ namespace Bonsai
                     if (launchResult == EditorResult.ReloadEditor)
                     {
                         launchResult = EditorResult.Exit;
+                        if (!string.IsNullOrEmpty(initialFileName) && File.Exists(initialFileName))
+                        {
+                            Environment.CurrentDirectory = Path.GetDirectoryName(initialFileName);
+                        }
                     }
                     else exit = launchResult == EditorResult.Exit;
                 }
