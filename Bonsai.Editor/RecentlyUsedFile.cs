@@ -22,11 +22,21 @@ namespace Bonsai.Editor
 
     class RecentlyUsedFileCollection : IEnumerable<RecentlyUsedFile>
     {
-        readonly SortedList<DateTimeOffset, RecentlyUsedFile> files = new SortedList<DateTimeOffset, RecentlyUsedFile>();
+        readonly SortedList<DateTimeOffset, RecentlyUsedFile> files;
+        class DateTimeOffsetComparer : IComparer<DateTimeOffset>
+        {
+            public static readonly DateTimeOffsetComparer Default = new DateTimeOffsetComparer();
+
+            public int Compare(DateTimeOffset x, DateTimeOffset y)
+            {
+                return y.CompareTo(x);
+            }
+        }
 
         public RecentlyUsedFileCollection(int capacity)
         {
             Capacity = capacity;
+            files = new SortedList<DateTimeOffset, RecentlyUsedFile>(Capacity, DateTimeOffsetComparer.Default);
         }
 
         public int Capacity { get; private set; }
