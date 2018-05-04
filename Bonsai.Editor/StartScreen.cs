@@ -18,10 +18,10 @@ namespace Bonsai.Editor
         bool tabSelect;
         Font recentFileNameFont;
         Font recentFilePathFont;
-        TreeNode newProjectNode = new TreeNode("New Project");
-        TreeNode openProjectNode = new TreeNode("Open Project");
-        TreeNode galleryNode = new TreeNode("Bonsai Gallery");
-        TreeNode packageManagerNode = new TreeNode("Manage Packages");
+        TreeNode newProjectNode = new TreeNode("New Project", 0, 0);
+        TreeNode openProjectNode = new TreeNode("Open Project", 1, 1);
+        TreeNode galleryNode = new TreeNode("Bonsai Gallery", 2, 2);
+        TreeNode packageManagerNode = new TreeNode("Manage Packages", 3, 3);
         TreeNode documentationNode = new TreeNode("Documentation");
         TreeNode forumNode = new TreeNode("Forums");
 
