@@ -35,7 +35,7 @@
             this.startLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.getStartedLabel = new System.Windows.Forms.Label();
             this.getStartedTreeView = new System.Windows.Forms.TreeView();
-            this.recentTreeView = new System.Windows.Forms.TreeView();
+            this.recentFileView = new Bonsai.Editor.RecentlyUsedFileView();
             this.openWorkflowDialog = new System.Windows.Forms.OpenFileDialog();
             this.recentLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel.SuspendLayout();
@@ -63,10 +63,10 @@
             // 
             this.recentLabel.AutoSize = true;
             this.recentLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.recentLabel.Font = new System.Drawing.Font("Calibri Light", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.recentLabel.Font = new System.Drawing.Font("Calibri Light", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.recentLabel.ForeColor = System.Drawing.Color.SeaGreen;
-            this.recentLabel.Location = new System.Drawing.Point(8, 0);
-            this.recentLabel.Margin = new System.Windows.Forms.Padding(8, 0, 3, 0);
+            this.recentLabel.Location = new System.Drawing.Point(1, 0);
+            this.recentLabel.Margin = new System.Windows.Forms.Padding(1, 0, 3, 0);
             this.recentLabel.Name = "recentLabel";
             this.recentLabel.Size = new System.Drawing.Size(225, 46);
             this.recentLabel.TabIndex = 5;
@@ -82,8 +82,10 @@
             this.openTreeView.HotTracking = true;
             this.openTreeView.ItemHeight = 20;
             this.openTreeView.Location = new System.Drawing.Point(3, 171);
+            this.openTreeView.Margin = new System.Windows.Forms.Padding(11, 0, 3, 0);
             this.openTreeView.Name = "openTreeView";
             this.openTreeView.ShowLines = false;
+            this.openTreeView.ShowRootLines = false;
             this.openTreeView.Size = new System.Drawing.Size(230, 181);
             this.openTreeView.TabIndex = 1;
             this.openTreeView.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.treeView_DrawNode);
@@ -95,10 +97,10 @@
             // 
             this.openLabel.AutoSize = true;
             this.openLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.openLabel.Font = new System.Drawing.Font("Calibri Light", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.openLabel.Font = new System.Drawing.Font("Calibri Light", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.openLabel.ForeColor = System.Drawing.Color.SeaGreen;
-            this.openLabel.Location = new System.Drawing.Point(20, 122);
-            this.openLabel.Margin = new System.Windows.Forms.Padding(20, 0, 3, 0);
+            this.openLabel.Location = new System.Drawing.Point(8, 122);
+            this.openLabel.Margin = new System.Windows.Forms.Padding(8, 0, 3, 0);
             this.openLabel.Name = "openLabel";
             this.openLabel.Size = new System.Drawing.Size(213, 46);
             this.openLabel.TabIndex = 4;
@@ -128,10 +130,10 @@
             // 
             this.getStartedLabel.AutoSize = true;
             this.getStartedLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.getStartedLabel.Font = new System.Drawing.Font("Calibri Light", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.getStartedLabel.Font = new System.Drawing.Font("Calibri Light", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.getStartedLabel.ForeColor = System.Drawing.Color.SeaGreen;
-            this.getStartedLabel.Location = new System.Drawing.Point(16, 0);
-            this.getStartedLabel.Margin = new System.Windows.Forms.Padding(16, 0, 3, 0);
+            this.getStartedLabel.Location = new System.Drawing.Point(8, 0);
+            this.getStartedLabel.Margin = new System.Windows.Forms.Padding(8, 0, 3, 0);
             this.getStartedLabel.Name = "getStartedLabel";
             this.getStartedLabel.Size = new System.Drawing.Size(217, 46);
             this.getStartedLabel.TabIndex = 5;
@@ -149,8 +151,10 @@
             this.getStartedTreeView.HotTracking = true;
             this.getStartedTreeView.ItemHeight = 20;
             this.getStartedTreeView.Location = new System.Drawing.Point(3, 49);
+            this.getStartedTreeView.Margin = new System.Windows.Forms.Padding(11, 0, 3, 0);
             this.getStartedTreeView.Name = "getStartedTreeView";
             this.getStartedTreeView.ShowLines = false;
+            this.getStartedTreeView.ShowRootLines = false;
             this.getStartedTreeView.Size = new System.Drawing.Size(230, 70);
             this.getStartedTreeView.TabIndex = 0;
             this.getStartedTreeView.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.treeView_DrawNode);
@@ -158,27 +162,34 @@
             this.getStartedTreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView_NodeMouseClick);
             this.getStartedTreeView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.treeView_KeyDown);
             // 
-            // recentTreeView
+            // recentFileView
             // 
-            this.recentTreeView.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.recentTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.recentTreeView.Font = new System.Drawing.Font("Calibri Light", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.recentTreeView.Location = new System.Drawing.Point(3, 49);
-            this.recentTreeView.Name = "recentTreeView";
-            this.recentTreeView.ShowLines = false;
-            this.recentTreeView.Size = new System.Drawing.Size(230, 303);
-            this.recentTreeView.TabIndex = 2;
+            this.recentFileView.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.recentFileView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.recentFileView.DrawMode = System.Windows.Forms.TreeViewDrawMode.OwnerDrawText;
+            this.recentFileView.Font = new System.Drawing.Font("Calibri Light", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.recentFileView.FullRowSelect = true;
+            this.recentFileView.HotTracking = true;
+            this.recentFileView.Location = new System.Drawing.Point(3, 49);
+            this.recentFileView.Name = "recentTreeView";
+            this.recentFileView.ShowLines = false;
+            this.recentFileView.ShowRootLines = false;
+            this.recentFileView.Size = new System.Drawing.Size(230, 303);
+            this.recentFileView.TabIndex = 2;
+            this.recentFileView.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeView_BeforeSelect);
+            this.recentFileView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView_NodeMouseClick);
+            this.recentFileView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.treeView_KeyDown);
             // 
             // openWorkflowDialog
             // 
             this.openWorkflowDialog.Filter = "Bonsai Files|*.bonsai";
             // 
-            // tableLayoutPanel1
+            // recentLayoutPanel
             // 
             this.recentLayoutPanel.ColumnCount = 1;
             this.recentLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.recentLayoutPanel.Controls.Add(this.recentLabel, 0, 0);
-            this.recentLayoutPanel.Controls.Add(this.recentTreeView, 0, 1);
+            this.recentLayoutPanel.Controls.Add(this.recentFileView, 0, 1);
             this.recentLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.recentLayoutPanel.Location = new System.Drawing.Point(245, 3);
             this.recentLayoutPanel.Name = "tableLayoutPanel1";
@@ -219,7 +230,7 @@
         private System.Windows.Forms.Label getStartedLabel;
         private System.Windows.Forms.TreeView getStartedTreeView;
         private System.Windows.Forms.OpenFileDialog openWorkflowDialog;
-        private System.Windows.Forms.TreeView recentTreeView;
+        private Bonsai.Editor.RecentlyUsedFileView recentFileView;
         private System.Windows.Forms.TableLayoutPanel recentLayoutPanel;
     }
 }
