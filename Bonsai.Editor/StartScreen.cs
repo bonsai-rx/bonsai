@@ -16,6 +16,8 @@ namespace Bonsai.Editor
     public partial class StartScreen : Form
     {
         bool tabSelect;
+        Font recentFileNameFont;
+        Font recentFilePathFont;
         TreeNode newProjectNode = new TreeNode("New Project");
         TreeNode openProjectNode = new TreeNode("Open Project");
         TreeNode galleryNode = new TreeNode("Bonsai Gallery");
@@ -83,10 +85,13 @@ namespace Bonsai.Editor
 
         protected override void OnLoad(EventArgs e)
         {
+            recentFilePathFont = recentFileView.Font;
+            recentFileNameFont = new Font(recentFilePathFont.FontFamily, recentFilePathFont.SizeInPoints + 1, FontStyle.Bold);
+
             var recentlyUsedFiles = EditorSettings.Instance.RecentlyUsedFiles;
             foreach (var file in recentlyUsedFiles)
             {
-                recentTreeView.Nodes.Add(file.FileName, Path.GetFileName(file.FileName));
+                recentFileView.Nodes.Add(Path.GetFileName(file.FileName), file.FileName);
             }
 
             base.OnLoad(e);
@@ -97,7 +102,6 @@ namespace Bonsai.Editor
             var itemHeight = (int)(20 * factor.Height);
             getStartedTreeView.ItemHeight = itemHeight;
             openTreeView.ItemHeight = itemHeight;
-            recentTreeView.ItemHeight = itemHeight;
             base.ScaleControl(factor, specified);
         }
 
