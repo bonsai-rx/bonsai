@@ -105,9 +105,15 @@ namespace Bonsai.Editor
 
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {
-            var itemHeight = (int)(20 * factor.Height);
+            var scale = factor.Height;
+            var itemHeight = (int)(20 * scale);
+            var viewMargin = new Padding(
+                (int)(10 * scale + 1 * scale * scale * scale), 0,
+                (int)(3 * scale), 0);
             getStartedTreeView.ItemHeight = itemHeight;
+            getStartedTreeView.Margin = viewMargin;
             openTreeView.ItemHeight = itemHeight;
+            openTreeView.Margin = viewMargin;
             base.ScaleControl(factor, specified);
         }
 
