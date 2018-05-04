@@ -77,6 +77,12 @@ namespace Bonsai.Editor
                 EditorResult = EditorResult.ReloadEditor;
             }
 
+            if (node.TreeView == recentFileView)
+            {
+                openWorkflowDialog.FileName = node.Text;
+                EditorResult = EditorResult.ReloadEditor;
+            }
+
             if (EditorResult != EditorResult.Exit)
             {
                 Close();
