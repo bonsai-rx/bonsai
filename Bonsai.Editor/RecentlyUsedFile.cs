@@ -54,19 +54,25 @@ namespace Bonsai.Editor
 
         public void Add(DateTimeOffset timestamp, string fileName)
         {
-            var item = files.Values.FirstOrDefault(value => value.FileName == fileName);
-            if (item != null)
-            {
-                files.Remove(item.Timestamp);
-            }
-
-            item = new RecentlyUsedFile(timestamp, fileName);
+            Remove(fileName);
+            var item = new RecentlyUsedFile(timestamp, fileName);
             while (files.Count >= Capacity)
             {
                 files.RemoveAt(files.Count - 1);
             }
 
             files.Add(timestamp, item);
+        }
+
+        public bool Remove(string fileName)
+        {
+            var item = files.Values.FirstOrDefault(value => value.FileName == fileName);
+            if (item != null)
+            {
+                return files.Remove(item.Timestamp);
+            }
+
+            return false;
         }
 
         public IEnumerator<RecentlyUsedFile> GetEnumerator()
