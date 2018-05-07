@@ -133,7 +133,7 @@ namespace Bonsai.Editor
             if (treeView != null)
             {
                 var node = treeView.SelectedNode;
-                if (!tabSelect)
+                if (!tabSelect && node != null)
                 {
                     treeView.Invalidate(node.Bounds);
                     tabSelect = true;
