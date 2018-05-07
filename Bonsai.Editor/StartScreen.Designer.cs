@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(StartScreen));
             this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.startLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.openTreeView = new System.Windows.Forms.TreeView();
@@ -187,12 +186,7 @@
             // 
             // iconList
             // 
-            this.iconList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("iconList.ImageStream")));
             this.iconList.TransparentColor = System.Drawing.Color.Transparent;
-            this.iconList.Images.SetKeyName(0, "newToolStripButton.Image.png");
-            this.iconList.Images.SetKeyName(1, "openToolStripButton.Image.png");
-            this.iconList.Images.SetKeyName(2, "galleryToolStripMenuItem.Image.png");
-            this.iconList.Images.SetKeyName(3, "packageManagerToolStripMenuItem.Image.png");
             // 
             // recentFileView
             // 
