@@ -32,13 +32,13 @@
             this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.startLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.openTreeView = new System.Windows.Forms.TreeView();
+            this.iconList = new System.Windows.Forms.ImageList(this.components);
             this.getStartedLabel = new System.Windows.Forms.Label();
             this.openLabel = new System.Windows.Forms.Label();
             this.getStartedTreeView = new System.Windows.Forms.TreeView();
             this.recentLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.recentLabel = new System.Windows.Forms.Label();
             this.openWorkflowDialog = new System.Windows.Forms.OpenFileDialog();
-            this.iconList = new System.Windows.Forms.ImageList(this.components);
             this.recentFileView = new Bonsai.Editor.RecentlyUsedFileView();
             this.tableLayoutPanel.SuspendLayout();
             this.startLayoutPanel.SuspendLayout();
@@ -48,15 +48,14 @@
             // tableLayoutPanel
             // 
             this.tableLayoutPanel.ColumnCount = 2;
-            this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 242F));
+            this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel.Controls.Add(this.startLayoutPanel, 0, 0);
             this.tableLayoutPanel.Controls.Add(this.recentLayoutPanel, 1, 0);
             this.tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel.Name = "tableLayoutPanel";
             this.tableLayoutPanel.RowCount = 1;
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 361F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 361F));
             this.tableLayoutPanel.Size = new System.Drawing.Size(484, 361);
             this.tableLayoutPanel.TabIndex = 0;
@@ -74,7 +73,7 @@
             this.startLayoutPanel.Name = "startLayoutPanel";
             this.startLayoutPanel.RowCount = 4;
             this.startLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 46F));
-            this.startLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.startLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 76F));
             this.startLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 46F));
             this.startLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 187F));
             this.startLayoutPanel.Size = new System.Drawing.Size(236, 355);
@@ -101,6 +100,12 @@
             this.openTreeView.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeView_BeforeSelect);
             this.openTreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView_NodeMouseClick);
             this.openTreeView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.treeView_KeyDown);
+            // 
+            // iconList
+            // 
+            this.iconList.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
+            this.iconList.ImageSize = new System.Drawing.Size(16, 16);
+            this.iconList.TransparentColor = System.Drawing.Color.Transparent;
             // 
             // getStartedLabel
             // 
@@ -183,10 +188,6 @@
             // openWorkflowDialog
             // 
             this.openWorkflowDialog.Filter = "Bonsai Files|*.bonsai";
-            // 
-            // iconList
-            // 
-            this.iconList.TransparentColor = System.Drawing.Color.Transparent;
             // 
             // recentFileView
             // 
