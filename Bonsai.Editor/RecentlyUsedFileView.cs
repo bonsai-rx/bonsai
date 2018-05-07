@@ -51,34 +51,34 @@ namespace Bonsai.Editor
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {
             var itemHeight = 20 * factor.Height;
-            leftMargin = (int)(3 * factor.Height);
+            leftMargin = (int)(2 * factor.Height);
             lineHeight = (int)itemHeight;
             ItemHeight = (int)(2.5f * itemHeight);
             base.ScaleControl(factor, specified);
         }
 
+        protected override void OnResize(EventArgs e)
+        {
+            Invalidate();
+            base.OnResize(e);
+        }
+
         protected override void OnDrawNode(DrawTreeNodeEventArgs e)
         {
             var node = e.Node;
-            var bounds = node.Bounds;
-            bounds.X -= leftMargin;
-            bounds.Width += leftMargin;
-            var itemWidth = ClientSize.Width;
+            var bounds = e.Bounds;
+            bounds.Width = ClientSize.Width;
             var itemMargin = lineHeight / 4;
-            var nameBounds = new Rectangle(bounds.X, bounds.Y + itemMargin, itemWidth, lineHeight);
-            var pathBounds = new Rectangle(bounds.X, bounds.Y + itemMargin + lineHeight, itemWidth, lineHeight);
-
-            var font = node.NodeFont ?? node.TreeView.Font;
-
+            var nameBounds = new Rectangle(bounds.X, bounds.Y + itemMargin, bounds.Width, lineHeight);
+            var pathBounds = new Rectangle(bounds.X, bounds.Y + itemMargin + lineHeight, bounds.Width, lineHeight);
+            var fillBounds = new Rectangle(bounds.X - leftMargin, bounds.Y, bounds.Width + leftMargin, bounds.Height);
+            var focusBounds = new Rectangle(bounds.X, bounds.Y, bounds.Width - leftMargin, bounds.Height);
             var hot = (e.State & TreeNodeStates.Hot) == TreeNodeStates.Hot;
             var selected = (e.State & TreeNodeStates.Selected) == TreeNodeStates.Selected;
-
-            var hotColor = node.TreeView.ForeColor == SystemColors.HotTrack ? SystemColors.ActiveCaption : SystemColors.HotTrack;
-            var color = hot ? hotColor : node.TreeView.ForeColor;
-
-            e.Graphics.FillRectangle(hot ? new SolidBrush(Color.PaleGoldenrod) : SystemBrushes.Window, bounds);
+            e.Graphics.FillRectangle(hot ? new SolidBrush(Color.PaleGoldenrod) : SystemBrushes.Window, fillBounds);
             TextRenderer.DrawText(e.Graphics, node.Name, recentFileNameFont, nameBounds, Color.Black, TextFormatFlags.Left);
             TextRenderer.DrawText(e.Graphics, node.Text, recentFilePathFont, pathBounds, Color.Gray, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+            if (selected) ControlPaint.DrawFocusRectangle(e.Graphics, focusBounds);
             base.OnDrawNode(e);
         }
     }
