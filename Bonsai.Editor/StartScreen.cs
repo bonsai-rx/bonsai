@@ -1,4 +1,5 @@
 ﻿using Bonsai.Design;
+using Bonsai.Editor.Properties;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -79,8 +80,26 @@ namespace Bonsai.Editor
 
             if (node.TreeView == recentFileView)
             {
-                openWorkflowDialog.FileName = node.Text;
-                EditorResult = EditorResult.ReloadEditor;
+                var path = node.Text;
+                if (!File.Exists(path))
+                {
+                    var result = MessageBox.Show(
+                        this,
+                        string.Format(Resources.RemoveRecentFile_Question, node.Name),
+                        Resources.RemoveRecentFile_Question_Caption,
+                        MessageBoxButtons.YesNo);
+                    if (result == DialogResult.Yes)
+                    {
+                        EditorSettings.Instance.RecentlyUsedFiles.Remove(path);
+                        EditorSettings.Instance.Save();
+                        node.Remove();
+                    }
+                }
+                else
+                {
+                    openWorkflowDialog.FileName = path;
+                    EditorResult = EditorResult.ReloadEditor;
+                }
             }
 
             if (EditorResult != EditorResult.Exit)
@@ -210,9 +229,10 @@ namespace Bonsai.Editor
             var node = e.Node;
             if (node != null)
             {
+                var treeView = node.TreeView;
                 tabSelect = false;
                 ActivateNode(node);
-                node.TreeView.SelectedNode = null;
+                treeView.SelectedNode = null;
             }
         }
 

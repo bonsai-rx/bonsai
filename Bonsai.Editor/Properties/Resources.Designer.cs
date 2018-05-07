@@ -252,6 +252,24 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The file &quot;{0}&quot; does not exist anymore. Do you want to remove the reference to it from the list of recent files?.
+        /// </summary>
+        internal static string RemoveRecentFile_Question {
+            get {
+                return ResourceManager.GetString("RemoveRecentFile_Question", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bonsai.
+        /// </summary>
+        internal static string RemoveRecentFile_Question_Caption {
+            get {
+                return ResourceManager.GetString("RemoveRecentFile_Question_Caption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Running.
         /// </summary>
         internal static string RunningStatus {

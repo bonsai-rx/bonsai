@@ -253,4 +253,10 @@ Do you want to install Visual Studio Code?</value>
   <data name="WorkflowPropertiesDescription" xml:space="preserve">
     <value>Externalized properties of this workflow can be configured below.</value>
   </data>
+  <data name="RemoveRecentFile_Question" xml:space="preserve">
+    <value>The file "{0}" does not exist anymore. Do you want to remove the reference to it from the list of recent files?</value>
+  </data>
+  <data name="RemoveRecentFile_Question_Caption" xml:space="preserve">
+    <value>Bonsai</value>
+  </data>
 </root>
