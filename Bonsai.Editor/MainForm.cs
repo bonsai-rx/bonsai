@@ -805,7 +805,6 @@ namespace Bonsai.Editor
 
         void UpdateWorkflowDirectory(string fileName, bool setWorkingDirectory)
         {
-            EditorSettings.Instance.RecentlyUsedFiles.Add(fileName);
             var workflowDirectory = Path.GetDirectoryName(fileName);
             openWorkflowDialog.InitialDirectory = saveWorkflowDialog.InitialDirectory = workflowDirectory;
             if (setWorkingDirectory && directoryToolStripTextBox.Text != workflowDirectory)
@@ -815,6 +814,11 @@ namespace Bonsai.Editor
                 EditorResult = EditorResult.ReloadEditor;
                 ResetProjectStatus();
                 Close();
+            }
+            else
+            {
+                EditorSettings.Instance.RecentlyUsedFiles.Add(fileName);
+                EditorSettings.Instance.Save();
             }
         }
 
