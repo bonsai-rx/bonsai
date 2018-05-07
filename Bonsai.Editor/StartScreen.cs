@@ -105,6 +105,7 @@ namespace Bonsai.Editor
 
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {
+            const int MaxImageSize = 32;
             var scale = factor.Height;
             var itemHeight = (int)(20 * scale);
             var viewMargin = new Padding(
@@ -114,6 +115,15 @@ namespace Bonsai.Editor
             getStartedTreeView.Margin = viewMargin;
             openTreeView.ItemHeight = itemHeight;
             openTreeView.Margin = viewMargin;
+            iconList.Images.Clear();
+            iconList.ImageSize = new Size(
+                Math.Min(MaxImageSize, (int)(16 * factor.Height)),
+                Math.Min(MaxImageSize, (int)(16 * factor.Height)));
+            var resources = new ComponentResourceManager(typeof(StartScreen));
+            iconList.Images.Add((Image)(resources.GetObject("newToolStripMenuItem.Image")));
+            iconList.Images.Add((Image)(resources.GetObject("openToolStripMenuItem.Image")));
+            iconList.Images.Add((Image)(resources.GetObject("galleryToolStripMenuItem.Image")));
+            iconList.Images.Add((Image)(resources.GetObject("packageManagerToolStripMenuItem.Image")));
             base.ScaleControl(factor, specified);
         }
 
