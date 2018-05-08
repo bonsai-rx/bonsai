@@ -181,10 +181,6 @@ namespace Bonsai.Design
                 if (opacity != null)
                 {
                     color = Color.FromArgb((int)(opacity.Value * 255), color);
-                    if (color.A == 0)
-                    {
-                        return Expression.PropertyOrField(context.State, "Background");
-                    }
                 }
 
                 var brush = new SolidBrush(color);
@@ -361,8 +357,15 @@ namespace Bonsai.Design
                         if (bezierPoints.Count == 0) bezierPoints.Add(point);
                         AddBezierData(bezierPoints, segment);
                         break;
-                    case SvgPathSegType.SVG_SEGTYPE_LINETO:
                     case SvgPathSegType.SVG_SEGTYPE_MOVETO:
+                        AddLines(path, linePoints);
+                        AddBeziers(path, bezierPoints);
+                        path.StartFigure();
+                        point.X += segment.Data[0];
+                        point.Y += segment.Data[1];
+                        linePoints.Add(point);
+                        break;
+                    case SvgPathSegType.SVG_SEGTYPE_LINETO:
                         StartLine(bezierPoints, linePoints, segment, ref point);
                         AddBeziers(path, bezierPoints);
                         point.X += segment.Data[0];
