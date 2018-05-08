@@ -2403,7 +2403,10 @@ namespace Bonsai.Editor
         private void propertyGridContextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
             var item = propertyGrid.SelectedGridItem;
-            resetToolStripMenuItem.Enabled = item != null && item.PropertyDescriptor.CanResetValue(item.Parent.Value);
+            resetToolStripMenuItem.Enabled =
+                item != null &&
+                item.PropertyDescriptor != null &&
+                item.PropertyDescriptor.CanResetValue(item.Parent.Value);
         }
 
         private void resetToolStripMenuItem_Click(object sender, EventArgs e)
