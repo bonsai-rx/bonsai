@@ -18,7 +18,6 @@ namespace Bonsai.Editor
         const int MaxRecentFiles = 25;
         const string SettingsExtension = ".settings";
         const string RecentlyUsedFilesElement = "RecentlyUsedFiles";
-        const string ShowWelcomeDialogElement = "ShowWelcomeDialog";
         const string DesktopBoundsElement = "DesktopBounds";
         const string WindowStateElement = "WindowState";
         const string RecentlyUsedFileElement = "RecentlyUsedFile";
@@ -34,15 +33,12 @@ namespace Bonsai.Editor
 
         internal EditorSettings()
         {
-            ShowWelcomeDialog = true;
         }
 
         public static EditorSettings Instance
         {
             get { return instance.Value; }
         }
-
-        public bool ShowWelcomeDialog { get; set; }
 
         public Rectangle DesktopBounds { get; set; }
 
@@ -66,13 +62,7 @@ namespace Bonsai.Editor
                         while (reader.Read())
                         {
                             if (reader.NodeType != XmlNodeType.Element) continue;
-                            if (reader.Name == ShowWelcomeDialogElement)
-                            {
-                                bool showWelcomeDialog;
-                                bool.TryParse(reader.ReadElementContentAsString(), out showWelcomeDialog);
-                                settings.ShowWelcomeDialog = showWelcomeDialog;
-                            }
-                            else if (reader.Name == WindowStateElement)
+                            if (reader.Name == WindowStateElement)
                             {
                                 FormWindowState windowState;
                                 Enum.TryParse<FormWindowState>(reader.ReadElementContentAsString(), out windowState);
@@ -122,7 +112,6 @@ namespace Bonsai.Editor
             using (var writer = XmlWriter.Create(SettingsFileName, new XmlWriterSettings { Indent = true }))
             {
                 writer.WriteStartElement(typeof(EditorSettings).Name);
-                writer.WriteElementString(ShowWelcomeDialogElement, ShowWelcomeDialog.ToString(CultureInfo.InvariantCulture));
                 writer.WriteElementString(WindowStateElement, WindowState.ToString());
 
                 writer.WriteStartElement(DesktopBoundsElement);

@@ -165,12 +165,6 @@
     <Compile Include="TypeVisualizerDescriptor.cs" />
     <Compile Include="TypeVisualizerMap.cs" />
     <Compile Include="WorkflowDisposable.cs" />
-    <Compile Include="WelcomeDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="WelcomeDialog.Designer.cs">
-      <DependentUpon>WelcomeDialog.cs</DependentUpon>
-    </Compile>
     <Compile Include="WorkflowElementDescriptor.cs" />
     <Compile Include="WorkflowRuntimeExceptionCache.cs" />
     <Compile Include="UpgradeHelper.cs" />
@@ -202,9 +196,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="WelcomeDialog.resx">
-      <DependentUpon>WelcomeDialog.cs</DependentUpon>
-    </EmbeddedResource>
     <None Include="Bonsai.Editor.nuspec">
       <SubType>Designer</SubType>
     </None>
@@ -223,8 +214,6 @@
   <ItemGroup>
     <None Include="Bonsai.ico" />
     <None Include="Resources\Bonsai.png" />
-    <None Include="Resources\BonsaiCommands.png" />
-    <None Include="Resources\BonsaiWelcome.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\MSBuild\AssemblyInfo.targets" />

@@ -198,21 +198,6 @@ namespace Bonsai.Editor
             get { return propertyAssignments; }
         }
 
-        void ShowWelcomeDialog()
-        {
-            using (var welcome = new WelcomeDialog())
-            {
-                if (welcome.ShowDialog(this) == DialogResult.OK)
-                {
-                    if (welcome.ShowWelcomeDialog != EditorSettings.Instance.ShowWelcomeDialog)
-                    {
-                        EditorSettings.Instance.ShowWelcomeDialog = welcome.ShowWelcomeDialog;
-                        EditorSettings.Instance.Save();
-                    }
-                }
-            }
-        }
-
         static Rectangle ScaleBounds(Rectangle bounds, SizeF scaleFactor)
         {
             bounds.Location = Point.Round(new PointF(bounds.X * scaleFactor.Width, bounds.Y * scaleFactor.Height));
@@ -323,16 +308,6 @@ namespace Bonsai.Editor
                 statusStrip.ImageScalingSize = toolStrip.ImageScalingSize;
             }
             base.ScaleControl(factor, specified);
-        }
-
-        protected override void OnShown(EventArgs e)
-        {
-            if (EditorSettings.Instance.ShowWelcomeDialog)
-            {
-                ShowWelcomeDialog();
-            }
-
-            base.OnShown(e);
         }
 
         protected override void OnFormClosed(FormClosedEventArgs e)
@@ -1966,11 +1941,6 @@ namespace Bonsai.Editor
             {
                 about.ShowDialog();
             }
-        }
-
-        private void welcomeToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ShowWelcomeDialog();
         }
 
         #endregion
