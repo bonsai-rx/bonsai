@@ -119,6 +119,7 @@ namespace Bonsai.Editor
                 recentFileView.Nodes.Add(Path.GetFileName(file.FileName), file.FileName);
             }
 
+            openTreeView.Select();
             base.OnLoad(e);
         }
 
