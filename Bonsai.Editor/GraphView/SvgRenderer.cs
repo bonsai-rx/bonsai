@@ -557,13 +557,15 @@ namespace Bonsai.Design
 
             if (!rendererCache.TryGetValue(icon.Name, out renderer))
             {
-                var iconStream = icon.GetStream();
-                if (iconStream == null) return false;
-                var svgDocument = new XmlDocument();
-                svgDocument.Load(iconStream);
-                var element = SvgFactory.LoadFromXML(svgDocument, null);
-                renderer = CreateRenderer(element);
-                rendererCache.Add(icon.Name, renderer);
+                using (var iconStream = icon.GetStream())
+                {
+                    if (iconStream == null) return false;
+                    var svgDocument = new XmlDocument();
+                    svgDocument.Load(iconStream);
+                    var element = SvgFactory.LoadFromXML(svgDocument, null);
+                    renderer = CreateRenderer(element);
+                    rendererCache.Add(icon.Name, renderer);
+                }
             }
 
             return true;
