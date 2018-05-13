@@ -81,7 +81,6 @@
             this.forumToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reportBugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
-            this.welcomeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openWorkflowDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveWorkflowDialog = new System.Windows.Forms.SaveFileDialog();
@@ -536,7 +535,6 @@
             this.forumToolStripMenuItem,
             this.reportBugToolStripMenuItem,
             this.toolStripSeparator5,
-            this.welcomeToolStripMenuItem,
             this.aboutToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
@@ -570,13 +568,6 @@
             // 
             this.toolStripSeparator5.Name = "toolStripSeparator5";
             this.toolStripSeparator5.Size = new System.Drawing.Size(154, 6);
-            // 
-            // welcomeToolStripMenuItem
-            // 
-            this.welcomeToolStripMenuItem.Name = "welcomeToolStripMenuItem";
-            this.welcomeToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
-            this.welcomeToolStripMenuItem.Text = "&Welcome";
-            this.welcomeToolStripMenuItem.Click += new System.EventHandler(this.welcomeToolStripMenuItem_Click);
             // 
             // aboutToolStripMenuItem
             // 
@@ -1177,7 +1168,6 @@
         private System.Windows.Forms.SplitContainer toolboxSplitContainer;
         private Bonsai.Editor.BorderPanel toolboxDescriptionPanel;
         private System.Windows.Forms.RichTextBox toolboxDescriptionTextBox;
-        private System.Windows.Forms.ToolStripMenuItem welcomeToolStripMenuItem;
         private System.Windows.Forms.ContextMenuStrip propertyGridContextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem resetToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem descriptionToolStripMenuItem;

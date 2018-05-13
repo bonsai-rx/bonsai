@@ -83,31 +83,11 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap BonsaiCommands {
-            get {
-                object obj = ResourceManager.GetObject("BonsaiCommands", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Bonsai.
         /// </summary>
         internal static string BonsaiTitle {
             get {
                 return ResourceManager.GetString("BonsaiTitle", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap BonsaiWelcome {
-            get {
-                object obj = ResourceManager.GetObject("BonsaiWelcome", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
             }
         }
         

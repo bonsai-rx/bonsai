@@ -117,19 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="BonsaiWelcome" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\BonsaiWelcome.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="RunningStatus" xml:space="preserve">
     <value>Running</value>
-  </data>
-  <data name="BonsaiCommands" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\BonsaiCommands.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="SearchModuleCueBanner" xml:space="preserve">
     <value>Search Modules (Ctrl+E)</value>
   </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="Bonsai" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Bonsai.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
