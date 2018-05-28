@@ -261,7 +261,7 @@ namespace Bonsai
 
         internal static int LaunchWorkflowEditor(
             PackageConfiguration packageConfiguration,
-            ScriptExtensionsEnvironment scriptEnvironment,
+            ScriptExtensions scriptEnvironment,
             string editorRepositoryPath,
             string initialFileName,
             bool start,

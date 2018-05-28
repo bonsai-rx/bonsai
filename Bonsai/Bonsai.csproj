@@ -73,7 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppResult.cs" />
-    <Compile Include="ScriptExtensionsEnvironment.cs" />
+    <Compile Include="ScriptExtensions.cs" />
     <Compile Include="TempDirectory.cs" />
     <Compile Include="GalleryPackagePathResolver.cs" />
     <Compile Include="EditorResult.cs" />

@@ -13,7 +13,7 @@ using System.Xml.Linq;
 
 namespace Bonsai
 {
-    class ScriptExtensionsEnvironment : IScriptEnvironment, IDisposable, IServiceProvider
+    class ScriptExtensions : IDisposable, IServiceProvider
     {
         const string OuterIndent = "  ";
         const string InnerIndent = "    ";
@@ -34,7 +34,7 @@ namespace Bonsai
         PackageConfiguration packageConfiguration;
         TempDirectory assemblyFolder;
 
-        public ScriptExtensionsEnvironment(PackageConfiguration configuration, string outputPath)
+        public ScriptExtensions(PackageConfiguration configuration, string outputPath)
         {
             packageConfiguration = configuration;
             packageMap = DependencyInspector.GetPackageReferenceMap(configuration);
@@ -112,7 +112,7 @@ namespace Bonsai
         {
             if (serviceType == typeof(IScriptEnvironment))
             {
-                return this;
+                return new ScriptExtensionsEnvironment(this);
             }
 
             return null;
@@ -121,6 +121,37 @@ namespace Bonsai
         public void Dispose()
         {
             assemblyFolder.Dispose();
+        }
+
+        class ScriptExtensionsEnvironment : IScriptEnvironment
+        {
+            readonly ScriptExtensions extensions;
+
+            internal ScriptExtensionsEnvironment(ScriptExtensions owner)
+            {
+                extensions = owner;
+            }
+
+            public string ProjectFileName
+            {
+                get { return extensions.ProjectFileName; }
+            }
+
+            public AssemblyName AssemblyName
+            {
+                get { return extensions.AssemblyName; }
+            }
+
+            public bool DebugScripts
+            {
+                get { return extensions.DebugScripts; }
+                set { extensions.DebugScripts = value; }
+            }
+
+            public void AddAssemblyReferences(IEnumerable<string> assemblyReferences)
+            {
+                extensions.AddAssemblyReferences(assemblyReferences);
+            }
         }
     }
 }
