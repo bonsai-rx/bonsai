@@ -162,8 +162,9 @@ namespace Bonsai
                     editorPackageVersion,
                     ref launchResult);
                 var exit = editorPackage == null;
-                if (!exit && string.IsNullOrEmpty(initialFileName))
+                if (!exit && launchEditor && string.IsNullOrEmpty(initialFileName))
                 {
+                    Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
                     launchResult = (EditorResult)Launcher.LaunchStartScreen(out initialFileName);
                     if (launchResult == EditorResult.ReloadEditor)
                     {
