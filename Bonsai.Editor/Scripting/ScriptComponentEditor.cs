@@ -44,16 +44,7 @@ namespace Bonsai.Editor.Scripting
             return reference;
         }
 
-        string GetTypeName(Type type)
-        {
-            using (var provider = new CSharpCodeProvider())
-            {
-                var typeReference = CreateTypeReference(type);
-                return provider.GetTypeOutput(typeReference);
-            }
-        }
-
-        void CollectNamespaces(Type type, HashSet<string> namespaces)
+        static void CollectNamespaces(Type type, HashSet<string> namespaces)
         {
             namespaces.Add(type.Namespace);
             if (type.IsGenericType)
@@ -66,7 +57,7 @@ namespace Bonsai.Editor.Scripting
             }
         }
 
-        void CollectAssemblyReferences(Type type, HashSet<string> assemblyReferences)
+        static void CollectAssemblyReferences(Type type, HashSet<string> assemblyReferences)
         {
             var assemblyName = type.Assembly.GetName().Name;
             assemblyReferences.Add(assemblyName);
@@ -101,17 +92,32 @@ namespace Bonsai.Editor.Scripting
             var selectedNode = selectionModel.SelectedNodes.SingleOrDefault();
             if (selectedNode == null) return false;
 
-            Type inputType;
-            var builderNode = (Node<ExpressionBuilder, ExpressionBuilderArgument>)selectedNode.Tag;
-            var predecessor = selectedView.Workflow.Predecessors(builderNode).FirstOrDefault();
-            if (predecessor != null)
+            string typeName;
+            string scriptFile;
+            var inputType = default(Type);
+            using (var codeProvider = new CSharpCodeProvider())
             {
-                var expression = workflowBuilder.Workflow.Build(predecessor.Value);
-                inputType = expression.Type;
-            }
-            else inputType = typeof(IObservable<int>);
+                scriptFile = codeProvider.CreateValidIdentifier(scriptComponent.Name);
+                if (string.IsNullOrWhiteSpace(scriptFile)) scriptFile = DefaultScriptName;
+                else if (!codeProvider.IsValidIdentifier(scriptFile))
+                {
+                    throw new InvalidOperationException(
+                        "The specified name '" + scriptFile + "' is not a valid type identifier. " +
+                        "Valid identifiers must start with a letter and must not contain white spaces.");
+                }
 
-            var scriptFile = string.IsNullOrWhiteSpace(scriptComponent.Name) ? DefaultScriptName : scriptComponent.Name;
+                var builderNode = (Node<ExpressionBuilder, ExpressionBuilderArgument>)selectedNode.Tag;
+                var predecessor = selectedView.Workflow.Predecessors(builderNode).FirstOrDefault();
+                if (predecessor != null)
+                {
+                    var expression = workflowBuilder.Workflow.Build(predecessor.Value);
+                    inputType = expression.Type;
+                }
+
+                var typeReference = CreateTypeReference(inputType ?? typeof(IObservable<int>));
+                typeName = codeProvider.GetTypeOutput(typeReference);
+            }
+
             var extensionsDirectory = editorService.EnsureExtensionsDirectory();
             if (!extensionsDirectory.Exists) return false;
 
@@ -140,12 +146,14 @@ namespace Bonsai.Editor.Scripting
                 namespaces.Add("System.Collections.Generic");
                 namespaces.Add("System.Linq");
                 namespaces.Add("System.Reactive.Linq");
-                CollectNamespaces(inputType, namespaces);
-                CollectAssemblyReferences(inputType, assemblyReferences);
-                assemblyReferences.ExceptWith(IgnoreAssemblyReferences);
+                if (inputType != null)
+                {
+                    CollectNamespaces(inputType, namespaces);
+                    CollectAssemblyReferences(inputType, assemblyReferences);
+                    assemblyReferences.ExceptWith(IgnoreAssemblyReferences);
+                }
                 scriptEnvironment.AddAssemblyReferences(assemblyReferences);
 
-                var typeName = GetTypeName(inputType);
                 var scriptBuilder = new StringBuilder();
                 foreach (var ns in namespaces) scriptBuilder.AppendLine("using " + ns + ";");
                 scriptBuilder.AppendLine();
@@ -154,7 +162,7 @@ namespace Bonsai.Editor.Scripting
                 scriptBuilder.AppendLine("[WorkflowElementCategory(ElementCategory." + scriptComponent.Category + ")]");
                 scriptBuilder.AppendLine("public class " + scriptComponent.Name);
                 scriptBuilder.AppendLine("{");
-                scriptBuilder.AppendLine("    public " + typeName + " Process(" + (predecessor != null ? typeName + " source)" : ")"));
+                scriptBuilder.AppendLine("    public " + typeName + " Process(" + (inputType != null ? typeName + " source)" : ")"));
                 scriptBuilder.AppendLine("    {");
                 string template;
                 switch (scriptComponent.Category)
@@ -182,7 +190,7 @@ namespace Bonsai.Editor.Scripting
             var typeBuilder = moduleBuilder.DefineType(
                 scriptComponent.Name,
                 TypeAttributes.Public | TypeAttributes.Class,
-                predecessor == null ? typeof(ZeroArgumentExpressionBuilder) : typeof(SingleArgumentExpressionBuilder));
+                inputType == null ? typeof(ZeroArgumentExpressionBuilder) : typeof(SingleArgumentExpressionBuilder));
             var descriptionAttributeBuilder = new CustomAttributeBuilder(
                 typeof(DescriptionAttribute).GetConstructor(new[] { typeof(string) }),
                 new object[] { scriptComponent.Description });
