@@ -111,6 +111,14 @@ namespace Bonsai.Editor.Scripting
                 if (predecessor != null)
                 {
                     var expression = workflowBuilder.Workflow.Build(predecessor.Value);
+                    if (expression.Type == typeof(void))
+                    {
+                        throw new InvalidOperationException(
+                            "Script generation failed because the input type could not be determined. " +
+                            "Please ensure that the preceding node has a valid output and that all " +
+                            "other generated scripts have been successfully compiled.");
+                    }
+
                     inputType = expression.Type;
                 }
 
