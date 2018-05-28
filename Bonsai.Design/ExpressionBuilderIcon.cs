@@ -47,7 +47,11 @@ namespace Bonsai.Design
                 defaultName = ExpressionBuilder.GetElementDisplayName(workflowElementType);
             }
 
-            defaultName = string.Join(ExpressionHelper.MemberSeparator, resourceQualifier.Namespace, defaultName);
+            if (resourceQualifier.Namespace != null)
+            {
+                defaultName = string.Join(ExpressionHelper.MemberSeparator, resourceQualifier.Namespace, defaultName);
+            }
+
             if (namedElement != null &&
                (workflowElement is IncludeWorkflowBuilder ||
                 workflowElement is GroupWorkflowBuilder))
