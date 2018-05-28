@@ -1001,7 +1001,7 @@ namespace Bonsai.Expressions
                     var argument = source;
                     foreach (var successor in inputBuilder.node.Successors)
                     {
-                        inputBuilder.workflowProperty.BuildArgument(argument, successor, out argument);
+                        inputBuilder.workflowProperty.BuildArgument(argument, successor, out argument, sourceSelector);
                     }
                     return argument;
                 }

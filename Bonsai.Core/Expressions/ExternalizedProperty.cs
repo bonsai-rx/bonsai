@@ -80,14 +80,14 @@ namespace Bonsai.Expressions
 
         bool IArgumentBuilder.BuildArgument(Expression source, Edge<ExpressionBuilder, ExpressionBuilderArgument> successor, out Expression argument)
         {
-            return BuildArgument(source, successor, out argument);
+            return BuildArgument(source, successor, out argument, string.Empty);
         }
 
-        internal bool BuildArgument(Expression source, Edge<ExpressionBuilder, ExpressionBuilderArgument> successor, out Expression argument)
+        internal bool BuildArgument(Expression source, Edge<ExpressionBuilder, ExpressionBuilderArgument> successor, out Expression argument, string sourceSelector)
         {
             var workflowElement = GetWorkflowElement(successor.Target.Value);
             var instance = Expression.Constant(workflowElement);
-            argument = BuildPropertyMapping(source, instance, MemberName);
+            argument = BuildPropertyMapping(source, instance, MemberName, sourceSelector);
             return false;
         }
     }
