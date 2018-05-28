@@ -44,12 +44,12 @@ namespace Bonsai
             }
         }
 
-        public static ScriptExtensionsEnvironment CompileAssembly(PackageConfiguration configuration, string editorRepositoryPath, bool includeDebugInformation)
+        public static ScriptExtensions CompileAssembly(PackageConfiguration configuration, string editorRepositoryPath, bool includeDebugInformation)
         {
             var path = Environment.CurrentDirectory;
             var configurationRoot = ConfigurationHelper.GetConfigurationRoot(configuration);
             var scriptProjectFile = Path.Combine(path, Path.ChangeExtension(OutputAssemblyName, ProjectExtension));
-            if (!File.Exists(scriptProjectFile)) return new ScriptExtensionsEnvironment(configuration, null);
+            if (!File.Exists(scriptProjectFile)) return new ScriptExtensions(configuration, null);
 
             var assemblyNames = new HashSet<string>();
             var document = XmlUtility.LoadSafe(scriptProjectFile);
@@ -66,10 +66,10 @@ namespace Bonsai
             assemblyNames.AddRange(projectReferences);
 
             var scriptFiles = Directory.GetFiles(path, ScriptExtension, SearchOption.AllDirectories);
-            if (scriptFiles.Length == 0) return new ScriptExtensionsEnvironment(configuration, null);
+            if (scriptFiles.Length == 0) return new ScriptExtensions(configuration, null);
 
             var assemblyDirectory = Path.GetTempPath() + OutputAssemblyName + "." + Guid.NewGuid().ToString();
-            var scriptEnvironment = new ScriptExtensionsEnvironment(configuration, assemblyDirectory);
+            var scriptEnvironment = new ScriptExtensions(configuration, assemblyDirectory);
             var assemblyFile = Path.Combine(assemblyDirectory, Path.ChangeExtension(OutputAssemblyName, DllExtension));
             var assemblyReferences = (from fileName in assemblyNames
                                       let assemblyName = Path.GetFileNameWithoutExtension(fileName)
@@ -101,7 +101,7 @@ namespace Bonsai
                         }
                     }
                     finally { scriptEnvironment.Dispose(); }
-                    return new ScriptExtensionsEnvironment(configuration, null);
+                    return new ScriptExtensions(configuration, null);
                 }
                 else
                 {
