@@ -659,6 +659,8 @@ namespace Bonsai.Design
             Action removeConnection = () => { };
             var target = GetGraphNodeTag(workflow, graphViewTarget);
             var connectionIndex = workflow.Predecessors(target).Count();
+            var restoreSelectedNodes = CreateUpdateSelectionDelegate(graphViewSources);
+            var updateSelectedNode = CreateUpdateSelectionDelegate(graphViewTarget);
             foreach (var graphViewSource in graphViewSources)
             {
                 var source = GetGraphNodeTag(workflow, graphViewSource);
@@ -675,11 +677,13 @@ namespace Bonsai.Design
             {
                 addConnection();
                 updateGraphLayout();
+                updateSelectedNode();
             },
             () =>
             {
                 removeConnection();
                 updateGraphLayout();
+                restoreSelectedNodes();
             });
         }
 
