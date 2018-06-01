@@ -12,7 +12,59 @@ namespace Bonsai.Dag
     /// <typeparam name="TEdgeLabel">The type of the labels associated with graph edges.</typeparam>
     public class DirectedGraph<TNodeValue, TEdgeLabel> : IEnumerable<Node<TNodeValue, TEdgeLabel>>
     {
-        readonly HashSet<Node<TNodeValue, TEdgeLabel>> nodes = new HashSet<Node<TNodeValue, TEdgeLabel>>();
+        readonly ISet<Node<TNodeValue, TEdgeLabel>> nodes;
+        readonly IComparer<TNodeValue> valueComparer;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/> class.
+        /// </summary>
+        public DirectedGraph()
+            : this(null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/> class
+        /// that uses a specified comparer.
+        /// </summary>
+        /// <param name="comparer">The optional comparer to use for ordering node values.</param>
+        public DirectedGraph(IComparer<TNodeValue> comparer)
+        {
+            if (comparer == null)
+            {
+                nodes = new HashSet<Node<TNodeValue, TEdgeLabel>>();
+            }
+            else
+            {
+                var nodeComparer = new NodeComparer(comparer);
+                nodes = new SortedSet<Node<TNodeValue, TEdgeLabel>>(nodeComparer);
+                valueComparer = comparer;
+            }
+        }
+
+        /// <summary>
+        /// Gets the optional <see cref="IComparer{TNodeValue}"/> object used to determine
+        /// the order of the values in the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
+        /// </summary>
+        public IComparer<TNodeValue> Comparer
+        {
+            get { return valueComparer; }
+        }
+
+        class NodeComparer : IComparer<Node<TNodeValue, TEdgeLabel>>
+        {
+            readonly IComparer<TNodeValue> valueComparer;
+
+            internal NodeComparer(IComparer<TNodeValue> comparer)
+            {
+                valueComparer = comparer;
+            }
+
+            public int Compare(Node<TNodeValue, TEdgeLabel> x, Node<TNodeValue, TEdgeLabel> y)
+            {
+                return valueComparer.Compare(x.Value, y.Value);
+            }
+        }
 
         /// <summary>
         /// Gets the number of nodes in the <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.

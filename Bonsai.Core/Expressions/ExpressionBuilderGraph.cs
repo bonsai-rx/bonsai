@@ -15,6 +15,27 @@ namespace Bonsai.Expressions
     [TypeDescriptionProvider(typeof(ExpressionBuilderTypeDescriptionProvider))]
     public class ExpressionBuilderGraph : DirectedGraph<ExpressionBuilder, ExpressionBuilderArgument>
     {
+        static readonly ExpressionBuilderComparer InstanceComparer = new ExpressionBuilderComparer();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExpressionBuilderGraph"/> class.
+        /// </summary>
+        public ExpressionBuilderGraph()
+            : base(InstanceComparer)
+        {
+        }
+
+        class ExpressionBuilderComparer : IComparer<ExpressionBuilder>
+        {
+            public int Compare(ExpressionBuilder x, ExpressionBuilder y)
+            {
+                if (x == null && y == null) return 0;
+                else if (x == null) return -1;
+                else if (y == null) return 1;
+                return x.InstanceNumber.CompareTo(y.InstanceNumber);
+            }
+        }
+
         class ExpressionBuilderTypeDescriptionProvider : TypeDescriptionProvider
         {
             public override ICustomTypeDescriptor GetExtendedTypeDescriptor(object instance)

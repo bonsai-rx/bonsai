@@ -383,6 +383,11 @@ namespace Bonsai.Design
                 Index = index;
             }
 
+            public ConnectedComponent(int index, IComparer<TNodeValue> comparer)
+                : base(comparer)
+            {
+            }
+
             public int Index { get; private set; }
         }
 
@@ -422,7 +427,7 @@ namespace Bonsai.Design
 
                     if (component == null)
                     {
-                        component = new ConnectedComponent<TNodeValue, TEdgeLabel>(connectedComponents.Count);
+                        component = new ConnectedComponent<TNodeValue, TEdgeLabel>(connectedComponents.Count, source.Comparer);
                         connectedComponents.Add(component);
                     }
 
