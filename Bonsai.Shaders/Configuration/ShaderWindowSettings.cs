@@ -65,6 +65,14 @@ namespace Bonsai.Shaders.Configuration
         public ClearBufferMask ClearMask { get; set; }
 
         [Category("Window Style")]
+        [Description("The optional starting location of the shader window.")]
+        public Point? Location { get; set; }
+
+        [Category("Window Style")]
+        [Description("The initial shader window border.")]
+        public WindowBorder WindowBorder { get; set; }
+
+        [Category("Window Style")]
         [Description("The initial shader window state.")]
         public WindowState WindowState { get; set; }
 
