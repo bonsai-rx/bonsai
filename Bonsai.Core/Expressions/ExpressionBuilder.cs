@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Concurrency;
+using System.Threading;
 
 namespace Bonsai.Expressions
 {
@@ -45,6 +46,8 @@ namespace Bonsai.Expressions
     public abstract class ExpressionBuilder : IExpressionBuilder
     {
         const string ExpressionBuilderSuffix = "Builder";
+        internal long InstanceNumber = Interlocked.Increment(ref InstanceCounter);
+        static long InstanceCounter;
 
         /// <summary>
         /// Represents an empty expression indicating interruption of the build process.
