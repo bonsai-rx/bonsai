@@ -36,6 +36,8 @@ namespace Bonsai.Shaders
             clearColor = configuration.ClearColor;
             clearMask = configuration.ClearMask;
             Title = configuration.Title ?? DefaultTitle;
+            Location = configuration.Location.GetValueOrDefault(Location);
+            WindowBorder = configuration.WindowBorder;
             WindowState = configuration.WindowState;
             Viewport = new RectangleF(0, 0, 1, 1);
             TargetRenderFrequency = configuration.TargetRenderFrequency;
