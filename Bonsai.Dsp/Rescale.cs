@@ -12,6 +12,14 @@ namespace Bonsai.Dsp
     [Description("Rescales the elements of the input sequence to a new range.")]
     public class Rescale : ArrayTransform
     {
+        public Rescale()
+        {
+            Min = 0;
+            Max = 1;
+            RangeMin = 0;
+            RangeMax = 1;
+        }
+
         [Description("The minimum value of the input range.")]
         public double Min { get; set; }
 
