@@ -21,9 +21,8 @@ namespace Bonsai.Scripting
     {
         StreamWriter writer;
 
-        [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design",
-                "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         [Description("The name of the output file.")]
+        [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string FileName { get; set; }
 
         [Description("Indicates whether to append or overwrite the specified file.")]

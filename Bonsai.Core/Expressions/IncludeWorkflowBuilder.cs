@@ -110,7 +110,7 @@ namespace Bonsai.Expressions
         [Category("Design")]
         [FileNameFilter("Bonsai Files (*.bonsai)|*.bonsai")]
         [Description("The path of the workflow to include.")]
-        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string Path
         {
             get { return path; }

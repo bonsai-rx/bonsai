@@ -65,7 +65,7 @@ namespace Bonsai.Expressions
         [Category("Design")]
         [Externalizable(false)]
         [Description("A description for the encapsulated workflow.")]
-        [Editor(DesignTypes.MultilineStringEditor, "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        [Editor(DesignTypes.MultilineStringEditor, DesignTypes.UITypeEditor)]
         public string Description { get; set; }
 
         string INamedElement.Name
