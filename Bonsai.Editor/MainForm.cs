@@ -124,7 +124,6 @@ namespace Bonsai.Editor
             editorSite = new EditorSite(this);
             hotKeys = new HotKeyMessageFilter();
             workflowBuilder = new WorkflowBuilder();
-            scriptEnvironment = (IScriptEnvironment)provider.GetService(typeof(IScriptEnvironment));
             regularFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Regular);
             selectionFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Bold);
             typeVisualizers = new TypeVisualizerMap();
@@ -134,6 +133,11 @@ namespace Bonsai.Editor
             typeDescriptorCache = new HashSet<Module>();
             selectionModel = new WorkflowSelectionModel();
             propertyAssignments = new Dictionary<string, string>();
+            if (serviceProvider != null)
+            {
+                scriptEnvironment = (IScriptEnvironment)serviceProvider.GetService(typeof(IScriptEnvironment));
+            }
+
             editorControl = new WorkflowEditorControl(editorSite);
             editorControl.Enter += new EventHandler(editorControl_Enter);
             editorControl.Workflow = workflowBuilder.Workflow;
