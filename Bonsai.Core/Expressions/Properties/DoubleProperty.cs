@@ -16,5 +16,16 @@ namespace Bonsai.Expressions
     [Description("Represents a workflow property containing a double-precision floating-point number.")]
     public class DoubleProperty : WorkflowProperty<double>
     {
+        /// <summary>
+        /// Gets or sets the value of the property.
+        /// </summary>
+        [Range(0, 1)]
+        [Description("The value of the property.")]
+        [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
+        public new double Value
+        {
+            get { return base.Value; }
+            set { base.Value = value; }
+        }
     }
 }
