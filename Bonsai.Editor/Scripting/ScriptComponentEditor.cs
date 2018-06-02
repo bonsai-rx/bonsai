@@ -97,9 +97,9 @@ namespace Bonsai.Editor.Scripting
             var inputType = default(Type);
             using (var codeProvider = new CSharpCodeProvider())
             {
-                scriptFile = codeProvider.CreateValidIdentifier(scriptComponent.Name);
-                if (string.IsNullOrWhiteSpace(scriptFile)) scriptFile = DefaultScriptName;
-                else if (!codeProvider.IsValidIdentifier(scriptFile))
+                if (string.IsNullOrWhiteSpace(scriptComponent.Name)) scriptFile = DefaultScriptName;
+                else scriptFile = codeProvider.CreateValidIdentifier(scriptComponent.Name);
+                if (!codeProvider.IsValidIdentifier(scriptFile))
                 {
                     throw new InvalidOperationException(
                         "The specified name '" + scriptFile + "' is not a valid type identifier. " +
