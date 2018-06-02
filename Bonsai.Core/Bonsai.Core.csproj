@@ -82,6 +82,7 @@
     <Compile Include="Expressions\IncludeContext.cs" />
     <Compile Include="Expressions\IncludeWorkflowBuilder.cs" />
     <Compile Include="Expressions\IWorkflowExpressionBuilder.cs" />
+    <Compile Include="Expressions\Properties\ByteProperty.cs" />
     <Compile Include="Expressions\PropertySource.cs" />
     <Compile Include="Expressions\PropertySourceTypeDescriptionProvider.cs" />
     <Compile Include="Expressions\ResourceSubjectBuilder.cs" />
