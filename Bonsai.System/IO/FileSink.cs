@@ -30,7 +30,7 @@ namespace Bonsai.IO
         /// Gets or sets the name of the file on which to write the elements.
         /// </summary>
         [Description("The name of the output file.")]
-        [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string FileName { get; set; }
 
         /// <summary>

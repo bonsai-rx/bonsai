@@ -24,7 +24,7 @@ namespace Bonsai.Reactive
         /// Gets or sets a string used to specify a key to test for the uniqueness of each element in the observable sequence.
         /// </summary>
         [Description("The inner properties that will be used to test for the uniqueness of each element in the sequence.")]
-        [Editor("Bonsai.Design.MultiMemberSelectorEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        [Editor("Bonsai.Design.MultiMemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string KeySelector { get; set; }
 
         /// <summary>

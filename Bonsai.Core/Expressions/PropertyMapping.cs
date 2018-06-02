@@ -50,7 +50,7 @@ namespace Bonsai.Expressions
         /// values to this property mapping.
         /// </summary>
         [XmlAttribute("selector")]
-        [Editor("Bonsai.Design.MultiMemberSelectorEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        [Editor("Bonsai.Design.MultiMemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string Selector { get; set; }
     }
 }
