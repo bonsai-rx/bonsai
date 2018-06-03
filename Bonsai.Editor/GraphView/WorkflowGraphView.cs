@@ -2473,11 +2473,12 @@ namespace Bonsai.Design
         private IDisposable CreateOutputMenuItems(Type type, ToolStripMenuItem ownerItem, GraphNode selectedNode)
         {
             if (type.IsEnum) return Disposable.Empty;
+            var root = string.IsNullOrEmpty(ownerItem.Name);
 
             foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public)
                                       .OrderBy(member => member.MetadataToken))
             {
-                var memberSelector = string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, field.Name);
+                var memberSelector = root ? field.Name : string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, field.Name);
                 var menuItem = CreateOutputMenuItem(field.Name, memberSelector, field.FieldType, selectedNode);
                 ownerItem.DropDownItems.Add(menuItem);
             }
@@ -2486,7 +2487,7 @@ namespace Bonsai.Design
                                          .Distinct(PropertyInfoComparer.Default)
                                          .OrderBy(member => member.MetadataToken))
             {
-                var memberSelector = string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, property.Name);
+                var memberSelector = root ? property.Name : string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, property.Name);
                 var menuItem = CreateOutputMenuItem(property.Name, memberSelector, property.PropertyType, selectedNode);
                 ownerItem.DropDownItems.Add(menuItem);
             }
@@ -2727,7 +2728,7 @@ namespace Bonsai.Design
                 if (inspectBuilder != null && inspectBuilder.ObservableType != null)
                 {
                     outputToolStripMenuItem.Enabled = !ReadOnly;
-                    InitializeOutputMenuItem(outputToolStripMenuItem, ExpressionBuilderArgument.ArgumentNamePrefix, inspectBuilder.ObservableType);
+                    InitializeOutputMenuItem(outputToolStripMenuItem, string.Empty, inspectBuilder.ObservableType);
                     if (outputToolStripMenuItem.Enabled)
                     {
                         outputToolStripMenuItem.Tag = CreateOutputMenuItems(inspectBuilder.ObservableType, outputToolStripMenuItem, selectedNode);
