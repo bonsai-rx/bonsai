@@ -5,15 +5,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel;
 
 namespace Bonsai.Editor
 {
     static class UpgradeHelper
     {
         static readonly SemanticVersion DeprecationTarget = SemanticVersion.Parse("2.4.0");
-        static readonly SemanticVersion RemoveMemberSelectorPrefix = SemanticVersion.Parse("2.4.0");
+        static readonly SemanticVersion RemoveMemberSelectorPrefixVersion = SemanticVersion.Parse("2.4.0");
         static readonly SemanticVersion EnumerableUnfoldingVersion = SemanticVersion.Parse("2.3.0");
         const string MemberSelectorPrefix = ExpressionBuilderArgument.ArgumentNamePrefix + ".";
+
+        static string RemoveMemberSelectorPrefix(string selector)
+        {
+            if (string.IsNullOrEmpty(selector)) return selector;
+            var memberNames = ExpressionHelper
+                            .SelectMemberNames(selector)
+                            .Where(name => name != ExpressionBuilderArgument.ArgumentNamePrefix)
+                            .Select(name => name.IndexOf(MemberSelectorPrefix) == 0 ? name.Substring(MemberSelectorPrefix.Length) : name)
+                            .ToArray();
+            return string.Join(ExpressionHelper.ArgumentSeparator, memberNames);
+        }
 
         internal static bool IsDeprecated(SemanticVersion version)
         {
@@ -43,18 +55,31 @@ namespace Bonsai.Editor
                     };
                 }
 
-                var memberSelector = builder as MemberSelectorBuilder;
-                if (memberSelector != null && version < RemoveMemberSelectorPrefix)
+                var builderElement = ExpressionBuilder.GetWorkflowElement(builder) as ExpressionBuilder;
+                if (builderElement != null && version < RemoveMemberSelectorPrefixVersion)
                 {
-                    var memberNames = ExpressionHelper
-                        .SelectMemberNames(memberSelector.Selector)
-                        .Where(name => name != ExpressionBuilderArgument.ArgumentNamePrefix)
-                        .Select(name => name.IndexOf(MemberSelectorPrefix) == 0 ? name.Substring(MemberSelectorPrefix.Length) : name)
-                        .ToArray();
-                    return new MemberSelectorBuilder
+                    var mappingBuilder = builderElement as PropertyMappingBuilder;
+                    if (mappingBuilder != null)
                     {
-                        Selector = string.Join(ExpressionHelper.ArgumentSeparator, memberNames)
-                    };
+                        foreach (var mapping in mappingBuilder.PropertyMappings)
+                        {
+                            mapping.Selector = RemoveMemberSelectorPrefix(mapping.Selector);
+                        }
+                    }
+                    else
+                    {
+                        var properties = from selectorProperty in TypeDescriptor.GetProperties(builderElement).Cast<PropertyDescriptor>()
+                                         where selectorProperty.PropertyType == typeof(string)
+                                         let editorAttribute = (EditorAttribute)selectorProperty.Attributes[typeof(EditorAttribute)]
+                                         where editorAttribute != null &&
+                                               editorAttribute.EditorTypeName.StartsWith("Bonsai.Design.MultiMemberSelectorEditor, Bonsai.Design")
+                                         select selectorProperty;
+                        foreach (var selectorProperty in properties)
+                        {
+                            var selector = (string)selectorProperty.GetValue(builderElement);
+                            selectorProperty.SetValue(builderElement, RemoveMemberSelectorPrefix(selector));
+                        }
+                    }
                 }
 
                 return builder;
