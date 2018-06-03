@@ -84,6 +84,7 @@ namespace Bonsai
             var editorFolder = Path.GetDirectoryName(editorPath);
             var editorPackageId = editorAssembly.GetName().Name;
             var editorPackageVersion = SemanticVersion.Parse(editorAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion);
+            var editorPackageName = new PackageName(editorPackageId, editorPackageVersion);
             var editorRepositoryPath = Path.Combine(editorFolder, RepositoryPath);
             var editorExtensionsPath = Path.Combine(editorFolder, ExtensionsPath);
 
@@ -98,12 +99,12 @@ namespace Bonsai
                 else if (launchResult == EditorResult.ManagePackages)
                 {
                     Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
-                    return Launcher.LaunchPackageManager(packageConfiguration, editorRepositoryPath, editorPath, editorPackageId);
+                    return Launcher.LaunchPackageManager(packageConfiguration, editorRepositoryPath, editorPath, editorPackageName);
                 }
                 else if (launchResult == EditorResult.OpenGallery)
                 {
                     Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
-                    return Launcher.LaunchGallery(packageConfiguration, editorRepositoryPath, editorPath, editorPackageId);
+                    return Launcher.LaunchGallery(packageConfiguration, editorRepositoryPath, editorPath, editorPackageName);
                 }
                 else
                 {
@@ -158,8 +159,7 @@ namespace Bonsai
                     packageConfiguration,
                     editorRepositoryPath,
                     editorPath,
-                    editorPackageId,
-                    editorPackageVersion,
+                    editorPackageName,
                     ref launchResult);
                 var exit = editorPackage == null;
                 if (!exit && launchEditor && string.IsNullOrEmpty(initialFileName))

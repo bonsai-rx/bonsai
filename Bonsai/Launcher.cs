@@ -63,24 +63,23 @@ namespace Bonsai
             PackageConfiguration packageConfiguration,
             string editorRepositoryPath,
             string editorPath,
-            string editorPackageId,
-            SemanticVersion editorPackageVersion,
+            IPackageName editorPackageName,
             ref EditorResult launchResult)
         {
             var packageManager = CreatePackageManager(editorRepositoryPath);
-            var editorPackage = packageManager.LocalRepository.FindPackage(editorPackageId);
+            var editorPackage = packageManager.LocalRepository.FindPackage(editorPackageName.Id);
             if (editorPackage == null)
             {
                 EnableVisualStyles();
                 visualStylesEnabled = true;
                 using (var monitor = string.IsNullOrEmpty(packageConfiguration.ConfigurationFile)
-                    ? new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageId)
+                    ? new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageName)
                     : (IDisposable)DisposableAction.NoOp)
                 {
                     PackageHelper.RunPackageOperation(
                         packageManager,
                         () => packageManager
-                            .StartInstallPackage(editorPackageId, editorPackageVersion)
+                            .StartInstallPackage(editorPackageName.Id, editorPackageName.Version)
                             .ContinueWith(task => editorPackage = task.Result));
                     if (editorPackage == null)
                     {
@@ -92,16 +91,16 @@ namespace Bonsai
                 }
             }
 
-            if (editorPackage.Version < editorPackageVersion)
+            if (editorPackage.Version < editorPackageName.Version)
             {
                 EnableVisualStyles();
                 visualStylesEnabled = true;
-                using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageId))
+                using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageName))
                 {
                     PackageHelper.RunPackageOperation(
                         packageManager,
                         () => packageManager
-                            .StartUpdatePackage(editorPackageId, editorPackageVersion)
+                            .StartUpdatePackage(editorPackageName.Id, editorPackageName.Version)
                             .ContinueWith(task => editorPackage = task.Result),
                         operationLabel: "Updating...");
                     if (editorPackage == null)
@@ -118,7 +117,7 @@ namespace Bonsai
             if (missingPackages.Count > 0)
             {
                 EnableVisualStyles();
-                using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageId))
+                using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageName))
                 {
                     PackageHelper.RunPackageOperation(packageManager, () =>
                         Task.Factory.ContinueWhenAll(missingPackages.Select(package =>
@@ -244,11 +243,11 @@ namespace Bonsai
             PackageConfiguration packageConfiguration,
             string editorRepositoryPath,
             string editorPath,
-            string editorPackageId)
+            IPackageName editorPackageName)
         {
             EnableVisualStyles();
             using (var packageManagerDialog = new PackageManagerDialog(editorRepositoryPath))
-            using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManagerDialog.PackageManager, editorPath, editorPackageId))
+            using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManagerDialog.PackageManager, editorPath, editorPackageName))
             {
                 if (packageManagerDialog.ShowDialog() == DialogResult.OK)
                 {
@@ -401,11 +400,11 @@ namespace Bonsai
             PackageConfiguration packageConfiguration,
             string editorRepositoryPath,
             string editorPath,
-            string editorPackageId)
+            IPackageName editorPackageName)
         {
             EnableVisualStyles();
             using (var galleryDialog = new GalleryDialog(editorRepositoryPath))
-            using (var monitor = new PackageConfigurationUpdater(packageConfiguration, galleryDialog.PackageManager, editorPath, editorPackageId))
+            using (var monitor = new PackageConfigurationUpdater(packageConfiguration, galleryDialog.PackageManager, editorPath, editorPackageName))
             {
                 if (galleryDialog.ShowDialog() == DialogResult.OK)
                 {
