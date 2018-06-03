@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Scripting
 {
+    [DefaultProperty("Expression")]
     [WorkflowElementCategory(ElementCategory.Condition)]
     [TypeDescriptionProvider(typeof(ExpressionConditionTypeDescriptionProvider))]
     public class ExpressionCondition : SingleArgumentExpressionBuilder, IScriptingElement
