@@ -830,9 +830,16 @@ namespace Bonsai.Design
                             defaultProperty.Converter != null &&
                             defaultProperty.Converter.CanConvertFrom(typeof(string)))
                         {
-                            var context = new TypeDescriptorContext(workflowElement, defaultProperty, serviceProvider);
-                            var propertyValue = defaultProperty.Converter.ConvertFromString(context, arguments);
-                            defaultProperty.SetValue(workflowElement, propertyValue);
+                            try
+                            {
+                                var context = new TypeDescriptorContext(workflowElement, defaultProperty, serviceProvider);
+                                var propertyValue = defaultProperty.Converter.ConvertFromString(context, arguments);
+                                defaultProperty.SetValue(workflowElement, propertyValue);
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new SystemException(ex.Message, ex);
+                            }
                         }
                     }
                     CreateGraphNode(builder, selectedNode, nodeType, branch);
