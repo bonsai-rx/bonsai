@@ -59,28 +59,24 @@ namespace Bonsai.Design
                                     select node).SingleOrDefault();
 
                 if (builderNode == null) return base.EditValue(context, provider, value);
-                using (var editorDialog = allowMultiSelection ?
-                       (IMemberSelectorEditorDialog)
-                       new MultiMemberSelectorEditorDialog() :
-                       new MemberSelectorEditorDialog())
+                var predecessor = nodeBuilderGraph.Predecessors(builderNode)
+                                                  .Where(node => !node.Value.IsBuildDependency())
+                                                  .SingleOrDefault();
+
+                if (predecessor != null)
                 {
-                    var predecessorEdges = nodeBuilderGraph.PredecessorEdges(builderNode)
-                                                           .Where(edge => !edge.Item1.Value.IsBuildDependency())
-                                                           .OrderBy(edge => edge.Item2.Label.Index)
-                                                           .ToArray();
-
-                    foreach (var predecessor in predecessorEdges)
+                    var expression = workflow.Build(predecessor.Value);
+                    var expressionType = expression.Type.GetGenericArguments()[0];
+                    using (var editorDialog = allowMultiSelection ?
+                           (IMemberSelectorEditorDialog)
+                           new MultiMemberSelectorEditorDialog(expressionType) :
+                           new MemberSelectorEditorDialog(expressionType))
                     {
-                        var expression = workflow.Build(predecessor.Item1.Value);
-                        var expressionType = expression.Type.GetGenericArguments()[0];
-                        var label = predecessorEdges.Length > 1 ? predecessor.Item2.Label.Name : ExpressionBuilderArgument.ArgumentNamePrefix;
-                        editorDialog.AddMember(label, expressionType);
-                    }
-
-                    editorDialog.Selector = selector;
-                    if (editorService.ShowDialog((Form)editorDialog) == DialogResult.OK)
-                    {
-                        return editorDialog.Selector;
+                        editorDialog.Selector = selector;
+                        if (editorService.ShowDialog((Form)editorDialog) == DialogResult.OK)
+                        {
+                            return editorDialog.Selector;
+                        }
                     }
                 }
             }

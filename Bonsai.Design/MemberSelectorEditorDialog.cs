@@ -15,12 +15,12 @@ namespace Bonsai.Design
 {
     public partial class MemberSelectorEditorDialog : Form, IMemberSelectorEditorDialog
     {
-        MemberSelectorEditorController controller;
+        readonly MemberSelectorEditorController controller;
 
-        public MemberSelectorEditorDialog()
+        public MemberSelectorEditorDialog(Type type)
         {
             InitializeComponent();
-            controller = new MemberSelectorEditorController(treeView);
+            controller = new MemberSelectorEditorController(treeView, type);
         }
 
         public string Selector

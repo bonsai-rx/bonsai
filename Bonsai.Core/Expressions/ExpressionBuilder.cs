@@ -949,11 +949,9 @@ namespace Bonsai.Expressions
             }
 
             var selectedMemberNames = ExpressionHelper.SelectMemberNames(selector);
-            var inputExpression = Enumerable.Repeat(expression, 1);
-            foreach (var memberSelector in selectedMemberNames)
+            foreach (var memberPath in selectedMemberNames)
             {
-                var memberPath = BuildArgumentAccess(inputExpression, memberSelector);
-                yield return ExpressionHelper.MemberAccess(expression, memberPath.Item2);
+                yield return ExpressionHelper.MemberAccess(expression, memberPath);
             }
         }
 
