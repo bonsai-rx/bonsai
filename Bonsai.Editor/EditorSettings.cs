@@ -16,7 +16,6 @@ namespace Bonsai.Editor
     sealed class EditorSettings
     {
         const int MaxRecentFiles = 25;
-        const string SettingsExtension = ".settings";
         const string RecentlyUsedFilesElement = "RecentlyUsedFiles";
         const string DesktopBoundsElement = "DesktopBounds";
         const string WindowStateElement = "WindowState";
@@ -27,7 +26,7 @@ namespace Bonsai.Editor
         const string RectangleYElement = "Y";
         const string RectangleWidthElement = "Width";
         const string RectangleHeightElement = "Height";
-        static readonly string SettingsFileName = Assembly.GetEntryAssembly().Location + SettingsExtension;
+        static readonly string SettingsFileName = "Bonsai.exe.settings";
         static readonly Lazy<EditorSettings> instance = new Lazy<EditorSettings>(Load);
         readonly RecentlyUsedFileCollection recentlyUsedFiles = new RecentlyUsedFileCollection(MaxRecentFiles);
 
