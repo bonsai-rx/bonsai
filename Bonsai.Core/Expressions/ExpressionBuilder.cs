@@ -963,20 +963,6 @@ namespace Bonsai.Expressions
             return BuildArgumentAccess(arguments, selector);
         }
 
-        internal static string GetMemberPath(string selector)
-        {
-            var memberPath = selector.Split(new[] { ExpressionHelper.MemberSeparator }, 2, StringSplitOptions.None);
-            var sourceName = memberPath[0];
-            if (sourceName != ExpressionBuilderArgument.ArgumentNamePrefix)
-            {
-                throw new ArgumentException(
-                    string.Format("Selector strings must start with the prefix '{0}'.", ExpressionBuilderArgument.ArgumentNamePrefix),
-                    "selector");
-            }
-
-            return memberPath.Length > 1 ? memberPath[1] : string.Empty;
-        }
-
         internal static Expression BuildPropertyMapping(Expression source, Expression instance, string propertyName)
         {
             return BuildPropertyMapping(source, instance, propertyName, string.Empty);
@@ -1085,11 +1071,6 @@ namespace Bonsai.Expressions
                 new[] { sourceType, outputType },
                 source,
                 action);
-        }
-
-        internal static Expression BuildMappingOutput(IEnumerable<Expression> arguments, Expression instance, Expression output, params PropertyMapping[] propertyMappings)
-        {
-            return BuildMappingOutput(arguments, instance, output, (IEnumerable<PropertyMapping>)propertyMappings);
         }
 
         internal static Expression BuildMappingOutput(IEnumerable<Expression> arguments, Expression instance, Expression output, IEnumerable<PropertyMapping> propertyMappings)

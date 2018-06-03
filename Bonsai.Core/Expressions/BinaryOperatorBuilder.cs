@@ -67,26 +67,6 @@ namespace Bonsai.Expressions
         }
 
         /// <summary>
-        /// Generates an <see cref="Expression"/> node from a collection of input arguments.
-        /// The result can be chained with other builders in a workflow.
-        /// </summary>
-        /// <param name="arguments">
-        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
-        /// </param>
-        /// <returns>An <see cref="Expression"/> tree node.</returns>
-        public override Expression Build(IEnumerable<Expression> arguments)
-        {
-            var output = base.Build(arguments);
-            var operand = Operand;
-            if (operand != null)
-            {
-                var operandExpression = Expression.Constant(operand);
-                return BuildMappingOutput(arguments, operandExpression, output);
-            }
-            else return output;
-        }
-
-        /// <summary>
         /// Returns the expression that maps the specified input parameter to the selector result.
         /// </summary>
         /// <param name="expression">The input parameter to the selector.</param>

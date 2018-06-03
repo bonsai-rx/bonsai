@@ -99,9 +99,7 @@ namespace Bonsai.Expressions
                 return combinatorBuilder.Build(arguments);
             }
 
-            var output = BuildCombinator(arguments);
-            var combinatorExpression = Expression.Constant(combinator);
-            return BuildMappingOutput(arguments, combinatorExpression, output);
+            return BuildCombinator(arguments);
         }
 
         /// <summary>
