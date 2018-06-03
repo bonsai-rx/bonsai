@@ -15,6 +15,7 @@ namespace Bonsai.Expressions
     /// Provides a base class for expression builders that define a simple binary operator
     /// on paired elements of an observable sequence. This is an abstract class.
     /// </summary>
+    [DefaultProperty("Value")]
     [TypeDescriptionProvider(typeof(BinaryOperatorTypeDescriptionProvider))]
     public abstract class BinaryOperatorBuilder : SelectBuilder, IPropertyMappingBuilder
     {

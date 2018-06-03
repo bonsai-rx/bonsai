@@ -812,6 +812,17 @@ namespace Bonsai.Design
                     var builder = CreateBuilder(typeNode);
                     if (!string.IsNullOrEmpty(arguments))
                     {
+                        //TODO: This special case for binary operator operands should be avoided in the future
+                        var binaryOperator = builder as BinaryOperatorBuilder;
+                        if (binaryOperator != null && selectedNode != null)
+                        {
+                            var inputBuilder = ((Node<ExpressionBuilder, ExpressionBuilderArgument>)selectedNode.Tag).Value as InspectBuilder;
+                            if (inputBuilder != null && inputBuilder.ObservableType != null)
+                            {
+                                binaryOperator.Build(Expression.Parameter(typeof(IObservable<>).MakeGenericType(inputBuilder.ObservableType)));
+                            }
+                        }
+
                         var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
                         var defaultProperty = TypeDescriptor.GetDefaultProperty(workflowElement);
                         if (defaultProperty != null &&
