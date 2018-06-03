@@ -16,6 +16,7 @@ namespace Bonsai.Reactive
     /// sampling tick, the latest element (if any) in the source sequence during the last sampling
     /// interval is sent to the resulting sequence.
     /// </summary>
+    [DefaultProperty("Interval")]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Samples the latest element of the sequence each time the specified interval elapses.")]
     public class SampleInterval : Combinator

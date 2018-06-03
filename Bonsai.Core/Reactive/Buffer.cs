@@ -13,6 +13,7 @@ namespace Bonsai.Reactive
     /// buffers based on element count information.
     /// </summary>
     [Combinator]
+    [DefaultProperty("Count")]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Projects each element of the sequence into zero or more buffers based on element count information.")]
     public class Buffer

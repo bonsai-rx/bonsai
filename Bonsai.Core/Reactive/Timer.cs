@@ -13,6 +13,7 @@ namespace Bonsai.Reactive
     /// Represents an observable sequence that periodically produces a value after the
     /// specified initial relative due time has elapsed.
     /// </summary>
+    [DefaultProperty("DueTime")]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Generates an observable sequence that periodically produces a value after the specified initial relative due time has elapsed.")]
     public class Timer : Source<long>

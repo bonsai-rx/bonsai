@@ -16,6 +16,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that projects each element of an observable sequence into zero
     /// or more windows based on timing information.
     /// </summary>
+    [DefaultProperty("TimeSpan")]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Projects the sequence into zero or more windows based on timing information.")]
     public class TimeSpanWindow : WindowCombinator

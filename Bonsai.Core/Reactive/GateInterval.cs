@@ -15,6 +15,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that takes the single next element from the sequence every
     /// time the specified interval elapses.
     /// </summary>
+    [DefaultProperty("Interval")]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Takes the single next element from the sequence every time the specified interval elapses.")]
     public class GateInterval : Combinator
