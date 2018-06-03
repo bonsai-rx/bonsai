@@ -66,6 +66,14 @@ namespace Bonsai
             IPackageName editorPackageName,
             ref EditorResult launchResult)
         {
+            const string OldExtension = ".old";
+            var backupExePath = editorPath + OldExtension;
+            if (File.Exists(backupExePath))
+            {
+                try { File.Delete(backupExePath); }
+                catch { } // best effort
+            }
+
             var packageManager = CreatePackageManager(editorRepositoryPath);
             var editorPackage = packageManager.LocalRepository.FindPackage(editorPackageName.Id);
             if (editorPackage == null)

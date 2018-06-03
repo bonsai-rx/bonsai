@@ -325,13 +325,6 @@ namespace Bonsai
                         overlayManager.InstallPackage(pivotPackage, false, false);
                     }
                 }
-
-                if (package.Id == bootstrapperPackageId)
-                {
-                    string backupExePath = bootstrapperExePath + OldExtension;
-                    try { File.Delete(backupExePath); }
-                    catch (FileNotFoundException) { }
-                }
             }
         }
 
