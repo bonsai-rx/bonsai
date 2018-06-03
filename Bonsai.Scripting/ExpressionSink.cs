@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Scripting
 {
+    [DefaultProperty("Expression")]
     [WorkflowElementCategory(ElementCategory.Sink)]
     [TypeDescriptionProvider(typeof(ExpressionSinkTypeDescriptionProvider))]
     public class ExpressionSink : SingleArgumentExpressionBuilder, IScriptingElement

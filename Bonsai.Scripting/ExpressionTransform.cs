@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Scripting
 {
+    [DefaultProperty("Expression")]
     [WorkflowElementCategory(ElementCategory.Transform)]
     [TypeDescriptionProvider(typeof(ExpressionTransformTypeDescriptionProvider))]
     public class ExpressionTransform : SingleArgumentExpressionBuilder, IScriptingElement
