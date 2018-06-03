@@ -11,14 +11,16 @@ namespace Bonsai.Editor
     static class UpgradeHelper
     {
         static readonly SemanticVersion DeprecationTarget = SemanticVersion.Parse("2.4.0");
+        static readonly SemanticVersion RemoveMemberSelectorPrefix = SemanticVersion.Parse("2.4.0");
         static readonly SemanticVersion EnumerableUnfoldingVersion = SemanticVersion.Parse("2.3.0");
+        const string MemberSelectorPrefix = ExpressionBuilderArgument.ArgumentNamePrefix + ".";
 
         internal static bool IsDeprecated(SemanticVersion version)
         {
             return version < DeprecationTarget;
         }
 
-        internal static ExpressionBuilderGraph UpgradeBuilderNodes(ExpressionBuilderGraph workflow)
+        internal static ExpressionBuilderGraph UpgradeBuilderNodes(ExpressionBuilderGraph workflow, SemanticVersion version)
         {
             return workflow.Convert(builder =>
             {
@@ -38,6 +40,20 @@ namespace Bonsai.Editor
                     {
                         MemberName = property.MemberName,
                         Name = property.Name
+                    };
+                }
+
+                var memberSelector = builder as MemberSelectorBuilder;
+                if (memberSelector != null && version < RemoveMemberSelectorPrefix)
+                {
+                    var memberNames = ExpressionHelper
+                        .SelectMemberNames(memberSelector.Selector)
+                        .Where(name => name != ExpressionBuilderArgument.ArgumentNamePrefix)
+                        .Select(name => name.IndexOf(MemberSelectorPrefix) == 0 ? name.Substring(MemberSelectorPrefix.Length) : name)
+                        .ToArray();
+                    return new MemberSelectorBuilder
+                    {
+                        Selector = string.Join(ExpressionHelper.ArgumentSeparator, memberNames)
                     };
                 }
 
