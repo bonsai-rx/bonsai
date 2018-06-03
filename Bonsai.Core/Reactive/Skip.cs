@@ -12,6 +12,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that bypasses the specified number of elements at the start
     /// of an observable sequence and returns the remaining elements.
     /// </summary>
+    [DefaultProperty("Count")]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Bypasses the specified number of contiguous elements at the start of the sequence.")]
     public class Skip : Combinator

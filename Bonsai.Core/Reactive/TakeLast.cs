@@ -12,6 +12,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that returns a specified number of contiguous elements
     /// from the end of an observable sequence.
     /// </summary>
+    [DefaultProperty("Count")]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Returns the specified number of contiguous elements from the end of the sequence.")]
     public class TakeLast : Combinator

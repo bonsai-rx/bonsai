@@ -15,6 +15,7 @@ namespace Bonsai.Expressions
     /// Represents an expression builder that generates a sequence of values
     /// by subscribing to a shared subject.
     /// </summary>
+    [DefaultProperty("Name")]
     [WorkflowElementCategory(ElementCategory.Source)]
     [XmlType("SubscribeSubject", Namespace = Constants.XmlNamespace)]
     [Description("Generates a sequence of values by subscribing to a shared subject.")]

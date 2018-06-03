@@ -15,6 +15,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that takes the single next element from the sequence if this
     /// element is produced within a specified time interval after the gate produces an element.
     /// </summary>
+    [DefaultProperty("TimeSpan")]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Allows an element of the sequence to propagate if it is produced within a specified interval after the gate sequence produces an element.")]
     public class TimedGate : BinaryCombinator

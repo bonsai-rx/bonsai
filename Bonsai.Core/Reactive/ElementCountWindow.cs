@@ -15,6 +15,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that projects each element of an observable sequence into zero
     /// or more windows based on element count information.
     /// </summary>
+    [DefaultProperty("Count")]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Projects the sequence into zero or more windows based on element count information.")]
     public class ElementCountWindow : WindowCombinator

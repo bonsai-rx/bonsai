@@ -14,6 +14,7 @@ namespace Bonsai.Expressions
     /// Represents an expression builder that applies a pattern matching operation on
     /// elements of an observable sequence.
     /// </summary>
+    [DefaultProperty("Pattern")]
     [XmlType("Parse", Namespace = Constants.XmlNamespace)]
     [Description("Applies a pattern matching operation on elements of an observable sequence.")]
     public class ParseBuilder : SelectBuilder

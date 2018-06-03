@@ -15,6 +15,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that delays the notifications of an observable sequence by
     /// the specified relative time duration.
     /// </summary>
+    [DefaultProperty("DueTime")]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Delays the notification of values by the specified time interval.")]
     public class Delay : Combinator
