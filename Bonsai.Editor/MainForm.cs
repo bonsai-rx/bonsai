@@ -646,7 +646,7 @@ namespace Bonsai.Editor
                 try
                 {
                     UpgradeHelper.UpgradeEnumerableUnfoldingRules(workflowBuilder, version);
-                    workflow = UpgradeHelper.UpgradeBuilderNodes(workflow);
+                    workflow = UpgradeHelper.UpgradeBuilderNodes(workflow, version);
                 }
                 catch (WorkflowBuildException)
                 {
