@@ -162,26 +162,7 @@ namespace Bonsai.Expressions
             var inputArguments = source != null ? Enumerable.Repeat(source, 1).Concat(arguments.Skip(1)) : arguments;
             var expression = workflow.BuildNested(inputArguments, nestedContext);
             if (nestedContext.BuildResult != null) return nestedContext.BuildResult;
-            var output = selector(expression);
-
-            var subscriptions = propertyMappings.Select(mapping =>
-            {
-                var inputBuilder = (from node in Workflow
-                                    let property = Unwrap(node.Value) as ExternalizedProperty
-                                    where property != null && property.Name == mapping.Name
-                                    select property).FirstOrDefault();
-                if (inputBuilder == null)
-                {
-                    throw new InvalidOperationException(string.Format(
-                        "The specified property '{0}' was not found in the nested workflow.",
-                        mapping.Name));
-                }
-
-                var inputExpression = Expression.Constant(inputBuilder);
-                var inputMapping = new PropertyMapping("Value", mapping.Selector);
-                return BuildPropertyMapping(arguments, inputExpression, output, inputMapping);
-            });
-            return BuildMappingOutput(output, subscriptions.ToArray());
+            return selector(expression);
         }
     }
 }

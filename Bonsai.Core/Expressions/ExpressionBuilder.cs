@@ -1046,58 +1046,6 @@ namespace Bonsai.Expressions
                 action);
         }
 
-        internal static Expression BuildPropertyMapping(IEnumerable<Expression> arguments, Expression instance, Expression output, PropertyMapping mapping)
-        {
-            var memberAccess = BuildArgumentAccess(arguments, mapping.Selector);
-            var source = memberAccess.Item1;
-            var sourceSelector = memberAccess.Item2;
-            var sourceType = source.Type.GetGenericArguments()[0];
-            var outputType = output.Type.GetGenericArguments()[0];
-            var parameter = Expression.Parameter(sourceType);
-            var body = ExpressionHelper.MemberAccess(parameter, sourceSelector);
-
-            var actionType = Expression.GetActionType(parameter.Type);
-            var property = Expression.Property(instance, mapping.Name);
-            if (body.Type != property.Type)
-            {
-                body = Expression.Convert(body, property.Type);
-            }
-
-            body = Expression.Assign(property, body);
-            var action = Expression.Lambda(actionType, body, parameter);
-            return Expression.Call(
-                typeof(ExpressionBuilder),
-                "PropertyMapping",
-                new[] { sourceType, outputType },
-                source,
-                action);
-        }
-
-        internal static Expression BuildMappingOutput(IEnumerable<Expression> arguments, Expression instance, Expression output, IEnumerable<PropertyMapping> propertyMappings)
-        {
-            var subscriptions = propertyMappings.Select(mapping => BuildPropertyMapping(arguments, instance, output, mapping)).ToArray();
-            return BuildMappingOutput(output, subscriptions);
-        }
-
-        internal static Expression BuildMappingOutput(Expression output, params Expression[] mappings)
-        {
-            if (mappings.Length > 0)
-            {
-                var observableFactory = Expression.Lambda(output);
-                var outputType = output.Type.GetGenericArguments()[0];
-                var source = Expression.Call(deferMethod.MakeGenericMethod(outputType), observableFactory);
-                var mappingArray = Expression.NewArrayInit(output.Type, mappings);
-                return Expression.Call(
-                    typeof(ExpressionBuilder),
-                    "MergeDependencies",
-                    new[] { outputType },
-                    source,
-                    mappingArray);
-            }
-
-            return output;
-        }
-
         static IObservable<TSource> PropertyMapping<TSource>(IObservable<TSource> source, Action<TSource> action)
         {
             return source.Do(action);
