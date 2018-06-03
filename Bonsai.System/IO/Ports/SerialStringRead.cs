@@ -8,6 +8,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.IO
 {
+    [DefaultProperty("PortName")]
     [Description("Sources individual lines of text data from a serial port.")]
     public class SerialStringRead : Source<string>
     {
