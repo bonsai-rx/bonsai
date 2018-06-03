@@ -14,6 +14,11 @@ namespace Bonsai.Design
 
         public string CueBanner { get; set; }
 
+        public bool CueBannerVisible
+        {
+            get { return cueBannerVisible; }
+        }
+
         private void ShowCueBanner()
         {
             if (string.IsNullOrWhiteSpace(Text) && !string.IsNullOrWhiteSpace(CueBanner))

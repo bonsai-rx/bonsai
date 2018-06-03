@@ -39,6 +39,7 @@ namespace Bonsai.Editor
         const string SnippetCategoryName = "Workflow";
         const string VersionAttributeName = "Version";
         const string DefaultSnippetNamespace = "Unspecified";
+        static readonly char[] ToolboxArgumentSeparator = new[] { ' ' };
         static readonly object ExtensionsDirectoryChanged = new object();
         static readonly XmlWriterSettings DefaultWriterSettings = new XmlWriterSettings
         {
@@ -1560,7 +1561,7 @@ namespace Bonsai.Editor
                 int closestMatchIndex = -1;
                 TreeNode closestMatch = null;
                 toolboxTreeView.Nodes.Clear();
-                var searchFilter = searchTextBox.Text.Trim();
+                var searchFilter = searchTextBox.Text.Split(ToolboxArgumentSeparator, 2)[0];
                 foreach (var entry in from node in GetTreeViewLeafNodes(treeCache)
                                       let matchIndex = IndexOfMatch(node, searchFilter)
                                       where matchIndex >= 0
@@ -1612,6 +1613,17 @@ namespace Bonsai.Editor
             }
         }
 
+        static string GetToolboxArguments(CueBannerTextBox searchTextBox)
+        {
+            if (searchTextBox.CueBannerVisible || string.IsNullOrWhiteSpace(searchTextBox.Text))
+            {
+                return string.Empty;
+            }
+
+            var arguments = searchTextBox.Text.Split(ToolboxArgumentSeparator, 2);
+            return arguments.Length == 2 ? arguments[1] : string.Empty;
+        }
+
         void CreateGraphNode(TreeNode typeNode, Keys modifiers)
         {
             const string ErrorCaption = "Type Error";
@@ -1622,7 +1634,8 @@ namespace Bonsai.Editor
             var group = modifiers.HasFlag(WorkflowGraphView.GroupModifier);
             var branch = modifiers.HasFlag(WorkflowGraphView.BranchModifier);
             var predecessor = modifiers.HasFlag(WorkflowGraphView.PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
-            try { model.InsertGraphNode(typeNode, predecessor, branch, group); }
+            var arguments = GetToolboxArguments(searchTextBox);
+            try { model.InsertGraphNode(typeNode, predecessor, branch, group, arguments); }
             catch (TargetInvocationException e)
             {
                 var message = string.Format(ErrorMessage, typeNode.Text, e.InnerException.Message);

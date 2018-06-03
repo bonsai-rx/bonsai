@@ -786,6 +786,11 @@ namespace Bonsai.Design
 
         public void InsertGraphNode(TreeNode typeNode, CreateGraphNodeType nodeType, bool branch, bool group)
         {
+            InsertGraphNode(typeNode, nodeType, branch, group, null);
+        }
+
+        public void InsertGraphNode(TreeNode typeNode, CreateGraphNodeType nodeType, bool branch, bool group, string arguments)
+        {
             if (typeNode == null)
             {
                 throw new ArgumentNullException("typeNode");
@@ -805,6 +810,20 @@ namespace Bonsai.Design
                 else
                 {
                     var builder = CreateBuilder(typeNode);
+                    if (!string.IsNullOrEmpty(arguments))
+                    {
+                        var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
+                        var defaultProperty = TypeDescriptor.GetDefaultProperty(workflowElement);
+                        if (defaultProperty != null &&
+                            !defaultProperty.IsReadOnly &&
+                            defaultProperty.Converter != null &&
+                            defaultProperty.Converter.CanConvertFrom(typeof(string)))
+                        {
+                            var context = new TypeDescriptorContext(workflowElement, defaultProperty, serviceProvider);
+                            var propertyValue = defaultProperty.Converter.ConvertFromString(context, arguments);
+                            defaultProperty.SetValue(workflowElement, propertyValue);
+                        }
+                    }
                     CreateGraphNode(builder, selectedNode, nodeType, branch);
                 }
             }
