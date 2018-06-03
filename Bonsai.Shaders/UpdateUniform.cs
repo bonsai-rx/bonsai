@@ -172,6 +172,12 @@ namespace Bonsai.Shaders
                            ActiveUniformType.FloatVec4);
         }
 
+        public IObservable<Matrix2> Process(IObservable<Matrix2> source)
+        {
+            return Process(source, (location, input) => GL.UniformMatrix2(location, false, ref input),
+                           ActiveUniformType.FloatMat2);
+        }
+
         public IObservable<Matrix3> Process(IObservable<Matrix3> source)
         {
             return Process(source, (location, input) => GL.UniformMatrix3(location, false, ref input),
