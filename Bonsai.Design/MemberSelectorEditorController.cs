@@ -12,20 +12,23 @@ namespace Bonsai.Design
 {
     class MemberSelectorEditorController : IDisposable
     {
+        TreeNode root;
         TreeView treeView;
         CSharpCodeProvider provider;
         const string IndexBegin = "[";
+        const string RootLabel = "Source";
 
-        public MemberSelectorEditorController(TreeView model)
+        public MemberSelectorEditorController(TreeView model, Type type)
         {
             treeView = model;
-            treeView.BeforeExpand += treeView_BeforeExpand;
             provider = new CSharpCodeProvider();
+            root = EnsureNode(model.Nodes, RootLabel, type);
+            treeView.BeforeExpand += treeView_BeforeExpand;
         }
 
         internal void InitializeSelection(IEnumerable<string> memberChain)
         {
-            var nodes = treeView.Nodes;
+            var nodes = root.Nodes;
             foreach (var memberName in memberChain)
             {
                 var nodeName = memberName;
@@ -139,7 +142,7 @@ namespace Bonsai.Design
         IEnumerable<string> GetSelectedMembers()
         {
             var node = treeView.SelectedNode;
-            while (node != null)
+            while (node != null && node != root)
             {
                 yield return node.Name;
                 node = node.Parent;

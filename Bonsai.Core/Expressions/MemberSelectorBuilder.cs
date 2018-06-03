@@ -39,14 +39,7 @@ namespace Bonsai.Expressions
                     try
                     {
                         memberNames = ExpressionHelper.SelectMemberNames(selector).ToArray();
-                        if (memberNames.Length == 1) return memberNames[0];
-                        else
-                        {
-                            return string.Join(ExpressionHelper.ArgumentSeparator, Array.ConvertAll(memberNames, memberName =>
-                                memberName != ExpressionBuilderArgument.ArgumentNamePrefix ?
-                                memberName.Remove(0, ExpressionBuilderArgument.ArgumentNamePrefix.Length + 1) :
-                                memberName));
-                        }
+                        return string.Join(ExpressionHelper.ArgumentSeparator, memberNames);
                     }
                     catch (InvalidOperationException) { }
                 }

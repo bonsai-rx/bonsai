@@ -17,12 +17,12 @@ namespace Bonsai.Design
     {
         int mouseClicks;
         const int ButtonMargin = 2;
-        MemberSelectorEditorController controller;
+        readonly MemberSelectorEditorController controller;
 
-        public MultiMemberSelectorEditorDialog()
+        public MultiMemberSelectorEditorDialog(Type type)
         {
             InitializeComponent();
-            controller = new MemberSelectorEditorController(treeView);
+            controller = new MemberSelectorEditorController(treeView, type);
         }
 
         public string Selector
