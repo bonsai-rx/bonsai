@@ -24,8 +24,9 @@ namespace Bonsai
         const string OldExtension = ".old";
 
         readonly string bootstrapperExePath;
-        readonly string bootstrapperPackageId;
         readonly string bootstrapperDirectory;
+        readonly string bootstrapperPackageId;
+        readonly SemanticVersion bootstrapperVersion;
         readonly IPackageManager packageManager;
         readonly IPackageRepository galleryRepository;
         readonly PackageConfiguration packageConfiguration;
@@ -40,7 +41,7 @@ namespace Bonsai
             new FrameworkName(".NETFramework,Version=v3.5,Profile=Client")
         };
 
-        public PackageConfigurationUpdater(PackageConfiguration configuration, IPackageManager manager, string bootstrapperPath = null, string bootstrapperId = null)
+        public PackageConfigurationUpdater(PackageConfiguration configuration, IPackageManager manager, string bootstrapperPath = null, IPackageName bootstrapperName = null)
         {
             if (configuration == null)
             {
@@ -55,8 +56,9 @@ namespace Bonsai
             packageManager = manager;
             packageConfiguration = configuration;
             bootstrapperExePath = bootstrapperPath ?? string.Empty;
-            bootstrapperPackageId = bootstrapperId ?? string.Empty;
             bootstrapperDirectory = Path.GetDirectoryName(bootstrapperExePath);
+            bootstrapperPackageId = bootstrapperName != null ? bootstrapperName.Id : string.Empty;
+            bootstrapperVersion = bootstrapperName != null ? bootstrapperName.Version : null;
             packageManager.PackageInstalling += packageManager_PackageInstalling;
             packageManager.PackageInstalled += packageManager_PackageInstalled;
             packageManager.PackageUninstalling += packageManager_PackageUninstalling;
@@ -363,7 +365,7 @@ namespace Bonsai
             RegisterAssemblyLocations(assemblyLocations, e.InstallPath, installPath, taggedPackage);
             packageConfiguration.Save();
 
-            if (package.Id == bootstrapperPackageId)
+            if (package.Id == bootstrapperPackageId && package.Version > bootstrapperVersion)
             {
                 var bootstrapperFileName = Path.GetFileName(bootstrapperExePath);
                 var bootstrapperFile = package.GetFiles().FirstOrDefault(file => Path.GetFileName(file.Path).Equals(bootstrapperFileName, StringComparison.OrdinalIgnoreCase));
