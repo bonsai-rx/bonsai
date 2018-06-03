@@ -51,9 +51,7 @@ namespace Bonsai.Expressions
         /// <returns>An <see cref="Expression"/> tree node.</returns>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            var output = BuildCombinator(arguments);
-            var combinatorExpression = Expression.Constant(this);
-            return BuildMappingOutput(arguments, combinatorExpression, output);
+            return BuildCombinator(arguments);
         }
 
         /// <summary>
