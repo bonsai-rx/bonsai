@@ -367,7 +367,7 @@ namespace Bonsai
                     throw new InvalidOperationException(Resources.BootstrapperMissingFromPackage);
                 }
 
-                string backupExePath = bootstrapperExePath + OldExtension;
+                var backupExePath = bootstrapperExePath + OldExtension;
                 File.Move(bootstrapperExePath, backupExePath);
                 UpdateFile(bootstrapperExePath, bootstrapperFile);
             }
