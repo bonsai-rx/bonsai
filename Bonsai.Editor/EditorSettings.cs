@@ -26,7 +26,8 @@ namespace Bonsai.Editor
         const string RectangleYElement = "Y";
         const string RectangleWidthElement = "Width";
         const string RectangleHeightElement = "Height";
-        static readonly string SettingsFileName = "Bonsai.exe.settings";
+        const string SettingsFileName = "Bonsai.exe.settings";
+        static readonly string SettingsPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), SettingsFileName);
         static readonly Lazy<EditorSettings> instance = new Lazy<EditorSettings>(Load);
         readonly RecentlyUsedFileCollection recentlyUsedFiles = new RecentlyUsedFileCollection(MaxRecentFiles);
 
@@ -51,11 +52,11 @@ namespace Bonsai.Editor
         static EditorSettings Load()
         {
             var settings = new EditorSettings();
-            if (File.Exists(SettingsFileName))
+            if (File.Exists(SettingsPath))
             {
                 try
                 {
-                    using (var reader = XmlReader.Create(SettingsFileName))
+                    using (var reader = XmlReader.Create(SettingsPath))
                     {
                         reader.MoveToContent();
                         while (reader.Read())
@@ -108,7 +109,7 @@ namespace Bonsai.Editor
 
         public void Save()
         {
-            using (var writer = XmlWriter.Create(SettingsFileName, new XmlWriterSettings { Indent = true }))
+            using (var writer = XmlWriter.Create(SettingsPath, new XmlWriterSettings { Indent = true }))
             {
                 writer.WriteStartElement(typeof(EditorSettings).Name);
                 writer.WriteElementString(WindowStateElement, WindowState.ToString());
