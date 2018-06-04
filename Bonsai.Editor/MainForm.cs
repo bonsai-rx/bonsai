@@ -1316,7 +1316,7 @@ namespace Bonsai.Editor
         {
             foreach (TreeNode node in nodes)
             {
-                if (node.Nodes.Count == 0) yield return node;
+                if (node.Nodes.Count == 0 && node.Tag != null) yield return node;
                 else
                 {
                     foreach (var child in GetTreeViewLeafNodes(node.Nodes))
@@ -1338,14 +1338,7 @@ namespace Bonsai.Editor
 
         private static int IndexOfMatch(TreeNode node, string text)
         {
-            if (node.Tag == null) return -1;
-            var matchIndex = node.Text.IndexOf(text, StringComparison.OrdinalIgnoreCase);
-            if (matchIndex < 0 && node.Parent != null)
-            {
-                matchIndex = node.Parent.Text.IndexOf(text, StringComparison.OrdinalIgnoreCase);
-            }
-
-            return matchIndex;
+            return node.Text.IndexOf(text, StringComparison.OrdinalIgnoreCase);
         }
 
         private bool IsActiveControl(Control control)
@@ -1563,9 +1556,10 @@ namespace Bonsai.Editor
                 toolboxTreeView.Nodes.Clear();
                 var searchFilter = searchTextBox.Text.Split(ToolboxArgumentSeparator, 2)[0];
                 foreach (var entry in from node in GetTreeViewLeafNodes(treeCache)
-                                      let matchIndex = IndexOfMatch(node, searchFilter)
+                                      let nameMatch = IndexOfMatch(node, searchFilter)
+                                      let matchIndex = nameMatch < 0 && node.Parent != null ? IndexOfMatch(node.Parent, searchFilter) : nameMatch
                                       where matchIndex >= 0
-                                      orderby node.Text ascending
+                                      orderby nameMatch >= 0 descending, matchIndex, node.Text ascending
                                       select new { category = node.Parent.Text, node = (TreeNode)node.Clone(), matchIndex })
                 {
                     entry.node.Text += string.Format(" ({0})", entry.category);
