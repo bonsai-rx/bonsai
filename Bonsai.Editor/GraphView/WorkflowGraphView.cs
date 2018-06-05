@@ -1584,7 +1584,7 @@ namespace Bonsai.Design
             graphView.SelectedNode = graphView.Nodes
                 .Where(layer => layerCount - layer.Key == 1)
                 .SelectMany(layer => layer)
-                .FirstOrDefault();
+                .FirstOrDefault(node => node.Value != null);
         }
 
         public void SelectAllGraphNodes()
