@@ -1,5 +1,4 @@
 ﻿using Bonsai.Dag;
-using Bonsai.Expressions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bonsai.Design
+namespace Bonsai.Expressions
 {
     class PropertyMappingNameConverter : StringConverter
     {

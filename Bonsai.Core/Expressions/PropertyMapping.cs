@@ -42,7 +42,7 @@ namespace Bonsai.Expressions
         /// Gets or sets the name of the property that will be assigned by this mapping.
         /// </summary>
         [XmlAttribute("name")]
-        [TypeConverter("Bonsai.Design.PropertyMappingNameConverter, Bonsai.Design")]
+        [TypeConverter(typeof(PropertyMappingNameConverter))]
         public string Name { get; set; }
 
         /// <summary>

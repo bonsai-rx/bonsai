@@ -101,7 +101,6 @@
     <Compile Include="PropertyGrid.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="PropertyMappingNameConverter.cs" />
     <Compile Include="SeekBar.cs">
       <SubType>Component</SubType>
     </Compile>
