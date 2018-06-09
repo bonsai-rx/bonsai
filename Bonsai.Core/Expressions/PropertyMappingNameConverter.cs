@@ -11,14 +11,27 @@ namespace Bonsai.Expressions
     class PropertyMappingNameConverter : StringConverter
     {
         static Node<ExpressionBuilder, ExpressionBuilderArgument> GetBuilderNode(
-            ITypeDescriptorContext context,
+            PropertyMapping mapping,
             ExpressionBuilderGraph nodeBuilderGraph)
         {
-            var mapping = (PropertyMapping)context.Instance;
-            return (from node in nodeBuilderGraph
-                    let builder = ExpressionBuilder.Unwrap(node.Value) as PropertyMappingBuilder
-                    where builder != null && builder.PropertyMappings.Contains(mapping)
-                    select node).SingleOrDefault();
+            foreach (var node in nodeBuilderGraph)
+            {
+                var builder = ExpressionBuilder.Unwrap(node.Value);
+                var mappingBuilder = builder as PropertyMappingBuilder;
+                if (mappingBuilder != null && mappingBuilder.PropertyMappings.Contains(mapping))
+                {
+                    return node;
+                }
+
+                var workflowBuilder = builder as IWorkflowExpressionBuilder;
+                if (workflowBuilder != null)
+                {
+                    var builderNode = GetBuilderNode(mapping, workflowBuilder.Workflow);
+                    if (builderNode != null) return builderNode;
+                }
+            }
+
+            return null;
         }
 
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
@@ -26,7 +39,8 @@ namespace Bonsai.Expressions
             var nodeBuilderGraph = (ExpressionBuilderGraph)context.GetService(typeof(ExpressionBuilderGraph));
             if (nodeBuilderGraph != null)
             {
-                var builderNode = GetBuilderNode(context, nodeBuilderGraph);
+                var mapping = (PropertyMapping)context.Instance;
+                var builderNode = GetBuilderNode(mapping, nodeBuilderGraph);
                 return builderNode != null && builderNode.Successors.Count > 0;
             }
 
@@ -38,7 +52,8 @@ namespace Bonsai.Expressions
             var nodeBuilderGraph = (ExpressionBuilderGraph)context.GetService(typeof(ExpressionBuilderGraph));
             if (nodeBuilderGraph != null)
             {
-                var builderNode = GetBuilderNode(context, nodeBuilderGraph);
+                var mapping = (PropertyMapping)context.Instance;
+                var builderNode = GetBuilderNode(mapping, nodeBuilderGraph);
                 if (builderNode != null)
                 {
                     var properties = from successor in builderNode.Successors
