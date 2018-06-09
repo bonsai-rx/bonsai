@@ -31,6 +31,33 @@ namespace Bonsai.Design
             return UITypeEditorEditStyle.Modal;
         }
 
+        static Node<ExpressionBuilder, ExpressionBuilderArgument> GetPropertyMappingBuilderNode(
+            PropertyMapping mapping,
+            ExpressionBuilderGraph nodeBuilderGraph,
+            out ExpressionBuilderGraph mappingBuilderGraph)
+        {
+            foreach (var node in nodeBuilderGraph)
+            {
+                var builder = ExpressionBuilder.Unwrap(node.Value);
+                var mappingBuilder = builder as PropertyMappingBuilder;
+                if (mappingBuilder != null && mappingBuilder.PropertyMappings.Contains(mapping))
+                {
+                    mappingBuilderGraph = nodeBuilderGraph;
+                    return node;
+                }
+
+                var workflowBuilder = builder as IWorkflowExpressionBuilder;
+                if (workflowBuilder != null)
+                {
+                    var builderNode = GetPropertyMappingBuilderNode(mapping, workflowBuilder.Workflow, out mappingBuilderGraph);
+                    if (builderNode != null) return builderNode;
+                }
+            }
+
+            mappingBuilderGraph = null;
+            return null;
+        }
+
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
         {
             var selector = value as string ?? string.Empty;
@@ -48,10 +75,7 @@ namespace Bonsai.Design
                 var mapping = context.Instance as PropertyMapping;
                 if (mapping != null)
                 {
-                    builderNode = (from node in nodeBuilderGraph
-                                   let builder = ExpressionBuilder.Unwrap(node.Value) as PropertyMappingBuilder
-                                   where builder != null && builder.PropertyMappings.Contains(mapping)
-                                   select node).SingleOrDefault();
+                    builderNode = GetPropertyMappingBuilderNode(mapping, nodeBuilderGraph, out nodeBuilderGraph);
                 }
                 else builderNode = (from node in nodeBuilderGraph
                                     let builder = node.Value
