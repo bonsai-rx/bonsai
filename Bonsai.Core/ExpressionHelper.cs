@@ -50,6 +50,24 @@ namespace Bonsai
             return enumerableBindings.Any();
         }
 
+        /// <summary>
+        /// Tests whether the specified type implements a serialization compatible collection.
+        /// </summary>
+        /// <param name="type">The <see cref="Type"/> to test.</param>
+        /// <returns>
+        /// <b>true</b> if the type implements a serialization compatible collection;
+        /// otherwise, <b>false</b>.
+        /// </returns>
+        public static bool IsCollectionType(Type type)
+        {
+            if (type == null)
+            {
+                throw new ArgumentNullException("type");
+            }
+
+            return typeof(System.Collections.IList).IsAssignableFrom(type);
+        }
+
         internal static Expression CreateTuple(Expression[] arguments)
         {
             return CreateTuple(arguments, 0);
