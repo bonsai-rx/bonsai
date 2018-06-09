@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -146,7 +147,7 @@ namespace Bonsai.Expressions
         {
             return (from property in TypeDescriptor.GetProperties(this).Cast<PropertyDescriptor>()
                     let externalizedProperty = property as ExternalizedPropertyDescriptor
-                    where externalizedProperty != null && !externalizedProperty.IsReadOnly
+                    where externalizedProperty != null && (!externalizedProperty.IsReadOnly || ExpressionHelper.IsCollectionType(externalizedProperty.PropertyType))
                     select SerializeProperty(externalizedProperty))
                     .ToArray();
         }
@@ -155,7 +156,7 @@ namespace Bonsai.Expressions
         {
             var properties = (from property in TypeDescriptor.GetProperties(this).Cast<PropertyDescriptor>()
                               let externalizedProperty = property as ExternalizedPropertyDescriptor
-                              where externalizedProperty != null && !externalizedProperty.IsReadOnly
+                              where externalizedProperty != null && (!externalizedProperty.IsReadOnly || ExpressionHelper.IsCollectionType(externalizedProperty.PropertyType))
                               select externalizedProperty)
                               .ToDictionary(property => property.Name);
             for (int i = 0; i < xmlProperties.Length; i++)
@@ -175,7 +176,25 @@ namespace Bonsai.Expressions
             using (var reader = new StringReader(element.OuterXml))
             {
                 var value = serializer.Deserialize(reader);
-                property.SetValue(this, value);
+                if (property.IsReadOnly)
+                {
+                    var collection = (IList)property.GetValue(this);
+                    if (collection == null)
+                    {
+                        throw new InvalidOperationException("Collection reference not set to an instance of an object.");
+                    }
+
+                    collection.Clear();
+                    var collectionElements = value as IEnumerable;
+                    if (collectionElements != null)
+                    {
+                        foreach (var collectionElement in collectionElements)
+                        {
+                            collection.Add(collectionElement);
+                        }
+                    }
+                }
+                else property.SetValue(this, value);
             }
         }
 

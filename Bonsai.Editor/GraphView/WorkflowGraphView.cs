@@ -2622,7 +2622,7 @@ namespace Bonsai.Design
         {
             foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(workflowElement))
             {
-                if (property.IsReadOnly || !property.IsBrowsable) continue;
+                if (!property.IsBrowsable || property.IsReadOnly && !ExpressionHelper.IsCollectionType(property.PropertyType)) continue;
                 var externalizableAttribute = (ExternalizableAttribute)property.Attributes[typeof(ExternalizableAttribute)];
                 if (externalizableAttribute != null && !externalizableAttribute.Externalizable) continue;
 

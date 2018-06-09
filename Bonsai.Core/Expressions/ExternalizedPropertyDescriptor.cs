@@ -11,6 +11,7 @@ namespace Bonsai.Expressions
     {
         readonly Type componentType;
         readonly Type propertyType;
+        readonly bool isReadOnly;
         readonly object[] instances;
         readonly PropertyDescriptor[] properties;
 
@@ -21,6 +22,7 @@ namespace Bonsai.Expressions
             properties = descriptors;
             componentType = descriptors.Length > 0 ? descriptors[0].ComponentType : null;
             propertyType = descriptors.Length > 0 ? descriptors[0].PropertyType : null;
+            isReadOnly = descriptors.Length > 0 ? descriptors[0].IsReadOnly : true;
         }
 
         public override bool CanResetValue(object component)
@@ -57,7 +59,7 @@ namespace Bonsai.Expressions
 
         public override bool IsReadOnly
         {
-            get { return false; }
+            get { return isReadOnly; }
         }
 
         public override Type PropertyType
