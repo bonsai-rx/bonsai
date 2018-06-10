@@ -123,6 +123,7 @@
     <Compile Include="Expressions\SubscribeSubjectBuilder.cs" />
     <Compile Include="Expressions\UnknownTypeBuilder.cs" />
     <Compile Include="Expressions\VariableArgumentExpressionBuilder.cs" />
+    <Compile Include="Expressions\WindowWorkflowBuilder.cs" />
     <Compile Include="Expressions\WorkflowPropertyDescriptor.cs" />
     <Compile Include="Expressions\WorkflowTypeDescriptor.cs" />
     <Compile Include="Expressions\ZeroArgumentExpressionBuilder.cs" />
@@ -218,7 +219,7 @@
     <Compile Include="WindowCombinator.cs" />
     <Compile Include="Expressions\CombinatorBuilder.cs" />
     <Compile Include="Reactive\Slice.cs" />
-    <Compile Include="Expressions\WindowWorkflowBuilder.cs" />
+    <Compile Include="Expressions\CreateObservableBuilder.cs" />
     <Compile Include="UnidimensionalArrayConverter.cs" />
     <Compile Include="ExpressionHelper.cs" />
     <Compile Include="Expressions\WorkflowOutputBuilder.cs" />

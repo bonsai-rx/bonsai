@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Reactive.Linq;
 using System.ComponentModel;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Text;
 using System.Xml.Serialization;
 
 namespace Bonsai.Expressions
@@ -14,19 +12,11 @@ namespace Bonsai.Expressions
     /// Represents an expression builder that generates an expression tree by applying
     /// an encapsulated workflow selector to the elements of an observable sequence of windows.
     /// </summary>
+    [Obsolete]
     [XmlType("WindowWorkflow", Namespace = Constants.XmlNamespace)]
     [Description("Processes each input window using the encapsulated workflow.")]
-    public class WindowWorkflowBuilder : SingleArgumentWorkflowExpressionBuilder
+    public class WindowWorkflowBuilder : CreateObservableBuilder
     {
-        static readonly MethodInfo returnMethod = (from method in typeof(Observable).GetMethods()
-                                                   where method.Name == "Return" && method.GetParameters().Length == 1
-                                                   select method)
-                                                   .Single();
-        static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()
-                                                                    .Single(m => m.Name == "Select" &&
-                                                                            m.GetParameters().Length == 2 &&
-                                                                            m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
-
         /// <summary>
         /// Initializes a new instance of the <see cref="WindowWorkflowBuilder"/> class.
         /// </summary>
@@ -49,6 +39,18 @@ namespace Bonsai.Expressions
         }
 
         /// <summary>
+        /// Gets the range of input arguments that this expression builder accepts.
+        /// </summary>
+        public override Range<int> ArgumentRange
+        {
+            get
+            {
+                var parameterCount = Workflow.GetNestedParameters().Count();
+                return Range.Create(Math.Max(1, parameterCount), Math.Max(1, parameterCount));
+            }
+        }
+
+        /// <summary>
         /// Generates an <see cref="Expression"/> node from a collection of input arguments.
         /// The result can be chained with other builders in a workflow.
         /// </summary>
@@ -64,21 +66,7 @@ namespace Bonsai.Expressions
                 throw new InvalidOperationException("There must be at least one input to WindowWorkflow.");
             }
 
-            // Assign input
-            Expression inputParameter;
-            var sourceType = source.Type.GetGenericArguments()[0];
-            var selectorParameter = Expression.Parameter(sourceType);
-            if (!sourceType.IsGenericType || sourceType.GetGenericTypeDefinition() != typeof(IObservable<>))
-            {
-                inputParameter = Expression.Call(returnMethod.MakeGenericMethod(sourceType), selectorParameter);
-            }
-            else inputParameter = selectorParameter;
-
-            return BuildWorkflow(arguments, inputParameter, selectorBody =>
-            {
-                var selector = Expression.Lambda(selectorBody, selectorParameter);
-                return Expression.Call(selectMethod.MakeGenericMethod(sourceType, selector.ReturnType), source, selector);
-            });
+            return base.Build(arguments);
         }
     }
 }
