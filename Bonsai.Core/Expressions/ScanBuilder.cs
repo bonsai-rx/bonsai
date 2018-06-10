@@ -20,6 +20,8 @@ namespace Bonsai.Expressions
     [Description("Accumulates the values of an observable sequence using the encapsulated workflow.")]
     public class ScanBuilder : WorkflowExpressionBuilder
     {
+        static readonly Range<int> argumentRange = Range.Create(lowerBound: 1, upperBound: 2);
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ScanBuilder"/> class.
         /// </summary>
@@ -46,11 +48,7 @@ namespace Bonsai.Expressions
         /// </summary>
         public override Range<int> ArgumentRange
         {
-            get
-            {
-                var parameterCount = Workflow.GetNestedParameters().Count();
-                return Range.Create(parameterCount, parameterCount + 1);
-            }
+            get { return argumentRange; }
         }
 
         /// <summary>
@@ -63,8 +61,7 @@ namespace Bonsai.Expressions
         /// <returns>An <see cref="Expression"/> tree node.</returns>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            var range = ArgumentRange;
-            var sources = arguments.Take(range.UpperBound).ToArray();
+            var sources = arguments.Take(argumentRange.UpperBound).ToArray();
             if (sources.Length == 0)
             {
                 throw new InvalidOperationException("There must be at least one workflow input to Scan.");
@@ -75,7 +72,7 @@ namespace Bonsai.Expressions
             Expression seed;
             var source = sources[0];
             var sourceType = source.Type.GetGenericArguments()[0];
-            if (sources.Length > range.LowerBound)
+            if (sources.Length > argumentRange.LowerBound)
             {
                 seed = sources[sources.Length - 1];
                 seedType = seed.Type.GetGenericArguments()[0];
@@ -88,7 +85,7 @@ namespace Bonsai.Expressions
 
             var memoryType = typeof(ElementAccumulation<,>).MakeGenericType(seedType, sourceType);
             var inputParameter = Expression.Parameter(typeof(IObservable<>).MakeGenericType(memoryType));
-            return BuildWorkflow(arguments, inputParameter, selectorBody =>
+            return BuildWorkflow(arguments.Take(1), inputParameter, selectorBody =>
             {
                 var selector = Expression.Lambda(selectorBody, inputParameter);
                 var selectorObservableType = selector.ReturnType.GetGenericArguments()[0];
