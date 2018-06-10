@@ -385,8 +385,9 @@ namespace Bonsai.Design
                 drawScale = graphics.DpiY / DefaultDpi * Font.SizeInPoints / Control.DefaultFont.SizeInPoints;
             }
 
+            var nodePenWidth = 1.51f * drawScale;
             iconRendererState.Scale = drawScale;
-            PenWidth = (int)Math.Round(1.5 * drawScale);
+            PenWidth = (int)Math.Round(nodePenWidth);
             NodeAirspace = (int)(80 * drawScale);
             NodeSize = (int)(30 * drawScale);
             IconSize = (int)(16 * drawScale);
@@ -397,8 +398,8 @@ namespace Bonsai.Design
             EntryOffset = new Size(-PenWidth / 2, NodeSize / 2);
             ExitOffset = new Size(NodeSize + PenWidth / 2, NodeSize / 2);
             CursorPen = new Pen(Brushes.DarkGray, PenWidth);
-            WhitePen = new Pen(Brushes.White, PenWidth);
-            BlackPen = new Pen(Brushes.Black, PenWidth);
+            WhitePen = new Pen(Brushes.White, nodePenWidth);
+            BlackPen = new Pen(Brushes.Black, nodePenWidth);
             WhiteIconPen = new Pen(Brushes.White);
             BlackIconPen = new Pen(Brushes.Black);
             UpdateModelLayout();
