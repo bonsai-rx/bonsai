@@ -30,6 +30,7 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(ReplaySubjectBuilder))]
     [XmlInclude(typeof(PublishSubjectBuilder))]
     [XmlInclude(typeof(SubscribeSubjectBuilder))]
+    [XmlInclude(typeof(CreateObservableBuilder))]
     [XmlInclude(typeof(WindowWorkflowBuilder))]
     [XmlInclude(typeof(NestedWorkflowBuilder))]
     [XmlInclude(typeof(MemberSelectorBuilder))]

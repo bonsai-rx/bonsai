@@ -45,6 +45,16 @@ namespace Bonsai.Editor
                     };
                 }
 
+                var windowWorkflowBuilder = builder as WindowWorkflowBuilder;
+                if (windowWorkflowBuilder != null)
+                {
+                    return new CreateObservableBuilder(windowWorkflowBuilder.Workflow)
+                    {
+                        Name = windowWorkflowBuilder.Name,
+                        Description = windowWorkflowBuilder.Description
+                    };
+                }
+
                 var property = builder as ExternalizedProperty;
                 if (property != null)
                 {

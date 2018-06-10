@@ -60,7 +60,7 @@ namespace Bonsai.Expressions
             {
                 if (source == null)
                 {
-                    throw new InvalidOperationException("Workflow input nodes must be encapsulated inside a workflow group.");
+                    throw new InvalidOperationException("Workflow input nodes must be encapsulated inside a workflow group with a matching number of inputs.");
                 }
 
                 return source;
