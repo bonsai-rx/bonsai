@@ -12,6 +12,8 @@ namespace Bonsai.Expressions
     /// </summary>
     public abstract class SingleArgumentWorkflowExpressionBuilder : WorkflowExpressionBuilder
     {
+        static readonly Range<int> argumentRange = Range.Create(lowerBound: 1, upperBound: 1);
+
         internal SingleArgumentWorkflowExpressionBuilder()
             : this(new ExpressionBuilderGraph())
         {
@@ -27,11 +29,7 @@ namespace Bonsai.Expressions
         /// </summary>
         public override Range<int> ArgumentRange
         {
-            get
-            {
-                var parameterCount = Workflow.GetNestedParameters().Count();
-                return Range.Create(Math.Max(1, parameterCount), Math.Max(1, parameterCount));
-            }
+            get { return argumentRange; }
         }
     }
 }
