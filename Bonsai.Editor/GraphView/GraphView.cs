@@ -385,9 +385,8 @@ namespace Bonsai.Design
                 drawScale = graphics.DpiY / DefaultDpi * Font.SizeInPoints / Control.DefaultFont.SizeInPoints;
             }
 
-            var nodePenWidth = 1.51f * drawScale;
             iconRendererState.Scale = drawScale;
-            PenWidth = (int)Math.Round(nodePenWidth);
+            PenWidth = (int)(3 * drawScale);
             NodeAirspace = (int)(80 * drawScale);
             NodeSize = (int)(30 * drawScale);
             IconSize = (int)(16 * drawScale);
@@ -398,8 +397,8 @@ namespace Bonsai.Design
             EntryOffset = new Size(-PenWidth / 2, NodeSize / 2);
             ExitOffset = new Size(NodeSize + PenWidth / 2, NodeSize / 2);
             CursorPen = new Pen(Brushes.DarkGray, PenWidth);
-            WhitePen = new Pen(Brushes.White, nodePenWidth);
-            BlackPen = new Pen(Brushes.Black, nodePenWidth);
+            WhitePen = new Pen(Brushes.White, PenWidth);
+            BlackPen = new Pen(Brushes.Black, PenWidth);
             WhiteIconPen = new Pen(Brushes.White);
             BlackIconPen = new Pen(Brushes.Black);
             UpdateModelLayout();
@@ -1093,6 +1092,7 @@ namespace Bonsai.Design
                             NodeSize, NodeSize);
 
                         SvgRenderer renderer;
+                        graphics.DrawEllipse(BlackPen, nodeRectangle);
                         graphics.FillEllipse(layout.Node.Brush, nodeRectangle);
                         if (IconRenderer != null && layout.Node.Icon != null &&
                            (renderer = IconRenderer.GetIconRenderer(layout.Node)) != null)
@@ -1112,7 +1112,6 @@ namespace Bonsai.Design
                                     SizeF.Add(nodeRectangle.Size, VectorTextOffset)),
                                 CenteredTextFormat);
                         }
-                        graphics.DrawEllipse(BlackPen, nodeRectangle);
 
                         var labelRect = layout.LabelRectangle;
                         foreach (var line in layout.Label.Split(Environment.NewLine.ToArray(),
@@ -1183,6 +1182,7 @@ namespace Bonsai.Design
                         NodeSize, NodeSize);
 
                     SvgRenderer renderer;
+                    e.Graphics.DrawEllipse(pen, nodeRectangle);
                     e.Graphics.FillEllipse(brush, nodeRectangle);
                     if (IconRenderer != null && layout.Node.Icon != null &&
                        (renderer = IconRenderer.GetIconRenderer(layout.Node)) != null)
@@ -1199,9 +1199,8 @@ namespace Bonsai.Design
                             Font, textBrush,
                             nodeRectangle, CenteredTextFormat);
                     }
-                    if (layout.Node == hot) e.Graphics.FillEllipse(HotBrush, nodeRectangle);
-                    e.Graphics.DrawEllipse(pen, nodeRectangle);
 
+                    if (layout.Node == hot) e.Graphics.FillEllipse(HotBrush, nodeRectangle);
                     if (TextDrawMode == GraphViewTextDrawMode.All || layout.Node == hot)
                     {
                         var labelRect = layout.LabelRectangle;
