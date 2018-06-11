@@ -211,7 +211,7 @@ namespace Bonsai.Editor
             var hotColor = node.TreeView.ForeColor == SystemColors.HotTrack ? SystemColors.ActiveCaption : SystemColors.HotTrack;
             var color = hot ? hotColor : node.TreeView.ForeColor;
             e.Graphics.FillRectangle(SystemBrushes.Window, bounds);
-            TextRenderer.DrawText(e.Graphics, node.Text, font, bounds, color);
+            TextRenderer.DrawText(e.Graphics, node.Text, font, bounds, color, TextFormatFlags.NoClipping);
             if (selected && tabSelect) ControlPaint.DrawFocusRectangle(e.Graphics, bounds);
         }
 
