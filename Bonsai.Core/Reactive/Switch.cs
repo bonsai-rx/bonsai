@@ -15,17 +15,17 @@ namespace Bonsai.Reactive
     /// </summary>
     [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Transforms a sequence of windows into a sequence of values produced only from the most recent window.")]
+    [Description("Combines higher-order observables into a single sequence of values produced only from the most recent observable.")]
     public class Switch
     {
         /// <summary>
-        /// Transforms a sequence of windows into a sequence of values produced only from
-        /// the most recent window.
+        /// Transforms a sequence of higher-order observables into a sequence of values produced only from
+        /// the most recent observable.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
-        /// <param name="source">The source sequence of windows to switch over.</param>
+        /// <param name="source">The source sequence of higher-order observables to switch over.</param>
         /// <returns>
-        /// An observable sequence of values produced only from the most recent window.
+        /// An observable sequence of values produced only from the most recent observable.
         /// </returns>
         public IObservable<TSource> Process<TSource>(IObservable<IObservable<TSource>> source)
         {
