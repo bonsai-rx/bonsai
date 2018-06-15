@@ -196,10 +196,11 @@ namespace Bonsai
                     setupInfo.ApplicationBase = editorFolder;
                     setupInfo.PrivateBinPath = editorFolder;
                     var currentEvidence = AppDomain.CurrentDomain.Evidence;
+                    var currentPermissionSet = AppDomain.CurrentDomain.PermissionSet;
                     var currentPath = Environment.GetEnvironmentVariable(PathEnvironmentVariable);
                     setupInfo.ConfigurationFile = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
                     setupInfo.LoaderOptimization = LoaderOptimization.MultiDomainHost;
-                    var editorDomain = AppDomain.CreateDomain(EditorDomainName, currentEvidence, setupInfo);
+                    var editorDomain = AppDomain.CreateDomain(EditorDomainName, currentEvidence, setupInfo, currentPermissionSet);
                     var exitCode = (EditorResult)editorDomain.ExecuteAssembly(editorPath, editorArgs);
                     Environment.SetEnvironmentVariable(PathEnvironmentVariable, currentPath);
 
