@@ -797,7 +797,7 @@ namespace Bonsai.Expressions
             if (disableBuilder != null)
             {
                 var result = UnwrapConvert(disableBuilder.Builder, selector);
-                return new DisableBuilder { Builder = result };
+                return new DisableBuilder(result);
             }
 
             var workflowExpression = builder as WorkflowExpressionBuilder;

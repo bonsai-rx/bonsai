@@ -25,6 +25,17 @@ namespace Bonsai.Expressions
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="DisableBuilder"/> class with the
+        /// specified expression builder.
+        /// </summary>
+        /// <param name="builder">The expression builder instance to be disabled.</param>
+        public DisableBuilder(ExpressionBuilder builder)
+            : base(builder.InstanceNumber)
+        {
+            Builder = builder;
+        }
+
+        /// <summary>
         /// Gets or sets the expression builder to be disabled by this decorator.
         /// </summary>
         public ExpressionBuilder Builder { get; set; }
