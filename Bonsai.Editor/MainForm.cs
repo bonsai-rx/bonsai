@@ -672,8 +672,8 @@ namespace Bonsai.Editor
 
         bool OpenWorkflow(string fileName, bool setWorkingDirectory)
         {
-            SemanticVersion version;
-            try { workflowBuilder = LoadWorkflow(fileName, out version); }
+            SemanticVersion workflowVersion;
+            try { workflowBuilder = LoadWorkflow(fileName, out workflowVersion); }
             catch (InvalidOperationException ex)
             {
                 var errorMessage = string.Format(Resources.OpenWorkflow_Error, ex.InnerException != null ? ex.InnerException.Message : ex.Message);
@@ -685,11 +685,9 @@ namespace Bonsai.Editor
             if (EditorResult == EditorResult.ReloadEditor) return false;
 
             editorControl.Workflow = workflowBuilder.Workflow;
-            workflowBuilder = UpdateWorkflow(workflowBuilder, version);
+            workflowBuilder = UpdateWorkflow(workflowBuilder, workflowVersion);
             editorControl.VisualizerLayout = null;
             editorControl.Workflow = workflowBuilder.Workflow;
-            if (UpgradeHelper.IsDeprecated(version)) saveWorkflowDialog.FileName = null;
-            else saveWorkflowDialog.FileName = fileName;
             editorSite.ValidateWorkflow();
 
             var layoutPath = GetLayoutPath(fileName);
@@ -703,6 +701,13 @@ namespace Bonsai.Editor
             }
 
             ResetProjectStatus();
+            if (UpgradeHelper.IsDeprecated(workflowVersion))
+            {
+                saveWorkflowDialog.FileName = null;
+                version++;
+            }
+            else saveWorkflowDialog.FileName = fileName;
+
             UpdateTitle();
             return true;
         }
