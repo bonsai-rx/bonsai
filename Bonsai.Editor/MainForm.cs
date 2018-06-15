@@ -574,6 +574,25 @@ namespace Bonsai.Editor
             saveVersion = 0;
         }
 
+        bool EnsureWorkflowFile()
+        {
+            if (string.IsNullOrEmpty(FileName))
+            {
+                var result = MessageBox.Show(
+                    this,
+                    "The workflow needs to be saved before proceeding. Do you want to save the workflow?",
+                    "Unsaved Workflow",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning,
+                    MessageBoxDefaultButton.Button1);
+                if (result != DialogResult.Yes) return false;
+                saveToolStripMenuItem_Click(this, EventArgs.Empty);
+                if (string.IsNullOrEmpty(FileName)) return false;
+            }
+
+            return true;
+        }
+
         bool CloseWorkflow(CloseReason reason = CloseReason.UserClosing)
         {
             if (editorSite.WorkflowRunning)
@@ -978,22 +997,11 @@ namespace Bonsai.Editor
 
         private void exportPackageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(FileName))
+            if (EnsureWorkflowFile())
             {
-                var result = MessageBox.Show(
-                    this,
-                    "The workflow needs to be saved before creating the package. Do you want to save the workflow?",
-                    "Unsaved Workflow",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Warning,
-                    MessageBoxDefaultButton.Button1);
-                if (result != DialogResult.Yes) return;
-                saveToolStripMenuItem_Click(sender, e);
-                if (string.IsNullOrEmpty(FileName)) return;
+                EditorResult = EditorResult.ExportPackage;
+                Close();
             }
-
-            EditorResult = EditorResult.ExportPackage;
-            Close();
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1900,8 +1908,11 @@ namespace Bonsai.Editor
 
         private void reloadExtensionsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            EditorResult = EditorResult.ReloadEditor;
-            Close();
+            if (EnsureWorkflowFile())
+            {
+                EditorResult = EditorResult.ReloadEditor;
+                Close();
+            }
         }
 
         private void reloadExtensionsDebugToolStripMenuItem_Click(object sender, EventArgs e)
