@@ -1487,7 +1487,7 @@ namespace Bonsai.Design
             var disableBuilder = builder as DisableBuilder;
             if (builder != null && disableBuilder == null)
             {
-                builder = new DisableBuilder { Builder = builder };
+                builder = new DisableBuilder(builder);
                 ReplaceNode(node, builder, ElementCategory.Combinator);
             }
         }

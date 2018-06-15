@@ -47,8 +47,21 @@ namespace Bonsai.Expressions
     public abstract class ExpressionBuilder : IExpressionBuilder
     {
         const string ExpressionBuilderSuffix = "Builder";
-        internal long InstanceNumber = Interlocked.Increment(ref InstanceCounter);
+        internal readonly long InstanceNumber;
         static long InstanceCounter;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExpressionBuilder"/> class.
+        /// </summary>
+        protected ExpressionBuilder()
+        {
+            InstanceNumber = Interlocked.Increment(ref InstanceCounter);
+        }
+
+        internal ExpressionBuilder(long counter)
+        {
+            InstanceNumber = counter;
+        }
 
         /// <summary>
         /// Represents an empty expression indicating interruption of the build process.

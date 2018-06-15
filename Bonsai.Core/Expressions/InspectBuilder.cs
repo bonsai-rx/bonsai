@@ -28,6 +28,7 @@ namespace Bonsai.Expressions
         /// The expression builder whose notifications will be replayed by this inspector.
         /// </param>
         public InspectBuilder(ExpressionBuilder builder)
+            : base(builder.InstanceNumber)
         {
             if (builder == null)
             {
