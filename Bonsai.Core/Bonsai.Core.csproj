@@ -92,6 +92,7 @@
     <Compile Include="Expressions\LeftShiftBuilder.cs" />
     <Compile Include="Expressions\IRequireSubject.cs" />
     <Compile Include="Expressions\SkipWhileBuilder.cs" />
+    <Compile Include="Expressions\StartBuilder.cs" />
     <Compile Include="Expressions\SubjectTargetAttribute.cs" />
     <Compile Include="Expressions\SwitchManyBuilder.cs" />
     <Compile Include="Expressions\TakeWhileBuilder.cs" />
