@@ -19,6 +19,7 @@ namespace Bonsai.Expressions
     /// are derived. This is an abstract class.
     /// </summary>
     [XmlInclude(typeof(UnitBuilder))]
+    [XmlInclude(typeof(DeferBuilder))]
     [XmlInclude(typeof(StartBuilder))]
     [XmlInclude(typeof(SourceBuilder))]
     [XmlInclude(typeof(DisableBuilder))]
