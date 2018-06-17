@@ -119,7 +119,7 @@ namespace Bonsai.Expressions
             }
             else if (PublishNotifications)
             {
-                source = HandleObservableCreationException(source, this);
+                source = HandleObservableCreationException(source);
                 var subject = CreateSubjectMethod.MakeGenericMethod(ObservableType).Invoke(this, null);
                 var subjectExpression = Expression.Constant(subject);
                 return Expression.Call(Expression.Constant(this), "Process", new[] { ObservableType }, source, subjectExpression);
