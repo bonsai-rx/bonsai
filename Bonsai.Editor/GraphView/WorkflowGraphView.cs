@@ -767,12 +767,6 @@ namespace Bonsai.Design
             return builder;
         }
 
-        WorkflowExpressionBuilder CreateWorkflowBuilder(TreeNode typeNode, ExpressionBuilderGraph graph)
-        {
-            var typeName = typeNode.Name;
-            return CreateWorkflowBuilder(typeName, graph);
-        }
-
         WorkflowExpressionBuilder CreateWorkflowBuilder(string typeName, ExpressionBuilderGraph graph)
         {
             var type = Type.GetType(typeName);
