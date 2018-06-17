@@ -20,6 +20,7 @@ namespace Bonsai.Expressions
     /// on the elements of the source sequence that will convert each input element into the
     /// default <see cref="Unit"/> instance.
     /// </remarks>
+    [WorkflowElementCategory(ElementCategory.Source)]
     [XmlType("Unit", Namespace = Constants.XmlNamespace)]
     [Description("Generates a sequence of Unit type elements.")]
     public class UnitBuilder : ExpressionBuilder
