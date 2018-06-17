@@ -911,7 +911,7 @@ namespace Bonsai.Expressions
                                                                    .Where(m => m.Name == "Throw")
                                                                    .Single(m => m.GetParameters().Length == 1);
 
-        internal static Expression HandleObservableCreationException(Expression expression, ExpressionBuilder builder)
+        internal static Expression HandleObservableCreationException(Expression expression)
         {
             var exceptionVariable = Expression.Variable(typeof(Exception));
             var observableType = expression.Type.GetGenericArguments()[0];
