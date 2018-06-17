@@ -73,6 +73,7 @@
     <Compile Include="Expressions\BitwiseNotBuilder.cs" />
     <Compile Include="Expressions\BinaryOperatorTypeDescriptionProvider.cs" />
     <Compile Include="Expressions\BehaviorSubjectBuilder.cs" />
+    <Compile Include="Expressions\DeferBuilder.cs" />
     <Compile Include="Expressions\DisableBuilder.cs" />
     <Compile Include="Expressions\ExtendedPropertyDescriptor.cs" />
     <Compile Include="Expressions\GroupContext.cs" />
