@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace Bonsai.Expressions.Properties
+namespace Bonsai.Expressions
 {
     /// <summary>
     /// Represents a workflow property containing an 8-bit unsigned integer.
