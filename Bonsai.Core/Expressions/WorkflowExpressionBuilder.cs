@@ -25,8 +25,7 @@ namespace Bonsai.Expressions
         readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="WorkflowExpressionBuilder"/> class
-        /// with the specified argument range.
+        /// Initializes a new instance of the <see cref="WorkflowExpressionBuilder"/> class.
         /// </summary>
         protected WorkflowExpressionBuilder()
             : this(new ExpressionBuilderGraph())
@@ -35,7 +34,7 @@ namespace Bonsai.Expressions
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WorkflowExpressionBuilder"/> class
-        /// with the specified expression builder workflow and argument range.
+        /// with the specified expression builder workflow.
         /// </summary>
         /// <param name="workflow">
         /// The expression builder workflow instance that will be used by this builder
