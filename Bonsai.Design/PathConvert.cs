@@ -9,6 +9,14 @@ namespace Bonsai.Design
 {
     public static class PathConvert
     {
+        static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
+
+        internal static string RemoveInvalidPathChars(string path)
+        {
+            if (string.IsNullOrEmpty(path)) return path;
+            return string.Concat(path.Split(InvalidPathChars));
+        }
+
         public static string GetProjectPath(string path)
         {
             var rootPath = Environment.CurrentDirectory
