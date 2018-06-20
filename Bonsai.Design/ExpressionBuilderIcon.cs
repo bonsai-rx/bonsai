@@ -113,7 +113,7 @@ namespace Bonsai.Design
 
         public override Stream GetStream()
         {
-            var name = Name;
+            var name = PathConvert.RemoveInvalidPathChars(Name);
             if (string.IsNullOrEmpty(name))
             {
                 return null;
