@@ -1,6 +1,7 @@
 ﻿using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -29,6 +30,7 @@ namespace Bonsai.Shaders.Configuration
             WindowState = WindowState.Normal;
             DisplayDevice = DisplayIndex.Default;
             GraphicsMode = new GraphicsModeConfiguration();
+            SwapSync = true;
         }
 
         [Category("Window Style")]
@@ -46,6 +48,10 @@ namespace Bonsai.Shaders.Configuration
         [Category("Render Settings")]
         [Description("Specifies V-Sync configuration for the shader window.")]
         public VSyncMode VSync { get; set; }
+
+        [Category("Render Settings")]
+        [Description("Specifies whether to synchronize buffer swaps across application windows.")]
+        public bool SwapSync { get; set; }
 
         [XmlIgnore]
         [Category("Render Settings")]
@@ -119,8 +125,48 @@ namespace Bonsai.Shaders.Configuration
         {
             public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object value, Attribute[] attributes)
             {
-                var properties = base.GetProperties(context, value, attributes);
-                return properties.Sort(new[] { "Title", "Width", "Height" });
+                var properties = new PropertyCollection(base
+                    .GetProperties(context, value, attributes)
+                    .Sort(new[] { "Title", "Width", "Height" }));
+                var swapSync = properties["SwapSync"];
+                properties.Remove(swapSync);
+                properties.Add(swapSync);
+                return properties;
+            }
+
+            class PropertyCollection : PropertyDescriptorCollection
+            {
+                public PropertyCollection(PropertyDescriptorCollection properties)
+                    : base(ToArray(properties), false)
+                {
+                }
+
+                static PropertyDescriptor[] ToArray(PropertyDescriptorCollection properties)
+                {
+                    var result = new PropertyDescriptor[properties.Count];
+                    properties.CopyTo(result, 0);
+                    return result;
+                }
+
+                public override PropertyDescriptorCollection Sort()
+                {
+                    return this;
+                }
+
+                public override PropertyDescriptorCollection Sort(IComparer comparer)
+                {
+                    return this;
+                }
+
+                public override PropertyDescriptorCollection Sort(string[] names)
+                {
+                    return this;
+                }
+
+                public override PropertyDescriptorCollection Sort(string[] names, IComparer comparer)
+                {
+                    return this;
+                }
             }
         }
     }
