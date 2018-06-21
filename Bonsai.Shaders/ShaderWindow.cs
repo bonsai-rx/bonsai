@@ -24,6 +24,7 @@ namespace Bonsai.Shaders
         ShaderWindowSettings settings;
         const string DefaultTitle = "Bonsai Shader Window";
         static readonly object syncRoot = string.Intern("A1105A50-BBB0-4EC6-B8B2-B5EF38A9CC3E");
+        readonly bool swapSync;
         event Action update;
 
         public ShaderWindow(ShaderWindowSettings configuration)
@@ -33,6 +34,7 @@ namespace Bonsai.Shaders
         {
             settings = configuration;
             VSync = configuration.VSync;
+            swapSync = configuration.SwapSync;
             clearColor = configuration.ClearColor;
             clearMask = configuration.ClearMask;
             Title = configuration.Title ?? DefaultTitle;
@@ -170,10 +172,8 @@ namespace Bonsai.Shaders
                 shader.Dispatch();
             }
 
-            lock (syncRoot)
-            {
-                SwapBuffers();
-            }
+            if (!swapSync) SwapBuffers();
+            else lock (syncRoot) SwapBuffers();
         }
 
         protected override void OnUnload(EventArgs e)
