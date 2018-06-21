@@ -24,7 +24,7 @@ namespace Bonsai.Vision
                 {
                     return input[Index.Value].Activity.Val0 > Threshold;
                 }
-                else return input.Where(region => region.Activity.Val0 > 0).Count() > 0;
+                else return input.Where(region => region.Activity.Val0 > Threshold).Count() > 0;
             });
         }
     }
