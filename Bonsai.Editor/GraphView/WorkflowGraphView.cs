@@ -399,8 +399,9 @@ namespace Bonsai.Design
         private void InitializeVisualizerMapping()
         {
             if (workflow == null) return;
-            visualizerMapping = (from graphNode in graphView.Nodes.SelectMany(layer => layer)
-                                 let key = graphNode.Value as InspectBuilder where key != null
+            visualizerMapping = (from node in workflow
+                                 let key = (InspectBuilder)node.Value
+                                 let graphNode = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == key)
                                  let visualizerLauncher = CreateVisualizerLauncher(key, graphNode) where visualizerLauncher != null
                                  select new { key, visualizerLauncher })
                                  .ToDictionary(mapping => mapping.key,
