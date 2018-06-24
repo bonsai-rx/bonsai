@@ -260,7 +260,7 @@ namespace Bonsai.Design
             });
         }
 
-        internal void CloseWorkflowEditorLauncher(WorkflowEditorLauncher editorLauncher)
+        private void HideWorkflowEditorLauncher(WorkflowEditorLauncher editorLauncher)
         {
             var visible = editorLauncher.Visible;
             var serviceProvider = this.serviceProvider;
@@ -1087,11 +1087,16 @@ namespace Bonsai.Design
             var workflowExpressionBuilder = GetGraphNodeBuilder(node) as IWorkflowExpressionBuilder;
             if (workflowExpressionBuilder != null)
             {
-                RemoveEditorMapping(workflowExpressionBuilder);
+                CloseWorkflowEditorLauncher(workflowExpressionBuilder);
             }
         }
 
-        private void RemoveEditorMapping(IWorkflowExpressionBuilder workflowExpressionBuilder)
+        private void CloseWorkflowEditorLauncher(IWorkflowExpressionBuilder workflowExpressionBuilder)
+        {
+            CloseWorkflowEditorLauncher(workflowExpressionBuilder, true);
+        }
+
+        private void CloseWorkflowEditorLauncher(IWorkflowExpressionBuilder workflowExpressionBuilder, bool removeEditorMapping)
         {
             WorkflowEditorLauncher editorLauncher;
             if (workflowEditorMapping.TryGetValue(workflowExpressionBuilder, out editorLauncher))
@@ -1104,15 +1109,18 @@ namespace Bonsai.Design
                         var nestedBuilder = ExpressionBuilder.Unwrap(node.Value) as IWorkflowExpressionBuilder;
                         if (nestedBuilder != null)
                         {
-                            workflowGraphView.RemoveEditorMapping(nestedBuilder);
+                            workflowGraphView.CloseWorkflowEditorLauncher(nestedBuilder, removeEditorMapping);
                         }
                     }
                 }
 
-                CloseWorkflowEditorLauncher(editorLauncher);
-                var removeEditorMapping = CreateUpdateEditorMappingDelegate(editorMapping => editorMapping.Remove(workflowExpressionBuilder));
-                var addEditorMapping = CreateUpdateEditorMappingDelegate(editorMapping => editorMapping.Add(workflowExpressionBuilder, editorLauncher));
-                commandExecutor.Execute(removeEditorMapping, addEditorMapping);
+                HideWorkflowEditorLauncher(editorLauncher);
+                if (removeEditorMapping)
+                {
+                    var removeMapping = CreateUpdateEditorMappingDelegate(editorMapping => editorMapping.Remove(workflowExpressionBuilder));
+                    var addMapping = CreateUpdateEditorMappingDelegate(editorMapping => editorMapping.Add(workflowExpressionBuilder, editorLauncher));
+                    commandExecutor.Execute(removeMapping, addMapping);
+                }
             }
         }
 
@@ -1677,12 +1685,12 @@ namespace Bonsai.Design
             }
         }
 
-        public void LaunchWorkflowView(GraphNode node, bool activate = true)
+        public void LaunchWorkflowView(GraphNode node)
         {
-            LaunchWorkflowView(node, null, Rectangle.Empty, activate);
+            CreateWorkflowView(node, null, Rectangle.Empty, launch: true, activate: true);
         }
 
-        private void LaunchWorkflowView(GraphNode node, VisualizerLayout editorLayout, Rectangle bounds, bool activate)
+        private void CreateWorkflowView(GraphNode node, VisualizerLayout editorLayout, Rectangle bounds, bool launch, bool activate)
         {
             var workflowExpressionBuilder = GetGraphNodeBuilder(node) as IWorkflowExpressionBuilder;
             if (workflowExpressionBuilder == null || editorLaunching) return;
@@ -1717,7 +1725,7 @@ namespace Bonsai.Design
                 compositeExecutor.Value.Execute(addEditorMapping, removeEditorMapping);
             }
 
-            if (!editorLauncher.Visible || activate)
+            if (launch && (!editorLauncher.Visible || activate))
             {
                 var highlight = node.Highlight;
                 var visible = editorLauncher.Visible;
@@ -1760,7 +1768,7 @@ namespace Bonsai.Design
         internal void CloseWorkflowView(IWorkflowExpressionBuilder workflowExpressionBuilder)
         {
             commandExecutor.BeginCompositeCommand();
-            RemoveEditorMapping(workflowExpressionBuilder);
+            CloseWorkflowEditorLauncher(workflowExpressionBuilder, false);
             commandExecutor.EndCompositeCommand();
         }
 
@@ -1810,7 +1818,7 @@ namespace Bonsai.Design
                 if (editorLauncher.Visible) editorLauncher.UpdateEditorLayout();
                 dialogSettings = new WorkflowEditorSettings
                 {
-                    EditorVisualizerLayout = editorLauncher.VisualizerLayout,
+                    EditorVisualizerLayout = editorLauncher.Visible ? editorLauncher.VisualizerLayout : null,
                     EditorDialogSettings = new VisualizerDialogSettings
                     {
                         Visible = editorLauncher.Visible,
@@ -1840,13 +1848,15 @@ namespace Bonsai.Design
 
                 var graphNode = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == node.Value);
                 var workflowEditorSettings = layoutSettings as WorkflowEditorSettings;
-                if (workflowEditorSettings != null && workflowEditorSettings.EditorDialogSettings.Visible)
+                if (workflowEditorSettings != null)
                 {
                     var editorLayout = workflowEditorSettings.EditorVisualizerLayout;
+                    var editorVisible = workflowEditorSettings.EditorDialogSettings.Visible;
                     var editorBounds = ScaleBounds(workflowEditorSettings.EditorDialogSettings.Bounds, scaleFactor);
-                    LaunchWorkflowView(graphNode,
+                    CreateWorkflowView(graphNode,
                                        editorLayout,
                                        editorBounds,
+                                       launch: editorVisible,
                                        activate: false);
                 }
 
