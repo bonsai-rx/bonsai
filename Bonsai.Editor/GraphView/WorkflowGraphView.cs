@@ -872,7 +872,9 @@ namespace Bonsai.Design
 
             var workflowBuilder = builder as WorkflowExpressionBuilder;
             if (workflowBuilder != null && validate &&
-                workflowBuilder.ArgumentRange.UpperBound > 0 &&
+               (workflowBuilder.ArgumentRange.UpperBound > 0 ||
+                workflowBuilder is GroupWorkflowBuilder ||
+                workflowBuilder is NestedWorkflowBuilder) &&
                (workflowBuilder.ArgumentRange.LowerBound > 0 ||
                 closestNode != null && (nodeType == CreateGraphNodeType.Successor || workflow.PredecessorEdges(closestNode).Any())))
             {
