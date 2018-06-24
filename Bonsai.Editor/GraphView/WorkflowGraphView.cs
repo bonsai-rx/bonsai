@@ -1848,7 +1848,7 @@ namespace Bonsai.Design
 
                 var graphNode = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == node.Value);
                 var workflowEditorSettings = layoutSettings as WorkflowEditorSettings;
-                if (workflowEditorSettings != null)
+                if (workflowEditorSettings != null && workflowEditorSettings.EditorDialogSettings.Tag == null)
                 {
                     var editorLayout = workflowEditorSettings.EditorVisualizerLayout;
                     var editorVisible = workflowEditorSettings.EditorDialogSettings.Visible;
