@@ -15,30 +15,30 @@ namespace Bonsai.Expressions
     /// Represents an expression builder that creates a single value observable sequence
     /// from the result of the encapsulated workflow.
     /// </summary>
-    [XmlType("Start", Namespace = Constants.XmlNamespace)]
-    [Description("Creates a single value observable sequence from the result of the encapsulated workflow.")]
-    public class StartBuilder : WorkflowExpressionBuilder
+    [XmlType("CreateAsync", Namespace = Constants.XmlNamespace)]
+    [Description("Creates and emits the last value of the observable sequence for each subscription using the encapsulated workflow.")]
+    public class CreateAsyncBuilder : WorkflowExpressionBuilder
     {
         static readonly Expression UnitExpression = Expression.Constant(Observable.Return(Unit.Default), typeof(IObservable<Unit>));
         static readonly Range<int> argumentRange = Range.Create(lowerBound: 0, upperBound: 1);
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="StartBuilder"/> class.
+        /// Initializes a new instance of the <see cref="CreateAsyncBuilder"/> class.
         /// </summary>
-        public StartBuilder()
+        public CreateAsyncBuilder()
             : base(new ExpressionBuilderGraph())
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="StartBuilder"/> class
+        /// Initializes a new instance of the <see cref="CreateAsyncBuilder"/> class
         /// with the specified expression builder workflow.
         /// </summary>
         /// <param name="workflow">
         /// The expression builder workflow instance that will be used by this builder
         /// to generate the output expression tree.
         /// </param>
-        public StartBuilder(ExpressionBuilderGraph workflow)
+        public CreateAsyncBuilder(ExpressionBuilderGraph workflow)
             : base(workflow)
         {
         }
@@ -69,9 +69,9 @@ namespace Bonsai.Expressions
                 if (source != null)
                 {
                     var sourceType = source.Type.GetGenericArguments()[0];
-                    return Expression.Call(typeof(StartBuilder), "Process", new[] { sourceType, resultType }, source, factory);
+                    return Expression.Call(typeof(CreateAsyncBuilder), "Process", new[] { sourceType, resultType }, source, factory);
                 }
-                else return Expression.Call(typeof(StartBuilder), "Process", new[] { resultType }, factory);
+                else return Expression.Call(typeof(CreateAsyncBuilder), "Process", new[] { resultType }, factory);
             });
         }
 
