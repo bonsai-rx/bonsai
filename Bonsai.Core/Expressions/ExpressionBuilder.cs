@@ -20,7 +20,7 @@ namespace Bonsai.Expressions
     /// </summary>
     [XmlInclude(typeof(UnitBuilder))]
     [XmlInclude(typeof(DeferBuilder))]
-    [XmlInclude(typeof(StartBuilder))]
+    [XmlInclude(typeof(CreateAsyncBuilder))]
     [XmlInclude(typeof(SourceBuilder))]
     [XmlInclude(typeof(DisableBuilder))]
     [XmlInclude(typeof(ConditionBuilder))]
