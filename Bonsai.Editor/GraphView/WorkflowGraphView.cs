@@ -1115,12 +1115,11 @@ namespace Bonsai.Design
                 }
 
                 HideWorkflowEditorLauncher(editorLauncher);
-                if (removeEditorMapping)
-                {
-                    var removeMapping = CreateUpdateEditorMappingDelegate(editorMapping => editorMapping.Remove(workflowExpressionBuilder));
-                    var addMapping = CreateUpdateEditorMappingDelegate(editorMapping => editorMapping.Add(workflowExpressionBuilder, editorLauncher));
-                    commandExecutor.Execute(removeMapping, addMapping);
-                }
+                var removeMapping = removeEditorMapping
+                    ? CreateUpdateEditorMappingDelegate(editorMapping => editorMapping.Remove(workflowExpressionBuilder))
+                    : () => { };
+                var addMapping = CreateUpdateEditorMappingDelegate(editorMapping => editorMapping[workflowExpressionBuilder] = editorLauncher);
+                commandExecutor.Execute(removeMapping, addMapping);
             }
         }
 
