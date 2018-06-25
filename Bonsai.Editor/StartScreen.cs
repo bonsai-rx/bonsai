@@ -233,7 +233,10 @@ namespace Bonsai.Editor
                 var treeView = node.TreeView;
                 tabSelect = false;
                 ActivateNode(node);
-                treeView.SelectedNode = null;
+                if (!treeView.IsDisposed)
+                {
+                    treeView.SelectedNode = null;
+                }
             }
         }
 
