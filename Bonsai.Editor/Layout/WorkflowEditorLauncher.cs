@@ -165,7 +165,7 @@ namespace Bonsai.Design
                 visualizerDialog.Dock = DockStyle.Fill;
                 visualizerDialog.TopLevel = false;
                 visualizerDialog.Visible = true;
-                var tabState = workflowEditor.CreateTab(builder, visualizerDialog);
+                var tabState = workflowEditor.CreateTab(builder, ParentView.ReadOnly, visualizerDialog);
                 workflowGraphView = tabState.WorkflowGraphView;
                 tabState.TabClosing += EditorClosing;
             }

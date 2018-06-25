@@ -90,13 +90,13 @@ namespace Bonsai.Design
             return tabState;
         }
 
-        public TabPageController CreateTab(IWorkflowExpressionBuilder builder, Control owner)
+        public TabPageController CreateTab(IWorkflowExpressionBuilder builder, bool readOnly, Control owner)
         {
             var tabPage = new TabPage();
             tabPage.Padding = workflowTabPage.Padding;
             tabPage.UseVisualStyleBackColor = workflowTabPage.UseVisualStyleBackColor;
 
-            var tabState = InitializeTab(tabPage, WorkflowGraphView.ReadOnly || builder is IncludeWorkflowBuilder, owner);
+            var tabState = InitializeTab(tabPage, readOnly || builder is IncludeWorkflowBuilder, owner);
             tabState.Text = ExpressionBuilder.GetElementDisplayName(builder);
             tabState.WorkflowGraphView.Workflow = builder.Workflow;
             tabState.Builder = builder;
