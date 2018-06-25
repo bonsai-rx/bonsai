@@ -2283,19 +2283,6 @@ namespace Bonsai.Design
                 }
             }
 
-            if (!editorState.WorkflowRunning)
-            {
-                if (e.KeyCode == Keys.Z && e.Modifiers.HasFlag(Keys.Control))
-                {
-                    editorService.Undo();
-                }
-
-                if (e.KeyCode == Keys.Y && e.Modifiers.HasFlag(Keys.Control))
-                {
-                    editorService.Redo();
-                }
-            }
-
             if (!ReadOnly)
             {
                 if (e.KeyCode == Keys.Delete)
