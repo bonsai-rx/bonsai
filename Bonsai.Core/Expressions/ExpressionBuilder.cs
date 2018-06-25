@@ -1024,6 +1024,8 @@ namespace Bonsai.Expressions
                 }
             }
 
+            var property = Expression.Property(instance, propertyName);
+            if (source == ExpressionBuilder.EmptyExpression) return source;
             var sourceType = source.Type.GetGenericArguments()[0];
             var parameter = Expression.Parameter(sourceType);
 
@@ -1033,8 +1035,6 @@ namespace Bonsai.Expressions
                 body = MemberSelector(body, sourceSelector);
             }
 
-            var actionType = Expression.GetActionType(parameter.Type);
-            var property = Expression.Property(instance, propertyName);
             if (body.Type != property.Type)
             {
                 if (HasConversion(body.Type, property.Type))
@@ -1058,6 +1058,7 @@ namespace Bonsai.Expressions
             }
 
             body = Expression.Assign(property, body);
+            var actionType = Expression.GetActionType(parameter.Type);
             var action = Expression.Lambda(actionType, body, parameter);
             return Expression.Call(
                 typeof(ExpressionBuilder),

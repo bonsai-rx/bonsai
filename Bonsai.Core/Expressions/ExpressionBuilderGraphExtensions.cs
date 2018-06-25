@@ -596,8 +596,25 @@ namespace Bonsai.Expressions
                     return false;
                 });
 
-                // Externalized property nodes do not generate observable sequences
-                if (expression == ExpressionBuilder.EmptyExpression) continue;
+                // Do not generate output sequences if the result expression is empty
+                if (expression == ExpressionBuilder.EmptyExpression)
+                {
+                    // Validate externalized properties
+                    var externalizedProperty = workflowElement as ExternalizedProperty;
+                    if (externalizedProperty != null)
+                    {
+                        var argument = expression;
+                        foreach (var successor in node.Successors)
+                        {
+                            try { externalizedProperty.BuildArgument(argument, successor, out argument, string.Empty); }
+                            catch (Exception e)
+                            {
+                                throw new WorkflowBuildException(e.Message, builder, e);
+                            }
+                        }
+                    }
+                    continue;
+                }
 
                 MulticastScope multicastScope = null;
                 var argumentBuilder = workflowElement as IArgumentBuilder;
