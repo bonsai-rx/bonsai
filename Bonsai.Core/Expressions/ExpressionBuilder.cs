@@ -1008,6 +1008,9 @@ namespace Bonsai.Expressions
                             propertyName));
                     }
 
+                    // Checking nested externalized properties requires only one level of indirection
+                    if (source == ExpressionBuilder.EmptyExpression) return source;
+
                     var argument = source;
                     foreach (var successor in inputBuilder.node.Successors)
                     {
