@@ -33,7 +33,7 @@ namespace Bonsai.Expressions
                 else if (x == null) return -1;
                 else if (y == null) return 1;
                 var comparison = x.InstanceNumber.CompareTo(y.InstanceNumber);
-                return comparison != 0 ? comparison : 1;
+                return comparison != 0 ? comparison : x.DecoratorCounter.CompareTo(y.DecoratorCounter);
             }
         }
 

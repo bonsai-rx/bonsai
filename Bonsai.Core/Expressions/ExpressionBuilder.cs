@@ -49,8 +49,9 @@ namespace Bonsai.Expressions
     public abstract class ExpressionBuilder : IExpressionBuilder
     {
         const string ExpressionBuilderSuffix = "Builder";
-        internal readonly long InstanceNumber;
-        static long InstanceCounter;
+        internal readonly int DecoratorCounter;
+        internal readonly int InstanceNumber;
+        static int InstanceCounter;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExpressionBuilder"/> class.
@@ -60,9 +61,15 @@ namespace Bonsai.Expressions
             InstanceNumber = Interlocked.Increment(ref InstanceCounter);
         }
 
-        internal ExpressionBuilder(long counter)
+        internal ExpressionBuilder(ExpressionBuilder builder, bool decorator)
         {
-            InstanceNumber = counter;
+            if (builder == null)
+            {
+                throw new ArgumentNullException("builder");
+            }
+
+            InstanceNumber = builder.InstanceNumber;
+            DecoratorCounter = builder.DecoratorCounter + (decorator ? 1 : 0);
         }
 
         /// <summary>
