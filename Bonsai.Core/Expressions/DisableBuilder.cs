@@ -30,7 +30,7 @@ namespace Bonsai.Expressions
         /// </summary>
         /// <param name="builder">The expression builder instance to be disabled.</param>
         public DisableBuilder(ExpressionBuilder builder)
-            : base(builder.InstanceNumber)
+            : base(builder, decorator: true)
         {
             Builder = builder;
         }
