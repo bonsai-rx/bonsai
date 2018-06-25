@@ -58,11 +58,13 @@ namespace Bonsai.Expressions
             for (int i = 0; i < properties.Length; i++)
             {
                 var descriptor = TypeDescriptor.GetProperties(components[i])[property.MemberName];
+                if (descriptor == null) return emptyProperties;
+
                 if (propertyType == null)
                 {
                     propertyType = descriptor.PropertyType;
                 }
-                else if (descriptor == null || descriptor.PropertyType != propertyType)
+                else if (descriptor.PropertyType != propertyType)
                 {
                     return emptyProperties;
                 }
