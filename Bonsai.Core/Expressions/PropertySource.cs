@@ -69,11 +69,31 @@ namespace Bonsai.Expressions
     [XmlType(Namespace = Constants.XmlNamespace)]
     public class PropertySource<TElement, TValue> : PropertySource, INamedElement
     {
+        TValue value;
+        event Action<TValue> ValueChanged;
+
         /// <summary>
         /// Gets or sets the value of the property.
         /// </summary>
         [Description("The value of the property.")]
-        public TValue Value { get; set; }
+        public TValue Value
+        {
+            get { return value; }
+            set
+            {
+                this.value = value;
+                OnValueChanged(value);
+            }
+        }
+
+        void OnValueChanged(TValue value)
+        {
+            var handler = ValueChanged;
+            if (handler != null)
+            {
+                handler(value);
+            }
+        }
 
         internal override Type ElementType
         {
@@ -82,7 +102,11 @@ namespace Bonsai.Expressions
 
         IObservable<TValue> Generate()
         {
-            return Observable.Defer(() => Observable.Return(Value));
+            return Observable
+                .Defer(() => Observable.Return(value))
+                .Concat(Observable.FromEvent<TValue>(
+                    handler => ValueChanged += handler,
+                    handler => ValueChanged -= handler));
         }
 
         IObservable<TValue> Generate<TSource>(IObservable<TSource> source)
