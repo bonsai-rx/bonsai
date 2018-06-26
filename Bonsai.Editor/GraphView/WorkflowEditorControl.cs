@@ -209,6 +209,12 @@ namespace Bonsai.Design
             base.OnLoad(e);
         }
 
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            editorService.OnKeyDown(e);
+            base.OnKeyDown(e);
+        }
+
         internal class TabPageController
         {
             const string CloseSuffix = "   \u2715";
@@ -297,6 +303,8 @@ namespace Bonsai.Design
                     CloseTab(tabState);
                 }
             }
+
+            editorService.OnKeyDown(e);
         }
 
         void tabControl_MouseUp(object sender, MouseEventArgs e)
