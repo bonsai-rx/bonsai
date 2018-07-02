@@ -190,7 +190,7 @@ namespace Bonsai.IO
                     var fileName = FileName;
                     if (string.IsNullOrEmpty(fileName))
                     {
-                        throw new InvalidOperationException("A valid filename must be specified.");
+                        throw new InvalidOperationException("A valid file path must be specified.");
                     }
 
                     PathHelper.EnsureDirectory(fileName);

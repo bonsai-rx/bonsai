@@ -140,7 +140,10 @@ namespace Bonsai.IO
                             if (runningWriter == null)
                             {
                                 var fileName = FileName;
-                                if (string.IsNullOrEmpty(fileName)) return;
+                                if (string.IsNullOrEmpty(fileName))
+                                {
+                                    throw new InvalidOperationException("A valid file path must be specified.");
+                                }
 
                                 PathHelper.EnsureDirectory(fileName);
                                 fileName = PathHelper.AppendSuffix(fileName, Suffix);

@@ -37,11 +37,6 @@ namespace Bonsai.Vision
 
         protected override VideoWriterDisposable CreateWriter(string fileName, IplImage input)
         {
-            if (string.IsNullOrEmpty(fileName))
-            {
-                throw new InvalidOperationException("A valid video file path was not specified.");
-            }
-
             if (string.IsNullOrEmpty(Path.GetExtension(fileName)))
             {
                 throw new InvalidOperationException("The specified video file path must have a valid container extension (e.g. .avi).");

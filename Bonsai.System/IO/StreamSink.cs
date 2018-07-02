@@ -104,44 +104,41 @@ namespace Bonsai.IO
             return Observable.Create<TElement>(observer =>
             {
                 var path = Path;
-                Task<TWriter> writerTask = null;
-                if (!string.IsNullOrEmpty(path))
+                if (string.IsNullOrEmpty(path))
                 {
-                    writerTask = new Task<TWriter>(() =>
-                    {
-                        Stream stream = null;
-                        try
-                        {
-                            if (!path.StartsWith(@"\\")) PathHelper.EnsureDirectory(path);
-                            path = PathHelper.AppendSuffix(path, Suffix);
-                            stream = CreateStream(path, Overwrite);
-                            return CreateWriter(stream);
-                        }
-                        catch (Exception ex)
-                        {
-                            observer.OnError(ex);
-                            if (stream != null) stream.Close();
-                            return null;
-                        }
-                    });
-                    writerTask.Start();
+                    throw new InvalidOperationException("A valid path must be specified.");
                 }
+
+                var writerTask = new Task<TWriter>(() =>
+                {
+                    Stream stream = null;
+                    try
+                    {
+                        if (!path.StartsWith(@"\\")) PathHelper.EnsureDirectory(path);
+                        path = PathHelper.AppendSuffix(path, Suffix);
+                        stream = CreateStream(path, Overwrite);
+                        return CreateWriter(stream);
+                    }
+                    catch (Exception ex)
+                    {
+                        observer.OnError(ex);
+                        if (stream != null) stream.Close();
+                        return null;
+                    }
+                });
+                writerTask.Start();
 
                 var close = Disposable.Create(() =>
                 {
-                    if (writerTask != null)
+                    writerTask.ContinueWith(task =>
                     {
-                        writerTask.ContinueWith(task =>
-                        {
-                            var writer = task.Result;
-                            if (writer != null) writer.Dispose();
-                        });
-                    }
+                        var writer = task.Result;
+                        if (writer != null) writer.Dispose();
+                    });
                 });
 
                 var process = source.Do(input =>
                 {
-                    if (writerTask == null) return;
                     writerTask = writerTask.ContinueWith(task =>
                     {
                         if (task.Result != null)
