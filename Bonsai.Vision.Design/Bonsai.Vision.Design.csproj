@@ -151,6 +151,7 @@
     <Compile Include="IplImageVisualizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TimestampedIplImageVisualizer.cs" />
+    <Compile Include="VisualizerHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="VideoPlayer.resx">

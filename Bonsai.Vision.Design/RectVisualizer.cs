@@ -1,14 +1,10 @@
 ﻿using Bonsai;
-using Bonsai.Dag;
 using Bonsai.Design;
-using Bonsai.Expressions;
-using Bonsai.Vision;
 using Bonsai.Vision.Design;
 using OpenCV.Net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -52,21 +48,10 @@ namespace Bonsai.Vision.Design
 
         public override void Load(IServiceProvider provider)
         {
-            var inputInspector = default(InspectBuilder);
-            var workflow = (ExpressionBuilderGraph)provider.GetService(typeof(ExpressionBuilderGraph));
-            var context = (ITypeVisualizerContext)provider.GetService(typeof(ITypeVisualizerContext));
-            if (workflow != null && context != null)
+            var imageInput = VisualizerHelper.ImageInput(provider);
+            if (imageInput != null)
             {
-                inputInspector = workflow.Where(node => node.Value == context.Source)
-                                         .Select(node => workflow.Predecessors(node)
-                                                                 .Select(p => p.Value as InspectBuilder)
-                                                                 .FirstOrDefault())
-                                         .FirstOrDefault();
-            }
-
-            if (inputInspector != null && inputInspector.ObservableType == typeof(IplImage))
-            {
-                inputHandle = inputInspector.Output.Merge().Subscribe(value => input = (IplImage)value);
+                inputHandle = imageInput.Subscribe(value => input = (IplImage)value);
                 base.Load(provider);
             }
             else
