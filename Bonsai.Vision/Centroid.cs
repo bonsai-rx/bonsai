@@ -1,6 +1,7 @@
 ﻿using OpenCV.Net;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Vision
 {
+    [Description("Computes the centroid for a set of points, image moments, or binary contour shape.")]
     public class Centroid : Transform<Point[], Point2f>
     {
         static readonly Point2f InvalidCentroid = new Point2f(float.NaN, float.NaN);
