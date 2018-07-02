@@ -203,6 +203,12 @@ namespace Bonsai.Design
             }
         }
 
+        protected override void OnFontChanged(EventArgs e)
+        {
+            WorkflowGraphView.Font = Font;
+            base.OnFontChanged(e);
+        }
+
         protected override void OnLoad(EventArgs e)
         {
             ActivateTab(workflowTabPage);
