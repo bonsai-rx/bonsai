@@ -89,6 +89,7 @@
     <Compile Include="BinaryRegionExtremesMashupVisualizer.cs" />
     <Compile Include="ContourConvexityMashupVisualizer.cs" />
     <Compile Include="CircleVisualizer.cs" />
+    <Compile Include="PolygonMashupVisualizer.cs" />
     <Compile Include="RectMashupVisualizer.cs" />
     <Compile Include="RectVisualizer.cs" />
     <Compile Include="KeyPointOpticalFlowMashupVisualizer.cs" />
@@ -100,6 +101,7 @@
     <Compile Include="PointVisualizer.cs" />
     <Compile Include="FileCaptureEditor.cs" />
     <Compile Include="PointMashupVisualizer.cs" />
+    <Compile Include="PolygonVisualizer.cs" />
     <Compile Include="ScalarHistogramVisualizer.cs" />
     <Compile Include="IplImageMashupVisualizer.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
