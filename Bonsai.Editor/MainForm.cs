@@ -1722,18 +1722,11 @@ namespace Bonsai.Editor
                     if (selectedNode.Tag != null)
                     {
                         var elementCategory = (ElementCategory)selectedNode.Tag;
-                        if (elementCategory == ElementCategory.Source)
-                        {
-                            toolboxSourceContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);
-                        }
-                        else
-                        {
-                            createGroupToolStripMenuItem.Visible =
-                                elementCategory == ElementCategory.Nested ||
-                                selectedNode.Name == typeof(ConditionBuilder).AssemblyQualifiedName ||
-                                selectedNode.Name == typeof(SinkBuilder).AssemblyQualifiedName;
-                            toolboxContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);
-                        }
+                        createGroupToolStripMenuItem.Visible =
+                            elementCategory == ElementCategory.Nested ||
+                            selectedNode.Name == typeof(ConditionBuilder).AssemblyQualifiedName ||
+                            selectedNode.Name == typeof(SinkBuilder).AssemblyQualifiedName;
+                        toolboxContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);
                     }
                 }
             }
