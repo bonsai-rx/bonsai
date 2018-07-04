@@ -11,6 +11,8 @@ namespace Bonsai.NuGet
 {
     public class LicenseAwarePackageManager : PackageManager
     {
+        static readonly FrameworkName DefaultFramework = new FrameworkName(".NETFramework,Version=v4.5");
+
         public LicenseAwarePackageManager(IPackageRepository sourceRepository, string path)
             : base(sourceRepository, path)
         {
@@ -46,7 +48,7 @@ namespace Bonsai.NuGet
 
         public override void InstallPackage(IPackage package, bool ignoreDependencies, bool allowPrereleaseVersions)
         {
-            InstallPackage(package, null, ignoreDependencies, allowPrereleaseVersions);
+            InstallPackage(package, DefaultFramework, ignoreDependencies, allowPrereleaseVersions);
         }
 
         protected void InstallPackage(
