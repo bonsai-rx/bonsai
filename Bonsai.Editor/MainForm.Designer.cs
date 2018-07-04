@@ -122,8 +122,6 @@
             this.insertBeforeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createBranchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createGroupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolboxSourceContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.createSourceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.commandExecutor = new Bonsai.Design.CommandExecutor();
             this.snippetFileWatcher = new System.IO.FileSystemWatcher();
             this.exportImageDialog = new System.Windows.Forms.SaveFileDialog();
@@ -153,7 +151,6 @@
             this.workflowSplitContainer.Panel2.SuspendLayout();
             this.workflowSplitContainer.SuspendLayout();
             this.toolboxContextMenuStrip.SuspendLayout();
-            this.toolboxSourceContextMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.snippetFileWatcher)).BeginInit();
             this.SuspendLayout();
             // 
@@ -1023,21 +1020,6 @@
             this.createGroupToolStripMenuItem.Text = "Create Group";
             this.createGroupToolStripMenuItem.Click += new System.EventHandler(this.createGroupToolStripMenuItem_Click);
             // 
-            // toolboxSourceContextMenuStrip
-            // 
-            this.toolboxSourceContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.createSourceToolStripMenuItem});
-            this.toolboxSourceContextMenuStrip.Name = "toolboxSourceContextMenuStrip";
-            this.toolboxSourceContextMenuStrip.Size = new System.Drawing.Size(182, 26);
-            // 
-            // createSourceToolStripMenuItem
-            // 
-            this.createSourceToolStripMenuItem.Name = "createSourceToolStripMenuItem";
-            this.createSourceToolStripMenuItem.ShortcutKeyDisplayString = "Enter";
-            this.createSourceToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
-            this.createSourceToolStripMenuItem.Text = "Create Source";
-            this.createSourceToolStripMenuItem.Click += new System.EventHandler(this.insertAfterToolStripMenuItem_Click);
-            // 
             // commandExecutor
             // 
             this.commandExecutor.StatusChanged += new System.EventHandler(this.commandExecutor_StatusChanged);
@@ -1110,7 +1092,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.workflowSplitContainer)).EndInit();
             this.workflowSplitContainer.ResumeLayout(false);
             this.toolboxContextMenuStrip.ResumeLayout(false);
-            this.toolboxSourceContextMenuStrip.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.snippetFileWatcher)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -1189,8 +1170,6 @@
         private System.Windows.Forms.ToolStripMenuItem insertAfterToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem insertBeforeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem createBranchToolStripMenuItem;
-        private System.Windows.Forms.ContextMenuStrip toolboxSourceContextMenuStrip;
-        private System.Windows.Forms.ToolStripMenuItem createSourceToolStripMenuItem;
         private System.Windows.Forms.SplitContainer propertiesSplitContainer;
         private System.Windows.Forms.RichTextBox propertiesDescriptionTextBox;
         private Bonsai.Editor.BorderPanel propertiesDescriptionPanel;
