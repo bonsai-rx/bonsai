@@ -1089,7 +1089,9 @@ namespace Bonsai.Design
                 removeEdge();
             });
 
-            var workflowExpressionBuilder = GetGraphNodeBuilder(node) as IWorkflowExpressionBuilder;
+            var builder = GetGraphNodeBuilder(node);
+            var disableBuilder = builder as DisableBuilder;
+            var workflowExpressionBuilder = (disableBuilder != null ? disableBuilder.Builder : builder) as IWorkflowExpressionBuilder;
             if (workflowExpressionBuilder != null)
             {
                 CloseWorkflowEditorLauncher(workflowExpressionBuilder);
@@ -1639,7 +1641,8 @@ namespace Bonsai.Design
         private void LaunchDefaultEditor(GraphNode node)
         {
             var builder = GetGraphNodeBuilder(node);
-            var workflowBuilder = builder as IWorkflowExpressionBuilder;
+            var disableBuilder = builder as DisableBuilder;
+            var workflowBuilder = (disableBuilder != null ? disableBuilder.Builder : builder) as IWorkflowExpressionBuilder;
             if (workflowBuilder != null && workflowBuilder.Workflow != null) LaunchWorkflowView(node);
             else if (builder != null)
             {
@@ -1696,11 +1699,14 @@ namespace Bonsai.Design
 
         private void CreateWorkflowView(GraphNode node, VisualizerLayout editorLayout, Rectangle bounds, bool launch, bool activate)
         {
-            var workflowExpressionBuilder = GetGraphNodeBuilder(node) as IWorkflowExpressionBuilder;
+            var builder = GetGraphNodeBuilder(node);
+            var disableBuilder = builder as DisableBuilder;
+            var workflowExpressionBuilder = (disableBuilder != null ? disableBuilder.Builder : builder) as IWorkflowExpressionBuilder;
             if (workflowExpressionBuilder == null || editorLaunching) return;
 
             editorLaunching = true;
             var launcher = Launcher;
+            var readOnly = ReadOnly || disableBuilder != null || workflowExpressionBuilder is IncludeWorkflowBuilder;
             var parentLaunching = launcher != null && launcher.ParentView.editorLaunching;
             var compositeExecutor = new Lazy<CommandExecutor>(() =>
             {
@@ -1723,6 +1729,7 @@ namespace Bonsai.Design
 
                 editorLauncher = new WorkflowEditorLauncher(workflowExpressionBuilder, parentSelector, containerSelector);
                 editorLauncher.VisualizerLayout = editorLayout;
+                editorLauncher.ReadOnly = readOnly;
                 editorLauncher.Bounds = bounds;
                 var addEditorMapping = CreateUpdateEditorMappingDelegate(editorMapping => editorMapping.Add(workflowExpressionBuilder, editorLauncher));
                 var removeEditorMapping = CreateUpdateEditorMappingDelegate(editorMapping => editorMapping.Remove(workflowExpressionBuilder));
