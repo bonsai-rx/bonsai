@@ -1467,17 +1467,17 @@ namespace Bonsai.Editor
             }
 
             var selectedView = selectionModel.SelectedView;
-            var readOnly = selectedView == null || selectedView.ReadOnly;
+            var canEdit = selectedView == null || selectedView.CanEdit;
             var hasSelectedObjects = selectedObjects.Length > 0;
             saveSnippetAsToolStripMenuItem.Enabled = hasSelectedObjects;
-            pasteToolStripMenuItem.Enabled = !readOnly;
+            pasteToolStripMenuItem.Enabled = !canEdit;
             copyToolStripMenuItem.Enabled = hasSelectedObjects;
-            cutToolStripMenuItem.Enabled = !readOnly && hasSelectedObjects;
-            deleteToolStripMenuItem.Enabled = !readOnly && hasSelectedObjects;
-            groupToolStripMenuItem.Enabled = !readOnly && hasSelectedObjects;
-            ungroupToolStripMenuItem.Enabled = !readOnly && hasSelectedObjects;
-            enableToolStripMenuItem.Enabled = !readOnly && hasSelectedObjects;
-            disableToolStripMenuItem.Enabled = !readOnly && hasSelectedObjects;
+            cutToolStripMenuItem.Enabled = !canEdit && hasSelectedObjects;
+            deleteToolStripMenuItem.Enabled = !canEdit && hasSelectedObjects;
+            groupToolStripMenuItem.Enabled = !canEdit && hasSelectedObjects;
+            ungroupToolStripMenuItem.Enabled = !canEdit && hasSelectedObjects;
+            enableToolStripMenuItem.Enabled = !canEdit && hasSelectedObjects;
+            disableToolStripMenuItem.Enabled = !canEdit && hasSelectedObjects;
             if (!hasSelectedObjects)
             {
                 // Select externalized properties
@@ -1636,7 +1636,7 @@ namespace Bonsai.Editor
             const string ErrorCaption = "Type Error";
             const string ErrorMessage = "Failed to create {0}:\n{1}";
             var model = selectionModel.SelectedView;
-            if (model.ReadOnly) return;
+            if (model.CanEdit) return;
 
             var group = modifiers.HasFlag(WorkflowGraphView.GroupModifier);
             var branch = modifiers.HasFlag(WorkflowGraphView.BranchModifier);
@@ -2090,7 +2090,7 @@ namespace Bonsai.Editor
             public void OnKeyPress(KeyPressEventArgs e)
             {
                 var model = siteForm.selectionModel.SelectedView ?? siteForm.editorControl.WorkflowGraphView;
-                if (!model.ReadOnly && model.GraphView.Focused)
+                if (!model.CanEdit && model.GraphView.Focused)
                 {
                     if (char.IsLetter(e.KeyChar))
                     {
