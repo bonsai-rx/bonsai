@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bonsai.Properties;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -147,6 +148,12 @@ namespace Bonsai.Expressions
                 var operand = Operand;
                 if (operand == null || operand.PropertyType != expression.Type)
                 {
+                    if (expression.Type.IsInterface ||
+                        expression.Type.IsClass && expression.Type.GetConstructor(Type.EmptyTypes) == null)
+                    {
+                        throw new InvalidOperationException(string.Format(Resources.Exception_UnsupportedMinArgumentCount, 2));
+                    }
+
                     var propertyType = GetWorkflowPropertyType(expression.Type);
                     Operand = operand = (WorkflowProperty)Activator.CreateInstance(propertyType);
                 }
