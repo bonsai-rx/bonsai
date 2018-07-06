@@ -112,12 +112,74 @@ namespace Bonsai.Expressions
         }
 
         /// <summary>
+        /// Returns a value indicating whether this instance is equal to a specified object.
+        /// </summary>
+        /// <param name="obj">An object to compare with this instance.</param>
+        /// <returns>
+        /// <b>true</b> if <paramref name="obj"/> is an instance of <see cref="ExpressionBuilderArgument"/>
+        /// and its index equals the index value of this instance; otherwise, false.
+        /// </returns>
+        public override bool Equals(object obj)
+        {
+            var argument = obj as ExpressionBuilderArgument;
+            if (argument == null) return false;
+            return Index.Equals(argument.Index);
+        }
+
+        /// <summary>
+        /// Returns the hash code for this instance.
+        /// </summary>
+        /// <returns>A 32-bit signed integer hash code.</returns>
+        public override int GetHashCode()
+        {
+            return Index.GetHashCode();
+        }
+
+        /// <summary>
         /// Returns a string that represents the current object.
         /// </summary>
         /// <returns>A string that represents the current object.</returns>
         public override string ToString()
         {
             return Name;
+        }
+
+        /// <summary>
+        /// Tests whether two <see cref="ExpressionBuilderArgument"/> instances are equal.
+        /// </summary>
+        /// <param name="left">The <see cref="ExpressionBuilderArgument"/> instance on the left of the equality operator.</param>
+        /// <param name="right">The <see cref="ExpressionBuilderArgument"/> instance on the right of the equality operator.</param>
+        /// <returns>
+        /// <b>true</b> if <paramref name="left"/> and <paramref name="right"/> have equal index;
+        /// otherwise, <b>false</b>.
+        /// </returns>
+        public static bool operator ==(ExpressionBuilderArgument left, ExpressionBuilderArgument right)
+        {
+            if (object.ReferenceEquals(left, null))
+            {
+                return object.ReferenceEquals(right, null);
+            }
+
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        /// Tests whether two <see cref="ExpressionBuilderArgument"/> instances are different.
+        /// </summary>
+        /// <param name="left">The <see cref="ExpressionBuilderArgument"/> instance on the left of the inequality operator.</param>
+        /// <param name="right">The <see cref="ExpressionBuilderArgument"/> instance on the right of the inequality operator.</param>
+        /// <returns>
+        /// <b>true</b> if <paramref name="left"/> and <paramref name="right"/> differ in index;
+        /// <b>false</b> if <paramref name="left"/> and <paramref name="right"/> are equal.
+        /// </returns>
+        public static bool operator !=(ExpressionBuilderArgument left, ExpressionBuilderArgument right)
+        {
+            if (object.ReferenceEquals(left, null))
+            {
+                return !object.ReferenceEquals(right, null);
+            }
+
+            return !left.Equals(right);
         }
 
         /// <summary>
