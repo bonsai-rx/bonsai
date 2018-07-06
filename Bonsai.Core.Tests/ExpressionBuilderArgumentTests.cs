@@ -8,6 +8,14 @@ namespace Bonsai.Core.Tests
     public class ExpressionBuilderArgumentTests
     {
         [TestMethod]
+        public void Equals_ZeroZero_ReturnsTrue()
+        {
+            var argument = new ExpressionBuilderArgument();
+            var zero = new ExpressionBuilderArgument();
+            Assert.AreEqual(true, argument.Equals(zero));
+        }
+
+        [TestMethod]
         public void CompareTo_Null_ReturnsGreaterThanZero()
         {
             var argument = new ExpressionBuilderArgument();
