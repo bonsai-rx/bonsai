@@ -45,9 +45,9 @@ namespace Bonsai.Expressions
         /// </returns>
         public static bool IsBuildDependency(this ExpressionBuilder builder)
         {
-            builder = ExpressionBuilder.Unwrap(builder);
-            return !(builder is InputMappingBuilder) && builder is PropertyMappingBuilder ||
-                   builder is ExternalizedProperty;
+            var element = ExpressionBuilder.GetWorkflowElement(builder);
+            return !(element is InputMappingBuilder) && element is PropertyMappingBuilder ||
+                   element is ExternalizedProperty;
         }
 
         /// <summary>
