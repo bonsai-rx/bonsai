@@ -273,7 +273,7 @@ namespace Bonsai
                 }
             }
 
-            var binaryOperator = builder as BinaryOperatorBuilder;
+            var binaryOperator = element as BinaryOperatorBuilder;
             if (binaryOperator != null && binaryOperator.Operand != null) yield return binaryOperator.Operand;
         }
 
