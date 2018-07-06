@@ -129,4 +129,10 @@
   <data name="Exception_SerializingUnknownTypeBuilder" xml:space="preserve">
     <value>The workflow contains unspecified types. Please install any missing packages or replace the affected modules and try again.</value>
   </data>
+  <data name="Exception_UnsupportedMaxArgumentCount" xml:space="preserve">
+    <value>Unsupported number of arguments. This node supports at most {0} input connection(s).</value>
+  </data>
+  <data name="Exception_UnsupportedMinArgumentCount" xml:space="preserve">
+    <value>Unsupported number of arguments. This node requires at least {0} input connection(s).</value>
+  </data>
 </root>

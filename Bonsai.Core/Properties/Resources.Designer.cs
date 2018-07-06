@@ -95,5 +95,23 @@ namespace Bonsai.Properties {
                 return ResourceManager.GetString("Exception_SerializingUnknownTypeBuilder", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unsupported number of arguments. This node supports at most {0} input connection(s)..
+        /// </summary>
+        internal static string Exception_UnsupportedMaxArgumentCount {
+            get {
+                return ResourceManager.GetString("Exception_UnsupportedMaxArgumentCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unsupported number of arguments. This node requires at least {0} input connection(s)..
+        /// </summary>
+        internal static string Exception_UnsupportedMinArgumentCount {
+            get {
+                return ResourceManager.GetString("Exception_UnsupportedMinArgumentCount", resourceCulture);
+            }
+        }
     }
 }

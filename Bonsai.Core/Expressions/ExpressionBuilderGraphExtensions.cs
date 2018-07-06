@@ -523,16 +523,12 @@ namespace Bonsai.Expressions
 
                 if (arguments.Count < argumentRange.LowerBound)
                 {
-                    throw new WorkflowBuildException(
-                        string.Format("Unsupported number of arguments. This node requires at least {0} input connection(s).", argumentRange.LowerBound),
-                        builder);
+                    throw new WorkflowBuildException(string.Format(Resources.Exception_UnsupportedMinArgumentCount, argumentRange.LowerBound), builder);
                 }
 
                 if (arguments.Count > argumentRange.UpperBound)
                 {
-                    throw new WorkflowBuildException(
-                        string.Format("Unsupported number of arguments. This node supports at most {0} input connection(s).", argumentRange.LowerBound),
-                        builder);
+                    throw new WorkflowBuildException(string.Format(Resources.Exception_UnsupportedMaxArgumentCount, argumentRange.LowerBound), builder);
                 }
 
                 var workflowProperty = workflowElement as ExternalizedProperty;
