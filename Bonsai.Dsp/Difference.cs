@@ -14,6 +14,11 @@ namespace Bonsai.Dsp
         int order;
         FirFilter filter = new FirFilter();
 
+        public Difference()
+        {
+            Order = 1;
+        }
+
         [Description("The number of times to apply the difference operator.")]
         public int Order
         {
