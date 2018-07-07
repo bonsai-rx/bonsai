@@ -25,10 +25,7 @@ namespace Bonsai.Shaders
                 ShaderManager.ReserveShader(ShaderName),
                 (input, shader) =>
                 {
-                    shader.Update(() =>
-                    {
-                        shader.Enabled = Enabled;
-                    });
+                    shader.Enabled = Enabled;
                     return input;
                 });
         }
