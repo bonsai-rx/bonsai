@@ -51,7 +51,7 @@
             this.glslScriptEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.meshCollectionEditor = new Bonsai.Shaders.Configuration.Design.CollectionEditorControl();
             this.textureCollectionEditor = new Bonsai.Shaders.Configuration.Design.CollectionEditorControl();
-            this.shaderCollectionEditor = new Bonsai.Shaders.Configuration.Design.CollectionEditorControl();
+            this.shaderCollectionEditor = new Bonsai.Shaders.Configuration.Design.ShaderCollectionEditorControl();
             this.flowLayoutPanel.SuspendLayout();
             this.menuStrip.SuspendLayout();
             this.SuspendLayout();
@@ -352,7 +352,7 @@
         private System.Windows.Forms.Label propertiesLabel;
         private Bonsai.Design.PropertyGrid propertyGrid;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel;
-        private CollectionEditorControl shaderCollectionEditor;
+        private ShaderCollectionEditorControl shaderCollectionEditor;
         private CollectionEditorControl textureCollectionEditor;
         private CollectionEditorControl meshCollectionEditor;
         private System.Windows.Forms.Label memberLabel;

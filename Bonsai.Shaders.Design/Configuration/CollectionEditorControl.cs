@@ -251,6 +251,23 @@ namespace Bonsai.Shaders.Configuration.Design
             }
         }
 
+        protected virtual bool DeserializeItems(XmlReader reader)
+        {
+            var serializer = itemCollectionSerializer.Value;
+            if (serializer.CanDeserialize(reader))
+            {
+                var items = (IList)serializer.Deserialize(reader);
+                foreach (var item in items)
+                {
+                    AddItem(item);
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
         public void Paste()
         {
             if (Clipboard.ContainsText())
@@ -259,19 +276,7 @@ namespace Bonsai.Shaders.Configuration.Design
                 var stringReader = new StringReader(text);
                 using (var reader = XmlReader.Create(stringReader))
                 {
-                    try
-                    {
-                        var serializer = itemCollectionSerializer.Value;
-                        if (serializer.CanDeserialize(reader))
-                        {
-                            var items = (IList)serializer.Deserialize(reader);
-                            var index = selectionListBox.SelectedIndex;
-                            foreach (var item in items)
-                            {
-                                AddItem(item);
-                            }
-                        }
-                    }
+                    try { DeserializeItems(reader); }
                     catch (XmlException) { }
                     catch (InvalidOperationException) { }
                 }

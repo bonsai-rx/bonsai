@@ -82,6 +82,9 @@
     <Compile Include="Configuration\DragTextureConfiguration.cs" />
     <Compile Include="Configuration\MaterialConfigurationEditor.cs" />
     <Compile Include="Configuration\MtlReader.cs" />
+    <Compile Include="Configuration\ShaderCollectionEditorControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Configuration\UniformConfigurationCollectionEditor.cs" />
     <Compile Include="Configuration\MeshConfigurationEditor.cs" />
     <Compile Include="Configuration\FramebufferAttachmentConfigurationCollectionEditor.cs" />
