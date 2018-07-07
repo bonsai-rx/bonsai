@@ -21,7 +21,7 @@ namespace Bonsai.Vision
         public MorphologicalOperator()
         {
             Size = new Size(3, 3);
-            Anchor = new Point(1, 1);
+            Anchor = new Point(-1, -1);
             Iterations = 1;
         }
 
@@ -92,9 +92,16 @@ namespace Bonsai.Vision
                 {
                     if (strel == null || updateStrel)
                     {
+                        var size = Size;
+                        var anchor = Anchor;
                         updateStrel = false;
                         if (strel != null) strel.Close();
-                        strel = new IplConvKernel(Size.Width, Size.Height, Anchor.X, Anchor.Y, Shape);
+                        strel = new IplConvKernel(
+                            size.Width,
+                            size.Height,
+                            anchor.X < 0 ? size.Width / 2 : anchor.X,
+                            anchor.Y < 0 ? size.Height / 2 : anchor.Y,
+                            Shape);
                     }
 
                     var output = new IplImage(input.Size, input.Depth, input.Channels);
