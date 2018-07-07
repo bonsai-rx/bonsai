@@ -73,5 +73,10 @@ namespace Bonsai.Dsp
         {
             return filter.Process(source);
         }
+
+        public IObservable<Point2f> Process(IObservable<Point2f> source)
+        {
+            return filter.Process(source);
+        }
     }
 }

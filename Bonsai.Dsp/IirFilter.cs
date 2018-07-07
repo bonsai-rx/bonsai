@@ -180,5 +180,19 @@ namespace Bonsai.Dsp
                                          .Select(x => x.GetReal(0));
                 });
         }
+
+        public IObservable<Point2f> Process(IObservable<Point2f> source)
+        {
+            return Observable.Using(
+                () => new Mat(2, 1, Depth.F32, 1),
+                buffer =>
+                {
+                    return Process(source.Do(p => { buffer.SetReal(0, 0, p.X); buffer.SetReal(1, 0, p.Y); })
+                                         .Select(x => buffer))
+                                         .Select(x => new Point2f(
+                                             (float)x.GetReal(0, 0),
+                                             (float)x.GetReal(1, 0)));
+                });
+        }
     }
 }
