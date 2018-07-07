@@ -22,6 +22,55 @@ namespace Bonsai.Dsp
         [Description("The type of array norm to calculate.")]
         public NormTypes NormType { get; set; }
 
+        static double ComputeNorm(double x, double y, NormTypes norm)
+        {
+            switch (norm)
+            {
+                case NormTypes.C: return Math.Max(Math.Abs(x), Math.Abs(y));
+                case NormTypes.L1: return Math.Abs(x) + Math.Abs(y);
+                case NormTypes.L2: return Math.Sqrt(x * x + y * y);
+                case NormTypes.L2Sqr: return x * x + y * y;
+                default: throw new InvalidOperationException("The specified norm is not supported for this data type.");
+            }
+        }
+
+        static double ComputeNorm(double x, double y, double z, NormTypes norm)
+        {
+            switch (norm)
+            {
+                case NormTypes.C: return Math.Max(Math.Abs(x), Math.Max(Math.Abs(y), Math.Abs(z)));
+                case NormTypes.L1: return Math.Abs(x) + Math.Abs(y) + Math.Abs(z);
+                case NormTypes.L2: return Math.Sqrt(x * x + y * y + z * z);
+                case NormTypes.L2Sqr: return x * x + y * y + z * z;
+                default: throw new InvalidOperationException("The specified norm is not supported for this data type.");
+            }
+        }
+
+        public IObservable<double> Process(IObservable<Point> source)
+        {
+            return source.Select(input => ComputeNorm(input.X, input.Y, NormType));
+        }
+
+        public IObservable<double> Process(IObservable<Point2f> source)
+        {
+            return source.Select(input => ComputeNorm(input.X, input.Y, NormType));
+        }
+
+        public IObservable<double> Process(IObservable<Point2d> source)
+        {
+            return source.Select(input => ComputeNorm(input.X, input.Y, NormType));
+        }
+
+        public IObservable<double> Process(IObservable<Point3f> source)
+        {
+            return source.Select(input => ComputeNorm(input.X, input.Y, input.Z, NormType));
+        }
+
+        public IObservable<double> Process(IObservable<Point3d> source)
+        {
+            return source.Select(input => ComputeNorm(input.X, input.Y, input.Z, NormType));
+        }
+
         public IObservable<double> Process<TArray>(IObservable<TArray> source) where TArray : Arr
         {
             return source.Select(input => CV.Norm(input, null, NormType));
