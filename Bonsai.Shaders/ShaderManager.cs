@@ -31,7 +31,10 @@ namespace Bonsai.Shaders
                     using (var window = new ShaderWindow(configuration))
                     using (var notification = cancellationToken.Register(window.Close))
                     {
-                        observer.OnNext(window);
+                        window.Load += delegate
+                        {
+                            observer.OnNext(window);
+                        };
                         window.Run();
                         observer.OnCompleted();
                     }
