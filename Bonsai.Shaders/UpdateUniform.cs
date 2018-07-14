@@ -26,7 +26,7 @@ namespace Bonsai.Shaders
 
         IObservable<TSource> Process<TSource>(IObservable<TSource> source, Action<int, TSource> update, ActiveUniformType type)
         {
-            return Observable.Defer(() =>
+            return Observable.Create<TSource>(observer =>
             {
                 var location = 0;
                 var name = UniformName;
@@ -43,10 +43,11 @@ namespace Bonsai.Shaders
                             location = GL.GetUniformLocation(shader.Program, name);
                             if (location < 0)
                             {
-                                throw new InvalidOperationException(string.Format(
+                                observer.OnError(new InvalidOperationException(string.Format(
                                     "The uniform variable \"{0}\" was not found in shader \"{1}\".",
                                     name,
-                                    ShaderName));
+                                    ShaderName)));
+                                return;
                             }
 
                             int uniformIndex;
@@ -72,7 +73,7 @@ namespace Bonsai.Shaders
                     {
                         shader.Update(() => update(location, input));
                         return input;
-                    });
+                    }).SubscribeSafe(observer);
             });
         }
 

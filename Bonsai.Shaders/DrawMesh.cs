@@ -23,7 +23,7 @@ namespace Bonsai.Shaders
 
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
-            return Observable.Defer(() =>
+            return Observable.Create<TSource>(observer =>
             {
                 var name = MeshName;
                 if (string.IsNullOrEmpty(name))
@@ -37,7 +37,13 @@ namespace Bonsai.Shaders
                     {
                         material.Update(() =>
                         {
-                            mesh = material.Window.Meshes[name];
+                            if (!material.Window.Meshes.TryGetValue(name, out mesh))
+                            {
+                                observer.OnError(new InvalidOperationException(string.Format(
+                                    "The mesh \"{0}\" was not found.",
+                                    name)));
+                                return;
+                            }
                         });
                     }),
                     (input, material) =>
@@ -47,7 +53,7 @@ namespace Bonsai.Shaders
                             mesh.Draw();
                         });
                         return input;
-                    });
+                    }).SubscribeSafe(observer);
             });
         }
     }

@@ -29,7 +29,7 @@ namespace Bonsai.Shaders
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
-            return Observable.Defer(() =>
+            return Observable.Create<IplImage>(observer =>
             {
                 var texture = 0;
                 var name = TextureName;
@@ -43,12 +43,13 @@ namespace Bonsai.Shaders
                     {
                         window.Update(() =>
                         {
-                            var tex = window.Textures[name];
-                            if (tex == null)
+                            Texture tex;
+                            if (!window.Textures.TryGetValue(name, out tex))
                             {
-                                throw new InvalidOperationException(string.Format(
+                                observer.OnError(new InvalidOperationException(string.Format(
                                     "The texture \"{0}\" was not found.",
-                                    name));
+                                    name)));
+                                return;
                             }
 
                             texture = tex.Id;
@@ -61,7 +62,7 @@ namespace Bonsai.Shaders
                             TextureHelper.UpdateTexture(texture, InternalFormat, input);
                         });
                         return input;
-                    });
+                    }).SubscribeSafe(observer);
             });
         }
     }
