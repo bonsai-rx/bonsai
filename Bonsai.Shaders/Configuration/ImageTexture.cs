@@ -31,8 +31,23 @@ namespace Bonsai.Shaders.Configuration
 
         public override Texture CreateResource()
         {
+            var fileName = FileName;
+            if (string.IsNullOrEmpty(fileName))
+            {
+                throw new InvalidOperationException(string.Format(
+                    "A valid image file path was not specified for texture \"{0}\".",
+                    Name));
+            }
+
             var texture = base.CreateResource();
-            var image = CV.LoadImage(FileName, ColorType);
+            var image = CV.LoadImage(fileName, ColorType);
+            if (image == null)
+            {
+                throw new InvalidOperationException(string.Format(
+                    "Failed to load image texture \"{0}\" from the specified path: \"{1}\".",
+                    Name, fileName));
+            }
+
             var width = Width.GetValueOrDefault();
             var height = Height.GetValueOrDefault();
             if (width > 0 && height > 0 && (image.Width != width || image.Height != height))
