@@ -15,6 +15,8 @@ namespace Bonsai.Vision
         public Sobel()
         {
             ApertureSize = 3;
+            XOrder = 1;
+            YOrder = 1;
         }
 
         [Range(0, 6)]
