@@ -2633,19 +2633,22 @@ namespace Bonsai.Design
                 var externalizableAttribute = (ExternalizableAttribute)property.Attributes[typeof(ExternalizableAttribute)];
                 if (externalizableAttribute != null && !externalizableAttribute.Externalizable) continue;
 
-                var menuItem = CreateExternalizeMenuItem(property.Name, property.PropertyType, selectedNode);
+                var propertySource = workflowElement as PropertySource;
+                var externalizedName = propertySource != null ? propertySource.MemberName : property.Name;
+                var menuItem = CreateExternalizeMenuItem(property.Name, externalizedName, property.PropertyType, selectedNode);
                 ownerItem.DropDownItems.Add(menuItem);
             }
         }
 
         private ToolStripMenuItem CreateExternalizeMenuItem(
             string memberName,
+            string externalizedName,
             Type memberType,
             GraphNode selectedNode)
         {
-            var menuItem = new ToolStripMenuItem(memberName, null, delegate
+            var menuItem = new ToolStripMenuItem(externalizedName, null, delegate
             {
-                var property = new ExternalizedProperty { MemberName = memberName, Name = memberName };
+                var property = new ExternalizedProperty { MemberName = memberName, Name = externalizedName };
                 CreateGraphNode(property, selectedNode, CreateGraphNodeType.Predecessor, branch: true);
                 contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
             });
