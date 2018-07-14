@@ -212,6 +212,7 @@
     <Compile Include="Configuration\ViewportState.cs" />
     <Compile Include="WarpPerspective.cs" />
     <Compile Include="WindowClosed.cs" />
+    <Compile Include="WindowSource.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Bonsai.Shaders.nuspec">
