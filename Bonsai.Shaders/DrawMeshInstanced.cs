@@ -108,7 +108,7 @@ namespace Bonsai.Shaders
 
         public IObservable<TVertex[]> Process<TVertex>(IObservable<TVertex[]> source) where TVertex : struct
         {
-            return Observable.Defer(() =>
+            return Observable.Create<TVertex[]>(observer =>
             {
                 var name = MeshName;
                 if (string.IsNullOrEmpty(name))
@@ -125,7 +125,15 @@ namespace Bonsai.Shaders
                         {
                             if (instance == null)
                             {
-                                var mesh = material.Window.Meshes[name];
+                                Mesh mesh;
+                                if (!material.Window.Meshes.TryGetValue(name, out mesh))
+                                {
+                                    observer.OnError(new InvalidOperationException(string.Format(
+                                        "The mesh \"{0}\" was not found.",
+                                        name)));
+                                    return;
+                                }
+
                                 instance = new MeshInstanced(mesh);
                                 BindInstanceAttributes(
                                     instance,
@@ -146,13 +154,13 @@ namespace Bonsai.Shaders
                         {
                             instance.Dispose();
                         }
-                    });
+                    }).SubscribeSafe(observer);
             });
         }
 
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
-            return Observable.Defer(() =>
+            return Observable.Create<Mat>(observer =>
             {
                 var name = MeshName;
                 if (string.IsNullOrEmpty(name))
@@ -169,7 +177,15 @@ namespace Bonsai.Shaders
                         {
                             if (instance == null && input != null)
                             {
-                                var mesh = material.Window.Meshes[name];
+                                Mesh mesh;
+                                if (!material.Window.Meshes.TryGetValue(name, out mesh))
+                                {
+                                    observer.OnError(new InvalidOperationException(string.Format(
+                                        "The mesh \"{0}\" was not found.",
+                                        name)));
+                                    return;
+                                }
+
                                 instance = new MeshInstanced(mesh);
                                 BindInstanceAttributes(
                                     instance,
@@ -191,7 +207,7 @@ namespace Bonsai.Shaders
                         {
                             instance.Dispose();
                         }
-                    });
+                    }).SubscribeSafe(observer);
             });
         }
     }

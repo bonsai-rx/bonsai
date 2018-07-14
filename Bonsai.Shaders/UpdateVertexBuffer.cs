@@ -42,7 +42,7 @@ namespace Bonsai.Shaders
 
         public IObservable<TVertex[]> Process<TVertex>(IObservable<TVertex[]> source) where TVertex : struct
         {
-            return Observable.Defer(() =>
+            return Observable.Create<TVertex[]>(observer =>
             {
                 var name = MeshName;
                 if (string.IsNullOrEmpty(name))
@@ -56,7 +56,14 @@ namespace Bonsai.Shaders
                     {
                         window.Update(() =>
                         {
-                            mesh = window.Meshes[name];
+                            if (!window.Meshes.TryGetValue(name, out mesh))
+                            {
+                                observer.OnError(new InvalidOperationException(string.Format(
+                                    "The mesh \"{0}\" was not found.",
+                                    name)));
+                                return;
+                            }
+
                             VertexHelper.BindVertexAttributes(
                                 mesh.VertexBuffer,
                                 mesh.VertexArray,
@@ -72,13 +79,13 @@ namespace Bonsai.Shaders
                             mesh.VertexCount = VertexHelper.UpdateVertexBuffer(mesh.VertexBuffer, input, Usage);
                         });
                         return input;
-                    });
+                    }).SubscribeSafe(observer);
             });
         }
 
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
-            return Observable.Defer(() =>
+            return Observable.Create<Mat>(observer =>
             {
                 var name = MeshName;
                 if (string.IsNullOrEmpty(name))
@@ -95,7 +102,14 @@ namespace Bonsai.Shaders
                         {
                             if (mesh == null)
                             {
-                                mesh = window.Meshes[name];
+                                if (!window.Meshes.TryGetValue(name, out mesh))
+                                {
+                                    observer.OnError(new InvalidOperationException(string.Format(
+                                        "The mesh \"{0}\" was not found.",
+                                        name)));
+                                    return;
+                                }
+
                                 VertexHelper.BindVertexAttributes(
                                     mesh.VertexBuffer,
                                     mesh.VertexArray,
@@ -107,7 +121,7 @@ namespace Bonsai.Shaders
                             mesh.VertexCount = VertexHelper.UpdateVertexBuffer(mesh.VertexBuffer, input, Usage);
                         });
                         return input;
-                    });
+                    }).SubscribeSafe(observer);
             });
         }
     }

@@ -28,7 +28,7 @@ namespace Bonsai.Shaders
 
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
-            return Observable.Defer(() =>
+            return Observable.Create<TSource>(observer =>
             {
                 if (meshNames.Count == 0)
                 {
@@ -41,10 +41,14 @@ namespace Bonsai.Shaders
                     {
                         material.Update(() =>
                         {
-                            var meshAttributes = meshNames.Select(meshName => new MeshAttributeMapping(
-                                material.Window.Meshes[meshName.Name],
-                                meshName.Divisor));
-                            mesh = new MeshAggregate(meshAttributes);
+                            try
+                            {
+                                var meshAttributes = meshNames.Select(meshName => new MeshAttributeMapping(
+                                    material.Window.Meshes[meshName.Name],
+                                    meshName.Divisor));
+                                mesh = new MeshAggregate(meshAttributes);
+                            }
+                            catch (Exception ex) { observer.OnError(ex); }
                         });
                     }),
                     (input, material) =>
@@ -60,7 +64,7 @@ namespace Bonsai.Shaders
                         {
                             mesh.Dispose();
                         }
-                    });
+                    }).SubscribeSafe(observer);
             });
         }
     }
