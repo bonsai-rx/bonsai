@@ -1246,6 +1246,7 @@ namespace Bonsai.Design
 
             var inputIndex = 0;
             var predecessors = (from node in workflow
+                                where !node.Value.IsBuildDependency()
                                 let graphNode = FindGraphNode(node.Value)
                                 where graphNode != null
                                 orderby graphNode.Layer descending, graphNode.LayerIndex
