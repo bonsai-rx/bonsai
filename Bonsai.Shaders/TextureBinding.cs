@@ -26,7 +26,7 @@ namespace Bonsai.Shaders
         public override void Load(Shader shader)
         {
             shader.SetTextureSlot(binding.Name, binding.TextureSlot);
-            if (!shader.Window.Textures.TryGetValue(binding.TextureName, out texture))
+            if (!string.IsNullOrEmpty(binding.TextureName) && !shader.Window.Textures.TryGetValue(binding.TextureName, out texture))
             {
                 throw new InvalidOperationException(string.Format(
                     "The texture reference \"{0}\" was not found.",
@@ -36,14 +36,20 @@ namespace Bonsai.Shaders
 
         public override void Bind(Shader shader)
         {
-            GL.ActiveTexture(binding.TextureSlot);
-            GL.BindTexture(TextureTarget.Texture2D, texture.Id);
+            if (texture != null)
+            {
+                GL.ActiveTexture(binding.TextureSlot);
+                GL.BindTexture(TextureTarget.Texture2D, texture.Id);
+            }
         }
 
         public override void Unbind(Shader shader)
         {
-            GL.ActiveTexture(binding.TextureSlot);
-            GL.BindTexture(TextureTarget.Texture2D, 0);
+            if (texture != null)
+            {
+                GL.ActiveTexture(binding.TextureSlot);
+                GL.BindTexture(TextureTarget.Texture2D, 0);
+            }
         }
 
         public override void Unload(Shader shader)
