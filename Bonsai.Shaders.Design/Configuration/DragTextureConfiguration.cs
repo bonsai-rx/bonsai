@@ -1,4 +1,5 @@
 ﻿using Bonsai.Design;
+using OpenCV.Net;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,6 +27,7 @@ namespace Bonsai.Shaders.Configuration.Design
         protected override object CreateResourceConfiguration(string fileName)
         {
             var configuration = new ImageTexture();
+            configuration.FlipMode = FlipMode.Vertical;
             configuration.FileName = PathConvert.GetProjectPath(fileName);
             configuration.Name = Path.GetFileNameWithoutExtension(fileName);
             return configuration;
