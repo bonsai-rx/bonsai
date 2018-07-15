@@ -36,26 +36,26 @@ namespace Bonsai.Shaders
             return Observable.Create<TSource>(observer =>
             {
                 var textureId = 0;
+                var textureName = default(string);
                 return source.CombineEither(
-                    ShaderManager.ReserveShader(ShaderName).Do(shader =>
+                    ShaderManager.ReserveShader(ShaderName),
+                    (input, shader) =>
                     {
-                        shader.Update(() =>
+                        if (textureName != TextureName)
                         {
                             Texture texture = null;
-                            var textureName = TextureName;
+                            textureName = TextureName;
                             if (!string.IsNullOrEmpty(textureName) && !shader.Window.Textures.TryGetValue(textureName, out texture))
                             {
                                 observer.OnError(new InvalidOperationException(string.Format(
                                     "The texture reference \"{0}\" was not found.",
                                     textureName)));
-                                return;
+                                return input;
                             }
 
                             textureId = texture != null ? texture.Id : 0;
-                        });
-                    }),
-                    (input, shader) =>
-                    {
+                        }
+
                         shader.Update(() => update(textureId, input));
                         return input;
                     }).SubscribeSafe(observer);
