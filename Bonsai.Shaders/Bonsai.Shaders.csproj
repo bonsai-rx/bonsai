@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AspectRatio.cs" />
+    <Compile Include="BindTexture.cs" />
     <Compile Include="Bounds.cs" />
     <Compile Include="BufferBinding.cs" />
     <Compile Include="ComputeProgram.cs" />
