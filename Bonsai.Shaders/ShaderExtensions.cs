@@ -12,10 +12,15 @@ namespace Bonsai.Shaders
         public static void SetTextureSlot(this Shader shader, string name, TextureUnit texture)
         {
             var samplerLocation = GL.GetUniformLocation(shader.Program, name);
-            if (samplerLocation >= 0)
+            if (samplerLocation < 0)
             {
-                GL.Uniform1(samplerLocation, (int)(texture - TextureUnit.Texture0));
+                throw new InvalidOperationException(string.Format(
+                    "The uniform variable \"{0}\" was not found in shader \"{1}\".",
+                    name,
+                    shader.Name));
             }
+
+            GL.Uniform1(samplerLocation, (int)(texture - TextureUnit.Texture0));
         }
     }
 }
