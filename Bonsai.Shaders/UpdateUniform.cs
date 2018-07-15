@@ -77,6 +77,12 @@ namespace Bonsai.Shaders
             });
         }
 
+        public IObservable<TextureUnit> Process(IObservable<TextureUnit> source)
+        {
+            return Process(source, (location, input) => GL.Uniform1(location, (int)(input - TextureUnit.Texture0)),
+                           ActiveUniformType.Sampler2D);
+        }
+
         public IObservable<int> Process(IObservable<int> source)
         {
             return Process(source, (location, input) => GL.Uniform1(location, input),
