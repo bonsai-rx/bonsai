@@ -130,6 +130,7 @@
     <Compile Include="MatrixTransform.cs" />
     <Compile Include="TransformRelative.cs" />
     <Compile Include="Translate.cs" />
+    <Compile Include="UpdateStep.cs" />
     <Compile Include="ViewportEffect.cs" />
     <Compile Include="ImageTextureBinding.cs" />
     <Compile Include="Input\MouseCursor.cs" />
