@@ -58,9 +58,9 @@ void main()
             base.OnLoad();
         }
 
-        protected override void OnDispatch()
+        protected override Action OnDispatch()
         {
-            mesh.Draw();
+            return mesh.Draw;
         }
 
         protected override void Dispose(bool disposing)

@@ -68,11 +68,15 @@ namespace Bonsai.Shaders
             finally { GL.DeleteShader(computeShader); }
         }
 
-        protected override void OnDispatch()
+        protected override Action OnDispatch()
         {
             var workGroups = WorkGroups;
-            GL.DispatchCompute(workGroups.NumGroupsX, workGroups.NumGroupsY, workGroups.NumGroupsZ);
-            base.OnDispatch();
+            if (workGroups.NumGroupsX == 0 || workGroups.NumGroupsY == 0 || workGroups.NumGroupsZ == 0)
+            {
+                return null;
+            }
+
+            return () => GL.DispatchCompute(workGroups.NumGroupsX, workGroups.NumGroupsY, workGroups.NumGroupsZ);
         }
     }
 }

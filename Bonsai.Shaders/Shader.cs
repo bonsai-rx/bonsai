@@ -70,24 +70,19 @@ namespace Bonsai.Shaders
             OnLoad();
         }
 
-        protected virtual void OnDispatch()
+        protected virtual Action OnDispatch()
         {
+            return null;
         }
 
         public void Dispatch()
         {
-            if (Enabled)
+            var action = Interlocked.Exchange(ref update, null) + OnDispatch();
+            if (action != null && Enabled)
             {
                 GL.UseProgram(program);
-
-                var action = Interlocked.Exchange(ref update, null);
                 shaderState.Bind();
-                if (action != null)
-                {
-                    action();
-                }
-
-                OnDispatch();
+                action();
                 shaderState.Unbind();
             }
         }
