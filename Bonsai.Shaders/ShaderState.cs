@@ -71,13 +71,16 @@ namespace Bonsai.Shaders
             framebuffer.Load(shader.Window);
         }
 
-        public void Bind()
+        public void Execute()
         {
             foreach (var state in renderState)
             {
                 state.Execute(shader.Window);
             }
+        }
 
+        public void Bind()
+        {
             foreach (var binding in uniformBindings)
             {
                 binding.Bind(shader);
