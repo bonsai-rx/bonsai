@@ -28,9 +28,14 @@ namespace Bonsai.Shaders
         event Action update;
 
         public ShaderWindow(ShaderWindowSettings configuration)
+            : this(configuration, DisplayDevice.GetDisplay(configuration.DisplayDevice) ?? DisplayDevice.Default)
+        {
+        }
+
+        private ShaderWindow(ShaderWindowSettings configuration, DisplayDevice display)
             : base(configuration.Width, configuration.Height,
                    configuration.GraphicsMode == null ? GraphicsMode.Default : configuration.GraphicsMode.CreateGraphicsMode(),
-                   DefaultTitle, GameWindowFlags.Default, DisplayDevice.GetDisplay(configuration.DisplayDevice))
+                   DefaultTitle, GameWindowFlags.Default, display)
         {
             settings = configuration;
             VSync = configuration.VSync;
@@ -44,12 +49,15 @@ namespace Bonsai.Shaders
             Viewport = new RectangleF(0, 0, 1, 1);
             TargetRenderFrequency = configuration.TargetRenderFrequency;
             TargetUpdateFrequency = configuration.TargetRenderFrequency;
+            RefreshRate = VSync == VSyncMode.On ? display.RefreshRate : TargetRenderFrequency;
             textures = new Dictionary<string, Texture>();
             meshes = new Dictionary<string, Mesh>();
             shaders = settings.Shaders
                 .Select(shaderConfiguration => shaderConfiguration.CreateShader(this))
                 .ToList();
         }
+
+        internal double RefreshRate { get; private set; }
 
         public Color ClearColor { get; set; }
 
