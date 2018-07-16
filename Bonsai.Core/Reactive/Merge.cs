@@ -16,7 +16,7 @@ namespace Bonsai.Reactive
     /// </summary>
     [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    [Description("Merges any number of obervable sequences into a single observable sequence.")]
+    [Description("Merges any number of observable sequences into a single observable sequence.")]
     public class Merge
     {
         /// <summary>
@@ -57,6 +57,20 @@ namespace Bonsai.Reactive
         public IObservable<TSource> Process<TSource>(IObservable<IObservable<TSource>> sources)
         {
             return sources.Merge();
+        }
+
+        /// <summary>
+        /// Merges all inner enumerable sequences into one observable sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequences.</typeparam>
+        /// <param name="sources">The observable sequence of inner enumerable sequences.</param>
+        /// <returns>
+        /// An observable sequence that contains all the elements of each inner enumerable
+        /// sequence.
+        /// </returns>
+        public IObservable<TSource> Process<TSource>(IObservable<IEnumerable<TSource>> sources)
+        {
+            return sources.SelectMany(xs => xs);
         }
     }
 }
