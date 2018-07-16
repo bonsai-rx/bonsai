@@ -217,6 +217,7 @@
     <Compile Include="Expressions\PropertyMapping.cs" />
     <Compile Include="CombinatorAttribute.cs" />
     <Compile Include="Reactive\Timer.cs" />
+    <Compile Include="Reactive\WithLatestFrom.cs" />
     <Compile Include="ReconnectableObservable.cs" />
     <Compile Include="SourceAttribute.cs" />
     <Compile Include="Expressions\UnitBuilder.cs" />
