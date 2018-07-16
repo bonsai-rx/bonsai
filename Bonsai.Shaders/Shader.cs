@@ -77,6 +77,7 @@ namespace Bonsai.Shaders
 
         public void Dispatch()
         {
+            shaderState.Execute();
             var action = Interlocked.Exchange(ref update, null) + OnDispatch();
             if (action != null && Enabled)
             {
