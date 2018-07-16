@@ -44,13 +44,10 @@ namespace Bonsai.Shaders
             internal set { materialMesh = value; }
         }
 
-        protected override void OnDispatch()
+        protected override Action OnDispatch()
         {
             var mesh = materialMesh;
-            if (mesh != null)
-            {
-                mesh.Draw();
-            }
+            return mesh != null ? mesh.Draw : (Action)null;
         }
     }
 }
