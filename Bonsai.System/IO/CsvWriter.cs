@@ -168,7 +168,8 @@ namespace Bonsai.IO
                 var headerMembers = memberAccessExpressions.Select(memberAccess =>
                 {
                     var accessExpression = memberAccess.ToString();
-                    var firstAccess = accessExpression.IndexOf(ExpressionHelper.MemberSeparator) + 1;
+                    var firstAccess = accessExpression.IndexOf(ExpressionHelper.MemberSeparator);
+                    if (firstAccess++ < 0) return string.Empty;
                     var lastAccess = accessExpression.LastIndexOf(ExpressionHelper.MemberSeparator);
                     if (lastAccess < firstAccess) lastAccess = accessExpression.Length;
                     return accessExpression.Substring(firstAccess, lastAccess - firstAccess);
