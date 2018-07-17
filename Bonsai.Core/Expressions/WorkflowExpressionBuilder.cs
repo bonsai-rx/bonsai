@@ -15,6 +15,7 @@ namespace Bonsai.Expressions
     /// Provides a base class for expression builders that generate their output by means
     /// of an encapsulated workflow.
     /// </summary>
+    [DefaultProperty("Name")]
     [WorkflowElementCategory(ElementCategory.Nested)]
     [XmlType("Workflow", Namespace = Constants.XmlNamespace)]
     [TypeDescriptionProvider(typeof(WorkflowTypeDescriptionProvider))]
