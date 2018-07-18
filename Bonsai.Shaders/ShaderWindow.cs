@@ -43,6 +43,7 @@ namespace Bonsai.Shaders
             clearColor = configuration.ClearColor;
             clearMask = configuration.ClearMask;
             Title = configuration.Title ?? DefaultTitle;
+            CursorVisible = configuration.CursorVisible;
             Location = configuration.Location.GetValueOrDefault(Location);
             WindowBorder = configuration.WindowBorder;
             WindowState = configuration.WindowState;
