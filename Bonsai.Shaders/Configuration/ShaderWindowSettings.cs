@@ -30,6 +30,7 @@ namespace Bonsai.Shaders.Configuration
             WindowState = WindowState.Normal;
             DisplayDevice = DisplayIndex.Default;
             GraphicsMode = new GraphicsModeConfiguration();
+            CursorVisible = true;
             SwapSync = true;
         }
 
@@ -69,6 +70,10 @@ namespace Bonsai.Shaders.Configuration
         [Category("Render Settings")]
         [Description("Specifies which buffers to clear before rendering.")]
         public ClearBufferMask ClearMask { get; set; }
+
+        [Category("Window Style")]
+        [Description("Specifies whether to hide or show the mouse cursor over the shader window.")]
+        public bool CursorVisible { get; set; }
 
         [Category("Window Style")]
         [Description("The optional starting location of the shader window.")]
