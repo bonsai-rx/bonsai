@@ -45,7 +45,11 @@ namespace Bonsai.Editor.Scripting
 
         static void CollectNamespaces(Type type, HashSet<string> namespaces)
         {
-            namespaces.Add(type.Namespace);
+            if (!string.IsNullOrEmpty(type.Namespace))
+            {
+                namespaces.Add(type.Namespace);
+            }
+
             if (type.IsGenericType)
             {
                 var genericArguments = type.GetGenericArguments();
