@@ -33,8 +33,7 @@ namespace Bonsai.Editor.Scripting
                 reference.ArrayElementType = CreateTypeReference(type.GetElementType());
                 reference.ArrayRank = type.GetArrayRank();
             }
-
-            if (type.IsGenericType)
+            else if (type.IsGenericType)
             {
                 foreach (var argument in type.GetGenericArguments())
                 {
@@ -55,6 +54,10 @@ namespace Bonsai.Editor.Scripting
                     CollectNamespaces(genericArguments[i], namespaces);
                 }
             }
+            else if (type.IsArray)
+            {
+                CollectNamespaces(type.GetElementType(), namespaces);
+            }
         }
 
         static void CollectAssemblyReferences(Type type, HashSet<string> assemblyReferences)
@@ -68,6 +71,10 @@ namespace Bonsai.Editor.Scripting
                 {
                     CollectAssemblyReferences(genericArguments[i], assemblyReferences);
                 }
+            }
+            else if (type.IsArray)
+            {
+                CollectNamespaces(type.GetElementType(), assemblyReferences);
             }
         }
 
