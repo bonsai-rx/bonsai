@@ -53,7 +53,12 @@ namespace Bonsai.Expressions
             var format = Format;
             if (string.IsNullOrEmpty(format))
             {
-                return Expression.Call(expression, "ToString", null);
+                var toStringMethod = expression.Type.GetMethod("ToString", new[] { typeof(IFormatProvider) });
+                if (toStringMethod != null)
+                {
+                    return Expression.Call(expression, toStringMethod, Expression.Constant(CultureInfo.InvariantCulture));
+                }
+                else return Expression.Call(expression, "ToString", null);
             }
 
             var formatExpression = Expression.Constant(format);
