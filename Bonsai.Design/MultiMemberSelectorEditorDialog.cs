@@ -184,21 +184,27 @@ namespace Bonsai.Design
 
         private void addAllButton_Click(object sender, EventArgs e)
         {
-            if (treeView.Nodes.Count > 0)
+            if (treeView.Nodes.Count > 0 && treeView.SelectedNode != null)
             {
-                var rootNode = treeView.Nodes[0];
+                var selectedNode = treeView.SelectedNode;
+                var selectedMember = controller.GetSelectedMember();
                 var index = selectionListBox.SelectedIndex;
-                if (rootNode.Nodes.Count > 0)
+                if (selectedNode.Nodes.Count > 0)
                 {
                     selectionListBox.BeginUpdate();
-                    foreach (TreeNode node in rootNode.Nodes)
+                    foreach (TreeNode node in selectedNode.Nodes)
                     {
-                        var memberSelector = string.Join(ExpressionHelper.MemberSeparator, new[] { rootNode.Name, node.Name });
+                        var memberSelector = !string.IsNullOrEmpty(selectedMember)
+                            ? string.Join(ExpressionHelper.MemberSeparator, new[] { selectedMember, node.Name })
+                            : node.Name;
                         selectionListBox.Items.Insert(++index, memberSelector);
                     }
                     selectionListBox.EndUpdate();
                 }
-                else selectionListBox.Items.Insert(++index, rootNode.Name);
+                else if (!string.IsNullOrEmpty(selectedMember))
+                {
+                    selectionListBox.Items.Insert(++index, selectedMember);
+                }
                 selectionListBox.SelectedIndex = index;
             }
         }
