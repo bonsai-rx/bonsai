@@ -62,10 +62,16 @@
     <Compile Include="IO\EnumerateFileSystemEntries.cs" />
     <Compile Include="IO\EnumerateFiles.cs" />
     <Compile Include="IO\EnumerateDirectories.cs" />
+    <Compile Include="IO\GetDirectoryName.cs" />
+    <Compile Include="IO\GetExtension.cs" />
+    <Compile Include="IO\GetFileName.cs" />
+    <Compile Include="IO\GetFileNameWithoutExtension.cs" />
     <Compile Include="IO\GetFileSystemEntries.cs" />
     <Compile Include="IO\GetDirectories.cs" />
     <Compile Include="IO\CsvReader.cs" />
     <Compile Include="IO\GetFiles.cs" />
+    <Compile Include="IO\GetFullPath.cs" />
+    <Compile Include="IO\GetPathRoot.cs" />
     <Compile Include="IO\Ports\BaudRateConverter.cs" />
     <Compile Include="IO\FileSink.cs" />
     <Compile Include="IO\PathHelper.cs" />
