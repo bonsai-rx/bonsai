@@ -73,7 +73,6 @@
     <Compile Include="CreateMatrix2.cs" />
     <Compile Include="CreateMatrix3.cs" />
     <Compile Include="CreateMatrix4.cs" />
-    <Compile Include="EnumerateTextures.cs" />
     <Compile Include="LoadImage.cs" />
     <Compile Include="RefreshRate.cs" />
     <Compile Include="RenderTexture.cs" />
