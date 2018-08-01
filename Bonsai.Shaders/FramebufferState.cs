@@ -9,35 +9,38 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
-    class FramebufferState
+    class FramebufferState : IDisposable
     {
         readonly List<FramebufferAttachment> framebufferAttachments;
+        ShaderWindow framebufferWindow;
         int framebufferWidth;
         int framebufferHeight;
         int fbo;
 
-        public FramebufferState(FramebufferConfiguration framebufferConfiguration)
+        public FramebufferState(ShaderWindow window, FramebufferConfiguration framebufferConfiguration)
         {
+            if (window == null)
+            {
+                throw new ArgumentNullException("window");
+            }
+
             if (framebufferConfiguration == null)
             {
                 throw new ArgumentNullException("framebufferConfiguration");
             }
 
-            framebufferAttachments = framebufferConfiguration.FramebufferAttachments
-                                                             .Select(configuration => new FramebufferAttachment(configuration))
-                                                             .ToList();
-        }
-
-        public void Load(ShaderWindow window)
-        {
             framebufferWidth = 0;
             framebufferHeight = 0;
+            framebufferWindow = window;
+            framebufferAttachments = framebufferConfiguration.FramebufferAttachments
+                                                             .Select(configuration => new FramebufferAttachment(window, configuration))
+                                                             .ToList();
             if (framebufferAttachments.Count > 0)
             {
                 foreach (var attachment in framebufferAttachments)
                 {
-                    int width, height;
-                    attachment.Load(window, out width, out height);
+                    var width = attachment.Width;
+                    var height = attachment.Height;
                     if (framebufferWidth == 0 || width < framebufferWidth)
                     {
                         framebufferWidth = width;
@@ -59,7 +62,12 @@ namespace Bonsai.Shaders
             }
         }
 
-        public void Bind(ShaderWindow window)
+        public ShaderWindow Window
+        {
+            get { return framebufferWindow; }
+        }
+
+        public void Bind()
         {
             if (fbo > 0)
             {
@@ -69,31 +77,16 @@ namespace Bonsai.Shaders
                     attachment.Clear();
                 }
 
-                window.UpdateViewport(framebufferWidth, framebufferHeight);
+                framebufferWindow.UpdateViewport(framebufferWidth, framebufferHeight);
             }
         }
 
-        public void Unbind(ShaderWindow window)
+        public void Unbind()
         {
             if (fbo > 0)
             {
-                window.UpdateViewport();
+                framebufferWindow.UpdateViewport();
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            }
-        }
-
-        public void Unload(ShaderWindow window)
-        {
-            if (fbo > 0)
-            {
-                foreach (var attachment in framebufferAttachments)
-                {
-                    attachment.Unload(window);
-                }
-
-                framebufferWidth = 0;
-                framebufferHeight = 0;
-                GL.DeleteFramebuffers(1, ref fbo);
             }
         }
 
@@ -101,8 +94,8 @@ namespace Bonsai.Shaders
         {
             Texture texture;
             readonly string textureName;
-            readonly int? textureWidth;
-            readonly int? textureHeight;
+            readonly int textureWidth;
+            readonly int textureHeight;
             readonly OpenTK.Graphics.OpenGL4.FramebufferAttachment attachment;
             readonly PixelInternalFormat internalFormat;
             readonly PixelFormat format;
@@ -110,17 +103,30 @@ namespace Bonsai.Shaders
             readonly Color clearColor;
             readonly ClearBufferMask clearMask;
 
-            public FramebufferAttachment(FramebufferAttachmentConfiguration attachmentConfiguration)
+            public FramebufferAttachment(ShaderWindow window, FramebufferAttachmentConfiguration attachmentConfiguration)
             {
                 textureName = attachmentConfiguration.TextureName;
-                textureWidth = attachmentConfiguration.Width;
-                textureHeight = attachmentConfiguration.Height;
+                textureWidth = attachmentConfiguration.Width.GetValueOrDefault(window.Width);
+                textureHeight = attachmentConfiguration.Height.GetValueOrDefault(window.Height);
                 attachment = attachmentConfiguration.Attachment;
                 internalFormat = attachmentConfiguration.InternalFormat;
                 format = attachmentConfiguration.Format;
                 type = attachmentConfiguration.Type;
                 clearColor = attachmentConfiguration.ClearColor;
                 clearMask = attachmentConfiguration.ClearMask;
+
+                texture = window.ResourceManager.Load<Texture>(attachmentConfiguration.TextureName);
+                ClearTexture(texture.Id, textureWidth, textureHeight);
+            }
+
+            public int Width
+            {
+                get { return textureWidth; }
+            }
+
+            public int Height
+            {
+                get { return textureHeight; }
             }
 
             void ClearTexture(int texture, int width, int height)
@@ -133,20 +139,6 @@ namespace Bonsai.Shaders
                     type,
                     IntPtr.Zero);
                 GL.BindTexture(TextureTarget.Texture2D, 0);
-            }
-
-            public void Load(ShaderWindow window, out int width, out int height)
-            {
-                if (!window.Textures.TryGetValue(textureName, out texture))
-                {
-                    throw new InvalidOperationException(string.Format(
-                        "The texture reference \"{0}\" was not found.",
-                        textureName));
-                }
-
-                width = textureWidth.GetValueOrDefault(window.Width);
-                height = textureHeight.GetValueOrDefault(window.Height);
-                ClearTexture(texture.Id, width, height);
             }
 
             public void Attach()
@@ -162,10 +154,15 @@ namespace Bonsai.Shaders
                     GL.Clear(clearMask);
                 }
             }
+        }
 
-            public void Unload(ShaderWindow window)
+        public void Dispose()
+        {
+            if (fbo > 0)
             {
-                texture = null;
+                framebufferWidth = 0;
+                framebufferHeight = 0;
+                GL.DeleteFramebuffers(1, ref fbo);
             }
         }
     }

@@ -11,7 +11,6 @@ namespace Bonsai.Shaders
     public class ViewportEffect : Effect
     {
         Mesh mesh;
-        TexturedQuad quad;
         const string VertexShader = @"
 #version 400
 in vec2 vp;
@@ -33,7 +32,7 @@ void main()
             IEnumerable<UniformConfiguration> shaderUniforms,
             IEnumerable<BufferBindingConfiguration> bufferBindings,
             FramebufferConfiguration framebuffer,
-            TexturedQuad texturedQuad)
+            Mesh texturedQuad)
             : base(name,
                    window,
                    VertexShader,
@@ -49,13 +48,7 @@ void main()
                 throw new ArgumentNullException("texturedQuad");
             }
 
-            quad = texturedQuad;
-        }
-
-        protected override void OnLoad()
-        {
-            mesh = quad.CreateResource();
-            base.OnLoad();
+            mesh = texturedQuad;
         }
 
         protected override Action OnDispatch()

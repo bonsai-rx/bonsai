@@ -47,14 +47,11 @@ namespace Bonsai.Shaders
         {
             return Observable.Defer(() =>
             {
-                var framebuffer = new FramebufferState(framebufferConfiguration);
+                FramebufferState framebuffer = null;
                 return source.CombineEither(
                     ShaderManager.WindowSource.Do(window =>
                     {
-                        window.Update(() =>
-                        {
-                            framebuffer.Load(window);
-                        });
+                        framebuffer = new FramebufferState(window, framebufferConfiguration);
                     }),
                     (input, window) =>
                     {
@@ -63,15 +60,21 @@ namespace Bonsai.Shaders
                             state.Execute(window);
                         }
 
-                        framebuffer.Bind(window);
+                        framebuffer.Bind();
                         foreach (var shader in window.Shaders)
                         {
                             shader.Dispatch();
                         }
 
-                        framebuffer.Unbind(window);
+                        framebuffer.Unbind();
                         return input;
-                    }).Finally(() => framebuffer.Unload(null));
+                    }).Finally(() =>
+                    {
+                        if (framebuffer != null)
+                        {
+                            framebuffer.Dispose();
+                        }
+                    });
             });
         }
     }

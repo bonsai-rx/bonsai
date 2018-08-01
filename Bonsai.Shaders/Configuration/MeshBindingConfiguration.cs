@@ -20,9 +20,10 @@ namespace Bonsai.Shaders.Configuration
         [Description("The name of the mesh buffer that will be bound to the shader.")]
         public string MeshName { get; set; }
 
-        internal override BufferBinding CreateBufferBinding()
+        internal override BufferBinding CreateBufferBinding(Shader shader, ResourceManager resourceManager)
         {
-            return new MeshBinding(this);
+            var mesh = resourceManager.Load<Mesh>(MeshName);
+            return new MeshBinding(Index, mesh);
         }
 
         public override string ToString()

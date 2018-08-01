@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
-    internal class ShaderState
+    internal class ShaderState : IDisposable
     {
         readonly Shader shader;
         readonly List<StateConfiguration> renderState;
@@ -19,6 +19,7 @@ namespace Bonsai.Shaders
 
         public ShaderState(
             Shader shaderTarget,
+            ResourceManager resourceManager,
             IEnumerable<StateConfiguration> renderStateConfiguration,
             IEnumerable<UniformConfiguration> shaderUniforms,
             IEnumerable<BufferBindingConfiguration> bufferBindingConfiguration,
@@ -27,6 +28,11 @@ namespace Bonsai.Shaders
             if (shaderTarget == null)
             {
                 throw new ArgumentNullException("shaderTarget");
+            }
+
+            if (resourceManager == null)
+            {
+                throw new ArgumentNullException("resourceManager");
             }
 
             if (renderStateConfiguration == null)
@@ -51,24 +57,9 @@ namespace Bonsai.Shaders
 
             shader = shaderTarget;
             renderState = renderStateConfiguration.ToList();
-            uniformBindings = shaderUniforms.Select(configuration => new UniformBinding(configuration)).ToList();
-            bufferBindings = bufferBindingConfiguration.Select(configuration => configuration.CreateBufferBinding()).ToList();
-            framebuffer = new FramebufferState(framebufferConfiguration);
-        }
-        
-        public void Load()
-        {
-            foreach (var binding in uniformBindings)
-            {
-                binding.Load(shader);
-            }
-
-            foreach (var binding in bufferBindings)
-            {
-                binding.Load(shader);
-            }
-
-            framebuffer.Load(shader.Window);
+            uniformBindings = shaderUniforms.Select(configuration => new UniformBinding(shader, configuration)).ToList();
+            bufferBindings = bufferBindingConfiguration.Select(configuration => configuration.CreateBufferBinding(shader, resourceManager)).ToList();
+            framebuffer = new FramebufferState(shader.Window, framebufferConfiguration);
         }
 
         public void Execute()
@@ -83,32 +74,23 @@ namespace Bonsai.Shaders
         {
             foreach (var binding in uniformBindings)
             {
-                binding.Bind(shader);
+                binding.Bind();
             }
 
             foreach (var binding in bufferBindings)
             {
-                binding.Bind(shader);
+                binding.Bind();
             }
 
-            framebuffer.Bind(shader.Window);
+            framebuffer.Bind();
         }
 
         public void Unbind()
         {
-            framebuffer.Unbind(shader.Window);
+            framebuffer.Unbind();
             foreach (var binding in bufferBindings)
             {
-                binding.Unbind(shader);
-            }
-        }
-
-        public void Unload()
-        {
-            framebuffer.Unload(shader.Window);
-            foreach (var binding in bufferBindings)
-            {
-                binding.Unload(shader);
+                binding.Unbind();
             }
         }
 
@@ -117,7 +99,7 @@ namespace Bonsai.Shaders
             int location;
             UniformConfiguration configuration;
 
-            public UniformBinding(UniformConfiguration uniformConfiguration)
+            public UniformBinding(Shader shader, UniformConfiguration uniformConfiguration)
             {
                 if (uniformConfiguration == null)
                 {
@@ -125,10 +107,6 @@ namespace Bonsai.Shaders
                 }
 
                 configuration = uniformConfiguration;
-            }
-
-            public void Load(Shader shader)
-            {
                 location = GL.GetUniformLocation(shader.Program, configuration.Name);
                 if (location < 0)
                 {
@@ -139,10 +117,15 @@ namespace Bonsai.Shaders
                 }
             }
 
-            public void Bind(Shader shader)
+            public void Bind()
             {
                 configuration.SetUniform(location);
             }
+        }
+
+        public void Dispose()
+        {
+            framebuffer.Dispose();
         }
     }
 }

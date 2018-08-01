@@ -19,13 +19,7 @@ namespace Bonsai.Shaders
         ShaderWindow shaderWindow;
         ShaderState shaderState;
 
-        internal Shader(
-            string name,
-            ShaderWindow window,
-            IEnumerable<StateConfiguration> renderState,
-            IEnumerable<UniformConfiguration> shaderUniforms,
-            IEnumerable<BufferBindingConfiguration> bufferBindings,
-            FramebufferConfiguration framebuffer)
+        internal Shader(string name, ShaderWindow window)
         {
             if (window == null)
             {
@@ -34,7 +28,6 @@ namespace Bonsai.Shaders
 
             Name = name;
             shaderWindow = window;
-            shaderState = new ShaderState(this, renderState, shaderUniforms, bufferBindings, framebuffer);
         }
 
         public bool Enabled { get; set; }
@@ -56,19 +49,18 @@ namespace Bonsai.Shaders
             update += action;
         }
 
-        protected abstract int CreateShader();
-
-        protected virtual void OnLoad()
-        {
-        }
-
-        public void Load()
+        protected void CreateShaderState(
+            IEnumerable<StateConfiguration> renderState,
+            IEnumerable<UniformConfiguration> shaderUniforms,
+            IEnumerable<BufferBindingConfiguration> bufferBindings,
+            FramebufferConfiguration framebuffer)
         {
             program = CreateShader();
             GL.UseProgram(program);
-            shaderState.Load();
-            OnLoad();
+            shaderState = new ShaderState(this, shaderWindow.ResourceManager, renderState, shaderUniforms, bufferBindings, framebuffer);
         }
+
+        protected abstract int CreateShader();
 
         protected virtual Action OnDispatch()
         {
@@ -94,7 +86,7 @@ namespace Bonsai.Shaders
             {
                 if (disposing)
                 {
-                    shaderState.Unload();
+                    shaderState.Dispose();
                     GL.DeleteProgram(program);
                     shaderWindow = null;
                     update = null;

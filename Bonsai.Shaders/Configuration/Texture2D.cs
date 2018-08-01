@@ -47,7 +47,7 @@ namespace Bonsai.Shaders.Configuration
         [Description("Specifies the texture magnification filter.")]
         public TextureMagFilter MagFilter { get; set; }
 
-        public override Texture CreateResource()
+        public override Texture CreateResource(ResourceManager resourceManager)
         {
             var texture = new Texture();
             GL.BindTexture(TextureTarget.Texture2D, texture.Id);

@@ -29,7 +29,7 @@ namespace Bonsai.Shaders.Configuration
         [Description("Specifies the optional flip mode applied to the loaded image.")]
         public FlipMode? FlipMode { get; set; }
 
-        public override Texture CreateResource()
+        public override Texture CreateResource(ResourceManager resourceManager)
         {
             var fileName = FileName;
             if (string.IsNullOrEmpty(fileName))
@@ -39,7 +39,7 @@ namespace Bonsai.Shaders.Configuration
                     Name));
             }
 
-            var texture = base.CreateResource();
+            var texture = base.CreateResource(resourceManager);
             var image = CV.LoadImage(fileName, ColorType);
             if (image == null)
             {

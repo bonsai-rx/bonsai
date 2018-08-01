@@ -14,9 +14,9 @@ namespace Bonsai.Shaders.Configuration
         [Description("Optional quad geometry transformation effects.")]
         public QuadEffects QuadEffects { get; set; }
 
-        public override Mesh CreateResource()
+        public override Mesh CreateResource(ResourceManager resourceManager)
         {
-            var mesh = base.CreateResource();
+            var mesh = base.CreateResource(resourceManager);
             mesh.DrawMode = PrimitiveType.Quads;
             var flipX = (QuadEffects & QuadEffects.FlipHorizontally) != 0;
             var flipY = (QuadEffects & QuadEffects.FlipVertically) != 0;

@@ -44,7 +44,7 @@ namespace Bonsai.Shaders
                             try
                             {
                                 var meshAttributes = meshNames.Select(meshName => new MeshAttributeMapping(
-                                    material.Window.Meshes[meshName.Name],
+                                    material.Window.ResourceManager.Load<Mesh>(meshName.Name),
                                     meshName.Divisor));
                                 mesh = new MeshAggregate(meshAttributes);
                             }

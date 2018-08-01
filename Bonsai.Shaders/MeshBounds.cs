@@ -38,13 +38,8 @@ namespace Bonsai.Shaders
                     ShaderManager.WindowSource,
                     (input, window) =>
                     {
-                        Mesh mesh;
-                        if (window.Meshes.TryGetValue(name, out mesh))
-                        {
-                            return mesh.Bounds ?? Bounds.Empty;
-                        }
-
-                        return Bounds.Empty;
+                        var mesh = window.ResourceManager.Load<Mesh>(name);
+                        return mesh.Bounds ?? Bounds.Empty;
                     });
             });
         }

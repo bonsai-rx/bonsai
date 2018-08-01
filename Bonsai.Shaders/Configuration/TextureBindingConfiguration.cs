@@ -25,9 +25,11 @@ namespace Bonsai.Shaders.Configuration
         [Description("The name of the texture that will be bound to the shader.")]
         public string TextureName { get; set; }
 
-        internal override BufferBinding CreateBufferBinding()
+        internal override BufferBinding CreateBufferBinding(Shader shader, ResourceManager resourceManager)
         {
-            return new TextureBinding(this);
+            shader.SetTextureSlot(Name, TextureSlot);
+            var texture = !string.IsNullOrEmpty(TextureName) ? resourceManager.Load<Texture>(TextureName) : null;
+            return new TextureBinding(texture, TextureSlot);
         }
 
         public override string ToString()

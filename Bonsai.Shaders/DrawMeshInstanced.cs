@@ -125,20 +125,20 @@ namespace Bonsai.Shaders
                         {
                             if (instance == null)
                             {
-                                Mesh mesh;
-                                if (!material.Window.Meshes.TryGetValue(name, out mesh))
+                                try
                                 {
-                                    observer.OnError(new InvalidOperationException(string.Format(
-                                        "The mesh \"{0}\" was not found.",
-                                        name)));
+                                    var mesh = material.Window.ResourceManager.Load<Mesh>(name);
+                                    instance = new MeshInstanced(mesh);
+                                    BindInstanceAttributes(
+                                        instance,
+                                        BlittableValueType<TVertex>.Stride,
+                                        instanceAttributes);
+                                }
+                                catch (Exception ex)
+                                {
+                                    observer.OnError(ex);
                                     return;
                                 }
-
-                                instance = new MeshInstanced(mesh);
-                                BindInstanceAttributes(
-                                    instance,
-                                    BlittableValueType<TVertex>.Stride,
-                                    instanceAttributes);
                             }
 
                             if (input != null)
@@ -177,20 +177,20 @@ namespace Bonsai.Shaders
                         {
                             if (instance == null && input != null)
                             {
-                                Mesh mesh;
-                                if (!material.Window.Meshes.TryGetValue(name, out mesh))
+                                try
                                 {
-                                    observer.OnError(new InvalidOperationException(string.Format(
-                                        "The mesh \"{0}\" was not found.",
-                                        name)));
+                                    var mesh = material.Window.ResourceManager.Load<Mesh>(name);
+                                    instance = new MeshInstanced(mesh);
+                                    BindInstanceAttributes(
+                                        instance,
+                                        input.Cols * input.ElementSize,
+                                        instanceAttributes);
+                                }
+                                catch (Exception ex)
+                                {
+                                    observer.OnError(ex);
                                     return;
                                 }
-
-                                instance = new MeshInstanced(mesh);
-                                BindInstanceAttributes(
-                                    instance,
-                                    input.Cols * input.ElementSize,
-                                    instanceAttributes);
                             }
 
                             if (instance == null) return;

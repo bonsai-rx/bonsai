@@ -39,14 +39,14 @@ namespace Bonsai.Shaders.Configuration
         [TypeConverter(typeof(MeshNameConverter))]
         public string MeshName { get; set; }
 
-        public override Shader CreateShader(ShaderWindow window)
+        public override Shader CreateResource(ResourceManager resourceManager)
         {
             var vertexSource = ReadShaderSource(VertexShader);
             var geometrySource = ReadShaderSource(GeometryShader);
             var fragmentSource = ReadShaderSource(FragmentShader);
 
             var material = new Material(
-                Name, window,
+                Name, resourceManager.Window,
                 vertexSource,
                 geometrySource,
                 fragmentSource,
@@ -55,6 +55,11 @@ namespace Bonsai.Shaders.Configuration
                 BufferBindings,
                 Framebuffer);
             material.Enabled = Enabled;
+            if (!string.IsNullOrEmpty(MeshName))
+            {
+                material.Mesh = resourceManager.Load<Mesh>(MeshName);
+            }
+            resourceManager.Window.AddShader(material);
             return material;
         }
 

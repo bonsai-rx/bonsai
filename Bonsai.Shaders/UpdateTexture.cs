@@ -43,16 +43,12 @@ namespace Bonsai.Shaders
                     {
                         window.Update(() =>
                         {
-                            Texture tex;
-                            if (!window.Textures.TryGetValue(name, out tex))
+                            try
                             {
-                                observer.OnError(new InvalidOperationException(string.Format(
-                                    "The texture \"{0}\" was not found.",
-                                    name)));
-                                return;
+                                var tex = window.ResourceManager.Load<Texture>(name);
+                                texture = tex.Id;
                             }
-
-                            texture = tex.Id;
+                            catch (Exception ex) { observer.OnError(ex); }
                         });
                     }),
                     (input, window) =>

@@ -26,11 +26,11 @@ namespace Bonsai.Shaders.Configuration
         [Description("Specifies the number of workgroups to be launched when dispatching the compute shader.")]
         public DispatchParameters WorkGroups { get; set; }
 
-        public override Shader CreateShader(ShaderWindow window)
+        public override Shader CreateResource(ResourceManager resourceManager)
         {
             var computeSource = ReadShaderSource(ComputeShader);
             var computation = new ComputeProgram(
-                Name, window,
+                Name, resourceManager.Window,
                 computeSource,
                 RenderState,
                 ShaderUniforms,
@@ -38,6 +38,7 @@ namespace Bonsai.Shaders.Configuration
                 Framebuffer);
             computation.Enabled = Enabled;
             computation.WorkGroups = WorkGroups;
+            resourceManager.Window.AddShader(computation);
             return computation;
         }
 

@@ -24,7 +24,7 @@ namespace Bonsai.Shaders
             IEnumerable<UniformConfiguration> shaderUniforms,
             IEnumerable<BufferBindingConfiguration> bufferBindings,
             FramebufferConfiguration framebuffer)
-            : base(name, window, renderState, shaderUniforms, bufferBindings, framebuffer)
+            : base(name, window)
         {
             if (vertexShader == null)
             {
@@ -39,6 +39,7 @@ namespace Bonsai.Shaders
             vertexSource = vertexShader;
             geometrySource = geometryShader;
             fragmentSource = fragmentShader;
+            CreateShaderState(renderState, shaderUniforms, bufferBindings, framebuffer);
         }
 
         protected override int CreateShader()

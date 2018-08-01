@@ -13,7 +13,7 @@ namespace Bonsai.Shaders.Configuration
     [XmlInclude(typeof(TexturedModel))]
     public class MeshConfiguration : ResourceConfiguration<Mesh>
     {
-        public override Mesh CreateResource()
+        public override Mesh CreateResource(ResourceManager resourceManager)
         {
             return new Mesh();
         }

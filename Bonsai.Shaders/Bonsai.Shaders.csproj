@@ -100,7 +100,7 @@
     <Compile Include="Configuration\TextureConfigurationCollection.cs" />
     <Compile Include="Configuration\ImageTexture.cs" />
     <Compile Include="Configuration\Texture2D.cs" />
-    <Compile Include="Configuration\ResourceConfiguration.cs" />
+    <Compile Include="ResourceConfiguration.cs" />
     <Compile Include="Configuration\TextureConfiguration.cs" />
     <Compile Include="Configuration\UniformConfiguration.cs" />
     <Compile Include="Configuration\UniformConfigurationCollection.cs" />
@@ -121,6 +121,9 @@
     <Compile Include="LatestOnRenderFrame.cs" />
     <Compile Include="MeshAttributeMapping.cs" />
     <Compile Include="MeshBounds.cs" />
+    <Compile Include="ResourceDictionary.cs" />
+    <Compile Include="ResourceKey.cs" />
+    <Compile Include="ResourceManager.cs" />
     <Compile Include="RotateAxisAngle.cs" />
     <Compile Include="RotateQuaternion.cs" />
     <Compile Include="RotateX.cs" />
