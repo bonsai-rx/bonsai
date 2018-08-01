@@ -20,7 +20,7 @@ namespace Bonsai.Shaders
             IEnumerable<UniformConfiguration> shaderUniforms,
             IEnumerable<BufferBindingConfiguration> bufferBindings,
             FramebufferConfiguration framebuffer)
-            : base(name, window, renderState, shaderUniforms, bufferBindings, framebuffer)
+            : base(name, window)
         {
             if (computeShader == null)
             {
@@ -28,6 +28,7 @@ namespace Bonsai.Shaders
             }
 
             computeSource = computeShader;
+            CreateShaderState(renderState, shaderUniforms, bufferBindings, framebuffer);
         }
 
         public DispatchParameters WorkGroups { get; set; }

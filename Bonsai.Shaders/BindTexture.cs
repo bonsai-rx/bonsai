@@ -43,16 +43,10 @@ namespace Bonsai.Shaders
                     {
                         if (textureName != TextureName)
                         {
-                            Texture texture = null;
                             textureName = TextureName;
-                            if (!string.IsNullOrEmpty(textureName) && !shader.Window.Textures.TryGetValue(textureName, out texture))
-                            {
-                                observer.OnError(new InvalidOperationException(string.Format(
-                                    "The texture reference \"{0}\" was not found.",
-                                    textureName)));
-                                return input;
-                            }
-
+                            var texture = !string.IsNullOrEmpty(textureName)
+                                ? shader.Window.ResourceManager.Load<Texture>(textureName)
+                                : null;
                             textureId = texture != null ? texture.Id : 0;
                         }
 

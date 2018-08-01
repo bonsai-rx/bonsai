@@ -10,53 +10,37 @@ namespace Bonsai.Shaders
 {
     class ImageTextureBinding : BufferBinding
     {
-        Texture texture;
-        readonly ImageTextureBindingConfiguration binding;
+        int textureId;
+        TextureUnit textureUnit;
+        TextureAccess bindingAccess;
+        SizedInternalFormat bindingFormat;
 
-        public ImageTextureBinding(ImageTextureBindingConfiguration bindingConfiguration)
+        public ImageTextureBinding(Texture texture, TextureUnit textureSlot, TextureAccess access, SizedInternalFormat format)
         {
-            if (bindingConfiguration == null)
-            {
-                throw new ArgumentNullException("bindingConfiguration");
-            }
-
-            binding = bindingConfiguration;
+            textureId = texture.Id;
+            textureUnit = textureSlot;
+            bindingAccess = access;
+            bindingFormat = format;
         }
 
-        public override void Load(Shader shader)
-        {
-            shader.SetTextureSlot(binding.Name, binding.TextureSlot);
-            if (!shader.Window.Textures.TryGetValue(binding.TextureName, out texture))
-            {
-                throw new InvalidOperationException(string.Format(
-                    "The texture reference \"{0}\" was not found.",
-                    binding.TextureName));
-            }
-        }
-
-        public override void Bind(Shader shader)
+        public override void Bind()
         {
             GL.BindImageTexture(
-                (int)(binding.TextureSlot - TextureUnit.Texture0),
-                texture.Id,
+                (int)(textureUnit - TextureUnit.Texture0),
+                textureId,
                 0, false, 0,
-                binding.Access,
-                binding.Format);
+                bindingAccess,
+                bindingFormat);
         }
 
-        public override void Unbind(Shader shader)
+        public override void Unbind()
         {
             GL.BindImageTexture(
-                (int)(binding.TextureSlot - TextureUnit.Texture0),
+                (int)(textureUnit - TextureUnit.Texture0),
                 0,
                 0, false, 0,
-                binding.Access,
-                binding.Format);
-        }
-
-        public override void Unload(Shader shader)
-        {
-            texture = null;
+                bindingAccess,
+                bindingFormat);
         }
     }
 }

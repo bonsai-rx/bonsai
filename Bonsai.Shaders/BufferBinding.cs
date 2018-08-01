@@ -8,12 +8,8 @@ namespace Bonsai.Shaders
 {
     abstract class BufferBinding
     {
-        public abstract void Load(Shader shader);
+        public abstract void Bind();
 
-        public abstract void Bind(Shader shader);
-
-        public abstract void Unbind(Shader shader);
-
-        public abstract void Unload(Shader shader);
+        public abstract void Unbind();
     }
 }

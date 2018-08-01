@@ -13,7 +13,7 @@ namespace Bonsai.Shaders.Configuration
     [XmlInclude(typeof(MaterialConfiguration))]
     [XmlInclude(typeof(ViewportEffectConfiguration))]
     [XmlInclude(typeof(ComputeProgramConfiguration))]
-    public abstract class ShaderConfiguration
+    public abstract class ShaderConfiguration : ResourceConfiguration<Shader>
     {
         readonly FramebufferConfiguration framebuffer = new FramebufferConfiguration();
         readonly StateConfigurationCollection renderState = new StateConfigurationCollection();
@@ -24,9 +24,6 @@ namespace Bonsai.Shaders.Configuration
         {
             Enabled = true;
         }
-
-        [Description("The name of the shader program.")]
-        public string Name { get; set; }
 
         [Category("State")]
         [Description("Specifies whether the shader is active.")]
@@ -79,8 +76,6 @@ namespace Bonsai.Shaders.Configuration
 
             return File.ReadAllText(path);
         }
-
-        public abstract Shader CreateShader(ShaderWindow window);
 
         public override string ToString()
         {

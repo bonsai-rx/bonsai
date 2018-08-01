@@ -10,51 +10,31 @@ namespace Bonsai.Shaders
 {
     class TextureBinding : BufferBinding
     {
-        Texture texture;
-        readonly TextureBindingConfiguration binding;
+        int textureId;
+        TextureUnit textureUnit;
 
-        public TextureBinding(TextureBindingConfiguration bindingConfiguration)
+        public TextureBinding(Texture texture, TextureUnit textureSlot)
         {
-            if (bindingConfiguration == null)
-            {
-                throw new ArgumentNullException("bindingConfiguration");
-            }
-
-            binding = bindingConfiguration;
+            textureId = texture != null ? texture.Id : 0;
+            textureUnit = textureSlot;
         }
 
-        public override void Load(Shader shader)
+        public override void Bind()
         {
-            shader.SetTextureSlot(binding.Name, binding.TextureSlot);
-            if (!string.IsNullOrEmpty(binding.TextureName) && !shader.Window.Textures.TryGetValue(binding.TextureName, out texture))
+            if (textureId > 0)
             {
-                throw new InvalidOperationException(string.Format(
-                    "The texture reference \"{0}\" was not found.",
-                    binding.TextureName));
+                GL.ActiveTexture(textureUnit);
+                GL.BindTexture(TextureTarget.Texture2D, textureId);
             }
         }
 
-        public override void Bind(Shader shader)
+        public override void Unbind()
         {
-            if (texture != null)
+            if (textureId > 0)
             {
-                GL.ActiveTexture(binding.TextureSlot);
-                GL.BindTexture(TextureTarget.Texture2D, texture.Id);
-            }
-        }
-
-        public override void Unbind(Shader shader)
-        {
-            if (texture != null)
-            {
-                GL.ActiveTexture(binding.TextureSlot);
+                GL.ActiveTexture(textureUnit);
                 GL.BindTexture(TextureTarget.Texture2D, 0);
             }
-        }
-
-        public override void Unload(Shader shader)
-        {
-            texture = null;
         }
     }
 }

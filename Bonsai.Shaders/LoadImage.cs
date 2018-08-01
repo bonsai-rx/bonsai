@@ -107,7 +107,7 @@ namespace Bonsai.Shaders
         public override IObservable<Texture> Generate()
         {
             var update = updateFrame.Generate().Take(1);
-            return update.Select(x => configuration.CreateResource());
+            return update.Select(x => configuration.CreateResource(((ShaderWindow)x.Sender).ResourceManager));
         }
 
         public IObservable<Texture> Generate<TSource>(IObservable<TSource> source)

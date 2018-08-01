@@ -24,9 +24,11 @@ namespace Bonsai.Shaders.Configuration
         [Description("The format that the elements of the image will be treated as for the purposes of formatted stores.")]
         public SizedInternalFormat Format { get; set; }
 
-        internal override BufferBinding CreateBufferBinding()
+        internal override BufferBinding CreateBufferBinding(Shader shader, ResourceManager resourceManager)
         {
-            return new ImageTextureBinding(this);
+            shader.SetTextureSlot(Name, TextureSlot);
+            var texture = resourceManager.Load<Texture>(TextureName);
+            return new ImageTextureBinding(texture, TextureSlot, Access, Format);
         }
 
         public override string ToString()

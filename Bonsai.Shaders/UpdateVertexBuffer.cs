@@ -56,19 +56,16 @@ namespace Bonsai.Shaders
                     {
                         window.Update(() =>
                         {
-                            if (!window.Meshes.TryGetValue(name, out mesh))
+                            try
                             {
-                                observer.OnError(new InvalidOperationException(string.Format(
-                                    "The mesh \"{0}\" was not found.",
-                                    name)));
-                                return;
+                                mesh = window.ResourceManager.Load<Mesh>(name);
+                                VertexHelper.BindVertexAttributes(
+                                    mesh.VertexBuffer,
+                                    mesh.VertexArray,
+                                    BlittableValueType<TVertex>.Stride,
+                                    vertexAttributes);
                             }
-
-                            VertexHelper.BindVertexAttributes(
-                                mesh.VertexBuffer,
-                                mesh.VertexArray,
-                                BlittableValueType<TVertex>.Stride,
-                                vertexAttributes);
+                            catch (Exception ex) { observer.OnError(ex); }
                         });
                     }),
                     (input, window) =>
@@ -102,19 +99,20 @@ namespace Bonsai.Shaders
                         {
                             if (mesh == null)
                             {
-                                if (!window.Meshes.TryGetValue(name, out mesh))
+                                try
                                 {
-                                    observer.OnError(new InvalidOperationException(string.Format(
-                                        "The mesh \"{0}\" was not found.",
-                                        name)));
+                                    mesh = window.ResourceManager.Load<Mesh>(name);
+                                    VertexHelper.BindVertexAttributes(
+                                        mesh.VertexBuffer,
+                                        mesh.VertexArray,
+                                        input.Cols * input.ElementSize,
+                                        vertexAttributes);
+                                }
+                                catch (Exception ex)
+                                {
+                                    observer.OnError(ex);
                                     return;
                                 }
-
-                                VertexHelper.BindVertexAttributes(
-                                    mesh.VertexBuffer,
-                                    mesh.VertexArray,
-                                    input.Cols * input.ElementSize,
-                                    vertexAttributes);
                             }
 
                             mesh.DrawMode = DrawMode;

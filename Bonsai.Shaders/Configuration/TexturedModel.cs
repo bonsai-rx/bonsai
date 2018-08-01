@@ -17,9 +17,9 @@ namespace Bonsai.Shaders.Configuration
         [Description("The name of the model file.")]
         public string FileName { get; set; }
 
-        public override Mesh CreateResource()
+        public override Mesh CreateResource(ResourceManager resourceManager)
         {
-            var mesh = base.CreateResource();
+            var mesh = base.CreateResource(resourceManager);
             ObjReader.ReadObject(mesh, FileName);
             return mesh;
         }

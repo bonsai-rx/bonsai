@@ -30,18 +30,19 @@ namespace Bonsai.Shaders.Configuration
             set { texturedQuad.QuadEffects = value; }
         }
 
-        public override Shader CreateShader(ShaderWindow window)
+        public override Shader CreateResource(ResourceManager resourceManager)
         {
             var fragmentSource = ReadShaderSource(FragmentShader);
             var effect = new ViewportEffect(
-                Name, window,
+                Name, resourceManager.Window,
                 fragmentSource,
                 RenderState,
                 ShaderUniforms,
                 BufferBindings,
                 Framebuffer,
-                texturedQuad);
+                texturedQuad.CreateResource(resourceManager));
             effect.Enabled = Enabled;
+            resourceManager.Window.AddShader(effect);
             return effect;
         }
 

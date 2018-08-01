@@ -37,13 +37,8 @@ namespace Bonsai.Shaders
                     {
                         material.Update(() =>
                         {
-                            if (!material.Window.Meshes.TryGetValue(name, out mesh))
-                            {
-                                observer.OnError(new InvalidOperationException(string.Format(
-                                    "The mesh \"{0}\" was not found.",
-                                    name)));
-                                return;
-                            }
+                            try { mesh = material.Window.ResourceManager.Load<Mesh>(name); }
+                            catch (Exception ex) { observer.OnError(ex); }
                         });
                     }),
                     (input, material) =>

@@ -10,42 +10,28 @@ namespace Bonsai.Shaders
 {
     class MeshBinding : BufferBinding
     {
-        Mesh mesh;
-        readonly MeshBindingConfiguration binding;
+        int bindingIndex;
+        int vertexBuffer;
 
-        public MeshBinding(MeshBindingConfiguration bindingConfiguration)
+        public MeshBinding(int index, Mesh mesh)
         {
-            if (bindingConfiguration == null)
+            if (mesh == null)
             {
-                throw new ArgumentNullException("bindingConfiguration");
+                throw new ArgumentNullException("mesh");
             }
 
-            binding = bindingConfiguration;
+            bindingIndex = index;
+            vertexBuffer = mesh.VertexBuffer;
         }
 
-        public override void Load(Shader shader)
+        public override void Bind()
         {
-            if (!shader.Window.Meshes.TryGetValue(binding.MeshName, out mesh))
-            {
-                throw new InvalidOperationException(string.Format(
-                    "The mesh reference \"{0}\" was not found.",
-                    binding.MeshName));
-            }
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, bindingIndex, vertexBuffer);
         }
 
-        public override void Bind(Shader shader)
+        public override void Unbind()
         {
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, binding.Index, mesh.VertexBuffer);
-        }
-
-        public override void Unbind(Shader shader)
-        {
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, binding.Index, 0);
-        }
-
-        public override void Unload(Shader shader)
-        {
-            mesh = null;
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, bindingIndex, 0);
         }
     }
 }

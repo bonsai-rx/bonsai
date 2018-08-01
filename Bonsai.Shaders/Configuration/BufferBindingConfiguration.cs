@@ -17,7 +17,7 @@ namespace Bonsai.Shaders.Configuration
         [Description("The name of the uniform variable that will be bound to the buffer.")]
         public string Name { get; set; }
 
-        internal abstract BufferBinding CreateBufferBinding();
+        internal abstract BufferBinding CreateBufferBinding(Shader shader, ResourceManager resourceManager);
 
         internal string ToString(string baseText, string referenceName)
         {

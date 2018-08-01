@@ -19,8 +19,9 @@ namespace Bonsai.Shaders
         ClearBufferMask clearMask;
         RectangleF viewport;
         List<Shader> shaders;
-        Dictionary<string, Texture> textures;
-        Dictionary<string, Mesh> meshes;
+        IDictionary<string, Texture> textures;
+        IDictionary<string, Mesh> meshes;
+        ResourceManager resourceManager;
         ShaderWindowSettings settings;
         const string DefaultTitle = "Bonsai Shader Window";
         static readonly object syncRoot = string.Intern("A1105A50-BBB0-4EC6-B8B2-B5EF38A9CC3E");
@@ -51,11 +52,10 @@ namespace Bonsai.Shaders
             TargetRenderFrequency = configuration.TargetRenderFrequency;
             TargetUpdateFrequency = configuration.TargetRenderFrequency;
             RefreshRate = VSync == VSyncMode.On ? display.RefreshRate : TargetRenderFrequency;
-            textures = new Dictionary<string, Texture>();
-            meshes = new Dictionary<string, Mesh>();
-            shaders = settings.Shaders
-                .Select(shaderConfiguration => shaderConfiguration.CreateShader(this))
-                .ToList();
+            resourceManager = new ResourceManager(this);
+            textures = new ResourceDictionary<Texture>(resourceManager);
+            meshes = new ResourceDictionary<Mesh>(resourceManager);
+            shaders = new List<Shader>();
         }
 
         internal double RefreshRate { get; private set; }
@@ -77,14 +77,26 @@ namespace Bonsai.Shaders
             get { return shaders; }
         }
 
-        public Dictionary<string, Texture> Textures
+        [Obsolete]
+        public IDictionary<string, Texture> Textures
         {
             get { return textures; }
         }
 
-        public Dictionary<string, Mesh> Meshes
+        [Obsolete]
+        public IDictionary<string, Mesh> Meshes
         {
             get { return meshes; }
+        }
+
+        public ResourceManager ResourceManager
+        {
+            get { return resourceManager; }
+        }
+
+        internal void AddShader(Shader shader)
+        {
+            shaders.Add(shader);
         }
 
         internal void UpdateViewport()
@@ -108,31 +120,11 @@ namespace Bonsai.Shaders
 
         protected override void OnLoad(EventArgs e)
         {
-            foreach (var configuration in settings.Textures)
-            {
-                textures.Add(configuration.Name, configuration.CreateResource());
-            }
-
-            foreach (var configuration in settings.Meshes)
-            {
-                meshes.Add(configuration.Name, configuration.CreateResource());
-            }
-
-            foreach (var shader in shaders)
-            {
-                var material = shader as Material;
-                if (material != null)
-                {
-                    var configuration = (MaterialConfiguration)settings.Shaders[shader.Name];
-                    if (!string.IsNullOrEmpty(configuration.MeshName))
-                    {
-                        material.Mesh = meshes[configuration.MeshName];
-                    }
-                }
-
-                shader.Load();
-            }
-
+            var resources = new List<IResourceConfiguration>();
+            resources.AddRange(settings.Textures);
+            resources.AddRange(settings.Meshes);
+            resources.AddRange(settings.Shaders);
+            resourceManager.Load(resources);
             foreach (var state in settings.RenderState)
             {
                 state.Execute(this);
@@ -176,10 +168,15 @@ namespace Bonsai.Shaders
             }
 
             base.OnRenderFrame(e);
-            foreach (var shader in shaders)
+            shaders.RemoveAll(shader =>
             {
-                shader.Dispatch();
-            }
+                if (shader.Program != 0)
+                {
+                    shader.Dispatch();
+                    return false;
+                }
+                return true;
+            });
 
             if (!swapSync) SwapBuffers();
             else lock (syncRoot) SwapBuffers();
@@ -187,20 +184,8 @@ namespace Bonsai.Shaders
 
         protected override void OnUnload(EventArgs e)
         {
-            foreach (var shader in shaders)
-            {
-                shader.Dispose();
-            }
-
-            foreach (var texture in textures.Values)
-            {
-                texture.Dispose();
-            }
-
-            foreach (var resource in meshes.Values)
-            {
-                resource.Dispose();
-            }
+            shaders.Clear();
+            resourceManager.Dispose();
             base.OnUnload(e);
         }
     }
