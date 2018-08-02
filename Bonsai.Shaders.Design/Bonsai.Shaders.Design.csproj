@@ -70,11 +70,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\CollectionEditor.cs" />
     <Compile Include="Configuration\CollectionEditorControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Configuration\CollectionEditorControl.Designer.cs">
       <DependentUpon>CollectionEditorControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Configuration\CollectionEditorDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Configuration\CollectionEditorDialog.Designer.cs">
+      <DependentUpon>CollectionEditorDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Configuration\ComputeConfigurationEditor.cs" />
     <Compile Include="Configuration\ConfigurationHelper.cs" />
@@ -86,10 +93,12 @@
     <Compile Include="Configuration\DragResourceConfiguration.cs" />
     <Compile Include="Configuration\DragTextureConfiguration.cs" />
     <Compile Include="Configuration\MaterialConfigurationEditor.cs" />
+    <Compile Include="Configuration\MeshConfigurationCollectionEditor.cs" />
     <Compile Include="Configuration\MtlReader.cs" />
     <Compile Include="Configuration\ShaderCollectionEditorControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Configuration\ShaderConfigurationCollectionEditor.cs" />
     <Compile Include="Configuration\UniformConfigurationCollectionEditor.cs" />
     <Compile Include="Configuration\MeshConfigurationEditor.cs" />
     <Compile Include="Configuration\FramebufferAttachmentConfigurationCollectionEditor.cs" />
@@ -150,6 +159,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Configuration\CollectionEditorControl.resx">
       <DependentUpon>CollectionEditorControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Configuration\CollectionEditorDialog.resx">
+      <DependentUpon>CollectionEditorDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Configuration\ShaderConfigurationEditorDialog.resx">
       <DependentUpon>ShaderConfigurationEditorDialog.cs</DependentUpon>
