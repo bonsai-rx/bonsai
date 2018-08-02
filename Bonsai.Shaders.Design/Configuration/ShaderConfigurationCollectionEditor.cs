@@ -1,33 +1,33 @@
-﻿using Bonsai.Design;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Bonsai.Shaders.Configuration.Design
 {
-    class TextureConfigurationCollectionEditor : CollectionEditor
+    class ShaderConfigurationCollectionEditor : CollectionEditor
     {
-        public TextureConfigurationCollectionEditor(Type type)
+        public ShaderConfigurationCollectionEditor(Type type)
             : base(type)
         {
         }
 
         protected override Type CreateCollectionItemType()
         {
-            return typeof(TextureConfiguration);
+            return typeof(ShaderConfiguration);
         }
 
         protected override Type[] CreateNewItemTypes()
         {
-            return new[] { typeof(Texture2D), typeof(ImageTexture) };
+            return new[] { typeof(MaterialConfiguration), typeof(ViewportEffectConfiguration), typeof(ComputeProgramConfiguration) };
         }
 
         protected override CollectionEditorDialog CreateEditorDialog()
         {
             var form = base.CreateEditorDialog();
-            form.Tag = new DragTextureConfiguration(form.EditorControl);
+            form.Tag = new DragMaterialConfiguration(form.EditorControl);
             return form;
         }
     }
