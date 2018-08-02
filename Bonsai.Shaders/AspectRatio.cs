@@ -14,7 +14,7 @@ namespace Bonsai.Shaders
     [Description("Calculates the ratio of the window width to its height.")]
     public class AspectRatio : Transform<Size, float>
     {
-        float GetAspectRatio(float width, float height)
+        static float GetAspectRatio(float width, float height)
         {
             return width / height;
         }
