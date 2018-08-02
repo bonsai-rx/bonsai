@@ -75,6 +75,7 @@
     <Compile Include="CreateMatrix4.cs" />
     <Compile Include="LoadImage.cs" />
     <Compile Include="LoadResources.cs" />
+    <Compile Include="MeshResources.cs" />
     <Compile Include="RefreshRate.cs" />
     <Compile Include="RenderTexture.cs" />
     <Compile Include="ExtrinsicsModelView.cs" />
@@ -135,6 +136,8 @@
     <Compile Include="SampleOnRenderFrame.cs" />
     <Compile Include="Scale.cs" />
     <Compile Include="MatrixTransform.cs" />
+    <Compile Include="ShaderResources.cs" />
+    <Compile Include="TextureResources.cs" />
     <Compile Include="TransformRelative.cs" />
     <Compile Include="Translate.cs" />
     <Compile Include="UpdateStep.cs" />
