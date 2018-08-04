@@ -15,8 +15,8 @@ namespace Bonsai.Shaders
     {
         readonly DrawMesh drawMesh = new DrawMesh();
 
+        [TypeConverter(typeof(MaterialNameConverter))]
         [Description("The name of the material shader program.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.MaterialConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string ShaderName
         {
             get { return drawMesh.ShaderName; }

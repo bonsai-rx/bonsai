@@ -16,8 +16,8 @@ namespace Bonsai.Shaders
     {
         readonly Collection<MeshName> meshNames = new Collection<MeshName>();
 
+        [TypeConverter(typeof(MaterialNameConverter))]
         [Description("The name of the material shader program.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.MaterialConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string ShaderName { get; set; }
 
         [Description("The name of the mesh geometry to draw.")]

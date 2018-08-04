@@ -69,12 +69,14 @@
     <Compile Include="Bounds.cs" />
     <Compile Include="BufferBinding.cs" />
     <Compile Include="ComputeProgram.cs" />
+    <Compile Include="ComputeProgramNameConverter.cs" />
     <Compile Include="Configuration\ViewportEffectConfiguration.cs" />
     <Compile Include="CreateMatrix2.cs" />
     <Compile Include="CreateMatrix3.cs" />
     <Compile Include="CreateMatrix4.cs" />
     <Compile Include="LoadImage.cs" />
     <Compile Include="LoadResources.cs" />
+    <Compile Include="MaterialNameConverter.cs" />
     <Compile Include="MeshResources.cs" />
     <Compile Include="RefreshRate.cs" />
     <Compile Include="RenderTexture.cs" />
