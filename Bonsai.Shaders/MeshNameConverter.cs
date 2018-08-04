@@ -17,10 +17,10 @@ namespace Bonsai.Shaders
         public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             var values = base.GetStandardValues(context);
-            var configurationNames = ShaderManager.LoadConfiguration().Meshes;
-            if (configurationNames.Count > 0)
+            var configurationResources = ShaderManager.LoadConfiguration().Meshes;
+            if (configurationResources.Count > 0)
             {
-                var meshNames = configurationNames.Select(configuration => configuration.Name);
+                var meshNames = configurationResources.Select(configuration => configuration.Name);
                 if (values != null) meshNames = meshNames.Concat(values.Cast<string>());
                 values = new StandardValuesCollection(meshNames.ToArray());
             }
