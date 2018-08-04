@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
-    class ResourceNameConverter : StringConverter
+    public class ResourceNameConverter : StringConverter
     {
         internal Func<IResourceConfiguration, bool> targetResource;
 
