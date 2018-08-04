@@ -10,11 +10,16 @@ namespace Bonsai.Shaders
 {
     public class ResourceNameConverter : StringConverter
     {
-        internal Func<IResourceConfiguration, bool> targetResource;
+        internal readonly Func<IResourceConfiguration, bool> targetResource;
 
         public ResourceNameConverter(Type type)
+            : this(resource => resource.Type == type)
         {
-            targetResource = resource => resource.Type == type;
+        }
+
+        internal ResourceNameConverter(Func<IResourceConfiguration, bool> predicate)
+        {
+            targetResource = predicate;
         }
 
         static bool IsGroup(IWorkflowExpressionBuilder builder)
