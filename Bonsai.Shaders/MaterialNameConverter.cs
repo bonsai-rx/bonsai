@@ -11,8 +11,8 @@ namespace Bonsai.Shaders
     class MaterialNameConverter : ShaderNameConverter
     {
         public MaterialNameConverter()
+            : base(resource => resource is MaterialConfiguration)
         {
-            targetResource = resource => resource is MaterialConfiguration;
         }
     }
 }

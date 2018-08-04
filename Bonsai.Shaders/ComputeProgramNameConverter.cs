@@ -10,8 +10,8 @@ namespace Bonsai.Shaders
     class ComputeProgramNameConverter : ShaderNameConverter
     {
         public ComputeProgramNameConverter()
+            : base(resource => resource is ComputeProgramConfiguration)
         {
-            targetResource = resource => resource is ComputeProgramConfiguration;
         }
     }
 }

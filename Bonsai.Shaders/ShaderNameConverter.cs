@@ -14,6 +14,11 @@ namespace Bonsai.Shaders
         {
         }
 
+        internal ShaderNameConverter(Func<IResourceConfiguration, bool> predicate)
+            : base(predicate)
+        {
+        }
+
         public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             var values = base.GetStandardValues(context);
