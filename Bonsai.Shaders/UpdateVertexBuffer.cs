@@ -24,8 +24,8 @@ namespace Bonsai.Shaders
             Usage = BufferUsageHint.DynamicDraw;
         }
 
+        [TypeConverter(typeof(MeshNameConverter))]
         [Description("The name of the mesh geometry to update.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.MeshConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string MeshName { get; set; }
 
         [Description("Specifies the kind of primitives to render with the vertex buffer data.")]

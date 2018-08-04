@@ -12,8 +12,8 @@ namespace Bonsai.Shaders
     [Description("Immediately starts processing the specified shader work queue.")]
     public class DispatchShaderQueue : Sink
     {
+        [TypeConverter(typeof(ShaderNameConverter))]
         [Description("The name of the shader program.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string ShaderName { get; set; }
 
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)

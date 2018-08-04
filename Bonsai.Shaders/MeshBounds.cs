@@ -15,8 +15,8 @@ namespace Bonsai.Shaders
     [Description("Selects the bounds of the specified mesh geometry.")]
     public class MeshBounds : Source<Bounds>
     {
+        [TypeConverter(typeof(MeshNameConverter))]
         [Description("The name of the mesh geometry for which to retrieve the bounds.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.MeshConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string MeshName { get; set; }
 
         public override IObservable<Bounds> Generate()

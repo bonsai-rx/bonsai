@@ -23,8 +23,8 @@ namespace Bonsai.Shaders
         [Description("The slot on which to bind the texture.")]
         public TextureUnit TextureSlot { get; set; }
 
+        [TypeConverter(typeof(ShaderNameConverter))]
         [Description("The name of the shader program.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string ShaderName { get; set; }
 
         [TypeConverter(typeof(TextureNameConverter))]

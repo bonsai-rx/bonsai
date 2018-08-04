@@ -20,8 +20,8 @@ namespace Bonsai.Shaders
             InternalFormat = PixelInternalFormat.Rgba;
         }
 
+        [TypeConverter(typeof(TextureNameConverter))]
         [Description("The name of the texture to update.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.TextureConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string TextureName { get; set; }
 
         [Description("The internal storage format of the texture data.")]

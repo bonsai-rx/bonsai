@@ -7,17 +7,25 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
-    class ShaderNameConverter : StringConverter
+    class ShaderNameConverter : ResourceNameConverter
     {
-        public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
+        public ShaderNameConverter()
+            : base(typeof(Shader))
         {
-            return true;
         }
 
         public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
-            var shaderNames = ShaderManager.LoadConfiguration().Shaders.Select(configuration => configuration.Name);
-            return new StandardValuesCollection(shaderNames.ToArray());
+            var values = base.GetStandardValues(context);
+            var configurationNames = ShaderManager.LoadConfiguration().Shaders;
+            if (configurationNames.Count > 0)
+            {
+                var shaderNames = configurationNames.Select(configuration => configuration.Name);
+                if (values != null) shaderNames = shaderNames.Concat(values.Cast<string>());
+                values = new StandardValuesCollection(shaderNames.ToArray());
+            }
+
+            return values;
         }
     }
 }

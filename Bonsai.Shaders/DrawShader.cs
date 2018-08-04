@@ -23,8 +23,8 @@ namespace Bonsai.Shaders
             set { drawMesh.ShaderName = value; }
         }
 
+        [TypeConverter(typeof(MeshNameConverter))]
         [Description("The name of the mesh geometry to draw.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.MeshConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string MeshName
         {
             get { return drawMesh.MeshName; }

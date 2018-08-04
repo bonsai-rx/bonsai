@@ -20,8 +20,8 @@ namespace Bonsai.Shaders
         [Description("The name of the uniform variable to update.")]
         public string UniformName { get; set; }
 
+        [TypeConverter(typeof(ShaderNameConverter))]
         [Description("The name of the shader program.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string ShaderName { get; set; }
 
         IObservable<TSource> Process<TSource>(IObservable<TSource> source, Action<int, TSource> update, ActiveUniformType type)
