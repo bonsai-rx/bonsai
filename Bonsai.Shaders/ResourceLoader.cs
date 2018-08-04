@@ -11,7 +11,7 @@ namespace Bonsai.Shaders
 {
     public abstract class ResourceLoader : Transform<ResourceConfigurationCollection, ResourceConfigurationCollection>
     {
-        protected abstract IEnumerable<IResourceConfiguration> GetResources();
+        protected internal abstract IEnumerable<IResourceConfiguration> GetResources();
 
         public IObservable<ResourceConfigurationCollection> Process(IObservable<INativeWindow> source)
         {

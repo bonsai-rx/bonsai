@@ -128,6 +128,7 @@
     <Compile Include="ResourceKey.cs" />
     <Compile Include="ResourceLoader.cs" />
     <Compile Include="ResourceManager.cs" />
+    <Compile Include="ResourceNameConverter.cs" />
     <Compile Include="RotateAxisAngle.cs" />
     <Compile Include="RotateQuaternion.cs" />
     <Compile Include="RotateX.cs" />

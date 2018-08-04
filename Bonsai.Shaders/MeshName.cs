@@ -12,8 +12,8 @@ namespace Bonsai.Shaders
     public class MeshName
     {
         [XmlText]
+        [TypeConverter(typeof(MeshNameConverter))]
         [Description("The name of the mesh geometry to aggregate.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.MeshConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string Name { get; set; }
 
         [DefaultValue(0)]

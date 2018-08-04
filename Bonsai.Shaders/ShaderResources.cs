@@ -26,7 +26,7 @@ namespace Bonsai.Shaders
             get { return shaders; }
         }
 
-        protected override IEnumerable<IResourceConfiguration> GetResources()
+        protected internal override IEnumerable<IResourceConfiguration> GetResources()
         {
             return shaders;
         }

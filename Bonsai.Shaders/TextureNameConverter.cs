@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bonsai.Expressions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -7,17 +8,25 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
-    class TextureNameConverter : StringConverter
+    class TextureNameConverter : ResourceNameConverter
     {
-        public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
+        public TextureNameConverter()
+            : base(typeof(Texture))
         {
-            return true;
         }
 
         public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
-            var textureNames = ShaderManager.LoadConfiguration().Textures.Select(configuration => configuration.Name);
-            return new StandardValuesCollection(textureNames.ToArray());
+            var values = base.GetStandardValues(context);
+            var configurationNames = ShaderManager.LoadConfiguration().Textures;
+            if (configurationNames.Count > 0)
+            {
+                var textureNames = configurationNames.Select(configuration => configuration.Name);
+                if (values != null) textureNames = textureNames.Concat(values.Cast<string>());
+                values = new StandardValuesCollection(textureNames.ToArray());
+            }
+
+            return values;
         }
     }
 }
