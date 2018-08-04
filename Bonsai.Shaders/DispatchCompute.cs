@@ -13,8 +13,8 @@ namespace Bonsai.Shaders
     [Description("Launches one or more compute shader work groups.")]
     public class DispatchCompute : Sink
     {
+        [TypeConverter(typeof(ComputeProgramNameConverter))]
         [Description("The name of the compute shader program.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.ComputeConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string ShaderName { get; set; }
 
         [Description("Specifies the number of workgroups to be launched when dispatching the compute shader.")]

@@ -24,8 +24,8 @@ namespace Bonsai.Shaders
             Usage = BufferUsageHint.DynamicDraw;
         }
 
+        [TypeConverter(typeof(MaterialNameConverter))]
         [Description("The name of the material shader program.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.MaterialConfigurationEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         public string ShaderName { get; set; }
 
         [Description("Specifies the kind of primitives to render with the vertex array data.")]

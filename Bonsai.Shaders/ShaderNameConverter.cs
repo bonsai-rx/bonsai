@@ -20,7 +20,7 @@ namespace Bonsai.Shaders
             var configurationResources = ShaderManager.LoadConfiguration().Shaders;
             if (configurationResources.Count > 0)
             {
-                var shaderNames = configurationResources.Select(configuration => configuration.Name);
+                var shaderNames = configurationResources.Where(targetResource).Select(configuration => configuration.Name);
                 if (values != null) shaderNames = shaderNames.Concat(values.Cast<string>());
                 values = new StandardValuesCollection(shaderNames.ToArray());
             }

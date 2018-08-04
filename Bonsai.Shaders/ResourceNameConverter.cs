@@ -10,11 +10,11 @@ namespace Bonsai.Shaders
 {
     class ResourceNameConverter : StringConverter
     {
-        Type resourceType;
+        internal Func<IResourceConfiguration, bool> targetResource;
 
         public ResourceNameConverter(Type type)
         {
-            resourceType = type;
+            targetResource = resource => resource.Type == type;
         }
 
         static bool IsGroup(IWorkflowExpressionBuilder builder)
@@ -89,8 +89,7 @@ namespace Bonsai.Shaders
                                      from element in SelectContextElements(level)
                                      let loader = ExpressionBuilder.GetWorkflowElement(element) as ResourceLoader
                                      where loader != null
-                                     from resource in loader.GetResources()
-                                     where resource.Type == resourceType
+                                     from resource in loader.GetResources().Where(targetResource)
                                      select resource.Name)
                                      .Distinct()
                                      .ToList();
