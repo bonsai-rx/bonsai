@@ -20,28 +20,58 @@ namespace Bonsai.Shaders
         public const string DefaultConfigurationFile = "Shaders.config";
         static readonly IObservable<ShaderWindow> windowSource = CreateWindow();
 
-        static IObservable<ShaderWindow> CreateWindow()
+        internal static IObservable<ShaderWindow> CreateWindow(ShaderWindowSettings configuration)
         {
             return Observable.Create<ShaderWindow>((observer, cancellationToken) =>
             {
                 return Task.Factory.StartNew(() =>
                 {
                     GraphicsContext.ShareContexts = false;
-                    var configuration = LoadConfiguration();
                     using (var window = new ShaderWindow(configuration))
                     using (var notification = cancellationToken.Register(window.Close))
+                    using (var disposable = SubjectManager.ReserveSubject())
                     {
+                        var subject = disposable.Subject;
                         window.Load += delegate
                         {
                             observer.OnNext(window);
+                            subject.OnNext(window);
                         };
-                        window.Run();
-                        observer.OnCompleted();
+
+                        window.Unload += delegate
+                        {
+                            subject.OnCompleted();
+                            observer.OnCompleted();
+                        };
+
+                        try { window.Run(); }
+                        catch (Exception ex)
+                        {
+                            observer.OnError(ex);
+                            subject.OnError(ex);
+                        }
                     }
                 },
                 cancellationToken,
                 TaskCreationOptions.LongRunning,
                 TaskScheduler.Default);
+            });
+        }
+
+        static IObservable<ShaderWindow> CreateWindow()
+        {
+            return Observable.Defer(() =>
+            {
+                if (File.Exists(DefaultConfigurationFile))
+                {
+                    var configuration = LoadConfiguration();
+                    return CreateWindow(configuration);
+                }
+                else
+                {
+                    var disposable = SubjectManager.ReserveSubject();
+                    return disposable.Subject.Finally(disposable.Dispose);
+                }
             })
             .ReplayReconnectable()
             .RefCount();

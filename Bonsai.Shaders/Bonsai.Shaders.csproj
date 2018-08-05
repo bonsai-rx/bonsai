@@ -74,6 +74,7 @@
     <Compile Include="CreateMatrix2.cs" />
     <Compile Include="CreateMatrix3.cs" />
     <Compile Include="CreateMatrix4.cs" />
+    <Compile Include="CreateWindow.cs" />
     <Compile Include="LoadImage.cs" />
     <Compile Include="LoadResources.cs" />
     <Compile Include="MaterialNameConverter.cs" />
@@ -140,6 +141,7 @@
     <Compile Include="Scale.cs" />
     <Compile Include="MatrixTransform.cs" />
     <Compile Include="ShaderResources.cs" />
+    <Compile Include="SubjectManager.cs" />
     <Compile Include="TextureResources.cs" />
     <Compile Include="TransformRelative.cs" />
     <Compile Include="Translate.cs" />
