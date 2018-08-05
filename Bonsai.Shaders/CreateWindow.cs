@@ -17,6 +17,7 @@ namespace Bonsai.Shaders
 {
     [TypeConverter(typeof(SettingsConverter))]
     [Description("Creates the shader window with the specified display style and render settings.")]
+    [Editor("Bonsai.Shaders.Configuration.Design.ShaderScriptComponentEditor, Bonsai.Shaders.Design", typeof(ComponentEditor))]
     public class CreateWindow : Source<ShaderWindow>
     {
         readonly ShaderWindowSettings configuration = new ShaderWindowSettings();

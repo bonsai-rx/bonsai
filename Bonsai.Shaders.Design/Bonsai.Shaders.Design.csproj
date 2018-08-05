@@ -98,6 +98,7 @@
     <Compile Include="Configuration\ShaderCollectionEditorControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Configuration\ShaderScriptComponentEditor.cs" />
     <Compile Include="Configuration\ShaderConfigurationCollectionEditor.cs" />
     <Compile Include="Configuration\UniformConfigurationCollectionEditor.cs" />
     <Compile Include="Configuration\MeshConfigurationEditor.cs" />
