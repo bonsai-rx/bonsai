@@ -125,53 +125,53 @@ namespace Bonsai.Shaders.Configuration
         {
             get { return meshes; }
         }
+    }
 
-        class SettingsConverter : ExpandableObjectConverter
+    class SettingsConverter : ExpandableObjectConverter
+    {
+        public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object value, Attribute[] attributes)
         {
-            public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object value, Attribute[] attributes)
+            var properties = new PropertyCollection(base
+                .GetProperties(context, value, attributes)
+                .Sort(new[] { "Title", "Width", "Height" }));
+            var swapSync = properties["SwapSync"];
+            properties.Remove(swapSync);
+            properties.Add(swapSync);
+            return properties;
+        }
+
+        class PropertyCollection : PropertyDescriptorCollection
+        {
+            public PropertyCollection(PropertyDescriptorCollection properties)
+                : base(ToArray(properties), false)
             {
-                var properties = new PropertyCollection(base
-                    .GetProperties(context, value, attributes)
-                    .Sort(new[] { "Title", "Width", "Height" }));
-                var swapSync = properties["SwapSync"];
-                properties.Remove(swapSync);
-                properties.Add(swapSync);
-                return properties;
             }
 
-            class PropertyCollection : PropertyDescriptorCollection
+            static PropertyDescriptor[] ToArray(PropertyDescriptorCollection properties)
             {
-                public PropertyCollection(PropertyDescriptorCollection properties)
-                    : base(ToArray(properties), false)
-                {
-                }
+                var result = new PropertyDescriptor[properties.Count];
+                properties.CopyTo(result, 0);
+                return result;
+            }
 
-                static PropertyDescriptor[] ToArray(PropertyDescriptorCollection properties)
-                {
-                    var result = new PropertyDescriptor[properties.Count];
-                    properties.CopyTo(result, 0);
-                    return result;
-                }
+            public override PropertyDescriptorCollection Sort()
+            {
+                return this;
+            }
 
-                public override PropertyDescriptorCollection Sort()
-                {
-                    return this;
-                }
+            public override PropertyDescriptorCollection Sort(IComparer comparer)
+            {
+                return this;
+            }
 
-                public override PropertyDescriptorCollection Sort(IComparer comparer)
-                {
-                    return this;
-                }
+            public override PropertyDescriptorCollection Sort(string[] names)
+            {
+                return this;
+            }
 
-                public override PropertyDescriptorCollection Sort(string[] names)
-                {
-                    return this;
-                }
-
-                public override PropertyDescriptorCollection Sort(string[] names, IComparer comparer)
-                {
-                    return this;
-                }
+            public override PropertyDescriptorCollection Sort(string[] names, IComparer comparer)
+            {
+                return this;
             }
         }
     }
