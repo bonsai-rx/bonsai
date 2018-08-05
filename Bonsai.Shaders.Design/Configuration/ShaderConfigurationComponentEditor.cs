@@ -19,15 +19,8 @@ namespace Bonsai.Shaders.Configuration.Design
         {
             if (editorDialog == null)
             {
-                RefreshEventHandler editorRefreshed;
                 editorDialog = new ShaderConfigurationEditorDialog();
-                editorRefreshed = e => editorDialog.Close();
-                TypeDescriptor.Refreshed += editorRefreshed;
-                editorDialog.FormClosed += (sender, e) =>
-                {
-                    TypeDescriptor.Refreshed -= editorRefreshed;
-                    editorDialog = null;
-                };
+                editorDialog.FormClosed += (sender, e) => editorDialog = null;
                 editorDialog.SelectedPage = ShaderConfigurationEditorPage.Window;
                 foreach (var example in GetShaderExamples())
                 {
