@@ -73,7 +73,6 @@ namespace Bonsai.Editor
         List<WorkflowElementDescriptor> workflowElements;
         List<WorkflowElementDescriptor> workflowSnippets;
         WorkflowRuntimeExceptionCache exceptionCache;
-        HashSet<Module> typeDescriptorCache;
         WorkflowException workflowError;
         IDisposable running;
         bool debugging;
@@ -131,7 +130,6 @@ namespace Bonsai.Editor
             workflowElements = new List<WorkflowElementDescriptor>();
             workflowSnippets = new List<WorkflowElementDescriptor>();
             exceptionCache = new WorkflowRuntimeExceptionCache();
-            typeDescriptorCache = new HashSet<Module>();
             selectionModel = new WorkflowSelectionModel();
             propertyAssignments = new Dictionary<string, string>();
             if (serviceProvider != null)
@@ -564,11 +562,6 @@ namespace Bonsai.Editor
 
         void ResetProjectStatus()
         {
-            typeDescriptorCache.RemoveWhere(module =>
-            {
-                TypeDescriptor.Refresh(module);
-                return true;
-            });
             commandExecutor.Clear();
             version = 0;
             saveVersion = 0;
@@ -1461,11 +1454,6 @@ namespace Bonsai.Editor
             var displayName = string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ", displayNames);
             var objectDescriptions = selectedObjects.Select(GetElementDescription).Distinct().Reverse().ToArray();
             var description = objectDescriptions.Length == 1 ? objectDescriptions[0] : string.Empty;
-            for (int i = 0; i < selectedObjects.Length; i++)
-            {
-                typeDescriptorCache.Add(selectedObjects[i].GetType().Module);
-            }
-
             var selectedView = selectionModel.SelectedView;
             var canEdit = selectedView == null || selectedView.CanEdit;
             var hasSelectedObjects = selectedObjects.Length > 0;
