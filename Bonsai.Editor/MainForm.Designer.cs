@@ -75,6 +75,7 @@
             this.packageManagerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.galleryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
+            this.editExtensionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reloadExtensionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reloadExtensionsDebugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -100,6 +101,8 @@
             this.helpToolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.directoryToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
             this.browseDirectoryToolStripButton = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
+            this.editExtensionsToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.statusImageLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolboxGroupBox = new System.Windows.Forms.GroupBox();
@@ -494,6 +497,7 @@
             this.packageManagerToolStripMenuItem,
             this.galleryToolStripMenuItem,
             this.toolStripSeparator7,
+            this.editExtensionsToolStripMenuItem,
             this.reloadExtensionsToolStripMenuItem,
             this.reloadExtensionsDebugToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
@@ -520,6 +524,14 @@
             // 
             this.toolStripSeparator7.Name = "toolStripSeparator7";
             this.toolStripSeparator7.Size = new System.Drawing.Size(253, 6);
+            // 
+            // editExtensionsToolStripMenuItem
+            // 
+            this.editExtensionsToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("editExtensionsToolStripMenuItem.Image")));
+            this.editExtensionsToolStripMenuItem.Name = "editExtensionsToolStripMenuItem";
+            this.editExtensionsToolStripMenuItem.Size = new System.Drawing.Size(256, 22);
+            this.editExtensionsToolStripMenuItem.Text = "&Edit Extensions";
+            this.editExtensionsToolStripMenuItem.Click += new System.EventHandler(this.editExtensionsToolStripMenuItem_Click);
             // 
             // reloadExtensionsToolStripMenuItem
             // 
@@ -614,7 +626,9 @@
             this.restartToolStripButton,
             this.helpToolStripSeparator,
             this.directoryToolStripTextBox,
-            this.browseDirectoryToolStripButton});
+            this.browseDirectoryToolStripButton,
+            this.toolStripSeparator9,
+            this.editExtensionsToolStripButton});
             this.toolStrip.Location = new System.Drawing.Point(0, 24);
             this.toolStrip.Name = "toolStrip";
             this.toolStrip.Size = new System.Drawing.Size(684, 25);
@@ -737,6 +751,21 @@
             this.browseDirectoryToolStripButton.Size = new System.Drawing.Size(23, 22);
             this.browseDirectoryToolStripButton.Text = "&Browse Directory";
             this.browseDirectoryToolStripButton.Click += new System.EventHandler(this.browseDirectoryToolStripButton_Click);
+            // 
+            // toolStripSeparator9
+            // 
+            this.toolStripSeparator9.Name = "toolStripSeparator9";
+            this.toolStripSeparator9.Size = new System.Drawing.Size(6, 25);
+            // 
+            // editExtensionsToolStripButton
+            // 
+            this.editExtensionsToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.editExtensionsToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("editExtensionsToolStripButton.Image")));
+            this.editExtensionsToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.editExtensionsToolStripButton.Name = "editExtensionsToolStripButton";
+            this.editExtensionsToolStripButton.Size = new System.Drawing.Size(23, 22);
+            this.editExtensionsToolStripButton.Text = "&Edit Extensions";
+            this.editExtensionsToolStripButton.Click += new System.EventHandler(this.editExtensionsToolStripMenuItem_Click);
             // 
             // statusStrip
             // 
@@ -1201,6 +1230,9 @@
         private System.Windows.Forms.ToolStripMenuItem disableToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem copyAsImageToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem welcomeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem editExtensionsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
+        private System.Windows.Forms.ToolStripButton editExtensionsToolStripButton;
     }
 }
 

@@ -16,19 +16,24 @@ namespace Bonsai.Editor.Scripting
         const string ScriptEditor = "code";
         const string ScriptExtension = ".cs";
 
-        public static void Launch(IWin32Window owner, string projectFileName, string scriptFile)
+        public static void Launch(IWin32Window owner, string projectFileName, string scriptFile = null)
         {
-            if (string.IsNullOrEmpty(Path.GetExtension(scriptFile)))
+            var projectDirectory = Path.GetDirectoryName(projectFileName);
+            var arguments = "\"" + projectDirectory + "\"";
+            if (!string.IsNullOrEmpty(scriptFile))
             {
-                scriptFile = Path.ChangeExtension(scriptFile, ScriptExtension);
+                if (string.IsNullOrEmpty(Path.GetExtension(scriptFile)))
+                {
+                    scriptFile = Path.ChangeExtension(scriptFile, ScriptExtension);
+                }
+                arguments += " \"" + scriptFile + "\"";
             }
 
-            var projectDirectory = Path.GetDirectoryName(projectFileName);
             try
             {
                 var process = new Process();
                 process.StartInfo.FileName = ScriptEditor;
-                process.StartInfo.Arguments = "\"" + projectDirectory + "\" \"" + scriptFile + "\"";
+                process.StartInfo.Arguments = arguments;
                 process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
                 process.Start();
             }
