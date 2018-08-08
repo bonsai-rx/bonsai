@@ -1150,7 +1150,7 @@ namespace Bonsai.Design
             commandExecutor.EndCompositeCommand();
         }
 
-        private void ReplaceNode(GraphNode node, ExpressionBuilder builder, ElementCategory elementCategory)
+        private void ReplaceNode(GraphNode node, ExpressionBuilder builder)
         {
             CreateGraphNode(builder, node, CreateGraphNodeType.Successor, branch: false, validate: false);
             DeleteGraphNode(node);
@@ -1177,12 +1177,10 @@ namespace Bonsai.Design
 
         public void CreateOrReplaceGroupNode(GraphNode[] selectedNodes, TreeNode typeNode)
         {
-            var typeName = typeNode.Name;
-            var elementCategory = (ElementCategory)typeNode.Tag;
-            CreateOrReplaceGroupNode(selectedNodes, typeName, elementCategory);
+            CreateOrReplaceGroupNode(selectedNodes, typeNode.Name);
         }
 
-        private void CreateOrReplaceGroupNode(GraphNode[] selectedNodes, string typeName, ElementCategory elementCategory)
+        private void CreateOrReplaceGroupNode(GraphNode[] selectedNodes, string typeName)
         {
             var selectedNode = selectedNodes.Length == 1 ? selectedNodes[0] : null;
             var selectedNodeBuilder = selectedNode != null ? GetGraphNodeBuilder(selectedNode) : null;
@@ -1194,12 +1192,12 @@ namespace Bonsai.Design
                 var groupBuilder = new GroupWorkflowBuilder(includeBuilder.Workflow);
                 groupBuilder.Name = includeBuilder.Name;
                 groupBuilder.Description = includeBuilder.Description;
-                ReplaceGroupNode(selectedNode, groupBuilder, elementCategory);
+                ReplaceGroupNode(selectedNode, groupBuilder);
             }
             else if (selectedNodeBuilder == null || selectedNodeBuilder.GetType().AssemblyQualifiedName != typeName)
             {
                 var workflowBuilder = selectedNodeBuilder as WorkflowExpressionBuilder;
-                if (workflowBuilder != null) ReplaceGroupNode(selectedNode, typeName, elementCategory);
+                if (workflowBuilder != null) ReplaceGroupNode(selectedNode, typeName);
                 else GroupGraphNodes(selectedNodes, typeName);
             }
         }
@@ -1216,7 +1214,7 @@ namespace Bonsai.Design
             var includeBuilder = selectedNodeBuilder as IncludeWorkflowBuilder;
             if (includeBuilder != null && includeBuilder.Workflow != null)
             {
-                CreateOrReplaceGroupNode(selectedNodes, typeof(GroupWorkflowBuilder).AssemblyQualifiedName, ElementCategory.Nested);
+                CreateOrReplaceGroupNode(selectedNodes, typeof(GroupWorkflowBuilder).AssemblyQualifiedName);
             }
             else GroupGraphNodes(nodes, graph => new GroupWorkflowBuilder(graph));
         }
@@ -1362,7 +1360,7 @@ namespace Bonsai.Design
             commandExecutor.EndCompositeCommand();
         }
 
-        private void ReplaceGroupNode(GraphNode node, string typeName, ElementCategory elementCategory)
+        private void ReplaceGroupNode(GraphNode node, string typeName)
         {
             var workflowBuilder = GetGraphNodeBuilder(node) as WorkflowExpressionBuilder;
             if (workflowBuilder == null)
@@ -1373,10 +1371,10 @@ namespace Bonsai.Design
             var builder = CreateWorkflowBuilder(typeName, workflowBuilder.Workflow);
             builder.Name = workflowBuilder.Name;
             builder.Description = workflowBuilder.Description;
-            ReplaceGroupNode(node, builder, elementCategory);
+            ReplaceGroupNode(node, builder);
         }
 
-        private void ReplaceGroupNode(GraphNode node, WorkflowExpressionBuilder builder, ElementCategory elementCategory)
+        private void ReplaceGroupNode(GraphNode node, WorkflowExpressionBuilder builder)
         {
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             var selectCreatedNode = CreateUpdateSelectionDelegate(builder);
@@ -1388,7 +1386,7 @@ namespace Bonsai.Design
                 updateGraphLayout();
                 selectDeletedNode();
             });
-            ReplaceNode(node, builder, elementCategory);
+            ReplaceNode(node, builder);
             commandExecutor.Execute(() =>
             {
                 updateGraphLayout();
@@ -1501,7 +1499,7 @@ namespace Bonsai.Design
             if (builder != null && disableBuilder == null)
             {
                 builder = new DisableBuilder(builder);
-                ReplaceNode(node, builder, ElementCategory.Combinator);
+                ReplaceNode(node, builder);
             }
         }
 
@@ -1512,7 +1510,7 @@ namespace Bonsai.Design
             if (disableBuilder != null)
             {
                 builder = disableBuilder.Builder;
-                ReplaceNode(node, builder, ElementCategory.Combinator);
+                ReplaceNode(node, builder);
             }
         }
 
@@ -2617,7 +2615,7 @@ namespace Bonsai.Design
                         : typeof(SubscribeSubjectBuilder);
                     var builder = (SubscribeSubjectBuilder)Activator.CreateInstance(subscribeSubjectType);
                     builder.Name = subscribeSubject.Name;
-                    UpdateGraphNodes(new[] { selectedNode }, node => ReplaceNode(node, builder, ElementCategory.Combinator));
+                    UpdateGraphNodes(new[] { selectedNode }, node => ReplaceNode(node, builder));
                     contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
                 }
             });
