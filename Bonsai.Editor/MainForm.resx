@@ -331,6 +331,16 @@
         AAAAAElFTkSuQmCC
 </value>
   </data>
+  <data name="reloadExtensionsToolStripMenuItem.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        wwAADsMBx2+oZAAAAQVJREFUOE+dkzFuhDAQRX2EPULOQo+UQ9BzlIgeKYfgAKmp2II+B6DwggOUDg88
+        aLSL8O6O9GUznv8YjG10jOP46Zz7nabJx7TU/lhrL8G6mbuu83me+yRJoirLcoUEuzG8+VmziE5WM63w
+        IAs32x9Km9FbAOq0VgDxCiBYtpjn+WNJWiFqDb2LA5ZE07atT9N074AiRnbaub8owB8Bqqpac0CGfjgH
+        8PsoFhM5DWF+CmCBYuZ0w4jqut5NUQDFYhQI0KcA0j5z/czI55Frmuv+OcG6xXKev9koDeFNKMsyz/0Q
+        aOjyK1i3CKfQFkWxtygATHpPHswSHCZulirUsqyH0rsw5h/GwnbQ7xsxswAAAABJRU5ErkJggg==
+</value>
+  </data>
   <data name="docsToolStripMenuItem.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
@@ -460,6 +470,17 @@
         YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABiSURBVDhPzY5BCsAwCAR9m///S9uL14aWLmzEULWXCkM2
         ioNiZucXboGqtviZYN+OEpMgy1KAk8CqVxZcL+dXARY8JQGy/7cFTEvAOSXw8AyZe5OAB1EvoiSQqGDK
         8KxQiQzz083fIvf9HgAAAABJRU5ErkJggg==
+</value>
+  </data>
+  <data name="reloadExtensionsToolStripButton.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAEFSURBVDhPnZMxboQwEEV9hD1CzkKPlEPQc5SIHimH4ACp
+        qdiCPgeg8IIDlA4PPGi0i/DujvRlM57/GIxtdIzj+Omc+52myce01P5Yay/Bupm7rvN5nvskSaIqy3KF
+        BLsxvPlZs4hOVjOt8CALN9sfSpvRWwDqtFYA8QogWLaY5/ljSVohag29iwOWRNO2rU/TdO+AIkZ22rm/
+        KMAfAaqqWnNAhn44B/D7KBYTOQ1hfgpggWLmdMOI6rreTVEAxWIUCNCnANI+c/3MyOeRa5rr/jnBusVy
+        nr/ZKA3hTSjLMs/9EGjo8itYtwin0BZFsbcoAEx6Tx7MEhwmbpYq1LKsh9K7MOYfxsJ20O8bMbMAAAAA
+        SUVORK5CYII=
 </value>
   </data>
   <metadata name="statusStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
