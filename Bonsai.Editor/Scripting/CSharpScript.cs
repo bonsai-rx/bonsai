@@ -12,61 +12,90 @@ using System.Threading.Tasks;
 namespace Bonsai.Editor.Scripting
 {
     [Editor(typeof(ScriptComponentEditor), typeof(ComponentEditor))]
-    [Description("Creates a new extension operator backed by a C# script file.")]
-    class CSharpScript : ExpressionBuilder, INamedElement
+    abstract class CSharpScript : ExpressionBuilder
     {
-        static readonly Range<int> argumentRange = Range.Create(lowerBound: 0, upperBound: 1);
+        internal const string ActivationInstructions = " Double-click the operator node to create and edit the script file.";
 
-        public CSharpScript()
+        internal CSharpScript(ElementCategory category)
         {
-            Category = ElementCategory.Transform;
+            Category = category;
         }
 
-        [Category("Design")]
-        [Externalizable(false)]
-        [Description("The name of the extension operator.")]
-        public string Name { get; set; }
-
-        [Category("Design")]
-        [Externalizable(false)]
-        [Description("An optional description for the extension operator.")]
-        [Editor(DesignTypes.MultilineStringEditor, "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
-        public string Description { get; set; }
-
-        [Category("Design")]
-        [Externalizable(false)]
-        [TypeConverter(typeof(ElementCategoryConverter))]
-        [Description("The category of the extension operator to generate.")]
-        public ElementCategory Category { get; set; }
-
-        public override Range<int> ArgumentRange
-        {
-            get { return argumentRange; }
-        }
+        [Browsable(false)]
+        public ElementCategory Category { get; private set; }
 
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             return EmptyExpression;
         }
+    }
 
-        class ElementCategoryConverter : EnumConverter
+    [WorkflowElementCategory(ElementCategory.Source)]
+    [Description("Creates a new source operator backed by a C# script." + ActivationInstructions)]
+    class CSharpSource : CSharpScript
+    {
+        static readonly Range<int> argumentRange = Range.Create(lowerBound: 0, upperBound: 0);
+
+        public CSharpSource()
+            : base(ElementCategory.Source)
         {
-            public ElementCategoryConverter()
-                : base(typeof(ElementCategory))
-            {
-            }
+        }
 
-            public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
-            {
-                return new StandardValuesCollection(new[]
-                {
-                    ElementCategory.Source,
-                    ElementCategory.Transform,
-                    ElementCategory.Condition,
-                    ElementCategory.Combinator,
-                    ElementCategory.Sink
-                });
-            }
+        public override Range<int> ArgumentRange
+        {
+            get { return argumentRange; }
+        }
+    }
+
+    [WorkflowElementCategory(ElementCategory.Combinator)]
+    [Description("Creates a new reactive combinator backed by a C# script." + ActivationInstructions)]
+    class CSharpCombinator : CSharpScript
+    {
+        static readonly Range<int> argumentRange = Range.Create(lowerBound: 1, upperBound: 1);
+
+        public CSharpCombinator()
+            : base(ElementCategory.Combinator)
+        {
+        }
+
+        internal CSharpCombinator(ElementCategory category)
+            : base(category)
+        {
+        }
+
+        public override Range<int> ArgumentRange
+        {
+            get { return argumentRange; }
+        }
+    }
+
+    [WorkflowElementCategory(ElementCategory.Transform)]
+    [Description("Creates a new transform operator backed by a C# script." + ActivationInstructions)]
+    class CSharpTransform : CSharpCombinator
+    {
+        public CSharpTransform()
+            : base(ElementCategory.Transform)
+        {
+        }
+    }
+
+    [WorkflowElementCategory(ElementCategory.Condition)]
+    [Description("Creates a new condition operator backed by a C# script." + ActivationInstructions)]
+    class CSharpCondition : CSharpCombinator
+    {
+        public CSharpCondition()
+            : base(ElementCategory.Condition)
+        {
+        }
+    }
+
+    [WorkflowElementCategory(ElementCategory.Sink)]
+    [Description("Creates a new sink operator backed by a C# script." + ActivationInstructions)]
+    class CSharpSink : CSharpCombinator
+    {
+        public CSharpSink()
+            : base(ElementCategory.Sink)
+        {
         }
     }
 }
