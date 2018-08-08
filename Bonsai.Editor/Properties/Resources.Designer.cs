@@ -129,7 +129,7 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The workflow must be saved before adding or saving extensions..
+        ///   Looks up a localized string similar to The workflow must be saved before adding new extensions..
         /// </summary>
         internal static string CreateExtensionsWorkflow_Warning {
             get {
