@@ -1904,6 +1904,14 @@ namespace Bonsai.Editor
 
         #region Reload Extensions
 
+        private void editExtensionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (scriptEnvironment != null && scriptEnvironment.AssemblyName != null)
+            {
+                ScriptEditorLauncher.Launch(this, scriptEnvironment.ProjectFileName);
+            }
+        }
+
         private void reloadExtensionsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (EnsureWorkflowFile())
