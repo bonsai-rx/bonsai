@@ -55,6 +55,7 @@
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.cutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.copyAsImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pasteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
@@ -125,7 +126,6 @@
             this.commandExecutor = new Bonsai.Design.CommandExecutor();
             this.snippetFileWatcher = new System.IO.FileSystemWatcher();
             this.exportImageDialog = new System.Windows.Forms.SaveFileDialog();
-            this.copyAsImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -346,6 +346,15 @@
             this.copyToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
             this.copyToolStripMenuItem.Text = "&Copy";
             this.copyToolStripMenuItem.Click += new System.EventHandler(this.copyToolStripMenuItem_Click);
+            // 
+            // copyAsImageToolStripMenuItem
+            // 
+            this.copyAsImageToolStripMenuItem.Name = "copyAsImageToolStripMenuItem";
+            this.copyAsImageToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.C)));
+            this.copyAsImageToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
+            this.copyAsImageToolStripMenuItem.Text = "Copy as &Image";
+            this.copyAsImageToolStripMenuItem.Click += new System.EventHandler(this.copyAsImageToolStripMenuItem_Click);
             // 
             // pasteToolStripMenuItem
             // 
@@ -1035,15 +1044,6 @@
             this.exportImageDialog.Filter = "BMP (*.bmp)|*.bmp|JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg|GIF (*.gif)|*.gif|TIFF (*.tif;" +
     "*.tiff)|*.tif;*.tiff|PNG (*.png)|*.png|SVG (*.svg)|*.svg";
             this.exportImageDialog.FilterIndex = 6;
-            // 
-            // copyAsImageToolStripMenuItem
-            // 
-            this.copyAsImageToolStripMenuItem.Name = "copyAsImageToolStripMenuItem";
-            this.copyAsImageToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
-            | System.Windows.Forms.Keys.C)));
-            this.copyAsImageToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
-            this.copyAsImageToolStripMenuItem.Text = "Copy as &Image";
-            this.copyAsImageToolStripMenuItem.Click += new System.EventHandler(this.copyAsImageToolStripMenuItem_Click);
             // 
             // MainForm
             // 
