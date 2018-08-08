@@ -1906,7 +1906,7 @@ namespace Bonsai.Editor
 
         private void editExtensionsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (scriptEnvironment != null && scriptEnvironment.AssemblyName != null)
+            if (EnsureWorkflowFile() && scriptEnvironment != null && !string.IsNullOrEmpty(scriptEnvironment.ProjectFileName))
             {
                 ScriptEditorLauncher.Launch(this, scriptEnvironment.ProjectFileName);
             }
