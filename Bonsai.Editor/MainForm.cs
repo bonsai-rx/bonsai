@@ -690,6 +690,16 @@ namespace Bonsai.Editor
             return workflowBuilder;
         }
 
+        void ClearWorkflow()
+        {
+            saveWorkflowDialog.FileName = null;
+            workflowBuilder.Workflow.Clear();
+            editorControl.VisualizerLayout = null;
+            editorControl.Workflow = workflowBuilder.Workflow;
+            ResetProjectStatus();
+            UpdateTitle();
+        }
+
         bool OpenWorkflow(string fileName)
         {
             return OpenWorkflow(fileName, true);
@@ -913,13 +923,7 @@ namespace Bonsai.Editor
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (!CloseWorkflow()) return;
-
-            saveWorkflowDialog.FileName = null;
-            workflowBuilder.Workflow.Clear();
-            editorControl.VisualizerLayout = null;
-            editorControl.Workflow = workflowBuilder.Workflow;
-            ResetProjectStatus();
-            UpdateTitle();
+            ClearWorkflow();
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1961,6 +1965,30 @@ namespace Bonsai.Editor
             using (var about = new AboutBox())
             {
                 about.ShowDialog();
+            }
+        }
+
+        private void welcomeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var start = new StartScreen())
+            {
+                start.ShowDialog();
+                if (start.EditorResult != EditorResult.Exit && CloseWorkflow())
+                {
+                    if (start.EditorResult == EditorResult.ReloadEditor)
+                    {
+                        if (string.IsNullOrEmpty(start.FileName))
+                        {
+                            ClearWorkflow();
+                        }
+                        else OpenWorkflow(start.FileName);
+                    }
+                    else
+                    {
+                        EditorResult = start.EditorResult;
+                        Close();
+                    }
+                }
             }
         }
 

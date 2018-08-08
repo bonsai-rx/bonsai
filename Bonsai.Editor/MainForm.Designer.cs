@@ -78,6 +78,7 @@
             this.reloadExtensionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reloadExtensionsDebugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.welcomeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.docsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.forumToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reportBugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -537,6 +538,7 @@
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.welcomeToolStripMenuItem,
             this.docsToolStripMenuItem,
             this.forumToolStripMenuItem,
             this.reportBugToolStripMenuItem,
@@ -545,6 +547,13 @@
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.helpToolStripMenuItem.Text = "&Help";
+            // 
+            // welcomeToolStripMenuItem
+            // 
+            this.welcomeToolStripMenuItem.Name = "welcomeToolStripMenuItem";
+            this.welcomeToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.welcomeToolStripMenuItem.Text = "&Welcome...";
+            this.welcomeToolStripMenuItem.Click += new System.EventHandler(this.welcomeToolStripMenuItem_Click);
             // 
             // docsToolStripMenuItem
             // 
@@ -1191,6 +1200,7 @@
         private System.Windows.Forms.ToolStripMenuItem enableToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem disableToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem copyAsImageToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem welcomeToolStripMenuItem;
     }
 }
 
