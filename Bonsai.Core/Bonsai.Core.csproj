@@ -66,7 +66,6 @@
     <Compile Include="Expressions\BinaryOperatorBuilder.cs" />
     <Compile Include="Expressions\BuildContext.cs" />
     <Compile Include="Expressions\CombinatorExpressionBuilder.cs" />
-    <Compile Include="Expressions\ConcatManyBuilder.cs" />
     <Compile Include="Expressions\ConditionBuilder.cs" />
     <Compile Include="Expressions\BitwiseAndBuilder.cs" />
     <Compile Include="Expressions\BitwiseOrBuilder.cs" />
@@ -96,7 +95,6 @@
     <Compile Include="Expressions\SkipWhileBuilder.cs" />
     <Compile Include="Expressions\CreateAsyncBuilder.cs" />
     <Compile Include="Expressions\SubjectTargetAttribute.cs" />
-    <Compile Include="Expressions\SwitchManyBuilder.cs" />
     <Compile Include="Expressions\TakeWhileBuilder.cs" />
     <Compile Include="Expressions\MulticastSubjectBuilder.cs" />
     <Compile Include="Expressions\PublishBuilder.cs" />
@@ -129,7 +127,6 @@
     <Compile Include="Expressions\UnknownTypeBuilder.cs" />
     <Compile Include="Expressions\VariableArgumentExpressionBuilder.cs" />
     <Compile Include="Expressions\WindowWorkflowBuilder.cs" />
-    <Compile Include="Expressions\WorkflowCombinatorBuilder.cs" />
     <Compile Include="Expressions\WorkflowPropertyDescriptor.cs" />
     <Compile Include="Expressions\WorkflowTypeDescriptor.cs" />
     <Compile Include="Expressions\ZeroArgumentExpressionBuilder.cs" />
