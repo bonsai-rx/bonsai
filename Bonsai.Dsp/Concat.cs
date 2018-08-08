@@ -15,6 +15,24 @@ namespace Bonsai.Dsp
         [Description("The dimension along which to merge the arrays.")]
         public int Axis { get; set; }
 
+        TElement[] Process<TElement>(IEnumerable<TElement[]> sources)
+        {
+            var length = 0;
+            foreach (var source in sources)
+            {
+                length += source.Length;
+            }
+
+            var offset = 0;
+            var output = new TElement[length];
+            foreach (var source in sources)
+            {
+                Array.Copy(source, 0, output, offset, source.Length);
+                offset += source.Length;
+            }
+            return output;
+        }
+
         TArray Process<TArray>(IEnumerable<TArray> sources) where TArray : Arr
         {
             var outputFactory = ArrFactory<TArray>.TemplateDepthChannelFactory;
@@ -103,6 +121,41 @@ namespace Bonsai.Dsp
         }
 
         public IObservable<TArray> Process<TArray>(IObservable<IList<TArray>> source) where TArray : Arr
+        {
+            return source.Select(input => Process(input));
+        }
+
+        public IObservable<TElement[]> Process<TElement>(IObservable<Tuple<TElement[], TElement[]>> source)
+        {
+            return source.Select(input => Process(new[] { input.Item1, input.Item2 }));
+        }
+
+        public IObservable<TElement[]> Process<TElement>(IObservable<Tuple<TElement[], TElement[], TElement[]>> source)
+        {
+            return source.Select(input => Process(new[] { input.Item1, input.Item2, input.Item3 }));
+        }
+
+        public IObservable<TElement[]> Process<TElement>(IObservable<Tuple<TElement[], TElement[], TElement[], TElement[]>> source)
+        {
+            return source.Select(input => Process(new[] { input.Item1, input.Item2, input.Item3, input.Item4 }));
+        }
+
+        public IObservable<TElement[]> Process<TElement>(IObservable<Tuple<TElement[], TElement[], TElement[], TElement[], TElement[]>> source)
+        {
+            return source.Select(input => Process(new[] { input.Item1, input.Item2, input.Item3, input.Item4, input.Item5 }));
+        }
+
+        public IObservable<TElement[]> Process<TElement>(IObservable<Tuple<TElement[], TElement[], TElement[], TElement[], TElement[], TElement[]>> source)
+        {
+            return source.Select(input => Process(new[] { input.Item1, input.Item2, input.Item3, input.Item4, input.Item5, input.Item6 }));
+        }
+
+        public IObservable<TElement[]> Process<TElement>(IObservable<Tuple<TElement[], TElement[], TElement[], TElement[], TElement[], TElement[], TElement[]>> source)
+        {
+            return source.Select(input => Process(new[] { input.Item1, input.Item2, input.Item3, input.Item4, input.Item5, input.Item6, input.Item7 }));
+        }
+
+        public IObservable<TElement[]> Process<TElement>(IObservable<IList<TElement[]>> source)
         {
             return source.Select(input => Process(input));
         }
