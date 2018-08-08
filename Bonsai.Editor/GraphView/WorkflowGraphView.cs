@@ -2735,6 +2735,48 @@ namespace Bonsai.Design
             return menuItem;
         }
 
+        private void CreateGroupMenuItems(GraphNode[] selectedNodes)
+        {
+            var toolboxService = (IWorkflowToolboxService)serviceProvider.GetService(typeof(IWorkflowToolboxService));
+            if (toolboxService != null)
+            {
+                var selectedNode = selectedNodes.Length == 1 ? selectedNodes[0] : null;
+                var workflowBuilder = selectedNode != null ? GetGraphNodeBuilder(selectedNode) as WorkflowExpressionBuilder : null;
+                foreach (var element in from element in toolboxService.GetToolboxElements()
+                                        where element.ElementTypes.Length == 1 &&
+                                              (element.ElementTypes.Contains(ElementCategory.Nested) ||
+                                               element.FullyQualifiedName == typeof(ConditionBuilder).AssemblyQualifiedName ||
+                                               element.FullyQualifiedName == typeof(SinkBuilder).AssemblyQualifiedName)
+                                        select element)
+                {
+                    ToolStripMenuItem menuItem = null;
+                    var name = string.Format("{0} ({1})", element.Name, toolboxService.GetPackageDisplayName(element.Namespace));
+                    menuItem = new ToolStripMenuItem(name, null, (sender, e) =>
+                    {
+                        if (menuItem.Checked) return;
+                        CreateOrReplaceGroupNode(selectedNodes, element.FullyQualifiedName);
+                    });
+
+                    if (workflowBuilder != null &&
+                        workflowBuilder.GetType().AssemblyQualifiedName == element.FullyQualifiedName)
+                    {
+                        menuItem.Checked = true;
+                    }
+
+                    if (element.FullyQualifiedName == typeof(GroupWorkflowBuilder).AssemblyQualifiedName)
+                    {
+                        //make group workflow the first on the list and display shortcut key string
+                        menuItem.ShortcutKeys = Keys.Control | Keys.G;
+                        groupToolStripMenuItem.DropDownItems.Insert(0, menuItem);
+                    }
+                    else if (element.FullyQualifiedName != typeof(IncludeWorkflowBuilder).AssemblyQualifiedName)
+                    {
+                        groupToolStripMenuItem.DropDownItems.Add(menuItem);
+                    }
+                }
+            }
+        }
+
         private void contextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
             // Ensure that the current view is selected 
@@ -2763,6 +2805,7 @@ namespace Bonsai.Design
                     ungroupToolStripMenuItem.Enabled = true;
                     enableToolStripMenuItem.Enabled = true;
                     disableToolStripMenuItem.Enabled = true;
+                    CreateGroupMenuItems(selectedNodes);
                 }
             }
 
