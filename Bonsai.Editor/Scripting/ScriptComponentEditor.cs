@@ -106,17 +106,9 @@ namespace Bonsai.Editor.Scripting
             string typeName;
             string scriptFile;
             var inputType = default(Type);
+            var scriptName = scriptComponent.Category + DefaultScriptName;
             using (var codeProvider = new CSharpCodeProvider())
             {
-                if (string.IsNullOrWhiteSpace(scriptComponent.Name)) scriptFile = DefaultScriptName;
-                else scriptFile = codeProvider.CreateValidIdentifier(scriptComponent.Name);
-                if (!codeProvider.IsValidIdentifier(scriptFile))
-                {
-                    throw new InvalidOperationException(
-                        "The specified name '" + scriptFile + "' is not a valid type identifier. " +
-                        "Valid identifiers must start with a letter and must not contain white spaces.");
-                }
-
                 var builderNode = (Node<ExpressionBuilder, ExpressionBuilderArgument>)selectedNode.Tag;
                 var predecessor = selectedView.Workflow.Predecessors(builderNode).FirstOrDefault();
                 if (predecessor != null)
@@ -135,84 +127,89 @@ namespace Bonsai.Editor.Scripting
 
                 var typeReference = CreateTypeReference(inputType ?? typeof(IObservable<int>));
                 typeName = codeProvider.GetTypeOutput(typeReference);
-            }
 
-            var extensionsDirectory = editorService.EnsureExtensionsDirectory();
-            if (!extensionsDirectory.Exists) return false;
+                var extensionsDirectory = editorService.EnsureExtensionsDirectory();
+                if (!extensionsDirectory.Exists) return false;
 
-            using (var dialog = new SaveFileDialog { InitialDirectory = extensionsDirectory.FullName, FileName = scriptFile, Filter = ScriptFilter })
-            {
-                if (dialog.ShowDialog() != DialogResult.OK) return false;
-                scriptFile = dialog.FileName;
-
-                scriptComponent.Name = Path.GetFileNameWithoutExtension(scriptFile);
-                if (scriptEnvironment.AssemblyName != null)
+                using (var dialog = new SaveFileDialog { InitialDirectory = extensionsDirectory.FullName, FileName = scriptName, Filter = ScriptFilter })
                 {
-                    var existingType = Type.GetType(scriptComponent.Name + ", " + scriptEnvironment.AssemblyName.FullName);
-                    if (existingType != null)
+                    if (dialog.ShowDialog() != DialogResult.OK) return false;
+                    scriptFile = dialog.FileName;
+                    scriptName = Path.GetFileNameWithoutExtension(scriptFile);
+                    if (!codeProvider.IsValidIdentifier(scriptName))
                     {
-                        throw new InvalidOperationException("An extension type with the name " + scriptComponent.Name + " already exists.");
+                        throw new InvalidOperationException(
+                            "The specified name '" + scriptName + "' is not a valid type identifier. " +
+                            "Valid identifiers must start with a letter and must not contain white spaces.");
                     }
                 }
+            }
 
-                var namespaces = new HashSet<string>();
-                var assemblyReferences = new HashSet<string>();
-                var hasDescription = !string.IsNullOrWhiteSpace(scriptComponent.Description);
-                assemblyReferences.Add("Bonsai.Core");
-                namespaces.Add("Bonsai");
-                namespaces.Add("System");
-                if (hasDescription) namespaces.Add("System.ComponentModel");
-                namespaces.Add("System.Collections.Generic");
-                namespaces.Add("System.Linq");
-                namespaces.Add("System.Reactive.Linq");
-                if (inputType != null)
+            if (scriptEnvironment.AssemblyName != null)
+            {
+                var existingType = Type.GetType(scriptName + ", " + scriptEnvironment.AssemblyName.FullName);
+                if (existingType != null)
                 {
-                    CollectNamespaces(inputType, namespaces);
-                    CollectAssemblyReferences(inputType, assemblyReferences);
-                    assemblyReferences.ExceptWith(IgnoreAssemblyReferences);
+                    throw new InvalidOperationException("An extension type with the name " + scriptName + " already exists.");
                 }
-                scriptEnvironment.AddAssemblyReferences(assemblyReferences);
+            }
 
-                var scriptBuilder = new StringBuilder();
-                foreach (var ns in namespaces) scriptBuilder.AppendLine("using " + ns + ";");
-                scriptBuilder.AppendLine();
-                scriptBuilder.AppendLine("[Combinator]");
-                if (hasDescription) scriptBuilder.AppendLine("[Description(\"" + scriptComponent.Description + "\")]");
-                scriptBuilder.AppendLine("[WorkflowElementCategory(ElementCategory." + scriptComponent.Category + ")]");
-                scriptBuilder.AppendLine("public class " + scriptComponent.Name);
-                scriptBuilder.AppendLine("{");
-                scriptBuilder.AppendLine("    public " + typeName + " Process(" + (inputType != null ? typeName + " source)" : ")"));
-                scriptBuilder.AppendLine("    {");
-                string template;
-                switch (scriptComponent.Category)
-                {
-                    case ElementCategory.Source: template = "Observable.Return(0)"; break;
-                    case ElementCategory.Condition: template = "source.Where(value => true)"; break;
-                    case ElementCategory.Transform: template = "source.Select(value => value)"; break;
-                    case ElementCategory.Sink: template = "source.Do(value => Console.WriteLine(value))"; break;
-                    case ElementCategory.Combinator: template = "source"; break;
-                    default: throw new InvalidOperationException("The specified element category is not allowed for automatic script generation.");
-                }
-                scriptBuilder.AppendLine("        return " + template + ";");
-                scriptBuilder.AppendLine("    }");
-                scriptBuilder.AppendLine("}");
+            var namespaces = new HashSet<string>();
+            var assemblyReferences = new HashSet<string>();
+            assemblyReferences.Add("Bonsai.Core");
+            namespaces.Add("Bonsai");
+            namespaces.Add("System");
+            namespaces.Add("System.ComponentModel");
+            namespaces.Add("System.Collections.Generic");
+            namespaces.Add("System.Linq");
+            namespaces.Add("System.Reactive.Linq");
+            if (inputType != null)
+            {
+                CollectNamespaces(inputType, namespaces);
+                CollectAssemblyReferences(inputType, assemblyReferences);
+                assemblyReferences.ExceptWith(IgnoreAssemblyReferences);
+            }
+            scriptEnvironment.AddAssemblyReferences(assemblyReferences);
 
-                using (var writer = new StreamWriter(scriptFile))
-                {
-                    writer.Write(scriptBuilder);
-                }
+            var scriptBuilder = new StringBuilder();
+            foreach (var ns in namespaces) scriptBuilder.AppendLine("using " + ns + ";");
+            scriptBuilder.AppendLine();
+            scriptBuilder.AppendLine("[Combinator]");
+            scriptBuilder.AppendLine("[Description(\"\")]");
+            scriptBuilder.AppendLine("[WorkflowElementCategory(ElementCategory." + scriptComponent.Category + ")]");
+            scriptBuilder.AppendLine("public class " + scriptName);
+            scriptBuilder.AppendLine("{");
+            scriptBuilder.AppendLine("    public " + typeName + " Process(" + (inputType != null ? typeName + " source)" : ")"));
+            scriptBuilder.AppendLine("    {");
+            string template;
+            switch (scriptComponent.Category)
+            {
+                case ElementCategory.Source: template = "Observable.Return(0)"; break;
+                case ElementCategory.Condition: template = "source.Where(value => true)"; break;
+                case ElementCategory.Transform: template = "source.Select(value => value)"; break;
+                case ElementCategory.Sink: template = "source.Do(value => Console.WriteLine(value))"; break;
+                case ElementCategory.Combinator: template = "source"; break;
+                default: throw new InvalidOperationException("The specified element category is not allowed for automatic script generation.");
+            }
+            scriptBuilder.AppendLine("        return " + template + ";");
+            scriptBuilder.AppendLine("    }");
+            scriptBuilder.AppendLine("}");
+
+            using (var writer = new StreamWriter(scriptFile))
+            {
+                writer.Write(scriptBuilder);
             }
 
             var assemblyName = new AssemblyName("@DynamicExtensions");
             var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
             var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.FullName);
             var typeBuilder = moduleBuilder.DefineType(
-                scriptComponent.Name,
+                scriptName,
                 TypeAttributes.Public | TypeAttributes.Class,
                 inputType == null ? typeof(ZeroArgumentExpressionBuilder) : typeof(SingleArgumentExpressionBuilder));
             var descriptionAttributeBuilder = new CustomAttributeBuilder(
                 typeof(DescriptionAttribute).GetConstructor(new[] { typeof(string) }),
-                new object[] { scriptComponent.Description });
+                new object[] { "Extensions must be reloaded in order to compile and use the script." });
             var categoryAttributeBuilder = new CustomAttributeBuilder(
                 typeof(WorkflowElementCategoryAttribute).GetConstructor(new[] { typeof(ElementCategory) }),
                 new object[] { scriptComponent.Category });

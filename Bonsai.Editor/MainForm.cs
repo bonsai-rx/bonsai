@@ -330,6 +330,15 @@ namespace Bonsai.Editor
 
         #region Toolbox
 
+        static readonly Type[] CSharpScriptTypes = new[]
+        {
+            typeof(CSharpSource),
+            typeof(CSharpTransform),
+            typeof(CSharpCondition),
+            typeof(CSharpSink),
+            typeof(CSharpCombinator)
+        };
+
         void InitializeEditorToolboxTypes()
         {
             foreach (var group in EditorToolboxTypes().GroupBy(descriptor => descriptor.Namespace))
@@ -340,16 +349,20 @@ namespace Bonsai.Editor
 
         IEnumerable<WorkflowElementDescriptor> EditorToolboxTypes()
         {
-            var createScriptType = typeof(Bonsai.Editor.Scripting.CSharpScript);
-            var descriptionAttribute = (DescriptionAttribute)TypeDescriptor.GetAttributes(createScriptType)[typeof(DescriptionAttribute)];
-            yield return new WorkflowElementDescriptor
+            foreach (var scriptType in CSharpScriptTypes)
             {
-                Name = ExpressionBuilder.GetElementDisplayName(createScriptType),
-                Namespace = createScriptType.Namespace,
-                FullyQualifiedName = createScriptType.AssemblyQualifiedName,
-                Description = descriptionAttribute.Description,
-                ElementTypes = new[] { ElementCategory.Combinator }
-            };
+                var attributes = TypeDescriptor.GetAttributes(scriptType);
+                var descriptionAttribute = (DescriptionAttribute)attributes[typeof(DescriptionAttribute)];
+                var categoryAttribute = (WorkflowElementCategoryAttribute)attributes[typeof(WorkflowElementCategoryAttribute)];
+                yield return new WorkflowElementDescriptor
+                {
+                    Name = ExpressionBuilder.GetElementDisplayName(scriptType),
+                    Namespace = scriptType.Namespace,
+                    FullyQualifiedName = scriptType.AssemblyQualifiedName,
+                    Description = descriptionAttribute.Description,
+                    ElementTypes = new[] { categoryAttribute.Category }
+                };
+            }
         }
 
         IObservable<Unit> InitializeSnippetFileWatcher()
