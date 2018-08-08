@@ -103,6 +103,7 @@
             this.browseDirectoryToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
             this.editExtensionsToolStripButton = new System.Windows.Forms.ToolStripButton();
+            this.reloadExtensionsToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.statusImageLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolboxGroupBox = new System.Windows.Forms.GroupBox();
@@ -535,6 +536,7 @@
             // 
             // reloadExtensionsToolStripMenuItem
             // 
+            this.reloadExtensionsToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("reloadExtensionsToolStripMenuItem.Image")));
             this.reloadExtensionsToolStripMenuItem.Name = "reloadExtensionsToolStripMenuItem";
             this.reloadExtensionsToolStripMenuItem.Size = new System.Drawing.Size(256, 22);
             this.reloadExtensionsToolStripMenuItem.Text = "&Reload Extensions";
@@ -628,7 +630,8 @@
             this.directoryToolStripTextBox,
             this.browseDirectoryToolStripButton,
             this.toolStripSeparator9,
-            this.editExtensionsToolStripButton});
+            this.editExtensionsToolStripButton,
+            this.reloadExtensionsToolStripButton});
             this.toolStrip.Location = new System.Drawing.Point(0, 24);
             this.toolStrip.Name = "toolStrip";
             this.toolStrip.Size = new System.Drawing.Size(684, 25);
@@ -766,6 +769,16 @@
             this.editExtensionsToolStripButton.Size = new System.Drawing.Size(23, 22);
             this.editExtensionsToolStripButton.Text = "&Edit Extensions";
             this.editExtensionsToolStripButton.Click += new System.EventHandler(this.editExtensionsToolStripMenuItem_Click);
+            // 
+            // reloadExtensionsToolStripButton
+            // 
+            this.reloadExtensionsToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.reloadExtensionsToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("reloadExtensionsToolStripButton.Image")));
+            this.reloadExtensionsToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.reloadExtensionsToolStripButton.Name = "reloadExtensionsToolStripButton";
+            this.reloadExtensionsToolStripButton.Size = new System.Drawing.Size(23, 22);
+            this.reloadExtensionsToolStripButton.Text = "Reload Extensions";
+            this.reloadExtensionsToolStripButton.Click += new System.EventHandler(this.reloadExtensionsToolStripMenuItem_Click);
             // 
             // statusStrip
             // 
@@ -1233,6 +1246,7 @@
         private System.Windows.Forms.ToolStripMenuItem editExtensionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
         private System.Windows.Forms.ToolStripButton editExtensionsToolStripButton;
+        private System.Windows.Forms.ToolStripButton reloadExtensionsToolStripButton;
     }
 }
 
