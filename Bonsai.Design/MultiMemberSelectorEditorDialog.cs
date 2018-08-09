@@ -131,12 +131,11 @@ namespace Bonsai.Design
         private void AddSelectedNode()
         {
             var memberSelector = controller.GetSelectedMember();
-            if (!string.IsNullOrEmpty(memberSelector))
-            {
-                var index = selectionListBox.SelectedIndex + 1;
-                selectionListBox.Items.Insert(index, memberSelector);
-                selectionListBox.SelectedIndex = index;
-            }
+            if (string.IsNullOrEmpty(memberSelector)) memberSelector = ExpressionHelper.MemberSeparator;
+
+            var index = selectionListBox.SelectedIndex + 1;
+            selectionListBox.Items.Insert(index, memberSelector);
+            selectionListBox.SelectedIndex = index;
         }
 
         private void RemoveSelectedItem()
@@ -243,7 +242,8 @@ namespace Bonsai.Design
 
         private void treeView_BeforeExpand(object sender, TreeViewCancelEventArgs e)
         {
-            if (e.Action == TreeViewAction.Expand && mouseClicks > 1)
+            if (mouseClicks > 1 &&
+               (e.Action == TreeViewAction.Expand || e.Action == TreeViewAction.Collapse))
             {
                 mouseClicks = 0;
                 e.Cancel = true;

@@ -21,8 +21,9 @@ namespace Bonsai.Editor
             if (string.IsNullOrEmpty(selector)) return selector;
             var memberNames = ExpressionHelper
                             .SelectMemberNames(selector)
-                            .Where(name => name != ExpressionBuilderArgument.ArgumentNamePrefix)
-                            .Select(name => name.IndexOf(MemberSelectorPrefix) == 0 ? name.Substring(MemberSelectorPrefix.Length) : name)
+                            .Select(name => name == ExpressionBuilderArgument.ArgumentNamePrefix
+                                ? ExpressionHelper.MemberSeparator
+                                : name.IndexOf(MemberSelectorPrefix) == 0 ? name.Substring(MemberSelectorPrefix.Length) : name)
                             .ToArray();
             return string.Join(ExpressionHelper.ArgumentSeparator, memberNames);
         }
