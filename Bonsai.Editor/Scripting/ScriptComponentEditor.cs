@@ -23,6 +23,7 @@ namespace Bonsai.Editor.Scripting
         const string DefaultScriptName = "Script";
         const string ScriptFilter = "C# Files (*.cs)|*.cs|All Files (*.*)|*.*";
         static readonly string[] IgnoreAssemblyReferences = new[] { "mscorlib.dll", "System.dll", "System.Core.dll", "System.Reactive.Linq.dll" };
+        static ModuleBuilder moduleBuilder;
 
         static CodeTypeReference CreateTypeReference(Type type)
         {
@@ -200,9 +201,13 @@ namespace Bonsai.Editor.Scripting
                 writer.Write(scriptBuilder);
             }
 
-            var assemblyName = new AssemblyName("@DynamicExtensions");
-            var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
-            var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.FullName);
+            if (moduleBuilder == null)
+            {
+                var assemblyName = new AssemblyName("@DynamicExtensions");
+                var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+                moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.FullName);
+            }
+
             var typeBuilder = moduleBuilder.DefineType(
                 scriptName,
                 TypeAttributes.Public | TypeAttributes.Class,
