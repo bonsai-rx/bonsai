@@ -20,6 +20,7 @@ namespace Bonsai.IO
     [Description("Sinks individual elements of the input sequence to a text file.")]
     public class CsvWriter : CombinatorExpressionBuilder
     {
+        string delimiter;
         static readonly MethodInfo stringJoinMethod = typeof(string).GetMethods().Single(m => m.Name == "Join" &&
                                                                                              m.GetParameters().Length == 2 &&
                                                                                              m.GetParameters()[1].ParameterType == typeof(string[]));
@@ -37,8 +38,17 @@ namespace Bonsai.IO
         [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string FileName { get; set; }
 
+        [DefaultValue("")]
         [Description("The optional delimiter used to separate columns in the output file.")]
-        public string Delimiter { get; set; }
+        public string Delimiter
+        {
+            get { return delimiter; }
+            set
+            {
+                delimiter = value;
+                CompatibilityMode = false;
+            }
+        }
 
         [Description("Indicates whether data should be appended to the output file if it already exists.")]
         public bool Append { get; set; }
@@ -55,6 +65,10 @@ namespace Bonsai.IO
         [Description("The inner properties that will be selected for output in each element of the sequence.")]
         [Editor("Bonsai.Design.MultiMemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string Selector { get; set; }
+
+        [Browsable(false)]
+        [DefaultValue(false)]
+        public bool CompatibilityMode { get; set; }
 
         class ExpressionNode
         {
@@ -141,15 +155,20 @@ namespace Bonsai.IO
         {
             const string ParameterName = "input";
 
-            var delimiter = Delimiter;
             var source = arguments.First();
             var parameterType = source.Type.GetGenericArguments()[0];
             var inputParameter = Expression.Parameter(parameterType, ParameterName);
             var writerParameter = Expression.Parameter(typeof(StreamWriter));
             var selectedMembers = SelectMembers(inputParameter, Selector);
-            var delimiterConstant = Expression.Constant(string.IsNullOrEmpty(delimiter) ? " " : delimiter);
 
-            var legacyCharacter = string.IsNullOrEmpty(delimiter)
+            var delimiter = Delimiter;
+            if (string.IsNullOrEmpty(delimiter))
+            {
+                delimiter = CompatibilityMode ? " " : CultureInfo.InvariantCulture.TextInfo.ListSeparator;
+            }
+            var delimiterConstant = Expression.Constant(delimiter);
+
+            var legacyCharacter = CompatibilityMode
                 ? Enumerable.Repeat(Expression.Constant(string.Empty), 1)
                 : Enumerable.Empty<Expression>();
             var memberAccessExpressions = legacyCharacter.Concat(MakeMemberAccess(selectedMembers))

@@ -91,6 +91,16 @@ namespace Bonsai.Editor
                             selectorProperty.SetValue(builderElement, RemoveMemberSelectorPrefix(selector));
                         }
                     }
+
+                    var builderType = builderElement.GetType();
+                    if (builderType.FullName == "Bonsai.IO.CsvWriter")
+                    {
+                        var compatibilityMode = builderType.GetProperty("CompatibilityMode");
+                        if (compatibilityMode != null)
+                        {
+                            compatibilityMode.SetValue(builderElement, true);
+                        }
+                    }
                 }
 
                 return builder;
