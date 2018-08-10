@@ -34,11 +34,11 @@ namespace Bonsai.IO
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public string FileName { get; set; }
 
-        [Description("The optional delimiter used to separate columns in the CSV file.")]
-        public string Delimiter { get; set; }
+        [Description("The separator used to delimit elements in variable length rows. This argument is optional.")]
+        public string ListSeparator { get; set; }
 
         [TypeConverter("Bonsai.Expressions.ParseBuilder+PatternConverter, Bonsai.Core")]
-        [Description("The optional parse pattern for scanning individual lines, including conversion specifications for output data types.")]
+        [Description("The optional parse pattern for scanning individual lines. In case of variable length rows, the pattern will be applied to each individual element.")]
         public string ScanPattern { get; set; }
 
         [Description("The number of lines to skip at the start of the file.")]
@@ -52,14 +52,14 @@ namespace Bonsai.IO
         protected override Expression BuildCombinator(IEnumerable<Expression> arguments)
         {
             Expression parseBody;
-            var delimiter = Delimiter;
+            var separator = ListSeparator;
             var scanPattern = ScanPattern;
             var parameter = Expression.Parameter(typeof(string));
-            if (!string.IsNullOrEmpty(delimiter))
+            if (!string.IsNullOrEmpty(separator))
             {
-                var delimiterExpression = Expression.Constant(delimiter);
+                var separatorExpression = Expression.Constant(separator);
                 var splitOptions = Expression.Constant(StringSplitOptions.RemoveEmptyEntries);
-                var columns = Expression.Call(parameter, splitMethod, Expression.NewArrayInit(typeof(string), delimiterExpression), splitOptions);
+                var columns = Expression.Call(parameter, splitMethod, Expression.NewArrayInit(typeof(string), separatorExpression), splitOptions);
                 var columnParameter = Expression.Parameter(typeof(string));
                 var columnParseBody = CreateParser(columnParameter, scanPattern);
                 var columnConverterType = typeof(Converter<,>).MakeGenericType(columnParameter.Type, columnParseBody.Type);
