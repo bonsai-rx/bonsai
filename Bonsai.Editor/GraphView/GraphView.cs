@@ -51,12 +51,14 @@ namespace Bonsai.Design
         SizeF VectorTextOffset;
         Size EntryOffset;
         Size ExitOffset;
+        Pen NodePen;
         Pen CursorPen;
         Pen WhitePen;
         Pen BlackPen;
         Pen WhiteIconPen;
         Pen BlackIconPen;
         Font ExportFont;
+        Brush TextBrush;
 
         float drawScale;
         bool ignoreMouseUp;
@@ -168,6 +170,28 @@ namespace Bonsai.Design
 
             selectionDrag.Subscribe(ProcessRubberBand);
             itemDrag.Subscribe(drag => OnItemDrag(new ItemDragEventArgs(drag.Button, drag.node)));
+        }
+
+        public override Color BackColor
+        {
+            get { return base.BackColor; }
+            set
+            {
+                base.BackColor = value;
+                canvas.BackColor = value;
+
+                var brightness = value.GetBrightness();
+                if (brightness > 0.5)
+                {
+                    CursorPen = BlackPen;
+                    TextBrush = Brushes.Black;
+                }
+                else
+                {
+                    CursorPen = WhitePen;
+                    TextBrush = Brushes.White;
+                }
+            }
         }
 
         public event ItemDragEventHandler ItemDrag
@@ -396,11 +420,13 @@ namespace Bonsai.Design
             VectorTextOffset = new SizeF(0, 1.375f * drawScale);
             EntryOffset = new Size(-PenWidth / 2, NodeSize / 2);
             ExitOffset = new Size(NodeSize + PenWidth / 2, NodeSize / 2);
-            CursorPen = new Pen(Brushes.DarkGray, PenWidth);
+            NodePen = new Pen(Brushes.DarkGray, PenWidth);
             WhitePen = new Pen(Brushes.White, PenWidth);
             BlackPen = new Pen(Brushes.Black, PenWidth);
             WhiteIconPen = new Pen(Brushes.White);
             BlackIconPen = new Pen(Brushes.Black);
+            TextBrush = Brushes.Black;
+            CursorPen = BlackPen;
             UpdateModelLayout();
             base.ScaleControl(factor, specified);
         }
@@ -1172,7 +1198,7 @@ namespace Bonsai.Design
                     else
                     {
                         iconPen = selected ? WhiteIconPen : BlackIconPen;
-                        pen = cursor == layout.Node ? CursorPen : selected ? WhitePen : BlackPen;
+                        pen = cursor == layout.Node ? CursorPen : NodePen;
                         brush = selected ? (Focused ? FocusedSelectionBrush : UnfocusedSelectionBrush) : layout.Node.Brush;
                     }
 
@@ -1205,7 +1231,7 @@ namespace Bonsai.Design
                     {
                         var labelRect = layout.LabelRectangle;
                         labelRect.Location += offset;
-                        e.Graphics.DrawString(layout.Label, Font, Brushes.Black, labelRect, TextFormat);
+                        e.Graphics.DrawString(layout.Label, Font, TextBrush, labelRect, TextFormat);
                     }
                 }
                 else if (layout.Node.Tag != null)
