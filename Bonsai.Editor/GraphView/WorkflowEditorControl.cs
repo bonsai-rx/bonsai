@@ -70,6 +70,7 @@ namespace Bonsai.Design
         TabPageController InitializeTab(TabPage tabPage, bool readOnly, Control container)
         {
             var workflowGraphView = new WorkflowGraphView(serviceProvider, this, readOnly);
+            workflowGraphView.BackColorChanged += (sender, e) => tabPage.BackColor = workflowGraphView.BackColor;
             workflowGraphView.Dock = DockStyle.Fill;
             workflowGraphView.Font = Font;
             workflowGraphView.Tag = tabPage;
