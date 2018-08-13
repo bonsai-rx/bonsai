@@ -25,6 +25,7 @@ using System.Reflection;
 using System.Globalization;
 using System.Reactive.Subjects;
 using Bonsai.Editor.Scripting;
+using Bonsai.Editor.Themes;
 
 namespace Bonsai.Editor
 {
@@ -63,6 +64,7 @@ namespace Bonsai.Editor
         List<TreeNode> treeCache;
         Label statusTextLabel;
         Bitmap statusReadyImage;
+        ThemeRenderer themeRenderer;
         SvgRendererFactory iconRenderer;
         ToolStripButton statusUpdateAvailableLabel;
         BehaviorSubject<bool> updatesAvailable;
@@ -100,6 +102,8 @@ namespace Bonsai.Editor
             statusTextLabel.AutoSize = true;
             statusTextLabel.Text = Resources.ReadyStatus;
             formScheduler = new FormScheduler(this);
+            themeRenderer = new ThemeRenderer();
+            themeRenderer.ThemeChanged += themeRenderer_ThemeChanged;
             iconRenderer = new SvgRendererFactory();
             updatesAvailable = new BehaviorSubject<bool>(false);
             statusUpdateAvailableLabel = new ToolStripButton();
@@ -151,6 +155,7 @@ namespace Bonsai.Editor
             visualizerElements = visualizerProvider;
             Application.AddMessageFilter(hotKeys);
             components.Add(editorControl);
+            InitializeTheme();
         }
 
         #region Loading
@@ -2055,6 +2060,11 @@ namespace Bonsai.Editor
                     return siteForm.selectionModel;
                 }
 
+                if (serviceType == typeof(ThemeRenderer))
+                {
+                    return siteForm.themeRenderer;
+                }
+
                 if (serviceType == typeof(SvgRendererFactory))
                 {
                     return siteForm.iconRenderer;
@@ -2518,6 +2528,44 @@ namespace Bonsai.Editor
         void statusStrip_SizeChanged(object sender, EventArgs e)
         {
             UpdateStatusLabelSize();
+        }
+
+        #endregion
+
+        #region Color Themes
+
+        private void InitializeTheme()
+        {
+            var colorTable = themeRenderer.ToolStripRenderer.ColorTable;
+            var foreColor = colorTable.ControlForeColor;
+            var backColor = colorTable.ControlBackColor;
+            var windowBackColor = colorTable.WindowBackColor;
+            var windowText = colorTable.WindowText;
+            ForeColor = foreColor;
+            BackColor = backColor;
+            propertyGrid.BackColor = backColor;
+            propertyGrid.LineColor = colorTable.SeparatorDark;
+            propertyGrid.CategoryForeColor = foreColor;
+            propertyGrid.HelpBackColor = backColor;
+            propertyGrid.HelpForeColor = foreColor;
+            propertyGrid.ViewBackColor = windowBackColor;
+            propertyGrid.ViewForeColor = windowText;
+            toolboxTreeView.BackColor = windowBackColor;
+            toolboxTreeView.ForeColor = windowText;
+            toolboxGroupBox.ForeColor = foreColor;
+            toolboxDescriptionTextBox.BackColor = backColor;
+            toolboxDescriptionTextBox.ForeColor = foreColor;
+            propertiesGroupBox.ForeColor = foreColor;
+            propertiesDescriptionTextBox.BackColor = backColor;
+            propertiesDescriptionTextBox.ForeColor = foreColor;
+            menuStrip.Renderer = themeRenderer.ToolStripRenderer;
+            toolStrip.Renderer = themeRenderer.ToolStripRenderer;
+            statusStrip.Renderer = themeRenderer.ToolStripRenderer;
+        }
+
+        void themeRenderer_ThemeChanged(object sender, EventArgs e)
+        {
+            InitializeTheme();
         }
 
         #endregion

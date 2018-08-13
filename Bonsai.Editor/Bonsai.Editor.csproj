@@ -165,6 +165,13 @@
     <Compile Include="Scripting\ScriptEditorLauncher.cs" />
     <Compile Include="SemanticVersion.cs" />
     <Compile Include="LoadAction.cs" />
+    <Compile Include="Themes\ExtendedColorTable.cs" />
+    <Compile Include="Themes\MapColorTable.cs" />
+    <Compile Include="Themes\ThemeHelper.cs" />
+    <Compile Include="Themes\ThemeRenderer.cs" />
+    <Compile Include="Themes\ToolStripDarkRenderer.cs" />
+    <Compile Include="Themes\ToolStripExtendedRenderer.cs" />
+    <Compile Include="Themes\ToolStripLightRenderer.cs" />
     <Compile Include="TypeVisualizerDescriptor.cs" />
     <Compile Include="TypeVisualizerMap.cs" />
     <Compile Include="WorkflowDisposable.cs" />

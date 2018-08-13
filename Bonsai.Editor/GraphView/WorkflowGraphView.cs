@@ -21,6 +21,7 @@ using System.CodeDom;
 using System.Drawing.Design;
 using Bonsai.Editor;
 using System.Reactive.Disposables;
+using Bonsai.Editor.Themes;
 
 namespace Bonsai.Design
 {
@@ -61,6 +62,7 @@ namespace Bonsai.Design
         VisualizerLayout visualizerLayout;
         IServiceProvider serviceProvider;
         IUIService uiService;
+        ThemeRenderer themeRenderer;
         SizeF inverseScaleFactor;
         SizeF scaleFactor;
 
@@ -81,6 +83,7 @@ namespace Bonsai.Design
             serviceProvider = provider;
             editorReadOnly = readOnly;
             uiService = (IUIService)provider.GetService(typeof(IUIService));
+            themeRenderer = (ThemeRenderer)provider.GetService(typeof(ThemeRenderer));
             commandExecutor = (CommandExecutor)provider.GetService(typeof(CommandExecutor));
             graphView.IconRenderer = (SvgRendererFactory)provider.GetService(typeof(SvgRendererFactory));
             selectionModel = (WorkflowSelectionModel)provider.GetService(typeof(WorkflowSelectionModel));
@@ -91,6 +94,8 @@ namespace Bonsai.Design
 
             graphView.HandleDestroyed += graphView_HandleDestroyed;
             editorState.WorkflowStarted += editorService_WorkflowStarted;
+            themeRenderer.ThemeChanged += themeRenderer_ThemeChanged;
+            InitializeTheme();
         }
 
         internal WorkflowEditorLauncher Launcher { get; set; }
@@ -2402,11 +2407,24 @@ namespace Bonsai.Design
         private void graphView_HandleDestroyed(object sender, EventArgs e)
         {
             editorState.WorkflowStarted -= editorService_WorkflowStarted;
+            themeRenderer.ThemeChanged -= themeRenderer_ThemeChanged;
         }
 
         private void editorService_WorkflowStarted(object sender, EventArgs e)
         {
             InitializeVisualizerMapping();
+        }
+
+        private void themeRenderer_ThemeChanged(object sender, EventArgs e)
+        {
+            InitializeTheme();
+        }
+
+        private void InitializeTheme()
+        {
+            BackColor = themeRenderer.ToolStripRenderer.ColorTable.WindowBackColor;
+            graphView.BackColor = themeRenderer.ToolStripRenderer.ColorTable.WindowBackColor;
+            contextMenuStrip.Renderer = themeRenderer.ToolStripRenderer;
         }
 
         #endregion
