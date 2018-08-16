@@ -150,8 +150,10 @@ namespace Bonsai.Design
                 workflowGraphView = workflowEditor.WorkflowGraphView;
                 workflowEditor.ResumeLayout(false);
                 visualizerDialog.AddControl(workflowEditor);
+                visualizerDialog.BackColor = workflowGraphView.ParentForm.BackColor;
                 visualizerDialog.Icon = Bonsai.Editor.Properties.Resources.Icon;
                 visualizerDialog.ShowIcon = true;
+                workflowGraphView.BackColorChanged += (sender, e) => visualizerDialog.BackColor = ParentView.ParentForm.BackColor;
                 visualizerDialog.Activated += (sender, e) => workflowEditor.ActiveTab.UpdateSelection();
                 visualizerDialog.FormClosing += (sender, e) =>
                 {
