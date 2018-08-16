@@ -20,6 +20,7 @@ namespace Bonsai.Design
         WorkflowSelectionModel selectionModel;
         TabPageController workflowTab;
         TabPageController activeTab;
+        Padding adjustMargin;
 
         public WorkflowEditorControl(IServiceProvider provider)
             : this(provider, false)
@@ -38,6 +39,7 @@ namespace Bonsai.Design
             selectionModel = (WorkflowSelectionModel)provider.GetService(typeof(WorkflowSelectionModel));
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
             workflowTab = InitializeTab(workflowTabPage, readOnly, null);
+            InitializeTheme(workflowTabPage);
         }
 
         public WorkflowGraphView WorkflowGraphView
@@ -70,7 +72,11 @@ namespace Bonsai.Design
         TabPageController InitializeTab(TabPage tabPage, bool readOnly, Control container)
         {
             var workflowGraphView = new WorkflowGraphView(serviceProvider, this, readOnly);
-            workflowGraphView.BackColorChanged += (sender, e) => tabPage.BackColor = workflowGraphView.BackColor;
+            workflowGraphView.BackColorChanged += (sender, e) =>
+            {
+                tabPage.BackColor = workflowGraphView.BackColor;
+                if (tabControl.SelectedTab == tabPage) InitializeTheme(tabPage);
+            };
             workflowGraphView.Dock = DockStyle.Fill;
             workflowGraphView.Font = Font;
             workflowGraphView.Tag = tabPage;
@@ -393,6 +399,30 @@ namespace Bonsai.Design
                     CloseTab(tabState);
                 }
             }
+        }
+
+        protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
+        {
+            var displayX = tabControl.DisplayRectangle.X;
+            var marginLeft = tabControl.Margin.Left;
+            var marginTop = tabControl.Margin.Top;
+
+            var adjustH = displayX - marginLeft - 1;
+            var adjustV = displayX - marginTop - displayX / 2 - 1;
+            adjustMargin = new Padding(adjustH, adjustV, adjustH, adjustH);
+            base.ScaleControl(factor, specified);
+        }
+
+        private void InitializeTheme(TabPage tabPage)
+        {
+            var adjustRectangle = tabControl.Margin + adjustMargin;
+            if (tabPage.BackColor.ToArgb() == Color.White.ToArgb())
+            {
+                adjustRectangle.Right -= 2;
+                adjustRectangle.Bottom -= tabControl.Margin.Top - tabControl.Margin.Left + 1;
+            }
+            else adjustRectangle.Bottom = adjustRectangle.Left;
+            tabControl.AdjustRectangle = adjustRectangle;
         }
     }
 }
