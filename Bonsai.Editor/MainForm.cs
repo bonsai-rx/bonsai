@@ -213,7 +213,7 @@ namespace Bonsai.Editor
             return bounds;
         }
 
-        void RestoreEditorBounds()
+        void RestoreEditorSettings()
         {
             var desktopBounds = ScaleBounds(EditorSettings.Instance.DesktopBounds, scaleFactor);
             if (desktopBounds.Width > 0)
@@ -222,6 +222,7 @@ namespace Bonsai.Editor
             }
 
             WindowState = EditorSettings.Instance.WindowState;
+            themeRenderer.ActiveTheme = EditorSettings.Instance.EditorTheme;
         }
 
         void CloseEditorForm()
@@ -239,6 +240,7 @@ namespace Bonsai.Editor
                 EditorSettings.Instance.WindowState = FormWindowState.Normal;
             }
             else EditorSettings.Instance.WindowState = WindowState;
+            EditorSettings.Instance.EditorTheme = themeRenderer.ActiveTheme;
             EditorSettings.Instance.Save();
         }
 
@@ -250,7 +252,7 @@ namespace Bonsai.Editor
 
         protected override void OnLoad(EventArgs e)
         {
-            RestoreEditorBounds();
+            RestoreEditorSettings();
             var initialFileName = FileName;
             var validFileName =
                 !string.IsNullOrEmpty(initialFileName) &&

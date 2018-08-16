@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bonsai.Editor.Themes;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
@@ -26,6 +27,7 @@ namespace Bonsai.Editor
         const string RectangleYElement = "Y";
         const string RectangleWidthElement = "Width";
         const string RectangleHeightElement = "Height";
+        const string EditorThemeElement = "EditorTheme";
         const string SettingsFileName = "Bonsai.exe.settings";
         static readonly string SettingsPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), SettingsFileName);
         static readonly Lazy<EditorSettings> instance = new Lazy<EditorSettings>(Load);
@@ -43,6 +45,8 @@ namespace Bonsai.Editor
         public Rectangle DesktopBounds { get; set; }
 
         public FormWindowState WindowState { get; set; }
+
+        public ColorTheme EditorTheme { get; set; }
 
         public RecentlyUsedFileCollection RecentlyUsedFiles
         {
@@ -67,6 +71,12 @@ namespace Bonsai.Editor
                                 FormWindowState windowState;
                                 Enum.TryParse<FormWindowState>(reader.ReadElementContentAsString(), out windowState);
                                 settings.WindowState = windowState;
+                            }
+                            else if (reader.Name == EditorThemeElement)
+                            {
+                                ColorTheme editorTheme;
+                                Enum.TryParse<ColorTheme>(reader.ReadElementContentAsString(), out editorTheme);
+                                settings.EditorTheme = editorTheme;
                             }
                             else if (reader.Name == DesktopBoundsElement)
                             {
@@ -113,6 +123,7 @@ namespace Bonsai.Editor
             {
                 writer.WriteStartElement(typeof(EditorSettings).Name);
                 writer.WriteElementString(WindowStateElement, WindowState.ToString());
+                writer.WriteElementString(EditorThemeElement, EditorTheme.ToString());
 
                 writer.WriteStartElement(DesktopBoundsElement);
                 writer.WriteElementString(RectangleXElement, DesktopBounds.X.ToString(CultureInfo.InvariantCulture));
