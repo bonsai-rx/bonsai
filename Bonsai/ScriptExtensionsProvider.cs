@@ -61,6 +61,7 @@ namespace Bonsai
                                     select assemblyReference;
             assemblyNames.Add("System.dll");
             assemblyNames.Add("System.Core.dll");
+            assemblyNames.Add("System.Drawing.dll");
             assemblyNames.Add("System.Reactive.Linq.dll");
             assemblyNames.Add("Bonsai.Core.dll");
             assemblyNames.AddRange(projectReferences);
