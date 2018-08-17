@@ -23,6 +23,12 @@ namespace Bonsai.Editor.Themes
 
         public new ExtendedColorTable ColorTable { get; private set; }
 
+        protected override void OnRenderToolStripBorder(ToolStripRenderEventArgs e)
+        {
+            if (e.ToolStrip is StatusStrip) return;
+            base.OnRenderToolStripBorder(e);
+        }
+
         protected override void InitializeItem(ToolStripItem item)
         {
             var dropDown = item as ToolStripDropDownItem;

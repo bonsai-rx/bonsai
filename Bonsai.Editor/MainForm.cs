@@ -301,7 +301,7 @@ namespace Bonsai.Editor
             scaleFactor = factor;
             inverseScaleFactor = new SizeF(1f / factor.Width, 1f / factor.Height);
 
-            const float DefaultToolboxSplitterDistance = 208f;
+            const float DefaultToolboxSplitterDistance = 245f;
             panelSplitContainer.SplitterDistance = (int)(panelSplitContainer.SplitterDistance * factor.Height);
             workflowSplitContainer.SplitterDistance = (int)(workflowSplitContainer.SplitterDistance * factor.Height);
             propertiesSplitContainer.SplitterDistance = (int)(propertiesSplitContainer.SplitterDistance * factor.Height);
@@ -2545,6 +2545,8 @@ namespace Bonsai.Editor
             var windowText = colorTable.WindowText;
             ForeColor = foreColor;
             BackColor = backColor;
+            propertiesLabel.BackColor = colorTable.SeparatorDark;
+            propertiesLabel.ForeColor = foreColor;
             propertyGrid.BackColor = backColor;
             propertyGrid.LineColor = colorTable.SeparatorDark;
             propertyGrid.CategoryForeColor = foreColor;
@@ -2552,12 +2554,13 @@ namespace Bonsai.Editor
             propertyGrid.HelpForeColor = foreColor;
             propertyGrid.ViewBackColor = windowBackColor;
             propertyGrid.ViewForeColor = windowText;
+            propertyGrid.ViewBorderColor = windowBackColor;
+            toolboxLabel.BackColor = colorTable.SeparatorDark;
+            toolboxLabel.ForeColor = foreColor;
             toolboxTreeView.BackColor = windowBackColor;
             toolboxTreeView.ForeColor = windowText;
-            toolboxGroupBox.ForeColor = foreColor;
             toolboxDescriptionTextBox.BackColor = backColor;
             toolboxDescriptionTextBox.ForeColor = foreColor;
-            propertiesGroupBox.ForeColor = foreColor;
             propertiesDescriptionTextBox.BackColor = backColor;
             propertiesDescriptionTextBox.ForeColor = foreColor;
             menuStrip.Renderer = themeRenderer.ToolStripRenderer;
