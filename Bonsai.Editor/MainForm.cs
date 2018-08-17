@@ -2566,6 +2566,14 @@ namespace Bonsai.Editor
             menuStrip.Renderer = themeRenderer.ToolStripRenderer;
             toolStrip.Renderer = themeRenderer.ToolStripRenderer;
             statusStrip.Renderer = themeRenderer.ToolStripRenderer;
+            toolboxSplitContainer.Margin -= new Padding(0, 0, 0, editorControl.Bottom - toolboxSplitContainer.Bottom);
+            propertiesSplitContainer.Margin -= new Padding(0, 0, 0, editorControl.Bottom - propertiesSplitContainer.Bottom);
+            if (themeRenderer.ActiveTheme == ColorTheme.Light)
+            {
+                var borderOffset = new Padding(0, 0, 0, 1);
+                toolboxSplitContainer.Margin += borderOffset;
+                propertiesSplitContainer.Margin += borderOffset;
+            }
         }
 
         void themeRenderer_ThemeChanged(object sender, EventArgs e)
