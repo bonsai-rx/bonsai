@@ -2579,7 +2579,21 @@ namespace Bonsai.Editor
             }
         }
 
-        void themeRenderer_ThemeChanged(object sender, EventArgs e)
+        private void themeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (themeRenderer.ActiveTheme == ColorTheme.Light)
+            {
+                themeRenderer.ActiveTheme = ColorTheme.Dark;
+                themeToolStripMenuItem.Text = ColorTheme.Light + " &Theme";
+            }
+            else
+            {
+                themeRenderer.ActiveTheme = ColorTheme.Light;
+                themeToolStripMenuItem.Text = ColorTheme.Dark + " &Theme";
+            }
+        }
+
+        private void themeRenderer_ThemeChanged(object sender, EventArgs e)
         {
             InitializeTheme();
             EditorSettings.Instance.EditorTheme = themeRenderer.ActiveTheme;
