@@ -2565,6 +2565,11 @@ namespace Bonsai.Editor
             menuStrip.Renderer = themeRenderer.ToolStripRenderer;
             toolStrip.Renderer = themeRenderer.ToolStripRenderer;
             statusStrip.Renderer = themeRenderer.ToolStripRenderer;
+
+            var searchLayoutTop = propertiesLabel.Height + searchTextBox.Top + 1;
+            var labelOffset = searchLayoutTop - editorControl.ItemHeight;
+            propertiesLayoutPanel.RowStyles[0].Height -= labelOffset;
+            toolboxLayoutPanel.RowStyles[0].Height -= labelOffset;
             toolboxSplitContainer.Margin -= new Padding(0, 0, 0, editorControl.Bottom - toolboxSplitContainer.Bottom);
             propertiesSplitContainer.Margin -= new Padding(0, 0, 0, editorControl.Bottom - propertiesSplitContainer.Bottom);
             if (themeRenderer.ActiveTheme == ColorTheme.Light)
