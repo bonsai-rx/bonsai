@@ -239,7 +239,6 @@ namespace Bonsai.Editor
                 EditorSettings.Instance.WindowState = FormWindowState.Normal;
             }
             else EditorSettings.Instance.WindowState = WindowState;
-            EditorSettings.Instance.EditorTheme = themeRenderer.ActiveTheme;
             EditorSettings.Instance.Save();
         }
 
@@ -2583,6 +2582,7 @@ namespace Bonsai.Editor
         void themeRenderer_ThemeChanged(object sender, EventArgs e)
         {
             InitializeTheme();
+            EditorSettings.Instance.EditorTheme = themeRenderer.ActiveTheme;
         }
 
         #endregion
