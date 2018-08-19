@@ -78,6 +78,8 @@
             this.editExtensionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reloadExtensionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reloadExtensionsDebugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator10 = new System.Windows.Forms.ToolStripSeparator();
+            this.themeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.welcomeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.docsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -502,7 +504,9 @@
             this.toolStripSeparator7,
             this.editExtensionsToolStripMenuItem,
             this.reloadExtensionsToolStripMenuItem,
-            this.reloadExtensionsDebugToolStripMenuItem});
+            this.reloadExtensionsDebugToolStripMenuItem,
+            this.toolStripSeparator10,
+            this.themeToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(55, 20);
             this.toolsToolStripMenuItem.Text = "&Tools";
@@ -550,6 +554,19 @@
             this.reloadExtensionsDebugToolStripMenuItem.Size = new System.Drawing.Size(256, 22);
             this.reloadExtensionsDebugToolStripMenuItem.Text = "Reload Extensions with &Debugging";
             this.reloadExtensionsDebugToolStripMenuItem.Click += new System.EventHandler(this.reloadExtensionsDebugToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator10
+            // 
+            this.toolStripSeparator10.Name = "toolStripSeparator10";
+            this.toolStripSeparator10.Size = new System.Drawing.Size(253, 6);
+            // 
+            // themeToolStripMenuItem
+            // 
+            this.themeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("themeToolStripMenuItem.Image")));
+            this.themeToolStripMenuItem.Name = "themeToolStripMenuItem";
+            this.themeToolStripMenuItem.Size = new System.Drawing.Size(256, 22);
+            this.themeToolStripMenuItem.Text = "Dark &Theme";
+            this.themeToolStripMenuItem.Click += new System.EventHandler(this.themeToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -1292,6 +1309,8 @@
         private System.Windows.Forms.Label toolboxLabel;
         private System.Windows.Forms.TableLayoutPanel propertiesLayoutPanel;
         private System.Windows.Forms.Label propertiesLabel;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator10;
+        private System.Windows.Forms.ToolStripMenuItem themeToolStripMenuItem;
     }
 }
 
