@@ -69,6 +69,11 @@ namespace Bonsai.Design
             get { return activeTab; }
         }
 
+        public int ItemHeight
+        {
+            get { return tabControl.DisplayRectangle.Y; }
+        }
+
         TabPageController InitializeTab(TabPage tabPage, bool readOnly, Control container)
         {
             var workflowGraphView = new WorkflowGraphView(serviceProvider, this, readOnly);
