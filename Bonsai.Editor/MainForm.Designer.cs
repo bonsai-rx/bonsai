@@ -190,7 +190,7 @@
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(40, 20);
-            this.fileToolStripMenuItem.Text = "&FILE";
+            this.fileToolStripMenuItem.Text = "&File";
             // 
             // newToolStripMenuItem
             // 
@@ -307,7 +307,7 @@
             this.disableToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
-            this.editToolStripMenuItem.Text = "&EDIT";
+            this.editToolStripMenuItem.Text = "&Edit";
             // 
             // undoToolStripMenuItem
             // 
@@ -453,7 +453,7 @@
             this.restartToolStripMenuItem});
             this.workflowToolStripMenuItem.Name = "workflowToolStripMenuItem";
             this.workflowToolStripMenuItem.Size = new System.Drawing.Size(85, 20);
-            this.workflowToolStripMenuItem.Text = "&WORKFLOW";
+            this.workflowToolStripMenuItem.Text = "&Workflow";
             // 
             // startToolStripMenuItem
             // 
@@ -505,7 +505,7 @@
             this.reloadExtensionsDebugToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(55, 20);
-            this.toolsToolStripMenuItem.Text = "&TOOLS";
+            this.toolsToolStripMenuItem.Text = "&Tools";
             // 
             // packageManagerToolStripMenuItem
             // 
@@ -562,7 +562,7 @@
             this.aboutToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
-            this.helpToolStripMenuItem.Text = "&HELP";
+            this.helpToolStripMenuItem.Text = "&Help";
             // 
             // welcomeToolStripMenuItem
             // 
