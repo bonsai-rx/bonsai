@@ -2534,6 +2534,11 @@ namespace Bonsai.Editor
 
         #region Color Themes
 
+        static ColorTheme InvertTheme(ColorTheme theme)
+        {
+            return theme == ColorTheme.Light ? ColorTheme.Dark : ColorTheme.Light;
+        }
+
         private void InitializeTheme()
         {
             var colorTable = themeRenderer.ToolStripRenderer.ColorTable;
@@ -2581,21 +2586,13 @@ namespace Bonsai.Editor
 
         private void themeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (themeRenderer.ActiveTheme == ColorTheme.Light)
-            {
-                themeRenderer.ActiveTheme = ColorTheme.Dark;
-                themeToolStripMenuItem.Text = ColorTheme.Light + " &Theme";
-            }
-            else
-            {
-                themeRenderer.ActiveTheme = ColorTheme.Light;
-                themeToolStripMenuItem.Text = ColorTheme.Dark + " &Theme";
-            }
+            themeRenderer.ActiveTheme = InvertTheme(themeRenderer.ActiveTheme);
         }
 
         private void themeRenderer_ThemeChanged(object sender, EventArgs e)
         {
             InitializeTheme();
+            themeToolStripMenuItem.Text = InvertTheme(themeRenderer.ActiveTheme) + " &Theme";
             EditorSettings.Instance.EditorTheme = themeRenderer.ActiveTheme;
         }
 
