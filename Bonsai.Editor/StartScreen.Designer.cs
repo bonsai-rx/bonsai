@@ -15,6 +15,7 @@
         {
             if (disposing && (components != null))
             {
+                DisposeDrawResources();
                 components.Dispose();
             }
             base.Dispose(disposing);
@@ -191,6 +192,7 @@
             // 
             // recentFileView
             // 
+            this.recentFileView.BackColor = System.Drawing.SystemColors.Window;
             this.recentFileView.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.recentFileView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.recentFileView.DrawMode = System.Windows.Forms.TreeViewDrawMode.OwnerDrawText;
@@ -198,6 +200,7 @@
             this.recentFileView.FullRowSelect = true;
             this.recentFileView.HotTracking = true;
             this.recentFileView.ItemHeight = 50;
+            this.recentFileView.LineColor = System.Drawing.Color.FromArgb(130, 183, 223);
             this.recentFileView.Location = new System.Drawing.Point(3, 49);
             this.recentFileView.Name = "recentFileView";
             this.recentFileView.ShowLines = false;

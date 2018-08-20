@@ -1,5 +1,6 @@
 ﻿using Bonsai.Design;
 using Bonsai.Editor.Properties;
+using Bonsai.Editor.Themes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -19,6 +20,8 @@ namespace Bonsai.Editor
         bool tabSelect;
         Font recentFileNameFont;
         Font recentFilePathFont;
+        List<Image> customImages = new List<Image>();
+        ComponentResourceManager resources = new ComponentResourceManager(typeof(StartScreen));
         TreeNode newProjectNode = new TreeNode("New Project", 0, 0);
         TreeNode openProjectNode = new TreeNode("Open Project", 1, 1);
         TreeNode galleryNode = new TreeNode("Bonsai Gallery", 2, 2);
@@ -139,12 +142,47 @@ namespace Bonsai.Editor
             iconList.ImageSize = new Size(
                 Math.Min(MaxImageSize, (int)(16 * factor.Height)),
                 Math.Min(MaxImageSize, (int)(16 * factor.Height)));
-            var resources = new ComponentResourceManager(typeof(StartScreen));
-            iconList.Images.Add((Image)(resources.GetObject("newToolStripMenuItem.Image")));
-            iconList.Images.Add((Image)(resources.GetObject("openToolStripMenuItem.Image")));
-            iconList.Images.Add((Image)(resources.GetObject("galleryToolStripMenuItem.Image")));
-            iconList.Images.Add((Image)(resources.GetObject("packageManagerToolStripMenuItem.Image")));
+
+            var newItemImage = (Image)(resources.GetObject("newToolStripMenuItem.Image"));
+            var openItemImage = (Image)(resources.GetObject("openToolStripMenuItem.Image"));
+            var galleryItemImage = (Image)(resources.GetObject("galleryToolStripMenuItem.Image"));
+            var packageManagerItemImage = (Image)(resources.GetObject("packageManagerToolStripMenuItem.Image"));
+            var editorTheme = EditorSettings.Instance.EditorTheme;
+            if (editorTheme == ColorTheme.Dark)
+            {
+                BackColor = ThemeHelper.Invert(BackColor);
+                getStartedLabel.ForeColor = ThemeHelper.Invert(getStartedLabel.ForeColor);
+                openLabel.ForeColor = ThemeHelper.Invert(openLabel.ForeColor);
+                recentLabel.ForeColor = ThemeHelper.Invert(recentLabel.ForeColor);
+                getStartedTreeView.BackColor = ThemeHelper.Invert(getStartedTreeView.BackColor);
+                getStartedTreeView.ForeColor = ThemeHelper.Invert(getStartedTreeView.ForeColor);
+                openTreeView.BackColor = ThemeHelper.Invert(openTreeView.BackColor);
+                openTreeView.ForeColor = ThemeHelper.Invert(openTreeView.ForeColor);
+                recentFileView.BackColor = ThemeHelper.Invert(recentFileView.BackColor);
+                recentFileView.ForeColor = ThemeHelper.Invert(recentFileView.ForeColor);
+                recentFileView.LineColor = ThemeHelper.Invert(recentFileView.LineColor);
+                customImages.Add(newItemImage = ThemeHelper.InvertScale(newItemImage, iconList.ImageSize, BackColor));
+                customImages.Add(openItemImage = ThemeHelper.InvertScale(openItemImage, iconList.ImageSize, BackColor));
+                customImages.Add(galleryItemImage = ThemeHelper.InvertScale(galleryItemImage, iconList.ImageSize, BackColor));
+                customImages.Add(packageManagerItemImage = ThemeHelper.InvertScale(packageManagerItemImage, iconList.ImageSize, BackColor));
+            }
+
+            iconList.Images.Add(newItemImage);
+            iconList.Images.Add(openItemImage);
+            iconList.Images.Add(galleryItemImage);
+            iconList.Images.Add(packageManagerItemImage);
             base.ScaleControl(factor, specified);
+        }
+
+        private void DisposeDrawResources()
+        {
+            foreach (var image in customImages)
+            {
+                image.Dispose();
+            }
+
+            customImages.Clear();
+            resources.ReleaseAllResources();
         }
 
         protected override bool ProcessTabKey(bool forward)
@@ -205,14 +243,18 @@ namespace Bonsai.Editor
         {
             var node = e.Node;
             var bounds = node.Bounds;
+            var treeView = node.TreeView;
             var font = node.NodeFont ?? node.TreeView.Font;
             var hot = (e.State & TreeNodeStates.Hot) == TreeNodeStates.Hot;
             var selected = (e.State & TreeNodeStates.Selected) == TreeNodeStates.Selected;
             var hotColor = node.TreeView.ForeColor == SystemColors.HotTrack ? SystemColors.ActiveCaption : SystemColors.HotTrack;
-            var color = hot ? hotColor : node.TreeView.ForeColor;
-            e.Graphics.FillRectangle(SystemBrushes.Window, bounds);
+            var color = hot ? hotColor : treeView.ForeColor;
+            using (var brush = new SolidBrush(treeView.BackColor))
+            {
+                e.Graphics.FillRectangle(brush, bounds);
+            }
             TextRenderer.DrawText(e.Graphics, node.Text, font, bounds, color, TextFormatFlags.NoClipping);
-            if (selected && tabSelect) ControlPaint.DrawFocusRectangle(e.Graphics, bounds);
+            if (selected && tabSelect) ControlPaint.DrawFocusRectangle(e.Graphics, bounds, treeView.ForeColor, treeView.BackColor);
         }
 
         private void treeView_KeyDown(object sender, KeyEventArgs e)
