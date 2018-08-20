@@ -75,10 +75,13 @@ namespace Bonsai.Editor
             var focusBounds = new Rectangle(bounds.X, bounds.Y, bounds.Width - leftMargin, bounds.Height);
             var hot = (e.State & TreeNodeStates.Hot) == TreeNodeStates.Hot;
             var selected = (e.State & TreeNodeStates.Selected) == TreeNodeStates.Selected;
-            e.Graphics.FillRectangle(hot ? new SolidBrush(Color.PaleGoldenrod) : SystemBrushes.Window, fillBounds);
-            TextRenderer.DrawText(e.Graphics, node.Name, recentFileNameFont, nameBounds, Color.Black, TextFormatFlags.Left);
+            using (var brush = new SolidBrush(hot ? LineColor : BackColor))
+            {
+                e.Graphics.FillRectangle(brush, fillBounds);
+            }
+            TextRenderer.DrawText(e.Graphics, node.Name, recentFileNameFont, nameBounds, ForeColor, TextFormatFlags.Left);
             TextRenderer.DrawText(e.Graphics, node.Text, recentFilePathFont, pathBounds, Color.Gray, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
-            if (selected) ControlPaint.DrawFocusRectangle(e.Graphics, focusBounds);
+            if (selected) ControlPaint.DrawFocusRectangle(e.Graphics, focusBounds, ForeColor, BackColor);
             base.OnDrawNode(e);
         }
     }
