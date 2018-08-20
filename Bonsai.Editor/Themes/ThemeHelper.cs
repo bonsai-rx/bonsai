@@ -121,5 +121,18 @@ namespace Bonsai.Editor.Themes
             finally { result.UnlockBits(pixelData); }
             return result;
         }
+
+        public static Image InvertScale(Image image, Size size, Color backColor)
+        {
+            using (var inverted = Invert(image))
+            {
+                var result = new Bitmap(size.Width, size.Height, PixelFormat.Format24bppRgb);
+                using (var graphics = Graphics.FromImage(result))
+                {
+                    graphics.DrawImage(inverted, 0, 0, result.Width, result.Height);
+                }
+                return result;
+            }
+        }
     }
 }
