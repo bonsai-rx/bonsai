@@ -76,10 +76,19 @@ namespace Bonsai.NuGet
                     var operation = operationFactory();
                     operation.ContinueWith(task =>
                     {
-                        if (!task.IsFaulted)
+                        if (task.IsFaulted)
                         {
-                            dialog.BeginInvoke((Action)dialog.Close);
+                            var aggregateException = task.Exception as AggregateException;
+                            if (aggregateException != null)
+                            {
+                                foreach (var exception in aggregateException.InnerExceptions)
+                                {
+                                    packageManager.Logger.Log(MessageLevel.Error, exception.Message);
+                                }
+                            }
+                            else packageManager.Logger.Log(MessageLevel.Error, task.Exception.Message);
                         }
+                        else dialog.BeginInvoke((Action)dialog.Close);
                     });
 
                     dialog.ShowDialog();
@@ -97,16 +106,8 @@ namespace Bonsai.NuGet
 
             return Task.Factory.StartNew(() =>
             {
-                try
-                {
-                    packageManager.Logger.Log(MessageLevel.Info, Resources.InstallPackageVersion, package.Id, package.Version);
-                    packageManager.InstallPackage(package, false, true);
-                }
-                catch (Exception ex)
-                {
-                    packageManager.Logger.Log(MessageLevel.Error, ex.Message);
-                    throw;
-                }
+                packageManager.Logger.Log(MessageLevel.Info, Resources.InstallPackageVersion, package.Id, package.Version);
+                packageManager.InstallPackage(package, false, true);
             });
         }
 
@@ -114,24 +115,16 @@ namespace Bonsai.NuGet
         {
             return Task.Factory.StartNew(() =>
             {
-                try
+                var logMessage = version == null ? Resources.InstallPackageLatestVersion : Resources.InstallPackageVersion;
+                packageManager.Logger.Log(MessageLevel.Info, logMessage, packageId, version);
+                var package = packageManager.SourceRepository.FindPackage(packageId, version);
+                if (package == null)
                 {
-                    var logMessage = version == null ? Resources.InstallPackageLatestVersion : Resources.InstallPackageVersion;
-                    packageManager.Logger.Log(MessageLevel.Info, logMessage, packageId, version);
-                    var package = packageManager.SourceRepository.FindPackage(packageId, version);
-                    if (package == null)
-                    {
-                        var errorMessage = version == null ? Resources.MissingPackageLatestVersion : Resources.MissingPackageVersion;
-                        throw new InvalidOperationException(string.Format(errorMessage, packageId, version));
-                    }
-                    packageManager.InstallPackage(package, false, true);
-                    return packageManager.LocalRepository.FindPackage(packageId, version);
+                    var errorMessage = version == null ? Resources.MissingPackageLatestVersion : Resources.MissingPackageVersion;
+                    throw new InvalidOperationException(string.Format(errorMessage, packageId, version));
                 }
-                catch (Exception ex)
-                {
-                    packageManager.Logger.Log(MessageLevel.Error, ex.Message);
-                    throw;
-                }
+                packageManager.InstallPackage(package, false, true);
+                return packageManager.LocalRepository.FindPackage(packageId, version);
             });
         }
 
@@ -139,23 +132,15 @@ namespace Bonsai.NuGet
         {
             return Task.Factory.StartNew(() =>
             {
-                try
+                packageManager.Logger.Log(MessageLevel.Info, Resources.UpdatePackageLatestVersion, packageId);
+                var package = packageManager.SourceRepository.FindPackage(packageId, version);
+                if (package == null)
                 {
-                    packageManager.Logger.Log(MessageLevel.Info, Resources.UpdatePackageLatestVersion, packageId);
-                    var package = packageManager.SourceRepository.FindPackage(packageId, version);
-                    if (package == null)
-                    {
-                        var errorMessage = string.Format(Resources.MissingPackageLatestVersion, packageId);
-                        throw new InvalidOperationException(errorMessage);
-                    }
-                    packageManager.UpdatePackage(package, true, true);
-                    return packageManager.LocalRepository.FindPackage(packageId, version);
+                    var errorMessage = string.Format(Resources.MissingPackageLatestVersion, packageId);
+                    throw new InvalidOperationException(errorMessage);
                 }
-                catch (Exception ex)
-                {
-                    packageManager.Logger.Log(MessageLevel.Error, ex.Message);
-                    throw;
-                }
+                packageManager.UpdatePackage(package, true, true);
+                return packageManager.LocalRepository.FindPackage(packageId, version);
             });
         }
 
@@ -163,22 +148,14 @@ namespace Bonsai.NuGet
         {
             return Task.Factory.StartNew(() =>
             {
-                try
+                packageManager.Logger.Log(MessageLevel.Info, Resources.RestorePackageVersion, packageId, version);
+                var package = packageManager.SourceRepository.FindPackage(packageId, version);
+                if (package == null)
                 {
-                    packageManager.Logger.Log(MessageLevel.Info, Resources.RestorePackageVersion, packageId, version);
-                    var package = packageManager.SourceRepository.FindPackage(packageId, version);
-                    if (package == null)
-                    {
-                        var errorMessage = string.Format(Resources.MissingPackageVersion, packageId, version);
-                        throw new InvalidOperationException(errorMessage);
-                    }
-                    return package;
+                    var errorMessage = string.Format(Resources.MissingPackageVersion, packageId, version);
+                    throw new InvalidOperationException(errorMessage);
                 }
-                catch (Exception ex)
-                {
-                    packageManager.Logger.Log(MessageLevel.Error, ex.Message);
-                    throw;
-                }
+                return package;
             });
         }
     }
