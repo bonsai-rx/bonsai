@@ -2553,11 +2553,15 @@ namespace Bonsai.Editor
             propertyGrid.BackColor = backColor;
             propertyGrid.LineColor = colorTable.SeparatorDark;
             propertyGrid.CategoryForeColor = foreColor;
+            propertyGrid.CategorySplitterColor = colorTable.SeparatorDark;
+            propertyGrid.CommandsBackColor = backColor;
+            propertyGrid.CommandsBorderColor = windowBackColor;
             propertyGrid.HelpBackColor = backColor;
             propertyGrid.HelpForeColor = foreColor;
             propertyGrid.ViewBackColor = windowBackColor;
             propertyGrid.ViewForeColor = windowText;
             propertyGrid.ViewBorderColor = windowBackColor;
+            propertyGrid.CanShowVisualStyleGlyphs = false;
             toolboxLabel.BackColor = colorTable.SeparatorDark;
             toolboxLabel.ForeColor = foreColor;
             toolboxTreeView.BackColor = windowBackColor;
