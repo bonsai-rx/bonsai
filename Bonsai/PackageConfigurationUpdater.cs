@@ -34,6 +34,9 @@ namespace Bonsai
         static readonly FrameworkName NativeFramework = new FrameworkName("native,Version=v0.0");
         static readonly IEnumerable<FrameworkName> SupportedFrameworks = new[]
         {
+            new FrameworkName(".NETFramework,Version=v4.6.2"),
+            new FrameworkName(".NETFramework,Version=v4.6.1"),
+            new FrameworkName(".NETFramework,Version=v4.6"),
             new FrameworkName(".NETFramework,Version=v4.5"),
             new FrameworkName(".NETFramework,Version=v4.0"),
             new FrameworkName(".NETFramework,Version=v4.0,Profile=Client"),
