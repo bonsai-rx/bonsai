@@ -46,6 +46,19 @@ namespace Bonsai.NuGet
             return fileSystem.GetFullPath(targetEntryPoint);
         }
 
+        static void LogException(ILogger logger, Exception exception)
+        {
+            var aggregateException = exception as AggregateException;
+            if (aggregateException != null)
+            {
+                foreach (var innerException in aggregateException.InnerExceptions)
+                {
+                    LogException(logger, innerException);
+                }
+            }
+            else logger.Log(MessageLevel.Error, exception.Message);
+        }
+
         public static void RunPackageOperation(LicenseAwarePackageManager packageManager, Func<Task> operationFactory, string operationLabel = null)
         {
             EventHandler<RequiringLicenseAcceptanceEventArgs> requiringLicenseHandler = null;
@@ -76,18 +89,7 @@ namespace Bonsai.NuGet
                     var operation = operationFactory();
                     operation.ContinueWith(task =>
                     {
-                        if (task.IsFaulted)
-                        {
-                            var aggregateException = task.Exception as AggregateException;
-                            if (aggregateException != null)
-                            {
-                                foreach (var exception in aggregateException.InnerExceptions)
-                                {
-                                    packageManager.Logger.Log(MessageLevel.Error, exception.Message);
-                                }
-                            }
-                            else packageManager.Logger.Log(MessageLevel.Error, task.Exception.Message);
-                        }
+                        if (task.IsFaulted) LogException(packageManager.Logger, task.Exception);
                         else dialog.BeginInvoke((Action)dialog.Close);
                     });
 
