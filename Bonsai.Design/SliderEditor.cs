@@ -61,6 +61,13 @@ namespace Bonsai.Design
                 slider.Maximum = (double)range.Maximum;
                 slider.DecimalPlaces = decimalPlaces;
 
+                var ownerControl = editorService as Control;
+                if (ownerControl != null)
+                {
+                    slider.BackColor = ownerControl.BackColor;
+                    slider.ForeColor = ownerControl.ForeColor;
+                }
+
                 var changed = false;
                 var cancelled = false;
                 slider.Value = Math.Max(slider.Minimum, Math.Min(Convert.ToDouble(value), slider.Maximum));

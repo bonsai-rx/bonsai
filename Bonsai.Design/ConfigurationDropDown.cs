@@ -28,6 +28,7 @@ namespace Bonsai.Design
         public ConfigurationDropDown(IServiceProvider provider)
         {
             InitializeComponent();
+            BackColor = SystemColors.Window;
             editorService = new ConfigurationEditorService(this, provider);
 
             using (var graphics = Graphics.FromHwnd(IntPtr.Zero))
