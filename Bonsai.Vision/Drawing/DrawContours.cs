@@ -1,0 +1,52 @@
+﻿using OpenCV.Net;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing.Design;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml.Serialization;
+
+namespace Bonsai.Vision.Drawing
+{
+    [Description("Draws contour outlines or filled interiors in an image.")]
+    public class DrawContours : CanvasElement
+    {
+        [XmlIgnore]
+        [Description("The first contour to draw.")]
+        public Seq Contour { get; set; }
+
+        [Range(0, 255)]
+        [Precision(0, 1)]
+        [TypeConverter(typeof(BgraScalarConverter))]
+        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Description("The color of the external contours.")]
+        public Scalar ExternalColor { get; set; }
+
+        [Range(0, 255)]
+        [Precision(0, 1)]
+        [TypeConverter(typeof(BgraScalarConverter))]
+        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Description("The color of the internal holes.")]
+        public Scalar HoleColor { get; set; }
+
+        [Description("The maximum level of the contour hierarchy to draw.")]
+        public int MaxLevel { get; set; }
+
+        [Description("The thickness of the contour lines, if positive. Otherwise, the contour interiors will be drawn.")]
+        public int Thickness { get; set; }
+
+        [Description("The algorithm used to draw the contour boundaries.")]
+        public LineFlags LineType { get; set; }
+
+        protected override void Draw(IplImage image)
+        {
+            var contour = Contour;
+            if (contour != null)
+            {
+                CV.DrawContours(image, contour, ExternalColor, HoleColor, MaxLevel, Thickness, LineType);
+            }
+        }
+    }
+}
