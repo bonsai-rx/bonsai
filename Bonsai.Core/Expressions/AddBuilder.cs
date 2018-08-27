@@ -19,7 +19,6 @@ namespace Bonsai.Expressions
     public class AddBuilder : BinaryOperatorBuilder
     {
         static readonly MethodInfo stringConcat = typeof(string).GetMethod("Concat", new[] { typeof(string), typeof(string) });
-        static readonly MethodInfo delegateCombine = typeof(Delegate).GetMethod("Combine", new[] { typeof(Delegate), typeof(Delegate) });
 
         /// <summary>
         /// Returns the expression that applies the arithmetic addition operation
@@ -33,13 +32,9 @@ namespace Bonsai.Expressions
         /// </returns>
         protected override Expression BuildSelector(Expression left, Expression right)
         {
-            if (left.Type == typeof(string) && left.Type == right.Type)
+            if (left.Type == typeof(string) && right.Type == typeof(string))
             {
                 return Expression.Call(stringConcat, left, right);
-            }
-            else if (typeof(Delegate).IsAssignableFrom(left.Type) && left.Type == right.Type)
-            {
-                return Expression.Convert(Expression.Call(delegateCombine, left, right), left.Type);
             }
             else return Expression.Add(left, right);
         }
