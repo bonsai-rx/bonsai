@@ -54,7 +54,6 @@ namespace Bonsai.Shaders.Configuration
                 ShaderUniforms,
                 BufferBindings,
                 Framebuffer);
-            material.Enabled = Enabled;
             if (!string.IsNullOrEmpty(MeshName))
             {
                 material.Mesh = resourceManager.Load<Mesh>(MeshName);
