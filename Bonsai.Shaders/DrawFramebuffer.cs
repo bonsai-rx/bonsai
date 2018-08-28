@@ -22,6 +22,7 @@ namespace Bonsai.Shaders
         [XmlArrayItem(typeof(EnableState))]
         [XmlArrayItem(typeof(DisableState))]
         [XmlArrayItem(typeof(ViewportState))]
+        [XmlArrayItem(typeof(ScissorState))]
         [XmlArrayItem(typeof(LineWidthState))]
         [XmlArrayItem(typeof(PointSizeState))]
         [XmlArrayItem(typeof(DepthMaskState))]

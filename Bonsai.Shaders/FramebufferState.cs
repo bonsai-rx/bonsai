@@ -78,6 +78,7 @@ namespace Bonsai.Shaders
                 }
 
                 framebufferWindow.UpdateViewport(framebufferWidth, framebufferHeight);
+                framebufferWindow.UpdateScissor(framebufferWidth, framebufferHeight);
             }
         }
 
@@ -86,6 +87,7 @@ namespace Bonsai.Shaders
             if (fbo > 0)
             {
                 framebufferWindow.UpdateViewport();
+                framebufferWindow.UpdateScissor();
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             }
         }

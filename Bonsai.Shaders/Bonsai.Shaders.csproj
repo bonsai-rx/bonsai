@@ -70,6 +70,7 @@
     <Compile Include="BufferBinding.cs" />
     <Compile Include="ComputeProgram.cs" />
     <Compile Include="ComputeProgramNameConverter.cs" />
+    <Compile Include="Configuration\ScissorState.cs" />
     <Compile Include="Configuration\ViewportEffectConfiguration.cs" />
     <Compile Include="CreateMatrix2.cs" />
     <Compile Include="CreateMatrix3.cs" />

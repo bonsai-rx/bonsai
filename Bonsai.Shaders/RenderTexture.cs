@@ -27,6 +27,7 @@ namespace Bonsai.Shaders
         [XmlArrayItem(typeof(EnableState))]
         [XmlArrayItem(typeof(DisableState))]
         [XmlArrayItem(typeof(ViewportState))]
+        [XmlArrayItem(typeof(ScissorState))]
         [XmlArrayItem(typeof(LineWidthState))]
         [XmlArrayItem(typeof(PointSizeState))]
         [XmlArrayItem(typeof(DepthMaskState))]
@@ -111,6 +112,7 @@ namespace Bonsai.Shaders
                         var clearMask = ClearMask;
                         GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
                         window.UpdateViewport(width, height);
+                        window.UpdateScissor(width, height);
                         if (clearMask != ClearBufferMask.None)
                         {
                             GL.ClearColor(ClearColor);
@@ -123,6 +125,7 @@ namespace Bonsai.Shaders
                         }
 
                         window.UpdateViewport();
+                        window.UpdateScissor();
                         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
                         return colorTarget;
                     }).Finally(() =>
