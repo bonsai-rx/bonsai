@@ -36,25 +36,41 @@ namespace Bonsai.Vision.Drawing
         [Description("The optional background color used to initialize all pixels in the canvas.")]
         public Scalar? Color { get; set; }
 
-        private Canvas Create()
+        private Canvas Create(IObserver<Canvas> observer)
         {
             return new Canvas(() =>
             {
-                var color = Color;
-                var output = new IplImage(Size, Depth, Channels);
-                if (color.HasValue) output.Set(color.Value);
-                return output;
+                try
+                {
+                    var color = Color;
+                    var output = new IplImage(Size, Depth, Channels);
+                    if (color.HasValue) output.Set(color.Value);
+                    return output;
+                }
+                catch (Exception ex)
+                {
+                    observer.OnError(ex);
+                    throw;
+                }
             });
         }
 
         public override IObservable<Canvas> Generate()
         {
-            return Observable.Defer(() => Observable.Return(Create()));
+            return Observable.Create<Canvas>(observer =>
+            {
+                var canvas = Create(observer);
+                return Observable.Return(canvas).SubscribeSafe(observer);
+            });
         }
 
         public IObservable<Canvas> Generate<TSource>(IObservable<TSource> source)
         {
-            return source.Select(draw => Create());
+            return Observable.Create<Canvas>(observer =>
+            {
+                var canvas = Create(observer);
+                return source.Select(input => canvas).SubscribeSafe(observer);
+            });
         }
     }
 }
