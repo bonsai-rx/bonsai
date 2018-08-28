@@ -36,7 +36,6 @@ namespace Bonsai.Shaders.Configuration
                 ShaderUniforms,
                 BufferBindings,
                 Framebuffer);
-            computation.Enabled = Enabled;
             computation.WorkGroups = WorkGroups;
             resourceManager.Window.AddShader(computation);
             return computation;

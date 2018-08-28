@@ -30,6 +30,7 @@ namespace Bonsai.Shaders
             shaderWindow = window;
         }
 
+        [Obsolete]
         public bool Enabled { get; set; }
 
         public string Name { get; private set; }
@@ -71,7 +72,7 @@ namespace Bonsai.Shaders
         {
             shaderState.Execute();
             var action = Interlocked.Exchange(ref update, null) + OnDispatch();
-            if (action != null && Enabled)
+            if (action != null)
             {
                 GL.UseProgram(program);
                 shaderState.Bind();

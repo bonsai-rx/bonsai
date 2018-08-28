@@ -41,7 +41,6 @@ namespace Bonsai.Shaders.Configuration
                 BufferBindings,
                 Framebuffer,
                 texturedQuad.CreateResource(resourceManager));
-            effect.Enabled = Enabled;
             resourceManager.Window.AddShader(effect);
             return effect;
         }

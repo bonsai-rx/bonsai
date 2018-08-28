@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
+    [Obsolete]
     [Description("Updates the render state of the specified shader.")]
     public class UpdateShaderState : Sink
     {

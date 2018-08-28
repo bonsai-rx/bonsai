@@ -20,15 +20,6 @@ namespace Bonsai.Shaders.Configuration
         readonly UniformConfigurationCollection shaderUniforms = new UniformConfigurationCollection();
         readonly BufferBindingConfigurationCollection bufferBindings = new BufferBindingConfigurationCollection();
 
-        public ShaderConfiguration()
-        {
-            Enabled = true;
-        }
-
-        [Category("State")]
-        [Description("Specifies whether the shader is active.")]
-        public bool Enabled { get; set; }
-
         [Category("State")]
         [Description("Specifies any render states that are required to run the shader.")]
         [Editor("Bonsai.Shaders.Configuration.Design.StateConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
