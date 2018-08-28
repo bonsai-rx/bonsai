@@ -146,7 +146,9 @@
     <Compile Include="TextureResources.cs" />
     <Compile Include="TransformRelative.cs" />
     <Compile Include="Translate.cs" />
+    <Compile Include="UpdateScissorState.cs" />
     <Compile Include="UpdateStep.cs" />
+    <Compile Include="UpdateViewportState.cs" />
     <Compile Include="ViewportEffect.cs" />
     <Compile Include="ImageTextureBinding.cs" />
     <Compile Include="Input\MouseCursor.cs" />
