@@ -12,6 +12,7 @@ using System.Globalization;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using Bonsai.Expressions;
+using System.Text.RegularExpressions;
 
 namespace Bonsai.IO
 {
@@ -166,7 +167,7 @@ namespace Bonsai.IO
             {
                 delimiter = CompatibilityMode ? " " : CultureInfo.InvariantCulture.TextInfo.ListSeparator;
             }
-            var delimiterConstant = Expression.Constant(delimiter);
+            var delimiterConstant = Expression.Constant(Regex.Unescape(delimiter));
 
             var legacyCharacter = CompatibilityMode
                 ? Enumerable.Repeat(Expression.Constant(string.Empty), 1)

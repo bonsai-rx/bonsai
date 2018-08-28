@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Bonsai.IO
@@ -57,7 +58,7 @@ namespace Bonsai.IO
             var parameter = Expression.Parameter(typeof(string));
             if (!string.IsNullOrEmpty(separator))
             {
-                var separatorExpression = Expression.Constant(separator);
+                var separatorExpression = Expression.Constant(Regex.Unescape(separator));
                 var splitOptions = Expression.Constant(StringSplitOptions.RemoveEmptyEntries);
                 var columns = Expression.Call(parameter, splitMethod, Expression.NewArrayInit(typeof(string), separatorExpression), splitOptions);
                 var columnParameter = Expression.Parameter(typeof(string));
