@@ -21,6 +21,7 @@ namespace Bonsai.Shaders.Configuration.Design
                 typeof(EnableState),
                 typeof(DisableState),
                 typeof(ViewportState),
+                typeof(ScissorState),
                 typeof(LineWidthState),
                 typeof(PointSizeState),
                 typeof(DepthMaskState),

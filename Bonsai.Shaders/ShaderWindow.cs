@@ -18,6 +18,7 @@ namespace Bonsai.Shaders
         Color4 clearColor;
         ClearBufferMask clearMask;
         RectangleF viewport;
+        RectangleF scissor;
         List<Shader> shaders;
         IDictionary<string, Texture> textures;
         IDictionary<string, Mesh> meshes;
@@ -49,6 +50,7 @@ namespace Bonsai.Shaders
             WindowBorder = configuration.WindowBorder;
             WindowState = configuration.WindowState;
             Viewport = new RectangleF(0, 0, 1, 1);
+            Scissor = new RectangleF(0, 0, 1, 1);
             TargetRenderFrequency = configuration.TargetRenderFrequency;
             TargetUpdateFrequency = configuration.TargetRenderFrequency;
             RefreshRate = VSync == VSyncMode.On ? display.RefreshRate : TargetRenderFrequency;
@@ -69,6 +71,16 @@ namespace Bonsai.Shaders
             {
                 viewport = value;
                 UpdateViewport();
+            }
+        }
+
+        public RectangleF Scissor
+        {
+            get { return scissor; }
+            set
+            {
+                scissor = value;
+                UpdateScissor();
             }
         }
 
@@ -113,6 +125,20 @@ namespace Bonsai.Shaders
                 (int)(viewport.Height * height));
         }
 
+        internal void UpdateScissor()
+        {
+            UpdateScissor(Width, Height);
+        }
+
+        internal void UpdateScissor(float width, float height)
+        {
+            GL.Scissor(
+                (int)(scissor.X * width),
+                (int)(scissor.Y * height),
+                (int)(scissor.Width * width),
+                (int)(scissor.Height * height));
+        }
+
         public void Update(Action action)
         {
             update += action;
@@ -149,6 +175,7 @@ namespace Bonsai.Shaders
         protected override void OnResize(EventArgs e)
         {
             UpdateViewport();
+            UpdateScissor();
             base.OnResize(e);
         }
 
