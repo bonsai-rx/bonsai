@@ -39,33 +39,28 @@ namespace Bonsai.Dsp
             }
         }
 
-        static Mat FromArray(int rows, int cols, Depth depth, int channels, Array array)
-        {
-            var dataHandle = GCHandle.Alloc(array, GCHandleType.Pinned);
-            try
-            {
-                var output = new Mat(rows, cols, depth, channels, dataHandle.AddrOfPinnedObject());
-                return output.Clone();
-            }
-            finally { dataHandle.Free(); }
-        }
-
-        Mat FromArray<T>(T[] input, Depth defaultDepth)
+        Mat FromArray<TData>(TData[] input, Depth? defaultDepth) where TData : struct
         {
             var size = Size;
             var depth = Depth;
             var channels = Channels;
+            if (!defaultDepth.HasValue && !depth.HasValue)
+            {
+                throw new InvalidOperationException("Depth must be specified when converting arrays with custom types.");
+            }
+
             if (size.Width > 0 || size.Height > 0 || depth.HasValue || channels.HasValue)
             {
+                var elementSize = Marshal.SizeOf(typeof(TData));
                 if (!depth.HasValue) depth = defaultDepth;
                 if (!channels.HasValue) channels = 1;
 
                 var rows = size.Height;
                 var cols = size.Width;
                 if (rows == 0 && cols == 0) rows = 1;
-                if (rows == 0) rows = input.Length / (ElementSize(depth.Value) * channels.Value * cols);
-                if (cols == 0) cols = input.Length / (ElementSize(depth.Value) * channels.Value * rows);
-                return FromArray(rows, cols, depth.Value, channels.Value, input);
+                if (rows == 0) rows = input.Length * elementSize / (ElementSize(depth.Value) * channels.Value * cols);
+                if (cols == 0) cols = input.Length * elementSize / (ElementSize(depth.Value) * channels.Value * rows);
+                return Mat.FromArray(input, rows, cols, depth.Value, channels.Value);
             }
             else return null;
         }
@@ -122,6 +117,11 @@ namespace Bonsai.Dsp
                 var output = FromArray(input, OpenCV.Net.Depth.F64);
                 return output ?? Mat.FromArray(input);
             });
+        }
+
+        public IObservable<Mat> Process<TData>(IObservable<TData[]> source) where TData : struct
+        {
+            return source.Select(input => FromArray(input, null));
         }
     }
 }
