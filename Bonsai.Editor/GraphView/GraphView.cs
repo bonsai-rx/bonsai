@@ -81,7 +81,7 @@ namespace Bonsai.Design
         {
             InitializeComponent();
             InitializeReactiveEvents();
-            HighlightedBrush = Brushes.DarkRed;
+            HighlightedBrush = Brushes.IndianRed;
             HighlightedSelectionBrush = Brushes.Red;
             FocusedSelectionBrush = Brushes.Black;
             UnfocusedSelectionBrush = Brushes.Gray;
