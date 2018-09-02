@@ -44,6 +44,7 @@ namespace Bonsai.Expressions
         /// <summary>
         /// Gets or sets the maximum element count of the replay buffer.
         /// </summary>
+        [Externalizable(false)]
         [Description("The maximum element count of the replay buffer.")]
         public int? BufferSize { get; set; }
 
@@ -51,6 +52,7 @@ namespace Bonsai.Expressions
         /// Gets or sets the maximum time length of the replay buffer.
         /// </summary>
         [XmlIgnore]
+        [Externalizable(false)]
         [Description("The maximum time length of the replay buffer.")]
         public TimeSpan? Window { get; set; }
 
