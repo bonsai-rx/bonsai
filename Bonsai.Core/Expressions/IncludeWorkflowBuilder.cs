@@ -109,6 +109,7 @@ namespace Bonsai.Expressions
         /// </summary>
         [XmlAttribute]
         [Category("Design")]
+        [Externalizable(false)]
         [FileNameFilter("Bonsai Files (*.bonsai)|*.bonsai")]
         [Description("The path of the workflow to include.")]
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
