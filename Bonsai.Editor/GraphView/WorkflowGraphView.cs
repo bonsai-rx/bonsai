@@ -220,14 +220,6 @@ namespace Bonsai.Design
                 : UpdateGraphLayout;
         }
 
-        private Func<bool> CreateUpdateGraphLayoutValidationDelegate()
-        {
-            var launcher = Launcher;
-            return launcher != null
-                ? (Func<bool>)(() => launcher.WorkflowGraphView.UpdateGraphLayout(validateWorkflow: true))
-                : () => UpdateGraphLayout(validateWorkflow: true);
-        }
-
         private Action CreateUpdateSelectionDelegate()
         {
             return CreateUpdateSelectionDelegate(Enumerable.Empty<ExpressionBuilder>());
@@ -874,7 +866,6 @@ namespace Bonsai.Design
             builder = inspectBuilder.Builder;
 
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
-            var updateGraphLayoutValidation = CreateUpdateGraphLayoutValidationDelegate();
             var updateSelectedNode = CreateUpdateSelectionDelegate(builder);
 
             var closestNode = selectedNode != null ? GetGraphNodeTag(workflow, selectedNode) : null;
@@ -905,9 +896,9 @@ namespace Bonsai.Design
             {
                 addNode();
                 addConnection();
-                var validation = validate && updateGraphLayoutValidation();
-                if (validation)
+                if (validate)
                 {
+                    updateGraphLayout();
                     updateSelectedNode();
                 }
             },
@@ -1994,20 +1985,18 @@ namespace Bonsai.Design
             UpdateGraphLayout(validateWorkflow: true);
         }
 
-        private bool UpdateGraphLayout(bool validateWorkflow)
+        private void UpdateGraphLayout(bool validateWorkflow)
         {
-            var result = true;
             graphView.Nodes = workflow.ConnectedComponentLayering().ToList();
             graphView.Invalidate();
             if (validateWorkflow)
             {
-                result = editorService.ValidateWorkflow();
+                editorService.ValidateWorkflow();
             }
 
             UpdateVisualizerLayout();
             editorControl.SelectTab(this);
             UpdateSelection();
-            return result;
         }
 
         #endregion
