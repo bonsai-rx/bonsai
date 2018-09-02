@@ -1262,13 +1262,12 @@ namespace Bonsai.Editor
                 WorkflowGraphView nestedEditor = null;
                 if (workflowView != null)
                 {
-                    if (building)
-                    {
-                        workflowView.LaunchWorkflowView(graphNode);
-                    }
-
                     var editorLauncher = workflowView.GetWorkflowEditorLauncher(graphNode);
-                    nestedEditor = editorLauncher != null ? editorLauncher.WorkflowGraphView : null;
+                    if (editorLauncher != null)
+                    {
+                        if (building) workflowView.LaunchWorkflowView(graphNode);
+                        nestedEditor = editorLauncher.WorkflowGraphView;
+                    }
                 }
 
                 HighlightExceptionBuilderNode(nestedEditor, nestedException, showMessageBox);
