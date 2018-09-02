@@ -1252,7 +1252,7 @@ namespace Bonsai.Editor
                 }
 
                 workflowView.GraphView.Invalidate(graphNode);
-                workflowView.GraphView.SelectedNode = graphNode;
+                if (showMessageBox) workflowView.GraphView.SelectedNode = graphNode;
                 graphNode.Highlight = true;
             }
 
