@@ -2630,14 +2630,13 @@ namespace Bonsai.Design
             return menuItem;
         }
 
+        static readonly Attribute[] ExternalizableAttributes = new[] { ExternalizableAttribute.Default };
+
         private void CreateExternalizeMenuItems(object workflowElement, ToolStripMenuItem ownerItem, GraphNode selectedNode)
         {
-            foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(workflowElement))
+            foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(workflowElement, ExternalizableAttributes))
             {
                 if (!property.IsBrowsable || property.IsReadOnly && !ExpressionHelper.IsCollectionType(property.PropertyType)) continue;
-                var externalizableAttribute = (ExternalizableAttribute)property.Attributes[typeof(ExternalizableAttribute)];
-                if (externalizableAttribute != null && !externalizableAttribute.Externalizable) continue;
-
                 var propertySource = workflowElement as PropertySource;
                 var externalizedName = propertySource != null ? propertySource.MemberName : property.Name;
                 var menuItem = CreateExternalizeMenuItem(property.Name, externalizedName, property.PropertyType, selectedNode);
@@ -2668,12 +2667,9 @@ namespace Bonsai.Design
 
         private void CreatePropertySourceMenuItems(object workflowElement, ToolStripMenuItem ownerItem)
         {
-            foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(workflowElement))
+            foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(workflowElement, ExternalizableAttributes))
             {
                 if (property.IsReadOnly || !property.IsBrowsable) continue;
-                var externalizableAttribute = (ExternalizableAttribute)property.Attributes[typeof(ExternalizableAttribute)];
-                if (externalizableAttribute != null && !externalizableAttribute.Externalizable) continue;
-
                 var memberValue = property.GetValue(workflowElement);
                 var menuItem = CreatePropertySourceMenuItem(property.ComponentType, property.Name, property.PropertyType, memberValue);
                 ownerItem.DropDownItems.Add(menuItem);

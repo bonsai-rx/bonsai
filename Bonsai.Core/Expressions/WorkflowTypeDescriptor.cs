@@ -11,12 +11,13 @@ namespace Bonsai.Expressions
     {
         AttributeCollection attributes;
         ExpressionBuilderGraph workflow;
-        static readonly Attribute[] emptyAttributes = new Attribute[0];
-        static readonly PropertyDescriptor[] emptyProperties = new PropertyDescriptor[0];
+        static readonly Attribute[] EmptyAttributes = new Attribute[0];
+        static readonly PropertyDescriptor[] EmptyProperties = new PropertyDescriptor[0];
+        static readonly Attribute[] ExternalizableAttributes = new[] { ExternalizableAttribute.Default };
 
         public WorkflowTypeDescriptor(object instance, params Attribute[] attrs)
         {
-            attributes = new AttributeCollection(attrs ?? emptyAttributes);
+            attributes = new AttributeCollection(attrs ?? EmptyAttributes);
             var builder = instance as IWorkflowExpressionBuilder;
             if (builder != null)
             {
@@ -32,7 +33,7 @@ namespace Bonsai.Expressions
 
         public override PropertyDescriptorCollection GetProperties()
         {
-            return GetProperties(emptyAttributes);
+            return GetProperties(EmptyAttributes);
         }
 
         public override PropertyDescriptorCollection GetProperties(Attribute[] attributes)
@@ -57,8 +58,8 @@ namespace Bonsai.Expressions
             var properties = new PropertyDescriptor[components.Length];
             for (int i = 0; i < properties.Length; i++)
             {
-                var descriptor = TypeDescriptor.GetProperties(components[i])[property.MemberName];
-                if (descriptor == null) return emptyProperties;
+                var descriptor = TypeDescriptor.GetProperties(components[i], ExternalizableAttributes)[property.MemberName];
+                if (descriptor == null) return EmptyProperties;
 
                 if (propertyType == null)
                 {
@@ -66,7 +67,7 @@ namespace Bonsai.Expressions
                 }
                 else if (descriptor.PropertyType != propertyType)
                 {
-                    return emptyProperties;
+                    return EmptyProperties;
                 }
 
                 properties[i] = descriptor;
@@ -77,7 +78,7 @@ namespace Bonsai.Expressions
 
         static Attribute[] GetAggregateAttributes(PropertyDescriptor[] properties)
         {
-            var result = emptyAttributes;
+            var result = EmptyAttributes;
             for (int i = 0; i < properties.Length; i++)
             {
                 var attributes = properties[i].Attributes;
