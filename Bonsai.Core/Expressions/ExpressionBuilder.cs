@@ -995,7 +995,7 @@ namespace Bonsai.Expressions
             {
                 var element = ((ConstantExpression)instance).Value;
                 var workflowBuilder = element as IWorkflowExpressionBuilder;
-                if (workflowBuilder != null)
+                if (workflowBuilder != null && workflowBuilder.Workflow != null)
                 {
                     var inputBuilder = (from node in workflowBuilder.Workflow
                                         let workflowProperty = Unwrap(node.Value) as ExternalizedProperty

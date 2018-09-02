@@ -47,7 +47,7 @@ namespace Bonsai.Design
                 }
 
                 var workflowBuilder = builder as IWorkflowExpressionBuilder;
-                if (workflowBuilder != null)
+                if (workflowBuilder != null && workflowBuilder.Workflow != null)
                 {
                     var builderNode = GetPropertyMappingBuilderNode(mapping, workflowBuilder.Workflow, out mappingBuilderGraph);
                     if (builderNode != null) return builderNode;

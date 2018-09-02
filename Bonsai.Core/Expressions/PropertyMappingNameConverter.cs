@@ -24,7 +24,7 @@ namespace Bonsai.Expressions
                 }
 
                 var workflowBuilder = builder as IWorkflowExpressionBuilder;
-                if (workflowBuilder != null)
+                if (workflowBuilder != null && workflowBuilder.Workflow != null)
                 {
                     var builderNode = GetBuilderNode(mapping, workflowBuilder.Workflow);
                     if (builderNode != null) return builderNode;
