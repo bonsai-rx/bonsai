@@ -10,6 +10,8 @@ namespace Bonsai.Expressions
 {
     class PropertyMappingNameConverter : StringConverter
     {
+        static readonly Attribute[] ExternalizableAttributes = new[] { ExternalizableAttribute.Default };
+
         static Node<ExpressionBuilder, ExpressionBuilderArgument> GetBuilderNode(
             PropertyMapping mapping,
             ExpressionBuilderGraph nodeBuilderGraph)
@@ -59,7 +61,8 @@ namespace Bonsai.Expressions
                     var properties = from successor in builderNode.Successors
                                      let element = ExpressionBuilder.GetWorkflowElement(successor.Target.Value)
                                      where element != null
-                                     from descriptor in TypeDescriptor.GetProperties(element).Cast<PropertyDescriptor>()
+                                     from descriptor in TypeDescriptor.GetProperties(element, ExternalizableAttributes)
+                                                                      .Cast<PropertyDescriptor>()
                                      where descriptor.IsBrowsable && !descriptor.IsReadOnly
                                      select descriptor.Name;
                     return new StandardValuesCollection(properties.Distinct().ToArray());
