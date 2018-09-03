@@ -120,6 +120,9 @@
   <data name="Exception_AmbiguousNamedElement" xml:space="preserve">
     <value>Multiple elements with the specified name '{0}' were found in the workflow.</value>
   </data>
+  <data name="Exception_IndexerNotFound" xml:space="preserve">
+    <value>No single argument indexer is defined for the type '{0}'.</value>
+  </data>
   <data name="Exception_PropertyNotFound" xml:space="preserve">
     <value>The specified property '{0}' was not found in the workflow. </value>
   </data>
