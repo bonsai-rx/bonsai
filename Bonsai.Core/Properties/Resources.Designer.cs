@@ -70,6 +70,15 @@ namespace Bonsai.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No single argument indexer is defined for the type &apos;{0}&apos;..
+        /// </summary>
+        internal static string Exception_IndexerNotFound {
+            get {
+                return ResourceManager.GetString("Exception_IndexerNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The specified property &apos;{0}&apos; was not found in the workflow. .
         /// </summary>
         internal static string Exception_PropertyNotFound {
