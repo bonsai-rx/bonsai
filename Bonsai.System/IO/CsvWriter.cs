@@ -99,7 +99,7 @@ namespace Bonsai.IO
             {
                 var current = stack.Pop();
                 var expression = current.Expression;
-                if (expression.Type == typeof(string)) yield return expression;
+                if (expression.Type == typeof(string) || IsNullable(expression.Type)) yield return expression;
                 else if (expression.Type.IsPrimitive || expression.Type.IsEnum || expression.Type == typeof(string) ||
                          expression.Type == typeof(DateTime) || expression.Type == typeof(DateTimeOffset) ||
                          expression.Type == typeof(TimeSpan))
@@ -135,6 +135,11 @@ namespace Bonsai.IO
                           .OrderBy(member => member.MetadataToken);
         }
 
+        static bool IsNullable(Type type)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
+
         static Expression GetDataString(Expression expression)
         {
             if (expression.Type == typeof(string)) return expression;
@@ -145,6 +150,12 @@ namespace Bonsai.IO
             else if (expression.Type == typeof(IntPtr) || expression.Type == typeof(TimeSpan))
             {
                 return Expression.Call(expression, "ToString", null);
+            }
+            else if (IsNullable(expression.Type))
+            {
+                var hasValue = Expression.Property(expression, "HasValue");
+                var value = Expression.Property(expression, "Value");
+                return Expression.Condition(hasValue, GetDataString(value), Expression.Constant(string.Empty));
             }
             else
             {
