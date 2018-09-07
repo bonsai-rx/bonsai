@@ -150,6 +150,16 @@ namespace Bonsai.Shaders
         }
 
         [Category("Render Settings")]
+        [XmlArrayItem(typeof(EnableState))]
+        [XmlArrayItem(typeof(DisableState))]
+        [XmlArrayItem(typeof(ViewportState))]
+        [XmlArrayItem(typeof(ScissorState))]
+        [XmlArrayItem(typeof(LineWidthState))]
+        [XmlArrayItem(typeof(PointSizeState))]
+        [XmlArrayItem(typeof(DepthMaskState))]
+        [XmlArrayItem(typeof(BlendFunctionState))]
+        [XmlArrayItem(typeof(DepthFunctionState))]
+        [XmlArrayItem(typeof(MemoryBarrierState))]
         [Description("Specifies the initial shader window render state.")]
         [Editor("Bonsai.Shaders.Configuration.Design.StateConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public StateConfigurationCollection RenderState
