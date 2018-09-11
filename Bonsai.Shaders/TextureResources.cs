@@ -16,8 +16,6 @@ namespace Bonsai.Shaders
     {
         readonly TextureConfigurationCollection textures = new TextureConfigurationCollection();
 
-        [XmlArrayItem(typeof(Texture2D))]
-        [XmlArrayItem(typeof(ImageTexture))]
         [Editor("Bonsai.Shaders.Configuration.Design.TextureConfigurationCollectionEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         [Description("The collection of texture resources to be loaded into the resource manager.")]
         public TextureConfigurationCollection Textures

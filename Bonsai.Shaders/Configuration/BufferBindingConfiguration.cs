@@ -8,10 +8,10 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
-    [XmlType(TypeName = "BufferBinding")]
+    [XmlInclude(typeof(MeshBindingConfiguration))]
     [XmlInclude(typeof(TextureBindingConfiguration))]
     [XmlInclude(typeof(ImageTextureBindingConfiguration))]
-    [XmlInclude(typeof(MeshBindingConfiguration))]
+    [XmlType(TypeName = "BufferBinding", Namespace = Constants.XmlNamespace)]
     public abstract class BufferBindingConfiguration
     {
         [Description("The name of the uniform variable that will be bound to the buffer.")]

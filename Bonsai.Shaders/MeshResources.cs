@@ -16,9 +16,6 @@ namespace Bonsai.Shaders
     {
         readonly MeshConfigurationCollection meshes = new MeshConfigurationCollection();
 
-        [XmlArrayItem(typeof(TexturedQuad))]
-        [XmlArrayItem(typeof(TexturedModel))]
-        [XmlArrayItem(typeof(MeshConfiguration))]
         [Editor("Bonsai.Shaders.Configuration.Design.MeshConfigurationCollectionEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
         [Description("The collection of mesh resources to be loaded into the resource manager.")]
         public MeshConfigurationCollection Meshes

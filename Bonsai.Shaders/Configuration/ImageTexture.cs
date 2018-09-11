@@ -7,9 +7,11 @@ using System.Drawing.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
+    [XmlType(Namespace = Constants.XmlNamespace)]
     public class ImageTexture : Texture2D
     {
         public ImageTexture()

@@ -11,7 +11,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Shaders.Configuration
 {
     [DisplayName(XmlTypeName)]
-    [XmlType(TypeName = XmlTypeName)]
+    [XmlType(TypeName = XmlTypeName, Namespace = Constants.XmlNamespace)]
     public class MaterialConfiguration : ShaderConfiguration
     {
         const string XmlTypeName = "Material";

@@ -13,6 +13,7 @@ using System.Xml.Serialization;
 namespace Bonsai.Shaders.Configuration
 {
     [TypeConverter(typeof(SettingsConverter))]
+    [XmlRoot(Namespace = Constants.XmlNamespace)]
     public class ShaderWindowSettings
     {
         readonly StateConfigurationCollection renderState = new StateConfigurationCollection();
