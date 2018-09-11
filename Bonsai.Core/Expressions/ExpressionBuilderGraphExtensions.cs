@@ -612,6 +612,23 @@ namespace Bonsai.Expressions
                     continue;
                 }
 
+                var outputBuilder = workflowElement as WorkflowOutputBuilder;
+                if (outputBuilder != null)
+                {
+                    if (successorCount > 0)
+                    {
+                        throw new WorkflowBuildException("The workflow output must be a terminal node.", builder);
+                    }
+
+                    if (workflowOutput != null)
+                    {
+                        throw new WorkflowBuildException("Workflows cannot have more than one output.", builder);
+                    }
+
+                    workflowOutput = expression;
+                    continue;
+                }
+
                 var argumentBuilder = workflowElement as IArgumentBuilder;
                 if (successorCount > 1)
                 {
@@ -628,23 +645,6 @@ namespace Bonsai.Expressions
                     var multicastScope = new MulticastScope(multicastBuilder);
                     multicastScope.References.AddRange(node.Successors.Select(successor => successor.Target.Value));
                     multicastMap.Insert(0, multicastScope);
-                }
-
-                var outputBuilder = workflowElement as WorkflowOutputBuilder;
-                if (outputBuilder != null)
-                {
-                    if (successorCount > 0)
-                    {
-                        throw new WorkflowBuildException("The workflow output must be a terminal node.", builder);
-                    }
-
-                    if (workflowOutput != null)
-                    {
-                        throw new WorkflowBuildException("Workflows cannot have more than one output.", builder);
-                    }
-
-                    workflowOutput = expression;
-                    continue;
                 }
 
                 foreach (var successor in node.Successors)
