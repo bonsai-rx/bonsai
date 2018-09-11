@@ -156,8 +156,13 @@ namespace Bonsai
         {
             if (!string.IsNullOrWhiteSpace(memberPath))
             {
-                foreach (var memberName in memberPath.Split(new[] { MemberSeparator }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (var memberName in memberPath.Split(new[] { MemberSeparator }, StringSplitOptions.None))
                 {
+                    if (string.IsNullOrEmpty(memberName))
+                    {
+                        throw new ArgumentException("Member path contains invalid or duplicate member separator character.", "memberPath");
+                    }
+
                     var indexBegin = memberName.IndexOf(IndexBegin);
                     if (indexBegin >= 0)
                     {
