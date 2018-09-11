@@ -612,30 +612,22 @@ namespace Bonsai.Expressions
                     continue;
                 }
 
-                MulticastScope multicastScope = null;
                 var argumentBuilder = workflowElement as IArgumentBuilder;
-                var multicastBuilder = workflowElement as MulticastBranchBuilder;
-                if (successorCount > 1 || multicastBuilder != null)
+                if (successorCount > 1)
                 {
                     // Start a new multicast scope
-                    if (multicastBuilder == null)
+                    MulticastBranchBuilder multicastBuilder;
+                    if (argumentBuilder != null)
                     {
                         // Property mappings get replayed across subscriptions
-                        if (argumentBuilder != null)
-                        {
-                            multicastBuilder = new ReplayLatestBranchBuilder();
-                        }
-                        else multicastBuilder = new PublishBranchBuilder();
-                        expression = multicastBuilder.Build(expression);
+                        multicastBuilder = new ReplayLatestBranchBuilder();
                     }
+                    else multicastBuilder = new PublishBranchBuilder();
+                    expression = multicastBuilder.Build(expression);
 
-                    multicastScope = new MulticastScope(multicastBuilder);
-                    if (successorCount > 1)
-                    {
-                        multicastScope.References.AddRange(node.Successors.Select(successor => successor.Target.Value));
-                        multicastMap.Insert(0, multicastScope);
-                    }
-                    else expression = multicastScope.Close(expression);
+                    var multicastScope = new MulticastScope(multicastBuilder);
+                    multicastScope.References.AddRange(node.Successors.Select(successor => successor.Target.Value));
+                    multicastMap.Insert(0, multicastScope);
                 }
 
                 var outputBuilder = workflowElement as WorkflowOutputBuilder;
