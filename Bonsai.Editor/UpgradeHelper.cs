@@ -66,7 +66,17 @@ namespace Bonsai.Editor
                     };
                 }
 
-                var builderElement = ExpressionBuilder.GetWorkflowElement(builder) as ExpressionBuilder;
+                var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
+                var index = workflowElement as Bonsai.Reactive.Index;
+                if (index != null)
+                {
+                    return new CombinatorBuilder
+                    {
+                        Combinator = new Bonsai.Reactive.ElementIndex()
+                    };
+                }
+
+                var builderElement = workflowElement as ExpressionBuilder;
                 if (builderElement != null && version < RemoveMemberSelectorPrefixVersion)
                 {
                     var mappingBuilder = builderElement as PropertyMappingBuilder;
