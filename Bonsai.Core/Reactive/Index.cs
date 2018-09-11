@@ -13,6 +13,7 @@ namespace Bonsai.Reactive
     /// Represents a combinator that records the zero-based index of elements produced
     /// by an observable sequence.
     /// </summary>
+    [Obsolete]
     [Combinator]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Records the zero-based index of elements produced by an observable sequence.")]
