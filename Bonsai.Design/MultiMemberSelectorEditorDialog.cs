@@ -34,13 +34,7 @@ namespace Bonsai.Design
             }
             set
             {
-                string[] memberNames;
-                try { memberNames = ExpressionHelper.SelectMemberNames(value).ToArray(); }
-                catch (InvalidOperationException)
-                {
-                    memberNames = new string[0];
-                }
-
+                var memberNames = ExpressionHelper.SelectMemberNames(value).ToArray();
                 if (memberNames.Length > 0)
                 {
                     foreach (var memberSelector in memberNames)
