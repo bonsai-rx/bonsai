@@ -112,6 +112,11 @@ namespace Bonsai
         /// </returns>
         public static IEnumerable<string> SelectMemberNames(string selector)
         {
+            if (string.IsNullOrEmpty(selector))
+            {
+                yield break;
+            }
+
             var indexCounter = 0;
             var argumentBuilder = new StringBuilder();
             var trailingSeparator = Enumerable.Repeat(IndexArgumentSeparator, 1);
