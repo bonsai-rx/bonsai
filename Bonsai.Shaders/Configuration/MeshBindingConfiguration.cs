@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
-    [XmlType(TypeName = "MeshBinding")]
+    [XmlType(TypeName = "MeshBinding", Namespace = Constants.XmlNamespace)]
     public class MeshBindingConfiguration : BufferBindingConfiguration
     {
         [Description("The index of the binding point on which to bind the mesh buffer.")]

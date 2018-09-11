@@ -13,6 +13,7 @@ namespace Bonsai.Shaders.Configuration
     [XmlInclude(typeof(MaterialConfiguration))]
     [XmlInclude(typeof(ViewportEffectConfiguration))]
     [XmlInclude(typeof(ComputeProgramConfiguration))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     public abstract class ShaderConfiguration : ResourceConfiguration<Shader>
     {
         readonly FramebufferConfiguration framebuffer = new FramebufferConfiguration();

@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
-    [XmlType(TypeName = "TextureBinding")]
+    [XmlType(TypeName = "TextureBinding", Namespace = Constants.XmlNamespace)]
     public class TextureBindingConfiguration : BufferBindingConfiguration
     {
         public TextureBindingConfiguration()

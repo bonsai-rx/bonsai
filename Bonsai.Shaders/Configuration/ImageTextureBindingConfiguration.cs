@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
 {
-    [XmlType(TypeName = "ImageTextureBinding")]
+    [XmlType(TypeName = "ImageTextureBinding", Namespace = Constants.XmlNamespace)]
     public class ImageTextureBindingConfiguration : TextureBindingConfiguration
     {
         public ImageTextureBindingConfiguration()

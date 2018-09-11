@@ -12,6 +12,7 @@ namespace Bonsai.Shaders.Configuration
     [XmlInclude(typeof(Vec2Uniform))]
     [XmlInclude(typeof(Vec3Uniform))]
     [XmlInclude(typeof(Vec4Uniform))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     public abstract class UniformConfiguration
     {
         [Description("The name of the uniform variable.")]

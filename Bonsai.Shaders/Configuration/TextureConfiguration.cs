@@ -9,6 +9,7 @@ namespace Bonsai.Shaders.Configuration
 {
     [XmlInclude(typeof(Texture2D))]
     [XmlInclude(typeof(ImageTexture))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     public abstract class TextureConfiguration : ResourceConfiguration<Texture>
     {
     }

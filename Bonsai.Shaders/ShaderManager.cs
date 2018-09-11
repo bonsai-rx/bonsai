@@ -145,8 +145,13 @@ namespace Bonsai.Shaders
                 return new ShaderWindowSettings();
             }
 
+            var nameTable = new NameTable();
+            var namespaceManager = new XmlNamespaceManager(nameTable);
+            namespaceManager.AddNamespace(string.Empty, Constants.XmlNamespace);
+            var context = new XmlParserContext(nameTable, namespaceManager, null, XmlSpace.None);
+
             var serializer = new XmlSerializer(typeof(ShaderWindowSettings));
-            using (var reader = XmlReader.Create(DefaultConfigurationFile))
+            using (var reader = XmlReader.Create(DefaultConfigurationFile, null, context))
             {
                 return (ShaderWindowSettings)serializer.Deserialize(reader);
             }

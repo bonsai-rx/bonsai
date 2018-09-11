@@ -17,6 +17,7 @@ namespace Bonsai.Shaders.Configuration
     [XmlInclude(typeof(BlendFunctionState))]
     [XmlInclude(typeof(DepthFunctionState))]
     [XmlInclude(typeof(MemoryBarrierState))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     public abstract class StateConfiguration
     {
         public abstract void Execute(ShaderWindow window);
