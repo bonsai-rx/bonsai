@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="CombinatorBuilderTests.cs" />
     <Compile Include="ExpressionBuilderArgumentTests.cs" />
+    <Compile Include="ExpressionHelperTests.cs" />
     <Compile Include="InspectBuilderTests.cs" />
     <Compile Include="OverloadedCombinatorBuilderTests.cs" />
     <Compile Include="GenericCombinatorBuilderTests.cs" />
