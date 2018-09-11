@@ -154,7 +154,12 @@ namespace Bonsai
         /// <returns>The created <see cref="Expression"/>.</returns>
         public static Expression MemberAccess(Expression instance, string memberPath)
         {
-            if (!string.IsNullOrWhiteSpace(memberPath))
+            if (instance == null)
+            {
+                throw new ArgumentNullException("instance");
+            }
+
+            if (!string.IsNullOrWhiteSpace(memberPath) && memberPath != MemberSeparator)
             {
                 foreach (var memberName in memberPath.Split(new[] { MemberSeparator }, StringSplitOptions.None))
                 {
