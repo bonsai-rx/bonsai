@@ -56,26 +56,25 @@ namespace Bonsai.Osc
 
         internal static string ReadString(BinaryReader reader)
         {
-            int size;
-            return ReadString(reader, out size);
-        }
-
-        internal static string ReadString(BinaryReader reader, out int size)
-        {
             int index = 0;
             var done = false;
             var bytes = new byte[PadLength];
             while (!done)
             {
                 var bytesRead = reader.Read(bytes, index, PadLength);
-                if (bytesRead < PadLength || Array.IndexOf<byte>(bytes, 0, index, PadLength) >= 0)
+                if (bytesRead < PadLength)
                 {
-                    index += bytesRead;
+                    throw new InvalidOperationException("OSC string was not in a correct format.");
+                }
+
+                if ((bytesRead = Array.IndexOf<byte>(bytes, 0, index, PadLength)) >= 0)
+                {
+                    index = bytesRead;
                     done = true;
                 }
                 else
                 {
-                    index += bytesRead;
+                    index += PadLength;
                     if (index >= bytes.Length)
                     {
                         Array.Resize(ref bytes, bytes.Length * 2);
@@ -83,8 +82,7 @@ namespace Bonsai.Osc
                 }
             }
 
-            size = index;
-            return Encoding.ASCII.GetString(bytes);
+            return Encoding.ASCII.GetString(bytes, 0, index);
         }
 
         internal static Expression Address(Expression reader)
