@@ -263,9 +263,12 @@ namespace Bonsai.Editor
             var systemX86Path = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86)).TrimEnd('\\');
             var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory || currentDirectory == systemPath || currentDirectory == systemX86Path;
             var extensionsDirectory = Path.Combine(appDomainBaseDirectory, ExtensionsDirectory);
+            var formClosed = Observable.FromEventPattern<FormClosedEventHandler, FormClosedEventArgs>(
+                handler => FormClosed += handler,
+                handler => FormClosed -= handler);
 
-            InitializeSnippetFileWatcher().Subscribe();
-            updatesAvailable.ObserveOn(formScheduler).Subscribe(HandleUpdatesAvailable);
+            InitializeSnippetFileWatcher().TakeUntil(formClosed).Subscribe();
+            updatesAvailable.TakeUntil(formClosed).ObserveOn(formScheduler).Subscribe(HandleUpdatesAvailable);
             workflowSnippets.AddRange(FindSnippets(extensionsDirectory));
             directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
 
@@ -290,7 +293,7 @@ namespace Bonsai.Editor
             }
             else FileName = null;
 
-            initialization.Subscribe();
+            initialization.TakeUntil(formClosed).Subscribe();
             base.OnLoad(e);
         }
 
