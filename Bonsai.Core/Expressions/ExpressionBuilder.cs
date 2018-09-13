@@ -264,6 +264,15 @@ namespace Bonsai.Expressions
                                                                             m.GetParameters().Length == 2 &&
                                                                             m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>));
 
+        static TSource DefaultIfNotSingle<TSource>(IEnumerable<TSource> source)
+        {
+            var enumerator = source.GetEnumerator();
+            if (!enumerator.MoveNext()) return default(TSource);
+            var result = enumerator.Current;
+            if (enumerator.MoveNext()) return default(TSource);
+            return result;
+        }
+
         static Type[] GetMethodTypeArguments(MethodInfo methodInfo, params Type[] arguments)
         {
             if (methodInfo == null)
@@ -285,7 +294,9 @@ namespace Bonsai.Expressions
                                      from binding in bindings
                                      group binding by binding.Item2 into matches
                                      orderby matches.Key ascending
-                                     select matches.Distinct().Single().Item1)
+                                     let match = DefaultIfNotSingle(matches.Distinct())
+                                     where match != null
+                                     select match.Item1)
                                      .ToArray();
 
             return methodGenericArguments.Zip(bindingCandidates, (argument, match) => match).Concat(methodGenericArguments.Skip(bindingCandidates.Length)).ToArray();
