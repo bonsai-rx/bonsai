@@ -630,7 +630,7 @@ namespace Bonsai.Expressions
                 }
 
                 var argumentBuilder = workflowElement as IArgumentBuilder;
-                if (successorCount > 1)
+                if (successorCount > 1 && expression.NodeType != ExpressionType.Extension)
                 {
                     // Start a new multicast scope
                     MulticastBranchBuilder multicastBuilder;

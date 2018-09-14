@@ -66,10 +66,12 @@ namespace Bonsai.Expressions
         /// <returns>An <see cref="Expression"/> tree node.</returns>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            try { return arguments.Distinct().SingleOrDefault() ?? EmptyExpression; }
-            catch (InvalidOperationException)
+            var distinctArguments = arguments.Distinct().ToArray();
+            switch (distinctArguments.Length)
             {
-                throw new InvalidOperationException("Cannot disable this operator. All conflicting inputs must be removed or disabled.");
+                case 0: return EmptyExpression;
+                case 1: return distinctArguments[0];
+                default: return new DisableExpression(distinctArguments);
             }
         }
     }
