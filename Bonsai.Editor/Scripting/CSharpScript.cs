@@ -26,7 +26,26 @@ namespace Bonsai.Editor.Scripting
 
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            return EmptyExpression;
+            return EmptyExpression.Default;
+        }
+
+        class EmptyExpression : Expression
+        {
+            internal static readonly EmptyExpression Default = new EmptyExpression();
+
+            private EmptyExpression()
+            {
+            }
+
+            public override ExpressionType NodeType
+            {
+                get { return ExpressionType.Extension; }
+            }
+
+            public override Type Type
+            {
+                get { throw new InvalidOperationException("Unable to evaluate uncompiled script expression. Please ensure all script files have been created and reload extensions."); }
+            }
         }
     }
 
