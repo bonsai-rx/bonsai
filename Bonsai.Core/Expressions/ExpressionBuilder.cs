@@ -903,9 +903,28 @@ namespace Bonsai.Expressions
             return MergeDependencies(source, Observable.Merge(connections).Select(xs => default(TSource)));
         }
 
+        static IEnumerable<Expression> ExpandDisabledConnections(IEnumerable<Expression> connections)
+        {
+            foreach (var connection in connections)
+            {
+                if (connection.NodeType == ExpressionType.Extension)
+                {
+                    var disable = connection as DisableExpression;
+                    if (disable != null)
+                    {
+                        foreach (var argument in disable.Arguments)
+                        {
+                            yield return argument;
+                        }
+                    }
+                }
+                else yield return connection;
+            }
+        }
+
         internal static Expression BuildOutput(Expression output, IEnumerable<Expression> connections)
         {
-            var ignoredConnections = (from connection in connections
+            var ignoredConnections = (from connection in ExpandDisabledConnections(connections)
                                       let observableType = connection.Type.GetGenericArguments()[0]
                                       select Expression.Call(typeof(ExpressionBuilder), "IgnoreConnection", new[] { observableType }, connection))
                                       .ToArray();
