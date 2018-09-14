@@ -99,8 +99,11 @@ namespace Bonsai.Expressions
         {
             ObservableType = null;
             var source = Builder.Build(arguments);
-            if (source == ExpressionBuilder.EmptyExpression || Builder is DisableBuilder) return source;
-            ObservableType = source.Type.GetGenericArguments()[0];
+            if (source == ExpressionBuilder.EmptyExpression) return source;
+            if (source.NodeType != ExpressionType.Extension)
+            {
+                ObservableType = source.Type.GetGenericArguments()[0];
+            }
 
             // If source is already an inspect node, use it
             // for output notifications, but not for errors
@@ -112,7 +115,7 @@ namespace Bonsai.Expressions
                 ErrorEx = Observable.Empty<Exception>();
                 return source;
             }
-            else if (PublishNotifications)
+            else if (PublishNotifications && ObservableType != null)
             {
                 source = HandleObservableCreationException(source);
                 var subject = CreateSubjectMethod.MakeGenericMethod(ObservableType).Invoke(this, null);
