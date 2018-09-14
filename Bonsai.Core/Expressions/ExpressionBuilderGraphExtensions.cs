@@ -555,7 +555,7 @@ namespace Bonsai.Expressions
 
                 // Merge build dependencies
                 var buildDependencies = GetArgumentList(dependencyLists, builder);
-                if (buildDependencies.Count > 0)
+                if (buildDependencies.Count > 0 && expression.NodeType != ExpressionType.Extension)
                 {
                     expression = ExpressionBuilder.MergeBuildDependencies(expression, buildDependencies);
                 }
