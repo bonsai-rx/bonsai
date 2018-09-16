@@ -595,6 +595,13 @@ namespace Bonsai.Expressions
                 // Do not generate output sequences if the result expression is empty
                 if (expression.NodeType == ExpressionType.Extension)
                 {
+                    // Disconnect disabled build dependencies from their immediate successors
+                    if (expression == DisconnectExpression.Instance)
+                    {
+                        connections.AddRange(arguments);
+                        continue;
+                    }
+
                     // Validate externalized properties
                     var externalizedProperty = workflowElement as ExternalizedProperty;
                     if (externalizedProperty != null)

@@ -66,6 +66,12 @@ namespace Bonsai.Expressions
         /// <returns>An <see cref="Expression"/> tree node.</returns>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
+            var builder = Builder;
+            if (builder is IArgumentBuilder && !(builder is InputMappingBuilder))
+            {
+                return DisconnectExpression.Instance;
+            }
+
             var distinctArguments = arguments.Distinct().ToArray();
             switch (distinctArguments.Length)
             {
