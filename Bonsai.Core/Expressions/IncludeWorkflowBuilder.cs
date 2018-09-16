@@ -299,7 +299,7 @@ namespace Bonsai.Expressions
             {
                 if (string.IsNullOrEmpty(Path))
                 {
-                    return arguments.FirstOrDefault() ?? EmptyExpression;
+                    return arguments.FirstOrDefault() ?? EmptyExpression.Instance;
                 }
                 else throw new InvalidOperationException("The specified workflow could not be found.");
             }

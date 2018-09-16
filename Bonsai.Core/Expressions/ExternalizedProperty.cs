@@ -73,7 +73,7 @@ namespace Bonsai.Expressions
             var source = arguments.FirstOrDefault();
             if (source == null)
             {
-                return ExpressionBuilder.EmptyExpression;
+                return EmptyExpression.Instance;
             }
             else return source;
         }

@@ -593,7 +593,7 @@ namespace Bonsai.Expressions
                 });
 
                 // Do not generate output sequences if the result expression is empty
-                if (expression == ExpressionBuilder.EmptyExpression)
+                if (expression.NodeType == ExpressionType.Extension)
                 {
                     // Validate externalized properties
                     var externalizedProperty = workflowElement as ExternalizedProperty;
@@ -608,8 +608,8 @@ namespace Bonsai.Expressions
                                 throw new WorkflowBuildException(e.Message, builder, e);
                             }
                         }
+                        continue;
                     }
-                    continue;
                 }
 
                 var outputBuilder = workflowElement as WorkflowOutputBuilder;

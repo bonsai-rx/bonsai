@@ -49,7 +49,6 @@ namespace Bonsai.Expressions
     public abstract class ExpressionBuilder : IExpressionBuilder
     {
         const string ExpressionBuilderSuffix = "Builder";
-        internal static readonly Expression EmptyExpression = Expression.Empty();
         internal readonly int DecoratorCounter;
         internal readonly int InstanceNumber;
         static int InstanceCounter;
@@ -1035,7 +1034,7 @@ namespace Bonsai.Expressions
                     }
 
                     // Checking nested externalized properties requires only one level of indirection
-                    if (source == ExpressionBuilder.EmptyExpression) return source;
+                    if (source == EmptyExpression.Instance) return source;
 
                     var argument = source;
                     foreach (var successor in inputBuilder.node.Successors)
@@ -1054,7 +1053,7 @@ namespace Bonsai.Expressions
             }
 
             var property = Expression.Property(instance, propertyName);
-            if (source == ExpressionBuilder.EmptyExpression) return source;
+            if (source == EmptyExpression.Instance) return source;
             var sourceType = source.Type.GetGenericArguments()[0];
             var parameter = Expression.Parameter(sourceType);
 
