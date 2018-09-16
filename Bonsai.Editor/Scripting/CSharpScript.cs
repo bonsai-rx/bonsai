@@ -26,12 +26,12 @@ namespace Bonsai.Editor.Scripting
 
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            return EmptyExpression.Default;
+            return EmptyExpression.Instance;
         }
 
         class EmptyExpression : Expression
         {
-            internal static readonly EmptyExpression Default = new EmptyExpression();
+            internal static readonly EmptyExpression Instance = new EmptyExpression();
 
             private EmptyExpression()
             {
