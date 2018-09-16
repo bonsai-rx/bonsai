@@ -53,7 +53,7 @@ namespace Bonsai.Expressions
             }
 
             var name = Name;
-            if (string.IsNullOrEmpty(name)) return EmptyExpression;
+            if (string.IsNullOrEmpty(name)) return EmptyExpression.Instance;
             var subjectExpression = buildContext.GetVariable(name);
 
             var processMethod = GetType().GetMethod("Process", BindingFlags.Static | BindingFlags.NonPublic);

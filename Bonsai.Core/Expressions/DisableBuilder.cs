@@ -69,7 +69,7 @@ namespace Bonsai.Expressions
             var distinctArguments = arguments.Distinct().ToArray();
             switch (distinctArguments.Length)
             {
-                case 0: return EmptyExpression;
+                case 0: return EmptyExpression.Instance;
                 case 1: return distinctArguments[0];
                 default: return new DisableExpression(distinctArguments);
             }
