@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 [assembly: TypeVisualizer(typeof(RectVisualizer), Target = typeof(Rect))]
+[assembly: TypeVisualizer(typeof(RectVisualizer), Target = typeof(Rect[]))]
 
 namespace Bonsai.Vision.Design
 {
@@ -21,14 +22,26 @@ namespace Bonsai.Vision.Design
         IplImage input;
         IplImage canvas;
 
+        static void Draw(IplImage image, Rect rect)
+        {
+            var color = image.Channels == 1 ? Scalar.Real(255) : Scalar.Rgb(255, 0, 0);
+            var thickness = DefaultThickness * (int)Math.Ceiling(image.Height / DefaultHeight);
+            CV.Rectangle(image, rect, color, thickness);
+        }
+
         internal static void Draw(IplImage image, object value)
         {
             if (image != null)
             {
-                var rect = (Rect)value;
-                var color = image.Channels == 1 ? Scalar.Real(255) : Scalar.Rgb(255, 0, 0);
-                var thickness = DefaultThickness * (int)Math.Ceiling(image.Height / DefaultHeight);
-                CV.Rectangle(image, rect, color, thickness);
+                var array = value as Rect[];
+                if (array != null)
+                {
+                    for (int i = 0; i < array.Length; i++)
+                    {
+                        Draw(image, array[i]);
+                    }
+                }
+                else Draw(image, (Rect)value);
             }
         }
 
