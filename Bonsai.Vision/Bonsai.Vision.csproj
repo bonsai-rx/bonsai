@@ -102,6 +102,7 @@
     <Compile Include="Drawing\AddText.cs" />
     <Compile Include="Drawing\MergeCanvas.cs" />
     <Compile Include="Extrinsics.cs" />
+    <Compile Include="HaarCascade.cs" />
     <Compile Include="HsvScalarConverter.cs" />
     <Compile Include="Intrinsics.cs" />
     <Compile Include="IntrinsicsTransform.cs" />
