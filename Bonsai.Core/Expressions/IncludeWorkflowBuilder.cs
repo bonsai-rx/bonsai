@@ -236,7 +236,6 @@ namespace Bonsai.Expressions
 
         void EnsureWorkflow()
         {
-            var path = workflowPath;
             var context = buildContext;
             while (context != null)
             {
@@ -250,7 +249,7 @@ namespace Bonsai.Expressions
                 context = context.ParentContext;
             }
 
-            if (string.IsNullOrEmpty(path) || !File.Exists(path))
+            if (string.IsNullOrEmpty(workflowPath) || !File.Exists(workflowPath))
             {
                 workflow = null;
                 description = null;
@@ -258,11 +257,11 @@ namespace Bonsai.Expressions
             }
             else
             {
-                var lastWriteTime = File.GetLastWriteTime(path);
+                var lastWriteTime = File.GetLastWriteTime(workflowPath);
                 if (workflow == null || lastWriteTime > writeTime)
                 {
                     var properties = workflow != null ? GetXmlProperties() : xmlProperties;
-                    using (var reader = XmlReader.Create(path))
+                    using (var reader = XmlReader.Create(workflowPath))
                     {
                         var builder = (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
                         description = builder.Description;
@@ -304,7 +303,7 @@ namespace Bonsai.Expressions
                 else throw new InvalidOperationException("The specified workflow could not be found.");
             }
 
-            var includeContext = new IncludeContext(buildContext, workflowPath);
+            var includeContext = new IncludeContext(buildContext, path);
             return workflow.BuildNested(arguments, includeContext);
         }
 
