@@ -2546,7 +2546,6 @@ namespace Bonsai.Editor
             var colorTable = themeRenderer.ToolStripRenderer.ColorTable;
             var foreColor = colorTable.ControlForeColor;
             var backColor = colorTable.ControlBackColor;
-            var windowBackColor = colorTable.WindowBackColor;
             var windowText = colorTable.WindowText;
             ForeColor = foreColor;
             BackColor = backColor;
@@ -2557,37 +2556,35 @@ namespace Bonsai.Editor
             propertyGrid.CategoryForeColor = foreColor;
             propertyGrid.CategorySplitterColor = colorTable.SeparatorDark;
             propertyGrid.CommandsBackColor = backColor;
-            propertyGrid.CommandsBorderColor = windowBackColor;
+            propertyGrid.CommandsBorderColor = backColor;
             propertyGrid.HelpBackColor = backColor;
             propertyGrid.HelpForeColor = foreColor;
-            propertyGrid.ViewBackColor = windowBackColor;
+            propertyGrid.ViewBackColor = backColor;
             propertyGrid.ViewForeColor = windowText;
-            propertyGrid.ViewBorderColor = windowBackColor;
+            propertyGrid.ViewBorderColor = backColor;
             propertyGrid.CanShowVisualStyleGlyphs = false;
             toolboxLabel.BackColor = colorTable.SeparatorDark;
             toolboxLabel.ForeColor = foreColor;
-            toolboxTreeView.BackColor = windowBackColor;
+            toolboxTreeView.BackColor = backColor;
             toolboxTreeView.ForeColor = windowText;
             toolboxDescriptionTextBox.BackColor = backColor;
             toolboxDescriptionTextBox.ForeColor = foreColor;
             propertiesDescriptionTextBox.BackColor = backColor;
             propertiesDescriptionTextBox.ForeColor = foreColor;
-            menuStrip.Renderer = themeRenderer.ToolStripRenderer;
+            menuStrip.ForeColor = SystemColors.ControlText;
             toolStrip.Renderer = themeRenderer.ToolStripRenderer;
             statusStrip.Renderer = themeRenderer.ToolStripRenderer;
 
             var searchLayoutTop = propertiesLabel.Height + searchTextBox.Top + 1;
-            var labelOffset = searchLayoutTop - editorControl.ItemHeight;
-            propertiesLayoutPanel.RowStyles[0].Height -= labelOffset;
-            toolboxLayoutPanel.RowStyles[0].Height -= labelOffset;
+            var labelOffset = searchLayoutTop - editorControl.ItemHeight - 1;
             toolboxSplitContainer.Margin -= new Padding(0, 0, 0, editorControl.Bottom - toolboxSplitContainer.Bottom);
             propertiesSplitContainer.Margin -= new Padding(0, 0, 0, editorControl.Bottom - propertiesSplitContainer.Bottom);
-            if (themeRenderer.ActiveTheme == ColorTheme.Light)
+            if (themeRenderer.ActiveTheme == ColorTheme.Light && labelOffset < 0)
             {
-                var borderOffset = new Padding(0, 0, 0, 1);
-                toolboxSplitContainer.Margin += borderOffset;
-                propertiesSplitContainer.Margin += borderOffset;
+                labelOffset += 1;
             }
+            propertiesLayoutPanel.RowStyles[0].Height -= labelOffset;
+            toolboxLayoutPanel.RowStyles[0].Height -= labelOffset;
         }
 
         private void themeToolStripMenuItem_Click(object sender, EventArgs e)

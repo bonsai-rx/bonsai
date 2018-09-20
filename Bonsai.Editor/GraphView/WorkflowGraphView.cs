@@ -2413,7 +2413,6 @@ namespace Bonsai.Design
         {
             BackColor = themeRenderer.ToolStripRenderer.ColorTable.WindowBackColor;
             graphView.BackColor = themeRenderer.ToolStripRenderer.ColorTable.WindowBackColor;
-            contextMenuStrip.Renderer = themeRenderer.ToolStripRenderer;
         }
 
         #endregion

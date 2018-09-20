@@ -9,6 +9,11 @@ namespace Bonsai.Editor.Themes
 {
     class ToolStripLightRenderer : ToolStripExtendedRenderer
     {
+        public ToolStripLightRenderer()
+            : base(new LightColorTable())
+        {
+        }
+
         protected override void InitializeItem(ToolStripItem item)
         {
             var textBox = item as ToolStripTextBox;
