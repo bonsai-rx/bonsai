@@ -165,7 +165,9 @@
     <Compile Include="Scripting\ScriptEditorLauncher.cs" />
     <Compile Include="SemanticVersion.cs" />
     <Compile Include="LoadAction.cs" />
+    <Compile Include="Themes\DarkColorTable.cs" />
     <Compile Include="Themes\ExtendedColorTable.cs" />
+    <Compile Include="Themes\LightColorTable.cs" />
     <Compile Include="Themes\MapColorTable.cs" />
     <Compile Include="Themes\ThemeHelper.cs" />
     <Compile Include="Themes\ThemeRenderer.cs" />

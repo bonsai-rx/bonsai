@@ -13,7 +13,7 @@ namespace Bonsai.Editor.Themes
         readonly Dictionary<Image, Image> itemImages = new Dictionary<Image, Image>();
 
         public ToolStripDarkRenderer()
-            : base(new MapColorTable(ThemeHelper.Invert))
+            : base(new DarkColorTable())
         {
         }
 
