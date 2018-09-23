@@ -538,7 +538,7 @@ namespace Bonsai.Design
                 if (converter.CanConvertTo(typeof(ElementCategory)))
                 {
                     var category = (ElementCategory)converter.ConvertTo(node.Value, typeof(ElementCategory));
-                    var categoryIcon = WorkflowIcon.GetCategoryIcon(category);
+                    var categoryIcon = new ElementIcon(category);
                     TryGetIconRenderer(categoryIcon, out renderer);
                 }
 
@@ -548,7 +548,7 @@ namespace Bonsai.Design
             return renderer;
         }
 
-        bool TryGetIconRenderer(WorkflowIcon icon, out SvgRenderer renderer)
+        bool TryGetIconRenderer(ElementIcon icon, out SvgRenderer renderer)
         {
             if (icon == null)
             {

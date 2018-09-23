@@ -20,7 +20,7 @@ namespace Bonsai.Design
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
             if (destinationType == typeof(ElementCategory)) return true;
-            if (destinationType == typeof(WorkflowIcon)) return true;
+            if (destinationType == typeof(Type)) return true;
             if (destinationType == typeof(Brush)) return true;
             if (destinationType == typeof(Pen)) return true;
 
@@ -80,10 +80,11 @@ namespace Bonsai.Design
                 }
             }
 
-            if (destinationType == typeof(WorkflowIcon))
+            if (destinationType == typeof(Type))
             {
                 var expressionBuilder = (ExpressionBuilder)value;
-                return WorkflowIcon.GetElementIcon(expressionBuilder);
+                var workflowElement = ExpressionBuilder.GetWorkflowElement(expressionBuilder);
+                return workflowElement.GetType();
             }
 
             if (destinationType == typeof(Pen))

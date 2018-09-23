@@ -91,6 +91,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="FormScheduler.cs" />
+    <Compile Include="GraphView\ElementIcon.cs" />
     <Compile Include="GraphView\SvgRenderer.cs" />
     <Compile Include="GraphView\WorkflowEditorControl.cs">
       <SubType>UserControl</SubType>
