@@ -76,7 +76,6 @@
     <Compile Include="ConfigurationEditorService.cs" />
     <Compile Include="ControlObservable.cs" />
     <Compile Include="ControlScheduler.cs" />
-    <Compile Include="ExpressionBuilderIcon.cs" />
     <Compile Include="FolderBrowserDialog.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -139,7 +138,6 @@
     </Compile>
     <Compile Include="VisualizerMashup.cs" />
     <Compile Include="WorkflowComponentEditor.cs" />
-    <Compile Include="WorkflowIcon.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj">

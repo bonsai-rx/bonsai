@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,8 +10,10 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Design
 {
-    class ExpressionBuilderIcon : WorkflowIcon
+    [DebuggerDisplay("{Name}")]
+    class ElementIcon
     {
+        static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
         const string SvgExtension = ".svg";
         const string GroupPrefix = "gp://";
         readonly string defaultName;
@@ -18,7 +21,7 @@ namespace Bonsai.Design
         readonly Type resourceQualifier;
         string nameCache;
 
-        public ExpressionBuilderIcon(ElementCategory category)
+        public ElementIcon(ElementCategory category)
         {
             resourceQualifier = GetType();
             defaultName = string.Join(
@@ -28,7 +31,7 @@ namespace Bonsai.Design
                 Enum.GetName(typeof(ElementCategory), category));
         }
 
-        public ExpressionBuilderIcon(ExpressionBuilder builder)
+        public ElementIcon(ExpressionBuilder builder)
         {
             if (builder == null)
             {
@@ -61,7 +64,7 @@ namespace Bonsai.Design
             }
         }
 
-        public override string Name
+        public string Name
         {
             get
             {
@@ -95,6 +98,12 @@ namespace Bonsai.Design
             }
         }
 
+        static string RemoveInvalidPathChars(string path)
+        {
+            if (string.IsNullOrEmpty(path)) return path;
+            return string.Concat(path.Split(InvalidPathChars));
+        }
+
         static string ResolvePath(string path)
         {
             const string PathEnvironmentVariable = "PATH";
@@ -111,9 +120,9 @@ namespace Bonsai.Design
             return string.Empty;
         }
 
-        public override Stream GetStream()
+        public Stream GetStream()
         {
-            var name = PathConvert.RemoveInvalidPathChars(Name);
+            var name = RemoveInvalidPathChars(Name);
             if (string.IsNullOrEmpty(name))
             {
                 return null;

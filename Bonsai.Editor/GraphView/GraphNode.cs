@@ -27,9 +27,14 @@ namespace Bonsai.Design
                     Brush = (Brush)typeConverter.ConvertTo(value, typeof(Brush));
                 }
 
-                if (typeConverter.CanConvertTo(typeof(WorkflowIcon)))
+                if (typeConverter.CanConvertTo(typeof(Type)))
                 {
-                    Icon = (WorkflowIcon)typeConverter.ConvertTo(value, typeof(WorkflowIcon));
+                    ElementType = (Type)typeConverter.ConvertTo(value, typeof(Type));
+                    var builder = value as Expressions.ExpressionBuilder;
+                    if (builder != null)
+                    {
+                        Icon = new ElementIcon(builder);
+                    }
                 }
 
                 if (typeConverter.CanConvertTo(typeof(Pen)))
@@ -70,7 +75,9 @@ namespace Bonsai.Design
 
         public Brush Brush { get; private set; }
 
-        public WorkflowIcon Icon { get; private set; }
+        public Type ElementType { get; private set; }
+
+        public ElementIcon Icon { get; private set; }
 
         public Pen Pen { get; private set; }
 
