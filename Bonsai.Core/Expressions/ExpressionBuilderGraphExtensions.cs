@@ -580,8 +580,15 @@ namespace Bonsai.Expressions
                     var referencesRemoved = scope.References.RemoveAll(reference => reference == builder);
                     if (scope.References.Count == 0)
                     {
-                        expression = scope.Close(expression);
-                        return true;
+                        try
+                        {
+                            expression = scope.Close(expression);
+                            return true;
+                        }
+                        catch (Exception e)
+                        {
+                            throw new WorkflowBuildException(e.Message, builder, e);
+                        }
                     }
 
                     if (referencesRemoved > 0)
