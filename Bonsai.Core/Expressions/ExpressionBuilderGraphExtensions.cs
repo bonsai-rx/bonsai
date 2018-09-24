@@ -599,7 +599,7 @@ namespace Bonsai.Expressions
                     return false;
                 });
 
-                // Do not generate output sequences if the result expression is empty
+                // Evaluate extension expressions
                 if (expression.NodeType == ExpressionType.Extension)
                 {
                     // Disconnect disabled build dependencies from their immediate successors
@@ -622,6 +622,12 @@ namespace Bonsai.Expressions
                                 throw new WorkflowBuildException(e.Message, builder, e);
                             }
                         }
+                        continue;
+                    }
+
+                    // Do not generate output sequences if the result expression is empty
+                    if (expression == EmptyExpression.Instance)
+                    {
                         continue;
                     }
                 }
