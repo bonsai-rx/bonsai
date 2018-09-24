@@ -13,6 +13,15 @@ namespace Bonsai.Design
     [DebuggerDisplay("{Name}")]
     class ElementIcon
     {
+        static readonly ElementIcon Source = new ElementIcon(ElementCategory.Source);
+        static readonly ElementIcon Condition = new ElementIcon(ElementCategory.Condition);
+        static readonly ElementIcon Transform = new ElementIcon(ElementCategory.Transform);
+        static readonly ElementIcon Sink = new ElementIcon(ElementCategory.Sink);
+        static readonly ElementIcon Nested = new ElementIcon(ElementCategory.Nested);
+        static readonly ElementIcon Property = new ElementIcon(ElementCategory.Property);
+        static readonly ElementIcon Combinator = new ElementIcon(ElementCategory.Combinator);
+        static readonly ElementIcon Workflow = new ElementIcon(ElementCategory.Workflow);
+
         static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
         const string SvgExtension = ".svg";
         const string GroupPrefix = "gp://";
@@ -21,7 +30,13 @@ namespace Bonsai.Design
         readonly Type resourceQualifier;
         string nameCache;
 
-        public ElementIcon(ElementCategory category)
+        public ElementIcon(Type type)
+        {
+            resourceQualifier = type;
+            defaultName = type.Namespace;
+        }
+
+        private ElementIcon(ElementCategory category)
         {
             resourceQualifier = GetType();
             defaultName = string.Join(
@@ -143,6 +158,22 @@ namespace Bonsai.Design
                 return resourceQualifier.Assembly.GetManifestResourceStream(name);
             }
             else return null;
+        }
+
+        public static ElementIcon FromElementCategory(ElementCategory category)
+        {
+            switch (category)
+            {
+                case ElementCategory.Source: return Source;
+                case ElementCategory.Condition: return Condition;
+                case ElementCategory.Transform: return Transform;
+                case ElementCategory.Sink: return Sink;
+                case ElementCategory.Nested: return Nested;
+                case ElementCategory.Property: return Property;
+                case ElementCategory.Combinator: return Combinator;
+                case ElementCategory.Workflow: return Workflow;
+                default: throw new ArgumentException("Invalid category.");
+            }
         }
     }
 }

@@ -534,15 +534,32 @@ namespace Bonsai.Design
             SvgRenderer renderer;
             if (!TryGetIconRenderer(node.Icon, out renderer))
             {
-                var converter = TypeDescriptor.GetConverter(node.Value);
-                if (converter.CanConvertTo(typeof(ElementCategory)))
+                var elementType = node.ElementType;
+                if (elementType != null && !string.IsNullOrEmpty(elementType.Namespace) &&
+                    !rendererCache.TryGetValue(elementType.Namespace, out renderer))
                 {
-                    var category = (ElementCategory)converter.ConvertTo(node.Value, typeof(ElementCategory));
-                    var categoryIcon = new ElementIcon(category);
-                    TryGetIconRenderer(categoryIcon, out renderer);
+                    var namespaceIcon = new ElementIcon(elementType);
+                    TryGetIconRenderer(namespaceIcon, out renderer);
                 }
 
                 rendererCache.Add(node.Icon.Name, renderer);
+            }
+
+            return renderer;
+        }
+
+        public SvgRenderer GetCategoryRenderer(GraphNode node)
+        {
+            if (node == null)
+            {
+                throw new ArgumentNullException("node");
+            }
+
+            SvgRenderer renderer;
+            var categoryIcon = ElementIcon.FromElementCategory(node.Category);
+            if (!TryGetIconRenderer(categoryIcon, out renderer))
+            {
+                rendererCache.Add(categoryIcon.Name, renderer);
             }
 
             return renderer;

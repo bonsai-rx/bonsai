@@ -1118,14 +1118,20 @@ namespace Bonsai.Design
                             NodeSize, NodeSize);
 
                         SvgRenderer renderer;
+                        iconRendererState.Outlining = BlackIconPen;
+                        iconRendererState.Background = layout.Node.Brush;
+                        iconRendererState.Translation = nodeRectangle.Location;
                         graphics.DrawEllipse(BlackPen, nodeRectangle);
                         graphics.FillEllipse(layout.Node.Brush, nodeRectangle);
+                        if (IconRenderer != null &&
+                           (renderer = IconRenderer.GetCategoryRenderer(layout.Node)) != null)
+                        {
+                            renderer(iconRendererState, graphics);
+                        }
+
                         if (IconRenderer != null && layout.Node.Icon != null &&
                            (renderer = IconRenderer.GetIconRenderer(layout.Node)) != null)
                         {
-                            iconRendererState.Outlining = BlackIconPen;
-                            iconRendererState.Background = layout.Node.Brush;
-                            iconRendererState.Translation = nodeRectangle.Location;
                             renderer(iconRendererState, graphics);
                         }
                         else
@@ -1208,14 +1214,20 @@ namespace Bonsai.Design
                         NodeSize, NodeSize);
 
                     SvgRenderer renderer;
+                    iconRendererState.Outlining = iconPen;
+                    iconRendererState.Background = brush;
+                    iconRendererState.Translation = nodeRectangle.Location;
                     e.Graphics.DrawEllipse(pen, nodeRectangle);
                     e.Graphics.FillEllipse(brush, nodeRectangle);
+                    if (IconRenderer != null &&
+                       (renderer = IconRenderer.GetCategoryRenderer(layout.Node)) != null)
+                    {
+                        renderer(iconRendererState, graphics);
+                    }
+
                     if (IconRenderer != null && layout.Node.Icon != null &&
                        (renderer = IconRenderer.GetIconRenderer(layout.Node)) != null)
                     {
-                        iconRendererState.Outlining = iconPen;
-                        iconRendererState.Background = brush;
-                        iconRendererState.Translation = nodeRectangle.Location;
                         renderer(iconRendererState, graphics);
                     }
                     else

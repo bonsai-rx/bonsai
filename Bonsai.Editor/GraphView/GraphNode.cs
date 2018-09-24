@@ -37,6 +37,11 @@ namespace Bonsai.Design
                     }
                 }
 
+                if (typeConverter.CanConvertTo(typeof(ElementCategory)))
+                {
+                    Category = (ElementCategory)typeConverter.ConvertTo(value, typeof(ElementCategory));
+                }
+
                 if (typeConverter.CanConvertTo(typeof(Pen)))
                 {
                     Pen = (Pen)typeConverter.ConvertTo(value, typeof(Pen));
@@ -76,6 +81,8 @@ namespace Bonsai.Design
         public Brush Brush { get; private set; }
 
         public Type ElementType { get; private set; }
+
+        public ElementCategory Category { get; private set; }
 
         public ElementIcon Icon { get; private set; }
 
