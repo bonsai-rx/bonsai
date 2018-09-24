@@ -2546,37 +2546,42 @@ namespace Bonsai.Editor
             var colorTable = themeRenderer.ToolStripRenderer.ColorTable;
             var foreColor = colorTable.ControlForeColor;
             var backColor = colorTable.ControlBackColor;
+            var panelColor = colorTable.ContentPanelBackColor;
+            var windowBackColor = colorTable.WindowBackColor;
             var windowText = colorTable.WindowText;
             ForeColor = foreColor;
             BackColor = backColor;
+            propertiesSplitContainer.BackColor = panelColor;
             propertiesLabel.BackColor = colorTable.SeparatorDark;
             propertiesLabel.ForeColor = foreColor;
-            propertyGrid.BackColor = backColor;
+            propertyGrid.BackColor = panelColor;
             propertyGrid.LineColor = colorTable.SeparatorDark;
             propertyGrid.CategoryForeColor = foreColor;
             propertyGrid.CategorySplitterColor = colorTable.SeparatorDark;
-            propertyGrid.CommandsBackColor = backColor;
-            propertyGrid.CommandsBorderColor = backColor;
-            propertyGrid.HelpBackColor = backColor;
+            propertyGrid.CommandsBackColor = panelColor;
+            propertyGrid.CommandsBorderColor = panelColor;
+            propertyGrid.HelpBackColor = panelColor;
             propertyGrid.HelpForeColor = foreColor;
-            propertyGrid.ViewBackColor = backColor;
+            propertyGrid.ViewBackColor = panelColor;
             propertyGrid.ViewForeColor = windowText;
-            propertyGrid.ViewBorderColor = backColor;
+            propertyGrid.ViewBorderColor = panelColor;
             propertyGrid.CanShowVisualStyleGlyphs = false;
+            toolboxTableLayoutPanel.BackColor = panelColor;
+            toolboxSplitContainer.BackColor = panelColor;
             toolboxLabel.BackColor = colorTable.SeparatorDark;
             toolboxLabel.ForeColor = foreColor;
-            toolboxTreeView.BackColor = backColor;
+            toolboxTreeView.BackColor = panelColor;
             toolboxTreeView.ForeColor = windowText;
-            toolboxDescriptionTextBox.BackColor = backColor;
+            toolboxDescriptionTextBox.BackColor = panelColor;
             toolboxDescriptionTextBox.ForeColor = foreColor;
-            propertiesDescriptionTextBox.BackColor = backColor;
+            propertiesDescriptionTextBox.BackColor = panelColor;
             propertiesDescriptionTextBox.ForeColor = foreColor;
             menuStrip.ForeColor = SystemColors.ControlText;
             toolStrip.Renderer = themeRenderer.ToolStripRenderer;
             statusStrip.Renderer = themeRenderer.ToolStripRenderer;
 
             var searchLayoutTop = propertiesLabel.Height + searchTextBox.Top + 1;
-            var labelOffset = searchLayoutTop - editorControl.ItemHeight - 1;
+            var labelOffset = searchLayoutTop - editorControl.ItemHeight;
             toolboxSplitContainer.Margin -= new Padding(0, 0, 0, editorControl.Bottom - toolboxSplitContainer.Bottom);
             propertiesSplitContainer.Margin -= new Padding(0, 0, 0, editorControl.Bottom - propertiesSplitContainer.Bottom);
             if (themeRenderer.ActiveTheme == ColorTheme.Light && labelOffset < 0)
@@ -2585,6 +2590,7 @@ namespace Bonsai.Editor
             }
             propertiesLayoutPanel.RowStyles[0].Height -= labelOffset;
             toolboxLayoutPanel.RowStyles[0].Height -= labelOffset;
+            propertyGrid.Refresh();
         }
 
         private void themeToolStripMenuItem_Click(object sender, EventArgs e)
