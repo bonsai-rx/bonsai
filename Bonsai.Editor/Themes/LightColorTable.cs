@@ -11,12 +11,12 @@ namespace Bonsai.Editor.Themes
     {
         public override Color ControlBackColor
         {
-            get { return Color.LightGray; }
+            get { return SystemColors.Control; }
         }
 
         public override Color WindowBackColor
         {
-            get { return Color.Gainsboro; }
+            get { return Color.White; }
         }
 
         public override Color SeparatorDark

@@ -423,10 +423,8 @@ namespace Bonsai.Design
             var adjustRectangle = tabControl.Margin + adjustMargin;
             if (tabPage.BackColor.GetBrightness() > 0.5f)
             {
-                adjustRectangle.Top += 1;
-                adjustRectangle.Left += 1;
-                adjustRectangle.Right += 1;
-                adjustRectangle.Bottom -= tabControl.Margin.Top - tabControl.Margin.Left - 1;
+                adjustRectangle.Right -= 2;
+                adjustRectangle.Bottom -= tabControl.Margin.Top - tabControl.Margin.Left + 1;
             }
             else adjustRectangle.Bottom = adjustRectangle.Left;
             tabControl.AdjustRectangle = adjustRectangle;

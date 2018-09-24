@@ -859,7 +859,7 @@
             this.searchTextBox.CueBanner = null;
             this.searchTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.searchTextBox.Location = new System.Drawing.Point(0, 3);
-            this.searchTextBox.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
+            this.searchTextBox.Margin = new System.Windows.Forms.Padding(0, 0, 0, 0);
             this.searchTextBox.Name = "searchTextBox";
             this.searchTextBox.Size = new System.Drawing.Size(197, 20);
             this.searchTextBox.TabIndex = 1;
@@ -872,7 +872,7 @@
             this.toolboxTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.toolboxTreeView.HideSelection = false;
             this.toolboxTreeView.Location = new System.Drawing.Point(0, 26);
-            this.toolboxTreeView.Margin = new System.Windows.Forms.Padding(0, 3, 0, 0);
+            this.toolboxTreeView.Margin = new System.Windows.Forms.Padding(0, 0, 0, 0);
             this.toolboxTreeView.Name = "toolboxTreeView";
             treeNode1.Name = "Source";
             treeNode1.Text = "Source";
@@ -926,7 +926,7 @@
             this.propertiesSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.propertiesSplitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.propertiesSplitContainer.Location = new System.Drawing.Point(0, 32);
-            this.propertiesSplitContainer.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
+            this.propertiesSplitContainer.Margin = new System.Windows.Forms.Padding(0, 0, 3, 3);
             this.propertiesSplitContainer.Name = "propertiesSplitContainer";
             this.propertiesSplitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 

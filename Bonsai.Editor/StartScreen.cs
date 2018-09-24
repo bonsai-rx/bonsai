@@ -150,15 +150,16 @@ namespace Bonsai.Editor
             var editorTheme = EditorSettings.Instance.EditorTheme;
             if (editorTheme == ColorTheme.Dark)
             {
-                BackColor = ThemeHelper.Invert(BackColor);
+                var systemMenuColor = SystemColors.Menu;
+                BackColor = ThemeHelper.Invert(systemMenuColor);
                 getStartedLabel.ForeColor = ThemeHelper.Invert(getStartedLabel.ForeColor);
                 openLabel.ForeColor = ThemeHelper.Invert(openLabel.ForeColor);
                 recentLabel.ForeColor = ThemeHelper.Invert(recentLabel.ForeColor);
-                getStartedTreeView.BackColor = ThemeHelper.Invert(getStartedTreeView.BackColor);
+                getStartedTreeView.BackColor = ThemeHelper.Invert(systemMenuColor);
                 getStartedTreeView.ForeColor = ThemeHelper.Invert(getStartedTreeView.ForeColor);
-                openTreeView.BackColor = ThemeHelper.Invert(openTreeView.BackColor);
+                openTreeView.BackColor = ThemeHelper.Invert(systemMenuColor);
                 openTreeView.ForeColor = ThemeHelper.Invert(openTreeView.ForeColor);
-                recentFileView.BackColor = ThemeHelper.Invert(recentFileView.BackColor);
+                recentFileView.BackColor = ThemeHelper.Invert(systemMenuColor);
                 recentFileView.ForeColor = ThemeHelper.Invert(recentFileView.ForeColor);
                 recentFileView.LineColor = ThemeHelper.Invert(recentFileView.LineColor);
                 customImages.Add(newItemImage = ThemeHelper.InvertScale(newItemImage, iconList.ImageSize, BackColor));
