@@ -41,6 +41,9 @@ namespace Bonsai.Vision
         [Description("The optional maximum window size. By default, it is set to the total image size.")]
         public Size MaxSize { get; set; }
 
+        [Description("The optional offset to apply to individual object rectangles.")]
+        public Point Offset { get; set; }
+
         public override IObservable<Rect[]> Process(IObservable<IplImage> source)
         {
             return Observable.Defer(() =>
@@ -49,10 +52,16 @@ namespace Bonsai.Vision
                 var cascade = HaarClassifierCascade.Load(FileName);
                 return source.Select(input =>
                 {
+                    var offset = Offset;
                     var objects = cascade.DetectObjects(input, storage, ScaleFactor, MinNeighbors, Flags, MinSize, MaxSize);
                     var result = new Rect[objects.Count];
                     objects.CopyTo(result);
                     storage.Clear();
+                    for (int i = 0; i < result.Length; i++)
+                    {
+                        result[i].X += offset.X;
+                        result[i].Y += offset.Y;
+                    }
                     return result;
                 }).Finally(() =>
                 {
