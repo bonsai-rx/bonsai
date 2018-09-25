@@ -1269,7 +1269,7 @@ namespace Bonsai.Design
             }
 
             var sinks = workflowBuilder.Workflow.Sinks().ToArray();
-            if (sinks.Length == 1)
+            if (sinks.Length == 1 && !(sinks[0].Value is WorkflowOutputBuilder))
             {
                 var sink = sinks.First();
                 var workflowOutput = new WorkflowOutputBuilder();
