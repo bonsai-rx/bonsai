@@ -1696,6 +1696,20 @@ namespace Bonsai.Editor
             else UpdateDescriptionTextBox(string.Empty, string.Empty, toolboxDescriptionTextBox);
         }
 
+        void UpdateTreeViewSelection(bool focused)
+        {
+            var selectedNode = toolboxTreeView.SelectedNode;
+            if (toolboxTreeView.Tag != selectedNode)
+            {
+                var previousNode = toolboxTreeView.Tag as TreeNode;
+                if (previousNode != null) previousNode.BackColor = Color.Empty;
+                toolboxTreeView.Tag = selectedNode;
+            }
+
+            if (selectedNode == null) return;
+            selectedNode.BackColor = focused ? Color.Empty : themeRenderer.ToolStripRenderer.ColorTable.InactiveCaption;
+        }
+
         private void toolboxTreeView_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Return &&
@@ -1721,6 +1735,7 @@ namespace Bonsai.Editor
         private void toolboxTreeView_AfterSelect(object sender, TreeViewEventArgs e)
         {
             UpdateTreeViewDescription();
+            UpdateTreeViewSelection(toolboxTreeView.Focused);
         }
 
         private void toolboxTreeView_MouseUp(object sender, MouseEventArgs e)
@@ -1742,6 +1757,16 @@ namespace Bonsai.Editor
                     }
                 }
             }
+        }
+
+        private void toolboxTreeView_Enter(object sender, EventArgs e)
+        {
+            UpdateTreeViewSelection(true);
+        }
+
+        private void toolboxTreeView_Leave(object sender, EventArgs e)
+        {
+            UpdateTreeViewSelection(false);
         }
 
         private void insertAfterToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2590,6 +2615,7 @@ namespace Bonsai.Editor
             }
             propertiesLayoutPanel.RowStyles[0].Height -= labelOffset;
             toolboxLayoutPanel.RowStyles[0].Height -= labelOffset;
+            UpdateTreeViewSelection(toolboxTreeView.Focused);
             propertyGrid.Refresh();
         }
 

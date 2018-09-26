@@ -30,6 +30,11 @@ namespace Bonsai.Editor.Themes
             get { return Color.WhiteSmoke; }
         }
 
+        public virtual Color InactiveCaption
+        {
+            get { return SystemColors.InactiveCaption; }
+        }
+
         public virtual Color WindowBackColor
         {
             get { return SystemColors.Window; }

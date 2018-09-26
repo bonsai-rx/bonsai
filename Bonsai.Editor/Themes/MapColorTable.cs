@@ -71,6 +71,7 @@ namespace Bonsai.Editor.Themes
         readonly Color controlForeColor;
         readonly Color controlText;
         readonly Color contentPanelBackColor;
+        readonly Color inactiveCaption;
         readonly Color windowBackColor;
         readonly Color windowText;
 
@@ -142,6 +143,7 @@ namespace Bonsai.Editor.Themes
             controlForeColor = map(table.ControlForeColor);
             controlText = map(table.ControlText);
             contentPanelBackColor = map(table.ContentPanelBackColor);
+            inactiveCaption = map(table.InactiveCaption);
             windowBackColor = map(table.WindowBackColor);
             windowText = map(table.WindowText);
         }
@@ -444,6 +446,11 @@ namespace Bonsai.Editor.Themes
         public override Color ContentPanelBackColor
         {
             get { return contentPanelBackColor; }
+        }
+
+        public override Color InactiveCaption
+        {
+            get { return inactiveCaption; }
         }
 
         public override Color WindowBackColor

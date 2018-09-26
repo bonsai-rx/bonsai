@@ -870,7 +870,7 @@
             // 
             this.toolboxTreeView.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.toolboxTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.toolboxTreeView.HideSelection = false;
+            this.toolboxTreeView.HideSelection = true;
             this.toolboxTreeView.Location = new System.Drawing.Point(0, 26);
             this.toolboxTreeView.Margin = new System.Windows.Forms.Padding(0, 0, 0, 0);
             this.toolboxTreeView.Name = "toolboxTreeView";
@@ -892,6 +892,8 @@
             treeNode5});
             this.toolboxTreeView.Size = new System.Drawing.Size(197, 219);
             this.toolboxTreeView.TabIndex = 0;
+            this.toolboxTreeView.Enter += new System.EventHandler(this.toolboxTreeView_Enter);
+            this.toolboxTreeView.Leave += new System.EventHandler(this.toolboxTreeView_Leave);
             this.toolboxTreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.toolboxTreeView_ItemDrag);
             this.toolboxTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.toolboxTreeView_AfterSelect);
             this.toolboxTreeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.toolboxTreeView_NodeMouseDoubleClick);
