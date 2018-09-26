@@ -15,11 +15,20 @@ namespace Bonsai.Shaders.Input
     [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationComponentEditor, Bonsai.Shaders.Design", typeof(ComponentEditor))]
     public class KeyPress : Source<EventPattern<INativeWindow, KeyPressEventArgs>>
     {
+        [Description("The optional character to use as a filter.")]
+        public char? KeyChar { get; set; }
+
         public override IObservable<EventPattern<INativeWindow, KeyPressEventArgs>> Generate()
         {
             return ShaderManager.WindowSource.SelectMany(window => window.EventPattern<KeyPressEventArgs>(
                 handler => window.KeyPress += handler,
-                handler => window.KeyPress -= handler));
+                handler => window.KeyPress -= handler))
+                .Where(evt => 
+                {
+                    var args = evt.EventArgs;
+                    var key = KeyChar.GetValueOrDefault(args.KeyChar);
+                    return args.KeyChar == key;
+                });
         }
     }
 }

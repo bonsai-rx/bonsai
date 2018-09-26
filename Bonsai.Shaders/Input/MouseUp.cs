@@ -15,11 +15,20 @@ namespace Bonsai.Shaders.Input
     [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationComponentEditor, Bonsai.Shaders.Design", typeof(ComponentEditor))]
     public class MouseUp : Source<EventPattern<INativeWindow, MouseButtonEventArgs>>
     {
+        [Description("The optional mouse button to use as a filter.")]
+        public MouseButton? Button { get; set; }
+
         public override IObservable<EventPattern<INativeWindow, MouseButtonEventArgs>> Generate()
         {
             return ShaderManager.WindowSource.SelectMany(window => window.EventPattern<MouseButtonEventArgs>(
                 handler => window.MouseUp += handler,
-                handler => window.MouseUp -= handler));
+                handler => window.MouseUp -= handler))
+                .Where(evt =>
+                {
+                    var args = evt.EventArgs;
+                    var button = Button.GetValueOrDefault(args.Button);
+                    return args.Button == button;
+                });
         }
     }
 }
