@@ -14,6 +14,11 @@ namespace Bonsai.Editor.Themes
             get { return SystemColors.Control; }
         }
 
+        public override Color InactiveCaption
+        {
+            get { return Color.LightGray; }
+        }
+
         public override Color WindowBackColor
         {
             get { return Color.White; }

@@ -14,6 +14,11 @@ namespace Bonsai.Editor.Themes
         {
         }
 
+        public override Color InactiveCaption
+        {
+            get { return Color.Gray; }
+        }
+
         class AntiColorTable : LightColorTable
         {
             public override Color ControlBackColor
