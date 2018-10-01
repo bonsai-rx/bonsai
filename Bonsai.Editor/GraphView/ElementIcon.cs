@@ -24,11 +24,9 @@ namespace Bonsai.Design
 
         static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
         const string SvgExtension = ".svg";
-        const string GroupPrefix = "gp://";
         readonly string defaultName;
         readonly INamedElement namedElement;
         readonly Type resourceQualifier;
-        string nameCache;
 
         public ElementIcon(Type type)
         {
@@ -59,23 +57,16 @@ namespace Bonsai.Design
             var iconAttribute = (WorkflowIconAttribute)attributes[typeof(WorkflowIconAttribute)];
             resourceQualifier = Type.GetType(iconAttribute.TypeName ?? string.Empty, false) ?? workflowElementType;
             if (!string.IsNullOrEmpty(iconAttribute.Name)) defaultName = iconAttribute.Name;
-            else
-            {
-                namedElement = workflowElement as INamedElement;
-                defaultName = ExpressionBuilder.GetElementDisplayName(workflowElementType);
-            }
+            else defaultName = ExpressionBuilder.GetElementDisplayName(workflowElementType);
 
             if (resourceQualifier.Namespace != null)
             {
                 defaultName = string.Join(ExpressionHelper.MemberSeparator, resourceQualifier.Namespace, defaultName);
             }
 
-            if (namedElement != null &&
-               (workflowElement is IncludeWorkflowBuilder ||
-                workflowElement is GroupWorkflowBuilder))
+            if (workflowElement is IncludeWorkflowBuilder || workflowElement is GroupWorkflowBuilder)
             {
-                nameCache = defaultName;
-                defaultName = GroupPrefix + defaultName;
+                namedElement = workflowElement as INamedElement;
             }
         }
 
@@ -86,27 +77,7 @@ namespace Bonsai.Design
                 if (namedElement != null)
                 {
                     var elementName = namedElement.Name;
-                    var prefixOffset = defaultName.IndexOf(GroupPrefix, StringComparison.Ordinal);
-                    if (prefixOffset == 0)
-                    {
-                        if (!string.IsNullOrEmpty(elementName)) return elementName;
-                        else return nameCache;
-                    }
-
-                    if (!string.IsNullOrEmpty(elementName))
-                    {
-                        if (nameCache == null ||
-                            string.CompareOrdinal(
-                                nameCache, defaultName.Length + 1,
-                                elementName, 0,
-                                Math.Max(elementName.Length, nameCache.Length - defaultName.Length - 1)) != 0)
-                        {
-                            nameCache = string.Join(ExpressionHelper.MemberSeparator, defaultName, elementName);
-                        }
-
-                        return nameCache;
-                    }
-                    else nameCache = null;
+                    if (!string.IsNullOrEmpty(elementName)) return elementName;
                 }
 
                 return defaultName;
