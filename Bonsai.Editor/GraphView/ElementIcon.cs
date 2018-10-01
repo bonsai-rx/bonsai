@@ -106,9 +106,9 @@ namespace Bonsai.Design
             return string.Empty;
         }
 
-        public Stream GetStream()
+        private Stream GetStream(string name)
         {
-            var name = RemoveInvalidPathChars(Name);
+            name = RemoveInvalidPathChars(name);
             if (string.IsNullOrEmpty(name))
             {
                 return null;
@@ -129,6 +129,17 @@ namespace Bonsai.Design
                 return resourceQualifier.Assembly.GetManifestResourceStream(name);
             }
             else return null;
+        }
+
+        public Stream GetStream()
+        {
+            var name = Name;
+            var iconStream = GetStream(name);
+            if (iconStream == null && name != defaultName)
+            {
+                return GetStream(defaultName);
+            }
+            else return iconStream;
         }
 
         public static ElementIcon FromElementCategory(ElementCategory category)
