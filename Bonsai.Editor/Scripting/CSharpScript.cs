@@ -1,4 +1,5 @@
-﻿using Bonsai.Expressions;
+﻿using Bonsai.Editor.Properties;
+using Bonsai.Expressions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -44,7 +45,7 @@ namespace Bonsai.Editor.Scripting
 
             public override Type Type
             {
-                get { throw new InvalidOperationException("Unable to evaluate uncompiled script expression. Please ensure all script files have been created and reload extensions."); }
+                get { throw new InvalidOperationException(Resources.UncompiledScriptExpression_Error); }
             }
         }
     }

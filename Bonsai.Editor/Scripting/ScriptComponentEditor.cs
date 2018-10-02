@@ -1,5 +1,6 @@
 ﻿using Bonsai.Dag;
 using Bonsai.Design;
+using Bonsai.Editor.Properties;
 using Bonsai.Expressions;
 using Microsoft.CSharp;
 using System;
@@ -24,6 +25,7 @@ namespace Bonsai.Editor.Scripting
         const string ScriptFilter = "C# Files (*.cs)|*.cs|All Files (*.*)|*.*";
         static readonly string[] IgnoreAssemblyReferences = new[] { "mscorlib.dll", "System.dll", "System.Core.dll", "System.Reactive.Linq.dll" };
         static ModuleBuilder moduleBuilder;
+        static ConstructorInfo emptyExpression;
 
         static CodeTypeReference CreateTypeReference(Type type)
         {
@@ -206,6 +208,27 @@ namespace Bonsai.Editor.Scripting
                 var assemblyName = new AssemblyName("@DynamicExtensions");
                 var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
                 moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.FullName);
+
+                var emptyExpressionBuilder = moduleBuilder.DefineType("@EmptyExpression", TypeAttributes.Class, typeof(Expression));
+                var propertyMethodAttributes = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.Virtual | MethodAttributes.HideBySig;
+                var nodeTypeProperty = emptyExpressionBuilder.DefineProperty("NodeType", PropertyAttributes.None, typeof(ExpressionType), null);
+                var nodeTypeGet = emptyExpressionBuilder.DefineMethod("get_NodeType", propertyMethodAttributes, typeof(ExpressionType), Type.EmptyTypes);
+                var nodeTypeGetGenerator = nodeTypeGet.GetILGenerator();
+                nodeTypeGetGenerator.Emit(OpCodes.Ldc_I4, (int)ExpressionType.Extension);
+                nodeTypeGetGenerator.Emit(OpCodes.Ret);
+                nodeTypeProperty.SetGetMethod(nodeTypeGet);
+
+                var typeProperty = emptyExpressionBuilder.DefineProperty("Type", PropertyAttributes.None, typeof(Type), null);
+                var typePropertyGet = emptyExpressionBuilder.DefineMethod("get_Type", propertyMethodAttributes, typeof(Type), Type.EmptyTypes);
+                var typeGetGenerator = typePropertyGet.GetILGenerator();
+                var typeGetExceptionConstructor = typeof(InvalidOperationException).GetConstructor(new[] { typeof(string) });
+                typeGetGenerator.Emit(OpCodes.Ldstr, Resources.UncompiledScriptExpression_Error);
+                typeGetGenerator.Emit(OpCodes.Newobj, typeGetExceptionConstructor);
+                typeGetGenerator.Emit(OpCodes.Throw);
+                typeProperty.SetGetMethod(typePropertyGet);
+
+                var emptyExpressionType = emptyExpressionBuilder.CreateType();
+                emptyExpression = emptyExpressionType.GetConstructor(Type.EmptyTypes);
             }
 
             var typeBuilder = moduleBuilder.DefineType(
@@ -228,8 +251,7 @@ namespace Bonsai.Editor.Scripting
                 typeof(Expression),
                 new[] { typeof(IEnumerable<Expression>) });
             var generator = buildMethod.GetILGenerator();
-            var fieldInfo = typeof(ExpressionBuilder).GetField("EmptyExpression");
-            generator.Emit(OpCodes.Ldsfld, fieldInfo);
+            generator.Emit(OpCodes.Newobj, emptyExpression);
             generator.Emit(OpCodes.Ret);
 
             var type = typeBuilder.CreateType();

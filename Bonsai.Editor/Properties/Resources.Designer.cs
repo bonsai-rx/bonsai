@@ -337,6 +337,15 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to evaluate uncompiled script expression. Please ensure all script files have been created and reload extensions..
+        /// </summary>
+        internal static string UncompiledScriptExpression_Error {
+            get {
+                return ResourceManager.GetString("UncompiledScriptExpression_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There was an error while updating the workflow. Please check if there are any missing packages that need to be installed before trying to upgrade again..
         /// </summary>
         internal static string UpdateWorkflow_Error {
