@@ -253,4 +253,7 @@ Do you want to install Visual Studio Code?</value>
   <data name="RemoveRecentFile_Question_Caption" xml:space="preserve">
     <value>Bonsai</value>
   </data>
+  <data name="UncompiledScriptExpression_Error" xml:space="preserve">
+    <value>Unable to evaluate uncompiled script expression. Please ensure all script files have been created and reload extensions.</value>
+  </data>
 </root>
