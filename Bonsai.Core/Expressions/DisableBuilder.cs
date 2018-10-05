@@ -56,6 +56,13 @@ namespace Bonsai.Expressions
             get { return GetElementDisplayName(Builder); }
         }
 
+        static bool RequiresBuild(ExpressionBuilder builder)
+        {
+            var combinatorBuilder = builder as CombinatorBuilder;
+            if (combinatorBuilder != null) return combinatorBuilder.Combinator is UnknownTypeBuilder;
+            else return builder is UnknownTypeBuilder;
+        }
+
         /// <summary>
         /// Generates an <see cref="Expression"/> node from a collection of input arguments.
         /// The result can be chained with other builders in a workflow.
@@ -70,6 +77,11 @@ namespace Bonsai.Expressions
             if (builder is IArgumentBuilder && !(builder is InputMappingBuilder))
             {
                 return DisconnectExpression.Instance;
+            }
+
+            if (RequiresBuild(builder))
+            {
+                return builder.Build(arguments);
             }
 
             var distinctArguments = arguments.Distinct().ToArray();
