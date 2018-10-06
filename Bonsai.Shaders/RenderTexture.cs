@@ -21,9 +21,13 @@ namespace Bonsai.Shaders
         {
             ClearColor = Color.Black;
             ClearMask = ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit;
+            WrapS = TextureWrapMode.Repeat;
+            WrapT = TextureWrapMode.Repeat;
+            MinFilter = TextureMinFilter.Linear;
+            MagFilter = TextureMagFilter.Linear;
         }
 
-        [Category("State")]
+        [Category("Render Settings")]
         [Description("Specifies any render states that are required to render the framebuffer.")]
         [Editor("Bonsai.Shaders.Configuration.Design.StateConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public StateConfigurationCollection RenderState
@@ -32,6 +36,7 @@ namespace Bonsai.Shaders
         }
 
         [XmlIgnore]
+        [Category("Render Settings")]
         [Description("The color used to clear the framebuffer before rendering.")]
         public Color ClearColor { get; set; }
 
@@ -43,17 +48,42 @@ namespace Bonsai.Shaders
             set { ClearColor = ColorTranslator.FromHtml(value); }
         }
 
+        [Category("Render Settings")]
         [Description("Specifies which buffers to clear before rendering.")]
         public ClearBufferMask ClearMask { get; set; }
+
+        [Category("TextureSize")]
+        [Description("The optional width of the texture.")]
+        public int? Width { get; set; }
+
+        [Category("TextureSize")]
+        [Description("The optional height of the texture.")]
+        public int? Height { get; set; }
+
+        [Category("TextureParameter")]
+        [Description("Specifies wrapping parameters for the column coordinates of the texture sampler.")]
+        public TextureWrapMode WrapS { get; set; }
+
+        [Category("TextureParameter")]
+        [Description("Specifies wrapping parameters for the row coordinates of the texture sampler.")]
+        public TextureWrapMode WrapT { get; set; }
+
+        [Category("TextureParameter")]
+        [Description("Specifies the texture minification filter.")]
+        public TextureMinFilter MinFilter { get; set; }
+
+        [Category("TextureParameter")]
+        [Description("Specifies the texture magnification filter.")]
+        public TextureMagFilter MagFilter { get; set; }
 
         Texture CreateRenderTarget(int width, int height, PixelInternalFormat internalFormat, PixelFormat format, PixelType type)
         {
             var texture = new Texture();
             GL.BindTexture(TextureTarget.Texture2D, texture.Id);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)WrapS);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)WrapT);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)MinFilter);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)MagFilter);
             GL.TexImage2D(
                 TextureTarget.Texture2D, 0,
                 internalFormat, width, height, 0,
@@ -78,8 +108,8 @@ namespace Bonsai.Shaders
                     {
                         window.Update(() =>
                         {
-                            width = (int)window.Width;
-                            height = (int)window.Height;
+                            width = Width.GetValueOrDefault(window.Width);
+                            height = Height.GetValueOrDefault(window.Height);
                             GL.GenFramebuffers(1, out fbo);
                             GL.GenRenderbuffers(1, out depthRenderbuffer);
                             GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
