@@ -465,14 +465,6 @@ namespace Bonsai.Expressions
                    select inputBuilder;
         }
 
-        internal static IEnumerable<ExternalizedProperty> GetExternalizedProperties(this ExpressionBuilderGraph source)
-        {
-            return from node in source
-                   let externalizedProperty = ExpressionBuilder.Unwrap(node.Value) as ExternalizedProperty
-                   where externalizedProperty != null
-                   select externalizedProperty;
-        }
-
         internal static Expression BuildNested(this ExpressionBuilderGraph source, IEnumerable<Expression> arguments, IBuildContext buildContext)
         {
             var parameters = source.GetNestedParameters();
