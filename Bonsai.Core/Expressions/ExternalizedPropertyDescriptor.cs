@@ -14,15 +14,37 @@ namespace Bonsai.Expressions
         readonly bool isReadOnly;
         readonly object[] instances;
         readonly PropertyDescriptor[] properties;
+        readonly string description;
+        readonly string category;
 
-        public ExternalizedPropertyDescriptor(string name, Attribute[] attributes, PropertyDescriptor[] descriptors, object[] components)
-            : base(name, attributes)
+        public ExternalizedPropertyDescriptor(ExternalizedProperty property, Attribute[] attributes, PropertyDescriptor[] descriptors, object[] components)
+            : base(property.Name, attributes)
         {
             instances = components;
             properties = descriptors;
             componentType = descriptors.Length > 0 ? descriptors[0].ComponentType : null;
             propertyType = descriptors.Length > 0 ? descriptors[0].PropertyType : null;
             isReadOnly = descriptors.Length > 0 ? descriptors[0].IsReadOnly : true;
+            description = property.Description;
+            category = property.Category;
+        }
+
+        public override string Description
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(description)) return description;
+                else return base.Description;
+            }
+        }
+
+        public override string Category
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(category)) return category;
+                else return base.Category;
+            }
         }
 
         public override bool CanResetValue(object component)

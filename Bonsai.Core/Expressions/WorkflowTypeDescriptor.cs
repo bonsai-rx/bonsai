@@ -47,7 +47,7 @@ namespace Bonsai.Expressions
                               let targetComponents = node.Successors.Select(edge => ExpressionBuilder.GetWorkflowElement(edge.Target.Value)).ToArray()
                               let aggregateProperties = GetAggregateProperties(property, targetComponents)
                               let aggregateAttributes = GetAggregateAttributes(aggregateProperties)
-                              select new ExternalizedPropertyDescriptor(property.Name, aggregateAttributes, aggregateProperties, targetComponents))
+                              select new ExternalizedPropertyDescriptor(property, aggregateAttributes, aggregateProperties, targetComponents))
                               .Where(descriptor => descriptor.PropertyType != null);
             return new PropertyDescriptorCollection(properties.ToArray());
         }

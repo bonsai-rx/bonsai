@@ -35,12 +35,29 @@ namespace Bonsai.Expressions
         public string MemberName { get; set; }
 
         /// <summary>
-        /// Gets or sets the name of the property.
+        /// Gets or sets the name of the externalized property.
         /// </summary>
         [Category("Design")]
         [Externalizable(false)]
-        [Description("The name of the property. When set, the property will appear on the pages of a nested workflow.")]
+        [Description("The name of the externalized property. When set, the property will appear on the pages of a nested workflow.")]
         public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets an optional description for the externalized property.
+        /// </summary>
+        [Category("Design")]
+        [Externalizable(false)]
+        [Description("The optional description for the externalized property.")]
+        [Editor(DesignTypes.MultilineStringEditor, DesignTypes.UITypeEditor)]
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Gets or sets an optional category for the externalized property.
+        /// </summary>
+        [Category("Design")]
+        [Externalizable(false)]
+        [Description("The optional category used to group the externalized property.")]
+        public string Category { get; set; }
 
         string INamedElement.Name
         {
