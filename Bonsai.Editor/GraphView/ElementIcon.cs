@@ -25,7 +25,7 @@ namespace Bonsai.Design
         static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
         const string SvgExtension = ".svg";
         readonly string defaultName;
-        readonly INamedElement namedElement;
+        readonly IncludeWorkflowBuilder namedElement;
         readonly Type resourceQualifier;
 
         public ElementIcon(Type type)
@@ -59,14 +59,10 @@ namespace Bonsai.Design
             if (!string.IsNullOrEmpty(iconAttribute.Name)) defaultName = iconAttribute.Name;
             else defaultName = ExpressionBuilder.GetElementDisplayName(workflowElementType);
 
+            namedElement = workflowElement as IncludeWorkflowBuilder;
             if (resourceQualifier.Namespace != null)
             {
                 defaultName = string.Join(ExpressionHelper.MemberSeparator, resourceQualifier.Namespace, defaultName);
-            }
-
-            if (workflowElement is IncludeWorkflowBuilder || workflowElement is GroupWorkflowBuilder)
-            {
-                namedElement = workflowElement as INamedElement;
             }
         }
 
@@ -76,7 +72,7 @@ namespace Bonsai.Design
             {
                 if (namedElement != null)
                 {
-                    var elementName = namedElement.Name;
+                    var elementName = namedElement.Path;
                     if (!string.IsNullOrEmpty(elementName)) return elementName;
                 }
 
