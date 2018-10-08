@@ -56,11 +56,26 @@ namespace Bonsai.Expressions
             get { return GetElementDisplayName(Builder); }
         }
 
-        static bool RequiresBuild(ExpressionBuilder builder)
+        static void EnsureTypes(ExpressionBuilder builder)
         {
-            var combinatorBuilder = builder as CombinatorBuilder;
-            if (combinatorBuilder != null) return combinatorBuilder.Combinator is UnknownTypeBuilder;
-            else return builder is UnknownTypeBuilder;
+            var workflowElement = GetWorkflowElement(builder);
+            var unknownType = workflowElement as UnknownTypeBuilder;
+            if (unknownType != null) unknownType.Build();
+            else
+            {
+                var workflowBuilder = workflowElement as IWorkflowExpressionBuilder;
+                if (workflowBuilder != null && workflowBuilder.Workflow != null)
+                {
+                    foreach (var node in workflowBuilder.Workflow)
+                    {
+                        try { EnsureTypes(node.Value); }
+                        catch (Exception e)
+                        {
+                            throw new WorkflowBuildException(e.Message, node.Value, e);
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -79,11 +94,7 @@ namespace Bonsai.Expressions
                 return DisconnectExpression.Instance;
             }
 
-            if (RequiresBuild(builder))
-            {
-                return builder.Build(arguments);
-            }
-
+            EnsureTypes(builder);
             var distinctArguments = arguments.Distinct().ToArray();
             switch (distinctArguments.Length)
             {
