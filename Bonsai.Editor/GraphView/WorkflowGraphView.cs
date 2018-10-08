@@ -1795,7 +1795,11 @@ namespace Bonsai.Design
 
         public WorkflowEditorLauncher GetWorkflowEditorLauncher(GraphNode node)
         {
-            var workflowExpressionBuilder = GetGraphNodeBuilder(node) as IWorkflowExpressionBuilder;
+            var builder = GetGraphNodeBuilder(node);
+            var disableBuilder = builder as DisableBuilder;
+            if (disableBuilder != null) builder = disableBuilder.Builder;
+
+            var workflowExpressionBuilder = builder as IWorkflowExpressionBuilder;
             if (workflowExpressionBuilder != null)
             {
                 WorkflowEditorLauncher editorLauncher;
