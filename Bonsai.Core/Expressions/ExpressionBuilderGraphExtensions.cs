@@ -253,7 +253,11 @@ namespace Bonsai.Expressions
                 argumentLists.Add(successor.Target.Value, argumentList);
             }
 
-            argumentList.Add(successor.Label.Index, expression);
+            try { argumentList.Add(successor.Label.Index, expression); }
+            catch (ArgumentException e)
+            {
+                throw new WorkflowBuildException(e.Message, successor.Target.Value, e);
+            }
         }
 
         #endregion
