@@ -39,16 +39,15 @@ namespace Bonsai.Expressions
         public override PropertyDescriptorCollection GetProperties(Attribute[] attributes)
         {
             if (workflow == null) return base.GetProperties(attributes);
-            var properties = (from node in workflow
-                              let property = ExpressionBuilder.Unwrap(node.Value) as ExternalizedProperty
-                              where property != null
-                              let name = property.Name
-                              where !string.IsNullOrEmpty(name)
-                              let targetComponents = node.Successors.Select(edge => ExpressionBuilder.GetWorkflowElement(edge.Target.Value)).ToArray()
-                              let aggregateProperties = GetAggregateProperties(property, targetComponents)
-                              let aggregateAttributes = GetAggregateAttributes(aggregateProperties)
-                              select new ExternalizedPropertyDescriptor(property, aggregateAttributes, aggregateProperties, targetComponents))
-                              .Where(descriptor => descriptor.PropertyType != null);
+            var properties = from node in workflow
+                             let property = ExpressionBuilder.Unwrap(node.Value) as ExternalizedProperty
+                             where property != null
+                             let name = property.Name
+                             where !string.IsNullOrEmpty(name)
+                             let targetComponents = node.Successors.Select(edge => ExpressionBuilder.GetWorkflowElement(edge.Target.Value)).ToArray()
+                             let aggregateProperties = GetAggregateProperties(property, targetComponents)
+                             where aggregateProperties.Length > 0
+                             select new ExternalizedPropertyDescriptor(property, aggregateProperties, targetComponents);
             return new PropertyDescriptorCollection(properties.ToArray());
         }
 
@@ -74,22 +73,6 @@ namespace Bonsai.Expressions
             }
 
             return properties;
-        }
-
-        static Attribute[] GetAggregateAttributes(PropertyDescriptor[] properties)
-        {
-            var result = EmptyAttributes;
-            for (int i = 0; i < properties.Length; i++)
-            {
-                var attributes = properties[i].Attributes;
-                if (result.Length != attributes.Count)
-                {
-                    result = new Attribute[attributes.Count];
-                }
-                attributes.CopyTo(result, 0);
-            }
-
-            return result;
         }
     }
 }
