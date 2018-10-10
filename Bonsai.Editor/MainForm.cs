@@ -1305,7 +1305,7 @@ namespace Bonsai.Editor
             Action selectExceptionNode = () =>
             {
                 var workflowException = e as WorkflowException;
-                if (workflowException != null || exceptionCache.TryGetValue(e, out workflowException))
+                if (workflowException != null && workflowException.Builder != null || exceptionCache.TryGetValue(e, out workflowException))
                 {
                     workflowError = workflowException;
                     HighlightExceptionBuilderNode(editorControl.WorkflowGraphView, workflowException, building);
