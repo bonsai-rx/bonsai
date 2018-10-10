@@ -458,6 +458,38 @@ namespace Bonsai.Expressions
 
         #endregion
 
+        #region Cycle Detection
+
+        static DependencyElement FindCyclicalDependency(ExpressionBuilderGraph source, IBuildContext buildContext)
+        {
+            return (from dependency in SelectDependencyElements(source, buildContext)
+                    where dependency.Element is SubscribeSubjectBuilder
+                    from successor in dependency.Node.Successors
+                    where successor.Target.DepthFirstSearch().Contains(dependency.Node)
+                    select dependency)
+                    .FirstOrDefault();
+        }
+
+        static Exception CreateDependencyException(string message, DependencyElement element)
+        {
+            var stack = new Stack<DependencyElement>();
+            while (element != null)
+            {
+                stack.Push(element);
+                element = element.InnerDependency;
+            }
+
+            var exception = default(Exception);
+            foreach (var dependency in stack)
+            {
+                exception = new WorkflowBuildException(message, dependency.Node.Value, exception);
+            }
+
+            return exception;
+        }
+
+        #endregion
+
         #region Nested Workflows
 
         internal static IEnumerable<WorkflowInputBuilder> GetNestedParameters(this ExpressionBuilderGraph source)
@@ -493,7 +525,17 @@ namespace Bonsai.Expressions
             var multicastMap = new List<MulticastScope>();
             var connections = new List<Expression>();
 
-            foreach (var node in source.TopologicalSort())
+            var buildOrder = source.TopologicalSort();
+            if (buildOrder == Enumerable.Empty<Node<ExpressionBuilder, ExpressionBuilderArgument>>())
+            {
+                var cyclicalDependency = FindCyclicalDependency(source, buildContext);
+                if (cyclicalDependency == null) throw new WorkflowBuildException("The workflow contains unspecified cyclical build dependencies.");
+                var name = ((SubscribeSubjectBuilder)cyclicalDependency.Element).Name;
+                var message = string.Format("The specified variable '{0}' is defined in terms of itself.", name);
+                throw CreateDependencyException(message, cyclicalDependency);
+            }
+
+            foreach (var node in buildOrder)
             {
                 Expression expression;
                 var builder = node.Value;
