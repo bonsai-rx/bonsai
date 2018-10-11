@@ -89,6 +89,7 @@
     <Compile Include="Expressions\IncludeWorkflowBuilder.cs" />
     <Compile Include="Expressions\IndexBuilder.cs" />
     <Compile Include="Expressions\IWorkflowExpressionBuilder.cs" />
+    <Compile Include="Expressions\MulticastBranchExpression.cs" />
     <Compile Include="Expressions\Properties\ByteProperty.cs" />
     <Compile Include="Expressions\PropertyMappingNameConverter.cs" />
     <Compile Include="Expressions\PropertySource.cs" />

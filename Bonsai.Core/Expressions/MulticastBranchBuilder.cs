@@ -20,7 +20,8 @@ namespace Bonsai.Expressions
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             Source = arguments.Single();
-            return MulticastParameter = Expression.Parameter(Source.Type);
+            MulticastParameter = Expression.Parameter(Source.Type);
+            return new MulticastBranchExpression(MulticastParameter, Source);
         }
 
         internal Expression BuildMulticast(Expression source, LambdaExpression selector)

@@ -107,10 +107,9 @@ namespace Bonsai.Expressions
 
             // If source is already an inspect node, use it
             // for output notifications, but not for errors
-            var methodCall = source as MethodCallExpression;
-            if (methodCall != null && methodCall.Object != null && methodCall.Object.Type == typeof(InspectBuilder))
+            var inspectBuilder = GetInspectBuilder(source);
+            if (inspectBuilder != null)
             {
-                var inspectBuilder = (InspectBuilder)((ConstantExpression)methodCall.Object).Value;
                 Output = inspectBuilder.Output;
                 ErrorEx = Observable.Empty<Exception>();
                 return source;
@@ -128,6 +127,23 @@ namespace Bonsai.Expressions
                 ErrorEx = Observable.Empty<Exception>();
                 return source;
             }
+        }
+
+        static InspectBuilder GetInspectBuilder(Expression source)
+        {
+            MulticastBranchExpression multicastExpression;
+            while ((multicastExpression = source as MulticastBranchExpression) != null)
+            {
+                source = multicastExpression.Source;
+            }
+
+            var methodCall = source as MethodCallExpression;
+            if (methodCall != null && methodCall.Object != null && methodCall.Object.Type == typeof(InspectBuilder))
+            {
+                return (InspectBuilder)((ConstantExpression)methodCall.Object).Value;
+            }
+
+            return null;
         }
 
         ReplaySubject<IObservable<TSource>> CreateInspectorSubject<TSource>()
