@@ -883,6 +883,11 @@ namespace Bonsai.Expressions
 
         #region Nested Workflow Output
 
+        internal static bool IsReducible(Expression expression)
+        {
+            return expression.NodeType != ExpressionType.Extension || expression.CanReduce;
+        }
+
         static IObservable<Unit> IgnoreConnection<TSource>(IObservable<TSource> source)
         {
             return source.IgnoreElements().Select(xs => Unit.Default);
@@ -902,7 +907,7 @@ namespace Bonsai.Expressions
         {
             foreach (var connection in connections)
             {
-                if (connection.NodeType == ExpressionType.Extension)
+                if (!IsReducible(connection))
                 {
                     var disable = connection as DisableExpression;
                     if (disable != null)
