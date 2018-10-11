@@ -592,8 +592,9 @@ namespace Bonsai.Expressions
                 }
 
                 // Merge build dependencies
+                var reducible = ExpressionBuilder.IsReducible(expression);
                 var buildDependencies = GetArgumentList(dependencyLists, builder);
-                if (buildDependencies.Count > 0 && expression.NodeType != ExpressionType.Extension)
+                if (buildDependencies.Count > 0 && reducible)
                 {
                     expression = ExpressionBuilder.MergeBuildDependencies(expression, buildDependencies);
                 }
@@ -637,8 +638,8 @@ namespace Bonsai.Expressions
                     return false;
                 });
 
-                // Evaluate extension expressions
-                if (expression.NodeType == ExpressionType.Extension)
+                // Evaluate irreducible extension expressions
+                if (!reducible)
                 {
                     // Disconnect disabled build dependencies from their immediate successors
                     if (expression == DisconnectExpression.Instance)
@@ -688,7 +689,7 @@ namespace Bonsai.Expressions
                 }
 
                 var argumentBuilder = workflowElement as IArgumentBuilder;
-                if (successorCount > 1 && expression.NodeType != ExpressionType.Extension)
+                if (successorCount > 1 && reducible)
                 {
                     // Start a new multicast scope
                     MulticastBranchBuilder multicastBuilder;

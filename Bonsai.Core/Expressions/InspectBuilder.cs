@@ -100,7 +100,7 @@ namespace Bonsai.Expressions
             ObservableType = null;
             var source = Builder.Build(arguments);
             if (source == EmptyExpression.Instance) return source;
-            if (source.NodeType != ExpressionType.Extension)
+            if (ExpressionBuilder.IsReducible(source))
             {
                 ObservableType = source.Type.GetGenericArguments()[0];
             }
