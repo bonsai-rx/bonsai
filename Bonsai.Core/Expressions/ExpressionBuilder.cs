@@ -1009,47 +1009,39 @@ namespace Bonsai.Expressions
             return BuildArgumentAccess(arguments, selector);
         }
 
-        internal static Expression BuildPropertyMapping(Expression source, Expression instance, string propertyName)
+        internal static Expression BuildPropertyMapping(Expression source, ConstantExpression instance, string propertyName, string sourceSelector)
         {
-            return BuildPropertyMapping(source, instance, propertyName, string.Empty);
-        }
-
-        internal static Expression BuildPropertyMapping(Expression source, Expression instance, string propertyName, string sourceSelector)
-        {
-            if (instance.NodeType == ExpressionType.Constant)
+            var element = instance.Value;
+            var workflowBuilder = element as IWorkflowExpressionBuilder;
+            if (workflowBuilder != null && workflowBuilder.Workflow != null)
             {
-                var element = ((ConstantExpression)instance).Value;
-                var workflowBuilder = element as IWorkflowExpressionBuilder;
-                if (workflowBuilder != null && workflowBuilder.Workflow != null)
+                var inputBuilder = (from node in workflowBuilder.Workflow
+                                    let workflowProperty = Unwrap(node.Value) as ExternalizedProperty
+                                    where workflowProperty != null && workflowProperty.Name == propertyName
+                                    select new { node, workflowProperty }).FirstOrDefault();
+                if (inputBuilder == null)
                 {
-                    var inputBuilder = (from node in workflowBuilder.Workflow
-                                        let workflowProperty = Unwrap(node.Value) as ExternalizedProperty
-                                        where workflowProperty != null && workflowProperty.Name == propertyName
-                                        select new { node, workflowProperty }).FirstOrDefault();
-                    if (inputBuilder == null)
-                    {
-                        throw new InvalidOperationException(string.Format(
-                            "The specified property '{0}' was not found in the nested workflow.",
-                            propertyName));
-                    }
-
-                    // Checking nested externalized properties requires only one level of indirection
-                    if (source == EmptyExpression.Instance) return source;
-
-                    var argument = source;
-                    foreach (var successor in inputBuilder.node.Successors)
-                    {
-                        inputBuilder.workflowProperty.BuildArgument(argument, successor, out argument, sourceSelector);
-                    }
-                    return argument;
+                    throw new InvalidOperationException(string.Format(
+                        "The specified property '{0}' was not found in the nested workflow.",
+                        propertyName));
                 }
 
-                //TODO: The special case for binary operator operands should be avoided in the future
-                var binaryOperator = element as BinaryOperatorBuilder;
-                if (binaryOperator != null && binaryOperator.Operand != null)
+                // Checking nested externalized properties requires only one level of indirection
+                if (source == EmptyExpression.Instance) return source;
+
+                var argument = source;
+                foreach (var successor in inputBuilder.node.Successors)
                 {
-                    instance = Expression.Constant(binaryOperator.Operand);
+                    inputBuilder.workflowProperty.BuildArgument(argument, successor, out argument, sourceSelector);
                 }
+                return argument;
+            }
+
+            //TODO: The special case for binary operator operands should be avoided in the future
+            var binaryOperator = element as BinaryOperatorBuilder;
+            if (binaryOperator != null && binaryOperator.Operand != null)
+            {
+                instance = Expression.Constant(binaryOperator.Operand);
             }
 
             var property = Expression.Property(instance, propertyName);
