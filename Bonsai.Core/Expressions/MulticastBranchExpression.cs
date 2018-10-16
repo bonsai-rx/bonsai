@@ -9,7 +9,7 @@ namespace Bonsai.Expressions
 {
     class MulticastBranchExpression : Expression
     {
-        readonly Expression expression;
+        Expression expression;
 
         public MulticastBranchExpression(ParameterExpression parameter, Expression source)
         {
@@ -18,6 +18,11 @@ namespace Bonsai.Expressions
         }
 
         public Expression Source { get; private set; }
+
+        public new ParameterExpression Parameter
+        {
+            get { return expression as ParameterExpression; }
+        }
 
         public override Type Type
         {
@@ -42,6 +47,11 @@ namespace Bonsai.Expressions
         public override string ToString()
         {
             return expression.ToString();
+        }
+
+        public void Cancel()
+        {
+            expression = Source;
         }
     }
 }

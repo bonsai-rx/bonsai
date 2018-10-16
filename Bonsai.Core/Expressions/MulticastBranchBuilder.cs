@@ -15,13 +15,12 @@ namespace Bonsai.Expressions
 
         internal Expression Source { get; set; }
 
-        internal ParameterExpression MulticastParameter { get; set; }
+        internal MulticastBranchExpression BranchExpression { get; set; }
 
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             Source = arguments.Single();
-            MulticastParameter = Expression.Parameter(Source.Type);
-            return new MulticastBranchExpression(MulticastParameter, Source);
+            return BranchExpression = new MulticastBranchExpression(Expression.Parameter(Source.Type), Source);
         }
 
         internal Expression BuildMulticast(Expression source, LambdaExpression selector)
