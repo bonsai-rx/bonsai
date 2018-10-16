@@ -735,6 +735,31 @@ namespace Bonsai.Expressions
                 }
             }
 
+            // Prune disabled multicast branches from output
+            multicastMap.RemoveAll(scope =>
+            {
+                var index = -1;
+                int? argumentIndex = null;
+                var branchesRemoved = connections.RemoveAll(connection =>
+                {
+                    index++;
+                    var branchExpression = connection as MulticastBranchExpression;
+                    if (branchExpression != null && branchExpression == scope.MulticastBuilder.BranchExpression)
+                    {
+                        if (argumentIndex == null) argumentIndex = index;
+                        return true;
+                    }
+
+                    return false;
+                });
+
+                var activeBranches = scope.References.Count - branchesRemoved;
+                if (activeBranches > 1) return false;
+                if (activeBranches == 1) scope.MulticastBuilder.BranchExpression.Cancel();
+                if (activeBranches == 0) connections.Insert(argumentIndex.Value, scope.MulticastBuilder.Source);
+                return true;
+            });
+
             var output = ExpressionBuilder.BuildOutput(workflowOutput, connections);
             multicastMap.RemoveAll(scope =>
             {
