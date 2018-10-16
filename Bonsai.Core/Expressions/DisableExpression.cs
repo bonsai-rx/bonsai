@@ -28,7 +28,21 @@ namespace Bonsai.Expressions
 
         public IEnumerable<Expression> Arguments
         {
-            get { return arguments; }
+            get
+            {
+                foreach (var argument in arguments)
+                {
+                    var disable = argument as DisableExpression;
+                    if (disable != null)
+                    {
+                        foreach (var nestedArgument in disable.Arguments)
+                        {
+                            yield return nestedArgument;
+                        }
+                    }
+                    else yield return argument;
+                }
+            }
         }
     }
 }
