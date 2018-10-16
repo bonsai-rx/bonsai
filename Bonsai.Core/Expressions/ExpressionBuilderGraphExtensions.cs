@@ -729,7 +729,9 @@ namespace Bonsai.Expressions
 
                 if (successorCount == 0)
                 {
-                    connections.Add(expression);
+                    var disable = expression as DisableExpression;
+                    if (disable != null) connections.AddRange(disable.Arguments);
+                    else connections.Add(expression);
                 }
             }
 
