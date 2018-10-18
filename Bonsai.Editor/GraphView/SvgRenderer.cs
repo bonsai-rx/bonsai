@@ -25,7 +25,6 @@ namespace Bonsai.Design
         public float Scale;
         public PointF Translation;
         public Pen Outlining;
-        public Brush Background;
     }
 
     class SvgRendererContext
