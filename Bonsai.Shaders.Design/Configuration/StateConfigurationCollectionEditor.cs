@@ -25,6 +25,7 @@ namespace Bonsai.Shaders.Configuration.Design
                 typeof(LineWidthState),
                 typeof(PointSizeState),
                 typeof(DepthMaskState),
+                typeof(PolygonModeState),
                 typeof(BlendFunctionState),
                 typeof(DepthFunctionState),
                 typeof(MemoryBarrierState)

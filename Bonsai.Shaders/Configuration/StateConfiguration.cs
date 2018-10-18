@@ -14,6 +14,7 @@ namespace Bonsai.Shaders.Configuration
     [XmlInclude(typeof(LineWidthState))]
     [XmlInclude(typeof(PointSizeState))]
     [XmlInclude(typeof(DepthMaskState))]
+    [XmlInclude(typeof(PolygonModeState))]
     [XmlInclude(typeof(BlendFunctionState))]
     [XmlInclude(typeof(DepthFunctionState))]
     [XmlInclude(typeof(MemoryBarrierState))]
