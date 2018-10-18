@@ -58,7 +58,6 @@ namespace Bonsai.Design
         IWorkflowEditorService editorService;
         Dictionary<InspectBuilder, VisualizerDialogLauncher> visualizerMapping;
         Dictionary<IWorkflowExpressionBuilder, WorkflowEditorLauncher> workflowEditorMapping;
-        ExpressionBuilderTypeConverter builderConverter;
         VisualizerLayout visualizerLayout;
         IServiceProvider serviceProvider;
         IUIService uiService;
@@ -89,7 +88,6 @@ namespace Bonsai.Design
             selectionModel = (WorkflowSelectionModel)provider.GetService(typeof(WorkflowSelectionModel));
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
             editorState = (IWorkflowEditorState)provider.GetService(typeof(IWorkflowEditorState));
-            builderConverter = new ExpressionBuilderTypeConverter();
             workflowEditorMapping = new Dictionary<IWorkflowExpressionBuilder, WorkflowEditorLauncher>();
 
             graphView.HandleDestroyed += graphView_HandleDestroyed;
@@ -383,7 +381,7 @@ namespace Bonsai.Design
             }
 
             var launcher = new VisualizerDialogLauncher(inspectBuilder, visualizerFactory, this);
-            launcher.Text = builderConverter.ConvertToString(inspectBuilder);
+            launcher.Text = ExpressionBuilder.GetElementDisplayName(inspectBuilder);
             if (deserializeVisualizer)
             {
                 launcher = launcher.Visualizer.Value != null ? launcher : null;
@@ -448,7 +446,7 @@ namespace Bonsai.Design
         {
             if (node != null && node.Value != null)
             {
-                return ExpressionBuilder.Unwrap((ExpressionBuilder)node.Value);
+                return ExpressionBuilder.Unwrap(node.Value);
             }
 
             return null;

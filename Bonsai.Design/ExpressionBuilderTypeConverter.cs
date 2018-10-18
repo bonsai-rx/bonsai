@@ -9,6 +9,7 @@ using System.Drawing;
 
 namespace Bonsai.Design
 {
+    [Obsolete]
     public class ExpressionBuilderTypeConverter : TypeConverter
     {
         static readonly Pen SolidPen = Pens.DarkGray;

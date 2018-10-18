@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Drawing;
 using System.ComponentModel;
+using Bonsai.Expressions;
 
 namespace Bonsai.Design
 {
     class GraphEdge
     {
-        public GraphEdge(ITypeDescriptorContext context, object label, GraphNode successor)
+        public GraphEdge(ITypeDescriptorContext context, ExpressionBuilderArgument label, GraphNode successor)
         {
             Label = label;
             Node = successor;
@@ -17,8 +18,7 @@ namespace Bonsai.Design
             Text = string.Empty;
             if (label != null)
             {
-                var typeConverter = TypeDescriptor.GetConverter(label);
-                Text = typeConverter.ConvertToString(context, label);
+                Text = label.Name;
             }
         }
 
@@ -29,7 +29,7 @@ namespace Bonsai.Design
             Text = edge.Text;
         }
 
-        public object Label { get; private set; }
+        public ExpressionBuilderArgument Label { get; private set; }
 
         public GraphNode Node { get; set; }
 

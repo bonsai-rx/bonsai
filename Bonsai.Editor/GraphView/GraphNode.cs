@@ -4,54 +4,70 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using Bonsai.Expressions;
 
 namespace Bonsai.Design
 {
     class GraphNode
     {
-        readonly TypeConverter typeConverter;
+        static readonly Brush DisabledBrush = new HatchBrush(HatchStyle.BackwardDiagonal, Color.Black, Color.Transparent);
+        static readonly Brush ObsoleteBrush = new HatchBrush(HatchStyle.OutlinedDiamond, Color.Black, Color.Transparent);
+        static readonly Pen SolidPen = Pens.DarkGray;
+        static readonly Pen DashPen = new Pen(Brushes.DarkGray)
+        {
+            DashPattern = new[] { 4f, 2f }
+        };
 
-        public GraphNode(object value, int layer, IEnumerable<GraphEdge> successors)
+        public GraphNode(ExpressionBuilder value, int layer, IEnumerable<GraphEdge> successors)
         {
             Value = value;
             Layer = layer;
             Successors = successors;
 
-            Pen = Pens.Black;
+            Pen = SolidPen;
             Brush = Brushes.White;
             if (value != null)
             {
-                typeConverter = TypeDescriptor.GetConverter(value);
-                if (typeConverter.CanConvertTo(typeof(Brush)))
-                {
-                    Brush = (Brush)typeConverter.ConvertTo(value, typeof(Brush));
-                }
+                var expressionBuilder = ExpressionBuilder.Unwrap(value);
+                var elementAttributes = TypeDescriptor.GetAttributes(expressionBuilder);
+                var elementCategoryAttribute = (WorkflowElementCategoryAttribute)elementAttributes[typeof(WorkflowElementCategoryAttribute)];
+                var obsolete = (ObsoleteAttribute)elementAttributes[typeof(ObsoleteAttribute)] != null;
+                var disabled = expressionBuilder is DisableBuilder;
 
-                if (typeConverter.CanConvertTo(typeof(Type)))
+                var workflowElement = ExpressionBuilder.GetWorkflowElement(expressionBuilder);
+                if (workflowElement != expressionBuilder)
                 {
-                    ElementType = (Type)typeConverter.ConvertTo(value, typeof(Type));
-                    var builder = value as Expressions.ExpressionBuilder;
-                    if (builder != null)
+                    var builderCategoryAttribute = elementCategoryAttribute;
+                    elementAttributes = TypeDescriptor.GetAttributes(workflowElement);
+                    elementCategoryAttribute = (WorkflowElementCategoryAttribute)elementAttributes[typeof(WorkflowElementCategoryAttribute)];
+                    obsolete |= (ObsoleteAttribute)elementAttributes[typeof(ObsoleteAttribute)] != null;
+                    if (elementCategoryAttribute == WorkflowElementCategoryAttribute.Default)
                     {
-                        Icon = new ElementIcon(builder);
+                        elementCategoryAttribute = builderCategoryAttribute;
                     }
                 }
 
-                if (typeConverter.CanConvertTo(typeof(ElementCategory)))
-                {
-                    Category = (ElementCategory)typeConverter.ConvertTo(value, typeof(ElementCategory));
-                }
+                ElementType = workflowElement.GetType();
+                Category = elementCategoryAttribute.Category;
+                ModifierBrush = disabled ? DisabledBrush : obsolete ? ObsoleteBrush : null;
+                Pen = expressionBuilder.IsBuildDependency() ? DashPen : SolidPen;
+                Icon = new ElementIcon(expressionBuilder);
 
-                if (typeConverter.CanConvertTo(typeof(Pen)))
+                switch (elementCategoryAttribute.Category)
                 {
-                    Pen = (Pen)typeConverter.ConvertTo(value, typeof(Pen));
+                    case ElementCategory.Source: Brush = Brushes.Violet; break;
+                    case ElementCategory.Condition: Brush = Brushes.LightGreen; break;
+                    case ElementCategory.Transform: Brush = Brushes.White; break;
+                    case ElementCategory.Sink: Brush = Brushes.DarkGray; break;
+                    case ElementCategory.Nested: Brush = Brushes.Goldenrod; break;
+                    case ElementCategory.Property: Brush = Brushes.Orange; break;
+                    case ElementCategory.Combinator:
+                    default: Brush = Brushes.LightBlue; break;
                 }
             }
 
-            if (Pen != null)
-            {
-                InitializeDummySuccessors();
-            }
+            InitializeDummySuccessors();
         }
 
         void InitializeDummySuccessors()
@@ -72,13 +88,15 @@ namespace Bonsai.Design
 
         public int LayerIndex { get; internal set; }
 
-        public object Value { get; private set; }
+        public ExpressionBuilder Value { get; private set; }
 
         public IEnumerable<GraphEdge> Successors { get; private set; }
 
         public object Tag { get; set; }
 
         public Brush Brush { get; private set; }
+
+        public Brush ModifierBrush { get; private set; }
 
         public Type ElementType { get; private set; }
 
@@ -90,7 +108,7 @@ namespace Bonsai.Design
 
         public string Text
         {
-            get { return typeConverter != null ? typeConverter.ConvertToString(Value) : string.Empty; }
+            get { return Value != null ? ExpressionBuilder.GetElementDisplayName(Value) : string.Empty; }
         }
 
         /// <summary>
