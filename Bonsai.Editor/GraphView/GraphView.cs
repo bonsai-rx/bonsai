@@ -1119,7 +1119,6 @@ namespace Bonsai.Design
 
                         SvgRenderer renderer;
                         iconRendererState.Outlining = BlackIconPen;
-                        iconRendererState.Background = layout.Node.Brush;
                         iconRendererState.Translation = nodeRectangle.Location;
                         graphics.DrawEllipse(BlackPen, nodeRectangle);
                         graphics.FillEllipse(layout.Node.Brush, nodeRectangle);
@@ -1215,7 +1214,6 @@ namespace Bonsai.Design
 
                     SvgRenderer renderer;
                     iconRendererState.Outlining = iconPen;
-                    iconRendererState.Background = brush;
                     iconRendererState.Translation = nodeRectangle.Location;
                     e.Graphics.DrawEllipse(pen, nodeRectangle);
                     e.Graphics.FillEllipse(brush, nodeRectangle);
