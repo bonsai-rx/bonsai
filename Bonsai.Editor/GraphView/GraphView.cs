@@ -1120,12 +1120,18 @@ namespace Bonsai.Design
                         SvgRenderer renderer;
                         iconRendererState.Outlining = BlackIconPen;
                         iconRendererState.Translation = nodeRectangle.Location;
-                        graphics.DrawEllipse(BlackPen, nodeRectangle);
-                        graphics.FillEllipse(layout.Node.Brush, nodeRectangle);
+                        graphics.DrawEllipse(NodePen, nodeRectangle);
                         if (IconRenderer != null &&
                            (renderer = IconRenderer.GetCategoryRenderer(layout.Node)) != null)
                         {
                             renderer(iconRendererState, graphics);
+                        }
+                        else graphics.FillEllipse(layout.Node.Brush, nodeRectangle);
+
+                        var modifierBrush = layout.Node.ModifierBrush;
+                        if (modifierBrush != null)
+                        {
+                            graphics.FillEllipse(modifierBrush, nodeRectangle);
                         }
 
                         if (IconRenderer != null && layout.Node.Icon != null &&
@@ -1204,7 +1210,7 @@ namespace Bonsai.Design
                     {
                         iconPen = selected ? WhiteIconPen : BlackIconPen;
                         pen = cursor == layout.Node ? CursorPen : NodePen;
-                        brush = selected ? (Focused ? FocusedSelectionBrush : UnfocusedSelectionBrush) : layout.Node.Brush;
+                        brush = selected ? (Focused ? FocusedSelectionBrush : UnfocusedSelectionBrush) : layout.Node.ModifierBrush;
                     }
 
                     var nodeRectangle = new Rectangle(
@@ -1216,11 +1222,16 @@ namespace Bonsai.Design
                     iconRendererState.Outlining = iconPen;
                     iconRendererState.Translation = nodeRectangle.Location;
                     e.Graphics.DrawEllipse(pen, nodeRectangle);
-                    e.Graphics.FillEllipse(brush, nodeRectangle);
                     if (IconRenderer != null &&
                        (renderer = IconRenderer.GetCategoryRenderer(layout.Node)) != null)
                     {
                         renderer(iconRendererState, graphics);
+                    }
+                    else e.Graphics.FillEllipse(layout.Node.Brush, nodeRectangle);
+
+                    if (brush != null)
+                    {
+                        e.Graphics.FillEllipse(brush, nodeRectangle);
                     }
 
                     if (IconRenderer != null && layout.Node.Icon != null &&

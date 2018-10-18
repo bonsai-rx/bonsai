@@ -1468,7 +1468,7 @@ namespace Bonsai.Editor
         {
             var selectedObjects = selectionModel.SelectedNodes.Select(node =>
             {
-                var builder = ExpressionBuilder.Unwrap((ExpressionBuilder)node.Value);
+                var builder = ExpressionBuilder.Unwrap(node.Value);
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
                 var instance = workflowElement ?? builder;
                 return instance;

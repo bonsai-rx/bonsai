@@ -28,14 +28,14 @@ namespace Bonsai.Design
             return source.SelectMany(layer => layer).Where(node => node.Value != null);
         }
 
-        static IEnumerable<GraphEdge> GetLayeredSuccessors<TNodeValue, TEdgeLabel>(Node<TNodeValue, TEdgeLabel> node, int layer, Dictionary<Node<TNodeValue, TEdgeLabel>, GraphNode> layerMap)
+        static IEnumerable<GraphEdge> GetLayeredSuccessors(Node<ExpressionBuilder, ExpressionBuilderArgument> node, int layer, Dictionary<Node<ExpressionBuilder, ExpressionBuilderArgument>, GraphNode> layerMap)
         {
             foreach (var successor in node.Successors)
             {
                 var layeredSuccessor = layerMap[successor.Target];
                 var currentSuccessor = layeredSuccessor;
 
-                var property = TypeDescriptor.CreateProperty(typeof(Edge<TNodeValue, TEdgeLabel>), "Label", typeof(TEdgeLabel));
+                var property = TypeDescriptor.CreateProperty(typeof(Edge<ExpressionBuilder, ExpressionBuilderArgument>), "Label", typeof(ExpressionBuilderArgument));
                 var context = new TypeDescriptorContext(successor, property);
                 for (int i = layeredSuccessor.Layer + 1; i < layer; i++)
                 {
@@ -49,9 +49,9 @@ namespace Bonsai.Design
             }
         }
 
-        static IEnumerable<GraphNode> ComputeLongestPathLayering<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source)
+        static IEnumerable<GraphNode> ComputeLongestPathLayering(this ExpressionBuilderGraph source)
         {
-            var layerMap = new Dictionary<Node<TNodeValue, TEdgeLabel>, GraphNode>();
+            var layerMap = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderArgument>, GraphNode>();
             foreach (var node in source.TopologicalSort().Reverse())
             {
                 var layer = 0;
@@ -82,7 +82,7 @@ namespace Bonsai.Design
             }
         }
 
-        public static IEnumerable<GraphNodeGrouping> LongestPathLayering<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source)
+        public static IEnumerable<GraphNodeGrouping> LongestPathLayering(this ExpressionBuilderGraph source)
         {
             Dictionary<int, GraphNodeGrouping> layers = new Dictionary<int, GraphNodeGrouping>();
             foreach (var layeredNode in ComputeLongestPathLayering(source))
@@ -376,34 +376,29 @@ namespace Bonsai.Design
             return layers;
         }
 
-        class ConnectedComponent<TNodeValue, TEdgeLabel> : DirectedGraph<TNodeValue, TEdgeLabel>
+        class ConnectedComponent : ExpressionBuilderGraph
         {
             public ConnectedComponent(int index)
             {
                 Index = index;
             }
 
-            public ConnectedComponent(int index, IComparer<TNodeValue> comparer)
-                : base(comparer)
-            {
-            }
-
             public int Index { get; private set; }
         }
 
-        static IEnumerable<ConnectedComponent<TNodeValue, TEdgeLabel>> FindConnectedComponents<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source)
+        static IEnumerable<ConnectedComponent> FindConnectedComponents(this ExpressionBuilderGraph source)
         {
-            var connectedComponents = new List<ConnectedComponent<TNodeValue, TEdgeLabel>>();
-            var connectedComponentMap = new Dictionary<Node<TNodeValue, TEdgeLabel>, ConnectedComponent<TNodeValue, TEdgeLabel>>();
-            var visited = new Queue<Node<TNodeValue, TEdgeLabel>>();
+            var connectedComponents = new List<ConnectedComponent>();
+            var connectedComponentMap = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderArgument>, ConnectedComponent>();
+            var visited = new Queue<Node<ExpressionBuilder, ExpressionBuilderArgument>>();
             foreach (var node in source)
             {
-                ConnectedComponent<TNodeValue, TEdgeLabel> component = null;
+                ConnectedComponent component = null;
                 if (!connectedComponentMap.TryGetValue(node, out component))
                 {
                     foreach (var successor in node.DepthFirstSearch())
                     {
-                        ConnectedComponent<TNodeValue, TEdgeLabel> successorComponent;
+                        ConnectedComponent successorComponent;
                         if (connectedComponentMap.TryGetValue(successor, out successorComponent))
                         {
                             if (component != null && component != successorComponent)
@@ -427,7 +422,7 @@ namespace Bonsai.Design
 
                     if (component == null)
                     {
-                        component = new ConnectedComponent<TNodeValue, TEdgeLabel>(connectedComponents.Count, source.Comparer);
+                        component = new ConnectedComponent(connectedComponents.Count);
                         connectedComponents.Add(component);
                     }
 
@@ -443,7 +438,7 @@ namespace Bonsai.Design
             return connectedComponents;
         }
 
-        public static IEnumerable<GraphNodeGrouping> ConnectedComponentLayering<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source)
+        public static IEnumerable<GraphNodeGrouping> ConnectedComponentLayering(this ExpressionBuilderGraph source)
         {
             int layerOffset = 0;
             List<GraphNodeGrouping> layers = new List<GraphNodeGrouping>();
