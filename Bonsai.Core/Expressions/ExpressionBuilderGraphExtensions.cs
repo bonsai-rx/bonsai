@@ -214,7 +214,95 @@ namespace Bonsai.Expressions
 
         #region Argument Lists
 
-        static readonly Expression[] EmptyArguments = new Expression[0];
+        class ArgumentList : IEnumerable<Expression>
+        {
+            int count;
+            readonly SortedList<int, ExpressionArgument> arguments = new SortedList<int, ExpressionArgument>();
+            internal static readonly ArgumentList Empty = new ArgumentList();
+
+            public int Count
+            {
+                get { return count; }
+            }
+
+            public void Add(int key, ExpressionArgument argument)
+            {
+                arguments.Add(key, argument);
+                if (argument.NestedArguments != null) count += argument.NestedArguments.Length;
+                else count++;
+            }
+
+            public IEnumerator<Expression> GetEnumerator()
+            {
+                foreach (var argument in arguments.Values)
+                {
+                    if (argument.NestedArguments != null)
+                    {
+                        foreach (var nestedArgument in argument.NestedArguments)
+                        {
+                            yield return nestedArgument;
+                        }
+                    }
+                    else yield return argument.Expression;
+                }
+            }
+
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+        }
+
+        struct ExpressionArgument
+        {
+            public Expression Expression;
+            public Expression[] NestedArguments;
+        }
+
+        static ArgumentList GetArgumentList(
+            Dictionary<ExpressionBuilder, ArgumentList> argumentLists,
+            ExpressionBuilder builder)
+        {
+            ArgumentList argumentList;
+            if (argumentLists.TryGetValue(builder, out argumentList))
+            {
+                argumentLists.Remove(builder);
+                return argumentList;
+            }
+
+            return ArgumentList.Empty;
+        }
+
+        static void UpdateArgumentList(
+            Dictionary<ExpressionBuilder, ArgumentList> argumentLists,
+            Edge<ExpressionBuilder, ExpressionBuilderArgument> successor,
+            Expression expression)
+        {
+            ExpressionArgument argument;
+            argument.Expression = expression;
+            var disable = expression as DisableExpression;
+            argument.NestedArguments = disable != null ? disable.Arguments : null;
+            UpdateArgumentList(argumentLists, successor, argument);
+        }
+
+        static void UpdateArgumentList(
+            Dictionary<ExpressionBuilder, ArgumentList> argumentLists,
+            Edge<ExpressionBuilder, ExpressionBuilderArgument> successor,
+            ExpressionArgument argument)
+        {
+            ArgumentList argumentList;
+            if (!argumentLists.TryGetValue(successor.Target.Value, out argumentList))
+            {
+                argumentList = new ArgumentList();
+                argumentLists.Add(successor.Target.Value, argumentList);
+            }
+
+            try { argumentList.Add(successor.Label.Index, argument); }
+            catch (ArgumentException e)
+            {
+                throw new WorkflowBuildException(e.Message, successor.Target.Value, e);
+            }
+        }
 
         static void RegisterPropertyName(ExpressionBuilder builder, INamedElement element, ref HashSet<string> namedElements)
         {
@@ -222,41 +310,6 @@ namespace Bonsai.Expressions
             if (!namedElements.Add(element.Name))
             {
                 throw new WorkflowBuildException("A workflow property with the specified name already exists.", builder);
-            }
-        }
-
-        static IList<Expression> GetArgumentList(
-            Dictionary<ExpressionBuilder, SortedList<int, Expression>> argumentLists,
-            ExpressionBuilder builder)
-        {
-            IList<Expression> arguments;
-            SortedList<int, Expression> argumentList;
-
-            if (argumentLists.TryGetValue(builder, out argumentList))
-            {
-                arguments = argumentList.Values;
-                argumentLists.Remove(builder);
-            }
-            else arguments = EmptyArguments;
-            return arguments;
-        }
-
-        static void UpdateArgumentList(
-            Dictionary<ExpressionBuilder, SortedList<int, Expression>> argumentLists,
-            Edge<ExpressionBuilder, ExpressionBuilderArgument> successor,
-            Expression expression)
-        {
-            SortedList<int, Expression> argumentList;
-            if (!argumentLists.TryGetValue(successor.Target.Value, out argumentList))
-            {
-                argumentList = new SortedList<int, Expression>();
-                argumentLists.Add(successor.Target.Value, argumentList);
-            }
-
-            try { argumentList.Add(successor.Label.Index, expression); }
-            catch (ArgumentException e)
-            {
-                throw new WorkflowBuildException(e.Message, successor.Target.Value, e);
             }
         }
 
@@ -520,8 +573,8 @@ namespace Bonsai.Expressions
         {
             Expression workflowOutput = null;
             HashSet<string> namedElements = null;
-            var argumentLists = new Dictionary<ExpressionBuilder, SortedList<int, Expression>>();
-            var dependencyLists = new Dictionary<ExpressionBuilder, SortedList<int, Expression>>();
+            var argumentLists = new Dictionary<ExpressionBuilder, ArgumentList>();
+            var dependencyLists = new Dictionary<ExpressionBuilder, ArgumentList>();
             var multicastMap = new List<MulticastScope>();
             var connections = new List<Expression>();
 
@@ -611,13 +664,14 @@ namespace Bonsai.Expressions
                 }
 
                 // Remove all closing scopes
+                var disable = expression as DisableExpression;
                 var successorCount = requireBuildContext != null
                     ? node.Successors.Count(edge => edge.Label != null)
                     : node.Successors.Count;
                 multicastMap.RemoveAll(scope =>
                 {
                     var referencesRemoved = scope.References.RemoveAll(reference => reference == builder);
-                    if (scope.References.Count == 0)
+                    if (scope.References.Count == 0 && disable == null)
                     {
                         try
                         {
@@ -632,8 +686,19 @@ namespace Bonsai.Expressions
 
                     if (referencesRemoved > 0)
                     {
-                        if (successorCount == 0) scope.References.Add(null);
-                        else scope.References.AddRange(node.Successors.Select(successor => successor.Target.Value));
+                        if (disable != null)
+                        {
+                            foreach (var child in disable.Arguments)
+                            {
+                                if (successorCount == 0) scope.References.Add(null);
+                                else scope.References.AddRange(node.Successors.Select(successor => successor.Target.Value));
+                            }
+                        }
+                        else
+                        {
+                            if (successorCount == 0) scope.References.Add(null);
+                            else scope.References.AddRange(node.Successors.Select(successor => successor.Target.Value));
+                        }
                     }
                     return false;
                 });
@@ -729,7 +794,6 @@ namespace Bonsai.Expressions
 
                 if (successorCount == 0)
                 {
-                    var disable = expression as DisableExpression;
                     if (disable != null) connections.AddRange(disable.Arguments);
                     else connections.Add(expression);
                 }

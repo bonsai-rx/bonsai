@@ -9,9 +9,9 @@ namespace Bonsai.Expressions
 {
     class DisableExpression : Expression
     {
-        readonly IEnumerable<Expression> arguments;
+        readonly Expression[] arguments;
 
-        public DisableExpression(IEnumerable<Expression> arguments)
+        public DisableExpression(Expression[] arguments)
         {
             this.arguments = arguments;
         }
@@ -26,23 +26,9 @@ namespace Bonsai.Expressions
             get { throw new InvalidOperationException("Unable to evaluate disabled expression. Ensure there are no conflicting inputs to disabled nodes."); }
         }
 
-        public IEnumerable<Expression> Arguments
+        public Expression[] Arguments
         {
-            get
-            {
-                foreach (var argument in arguments)
-                {
-                    var disable = argument as DisableExpression;
-                    if (disable != null)
-                    {
-                        foreach (var nestedArgument in disable.Arguments)
-                        {
-                            yield return nestedArgument;
-                        }
-                    }
-                    else yield return argument;
-                }
-            }
+            get { return arguments; }
         }
     }
 }
