@@ -34,7 +34,7 @@
             System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Transform");
             System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Sink");
             System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Combinator");
-            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Snippet");
+            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Workflow");
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -42,7 +42,7 @@
             this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveSnippetAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveAsWorkflowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
             this.exportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exportImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -133,7 +133,7 @@
             this.createBranchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createGroupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.commandExecutor = new Bonsai.Design.CommandExecutor();
-            this.snippetFileWatcher = new System.IO.FileSystemWatcher();
+            this.workflowFileWatcher = new System.IO.FileSystemWatcher();
             this.exportImageDialog = new System.Windows.Forms.SaveFileDialog();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
@@ -160,7 +160,7 @@
             this.workflowSplitContainer.SuspendLayout();
             this.propertiesLayoutPanel.SuspendLayout();
             this.toolboxContextMenuStrip.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.snippetFileWatcher)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.workflowFileWatcher)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip
@@ -186,7 +186,7 @@
             this.toolStripSeparator,
             this.saveToolStripMenuItem,
             this.saveAsToolStripMenuItem,
-            this.saveSnippetAsToolStripMenuItem,
+            this.saveAsWorkflowToolStripMenuItem,
             this.toolStripSeparator6,
             this.exportToolStripMenuItem,
             this.toolStripSeparator1,
@@ -237,15 +237,15 @@
             this.saveAsToolStripMenuItem.Text = "Save &As...";
             this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
             // 
-            // saveSnippetAsToolStripMenuItem
+            // saveAsWorkflowToolStripMenuItem
             // 
-            this.saveSnippetAsToolStripMenuItem.Enabled = false;
-            this.saveSnippetAsToolStripMenuItem.Name = "saveSnippetAsToolStripMenuItem";
-            this.saveSnippetAsToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            this.saveAsWorkflowToolStripMenuItem.Enabled = false;
+            this.saveAsWorkflowToolStripMenuItem.Name = "saveAsWorkflowToolStripMenuItem";
+            this.saveAsWorkflowToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.S)));
-            this.saveSnippetAsToolStripMenuItem.Size = new System.Drawing.Size(238, 22);
-            this.saveSnippetAsToolStripMenuItem.Text = "Save Sni&ppet As...";
-            this.saveSnippetAsToolStripMenuItem.Click += new System.EventHandler(this.saveSnippetAsToolStripMenuItem_Click);
+            this.saveAsWorkflowToolStripMenuItem.Size = new System.Drawing.Size(238, 22);
+            this.saveAsWorkflowToolStripMenuItem.Text = "Save As &Workflow...";
+            this.saveAsWorkflowToolStripMenuItem.Click += new System.EventHandler(this.saveAsWorkflowToolStripMenuItem_Click);
             // 
             // toolStripSeparator6
             // 
@@ -883,7 +883,7 @@
             treeNode4.Name = "Combinator";
             treeNode4.Text = "Combinator";
             treeNode5.Name = "Workflow";
-            treeNode5.Text = "Snippet";
+            treeNode5.Text = "Workflow";
             this.toolboxTreeView.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode1,
             treeNode2,
@@ -1145,11 +1145,11 @@
             // 
             this.commandExecutor.StatusChanged += new System.EventHandler(this.commandExecutor_StatusChanged);
             // 
-            // snippetFileWatcher
+            // workflowFileWatcher
             // 
-            this.snippetFileWatcher.EnableRaisingEvents = false;
-            this.snippetFileWatcher.IncludeSubdirectories = true;
-            this.snippetFileWatcher.SynchronizingObject = this;
+            this.workflowFileWatcher.EnableRaisingEvents = false;
+            this.workflowFileWatcher.IncludeSubdirectories = true;
+            this.workflowFileWatcher.SynchronizingObject = this;
             // 
             // exportImageDialog
             // 
@@ -1206,7 +1206,7 @@
             this.propertiesLayoutPanel.ResumeLayout(false);
             this.propertiesLayoutPanel.PerformLayout();
             this.toolboxContextMenuStrip.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.snippetFileWatcher)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.workflowFileWatcher)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1277,7 +1277,7 @@
         private System.Windows.Forms.ToolStripButton restartToolStripButton;
         private System.Windows.Forms.ToolStripMenuItem restartToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel statusImageLabel;
-        private System.Windows.Forms.ToolStripMenuItem saveSnippetAsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveAsWorkflowToolStripMenuItem;
         private System.Windows.Forms.ContextMenuStrip toolboxContextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem insertAfterToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem insertBeforeToolStripMenuItem;
@@ -1288,7 +1288,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripMenuItem selectAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ungroupToolStripMenuItem;
-        private System.IO.FileSystemWatcher snippetFileWatcher;
+        private System.IO.FileSystemWatcher workflowFileWatcher;
         private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem;
         private System.Windows.Forms.SaveFileDialog exportImageDialog;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;

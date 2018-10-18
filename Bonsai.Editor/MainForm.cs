@@ -37,9 +37,9 @@ namespace Bonsai.Editor
         const string LayoutExtension = ".layout";
         const string BonsaiPackageName = "Bonsai";
         const string ExtensionsDirectory = "Extensions";
-        const string SnippetCategoryName = "Workflow";
+        const string WorkflowCategoryName = "Workflow";
         const string VersionAttributeName = "Version";
-        const string DefaultSnippetNamespace = "Unspecified";
+        const string DefaultWorkflowNamespace = "Unspecified";
         static readonly char[] ToolboxArgumentSeparator = new[] { ' ' };
         static readonly object ExtensionsDirectoryChanged = new object();
         static readonly XmlWriterSettings DefaultWriterSettings = new XmlWriterSettings
@@ -73,7 +73,7 @@ namespace Bonsai.Editor
 
         TypeVisualizerMap typeVisualizers;
         List<WorkflowElementDescriptor> workflowElements;
-        List<WorkflowElementDescriptor> workflowSnippets;
+        List<WorkflowElementDescriptor> workflowExtensions;
         WorkflowRuntimeExceptionCache exceptionCache;
         WorkflowException workflowError;
         IDisposable running;
@@ -132,7 +132,7 @@ namespace Bonsai.Editor
             selectionFont = new Font(toolboxDescriptionTextBox.Font, FontStyle.Bold);
             typeVisualizers = new TypeVisualizerMap();
             workflowElements = new List<WorkflowElementDescriptor>();
-            workflowSnippets = new List<WorkflowElementDescriptor>();
+            workflowExtensions = new List<WorkflowElementDescriptor>();
             exceptionCache = new WorkflowRuntimeExceptionCache();
             selectionModel = new WorkflowSelectionModel();
             propertyAssignments = new Dictionary<string, string>();
@@ -267,9 +267,9 @@ namespace Bonsai.Editor
                 handler => FormClosed += handler,
                 handler => FormClosed -= handler);
 
-            InitializeSnippetFileWatcher().TakeUntil(formClosed).Subscribe();
+            InitializeWorkflowFileWatcher().TakeUntil(formClosed).Subscribe();
             updatesAvailable.TakeUntil(formClosed).ObserveOn(formScheduler).Subscribe(HandleUpdatesAvailable);
-            workflowSnippets.AddRange(FindSnippets(extensionsDirectory));
+            workflowExtensions.AddRange(FindWorkflows(extensionsDirectory));
             directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
 
             InitializeEditorToolboxTypes();
@@ -373,52 +373,52 @@ namespace Bonsai.Editor
             }
         }
 
-        IObservable<Unit> InitializeSnippetFileWatcher()
+        IObservable<Unit> InitializeWorkflowFileWatcher()
         {
             var extensionsDirectoryChanged = Observable.FromEventPattern<EventHandler, EventArgs>(
                 handler => Events.AddHandler(ExtensionsDirectoryChanged, handler),
                 handler => Events.RemoveHandler(ExtensionsDirectoryChanged, handler));
-            return extensionsDirectoryChanged.Select(evt => Observable.Defer(RefreshSnippets)).Switch();
+            return extensionsDirectoryChanged.Select(evt => Observable.Defer(RefreshWorkflowExtensions)).Switch();
         }
 
-        IObservable<Unit> RefreshSnippets()
+        IObservable<Unit> RefreshWorkflowExtensions()
         {
             try
             {
-                snippetFileWatcher.Path = extensionsPath.FullName;
-                snippetFileWatcher.EnableRaisingEvents = true;
+                workflowFileWatcher.Path = extensionsPath.FullName;
+                workflowFileWatcher.EnableRaisingEvents = true;
             }
             catch (ArgumentException)
             {
-                snippetFileWatcher.EnableRaisingEvents = false;
+                workflowFileWatcher.EnableRaisingEvents = false;
             }
 
             var start = Observable.Return(new EventPattern<EventArgs>(this, EventArgs.Empty));
             var changed = Observable.FromEventPattern<FileSystemEventHandler, EventArgs>(
-                handler => snippetFileWatcher.Changed += handler,
-                handler => snippetFileWatcher.Changed -= handler);
+                handler => workflowFileWatcher.Changed += handler,
+                handler => workflowFileWatcher.Changed -= handler);
             var created = Observable.FromEventPattern<FileSystemEventHandler, EventArgs>(
-                handler => snippetFileWatcher.Created += handler,
-                handler => snippetFileWatcher.Created -= handler);
+                handler => workflowFileWatcher.Created += handler,
+                handler => workflowFileWatcher.Created -= handler);
             var deleted = Observable.FromEventPattern<FileSystemEventHandler, EventArgs>(
-                handler => snippetFileWatcher.Deleted += handler,
-                handler => snippetFileWatcher.Deleted -= handler);
+                handler => workflowFileWatcher.Deleted += handler,
+                handler => workflowFileWatcher.Deleted -= handler);
             var renamed = Observable.FromEventPattern<RenamedEventHandler, EventArgs>(
-                handler => snippetFileWatcher.Renamed += handler,
-                handler => snippetFileWatcher.Renamed -= handler);
+                handler => workflowFileWatcher.Renamed += handler,
+                handler => workflowFileWatcher.Renamed -= handler);
             return Observable
                 .Merge(start, changed, created, deleted, renamed)
                 .Throttle(TimeSpan.FromSeconds(1), Scheduler.Default)
-                .Select(evt => workflowSnippets
-                    .Concat(FindSnippets(ExtensionsDirectory))
+                .Select(evt => workflowExtensions
+                    .Concat(FindWorkflows(ExtensionsDirectory))
                     .GroupBy(x => x.Namespace)
                     .ToList())
                 .ObserveOn(formScheduler)
                 .Do(elements =>
                 {
                     toolboxTreeView.BeginUpdate();
-                    var snippetCategory = toolboxCategories[SnippetCategoryName];
-                    foreach (TreeNode node in snippetCategory.Nodes)
+                    var workflowCategory = toolboxCategories[WorkflowCategoryName];
+                    foreach (TreeNode node in workflowCategory.Nodes)
                     {
                         node.Nodes.Clear();
                     }
@@ -428,8 +428,8 @@ namespace Bonsai.Editor
                         InitializeToolboxCategory(package.Key, package);
                     }
 
-                    var sortedNodes = new TreeNode[snippetCategory.Nodes.Count];
-                    snippetCategory.Nodes.CopyTo(sortedNodes, 0);
+                    var sortedNodes = new TreeNode[workflowCategory.Nodes.Count];
+                    workflowCategory.Nodes.CopyTo(sortedNodes, 0);
                     Array.Sort(sortedNodes, (n1, n2) =>
                     {
                         if (n1.Nodes.Count == 0) return n2.Nodes.Count == 0 ? 0 : 1;
@@ -437,12 +437,12 @@ namespace Bonsai.Editor
                         else return string.Compare(n1.Text, n2.Text);
                     });
 
-                    snippetCategory.Nodes.Clear();
+                    workflowCategory.Nodes.Clear();
                     for (int i = 0; i < sortedNodes.Length; i++)
                     {
                         var node = sortedNodes[i];
                         if (node.Nodes.Count == 0) break;
-                        snippetCategory.Nodes.Add(node);
+                        workflowCategory.Nodes.Add(node);
                     }
                     toolboxTreeView.EndUpdate();
                 })
@@ -450,7 +450,7 @@ namespace Bonsai.Editor
                 .Select(xs => Unit.Default);
         }
 
-        static IEnumerable<WorkflowElementDescriptor> FindSnippets(string basePath)
+        static IEnumerable<WorkflowElementDescriptor> FindWorkflows(string basePath)
         {
             int basePathLength;
             var workflowFiles = default(string[]);
@@ -487,7 +487,7 @@ namespace Bonsai.Editor
                 var fileNamespace = Path.GetDirectoryName(relativePath)
                                         .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar)
                                         .Replace(Path.DirectorySeparatorChar, ExpressionHelper.MemberSeparator.First());
-                if (string.IsNullOrEmpty(fileNamespace)) fileNamespace = DefaultSnippetNamespace;
+                if (string.IsNullOrEmpty(fileNamespace)) fileNamespace = DefaultWorkflowNamespace;
 
                 yield return new WorkflowElementDescriptor
                 {
@@ -966,7 +966,7 @@ namespace Bonsai.Editor
             }
         }
 
-        private void saveSnippetAsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void saveAsWorkflowToolStripMenuItem_Click(object sender, EventArgs e)
         {
             editorSite.EnsureExtensionsDirectory();
             if (!extensionsPath.Exists) return;
@@ -987,7 +987,7 @@ namespace Bonsai.Editor
                     }
                 }
 
-                saveWorkflowDialog.InitialDirectory = snippetFileWatcher.Path;
+                saveWorkflowDialog.InitialDirectory = workflowFileWatcher.Path;
                 if (saveWorkflowDialog.ShowDialog() == DialogResult.OK)
                 {
                     SaveWorkflowBuilder(saveWorkflowDialog.FileName, serializerWorkflowBuilder);
@@ -1481,7 +1481,7 @@ namespace Bonsai.Editor
             var selectedView = selectionModel.SelectedView;
             var canEdit = selectedView == null || selectedView.CanEdit;
             var hasSelectedObjects = selectedObjects.Length > 0;
-            saveSnippetAsToolStripMenuItem.Enabled = hasSelectedObjects;
+            saveAsWorkflowToolStripMenuItem.Enabled = hasSelectedObjects;
             pasteToolStripMenuItem.Enabled = !canEdit;
             copyToolStripMenuItem.Enabled = hasSelectedObjects;
             cutToolStripMenuItem.Enabled = !canEdit && hasSelectedObjects;
@@ -2156,7 +2156,7 @@ namespace Bonsai.Editor
                 HandleMenuItemShortcutKeys(e, siteForm.saveToolStripMenuItem, siteForm.saveToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.undoToolStripMenuItem, siteForm.undoToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.redoToolStripMenuItem, siteForm.redoToolStripMenuItem_Click);
-                HandleMenuItemShortcutKeys(e, siteForm.saveSnippetAsToolStripMenuItem, siteForm.saveSnippetAsToolStripMenuItem_Click);
+                HandleMenuItemShortcutKeys(e, siteForm.saveAsWorkflowToolStripMenuItem, siteForm.saveAsWorkflowToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.exportImageToolStripMenuItem, siteForm.exportImageToolStripMenuItem_Click);
                 HandleMenuItemShortcutKeys(e, siteForm.copyAsImageToolStripMenuItem, siteForm.copyAsImageToolStripMenuItem_Click);
             }
@@ -2178,7 +2178,7 @@ namespace Bonsai.Editor
 
             public DirectoryInfo EnsureExtensionsDirectory()
             {
-                if (!siteForm.snippetFileWatcher.EnableRaisingEvents && !siteForm.extensionsPath.Exists)
+                if (!siteForm.workflowFileWatcher.EnableRaisingEvents && !siteForm.extensionsPath.Exists)
                 {
                     if (string.IsNullOrEmpty(siteForm.FileName))
                     {
