@@ -2426,7 +2426,7 @@ namespace Bonsai.Design
             LaunchDefaultEditor(graphView.SelectedNode);
         }
 
-        private void saveSnippetAsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void saveAsWorkflowToolStripMenuItem_Click(object sender, EventArgs e)
         {
             editorService.OnKeyDown(new KeyEventArgs(Keys.Control | Keys.Shift | Keys.S));
         }
@@ -2793,7 +2793,7 @@ namespace Bonsai.Design
             if (selectedNodes.Length > 0)
             {
                 copyToolStripMenuItem.Enabled = true;
-                saveSnippetAsToolStripMenuItem.Enabled = true;
+                saveAsWorkflowToolStripMenuItem.Enabled = true;
             }
 
             if (!CanEdit)
