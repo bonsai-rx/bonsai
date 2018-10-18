@@ -686,19 +686,13 @@ namespace Bonsai.Expressions
 
                     if (referencesRemoved > 0)
                     {
-                        if (disable != null)
-                        {
-                            foreach (var child in disable.Arguments)
-                            {
-                                if (successorCount == 0) scope.References.Add(null);
-                                else scope.References.AddRange(node.Successors.Select(successor => successor.Target.Value));
-                            }
-                        }
-                        else
+                        var expandedArguments = disable != null ? disable.Arguments.Skip(1).GetEnumerator() : null;
+                        do
                         {
                             if (successorCount == 0) scope.References.Add(null);
                             else scope.References.AddRange(node.Successors.Select(successor => successor.Target.Value));
                         }
+                        while (expandedArguments != null && expandedArguments.MoveNext());
                     }
                     return false;
                 });
