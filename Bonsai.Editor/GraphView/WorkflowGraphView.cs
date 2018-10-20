@@ -1144,6 +1144,11 @@ namespace Bonsai.Design
             commandExecutor.EndCompositeCommand();
         }
 
+        public void ReplaceGraphNode(GraphNode node, ExpressionBuilder builder)
+        {
+            UpdateGraphNodes(new[] { node }, selectedNode => ReplaceNode(selectedNode, builder));
+        }
+
         private void ReplaceNode(GraphNode node, ExpressionBuilder builder)
         {
             CreateGraphNode(builder, node, CreateGraphNodeType.Successor, branch: false, validate: false);
@@ -2623,7 +2628,7 @@ namespace Bonsai.Design
                         : typeof(SubscribeSubjectBuilder);
                     var builder = (SubscribeSubjectBuilder)Activator.CreateInstance(subscribeSubjectType);
                     builder.Name = subscribeSubject.Name;
-                    UpdateGraphNodes(new[] { selectedNode }, node => ReplaceNode(node, builder));
+                    ReplaceGraphNode(selectedNode, builder);
                     contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
                 }
             });
