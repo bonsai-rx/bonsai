@@ -60,7 +60,8 @@ namespace Bonsai.Design
                     case ElementCategory.Condition: Brush = Brushes.LightGreen; break;
                     case ElementCategory.Transform: Brush = Brushes.White; break;
                     case ElementCategory.Sink: Brush = Brushes.DarkGray; break;
-                    case ElementCategory.Nested: Brush = Brushes.Goldenrod; break;
+                    case ElementCategory.Nested:
+                    case ElementCategory.Workflow: Brush = Brushes.Goldenrod; break;
                     case ElementCategory.Property: Brush = Brushes.Orange; break;
                     case ElementCategory.Combinator:
                     default: Brush = Brushes.LightBlue; break;

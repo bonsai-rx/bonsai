@@ -495,7 +495,7 @@ namespace Bonsai.Editor
                     Namespace = fileNamespace,
                     FullyQualifiedName = Path.ChangeExtension(relativePath, null),
                     Description = description,
-                    ElementTypes = new[] { ElementCategory.Workflow }
+                    ElementTypes = new[] { ~ElementCategory.Workflow }
                 };
             }
         }
@@ -556,10 +556,15 @@ namespace Bonsai.Editor
                 {
                     var typeCategory = elementType;
                     if (typeCategory == ElementCategory.Nested ||
+                        typeCategory == ElementCategory.Workflow ||
                         typeCategory == ElementCategory.Condition ||
                         typeCategory == ElementCategory.Property)
                     {
                         typeCategory = ElementCategory.Combinator;
+                    }
+                    else if (typeCategory < 0)
+                    {
+                        typeCategory = ~typeCategory;
                     }
 
                     var typeCategoryName = typeCategory.ToString();
@@ -1768,6 +1773,7 @@ namespace Bonsai.Editor
                         var elementCategory = (ElementCategory)selectedNode.Tag;
                         createGroupToolStripMenuItem.Visible =
                             elementCategory == ElementCategory.Nested ||
+                            selectedNode.Name == typeof(GroupWorkflowBuilder).AssemblyQualifiedName ||
                             selectedNode.Name == typeof(ConditionBuilder).AssemblyQualifiedName ||
                             selectedNode.Name == typeof(SinkBuilder).AssemblyQualifiedName;
                         toolboxContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);

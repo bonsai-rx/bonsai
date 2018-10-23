@@ -72,6 +72,7 @@ namespace Bonsai.Design
                     case ElementCategory.Sink:
                         return disabled ? HatchBrushes.DiagonalDarkGray : obsolete ? HatchBrushes.CrossDarkGray : Brushes.DarkGray;
                     case ElementCategory.Nested:
+                    case ElementCategory.Workflow:
                         return disabled ? HatchBrushes.DiagonalGoldenrod : obsolete ? HatchBrushes.CrossGoldenrod : Brushes.Goldenrod;
                     case ElementCategory.Property:
                         return disabled ? HatchBrushes.DiagonalOrange : obsolete ? HatchBrushes.CrossOrange : Brushes.Orange;
