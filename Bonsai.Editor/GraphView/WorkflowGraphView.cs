@@ -792,7 +792,7 @@ namespace Bonsai.Design
             }
 
             var elementCategory = (ElementCategory)typeNode.Tag;
-            if (elementCategory == ElementCategory.Workflow)
+            if (elementCategory == ~ElementCategory.Workflow)
             {
                 var includeBuilder = new IncludeWorkflowBuilder { Path = typeNode.Name };
                 CreateGraphNode(includeBuilder, graphView.SelectedNodes.FirstOrDefault(), nodeType, branch);
@@ -2754,6 +2754,7 @@ namespace Bonsai.Design
                 foreach (var element in from element in toolboxService.GetToolboxElements()
                                         where element.ElementTypes.Length == 1 &&
                                               (element.ElementTypes.Contains(ElementCategory.Nested) ||
+                                               element.FullyQualifiedName == typeof(GroupWorkflowBuilder).AssemblyQualifiedName ||
                                                element.FullyQualifiedName == typeof(ConditionBuilder).AssemblyQualifiedName ||
                                                element.FullyQualifiedName == typeof(SinkBuilder).AssemblyQualifiedName)
                                         select element)
@@ -2778,7 +2779,7 @@ namespace Bonsai.Design
                         menuItem.ShortcutKeys = Keys.Control | Keys.G;
                         groupToolStripMenuItem.DropDownItems.Insert(0, menuItem);
                     }
-                    else if (element.FullyQualifiedName != typeof(IncludeWorkflowBuilder).AssemblyQualifiedName)
+                    else
                     {
                         groupToolStripMenuItem.DropDownItems.Add(menuItem);
                     }

@@ -14,6 +14,7 @@ namespace Bonsai.Expressions
     /// a single workflow element.
     /// </summary>
     [DisplayName("GroupWorkflow")]
+    [WorkflowElementCategory(ElementCategory.Workflow)]
     [XmlType("GroupWorkflow", Namespace = Constants.XmlNamespace)]
     [Description("Encapsulates complex workflow logic into a single workflow element.")]
     public class GroupWorkflowBuilder : WorkflowExpressionBuilder, IGroupWorkflowBuilder

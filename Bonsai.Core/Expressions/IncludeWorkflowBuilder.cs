@@ -18,7 +18,7 @@ namespace Bonsai.Expressions
     /// externally to generate its output.
     /// </summary>
     [DefaultProperty("Path")]
-    [WorkflowElementCategory(ElementCategory.Nested)]
+    [WorkflowElementCategory(ElementCategory.Workflow)]
     [XmlType("IncludeWorkflow", Namespace = Constants.XmlNamespace)]
     [TypeDescriptionProvider(typeof(IncludeWorkflowTypeDescriptionProvider))]
     public sealed class IncludeWorkflowBuilder : VariableArgumentExpressionBuilder, IGroupWorkflowBuilder, INamedElement, IRequireBuildContext
