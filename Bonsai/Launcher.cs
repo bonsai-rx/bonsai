@@ -271,6 +271,7 @@ namespace Bonsai
             ScriptExtensions scriptEnvironment,
             string editorRepositoryPath,
             string initialFileName,
+            float editorScale,
             bool start,
             bool debugging,
             Dictionary<string, string> propertyAssignments)
@@ -285,7 +286,7 @@ namespace Bonsai
                 .Catch(Observable.Return(false));
 
             EnableVisualStyles();
-            using (var mainForm = new MainForm(elementProvider, visualizerProvider, scriptEnvironment))
+            using (var mainForm = new MainForm(elementProvider, visualizerProvider, scriptEnvironment, editorScale))
             {
                 mainForm.FileName = initialFileName;
                 mainForm.PropertyAssignments.AddRange(propertyAssignments);

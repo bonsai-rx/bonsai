@@ -1,6 +1,7 @@
 ﻿using NuGet;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -15,6 +16,7 @@ namespace Bonsai
         const string LibraryCommand = "--lib";
         const string PropertyCommand = "--property";
         const string DebugScriptCommand = "--debug-scripts";
+        const string EditorScaleCommand = "--editor-scale";
         const string StartWithoutDebugging = "--start-no-debug";
         const string SuppressBootstrapCommand = "--no-boot";
         const string SuppressEditorCommand = "--no-editor";
@@ -38,6 +40,7 @@ namespace Bonsai
             var debugging = false;
             var launchEditor = true;
             var debugScripts = false;
+            var editorScale = 1.0f;
             var launchResult = default(EditorResult);
             var launchPackageId = default(string);
             var launchPackageVersion = default(SemanticVersion);
@@ -53,6 +56,7 @@ namespace Bonsai
             parser.RegisterCommand(SuppressEditorCommand, () => launchEditor = false);
             parser.RegisterCommand(PackageManagerCommand, () => { launchResult = EditorResult.ManagePackages; bootstrap = false; });
             parser.RegisterCommand(ExportPackageCommand, () => { launchResult = EditorResult.ExportPackage; bootstrap = false; });
+            parser.RegisterCommand(EditorScaleCommand, scale => editorScale = float.Parse(scale, CultureInfo.InvariantCulture));
             parser.RegisterCommand(GalleryCommand, option =>
             {
                 if (string.IsNullOrEmpty(option))
@@ -146,6 +150,7 @@ namespace Bonsai
                             scriptEnvironment,
                             editorRepositoryPath,
                             initialFileName,
+                            editorScale,
                             start,
                             debugging,
                             propertyAssignments);
