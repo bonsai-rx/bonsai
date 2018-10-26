@@ -96,7 +96,17 @@ namespace Bonsai.Editor
             IObservable<IGrouping<string, WorkflowElementDescriptor>> elementProvider,
             IObservable<TypeVisualizerDescriptor> visualizerProvider,
             IServiceProvider provider)
+            : this(elementProvider, visualizerProvider, provider, 1.0f)
         {
+        }
+
+        public MainForm(
+            IObservable<IGrouping<string, WorkflowElementDescriptor>> elementProvider,
+            IObservable<TypeVisualizerDescriptor> visualizerProvider,
+            IServiceProvider provider,
+            float editorScale)
+        {
+            Font = new Font(Font.FontFamily, Font.SizeInPoints * editorScale);
             InitializeComponent();
             statusTextLabel = new Label();
             statusTextLabel.AutoSize = true;
