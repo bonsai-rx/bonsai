@@ -303,6 +303,11 @@ namespace Bonsai.Design
             }
         }
 
+        private void tabControl_Selecting(object sender, TabControlCancelEventArgs e)
+        {
+            e.Cancel = e.TabPageIndex >= tabControl.TabPages.Count;
+        }
+
         void tabControl_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control && e.KeyCode == Keys.F4)
