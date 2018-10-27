@@ -154,7 +154,10 @@ namespace Bonsai.Design
             {
                 tabControl.SuspendLayout();
                 var tabIndex = tabControl.TabPages.IndexOf(tabPage);
-                tabControl.SelectTab(tabIndex - 1);
+                if (tabControl.SelectedIndex >= tabIndex)
+                {
+                    tabControl.SelectTab(tabIndex - 1);
+                }
                 tabControl.TabPages.Remove(tabPage);
                 tabControl.ResumeLayout();
                 tabPage.Dispose();
