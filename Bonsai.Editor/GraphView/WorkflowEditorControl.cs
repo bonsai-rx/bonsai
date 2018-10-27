@@ -177,16 +177,7 @@ namespace Bonsai.Design
             var workflowGraphView = tabState.WorkflowGraphView;
             if (builder != null && builder.Workflow != workflowGraphView.Workflow)
             {
-                if (builder.Workflow == null)
-                {
-                    CloseTab(tabState);
-                    return;
-                }
-                else
-                {
-                    workflowGraphView.VisualizerLayout = null;
-                    workflowGraphView.Workflow = builder.Workflow;
-                }
+                CloseTab(tabState);
             }
         }
 
