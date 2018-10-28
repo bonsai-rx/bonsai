@@ -944,6 +944,12 @@ namespace Bonsai.Design
 
         public void InsertGraphElements(ExpressionBuilderGraph elements, CreateGraphNodeType nodeType, bool branch)
         {
+            var selectedNodes = selectionModel.SelectedNodes.ToArray();
+            InsertGraphElements(elements, selectedNodes, nodeType, branch);
+        }
+
+        private void InsertGraphElements(ExpressionBuilderGraph elements, GraphNode[] selectedNodes, CreateGraphNodeType nodeType, bool branch)
+        {
             if (elements == null)
             {
                 throw new ArgumentNullException("elements");
@@ -951,7 +957,6 @@ namespace Bonsai.Design
 
             Action addConnection = () => { };
             Action removeConnection = () => { };
-            var selectedNodes = selectionModel.SelectedNodes.ToArray();
             var updateSelectedNodes = CreateUpdateSelectionDelegate(elements.Sinks().FirstOrDefault());
             var restoreSelectedNodes = CreateUpdateSelectionDelegate(selectedNodes);
             if (selectedNodes.Length > 0)
@@ -1174,16 +1179,20 @@ namespace Bonsai.Design
             commandExecutor.EndCompositeCommand();
         }
 
-        private void MoveGraphNode(GraphNode node, GraphNode target, CreateGraphNodeType nodeType, bool branch)
+        private void MoveGraphNodes(IEnumerable<GraphNode> nodes, GraphNode target, CreateGraphNodeType nodeType, bool branch)
         {
-            var builder = node.Value;
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
-            updateGraphLayout += CreateUpdateSelectionDelegate(builder);
+            updateGraphLayout += CreateUpdateSelectionDelegate(nodes);
             commandExecutor.BeginCompositeCommand();
             commandExecutor.Execute(() => { }, updateGraphLayout);
-            DeleteGraphNode(node);
-            CreateGraphNode(builder, target, nodeType, branch, validate: false);
-            commandExecutor.Execute(updateGraphLayout, () => { });
+
+            var elements = nodes.ToWorkflowBuilder().Workflow.ToInspectableGraph();
+            foreach (var node in nodes)
+            {
+                DeleteGraphNode(node);
+            }
+
+            InsertGraphElements(elements, new[] { target }, nodeType, branch);
             commandExecutor.EndCompositeCommand();
         }
 
@@ -2227,9 +2236,8 @@ namespace Bonsai.Design
 
                 if (e.Effect == DragDropEffects.Move)
                 {
-                    var node = dragSelection.First();
                     var target = graphView.GetNodeAt(dropLocation);
-                    MoveGraphNode(node, target, nodeType, branch);
+                    MoveGraphNodes(dragSelection, target, nodeType, branch);
                 }
 
                 if (e.Effect == DragDropEffects.Link)
