@@ -473,7 +473,7 @@ namespace Bonsai.Design
         Tuple<Action, Action> GetInsertGraphNodeCommands(
             Node<ExpressionBuilder, ExpressionBuilderArgument> sourceNode,
             Node<ExpressionBuilder, ExpressionBuilderArgument> sinkNode,
-            Node<ExpressionBuilder, ExpressionBuilderArgument> closestNode,
+            IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> targetNodes,
             CreateGraphNodeType nodeType,
             bool branch,
             bool validate = true)
@@ -481,18 +481,17 @@ namespace Bonsai.Design
             var workflow = this.workflow;
             Action addConnection = () => { };
             Action removeConnection = () => { };
-            if (closestNode != null)
+            if (nodeType == CreateGraphNodeType.Predecessor)
             {
-                var parameter = new ExpressionBuilderArgument();
-                if (nodeType == CreateGraphNodeType.Predecessor)
+                foreach (var node in targetNodes)
                 {
-                    var predecessors = workflow.PredecessorEdges(closestNode).ToList();
-                    // If the selected node has no predecessors or we are branching, we need to test if we can connect
-                    if (!validate || (!branch && predecessors.Count > 0 || CanConnect(sinkNode, closestNode))
-                        && (branch || CanConnect(predecessors.Select(p => p.Item1), sourceNode)))
+                    // Ensure we can connect to the selected node
+                    if (!validate || node.Value.ArgumentRange.UpperBound > 0)
                     {
+                        var parameter = new ExpressionBuilderArgument();
+                        var predecessors = workflow.PredecessorEdges(node).ToList();
                         if (branch) parameter.Index = predecessors.Count;
-                        else if (predecessors.Count > 0)
+                        else
                         {
                             // If we have predecessors, we need to connect the new node in the right branches
                             foreach (var predecessor in predecessors)
@@ -500,50 +499,63 @@ namespace Bonsai.Design
                                 var predecessorEdge = predecessor.Item2;
                                 var predecessorNode = predecessor.Item1;
                                 var edgeIndex = predecessor.Item3;
-                                addConnection += () => { workflow.SetEdge(predecessorNode, edgeIndex, sourceNode, predecessorEdge.Label); };
-                                removeConnection += () => { workflow.SetEdge(predecessorNode, edgeIndex, predecessorEdge); };
+                                if (sinkNode.Value.ArgumentRange.UpperBound > 0)
+                                {
+                                    addConnection += () => { workflow.SetEdge(predecessorNode, edgeIndex, sourceNode, predecessorEdge.Label); };
+                                    removeConnection += () => { workflow.SetEdge(predecessorNode, edgeIndex, predecessorEdge); };
+                                }
+                                else
+                                {
+                                    addConnection += () => { workflow.RemoveEdge(predecessorNode, predecessorEdge); };
+                                    removeConnection += () => { workflow.InsertEdge(predecessorNode, edgeIndex, predecessorEdge); };
+                                }
                             }
                         }
 
                         // After dealing with predecessors, we just create an edge to the selected node
-                        var edge = Edge.Create(closestNode, parameter);
+                        var edge = Edge.Create(node, parameter);
                         addConnection += () => { workflow.AddEdge(sinkNode, edge); };
                         removeConnection += () => { workflow.RemoveEdge(sinkNode, edge); };
                     }
                 }
-                else if (!validate || CanConnect(closestNode, sourceNode))
+            }
+            else if (!validate || sourceNode.Value.ArgumentRange.UpperBound > 0)
+            {
+                var index = 0;
+                foreach (var node in targetNodes)
                 {
-                    if (!branch && closestNode.Successors.Count > 0)
+                    var parameter = new ExpressionBuilderArgument(index++);
+                    if (parameter.Index == 0 && !branch && node.Successors.Count > 0)
                     {
-                        // If we are not creating a new branch, the new node will inherit all branches of selected node
+                        // If we are not creating a new branch, the new node will inherit all branches of the first selected node
                         var edge = Edge.Create(sourceNode, parameter);
-                        var oldSuccessors = closestNode.Successors.ToArray();
-                        addConnection = () =>
+                        var oldSuccessors = node.Successors.ToArray();
+                        addConnection += () =>
                         {
                             foreach (var successor in oldSuccessors)
                             {
-                                workflow.RemoveEdge(closestNode, successor);
+                                workflow.RemoveEdge(node, successor);
                                 workflow.AddEdge(sinkNode, successor);
                             }
-                            workflow.AddEdge(closestNode, edge);
+                            workflow.AddEdge(node, edge);
                         };
 
-                        removeConnection = () =>
+                        removeConnection += () =>
                         {
                             foreach (var successor in oldSuccessors)
                             {
                                 workflow.RemoveEdge(sinkNode, successor);
-                                workflow.AddEdge(closestNode, successor);
+                                workflow.AddEdge(node, successor);
                             }
-                            workflow.RemoveEdge(closestNode, edge);
+                            workflow.RemoveEdge(node, edge);
                         };
                     }
                     else
                     {
-                        // Otherwise, just create the new branch
+                        // Otherwise, just create a new branch
                         var edge = Edge.Create(sourceNode, parameter);
-                        addConnection = () => { workflow.AddEdge(closestNode, edge); };
-                        removeConnection = () => { workflow.RemoveEdge(closestNode, edge); };
+                        addConnection += () => { workflow.AddEdge(node, edge); };
+                        removeConnection += () => { workflow.RemoveEdge(node, edge); };
                     }
                 }
             }
@@ -795,7 +807,7 @@ namespace Bonsai.Design
             if (elementCategory == ~ElementCategory.Workflow)
             {
                 var includeBuilder = new IncludeWorkflowBuilder { Path = typeNode.Name };
-                CreateGraphNode(includeBuilder, graphView.SelectedNodes.FirstOrDefault(), nodeType, branch);
+                CreateGraphNode(includeBuilder, graphView.SelectedNodes, nodeType, branch);
             }
             else
             {
@@ -837,12 +849,17 @@ namespace Bonsai.Design
                             }
                         }
                     }
-                    CreateGraphNode(builder, selectedNode, nodeType, branch);
+                    CreateGraphNode(builder, selectedNodes, nodeType, branch);
                 }
             }
         }
 
         public void CreateGraphNode(ExpressionBuilder builder, GraphNode selectedNode, CreateGraphNodeType nodeType, bool branch, bool validate = true)
+        {
+            CreateGraphNode(builder, selectedNode != null ? new[] { selectedNode } : Enumerable.Empty<GraphNode>(), nodeType, branch, validate);
+        }
+
+        public void CreateGraphNode(ExpressionBuilder builder, IEnumerable<GraphNode> selectedNodes, CreateGraphNodeType nodeType, bool branch, bool validate = true)
         {
             if (builder == null)
             {
@@ -866,27 +883,39 @@ namespace Bonsai.Design
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             var updateSelectedNode = CreateUpdateSelectionDelegate(builder);
 
-            var closestNode = selectedNode != null ? GetGraphNodeTag(workflow, selectedNode) : null;
-            var restoreSelectedNode = CreateUpdateSelectionDelegate(closestNode);
+            var targetNodes = selectedNodes.Select(node => GetGraphNodeTag(workflow, node)).ToArray();
+            var restoreSelectedNodes = CreateUpdateSelectionDelegate(selectedNodes);
 
             var workflowBuilder = builder as WorkflowExpressionBuilder;
-            if (workflowBuilder != null && validate &&
-               (workflowBuilder.ArgumentRange.UpperBound > 0 ||
-                workflowBuilder is GroupWorkflowBuilder ||
-                workflowBuilder is NestedWorkflowBuilder) &&
-               (workflowBuilder.ArgumentRange.LowerBound > 0 ||
-                closestNode != null && (nodeType == CreateGraphNodeType.Successor || workflow.PredecessorEdges(closestNode).Any())))
+            if (workflowBuilder != null && validate)
             {
-                var nestedInput = new WorkflowInputBuilder();
-                var nestedOutput = new WorkflowOutputBuilder();
-                var nestedInputInspectBuilder = new InspectBuilder(nestedInput);
-                var nestedOutputInspectBuilder = new InspectBuilder(nestedOutput);
-                var nestedInputNode = workflowBuilder.Workflow.Add(nestedInputInspectBuilder);
-                var nestedOutputNode = workflowBuilder.Workflow.Add(nestedOutputInspectBuilder);
-                workflowBuilder.Workflow.AddEdge(nestedInputNode, nestedOutputNode, new ExpressionBuilderArgument());
+                // Estimate number of inputs to the nested node
+                var inputCount = workflowBuilder.ArgumentRange.LowerBound;
+                if (nodeType == CreateGraphNodeType.Successor) inputCount = Math.Max(inputCount, targetNodes.Length);
+                else inputCount = Math.Max(inputCount, targetNodes.Sum(node => workflow.PredecessorEdges(node).Count()));
+
+                // Limit number of inputs depending on nested operator argument range
+                if (!(workflowBuilder is GroupWorkflowBuilder || workflowBuilder is NestedWorkflowBuilder))
+                {
+                    inputCount = Math.Min(inputCount, workflowBuilder.ArgumentRange.UpperBound);
+                }
+
+                for (int i = 0; i < inputCount; i++)
+                {
+                    var nestedInput = new WorkflowInputBuilder { Index = i };
+                    var nestedInputInspectBuilder = new InspectBuilder(nestedInput);
+                    var nestedInputNode = workflowBuilder.Workflow.Add(nestedInputInspectBuilder);
+                    if (inputCount == 1)
+                    {
+                        var nestedOutput = new WorkflowOutputBuilder();
+                        var nestedOutputInspectBuilder = new InspectBuilder(nestedOutput);
+                        var nestedOutputNode = workflowBuilder.Workflow.Add(nestedOutputInspectBuilder);
+                        workflowBuilder.Workflow.AddEdge(nestedInputNode, nestedOutputNode, new ExpressionBuilderArgument());
+                    }
+                }
             }
 
-            var insertCommands = GetInsertGraphNodeCommands(inspectNode, inspectNode, closestNode, nodeType, branch, validate);
+            var insertCommands = GetInsertGraphNodeCommands(inspectNode, inspectNode, targetNodes, nodeType, branch, validate);
             var addConnection = insertCommands.Item1;
             var removeConnection = insertCommands.Item2;
             commandExecutor.Execute(
@@ -907,7 +936,7 @@ namespace Bonsai.Design
                 if (validate)
                 {
                     updateGraphLayout();
-                    restoreSelectedNode();
+                    restoreSelectedNodes();
                 }
             });
         }
@@ -926,12 +955,12 @@ namespace Bonsai.Design
             var restoreSelectedNodes = CreateUpdateSelectionDelegate(selectedNodes);
             if (selectedNodes.Length > 0)
             {
-                var selectionNode = GetGraphNodeTag(workflow, selectedNodes[0]);
+                var targetNodes = selectedNodes.Select(node => GetGraphNodeTag(workflow, node));
                 var source = elements.Sources().FirstOrDefault();
                 var sink = elements.Sinks().FirstOrDefault();
                 if (source != null && sink != null)
                 {
-                    var insertCommands = GetInsertGraphNodeCommands(source, sink, selectionNode, nodeType, branch);
+                    var insertCommands = GetInsertGraphNodeCommands(source, sink, targetNodes, nodeType, branch);
                     addConnection = insertCommands.Item1;
                     removeConnection = insertCommands.Item2;
                 }
@@ -2696,7 +2725,7 @@ namespace Bonsai.Design
                 valueProperty.SetValue(propertySource, memberValue);
                 propertySource.MemberName = memberName;
 
-                CreateGraphNode(propertySource, null, CreateGraphNodeType.Predecessor, branch: true);
+                CreateGraphNode(propertySource, Enumerable.Empty<GraphNode>(), CreateGraphNodeType.Predecessor, branch: true);
                 contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
             });
 
