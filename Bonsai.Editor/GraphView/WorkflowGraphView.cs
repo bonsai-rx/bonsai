@@ -28,6 +28,7 @@ namespace Bonsai.Design
     partial class WorkflowGraphView : UserControl
     {
         static readonly Cursor InvalidSelectionCursor = Cursors.No;
+        static readonly Cursor MoveSelectionCursor = Cursors.SizeAll;
         static readonly Cursor AlternateSelectionCursor = Cursors.UpArrow;
         static readonly XName XsdAttributeName = ((XNamespace)"http://www.w3.org/2000/xmlns/") + "xsd";
         static readonly XName XsiAttributeName = ((XNamespace)"http://www.w3.org/2000/xmlns/") + "xsi";
@@ -1173,6 +1174,19 @@ namespace Bonsai.Design
             commandExecutor.EndCompositeCommand();
         }
 
+        private void MoveGraphNode(GraphNode node, GraphNode target, CreateGraphNodeType nodeType, bool branch)
+        {
+            var builder = node.Value;
+            var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
+            updateGraphLayout += CreateUpdateSelectionDelegate(builder);
+            commandExecutor.BeginCompositeCommand();
+            commandExecutor.Execute(() => { }, updateGraphLayout);
+            DeleteGraphNode(node);
+            CreateGraphNode(builder, target, nodeType, branch, validate: false);
+            commandExecutor.Execute(updateGraphLayout, () => { });
+            commandExecutor.EndCompositeCommand();
+        }
+
         public void ReplaceGraphNode(GraphNode node, ExpressionBuilder builder)
         {
             UpdateGraphNodes(new[] { node }, selectedNode => ReplaceNode(selectedNode, builder));
@@ -2071,10 +2085,13 @@ namespace Bonsai.Design
                 case DragDropEffects.All:
                 case DragDropEffects.Copy:
                 case DragDropEffects.Link:
-                case DragDropEffects.Move:
                 case DragDropEffects.Scroll:
                     if (isContextMenuSource) Cursor = AlternateSelectionCursor;
                     else Cursor.Current = AlternateSelectionCursor;
+                    break;
+                case DragDropEffects.Move:
+                    if (isContextMenuSource) Cursor = MoveSelectionCursor;
+                    else Cursor.Current = MoveSelectionCursor;
                     break;
                 case DragDropEffects.None:
                 default:
@@ -2143,10 +2160,15 @@ namespace Bonsai.Design
                 {
                     if (highlight != null)
                     {
-                        var validation = (e.KeyState & ShiftModifier) != 0
-                            ? CanDisconnect(dragSelection, highlight)
-                            : CanConnect(dragSelection, highlight);
-                        e.Effect = validation ? DragDropEffects.Link : DragDropEffects.None;
+                        var link = (e.KeyState & CtrlModifier) != 0;
+                        if (link)
+                        {
+                            var validation = (e.KeyState & ShiftModifier) != 0
+                                ? CanDisconnect(dragSelection, highlight)
+                                : CanConnect(dragSelection, highlight);
+                            e.Effect = validation ? DragDropEffects.Link : DragDropEffects.None;
+                        }
+                        else e.Effect = DragDropEffects.Move;
                     }
                     else e.Effect = DragDropEffects.None;
                     SetDragCursor(e.Effect);
@@ -2203,6 +2225,13 @@ namespace Bonsai.Design
                     }
                 }
 
+                if (e.Effect == DragDropEffects.Move)
+                {
+                    var node = dragSelection.First();
+                    var target = graphView.GetNodeAt(dropLocation);
+                    MoveGraphNode(node, target, nodeType, branch);
+                }
+
                 if (e.Effect == DragDropEffects.Link)
                 {
                     if (e.Data.GetDataPresent(DataFormats.FileDrop, true))
@@ -2238,7 +2267,7 @@ namespace Bonsai.Design
             var selectedNode = e.Item as GraphNode;
             if (selectedNode != null)
             {
-                graphView.DoDragDrop(selectedNode, DragDropEffects.Link);
+                graphView.DoDragDrop(selectedNode, DragDropEffects.Move | DragDropEffects.Link);
             }
         }
 
