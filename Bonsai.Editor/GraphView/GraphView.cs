@@ -44,9 +44,7 @@ namespace Bonsai.Design
         int PenWidth;
         int NodeAirspace;
         int NodeSize;
-        int IconSize;
         int HalfSize;
-        int IconOffset;
         int LabelTextOffset;
         SizeF VectorTextOffset;
         Size EntryOffset;
@@ -413,9 +411,7 @@ namespace Bonsai.Design
             PenWidth = (int)(3 * drawScale);
             NodeAirspace = (int)(80 * drawScale);
             NodeSize = (int)(30 * drawScale);
-            IconSize = (int)(16 * drawScale);
             HalfSize = NodeSize / 2;
-            IconOffset = HalfSize - (IconSize / 2);
             LabelTextOffset = (int)(5 * drawScale);
             VectorTextOffset = new SizeF(0, 1.375f * drawScale);
             EntryOffset = new Size(-PenWidth / 2, NodeSize / 2);
