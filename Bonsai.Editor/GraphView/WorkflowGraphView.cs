@@ -2167,7 +2167,7 @@ namespace Bonsai.Design
                 var highlight = graphView.GetNodeAt(dragLocation);
                 if (highlight != dragHighlight || e.KeyState != dragKeyState)
                 {
-                    if (highlight != null)
+                    if (highlight != null && !dragSelection.Contains(highlight))
                     {
                         var link = (e.KeyState & CtrlModifier) != 0;
                         if (link)
