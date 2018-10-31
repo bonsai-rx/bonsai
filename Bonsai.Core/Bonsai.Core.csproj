@@ -171,6 +171,8 @@
     <Compile Include="Reactive\DistinctBy.cs" />
     <Compile Include="Reactive\DistinctUntilChangedBy.cs" />
     <Compile Include="Reactive\EnumerableEx.cs" />
+    <Compile Include="Reactive\OrderBy.cs" />
+    <Compile Include="Reactive\OrderByDescending.cs" />
     <Compile Include="Reactive\Synchronize.cs" />
     <Compile Include="Reactive\GroupBy.cs" />
     <Compile Include="Reactive\LastOrDefault.cs" />
@@ -180,6 +182,8 @@
     <Compile Include="Reactive\MinBy.cs" />
     <Compile Include="Reactive\IsEmpty.cs" />
     <Compile Include="Reactive\MaxBy.cs" />
+    <Compile Include="Reactive\ThenBy.cs" />
+    <Compile Include="Reactive\ThenByDescending.cs" />
     <Compile Include="Reactive\ToArray.cs" />
     <Compile Include="Reactive\Dematerialize.cs" />
     <Compile Include="Reactive\DelaySubscription.cs" />

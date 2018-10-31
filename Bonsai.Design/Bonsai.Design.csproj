@@ -76,6 +76,7 @@
     <Compile Include="ConfigurationEditorService.cs" />
     <Compile Include="ControlObservable.cs" />
     <Compile Include="ControlScheduler.cs" />
+    <Compile Include="EnumerableMemberSelectorEditor.cs" />
     <Compile Include="FolderBrowserDialog.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -95,6 +96,7 @@
     <Compile Include="MashupTypeVisualizer.cs" />
     <Compile Include="ITypeVisualizerContext.cs" />
     <Compile Include="MemberSelectorEditorController.cs" />
+    <Compile Include="OrderedEnumerableMemberSelectorEditor.cs" />
     <Compile Include="PathConvert.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="PropertyGrid.cs">

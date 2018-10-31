@@ -16,13 +16,26 @@ namespace Bonsai.Design
     public class MemberSelectorEditor : UITypeEditor
     {
         bool allowMultiSelection;
+        Func<Expression, Type> typeSelector;
 
         public MemberSelectorEditor()
+            : this(false)
         {
         }
 
         public MemberSelectorEditor(bool allowMultiSelection)
+            : this(expression => expression.Type.GetGenericArguments()[0], allowMultiSelection)
         {
+        }
+
+        public MemberSelectorEditor(Func<Expression, Type> typeSelector, bool allowMultiSelection)
+        {
+            if (typeSelector == null)
+            {
+                throw new ArgumentNullException("typeSelector");
+            }
+
+            this.typeSelector = typeSelector;
             this.allowMultiSelection = allowMultiSelection;
         }
 
@@ -90,7 +103,8 @@ namespace Bonsai.Design
                 if (predecessor != null)
                 {
                     var expression = workflow.Build(predecessor.Value);
-                    var expressionType = expression.Type.GetGenericArguments()[0];
+                    var expressionType = typeSelector(expression);
+                    if (expressionType == null) return base.EditValue(context, provider, value);
                     using (var editorDialog = allowMultiSelection ?
                            (IMemberSelectorEditorDialog)
                            new MultiMemberSelectorEditorDialog(expressionType) :
