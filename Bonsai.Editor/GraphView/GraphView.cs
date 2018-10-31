@@ -45,10 +45,12 @@ namespace Bonsai.Design
         int NodeAirspace;
         int NodeSize;
         int HalfSize;
+        int ConnectorSize;
         int LabelTextOffset;
         SizeF VectorTextOffset;
         Size EntryOffset;
         Size ExitOffset;
+        Size ConnectorOffset;
         Pen NodePen;
         Pen CursorPen;
         Pen WhitePen;
@@ -412,10 +414,12 @@ namespace Bonsai.Design
             NodeAirspace = (int)(80 * drawScale);
             NodeSize = (int)(30 * drawScale);
             HalfSize = NodeSize / 2;
+            ConnectorSize = (int)(6 * drawScale);
             LabelTextOffset = (int)(5 * drawScale);
             VectorTextOffset = new SizeF(0, 1.375f * drawScale);
             EntryOffset = new Size(-PenWidth / 2, NodeSize / 2);
             ExitOffset = new Size(NodeSize + PenWidth / 2, NodeSize / 2);
+            ConnectorOffset = new Size(-ConnectorSize / 2, EntryOffset.Height - ConnectorSize / 2);
             NodePen = new Pen(Brushes.DarkGray, PenWidth);
             WhitePen = new Pen(Brushes.White, PenWidth);
             BlackPen = new Pen(Brushes.Black, PenWidth);
@@ -898,7 +902,7 @@ namespace Bonsai.Design
                         {
                             if (pivot == null) pivot = cursor = node;
                             var row = node.LayerIndex;
-                            var location = new Point(column * NodeAirspace + PenWidth, row * NodeAirspace + PenWidth);
+                            var location = new Point(column * NodeAirspace + 2 * PenWidth, row * NodeAirspace + PenWidth);
                             var layout = new LayoutNode(this, node, location);
                             layout.SetNodeLabel(node.Text, Font, graphics, WrapLabels);
                             layoutNodes.Add(layout);
@@ -1191,21 +1195,19 @@ namespace Bonsai.Design
             {
                 if (layout.Node.Value != null)
                 {
-                    Pen pen;
                     Pen iconPen;
                     Brush brush;
                     var selected = selectedNodes.Contains(layout.Node);
                     var textBrush = selected ? Brushes.White : Brushes.Black;
+                    var pen = cursor == layout.Node ? CursorPen : NodePen;
                     if (layout.Node.Highlight)
                     {
                         brush = selected ? HighlightedSelectionBrush : HighlightedBrush;
                         iconPen = WhiteIconPen;
-                        pen = WhitePen;
                     }
                     else
                     {
                         iconPen = selected ? WhiteIconPen : BlackIconPen;
-                        pen = cursor == layout.Node ? CursorPen : NodePen;
                         brush = selected ? (Focused ? FocusedSelectionBrush : UnfocusedSelectionBrush) : layout.Node.ModifierBrush;
                     }
 
@@ -1244,6 +1246,16 @@ namespace Bonsai.Design
                     }
 
                     if (layout.Node == hot) e.Graphics.FillEllipse(HotBrush, nodeRectangle);
+                    if (layout.Node.ArgumentCount < layout.Node.Value.ArgumentRange.UpperBound)
+                    {
+                        var connectorRectangle = layout.ConnectorRectangle;
+                        var connectorBrush = layout.Node.ArgumentCount < layout.Node.Value.ArgumentRange.LowerBound
+                            ? cursor == layout.Node ? Brushes.Black : Brushes.DarkGray
+                            : Brushes.White;
+                        connectorRectangle.Offset(offset.Width, offset.Height);
+                        e.Graphics.DrawEllipse(pen, connectorRectangle);
+                        e.Graphics.FillEllipse(connectorBrush, connectorRectangle);                     
+                    }
                     if (TextDrawMode == GraphViewTextDrawMode.All || layout.Node == hot)
                     {
                         var labelRect = layout.LabelRectangle;
@@ -1390,13 +1402,28 @@ namespace Bonsai.Design
                 get { return Point.Add(Location, View.ExitOffset); }
             }
 
+            public Point ConnectorLocation
+            {
+                get { return Point.Add(Location, View.ConnectorOffset); }
+            }
+
             public Rectangle BoundingRectangle
             {
                 get
                 {
                     return new Rectangle(
-                        Location.X - View.PenWidth, Location.Y - View.PenWidth,
-                        View.NodeSize + 2 * View.PenWidth, View.NodeSize + 2 * View.PenWidth);
+                        ConnectorLocation.X - View.PenWidth, Location.Y - View.PenWidth,
+                        View.ConnectorSize / 2 + View.NodeSize + 2 * View.PenWidth, View.NodeSize + 2 * View.PenWidth);
+                }
+            }
+
+            public Rectangle ConnectorRectangle
+            {
+                get
+                {
+                    return new Rectangle(
+                        ConnectorLocation,
+                        new Size(View.ConnectorSize, View.ConnectorSize));
                 }
             }
 
