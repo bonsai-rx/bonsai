@@ -32,6 +32,24 @@ namespace Bonsai
         const char IndexArgumentSeparator = ',';
 
         /// <summary>
+        /// Returns an array of <see cref="Type"/> objects that represent the bounded
+        /// type parameters resulting from matching the specified generic type with a
+        /// concrete type.
+        /// </summary>
+        /// <param name="genericType">The generic type definition used to test for bindings.</param>
+        /// <param name="type">The <see cref="Type"/> used to bind against <paramref name="genericType"/>.</param>
+        /// <returns>
+        /// The array of <see cref="Type"/> objects representing the bounded type parameters,
+        /// or an empty array, in case no compatible bindings are found.
+        /// </returns>
+        public static Type[] GetGenericTypeBindings(Type genericType, Type type)
+        {
+            return (from binding in ExpressionBuilder.GetParameterBindings(genericType, type)
+                    select binding.Item1)
+                    .ToArray();
+        }
+
+        /// <summary>
         /// Tests whether the specified type implements the generic enumerable interface.
         /// </summary>
         /// <param name="type">The <see cref="Type"/> to test.</param>
