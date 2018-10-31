@@ -89,6 +89,8 @@ namespace Bonsai.Design
 
         public int LayerIndex { get; internal set; }
 
+        public int ArgumentCount { get; internal set; }
+
         public ExpressionBuilder Value { get; private set; }
 
         public IEnumerable<GraphEdge> Successors { get; private set; }

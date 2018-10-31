@@ -57,7 +57,9 @@ namespace Bonsai.Design
                 var layer = 0;
                 foreach (var successor in node.Successors)
                 {
-                    layer = Math.Max(layer, layerMap[successor.Target].Layer);
+                    var successorTarget = layerMap[successor.Target];
+                    layer = Math.Max(layer, successorTarget.Layer);
+                    successorTarget.ArgumentCount++;
                 }
 
                 if (node.Successors.Count > 0) layer++;
