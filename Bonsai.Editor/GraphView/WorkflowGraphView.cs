@@ -2169,7 +2169,7 @@ namespace Bonsai.Design
                 {
                     if (highlight != null && !dragSelection.Contains(highlight))
                     {
-                        var link = (e.KeyState & CtrlModifier) != 0;
+                        var link = (e.KeyState & CtrlModifier) == 0;
                         if (link)
                         {
                             var validation = (e.KeyState & ShiftModifier) != 0
