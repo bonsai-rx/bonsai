@@ -101,6 +101,25 @@ void main()
 
                 new GlslScriptExample
                 {
+                    Name = "Skybox",
+                    Type = ShaderType.VertexShader,
+                    Source = @"#version 400
+uniform mat4 modelview;
+uniform mat4 projection;
+layout(location = 0) in vec3 vp;
+out vec3 texCoord;
+
+void main()
+{
+  vec4 position = projection * modelview * vec4(vp, 1.0);
+  gl_Position = position.xyww;
+  texCoord = vp;
+}
+"
+                },
+
+                new GlslScriptExample
+                {
                     Name = "Viewport Effect",
                     Type = ShaderType.FragmentShader,
                     Source = @"#version 400
@@ -121,6 +140,23 @@ void main()
                     Source = @"#version 400
 uniform sampler2D tex;
 in vec2 texCoord;
+out vec4 fragColor;
+
+void main()
+{
+  vec4 texel = texture(tex, texCoord);
+  fragColor = texel;
+}
+"
+                },
+
+                new GlslScriptExample
+                {
+                    Name = "Cubemap Texture",
+                    Type = ShaderType.FragmentShader,
+                    Source = @"#version 400
+uniform samplerCube tex;
+in vec3 texCoord;
 out vec4 fragColor;
 
 void main()
