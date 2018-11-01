@@ -15,6 +15,7 @@ namespace Bonsai.Shaders.Configuration
         public TextureBindingConfiguration()
         {
             TextureSlot = TextureUnit.Texture0;
+            TextureTarget = TextureTarget.Texture2D;
         }
 
         [Description("The slot on which to bind the texture.")]
@@ -22,14 +23,18 @@ namespace Bonsai.Shaders.Configuration
 
         [Category("Reference")]
         [TypeConverter(typeof(TextureNameConverter))]
-        [Description("The name of the texture that will be bound to the shader.")]
+        [Description("The name of the texture that will be bound to the sampler.")]
         public string TextureName { get; set; }
+
+        [Category("Reference")]
+        [Description("The texture target that will be bound to the sampler.")]
+        public TextureTarget TextureTarget { get; set; }
 
         internal override BufferBinding CreateBufferBinding(Shader shader, ResourceManager resourceManager)
         {
             shader.SetTextureSlot(Name, TextureSlot);
             var texture = !string.IsNullOrEmpty(TextureName) ? resourceManager.Load<Texture>(TextureName) : null;
-            return new TextureBinding(texture, TextureSlot);
+            return new TextureBinding(texture, TextureSlot, TextureTarget);
         }
 
         public override string ToString()
