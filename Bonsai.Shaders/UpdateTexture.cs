@@ -12,11 +12,12 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
-    [Description("Updates the pixel store of the specified texture.")]
+    [Description("Updates the pixel store of the specified texture target.")]
     public class UpdateTexture : Sink<IplImage>
     {
         public UpdateTexture()
         {
+            TextureTarget = TextureTarget.Texture2D;
             InternalFormat = PixelInternalFormat.Rgba;
         }
 
@@ -24,7 +25,10 @@ namespace Bonsai.Shaders
         [Description("The name of the texture to update.")]
         public string TextureName { get; set; }
 
-        [Description("The internal storage format of the texture data.")]
+        [Description("The texture target to update.")]
+        public TextureTarget TextureTarget { get; set; }
+
+        [Description("The internal storage format of the texture target.")]
         public PixelInternalFormat InternalFormat { get; set; }
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
@@ -35,7 +39,7 @@ namespace Bonsai.Shaders
                 var name = TextureName;
                 if (string.IsNullOrEmpty(name))
                 {
-                    throw new InvalidOperationException("A texture sampler name must be specified.");
+                    throw new InvalidOperationException("A texture name must be specified.");
                 }
 
                 return source.CombineEither(
@@ -55,7 +59,13 @@ namespace Bonsai.Shaders
                     {
                         window.Update(() =>
                         {
-                            TextureHelper.UpdateTexture(texture, InternalFormat, input);
+                            var target = TextureTarget;
+                            if (target > TextureTarget.TextureBindingCubeMap && target < TextureTarget.ProxyTextureCubeMap)
+                            {
+                                GL.BindTexture(TextureTarget.TextureCubeMap, texture);
+                            }
+                            else GL.BindTexture(target, texture);
+                            TextureHelper.UpdateTexture(target, texture, InternalFormat, input);
                         });
                         return input;
                     }).SubscribeSafe(observer);
