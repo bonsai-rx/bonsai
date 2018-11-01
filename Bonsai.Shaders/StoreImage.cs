@@ -86,7 +86,8 @@ namespace Bonsai.Shaders
                 {
                     window.Update(() =>
                     {
-                        TextureHelper.UpdateTexture(texture.Id, InternalFormat, input);
+                        GL.BindTexture(TextureTarget.Texture2D, texture.Id);
+                        TextureHelper.UpdateTexture(TextureTarget.Texture2D, texture.Id, InternalFormat, input);
                         observer.OnNext(texture);
                     });
                 });

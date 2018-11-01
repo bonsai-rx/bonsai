@@ -10,7 +10,7 @@ namespace Bonsai.Shaders
 {
     static class TextureHelper
     {
-        public static void UpdateTexture(int texture, PixelInternalFormat internalFormat, IplImage image)
+        public static void UpdateTexture(TextureTarget target, int texture, PixelInternalFormat internalFormat, IplImage image)
         {
             if (image == null) throw new ArgumentNullException("image");
             PixelFormat pixelFormat;
@@ -54,10 +54,9 @@ namespace Bonsai.Shaders
                 default: throw new ArgumentException("Image has an unsupported pixel bit depth.", "image");
             }
 
-            GL.BindTexture(TextureTarget.Texture2D, texture);
             GL.PixelStore(PixelStoreParameter.UnpackAlignment, image.WidthStep % 4 == 0 ? 4 : 1);
             GL.PixelStore(PixelStoreParameter.UnpackRowLength, image.WidthStep / (pixelSize * image.Channels));
-            GL.TexImage2D(TextureTarget.Texture2D, 0, internalFormat, image.Width, image.Height, 0, pixelFormat, pixelType, image.ImageData);
+            GL.TexImage2D(target, 0, internalFormat, image.Width, image.Height, 0, pixelFormat, pixelType, image.ImageData);
             GC.KeepAlive(image);
         }
     }
