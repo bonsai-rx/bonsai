@@ -42,7 +42,7 @@ namespace Bonsai.Shaders.Configuration.Design
             meshCollectionEditor.CollectionItemType = typeof(MeshConfiguration);
             meshCollectionEditor.NewItemTypes = new[] { typeof(MeshConfiguration), typeof(TexturedQuad), typeof(TexturedModel) };
             textureCollectionEditor.CollectionItemType = typeof(TextureConfiguration);
-            textureCollectionEditor.NewItemTypes = new[] { typeof(Texture2D), typeof(ImageTexture) };
+            textureCollectionEditor.NewItemTypes = new[] { typeof(Texture2D), typeof(Cubemap), typeof(ImageTexture), typeof(ImageCubemap) };
             dragMesh = new DragMeshConfiguration(meshCollectionEditor);
             dragTexture = new DragTextureConfiguration(textureCollectionEditor);
             dragMaterial = new DragMaterialConfiguration(shaderCollectionEditor);
