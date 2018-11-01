@@ -12,11 +12,13 @@ namespace Bonsai.Shaders
     {
         int textureId;
         TextureUnit textureUnit;
+        TextureTarget textureTarget;
 
-        public TextureBinding(Texture texture, TextureUnit textureSlot)
+        public TextureBinding(Texture texture, TextureUnit textureSlot, TextureTarget target)
         {
             textureId = texture != null ? texture.Id : 0;
             textureUnit = textureSlot;
+            textureTarget = target;
         }
 
         public override void Bind()
@@ -24,7 +26,7 @@ namespace Bonsai.Shaders
             if (textureId > 0)
             {
                 GL.ActiveTexture(textureUnit);
-                GL.BindTexture(TextureTarget.Texture2D, textureId);
+                GL.BindTexture(textureTarget, textureId);
             }
         }
 
@@ -33,7 +35,7 @@ namespace Bonsai.Shaders
             if (textureId > 0)
             {
                 GL.ActiveTexture(textureUnit);
-                GL.BindTexture(TextureTarget.Texture2D, 0);
+                GL.BindTexture(textureTarget, 0);
             }
         }
     }
