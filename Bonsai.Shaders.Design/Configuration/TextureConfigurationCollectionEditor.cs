@@ -21,7 +21,7 @@ namespace Bonsai.Shaders.Configuration.Design
 
         protected override Type[] CreateNewItemTypes()
         {
-            return new[] { typeof(Texture2D), typeof(ImageTexture) };
+            return new[] { typeof(Texture2D), typeof(Cubemap), typeof(ImageTexture), typeof(ImageCubemap) };
         }
 
         protected override CollectionEditorDialog CreateEditorDialog()
