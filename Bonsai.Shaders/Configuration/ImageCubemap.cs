@@ -97,7 +97,8 @@ namespace Bonsai.Shaders.Configuration
 
             var flipMode = FlipMode;
             if (flipMode.HasValue) CV.Flip(image, null, flipMode.Value);
-            TextureHelper.UpdateTexture(target, texture.Id, InternalFormat, image);
+            var internalFormat = width > 0 && height > 0 ? (PixelInternalFormat?)null : InternalFormat;
+            TextureHelper.UpdateTexture(target, texture.Id, internalFormat, image);
         }
 
         public override Texture CreateResource(ResourceManager resourceManager)

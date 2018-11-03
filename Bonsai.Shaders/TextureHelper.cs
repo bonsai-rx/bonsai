@@ -10,7 +10,7 @@ namespace Bonsai.Shaders
 {
     static class TextureHelper
     {
-        public static void UpdateTexture(TextureTarget target, int texture, PixelInternalFormat internalFormat, IplImage image)
+        public static void UpdateTexture(TextureTarget target, int texture, PixelInternalFormat? internalFormat, IplImage image)
         {
             if (image == null) throw new ArgumentNullException("image");
             PixelFormat pixelFormat;
@@ -56,7 +56,11 @@ namespace Bonsai.Shaders
 
             GL.PixelStore(PixelStoreParameter.UnpackAlignment, image.WidthStep % 4 == 0 ? 4 : 1);
             GL.PixelStore(PixelStoreParameter.UnpackRowLength, image.WidthStep / (pixelSize * image.Channels));
-            GL.TexImage2D(target, 0, internalFormat, image.Width, image.Height, 0, pixelFormat, pixelType, image.ImageData);
+            if (internalFormat.HasValue)
+            {
+                GL.TexImage2D(target, 0, internalFormat.Value, image.Width, image.Height, 0, pixelFormat, pixelType, image.ImageData);
+            }
+            else GL.TexSubImage2D(target, 0, 0, 0, image.Width, image.Height, pixelFormat, pixelType, image.ImageData);
             GC.KeepAlive(image);
         }
     }

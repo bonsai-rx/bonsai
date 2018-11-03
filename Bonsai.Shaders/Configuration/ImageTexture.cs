@@ -62,7 +62,8 @@ namespace Bonsai.Shaders.Configuration
             var flipMode = FlipMode;
             if (flipMode.HasValue) CV.Flip(image, null, flipMode.Value);
             GL.BindTexture(TextureTarget.Texture2D, texture.Id);
-            TextureHelper.UpdateTexture(TextureTarget.Texture2D, texture.Id, InternalFormat, image);
+            var internalFormat = width > 0 && height > 0 ? (PixelInternalFormat?)null : InternalFormat;
+            TextureHelper.UpdateTexture(TextureTarget.Texture2D, texture.Id, internalFormat, image);
             GL.BindTexture(TextureTarget.Texture2D, 0);
             return texture;
         }
