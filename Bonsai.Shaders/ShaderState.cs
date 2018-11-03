@@ -106,6 +106,13 @@ namespace Bonsai.Shaders
                     throw new ArgumentNullException("uniformConfiguration");
                 }
 
+                if (string.IsNullOrEmpty(uniformConfiguration.Name))
+                {
+                    throw new InvalidOperationException(string.Format(
+                        "Missing variable name for uniform assignment in shader \"{0}\".",
+                        shader.Name));
+                }
+
                 configuration = uniformConfiguration;
                 location = GL.GetUniformLocation(shader.Program, configuration.Name);
                 if (location < 0)
