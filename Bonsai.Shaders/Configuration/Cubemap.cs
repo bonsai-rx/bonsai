@@ -67,12 +67,12 @@ namespace Bonsai.Shaders.Configuration
             var height = Height.GetValueOrDefault();
             if (width > 0 && height > 0)
             {
-                GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX, 0, InternalFormat, width, height, 0, PixelFormat.Rgba, PixelType.Float, IntPtr.Zero);
-                GL.TexImage2D(TextureTarget.TextureCubeMapNegativeX, 0, InternalFormat, width, height, 0, PixelFormat.Rgba, PixelType.Float, IntPtr.Zero);
-                GL.TexImage2D(TextureTarget.TextureCubeMapPositiveY, 0, InternalFormat, width, height, 0, PixelFormat.Rgba, PixelType.Float, IntPtr.Zero);
-                GL.TexImage2D(TextureTarget.TextureCubeMapNegativeY, 0, InternalFormat, width, height, 0, PixelFormat.Rgba, PixelType.Float, IntPtr.Zero);
-                GL.TexImage2D(TextureTarget.TextureCubeMapPositiveZ, 0, InternalFormat, width, height, 0, PixelFormat.Rgba, PixelType.Float, IntPtr.Zero);
-                GL.TexImage2D(TextureTarget.TextureCubeMapNegativeZ, 0, InternalFormat, width, height, 0, PixelFormat.Rgba, PixelType.Float, IntPtr.Zero);
+                GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX, 0, InternalFormat, width, height, 0, PixelFormat.Bgr, PixelType.UnsignedByte, IntPtr.Zero);
+                GL.TexImage2D(TextureTarget.TextureCubeMapNegativeX, 0, InternalFormat, width, height, 0, PixelFormat.Bgr, PixelType.UnsignedByte, IntPtr.Zero);
+                GL.TexImage2D(TextureTarget.TextureCubeMapPositiveY, 0, InternalFormat, width, height, 0, PixelFormat.Bgr, PixelType.UnsignedByte, IntPtr.Zero);
+                GL.TexImage2D(TextureTarget.TextureCubeMapNegativeY, 0, InternalFormat, width, height, 0, PixelFormat.Bgr, PixelType.UnsignedByte, IntPtr.Zero);
+                GL.TexImage2D(TextureTarget.TextureCubeMapPositiveZ, 0, InternalFormat, width, height, 0, PixelFormat.Bgr, PixelType.UnsignedByte, IntPtr.Zero);
+                GL.TexImage2D(TextureTarget.TextureCubeMapNegativeZ, 0, InternalFormat, width, height, 0, PixelFormat.Bgr, PixelType.UnsignedByte, IntPtr.Zero);
             }
             GL.BindTexture(TextureTarget.TextureCubeMap, 0);
             return texture;

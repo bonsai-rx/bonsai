@@ -80,6 +80,7 @@ namespace Bonsai.Shaders
             var evt = await updateFrame.Generate().FirstOrDefaultAsync();
             if (evt != null)
             {
+                var textureSize = default(Size);
                 var window = (ShaderWindow)evt.Sender;
                 var texture = configuration.CreateResource(window.ResourceManager);
                 var update = Observer.Create<IplImage>(input =>
@@ -87,7 +88,9 @@ namespace Bonsai.Shaders
                     window.Update(() =>
                     {
                         GL.BindTexture(TextureTarget.Texture2D, texture.Id);
-                        TextureHelper.UpdateTexture(TextureTarget.Texture2D, texture.Id, InternalFormat, input);
+                        var internalFormat = textureSize != input.Size ? InternalFormat : (PixelInternalFormat?)null;
+                        TextureHelper.UpdateTexture(TextureTarget.Texture2D, texture.Id, internalFormat, input);
+                        textureSize = input.Size;
                         observer.OnNext(texture);
                     });
                 });

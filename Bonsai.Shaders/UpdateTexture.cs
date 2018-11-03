@@ -37,6 +37,7 @@ namespace Bonsai.Shaders
             {
                 var texture = 0;
                 var name = TextureName;
+                var textureSize = default(Size);
                 if (string.IsNullOrEmpty(name))
                 {
                     throw new InvalidOperationException("A texture name must be specified.");
@@ -65,7 +66,9 @@ namespace Bonsai.Shaders
                                 GL.BindTexture(TextureTarget.TextureCubeMap, texture);
                             }
                             else GL.BindTexture(target, texture);
-                            TextureHelper.UpdateTexture(target, texture, InternalFormat, input);
+                            var internalFormat = textureSize != input.Size ? InternalFormat : (PixelInternalFormat?)null;
+                            TextureHelper.UpdateTexture(target, texture, internalFormat, input);
+                            textureSize = input.Size;
                         });
                         return input;
                     }).SubscribeSafe(observer);

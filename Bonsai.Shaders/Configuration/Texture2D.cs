@@ -61,7 +61,7 @@ namespace Bonsai.Shaders.Configuration
             var height = Height.GetValueOrDefault();
             if (width > 0 && height > 0)
             {
-                GL.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat, width, height, 0, PixelFormat.Rgba, PixelType.Float, IntPtr.Zero);
+                GL.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat, width, height, 0, PixelFormat.Bgr, PixelType.UnsignedByte, IntPtr.Zero);
             }
             GL.BindTexture(TextureTarget.Texture2D, 0);
             return texture;
