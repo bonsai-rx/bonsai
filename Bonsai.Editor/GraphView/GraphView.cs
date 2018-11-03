@@ -1246,10 +1246,10 @@ namespace Bonsai.Design
                     }
 
                     if (layout.Node == hot) e.Graphics.FillEllipse(HotBrush, nodeRectangle);
-                    if (layout.Node.ArgumentCount < layout.Node.Value.ArgumentRange.UpperBound)
+                    if (layout.Node.ArgumentCount < layout.Node.ArgumentRange.UpperBound)
                     {
                         var connectorRectangle = layout.ConnectorRectangle;
-                        var connectorBrush = layout.Node.ArgumentCount < layout.Node.Value.ArgumentRange.LowerBound
+                        var connectorBrush = layout.Node.ArgumentCount < layout.Node.ArgumentRange.LowerBound
                             ? cursor == layout.Node ? Brushes.Black : Brushes.DarkGray
                             : Brushes.White;
                         connectorRectangle.Offset(offset.Width, offset.Height);
