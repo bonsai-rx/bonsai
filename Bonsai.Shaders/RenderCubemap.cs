@@ -21,6 +21,7 @@ namespace Bonsai.Shaders
         {
             ClearColor = Color.Black;
             ClearMask = ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit;
+            TextureTarget = TextureTarget.TextureCubeMapNegativeZ;
         }
 
         [Description("Specifies any render states that are required to render the framebuffer.")]
@@ -49,6 +50,7 @@ namespace Bonsai.Shaders
         [Description("The name of the cubemap texture to update.")]
         public string TextureName { get; set; }
 
+        [TypeConverter(typeof(CubemapTargetConverter))]
         [Description("The cubemap texture target to update.")]
         public TextureTarget TextureTarget { get; set; }
 
