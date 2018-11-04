@@ -86,18 +86,17 @@ namespace Bonsai.Shaders.Configuration
                     Name, target, fileName));
             }
 
-            var width = Width.GetValueOrDefault();
-            var height = Height.GetValueOrDefault();
-            if (width > 0 && height > 0 && (image.Width != width || image.Height != height))
+            var faceSize = FaceSize.GetValueOrDefault();
+            if (faceSize > 0 && (image.Width != faceSize || image.Height != faceSize))
             {
-                var resized = new IplImage(new Size(width, height), image.Depth, image.Channels);
+                var resized = new IplImage(new Size(faceSize, faceSize), image.Depth, image.Channels);
                 CV.Resize(image, resized);
                 image = resized;
             }
 
             var flipMode = FlipMode;
             if (flipMode.HasValue) CV.Flip(image, null, flipMode.Value);
-            var internalFormat = width > 0 && height > 0 ? (PixelInternalFormat?)null : InternalFormat;
+            var internalFormat = faceSize > 0 ? (PixelInternalFormat?)null : InternalFormat;
             TextureHelper.UpdateTexture(target, texture.Id, internalFormat, image);
         }
 
