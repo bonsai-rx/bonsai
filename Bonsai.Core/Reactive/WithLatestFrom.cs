@@ -35,10 +35,9 @@ namespace Bonsai.Reactive
             IObservable<TSource> source,
             IObservable<TOther> other)
         {
-            return other.Publish(os =>
-                source.SkipUntil(os)
-                      .Zip(os.MostRecent(default(TOther)),
-                          (xs, ys) => Tuple.Create(xs, ys)));
+            return source.Publish(ps =>
+                ps.CombineLatest(other, (xs, ys) => Tuple.Create(xs, ys))
+                  .Sample(ps));
         }
     }
 }
