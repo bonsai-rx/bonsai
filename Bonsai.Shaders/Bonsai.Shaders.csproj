@@ -82,6 +82,7 @@
     <Compile Include="CreateOrthographicOffCenter.cs" />
     <Compile Include="CreatePerspectiveOffCenter.cs" />
     <Compile Include="CreateWindow.cs" />
+    <Compile Include="CubemapTargetConverter.cs" />
     <Compile Include="LoadImage.cs" />
     <Compile Include="LoadResources.cs" />
     <Compile Include="MaterialNameConverter.cs" />
