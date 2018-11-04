@@ -87,6 +87,7 @@
     <Compile Include="MaterialNameConverter.cs" />
     <Compile Include="MeshResources.cs" />
     <Compile Include="RefreshRate.cs" />
+    <Compile Include="RenderCubemap.cs" />
     <Compile Include="RenderTexture.cs" />
     <Compile Include="ExtrinsicsModelView.cs" />
     <Compile Include="CreateTransform.cs" />
