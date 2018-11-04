@@ -21,7 +21,7 @@ namespace Bonsai.Shaders
             FovY = MathHelper.PiOver3;
         }
 
-        [Range(0, Math.PI)]
+        [Range(Math.PI / 180, Math.PI - Math.PI / 180)]
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Description("The angle of the field of view in the y direction, in radians.")]
         public float FovY { get; set; }
