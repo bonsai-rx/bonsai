@@ -29,9 +29,11 @@ namespace Bonsai.Shaders
         [Description("The aspect ratio of the viewport.")]
         public float AspectRatio { get; set; }
 
+        [Category("Z-Clipping")]
         [Description("The distance to the near clip plane.")]
         public float NearClip { get; set; }
 
+        [Category("Z-Clipping")]
         [Description("The distance to the far clip plane.")]
         public float FarClip { get; set; }
 

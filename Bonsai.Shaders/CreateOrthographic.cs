@@ -26,9 +26,11 @@ namespace Bonsai.Shaders
         [Description("The height of the projection volume.")]
         public float Height { get; set; }
 
+        [Category("Z-Clipping")]
         [Description("The distance to the near clip plane.")]
         public float NearClip { get; set; }
 
+        [Category("Z-Clipping")]
         [Description("The distance to the far clip plane.")]
         public float FarClip { get; set; }
 
