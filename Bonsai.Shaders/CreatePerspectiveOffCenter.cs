@@ -23,26 +23,23 @@ namespace Bonsai.Shaders
             FarClip = 1000f;
         }
 
-        [Range(-1, 1)]
-        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Description("The left edge of the view frustrum.")]
         public float Left { get; set; }
 
-        [Range(-1, 1)]
         [Description("The right edge of the view frustrum.")]
         public float Right { get; set; }
 
-        [Range(-1, 1)]
         [Description("The bottom edge of the view frustrum.")]
         public float Bottom { get; set; }
 
-        [Range(-1, 1)]
         [Description("The top edge of the view frustrum.")]
         public float Top { get; set; }
 
+        [Category("Z-Clipping")]
         [Description("The distance to the near clip plane.")]
         public float NearClip { get; set; }
 
+        [Category("Z-Clipping")]
         [Description("The distance to the far clip plane.")]
         public float FarClip { get; set; }
 
