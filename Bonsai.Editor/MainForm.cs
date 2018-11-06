@@ -1005,6 +1005,9 @@ namespace Bonsai.Editor
                 saveWorkflowDialog.InitialDirectory = workflowFileWatcher.Path;
                 if (saveWorkflowDialog.ShowDialog() == DialogResult.OK)
                 {
+                    var fileName = saveWorkflowDialog.FileName;
+                    saveWorkflowDialog.FileName = currentFileName;
+
                     var model = selectionModel.SelectedView;
                     if (groupBuilder == null)
                     {
@@ -1013,16 +1016,16 @@ namespace Bonsai.Editor
                     
                     var selectedNode = selectionModel.SelectedNodes.Single();
                     groupBuilder = (GroupWorkflowBuilder)ExpressionBuilder.Unwrap(selectedNode.Value);
-                    groupBuilder.Name = Path.GetFileNameWithoutExtension(saveWorkflowDialog.FileName);
+                    groupBuilder.Name = Path.GetFileNameWithoutExtension(fileName);
 
                     var serializerWorkflowBuilder = selectionModel.SelectedNodes.ToWorkflowBuilder();
                     groupBuilder = (GroupWorkflowBuilder)serializerWorkflowBuilder.Workflow.Single().Value;
                     serializerWorkflowBuilder = new WorkflowBuilder(groupBuilder.Workflow);
                     serializerWorkflowBuilder.Description = groupBuilder.Description;
-                    SaveWorkflowBuilder(saveWorkflowDialog.FileName, serializerWorkflowBuilder);
+                    SaveWorkflowBuilder(fileName, serializerWorkflowBuilder);
 
                     var includeBuilder = new IncludeWorkflowBuilder();
-                    includeBuilder.Path = PathConvert.GetProjectPath(saveWorkflowDialog.FileName);
+                    includeBuilder.Path = PathConvert.GetProjectPath(fileName);
                     model.ReplaceGraphNode(selectedNode, includeBuilder);
                     editorSite.ValidateWorkflow();
                 }
