@@ -833,6 +833,31 @@ namespace Bonsai.Editor
             SaveElement(VisualizerLayout.Serializer, fileName, layout, Resources.SaveLayout_Error);
         }
 
+        void SaveWorkflowExtension(string fileName, GroupWorkflowBuilder groupBuilder)
+        {
+            var model = selectionModel.SelectedView;
+            if (groupBuilder == null)
+            {
+                model.GroupGraphNodes(selectionModel.SelectedNodes);
+            }
+
+            var selectedNode = selectionModel.SelectedNodes.Single();
+            groupBuilder = (GroupWorkflowBuilder)ExpressionBuilder.Unwrap(selectedNode.Value);
+            groupBuilder.Name = Path.GetFileNameWithoutExtension(fileName);
+
+            var serializerWorkflowBuilder = selectionModel.SelectedNodes.ToWorkflowBuilder();
+            groupBuilder = (GroupWorkflowBuilder)serializerWorkflowBuilder.Workflow.Single().Value;
+            serializerWorkflowBuilder = new WorkflowBuilder(groupBuilder.Workflow);
+            serializerWorkflowBuilder.Description = groupBuilder.Description;
+            if (SaveWorkflowBuilder(fileName, serializerWorkflowBuilder))
+            {
+                var includeBuilder = new IncludeWorkflowBuilder();
+                includeBuilder.Path = PathConvert.GetProjectPath(fileName);
+                model.ReplaceGraphNode(selectedNode, includeBuilder);
+                editorSite.ValidateWorkflow();
+            }
+        }
+
         void OnExtensionsDirectoryChanged(EventArgs e)
         {
             var handler = Events[ExtensionsDirectoryChanged] as EventHandler;
@@ -987,54 +1012,33 @@ namespace Bonsai.Editor
             editorSite.EnsureExtensionsDirectory();
             if (!extensionsPath.Exists) return;
 
+            string fileName = null;
+            GroupWorkflowBuilder groupBuilder = null;
+            var selectedNodes = selectionModel.SelectedNodes;
+            if (selectedNodes.Count() == 1)
+            {
+                groupBuilder = selectedNodes.Single().Value as GroupWorkflowBuilder;
+                if (groupBuilder != null)
+                {
+                    fileName = groupBuilder.Name;
+                }
+            }
+
             var currentFileName = saveWorkflowDialog.FileName;
             try
             {
-                saveWorkflowDialog.FileName = null;
-                GroupWorkflowBuilder groupBuilder = null;
-                var selectedNodes = selectionModel.SelectedNodes;
-                if (selectedNodes.Count() == 1)
-                {
-                    groupBuilder = selectedNodes.Single().Value as GroupWorkflowBuilder;
-                    if (groupBuilder != null)
-                    {
-                        saveWorkflowDialog.FileName = groupBuilder.Name;
-                    }
-                }
-
+                saveWorkflowDialog.FileName = fileName;
                 saveWorkflowDialog.InitialDirectory = workflowFileWatcher.Path;
-                if (saveWorkflowDialog.ShowDialog() == DialogResult.OK)
-                {
-                    var fileName = saveWorkflowDialog.FileName;
-                    saveWorkflowDialog.FileName = currentFileName;
-
-                    var model = selectionModel.SelectedView;
-                    if (groupBuilder == null)
-                    {
-                        model.GroupGraphNodes(selectedNodes);
-                    }
-                    
-                    var selectedNode = selectionModel.SelectedNodes.Single();
-                    groupBuilder = (GroupWorkflowBuilder)ExpressionBuilder.Unwrap(selectedNode.Value);
-                    groupBuilder.Name = Path.GetFileNameWithoutExtension(fileName);
-
-                    var serializerWorkflowBuilder = selectionModel.SelectedNodes.ToWorkflowBuilder();
-                    groupBuilder = (GroupWorkflowBuilder)serializerWorkflowBuilder.Workflow.Single().Value;
-                    serializerWorkflowBuilder = new WorkflowBuilder(groupBuilder.Workflow);
-                    serializerWorkflowBuilder.Description = groupBuilder.Description;
-                    SaveWorkflowBuilder(fileName, serializerWorkflowBuilder);
-
-                    var includeBuilder = new IncludeWorkflowBuilder();
-                    includeBuilder.Path = PathConvert.GetProjectPath(fileName);
-                    model.ReplaceGraphNode(selectedNode, includeBuilder);
-                    editorSite.ValidateWorkflow();
-                }
+                if (saveWorkflowDialog.ShowDialog() != DialogResult.OK) return;
+                fileName = saveWorkflowDialog.FileName;
             }
             finally
             {
                 saveWorkflowDialog.FileName = currentFileName;
                 saveWorkflowDialog.InitialDirectory = openWorkflowDialog.InitialDirectory;
             }
+
+            SaveWorkflowExtension(fileName, groupBuilder);
         }
 
         private void exportImageToolStripMenuItem_Click(object sender, EventArgs e)
