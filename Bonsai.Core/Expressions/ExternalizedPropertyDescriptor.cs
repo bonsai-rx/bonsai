@@ -15,6 +15,16 @@ namespace Bonsai.Expressions
         string category;
         bool? isReadOnly;
 
+        private ExternalizedPropertyDescriptor(ExternalizedPropertyDescriptor descr, PropertyDescriptor[] descriptors)
+            : base(descr.Name, null)
+        {
+            instances = descr.instances;
+            properties = descriptors;
+            description = descr.description;
+            category = descr.category;
+            isReadOnly = descr.isReadOnly;
+        }
+
         public ExternalizedPropertyDescriptor(ExternalizedProperty property, PropertyDescriptor[] descriptors, object[] components)
             : base(property.Name, null)
         {
@@ -186,6 +196,16 @@ namespace Bonsai.Expressions
             }
 
             return false;
+        }
+
+        internal ExternalizedPropertyDescriptor Convert(Converter<PropertyDescriptor, PropertyDescriptor> converter)
+        {
+            var descriptors = Array.ConvertAll(properties, property =>
+            {
+                var externalizedDescriptor = property as ExternalizedPropertyDescriptor;
+                return externalizedDescriptor != null ? externalizedDescriptor.Convert(converter) : converter(property);
+            });
+            return new ExternalizedPropertyDescriptor(this, descriptors);
         }
 
         class ExternalizedAttributeCollection : AttributeCollection

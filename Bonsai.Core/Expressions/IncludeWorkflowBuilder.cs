@@ -147,7 +147,7 @@ namespace Bonsai.Expressions
         XmlElement[] GetXmlProperties()
         {
             return (from property in TypeDescriptor.GetProperties(this).Cast<PropertyDescriptor>()
-                    let externalizedProperty = property as ExternalizedPropertyDescriptor
+                    let externalizedProperty = EnsureXmlSerializable(property as ExternalizedPropertyDescriptor)
                     where externalizedProperty != null && (!externalizedProperty.IsReadOnly || ExpressionHelper.IsCollectionType(externalizedProperty.PropertyType))
                     select SerializeProperty(externalizedProperty))
                     .ToArray();
@@ -156,7 +156,7 @@ namespace Bonsai.Expressions
         void SetXmlProperties(XmlElement[] xmlProperties)
         {
             var properties = (from property in TypeDescriptor.GetProperties(this).Cast<PropertyDescriptor>()
-                              let externalizedProperty = property as ExternalizedPropertyDescriptor
+                              let externalizedProperty = EnsureXmlSerializable(property as ExternalizedPropertyDescriptor)
                               where externalizedProperty != null && (!externalizedProperty.IsReadOnly || ExpressionHelper.IsCollectionType(externalizedProperty.PropertyType))
                               select externalizedProperty)
                               .ToDictionary(property => property.Name);
@@ -168,6 +168,29 @@ namespace Bonsai.Expressions
                     DeserializeProperty(xmlProperties[i], property);
                 }
             }
+        }
+
+        ExternalizedPropertyDescriptor EnsureXmlSerializable(ExternalizedPropertyDescriptor descriptor)
+        {
+            if (descriptor == null) return null;
+            var xmlIgnore = descriptor.Attributes[typeof(XmlIgnoreAttribute)];
+            if (xmlIgnore != null)
+            {
+                var converted = true;
+                var serializableDescriptor = descriptor.Convert(externalizedProperty =>
+                {
+                    var proxyDescriptor = (from property in TypeDescriptor.GetProperties(externalizedProperty.ComponentType).Cast<PropertyDescriptor>()
+                                           let xmlElement = (XmlElementAttribute)property.Attributes[typeof(XmlElementAttribute)]
+                                           where xmlElement != null && xmlElement.ElementName == externalizedProperty.Name
+                                           select property)
+                                           .FirstOrDefault();
+                    converted &= proxyDescriptor != null;
+                    return proxyDescriptor;
+                });
+                return converted ? serializableDescriptor : null;
+            }
+
+            return descriptor;
         }
 
         void DeserializeProperty(XmlElement element, PropertyDescriptor property)
