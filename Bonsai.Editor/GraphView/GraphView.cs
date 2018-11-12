@@ -179,18 +179,7 @@ namespace Bonsai.Design
             {
                 base.BackColor = value;
                 canvas.BackColor = value;
-
-                var brightness = value.GetBrightness();
-                if (brightness > 0.5)
-                {
-                    CursorPen = BlackPen;
-                    TextBrush = Brushes.Black;
-                }
-                else
-                {
-                    CursorPen = WhitePen;
-                    TextBrush = Brushes.White;
-                }
+                UpdateCursorPen();
             }
         }
 
@@ -401,6 +390,21 @@ namespace Bonsai.Design
             return customPen;
         }
 
+        void UpdateCursorPen()
+        {
+            var brightness = canvas.BackColor.GetBrightness();
+            if (brightness > 0.5)
+            {
+                CursorPen = BlackPen;
+                TextBrush = Brushes.Black;
+            }
+            else
+            {
+                CursorPen = WhitePen;
+                TextBrush = Brushes.White;
+            }
+        }
+
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {
             DisposeDrawResources();
@@ -426,7 +430,7 @@ namespace Bonsai.Design
             WhiteIconPen = new Pen(Brushes.White);
             BlackIconPen = new Pen(Brushes.Black);
             TextBrush = Brushes.Black;
-            CursorPen = BlackPen;
+            UpdateCursorPen();
             UpdateModelLayout();
             base.ScaleControl(factor, specified);
         }
