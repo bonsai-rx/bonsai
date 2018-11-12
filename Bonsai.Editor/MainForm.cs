@@ -33,6 +33,7 @@ namespace Bonsai.Editor
     {
         const int CycleNextHotKey = 0;
         const int CyclePreviousHotKey = 1;
+        const float DefaultEditorScale = 1.0f;
         const string BonsaiExtension = ".bonsai";
         const string LayoutExtension = ".layout";
         const string BonsaiPackageName = "Bonsai";
@@ -96,7 +97,7 @@ namespace Bonsai.Editor
             IObservable<IGrouping<string, WorkflowElementDescriptor>> elementProvider,
             IObservable<TypeVisualizerDescriptor> visualizerProvider,
             IServiceProvider provider)
-            : this(elementProvider, visualizerProvider, provider, 1.0f)
+            : this(elementProvider, visualizerProvider, provider, DefaultEditorScale)
         {
         }
 
@@ -106,7 +107,11 @@ namespace Bonsai.Editor
             IServiceProvider provider,
             float editorScale)
         {
-            Font = new Font(Font.FontFamily, Font.SizeInPoints * editorScale);
+            if (editorScale != DefaultEditorScale)
+            {
+                Font = new Font(Font.FontFamily, Font.SizeInPoints * editorScale);
+            }
+
             InitializeComponent();
             statusTextLabel = new Label();
             statusTextLabel.AutoSize = true;
