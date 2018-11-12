@@ -362,12 +362,12 @@ namespace Bonsai.Design
         {
             if (CursorPen != null)
             {
-                CursorPen.Dispose();
+                NodePen.Dispose();
                 WhitePen.Dispose();
                 BlackPen.Dispose();
                 WhiteIconPen.Dispose();
                 BlackIconPen.Dispose();
-                CursorPen = WhitePen = BlackPen = null;
+                CursorPen = WhitePen = BlackPen = NodePen = null;
                 WhiteIconPen = BlackIconPen = null;
             }
 
