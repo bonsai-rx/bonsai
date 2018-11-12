@@ -20,7 +20,7 @@ namespace Bonsai.Design
         WorkflowSelectionModel selectionModel;
         TabPageController workflowTab;
         TabPageController activeTab;
-        Padding adjustMargin;
+        Padding? adjustMargin;
 
         public WorkflowEditorControl(IServiceProvider provider)
             : this(provider, false)
@@ -407,19 +407,27 @@ namespace Bonsai.Design
 
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {
+            base.ScaleControl(factor, specified);
             var displayX = tabControl.DisplayRectangle.X;
             var marginLeft = tabControl.Margin.Left;
             var marginTop = tabControl.Margin.Top;
-
-            var adjustH = displayX - marginLeft - 1;
-            var adjustV = displayX - marginTop - displayX / 2 - 1;
-            adjustMargin = new Padding(adjustH, adjustV, adjustH, adjustH);
-            base.ScaleControl(factor, specified);
+            if (adjustMargin.HasValue)
+            {
+                var adjustH = (int)Math.Round(marginLeft * factor.Width - marginLeft);
+                var adjustV = (int)Math.Round(marginTop * factor.Height - marginTop);
+                adjustMargin -= new Padding(adjustH, adjustV, adjustH, adjustH);
+            }
+            else
+            {
+                var adjustH = displayX - marginLeft - 1;
+                var adjustV = displayX - marginTop - displayX / 2 - 1;
+                adjustMargin = new Padding(adjustH, adjustV, adjustH, adjustH);
+            }
         }
 
         private void InitializeTheme(TabPage tabPage)
         {
-            var adjustRectangle = tabControl.Margin + adjustMargin;
+            var adjustRectangle = tabControl.Margin + adjustMargin.GetValueOrDefault();
             if (tabPage.BackColor.GetBrightness() > 0.5f)
             {
                 adjustRectangle.Right -= 2;
