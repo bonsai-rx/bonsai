@@ -23,6 +23,17 @@ namespace Bonsai.Shaders
         [Description("The name of the mesh geometry to draw.")]
         public string MeshName { get; set; }
 
+        static Action CreateDrawAction(Shader shader, string meshName)
+        {
+            if (!string.IsNullOrEmpty(meshName))
+            {
+                var mesh = shader.Window.ResourceManager.Load<Mesh>(meshName);
+                return () => mesh.Draw();
+            }
+
+            return null;
+        }
+
         public IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
             return Observable.Create<TSource>(observer =>
@@ -36,15 +47,32 @@ namespace Bonsai.Shaders
                         if (meshName != MeshName)
                         {
                             meshName = MeshName;
-                            if (!string.IsNullOrEmpty(meshName))
-                            {
-                                var mesh = shader.Window.ResourceManager.Load<Mesh>(meshName);
-                                drawMesh = () => mesh.Draw();
-                            }
-                            else drawMesh = null;
+                            drawMesh = CreateDrawAction(shader, meshName);
                         }
 
                         shader.Update(drawMesh);
+                        return input;
+                    }).SubscribeSafe(observer);
+            });
+        }
+
+        public IObservable<Mesh> Process(IObservable<Mesh> source)
+        {
+            return Observable.Create<Mesh>(observer =>
+            {
+                var drawMesh = default(Action);
+                var meshName = default(string);
+                return source.CombineEither(
+                    ShaderManager.ReserveShader(ShaderName),
+                    (input, shader) =>
+                    {
+                        if (meshName != MeshName)
+                        {
+                            meshName = MeshName;
+                            drawMesh = CreateDrawAction(shader, meshName);
+                        }
+
+                        shader.Update(drawMesh ?? (() => input.Draw()));
                         return input;
                     }).SubscribeSafe(observer);
             });
