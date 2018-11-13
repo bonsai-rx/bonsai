@@ -10,8 +10,10 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
+    [Combinator]
+    [WorkflowElementCategory(ElementCategory.Sink)]
     [Description("Draws the specified mesh geometry.")]
-    public class DrawMesh : Sink
+    public class DrawMesh
     {
         [TypeConverter(typeof(MaterialNameConverter))]
         [Description("The name of the material shader program.")]
@@ -21,32 +23,28 @@ namespace Bonsai.Shaders
         [Description("The name of the mesh geometry to draw.")]
         public string MeshName { get; set; }
 
-        public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
+        public IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
             return Observable.Create<TSource>(observer =>
             {
-                var name = MeshName;
-                if (string.IsNullOrEmpty(name))
-                {
-                    throw new InvalidOperationException("A mesh name must be specified.");
-                }
-
-                Mesh mesh = null;
+                var drawMesh = default(Action);
+                var meshName = default(string);
                 return source.CombineEither(
-                    ShaderManager.ReserveMaterial(ShaderName).Do(material =>
+                    ShaderManager.ReserveShader(ShaderName),
+                    (input, shader) =>
                     {
-                        material.Update(() =>
+                        if (meshName != MeshName)
                         {
-                            try { mesh = material.Window.ResourceManager.Load<Mesh>(name); }
-                            catch (Exception ex) { observer.OnError(ex); }
-                        });
-                    }),
-                    (input, material) =>
-                    {
-                        material.Update(() =>
-                        {
-                            mesh.Draw();
-                        });
+                            meshName = MeshName;
+                            if (!string.IsNullOrEmpty(meshName))
+                            {
+                                var mesh = shader.Window.ResourceManager.Load<Mesh>(meshName);
+                                drawMesh = () => mesh.Draw();
+                            }
+                            else drawMesh = null;
+                        }
+
+                        shader.Update(drawMesh);
                         return input;
                     }).SubscribeSafe(observer);
             });
