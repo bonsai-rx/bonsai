@@ -18,6 +18,7 @@ namespace Bonsai.Shaders
 
         public CreateLookAt()
         {
+            target = -Vector3.UnitZ;
             up = Vector3.UnitY;
         }
 
