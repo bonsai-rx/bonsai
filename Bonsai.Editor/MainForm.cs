@@ -1022,7 +1022,7 @@ namespace Bonsai.Editor
             var selectedNodes = selectionModel.SelectedNodes;
             if (selectedNodes.Count() == 1)
             {
-                groupBuilder = selectedNodes.Single().Value as GroupWorkflowBuilder;
+                groupBuilder = ExpressionBuilder.Unwrap(selectedNodes.Single().Value) as GroupWorkflowBuilder;
                 if (groupBuilder != null)
                 {
                     fileName = groupBuilder.Name;
