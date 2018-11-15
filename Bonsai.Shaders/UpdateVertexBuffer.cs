@@ -80,6 +80,83 @@ namespace Bonsai.Shaders
             });
         }
 
+        IObservable<Tuple<TVertex[], TIndex[]>> Process<TVertex, TIndex>(IObservable<Tuple<TVertex[], TIndex[]>> source, DrawElementsType elementType)
+            where TVertex : struct
+            where TIndex : struct
+        {
+            return Observable.Create<Tuple<TVertex[], TIndex[]>>(observer =>
+            {
+                var name = MeshName;
+                if (string.IsNullOrEmpty(name))
+                {
+                    throw new InvalidOperationException("A mesh name must be specified.");
+                }
+
+                Mesh mesh = null;
+                return source.CombineEither(
+                    ShaderManager.WindowSource.Do(window =>
+                    {
+                        window.Update(() =>
+                        {
+                            try
+                            {
+                                mesh = window.ResourceManager.Load<Mesh>(name);
+                                VertexHelper.BindVertexAttributes(
+                                    mesh.VertexBuffer,
+                                    mesh.VertexArray,
+                                    BlittableValueType<TVertex>.Stride,
+                                    vertexAttributes);
+                            }
+                            catch (Exception ex) { observer.OnError(ex); }
+                        });
+                    }),
+                    (input, window) =>
+                    {
+                        window.Update(() =>
+                        {
+                            var indices = input.Item2;
+                            mesh.EnsureElementArray();
+                            mesh.DrawMode = DrawMode;
+                            mesh.VertexCount = indices.Length;
+                            mesh.ElementArrayType = elementType;
+                            VertexHelper.UpdateVertexBuffer(mesh.VertexBuffer, input.Item1, Usage);
+                            GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.ElementArray);
+                            GL.BufferData(BufferTarget.ElementArrayBuffer,
+                                          new IntPtr(indices.Length * BlittableValueType<TIndex>.Stride),
+                                          indices,
+                                          Usage);
+                            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+                        });
+                        return input;
+                    }).SubscribeSafe(observer);
+            });
+        }
+
+        public IObservable<Tuple<TVertex[], byte[]>> Process<TVertex>(IObservable<Tuple<TVertex[], byte[]>> source) where TVertex : struct
+        {
+            return Process(source, DrawElementsType.UnsignedByte);
+        }
+
+        public IObservable<Tuple<TVertex[], short[]>> Process<TVertex>(IObservable<Tuple<TVertex[], short[]>> source) where TVertex : struct
+        {
+            return Process(source, DrawElementsType.UnsignedShort);
+        }
+
+        public IObservable<Tuple<TVertex[], ushort[]>> Process<TVertex>(IObservable<Tuple<TVertex[], ushort[]>> source) where TVertex : struct
+        {
+            return Process(source, DrawElementsType.UnsignedShort);
+        }
+
+        public IObservable<Tuple<TVertex[], int[]>> Process<TVertex>(IObservable<Tuple<TVertex[], int[]>> source) where TVertex : struct
+        {
+            return Process(source, DrawElementsType.UnsignedInt);
+        }
+
+        public IObservable<Tuple<TVertex[], uint[]>> Process<TVertex>(IObservable<Tuple<TVertex[], uint[]>> source) where TVertex : struct
+        {
+            return Process(source, DrawElementsType.UnsignedInt);
+        }
+
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
             return Observable.Create<Mat>(observer =>
