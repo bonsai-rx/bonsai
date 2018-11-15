@@ -79,6 +79,7 @@
     <Compile Include="CreateMatrix2.cs" />
     <Compile Include="CreateMatrix3.cs" />
     <Compile Include="CreateMatrix4.cs" />
+    <Compile Include="CreateMesh.cs" />
     <Compile Include="CreateOrthographicOffCenter.cs" />
     <Compile Include="CreatePerspectiveOffCenter.cs" />
     <Compile Include="CreateWindow.cs" />
