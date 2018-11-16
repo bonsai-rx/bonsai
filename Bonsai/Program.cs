@@ -103,7 +103,8 @@ namespace Bonsai
                     editorPath,
                     editorPackageName,
                     ref launchResult);
-                if (editorPackage != null && launchEditor && string.IsNullOrEmpty(initialFileName))
+                if (!string.IsNullOrEmpty(initialFileName)) launchResult = EditorResult.ReloadEditor;
+                else if (editorPackage != null && launchEditor)
                 {
                     Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
                     launchResult = (EditorResult)Launcher.LaunchStartScreen(out initialFileName);
