@@ -460,6 +460,7 @@
             // 
             // startToolStripMenuItem
             // 
+            this.startToolStripMenuItem.Enabled = false;
             this.startToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("startToolStripMenuItem.Image")));
             this.startToolStripMenuItem.Name = "startToolStripMenuItem";
             this.startToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F5;
@@ -469,6 +470,7 @@
             // 
             // startWithoutDebuggingToolStripMenuItem
             // 
+            this.startWithoutDebuggingToolStripMenuItem.Enabled = false;
             this.startWithoutDebuggingToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("startWithoutDebuggingToolStripMenuItem.Image")));
             this.startWithoutDebuggingToolStripMenuItem.Name = "startWithoutDebuggingToolStripMenuItem";
             this.startWithoutDebuggingToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F5)));
@@ -721,6 +723,7 @@
             // startToolStripButton
             // 
             this.startToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.startToolStripButton.Enabled = false;
             this.startToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("startToolStripButton.Image")));
             this.startToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.startToolStripButton.Name = "startToolStripButton";
