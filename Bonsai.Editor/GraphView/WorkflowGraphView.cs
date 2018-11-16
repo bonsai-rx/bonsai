@@ -1908,7 +1908,11 @@ namespace Bonsai.Design
             foreach (var node in workflow)
             {
                 var layoutSettings = GetLayoutSettings(node.Value);
-                if (layoutSettings == null) layoutSettings = CreateLayoutSettings(node.Value);
+                if (layoutSettings == null)
+                {
+                    layoutSettings = CreateLayoutSettings(node.Value);
+                    visualizerLayout.DialogSettings.Add(layoutSettings);
+                }
                 else layoutSettings.Tag = node.Value;
 
                 var graphNode = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == node.Value);
@@ -1924,8 +1928,6 @@ namespace Bonsai.Design
                                        launch: editorVisible,
                                        activate: false);
                 }
-
-                visualizerLayout.DialogSettings.Add(layoutSettings);
             }
         }
 
