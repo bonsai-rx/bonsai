@@ -288,7 +288,8 @@ namespace Bonsai.Editor
             directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
 
             InitializeEditorToolboxTypes();
-            var initialization = InitializeToolbox().Merge(InitializeTypeVisualizers()).TakeLast(1).ObserveOn(Scheduler.Default);
+            var shutdown = ShutdownSequence();
+            var initialization = InitializeToolbox().Merge(InitializeTypeVisualizers()).TakeLast(1).Finally(shutdown.Dispose).ObserveOn(Scheduler.Default);
             if (validFileName && OpenWorkflow(initialFileName, false))
             {
                 foreach (var assignment in propertyAssignments)
@@ -1097,7 +1098,7 @@ namespace Bonsai.Editor
                 groupToolStripMenuItem.Enabled = true;
                 cutToolStripMenuItem.Enabled = true;
                 pasteToolStripMenuItem.Enabled = true;
-                startToolStripButton.Enabled = startToolStripMenuItem.Enabled = true;
+                startToolStripButton.Enabled = startToolStripMenuItem.Enabled = startWithoutDebuggingToolStripMenuItem.Enabled = true;
                 stopToolStripButton.Enabled = stopToolStripMenuItem.Enabled = false;
                 restartToolStripButton.Enabled = restartToolStripMenuItem.Enabled = false;
                 if (statusImageLabel.Image == statusReadyImage)
@@ -1196,7 +1197,7 @@ namespace Bonsai.Editor
             groupToolStripMenuItem.Enabled = false;
             cutToolStripMenuItem.Enabled = false;
             pasteToolStripMenuItem.Enabled = false;
-            startToolStripButton.Enabled = startToolStripMenuItem.Enabled = false;
+            startToolStripButton.Enabled = startToolStripMenuItem.Enabled = startWithoutDebuggingToolStripMenuItem.Enabled = false;
             stopToolStripButton.Enabled = stopToolStripMenuItem.Enabled = true;
             restartToolStripButton.Enabled = restartToolStripMenuItem.Enabled = true;
         }
