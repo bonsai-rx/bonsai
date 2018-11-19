@@ -41,7 +41,7 @@ namespace Bonsai
                 {
                     yield return settings;
                     var editorSettings = settings as WorkflowEditorSettings;
-                    if (editorSettings != null)
+                    if (editorSettings != null && editorSettings.EditorVisualizerLayout != null)
                     {
                         stack.Push(editorSettings.EditorVisualizerLayout);
                     }
