@@ -146,10 +146,4 @@
   <data name="UpdateEditorPackageError" xml:space="preserve">
     <value>Unable to update editor package. Please confirm that there is an active network or local connection to the package repository. The Bonsai bootstrapper will now close.</value>
   </data>
-  <data name="WorkflowUnresolvedDependencies" xml:space="preserve">
-    <value>The specified workflow has unresolved dependencies. Please install any missing packages and make sure the workflow can run successfully.</value>
-  </data>
-  <data name="WorkflowUnresolvedVisualizerDependencies" xml:space="preserve">
-    <value>The specified workflow has unresolved visualizer dependencies. Please install any missing packages or and make sure the workflow can run successfully.</value>
-  </data>
 </root>

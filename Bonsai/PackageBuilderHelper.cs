@@ -79,7 +79,11 @@ namespace Bonsai
             }
 
             updateDependencies = false;
-            var workflowDependencies = DependencyInspector.GetWorkflowPackageDependencies(path, configuration).ToArray().Wait();
+            var workflowFiles = packageBuilder.Files.Select(file => file as PhysicalPackageFile)
+                                                    .Where(file => file != null && Path.GetExtension(file.SourcePath) == NuGet.Constants.BonsaiExtension)
+                                                    .Select(file => file.SourcePath)
+                                                    .ToArray();
+            var workflowDependencies = DependencyInspector.GetWorkflowPackageDependencies(workflowFiles, configuration).ToArray().Wait();
             foreach (var dependency in workflowDependencies)
             {
                 PackageDependency manifestDependency;

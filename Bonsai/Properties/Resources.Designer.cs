@@ -142,23 +142,5 @@ namespace Bonsai.Properties {
                 return ResourceManager.GetString("UpdateEditorPackageError", resourceCulture);
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The specified workflow has unresolved dependencies. Please install any missing packages and make sure the workflow can run successfully..
-        /// </summary>
-        internal static string WorkflowUnresolvedDependencies {
-            get {
-                return ResourceManager.GetString("WorkflowUnresolvedDependencies", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The specified workflow has unresolved visualizer dependencies. Please install any missing packages or and make sure the workflow can run successfully..
-        /// </summary>
-        internal static string WorkflowUnresolvedVisualizerDependencies {
-            get {
-                return ResourceManager.GetString("WorkflowUnresolvedVisualizerDependencies", resourceCulture);
-            }
-        }
     }
 }
