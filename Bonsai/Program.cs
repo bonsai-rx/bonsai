@@ -94,32 +94,33 @@ namespace Bonsai
             var editorRepositoryPath = Path.Combine(editorFolder, RepositoryPath);
             var editorExtensionsPath = Path.Combine(editorFolder, ExtensionsPath);
 
-            var packageConfiguration = Configuration.ConfigurationHelper.Load();
-            if (launchResult == EditorResult.Exit)
+            if (!bootstrap)
             {
-                var editorPackage = Launcher.LaunchEditorBootstrapper(
-                    packageConfiguration,
-                    editorRepositoryPath,
-                    editorPath,
-                    editorPackageName,
-                    ref launchResult);
-                if (!string.IsNullOrEmpty(initialFileName)) launchResult = EditorResult.ReloadEditor;
-                else if (editorPackage != null && launchEditor)
+                var packageConfiguration = Configuration.ConfigurationHelper.Load();
+                if (launchResult == EditorResult.Exit)
                 {
-                    Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
-                    launchResult = (EditorResult)Launcher.LaunchStartScreen(out initialFileName);
-                    if (launchResult == EditorResult.ReloadEditor)
+                    var editorPackage = Launcher.LaunchEditorBootstrapper(
+                        packageConfiguration,
+                        editorRepositoryPath,
+                        editorPath,
+                        editorPackageName,
+                        ref launchResult);
+                    if (!string.IsNullOrEmpty(initialFileName)) launchResult = EditorResult.ReloadEditor;
+                    else if (editorPackage != null && launchEditor)
                     {
-                        if (!string.IsNullOrEmpty(initialFileName) && File.Exists(initialFileName))
+                        Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
+                        launchResult = (EditorResult)Launcher.LaunchStartScreen(out initialFileName);
+                        if (launchResult == EditorResult.ReloadEditor)
                         {
-                            Environment.CurrentDirectory = Path.GetDirectoryName(initialFileName);
+                            if (!string.IsNullOrEmpty(initialFileName) && File.Exists(initialFileName))
+                            {
+                                Environment.CurrentDirectory = Path.GetDirectoryName(initialFileName);
+                            }
                         }
                     }
                 }
-            }
 
-            if (!bootstrap)
-            {
+                AppResult.SetResult(launchResult);
                 if (launchResult == EditorResult.ExportPackage)
                 {
                     Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
@@ -185,7 +186,7 @@ namespace Bonsai
             else
             {
                 args = Array.FindAll(args, arg => arg != DebugScriptCommand);
-                while (launchResult != EditorResult.Exit)
+                do
                 {
                     string[] editorArgs;
                     if (launchResult == EditorResult.ExportPackage) editorArgs = new[] { initialFileName, ExportPackageCommand };
@@ -194,8 +195,9 @@ namespace Bonsai
                     else
                     {
                         var extraArgs = new List<string>(args);
-                        extraArgs.Add(ReloadEditorCommand);
                         if (debugScripts) extraArgs.Add(DebugScriptCommand);
+                        if (launchResult == EditorResult.ReloadEditor) extraArgs.Add(ReloadEditorCommand);
+                        else extraArgs.Add(SuppressBootstrapCommand);
                         if (!string.IsNullOrEmpty(initialFileName)) extraArgs.Add(initialFileName);
                         editorArgs = extraArgs.ToArray();
                     }
@@ -212,6 +214,7 @@ namespace Bonsai
                     var exitCode = (EditorResult)editorDomain.ExecuteAssembly(editorPath, editorArgs);
                     Environment.SetEnvironmentVariable(PathEnvironmentVariable, currentPath);
 
+                    launchResult = AppResult.GetResult<EditorResult>(editorDomain);
                     if (launchResult != EditorResult.ReloadEditor)
                     {
                         if (launchResult == EditorResult.OpenGallery ||
@@ -235,6 +238,7 @@ namespace Bonsai
 
                     AppDomain.Unload(editorDomain);
                 }
+                while (launchResult != EditorResult.Exit);
             }
 
             return NormalExitCode;
