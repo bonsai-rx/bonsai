@@ -689,7 +689,8 @@ namespace Bonsai.Expressions
                         var expandedArguments = disable != null ? disable.Arguments.Skip(1).GetEnumerator() : null;
                         do
                         {
-                            if (successorCount == 0) scope.References.Add(null);
+                            // If there are no successors, or the expression is a disabled build dependency, this scope should never close
+                            if (successorCount == 0 || expression == DisconnectExpression.Instance) scope.References.Add(null);
                             else scope.References.AddRange(node.Successors.Select(successor => successor.Target.Value));
                         }
                         while (expandedArguments != null && expandedArguments.MoveNext());
