@@ -99,12 +99,7 @@ namespace Bonsai
                 var packageConfiguration = Configuration.ConfigurationHelper.Load();
                 if (launchResult == EditorResult.Exit)
                 {
-                    var editorPackage = Launcher.LaunchEditorBootstrapper(
-                        packageConfiguration,
-                        editorRepositoryPath,
-                        editorPath,
-                        editorPackageName,
-                        ref launchResult);
+                    var editorPackage = Launcher.LaunchEditorBootstrapper(packageConfiguration, editorRepositoryPath, editorPath, editorPackageName);
                     if (!string.IsNullOrEmpty(initialFileName)) launchResult = EditorResult.ReloadEditor;
                     else if (editorPackage != null && launchEditor)
                     {

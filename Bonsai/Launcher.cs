@@ -63,8 +63,7 @@ namespace Bonsai
             PackageConfiguration packageConfiguration,
             string editorRepositoryPath,
             string editorPath,
-            IPackageName editorPackageName,
-            ref EditorResult launchResult)
+            IPackageName editorPackageName)
         {
             const string OldExtension = ".old";
             var backupExePath = editorPath + OldExtension;
@@ -95,7 +94,6 @@ namespace Bonsai
                         MessageBox.Show(Resources.InstallEditorPackageError, assemblyName.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return null;
                     }
-                    launchResult = EditorResult.ManagePackages;
                 }
             }
 
@@ -117,7 +115,6 @@ namespace Bonsai
                         MessageBox.Show(Resources.UpdateEditorPackageError, assemblyName.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return null;
                     }
-                    launchResult = EditorResult.ManagePackages;
                 }
             }
 
