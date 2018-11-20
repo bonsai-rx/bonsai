@@ -130,7 +130,7 @@ namespace Bonsai
                     Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
                     return Launcher.LaunchGallery(packageConfiguration, editorRepositoryPath, editorPath, editorPackageName);
                 }
-                else
+                else if (launchResult == EditorResult.ReloadEditor)
                 {
                     if (!string.IsNullOrEmpty(launchPackageId))
                     {
@@ -209,7 +209,7 @@ namespace Bonsai
                     Environment.SetEnvironmentVariable(PathEnvironmentVariable, currentPath);
 
                     launchResult = AppResult.GetResult<EditorResult>(editorDomain);
-                    if (launchResult != EditorResult.ReloadEditor)
+                    if (launchResult != EditorResult.Exit && launchResult != EditorResult.ReloadEditor)
                     {
                         if (launchResult == EditorResult.OpenGallery ||
                             launchResult == EditorResult.ManagePackages)
