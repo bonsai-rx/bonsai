@@ -610,9 +610,9 @@ namespace Bonsai.Editor
             saveVersion = 0;
         }
 
-        bool EnsureWorkflowFile()
+        bool EnsureWorkflowFile(bool force = false)
         {
-            if (string.IsNullOrEmpty(FileName))
+            if (string.IsNullOrEmpty(FileName) || force)
             {
                 var result = MessageBox.Show(
                     this,
@@ -622,8 +622,12 @@ namespace Bonsai.Editor
                     MessageBoxIcon.Warning,
                     MessageBoxDefaultButton.Button1);
                 if (result != DialogResult.Yes) return false;
-                saveToolStripMenuItem_Click(this, EventArgs.Empty);
-                if (string.IsNullOrEmpty(FileName)) return false;
+                if (string.IsNullOrEmpty(FileName))
+                {
+                    saveAsToolStripMenuItem_Click(this, EventArgs.Empty);
+                    if (string.IsNullOrEmpty(FileName)) return false;
+                }
+                else return SaveWorkflow(FileName);
             }
 
             return true;
@@ -1061,7 +1065,7 @@ namespace Bonsai.Editor
 
         private void exportPackageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (EnsureWorkflowFile())
+            if (EnsureWorkflowFile(force: true))
             {
                 EditorResult = EditorResult.ExportPackage;
                 Close();
