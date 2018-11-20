@@ -48,6 +48,16 @@ namespace Bonsai
 
         public bool DebugScripts { get; set; }
 
+        public IEnumerable<string> GetPackageReferences()
+        {
+            if (!File.Exists(ProjectFileName)) return Enumerable.Empty<string>();
+            var document = XmlUtility.LoadSafe(ProjectFileName);
+            return from element in document.Descendants(XName.Get(PackageReferenceElement))
+                   let id = element.Attribute(PackageIncludeAttribute)
+                   where id != null
+                   select id.Value;
+        }
+
         public void AddAssemblyReferences(IEnumerable<string> assemblyReferences)
         {
             XElement root;

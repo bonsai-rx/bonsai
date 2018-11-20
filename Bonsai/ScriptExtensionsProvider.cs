@@ -10,15 +10,12 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace Bonsai
 {
     static class ScriptExtensionsProvider
     {
         const string OutputAssemblyName = "Extensions";
-        const string PackageReferenceElement = "PackageReference";
-        const string PackageIncludeAttribute = "Include";
         const string ProjectExtension = ".csproj";
         const string ScriptExtension = "*.cs";
         const string DllExtension = ".dll";
@@ -51,11 +48,15 @@ namespace Bonsai
             var scriptProjectFile = Path.Combine(path, Path.ChangeExtension(OutputAssemblyName, ProjectExtension));
             if (!File.Exists(scriptProjectFile)) return new ScriptExtensions(configuration, null);
 
+            var scriptFiles = Directory.GetFiles(path, ScriptExtension, SearchOption.AllDirectories);
+            if (scriptFiles.Length == 0) return new ScriptExtensions(configuration, null);
+
             var assemblyNames = new HashSet<string>();
-            var document = XmlUtility.LoadSafe(scriptProjectFile);
+            var assemblyDirectory = Path.GetTempPath() + OutputAssemblyName + "." + Guid.NewGuid().ToString();
+            var scriptEnvironment = new ScriptExtensions(configuration, assemblyDirectory);
             var packageRepository = new LocalPackageRepository(editorRepositoryPath);
-            var projectReferences = from element in document.Descendants(XName.Get(PackageReferenceElement))
-                                    let package = packageRepository.FindPackage(element.Attribute(XName.Get(PackageIncludeAttribute)).Value)
+            var projectReferences = from id in scriptEnvironment.GetPackageReferences()
+                                    let package = packageRepository.FindPackage(id)
                                     where package != null
                                     from assemblyReference in FindAssemblyReferences(packageRepository, package)
                                     select assemblyReference;
@@ -66,11 +67,6 @@ namespace Bonsai
             assemblyNames.Add("Bonsai.Core.dll");
             assemblyNames.AddRange(projectReferences);
 
-            var scriptFiles = Directory.GetFiles(path, ScriptExtension, SearchOption.AllDirectories);
-            if (scriptFiles.Length == 0) return new ScriptExtensions(configuration, null);
-
-            var assemblyDirectory = Path.GetTempPath() + OutputAssemblyName + "." + Guid.NewGuid().ToString();
-            var scriptEnvironment = new ScriptExtensions(configuration, assemblyDirectory);
             var assemblyFile = Path.Combine(assemblyDirectory, Path.ChangeExtension(OutputAssemblyName, DllExtension));
             var assemblyReferences = (from fileName in assemblyNames
                                       let assemblyName = Path.GetFileNameWithoutExtension(fileName)
