@@ -17,6 +17,7 @@ namespace Bonsai
 {
     sealed class DependencyInspector : MarshalByRefObject
     {
+        readonly ScriptExtensions scriptEnvironment;
         readonly PackageConfiguration packageConfiguration;
         const string BonsaiExtension = ".bonsai";
         const string LayoutExtension = ".layout";
@@ -27,6 +28,7 @@ namespace Bonsai
         public DependencyInspector(PackageConfiguration configuration)
         {
             ConfigurationHelper.SetAssemblyResolve(configuration);
+            scriptEnvironment = new ScriptExtensions(configuration, null);
             packageConfiguration = configuration;
         }
 
@@ -49,53 +51,52 @@ namespace Bonsai
             }
         }
 
-        Configuration.PackageReference[] GetWorkflowPackageDependencies(string path)
+        Configuration.PackageReference[] GetWorkflowPackageDependencies(string[] fileNames)
         {
             var assemblies = new HashSet<Assembly>();
-            using (var reader = XmlReader.Create(path))
+            foreach (var path in fileNames)
             {
-                reader.ReadToFollowing(ExtensionTypeNodeName);
-                reader.ReadStartElement();
-
-                assemblies.Add(typeof(WorkflowBuilder).Assembly);
-                while (reader.ReadToNextSibling(TypeNodeName))
+                using (var reader = XmlReader.Create(path))
                 {
-                    var typeName = reader.ReadElementString();
-                    var type = Type.GetType(typeName, false);
-                    if (type == null)
+                    reader.ReadToFollowing(ExtensionTypeNodeName);
+                    reader.ReadStartElement();
+
+                    assemblies.Add(typeof(WorkflowBuilder).Assembly);
+                    while (reader.ReadToNextSibling(TypeNodeName))
                     {
-                        throw new InvalidOperationException(Resources.WorkflowUnresolvedDependencies);
-                    }
-
-                    assemblies.Add(type.Assembly);
-                }
-            }
-
-            var layoutPath = Path.ChangeExtension(path, BonsaiExtension + LayoutExtension);
-            if (File.Exists(layoutPath))
-            {
-                var visualizerMap = new Lazy<IDictionary<string, Type>>(() =>
-                    TypeVisualizerLoader.GetTypeVisualizerDictionary(packageConfiguration)
-                                        .Select(descriptor => descriptor.VisualizerTypeName).Distinct()
-                                        .Select(typeName => Type.GetType(typeName, false))
-                                        .Where(type => type != null)
-                                        .ToDictionary(type => type.FullName)
-                                        .Wait());
-
-                using (var reader = XmlReader.Create(layoutPath))
-                {
-                    var layout = (VisualizerLayout)VisualizerLayout.Serializer.Deserialize(reader);
-                    foreach (var settings in GetVisualizerSettings(layout))
-                    {
-                        Type type;
-                        var typeName = settings.VisualizerTypeName;
-                        if (typeName == null) continue;
-                        if (!visualizerMap.Value.TryGetValue(typeName, out type))
+                        var typeName = reader.ReadElementString();
+                        var type = Type.GetType(typeName, false);
+                        if (type != null)
                         {
-                            throw new InvalidOperationException(Resources.WorkflowUnresolvedVisualizerDependencies);
+                            assemblies.Add(type.Assembly);
                         }
+                    }
+                }
 
-                        assemblies.Add(type.Assembly);
+                var layoutPath = Path.ChangeExtension(path, BonsaiExtension + LayoutExtension);
+                if (File.Exists(layoutPath))
+                {
+                    var visualizerMap = new Lazy<IDictionary<string, Type>>(() =>
+                        TypeVisualizerLoader.GetTypeVisualizerDictionary(packageConfiguration)
+                                            .Select(descriptor => descriptor.VisualizerTypeName).Distinct()
+                                            .Select(typeName => Type.GetType(typeName, false))
+                                            .Where(type => type != null)
+                                            .ToDictionary(type => type.FullName)
+                                            .Wait());
+
+                    using (var reader = XmlReader.Create(layoutPath))
+                    {
+                        var layout = (VisualizerLayout)VisualizerLayout.Serializer.Deserialize(reader);
+                        foreach (var settings in GetVisualizerSettings(layout))
+                        {
+                            Type type;
+                            var typeName = settings.VisualizerTypeName;
+                            if (typeName == null) continue;
+                            if (visualizerMap.Value.TryGetValue(typeName, out type))
+                            {
+                                assemblies.Add(type.Assembly);
+                            }
+                        }
                     }
                 }
             }
@@ -105,6 +106,14 @@ namespace Bonsai
                 packageConfiguration,
                 assemblies.Select(assembly => assembly.GetName().Name),
                 packageMap);
+            if (File.Exists(scriptEnvironment.ProjectFileName))
+            {
+                dependencies = dependencies.Concat(
+                    from id in scriptEnvironment.GetPackageReferences()
+                    where packageConfiguration.Packages.Contains(id)
+                    select packageConfiguration.Packages[id]);
+            }
+
             return dependencies.ToArray();
         }
 
@@ -148,13 +157,8 @@ namespace Bonsai
             return dependencies;
         }
 
-        public static IObservable<PackageDependency> GetWorkflowPackageDependencies(string path, PackageConfiguration configuration)
+        public static IObservable<PackageDependency> GetWorkflowPackageDependencies(string[] fileNames, PackageConfiguration configuration)
         {
-            if (!File.Exists(path))
-            {
-                throw new ArgumentException("Invalid workflow path.", "path");
-            }
-
             if (configuration == null)
             {
                 throw new ArgumentNullException("configuration");
@@ -162,7 +166,7 @@ namespace Bonsai
 
             return Observable.Using(
                 () => new LoaderResource<DependencyInspector>(configuration),
-                resource => from dependency in resource.Loader.GetWorkflowPackageDependencies(path).ToObservable()
+                resource => from dependency in resource.Loader.GetWorkflowPackageDependencies(fileNames).ToObservable()
                             let versionSpec = new VersionSpec
                             {
                                 MinVersion = SemanticVersion.Parse(dependency.Version),
