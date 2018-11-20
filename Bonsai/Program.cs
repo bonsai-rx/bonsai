@@ -94,14 +94,13 @@ namespace Bonsai
             var editorRepositoryPath = Path.Combine(editorFolder, RepositoryPath);
             var editorExtensionsPath = Path.Combine(editorFolder, ExtensionsPath);
 
+            var packageConfiguration = Configuration.ConfigurationHelper.Load();
             if (!bootstrap)
             {
-                var packageConfiguration = Configuration.ConfigurationHelper.Load();
                 if (launchResult == EditorResult.Exit)
                 {
-                    var editorPackage = Launcher.LaunchEditorBootstrapper(packageConfiguration, editorRepositoryPath, editorPath, editorPackageName);
                     if (!string.IsNullOrEmpty(initialFileName)) launchResult = EditorResult.ReloadEditor;
-                    else if (editorPackage != null && launchEditor)
+                    else if (launchEditor)
                     {
                         Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
                         launchResult = (EditorResult)Launcher.LaunchStartScreen(out initialFileName);
@@ -178,7 +177,7 @@ namespace Bonsai
                     }
                 }
             }
-            else
+            else if (Launcher.LaunchEditorBootstrapper(packageConfiguration, editorRepositoryPath, editorPath, editorPackageName) != null)
             {
                 args = Array.FindAll(args, arg => arg != DebugScriptCommand);
                 do
