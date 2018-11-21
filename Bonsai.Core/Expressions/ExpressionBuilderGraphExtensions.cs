@@ -575,6 +575,7 @@ namespace Bonsai.Expressions
             HashSet<string> namedElements = null;
             var argumentLists = new Dictionary<ExpressionBuilder, ArgumentList>();
             var dependencyLists = new Dictionary<ExpressionBuilder, ArgumentList>();
+            var edgeCollection = new List<Edge<ExpressionBuilder, ExpressionBuilderArgument>>();
             var multicastMap = new List<MulticastScope>();
             var connections = new List<Expression>();
 
@@ -663,11 +664,23 @@ namespace Bonsai.Expressions
                     return expression;
                 }
 
+                // Filter disabled successors for property mapping nodes
+                var argumentBuilder = workflowElement as IArgumentBuilder;
+                var propertyMappingBuilder = argumentBuilder != null && !(argumentBuilder is InputMappingBuilder);
+                IList<Edge<ExpressionBuilder, ExpressionBuilderArgument>> nodeSuccessors;
+                if (propertyMappingBuilder)
+                {
+                    edgeCollection.Clear();
+                    edgeCollection.AddRange(node.Successors.Where(edge => !(ExpressionBuilder.Unwrap(edge.Target.Value) is DisableBuilder)));
+                    nodeSuccessors = edgeCollection;
+                }
+                else nodeSuccessors = node.Successors;
+
                 // Remove all closing scopes
                 var disable = expression as DisableExpression;
                 var successorCount = requireBuildContext != null
-                    ? node.Successors.Count(edge => edge.Label != null)
-                    : node.Successors.Count;
+                    ? nodeSuccessors.Count(edge => edge.Label != null)
+                    : nodeSuccessors.Count;
                 multicastMap.RemoveAll(scope =>
                 {
                     var referencesRemoved = scope.References.RemoveAll(reference => reference == builder);
@@ -691,7 +704,7 @@ namespace Bonsai.Expressions
                         {
                             // If there are no successors, or the expression is a disabled build dependency, this scope should never close
                             if (successorCount == 0 || expression == DisconnectExpression.Instance) scope.References.Add(null);
-                            else scope.References.AddRange(node.Successors.Select(successor => successor.Target.Value));
+                            else scope.References.AddRange(nodeSuccessors.Select(successor => successor.Target.Value));
                         }
                         while (expandedArguments != null && expandedArguments.MoveNext());
                     }
@@ -713,7 +726,7 @@ namespace Bonsai.Expressions
                     if (externalizedProperty != null)
                     {
                         var argument = expression;
-                        foreach (var successor in node.Successors)
+                        foreach (var successor in nodeSuccessors)
                         {
                             try { externalizedProperty.BuildArgument(argument, successor, out argument, string.Empty); }
                             catch (Exception e)
@@ -748,12 +761,11 @@ namespace Bonsai.Expressions
                     continue;
                 }
 
-                var argumentBuilder = workflowElement as IArgumentBuilder;
                 if (successorCount > 1 && reducible)
                 {
                     // Start a new multicast scope
                     MulticastBranchBuilder multicastBuilder;
-                    if (argumentBuilder != null && !(argumentBuilder is InputMappingBuilder))
+                    if (propertyMappingBuilder)
                     {
                         // Property mappings get replayed across subscriptions
                         multicastBuilder = new ReplayLatestBranchBuilder();
@@ -762,11 +774,11 @@ namespace Bonsai.Expressions
                     expression = multicastBuilder.Build(expression);
 
                     var multicastScope = new MulticastScope(multicastBuilder);
-                    multicastScope.References.AddRange(node.Successors.Select(successor => successor.Target.Value));
+                    multicastScope.References.AddRange(nodeSuccessors.Select(successor => successor.Target.Value));
                     multicastMap.Insert(0, multicastScope);
                 }
 
-                foreach (var successor in node.Successors)
+                foreach (var successor in nodeSuccessors)
                 {
                     if (successor.Label == null) continue;
                     var argument = expression;
