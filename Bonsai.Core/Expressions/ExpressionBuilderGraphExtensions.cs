@@ -753,7 +753,7 @@ namespace Bonsai.Expressions
                 {
                     // Start a new multicast scope
                     MulticastBranchBuilder multicastBuilder;
-                    if (argumentBuilder != null)
+                    if (argumentBuilder != null && !(argumentBuilder is InputMappingBuilder))
                     {
                         // Property mappings get replayed across subscriptions
                         multicastBuilder = new ReplayLatestBranchBuilder();
