@@ -48,7 +48,7 @@ namespace Bonsai
             var scriptProjectFile = Path.Combine(path, Path.ChangeExtension(OutputAssemblyName, ProjectExtension));
             if (!File.Exists(scriptProjectFile)) return new ScriptExtensions(configuration, null);
 
-            var scriptFiles = Directory.GetFiles(path, ScriptExtension, SearchOption.AllDirectories);
+            var scriptFiles = Directory.GetFiles(Path.Combine(path, OutputAssemblyName), ScriptExtension, SearchOption.AllDirectories);
             if (scriptFiles.Length == 0) return new ScriptExtensions(configuration, null);
 
             var assemblyNames = new HashSet<string>();
