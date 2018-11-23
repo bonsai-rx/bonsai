@@ -59,12 +59,13 @@ namespace Bonsai.Shaders
                                 GL.GetActiveUniform(shader.Program, uniformIndex, out uniformSize, out uniformType);
                                 if (uniformType != type)
                                 {
-                                    throw new InvalidOperationException(string.Format(
+                                    observer.OnError(new InvalidOperationException(string.Format(
                                         "Expected a {2} uniform, but the variable \"{0}\" in shader \"{1}\" has type {3}.",
                                         name,
                                         ShaderName,
                                         type,
-                                        uniformType));
+                                        uniformType)));
+                                    return;
                                 }
                             }
                         });
