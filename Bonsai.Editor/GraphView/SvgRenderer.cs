@@ -103,9 +103,9 @@ namespace Bonsai.Design
             }
         }
 
-        SvgDrawingStyle CreateStyle(SvgElement element, string attribute, SvgRendererContext context)
+        SvgDrawingStyle CreateStyle(SvgElement element, SvgRendererContext context)
         {
-            var value = element.Attributes[attribute];
+            var value = element.Attributes["style"];
             var style = value as SvgStyle;
             if (style == null)
             {
@@ -221,7 +221,7 @@ namespace Bonsai.Design
 
         void CreateDrawRectangle(SvgElement element, Matrix transform, SvgRendererContext context)
         {
-            var style = CreateStyle(element, "style", context);
+            var style = CreateStyle(element, context);
             if (style != null)
             {
                 var x = CreateFloat(element, "x");
@@ -243,7 +243,7 @@ namespace Bonsai.Design
 
         void CreateDrawCircle(SvgElement element, Matrix transform, SvgRendererContext context)
         {
-            var style = CreateStyle(element, "style", context);
+            var style = CreateStyle(element, context);
             if (style != null)
             {
                 var cx = CreateFloat(element, "cx");
@@ -267,7 +267,7 @@ namespace Bonsai.Design
 
         void CreateDrawEllipse(SvgElement element, Matrix transform, SvgRendererContext context)
         {
-            var style = CreateStyle(element, "style", context);
+            var style = CreateStyle(element, context);
             if (style != null)
             {
                 var cx = CreateFloat(element, "cx");
@@ -403,7 +403,7 @@ namespace Bonsai.Design
 
         void CreateDrawPath(SvgElement element, Matrix transform, SvgRendererContext context)
         {
-            var style = CreateStyle(element, "style", context);
+            var style = CreateStyle(element, context);
             if (style != null)
             {
                 var path = CreatePath(element, "d");
