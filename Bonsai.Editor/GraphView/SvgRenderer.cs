@@ -171,10 +171,11 @@ namespace Bonsai.Design
             else
             {
                 var color = ((SvgColor)fill).Color;
-                var opacity = (SvgLength)(string)style.Get("fill-opacity");
+                var opacity = (string)style.Get("fill-opacity");
                 if (opacity != null)
                 {
-                    color = Color.FromArgb((int)(opacity.Value * 255), color);
+                    var opacityValue = ((SvgLength)opacity).Value;
+                    color = Color.FromArgb((int)(opacityValue * 255), color);
                 }
 
                 var brush = new SolidBrush(color);
