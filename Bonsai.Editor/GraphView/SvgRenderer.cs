@@ -57,14 +57,9 @@ namespace Bonsai.Design
             get { return gradients; }
         }
 
-        public IEnumerable<Expression> Expressions
+        public ICollection<Expression> Expressions
         {
             get { return expressions; }
-        }
-
-        public void AddExpression(Expression expression)
-        {
-            expressions.Add(expression);
         }
     }
 
@@ -214,14 +209,14 @@ namespace Bonsai.Design
             var translation = Expression.PropertyOrField(context.State, "Translation");
             var offsetX = Expression.PropertyOrField(translation, "X");
             var offsetY = Expression.PropertyOrField(translation, "Y");
-            context.AddExpression(Expression.Call(context.Graphics, "TranslateTransform", null, offsetX, offsetY));
-            context.AddExpression(Expression.Call(context.Graphics, "ScaleTransform", null, scale, scale));
-            context.AddExpression(Expression.Call(context.Graphics, "MultiplyTransform", null, localTransform));
+            context.Expressions.Add(Expression.Call(context.Graphics, "TranslateTransform", null, offsetX, offsetY));
+            context.Expressions.Add(Expression.Call(context.Graphics, "ScaleTransform", null, scale, scale));
+            context.Expressions.Add(Expression.Call(context.Graphics, "MultiplyTransform", null, localTransform));
         }
 
         void CreateResetTransform(SvgRendererContext context)
         {
-            context.AddExpression(Expression.Call(context.Graphics, "ResetTransform", null));
+            context.Expressions.Add(Expression.Call(context.Graphics, "ResetTransform", null));
         }
 
         void CreateDrawRectangle(SvgElement element, Matrix transform, SvgRendererContext context)
@@ -236,11 +231,11 @@ namespace Bonsai.Design
                 CreateDrawTransform(element, transform, context);
                 if (style.Fill != null)
                 {
-                    context.AddExpression(Expression.Call(context.Graphics, "FillRectangle", null, style.Fill, x, y, width, height));
+                    context.Expressions.Add(Expression.Call(context.Graphics, "FillRectangle", null, style.Fill, x, y, width, height));
                 }
                 if (style.Stroke != null)
                 {
-                    context.AddExpression(Expression.Call(context.Graphics, "DrawRectangle", null, style.Stroke, x, y, width, height));
+                    context.Expressions.Add(Expression.Call(context.Graphics, "DrawRectangle", null, style.Stroke, x, y, width, height));
                 }
                 CreateResetTransform(context);
             }
@@ -260,11 +255,11 @@ namespace Bonsai.Design
                 CreateDrawTransform(element, transform, context);
                 if (style.Fill != null)
                 {
-                    context.AddExpression(Expression.Call(context.Graphics, "FillEllipse", null, style.Fill, x, y, d, d));
+                    context.Expressions.Add(Expression.Call(context.Graphics, "FillEllipse", null, style.Fill, x, y, d, d));
                 }
                 if (style.Stroke != null)
                 {
-                    context.AddExpression(Expression.Call(context.Graphics, "DrawEllipse", null, style.Stroke, x, y, d, d));
+                    context.Expressions.Add(Expression.Call(context.Graphics, "DrawEllipse", null, style.Stroke, x, y, d, d));
                 }
                 CreateResetTransform(context);
             }
@@ -286,11 +281,11 @@ namespace Bonsai.Design
                 CreateDrawTransform(element, transform, context);
                 if (style.Fill != null)
                 {
-                    context.AddExpression(Expression.Call(context.Graphics, "FillEllipse", null, style.Fill, x, y, dx, dy));
+                    context.Expressions.Add(Expression.Call(context.Graphics, "FillEllipse", null, style.Fill, x, y, dx, dy));
                 }
                 if (style.Stroke != null)
                 {
-                    context.AddExpression(Expression.Call(context.Graphics, "DrawEllipse", null, style.Stroke, x, y, dx, dy));
+                    context.Expressions.Add(Expression.Call(context.Graphics, "DrawEllipse", null, style.Stroke, x, y, dx, dy));
                 }
                 CreateResetTransform(context);
             }
@@ -415,11 +410,11 @@ namespace Bonsai.Design
                 CreateDrawTransform(element, transform, context);
                 if (style.Fill != null)
                 {
-                    context.AddExpression(Expression.Call(context.Graphics, "FillPath", null, style.Fill, path));
+                    context.Expressions.Add(Expression.Call(context.Graphics, "FillPath", null, style.Fill, path));
                 }
                 if (style.Stroke != null)
                 {
-                    context.AddExpression(Expression.Call(context.Graphics, "DrawPath", null, style.Stroke, path));
+                    context.Expressions.Add(Expression.Call(context.Graphics, "DrawPath", null, style.Stroke, path));
                 }
                 CreateResetTransform(context);
             }
