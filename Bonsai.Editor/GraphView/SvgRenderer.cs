@@ -371,13 +371,13 @@ namespace Bonsai.Design
                         StartLine(bezierPoints, linePoints, segment, ref point);
                         AddBeziers(path, bezierPoints);
                         point.X += segment.Data[0];
-                        if (segment.Abs) point.Y = linePoints[i - 1].Y;
+                        if (segment.Abs) point.Y = linePoints[linePoints.Count - 1].Y;
                         linePoints.Add(point);
                         break;
                     case SvgPathSegType.SVG_SEGTYPE_VLINETO:
                         StartLine(bezierPoints, linePoints, segment, ref point);
                         AddBeziers(path, bezierPoints);
-                        if (segment.Abs) point.X = linePoints[i - 1].X;
+                        if (segment.Abs) point.X = linePoints[linePoints.Count - 1].X;
                         point.Y += segment.Data[0];
                         linePoints.Add(point);
                         break;
