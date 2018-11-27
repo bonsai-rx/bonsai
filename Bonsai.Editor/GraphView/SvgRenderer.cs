@@ -513,7 +513,7 @@ namespace Bonsai.Design
             var transform = new Matrix();
             var context = new SvgRendererContext();
             CreateDrawBody(element, transform, context);
-            var body = Expression.Block(context.Expressions);
+            var body = context.Expressions.Count > 0 ? (Expression)Expression.Block(context.Expressions) : Expression.Empty();
             var renderer = Expression.Lambda<SvgRenderer>(body, context.State, context.Graphics);
             return renderer.Compile();
         }
