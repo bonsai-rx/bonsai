@@ -105,17 +105,27 @@ namespace Bonsai.Design
 
         SvgDrawingStyle CreateStyle(SvgElement element, SvgRendererContext context)
         {
+            Expression fill, stroke;
             var value = element.Attributes["style"];
-            var style = value as SvgStyle;
-            if (style == null)
+            if (value != null)
             {
-                var rawStyle = value as string;
-                if (rawStyle == null) return null;
-                style = (SvgStyle)rawStyle;
+                var style = value as SvgStyle;
+                if (style == null)
+                {
+                    var rawStyle = value as string;
+                    if (rawStyle == null) return null;
+                    style = (SvgStyle)rawStyle;
+                }
+
+                fill = CreateFill(style, context);
+                stroke = CreateStroke(style, context);
+            }
+            else
+            {
+                fill = CreateFill(element, context);
+                stroke = CreateStroke(element, context);
             }
 
-            var fill = CreateFill(style, context);
-            var stroke = CreateStroke(style, context);
             if (fill == null && stroke == null) return null;
             else return new SvgDrawingStyle(fill, stroke);
         }
@@ -158,8 +168,21 @@ namespace Bonsai.Design
 
         Expression CreateFill(SvgStyle style, SvgRendererContext context)
         {
-            const string UrlPrefix = "url(";
             var fill = (string)style.Get("fill");
+            var opacity = (string)style.Get("fill-opacity");
+            return CreateFill(fill, opacity, context);
+        }
+
+        Expression CreateFill(SvgElement element, SvgRendererContext context)
+        {
+            var fill = (string)element["fill"];
+            var opacity = (string)element["fill-opacity"];
+            return CreateFill(fill, opacity, context);
+        }
+
+        Expression CreateFill(string fill, string opacity, SvgRendererContext context)
+        {
+            const string UrlPrefix = "url(";
             if (fill == null || fill == "none") return null;
             if (fill.StartsWith(UrlPrefix))
             {
@@ -171,7 +194,6 @@ namespace Bonsai.Design
             else
             {
                 var color = ((SvgColor)fill).Color;
-                var opacity = (string)style.Get("fill-opacity");
                 if (opacity != null)
                 {
                     var opacityValue = ((SvgLength)opacity).Value;
@@ -188,6 +210,18 @@ namespace Bonsai.Design
         {
             var stroke = (string)style.Get("stroke");
             var strokeWidth = (string)style.Get("stroke-width");
+            return CreateStroke(stroke, strokeWidth, context);
+        }
+
+        Expression CreateStroke(SvgElement element, SvgRendererContext context)
+        {
+            var stroke = (string)element["stroke"];
+            var strokeWidth = (string)element["stroke-width"];
+            return CreateStroke(stroke, strokeWidth, context);
+        }
+
+        Expression CreateStroke(string stroke, string strokeWidth, SvgRendererContext context)
+        {
             if (stroke == null || stroke == "none") return null;
             var color = ((SvgColor)stroke).Color;
             var width = strokeWidth == null ? 0 : ((SvgLength)strokeWidth);
