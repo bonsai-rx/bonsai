@@ -572,6 +572,7 @@ namespace Bonsai.Design
                 {
                     if (iconStream == null) return false;
                     var svgDocument = new XmlDocument();
+                    svgDocument.XmlResolver = null;
                     svgDocument.Load(iconStream);
                     var element = SvgFactory.LoadFromXML(svgDocument, null);
                     renderer = CreateRenderer(element);
