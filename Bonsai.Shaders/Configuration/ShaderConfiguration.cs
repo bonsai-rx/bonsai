@@ -60,13 +60,30 @@ namespace Bonsai.Shaders.Configuration
 
         internal string ReadShaderSource(string path)
         {
+            const char AssemblySeparator = ':';
             if (string.IsNullOrEmpty(path)) return null;
-            if (!File.Exists(path))
-            {
-                throw new ArgumentNullException("path", "The specified path \"" + path + "\" was not found while loading " + Name + " shader.");
-            }
 
-            return File.ReadAllText(path);
+            var separatorIndex = path.IndexOf(AssemblySeparator);
+            if (separatorIndex >= 0)
+            {
+                var nameElements = path.Split(AssemblySeparator);
+                var assembly = System.Reflection.Assembly.Load(nameElements[0]);
+                var resourceName = string.Join(ExpressionHelper.MemberSeparator, nameElements);
+                var resourceStream = assembly.GetManifestResourceStream(resourceName);
+                using (var reader = new StreamReader(resourceStream))
+                {
+                    return reader.ReadToEnd();
+                }
+            }
+            else
+            {
+                if (!File.Exists(path))
+                {
+                    throw new ArgumentNullException("path", "The specified path \"" + path + "\" was not found while loading " + Name + " shader.");
+                }
+
+                return File.ReadAllText(path);
+            }
         }
 
         public override string ToString()
