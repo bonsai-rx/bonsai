@@ -66,10 +66,27 @@ namespace Bonsai.Shaders.Configuration
             var separatorIndex = path.IndexOf(AssemblySeparator);
             if (separatorIndex >= 0)
             {
-                var nameElements = path.Split(AssemblySeparator);
+                var nameElements = path.Split(new[] { AssemblySeparator }, 2);
+                if (string.IsNullOrEmpty(nameElements[0]))
+                {
+                    throw new ArgumentException(
+                        "The embedded resource path \"" + path +
+                        "\" in shader " + Name + " must be qualified with a valid assembly name.",
+                        "path");
+                }
+
                 var assembly = System.Reflection.Assembly.Load(nameElements[0]);
                 var resourceName = string.Join(ExpressionHelper.MemberSeparator, nameElements);
                 var resourceStream = assembly.GetManifestResourceStream(resourceName);
+                if (resourceStream == null)
+                {
+                    throw new ArgumentException(
+                        "The specified embedded resource \"" + nameElements[1] +
+                        "\" was not found in assembly \"" + nameElements[0] +
+                        "\" while loading " + Name + " shader.",
+                        "path");
+                }
+
                 using (var reader = new StreamReader(resourceStream))
                 {
                     return reader.ReadToEnd();
