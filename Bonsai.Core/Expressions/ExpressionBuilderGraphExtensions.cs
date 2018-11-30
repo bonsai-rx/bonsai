@@ -198,17 +198,9 @@ namespace Bonsai.Expressions
         {
             // Add/remove build dependencies
             var buildContext = new BuildContext(buildTarget);
-            var dependencies = (from link in FindBuildDependencies(source, buildContext)
-                                where link.Publish != null && link.Subscribe != null
-                                select new { link, edge = link.Workflow.AddEdge(link.Publish, link.Subscribe, null) })
-                                .ToList();
-            try { return Build(source, buildContext); }
-            finally
+            using (var dependencies = AddBuildDependencies(source, buildContext))
             {
-                foreach (var dependency in dependencies)
-                {
-                    dependency.link.Workflow.RemoveEdge(dependency.link.Publish, dependency.edge);
-                }
+                return Build(source, buildContext);
             }
         }
 
@@ -506,6 +498,47 @@ namespace Bonsai.Expressions
                         yield return CreateDependencyLink(dependency.Key, source, null, subscriber);
                     }
                 }
+            }
+        }
+
+        class BuildDependency
+        {
+            public readonly ExpressionBuilderGraph Workflow;
+            public readonly Node<ExpressionBuilder, ExpressionBuilderArgument> Source;
+            public readonly Edge<ExpressionBuilder, ExpressionBuilderArgument> Edge;
+
+            public BuildDependency(DependencyLink link)
+            {
+                Workflow = link.Workflow;
+                Source = link.Publish;
+                Edge = Workflow.AddEdge(link.Publish, link.Subscribe, null);
+            }
+        }
+
+        static IDisposable AddBuildDependencies(ExpressionBuilderGraph source, IBuildContext buildContext)
+        {
+            var dependencies = new List<BuildDependency>();
+            var disposable = Disposable.Create(() =>
+            {
+                foreach (var dependency in dependencies)
+                {
+                    dependency.Workflow.RemoveEdge(dependency.Source, dependency.Edge);
+                }
+            });
+
+            try
+            {
+                foreach (var link in FindBuildDependencies(source, buildContext).Where(link => link.Publish != null && link.Subscribe != null))
+                {
+                    var dependency = new BuildDependency(link);
+                    dependencies.Add(dependency);
+                }
+                return disposable;
+            }
+            catch
+            {
+                disposable.Dispose();
+                throw;
             }
         }
 
