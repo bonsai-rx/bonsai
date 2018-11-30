@@ -332,7 +332,7 @@ namespace Bonsai.Expressions
                             throw new InvalidOperationException("The specified workflow could not be found.");
                         }
 
-                        workflowStream = File.Open(workflowPath, FileMode.Open);
+                        workflowStream = File.OpenRead(workflowPath);
                     }
 
                     using (var reader = XmlReader.Create(workflowStream))
