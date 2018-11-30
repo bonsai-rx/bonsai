@@ -276,6 +276,41 @@ namespace Bonsai.Expressions
             return name;
         }
 
+        static Stream GetWorkflowStream(string workflowPath, bool embeddedResource)
+        {
+            if (embeddedResource)
+            {
+                var nameElements = workflowPath.Split(new[] { AssemblySeparator }, 2);
+                if (string.IsNullOrEmpty(nameElements[0]))
+                {
+                    throw new InvalidOperationException(
+                        "The embedded resource path \"" + workflowPath +
+                        "\" must be qualified with a valid assembly name.");
+                }
+
+                var assembly = System.Reflection.Assembly.Load(nameElements[0]);
+                var resourceName = string.Join(ExpressionHelper.MemberSeparator, nameElements);
+                var workflowStream = assembly.GetManifestResourceStream(resourceName);
+                if (workflowStream == null)
+                {
+                    throw new InvalidOperationException(
+                        "The specified embedded resource \"" + nameElements[1] +
+                        "\" was not found in assembly \"" + nameElements[0] + "\"");
+                }
+
+                return workflowStream;
+            }
+            else
+            {
+                if (!File.Exists(workflowPath))
+                {
+                    throw new InvalidOperationException("The specified workflow could not be found.");
+                }
+
+                return File.OpenRead(workflowPath);
+            }
+        }
+
         void EnsureWorkflow()
         {
             var context = buildContext;
@@ -299,43 +334,13 @@ namespace Bonsai.Expressions
             }
             else
             {
-                Stream workflowStream;
                 var embeddedResource = IsEmbeddedResourcePath(workflowPath);
                 var lastWriteTime = embeddedResource ? DateTime.MaxValue : File.GetLastWriteTime(workflowPath);
                 if (workflow == null || lastWriteTime > writeTime)
                 {
                     var properties = workflow != null ? GetXmlProperties() : xmlProperties;
-                    if (embeddedResource)
-                    {
-                        var nameElements = workflowPath.Split(new[] { AssemblySeparator }, 2);
-                        if (string.IsNullOrEmpty(nameElements[0]))
-                        {
-                            throw new InvalidOperationException(
-                                "The embedded resource path \"" + path +
-                                "\" must be qualified with a valid assembly name.");
-                        }
-
-                        var assembly = System.Reflection.Assembly.Load(nameElements[0]);
-                        var resourceName = string.Join(ExpressionHelper.MemberSeparator, nameElements);
-                        workflowStream = assembly.GetManifestResourceStream(resourceName);
-                        if (workflowStream == null)
-                        {
-                            throw new InvalidOperationException(
-                                "The specified embedded resource \"" + nameElements[1] +
-                                "\" was not found in assembly \"" + nameElements[0] + "\"");
-                        }
-                    }
-                    else
-                    {
-                        if (!File.Exists(workflowPath))
-                        {
-                            throw new InvalidOperationException("The specified workflow could not be found.");
-                        }
-
-                        workflowStream = File.OpenRead(workflowPath);
-                    }
-
-                    using (var reader = XmlReader.Create(workflowStream))
+                    using (var stream = GetWorkflowStream(workflowPath, embeddedResource))
+                    using (var reader = XmlReader.Create(stream))
                     {
                         var builder = (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
                         description = builder.Description;
