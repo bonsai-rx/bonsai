@@ -31,7 +31,6 @@ namespace Bonsai.Expressions
         ExpressionBuilderGraph workflow;
         readonly bool inspectWorkflow;
         DateTime writeTime;
-        string workflowPath;
         string description;
         string path;
         string name;
@@ -58,7 +57,6 @@ namespace Bonsai.Expressions
             name = builder.name;
             path = builder.path;
             description = builder.description;
-            workflowPath = builder.workflowPath;
             xmlProperties = builder.xmlProperties;
         }
 
@@ -119,10 +117,9 @@ namespace Bonsai.Expressions
             get { return path; }
             set
             {
-                path = value;
+                path = GetWorkflowPath(value);
                 writeTime = DateTime.MinValue;
-                workflowPath = ResolvePath(path);
-                name = GetDisplayName(workflowPath);
+                name = GetDisplayName(path);
             }
         }
 
@@ -235,27 +232,14 @@ namespace Bonsai.Expressions
             return document.DocumentElement;
         }
 
-        static string GetWorkflowPath(string pathLocation, string path)
+        static string GetWorkflowPath(string path)
         {
-            return SystemPath.Combine(pathLocation, path) + Constants.BonsaiExtension;
-        }
-
-        static string ResolvePath(string path)
-        {
-            const string PathEnvironmentVariable = "PATH";
-            if (string.IsNullOrEmpty(path) || SystemPath.HasExtension(path)) return path;
-
-            var workflowPath = GetWorkflowPath(Environment.CurrentDirectory, path);
-            if (File.Exists(workflowPath)) return workflowPath;
-
-            var pathLocations = Environment.GetEnvironmentVariable(PathEnvironmentVariable).Split(SystemPath.PathSeparator);
-            for (int i = 0; i < pathLocations.Length; i++)
+            if (SystemPath.GetExtension(path) == string.Empty)
             {
-                workflowPath = GetWorkflowPath(pathLocations[i], path);
-                if (File.Exists(workflowPath)) return workflowPath;
+                return SystemPath.ChangeExtension(path, Constants.BonsaiExtension);
             }
 
-            return string.Empty;
+            return path;
         }
 
         static bool IsEmbeddedResourcePath(string path)
@@ -264,10 +248,10 @@ namespace Bonsai.Expressions
             return separatorIndex >= 0 && !SystemPath.IsPathRooted(path);
         }
 
-        static string GetDisplayName(string workflowPath)
+        static string GetDisplayName(string path)
         {
-            var name = SystemPath.GetFileNameWithoutExtension(workflowPath);
-            if (IsEmbeddedResourcePath(workflowPath))
+            var name = SystemPath.GetFileNameWithoutExtension(path);
+            if (IsEmbeddedResourcePath(path))
             {
                 var nameSeparator = name.LastIndexOf(ExpressionHelper.MemberSeparator);
                 name = nameSeparator >= 0 ? name.Substring(nameSeparator + 1) : name;
@@ -276,15 +260,15 @@ namespace Bonsai.Expressions
             return name;
         }
 
-        static Stream GetWorkflowStream(string workflowPath, bool embeddedResource)
+        static Stream GetWorkflowStream(string path, bool embeddedResource)
         {
             if (embeddedResource)
             {
-                var nameElements = workflowPath.Split(new[] { AssemblySeparator }, 2);
+                var nameElements = path.Split(new[] { AssemblySeparator }, 2);
                 if (string.IsNullOrEmpty(nameElements[0]))
                 {
                     throw new InvalidOperationException(
-                        "The embedded resource path \"" + workflowPath +
+                        "The embedded resource path \"" + path +
                         "\" must be qualified with a valid assembly name.");
                 }
 
@@ -302,12 +286,12 @@ namespace Bonsai.Expressions
             }
             else
             {
-                if (!File.Exists(workflowPath))
+                if (!File.Exists(path))
                 {
                     throw new InvalidOperationException("The specified workflow could not be found.");
                 }
 
-                return File.OpenRead(workflowPath);
+                return File.OpenRead(path);
             }
         }
 
@@ -326,7 +310,7 @@ namespace Bonsai.Expressions
                 context = context.ParentContext;
             }
 
-            if (string.IsNullOrEmpty(workflowPath))
+            if (string.IsNullOrEmpty(path))
             {
                 workflow = null;
                 description = null;
@@ -334,12 +318,12 @@ namespace Bonsai.Expressions
             }
             else
             {
-                var embeddedResource = IsEmbeddedResourcePath(workflowPath);
-                var lastWriteTime = embeddedResource ? DateTime.MaxValue : File.GetLastWriteTime(workflowPath);
+                var embeddedResource = IsEmbeddedResourcePath(path);
+                var lastWriteTime = embeddedResource ? DateTime.MaxValue : File.GetLastWriteTime(path);
                 if (workflow == null || lastWriteTime > writeTime)
                 {
                     var properties = workflow != null ? GetXmlProperties() : xmlProperties;
-                    using (var stream = GetWorkflowStream(workflowPath, embeddedResource))
+                    using (var stream = GetWorkflowStream(path, embeddedResource))
                     using (var reader = XmlReader.Create(stream))
                     {
                         var builder = (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
