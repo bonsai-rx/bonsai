@@ -10,6 +10,7 @@ using System.Reactive.Linq;
 using System.ComponentModel;
 using Bonsai.Configuration;
 using Bonsai.Editor;
+using System.Xml;
 
 namespace Bonsai
 {
@@ -48,6 +49,43 @@ namespace Bonsai
                         FullyQualifiedName = type.AssemblyQualifiedName,
                         Description = descriptionAttribute.Description,
                         ElementTypes = WorkflowElementCategoryConverter.FromType(type).ToArray()
+                    };
+                }
+            }
+
+            const char AssemblySeparator = ':';
+            const string BonsaiExtension = ".bonsai";
+            var embeddedResources = assembly.GetManifestResourceNames();
+            for (int i = 0; i < embeddedResources.Length; i++)
+            {
+                if (Path.GetExtension(embeddedResources[i]) == BonsaiExtension)
+                {
+                    var description = string.Empty;
+                    var resourceStream = assembly.GetManifestResourceStream(embeddedResources[i]);
+                    try
+                    {
+                        using (var reader = XmlReader.Create(resourceStream, new XmlReaderSettings { IgnoreWhitespace = true }))
+                        {
+                            reader.ReadStartElement(typeof(WorkflowBuilder).Name);
+                            if (reader.Name == "Description")
+                            {
+                                reader.ReadStartElement();
+                                description = reader.Value;
+                            }
+                        }
+                    }
+                    catch (SystemException) { continue; }
+
+                    var assemblyName = assembly.GetName().Name;
+                    var name = Path.GetFileNameWithoutExtension(embeddedResources[i]);
+                    var nameSeparator = name.LastIndexOf(ExpressionHelper.MemberSeparator);
+                    yield return new WorkflowElementDescriptor
+                    {
+                        Name = nameSeparator >= 0 ? name.Substring(nameSeparator + 1) : name,
+                        Namespace = nameSeparator >= 0 ? name.Substring(0, nameSeparator) : name,
+                        FullyQualifiedName = string.Concat(assemblyName, AssemblySeparator, embeddedResources[i].Substring(assemblyName.Length + 1)),
+                        Description = description,
+                        ElementTypes = new[] { ~ElementCategory.Workflow }
                     };
                 }
             }
