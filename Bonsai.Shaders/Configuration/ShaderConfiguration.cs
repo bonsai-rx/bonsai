@@ -64,7 +64,7 @@ namespace Bonsai.Shaders.Configuration
             if (string.IsNullOrEmpty(path)) return null;
 
             var separatorIndex = path.IndexOf(AssemblySeparator);
-            if (separatorIndex >= 0)
+            if (separatorIndex >= 0 && !Path.IsPathRooted(path))
             {
                 var nameElements = path.Split(new[] { AssemblySeparator }, 2);
                 if (string.IsNullOrEmpty(nameElements[0]))
