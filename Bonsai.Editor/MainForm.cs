@@ -277,14 +277,12 @@ namespace Bonsai.Editor
             var systemPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.System)).TrimEnd('\\');
             var systemX86Path = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86)).TrimEnd('\\');
             var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory || currentDirectory == systemPath || currentDirectory == systemX86Path;
-            var extensionsDirectory = Path.Combine(appDomainBaseDirectory, ExtensionsDirectory);
             var formClosed = Observable.FromEventPattern<FormClosedEventHandler, FormClosedEventArgs>(
                 handler => FormClosed += handler,
                 handler => FormClosed -= handler);
 
             InitializeWorkflowFileWatcher().TakeUntil(formClosed).Subscribe();
             updatesAvailable.TakeUntil(formClosed).ObserveOn(formScheduler).Subscribe(HandleUpdatesAvailable);
-            workflowExtensions.AddRange(FindWorkflows(extensionsDirectory));
             directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
 
             InitializeEditorToolboxTypes();
@@ -510,7 +508,7 @@ namespace Bonsai.Editor
                 {
                     Name = Path.GetFileNameWithoutExtension(relativePath),
                     Namespace = fileNamespace,
-                    FullyQualifiedName = Path.ChangeExtension(relativePath, null),
+                    FullyQualifiedName = relativePath,
                     Description = description,
                     ElementTypes = new[] { ~ElementCategory.Workflow }
                 };
