@@ -23,6 +23,7 @@ namespace Bonsai.Expressions
     [TypeDescriptionProvider(typeof(IncludeWorkflowTypeDescriptionProvider))]
     public sealed class IncludeWorkflowBuilder : VariableArgumentExpressionBuilder, IGroupWorkflowBuilder, INamedElement, IRequireBuildContext
     {
+        const char AssemblySeparator = ':';
         static readonly XmlElement[] EmptyProperties = new XmlElement[0];
         XmlElement[] xmlProperties;
 
@@ -121,7 +122,7 @@ namespace Bonsai.Expressions
                 path = value;
                 writeTime = DateTime.MinValue;
                 workflowPath = ResolvePath(path);
-                name = SystemPath.GetFileNameWithoutExtension(workflowPath);
+                name = GetDisplayName(workflowPath);
             }
         }
 
@@ -257,6 +258,24 @@ namespace Bonsai.Expressions
             return string.Empty;
         }
 
+        static bool IsEmbeddedResourcePath(string path)
+        {
+            var separatorIndex = path.IndexOf(AssemblySeparator);
+            return separatorIndex >= 0 && !SystemPath.IsPathRooted(path);
+        }
+
+        static string GetDisplayName(string workflowPath)
+        {
+            var name = SystemPath.GetFileNameWithoutExtension(workflowPath);
+            if (IsEmbeddedResourcePath(workflowPath))
+            {
+                var nameSeparator = name.LastIndexOf(ExpressionHelper.MemberSeparator);
+                name = nameSeparator >= 0 ? name.Substring(nameSeparator + 1) : name;
+            }
+
+            return name;
+        }
+
         void EnsureWorkflow()
         {
             var context = buildContext;
@@ -272,7 +291,7 @@ namespace Bonsai.Expressions
                 context = context.ParentContext;
             }
 
-            if (string.IsNullOrEmpty(workflowPath) || !File.Exists(workflowPath))
+            if (string.IsNullOrEmpty(workflowPath))
             {
                 workflow = null;
                 description = null;
@@ -280,11 +299,43 @@ namespace Bonsai.Expressions
             }
             else
             {
-                var lastWriteTime = File.GetLastWriteTime(workflowPath);
+                Stream workflowStream;
+                var embeddedResource = IsEmbeddedResourcePath(workflowPath);
+                var lastWriteTime = embeddedResource ? DateTime.MaxValue : File.GetLastWriteTime(workflowPath);
                 if (workflow == null || lastWriteTime > writeTime)
                 {
                     var properties = workflow != null ? GetXmlProperties() : xmlProperties;
-                    using (var reader = XmlReader.Create(workflowPath))
+                    if (embeddedResource)
+                    {
+                        var nameElements = workflowPath.Split(new[] { AssemblySeparator }, 2);
+                        if (string.IsNullOrEmpty(nameElements[0]))
+                        {
+                            throw new InvalidOperationException(
+                                "The embedded resource path \"" + path +
+                                "\" must be qualified with a valid assembly name.");
+                        }
+
+                        var assembly = System.Reflection.Assembly.Load(nameElements[0]);
+                        var resourceName = string.Join(ExpressionHelper.MemberSeparator, nameElements);
+                        workflowStream = assembly.GetManifestResourceStream(resourceName);
+                        if (workflowStream == null)
+                        {
+                            throw new InvalidOperationException(
+                                "The specified embedded resource \"" + nameElements[1] +
+                                "\" was not found in assembly \"" + nameElements[0] + "\"");
+                        }
+                    }
+                    else
+                    {
+                        if (!File.Exists(workflowPath))
+                        {
+                            throw new InvalidOperationException("The specified workflow could not be found.");
+                        }
+
+                        workflowStream = File.Open(workflowPath, FileMode.Open);
+                    }
+
+                    using (var reader = XmlReader.Create(workflowStream))
                     {
                         var builder = (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
                         description = builder.Description;
