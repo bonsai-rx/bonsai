@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +23,51 @@ namespace Bonsai.Editor.Themes
         }
 
         public new ExtendedColorTable ColorTable { get; private set; }
+
+        protected override void OnRenderArrow(ToolStripArrowRenderEventArgs e)
+        {
+            var rectangle = e.ArrowRectangle;
+            var center = new Point(rectangle.Left + rectangle.Width / 2, rectangle.Top + rectangle.Height / 2);
+            var offset = rectangle.Width / 4;
+
+            Point[] arrow = null;
+            switch (e.Direction)
+            {
+                case ArrowDirection.Down:
+                    arrow = new Point[] {
+                        new Point(center.X - offset, center.Y - 1), 
+                        new Point(center.X + offset + 1, center.Y - 1), 
+                        new Point(center.X, center.Y + offset)
+                    };
+                    break;
+                case ArrowDirection.Left:
+                    arrow = new Point[] {
+                        new Point(center.X + offset, center.Y - offset - 1), 
+                        new Point(center.X + offset, center.Y + offset + 1), 
+                        new Point(center.X - 1, center.Y)
+                    };
+                    break;
+                case ArrowDirection.Right:
+                    arrow = new Point[] {
+                        new Point(center.X - offset, center.Y - offset - 1), 
+                        new Point(center.X - offset, center.Y + offset + 1), 
+                        new Point(center.X + 1, center.Y)
+                    };
+                    break;
+                case ArrowDirection.Up:
+                    arrow = new Point[] {
+                        new Point(center.X - offset, center.Y + 1), 
+                        new Point(center.X + offset + 1, center.Y + 1), 
+                        new Point(center.X, center.Y - offset)
+                    };
+                    break;
+            }
+
+            using (var brush = new SolidBrush(e.ArrowColor))
+            {
+                e.Graphics.FillPolygon(brush, arrow);
+            }
+        }
 
         protected override void OnRenderToolStripBorder(ToolStripRenderEventArgs e)
         {

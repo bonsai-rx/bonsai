@@ -328,6 +328,7 @@ namespace Bonsai.Editor
             var scalingFactor = ((int)(factor.Height * 100) / 50 * 50) / 100f;
             if (scalingFactor > 1)
             {
+                startToolStripSplitButton.DropDownButtonWidth = (int)(startToolStripSplitButton.DropDownButtonWidth * scalingFactor);
                 toolStrip.ImageScalingSize = new Size((int)(imageSize.Width * scalingFactor), (int)(imageSize.Height * scalingFactor));
                 menuStrip.ImageScalingSize = toolStrip.ImageScalingSize;
                 statusStrip.ImageScalingSize = toolStrip.ImageScalingSize;
