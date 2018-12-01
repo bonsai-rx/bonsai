@@ -1096,6 +1096,8 @@ namespace Bonsai.Editor
                 editorSite.OnWorkflowStopped(EventArgs.Empty);
                 undoToolStripButton.Enabled = undoToolStripMenuItem.Enabled = commandExecutor.CanUndo;
                 redoToolStripButton.Enabled = redoToolStripMenuItem.Enabled = commandExecutor.CanRedo;
+                toolboxTreeView.Enabled = true;
+                searchTextBox.Enabled = true;
                 deleteToolStripMenuItem.Enabled = true;
                 groupToolStripMenuItem.Enabled = true;
                 cutToolStripMenuItem.Enabled = true;
@@ -1195,6 +1197,8 @@ namespace Bonsai.Editor
             UpdateTitle();
             undoToolStripButton.Enabled = undoToolStripMenuItem.Enabled = false;
             redoToolStripButton.Enabled = redoToolStripMenuItem.Enabled = false;
+            toolboxTreeView.Enabled = false;
+            searchTextBox.Enabled = false;
             deleteToolStripMenuItem.Enabled = false;
             groupToolStripMenuItem.Enabled = false;
             cutToolStripMenuItem.Enabled = false;
