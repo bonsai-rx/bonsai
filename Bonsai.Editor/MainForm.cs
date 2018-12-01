@@ -1102,9 +1102,9 @@ namespace Bonsai.Editor
                 groupToolStripMenuItem.Enabled = true;
                 cutToolStripMenuItem.Enabled = true;
                 pasteToolStripMenuItem.Enabled = true;
-                startToolStripButton.Enabled = startToolStripMenuItem.Enabled = startWithoutDebuggingToolStripMenuItem.Enabled = true;
-                stopToolStripButton.Enabled = stopToolStripMenuItem.Enabled = false;
-                restartToolStripButton.Enabled = restartToolStripMenuItem.Enabled = false;
+                startToolStripSplitButton.Enabled = startToolStripMenuItem.Enabled = startWithoutDebuggingToolStripMenuItem.Enabled = true;
+                stopToolStripButton.Visible = stopToolStripMenuItem.Visible = stopToolStripButton.Enabled = stopToolStripMenuItem.Enabled = false;
+                restartToolStripButton.Visible = restartToolStripMenuItem.Visible = restartToolStripButton.Enabled = restartToolStripMenuItem.Enabled = false;
                 if (statusImageLabel.Image == statusReadyImage)
                 {
                     statusTextLabel.Text = Resources.ReadyStatus;
@@ -1203,9 +1203,9 @@ namespace Bonsai.Editor
             groupToolStripMenuItem.Enabled = false;
             cutToolStripMenuItem.Enabled = false;
             pasteToolStripMenuItem.Enabled = false;
-            startToolStripButton.Enabled = startToolStripMenuItem.Enabled = startWithoutDebuggingToolStripMenuItem.Enabled = false;
-            stopToolStripButton.Enabled = stopToolStripMenuItem.Enabled = true;
-            restartToolStripButton.Enabled = restartToolStripMenuItem.Enabled = true;
+            startToolStripSplitButton.Enabled = startToolStripMenuItem.Enabled = startWithoutDebuggingToolStripMenuItem.Enabled = false;
+            stopToolStripButton.Visible = stopToolStripMenuItem.Visible = stopToolStripButton.Enabled = stopToolStripMenuItem.Enabled = true;
+            restartToolStripButton.Visible = restartToolStripMenuItem.Visible = restartToolStripButton.Enabled = restartToolStripMenuItem.Enabled = true;
         }
 
         void StopWorkflow()
