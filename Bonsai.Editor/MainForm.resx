@@ -440,7 +440,24 @@
         i/Kd7xpoGYhYsqknK3UFU4/RUE6VilMAAAAASUVORK5CYII=
 </value>
   </data>
-  <data name="startToolStripButton.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="startToolStripButtonMenuItem.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        wwAADsMBx2+oZAAAAIZJREFUOE9jQAbfvn07/+XLFwMol3QANOA/EL///v17AlSINAAyIGZexP97L+/9
+        //r16/z3798LQKWIAyADLLpM/rtMdPi/+8pOkGtI8xLMABju3tlJmpfQDQBhkryEzQAQJtpLuAyAYYJe
+        opkBFHmBokAkOxopSkgUJ2WSnIwOSHYyAwMDAM6GKXQhyhG1AAAAAElFTkSuQmCC
+</value>
+  </data>
+  <data name="startWithoutDebuggingToolStripButtonMenuItem.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        wwAADsMBx2+oZAAAAJ1JREFUOE9jQAbfvn07/+XLFwMol3QANOA/EL///v17AlSINAAyIGZexP97L+/9
+        //r16/z3798LQKWIAyADLLpM/rtMdPi/+8pOkGtI8xLMABju3tlJmpfQDQBhkryEbMC5O+f+R88NB7OJ
+        9hKyAR/ef/z/9OXT/7UbquFiBL1EVQMo9gIMkx2IIEx2NFKUkChOyiQ5GR2Q7GQGBgYA9iM1vHWiKSMA
+        AAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="startToolStripSplitButton.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
         YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACGSURBVDhPY0AG3759O//lyxcDKJd0ADTgPxC///79ewJU
@@ -503,9 +520,6 @@
   </metadata>
   <metadata name="toolboxContextMenuStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>1348, 17</value>
-  </metadata>
-  <metadata name="toolboxSourceContextMenuStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>1541, 17</value>
   </metadata>
   <metadata name="commandExecutor.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>767, 17</value>
