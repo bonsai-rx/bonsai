@@ -113,7 +113,7 @@
             this.toolboxSplitContainer = new System.Windows.Forms.SplitContainer();
             this.toolboxTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.searchTextBox = new Bonsai.Design.CueBannerTextBox();
-            this.toolboxTreeView = new System.Windows.Forms.TreeView();
+            this.toolboxTreeView = new Bonsai.Editor.ToolboxTreeView();
             this.toolboxDescriptionPanel = new Bonsai.Editor.BorderPanel();
             this.toolboxDescriptionTextBox = new System.Windows.Forms.RichTextBox();
             this.propertiesSplitContainer = new System.Windows.Forms.SplitContainer();
@@ -1271,7 +1271,7 @@
         private System.Windows.Forms.ToolStripButton saveToolStripButton;
         private System.Windows.Forms.ToolStripSeparator fileToolStripSeparator;
         private System.Windows.Forms.StatusStrip statusStrip;
-        private System.Windows.Forms.TreeView toolboxTreeView;
+        private Bonsai.Editor.ToolboxTreeView toolboxTreeView;
         private Bonsai.Design.PropertyGrid propertyGrid;
         private System.Windows.Forms.ToolStripMenuItem startToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem startWithoutDebuggingToolStripMenuItem;
