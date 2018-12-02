@@ -63,7 +63,8 @@ namespace Bonsai.Editor.Themes
                     break;
             }
 
-            using (var brush = new SolidBrush(e.ArrowColor))
+            var arrowColor = e.Item.Enabled ? e.ArrowColor : ColorTable.ControlDark;
+            using (var brush = new SolidBrush(arrowColor))
             {
                 e.Graphics.FillPolygon(brush, arrow);
             }
