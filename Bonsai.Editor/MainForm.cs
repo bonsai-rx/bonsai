@@ -31,8 +31,6 @@ namespace Bonsai.Editor
 {
     public partial class MainForm : Form
     {
-        const int CycleNextHotKey = 0;
-        const int CyclePreviousHotKey = 1;
         const float DefaultEditorScale = 1.0f;
         const string BonsaiExtension = ".bonsai";
         const string LayoutExtension = ".layout";
