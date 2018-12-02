@@ -25,6 +25,11 @@ namespace Bonsai.Editor.Themes
             get { return SystemColors.ControlText; }
         }
 
+        public virtual Color ControlDark
+        {
+            get { return SystemColors.ControlDark; }
+        }
+
         public virtual Color ContentPanelBackColor
         {
             get { return Color.WhiteSmoke; }
