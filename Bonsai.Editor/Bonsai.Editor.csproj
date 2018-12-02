@@ -175,6 +175,9 @@
     <Compile Include="Themes\ToolStripDarkRenderer.cs" />
     <Compile Include="Themes\ToolStripExtendedRenderer.cs" />
     <Compile Include="Themes\ToolStripLightRenderer.cs" />
+    <Compile Include="SelectableSplitContainer.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="ToolboxTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
