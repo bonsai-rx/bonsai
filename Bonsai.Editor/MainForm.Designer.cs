@@ -110,7 +110,7 @@
             this.reloadExtensionsToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.statusImageLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolboxSplitContainer = new System.Windows.Forms.SplitContainer();
+            this.toolboxSplitContainer = new Bonsai.Editor.SelectableSplitContainer();
             this.toolboxTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.searchTextBox = new Bonsai.Design.CueBannerTextBox();
             this.toolboxTreeView = new Bonsai.Editor.ToolboxTreeView();
@@ -1283,7 +1283,7 @@
         private System.Windows.Forms.ToolStripSeparator helpToolStripSeparator;
         private System.Windows.Forms.ToolStripTextBox directoryToolStripTextBox;
         private System.Windows.Forms.ToolStripButton browseDirectoryToolStripButton;
-        private System.Windows.Forms.SplitContainer toolboxSplitContainer;
+        private Bonsai.Editor.SelectableSplitContainer toolboxSplitContainer;
         private Bonsai.Editor.BorderPanel toolboxDescriptionPanel;
         private System.Windows.Forms.RichTextBox toolboxDescriptionTextBox;
         private System.Windows.Forms.ContextMenuStrip propertyGridContextMenuStrip;
