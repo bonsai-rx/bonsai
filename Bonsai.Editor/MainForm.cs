@@ -64,7 +64,7 @@ namespace Bonsai.Editor
         Dictionary<string, TreeNode> toolboxCategories;
         List<TreeNode> treeCache;
         Label statusTextLabel;
-        Bitmap statusReadyImage;
+        Bitmap statusRunningImage;
         ThemeRenderer themeRenderer;
         SvgRendererFactory iconRenderer;
         ToolStripButton statusUpdateAvailableLabel;
@@ -126,7 +126,7 @@ namespace Bonsai.Editor
             statusUpdateAvailableLabel.ToolTipText = Resources.PackageUpdatesAvailable_Notification;
             statusUpdateAvailableLabel.DisplayStyle = ToolStripItemDisplayStyle.Image;
             statusUpdateAvailableLabel.Image = Resources.StatusUpdateAvailable;
-            statusReadyImage = Resources.StatusReadyImage;
+            statusRunningImage = Resources.StatusRunningImage;
             searchTextBox.CueBanner = Resources.SearchModuleCueBanner;
             statusStrip.Items.Add(new ToolStripControlHost(statusTextLabel));
             statusStrip.SizeChanged += new EventHandler(statusStrip_SizeChanged);
@@ -1106,9 +1106,10 @@ namespace Bonsai.Editor
                 startToolStripSplitButton.Enabled = startToolStripMenuItem.Enabled = startWithoutDebuggingToolStripMenuItem.Enabled = true;
                 stopToolStripButton.Visible = stopToolStripMenuItem.Visible = stopToolStripButton.Enabled = stopToolStripMenuItem.Enabled = false;
                 restartToolStripButton.Visible = restartToolStripMenuItem.Visible = restartToolStripButton.Enabled = restartToolStripMenuItem.Enabled = false;
-                if (statusImageLabel.Image == statusReadyImage)
+                if (statusImageLabel.Image == statusRunningImage)
                 {
                     statusTextLabel.Text = Resources.ReadyStatus;
+                    statusImageLabel.Image = Resources.StatusReadyImage;
                 }
 
                 running = null;
@@ -1175,7 +1176,7 @@ namespace Bonsai.Editor
                             Invoke((Action)(() =>
                             {
                                 statusTextLabel.Text = Resources.RunningStatus;
-                                statusImageLabel.Image = statusReadyImage;
+                                statusImageLabel.Image = statusRunningImage;
                                 editorSite.OnWorkflowStarted(EventArgs.Empty);
                             }));
                         }
@@ -1292,7 +1293,7 @@ namespace Bonsai.Editor
             else
             {
                 statusTextLabel.Text = Resources.ReadyStatus;
-                statusImageLabel.Image = statusReadyImage;
+                statusImageLabel.Image = Resources.StatusReadyImage;
             }
         }
 

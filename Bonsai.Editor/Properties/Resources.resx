@@ -160,6 +160,15 @@
         TkSuQmCC
 </value>
   </data>
+  <data name="StatusRunningImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAADBSURBVDhPY0AH3759SwDi/UD8Hw2DxBKgyjABUFIBiM8f
+        vX/0f8G2gv/GM41RMEgMJAdSA1IL1QYBUM3va/bUYGhExx2HOkCGvEcxBMg5D5LApgEbhhpyHqY5AeQ0
+        dEU339z8H7kmEkMchqHeSQAZsB+bn2Fg5pmZGHIgDNID0gsyAKsCZIDLNSC9RBkAA+iuoZ8BhLxAcSBS
+        Fo3QtHCemFQIwygJCQSAHHBSJiY1Yk3KIAA1hLzMhAyAkiRkZwYGAEcIWvs/bCjHAAAAAElFTkSuQmCC
+</value>
+  </data>
   <data name="AttributionNotices" xml:space="preserve">
     <value>
 The Bonsai framework includes software from the NuGet Project developed at the Outercurve Foundation (http://www.outercurve.org/).
