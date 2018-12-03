@@ -534,10 +534,28 @@ namespace Bonsai.Editor
         {
             return toolboxElements
                 .ObserveOn(formScheduler)
-                .Do(package => InitializeToolboxCategory(package.Key, package))
+                .Do(package => InitializeToolboxCategory(
+                    package.Key,
+                    InitializeWorkflowExtensions(package)))
                 .SubscribeOn(Scheduler.Default)
                 .TakeLast(1)
                 .Select(xs => Unit.Default);
+        }
+
+        IEnumerable<WorkflowElementDescriptor> InitializeWorkflowExtensions(IEnumerable<WorkflowElementDescriptor> types)
+        {
+            foreach (var type in types)
+            {
+                foreach (var elementType in type.ElementTypes)
+                {
+                    if (elementType == ~ElementCategory.Workflow)
+                    {
+                        workflowExtensions.Add(type);
+                    }
+                }
+
+                yield return type;
+            }
         }
 
         static string GetPackageDisplayName(string packageKey)
