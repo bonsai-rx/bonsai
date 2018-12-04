@@ -88,17 +88,12 @@ namespace Bonsai.Design
 
         static string ResolvePath(string path)
         {
-            const string PathEnvironmentVariable = "PATH";
             var workflowPath = Path.Combine(Environment.CurrentDirectory, path);
             if (File.Exists(workflowPath)) return workflowPath;
 
-            var pathLocations = Environment.GetEnvironmentVariable(PathEnvironmentVariable).Split(Path.PathSeparator);
-            for (int i = 0; i < pathLocations.Length; i++)
-            {
-                workflowPath = Path.Combine(pathLocations[i], path);
-                if (File.Exists(workflowPath)) return workflowPath;
-            }
-
+            var appDomainBaseDirectory = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\');
+            workflowPath = Path.Combine(appDomainBaseDirectory, "Extensions", path);
+            if (File.Exists(workflowPath)) return workflowPath;
             return string.Empty;
         }
 
