@@ -106,6 +106,11 @@ namespace Bonsai.Design
 
         public void Undo()
         {
+            Undo(true);
+        }
+
+        public void Undo(bool allowRedo)
+        {
             if (composite != null)
             {
                 throw new InvalidOperationException("EndComposite must be called before any undo/redo operations.");
@@ -114,6 +119,13 @@ namespace Bonsai.Design
             if (CanUndo)
             {
                 history[currentCommand--].Undo();
+                if (!allowRedo)
+                {
+                    history.RemoveRange(
+                        currentCommand + 1,
+                        history.Count - currentCommand - 1
+                    );
+                }
                 OnStatusChanged(EventArgs.Empty);
             }
         }
