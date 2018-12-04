@@ -27,14 +27,14 @@ namespace Bonsai.Editor.Scripting
 
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            return EmptyExpression.Instance;
+            return UndefinedExpression.Instance;
         }
 
-        class EmptyExpression : Expression
+        class UndefinedExpression : Expression
         {
-            internal static readonly EmptyExpression Instance = new EmptyExpression();
+            internal static readonly UndefinedExpression Instance = new UndefinedExpression();
 
-            private EmptyExpression()
+            private UndefinedExpression()
             {
             }
 
