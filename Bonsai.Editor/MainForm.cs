@@ -858,27 +858,32 @@ namespace Bonsai.Editor
             SaveElement(VisualizerLayout.Serializer, fileName, layout, Resources.SaveLayout_Error);
         }
 
-        void SaveWorkflowExtension(string fileName, GroupWorkflowBuilder groupBuilder)
+        void SaveWorkflowExtension(string fileName, GraphNode groupNode)
         {
             var model = selectionModel.SelectedView;
-            if (groupBuilder == null)
+            if (groupNode == null)
             {
                 model.GroupGraphNodes(selectionModel.SelectedNodes);
+                groupNode = selectionModel.SelectedNodes.Single();
+                if (model.ReadOnly)
+                {
+                    //TODO: Refactor to avoid covertly modifying read-only workflow
+                    editorSite.Undo(false);
+                }
             }
 
-            var selectedNode = selectionModel.SelectedNodes.Single();
-            groupBuilder = (GroupWorkflowBuilder)ExpressionBuilder.Unwrap(selectedNode.Value);
+            var groupBuilder = (GroupWorkflowBuilder)ExpressionBuilder.Unwrap(groupNode.Value);
             groupBuilder.Name = Path.GetFileNameWithoutExtension(fileName);
 
-            var serializerWorkflowBuilder = selectionModel.SelectedNodes.ToWorkflowBuilder();
+            var serializerWorkflowBuilder = LayeredGraphExtensions.ToWorkflowBuilder(new[] { groupNode });
             groupBuilder = (GroupWorkflowBuilder)serializerWorkflowBuilder.Workflow.Single().Value;
             serializerWorkflowBuilder = new WorkflowBuilder(groupBuilder.Workflow);
             serializerWorkflowBuilder.Description = groupBuilder.Description;
-            if (SaveWorkflowBuilder(fileName, serializerWorkflowBuilder))
+            if (SaveWorkflowBuilder(fileName, serializerWorkflowBuilder) && !model.ReadOnly)
             {
                 var includeBuilder = new IncludeWorkflowBuilder();
                 includeBuilder.Path = PathConvert.GetProjectPath(fileName);
-                model.ReplaceGraphNode(selectedNode, includeBuilder);
+                model.ReplaceGraphNode(groupNode, includeBuilder);
                 editorSite.ValidateWorkflow();
             }
         }
@@ -1038,14 +1043,16 @@ namespace Bonsai.Editor
             if (!extensionsPath.Exists) return;
 
             string fileName = null;
-            GroupWorkflowBuilder groupBuilder = null;
+            GraphNode groupNode = null;
             var selectedNodes = selectionModel.SelectedNodes;
             if (selectedNodes.Count() == 1)
             {
-                groupBuilder = ExpressionBuilder.Unwrap(selectedNodes.Single().Value) as GroupWorkflowBuilder;
+                var selectedNode = selectedNodes.Single();
+                var groupBuilder = ExpressionBuilder.Unwrap(selectedNode.Value) as GroupWorkflowBuilder;
                 if (groupBuilder != null)
                 {
                     fileName = groupBuilder.Name;
+                    groupNode = selectedNode;
                 }
             }
 
@@ -1063,7 +1070,7 @@ namespace Bonsai.Editor
                 saveWorkflowDialog.InitialDirectory = openWorkflowDialog.InitialDirectory;
             }
 
-            SaveWorkflowExtension(fileName, groupBuilder);
+            SaveWorkflowExtension(fileName, groupNode);
         }
 
         private void exportImageToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2424,8 +2431,13 @@ namespace Bonsai.Editor
 
             public void Undo()
             {
+                Undo(true);
+            }
+
+            public void Undo(bool allowRedo)
+            {
                 siteForm.version -= 2;
-                siteForm.commandExecutor.Undo();
+                siteForm.commandExecutor.Undo(allowRedo);
             }
 
             public void Redo()
