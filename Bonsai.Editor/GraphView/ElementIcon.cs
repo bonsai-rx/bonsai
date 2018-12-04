@@ -105,6 +105,29 @@ namespace Bonsai.Design
                 return null;
             }
 
+            const char AssemblySeparator = ':';
+            var separatorIndex = name.IndexOf(AssemblySeparator);
+            if (separatorIndex >= 0 && !Path.IsPathRooted(name))
+            {
+                name = Path.ChangeExtension(name, SvgExtension);
+                var nameElements = name.Split(new[] { AssemblySeparator }, 2);
+                if (!string.IsNullOrEmpty(nameElements[0]))
+                {
+                    name = string.Join(ExpressionHelper.MemberSeparator, nameElements);
+                    try
+                    {
+                        var assembly = System.Reflection.Assembly.Load(nameElements[0]);
+                        var workflowStream = assembly.GetManifestResourceStream(name);
+                        if (workflowStream != null)
+                        {
+                            return workflowStream;
+                        }
+                    }
+                    catch (SystemException) { /* Ignore assembly load failures */ }
+                }
+                else name = nameElements[1];
+            }
+
             if (Path.GetExtension(name) != SvgExtension)
             {
                 name += SvgExtension;
