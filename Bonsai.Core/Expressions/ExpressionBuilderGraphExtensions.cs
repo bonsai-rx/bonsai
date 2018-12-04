@@ -775,6 +775,16 @@ namespace Bonsai.Expressions
                     {
                         continue;
                     }
+
+                    // Do not generate output or successor sequences if the result expression type is void
+                    if (successorCount > 0 && disable == null)
+                    {
+                        try { if (expression.Type == typeof(void)) continue; }
+                        catch (Exception e)
+                        {
+                            throw new WorkflowBuildException(e.Message, builder, e);
+                        }
+                    }
                 }
 
                 var outputBuilder = workflowElement as WorkflowOutputBuilder;
