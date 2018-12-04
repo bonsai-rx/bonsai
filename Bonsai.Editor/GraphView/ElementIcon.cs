@@ -57,7 +57,7 @@ namespace Bonsai.Design
             var iconAttribute = (WorkflowIconAttribute)attributes[typeof(WorkflowIconAttribute)];
             resourceQualifier = Type.GetType(iconAttribute.TypeName ?? string.Empty, false) ?? workflowElementType;
             if (!string.IsNullOrEmpty(iconAttribute.Name)) defaultName = iconAttribute.Name;
-            else defaultName = ExpressionBuilder.GetElementDisplayName(workflowElementType);
+            else defaultName = workflowElementType.Name;
 
             namedElement = workflowElement as IncludeWorkflowBuilder;
             if (resourceQualifier.Namespace != null)
