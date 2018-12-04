@@ -53,7 +53,7 @@ namespace Bonsai.Expressions
             }
 
             var name = Name;
-            if (string.IsNullOrEmpty(name)) return EmptyExpression.Instance;
+            if (string.IsNullOrEmpty(name)) return UndefinedExpression.Instance;
             var subjectExpression = buildContext.GetVariable(name);
 
             var processMethod = GetType().GetMethod("Process", BindingFlags.Static | BindingFlags.NonPublic);
@@ -78,6 +78,25 @@ namespace Bonsai.Expressions
         static IObservable<TSource> Process<TSource>(ISubject<TSource> subject)
         {
             return subject;
+        }
+
+        class UndefinedExpression : Expression
+        {
+            internal static readonly UndefinedExpression Instance = new UndefinedExpression();
+
+            private UndefinedExpression()
+            {
+            }
+
+            public override ExpressionType NodeType
+            {
+                get { return ExpressionType.Extension; }
+            }
+
+            public override Type Type
+            {
+                get { throw new InvalidOperationException("Unable to evaluate undefined subject expression."); }
+            }
         }
     }
 

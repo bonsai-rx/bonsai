@@ -361,13 +361,32 @@ namespace Bonsai.Expressions
             {
                 if (string.IsNullOrEmpty(Path))
                 {
-                    return arguments.FirstOrDefault() ?? EmptyExpression.Instance;
+                    return arguments.FirstOrDefault() ?? UndefinedExpression.Instance;
                 }
                 else throw new InvalidOperationException("The specified workflow could not be found.");
             }
 
             var includeContext = new IncludeContext(buildContext, path);
             return workflow.BuildNested(arguments, includeContext);
+        }
+
+        class UndefinedExpression : Expression
+        {
+            internal static readonly UndefinedExpression Instance = new UndefinedExpression();
+
+            private UndefinedExpression()
+            {
+            }
+
+            public override ExpressionType NodeType
+            {
+                get { return ExpressionType.Extension; }
+            }
+
+            public override Type Type
+            {
+                get { throw new InvalidOperationException("Unable to evaluate included workflow expression."); }
+            }
         }
 
         class IncludeWorkflowTypeDescriptionProvider : TypeDescriptionProvider
