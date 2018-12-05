@@ -44,7 +44,7 @@ namespace Bonsai.Design
             textPanel = new UserControl();
             textPanel.SuspendLayout();
             textPanel.Dock = DockStyle.Fill;
-            textPanel.Size = new Size(320, 2 * AutoScaleHeight);
+            textPanel.MinimumSize = textPanel.Size = new Size(320, 2 * AutoScaleHeight);
             textPanel.AutoScaleDimensions = new SizeF(6F, AutoScaleHeight);
             textPanel.AutoScaleMode = AutoScaleMode.Font;
             textPanel.Paint += textPanel_Paint;
