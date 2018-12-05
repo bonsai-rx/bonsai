@@ -19,7 +19,12 @@ namespace Bonsai.Design
         public void AddControl(Control control)
         {
             ClientSize = control.Size;
-            MinimumSize = control.MinimumSize;
+            if (control.MinimumSize != Size.Empty)
+            {
+                MinimumSize = new Size(
+                    control.MinimumSize.Width + Width - control.Width,
+                    control.MinimumSize.Height + Height - control.Height);
+            }
             Controls.Add(control);
         }
 
