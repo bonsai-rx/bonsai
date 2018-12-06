@@ -24,14 +24,15 @@ namespace Bonsai.Design
 
         static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
         const string SvgExtension = ".svg";
+        const char AssemblySeparator = ':';
         readonly string defaultName;
-        readonly IncludeWorkflowBuilder namedElement;
+        readonly IncludeWorkflowBuilder includeElement;
         readonly Type resourceQualifier;
 
-        public ElementIcon(Type type)
+        private ElementIcon(string name, IncludeWorkflowBuilder include)
         {
-            resourceQualifier = type;
-            defaultName = type.Namespace;
+            includeElement = include;
+            defaultName = name;
         }
 
         private ElementIcon(ElementCategory category)
@@ -45,6 +46,11 @@ namespace Bonsai.Design
         }
 
         public ElementIcon(ExpressionBuilder builder)
+            : this(builder, false)
+        {
+        }
+
+        private ElementIcon(ExpressionBuilder builder, bool forceDefault)
         {
             if (builder == null)
             {
@@ -59,7 +65,7 @@ namespace Bonsai.Design
             if (!string.IsNullOrEmpty(iconAttribute.Name)) defaultName = iconAttribute.Name;
             else defaultName = workflowElementType.Name;
 
-            namedElement = workflowElement as IncludeWorkflowBuilder;
+            includeElement = forceDefault ? null : workflowElement as IncludeWorkflowBuilder;
             if (resourceQualifier.Namespace != null)
             {
                 defaultName = string.Join(ExpressionHelper.MemberSeparator, resourceQualifier.Namespace, defaultName);
@@ -70,13 +76,50 @@ namespace Bonsai.Design
         {
             get
             {
-                if (namedElement != null)
+                if (resourceQualifier != null && includeElement != null)
                 {
-                    var elementName = namedElement.Path;
+                    var elementName = includeElement.Path;
                     if (!string.IsNullOrEmpty(elementName)) return elementName;
                 }
 
                 return defaultName;
+            }
+        }
+
+        public ElementIcon GetDefaultIcon()
+        {
+            var name = Name;
+            if (name != defaultName)
+            {
+                string assemblyName;
+                var path = Path.ChangeExtension(name, null);
+                path = ResolveEmbeddedPath(path, out assemblyName);
+                var separatorIndex = path.LastIndexOf(ExpressionHelper.MemberSeparator);
+                if (separatorIndex < 0) return new ElementIcon(includeElement, forceDefault: true);
+
+                path = path.Substring(0, separatorIndex);
+                name = !string.IsNullOrEmpty(assemblyName) ? assemblyName + AssemblySeparator + path : path;
+                return new ElementIcon(name, includeElement);
+            }
+
+            if (resourceQualifier != null)
+            {
+                var assemblyName = resourceQualifier.Assembly.GetName().Name;
+                return new ElementIcon(assemblyName + AssemblySeparator + resourceQualifier.Namespace, null);
+            }
+            else
+            {
+                var separatorIndex = name.IndexOf(AssemblySeparator);
+                if (separatorIndex >= 0)
+                {
+                    return new ElementIcon(name.Substring(0, separatorIndex), includeElement);
+                }
+                else if (includeElement != null)
+                {
+                    return new ElementIcon(includeElement, forceDefault: true);
+                }
+
+                return null;
             }
         }
 
@@ -97,63 +140,74 @@ namespace Bonsai.Design
             return string.Empty;
         }
 
-        private Stream GetStream(string name)
+        string ResolveEmbeddedPath(string name, out string assemblyName)
         {
-            name = RemoveInvalidPathChars(name);
+            assemblyName = string.Empty;
+            var separatorIndex = name.IndexOf(AssemblySeparator);
+            if (separatorIndex >= 0 && !Path.IsPathRooted(name))
+            {
+                var nameElements = name.Split(new[] { AssemblySeparator }, 2);
+                if (!string.IsNullOrEmpty(nameElements[0]))
+                {
+                    if (name != defaultName)
+                    {
+                        // Infer namespace from assembly name for included paths
+                        name = string.Join(ExpressionHelper.MemberSeparator, nameElements);
+                    }
+                    else name = nameElements[1];
+                    assemblyName = nameElements[0];
+                }
+                else name = nameElements[1];
+            }
+
+            return name;
+        }
+
+        public Stream GetStream()
+        {
+            var name = RemoveInvalidPathChars(Name);
             if (string.IsNullOrEmpty(name))
             {
                 return null;
             }
 
-            const char AssemblySeparator = ':';
-            var separatorIndex = name.IndexOf(AssemblySeparator);
-            if (separatorIndex >= 0 && !Path.IsPathRooted(name))
+            if (name != defaultName)
             {
                 name = Path.ChangeExtension(name, SvgExtension);
-                var nameElements = name.Split(new[] { AssemblySeparator }, 2);
-                if (!string.IsNullOrEmpty(nameElements[0]))
-                {
-                    name = string.Join(ExpressionHelper.MemberSeparator, nameElements);
-                    try
-                    {
-                        var assembly = System.Reflection.Assembly.Load(nameElements[0]);
-                        var workflowStream = assembly.GetManifestResourceStream(name);
-                        if (workflowStream != null)
-                        {
-                            return workflowStream;
-                        }
-                    }
-                    catch (SystemException) { /* Ignore assembly load failures */ }
-                }
-                else name = nameElements[1];
             }
-
-            if (Path.GetExtension(name) != SvgExtension)
+            else if (Path.GetExtension(name) != SvgExtension)
             {
                 name += SvgExtension;
             }
+
+            string assemblyName;
+            name = ResolveEmbeddedPath(name, out assemblyName);
 
             var iconPath = ResolvePath(name);
             if (!string.IsNullOrEmpty(iconPath))
             {
                 return new FileStream(iconPath, FileMode.Open, FileAccess.Read);
             }
-            else if (!resourceQualifier.Assembly.IsDynamic)
+
+            System.Reflection.Assembly assembly;
+            if (resourceQualifier == null || !string.IsNullOrEmpty(assemblyName))
             {
-                return resourceQualifier.Assembly.GetManifestResourceStream(name);
+                if (string.IsNullOrEmpty(assemblyName))
+                {
+                    assemblyName = Path.GetFileNameWithoutExtension(name);
+                    name = assemblyName + ExpressionHelper.MemberSeparator + assemblyName + SvgExtension;
+                }
+
+                try { assembly = System.Reflection.Assembly.Load(assemblyName); }
+                catch (SystemException) { return null; }
+            }
+            else assembly = resourceQualifier.Assembly;
+
+            if (!assembly.IsDynamic)
+            {
+                return assembly.GetManifestResourceStream(name);
             }
             else return null;
-        }
-
-        public Stream GetStream()
-        {
-            var name = Name;
-            var iconStream = GetStream(name);
-            if (iconStream == null && name != defaultName)
-            {
-                return GetStream(defaultName);
-            }
-            else return iconStream;
         }
 
         public static ElementIcon FromElementCategory(ElementCategory category)

@@ -49,7 +49,6 @@ namespace Bonsai.Design
                     }
                 }
 
-                ElementType = workflowElement.GetType();
                 Category = elementCategoryAttribute.Category;
                 ModifierBrush = disabled ? DisabledBrush : obsolete ? ObsoleteBrush : null;
                 Pen = expressionBuilder.IsBuildDependency() ? DashPen : SolidPen;
@@ -106,8 +105,6 @@ namespace Bonsai.Design
         public Brush Brush { get; private set; }
 
         public Brush ModifierBrush { get; private set; }
-
-        public Type ElementType { get; private set; }
 
         public ElementCategory Category { get; private set; }
 
