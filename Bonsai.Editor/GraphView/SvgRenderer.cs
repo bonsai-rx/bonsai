@@ -560,20 +560,24 @@ namespace Bonsai.Design
                 throw new ArgumentNullException("node");
             }
 
-            SvgRenderer renderer;
-            if (!TryGetIconRenderer(node.Icon, out renderer))
+            var icon = node.Icon;
+            SvgRenderer renderer = null;
+            Stack<string> fallbackIcons = null;
+            while (icon != null)
             {
-                var elementType = node.ElementType;
-                if (elementType != null && !string.IsNullOrEmpty(elementType.Namespace) &&
-                    !rendererCache.TryGetValue(elementType.Namespace, out renderer))
+                if (TryGetIconRenderer(icon, out renderer)) break;
+                else
                 {
-                    var namespaceIcon = new ElementIcon(elementType);
-                    TryGetIconRenderer(namespaceIcon, out renderer);
+                    if (fallbackIcons == null) fallbackIcons = new Stack<string>();
+                    fallbackIcons.Push(icon.Name);
+                    icon = icon.GetDefaultIcon();
                 }
-
-                rendererCache.Add(node.Icon.Name, renderer);
             }
 
+            while (fallbackIcons != null && fallbackIcons.Count > 0)
+            {
+                rendererCache.Add(fallbackIcons.Pop(), renderer);
+            }
             return renderer;
         }
 
