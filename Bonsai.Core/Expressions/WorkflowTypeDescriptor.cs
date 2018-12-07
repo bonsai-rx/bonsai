@@ -13,7 +13,7 @@ namespace Bonsai.Expressions
         ExpressionBuilderGraph workflow;
         static readonly Attribute[] EmptyAttributes = new Attribute[0];
         static readonly PropertyDescriptor[] EmptyProperties = new PropertyDescriptor[0];
-        static readonly Attribute[] ExternalizableAttributes = new[] { ExternalizableAttribute.Default };
+        static readonly Attribute[] ExternalizableAttributes = new Attribute[] { BrowsableAttribute.Yes, ExternalizableAttribute.Default };
 
         public WorkflowTypeDescriptor(object instance, params Attribute[] attrs)
         {
