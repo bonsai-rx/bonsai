@@ -111,7 +111,7 @@ namespace Bonsai.Design
 
         internal bool CanEdit
         {
-            get { return ReadOnly || editorState.WorkflowRunning; }
+            get { return !ReadOnly && !editorState.WorkflowRunning; }
         }
 
         public GraphView GraphView
@@ -2115,7 +2115,7 @@ namespace Bonsai.Design
 
         private void graphView_DragEnter(object sender, DragEventArgs e)
         {
-            if (CanEdit) return;
+            if (!CanEdit) return;
             dragKeyState = e.KeyState;
             if (e.Data.GetDataPresent(typeof(TreeNode)))
             {
@@ -2158,7 +2158,7 @@ namespace Bonsai.Design
         private void graphView_DragOver(object sender, DragEventArgs e)
         {
             EnsureDragVisible(e);
-            if (CanEdit) return;
+            if (!CanEdit) return;
             if (e.Effect != DragDropEffects.None && e.Data.GetDataPresent(DataFormats.FileDrop, true))
             {
                 OnDragFileDrop(e);
@@ -2364,7 +2364,7 @@ namespace Bonsai.Design
                 }
             }
 
-            if (!CanEdit)
+            if (CanEdit)
             {
                 if (e.KeyCode == Keys.Delete)
                 {
@@ -2871,7 +2871,7 @@ namespace Bonsai.Design
                 saveAsWorkflowToolStripMenuItem.Enabled = true;
             }
 
-            if (!CanEdit)
+            if (CanEdit)
             {
                 pasteToolStripMenuItem.Enabled = true;
                 if (selectedNodes.Length > 0)
@@ -2894,7 +2894,7 @@ namespace Bonsai.Design
                 var inspectBuilder = (InspectBuilder)selectedNode.Value;
                 if (inspectBuilder != null && inspectBuilder.ObservableType != null)
                 {
-                    outputToolStripMenuItem.Enabled = !CanEdit;
+                    outputToolStripMenuItem.Enabled = CanEdit;
                     InitializeOutputMenuItem(outputToolStripMenuItem, string.Empty, inspectBuilder.ObservableType);
                     if (outputToolStripMenuItem.Enabled)
                     {
@@ -2908,7 +2908,7 @@ namespace Bonsai.Design
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
                 if (workflowElement != null)
                 {
-                    if (!CanEdit)
+                    if (CanEdit)
                     {
                         CreateSubjectTypeMenuItems(inspectBuilder, subjectTypeToolStripMenuItem, selectedNode);
                         CreateExternalizeMenuItems(workflowElement, externalizeToolStripMenuItem, selectedNode);
