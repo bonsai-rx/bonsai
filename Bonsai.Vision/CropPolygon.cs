@@ -74,15 +74,18 @@ namespace Bonsai.Vision
                                 .SelectMany(region => region)
                                 .SelectMany(point => new[] { point.X, point.Y })
                                 .ToArray();
-                            using (var mat = new Mat(1, points.Length / 2, Depth.S32, 2))
+                            if (points.Length > 0)
                             {
-                                Marshal.Copy(points, 0, mat.Data, points.Length);
-                                boundingBox = CV.BoundingRect(mat);
-                                boundingBox = ClipRectangle(boundingBox, input.Size);
-                            }
+                                using (var mat = new Mat(1, points.Length / 2, Depth.S32, 2))
+                                {
+                                    Marshal.Copy(points, 0, mat.Data, points.Length);
+                                    boundingBox = CV.BoundingRect(mat);
+                                    boundingBox = ClipRectangle(boundingBox, input.Size);
+                                }
 
-                            CV.FillPoly(mask, currentRegions, Scalar.All(255));
-                            if (cropOutput) mask = mask.GetSubRect(boundingBox);
+                                CV.FillPoly(mask, currentRegions, Scalar.All(255));
+                                if (cropOutput) mask = mask.GetSubRect(boundingBox);
+                            }
                         }
                         else mask = null;
                     }
