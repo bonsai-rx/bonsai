@@ -90,11 +90,10 @@ namespace Bonsai.Vision.Design
                                    let origin = NormalizedLocation(downEvt.X, downEvt.Y)
                                    select (from moveEvt in mouseMove.TakeUntil(mouseUp)
                                            let location = NormalizedLocation(moveEvt.X, moveEvt.Y)
-                                           select new[]
-                                           {
-                                               origin, new Point(location.X, origin.Y),
-                                               location, new Point(origin.X, location.Y)
-                                           })
+                                           select ModifierKeys.HasFlag(Keys.Control) ? ModifierKeys.HasFlag(Keys.Shift)
+                                               ? CreateCircularRegion(origin, location)
+                                               : CreateEllipseRegion(origin, location)
+                                               : CreateRectangularRegion(origin, location))
                                            .Publish(ps =>
                                                ps.TakeLast(1).Do(region =>
                                                    commandExecutor.Execute(
@@ -159,6 +158,48 @@ namespace Bonsai.Vision.Design
         void commandExecutor_StatusChanged(object sender, EventArgs e)
         {
             Canvas.Invalidate();
+        }
+
+        static Point[] CreateRectangularRegion(Point origin, Point location)
+        {
+            return new[]
+            {
+                origin, new Point(location.X, origin.Y),
+                location, new Point(origin.X, location.Y)
+            };
+        }
+
+        static Point[] CreateEllipseRegion(Point origin, Point location)
+        {
+            var region = new Point[36];
+            var scaleX = Math.Abs(location.X - origin.X) / 2f;
+            var scaleY = Math.Abs(location.Y - origin.Y) / 2f;
+            var center = new Point2f((location.X + origin.X) / 2f, (location.Y + origin.Y) / 2f);
+            for (int i = 0; i < region.Length; i++)
+            {
+                var angle = i * 2 * Math.PI / region.Length;
+                region[i].X = (int)Math.Round(Math.Cos(angle) * scaleX + center.X);
+                region[i].Y = (int)Math.Round(Math.Sin(angle) * scaleY + center.Y);
+            }
+
+            return region;
+        }
+
+        static Point[] CreateCircularRegion(Point origin, Point location)
+        {
+            var region = new Point[36];
+            var diameterX = location.X - origin.X;
+            var diameterY = location.Y - origin.Y;
+            var radius = Math.Sqrt(diameterX * diameterX + diameterY * diameterY) / 2;
+            var center = new Point2f(origin.X + diameterX / 2f, origin.Y + diameterY / 2f);
+            for (int i = 0; i < region.Length; i++)
+            {
+                var angle = i * 2 * Math.PI / region.Length;
+                region[i].X = (int)Math.Round(Math.Cos(angle) * radius + center.X);
+                region[i].Y = (int)Math.Round(Math.Sin(angle) * radius + center.Y);
+            }
+
+            return region;
         }
 
         static float PointLineSegmentDistance(Point point, Point line0, Point line1)
