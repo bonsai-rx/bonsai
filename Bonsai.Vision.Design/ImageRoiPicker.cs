@@ -46,24 +46,25 @@ namespace Bonsai.Vision.Design
                                                .FirstOrDefault()
                               select new Action(() => selectedRoi = selection);
 
-            var roiMove = (from downEvt in mouseDown
-                           where downEvt.Button == MouseButtons.Left && selectedRoi.HasValue
-                           let location = NormalizedLocation(downEvt.X, downEvt.Y)
-                           let selection = selectedRoi.Value
-                           let region = regions[selection]
-                           select (from moveEvt in mouseMove.TakeUntil(mouseUp)
-                                   let target = NormalizedLocation(moveEvt.X, moveEvt.Y)
-                                   let displacement = target - location
-                                   let displacedRegion = region.Select(point => point + displacement).ToArray()
-                                   select displacedRegion)
-                                   .Publish(ps =>
-                                       ps.TakeLast(1).Do(displacedRegion =>
-                                           commandExecutor.Execute(
-                                               () => regions[selection] = displacedRegion,
-                                               () => regions[selection] = region))
-                                         .Merge(ps))
-                                   .Select(displacedRegion => new Action(() => regions[selectedRoi.Value] = displacedRegion)))
-                           .Switch();
+            var roiMoveScale = (from downEvt in mouseDown
+                                where downEvt.Button == MouseButtons.Left && selectedRoi.HasValue
+                                let location = NormalizedLocation(downEvt.X, downEvt.Y)
+                                let selection = selectedRoi.Value
+                                let region = regions[selection]
+                                select (from moveEvt in mouseMove.TakeUntil(mouseUp)
+                                        let target = NormalizedLocation(moveEvt.X, moveEvt.Y)
+                                        let modifiedRegion = ModifierKeys.HasFlag(Keys.Control)
+                                            ? ScaleRegion(region, target, ModifierKeys.HasFlag(Keys.Shift))
+                                            : MoveRegion(region, target - location)
+                                        select modifiedRegion)
+                                        .Publish(ps =>
+                                            ps.TakeLast(1).Do(modifiedRegion =>
+                                                commandExecutor.Execute(
+                                                    () => regions[selection] = modifiedRegion,
+                                                    () => regions[selection] = region))
+                                                .Merge(ps))
+                                        .Select(displacedRegion => new Action(() => regions[selectedRoi.Value] = displacedRegion)))
+                                .Switch();
 
             var pointMove = (from downEvt in mouseDown
                              where downEvt.Button == MouseButtons.Right && selectedRoi.HasValue
@@ -148,7 +149,7 @@ namespace Bonsai.Vision.Design
                                          () => regions[selection] = region);
                                 });
 
-            var roiActions = Observable.Merge(roiSelected, pointMove, roiMove, pointInsertion, pointDeletion, regionInsertion);
+            var roiActions = Observable.Merge(roiSelected, pointMove, roiMoveScale, pointInsertion, pointDeletion, regionInsertion);
             roiActions.Subscribe(action =>
             {
                 action();
@@ -200,6 +201,42 @@ namespace Bonsai.Vision.Design
             }
 
             return region;
+        }
+
+        static Point[] MoveRegion(Point[] region, Point displacement)
+        {
+            return Array.ConvertAll(region, point => point + displacement);
+        }
+
+        static Point[] ScaleRegion(Point[] region, Point target, bool uniformScaling)
+        {
+            var centroid = Point2f.Zero;
+            var min = new Point(int.MaxValue, int.MaxValue);
+            var max = new Point(int.MinValue, int.MinValue);
+            for (int i = 0; i < region.Length; i++)
+            {
+                centroid.X += region[i].X;
+                centroid.Y += region[i].Y;
+                min.X = Math.Min(min.X, region[i].X);
+                min.Y = Math.Min(min.Y, region[i].Y);
+                max.X = Math.Max(max.X, region[i].X);
+                max.Y = Math.Max(max.Y, region[i].Y);
+            }
+
+            centroid.X /= region.Length;
+            centroid.Y /= region.Length;
+            var scale = new Point2f(
+                2 * (target.X - centroid.X) / (max.X - min.X),
+                2 * (target.Y - centroid.Y) / (max.Y - min.Y));
+            if (uniformScaling)
+            {
+                var scaleNorm = (float)Math.Sqrt(scale.X * scale.X + scale.Y * scale.Y);
+                scale.X = scaleNorm;
+                scale.Y = scaleNorm;
+            }
+            return Array.ConvertAll(region, point => new Point(
+                (int)((point.X - centroid.X) * scale.X + centroid.X),
+                (int)((point.Y - centroid.Y) * scale.Y + centroid.Y)));
         }
 
         static float PointLineSegmentDistance(Point point, Point line0, Point line1)
