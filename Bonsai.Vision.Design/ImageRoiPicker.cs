@@ -38,8 +38,7 @@ namespace Bonsai.Vision.Design
             
             var roiSelected = from downEvt in mouseDown
                               let location = NormalizedLocation(downEvt.X, downEvt.Y)
-                              let selection = ModifierKeys.HasFlag(Keys.Control) ? null :
-                                              (from region in regions.Select((polygon, i) => new { polygon, i = (int?)i })
+                              let selection = (from region in regions.Select((polygon, i) => new { polygon, i = (int?)i })
                                                let distance = TestIntersection(region.polygon, location)
                                                where distance > 0
                                                orderby distance
