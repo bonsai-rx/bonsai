@@ -93,7 +93,7 @@ namespace Bonsai.Shaders
                         textureSize = input.Size;
                         observer.OnNext(texture);
                     });
-                });
+                }, observer.OnError, observer.OnCompleted);
                 var windowClosed = window.EventPattern<EventArgs>(
                     handler => window.Closed += handler,
                     handler => window.Closed -= handler);
