@@ -3,106 +3,23 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Design;
-using System.Drawing.Imaging;
-using System.Drawing.Text;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 using Point = OpenCV.Net.Point;
-using Font = System.Drawing.Font;
 
 namespace Bonsai.Vision.Drawing
 {
     [Description("Renders text strokes with the specified font and color at a given location.")]
-    public class AddText : CanvasElement
+    public class AddText : AddTextBase
     {
-        public AddText()
-        {
-            TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-            Font = SystemFonts.DefaultFont;
-            Color = Scalar.All(255);
-        }
-
-        [Description("The text to draw.")]
-        [Editor(DesignTypes.MultilineStringEditor, typeof(UITypeEditor))]
-        public string Text { get; set; }
-
-        [Description("The coordinates of the bottom-left corner of the first letter.")]
+        [Description("The coordinates of the upper-left corner of the drawn text.")]
         public Point Origin { get; set; }
 
-        [XmlIgnore]
-        [Description("The font style used to render the text strokes.")]
-        public Font Font { get; set; }
-
-        [Description("The horizontal alignment of the text.")]
-        public StringAlignment Alignment { get; set; }
-
-        [Description("The vertical alignment of the text.")]
-        public StringAlignment LineAlignment { get; set; }
-
-        [Description("The rendering mode used for the text strokes.")]
-        public TextRenderingHint TextRenderingHint { get; set; }
-
-        [Range(0, 255)]
-        [Precision(0, 1)]
-        [TypeConverter(typeof(BgraScalarConverter))]
-        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
-        [Description("The color of the text.")]
-        public Scalar Color { get; set; }
-
-        [Browsable(false)]
-        [XmlElement("Font")]
-        public string FontXml
+        internal override void Draw(IplImage image, Graphics graphics, Brush brush, StringFormat format)
         {
-            get
-            {
-                var font = Font;
-                if (font == null || font == SystemFonts.DefaultFont) return null;
-                var converter = new FontConverter();
-                return converter.ConvertToString(Font);
-            }
-            set
-            {
-                if (!string.IsNullOrEmpty(value))
-                {
-                    var converter = new FontConverter();
-                    Font = (Font)converter.ConvertFromString(value);
-                }
-                else Font = SystemFonts.DefaultFont;
-            }
-        }
-
-        static PixelFormat GetImageFormat(IplImage image)
-        {
-            if (image.Depth != IplDepth.U8)
-            {
-                throw new ArgumentException("Unsupported image bit depth. Only unsigned byte images are supported.");
-            }
-
-            switch (image.Channels)
-            {
-                case 3: return PixelFormat.Format24bppRgb;
-                case 4: return PixelFormat.Format32bppArgb;
-                default: throw new ArgumentException("Unsupported number of image channels. Only color images are supported.");
-            }
-        }
-
-        protected override void Draw(IplImage image)
-        {
-            var color = Color;
-            var pixelFormat = GetImageFormat(image);
-            using (var bitmap = new Bitmap(image.Width, image.Height, image.WidthStep, pixelFormat, image.ImageData))
-            using (var brush = new SolidBrush(System.Drawing.Color.FromArgb((int)color.Val3, (int)color.Val2, (int)color.Val1, (int)color.Val0)))
-            using (var graphics = Graphics.FromImage(bitmap))
-            using (var format = new StringFormat())
-            {
-                format.Alignment = Alignment;
-                format.LineAlignment = LineAlignment;
-                graphics.TextRenderingHint = TextRenderingHint;
-                graphics.DrawString(Text, Font, brush, Origin.X, Origin.Y, format);
-            }
+            var origin = Origin;
+            graphics.DrawString(Text, Font, brush, origin.X, origin.Y, format);
         }
     }
 }

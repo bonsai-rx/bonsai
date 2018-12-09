@@ -85,6 +85,9 @@
     <Compile Include="CreatePoint2d.cs" />
     <Compile Include="CreatePoint2f.cs" />
     <Compile Include="CreatePoint3d.cs" />
+    <Compile Include="Drawing\AddText.cs" />
+    <Compile Include="Drawing\AddTextBase.cs" />
+    <Compile Include="Drawing\AddTextBox.cs" />
     <Compile Include="Drawing\Canvas.cs" />
     <Compile Include="Drawing\CreateCanvas.cs" />
     <Compile Include="Drawing\CropCanvas.cs" />
@@ -98,7 +101,6 @@
     <Compile Include="Drawing\FillPolygon.cs" />
     <Compile Include="Drawing\PolyLine.cs" />
     <Compile Include="Drawing\Rectangle.cs" />
-    <Compile Include="Drawing\AddText.cs" />
     <Compile Include="Drawing\MergeCanvas.cs" />
     <Compile Include="Extrinsics.cs" />
     <Compile Include="HaarCascade.cs" />
