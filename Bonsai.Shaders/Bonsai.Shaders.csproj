@@ -156,6 +156,7 @@
     <Compile Include="TextureResources.cs" />
     <Compile Include="TransformRelative.cs" />
     <Compile Include="Translate.cs" />
+    <Compile Include="UpdateRenderState.cs" />
     <Compile Include="UpdateScissorState.cs" />
     <Compile Include="UpdateStep.cs" />
     <Compile Include="UpdateViewportState.cs" />
