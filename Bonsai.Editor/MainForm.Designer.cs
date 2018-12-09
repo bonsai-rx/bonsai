@@ -729,6 +729,7 @@
             this.startToolStripSplitButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.startToolStripButtonMenuItem,
             this.startWithoutDebuggingToolStripButtonMenuItem});
+            this.startToolStripSplitButton.Enabled = false;
             this.startToolStripSplitButton.Image = ((System.Drawing.Image)(resources.GetObject("startToolStripSplitButton.Image")));
             this.startToolStripSplitButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.startToolStripSplitButton.Name = "startToolStripSplitButton";
