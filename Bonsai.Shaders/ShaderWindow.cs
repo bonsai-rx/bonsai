@@ -53,7 +53,7 @@ namespace Bonsai.Shaders
             Scissor = new RectangleF(0, 0, 1, 1);
             TargetRenderFrequency = configuration.TargetRenderFrequency;
             TargetUpdateFrequency = configuration.TargetRenderFrequency;
-            RefreshRate = VSync == VSyncMode.On ? display.RefreshRate : TargetRenderFrequency;
+            RefreshRate = VSync == VSyncMode.On && TargetRenderFrequency == 0 ? display.RefreshRate : TargetRenderFrequency;
             resourceManager = new ResourceManager(this);
             textures = new ResourceDictionary<Texture>(resourceManager);
             meshes = new ResourceDictionary<Mesh>(resourceManager);
