@@ -31,12 +31,15 @@ namespace Bonsai.Vision.Drawing
         [Description("The font style used to render the text strokes.")]
         public Font Font { get; set; }
 
+        [Category("Text Style")]
         [Description("The horizontal alignment of the text.")]
         public StringAlignment Alignment { get; set; }
 
+        [Category("Text Style")]
         [Description("The vertical alignment of the text.")]
         public StringAlignment LineAlignment { get; set; }
 
+        [Category("Text Style")]
         [Description("The rendering mode used for the text strokes.")]
         public TextRenderingHint TextRenderingHint { get; set; }
 
