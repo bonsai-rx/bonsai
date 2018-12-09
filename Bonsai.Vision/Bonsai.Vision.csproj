@@ -87,7 +87,6 @@
     <Compile Include="CreatePoint3d.cs" />
     <Compile Include="Drawing\Canvas.cs" />
     <Compile Include="Drawing\CreateCanvas.cs" />
-    <Compile Include="Drawing\CreateFont.cs" />
     <Compile Include="Drawing\CropCanvas.cs" />
     <Compile Include="Drawing\DrawCanvas.cs" />
     <Compile Include="Drawing\Circle.cs" />
