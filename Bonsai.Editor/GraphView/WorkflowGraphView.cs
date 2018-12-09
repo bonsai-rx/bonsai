@@ -2746,8 +2746,10 @@ namespace Bonsai.Design
             foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(workflowElement, ExternalizableAttributes))
             {
                 if (property.IsReadOnly || !property.IsBrowsable) continue;
+                var elementType = workflowElement.GetType();
                 var memberValue = property.GetValue(workflowElement);
-                var menuItem = CreatePropertySourceMenuItem(property.ComponentType, property.Name, property.PropertyType, memberValue);
+                if (!property.ComponentType.IsAssignableFrom(elementType)) elementType = property.ComponentType;
+                var menuItem = CreatePropertySourceMenuItem(elementType, property.Name, property.PropertyType, memberValue);
                 ownerItem.DropDownItems.Add(menuItem);
             }
         }
