@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 namespace Bonsai.Vision
 {
     [Description("Extracts the set of points in a contour.")]
-    public class ContourPoints : Transform<Contour, Point[]>
+    public class ContourPoints : Transform<Seq, Point[]>
     {
         static readonly Point[] EmptyPoints = new Point[0];
 
-        public override IObservable<Point[]> Process(IObservable<Contour> source)
+        public override IObservable<Point[]> Process(IObservable<Seq> source)
         {
             return source.Select(input =>
             {
