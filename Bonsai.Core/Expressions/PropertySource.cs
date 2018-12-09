@@ -111,7 +111,7 @@ namespace Bonsai.Expressions
 
         IObservable<TValue> Generate<TSource>(IObservable<TSource> source)
         {
-            return source.Select(x => Value);
+            return source.Select(x => value);
         }
     }
 }
