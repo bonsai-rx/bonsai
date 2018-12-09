@@ -13,6 +13,11 @@ namespace Bonsai.Shaders
     [Description("Generates a sequence of fixed update microsteps matching the elapsed real time.")]
     public class UpdateStep : Combinator<double, double>
     {
+        public UpdateStep()
+        {
+            StepSize = 1;
+        }
+
         [Description("The size of each microstep, as a fraction of the refresh rate in case of window input, or in seconds in case of time input.")]
         public double StepSize { get; set; }
 
