@@ -946,18 +946,22 @@ namespace Bonsai.Design
         public void InsertGraphElements(ExpressionBuilderGraph elements, CreateGraphNodeType nodeType, bool branch)
         {
             var selectedNodes = selectionModel.SelectedNodes.ToArray();
-            InsertGraphElements(elements, selectedNodes, nodeType, branch);
+            InsertGraphElements(elements, selectedNodes, nodeType, branch, () => { }, () => { });
         }
 
-        private void InsertGraphElements(ExpressionBuilderGraph elements, GraphNode[] selectedNodes, CreateGraphNodeType nodeType, bool branch)
+        private void InsertGraphElements(
+            ExpressionBuilderGraph elements,
+            GraphNode[] selectedNodes,
+            CreateGraphNodeType nodeType,
+            bool branch,
+            Action addConnection,
+            Action removeConnection)
         {
             if (elements == null)
             {
                 throw new ArgumentNullException("elements");
             }
 
-            Action addConnection = () => { };
-            Action removeConnection = () => { };
             var updateSelectedNodes = CreateUpdateSelectionDelegate(elements.Sinks().FirstOrDefault());
             var restoreSelectedNodes = CreateUpdateSelectionDelegate(selectedNodes);
             if (selectedNodes.Length > 0)
@@ -968,8 +972,8 @@ namespace Bonsai.Design
                 if (source != null && sink != null)
                 {
                     var insertCommands = GetInsertGraphNodeCommands(source, sink, targetNodes, nodeType, branch);
-                    addConnection = insertCommands.Item1;
-                    removeConnection = insertCommands.Item2;
+                    addConnection += insertCommands.Item1;
+                    removeConnection += insertCommands.Item2;
                 }
             }
 
@@ -1188,12 +1192,22 @@ namespace Bonsai.Design
             commandExecutor.Execute(() => { }, updateGraphLayout);
 
             var elements = nodes.ToWorkflowBuilder().Workflow.ToInspectableGraph();
+            var buildDependencies = (from item in nodes.Zip(elements, (node, element) => new { node, element })
+                                     from predecessor in workflow.PredecessorEdges(GetGraphNodeTag(workflow, item.node))
+                                     where predecessor.Item1.Value.IsBuildDependency() && !elements.Any(node => node.Value == item.node.Value)
+                                     select new { predecessor, edge = Edge.Create(item.element, predecessor.Item2.Label) }).ToArray();
+            commandExecutor.Execute(
+                () => Array.ForEach(buildDependencies, dependency => workflow.RemoveEdge(dependency.predecessor.Item1, dependency.predecessor.Item2)),
+                () => Array.ForEach(buildDependencies, dependency => workflow.InsertEdge(dependency.predecessor.Item1, dependency.predecessor.Item3, dependency.predecessor.Item2)));
+
             foreach (var node in nodes)
             {
                 DeleteGraphNode(node);
             }
 
-            InsertGraphElements(elements, new[] { target }, nodeType, branch);
+            Action addConnection = () => Array.ForEach(buildDependencies, dependency => workflow.AddEdge(dependency.predecessor.Item1, dependency.edge));
+            Action removeConnection = () => Array.ForEach(buildDependencies, dependency => workflow.RemoveEdge(dependency.predecessor.Item1, dependency.edge));
+            InsertGraphElements(elements, new[] { target }, nodeType, branch, addConnection, removeConnection);
             commandExecutor.EndCompositeCommand();
         }
 
