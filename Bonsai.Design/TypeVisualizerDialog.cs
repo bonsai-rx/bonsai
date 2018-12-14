@@ -30,7 +30,7 @@ namespace Bonsai.Design
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Escape)
+            if (e.KeyCode == Keys.Escape && !e.Handled)
             {
                 Close();
                 e.Handled = true;

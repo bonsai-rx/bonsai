@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Bonsai.Design
 {
@@ -14,6 +15,15 @@ namespace Bonsai.Design
         public NestedEditorDialog(IServiceProvider provider)
         {
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+            {
+                e.Handled = true;
+            }
+            base.OnKeyDown(e);
         }
 
         protected override bool ProcessTabKey(bool forward)
