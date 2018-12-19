@@ -1088,6 +1088,11 @@ namespace Bonsai.Expressions
 
         #region Build Dependencies
 
+        internal static bool IsBuildDependency(IArgumentBuilder argumentBuilder)
+        {
+            return argumentBuilder != null && !(argumentBuilder is InputMappingBuilder);
+        }
+
         static Expression BuildDependency(Expression source, Expression output)
         {
             var sourceType = source.Type.GetGenericArguments()[0];

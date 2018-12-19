@@ -46,8 +46,7 @@ namespace Bonsai.Expressions
         public static bool IsBuildDependency(this ExpressionBuilder builder)
         {
             var element = ExpressionBuilder.GetWorkflowElement(builder);
-            return !(element is InputMappingBuilder) && element is PropertyMappingBuilder ||
-                   element is ExternalizedProperty;
+            return ExpressionBuilder.IsBuildDependency(element as IArgumentBuilder);
         }
 
         /// <summary>
@@ -699,7 +698,7 @@ namespace Bonsai.Expressions
 
                 // Filter disabled successors for property mapping nodes
                 var argumentBuilder = workflowElement as IArgumentBuilder;
-                var propertyMappingBuilder = argumentBuilder != null && !(argumentBuilder is InputMappingBuilder);
+                var propertyMappingBuilder = ExpressionBuilder.IsBuildDependency(argumentBuilder);
                 IList<Edge<ExpressionBuilder, ExpressionBuilderArgument>> nodeSuccessors;
                 if (propertyMappingBuilder)
                 {

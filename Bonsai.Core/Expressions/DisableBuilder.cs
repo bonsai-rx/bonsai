@@ -89,7 +89,7 @@ namespace Bonsai.Expressions
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             var builder = Builder;
-            if (builder is IArgumentBuilder && !(builder is InputMappingBuilder))
+            if (IsBuildDependency(builder as IArgumentBuilder))
             {
                 return DisconnectExpression.Instance;
             }
