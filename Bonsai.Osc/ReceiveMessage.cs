@@ -59,7 +59,11 @@ namespace Bonsai.Osc
             return Observable.Using(
                 () => TransportManager.ReserveConnection(Connection),
                 connection => connection.Transport.MessageReceived
-                    .Where(message => message.IsMatch(Address)))
+                    .Where(message =>
+                    {
+                        var address = Address;
+                        return string.IsNullOrEmpty(address) || message.IsMatch(address);
+                    }))
                     .SubscribeOn(TaskPoolScheduler.Default);
         }
 
