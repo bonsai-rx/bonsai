@@ -652,6 +652,25 @@ namespace Bonsai.Design
             return true;
         }
 
+        bool CanReorder(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget)
+        {
+            var target = GetGraphNodeTag(workflow, graphViewTarget, false);
+            var targetSuccessors = target.Successors.Select(edge => edge.Target);
+            foreach (var sourceNode in graphViewSources)
+            {
+                var node = GetGraphNodeTag(workflow, sourceNode, false);
+                if (node == null) return false;
+
+                var nodeSuccessors = node.Successors.Select(edge => edge.Target);
+                if (!nodeSuccessors.Intersect(targetSuccessors).Any())
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public void ConnectGraphNodes(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget)
         {
             var workflow = this.workflow;
@@ -740,6 +759,78 @@ namespace Bonsai.Design
                 addConnection();
                 updateGraphLayout();
             });
+        }
+
+        void ReorderGraphNode(GraphNode graphViewSource, GraphNode graphViewTarget)
+        {
+            var workflow = this.workflow;
+            Action reorderConnection = () => { };
+            Action restoreConnection = () => { };
+            var source = GetGraphNodeTag(workflow, graphViewSource);
+            var target = GetGraphNodeTag(workflow, graphViewTarget);
+            var commonSuccessors = from sourceEdge in source.Successors
+                                   join targetEdge in target.Successors on sourceEdge.Target equals targetEdge.Target
+                                   select new { sourceEdge, targetEdge };
+            foreach (var commonSuccessor in commonSuccessors)
+            {
+                var successor = commonSuccessor.sourceEdge.Target;
+                var sourceLabel = commonSuccessor.sourceEdge.Label;
+                var targetLabel = commonSuccessor.targetEdge.Label;
+                var siblingEdges = workflow.PredecessorEdges(successor).Select(predecessor => predecessor.Item2);
+                var sourceLabelIndex = sourceLabel.Index;
+                if (sourceLabelIndex < targetLabel.Index) // decrement sibling labels
+                {
+                    var shiftedEdges = siblingEdges.Where(edge => edge.Label.Index > sourceLabelIndex && edge.Label.Index < targetLabel.Index).ToArray();
+                    reorderConnection += () =>
+                    {
+                        sourceLabel.Index = targetLabel.Index - 1;
+                        Array.ForEach(shiftedEdges, edge => edge.Label.Index--);
+                    };
+
+                    restoreConnection += () =>
+                    {
+                        sourceLabel.Index = sourceLabelIndex;
+                        Array.ForEach(shiftedEdges, edge => edge.Label.Index++);
+                    };
+                }
+                else // increment sibling labels
+                {
+                    var shiftedEdges = siblingEdges.Where(edge => edge.Label.Index < sourceLabelIndex && edge.Label.Index >= targetLabel.Index).ToArray();
+                    reorderConnection += () =>
+                    {
+                        sourceLabel.Index = targetLabel.Index;
+                        Array.ForEach(shiftedEdges, edge => edge.Label.Index++);
+                    };
+
+                    restoreConnection += () =>
+                    {
+                        sourceLabel.Index = sourceLabelIndex;
+                        Array.ForEach(shiftedEdges, edge => edge.Label.Index--);
+                    };
+                }
+            }
+
+            commandExecutor.Execute(reorderConnection, restoreConnection);
+        }
+
+        public void ReorderGraphNodes(IEnumerable<GraphNode> nodes, GraphNode target)
+        {
+            if (nodes == null)
+            {
+                throw new ArgumentNullException("nodes");
+            }
+
+            if (!nodes.Any()) return;
+            var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
+            commandExecutor.BeginCompositeCommand();
+            commandExecutor.Execute(() => { }, updateGraphLayout);
+            foreach (var node in nodes)
+            {
+                ReorderGraphNode(node, target);
+            }
+
+            commandExecutor.Execute(updateGraphLayout, () => { });
+            commandExecutor.EndCompositeCommand();
         }
 
         ExpressionBuilder CreateBuilder(TreeNode typeNode)
@@ -2155,6 +2246,15 @@ namespace Bonsai.Design
             graphView.EnsureVisible(location);
         }
 
+        private bool ValidateConnection(int keyState, GraphNode target)
+        {
+            var branch = (keyState & AltModifier) != 0;
+            var shift = (keyState & ShiftModifier) != 0;
+            if (branch) return CanReorder(dragSelection, target);
+            else if (shift) return CanDisconnect(dragSelection, target);
+            else return CanConnect(dragSelection, target);
+        }
+
         private void graphView_DragOver(object sender, DragEventArgs e)
         {
             EnsureDragVisible(e);
@@ -2175,10 +2275,9 @@ namespace Bonsai.Design
                         var link = (e.KeyState & CtrlModifier) == 0;
                         if (link)
                         {
-                            var validation = (e.KeyState & ShiftModifier) != 0
-                                ? CanDisconnect(dragSelection, highlight)
-                                : CanConnect(dragSelection, highlight);
-                            e.Effect = validation ? DragDropEffects.Link : DragDropEffects.None;
+                            e.Effect = ValidateConnection(e.KeyState, highlight)
+                                ? DragDropEffects.Link
+                                : DragDropEffects.None;
                         }
                         else e.Effect = DragDropEffects.Move;
                     }
@@ -2256,7 +2355,8 @@ namespace Bonsai.Design
                         var linkNode = graphView.GetNodeAt(dropLocation);
                         if (linkNode != null)
                         {
-                            if (shift) DisconnectGraphNodes(dragSelection, linkNode);
+                            if (branch) ReorderGraphNodes(dragSelection, linkNode);
+                            else if (shift) DisconnectGraphNodes(dragSelection, linkNode);
                             else ConnectGraphNodes(dragSelection, linkNode);
                         }
                     }
@@ -2315,7 +2415,13 @@ namespace Bonsai.Design
                 }
                 else if (graphView.SelectedNode != null && graphView.CursorNode != graphView.SelectedNode)
                 {
-                    if (e.Modifiers == Keys.Shift && CanDisconnect(graphView.SelectedNodes, graphView.CursorNode))
+                    if (e.Modifiers == Keys.Alt && CanReorder(graphView.SelectedNodes, graphView.CursorNode))
+                    {
+                        e.Handled = true;
+                        e.SuppressKeyPress = true;
+                        ReorderGraphNodes(graphView.SelectedNodes, graphView.CursorNode);
+                    }
+                    else if (e.Modifiers == Keys.Shift && CanDisconnect(graphView.SelectedNodes, graphView.CursorNode))
                     {
                         DisconnectGraphNodes(graphView.SelectedNodes, graphView.CursorNode);
                     }
@@ -2431,18 +2537,14 @@ namespace Bonsai.Design
             {
                 if (e.Button == MouseButtons.Left)
                 {
-                    var linkNode = graphView.GetNodeAt(e.Location);
-                    if (linkNode != null)
+                    var targetNode = graphView.GetNodeAt(e.Location);
+                    if (targetNode != null && !dragSelection.Contains(targetNode) && ValidateConnection(dragKeyState, targetNode))
                     {
-                        var disconnect = (dragKeyState & ShiftModifier) != 0;
-                        if (disconnect && CanDisconnect(dragSelection, linkNode))
-                        {
-                            DisconnectGraphNodes(dragSelection, linkNode);
-                        }
-                        else if (!disconnect && CanConnect(dragSelection, linkNode))
-                        {
-                            ConnectGraphNodes(dragSelection, linkNode);
-                        }
+                        var branch = (dragKeyState & AltModifier) != 0;
+                        var shift = (dragKeyState & ShiftModifier) != 0;
+                        if (branch) ReorderGraphNodes(dragSelection, targetNode);
+                        else if (shift) DisconnectGraphNodes(dragSelection, targetNode);
+                        else ConnectGraphNodes(dragSelection, targetNode);
                     }
                 }
 
@@ -2453,11 +2555,10 @@ namespace Bonsai.Design
 
         private void graphView_NodeMouseEnter(object sender, GraphNodeMouseEventArgs e)
         {
-            if (dragSelection != null && e.Node != null)
+            if (dragSelection != null && e.Node != null &&
+               (dragSelection.Contains(e.Node) || !ValidateConnection(dragKeyState, e.Node)))
             {
-                var disconnect = (dragKeyState & ShiftModifier) != 0;
-                if (disconnect && !CanDisconnect(dragSelection, e.Node)) SetDragCursor(DragDropEffects.None);
-                else if (!disconnect && !CanConnect(dragSelection, e.Node)) SetDragCursor(DragDropEffects.None);
+                SetDragCursor(DragDropEffects.None);
             }
         }
 
@@ -2545,6 +2646,12 @@ namespace Bonsai.Design
         {
             InitializeConnectionSource();
             dragKeyState = ShiftModifier;
+        }
+
+        private void reconnectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            InitializeConnectionSource();
+            dragKeyState = AltModifier;
         }
 
         private void enableToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2883,6 +2990,7 @@ namespace Bonsai.Design
                     deleteToolStripMenuItem.Enabled = true;
                     connectToolStripMenuItem.Enabled = true;
                     disconnectToolStripMenuItem.Enabled = true;
+                    reconnectToolStripMenuItem.Enabled = true;
                     groupToolStripMenuItem.Enabled = true;
                     ungroupToolStripMenuItem.Enabled = true;
                     enableToolStripMenuItem.Enabled = true;

@@ -48,6 +48,7 @@
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.connectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.disconnectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.reconnectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.groupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ungroupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -78,6 +79,7 @@
             this.toolStripSeparator1,
             this.connectToolStripMenuItem,
             this.disconnectToolStripMenuItem,
+            this.reconnectToolStripMenuItem,
             this.toolStripSeparator5,
             this.groupToolStripMenuItem,
             this.ungroupToolStripMenuItem,
@@ -85,7 +87,7 @@
             this.enableToolStripMenuItem,
             this.disableToolStripMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip";
-            this.contextMenuStrip.Size = new System.Drawing.Size(249, 436);
+            this.contextMenuStrip.Size = new System.Drawing.Size(250, 458);
             this.contextMenuStrip.Closed += new System.Windows.Forms.ToolStripDropDownClosedEventHandler(this.contextMenuStrip_Closed);
             this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Opening);
             // 
@@ -93,14 +95,14 @@
             // 
             this.outputToolStripMenuItem.Enabled = false;
             this.outputToolStripMenuItem.Name = "outputToolStripMenuItem";
-            this.outputToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.outputToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.outputToolStripMenuItem.Text = "Output";
             // 
             // subjectTypeToolStripMenuItem
             // 
             this.subjectTypeToolStripMenuItem.Enabled = false;
             this.subjectTypeToolStripMenuItem.Name = "subjectTypeToolStripMenuItem";
-            this.subjectTypeToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.subjectTypeToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.subjectTypeToolStripMenuItem.Text = "Subject Type";
             this.subjectTypeToolStripMenuItem.Visible = false;
             // 
@@ -108,26 +110,26 @@
             // 
             this.externalizeToolStripMenuItem.Enabled = false;
             this.externalizeToolStripMenuItem.Name = "externalizeToolStripMenuItem";
-            this.externalizeToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.externalizeToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.externalizeToolStripMenuItem.Text = "Externalize Property";
             // 
             // createPropertySourceToolStripMenuItem
             // 
             this.createPropertySourceToolStripMenuItem.Enabled = false;
             this.createPropertySourceToolStripMenuItem.Name = "createPropertySourceToolStripMenuItem";
-            this.createPropertySourceToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.createPropertySourceToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.createPropertySourceToolStripMenuItem.Text = "Create Property Source";
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(245, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(246, 6);
             // 
             // visualizerToolStripMenuItem
             // 
             this.visualizerToolStripMenuItem.Enabled = false;
             this.visualizerToolStripMenuItem.Name = "visualizerToolStripMenuItem";
-            this.visualizerToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.visualizerToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.visualizerToolStripMenuItem.Text = "Show Visualizer";
             // 
             // defaultEditorToolStripMenuItem
@@ -135,14 +137,14 @@
             this.defaultEditorToolStripMenuItem.Enabled = false;
             this.defaultEditorToolStripMenuItem.Name = "defaultEditorToolStripMenuItem";
             this.defaultEditorToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Enter";
-            this.defaultEditorToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.defaultEditorToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.defaultEditorToolStripMenuItem.Text = "Show Default Editor...";
             this.defaultEditorToolStripMenuItem.Click += new System.EventHandler(this.defaultEditorToolStripMenuItem_Click);
             // 
             // toolStripSeparator4
             // 
             this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(245, 6);
+            this.toolStripSeparator4.Size = new System.Drawing.Size(246, 6);
             // 
             // saveAsWorkflowToolStripMenuItem
             // 
@@ -150,14 +152,14 @@
             this.saveAsWorkflowToolStripMenuItem.Name = "saveAsWorkflowToolStripMenuItem";
             this.saveAsWorkflowToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.S)));
-            this.saveAsWorkflowToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.saveAsWorkflowToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.saveAsWorkflowToolStripMenuItem.Text = "Save As Workflow...";
             this.saveAsWorkflowToolStripMenuItem.Click += new System.EventHandler(this.saveAsWorkflowToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(245, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(246, 6);
             // 
             // cutToolStripMenuItem
             // 
@@ -166,7 +168,7 @@
             this.cutToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.cutToolStripMenuItem.Name = "cutToolStripMenuItem";
             this.cutToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
-            this.cutToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.cutToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.cutToolStripMenuItem.Text = "Cut";
             this.cutToolStripMenuItem.Click += new System.EventHandler(this.cutToolStripMenuItem_Click);
             // 
@@ -177,7 +179,7 @@
             this.copyToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
             this.copyToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-            this.copyToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.copyToolStripMenuItem.Text = "Copy";
             this.copyToolStripMenuItem.Click += new System.EventHandler(this.copyToolStripMenuItem_Click);
             // 
@@ -188,7 +190,7 @@
             this.pasteToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
             this.pasteToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
-            this.pasteToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.pasteToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.pasteToolStripMenuItem.Text = "Paste";
             this.pasteToolStripMenuItem.Click += new System.EventHandler(this.pasteToolStripMenuItem_Click);
             // 
@@ -198,20 +200,20 @@
             this.deleteToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("deleteToolStripMenuItem.Image")));
             this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
             this.deleteToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.Delete;
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(245, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(246, 6);
             // 
             // connectToolStripMenuItem
             // 
             this.connectToolStripMenuItem.Enabled = false;
             this.connectToolStripMenuItem.Name = "connectToolStripMenuItem";
-            this.connectToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.connectToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.connectToolStripMenuItem.Text = "Create Connection";
             this.connectToolStripMenuItem.Click += new System.EventHandler(this.connectToolStripMenuItem_Click);
             // 
@@ -219,14 +221,22 @@
             // 
             this.disconnectToolStripMenuItem.Enabled = false;
             this.disconnectToolStripMenuItem.Name = "disconnectToolStripMenuItem";
-            this.disconnectToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.disconnectToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.disconnectToolStripMenuItem.Text = "Remove Connection";
             this.disconnectToolStripMenuItem.Click += new System.EventHandler(this.disconnectToolStripMenuItem_Click);
+            // 
+            // reconnectToolStripMenuItem
+            // 
+            this.reconnectToolStripMenuItem.Enabled = false;
+            this.reconnectToolStripMenuItem.Name = "reconnectToolStripMenuItem";
+            this.reconnectToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
+            this.reconnectToolStripMenuItem.Text = "Reorder Connection";
+            this.reconnectToolStripMenuItem.Click += new System.EventHandler(this.reconnectToolStripMenuItem_Click);
             // 
             // toolStripSeparator5
             // 
             this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(245, 6);
+            this.toolStripSeparator5.Size = new System.Drawing.Size(246, 6);
             // 
             // groupToolStripMenuItem
             // 
@@ -234,7 +244,7 @@
             this.groupToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("groupToolStripMenuItem.Image")));
             this.groupToolStripMenuItem.Name = "groupToolStripMenuItem";
             this.groupToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.G)));
-            this.groupToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.groupToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.groupToolStripMenuItem.Text = "Group";
             this.groupToolStripMenuItem.Click += new System.EventHandler(this.groupToolStripMenuItem_Click);
             // 
@@ -245,14 +255,14 @@
             this.ungroupToolStripMenuItem.Name = "ungroupToolStripMenuItem";
             this.ungroupToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.G)));
-            this.ungroupToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.ungroupToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.ungroupToolStripMenuItem.Text = "Ungroup";
             this.ungroupToolStripMenuItem.Click += new System.EventHandler(this.ungroupToolStripMenuItem_Click);
             // 
             // toolStripSeparator6
             // 
             this.toolStripSeparator6.Name = "toolStripSeparator6";
-            this.toolStripSeparator6.Size = new System.Drawing.Size(245, 6);
+            this.toolStripSeparator6.Size = new System.Drawing.Size(246, 6);
             // 
             // enableToolStripMenuItem
             // 
@@ -261,7 +271,7 @@
             this.enableToolStripMenuItem.Name = "enableToolStripMenuItem";
             this.enableToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.D)));
-            this.enableToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.enableToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.enableToolStripMenuItem.Text = "Enable";
             this.enableToolStripMenuItem.Click += new System.EventHandler(this.enableToolStripMenuItem_Click);
             // 
@@ -271,7 +281,7 @@
             this.disableToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("disableToolStripMenuItem.Image")));
             this.disableToolStripMenuItem.Name = "disableToolStripMenuItem";
             this.disableToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.D)));
-            this.disableToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.disableToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.disableToolStripMenuItem.Text = "Disable";
             this.disableToolStripMenuItem.Click += new System.EventHandler(this.disableToolStripMenuItem_Click);
             // 
@@ -333,6 +343,7 @@
         private System.Windows.Forms.ToolStripMenuItem createPropertySourceToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem connectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem disconnectToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem reconnectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem defaultEditorToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripMenuItem saveAsWorkflowToolStripMenuItem;
