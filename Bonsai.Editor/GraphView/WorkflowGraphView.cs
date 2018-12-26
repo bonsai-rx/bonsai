@@ -568,20 +568,6 @@ namespace Bonsai.Design
         {
             var target = GetGraphNodeTag(workflow, graphViewTarget, false);
             var sources = graphViewSources.Select(sourceNode => GetGraphNodeTag(workflow, sourceNode, false));
-            return CanConnect(sources, target);
-        }
-
-        bool CanConnect(
-            Node<ExpressionBuilder, ExpressionBuilderArgument> source,
-            Node<ExpressionBuilder, ExpressionBuilderArgument> target)
-        {
-            return CanConnect(Enumerable.Repeat(source, 1), target);
-        }
-
-        bool CanConnect(
-            IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> sources,
-            Node<ExpressionBuilder, ExpressionBuilderArgument> target)
-        {
             var connectionCount = workflow.Contains(target)
                 ? workflow.Predecessors(target).Count(node => !node.Value.IsBuildDependency())
                 : 0;
