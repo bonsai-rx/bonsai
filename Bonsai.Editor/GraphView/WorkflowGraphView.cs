@@ -2250,9 +2250,14 @@ namespace Bonsai.Design
         {
             var branch = (keyState & AltModifier) != 0;
             var shift = (keyState & ShiftModifier) != 0;
-            if (branch) return CanReorder(dragSelection, target);
-            else if (shift) return CanDisconnect(dragSelection, target);
-            else return CanConnect(dragSelection, target);
+            return ValidateConnection(branch, shift, dragSelection, target);
+        }
+
+        private bool ValidateConnection(bool branch, bool shift, IEnumerable<GraphNode> nodes, GraphNode target)
+        {
+            if (branch) return CanReorder(nodes, target);
+            else if (shift) return CanDisconnect(nodes, target);
+            else return CanConnect(nodes, target);
         }
 
         private void graphView_DragOver(object sender, DragEventArgs e)
@@ -2405,30 +2410,36 @@ namespace Bonsai.Design
 
             if (e.KeyCode == Keys.Return)
             {
-                if (e.Modifiers == Keys.Control)
+                if (graphView.SelectedNode != null && graphView.CursorNode != graphView.SelectedNode)
+                {
+                    var branch = (e.Modifiers & Keys.Alt) == Keys.Alt;
+                    var shift = (e.Modifiers & Keys.Shift) == Keys.Shift;
+                    var control = (e.Modifiers & Keys.Control) == Keys.Control;
+                    if (branch)
+                    {
+                        e.Handled = true;
+                        e.SuppressKeyPress = true;
+                    }
+
+                    if (control)
+                    {
+                        var nodeType = shift ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
+                        MoveGraphNodes(graphView.SelectedNodes, graphView.CursorNode, nodeType, branch);
+                    }
+                    else if (ValidateConnection(branch, shift, graphView.SelectedNodes, graphView.CursorNode))
+                    {
+                        if (branch) ReorderGraphNodes(graphView.SelectedNodes, graphView.CursorNode);
+                        else if (shift) DisconnectGraphNodes(graphView.SelectedNodes, graphView.CursorNode);
+                        else ConnectGraphNodes(graphView.SelectedNodes, graphView.CursorNode);
+                    }
+                }
+                else if (e.Modifiers == Keys.Control)
                 {
                     LaunchDefaultEditor(graphView.SelectedNode);
                 }
                 else if (editorState.WorkflowRunning)
                 {
                     LaunchVisualizer(graphView.SelectedNode);
-                }
-                else if (graphView.SelectedNode != null && graphView.CursorNode != graphView.SelectedNode)
-                {
-                    if (e.Modifiers == Keys.Alt && CanReorder(graphView.SelectedNodes, graphView.CursorNode))
-                    {
-                        e.Handled = true;
-                        e.SuppressKeyPress = true;
-                        ReorderGraphNodes(graphView.SelectedNodes, graphView.CursorNode);
-                    }
-                    else if (e.Modifiers == Keys.Shift && CanDisconnect(graphView.SelectedNodes, graphView.CursorNode))
-                    {
-                        DisconnectGraphNodes(graphView.SelectedNodes, graphView.CursorNode);
-                    }
-                    else if (CanConnect(graphView.SelectedNodes, graphView.CursorNode))
-                    {
-                        ConnectGraphNodes(graphView.SelectedNodes, graphView.CursorNode);
-                    }
                 }
                 else
                 {
