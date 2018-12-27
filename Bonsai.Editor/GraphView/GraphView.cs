@@ -286,6 +286,7 @@ namespace Bonsai.Design
                         {
                             selectedNodes.Add(value);
                             SetCursor(value);
+                            pivot = value;
                         }
                     });
                 }
@@ -316,6 +317,7 @@ namespace Bonsai.Design
                             if (cursorNode != cursor)
                             {
                                 SetCursor(cursorNode);
+                                pivot = cursorNode;
                             }
                         }
                     });
