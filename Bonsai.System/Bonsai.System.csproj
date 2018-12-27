@@ -59,6 +59,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IO\ReadLine.cs" />
+    <Compile Include="IO\WriteLine.cs" />
     <Compile Include="IO\EnumerateFileSystemEntries.cs" />
     <Compile Include="IO\EnumerateFiles.cs" />
     <Compile Include="IO\EnumerateDirectories.cs" />
