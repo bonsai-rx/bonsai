@@ -959,15 +959,15 @@ namespace Bonsai.Design
         {
             return ConcatEmpty(
                 ConcatEmpty(GetAllPaths(from, to), GetAllPaths(to, from)),
-                selectedNodes).Where(node => node.Value != null);
+                new[] { from, to }).Where(node => node.Value != null);
         }
 
-        private void SelectRange(GraphNode node, bool unionUpdate)
+        private void SelectRange(GraphNode node, bool clearSelection)
         {
             var path = GetSelectionRange(pivot, node).ToArray();
             if (path.Length == 0) return;
 
-            if (unionUpdate)
+            if (!clearSelection)
             {
                 UpdateSelection(() => selectedNodes.UnionWith(path));
             }
