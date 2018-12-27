@@ -822,6 +822,7 @@ namespace Bonsai.Design
 
             if (!nodes.Any()) return;
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
+            updateGraphLayout += CreateUpdateSelectionDelegate(nodes);
             commandExecutor.BeginCompositeCommand();
             commandExecutor.Execute(() => { }, updateGraphLayout);
             foreach (var node in nodes)
