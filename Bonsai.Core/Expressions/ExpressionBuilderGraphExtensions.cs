@@ -1123,9 +1123,59 @@ namespace Bonsai.Expressions
         /// </returns>
         public static ExpressionBuilderGraphDescriptor ToDescriptor(this ExpressionBuilderGraph source)
         {
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+
+            var nodes = source.ToArray();
             var descriptor = new ExpressionBuilderGraphDescriptor();
-            source.ToDescriptor(descriptor);
+
+            foreach (var node in nodes)
+            {
+                descriptor.Nodes.Add(node.Value);
+            }
+
+            var from = 0;
+            foreach (var node in nodes)
+            {
+                foreach (var successor in node.Successors)
+                {
+                    var to = Array.IndexOf(nodes, successor.Target);
+                    descriptor.Edges.Add(new ExpressionBuilderArgumentDescriptor(from, to, successor.Label.Name));
+                }
+
+                from++;
+            }
             return descriptor;
+        }
+
+        /// <summary>
+        /// Adds the contents of the specified graph descriptor to the <see cref="ExpressionBuilderGraph"/>.
+        /// </summary>
+        /// <param name="source">
+        /// The directed graph on which to add the contents of <paramref name="descriptor"/>.
+        /// </param>
+        /// <param name="descriptor">
+        /// The serializable descriptor whose contents should be added to the <see cref="ExpressionBuilderGraph"/>.
+        /// </param>
+        public static void AddDescriptor(this ExpressionBuilderGraph source, ExpressionBuilderGraphDescriptor descriptor)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+
+            if (descriptor == null)
+            {
+                throw new ArgumentNullException("descriptor");
+            }
+
+            var nodes = descriptor.Nodes.Select(value => source.Add(value)).ToArray();
+            foreach (var edge in descriptor.Edges)
+            {
+                source.AddEdge(nodes[edge.From], nodes[edge.To], new ExpressionBuilderArgument(edge.Label));
+            }
         }
 
         #endregion
