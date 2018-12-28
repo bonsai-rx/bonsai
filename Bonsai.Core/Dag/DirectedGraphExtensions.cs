@@ -320,6 +320,7 @@ namespace Bonsai.Dag
         /// <typeparam name="TEdgeLabel">The type of the labels associated with graph edges.</typeparam>
         /// <param name="source">A <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/> to create a descriptor from.</param>
         /// <returns>A serializable descriptor that contains all the node and edge label values.</returns>
+        [Obsolete]
         public static DirectedGraphDescriptor<TNodeValue, TEdgeLabel> ToDescriptor<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source)
         {
             if (source == null)
@@ -339,6 +340,7 @@ namespace Bonsai.Dag
         /// <typeparam name="TEdgeLabel">The type of the labels associated with graph edges.</typeparam>
         /// <param name="source">A <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/> to create descriptors from.</param>
         /// <param name="descriptor">The serializable descriptor to add node descriptors to.</param>
+        [Obsolete]
         public static void ToDescriptor<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source, DirectedGraphDescriptor<TNodeValue, TEdgeLabel> descriptor)
         {
             if (source == null)
@@ -383,6 +385,7 @@ namespace Bonsai.Dag
         /// The serializable descriptor whose contents should be added to the
         /// <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/>.
         /// </param>
+        [Obsolete]
         public static void AddDescriptor<TNodeValue, TEdgeLabel>(this DirectedGraph<TNodeValue, TEdgeLabel> source, DirectedGraphDescriptor<TNodeValue, TEdgeLabel> descriptor)
         {
             if (source == null)
@@ -414,6 +417,7 @@ namespace Bonsai.Dag
         /// A <see cref="T:Bonsai.Dag.DirectedGraph`2{T,U}"/> that contains all the node
         /// and edge label values specified in the descriptor.
         /// </returns>
+        [Obsolete]
         public static DirectedGraph<TNodeValue, TEdgeLabel> ToDirectedGraph<TNodeValue, TEdgeLabel>(this DirectedGraphDescriptor<TNodeValue, TEdgeLabel> source)
         {
             if (source == null)

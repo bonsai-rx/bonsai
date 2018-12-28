@@ -15,6 +15,7 @@ using System.Xml;
 using System.Diagnostics;
 using System.Reflection.Emit;
 using Bonsai.Properties;
+using System.Xml.Xsl;
 
 namespace Bonsai
 {
@@ -97,7 +98,12 @@ namespace Bonsai
             var workflowMarkup = string.Empty;
             if (reader.IsStartElement(WorkflowNodeName))
             {
+                var xmlns = reader.NamespaceURI;
                 workflowMarkup = reader.ReadOuterXml();
+                if (xmlns != Constants.XmlNamespace)
+                {
+                    workflowMarkup = ConvertDescriptorMarkup(workflowMarkup);
+                }
             }
 
             reader.ReadToFollowing(ExtensionTypeNodeName);
@@ -351,6 +357,75 @@ namespace Bonsai
                 }
 
                 return type;
+            }
+        }
+
+        #endregion
+
+        #region ConvertDescriptorMarkup
+
+        static readonly Lazy<XslCompiledTransform> descriptorXslt = new Lazy<XslCompiledTransform>(() =>
+        {
+            const string XsltMarkup = @"
+<xsl:stylesheet version=""1.0""
+                xmlns:xsl=""http://www.w3.org/1999/XSL/Transform""
+                xmlns:bonsai=""https://horizongir.org/bonsai""
+                exclude-result-prefixes=""bonsai"">
+  <xsl:output method=""xml"" indent=""yes""/>
+  <xsl:variable name=""uri"" select=""'https://bonsai-rx.org/2018/workflow'""/>
+  <xsl:template match=""@* | node()"">
+    <xsl:copy>
+      <xsl:apply-templates select=""@* | node()""/>
+    </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match=""bonsai:*"">
+    <xsl:element name=""{local-name()}"" namespace=""{$uri}"">
+      <xsl:copy-of select=""namespace::*[local-name() != '']""/>
+      <xsl:apply-templates select=""@* | node()""/>
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match=""@bonsai:*"">
+    <xsl:attribute name=""{local-name()}"" namespace=""{$uri}"">
+      <xsl:value-of select="".""/>
+    </xsl:attribute>
+  </xsl:template>
+
+  <xsl:template match=""bonsai:Workflow/bonsai:Edges/bonsai:Edge"">
+    <xsl:element name=""Edge"" namespace=""{$uri}"">
+      <xsl:attribute name=""from"">
+        <xsl:value-of select=""bonsai:From""/>
+      </xsl:attribute>
+      <xsl:attribute name=""to"">
+        <xsl:value-of select=""bonsai:To""/>
+      </xsl:attribute>
+      <xsl:attribute name=""label"">
+        <xsl:value-of select=""bonsai:Label""/>
+      </xsl:attribute>
+    </xsl:element>
+  </xsl:template>
+</xsl:stylesheet>";
+            var xslt = new XslCompiledTransform();
+            using (var reader = XmlReader.Create(new StringReader(XsltMarkup)))
+            {
+                xslt.Load(reader);
+            }
+            return xslt;
+        });
+
+        static string ConvertDescriptorMarkup(string workflowMarkup)
+        {
+            using (var reader = new StringReader(workflowMarkup))
+            using (var xmlReader = XmlReader.Create(reader))
+            {
+                var xslt = descriptorXslt.Value;
+                using (var writer = new StringWriter())
+                using (var xmlWriter = XmlWriter.Create(writer, xslt.OutputSettings))
+                {
+                    xslt.Transform(xmlReader, xmlWriter);
+                    return writer.ToString();
+                }
             }
         }
 

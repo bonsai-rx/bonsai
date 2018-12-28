@@ -12,6 +12,7 @@ namespace Bonsai.Dag
     /// </summary>
     /// <typeparam name="TNodeValue">The type of the labels associated with graph nodes.</typeparam>
     /// <typeparam name="TEdgeLabel">The type of the labels associated with graph edges.</typeparam>
+    [Obsolete]
     public class DirectedGraphDescriptor<TNodeValue, TEdgeLabel>
     {
         readonly Collection<TNodeValue> nodes = new Collection<TNodeValue>();
