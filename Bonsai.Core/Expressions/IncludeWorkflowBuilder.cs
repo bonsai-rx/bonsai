@@ -193,8 +193,7 @@ namespace Bonsai.Expressions
 
         void DeserializeProperty(XmlElement element, PropertyDescriptor property)
         {
-            var xmlRoot = new XmlRootAttribute(property.Name) { Namespace = Constants.XmlNamespace };
-            var serializer = new XmlSerializer(property.PropertyType, xmlRoot);
+            var serializer = PropertySerializer.GetXmlSerializer(property.Name, property.PropertyType);
             using (var reader = new StringReader(element.OuterXml))
             {
                 var value = serializer.Deserialize(reader);
@@ -223,8 +222,7 @@ namespace Bonsai.Expressions
         XmlElement SerializeProperty(PropertyDescriptor property)
         {
             var document = new XmlDocument();
-            var xmlRoot = new XmlRootAttribute(property.Name) { Namespace = Constants.XmlNamespace };
-            var serializer = new XmlSerializer(property.PropertyType, xmlRoot);
+            var serializer = PropertySerializer.GetXmlSerializer(property.Name, property.PropertyType);
             using (var writer = document.CreateNavigator().AppendChild())
             {
                 serializer.Serialize(writer, property.GetValue(this));
@@ -368,6 +366,29 @@ namespace Bonsai.Expressions
 
             var includeContext = new IncludeContext(buildContext, path);
             return workflow.BuildNested(arguments, includeContext);
+        }
+
+        static class PropertySerializer
+        {
+            static readonly Dictionary<Tuple<string, Type>, XmlSerializer> serializerCache = new Dictionary<Tuple<string, Type>, XmlSerializer>();
+            static readonly object cacheLock = new object();
+
+            internal static XmlSerializer GetXmlSerializer(string name, Type type)
+            {
+                XmlSerializer serializer;
+                var serializerKey = Tuple.Create(name, type);
+                lock (cacheLock)
+                {
+                    if (!serializerCache.TryGetValue(serializerKey, out serializer))
+                    {
+                        var xmlRoot = new XmlRootAttribute(name) { Namespace = Constants.XmlNamespace };
+                        serializer = new XmlSerializer(type, xmlRoot);
+                        serializerCache.Add(serializerKey, serializer);
+                    }
+                }
+
+                return serializer;
+            }
         }
 
         class UndefinedExpression : Expression
