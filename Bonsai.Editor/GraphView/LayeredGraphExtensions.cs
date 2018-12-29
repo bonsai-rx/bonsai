@@ -443,45 +443,82 @@ namespace Bonsai.Design
         public static IEnumerable<GraphNodeGrouping> ConnectedComponentLayering(this ExpressionBuilderGraph source)
         {
             int layerOffset = 0;
+            GraphNodeGrouping singletonLayer = null;
             List<GraphNodeGrouping> layers = new List<GraphNodeGrouping>();
             var connectedComponents = FindConnectedComponents(source);
             foreach (var component in connectedComponents)
             {
-                var maxLayerCount = 0;
                 var layeredComponent = component
                     .LongestPathLayering()
                     .EnsureLayerPriority()
                     .SortLayerEdgeLabels()
                     .RemoveSuccessorKinks()
                     .ToList();
-
-                foreach (var layer in layeredComponent)
+                if (component.Count == 1)
                 {
-                    if (layer.Key < layers.Count)
-                    {
-                        foreach (var node in layer)
-                        {
-                            layers[layer.Key].Add(node);
-                        }
-                    }
+                    if (singletonLayer == null) singletonLayer = layeredComponent[0];
                     else
                     {
-                        layers.Add(layer);
-                        layer.UpdateItems = false;
+                        var layer = layeredComponent[0];
+                        singletonLayer.Add(layer[0]);
                     }
-
-                    foreach (var node in layer)
-                    {
-                        node.LayerIndex += layerOffset;
-                    }
-
-                    maxLayerCount = Math.Max(maxLayerCount, layer.Count);
+                    continue;
                 }
 
-                layerOffset += maxLayerCount;
+                MergeSingletonComponentLayers(ref singletonLayer, layers, ref layerOffset);
+                MergeConnectedComponentLayers(layeredComponent, layers, ref layerOffset);
             }
 
+            MergeSingletonComponentLayers(ref singletonLayer, layers, ref layerOffset);
             return layers;
+        }
+
+        static void MergeSingletonComponentLayers(ref GraphNodeGrouping singletonLayer, List<GraphNodeGrouping> layers, ref int layerOffset)
+        {
+            if (singletonLayer != null)
+            {
+                var layeredSingleton = new List<GraphNodeGrouping>();
+                for (int i = 0; i < singletonLayer.Count; i++)
+                {
+                    var node = singletonLayer[i];
+                    var group = new GraphNodeGrouping(singletonLayer.Count - i - 1);
+                    node.Layer = group.Key;
+                    group.Add(node);
+                    layeredSingleton.Insert(0, group);
+                }
+
+                MergeConnectedComponentLayers(layeredSingleton, layers, ref layerOffset);
+                singletonLayer = null;
+            }
+        }
+
+        static void MergeConnectedComponentLayers(List<GraphNodeGrouping> layeredComponent, List<GraphNodeGrouping> layers, ref int layerOffset)
+        {
+            var maxLayerCount = 0;
+            foreach (var layer in layeredComponent)
+            {
+                if (layer.Key < layers.Count)
+                {
+                    foreach (var node in layer)
+                    {
+                        layers[layer.Key].Add(node);
+                    }
+                }
+                else
+                {
+                    layers.Add(layer);
+                    layer.UpdateItems = false;
+                }
+
+                foreach (var node in layer)
+                {
+                    node.LayerIndex += layerOffset;
+                }
+
+                maxLayerCount = Math.Max(maxLayerCount, layer.Count);
+            }
+
+            layerOffset += maxLayerCount;
         }
     }
 }
