@@ -72,6 +72,7 @@
     <Compile Include="OverloadedCombinatorBuilderTests.cs" />
     <Compile Include="GenericCombinatorBuilderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TopologicalSortTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj">

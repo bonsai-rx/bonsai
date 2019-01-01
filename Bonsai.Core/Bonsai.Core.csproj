@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="BinaryCombinator.cs" />
     <Compile Include="Combinator.cs" />
+    <Compile Include="Dag\TopologicalSort.cs" />
     <Compile Include="Expressions\AddBuilder.cs" />
     <Compile Include="Expressions\AsyncSubjectBuilder.cs" />
     <Compile Include="Expressions\BinaryOperatorBuilder.cs" />

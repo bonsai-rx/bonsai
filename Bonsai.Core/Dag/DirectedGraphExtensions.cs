@@ -256,41 +256,7 @@ namespace Bonsai.Dag
                 throw new ArgumentNullException("source");
             }
 
-            var predecessorCount = new Dictionary<Node<TNodeValue, TEdgeLabel>, int>();
-            var ordering = new List<Node<TNodeValue, TEdgeLabel>>(source.Count);
-
-            foreach (var node in source)
-            {
-                foreach (var successor in node.Successors)
-                {
-                    int count;
-                    predecessorCount.TryGetValue(successor.Target, out count);
-                    predecessorCount[successor.Target] = count + 1;
-                    ordering.Remove(successor.Target);
-                }
-
-                if (!predecessorCount.ContainsKey(node))
-                {
-                    predecessorCount[node] = 0;
-                    ordering.Add(node);
-                }
-            }
-
-            for (int i = 0; i < ordering.Count; i++)
-            {
-                var node = ordering[i];
-
-                foreach (var successor in node.Successors)
-                {
-                    if (--predecessorCount[successor.Target] == 0)
-                    {
-                        ordering.Add(successor.Target);
-                    }
-                }
-            }
-
-            if (ordering.Count < ordering.Capacity) return Enumerable.Empty<Node<TNodeValue, TEdgeLabel>>();
-            return ordering;
+            return Bonsai.Dag.TopologicalSort<TNodeValue, TEdgeLabel>.Process(source);
         }
 
         /// <summary>
