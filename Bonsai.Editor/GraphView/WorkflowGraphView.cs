@@ -27,6 +27,7 @@ namespace Bonsai.Design
 {
     partial class WorkflowGraphView : UserControl
     {
+        static readonly Action EmptyAction = () => { };
         static readonly Cursor InvalidSelectionCursor = Cursors.No;
         static readonly Cursor MoveSelectionCursor = Cursors.SizeAll;
         static readonly Cursor AlternateSelectionCursor = Cursors.UpArrow;
@@ -480,8 +481,8 @@ namespace Bonsai.Design
             bool validate = true)
         {
             var workflow = this.workflow;
-            Action addConnection = () => { };
-            Action removeConnection = () => { };
+            var addConnection = EmptyAction;
+            var removeConnection = EmptyAction;
             if (nodeType == CreateGraphNodeType.Predecessor)
             {
                 foreach (var node in targetNodes)
@@ -674,8 +675,8 @@ namespace Bonsai.Design
         public void ConnectGraphNodes(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget)
         {
             var workflow = this.workflow;
-            Action addConnection = () => { };
-            Action removeConnection = () => { };
+            var addConnection = EmptyAction;
+            var removeConnection = EmptyAction;
             var target = GetGraphNodeTag(workflow, graphViewTarget);
             var connectionIndex = workflow.Predecessors(target).Count();
             var restoreSelectedNodes = CreateUpdateSelectionDelegate(graphViewSources);
@@ -709,8 +710,8 @@ namespace Bonsai.Design
         public void DisconnectGraphNodes(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget)
         {
             var workflow = this.workflow;
-            Action addConnection = () => { };
-            Action removeConnection = () => { };
+            var addConnection = EmptyAction;
+            var removeConnection = EmptyAction;
             var target = GetGraphNodeTag(workflow, graphViewTarget);
             var predecessorEdges = workflow.PredecessorEdges(target).ToArray();
             foreach (var graphViewSource in graphViewSources)
@@ -764,8 +765,8 @@ namespace Bonsai.Design
         void ReorderGraphNode(GraphNode graphViewSource, GraphNode graphViewTarget)
         {
             var workflow = this.workflow;
-            Action reorderConnection = () => { };
-            Action restoreConnection = () => { };
+            var reorderConnection = EmptyAction;
+            var restoreConnection = EmptyAction;
             var source = GetGraphNodeTag(workflow, graphViewSource);
             var target = GetGraphNodeTag(workflow, graphViewTarget);
             var commonSuccessors = from sourceEdge in source.Successors
@@ -824,13 +825,13 @@ namespace Bonsai.Design
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             updateGraphLayout += CreateUpdateSelectionDelegate(nodes);
             commandExecutor.BeginCompositeCommand();
-            commandExecutor.Execute(() => { }, updateGraphLayout);
+            commandExecutor.Execute(EmptyAction, updateGraphLayout);
             foreach (var node in nodes)
             {
                 ReorderGraphNode(node, target);
             }
 
-            commandExecutor.Execute(updateGraphLayout, () => { });
+            commandExecutor.Execute(updateGraphLayout, EmptyAction);
             commandExecutor.EndCompositeCommand();
         }
 
@@ -1024,7 +1025,7 @@ namespace Bonsai.Design
         public void InsertGraphElements(ExpressionBuilderGraph elements, CreateGraphNodeType nodeType, bool branch)
         {
             var selectedNodes = selectionModel.SelectedNodes.ToArray();
-            InsertGraphElements(elements, selectedNodes, nodeType, branch, () => { }, () => { });
+            InsertGraphElements(elements, selectedNodes, nodeType, branch, EmptyAction, EmptyAction);
         }
 
         private void InsertGraphElements(
@@ -1092,9 +1093,8 @@ namespace Bonsai.Design
                 throw new ArgumentNullException("node");
             }
 
-            Action addEdge = () => { };
-            Action removeEdge = () => { };
-
+            var addEdge = EmptyAction;
+            var removeEdge = EmptyAction;
             var workflowNode = GetGraphNodeTag(workflow, node);
             var edgeMappings = workflowNode.Successors.Select(edge => Tuple.Create(edge.Target.Value, GetEdgeMappings(edge).ToArray())).ToList();
             var predecessorEdges = workflow.PredecessorEdges(workflowNode).ToArray();
@@ -1236,7 +1236,7 @@ namespace Bonsai.Design
                 HideWorkflowEditorLauncher(editorLauncher);
                 var removeMapping = removeEditorMapping
                     ? CreateUpdateEditorMappingDelegate(editorMapping => editorMapping.Remove(workflowExpressionBuilder))
-                    : () => { };
+                    : EmptyAction;
                 var addMapping = CreateUpdateEditorMappingDelegate(editorMapping => editorMapping[workflowExpressionBuilder] = editorLauncher);
                 commandExecutor.Execute(removeMapping, addMapping);
             }
@@ -1252,13 +1252,13 @@ namespace Bonsai.Design
             if (!nodes.Any()) return;
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             commandExecutor.BeginCompositeCommand();
-            commandExecutor.Execute(() => { }, updateGraphLayout);
+            commandExecutor.Execute(EmptyAction, updateGraphLayout);
             foreach (var node in nodes)
             {
                 DeleteGraphNode(node);
             }
 
-            commandExecutor.Execute(updateGraphLayout, () => { });
+            commandExecutor.Execute(updateGraphLayout, EmptyAction);
             commandExecutor.EndCompositeCommand();
         }
 
@@ -1267,7 +1267,7 @@ namespace Bonsai.Design
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             updateGraphLayout += CreateUpdateSelectionDelegate(nodes);
             commandExecutor.BeginCompositeCommand();
-            commandExecutor.Execute(() => { }, updateGraphLayout);
+            commandExecutor.Execute(EmptyAction, updateGraphLayout);
 
             var elements = nodes.ToWorkflowBuilder().Workflow.ToInspectableGraph();
             var buildDependencies = (from item in nodes.Zip(elements, (node, element) => new { node, element })
@@ -1437,7 +1437,7 @@ namespace Bonsai.Design
             var updateSelectedNode = CreateUpdateSelectionDelegate(workflowExpressionBuilder);
 
             commandExecutor.BeginCompositeCommand();
-            commandExecutor.Execute(() => { }, updateGraphLayout);
+            commandExecutor.Execute(EmptyAction, updateGraphLayout);
             foreach (var node in nodes.Where(n => n != replacementNode))
             {
                 DeleteGraphNode(node, replaceEdges: false);
@@ -1500,7 +1500,7 @@ namespace Bonsai.Design
                 updateGraphLayout();
                 updateSelectedNode();
             },
-            () => { });
+            EmptyAction);
             commandExecutor.EndCompositeCommand();
         }
 
@@ -1525,7 +1525,7 @@ namespace Bonsai.Design
             var selectDeletedNode = CreateUpdateSelectionDelegate(node);
 
             commandExecutor.BeginCompositeCommand();
-            commandExecutor.Execute(() => { }, () =>
+            commandExecutor.Execute(EmptyAction, () =>
             {
                 updateGraphLayout();
                 selectDeletedNode();
@@ -1536,7 +1536,7 @@ namespace Bonsai.Design
                 updateGraphLayout();
                 selectCreatedNode();
             },
-            () => { });
+            EmptyAction);
             commandExecutor.EndCompositeCommand();
         }
 
@@ -1554,14 +1554,14 @@ namespace Bonsai.Design
             var restoreSelectedNodes = CreateUpdateSelectionDelegate(selectedNodes);
 
             commandExecutor.BeginCompositeCommand();
-            commandExecutor.Execute(() => { }, restoreSelectedNodes);
+            commandExecutor.Execute(EmptyAction, restoreSelectedNodes);
             commandExecutor.Execute(updateSelectedNode, updateGraphLayout);
             foreach (var node in selectedNodes)
             {
                 action(node);
             }
 
-            commandExecutor.Execute(updateGraphLayout, () => { });
+            commandExecutor.Execute(updateGraphLayout, EmptyAction);
             commandExecutor.EndCompositeCommand();
         }
 
