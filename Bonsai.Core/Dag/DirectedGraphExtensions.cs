@@ -181,10 +181,10 @@ namespace Bonsai.Dag
                 if (!visited.Contains(current))
                 {
                     visited.Add(current);
-                    foreach (var successor in current.Successors)
+                    for (int i = current.Successors.Count - 1; i >= 0; i--)
                     {
-                        if (visited.Contains(successor.Target)) continue;
-                        stack.Push(successor.Target);
+                        if (visited.Contains(current.Successors[i].Target)) continue;
+                        stack.Push(current.Successors[i].Target);
                     }
                 }
                 else yield return stack.Pop();
