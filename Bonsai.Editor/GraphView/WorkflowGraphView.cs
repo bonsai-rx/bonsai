@@ -1024,8 +1024,21 @@ namespace Bonsai.Design
 
         public void InsertGraphElements(ExpressionBuilderGraph elements, CreateGraphNodeType nodeType, bool branch)
         {
+            if (elements == null)
+            {
+                throw new ArgumentNullException("elements");
+            }
+
             var selectedNodes = selectionModel.SelectedNodes.ToArray();
+            var updateSelectedNodes = CreateUpdateSelectionDelegate(elements.Sinks().FirstOrDefault());
+            var restoreSelectedNodes = CreateUpdateSelectionDelegate(selectedNodes);
+            var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
+
+            commandExecutor.BeginCompositeCommand();
+            commandExecutor.Execute(EmptyAction, updateGraphLayout + restoreSelectedNodes);
             InsertGraphElements(elements, selectedNodes, nodeType, branch, EmptyAction, EmptyAction);
+            commandExecutor.Execute(updateGraphLayout + updateSelectedNodes, EmptyAction);
+            commandExecutor.EndCompositeCommand();
         }
 
         private void InsertGraphElements(
@@ -1036,13 +1049,6 @@ namespace Bonsai.Design
             Action addConnection,
             Action removeConnection)
         {
-            if (elements == null)
-            {
-                throw new ArgumentNullException("elements");
-            }
-
-            var updateSelectedNodes = CreateUpdateSelectionDelegate(elements.Sinks().FirstOrDefault());
-            var restoreSelectedNodes = CreateUpdateSelectionDelegate(selectedNodes);
             if (selectedNodes.Length > 0)
             {
                 var targetNodes = selectedNodes.Select(node => GetGraphNodeTag(workflow, node));
@@ -1056,7 +1062,6 @@ namespace Bonsai.Design
                 }
             }
 
-            var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             commandExecutor.Execute(
             () =>
             {
@@ -1065,8 +1070,6 @@ namespace Bonsai.Design
                     AddWorkflowNode(workflow, node);
                 }
                 addConnection();
-                updateGraphLayout();
-                updateSelectedNodes();
             },
             () =>
             {
@@ -1075,8 +1078,6 @@ namespace Bonsai.Design
                 {
                     RemoveWorkflowNode(workflow, node);
                 }
-                updateGraphLayout();
-                restoreSelectedNodes();
             });
         }
 
@@ -1286,6 +1287,7 @@ namespace Bonsai.Design
             Action addConnection = () => Array.ForEach(buildDependencies, dependency => workflow.AddEdge(dependency.predecessor.Item1, dependency.edge));
             Action removeConnection = () => Array.ForEach(buildDependencies, dependency => workflow.RemoveEdge(dependency.predecessor.Item1, dependency.edge));
             InsertGraphElements(elements, new[] { target }, nodeType, branch, addConnection, removeConnection);
+            commandExecutor.Execute(updateGraphLayout, EmptyAction);
             commandExecutor.EndCompositeCommand();
         }
 
