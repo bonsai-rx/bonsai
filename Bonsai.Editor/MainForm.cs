@@ -2299,7 +2299,7 @@ namespace Bonsai.Editor
                 siteForm.OpenWorkflow(fileName);
             }
 
-            public void StoreWorkflowElements(WorkflowBuilder builder)
+            public string StoreWorkflowElements(WorkflowBuilder builder)
             {
                 if (builder == null)
                 {
@@ -2314,15 +2314,16 @@ namespace Bonsai.Editor
                         WorkflowBuilder.Serializer.Serialize(writer, builder);
                     }
 
-                    Clipboard.SetText(stringBuilder.ToString());
+                    return stringBuilder.ToString();
                 }
+
+                return string.Empty;
             }
 
-            public WorkflowBuilder RetrieveWorkflowElements()
+            public WorkflowBuilder RetrieveWorkflowElements(string text)
             {
-                if (Clipboard.ContainsText())
+                if (!string.IsNullOrEmpty(text))
                 {
-                    var text = Clipboard.GetText();
                     var stringReader = new StringReader(text);
                     using (var reader = XmlReader.Create(stringReader))
                     {

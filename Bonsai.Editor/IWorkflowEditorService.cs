@@ -20,9 +20,9 @@ namespace Bonsai.Editor
 
         void OpenWorkflow(string fileName);
 
-        void StoreWorkflowElements(WorkflowBuilder builder);
+        string StoreWorkflowElements(WorkflowBuilder builder);
 
-        WorkflowBuilder RetrieveWorkflowElements();
+        WorkflowBuilder RetrieveWorkflowElements(string text);
 
         IEnumerable<Type> GetTypeVisualizers(Type targetType);
 

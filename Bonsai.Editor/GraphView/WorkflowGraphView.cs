@@ -1680,7 +1680,11 @@ namespace Bonsai.Design
 
         private void StoreWorkflowElements()
         {
-            editorService.StoreWorkflowElements(selectionModel.SelectedNodes.ToWorkflowBuilder());
+            var text = editorService.StoreWorkflowElements(selectionModel.SelectedNodes.ToWorkflowBuilder());
+            if (!string.IsNullOrEmpty(text))
+            {
+                Clipboard.SetText(text);
+            }
         }
 
         private void ShowClipboardError(InvalidOperationException ex, string message)
@@ -1724,8 +1728,11 @@ namespace Bonsai.Design
         {
             try
             {
-                var builder = editorService.RetrieveWorkflowElements();
-                InsertWorkflow(builder.Workflow.ToInspectableGraph());
+                if (Clipboard.ContainsText())
+                {
+                    var builder = editorService.RetrieveWorkflowElements(Clipboard.GetText());
+                    InsertWorkflow(builder.Workflow.ToInspectableGraph());
+                }
             }
             catch (InvalidOperationException ex)
             {
