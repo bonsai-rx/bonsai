@@ -767,7 +767,9 @@ namespace Bonsai.Design
 
         void ReorderGraphNode(
             Node<ExpressionBuilder, ExpressionBuilderArgument> source,
-            Node<ExpressionBuilder, ExpressionBuilderArgument> target)
+            ref Node<ExpressionBuilder, ExpressionBuilderArgument> target,
+            List<Node<ExpressionBuilder, ExpressionBuilderArgument>> reorderCommands,
+            HashSet<Node<ExpressionBuilder, ExpressionBuilderArgument>> selectedElements)
         {
             var workflow = this.workflow;
             var reorderConnection = EmptyAction;
@@ -821,9 +823,10 @@ namespace Bonsai.Design
             }
             else
             {
+                var targetNode = target;
                 var components = workflow.FindConnectedComponents();
                 var sourceComponent = components.First(component => component.Contains(source));
-                var targetComponent = components.First(component => component.Contains(target));
+                var targetComponent = components.First(component => component.Contains(targetNode));
                 if (sourceComponent == targetComponent) // reorder branches
                 {
                     // find common ancestor
@@ -875,6 +878,24 @@ namespace Bonsai.Design
                     foreach (var node in sourceComponent) DeleteGraphNode(node, true);
                     foreach (var node in shiftedNodes) DeleteGraphNode(node, true);
                     InsertGraphElements(sourceBuilder, new GraphNode[0], CreateGraphNodeType.Successor, false, EmptyAction, EmptyAction);
+
+                    foreach (var pair in sourceComponent
+                        .Concat(shiftedNodes)
+                        .Zip(sourceBuilder, (element, clone) => new { element, clone }))
+                    {
+                        if (target == pair.element) target = pair.clone;
+                        var index = reorderCommands.IndexOf(pair.element);
+                        if (index >= 0)
+                        {
+                            reorderCommands[index] = pair.clone;
+                        }
+
+                        if (selectedElements.Contains(pair.element))
+                        {
+                            selectedElements.Remove(pair.element);
+                            selectedElements.Add(pair.clone);
+                        }
+                    }
                 }
             }
         }
@@ -948,19 +969,24 @@ namespace Bonsai.Design
                 throw new ArgumentNullException("nodes");
             }
 
-            if (!nodes.Any()) return;
+            var selectedNodes = new HashSet<Node<ExpressionBuilder, ExpressionBuilderArgument>>(nodes.Select(node => GetGraphNodeTag(workflow, node)));
+            if (selectedNodes.Count == 0) return;
+
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
-            updateGraphLayout += CreateUpdateSelectionDelegate(nodes);
+            var restoreSelectedNodes = CreateUpdateSelectionDelegate(selectedNodes);
             commandExecutor.BeginCompositeCommand();
-            commandExecutor.Execute(EmptyAction, updateGraphLayout);
+            commandExecutor.Execute(EmptyAction, updateGraphLayout + restoreSelectedNodes);
 
             var targetNode = GetGraphNodeTag(workflow, target);
-            foreach (var node in SortReorderCommands(nodes, targetNode))
+            var reorderCommands = SortReorderCommands(nodes, targetNode).ToList();
+            for (int i = 0; i < reorderCommands.Count; i++)
             {
-                ReorderGraphNode(node, targetNode);
+                var node = reorderCommands[i];
+                ReorderGraphNode(node, ref targetNode, reorderCommands, selectedNodes);
             }
 
-            commandExecutor.Execute(updateGraphLayout, EmptyAction);
+            var updateSelectedNodes = CreateUpdateSelectionDelegate(selectedNodes);
+            commandExecutor.Execute(updateGraphLayout + updateSelectedNodes, EmptyAction);
             commandExecutor.EndCompositeCommand();
         }
 
