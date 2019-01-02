@@ -378,7 +378,7 @@ namespace Bonsai.Design
             return layers;
         }
 
-        class ConnectedComponent : ExpressionBuilderGraph
+        public class ConnectedComponent : ExpressionBuilderGraph
         {
             public ConnectedComponent(int index)
             {
@@ -388,7 +388,7 @@ namespace Bonsai.Design
             public int Index { get; private set; }
         }
 
-        static IEnumerable<ConnectedComponent> FindConnectedComponents(this ExpressionBuilderGraph source)
+        public static IList<ConnectedComponent> FindConnectedComponents(this ExpressionBuilderGraph source)
         {
             var connectedComponents = new List<ConnectedComponent>();
             var connectedComponentMap = new Dictionary<Node<ExpressionBuilder, ExpressionBuilderArgument>, ConnectedComponent>();
