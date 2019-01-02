@@ -656,6 +656,8 @@ namespace Bonsai.Design
         bool CanReorder(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget)
         {
             var target = GetGraphNodeTag(workflow, graphViewTarget, false);
+            if (target == null) return false;
+
             var targetSuccessors = target.Successors.Select(edge => edge.Target);
             foreach (var sourceNode in graphViewSources)
             {
