@@ -450,7 +450,6 @@ namespace Bonsai.Design
             {
                 var layeredComponent = component
                     .LongestPathLayering()
-                    .EnsureLayerPriority()
                     .SortLayerEdgeLabels()
                     .RemoveSuccessorKinks()
                     .ToList();
