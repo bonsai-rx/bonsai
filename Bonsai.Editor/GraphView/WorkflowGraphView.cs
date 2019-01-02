@@ -663,7 +663,8 @@ namespace Bonsai.Design
                 if (node == null) return false;
 
                 var nodeSuccessors = node.Successors.Select(edge => edge.Target);
-                if (!nodeSuccessors.Intersect(targetSuccessors).Any())
+                if (!nodeSuccessors.Intersect(targetSuccessors).Any() &&
+                    node.DepthFirstSearch().Intersect(target.DepthFirstSearch()).Any())
                 {
                     return false;
                 }
@@ -811,7 +812,76 @@ namespace Bonsai.Design
                 }
             }
 
-            commandExecutor.Execute(reorderConnection, restoreConnection);
+            if (reorderConnection != EmptyAction)
+            {
+                // reorder node connections
+                commandExecutor.Execute(reorderConnection, restoreConnection);
+            }
+            else
+            {
+                var components = workflow.FindConnectedComponents();
+                var sourceComponent = components.First(component => component.Contains(source));
+                var targetComponent = components.First(component => component.Contains(target));
+                if (sourceComponent == targetComponent) // reorder branches
+                {
+                    // find common ancestor
+                    var sourceTrace = new { node = default(GraphNode), index = 0 };
+                    var targetTrace = new { node = default(GraphNode), index = 0 };
+                    var layering = sourceComponent.LongestPathLayering();
+                    foreach (var node in layering.SelectMany(layer => layer))
+                    {
+                        var i = -1;
+                        if (sourceTrace.node == null && node.Value == source.Value) sourceTrace = new { node, index = i };
+                        if (targetTrace.node == null && node.Value == target.Value) targetTrace = new { node, index = i };
+                        foreach (var successor in node.Successors)
+                        {
+                            i += 1;
+                            if (successor.Node == sourceTrace.node) sourceTrace = new { node, index = i };
+                            if (successor.Node == targetTrace.node) targetTrace = new { node, index = i };
+                            if (sourceTrace.node != null && sourceTrace.node == targetTrace.node)
+                            {
+                                // common ancestor
+                                var ancestor = GetGraphNodeTag(workflow, sourceTrace.node);
+                                var sourceEdge = ancestor.Successors[sourceTrace.index];
+                                commandExecutor.Execute(
+                                () =>
+                                {
+                                    ancestor.Successors[sourceTrace.index] = null;
+                                    ancestor.Successors.Insert(targetTrace.index, sourceEdge);
+                                    ancestor.Successors.Remove(null);
+                                },
+                                () =>
+                                {
+                                    ancestor.Successors.RemoveAt(targetTrace.index);
+                                    ancestor.Successors.Insert(sourceTrace.index, sourceEdge);
+                                });
+                                return;
+                            }
+                        }
+                    }
+                }
+                else // reorder connected components
+                {
+                    var shiftedNodes = from index in Enumerable.Range(targetComponent.Index, components.Count - targetComponent.Index)
+                                       let component = components[index]
+                                       where component != sourceComponent
+                                       from node in component
+                                       select node;
+                    var sourceBuilder = CloneWorkflowElements(sourceComponent);
+                    var shiftedBuilder = CloneWorkflowElements(shiftedNodes);
+                    foreach (var node in shiftedBuilder) sourceBuilder.Add(node);
+                    foreach (var node in sourceComponent) DeleteGraphNode(node, true);
+                    foreach (var node in shiftedNodes) DeleteGraphNode(node, true);
+                    InsertGraphElements(sourceBuilder, new GraphNode[0], CreateGraphNodeType.Successor, false, EmptyAction, EmptyAction);
+                }
+            }
+        }
+
+        ExpressionBuilderGraph CloneWorkflowElements(IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> nodes)
+        {
+            var builder = new WorkflowBuilder(nodes.FromInspectableGraph(true));
+            var markup = editorService.StoreWorkflowElements(builder);
+            return editorService.RetrieveWorkflowElements(markup).Workflow.ToInspectableGraph();
         }
 
         public void ReorderGraphNodes(IEnumerable<GraphNode> nodes, GraphNode target)
@@ -826,7 +896,7 @@ namespace Bonsai.Design
             updateGraphLayout += CreateUpdateSelectionDelegate(nodes);
             commandExecutor.BeginCompositeCommand();
             commandExecutor.Execute(EmptyAction, updateGraphLayout);
-            foreach (var node in nodes)
+            foreach (var node in nodes.ToArray())
             {
                 ReorderGraphNode(node, target);
             }
@@ -1088,15 +1158,21 @@ namespace Bonsai.Design
 
         void DeleteGraphNode(GraphNode node, bool replaceEdges)
         {
+            var workflowNode = GetGraphNodeTag(workflow, node);
+            DeleteGraphNode(workflowNode, replaceEdges);
+        }
+
+        void DeleteGraphNode(Node<ExpressionBuilder, ExpressionBuilderArgument> workflowNode, bool replaceEdges)
+        {
             var workflow = this.workflow;
-            if (node == null)
+            if (workflowNode == null)
             {
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException("workflowNode");
             }
 
             var addEdge = EmptyAction;
             var removeEdge = EmptyAction;
-            var workflowNode = GetGraphNodeTag(workflow, node);
+
             var edgeMappings = workflowNode.Successors.Select(edge => Tuple.Create(edge.Target.Value, GetEdgeMappings(edge).ToArray())).ToList();
             var predecessorEdges = workflow.PredecessorEdges(workflowNode).ToArray();
             var siblingEdgesAfter = (from edge in workflowNode.Successors
@@ -1202,7 +1278,7 @@ namespace Bonsai.Design
                 removeEdge();
             });
 
-            var builder = GetGraphNodeBuilder(node);
+            var builder = ExpressionBuilder.Unwrap(workflowNode.Value);
             var disableBuilder = builder as DisableBuilder;
             var workflowExpressionBuilder = (disableBuilder != null ? disableBuilder.Builder : builder) as IWorkflowExpressionBuilder;
             if (workflowExpressionBuilder != null)
