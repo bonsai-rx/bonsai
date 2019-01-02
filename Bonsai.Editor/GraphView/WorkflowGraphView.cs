@@ -763,13 +763,13 @@ namespace Bonsai.Design
             });
         }
 
-        void ReorderGraphNode(GraphNode graphViewSource, GraphNode graphViewTarget)
+        void ReorderGraphNode(
+            Node<ExpressionBuilder, ExpressionBuilderArgument> source,
+            Node<ExpressionBuilder, ExpressionBuilderArgument> target)
         {
             var workflow = this.workflow;
             var reorderConnection = EmptyAction;
             var restoreConnection = EmptyAction;
-            var source = GetGraphNodeTag(workflow, graphViewSource);
-            var target = GetGraphNodeTag(workflow, graphViewTarget);
             var commonSuccessors = from sourceEdge in source.Successors
                                    join targetEdge in target.Successors on sourceEdge.Target equals targetEdge.Target
                                    select new { sourceEdge, targetEdge };
@@ -884,6 +884,61 @@ namespace Bonsai.Design
             return editorService.RetrieveWorkflowElements(markup).Workflow.ToInspectableGraph();
         }
 
+        IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> SortReorderCommands(IEnumerable<GraphNode> nodes, Node<ExpressionBuilder, ExpressionBuilderArgument> target)
+        {
+            var targetSuccessors = target.Successors.Select(edge => edge.Target);
+            var components = workflow.FindConnectedComponents();
+            var targetComponent = components.First(component => component.Contains(target));
+
+            List<Node<ExpressionBuilder, ExpressionBuilderArgument>> componentReordering = null;
+            var sourceNodes = nodes.Select(node => GetGraphNodeTag(workflow, node)).ToArray();
+            for (int i = 0; i < sourceNodes.Length; i++)
+            {
+                var node = sourceNodes[i];
+                if (node == null) continue;
+                var nodeSuccessors = node.Successors.Select(edge => edge.Target);
+                var allowChainReorder = nodeSuccessors.Intersect(targetSuccessors).Any();
+                if (!allowChainReorder)
+                {
+                    var nodeComponent = components.First(component => component.Contains(node));
+                    if (nodeComponent != targetComponent)
+                    {
+                        if (componentReordering == null) componentReordering = new List<Node<ExpressionBuilder, ExpressionBuilderArgument>>();
+                        componentReordering.Add(node);
+                        sourceNodes[i] = null;
+                    }
+
+                    for (int k = i + 1; k < sourceNodes.Length; k++)
+                    {
+                        var chainNode = sourceNodes[k];
+                        if (chainNode == null) continue;
+                        if (node.DepthFirstSearch().Intersect(chainNode.DepthFirstSearch()).Any() ||
+                            nodeComponent != targetComponent &&
+                            nodeComponent == components.First(component => component.Contains(chainNode)))
+                        {
+                            sourceNodes[k] = null;
+                        }
+                    }
+                }
+            }
+
+            for (int i = 0; i < sourceNodes.Length; i++)
+            {
+                if (sourceNodes[i] != null)
+                {
+                    yield return sourceNodes[i];
+                }
+            }
+
+            if (componentReordering != null)
+            {
+                foreach (var node in componentReordering)
+                {
+                    yield return node;
+                }
+            }
+        }
+
         public void ReorderGraphNodes(IEnumerable<GraphNode> nodes, GraphNode target)
         {
             if (nodes == null)
@@ -896,9 +951,11 @@ namespace Bonsai.Design
             updateGraphLayout += CreateUpdateSelectionDelegate(nodes);
             commandExecutor.BeginCompositeCommand();
             commandExecutor.Execute(EmptyAction, updateGraphLayout);
-            foreach (var node in nodes.ToArray())
+
+            var targetNode = GetGraphNodeTag(workflow, target);
+            foreach (var node in SortReorderCommands(nodes, targetNode))
             {
-                ReorderGraphNode(node, target);
+                ReorderGraphNode(node, targetNode);
             }
 
             commandExecutor.Execute(updateGraphLayout, EmptyAction);
