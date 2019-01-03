@@ -39,7 +39,7 @@ namespace Bonsai.Vision.Drawing
             var points = Points;
             if (points != null && points.Length > 0)
             {
-                CV.FillPoly(image, Points, Color, LineType, Shift);
+                CV.FillPoly(image, points, Color, LineType, Shift);
             }
         }
     }
