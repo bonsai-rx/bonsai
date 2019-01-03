@@ -14,15 +14,22 @@ namespace Bonsai.Vision
     {
         static readonly Point[] EmptyPoints = new Point[0];
 
+        static Point[] GetPoints(Seq input)
+        {
+            if (input == null) return EmptyPoints;
+            var points = new Point[input.Count];
+            input.CopyTo(points);
+            return points;
+        }
+
         public override IObservable<Point[]> Process(IObservable<Seq> source)
         {
-            return source.Select(input =>
-            {
-                if (input == null) return EmptyPoints;
-                var points = new Point[input.Count];
-                input.CopyTo(points);
-                return points;
-            });
+            return source.Select(GetPoints);
+        }
+
+        public IObservable<Point[]> Process(IObservable<ConnectedComponent> source)
+        {
+            return source.Select(input => GetPoints(input.Contour));
         }
     }
 }
