@@ -13,6 +13,13 @@ namespace Bonsai.Vision.Drawing
     [Description("Draws contour outlines or filled interiors in an image.")]
     public class DrawContours : CanvasElement
     {
+        public DrawContours()
+        {
+            Thickness = 1;
+            ExternalColor = Scalar.All(255);
+            LineType = LineFlags.Connected8;
+        }
+
         [XmlIgnore]
         [Description("The first contour to draw.")]
         public Seq Contour { get; set; }
