@@ -184,7 +184,8 @@ namespace Bonsai.Vision.Drawing
 
         public void Draw(IplImage image)
         {
-            using (var subImage = generator(image))
+            var subImage = generator(image);
+            try
             {
                 if (drawing != null)
                 {
@@ -192,6 +193,13 @@ namespace Bonsai.Vision.Drawing
                     {
                         drawing[i](subImage);
                     }
+                }
+            }
+            finally
+            {
+                if (subImage != image)
+                {
+                    subImage.Dispose();
                 }
             }
         }
