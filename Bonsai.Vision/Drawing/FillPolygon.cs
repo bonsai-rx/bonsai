@@ -14,6 +14,7 @@ namespace Bonsai.Vision.Drawing
     {
         public FillPolygon()
         {
+            Color = Scalar.All(255);
             LineType = LineFlags.Connected8;
             Shift = 0;
         }

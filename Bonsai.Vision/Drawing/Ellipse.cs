@@ -16,6 +16,7 @@ namespace Bonsai.Vision.Drawing
         {
             EndAngle = 360;
             Thickness = 1;
+            Color = Scalar.All(255);
             LineType = LineFlags.Connected8;
             Shift = 0;
         }

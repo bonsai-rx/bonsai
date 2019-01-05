@@ -15,6 +15,7 @@ namespace Bonsai.Vision.Drawing
         public PolyLine()
         {
             Thickness = 1;
+            Color = Scalar.All(255);
             LineType = LineFlags.Connected8;
             Shift = 0;
         }
