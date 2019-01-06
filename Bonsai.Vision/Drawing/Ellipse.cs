@@ -58,9 +58,21 @@ namespace Bonsai.Vision.Drawing
         [Description("The number of fractional bits in the center coordinates and axes' values.")]
         public int Shift { get; set; }
 
-        protected override void Draw(IplImage image)
+        protected override Action<IplImage> GetRenderer()
         {
-            CV.Ellipse(image, Center, Axes, Angle, StartAngle, EndAngle, Color, Thickness, LineType, Shift);
+            var center = Center;
+            var axes = Axes;
+            var angle = Angle;
+            var startAngle = StartAngle;
+            var endAngle = EndAngle;
+            var color = Color;
+            var thickness = Thickness;
+            var lineType = LineType;
+            var shift = Shift;
+            return image =>
+            {
+                CV.Ellipse(image, center, axes, angle, startAngle, endAngle, color, thickness, lineType, shift);
+            };
         }
     }
 }

@@ -42,9 +42,18 @@ namespace Bonsai.Vision.Drawing
         [Description("The number of fractional bits in the point coordinates.")]
         public int Shift { get; set; }
 
-        protected override void Draw(IplImage image)
+        protected override Action<IplImage> GetRenderer()
         {
-            CV.Line(image, Start, End, Color, Thickness, LineType, Shift);
+            var start = Start;
+            var end = End;
+            var color = Color;
+            var thickness = Thickness;
+            var lineType = LineType;
+            var shift = Shift;
+            return image =>
+            {
+                CV.Line(image, start, end, color, thickness, lineType, shift);
+            };
         }
     }
 }

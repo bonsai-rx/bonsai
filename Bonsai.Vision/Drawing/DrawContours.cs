@@ -47,13 +47,21 @@ namespace Bonsai.Vision.Drawing
         [Description("The algorithm used to draw the contour boundaries.")]
         public LineFlags LineType { get; set; }
 
-        protected override void Draw(IplImage image)
+        protected override Action<IplImage> GetRenderer()
         {
             var contour = Contour;
-            if (contour != null)
+            var externalColor = ExternalColor;
+            var holeColor = HoleColor;
+            var maxLevel = MaxLevel;
+            var thickness = Thickness;
+            var lineType = LineType;
+            return image =>
             {
-                CV.DrawContours(image, contour, ExternalColor, HoleColor, MaxLevel, Thickness, LineType);
-            }
+                if (contour != null)
+                {
+                    CV.DrawContours(image, contour, externalColor, holeColor, maxLevel, thickness, lineType);
+                }
+            };
         }
     }
 }

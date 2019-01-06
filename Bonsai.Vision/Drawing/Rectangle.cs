@@ -42,11 +42,18 @@ namespace Bonsai.Vision.Drawing
         [Description("The number of fractional bits in the rectangle coordinates.")]
         public int Shift { get; set; }
 
-        protected override void Draw(IplImage image)
+        protected override Action<IplImage> GetRenderer()
         {
             var size = Size;
             var origin = Origin;
-            CV.Rectangle(image, new Rect(origin.X, origin.Y, size.Width, size.Height), Color, Thickness, LineType, Shift);
+            var color = Color;
+            var thickness = Thickness;
+            var lineType = LineType;
+            var shift = Shift;
+            return image =>
+            {
+                CV.Rectangle(image, new Rect(origin.X, origin.Y, size.Width, size.Height), color, thickness, lineType, shift);
+            };
         }
     }
 }

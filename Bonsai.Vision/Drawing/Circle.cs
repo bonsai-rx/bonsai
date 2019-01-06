@@ -42,9 +42,18 @@ namespace Bonsai.Vision.Drawing
         [Description("The number of fractional bits in the center coordinates and radius value.")]
         public int Shift { get; set; }
 
-        protected override void Draw(IplImage image)
+        protected override Action<IplImage> GetRenderer()
         {
-            CV.Circle(image, Center, Radius, Color, Thickness, LineType, Shift);
+            var center = Center;
+            var radius = Radius;
+            var color = Color;
+            var thickness = Thickness;
+            var lineType = LineType;
+            var shift = Shift;
+            return image =>
+            {
+                CV.Circle(image, center, radius, color, thickness, lineType, shift);
+            };
         }
     }
 }

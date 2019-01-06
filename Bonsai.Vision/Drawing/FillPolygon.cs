@@ -35,13 +35,19 @@ namespace Bonsai.Vision.Drawing
         [Description("The number of fractional bits in the vertex coordinates.")]
         public int Shift { get; set; }
 
-        protected override void Draw(IplImage image)
+        protected override Action<IplImage> GetRenderer()
         {
             var points = Points;
-            if (points != null && points.Length > 0)
+            var color = Color;
+            var lineType = LineType;
+            var shift = Shift;
+            return image =>
             {
-                CV.FillPoly(image, points, Color, LineType, Shift);
-            }
+                if (points != null && points.Length > 0)
+                {
+                    CV.FillPoly(image, points, color, lineType, shift);
+                }
+            };
         }
     }
 }

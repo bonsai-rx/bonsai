@@ -11,22 +11,19 @@ namespace Bonsai.Vision.Drawing
     [WorkflowElementCategory(ElementCategory.Transform)]
     public abstract class CanvasElement : Transform<Canvas, Canvas>
     {
-        protected abstract void Draw(IplImage image);
+        protected abstract Action<IplImage> GetRenderer();
 
         public override IObservable<Canvas> Process(IObservable<Canvas> source)
         {
             return Observable.Create<Canvas>(observer =>
             {
-                Action<IplImage> draw = image =>
+                return source.Select(input =>
                 {
-                    try { Draw(image); }
-                    catch (Exception ex)
-                    {
-                        observer.OnError(ex);
-                        throw;
-                    }
-                };
-                return source.Select(input => new Canvas(input, draw)).SubscribeSafe(observer);
+                    DrawingCall draw;
+                    draw.Action = GetRenderer();
+                    draw.Observer = observer;
+                    return new Canvas(input, draw);
+                }).SubscribeSafe(observer);
             });
         }
     }
