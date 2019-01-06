@@ -2027,61 +2027,66 @@ namespace Bonsai.Design
                 return commandExecutor;
             }, false);
 
-            WorkflowEditorLauncher editorLauncher;
-            if (!workflowEditorMapping.TryGetValue(workflowExpressionBuilder, out editorLauncher))
+            try
             {
-                Func<WorkflowGraphView> parentSelector;
-                Func<WorkflowEditorControl> containerSelector;
-                if (workflowExpressionBuilder is IncludeWorkflowBuilder ||
-                    workflowExpressionBuilder is GroupWorkflowBuilder)
+                WorkflowEditorLauncher editorLauncher;
+                if (!workflowEditorMapping.TryGetValue(workflowExpressionBuilder, out editorLauncher))
                 {
-                    containerSelector = () => launcher != null ? launcher.WorkflowGraphView.editorControl : editorControl;
-                }
-                else containerSelector = () => null;
-                parentSelector = () => launcher != null ? launcher.WorkflowGraphView : this;
-
-                editorLauncher = new WorkflowEditorLauncher(workflowExpressionBuilder, parentSelector, containerSelector);
-                editorLauncher.VisualizerLayout = editorLayout;
-                editorLauncher.ReadOnly = readOnly;
-                editorLauncher.Bounds = bounds;
-                var addEditorMapping = CreateUpdateEditorMappingDelegate(editorMapping => editorMapping.Add(workflowExpressionBuilder, editorLauncher));
-                var removeEditorMapping = CreateUpdateEditorMappingDelegate(editorMapping => editorMapping.Remove(workflowExpressionBuilder));
-                compositeExecutor.Value.Execute(addEditorMapping, removeEditorMapping);
-            }
-
-            if (launch && (!editorLauncher.Visible || activate))
-            {
-                var highlight = node.Highlight;
-                var visible = editorLauncher.Visible;
-                var editorService = this.editorService;
-                var serviceProvider = this.serviceProvider;
-                var windowSelector = CreateWindowOwnerSelectorDelegate();
-                Action launchEditor = () =>
-                {
-                    if (editorLauncher.Builder.Workflow != null)
+                    Func<WorkflowGraphView> parentSelector;
+                    Func<WorkflowEditorControl> containerSelector;
+                    if (workflowExpressionBuilder is IncludeWorkflowBuilder ||
+                        workflowExpressionBuilder is GroupWorkflowBuilder)
                     {
-                        editorLauncher.Show(windowSelector(), serviceProvider);
-                        if (editorLauncher.Container != null && !parentLaunching && activate)
-                        {
-                            editorLauncher.Container.SelectTab(editorLauncher.WorkflowGraphView);
-                        }
-
-                        if (highlight && !visible)
-                        {
-                            editorService.RefreshEditor();
-                        }
+                        containerSelector = () => launcher != null ? launcher.WorkflowGraphView.editorControl : editorControl;
                     }
-                };
+                    else containerSelector = () => null;
+                    parentSelector = () => launcher != null ? launcher.WorkflowGraphView : this;
 
-                if (visible) launchEditor();
-                else compositeExecutor.Value.Execute(launchEditor, editorLauncher.Hide);
+                    editorLauncher = new WorkflowEditorLauncher(workflowExpressionBuilder, parentSelector, containerSelector);
+                    editorLauncher.VisualizerLayout = editorLayout;
+                    editorLauncher.ReadOnly = readOnly;
+                    editorLauncher.Bounds = bounds;
+                    var addEditorMapping = CreateUpdateEditorMappingDelegate(editorMapping => editorMapping.Add(workflowExpressionBuilder, editorLauncher));
+                    var removeEditorMapping = CreateUpdateEditorMappingDelegate(editorMapping => editorMapping.Remove(workflowExpressionBuilder));
+                    compositeExecutor.Value.Execute(addEditorMapping, removeEditorMapping);
+                }
+
+                if (launch && (!editorLauncher.Visible || activate))
+                {
+                    var highlight = node.Highlight;
+                    var visible = editorLauncher.Visible;
+                    var editorService = this.editorService;
+                    var serviceProvider = this.serviceProvider;
+                    var windowSelector = CreateWindowOwnerSelectorDelegate();
+                    Action launchEditor = () =>
+                    {
+                        if (editorLauncher.Builder.Workflow != null)
+                        {
+                            editorLauncher.Show(windowSelector(), serviceProvider);
+                            if (editorLauncher.Container != null && !parentLaunching && activate)
+                            {
+                                editorLauncher.Container.SelectTab(editorLauncher.WorkflowGraphView);
+                            }
+
+                            if (highlight && !visible)
+                            {
+                                editorService.RefreshEditor();
+                            }
+                        }
+                    };
+
+                    if (visible) launchEditor();
+                    else compositeExecutor.Value.Execute(launchEditor, editorLauncher.Hide);
+                }
             }
-
-            if (compositeExecutor.IsValueCreated && !parentLaunching)
+            finally
             {
-                compositeExecutor.Value.EndCompositeCommand();
+                if (compositeExecutor.IsValueCreated && !parentLaunching)
+                {
+                    compositeExecutor.Value.EndCompositeCommand();
+                }
+                editorLaunching = false;
             }
-            editorLaunching = false;
         }
 
         internal void UpdateSelection()
