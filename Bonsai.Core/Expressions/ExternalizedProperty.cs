@@ -17,9 +17,10 @@ namespace Bonsai.Expressions
     [XmlType(Namespace = Constants.XmlNamespace)]
     [WorkflowElementCategory(ElementCategory.Property)]
     [Description("Represents a property that has been externalized from a workflow element.")]
-    public class ExternalizedProperty : ExpressionBuilder, INamedElement, IArgumentBuilder
+    public class ExternalizedProperty : ExpressionBuilder, INamedElement, IArgumentBuilder, IExternalizedMappingBuilder
     {
         static readonly Range<int> argumentRange = Range.Create(lowerBound: 0, upperBound: 1);
+        readonly ExternalizedMapping mapping = new ExternalizedMapping();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExternalizedProperty"/> class.
@@ -32,7 +33,11 @@ namespace Bonsai.Expressions
         /// Gets or sets the name of the externalized class member.
         /// </summary>
         [Browsable(false)]
-        public string MemberName { get; set; }
+        public string MemberName
+        {
+            get { return mapping.Name; }
+            set { mapping.Name = value; }
+        }
 
         /// <summary>
         /// Gets or sets the name of the externalized property.
@@ -40,7 +45,11 @@ namespace Bonsai.Expressions
         [Category("Design")]
         [Externalizable(false)]
         [Description("The name of the externalized property. When set, the property will appear on the pages of a nested workflow.")]
-        public string Name { get; set; }
+        public string Name
+        {
+            get { return mapping.DisplayName; }
+            set { mapping.DisplayName = value; }
+        }
 
         /// <summary>
         /// Gets or sets an optional description for the externalized property.
@@ -49,7 +58,11 @@ namespace Bonsai.Expressions
         [Externalizable(false)]
         [Description("The optional description for the externalized property.")]
         [Editor(DesignTypes.MultilineStringEditor, DesignTypes.UITypeEditor)]
-        public string Description { get; set; }
+        public string Description
+        {
+            get { return mapping.Description; }
+            set { mapping.Description = value; }
+        }
 
         /// <summary>
         /// Gets or sets an optional category for the externalized property.
@@ -57,7 +70,11 @@ namespace Bonsai.Expressions
         [Category("Design")]
         [Externalizable(false)]
         [Description("The optional category used to group the externalized property.")]
-        public string Category { get; set; }
+        public string Category
+        {
+            get { return mapping.Category; }
+            set { mapping.Category = value; }
+        }
 
         string INamedElement.Name
         {
@@ -93,6 +110,14 @@ namespace Bonsai.Expressions
                 return EmptyExpression.Instance;
             }
             else return source;
+        }
+
+        IEnumerable<ExternalizedMapping> IExternalizedMappingBuilder.GetExternalizedProperties()
+        {
+            if (!string.IsNullOrEmpty(mapping.DisplayName))
+            {
+                yield return mapping;
+            }
         }
 
         bool IArgumentBuilder.BuildArgument(Expression source, Edge<ExpressionBuilder, ExpressionBuilderArgument> successor, out Expression argument)

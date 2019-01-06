@@ -41,6 +41,7 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(WorkflowExpressionBuilder))]
     [XmlInclude(typeof(InputMappingBuilder))]
     [XmlInclude(typeof(PropertyMappingBuilder))]
+    [XmlInclude(typeof(ExternalizedMappingBuilder))]
     [XmlInclude(typeof(ExternalizedProperty))]
     [XmlInclude(typeof(GroupWorkflowBuilder))]
     [XmlInclude(typeof(IncludeWorkflowBuilder))]
@@ -995,6 +996,11 @@ namespace Bonsai.Expressions
             return BuildArgumentAccess(arguments, selector);
         }
 
+        internal static Expression BuildPropertyMapping(Expression source, ConstantExpression instance, string propertyName)
+        {
+            return BuildPropertyMapping(source, instance, propertyName, string.Empty);
+        }
+
         internal static Expression BuildPropertyMapping(Expression source, ConstantExpression instance, string propertyName, string sourceSelector)
         {
             var element = instance.Value;
@@ -1002,8 +1008,10 @@ namespace Bonsai.Expressions
             if (workflowBuilder != null && workflowBuilder.Workflow != null)
             {
                 var inputBuilder = (from node in workflowBuilder.Workflow
-                                    let workflowProperty = Unwrap(node.Value) as ExternalizedProperty
-                                    where workflowProperty != null && workflowProperty.Name == propertyName
+                                    let externalizedBuilder = Unwrap(node.Value) as IExternalizedMappingBuilder
+                                    where externalizedBuilder != null
+                                    from workflowProperty in externalizedBuilder.GetExternalizedProperties()
+                                    where workflowProperty.ExternalizedName == propertyName
                                     select new { node, workflowProperty }).FirstOrDefault();
                 if (inputBuilder == null)
                 {
@@ -1018,7 +1026,9 @@ namespace Bonsai.Expressions
                 var argument = source;
                 foreach (var successor in inputBuilder.node.Successors)
                 {
-                    inputBuilder.workflowProperty.BuildArgument(argument, successor, out argument, sourceSelector);
+                    var successorElement = ExpressionBuilder.GetWorkflowElement(successor.Target.Value);
+                    var successorInstance = Expression.Constant(successorElement);
+                    argument = BuildPropertyMapping(argument, successorInstance, inputBuilder.workflowProperty.Name, sourceSelector);
                 }
                 return argument;
             }

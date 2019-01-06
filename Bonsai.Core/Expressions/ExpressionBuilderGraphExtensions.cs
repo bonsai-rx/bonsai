@@ -295,12 +295,13 @@ namespace Bonsai.Expressions
             }
         }
 
-        static void RegisterPropertyName(ExpressionBuilder builder, INamedElement element, ref HashSet<string> namedElements)
+        static void RegisterPropertyName(ExpressionBuilder builder, ExternalizedMapping mapping, ref HashSet<string> externalizedProperties)
         {
-            if (namedElements == null) namedElements = new HashSet<string>();
-            if (!namedElements.Add(element.Name))
+            if (externalizedProperties == null) externalizedProperties = new HashSet<string>();
+            var propertyName = mapping.ExternalizedName;
+            if (!externalizedProperties.Add(propertyName))
             {
-                throw new WorkflowBuildException("A workflow property with the specified name already exists.", builder);
+                throw new WorkflowBuildException(string.Format("A workflow property with the name '{0}' already exists.", propertyName), builder);
             }
         }
 
@@ -604,7 +605,7 @@ namespace Bonsai.Expressions
         internal static Expression Build(this ExpressionBuilderGraph source, IBuildContext buildContext)
         {
             Expression workflowOutput = null;
-            HashSet<string> namedElements = null;
+            HashSet<string> externalizedProperties = null;
             var argumentLists = new Dictionary<ExpressionBuilder, ArgumentList>();
             var dependencyLists = new Dictionary<ExpressionBuilder, ArgumentList>();
             var edgeCollection = new List<Edge<ExpressionBuilder, ExpressionBuilderArgument>>();
@@ -655,10 +656,13 @@ namespace Bonsai.Expressions
                     throw new WorkflowBuildException(string.Format(Resources.Exception_UnsupportedMaxArgumentCount, argumentRange.LowerBound), builder);
                 }
 
-                var workflowProperty = workflowElement as ExternalizedProperty;
-                if (workflowProperty != null && !string.IsNullOrEmpty(workflowProperty.Name))
+                var externalizedBuilder = workflowElement as IExternalizedMappingBuilder;
+                if (externalizedBuilder != null)
                 {
-                    RegisterPropertyName(builder, workflowProperty, ref namedElements);
+                    foreach (var property in externalizedBuilder.GetExternalizedProperties())
+                    {
+                        RegisterPropertyName(builder, property, ref externalizedProperties);
+                    }
                 }
 
                 try
@@ -754,16 +758,20 @@ namespace Bonsai.Expressions
                     }
 
                     // Validate externalized properties
-                    var externalizedProperty = workflowElement as ExternalizedProperty;
-                    if (externalizedProperty != null)
+                    if (externalizedBuilder != null)
                     {
                         var argument = expression;
                         foreach (var successor in nodeSuccessors)
                         {
-                            try { externalizedProperty.BuildArgument(argument, successor, out argument, string.Empty); }
-                            catch (Exception e)
+                            var successorElement = ExpressionBuilder.GetWorkflowElement(successor.Target.Value);
+                            var successorInstance = Expression.Constant(successorElement);
+                            foreach (var property in externalizedBuilder.GetExternalizedProperties())
                             {
-                                throw new WorkflowBuildException(e.Message, builder, e);
+                                try { argument = ExpressionBuilder.BuildPropertyMapping(argument, successorInstance, property.Name); }
+                                catch (Exception e)
+                                {
+                                    throw new WorkflowBuildException(e.Message, builder, e);
+                                }
                             }
                         }
                         continue;
