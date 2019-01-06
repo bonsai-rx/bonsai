@@ -769,6 +769,17 @@ namespace Bonsai.Editor
             if (EditorResult == EditorResult.ReloadEditor) return false;
 
             editorControl.Workflow = workflowBuilder.Workflow;
+            if (workflowBuilder.Workflow.Count > 0 && !editorControl.WorkflowGraphView.GraphView.Nodes.Any())
+            {
+                try { workflowBuilder.Workflow.Build(); }
+                catch (WorkflowBuildException ex)
+                {
+                    var errorMessage = string.Format(Resources.OpenWorkflow_Error, ex.InnerException != null ? ex.InnerException.Message : ex.Message);
+                    MessageBox.Show(this, errorMessage, Resources.OpenWorkflow_Error_Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+            }
+
             workflowBuilder = UpdateWorkflow(workflowBuilder, workflowVersion);
             editorControl.VisualizerLayout = null;
             editorControl.Workflow = workflowBuilder.Workflow;
