@@ -611,8 +611,8 @@ namespace Bonsai.Expressions
             var multicastMap = new List<MulticastScope>();
             var connections = new List<Expression>();
 
-            var buildOrder = source.TopologicalSort();
-            if (buildOrder == Enumerable.Empty<Node<ExpressionBuilder, ExpressionBuilderArgument>>())
+            IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> buildOrder;
+            if (!TopologicalSort.TrySort(source, out buildOrder))
             {
                 var cyclicalDependency = FindCyclicalDependency(source, buildContext);
                 if (cyclicalDependency == null) throw new WorkflowBuildException("The workflow contains unspecified cyclical build dependencies.");
