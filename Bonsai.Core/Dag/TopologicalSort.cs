@@ -7,11 +7,23 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Dag
 {
+    static class TopologicalSort
+    {
+        public static bool TrySort<TNodeValue, TEdgeLabel>(
+            DirectedGraph<TNodeValue, TEdgeLabel> source,
+            out IEnumerable<Node<TNodeValue, TEdgeLabel>> topologicalOrder)
+        {
+            return TopologicalSort<TNodeValue, TEdgeLabel>.TrySort(source, out topologicalOrder);
+        }
+    }
+
     static class TopologicalSort<TNodeValue, TEdgeLabel>
     {
         const int TemporaryMark = -1;
 
-        public static IEnumerable<Node<TNodeValue, TEdgeLabel>> Process(DirectedGraph<TNodeValue, TEdgeLabel> source)
+        public static bool TrySort(
+            DirectedGraph<TNodeValue, TEdgeLabel> source,
+            out IEnumerable<Node<TNodeValue, TEdgeLabel>> topologicalOrder)
         {
             var stack = new CallStack(source.Count);
             var marks = new MarkDictionary(source.Count);
@@ -47,7 +59,8 @@ namespace Bonsai.Dag
                             {
                                 if (successorMark.Flag == TemporaryMark)
                                 {
-                                    throw new ArgumentException("The directed graph has cyclical dependencies.", "source");
+                                    topologicalOrder = null;
+                                    return false;
                                 }
 
                                 if (successorMark.Ordering != ordering)
@@ -67,7 +80,9 @@ namespace Bonsai.Dag
                 var ordering = orderingStack.Pop();
                 ordering.Evaluate(result);
             }
-            return ReverseIterator(result);
+
+            topologicalOrder = ReverseIterator(result);
+            return true;
         }
 
         static IEnumerable<TSource> ReverseIterator<TSource>(List<TSource> source)

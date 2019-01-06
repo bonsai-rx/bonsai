@@ -256,7 +256,12 @@ namespace Bonsai.Dag
                 throw new ArgumentNullException("source");
             }
 
-            return Bonsai.Dag.TopologicalSort<TNodeValue, TEdgeLabel>.Process(source);
+            IEnumerable<Node<TNodeValue, TEdgeLabel>> topologicalOrder;
+            if (!Bonsai.Dag.TopologicalSort.TrySort(source, out topologicalOrder))
+            {
+                return Enumerable.Empty<Node<TNodeValue, TEdgeLabel>>();
+            }
+            return topologicalOrder;
         }
 
         /// <summary>
@@ -275,8 +280,8 @@ namespace Bonsai.Dag
                 throw new ArgumentNullException("source");
             }
 
-
-            return source.Count == 0 || source.TopologicalSort().Any();
+            IEnumerable<Node<TNodeValue, TEdgeLabel>> topologicalOrder;
+            return source.Count == 0 || Bonsai.Dag.TopologicalSort.TrySort(source, out topologicalOrder);
         }
 
         /// <summary>
