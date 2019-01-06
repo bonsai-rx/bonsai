@@ -57,15 +57,43 @@ namespace Bonsai.Expressions
                     var properties = from successor in builderNode.Successors
                                      let element = ExpressionBuilder.GetWorkflowElement(successor.Target.Value)
                                      where element != null
-                                     from descriptor in TypeDescriptor.GetProperties(element, ExternalizableAttributes)
-                                                                      .Cast<PropertyDescriptor>()
-                                     where descriptor.IsBrowsable && !descriptor.IsReadOnly
-                                     select descriptor.Name;
-                    return new StandardValuesCollection(properties.Distinct().ToArray());
+                                     select from descriptor in TypeDescriptor.GetProperties(element, ExternalizableAttributes)
+                                                                             .Cast<PropertyDescriptor>()
+                                            where descriptor.IsBrowsable && !descriptor.IsReadOnly
+                                            select descriptor;
+                    HashSet<PropertyDescriptor> propertySet = null;
+                    foreach (var group in properties)
+                    {
+                        if (propertySet == null)
+                        {
+                            propertySet = new HashSet<PropertyDescriptor>(group, PropertyDescriptorComparer.Instance);
+                        }
+                        else propertySet.IntersectWith(group);
+                    }
+                    return new StandardValuesCollection(propertySet.Select(property => property.Name).ToArray());
                 }
             }
 
             return base.GetStandardValues(context);
+        }
+
+        class PropertyDescriptorComparer : IEqualityComparer<PropertyDescriptor>
+        {
+            public static readonly PropertyDescriptorComparer Instance = new PropertyDescriptorComparer();
+
+            public bool Equals(PropertyDescriptor x, PropertyDescriptor y)
+            {
+                if (x == null) return y == null;
+                else return y != null && x.Name == y.Name && x.PropertyType == y.PropertyType;
+            }
+
+            public int GetHashCode(PropertyDescriptor obj)
+            {
+                var hash = 313;
+                hash = hash * 523 + EqualityComparer<string>.Default.GetHashCode(obj.Name);
+                hash = hash * 523 + EqualityComparer<Type>.Default.GetHashCode(obj.PropertyType);
+                return hash;
+            }
         }
     }
 }
