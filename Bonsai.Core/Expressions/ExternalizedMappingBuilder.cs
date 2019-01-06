@@ -39,7 +39,9 @@ namespace Bonsai.Expressions
                 {
                     return string.Join(
                         ExpressionHelper.ArgumentSeparator,
-                        externalizedProperties.Select(property => property.Name));
+                        externalizedProperties.Select(property => string.IsNullOrEmpty(property.ExternalizedName)
+                            ? property.Name
+                            : property.ExternalizedName));
                 }
 
                 return "ExternalizedMapping";
