@@ -40,24 +40,24 @@ namespace Bonsai.Expressions
         {
             if (workflow == null) return base.GetProperties(attributes);
             var properties = from node in workflow
-                             let property = ExpressionBuilder.Unwrap(node.Value) as ExternalizedProperty
-                             where property != null
-                             let name = property.Name
-                             where !string.IsNullOrEmpty(name)
+                             let externalizedBuilder = ExpressionBuilder.Unwrap(node.Value) as IExternalizedMappingBuilder
+                             where externalizedBuilder != null
                              let targetComponents = node.Successors.Select(edge => ExpressionBuilder.GetWorkflowElement(edge.Target.Value)).ToArray()
+                             from property in externalizedBuilder.GetExternalizedProperties()
+                             where !string.IsNullOrEmpty(property.Name)
                              let aggregateProperties = GetAggregateProperties(property, targetComponents)
                              where aggregateProperties.Length > 0
                              select new ExternalizedPropertyDescriptor(property, aggregateProperties, targetComponents);
             return new PropertyDescriptorCollection(properties.ToArray());
         }
 
-        static PropertyDescriptor[] GetAggregateProperties(ExternalizedProperty property, object[] components)
+        static PropertyDescriptor[] GetAggregateProperties(ExternalizedMapping property, object[] components)
         {
             var propertyType = default(Type);
             var properties = new PropertyDescriptor[components.Length];
             for (int i = 0; i < properties.Length; i++)
             {
-                var descriptor = TypeDescriptor.GetProperties(components[i], ExternalizableAttributes)[property.MemberName];
+                var descriptor = TypeDescriptor.GetProperties(components[i], ExternalizableAttributes)[property.Name];
                 if (descriptor == null) return EmptyProperties;
 
                 if (propertyType == null)

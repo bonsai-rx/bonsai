@@ -25,8 +25,8 @@ namespace Bonsai.Expressions
             isReadOnly = descr.isReadOnly;
         }
 
-        public ExternalizedPropertyDescriptor(ExternalizedProperty property, PropertyDescriptor[] descriptors, object[] components)
-            : base(property.Name, null)
+        public ExternalizedPropertyDescriptor(ExternalizedMapping property, PropertyDescriptor[] descriptors, object[] components)
+            : base(property.ExternalizedName, null)
         {
             instances = components;
             properties = descriptors;
