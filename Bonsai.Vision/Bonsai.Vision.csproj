@@ -102,7 +102,6 @@
     <Compile Include="Drawing\FillPolygon.cs" />
     <Compile Include="Drawing\PolyLine.cs" />
     <Compile Include="Drawing\Rectangle.cs" />
-    <Compile Include="Drawing\MergeCanvas.cs" />
     <Compile Include="Extrinsics.cs" />
     <Compile Include="HaarCascade.cs" />
     <Compile Include="HsvScalarConverter.cs" />

@@ -27,7 +27,7 @@ namespace Bonsai.Vision.Drawing
         {
             if (source.generator != other.generator)
             {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException("Unable to merge drawing operators targeting different image sources.");
             }
 
             generator = source.generator;
@@ -50,6 +50,26 @@ namespace Bonsai.Vision.Drawing
                 }
             }
             return image;
+        }
+
+        public static Canvas operator +(Canvas left, Canvas right)
+        {
+            return Merge(left, right);
+        }
+
+        public static Canvas Merge(Canvas source, Canvas other)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+
+            if (other == null)
+            {
+                throw new ArgumentNullException("other");
+            }
+
+            return new Canvas(source, other);
         }
     }
 
