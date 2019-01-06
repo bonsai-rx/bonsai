@@ -3002,14 +3002,47 @@ namespace Bonsai.Design
 
         static readonly Attribute[] ExternalizableAttributes = new[] { ExternalizableAttribute.Default };
 
+        private HashSet<string> FindMappedProperties(GraphNode node)
+        {
+            var mappedProperties = new HashSet<string>();
+            foreach (var predecessor in workflow.Predecessors(GetGraphNodeTag(workflow, node)))
+            {
+                var builder = ExpressionBuilder.Unwrap(predecessor.Value);
+                var externalizedProperty = builder as ExternalizedProperty;
+                if (externalizedProperty != null)
+                {
+                    mappedProperties.Add(externalizedProperty.MemberName);
+                    continue;
+                }
+
+                var propertyMapping = builder as PropertyMappingBuilder;
+                if (propertyMapping != null)
+                {
+                    mappedProperties.UnionWith(propertyMapping.PropertyMappings.Select(mapping => mapping.Name));
+                    continue;
+                }
+
+                var externalizedMapping = builder as ExternalizedMappingBuilder;
+                if (externalizedMapping != null)
+                {
+                    mappedProperties.UnionWith(externalizedMapping.ExternalizedProperties.Select(mapping => mapping.Name));
+                    continue;
+                }
+            }
+
+            return mappedProperties;
+        }
+
         private void CreateExternalizeMenuItems(object workflowElement, ToolStripMenuItem ownerItem, GraphNode selectedNode)
         {
+            var mappedProperties = FindMappedProperties(selectedNode);
             foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(workflowElement, ExternalizableAttributes))
             {
                 if (!property.IsBrowsable || property.IsReadOnly && !ExpressionHelper.IsCollectionType(property.PropertyType)) continue;
                 var propertySource = workflowElement as PropertySource;
                 var externalizedName = propertySource != null ? propertySource.MemberName : property.Name;
                 var menuItem = CreateExternalizeMenuItem(property.Name, externalizedName, property.PropertyType, selectedNode);
+                menuItem.Enabled = !mappedProperties.Contains(property.Name);                
                 ownerItem.DropDownItems.Add(menuItem);
             }
         }
@@ -3027,10 +3060,6 @@ namespace Bonsai.Design
                 contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
             });
 
-            menuItem.Enabled = !workflow
-                .Predecessors(GetGraphNodeTag(workflow, selectedNode))
-                .Select(node => ExpressionBuilder.Unwrap(node.Value) as ExternalizedProperty)
-                .Any(property => property != null && property.MemberName == memberName);
             InitializeOutputMenuItem(menuItem, memberName, memberType);
             return menuItem;
         }
