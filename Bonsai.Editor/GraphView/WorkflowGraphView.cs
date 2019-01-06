@@ -1189,11 +1189,9 @@ namespace Bonsai.Design
             var restoreSelectedNodes = CreateUpdateSelectionDelegate(selectedNodes);
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
 
-            commandExecutor.BeginCompositeCommand();
             commandExecutor.Execute(EmptyAction, updateGraphLayout + restoreSelectedNodes);
             InsertGraphElements(elements, selectedNodes, nodeType, branch, EmptyAction, EmptyAction);
             commandExecutor.Execute(updateGraphLayout + updateSelectedNodes, EmptyAction);
-            commandExecutor.EndCompositeCommand();
         }
 
         private void InsertGraphElements(
@@ -1837,7 +1835,9 @@ namespace Bonsai.Design
             {
                 var branch = Control.ModifierKeys.HasFlag(BranchModifier);
                 var predecessor = Control.ModifierKeys.HasFlag(PredecessorModifier) ? CreateGraphNodeType.Predecessor : CreateGraphNodeType.Successor;
+                commandExecutor.BeginCompositeCommand();
                 InsertGraphElements(workflow, predecessor, branch);
+                commandExecutor.EndCompositeCommand();
             }
         }
 
