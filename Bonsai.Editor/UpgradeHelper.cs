@@ -176,19 +176,19 @@ namespace Bonsai.Editor
 
                 if (inputNode != null)
                 {
-                    var concatBuilder = new CombinatorBuilder
+                    var mergeBuilder = new CombinatorBuilder
                     {
-                        Combinator = new Bonsai.Reactive.Concat()
+                        Combinator = new Bonsai.Reactive.Merge()
                     };
 
-                    var concatNode = workflow.Add(concatBuilder);
+                    var mergeNode = workflow.Add(mergeBuilder);
                     foreach (var successor in inputNode.Successors)
                     {
-                        concatNode.Successors.Add(successor);
+                        mergeNode.Successors.Add(successor);
                     }
 
                     inputNode.Successors.Clear();
-                    workflow.AddEdge(inputNode, concatNode, new ExpressionBuilderArgument());
+                    workflow.AddEdge(inputNode, mergeNode, new ExpressionBuilderArgument());
                 }
             }
         }
