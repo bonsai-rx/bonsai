@@ -87,22 +87,30 @@ namespace Bonsai.Vision.Drawing
             }
         }
 
-        internal abstract void Draw(IplImage image, Graphics graphics, Brush brush, StringFormat format);
-
-        protected override void Draw(IplImage image)
+        internal Action<IplImage> GetRenderer<TState>(
+            TState state,
+            Action<IplImage, Graphics, string, Font, Brush, StringFormat, TState> renderer)
         {
+            var text = Text;
+            var font = Font;
             var color = Color;
-            var pixelFormat = GetImageFormat(image);
-            using (var bitmap = new Bitmap(image.Width, image.Height, image.WidthStep, pixelFormat, image.ImageData))
-            using (var brush = new SolidBrush(System.Drawing.Color.FromArgb((int)color.Val3, (int)color.Val2, (int)color.Val1, (int)color.Val0)))
-            using (var graphics = Graphics.FromImage(bitmap))
-            using (var format = new StringFormat())
+            var alignment = Alignment;
+            var lineAlignment = LineAlignment;
+            var textRenderingHint = TextRenderingHint;
+            return image =>
             {
-                format.Alignment = Alignment;
-                format.LineAlignment = LineAlignment;
-                graphics.TextRenderingHint = TextRenderingHint;
-                Draw(image, graphics, brush, format);
-            }
+                var pixelFormat = GetImageFormat(image);
+                using (var bitmap = new Bitmap(image.Width, image.Height, image.WidthStep, pixelFormat, image.ImageData))
+                using (var brush = new SolidBrush(System.Drawing.Color.FromArgb((int)color.Val3, (int)color.Val2, (int)color.Val1, (int)color.Val0)))
+                using (var graphics = Graphics.FromImage(bitmap))
+                using (var format = new StringFormat())
+                {
+                    format.Alignment = alignment;
+                    format.LineAlignment = lineAlignment;
+                    graphics.TextRenderingHint = textRenderingHint;
+                    renderer(image, graphics, text, font, brush, format, state);
+                }
+            };
         }
     }
 }

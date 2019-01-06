@@ -28,16 +28,20 @@ namespace Bonsai.Vision.Drawing
         [Description("The interpolation method used to resize the input image, if necessary.")]
         public SubPixelInterpolation Interpolation { get; set; }
 
-        protected override void Draw(IplImage image)
+        protected override Action<IplImage> GetRenderer()
         {
             var input = Image;
-            if (input != null)
+            var destination = Destination;
+            var interpolation = Interpolation;
+            return image =>
             {
-                var destination = Destination;
-                if (destination.Width > 0 && destination.Height > 0) image = image.GetSubRect(destination);
-                if (input.Size != image.Size) CV.Resize(input, image, Interpolation);
-                else CV.Copy(input, image);
-            }
+                if (input != null)
+                {
+                    if (destination.Width > 0 && destination.Height > 0) image = image.GetSubRect(destination);
+                    if (input.Size != image.Size) CV.Resize(input, image, interpolation);
+                    else CV.Copy(input, image);
+                }
+            };
         }
     }
 }

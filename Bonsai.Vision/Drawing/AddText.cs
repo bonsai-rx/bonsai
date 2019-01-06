@@ -16,10 +16,12 @@ namespace Bonsai.Vision.Drawing
         [Description("The coordinates of the upper-left corner of the drawn text.")]
         public Point Origin { get; set; }
 
-        internal override void Draw(IplImage image, Graphics graphics, Brush brush, StringFormat format)
+        protected override Action<IplImage> GetRenderer()
         {
-            var origin = Origin;
-            graphics.DrawString(Text, Font, brush, origin.X, origin.Y, format);
+            return GetRenderer(Origin, (image, graphics, text, font, brush, format, origin) =>
+            {
+                graphics.DrawString(text, font, brush, origin.X, origin.Y, format);
+            });
         }
     }
 }

@@ -10,14 +10,14 @@ namespace Bonsai.Vision.Drawing
     public class Canvas
     {
         readonly Func<IplImage> generator;
-        readonly Action<IplImage>[] drawing;
+        readonly DrawingCall[] drawing;
 
         internal Canvas(Func<IplImage> generator)
         {
             this.generator = generator;
         }
 
-        internal Canvas(Canvas canvas, Action<IplImage> draw)
+        internal Canvas(Canvas canvas, DrawingCall draw)
         {
             generator = canvas.generator;
             drawing = SubCanvas.AppendCommand(canvas.drawing, draw);
@@ -41,24 +41,35 @@ namespace Bonsai.Vision.Drawing
             {
                 for (int i = 0; i < drawing.Length; i++)
                 {
-                    drawing[i](image);
+                    try { drawing[i].Action(image); }
+                    catch (Exception ex)
+                    {
+                        drawing[i].Observer.OnError(ex);
+                        throw;
+                    }
                 }
             }
             return image;
         }
     }
 
+    struct DrawingCall
+    {
+        public Action<IplImage> Action;
+        public IObserver<Canvas> Observer;
+    }
+
     class SubCanvas
     {
         internal readonly Func<IplImage, IplImage> generator;
-        internal readonly Action<IplImage>[] drawing;
+        internal readonly DrawingCall[] drawing;
 
         public SubCanvas(Func<IplImage, IplImage> generator)
         {
             this.generator = generator;
         }
 
-        public SubCanvas(SubCanvas canvas, Action<IplImage> draw)
+        public SubCanvas(SubCanvas canvas, DrawingCall draw)
         {
             generator = canvas.generator;
             drawing = AppendCommand(canvas.drawing, draw);
@@ -75,23 +86,24 @@ namespace Bonsai.Vision.Drawing
             drawing = MergeCommands(source.drawing, other.drawing, excludeSource);
         }
 
-        internal static Action<IplImage>[] AppendCommand(Action<IplImage>[] drawing, Action<IplImage> draw)
+        internal static DrawingCall[] AppendCommand(DrawingCall[] drawing, DrawingCall draw)
         {
             if (drawing == null) return new[] { draw };
             else
             {
-                var subCanvas = drawing[drawing.Length - 1].Target as SubCanvas;
+                var subCanvas = drawing[drawing.Length - 1].Action.Target as SubCanvas;
                 if (subCanvas != null)
                 {
                     subCanvas = new SubCanvas(subCanvas, draw);
-                    var result = new Action<IplImage>[drawing.Length];
+                    var result = new DrawingCall[drawing.Length];
                     Array.Copy(drawing, result, drawing.Length - 1);
-                    result[drawing.Length - 1] = subCanvas.Draw;
+                    draw.Action = subCanvas.Draw;
+                    result[drawing.Length - 1] = draw;
                     return result;
                 }
                 else
                 {
-                    var result = new Action<IplImage>[drawing.Length + 1];
+                    var result = new DrawingCall[drawing.Length + 1];
                     Array.Copy(drawing, result, drawing.Length);
                     result[drawing.Length] = draw;
                     return result;
@@ -99,47 +111,47 @@ namespace Bonsai.Vision.Drawing
             }
         }
 
-        internal static Action<IplImage>[] MergeCommands(Action<IplImage>[] source, Action<IplImage>[] other, bool excludeSource = false)
+        internal static DrawingCall[] MergeCommands(DrawingCall[] source, DrawingCall[] other, bool excludeSource = false)
         {
             if (source == other) return source;
             else if (source == null) return other;
             else if (other == null) return source;
             else
             {
-                var commandList = new List<Action<IplImage>>();
+                var commandList = new List<DrawingCall>();
                 var hashSet = new Dictionary<Action<IplImage>, int>(SubCanvasEqualityComparer.Default);
                 for (int i = 0; i < source.Length; i++)
                 {
-                    hashSet.Add(source[i], i);
+                    hashSet.Add(source[i].Action, i);
                     if (!excludeSource) commandList.Add(source[i]);
                 }
 
                 for (int i = 0; i < other.Length; i++)
                 {
                     int index;
-                    if (hashSet.TryGetValue(other[i], out index))
+                    if (hashSet.TryGetValue(other[i].Action, out index))
                     {
-                        var sourceAction = source[index];
-                        if (object.ReferenceEquals(sourceAction, other[i])) continue;
+                        var sourceDraw = source[index];
+                        if (object.ReferenceEquals(sourceDraw.Action, other[i].Action)) continue;
 
-                        var subCanvas = other[i].Target as SubCanvas;
+                        var subCanvas = other[i].Action.Target as SubCanvas;
                         if (subCanvas != null)
                         {
                             if (!excludeSource && i == 0 && index == hashSet.Count - 1)
                             {
                                 // actions are adjacent in command list so we can merge the two subcanvases
-                                subCanvas = new SubCanvas((SubCanvas)sourceAction.Target, subCanvas, excludeSource: false);
-                                sourceAction = subCanvas.Draw;
-                                hashSet.Remove(sourceAction);
-                                hashSet.Add(sourceAction, index);
-                                commandList[index] = sourceAction;
+                                subCanvas = new SubCanvas((SubCanvas)sourceDraw.Action.Target, subCanvas, excludeSource: false);
+                                sourceDraw.Action = subCanvas.Draw;
+                                hashSet.Remove(sourceDraw.Action);
+                                hashSet.Add(sourceDraw.Action, index);
+                                commandList[index] = sourceDraw;
                             }
                             else
                             {
                                 // remove redundant actions from other subcanvas
-                                subCanvas = new SubCanvas((SubCanvas)sourceAction.Target, subCanvas, excludeSource: true);
-                                sourceAction = subCanvas.Draw;
-                                commandList.Add(sourceAction);
+                                subCanvas = new SubCanvas((SubCanvas)sourceDraw.Action.Target, subCanvas, excludeSource: true);
+                                sourceDraw.Action = subCanvas.Draw;
+                                commandList.Add(sourceDraw);
                             }
                         }
                     }
@@ -191,7 +203,12 @@ namespace Bonsai.Vision.Drawing
                 {
                     for (int i = 0; i < drawing.Length; i++)
                     {
-                        drawing[i](subImage);
+                        try { drawing[i].Action(subImage); }
+                        catch (Exception ex)
+                        {
+                            drawing[i].Observer.OnError(ex);
+                            throw;
+                        }
                     }
                 }
             }

@@ -38,12 +38,15 @@ namespace Bonsai.Vision.Drawing
 
         private Canvas Create(IObserver<Canvas> observer)
         {
+            var color = Color;
+            var size = Size;
+            var depth = Depth;
+            var channels = Channels;
             return new Canvas(() =>
             {
                 try
                 {
-                    var color = Color;
-                    var output = new IplImage(Size, Depth, Channels);
+                    var output = new IplImage(size, depth, channels);
                     if (color.HasValue) output.Set(color.Value);
                     return output;
                 }
@@ -68,8 +71,8 @@ namespace Bonsai.Vision.Drawing
         {
             return Observable.Create<Canvas>(observer =>
             {
-                var canvas = Create(observer);
-                return source.Select(input => canvas).SubscribeSafe(observer);
+                return source.Select(input => Create(observer))
+                             .SubscribeSafe(observer);
             });
         }
     }

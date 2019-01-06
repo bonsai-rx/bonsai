@@ -21,25 +21,32 @@ namespace Bonsai.Vision.Drawing
         {
             return Observable.Create<Canvas>(observer =>
             {
-                var subCanvas = new SubCanvas(image =>
+                return source.Select(input =>
                 {
-                    try
+                    var rect = RegionOfInterest;
+                    var subCanvas = new SubCanvas(image =>
                     {
-                        var rect = RegionOfInterest;
-                        if (rect.Width > 0 && rect.Height > 0)
+                        try
                         {
-                            return image.GetSubRect(rect);
-                        }
+                            if (rect.Width > 0 && rect.Height > 0)
+                            {
+                                return image.GetSubRect(rect);
+                            }
 
-                        return image;
-                    }
-                    catch (Exception ex)
-                    {
-                        observer.OnError(ex);
-                        throw;
-                    }
-                });
-                return source.Select(input => new Canvas(input, subCanvas.Draw)).SubscribeSafe(observer);
+                            return image;
+                        }
+                        catch (Exception ex)
+                        {
+                            observer.OnError(ex);
+                            throw;
+                        }
+                    });
+
+                    DrawingCall draw;
+                    draw.Action = subCanvas.Draw;
+                    draw.Observer = observer;
+                    return new Canvas(input, draw);
+                }).SubscribeSafe(observer);
             });
         }
     }

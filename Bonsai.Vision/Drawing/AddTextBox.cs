@@ -15,12 +15,14 @@ namespace Bonsai.Vision.Drawing
         [Description("The optional region in which to draw the text. By default the box will fill the entire image.")]
         public Rect Destination { get; set; }
 
-        internal override void Draw(IplImage image, Graphics graphics, Brush brush, StringFormat format)
+        protected override Action<IplImage> GetRenderer()
         {
-            var rect = Destination;
-            if (rect.Width == 0) rect.Width = image.Width;
-            if (rect.Height == 0) rect.Height = image.Height;
-            graphics.DrawString(Text, Font, brush, new RectangleF(rect.X, rect.Y, rect.Width, rect.Height), format);
+            return GetRenderer(Destination, (image, graphics, text, font, brush, format, rect) =>
+            {
+                if (rect.Width == 0) rect.Width = image.Width;
+                if (rect.Height == 0) rect.Height = image.Height;
+                graphics.DrawString(text, font, brush, new RectangleF(rect.X, rect.Y, rect.Width, rect.Height), format);
+            });
         }
     }
 }
