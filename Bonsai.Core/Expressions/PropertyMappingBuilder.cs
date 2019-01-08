@@ -18,7 +18,7 @@ namespace Bonsai.Expressions
     [WorkflowElementCategory(ElementCategory.Property)]
     [XmlType("PropertyMapping", Namespace = Constants.XmlNamespace)]
     [Description("Assigns values of an observable sequence to properties of a workflow element.")]
-    public class PropertyMappingBuilder : SingleArgumentExpressionBuilder, IArgumentBuilder
+    public class PropertyMappingBuilder : SingleArgumentExpressionBuilder, INamedElement, IArgumentBuilder
     {
         readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
 
@@ -31,6 +31,21 @@ namespace Bonsai.Expressions
         public PropertyMappingCollection PropertyMappings
         {
             get { return propertyMappings; }
+        }
+
+        string INamedElement.Name
+        {
+            get
+            {
+                if (propertyMappings.Count > 0)
+                {
+                    return string.Join(
+                        ExpressionHelper.ArgumentSeparator,
+                        propertyMappings.Select(mapping => mapping.Name));
+                }
+
+                return GetElementDisplayName(GetType());
+            }
         }
 
         /// <summary>
