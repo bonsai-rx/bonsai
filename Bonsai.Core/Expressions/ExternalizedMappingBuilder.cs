@@ -45,7 +45,7 @@ namespace Bonsai.Expressions
                             : property.ExternalizedName));
                 }
 
-                return "ExternalizedMapping";
+                return GetElementDisplayName(GetType());
             }
         }
 

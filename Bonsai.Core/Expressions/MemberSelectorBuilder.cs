@@ -44,7 +44,7 @@ namespace Bonsai.Expressions
                     catch (InvalidOperationException) { }
                 }
 
-                return "MemberSelector";
+                return GetElementDisplayName(GetType());
             }
         }
 
