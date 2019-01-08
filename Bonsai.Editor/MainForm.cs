@@ -356,7 +356,6 @@ namespace Bonsai.Editor
         {
             typeof(CSharpSource),
             typeof(CSharpTransform),
-            typeof(CSharpCondition),
             typeof(CSharpSink),
             typeof(CSharpCombinator)
         };

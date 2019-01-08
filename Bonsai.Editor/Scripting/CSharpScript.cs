@@ -99,16 +99,6 @@ namespace Bonsai.Editor.Scripting
         }
     }
 
-    [WorkflowElementCategory(ElementCategory.Condition)]
-    [Description("Creates a new condition operator backed by a C# script." + ActivationInstructions)]
-    class CSharpCondition : CSharpCombinator
-    {
-        public CSharpCondition()
-            : base(ElementCategory.Condition)
-        {
-        }
-    }
-
     [WorkflowElementCategory(ElementCategory.Sink)]
     [Description("Creates a new sink operator backed by a C# script." + ActivationInstructions)]
     class CSharpSink : CSharpCombinator
