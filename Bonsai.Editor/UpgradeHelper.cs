@@ -33,8 +33,29 @@ namespace Bonsai.Editor
             return version < DeprecationTarget;
         }
 
+        static void GetArgumentCount(ExpressionBuilderGraph workflow, Dictionary<ExpressionBuilder, int> argumentCount)
+        {
+            foreach (var node in workflow.TopologicalSort())
+            {
+                foreach (var successor in node.Successors)
+                {
+                    int count;
+                    argumentCount.TryGetValue(successor.Target.Value, out count);
+                    argumentCount[successor.Target.Value] = count + 1;
+                }
+
+                var workflowExpression = node.Value as WorkflowExpressionBuilder;
+                if (workflowExpression != null)
+                {
+                    GetArgumentCount(workflowExpression.Workflow, argumentCount);
+                }
+            }
+        }
+
         internal static ExpressionBuilderGraph UpgradeBuilderNodes(ExpressionBuilderGraph workflow, SemanticVersion version)
         {
+            var argumentCount = new Dictionary<ExpressionBuilder, int>();
+            GetArgumentCount(workflow, argumentCount);
             return workflow.Convert(builder =>
             {
                 var sourceBuilder = builder as SourceBuilder;
@@ -59,11 +80,23 @@ namespace Bonsai.Editor
                 var property = builder as ExternalizedProperty;
                 if (property != null)
                 {
-                    return new ExternalizedProperty
+                    int count;
+                    if (argumentCount.TryGetValue(property, out count))
                     {
-                        MemberName = property.MemberName,
-                        Name = property.Name
-                    };
+                        var mapping = new PropertyMapping();
+                        mapping.Name = property.MemberName;
+                        return new PropertyMappingBuilder { PropertyMappings = { mapping } };
+                    }
+                    else
+                    {
+                        var mapping = new ExternalizedMapping();
+                        mapping.Name = property.MemberName;
+                        if (property.Name != property.MemberName)
+                        {
+                            mapping.DisplayName = property.Name;
+                        }
+                        return new ExternalizedMappingBuilder { ExternalizedProperties = { mapping } };
+                    }
                 }
 
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
