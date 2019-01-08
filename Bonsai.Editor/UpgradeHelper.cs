@@ -86,6 +86,12 @@ namespace Bonsai.Editor
                         {
                             mapping.Selector = RemoveMemberSelectorPrefix(mapping.Selector);
                         }
+
+                        var inputMapping = mappingBuilder as InputMappingBuilder;
+                        if (inputMapping != null)
+                        {
+                            inputMapping.Selector = RemoveMemberSelectorPrefix(inputMapping.Selector);
+                        }
                     }
                     else
                     {
