@@ -188,7 +188,6 @@ namespace Bonsai.Editor.Scripting
             switch (scriptComponent.Category)
             {
                 case ElementCategory.Source: template = "Observable.Return(0)"; break;
-                case ElementCategory.Condition: template = "source.Where(value => true)"; break;
                 case ElementCategory.Transform: template = "source.Select(value => value)"; break;
                 case ElementCategory.Sink: template = "source.Do(value => Console.WriteLine(value))"; break;
                 case ElementCategory.Combinator: template = "source"; break;
