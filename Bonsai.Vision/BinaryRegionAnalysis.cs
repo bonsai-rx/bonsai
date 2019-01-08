@@ -16,6 +16,11 @@ namespace Bonsai.Vision
             return source.Select(input => ConnectedComponent.FromImage(input));
         }
 
+        public IObservable<ConnectedComponent> Process(IObservable<Seq> source)
+        {
+            return source.Select(input => ConnectedComponent.FromContour(input));
+        }
+
         public override IObservable<ConnectedComponentCollection> Process(IObservable<Contours> source)
         {
             return source.Select(input =>
