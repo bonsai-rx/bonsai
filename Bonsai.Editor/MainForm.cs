@@ -565,20 +565,6 @@ namespace Bonsai.Editor
             return packageKey.Replace(BonsaiPackageName + ".", string.Empty);
         }
 
-        static int GetElementTypeIndex(string typeName)
-        {
-            return
-                typeName == ElementCategory.Source.ToString() ? 0 :
-                typeName == ElementCategory.Condition.ToString() ? 1 :
-                typeName == ElementCategory.Transform.ToString() ? 2 :
-                typeName == ElementCategory.Sink.ToString() ? 3 : 4;
-        }
-
-        static int CompareLoadableElementType(string left, string right)
-        {
-            return GetElementTypeIndex(left).CompareTo(GetElementTypeIndex(right));
-        }
-
         void InitializeToolboxCategory(string categoryName, IEnumerable<WorkflowElementDescriptor> types)
         {
             foreach (var type in types.OrderBy(type => type.Name))
