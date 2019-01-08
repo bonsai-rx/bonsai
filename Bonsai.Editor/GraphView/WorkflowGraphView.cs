@@ -3040,7 +3040,7 @@ namespace Bonsai.Design
             {
                 if (!property.IsBrowsable || property.IsReadOnly && !ExpressionHelper.IsCollectionType(property.PropertyType)) continue;
                 var propertySource = workflowElement as PropertySource;
-                var externalizedName = propertySource != null ? propertySource.MemberName : property.Name;
+                var externalizedName = propertySource != null ? propertySource.MemberName : null;
                 var menuItem = CreateExternalizeMenuItem(property.Name, externalizedName, property.PropertyType, selectedNode);
                 menuItem.Enabled = !mappedProperties.Contains(property.Name);                
                 ownerItem.DropDownItems.Add(menuItem);
@@ -3053,10 +3053,26 @@ namespace Bonsai.Design
             Type memberType,
             GraphNode selectedNode)
         {
-            var menuItem = new ToolStripMenuItem(externalizedName, null, delegate
+            var text = string.IsNullOrEmpty(externalizedName) ? memberName : externalizedName;
+            var menuItem = new ToolStripMenuItem(text, null, delegate
             {
-                var property = new ExternalizedProperty { MemberName = memberName, Name = externalizedName };
-                CreateGraphNode(property, selectedNode, CreateGraphNodeType.Predecessor, branch: true);
+                var mapping = new ExternalizedMapping { Name = memberName, DisplayName = externalizedName };
+                var mappingNode = (from predecessor in workflow.Predecessors(GetGraphNodeTag(workflow, selectedNode))
+                                   let builder = ExpressionBuilder.Unwrap(predecessor.Value) as ExternalizedMappingBuilder
+                                   where builder != null && predecessor.Successors.Count == 1
+                                   select new { node = FindGraphNode(predecessor.Value), builder })
+                                   .FirstOrDefault();
+                if (mappingNode == null)
+                {
+                    var mappingBuilder = new ExternalizedMappingBuilder { ExternalizedProperties = { mapping } };
+                    CreateGraphNode(mappingBuilder, selectedNode, CreateGraphNodeType.Predecessor, branch: true);
+                }
+                else
+                {
+                    mappingNode.builder.ExternalizedProperties.Add(mapping);
+                    RefreshEditorNode(mappingNode.node);
+                    editorService.ValidateWorkflow();
+                }
                 contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
             });
 
