@@ -392,6 +392,19 @@ namespace Bonsai
     </xsl:attribute>
   </xsl:template>
 
+  <xsl:template match=""bonsai:PropertyMappings/bonsai:Property"">
+    <xsl:element name=""Property"" namespace=""{$uri}"">
+      <xsl:attribute name=""Name"">
+        <xsl:value-of select=""@name""/>
+      </xsl:attribute>
+      <xsl:if test=""@selector"">
+        <xsl:attribute name=""Selector"">
+          <xsl:value-of select=""@selector""/>
+        </xsl:attribute>
+      </xsl:if>
+    </xsl:element>
+  </xsl:template>
+
   <xsl:template match=""bonsai:Workflow/bonsai:Edges/bonsai:Edge"">
     <xsl:element name=""Edge"" namespace=""{$uri}"">
       <xsl:attribute name=""From"">
