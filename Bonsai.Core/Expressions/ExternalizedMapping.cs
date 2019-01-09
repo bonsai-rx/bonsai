@@ -19,8 +19,8 @@ namespace Bonsai.Expressions
         /// <summary>
         /// Gets or sets the member name of the externalized property.
         /// </summary>
+        [XmlAttribute]
         [Category("Member")]
-        [XmlAttribute("name")]
         [TypeConverter(typeof(ExternalizedMappingNameConverter))]
         [Description("The member name of the externalized property.")]
         public string Name { get; set; }
@@ -29,7 +29,6 @@ namespace Bonsai.Expressions
         /// Gets or sets an optional display name of the externalized property.
         /// </summary>
         [Category("Design")]
-        [XmlAttribute("displayName")]
         [Description("The optional display name that will appear on the pages of a nested workflow.")]
         public string DisplayName { get; set; }
 
@@ -37,7 +36,6 @@ namespace Bonsai.Expressions
         /// Gets or sets an optional description for the externalized property.
         /// </summary>
         [Category("Design")]
-        [XmlAttribute("description")]
         [Description("The optional description for the externalized property.")]
         [Editor(DesignTypes.MultilineStringEditor, DesignTypes.UITypeEditor)]
         public string Description { get; set; }
@@ -46,7 +44,6 @@ namespace Bonsai.Expressions
         /// Gets or sets an optional category for the externalized property.
         /// </summary>
         [Category("Design")]
-        [XmlAttribute("category")]
         [Description("The optional category used to group the externalized property.")]
         public string Category { get; set; }
 
