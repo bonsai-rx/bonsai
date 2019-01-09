@@ -25,7 +25,7 @@ namespace Bonsai.Expressions
         /// Gets the collection of properties to be externalized from the workflow element.
         /// </summary>
         [Externalizable(false)]
-        [XmlArrayItem("Property")]
+        [XmlElement("Property")]
         [Description("Specifies the set of properties to be externalized.")]
         public ExternalizedMappingCollection ExternalizedProperties
         {
