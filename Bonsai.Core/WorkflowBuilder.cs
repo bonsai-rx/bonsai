@@ -394,13 +394,13 @@ namespace Bonsai
 
   <xsl:template match=""bonsai:Workflow/bonsai:Edges/bonsai:Edge"">
     <xsl:element name=""Edge"" namespace=""{$uri}"">
-      <xsl:attribute name=""from"">
+      <xsl:attribute name=""From"">
         <xsl:value-of select=""bonsai:From""/>
       </xsl:attribute>
-      <xsl:attribute name=""to"">
+      <xsl:attribute name=""To"">
         <xsl:value-of select=""bonsai:To""/>
       </xsl:attribute>
-      <xsl:attribute name=""label"">
+      <xsl:attribute name=""Label"">
         <xsl:value-of select=""bonsai:Label""/>
       </xsl:attribute>
     </xsl:element>
