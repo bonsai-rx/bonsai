@@ -16,8 +16,8 @@ namespace Bonsai.Shaders
         [Description("The name of the mesh geometry to aggregate.")]
         public string Name { get; set; }
 
+        [XmlAttribute]
         [DefaultValue(0)]
-        [XmlAttribute("divisor")]
         [Description("Optionally specifies the number of instances populated by each buffer item in case of instanced rendering.")]
         public int Divisor { get; set; }
     }
