@@ -36,19 +36,19 @@ namespace Bonsai.Expressions
         /// <summary>
         /// Gets or sets the zero-based index of the node that is the source of the edge.
         /// </summary>
-        [XmlAttribute("from")]
+        [XmlAttribute]
         public int From { get; set; }
 
         /// <summary>
         /// Gets or sets the zero-based index of the node that is the target of the edge.
         /// </summary>
-        [XmlAttribute("to")]
+        [XmlAttribute]
         public int To { get; set; }
 
         /// <summary>
         /// Gets or sets the value of the edge label.
         /// </summary>
-        [XmlAttribute("label")]
+        [XmlAttribute]
         public string Label { get; set; }
     }
 }
