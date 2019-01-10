@@ -104,7 +104,12 @@ namespace Bonsai.Design
 
             if (resourceQualifier != null)
             {
-                var assemblyName = resourceQualifier.Assembly.GetName().Name;
+                string assemblyName;
+                var iconAttribute = (WorkflowIconAttribute)(
+                    Attribute.GetCustomAttribute(resourceQualifier.Assembly, typeof(WorkflowIconAttribute))
+                    ?? WorkflowIconAttribute.Default);
+                if (!string.IsNullOrEmpty(iconAttribute.Name)) assemblyName = iconAttribute.Name;
+                else assemblyName = resourceQualifier.Assembly.GetName().Name;
                 return new ElementIcon(assemblyName + AssemblySeparator + resourceQualifier.Namespace, null);
             }
             else
