@@ -80,6 +80,7 @@
     <Compile Include="FolderBrowserDialog.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="MappingCollectionEditor.cs" />
     <Compile Include="MultiMemberSelectorEditor.cs" />
     <Compile Include="IMemberSelectorEditorDialog.cs" />
     <Compile Include="MultiMemberSelectorEditorDialog.cs">

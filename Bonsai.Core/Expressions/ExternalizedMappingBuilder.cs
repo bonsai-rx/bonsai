@@ -27,6 +27,7 @@ namespace Bonsai.Expressions
         [Externalizable(false)]
         [XmlElement("Property")]
         [Description("Specifies the set of properties to be externalized.")]
+        [Editor("Bonsai.Design.MappingCollectionEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public ExternalizedMappingCollection ExternalizedProperties
         {
             get { return externalizedProperties; }

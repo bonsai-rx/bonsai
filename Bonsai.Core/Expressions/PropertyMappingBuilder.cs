@@ -28,6 +28,7 @@ namespace Bonsai.Expressions
         /// </summary>
         [XmlArrayItem("Property")]
         [Description("Specifies how input values are assigned to properties of the workflow element.")]
+        [Editor("Bonsai.Design.MappingCollectionEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public PropertyMappingCollection PropertyMappings
         {
             get { return propertyMappings; }
