@@ -1092,6 +1092,101 @@ namespace Bonsai.Design
             return boundingRect.Size;
         }
 
+        private void DrawNode(
+            IGraphics graphics,
+            LayoutNode layout,
+            Size offset,
+            Pen iconPen,
+            Pen pen,
+            Brush brush,
+            Brush textBrush,
+            bool hot = false,
+            bool cursor = false,
+            Font vectorFont = null)
+        {
+            var nodeRectangle = new Rectangle(
+                layout.Location.X + offset.Width,
+                layout.Location.Y + offset.Height,
+                NodeSize, NodeSize);
+
+            SvgRenderer renderer;
+            iconRendererState.Outlining = iconPen;
+            iconRendererState.Translation = nodeRectangle.Location;
+            graphics.DrawEllipse(pen, nodeRectangle);
+            if (IconRenderer != null &&
+               (renderer = IconRenderer.GetCategoryRenderer(layout.Node)) != null)
+            {
+                renderer(iconRendererState, graphics);
+            }
+            else graphics.FillEllipse(layout.Node.Brush, nodeRectangle);
+
+            if (brush != null)
+            {
+                graphics.FillEllipse(brush, nodeRectangle);
+            }
+
+            if (IconRenderer != null && layout.Node.Icon != null &&
+               (renderer = IconRenderer.GetIconRenderer(layout.Node)) != null)
+            {
+                renderer(iconRendererState, graphics);
+            }
+            else if (vectorFont != null)
+            {
+                graphics.DrawString(
+                    layout.Label.Substring(0, 1),
+                    vectorFont, textBrush,
+                    new RectangleF(
+                        nodeRectangle.Location,
+                        SizeF.Add(nodeRectangle.Size, VectorTextOffset)),
+                    CenteredTextFormat);
+            }
+            else
+            {
+                graphics.DrawString(
+                    layout.Label.Substring(0, 1),
+                    Font, textBrush,
+                    nodeRectangle, CenteredTextFormat);
+            }
+
+            if (hot) graphics.FillEllipse(HotBrush, nodeRectangle);
+            if (layout.Node.ArgumentCount < layout.Node.ArgumentRange.UpperBound)
+            {
+                var connectorRectangle = layout.ConnectorRectangle;
+                var connectorBrush = layout.Node.ArgumentCount < layout.Node.ArgumentRange.LowerBound
+                    ? cursor ? Brushes.Black : Brushes.DarkGray
+                    : Brushes.White;
+                connectorRectangle.Offset(offset.Width, offset.Height);
+                graphics.DrawEllipse(pen, connectorRectangle);
+                graphics.FillEllipse(connectorBrush, connectorRectangle);
+            }
+        }
+
+        private void DrawDummyNode(IGraphics graphics, LayoutNode layout, Size offset)
+        {
+            if (layout.Node.Tag != null)
+            {
+                graphics.DrawLine(
+                    GetCustomPen(layout.Node.Pen),
+                    Point.Add(layout.EntryPoint, offset),
+                    Point.Add(layout.ExitPoint, offset));
+            }
+        }
+
+        private void DrawEdges(IGraphics graphics, Size offset)
+        {
+            foreach (var layout in layoutNodes)
+            {
+                foreach (var successor in layout.Node.Successors)
+                {
+                    var successorLayout = layoutNodes[successor.Node];
+                    graphics.DrawLine(
+                        GetCustomPen(layout.Node.Pen),
+                        Point.Add(layout.ExitPoint, offset),
+                        Point.Add(successorLayout.EntryPoint, offset));
+                }
+            }
+        }
+
         public void DrawGraphics(IGraphics graphics, bool scaleFont)
         {
             var textBrush = Brushes.Black;
@@ -1108,58 +1203,12 @@ namespace Bonsai.Design
                     font = ExportFont;
                 }
 
-                foreach (var layout in layoutNodes)
-                {
-                    foreach (var successor in layout.Node.Successors)
-                    {
-                        var successorLayout = layoutNodes[successor.Node];
-                        graphics.DrawLine(GetCustomPen(layout.Node.Pen), layout.ExitPoint, successorLayout.EntryPoint);
-                    }
-                }
-
+                DrawEdges(graphics, Size.Empty);
                 foreach (var layout in layoutNodes)
                 {
                     if (layout.Node.Value != null)
                     {
-                        var selected = selectedNodes.Contains(layout.Node);
-                        var nodeRectangle = new Rectangle(
-                            layout.Location.X,
-                            layout.Location.Y,
-                            NodeSize, NodeSize);
-
-                        SvgRenderer renderer;
-                        iconRendererState.Outlining = BlackIconPen;
-                        iconRendererState.Translation = nodeRectangle.Location;
-                        graphics.DrawEllipse(NodePen, nodeRectangle);
-                        if (IconRenderer != null &&
-                           (renderer = IconRenderer.GetCategoryRenderer(layout.Node)) != null)
-                        {
-                            renderer(iconRendererState, graphics);
-                        }
-                        else graphics.FillEllipse(layout.Node.Brush, nodeRectangle);
-
-                        var modifierBrush = layout.Node.ModifierBrush;
-                        if (modifierBrush != null)
-                        {
-                            graphics.FillEllipse(modifierBrush, nodeRectangle);
-                        }
-
-                        if (IconRenderer != null && layout.Node.Icon != null &&
-                           (renderer = IconRenderer.GetIconRenderer(layout.Node)) != null)
-                        {
-                            renderer(iconRendererState, graphics);
-                        }
-                        else
-                        {
-                            graphics.DrawString(
-                                layout.Label.Substring(0, 1),
-                                font, textBrush,
-                                new RectangleF(
-                                    nodeRectangle.Location,
-                                    SizeF.Add(nodeRectangle.Size, VectorTextOffset)),
-                                CenteredTextFormat);
-                        }
-
+                        DrawNode(graphics, layout, Size.Empty, BlackIconPen, NodePen, layout.Node.ModifierBrush, textBrush, vectorFont: font);
                         var labelRect = layout.LabelRectangle;
                         foreach (var line in layout.Label.Split(Environment.NewLine.ToArray(),
                                                                 StringSplitOptions.RemoveEmptyEntries))
@@ -1175,10 +1224,7 @@ namespace Bonsai.Design
                             labelRect.Y += size.Height;
                         }
                     }
-                    else if (layout.Node.Tag != null)
-                    {
-                        graphics.DrawLine(GetCustomPen(layout.Node.Pen), layout.EntryPoint, layout.ExitPoint);
-                    }
+                    else DrawDummyNode(graphics, layout, Size.Empty);
                 }
             }
         }
@@ -1189,18 +1235,7 @@ namespace Bonsai.Design
             var offset = new Size(-canvas.HorizontalScroll.Value, -canvas.VerticalScroll.Value);
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
-            foreach (var layout in layoutNodes)
-            {
-                foreach (var successor in layout.Node.Successors)
-                {
-                    var successorLayout = layoutNodes[successor.Node];
-                    e.Graphics.DrawLine(
-                        GetCustomPen(layout.Node.Pen),
-                        Point.Add(layout.ExitPoint, offset),
-                        Point.Add(successorLayout.EntryPoint, offset));
-                }
-            }
-
+            DrawEdges(graphics, offset);
             foreach (var layout in layoutNodes)
             {
                 if (layout.Node.Value != null)
@@ -1221,65 +1256,15 @@ namespace Bonsai.Design
                         brush = selected ? (Focused ? FocusedSelectionBrush : UnfocusedSelectionBrush) : layout.Node.ModifierBrush;
                     }
 
-                    var nodeRectangle = new Rectangle(
-                        layout.Location.X + offset.Width,
-                        layout.Location.Y + offset.Height,
-                        NodeSize, NodeSize);
-
-                    SvgRenderer renderer;
-                    iconRendererState.Outlining = iconPen;
-                    iconRendererState.Translation = nodeRectangle.Location;
-                    e.Graphics.DrawEllipse(pen, nodeRectangle);
-                    if (IconRenderer != null &&
-                       (renderer = IconRenderer.GetCategoryRenderer(layout.Node)) != null)
-                    {
-                        renderer(iconRendererState, graphics);
-                    }
-                    else e.Graphics.FillEllipse(layout.Node.Brush, nodeRectangle);
-
-                    if (brush != null)
-                    {
-                        e.Graphics.FillEllipse(brush, nodeRectangle);
-                    }
-
-                    if (IconRenderer != null && layout.Node.Icon != null &&
-                       (renderer = IconRenderer.GetIconRenderer(layout.Node)) != null)
-                    {
-                        renderer(iconRendererState, graphics);
-                    }
-                    else
-                    {
-                        e.Graphics.DrawString(
-                            layout.Label.Substring(0, 1),
-                            Font, textBrush,
-                            nodeRectangle, CenteredTextFormat);
-                    }
-
-                    if (layout.Node == hot) e.Graphics.FillEllipse(HotBrush, nodeRectangle);
-                    if (layout.Node.ArgumentCount < layout.Node.ArgumentRange.UpperBound)
-                    {
-                        var connectorRectangle = layout.ConnectorRectangle;
-                        var connectorBrush = layout.Node.ArgumentCount < layout.Node.ArgumentRange.LowerBound
-                            ? cursor == layout.Node ? Brushes.Black : Brushes.DarkGray
-                            : Brushes.White;
-                        connectorRectangle.Offset(offset.Width, offset.Height);
-                        e.Graphics.DrawEllipse(pen, connectorRectangle);
-                        e.Graphics.FillEllipse(connectorBrush, connectorRectangle);                     
-                    }
+                    DrawNode(graphics, layout, offset, iconPen, pen, brush, textBrush, layout.Node == hot, layout.Node == cursor);
                     if (TextDrawMode == GraphViewTextDrawMode.All || layout.Node == hot)
                     {
                         var labelRect = layout.LabelRectangle;
                         labelRect.Location += offset;
-                        e.Graphics.DrawString(layout.Label, Font, TextBrush, labelRect, TextFormat);
+                        graphics.DrawString(layout.Label, Font, TextBrush, labelRect, TextFormat);
                     }
                 }
-                else if (layout.Node.Tag != null)
-                {
-                    e.Graphics.DrawLine(
-                        GetCustomPen(layout.Node.Pen),
-                        Point.Add(layout.EntryPoint, offset),
-                        Point.Add(layout.ExitPoint, offset));
-                }
+                else DrawDummyNode(graphics, layout, offset);
             }
 
             if (rubberBand.Width > 0 && rubberBand.Height > 0)
