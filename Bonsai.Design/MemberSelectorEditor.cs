@@ -44,6 +44,24 @@ namespace Bonsai.Design
             return UITypeEditorEditStyle.Modal;
         }
 
+        static PropertyMapping GetPropertyMapping(ITypeDescriptorContext context)
+        {
+            var mapping = context.Instance as PropertyMapping;
+            if (mapping != null) return mapping;
+
+            var multiSelection = context.Instance as object[];
+            if (multiSelection != null)
+            {
+                for (int i = 0; i < multiSelection.Length; i++)
+                {
+                    mapping = multiSelection[i] as PropertyMapping;
+                    if (mapping == null) break;
+                }
+            }
+
+            return mapping;
+        }
+
         static Node<ExpressionBuilder, ExpressionBuilderArgument> GetPropertyMappingBuilderNode(
             PropertyMapping mapping,
             ExpressionBuilderGraph nodeBuilderGraph,
@@ -85,7 +103,7 @@ namespace Bonsai.Design
 
                 var workflow = workflowBuilder.Workflow;
                 Node<ExpressionBuilder, ExpressionBuilderArgument> builderNode;
-                var mapping = context.Instance as PropertyMapping;
+                var mapping = GetPropertyMapping(context);
                 if (mapping != null)
                 {
                     builderNode = GetPropertyMappingBuilderNode(mapping, nodeBuilderGraph, out nodeBuilderGraph);
