@@ -14,7 +14,7 @@ namespace Bonsai.Expressions
     /// Represents an expression builder which returns elements from an observable sequence
     /// as long as the condition specified by the encapsulated workflow is true.
     /// </summary>
-    [WorkflowElementCategory(ElementCategory.Condition)]
+    [WorkflowElementCategory(ElementCategory.Combinator)]
     [XmlType("TakeWhile", Namespace = Constants.XmlNamespace)]
     [Description("Returns elements from an observable sequence as long as the condition specified by the encapsulated workflow is true.")]
     public class TakeWhileBuilder : ConditionBuilder
