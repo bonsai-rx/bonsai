@@ -581,10 +581,14 @@ namespace Bonsai.Design
             var control = keyData.HasFlag(Keys.Control);
             if (control) keyData &= ~Keys.Control;
 
-            if (keyData == Keys.Space && control && cursor != null)
+            if (keyData == Keys.Space && cursor != null)
             {
-                if (selectedNodes.Contains(cursor)) ClearNode(cursor);
-                else SelectNode(cursor, true);
+                if (selectedNodes.Contains(cursor))
+                {
+                    if (control) ClearNode(cursor);
+                    else ClearSelection();
+                }
+                else SelectNode(cursor, control);
             }
 
             var stepCursor = false;
