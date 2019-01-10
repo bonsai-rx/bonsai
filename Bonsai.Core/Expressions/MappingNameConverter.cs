@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Expressions
 {
-    abstract class MappingNameConverter<TMapping> : StringConverter
+    abstract class MappingNameConverter<TMapping> : StringConverter where TMapping : class
     {
         static readonly Attribute[] ExternalizableAttributes = new[] { ExternalizableAttribute.Default };
 
@@ -37,9 +37,12 @@ namespace Bonsai.Expressions
             var nodeBuilderGraph = (ExpressionBuilderGraph)context.GetService(typeof(ExpressionBuilderGraph));
             if (nodeBuilderGraph != null)
             {
-                var mapping = (TMapping)context.Instance;
-                var builderNode = GetBuilderNode(mapping, nodeBuilderGraph);
-                return builderNode != null && builderNode.Successors.Count > 0;
+                var mapping = context.Instance as TMapping;
+                if (mapping != null)
+                {
+                    var builderNode = GetBuilderNode(mapping, nodeBuilderGraph);
+                    return builderNode != null && builderNode.Successors.Count > 0;
+                }
             }
 
             return false;
