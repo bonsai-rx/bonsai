@@ -43,6 +43,7 @@ namespace Bonsai.Expressions
         /// </summary>
         [XmlAttribute]
         [TypeConverter(typeof(PropertyMappingNameConverter))]
+        [Description("The name of the property that will be assigned by this mapping.")]
         public string Name { get; set; }
 
         /// <summary>
@@ -51,6 +52,7 @@ namespace Bonsai.Expressions
         /// </summary>
         [XmlAttribute]
         [Editor("Bonsai.Design.MultiMemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
+        [Description("The input values that will be selected for this property mapping.")]
         public string Selector { get; set; }
     }
 }

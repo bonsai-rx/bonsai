@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Design
 {
-    class MappingCollectionEditor : CollectionEditor
+    class MappingCollectionEditor : DescriptiveCollectionEditor
     {
         static readonly Attribute[] ExternalizableAttributes = new[] { ExternalizableAttribute.Default };
 
