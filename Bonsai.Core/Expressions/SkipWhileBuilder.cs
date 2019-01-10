@@ -14,7 +14,7 @@ namespace Bonsai.Expressions
     /// Represents an expression builder which bypasses elements in an observable sequence
     /// as long as the condition specified by the encapsulated workflow is true.
     /// </summary>
-    [WorkflowElementCategory(ElementCategory.Condition)]
+    [WorkflowElementCategory(ElementCategory.Combinator)]
     [XmlType("SkipWhile", Namespace = Constants.XmlNamespace)]
     [Description("Bypasses elements in an observable sequence as long as the condition specified by the encapsulated workflow is true.")]
     public class SkipWhileBuilder : ConditionBuilder
