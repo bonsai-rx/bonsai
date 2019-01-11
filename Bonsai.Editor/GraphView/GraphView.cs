@@ -912,7 +912,7 @@ namespace Bonsai.Design
                         {
                             if (pivot == null) pivot = cursor = node;
                             var row = node.LayerIndex;
-                            var location = new Point(column * NodeAirspace + 2 * PenWidth, row * NodeAirspace + PenWidth);
+                            var location = new Point(column * NodeAirspace + 2 * PenWidth, row * NodeAirspace + 2 * PenWidth);
                             var layout = new LayoutNode(this, node, location);
                             layout.SetNodeLabel(node.Text, Font, graphics, WrapLabels);
                             layoutNodes.Add(layout);
