@@ -31,7 +31,7 @@ namespace Bonsai.Design
                 var elementAttributes = TypeDescriptor.GetAttributes(expressionBuilder);
                 var elementCategoryAttribute = (WorkflowElementCategoryAttribute)elementAttributes[typeof(WorkflowElementCategoryAttribute)];
                 var obsolete = (ObsoleteAttribute)elementAttributes[typeof(ObsoleteAttribute)] != null;
-                var disabled = expressionBuilder is DisableBuilder;
+                if (expressionBuilder is DisableBuilder) Flags |= NodeFlags.Disabled;
 
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(expressionBuilder);
                 if (workflowElement != expressionBuilder)
@@ -46,8 +46,8 @@ namespace Bonsai.Design
                     }
                 }
 
+                if (obsolete) Flags |= NodeFlags.Obsolete;
                 Category = elementCategoryAttribute.Category;
-                ModifierBrush = disabled ? DisabledBrush : obsolete ? ObsoleteBrush : null;
                 Pen = expressionBuilder.IsBuildDependency() ? DashPen : SolidPen;
                 Icon = new ElementIcon(expressionBuilder);
 
@@ -80,7 +80,7 @@ namespace Bonsai.Design
             }
         }
 
-        public bool Highlight { get; set; }
+        private NodeFlags Flags { get; set; }
 
         public int Layer { get; internal set; }
 
@@ -90,7 +90,7 @@ namespace Bonsai.Design
 
         public Range<int> ArgumentRange
         {
-            get { return ModifierBrush == DisabledBrush || Value == null ? EmptyRange : Value.ArgumentRange; }
+            get { return (Flags & NodeFlags.Disabled) != 0 || Value == null ? EmptyRange : Value.ArgumentRange; }
         }
 
         public ExpressionBuilder Value { get; private set; }
@@ -101,7 +101,15 @@ namespace Bonsai.Design
 
         public Brush Brush { get; private set; }
 
-        public Brush ModifierBrush { get; private set; }
+        public Brush ModifierBrush
+        {
+            get
+            {
+                if ((Flags & NodeFlags.Disabled) != 0) return DisabledBrush;
+                else if ((Flags & NodeFlags.Obsolete) != 0) return ObsoleteBrush;
+                else return null;
+            }
+        }
 
         public ElementCategory Category { get; private set; }
 
@@ -114,6 +122,17 @@ namespace Bonsai.Design
             get { return Value != null ? ExpressionBuilder.GetElementDisplayName(Value) : string.Empty; }
         }
 
+        public bool Highlight
+        {
+            get { return (Flags & NodeFlags.Highlight) != 0; }
+            set
+            {
+                if (value) Flags |= NodeFlags.Highlight;
+                else Flags &= ~NodeFlags.Highlight;
+            }
+        }
+
+
         /// <summary>
         /// Returns a string that represents the value of this <see cref="GraphNode"/> instance.
         /// </summary>
@@ -123,6 +142,15 @@ namespace Bonsai.Design
         public override string ToString()
         {
             return string.Format("{{{0}}}", Text);
+        }
+
+        [Flags]
+        enum NodeFlags
+        {
+            None = 0x0,
+            Highlight = 0x1,
+            Obsolete = 0x2,
+            Disabled = 0x4
         }
     }
 }
