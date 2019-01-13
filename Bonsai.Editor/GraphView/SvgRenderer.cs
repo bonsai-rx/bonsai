@@ -581,15 +581,10 @@ namespace Bonsai.Design
             return renderer;
         }
 
-        public SvgRenderer GetCategoryRenderer(GraphNode node)
+        public SvgRenderer GetIconRenderer(ElementCategory category)
         {
-            if (node == null)
-            {
-                throw new ArgumentNullException("node");
-            }
-
             SvgRenderer renderer;
-            var categoryIcon = ElementIcon.FromElementCategory(node.Category);
+            var categoryIcon = ElementIcon.FromElementCategory(category);
             if (!TryGetIconRenderer(categoryIcon, out renderer))
             {
                 rendererCache.Add(categoryIcon.Name, renderer);

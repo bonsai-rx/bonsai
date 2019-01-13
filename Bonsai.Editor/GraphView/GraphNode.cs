@@ -50,6 +50,15 @@ namespace Bonsai.Design
                 Category = elementCategoryAttribute.Category;
                 Pen = expressionBuilder.IsBuildDependency() ? DashPen : SolidPen;
                 Icon = new ElementIcon(expressionBuilder);
+                if (workflowElement is IWorkflowExpressionBuilder)
+                {
+                    if (Category == ElementCategory.Workflow)
+                    {
+                        Category = ElementCategory.Combinator;
+                        Flags |= NodeFlags.NestedGroup;
+                    }
+                    else Flags |= NodeFlags.NestedScope;
+                }
 
                 switch (elementCategoryAttribute.Category)
                 {
@@ -111,6 +120,16 @@ namespace Bonsai.Design
             }
         }
 
+        public ElementCategory? NestedCategory
+        {
+            get
+            {
+                if ((Flags & NodeFlags.NestedScope) != 0) return ElementCategory.Nested;
+                else if ((Flags & NodeFlags.NestedGroup) != 0) return ElementCategory.Workflow;
+                else return null;
+            }
+        }
+
         public ElementCategory Category { get; private set; }
 
         public ElementIcon Icon { get; private set; }
@@ -150,7 +169,9 @@ namespace Bonsai.Design
             None = 0x0,
             Highlight = 0x1,
             Obsolete = 0x2,
-            Disabled = 0x4
+            Disabled = 0x4,
+            NestedScope = 0x8,
+            NestedGroup = 0x10
         }
     }
 }

@@ -1114,11 +1114,18 @@ namespace Bonsai.Design
             iconRendererState.Translation = nodeRectangle.Location;
             graphics.DrawEllipse(pen, nodeRectangle);
             if (IconRenderer != null &&
-               (renderer = IconRenderer.GetCategoryRenderer(layout.Node)) != null)
+               (renderer = IconRenderer.GetIconRenderer(layout.Node.Category)) != null)
             {
                 renderer(iconRendererState, graphics);
             }
             else graphics.FillEllipse(layout.Node.Brush, nodeRectangle);
+
+            var nestedCategory = layout.Node.NestedCategory;
+            if (nestedCategory != null && IconRenderer != null &&
+               (renderer = IconRenderer.GetIconRenderer(nestedCategory.Value)) != null)
+            {
+                renderer(iconRendererState, graphics);
+            }
 
             if (brush != null)
             {
