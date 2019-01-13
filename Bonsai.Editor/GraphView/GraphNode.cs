@@ -14,11 +14,8 @@ namespace Bonsai.Design
         static readonly Range<int> EmptyRange = Range.Create(0, 0);
         static readonly Brush DisabledBrush = new HatchBrush(HatchStyle.BackwardDiagonal, Color.Black, Color.Transparent);
         static readonly Brush ObsoleteBrush = new HatchBrush(HatchStyle.OutlinedDiamond, Color.Black, Color.Transparent);
+        static readonly Pen DashPen = new Pen(Brushes.DarkGray) { DashPattern = new[] { 4f, 2f } };
         static readonly Pen SolidPen = Pens.DarkGray;
-        static readonly Pen DashPen = new Pen(Brushes.DarkGray)
-        {
-            DashPattern = new[] { 4f, 2f }
-        };
 
         public GraphNode(ExpressionBuilder value, int layer, IEnumerable<GraphEdge> successors)
         {
