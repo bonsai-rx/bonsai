@@ -572,8 +572,8 @@ namespace Bonsai.Editor
                 foreach (var elementType in type.ElementTypes)
                 {
                     var typeCategory = elementType;
-                    if (typeCategory == ElementCategory.Nested ||
-                        typeCategory == ElementCategory.Workflow ||
+                    if (typeCategory == ElementCategory.Nested) continue;
+                    if (typeCategory == ElementCategory.Workflow ||
                         typeCategory == ElementCategory.Condition ||
                         typeCategory == ElementCategory.Property)
                     {
@@ -593,7 +593,7 @@ namespace Bonsai.Editor
                     }
 
                     var node = category.Nodes.Add(type.FullyQualifiedName, type.Name);
-                    node.Tag = elementType;
+                    node.Tag = type.ElementTypes;
                     node.ToolTipText = type.Description;
                 }
             }
@@ -1823,12 +1823,8 @@ namespace Bonsai.Editor
                     toolboxTreeView.SelectedNode = selectedNode;
                     if (selectedNode.Tag != null)
                     {
-                        var elementCategory = (ElementCategory)selectedNode.Tag;
-                        createGroupToolStripMenuItem.Visible =
-                            elementCategory == ElementCategory.Nested ||
-                            selectedNode.Name == typeof(GroupWorkflowBuilder).AssemblyQualifiedName ||
-                            selectedNode.Name == typeof(ConditionBuilder).AssemblyQualifiedName ||
-                            selectedNode.Name == typeof(SinkBuilder).AssemblyQualifiedName;
+                        var elementCategories = (ElementCategory[])selectedNode.Tag;
+                        createGroupToolStripMenuItem.Visible = elementCategories.Contains(ElementCategory.Nested);
                         toolboxContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);
                     }
                 }

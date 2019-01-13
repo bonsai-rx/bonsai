@@ -139,6 +139,18 @@ namespace Bonsai.Design
 
         #region Model
 
+        private static ElementCategory GetToolboxElementCategory(TreeNode typeNode)
+        {
+            var elementCategories = (ElementCategory[])typeNode.Tag;
+            for (int i = 0; i < elementCategories.Length; i++)
+            {
+                if (elementCategories[i] == ElementCategory.Nested) continue;
+                return elementCategories[i];
+            }
+
+            return ElementCategory.Combinator;
+        }
+
         private static Node<ExpressionBuilder, ExpressionBuilderArgument> FindWorkflowValue(ExpressionBuilderGraph workflow, ExpressionBuilder value)
         {
             return workflow.Single(n => ExpressionBuilder.Unwrap(n.Value) == value);
@@ -993,7 +1005,7 @@ namespace Bonsai.Design
         ExpressionBuilder CreateBuilder(TreeNode typeNode)
         {
             var typeName = typeNode.Name;
-            var elementCategory = (ElementCategory)typeNode.Tag;
+            var elementCategory = GetToolboxElementCategory(typeNode);
             return CreateBuilder(typeName, elementCategory);
         }
 
@@ -1038,7 +1050,7 @@ namespace Bonsai.Design
                 throw new ArgumentNullException("typeNode");
             }
 
-            var elementCategory = (ElementCategory)typeNode.Tag;
+            var elementCategory = GetToolboxElementCategory(typeNode);
             if (elementCategory == ~ElementCategory.Workflow)
             {
                 var includeBuilder = new IncludeWorkflowBuilder { Path = typeNode.Name };
@@ -3163,11 +3175,7 @@ namespace Bonsai.Design
                 var selectedNode = selectedNodes.Length == 1 ? selectedNodes[0] : null;
                 var workflowBuilder = selectedNode != null ? GetGraphNodeBuilder(selectedNode) as WorkflowExpressionBuilder : null;
                 foreach (var element in from element in toolboxService.GetToolboxElements()
-                                        where element.ElementTypes.Length == 1 &&
-                                              (element.ElementTypes.Contains(ElementCategory.Nested) ||
-                                               element.FullyQualifiedName == typeof(GroupWorkflowBuilder).AssemblyQualifiedName ||
-                                               element.FullyQualifiedName == typeof(ConditionBuilder).AssemblyQualifiedName ||
-                                               element.FullyQualifiedName == typeof(SinkBuilder).AssemblyQualifiedName)
+                                        where element.ElementTypes.Contains(ElementCategory.Nested)
                                         select element)
                 {
                     ToolStripMenuItem menuItem = null;

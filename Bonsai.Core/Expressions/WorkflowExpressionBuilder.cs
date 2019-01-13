@@ -16,7 +16,7 @@ namespace Bonsai.Expressions
     /// of an encapsulated workflow.
     /// </summary>
     [DefaultProperty("Name")]
-    [WorkflowElementCategory(ElementCategory.Nested)]
+    [WorkflowElementCategory(ElementCategory.Combinator)]
     [XmlType("Workflow", Namespace = Constants.XmlNamespace)]
     [TypeDescriptionProvider(typeof(WorkflowTypeDescriptionProvider))]
     public abstract class WorkflowExpressionBuilder : ExpressionBuilder, IWorkflowExpressionBuilder, INamedElement, IPropertyMappingBuilder, IRequireBuildContext

@@ -51,6 +51,11 @@ namespace Bonsai
                 MatchAttributeType(type, typeof(CombinatorAttribute)) ||
                 MatchAttributeType(type, typeof(SourceAttribute)))
             {
+                if (type.IsSubclassOf(typeof(WorkflowExpressionBuilder)))
+                {
+                    yield return ElementCategory.Nested;
+                }
+
                 var attributes = TypeDescriptor.GetAttributes(type);
                 var elementCategoryAttribute = (WorkflowElementCategoryAttribute)attributes[typeof(WorkflowElementCategoryAttribute)];
                 yield return elementCategoryAttribute.Category;
