@@ -7,6 +7,8 @@ using System.Text.RegularExpressions;
 using System.Globalization;
 using System.Reactive;
 using Bonsai.Expressions;
+using System.Reflection;
+using Bonsai.Properties;
 
 namespace Bonsai
 {
@@ -24,6 +26,11 @@ namespace Bonsai
         /// Represents the character separating selected members in a member selector expression.
         /// </summary>
         public const string ArgumentSeparator = ",";
+
+        /// <summary>
+        /// Represents the name of the implicit parameter in a member selector expression.
+        /// </summary>
+        public const string ImplicitParameterName = "it";
 
         const char IndexBegin = '[';
         const char IndexEnd = ']';
@@ -180,42 +187,44 @@ namespace Bonsai
                 throw new ArgumentNullException("instance");
             }
 
-            if (!string.IsNullOrWhiteSpace(memberPath) && memberPath != MemberSeparator)
+            if (!string.IsNullOrWhiteSpace(memberPath) && memberPath != ImplicitParameterName)
             {
-                foreach (var memberName in memberPath.Split(new[] { MemberSeparator }, StringSplitOptions.None))
+                var memberNames = memberPath.Split(new[] { MemberSeparator }, StringSplitOptions.None);
+                for (int i = 0; i < memberNames.Length; i++)
                 {
+                    var memberName = memberNames[i];
                     if (string.IsNullOrEmpty(memberName))
                     {
                         throw new ArgumentException("Member path contains invalid or duplicate member separator character.", "memberPath");
                     }
 
                     var indexBegin = memberName.IndexOf(IndexBegin);
-                    if (indexBegin >= 0)
+                    if (indexBegin == 0) throw new ArgumentException("Index accessor must be preceded by a member name.", "memberPath");
+                    var propertyName = indexBegin < 0 ? memberName : memberName.Substring(0, indexBegin);
+                    if (propertyName != ImplicitParameterName || i > 0)
                     {
-                        var indexEnd = memberName.IndexOf(IndexEnd);
-                        if (indexEnd < 0) throw new ArgumentException("Member path has badly formatted index accessor.", "memberPath");
-                        var propertyName = memberName.Substring(0, indexBegin);
-                        var indexParameters = memberName
+                        instance = ExpressionHelper.PropertyOrField(instance, propertyName);
+                        if (indexBegin < 0) continue;
+                    }
+
+                    while (indexBegin > 0)
+                    {
+                        var indexEnd = memberName.IndexOf(IndexEnd, indexBegin + 1);
+                        if (indexEnd < 0)
+                        {
+                            throw new ArgumentException("Member path has badly formatted index accessor.", "memberPath");
+                        }
+
+                        var indexerArguments = memberName
                             .Substring(indexBegin + 1, indexEnd - indexBegin - 1)
                             .Split(new[] { IndexArgumentSeparator }, StringSplitOptions.RemoveEmptyEntries);
-
-                        var properties = instance.Type.GetProperties().Where(p =>
-                            p.Name == propertyName &&
-                            p.GetIndexParameters().Length == indexParameters.Length)
-                            .ToArray();
-                        if (properties.Length == 0) throw new ArgumentException("Member path has reference to non-existent indexed property.", "memberPath");
-                        if (properties.Length > 1) throw new ArgumentException("Ambiguous indexed property access.", "memberPath");
-
-                        var propertyInfo = properties[0];
-                        var parameterInfo = propertyInfo.GetIndexParameters();
-                        var arguments = (from indexParameter in parameterInfo.Zip(indexParameters, (xs, ys) => Tuple.Create(xs, ys))
-                                         let parameterType = indexParameter.Item1.ParameterType
-                                         let parameter = Convert.ChangeType(indexParameter.Item2, parameterType)
-                                         select Expression.Constant(parameter))
-                                        .ToArray();
-                        instance = Expression.Property(instance, propertyInfo, arguments);
+                        var indexerTypes = GetIndexerTypes(instance, indexerArguments.Length);
+                        var indexes = indexerArguments.Zip(
+                            indexerTypes,
+                            (index, type) => Expression.Constant(Convert.ChangeType(index, type)));
+                        instance = Index(instance, indexes.ToArray());
+                        indexBegin = memberName.IndexOf(IndexBegin, indexEnd + 1);
                     }
-                    else instance = ExpressionHelper.PropertyOrField(instance, memberName);
                 }
             }
 
@@ -241,6 +250,54 @@ namespace Bonsai
                     "propertyOrFieldName");
             }
             else return Expression.PropertyOrField(instance, propertyOrFieldName);
+        }
+
+        internal static Type[] GetIndexerTypes(Expression expression, int length)
+        {
+            if (expression.Type.IsArray)
+            {
+                var arrayRank = expression.Type.GetArrayRank();
+                if (arrayRank != length)
+                {
+                    throw new InvalidOperationException(string.Format(Resources.Exception_IndexerNotFound, expression.Type));
+                }
+
+                var indexerTypes = new Type[arrayRank];
+                for (int i = 0; i < indexerTypes.Length; i++)
+                {
+                    indexerTypes[i] = typeof(int);
+                }
+
+                return indexerTypes;
+            }
+            else
+            {
+                var indexerTypes = (from member in expression.Type.GetDefaultMembers().OfType<PropertyInfo>()
+                                    let parameters = member.GetIndexParameters()
+                                    where parameters.Length == length
+                                    select parameters)
+                                    .ToArray();
+                if (indexerTypes.Length == 0)
+                {
+                    throw new InvalidOperationException(string.Format(Resources.Exception_IndexerNotFound, expression.Type));
+                }
+
+                return Array.ConvertAll(indexerTypes[0], parameter => parameter.ParameterType);
+            }
+        }
+
+        internal static Expression Index(Expression expression, params Expression[] indexes)
+        {
+            if (expression.Type.IsArray) return Expression.ArrayIndex(expression, indexes);
+            else
+            {
+                var indexer = (from member in expression.Type.GetDefaultMembers().OfType<PropertyInfo>()
+                               let parameters = member.GetIndexParameters()
+                               where parameters.Length == indexes.Length
+                               select member)
+                               .FirstOrDefault();
+                return Expression.Property(expression, indexer, indexes);
+            }
         }
 
         /// <summary>

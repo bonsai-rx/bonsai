@@ -2890,7 +2890,7 @@ namespace Bonsai.Design
         //TODO: Consider refactoring this method into the core API to avoid redundancy
         static IEnumerable<PropertyInfo> GetProperties(Type type, BindingFlags bindingAttr)
         {
-            IEnumerable<PropertyInfo> properties = type.GetProperties(bindingAttr);
+            var properties = type.GetProperties(bindingAttr).Except(type.GetDefaultMembers().OfType<PropertyInfo>());
             if (type.IsInterface)
             {
                 properties = properties.Concat(type

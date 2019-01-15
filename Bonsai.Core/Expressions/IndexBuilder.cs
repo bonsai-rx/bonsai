@@ -19,25 +19,6 @@ namespace Bonsai.Expressions
     [Description("Applies an index operator to the elements of an observable sequence.")]
     public class IndexBuilder : BinaryOperatorBuilder
     {
-        static Type GetDefaultOperandType(Expression expression)
-        {
-            if (expression.Type.IsArray) return typeof(int);
-            else
-            {
-                var parameter = (from member in expression.Type.GetDefaultMembers().OfType<PropertyInfo>()
-                                 let parameters = member.GetIndexParameters()
-                                 where parameters.Length == 1
-                                 select parameters[0])
-                                 .FirstOrDefault();
-                if (parameter == null)
-                {
-                    throw new InvalidOperationException(string.Format(Resources.Exception_IndexerNotFound, expression.Type));
-                }
-
-                return parameter.ParameterType;
-            }
-        }
-
         /// <summary>
         /// Returns the expression that applies an index operator to
         /// the left and right parameters.
@@ -50,16 +31,7 @@ namespace Bonsai.Expressions
         /// </returns>
         protected override Expression BuildSelector(Expression left, Expression right)
         {
-            if (left.Type.IsArray) return Expression.ArrayIndex(left, right);
-            else
-            {
-                var indexer = (from member in left.Type.GetDefaultMembers().OfType<PropertyInfo>()
-                               let parameters = member.GetIndexParameters()
-                               where parameters.Length == 1
-                               select member)
-                               .FirstOrDefault();
-                return Expression.Property(left, indexer, right);
-            }
+            return ExpressionHelper.Index(left, right);
         }
 
         /// <summary>
@@ -84,7 +56,7 @@ namespace Bonsai.Expressions
             else
             {
                 var operand = Operand;
-                var operandType = GetDefaultOperandType(expression);
+                var operandType = ExpressionHelper.GetIndexerTypes(expression, 1)[0];
                 if (operand == null || operand.PropertyType != operandType)
                 {
                     if (operandType.IsInterface ||
