@@ -16,14 +16,12 @@ namespace Bonsai
     public static class ExpressionHelper
     {
         /// <summary>
-        /// Represents the character separating class members in a member selector
-        /// <see cref="string"/>.
+        /// Represents the character separating class members in a member selector expression.
         /// </summary>
         public const string MemberSeparator = ".";
 
         /// <summary>
-        /// Represents the character separating selected members in a member selector
-        /// <see cref="string"/>.
+        /// Represents the character separating selected members in a member selector expression.
         /// </summary>
         public const string ArgumentSeparator = ",";
 
