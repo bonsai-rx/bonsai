@@ -22,7 +22,7 @@ namespace Bonsai.Editor
             var memberNames = ExpressionHelper
                             .SelectMemberNames(selector)
                             .Select(name => name == ExpressionBuilderArgument.ArgumentNamePrefix
-                                ? ExpressionHelper.MemberSeparator
+                                ? ExpressionHelper.ImplicitParameterName
                                 : name.IndexOf(MemberSelectorPrefix) == 0 ? name.Substring(MemberSelectorPrefix.Length) : name)
                             .ToArray();
             return string.Join(ExpressionHelper.ArgumentSeparator, memberNames);
