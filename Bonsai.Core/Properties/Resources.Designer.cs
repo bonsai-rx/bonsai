@@ -70,7 +70,7 @@ namespace Bonsai.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No single argument indexer is defined for the type &apos;{0}&apos;..
+        ///   Looks up a localized string similar to No indexer with matching number of arguments is defined for type &apos;{0}&apos;..
         /// </summary>
         internal static string Exception_IndexerNotFound {
             get {

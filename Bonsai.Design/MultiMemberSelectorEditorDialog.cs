@@ -122,7 +122,7 @@ namespace Bonsai.Design
         private void AddSelectedNode()
         {
             var memberSelector = controller.GetSelectedMember();
-            if (string.IsNullOrEmpty(memberSelector)) memberSelector = ExpressionHelper.MemberSeparator;
+            if (string.IsNullOrEmpty(memberSelector)) memberSelector = ExpressionHelper.ImplicitParameterName;
 
             var index = selectionListBox.SelectedIndex + 1;
             selectionListBox.Items.Insert(index, memberSelector);
