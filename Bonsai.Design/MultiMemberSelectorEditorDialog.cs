@@ -44,12 +44,9 @@ namespace Bonsai.Design
 
                     selectionListBox.SelectedIndex = selectionListBox.Items.Count - 1;
                 }
-                else
-                {
-                    if (treeView.Nodes.Count == 1) treeView.ExpandAll();
-                    else treeView.CollapseAll();
-                    treeView.SelectedNode = null;
-                }
+
+                treeView.ExpandAll();
+                treeView.SelectedNode = null;
             }
         }
 
