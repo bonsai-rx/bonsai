@@ -1,6 +1,7 @@
 ﻿using OpenCV.Net;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ namespace Bonsai.Vision
 {
     [Combinator]
     [WorkflowElementCategory(ElementCategory.Transform)]
+    [Description("Calculates whether a point is contained inside a rectangle, contour, or other polygonal shape.")]
     public class ContainsPoint
     {
         static bool Contains(Rect rect, Point point)
