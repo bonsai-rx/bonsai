@@ -15,15 +15,21 @@ namespace Bonsai.Editor
         static readonly SemanticVersion RemoveMemberSelectorPrefixVersion = SemanticVersion.Parse("2.4.0");
         static readonly SemanticVersion EnumerableUnfoldingVersion = SemanticVersion.Parse("2.3.0");
         const string MemberSelectorPrefix = ExpressionBuilderArgument.ArgumentNamePrefix + ".";
+        const string IndexerSelectorPrefix = ExpressionBuilderArgument.ArgumentNamePrefix + "[";
 
         static string RemoveMemberSelectorPrefix(string selector)
         {
             if (string.IsNullOrEmpty(selector)) return selector;
             var memberNames = ExpressionHelper
                             .SelectMemberNames(selector)
+                            .Select(name => name.Replace(".Item[", "["))
                             .Select(name => name == ExpressionBuilderArgument.ArgumentNamePrefix
                                 ? ExpressionHelper.ImplicitParameterName
-                                : name.IndexOf(MemberSelectorPrefix) == 0 ? name.Substring(MemberSelectorPrefix.Length) : name)
+                                : name.IndexOf(MemberSelectorPrefix) == 0
+                                ? name.Substring(MemberSelectorPrefix.Length)
+                                : name.IndexOf(IndexerSelectorPrefix) == 0
+                                ? ExpressionHelper.ImplicitParameterName + name.Substring(IndexerSelectorPrefix.Length - 1)
+                                : name)
                             .ToArray();
             return string.Join(ExpressionHelper.ArgumentSeparator, memberNames);
         }
