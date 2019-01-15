@@ -313,10 +313,10 @@ namespace Bonsai.Design
             return layers;
         }
 
-        public static IEnumerable<GraphNodeGrouping> RemoveSuccessorKinks(this IEnumerable<GraphNodeGrouping> source)
+        static bool RemoveBranchKinks(GraphNodeGrouping[] layers)
         {
-            var layers = source.ToArray();
             // Backward pass
+            var removed = false;
             for (int i = 0; i < layers.Length; i++)
             {
                 var layer = layers[i];
@@ -325,11 +325,15 @@ namespace Bonsai.Design
                     var sortedLayer = new GraphNodeGrouping(layer.Key);
                     foreach (var node in layer)
                     {
-                        var minSuccessorLayer = node.Successors.Min(edge => edge.Node.LayerIndex);
-                        while (sortedLayer.Count < minSuccessorLayer)
+                        if (node.Successors != Enumerable.Empty<GraphEdge>())
                         {
-                            var dummyNode = new GraphNode(null, layer.Key, Enumerable.Empty<GraphEdge>());
-                            sortedLayer.Add(dummyNode);
+                            var minSuccessorLayer = node.Successors.Min(edge => edge.Node.LayerIndex);
+                            while (sortedLayer.Count < minSuccessorLayer)
+                            {
+                                var dummyNode = new GraphNode(null, layer.Key, Enumerable.Empty<GraphEdge>());
+                                sortedLayer.Add(dummyNode);
+                                removed = true;
+                            }
                         }
 
                         sortedLayer.Add(node);
@@ -339,7 +343,13 @@ namespace Bonsai.Design
                 }
             }
 
+            return removed;
+        }
+
+        static bool RemoveMergeGaps(GraphNodeGrouping[] layers)
+        {
             // Forward pass
+            var removed = false;
             var predecessorMap = new Dictionary<GraphNode, IEnumerable<GraphEdge>>();
             for (int i = layers.Length - 1; i >= 0; i--)
             {
@@ -357,6 +367,7 @@ namespace Bonsai.Design
                             {
                                 var dummyNode = new GraphNode(null, layer.Key, Enumerable.Empty<GraphEdge>());
                                 sortedLayer.Add(dummyNode);
+                                removed = true;
                             }
                         }
 
@@ -375,6 +386,17 @@ namespace Bonsai.Design
                 }
             }
 
+            return removed;
+        }
+
+        public static IEnumerable<GraphNodeGrouping> RemoveSuccessorKinks(this IEnumerable<GraphNodeGrouping> source)
+        {
+            var layers = source.ToArray();
+            RemoveBranchKinks(layers);
+            if (RemoveMergeGaps(layers))
+            {
+                RemoveBranchKinks(layers);
+            }
             return layers;
         }
 
