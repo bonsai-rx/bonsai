@@ -71,6 +71,7 @@
     <Compile Include="ArrayExtrema.cs" />
     <Compile Include="BitBuffer.cs" />
     <Compile Include="Butterworth.cs" />
+    <Compile Include="ConvertToSeq.cs" />
     <Compile Include="IncrementalMean.cs" />
     <Compile Include="KernelLengthConverter.cs" />
     <Compile Include="Pow.cs" />
