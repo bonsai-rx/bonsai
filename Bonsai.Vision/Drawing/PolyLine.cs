@@ -6,6 +6,7 @@ using System.Drawing.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Bonsai.Vision.Drawing
 {
@@ -20,6 +21,7 @@ namespace Bonsai.Vision.Drawing
             Shift = 0;
         }
 
+        [XmlIgnore]
         [Description("The array of vertices specifying each polyline.")]
         public Point[][] Points { get; set; }
 
