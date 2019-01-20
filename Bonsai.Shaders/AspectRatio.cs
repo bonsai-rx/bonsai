@@ -38,5 +38,12 @@ namespace Bonsai.Shaders
         {
             return source.Select(input => GetAspectRatio(input.Item1, input.Item2));
         }
+
+        public IObservable<float> Process<TSource>(IObservable<TSource> source)
+        {
+            return source.CombineEither(
+                ShaderManager.WindowSource,
+                (input, window) => GetAspectRatio(window.Width, window.Height));
+        }
     }
 }
