@@ -689,13 +689,21 @@ namespace Bonsai.Design
 
         public void ConnectGraphNodes(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget)
         {
+            ConnectGraphNodes(graphViewSources, graphViewTarget, validate: true);
+        }
+
+        private void ConnectInternalNodes(GraphNode source, GraphNode target)
+        {
+            ConnectGraphNodes(new[] { source }, target, validate: false);
+        }
+
+        private void ConnectGraphNodes(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget, bool validate)
+        {
             var workflow = this.workflow;
             var addConnection = EmptyAction;
             var removeConnection = EmptyAction;
             var target = GetGraphNodeTag(workflow, graphViewTarget);
             var connectionIndex = workflow.Predecessors(target).Count();
-            var restoreSelectedNodes = CreateUpdateSelectionDelegate(graphViewSources);
-            var updateSelectedNode = CreateUpdateSelectionDelegate(graphViewTarget);
             foreach (var graphViewSource in graphViewSources)
             {
                 var source = GetGraphNodeTag(workflow, graphViewSource);
@@ -706,19 +714,33 @@ namespace Bonsai.Design
                 connectionIndex++;
             }
 
-            var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
+            Action restoreSelectedNodes, updateSelectedNode, updateGraphLayout;
+            if (!validate) restoreSelectedNodes = updateSelectedNode = updateGraphLayout = null;
+            else
+            {
+                restoreSelectedNodes = CreateUpdateSelectionDelegate(graphViewSources);
+                updateSelectedNode = CreateUpdateSelectionDelegate(graphViewTarget);
+                updateGraphLayout = CreateUpdateGraphLayoutDelegate();
+            }
+
             commandExecutor.Execute(
             () =>
             {
                 addConnection();
-                updateGraphLayout();
-                updateSelectedNode();
+                if (validate)
+                {
+                    updateGraphLayout();
+                    updateSelectedNode();
+                }
             },
             () =>
             {
                 removeConnection();
-                updateGraphLayout();
-                restoreSelectedNodes();
+                if (validate)
+                {
+                    updateGraphLayout();
+                    restoreSelectedNodes();
+                }
             });
         }
 
@@ -1789,7 +1811,7 @@ namespace Bonsai.Design
                                      : successors.Select(ss => Tuple.Create(xs, FindGraphNode(ss)))));
             foreach (var input in inputConnections.SelectMany(xs => xs))
             {
-                ConnectGraphNodes(Enumerable.Repeat(input.Item1, 1), input.Item2);
+                ConnectInternalNodes(input.Item1, input.Item2);
             }
 
             // Connect output sources to external targets
@@ -1800,7 +1822,7 @@ namespace Bonsai.Design
                     Tuple.Create(xs, FindGraphNode(edge))));
             foreach (var output in outputConnections)
             {
-                ConnectGraphNodes(Enumerable.Repeat(output.Item1, 1), output.Item2);
+                ConnectInternalNodes(output.Item1, output.Item2);
             }
         }
 
