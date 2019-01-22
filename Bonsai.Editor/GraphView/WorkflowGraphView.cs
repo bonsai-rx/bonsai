@@ -580,6 +580,8 @@ namespace Bonsai.Design
         bool CanConnect(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget)
         {
             var target = GetGraphNodeTag(workflow, graphViewTarget, false);
+            var targetElement = target != null ? ExpressionBuilder.Unwrap(target.Value) : null;
+            var maxConnectionCount = targetElement is ExternalizedMappingBuilder ? 1 : target.Value.ArgumentRange.UpperBound;
             var sources = graphViewSources.Select(sourceNode => GetGraphNodeTag(workflow, sourceNode, false));
             var connectionCount = workflow.Contains(target)
                 ? workflow.Predecessors(target).Count(node => !node.Value.IsBuildDependency())
@@ -591,7 +593,7 @@ namespace Bonsai.Design
                     return false;
                 }
 
-                if (connectionCount++ >= target.Value.ArgumentRange.UpperBound &&
+                if (connectionCount++ >= maxConnectionCount &&
                     !source.Value.IsBuildDependency() ||
                     target.DepthFirstSearch().Contains(source))
                 {
@@ -689,7 +691,26 @@ namespace Bonsai.Design
 
         public void ConnectGraphNodes(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget)
         {
-            ConnectGraphNodes(graphViewSources, graphViewTarget, validate: true);
+            var mappingBuilder = GetGraphNodeBuilder(graphViewTarget) as ExternalizedMappingBuilder;
+            if (mappingBuilder != null)
+            {
+                var propertyMappingBuilder = new PropertyMappingBuilder();
+                foreach (var mapping in mappingBuilder.ExternalizedProperties)
+                {
+                    propertyMappingBuilder.PropertyMappings.Add(new PropertyMapping(mapping.Name, null));
+                }
+
+                var restoreSelectedNodes = CreateUpdateSelectionDelegate(graphViewSources);
+                var selectCreatedNode = CreateUpdateSelectionDelegate(propertyMappingBuilder);
+                var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
+                commandExecutor.BeginCompositeCommand();
+                commandExecutor.Execute(EmptyAction, updateGraphLayout + restoreSelectedNodes);
+                ConnectGraphNodes(graphViewSources, graphViewTarget, validate: false);
+                ReplaceNode(graphViewTarget, propertyMappingBuilder);
+                commandExecutor.Execute(updateGraphLayout + selectCreatedNode, EmptyAction);
+                commandExecutor.EndCompositeCommand();
+            }
+            else ConnectGraphNodes(graphViewSources, graphViewTarget, validate: true);
         }
 
         private void ConnectInternalNodes(GraphNode source, GraphNode target)
