@@ -1824,6 +1824,8 @@ namespace Bonsai.Editor
                     if (selectedNode.Tag != null)
                     {
                         var elementCategories = (ElementCategory[])selectedNode.Tag;
+                        var allowSuccessor = selectedNode.Name != typeof(ExternalizedMappingBuilder).AssemblyQualifiedName;
+                        insertAfterToolStripMenuItem.Visible = createBranchToolStripMenuItem.Visible = allowSuccessor;
                         createGroupToolStripMenuItem.Visible = elementCategories.Contains(ElementCategory.Nested);
                         toolboxContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);
                     }
