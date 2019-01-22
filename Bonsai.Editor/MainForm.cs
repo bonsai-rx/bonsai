@@ -2454,6 +2454,7 @@ namespace Bonsai.Editor
 
             public void SetUIDirty()
             {
+                siteForm.propertyGrid.Refresh();
             }
 
             public bool ShowComponentEditor(object component, IWin32Window parent)

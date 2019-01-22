@@ -6,6 +6,7 @@ using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms.Design;
 
 namespace Bonsai.Design
 {
@@ -16,6 +17,14 @@ namespace Bonsai.Design
         public MappingCollectionEditor(Type type)
             : base(type)
         {
+        }
+
+        public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
+        {
+            base.EditValue(context, provider, value);
+            var editorService = (IUIService)provider.GetService(typeof(IUIService));
+            if (editorService != null) editorService.SetUIDirty();
+            return value;
         }
 
         protected override object[] GetItems(object editValue)
