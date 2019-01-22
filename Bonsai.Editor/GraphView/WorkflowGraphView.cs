@@ -1131,6 +1131,9 @@ namespace Bonsai.Design
                             }
                         }
                     }
+
+                    var externalizedMapping = typeNode.Name == typeof(ExternalizedMappingBuilder).AssemblyQualifiedName;
+                    if (externalizedMapping) nodeType = CreateGraphNodeType.Predecessor;
                     CreateGraphNode(builder, selectedNodes, nodeType, branch);
                 }
             }
