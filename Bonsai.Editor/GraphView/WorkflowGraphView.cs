@@ -504,7 +504,7 @@ namespace Bonsai.Design
                     {
                         var parameter = new ExpressionBuilderArgument();
                         var predecessors = workflow.PredecessorEdges(node).ToList();
-                        if (branch) parameter.Index = predecessors.Count;
+                        if (branch || sourceNode.Value.ArgumentRange.UpperBound == 0) parameter.Index = predecessors.Count;
                         else
                         {
                             // If we have predecessors, we need to connect the new node in the right branches
@@ -513,16 +513,8 @@ namespace Bonsai.Design
                                 var predecessorEdge = predecessor.Item2;
                                 var predecessorNode = predecessor.Item1;
                                 var edgeIndex = predecessor.Item3;
-                                if (sinkNode.Value.ArgumentRange.UpperBound > 0)
-                                {
-                                    addConnection += () => { workflow.SetEdge(predecessorNode, edgeIndex, sourceNode, predecessorEdge.Label); };
-                                    removeConnection += () => { workflow.SetEdge(predecessorNode, edgeIndex, predecessorEdge); };
-                                }
-                                else
-                                {
-                                    addConnection += () => { workflow.RemoveEdge(predecessorNode, predecessorEdge); };
-                                    removeConnection += () => { workflow.InsertEdge(predecessorNode, edgeIndex, predecessorEdge); };
-                                }
+                                addConnection += () => { workflow.SetEdge(predecessorNode, edgeIndex, sourceNode, predecessorEdge.Label); };
+                                removeConnection += () => { workflow.SetEdge(predecessorNode, edgeIndex, predecessorEdge); };
                             }
                         }
 
