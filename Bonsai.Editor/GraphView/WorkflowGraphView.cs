@@ -3082,7 +3082,7 @@ namespace Bonsai.Design
                 else
                 {
                     mappingNode.builder.ExternalizedProperties.Add(mapping);
-                    RefreshEditorNode(mappingNode.node);
+                    graphView.SelectedNode = mappingNode.node;
                     editorService.ValidateWorkflow();
                 }
                 contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
