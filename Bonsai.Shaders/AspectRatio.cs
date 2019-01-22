@@ -11,9 +11,20 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {
-    [Description("Calculates the ratio of the window width to its height.")]
+    [Description("Calculates the ratio of the window viewport width to its height.")]
     public class AspectRatio : Transform<Size, float>
     {
+        static float GetAspectRatio(ShaderWindow window)
+        {
+            if (window == null)
+            {
+                throw new ArgumentNullException("window");
+            }
+
+            var viewport = window.Viewport;
+            return GetAspectRatio(viewport.Width * window.Width, viewport.Height * window.Height);
+        }
+
         static float GetAspectRatio(float width, float height)
         {
             return width / height;
@@ -26,12 +37,12 @@ namespace Bonsai.Shaders
 
         public IObservable<float> Process(IObservable<INativeWindow> source)
         {
-            return source.Select(input => GetAspectRatio(input.Width, input.Height));
+            return source.Select(input => GetAspectRatio((ShaderWindow)input));
         }
 
         public IObservable<float> Process<TEventArgs>(IObservable<EventPattern<INativeWindow, TEventArgs>> source)
         {
-            return source.Select(input => GetAspectRatio(input.Sender.Width, input.Sender.Height));
+            return source.Select(input => GetAspectRatio((ShaderWindow)input.Sender));
         }
 
         public IObservable<float> Process(IObservable<Tuple<float, float>> source)
@@ -43,7 +54,7 @@ namespace Bonsai.Shaders
         {
             return source.CombineEither(
                 ShaderManager.WindowSource,
-                (input, window) => GetAspectRatio(window.Width, window.Height));
+                (input, window) => GetAspectRatio(window));
         }
     }
 }
