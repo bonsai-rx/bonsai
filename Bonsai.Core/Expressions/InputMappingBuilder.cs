@@ -16,6 +16,7 @@ namespace Bonsai.Expressions
     /// </summary>
     [XmlType("InputMapping", Namespace = Constants.XmlNamespace)]
     [Description("Selects inner properties of elements of the sequence and assigns their values to properties of a workflow element.")]
+    [TypeDescriptionProvider(typeof(InputMappingTypeDescriptionProvider))]
     public class InputMappingBuilder : PropertyMappingBuilder
     {
         readonly MemberSelectorBuilder selector = new MemberSelectorBuilder();
@@ -37,6 +38,23 @@ namespace Bonsai.Expressions
             base.BuildArgument(source, successor, out argument);
             argument = selector.Build(argument);
             return true;
+        }
+
+        class InputMappingTypeDescriptionProvider : TypeDescriptionProvider
+        {
+            static readonly TypeDescriptionProvider parentProvider = TypeDescriptor.GetProvider(typeof(InputMappingBuilder));
+
+            public InputMappingTypeDescriptionProvider()
+                : base(parentProvider)
+            {
+            }
+
+            public override ICustomTypeDescriptor GetExtendedTypeDescriptor(object instance)
+            {
+                var builder = (PropertyMappingBuilder)instance;
+                if (builder != null) return new PropertyMappingCollectionTypeDescriptor(builder.PropertyMappings);
+                else return base.GetExtendedTypeDescriptor(instance);
+            }
         }
     }
 }
