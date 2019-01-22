@@ -18,6 +18,7 @@ namespace Bonsai.Expressions
     [WorkflowElementCategory(ElementCategory.Property)]
     [XmlType("PropertyMapping", Namespace = Constants.XmlNamespace)]
     [Description("Assigns values of an observable sequence to properties of a workflow element.")]
+    [TypeDescriptionProvider(typeof(PropertyMappingTypeDescriptionProvider))]
     public class PropertyMappingBuilder : SingleArgumentExpressionBuilder, INamedElement, IArgumentBuilder
     {
         readonly PropertyMappingCollection propertyMappings = new PropertyMappingCollection();
@@ -78,6 +79,110 @@ namespace Bonsai.Expressions
             }
 
             return false;
+        }
+
+        class PropertyMappingTypeDescriptionProvider : TypeDescriptionProvider
+        {
+            static readonly TypeDescriptionProvider parentProvider = TypeDescriptor.GetProvider(typeof(PropertyMappingBuilder));
+
+            public PropertyMappingTypeDescriptionProvider()
+                : base(parentProvider)
+            {
+            }
+
+            public override ICustomTypeDescriptor GetExtendedTypeDescriptor(object instance)
+            {
+                var builder = (PropertyMappingBuilder)instance;
+                if (builder != null) return new PropertyMappingCollectionTypeDescriptor(builder.PropertyMappings);
+                else return base.GetExtendedTypeDescriptor(instance);
+            }
+        }
+
+        internal class PropertyMappingCollectionTypeDescriptor : CustomTypeDescriptor
+        {
+            PropertyMappingCollection instance;
+
+            public PropertyMappingCollectionTypeDescriptor(PropertyMappingCollection collection)
+            {
+                instance = collection;
+            }
+
+            public override PropertyDescriptorCollection GetProperties()
+            {
+                return GetProperties(null);
+            }
+
+            public override PropertyDescriptorCollection GetProperties(Attribute[] attributes)
+            {
+                if (instance == null) return base.GetProperties(attributes);
+                var properties = new PropertyDescriptor[instance.Count];
+                for (int i = 0; i < properties.Length; i++)
+                {
+                    properties[i] = new MappingPropertyDescriptor(instance[i]);
+                }
+                return new PropertyDescriptorCollection(properties);
+            }
+        }
+
+        class MappingPropertyDescriptor : PropertyDescriptor
+        {
+            readonly PropertyMapping mapping;
+            static readonly Attribute[] DescriptorAttributes = new Attribute[]
+            {
+                new ExternalizableAttribute(false),
+                new EditorAttribute("Bonsai.Design.MultiMemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)
+            };
+
+            public MappingPropertyDescriptor(PropertyMapping mapping)
+                : base(mapping.Name, DescriptorAttributes)
+            {
+                this.mapping = mapping;
+            }
+
+            public override string Category
+            {
+                get { return "Properties"; }
+            }
+
+            public override bool CanResetValue(object component)
+            {
+                return ShouldSerializeValue(component);
+            }
+
+            public override Type ComponentType
+            {
+                get { return typeof(PropertyMappingCollection); }
+            }
+
+            public override object GetValue(object component)
+            {
+                return mapping.Selector;
+            }
+
+            public override bool IsReadOnly
+            {
+                get { return false; }
+            }
+
+            public override Type PropertyType
+            {
+                get { return typeof(string); }
+            }
+
+            public override void ResetValue(object component)
+            {
+                mapping.Selector = null;
+            }
+
+            public override void SetValue(object component, object value)
+            {
+                mapping.Selector = (string)value;
+            }
+
+            public override bool ShouldSerializeValue(object component)
+            {
+                return !string.IsNullOrEmpty(mapping.Selector);
+            }
         }
     }
 }
