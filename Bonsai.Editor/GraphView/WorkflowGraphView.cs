@@ -3117,7 +3117,7 @@ namespace Bonsai.Design
                                    where builder != null && predecessor.Successors.Count == 1
                                    select new { node = FindGraphNode(predecessor.Value), builder })
                                    .FirstOrDefault();
-                if (mappingNode == null)
+                if (mappingNode == null || Control.ModifierKeys.HasFlag(Keys.Control))
                 {
                     var mappingBuilder = new ExternalizedMappingBuilder { ExternalizedProperties = { mapping } };
                     CreateGraphNode(mappingBuilder, selectedNode, CreateGraphNodeType.Predecessor, branch: true);
