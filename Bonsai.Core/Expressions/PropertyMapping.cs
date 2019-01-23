@@ -51,6 +51,7 @@ namespace Bonsai.Expressions
         /// values to this property mapping.
         /// </summary>
         [XmlAttribute]
+        [DefaultValue("")]
         [Editor("Bonsai.Design.MultiMemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [Description("The input values that will be selected for this property mapping.")]
         public string Selector { get; set; }
