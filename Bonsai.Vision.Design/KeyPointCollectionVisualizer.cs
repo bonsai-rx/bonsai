@@ -34,7 +34,8 @@ namespace Bonsai.Vision.Design
             var keyPoints = (KeyPointCollection)value;
             var image = keyPoints.Image;
             var output = new IplImage(image.Size, IplDepth.U8, 3);
-            CV.CvtColor(image, output, ColorConversion.Gray2Bgr);
+            if (image.Channels == 1) CV.CvtColor(image, output, ColorConversion.Gray2Bgr);
+            else CV.Copy(image, output);
             Draw(output, keyPoints);
             base.Show(output);
         }
