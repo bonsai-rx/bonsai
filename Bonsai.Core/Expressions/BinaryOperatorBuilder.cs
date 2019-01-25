@@ -78,6 +78,7 @@ namespace Bonsai.Expressions
         /// </returns>
         protected override Expression BuildSelector(Expression expression)
         {
+            var operand = Operand;
             Expression left, right;
             var expressionTypeDefinition = expression.Type.IsGenericType ? expression.Type.GetGenericTypeDefinition() : null;
             if (expressionTypeDefinition == typeof(Tuple<,>) ||
@@ -87,7 +88,11 @@ namespace Bonsai.Expressions
                 expressionTypeDefinition == typeof(Tuple<,,,,,>) ||
                 expressionTypeDefinition == typeof(Tuple<,,,,,,>))
             {
-                Operand = null;
+                if (operand != null)
+                {
+                    throw new InvalidOperationException(Resources.Exception_BinaryOperationNotAllowed);
+                }
+
                 left = ExpressionHelper.MemberAccess(expression, "Item1");
                 right = ExpressionHelper.MemberAccess(expression, "Item2");
 
@@ -119,7 +124,11 @@ namespace Bonsai.Expressions
             }
             else if (expression.Type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(expression.Type))
             {
-                Operand = null;
+                if (operand != null)
+                {
+                    throw new InvalidOperationException(Resources.Exception_BinaryOperationNotAllowed);
+                }
+
                 var genericEnumerable = Array.Find(expression.Type.GetInterfaces(), type => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>));
                 var enumeratorMethod = genericEnumerable != null ? genericEnumerable.GetMethod("GetEnumerator") : GetEnumeratorMethod;
                 var enumeratorCall = Expression.Call(expression, enumeratorMethod);
@@ -146,8 +155,7 @@ namespace Bonsai.Expressions
             }
             else
             {
-                var operand = Operand;
-                if (operand == null || operand.PropertyType != expression.Type)
+                if (operand == null)
                 {
                     if (expression.Type.IsInterface ||
                         expression.Type.IsClass && expression.Type.GetConstructor(Type.EmptyTypes) == null)

@@ -70,6 +70,15 @@ namespace Bonsai.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Binary operator cannot be applied to input arguments when a default operand is already specified..
+        /// </summary>
+        internal static string Exception_BinaryOperationNotAllowed {
+            get {
+                return ResourceManager.GetString("Exception_BinaryOperationNotAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No indexer with matching number of arguments is defined for type &apos;{0}&apos;..
         /// </summary>
         internal static string Exception_IndexerNotFound {

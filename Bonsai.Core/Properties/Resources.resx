@@ -120,6 +120,9 @@
   <data name="Exception_AmbiguousNamedElement" xml:space="preserve">
     <value>Multiple elements with the specified name '{0}' were found in the workflow.</value>
   </data>
+  <data name="Exception_BinaryOperationNotAllowed" xml:space="preserve">
+    <value>Binary operator cannot be applied to input arguments when a default operand is already specified.</value>
+  </data>
   <data name="Exception_IndexerNotFound" xml:space="preserve">
     <value>No indexer with matching number of arguments is defined for type '{0}'.</value>
   </data>
