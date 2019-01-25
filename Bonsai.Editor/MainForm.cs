@@ -1496,7 +1496,13 @@ namespace Bonsai.Editor
             var workflowProperty = component as ExternalizedProperty;
             if (workflowProperty != null && !string.IsNullOrWhiteSpace(workflowProperty.Name) && workflowProperty.Name != workflowProperty.MemberName)
             {
-                name += " (" + workflowProperty.MemberName + ")";
+                return name + " (" + workflowProperty.MemberName + ")";
+            }
+
+            var binaryOperator = component as BinaryOperatorBuilder;
+            if (binaryOperator != null && binaryOperator.Operand != null)
+            {
+                return name + " (" + ExpressionBuilder.GetElementDisplayName(binaryOperator.Operand.GetType()) + ")";
             }
             else
             {
@@ -1506,9 +1512,9 @@ namespace Bonsai.Editor
                     var elementType = component.GetType();
                     name += " (" + ExpressionBuilder.GetElementDisplayName(elementType) + ")";
                 }
-            }
 
-            return name;
+                return name;
+            }
         }
 
         static string GetElementDescription(object component)
