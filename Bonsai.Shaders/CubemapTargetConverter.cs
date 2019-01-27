@@ -41,14 +41,14 @@ namespace Bonsai.Shaders
         public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             return new StandardValuesCollection(new[]
-                {
-                    TextureTarget.TextureCubeMapNegativeX,
-                    TextureTarget.TextureCubeMapNegativeY,
-                    TextureTarget.TextureCubeMapNegativeZ,
-                    TextureTarget.TextureCubeMapPositiveX,
-                    TextureTarget.TextureCubeMapPositiveY,
-                    TextureTarget.TextureCubeMapPositiveZ
-                });
+            {
+                TextureTarget.TextureCubeMapNegativeX,
+                TextureTarget.TextureCubeMapNegativeY,
+                TextureTarget.TextureCubeMapNegativeZ,
+                TextureTarget.TextureCubeMapPositiveX,
+                TextureTarget.TextureCubeMapPositiveY,
+                TextureTarget.TextureCubeMapPositiveZ
+            });
         }
     }
 }
