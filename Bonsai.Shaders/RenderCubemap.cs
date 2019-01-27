@@ -66,7 +66,7 @@ namespace Bonsai.Shaders
 
         public override IObservable<Texture> Process<TSource>(IObservable<TSource> source)
         {
-            return Observable.Create<Texture>(observer =>
+            return Observable.Defer(() =>
             {
                 var fbo = 0;
                 var faceSize = 0;
@@ -142,8 +142,9 @@ namespace Bonsai.Shaders
                         {
                             GL.DeleteFramebuffers(1, ref fbo);
                             GL.DeleteRenderbuffers(1, ref depthRenderbuffer);
+                            colorTarget.Dispose();
                         }
-                    }).SubscribeSafe(observer);
+                    });
             });
         }
     }
