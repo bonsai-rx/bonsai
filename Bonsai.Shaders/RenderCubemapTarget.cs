@@ -13,11 +13,11 @@ using System.Xml.Serialization;
 namespace Bonsai.Shaders
 {
     [Description("Renders all currently stored draw commands to a cubemap render target.")]
-    public class RenderCubemap : Sink
+    public class RenderCubemapTarget : Sink
     {
         readonly StateConfigurationCollection renderState = new StateConfigurationCollection();
 
-        public RenderCubemap()
+        public RenderCubemapTarget()
         {
             ClearColor = Color.Black;
             ClearMask = ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit;
