@@ -18,6 +18,7 @@ namespace Bonsai.Shaders
         public BindTexture()
         {
             TextureSlot = TextureUnit.Texture0;
+            TextureTarget = TextureTarget.Texture2D;
         }
 
         [Description("The slot on which to bind the texture.")]
@@ -30,6 +31,9 @@ namespace Bonsai.Shaders
         [TypeConverter(typeof(TextureNameConverter))]
         [Description("The optional name of the texture that will be bound to the shader.")]
         public string TextureName { get; set; }
+
+        [Description("The texture target that will be bound to the sampler.")]
+        public TextureTarget TextureTarget { get; set; }
 
         IObservable<TSource> Process<TSource>(IObservable<TSource> source, Action<int, TSource> update)
         {
@@ -61,7 +65,7 @@ namespace Bonsai.Shaders
             return Process(source, (id, input) =>
             {
                 GL.ActiveTexture(TextureSlot);
-                GL.BindTexture(TextureTarget.Texture2D, id);
+                GL.BindTexture(TextureTarget, id);
             });
         }
 
@@ -70,7 +74,7 @@ namespace Bonsai.Shaders
             return Process(source, (id, input) =>
             {
                 GL.ActiveTexture(TextureSlot);
-                GL.BindTexture(TextureTarget.Texture2D, id == 0 && input != null ? input.Id : id);
+                GL.BindTexture(TextureTarget, id == 0 && input != null ? input.Id : id);
             });
         }
     }
