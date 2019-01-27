@@ -497,6 +497,7 @@ namespace Bonsai.Design
             var removeConnection = EmptyAction;
             if (nodeType == CreateGraphNodeType.Predecessor)
             {
+                var index = 0;
                 foreach (var node in targetNodes)
                 {
                     // Ensure we can connect to the selected node
@@ -504,7 +505,11 @@ namespace Bonsai.Design
                     {
                         var parameter = new ExpressionBuilderArgument();
                         var predecessors = workflow.PredecessorEdges(node).ToList();
-                        if (branch || sourceNode.Value.ArgumentRange.UpperBound == 0) parameter.Index = predecessors.Count;
+                        if (index > 0 || branch || sourceNode.Value.ArgumentRange.UpperBound == 0)
+                        {
+                            // Resolve predecessors only for the first selected target node, if we are not branching
+                            parameter.Index = predecessors.Count;
+                        }
                         else
                         {
                             // If we have predecessors, we need to connect the new node in the right branches
@@ -523,6 +528,8 @@ namespace Bonsai.Design
                         addConnection += () => { workflow.AddEdge(sinkNode, edge); };
                         removeConnection += () => { workflow.RemoveEdge(sinkNode, edge); };
                     }
+
+                    index++;
                 }
             }
             else if (!validate || sourceNode.Value.ArgumentRange.UpperBound > 0)
