@@ -1494,9 +1494,10 @@ namespace Bonsai.Design
             commandExecutor.Execute(EmptyAction, updateGraphLayout);
 
             var elements = nodes.ToWorkflowBuilder().Workflow.ToInspectableGraph();
-            var buildDependencies = (from item in nodes.Zip(elements, (node, element) => new { node, element })
+            var buildDependencies = (from item in nodes.Select(node => new { node, element = FindWorkflowValue(elements, GetGraphNodeBuilder(node)) })
                                      from predecessor in workflow.PredecessorEdges(GetGraphNodeTag(workflow, item.node))
                                      where predecessor.Item1.Value.IsBuildDependency() && !elements.Any(node => node.Value == item.node.Value)
+                                     orderby predecessor.Item3
                                      select new { predecessor, edge = Edge.Create(item.element, predecessor.Item2.Label) }).ToArray();
             commandExecutor.Execute(
                 () => Array.ForEach(buildDependencies, dependency => workflow.RemoveEdge(dependency.predecessor.Item1, dependency.predecessor.Item2)),
