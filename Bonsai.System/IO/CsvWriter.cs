@@ -132,7 +132,8 @@ namespace Bonsai.IO
                     .SelectMany(i => i.GetProperties(BindingFlags.Instance | BindingFlags.Public)));
             }
             return members.Where(member => !member.IsDefined(typeof(XmlIgnoreAttribute), true))
-                          .OrderBy(member => member.MetadataToken);
+                          .OrderBy(member => member.MetadataToken)
+                          .Except(type.GetDefaultMembers());
         }
 
         static bool IsNullable(Type type)
