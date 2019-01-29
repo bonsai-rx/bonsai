@@ -861,9 +861,9 @@ namespace Bonsai.Editor
             {
                 model.GroupGraphNodes(selectionModel.SelectedNodes);
                 groupNode = selectionModel.SelectedNodes.Single();
-                if (model.ReadOnly)
+                if (!model.CanEdit)
                 {
-                    //TODO: Refactor to avoid covertly modifying read-only workflow
+                    //TODO: Refactor to avoid covertly modifying read-only or running workflow
                     editorSite.Undo(false);
                 }
             }
@@ -875,7 +875,7 @@ namespace Bonsai.Editor
             groupBuilder = (GroupWorkflowBuilder)serializerWorkflowBuilder.Workflow.Single().Value;
             serializerWorkflowBuilder = new WorkflowBuilder(groupBuilder.Workflow);
             serializerWorkflowBuilder.Description = groupBuilder.Description;
-            if (SaveWorkflowBuilder(fileName, serializerWorkflowBuilder) && !model.ReadOnly)
+            if (SaveWorkflowBuilder(fileName, serializerWorkflowBuilder) && model.CanEdit)
             {
                 var includeBuilder = new IncludeWorkflowBuilder();
                 includeBuilder.Path = PathConvert.GetProjectPath(fileName);
