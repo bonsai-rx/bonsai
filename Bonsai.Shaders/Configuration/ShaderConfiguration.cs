@@ -60,53 +60,12 @@ namespace Bonsai.Shaders.Configuration
 
         internal string ReadShaderSource(string path)
         {
-            const char AssemblySeparator = ':';
             if (string.IsNullOrEmpty(path)) return null;
-
-            var separatorIndex = path.IndexOf(AssemblySeparator);
-            if (separatorIndex >= 0 && !Path.IsPathRooted(path))
+            using (var stream = OpenResource(path))
+            using (var reader = new StreamReader(stream))
             {
-                var nameElements = path.Split(new[] { AssemblySeparator }, 2);
-                if (string.IsNullOrEmpty(nameElements[0]))
-                {
-                    throw new ArgumentException(
-                        "The embedded resource path \"" + path +
-                        "\" in shader " + Name + " must be qualified with a valid assembly name.",
-                        "path");
-                }
-
-                var assembly = System.Reflection.Assembly.Load(nameElements[0]);
-                var resourceName = string.Join(ExpressionHelper.MemberSeparator, nameElements);
-                var resourceStream = assembly.GetManifestResourceStream(resourceName);
-                if (resourceStream == null)
-                {
-                    throw new ArgumentException(
-                        "The specified embedded resource \"" + nameElements[1] +
-                        "\" was not found in assembly \"" + nameElements[0] +
-                        "\" while loading " + Name + " shader.",
-                        "path");
-                }
-
-                using (var reader = new StreamReader(resourceStream))
-                {
-                    return reader.ReadToEnd();
-                }
+                return reader.ReadToEnd();
             }
-            else
-            {
-                if (!File.Exists(path))
-                {
-                    throw new ArgumentNullException("path", "The specified path \"" + path + "\" was not found while loading " + Name + " shader.");
-                }
-
-                return File.ReadAllText(path);
-            }
-        }
-
-        public override string ToString()
-        {
-            var name = Name;
-            return string.IsNullOrEmpty(name) ? GetType().Name : name;
         }
     }
 }
