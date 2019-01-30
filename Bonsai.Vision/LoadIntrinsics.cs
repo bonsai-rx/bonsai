@@ -39,49 +39,19 @@ namespace Bonsai.Vision
 
                 using (var root = fileStorage.GetRootFileNode())
                 {
+                    Size? imageSize;
                     var imageWidth = fileStorage.ReadInt(root, "image_width");
                     var imageHeight = fileStorage.ReadInt(root, "image_height");
                     if (imageWidth > 0 && imageHeight > 0)
                     {
-                        intrinsics.ImageSize = new Size(imageWidth, imageHeight);
+                        imageSize = new Size(imageWidth, imageHeight);
                     }
-                    else intrinsics.ImageSize = null;
+                    else imageSize = null;
 
                     using (var cameraMatrix = fileStorage.Read<Mat>(root, "camera_matrix"))
-                    {
-                        if (cameraMatrix != null)
-                        {
-                            var fx = cameraMatrix.GetReal(0, 0);
-                            var fy = cameraMatrix.GetReal(1, 1);
-                            var px = cameraMatrix.GetReal(0, 2);
-                            var py = cameraMatrix.GetReal(1, 2);
-                            intrinsics.FocalLength = new Point2d(fx, fy);
-                            intrinsics.PrincipalPoint = new Point2d(px, py);
-                        }
-                        else
-                        {
-                            intrinsics.FocalLength = Point2d.Zero;
-                            intrinsics.PrincipalPoint = Point2d.Zero;
-                        }
-                    }
-
                     using (var distortionCoefficients = fileStorage.Read<Mat>(root, "distortion_coefficients"))
                     {
-                        if (distortionCoefficients != null)
-                        {
-                            var d0 = distortionCoefficients.GetReal(0);
-                            var d1 = distortionCoefficients.GetReal(1);
-                            var d2 = distortionCoefficients.GetReal(2);
-                            var d3 = distortionCoefficients.GetReal(3);
-                            var d4 = distortionCoefficients.GetReal(4);
-                            intrinsics.RadialDistortion = new Point3d(d0, d1, d4);
-                            intrinsics.TangentialDistortion = new Point2d(d2, d3);
-                        }
-                        else
-                        {
-                            intrinsics.RadialDistortion = Point3d.Zero;
-                            intrinsics.TangentialDistortion = Point2d.Zero;
-                        }
+                        Intrinsics.FromCameraMatrix(cameraMatrix, distortionCoefficients, imageSize, out intrinsics);
                     }
                 }
             }
