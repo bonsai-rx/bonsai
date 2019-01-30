@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing.Design;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,7 +23,11 @@ namespace Bonsai.Shaders.Configuration
         public override Mesh CreateResource(ResourceManager resourceManager)
         {
             var mesh = base.CreateResource(resourceManager);
-            ObjReader.ReadObject(mesh, FileName);
+            using (var stream = OpenResource(FileName))
+            using (var reader = new StreamReader(stream))
+            {
+                ObjReader.ReadObject(mesh, reader);
+            }
             return mesh;
         }
 

@@ -147,8 +147,9 @@ namespace Bonsai.Shaders
             return offset + buffer.ElementSize * BlittableValueType<float>.Stride;
         }
 
-        internal static void ReadObject(Mesh mesh, string fileName)
+        internal static void ReadObject(Mesh mesh, StreamReader stream)
         {
+            string line;
             var faceLength = 0;
             uint vertexCount = 0;
             VertexBounds bounds = new VertexBounds();
@@ -158,7 +159,7 @@ namespace Bonsai.Shaders
             var vertices = new List<float>();
             var indices = new List<uint>();
             var indexMap = new Dictionary<Index, uint>();
-            foreach (var line in File.ReadAllLines(fileName))
+            while ((line = stream.ReadLine()) != null)
             {
                 var values = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 if (values.Length == 0) continue;
