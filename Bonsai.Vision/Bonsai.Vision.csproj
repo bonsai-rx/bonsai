@@ -71,6 +71,8 @@
     <Compile Include="BgraScalarConverter.cs" />
     <Compile Include="BinaryRegionAnalysis.cs" />
     <Compile Include="BinaryRegionExtremes.cs" />
+    <Compile Include="CalibrateCameraChessboard.cs" />
+    <Compile Include="CameraCalibration.cs" />
     <Compile Include="CameraCapture.cs" />
     <Compile Include="Canny.cs" />
     <Compile Include="CapturePropertyAssignment.cs" />
