@@ -904,7 +904,7 @@ namespace Bonsai.Editor
             openWorkflowDialog.InitialDirectory = saveWorkflowDialog.InitialDirectory = workflowDirectory;
             if (setWorkingDirectory && directoryToolStripTextBox.Text != workflowDirectory)
             {
-                directoryToolStripTextBox.Text = workflowDirectory;
+                Environment.CurrentDirectory = workflowDirectory;
                 saveWorkflowDialog.FileName = fileName;
                 EditorResult = EditorResult.ReloadEditor;
                 ResetProjectStatus();
