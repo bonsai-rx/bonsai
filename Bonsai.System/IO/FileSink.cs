@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using System.IO;
+using System.Reactive.Concurrency;
 
 namespace Bonsai.IO
 {
@@ -105,28 +106,15 @@ namespace Bonsai.IO
 
             return Observable.Create<TElement>(observer =>
             {
-                Task writerTask = null;
                 TWriter writer = null;
-
-                if (Buffered)
+                var disposable = Buffered ? new WriterDisposable<TWriter>() : null;
+                var close = disposable != null ? disposable : Disposable.Create(() =>
                 {
-                    writerTask = new Task(() => { });
-                    writerTask.Start();
-                }
-
-                var close = Disposable.Create(() =>
-                {
-                    Action closingTask = () =>
+                    var closingWriter = writer;
+                    if (closingWriter != null)
                     {
-                        var closingWriter = writer;
-                        if (closingWriter != null)
-                        {
-                            closingWriter.Dispose();
-                        }
-                    };
-
-                    if (writerTask == null) closingTask();
-                    else writerTask.ContinueWith(task => closingTask());
+                        closingWriter.Dispose();
+                    }
                 });
 
                 var process = source.Do(element =>
@@ -163,8 +151,8 @@ namespace Bonsai.IO
                         }
                     };
 
-                    if (writerTask == null) writeTask();
-                    else writerTask = writerTask.ContinueWith(task => writeTask());
+                    if (disposable == null) writeTask();
+                    else disposable.Scheduler.Schedule(writeTask);
                 }).SubscribeSafe(observer);
 
                 return new CompositeDisposable(process, close);
