@@ -8,6 +8,7 @@ using System.IO;
 using System.IO.Pipes;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
+using System.Reactive.Concurrency;
 
 namespace Bonsai.IO
 {
@@ -95,60 +96,45 @@ namespace Bonsai.IO
             return Observable.Create<TElement>(observer =>
             {
                 var path = Path;
-                Task<TWriter> writerTask = null;
-                if (!string.IsNullOrEmpty(path))
+                if (string.IsNullOrEmpty(path))
                 {
-                    writerTask = new Task<TWriter>(() =>
-                    {
-                        Stream stream = null;
-                        try
-                        {
-                            if (!path.StartsWith(@"\\")) PathHelper.EnsureDirectory(path);
-                            path = PathHelper.AppendSuffix(path, Suffix);
-                            stream = CreateStream(path, Overwrite);
-                            return CreateWriter(stream);
-                        }
-                        catch (Exception ex)
-                        {
-                            observer.OnError(ex);
-                            if (stream != null) stream.Close();
-                            return null;
-                        }
-                    });
-                    writerTask.Start();
+                    throw new InvalidOperationException("A valid path must be specified.");
                 }
 
-                var close = Disposable.Create(() =>
+                var disposable = new WriterDisposable<TWriter>();
+                disposable.Scheduler.Schedule(() =>
                 {
-                    if (writerTask != null)
+                    Stream stream = null;
+                    try
                     {
-                        writerTask.ContinueWith(task =>
-                        {
-                            var writer = task.Result;
-                            if (writer != null) writer.Dispose();
-                        });
+                        if (!path.StartsWith(@"\\")) PathHelper.EnsureDirectory(path);
+                        path = PathHelper.AppendSuffix(path, Suffix);
+                        stream = CreateStream(path, Overwrite);
+                        disposable.Writer = CreateWriter(stream);
+                    }
+                    catch (Exception ex)
+                    {
+                        observer.OnError(ex);
+                        if (stream != null) stream.Close();
                     }
                 });
 
                 var process = source.Do(input =>
                 {
-                    if (writerTask == null) return;
-                    writerTask = writerTask.ContinueWith(task =>
+                    disposable.Scheduler.Schedule(() =>
                     {
-                        if (task.Result != null)
+                        if (disposable.Writer != null)
                         {
-                            try { Write(task.Result, selector(input)); }
+                            try { Write(disposable.Writer, selector(input)); }
                             catch (Exception ex)
                             {
                                 observer.OnError(ex);
                             }
                         }
-
-                        return task.Result;
                     });
                 }).SubscribeSafe(observer);
 
-                return new CompositeDisposable(process, close);
+                return new CompositeDisposable(process, disposable);
             });
         }
 

@@ -12,6 +12,7 @@ using System.Globalization;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using Bonsai.Expressions;
+using System.Reactive.Concurrency;
 
 namespace Bonsai.IO
 {
@@ -193,39 +194,19 @@ namespace Bonsai.IO
                         throw new IOException(string.Format("The file '{0}' already exists.", fileName));
                     }
 
-                    var disposable = new WriterDisposable();
-                    disposable.WriterTask = new Task(() =>
+                    var disposable = new WriterDisposable<StreamWriter>();
+                    disposable.Scheduler.Schedule(() =>
                     {
                         var writer = new StreamWriter(fileName, Append, Encoding.ASCII);
                         if (!string.IsNullOrEmpty(header)) writer.WriteLine(header);
                         disposable.Writer = writer;
                     });
-                    disposable.WriterTask.Start();
                     return disposable;
                 },
                 disposable => source.Do(input =>
                 {
-                    disposable.WriterTask = disposable.WriterTask.ContinueWith(task => writeAction(input, disposable.Writer));
+                    disposable.Scheduler.Schedule(() => writeAction(input, disposable.Writer));
                 }));
-        }
-
-        class WriterDisposable : IDisposable
-        {
-            public Task WriterTask { get; set; }
-
-            public StreamWriter Writer { get; set; }
-
-            public void Dispose()
-            {
-                WriterTask.ContinueWith(task =>
-                {
-                    var closingWriter = Writer;
-                    if (closingWriter != null)
-                    {
-                        closingWriter.Close();
-                    }
-                });
-            }
         }
     }
 }
