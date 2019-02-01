@@ -8,6 +8,7 @@ using System.IO;
 using System.IO.Pipes;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
+using System.Reactive.Concurrency;
 
 namespace Bonsai.IO
 {
@@ -109,7 +110,8 @@ namespace Bonsai.IO
                     throw new InvalidOperationException("A valid path must be specified.");
                 }
 
-                var writerTask = new Task<TWriter>(() =>
+                var disposable = new WriterDisposable<TWriter>();
+                disposable.Scheduler.Schedule(() =>
                 {
                     Stream stream = null;
                     try
@@ -117,44 +119,31 @@ namespace Bonsai.IO
                         if (!path.StartsWith(@"\\")) PathHelper.EnsureDirectory(path);
                         path = PathHelper.AppendSuffix(path, Suffix);
                         stream = CreateStream(path, Overwrite);
-                        return CreateWriter(stream);
+                        disposable.Writer = CreateWriter(stream);
                     }
                     catch (Exception ex)
                     {
                         observer.OnError(ex);
                         if (stream != null) stream.Close();
-                        return null;
                     }
-                });
-                writerTask.Start();
-
-                var close = Disposable.Create(() =>
-                {
-                    writerTask.ContinueWith(task =>
-                    {
-                        var writer = task.Result;
-                        if (writer != null) writer.Dispose();
-                    });
                 });
 
                 var process = source.Do(input =>
                 {
-                    writerTask = writerTask.ContinueWith(task =>
+                    disposable.Scheduler.Schedule(() =>
                     {
-                        if (task.Result != null)
+                        if (disposable.Writer != null)
                         {
-                            try { Write(task.Result, selector(input)); }
+                            try { Write(disposable.Writer, selector(input)); }
                             catch (Exception ex)
                             {
                                 observer.OnError(ex);
                             }
                         }
-
-                        return task.Result;
                     });
                 }).SubscribeSafe(observer);
 
-                return new CompositeDisposable(process, close);
+                return new CompositeDisposable(process, disposable);
             });
         }
 
