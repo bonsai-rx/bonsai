@@ -12,13 +12,11 @@ namespace Bonsai.Shaders
 {
     [Description("Produces a sequence of events whenever it is time to render a frame.")]
     [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationComponentEditor, Bonsai.Shaders.Design", typeof(ComponentEditor))]
-    public class RenderFrame : Source<EventPattern<INativeWindow, FrameEventArgs>>
+    public class RenderFrame : Source<FrameEvent>
     {
-        public override IObservable<EventPattern<INativeWindow, FrameEventArgs>> Generate()
+        public override IObservable<FrameEvent> Generate()
         {
-            return ShaderManager.WindowSource.SelectMany(window => window.EventPattern<FrameEventArgs>(
-                handler => window.RenderFrame += handler,
-                handler => window.RenderFrame -= handler));
+            return ShaderManager.WindowSource.SelectMany(window => window.RenderFrameAsync);
         }
     }
 }
