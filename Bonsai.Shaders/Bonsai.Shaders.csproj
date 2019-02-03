@@ -162,7 +162,6 @@
     <Compile Include="Translate.cs" />
     <Compile Include="UpdateRenderState.cs" />
     <Compile Include="UpdateScissorState.cs" />
-    <Compile Include="UpdateStep.cs" />
     <Compile Include="UpdateViewportState.cs" />
     <Compile Include="ViewportEffect.cs" />
     <Compile Include="ImageTextureBinding.cs" />
