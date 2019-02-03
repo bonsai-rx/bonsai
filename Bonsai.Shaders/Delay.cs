@@ -31,8 +31,8 @@ namespace Bonsai.Shaders
         {
             return updateFrame.Generate().Publish(update =>
             {
-                var dueTime = DueTime;
-                var elapsedTime = update.Scan(TimeSpan.Zero, (elapsed, evt) => elapsed + TimeSpan.FromSeconds(evt.EventArgs.Time));
+                var dueTime = DueTime.TotalSeconds;
+                var elapsedTime = update.Scan(0.0, (elapsed, evt) => elapsed + evt.TimeStep.ElapsedTime);
                 var due = elapsedTime.FirstAsync(elapsed => elapsed > dueTime);
                 return source.SelectMany(input => due.Select(x => input));
             });
