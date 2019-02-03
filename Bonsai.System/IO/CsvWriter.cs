@@ -218,35 +218,43 @@ namespace Bonsai.IO
 
         IObservable<TSource> Process<TSource>(IObservable<TSource> source, string header, Action<TSource, StreamWriter> writeAction)
         {
-            return Observable.Using(
-                () =>
+            return Observable.Create<TSource>(observer =>
+            {
+                var fileName = FileName;
+                if (string.IsNullOrEmpty(fileName))
                 {
-                    var fileName = FileName;
-                    if (string.IsNullOrEmpty(fileName))
-                    {
-                        throw new InvalidOperationException("A valid file path must be specified.");
-                    }
+                    throw new InvalidOperationException("A valid file path must be specified.");
+                }
 
-                    PathHelper.EnsureDirectory(fileName);
-                    fileName = PathHelper.AppendSuffix(fileName, Suffix);
-                    if (File.Exists(fileName) && !Overwrite && !Append)
-                    {
-                        throw new IOException(string.Format("The file '{0}' already exists.", fileName));
-                    }
+                PathHelper.EnsureDirectory(fileName);
+                fileName = PathHelper.AppendSuffix(fileName, Suffix);
+                if (File.Exists(fileName) && !Overwrite && !Append)
+                {
+                    throw new IOException(string.Format("The file '{0}' already exists.", fileName));
+                }
 
-                    var disposable = new WriterDisposable<StreamWriter>();
+                var disposable = new WriterDisposable<StreamWriter>();
+                disposable.Scheduler.Schedule(() =>
+                {
+                    var writer = new StreamWriter(fileName, Append, Encoding.ASCII);
+                    if (!string.IsNullOrEmpty(header)) writer.WriteLine(header);
+                    disposable.Writer = writer;
+                });
+
+                var process = source.Do(input =>
+                {
                     disposable.Scheduler.Schedule(() =>
                     {
-                        var writer = new StreamWriter(fileName, Append, Encoding.ASCII);
-                        if (!string.IsNullOrEmpty(header)) writer.WriteLine(header);
-                        disposable.Writer = writer;
+                        try { writeAction(input, disposable.Writer); }
+                        catch (Exception ex)
+                        {
+                            observer.OnError(ex);
+                        }
                     });
-                    return disposable;
-                },
-                disposable => source.Do(input =>
-                {
-                    disposable.Scheduler.Schedule(() => writeAction(input, disposable.Writer));
-                }));
+                }).SubscribeSafe(observer);
+
+                return new CompositeDisposable(process, disposable);
+            });
         }
     }
 }
