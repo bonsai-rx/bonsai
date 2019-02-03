@@ -1,7 +1,9 @@
-﻿using System;
+﻿using OpenTK;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -41,21 +43,46 @@ namespace Bonsai.Shaders
 
         public override IObservable<long> Generate()
         {
-            return updateFrame.Generate().Publish(update =>
+            return Generate(updateFrame.Generate());
+        }
+
+        public IObservable<long> Generate(IObservable<FrameEvent> source)
+        {
+            return Generate(source.Select(evt => evt.TimeStep.ElapsedTime));
+        }
+
+        public IObservable<long> Generate(IObservable<TimeStep> source)
+        {
+            return Generate(source.Select(timeStep => timeStep.ElapsedTime));
+        }
+
+        public IObservable<long> Generate(IObservable<double> source)
+        {
+            var dueTime = DueTime.TotalSeconds;
+            var period = Period.GetValueOrDefault().TotalSeconds;
+            return Observable.Create<long>(observer =>
             {
-                var period = Period;
-                var elapsedTime = update.Scan(TimeSpan.Zero, (elapsed, evt) => elapsed + TimeSpan.FromSeconds(evt.EventArgs.Time));
-                var due = elapsedTime.FirstAsync(elapsed => elapsed > DueTime).Select(x => 0L);
-                if (period.HasValue)
-                {
-                    return due.Concat(
-                        elapsedTime
-                        .FirstAsync(elapsed => elapsed > period.Value)
-                        .Repeat()
-                        .TakeUntil(update.TakeLast(1))
-                        .Scan(0L, (counter, x) => counter + 1));
-                }
-                else return due;
+                var counter = 0L;
+                var elapsedTime = 0.0;
+                var timeObserver = Observer.Create<double>(
+                    time =>
+                    {
+                        elapsedTime += time;
+                        while (elapsedTime >= dueTime)
+                        {
+                            observer.OnNext(counter++);
+                            elapsedTime -= dueTime;
+                            if (period == 0)
+                            {
+                                observer.OnCompleted();
+                                break;
+                            }
+                            else dueTime = period;
+                        }
+                    },
+                    observer.OnError,
+                    observer.OnCompleted);
+                return source.SubscribeSafe(timeObserver);
             });
         }
     }
