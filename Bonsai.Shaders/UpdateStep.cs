@@ -40,25 +40,31 @@ namespace Bonsai.Shaders
             remainingTime -= stepCount * stepSize;
         }
 
-        public IObservable<double> Process(IObservable<EventPattern<INativeWindow, FrameEventArgs>> source)
+        public IObservable<double> Process(IObservable<FrameEvent> source)
+        {
+            return Process(source.Select(evt => evt.TimeStep));
+        }
+
+        public IObservable<double> Process(IObservable<TimeStep> source)
         {
             return Observable.Create<double>(observer =>
             {
                 var remainingTime = 0.0;
-                return source.Do(input =>
-                {
-                    var window = (ShaderWindow)input.Sender;
-                    var stepSize = StepSize * window.RefreshRate;
-                    if (stepSize <= 0)
+                var timeObserver = Observer.Create<TimeStep>(
+                    step =>
                     {
-                        throw new InvalidOperationException("The size of each update microstep must be a positive value.");
-                    }
+                        var stepSize = step.ElapsedTime / StepSize;
+                        if (stepSize <= 0)
+                        {
+                            throw new InvalidOperationException("The size of each update microstep must be a positive value.");
+                        }
 
-                    remainingTime += input.EventArgs.Time;
-                    Step(1.0 / stepSize, MaxElapsedTime, ref remainingTime, observer);
-                })
-                .IgnoreElements().Cast<double>()
-                .SubscribeSafe(observer);
+                        remainingTime += step.ElapsedRealTime;
+                        Step(stepSize, MaxElapsedTime, ref remainingTime, observer);
+                    },
+                    observer.OnError,
+                    observer.OnCompleted);
+                return source.SubscribeSafe(timeObserver);
             });
         }
 

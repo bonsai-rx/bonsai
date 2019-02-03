@@ -24,9 +24,7 @@ namespace Bonsai.Shaders.Input
 
         public override IObservable<KeyboardState> Generate()
         {
-            return ShaderManager.WindowSource.SelectMany(window => window.EventPattern<FrameEventArgs>(
-                handler => window.UpdateFrame += handler,
-                handler => window.UpdateFrame -= handler)
+            return ShaderManager.WindowSource.SelectMany(window => window.UpdateFrameAsync
                 .Select(evt => GetKeyboardState(Index)));
         }
 

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,6 +27,8 @@ namespace Bonsai.Shaders
         ShaderWindowSettings settings;
         const string DefaultTitle = "Bonsai Shader Window";
         static readonly object syncRoot = string.Intern("A1105A50-BBB0-4EC6-B8B2-B5EF38A9CC3E");
+        readonly Subject<FrameEvent> updateFrame;
+        readonly Subject<FrameEvent> renderFrame;
         readonly bool swapSync;
         event Action update;
 
@@ -53,14 +56,28 @@ namespace Bonsai.Shaders
             Scissor = new RectangleF(0, 0, 1, 1);
             TargetRenderFrequency = configuration.TargetRenderFrequency;
             TargetUpdateFrequency = configuration.TargetRenderFrequency;
-            RefreshRate = VSync == VSyncMode.On && TargetRenderFrequency == 0 ? display.RefreshRate : TargetRenderFrequency;
+            RefreshPeriod = VSync == VSyncMode.On && TargetRenderFrequency == 0
+                ? 1.0 / display.RefreshRate
+                : TargetRenderPeriod;
+            updateFrame = new Subject<FrameEvent>();
+            renderFrame = new Subject<FrameEvent>();
             resourceManager = new ResourceManager(this);
             textures = new ResourceDictionary<Texture>(resourceManager);
             meshes = new ResourceDictionary<Mesh>(resourceManager);
             shaders = new List<Shader>();
         }
 
-        internal double RefreshRate { get; private set; }
+        internal double RefreshPeriod { get; private set; }
+
+        internal IObservable<FrameEvent> UpdateFrameAsync
+        {
+            get { return updateFrame; }
+        }
+
+        internal IObservable<FrameEvent> RenderFrameAsync
+        {
+            get { return renderFrame; }
+        }
 
         public Color ClearColor { get; set; }
 
@@ -179,6 +196,12 @@ namespace Bonsai.Shaders
             base.OnResize(e);
         }
 
+        protected override void OnUpdateFrame(FrameEventArgs e)
+        {
+            OnFrameEvent(updateFrame, e);
+            base.OnUpdateFrame(e);
+        }
+
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             if (clearMask != ClearBufferMask.None)
@@ -194,6 +217,7 @@ namespace Bonsai.Shaders
                 action();
             }
 
+            OnFrameEvent(renderFrame, e);
             base.OnRenderFrame(e);
             shaders.RemoveAll(shader =>
             {
@@ -207,6 +231,22 @@ namespace Bonsai.Shaders
 
             if (!swapSync) SwapBuffers();
             else lock (syncRoot) SwapBuffers();
+        }
+
+        private void OnFrameEvent(Subject<FrameEvent> subject, FrameEventArgs e)
+        {
+            if (subject.HasObservers)
+            {
+                var frameEvent = new FrameEvent(this, e);
+                subject.OnNext(frameEvent);
+            }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            updateFrame.OnCompleted();
+            renderFrame.OnCompleted();
+            base.OnClosed(e);
         }
 
         protected override void OnUnload(EventArgs e)

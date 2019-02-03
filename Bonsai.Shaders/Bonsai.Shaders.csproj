@@ -86,11 +86,11 @@
     <Compile Include="CreatePerspectiveOffCenter.cs" />
     <Compile Include="CreateWindow.cs" />
     <Compile Include="CubemapTargetConverter.cs" />
+    <Compile Include="FrameEvent.cs" />
     <Compile Include="LoadImage.cs" />
     <Compile Include="LoadResources.cs" />
     <Compile Include="MaterialNameConverter.cs" />
     <Compile Include="MeshResources.cs" />
-    <Compile Include="RefreshRate.cs" />
     <Compile Include="RenderCubemap.cs" />
     <Compile Include="RenderCubemapTarget.cs" />
     <Compile Include="RenderTexture.cs" />
@@ -249,6 +249,7 @@
     <Compile Include="Configuration\ViewportState.cs" />
     <Compile Include="WarpPerspective.cs" />
     <Compile Include="WindowClosed.cs" />
+    <Compile Include="TimeStep.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Bonsai.Shaders.nuspec">
