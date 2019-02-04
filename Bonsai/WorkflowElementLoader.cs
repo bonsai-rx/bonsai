@@ -28,6 +28,12 @@ namespace Bonsai
                 type.IsDefined(typeof(SourceAttribute), true);
         }
 
+        static bool IsVisibleElement(Type type)
+        {
+            var visibleAttribute = type.GetCustomAttribute<DesignTimeVisibleAttribute>() ?? DesignTimeVisibleAttribute.Default;
+            return visibleAttribute.Visible;
+        }
+
         static IEnumerable<WorkflowElementDescriptor> GetWorkflowElements(Assembly assembly)
         {
             Type[] types;
@@ -40,7 +46,7 @@ namespace Bonsai
                 var type = types[i];
                 if (type.IsPublic && !type.IsValueType && !type.ContainsGenericParameters &&
                     !type.IsAbstract && IsWorkflowElement(type) && !type.IsDefined(typeof(ObsoleteAttribute)) &&
-                    type.GetConstructor(Type.EmptyTypes) != null)
+                    IsVisibleElement(type) && type.GetConstructor(Type.EmptyTypes) != null)
                 {
                     var descriptionAttribute = (DescriptionAttribute)TypeDescriptor.GetAttributes(type)[typeof(DescriptionAttribute)];
                     yield return new WorkflowElementDescriptor
