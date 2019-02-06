@@ -48,7 +48,7 @@ namespace Bonsai.Expressions
         {
             inspectWorkflow = inspect;
             workflow = builder.workflow;
-            if (workflow != null)
+            if (workflow != null && inspect != builder.inspectWorkflow)
             {
                 workflow = inspect ? workflow.ToInspectableGraph() : workflow.FromInspectableGraph();
             }
