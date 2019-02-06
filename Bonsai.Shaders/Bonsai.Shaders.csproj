@@ -94,7 +94,7 @@
     <Compile Include="RenderCubemap.cs" />
     <Compile Include="RenderCubemapTarget.cs" />
     <Compile Include="RenderTexture.cs" />
-    <Compile Include="ExtrinsicsModelView.cs" />
+    <Compile Include="ExtrinsicsTransform.cs" />
     <Compile Include="CreateTransform.cs" />
     <Compile Include="DispatchCompute.cs" />
     <Compile Include="Configuration\BufferBindingConfiguration.cs" />
