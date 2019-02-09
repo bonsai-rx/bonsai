@@ -41,6 +41,8 @@ namespace Bonsai.Vision
                 case ColorConversion.Lab2LRgb:
                 case ColorConversion.Luv2LBgr:
                 case ColorConversion.Luv2LRgb:
+                case ColorConversion.Rgba2mRgba:
+                case ColorConversion.mRgba2Rgba:
                 case ColorConversion.Bgr2Bgra: return 4;
                 case ColorConversion.Rgba2Bgr:
                 case ColorConversion.Bgr2Rgb:
