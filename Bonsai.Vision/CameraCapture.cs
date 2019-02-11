@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Vision
 {
+    [DefaultProperty("Index")]
     [Description("Produces a video sequence of images acquired from the specified camera index.")]
     public class CameraCapture : Source<IplImage>
     {
