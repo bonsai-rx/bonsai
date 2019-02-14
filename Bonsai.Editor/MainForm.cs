@@ -406,6 +406,7 @@ namespace Bonsai.Editor
                 {
                     toolboxTreeView.BeginUpdate();
                     var subjectCategory = toolboxCategories[SubjectCategoryName];
+                    var isEmpty = subjectCategory.Nodes.Count == 0;
                     subjectCategory.Nodes.Clear();
 
                     var nameProperty = TypeDescriptor.GetProperties(typeof(SubscribeSubjectBuilder))["Name"];
@@ -417,6 +418,11 @@ namespace Bonsai.Editor
                         {
                             var subjectNode = subjectCategory.Nodes.Add(entry, entry);
                             subjectNode.Tag = elementCategories;
+                        }
+
+                        if (isEmpty)
+                        {
+                            subjectCategory.Expand();
                         }
                     }
 
