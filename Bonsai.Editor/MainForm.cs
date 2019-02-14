@@ -37,10 +37,12 @@ namespace Bonsai.Editor
         const string BonsaiPackageName = "Bonsai";
         const string ExtensionsDirectory = "Extensions";
         const string WorkflowCategoryName = "Workflow";
+        const string SubjectCategoryName = "Subject";
         const string VersionAttributeName = "Version";
         const string DefaultWorkflowNamespace = "Unspecified";
         static readonly char[] ToolboxArgumentSeparator = new[] { ' ' };
         static readonly object ExtensionsDirectoryChanged = new object();
+        static readonly object WorkflowValidating = new object();
         static readonly XmlWriterSettings DefaultWriterSettings = new XmlWriterSettings
         {
             NamespaceHandling = NamespaceHandling.OmitDuplicates,
@@ -279,6 +281,7 @@ namespace Bonsai.Editor
                 handler => FormClosed += handler,
                 handler => FormClosed -= handler);
 
+            InitializeSubjectSources().TakeUntil(formClosed).Subscribe();
             InitializeWorkflowFileWatcher().TakeUntil(formClosed).Subscribe();
             updatesAvailable.TakeUntil(formClosed).ObserveOn(formScheduler).Subscribe(HandleUpdatesAvailable);
             directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
@@ -384,6 +387,43 @@ namespace Bonsai.Editor
                     ElementTypes = new[] { categoryAttribute.Category }
                 };
             }
+        }
+
+        IObservable<Unit> InitializeSubjectSources()
+        {
+            var selectionChanged = Observable.FromEventPattern<EventHandler, EventArgs>(
+                handler => selectionModel.SelectionChanged += handler,
+                handler => selectionModel.SelectionChanged -= handler)
+                .Select(evt => selectionModel.SelectedView)
+                .DistinctUntilChanged();
+            var workflowValidating = Observable.FromEventPattern<EventHandler, EventArgs>(
+                handler => Events.AddHandler(WorkflowValidating, handler),
+                handler => Events.RemoveHandler(WorkflowValidating, handler))
+                .Select(evt => selectionModel.SelectedView);
+            return Observable
+                .Merge(selectionChanged, workflowValidating)
+                .Do(view =>
+                {
+                    toolboxTreeView.BeginUpdate();
+                    var subjectCategory = toolboxCategories[SubjectCategoryName];
+                    subjectCategory.Nodes.Clear();
+
+                    var nameProperty = TypeDescriptor.GetProperties(typeof(SubscribeSubjectBuilder))["Name"];
+                    var subjects = nameProperty.Converter.GetStandardValues(new TypeDescriptorContext(workflowBuilder, nameProperty, editorSite));
+                    if (subjects.Count > 0)
+                    {
+                        var elementCategories = new[] { ~ElementCategory.Source };
+                        foreach (string entry in subjects)
+                        {
+                            var subjectNode = subjectCategory.Nodes.Add(entry, entry);
+                            subjectNode.Tag = elementCategories;
+                        }
+                    }
+
+                    toolboxTreeView.EndUpdate();
+                })
+                .IgnoreElements()
+                .Select(xs => Unit.Default);
         }
 
         IObservable<Unit> InitializeWorkflowFileWatcher()
@@ -881,6 +921,15 @@ namespace Bonsai.Editor
                 includeBuilder.Path = PathConvert.GetProjectPath(fileName);
                 model.ReplaceGraphNode(groupNode, includeBuilder);
                 editorSite.ValidateWorkflow();
+            }
+        }
+
+        void OnWorkflowValidating(EventArgs e)
+        {
+            var handler = Events[WorkflowValidating] as EventHandler;
+            if (handler != null)
+            {
+                handler(this, e);
             }
         }
 
@@ -2385,6 +2434,7 @@ namespace Bonsai.Editor
                 {
                     try
                     {
+                        siteForm.OnWorkflowValidating(EventArgs.Empty);
                         siteForm.ClearWorkflowError();
                         siteForm.workflowBuilder.Workflow.Build();
                     }

@@ -1098,6 +1098,11 @@ namespace Bonsai.Design
                 var includeBuilder = new IncludeWorkflowBuilder { Path = typeNode.Name };
                 CreateGraphNode(includeBuilder, graphView.SelectedNodes, nodeType, branch);
             }
+            else if (elementCategory == ~ElementCategory.Source)
+            {
+                var subjectBuilder = new SubscribeSubjectBuilder { Name = typeNode.Name };
+                CreateGraphNode(subjectBuilder, graphView.SelectedNodes, nodeType, branch);
+            }
             else
             {
                 var selectedNodes = graphView.SelectedNodes;
