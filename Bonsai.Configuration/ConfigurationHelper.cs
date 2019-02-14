@@ -86,7 +86,7 @@ namespace Bonsai.Configuration
                 if (assemblyLocation != null)
                 {
                     Uri uri;
-                    if (Uri.TryCreate(assemblyLocation, UriKind.Absolute, out uri))
+                    if (assemblyLocation.StartsWith(Uri.UriSchemeFile) && Uri.TryCreate(assemblyLocation, UriKind.Absolute, out uri))
                     {
                         Assembly assembly;
                         assemblyLoadCache = assemblyLoadCache ?? new Dictionary<string, Assembly>();
