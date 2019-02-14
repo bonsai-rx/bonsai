@@ -35,6 +35,7 @@
             System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Sink");
             System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Combinator");
             System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Workflow");
+            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Subject");
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -910,12 +911,15 @@
             treeNode4.Text = "Combinator";
             treeNode5.Name = "Workflow";
             treeNode5.Text = "Workflow";
+            treeNode6.Name = "Subject";
+            treeNode6.Text = "Subject";
             this.toolboxTreeView.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode1,
             treeNode2,
             treeNode3,
             treeNode4,
-            treeNode5});
+            treeNode5,
+            treeNode6});
             this.toolboxTreeView.Size = new System.Drawing.Size(197, 222);
             this.toolboxTreeView.TabIndex = 0;
             this.toolboxTreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.toolboxTreeView_ItemDrag);
