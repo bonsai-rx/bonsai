@@ -2311,6 +2311,16 @@ namespace Bonsai.Editor
                 }
             }
 
+            public void OnContextMenuOpening(EventArgs e)
+            {
+                siteForm.hotKeys.SuppressSystemKeyPress = true;
+            }
+
+            public void OnContextMenuClosed(EventArgs e)
+            {
+                siteForm.hotKeys.SuppressSystemKeyPress = false;
+            }
+
             public DirectoryInfo EnsureExtensionsDirectory()
             {
                 if (!siteForm.workflowFileWatcher.EnableRaisingEvents && !siteForm.extensionsPath.Exists)

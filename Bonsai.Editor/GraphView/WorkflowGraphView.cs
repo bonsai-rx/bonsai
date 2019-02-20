@@ -3016,7 +3016,7 @@ namespace Bonsai.Design
             {
                 var builder = new MemberSelectorBuilder { Selector = memberSelector };
                 var successor = selectedNode.Successors.Select(edge => GetGraphNodeBuilder(edge.Node)).FirstOrDefault();
-                var branch = Control.ModifierKeys.HasFlag(Keys.Control) || successor != null && successor is MemberSelectorBuilder;
+                var branch = Control.ModifierKeys.HasFlag(Keys.Alt) || successor != null && successor is MemberSelectorBuilder;
                 CreateGraphNode(builder, selectedNode, CreateGraphNodeType.Successor, branch);
                 contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
             });
@@ -3132,7 +3132,7 @@ namespace Bonsai.Design
                                    where builder != null && predecessor.Successors.Count == 1
                                    select new { node = FindGraphNode(predecessor.Value), builder })
                                    .FirstOrDefault();
-                if (mappingNode == null || Control.ModifierKeys.HasFlag(Keys.Control))
+                if (mappingNode == null || Control.ModifierKeys.HasFlag(Keys.Alt))
                 {
                     var mappingBuilder = new ExternalizedMappingBuilder { ExternalizedProperties = { mapping } };
                     CreateGraphNode(mappingBuilder, selectedNode, CreateGraphNodeType.Predecessor, branch: true);
@@ -3272,6 +3272,7 @@ namespace Bonsai.Design
                 selectionModel.UpdateSelection(this);
             }
 
+            editorService.OnContextMenuOpening(e);
             var selectedNodes = selectionModel.SelectedNodes.ToArray();
             if (selectedNodes.Length > 0)
             {
@@ -3387,6 +3388,7 @@ namespace Bonsai.Design
             createPropertySourceToolStripMenuItem.DropDownItems.Clear();
             visualizerToolStripMenuItem.DropDownItems.Clear();
             groupToolStripMenuItem.DropDownItems.Clear();
+            editorService.OnContextMenuClosed(e);
         }
 
         #endregion

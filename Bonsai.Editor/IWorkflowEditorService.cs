@@ -14,6 +14,10 @@ namespace Bonsai.Editor
 
         void OnKeyPress(KeyPressEventArgs e);
 
+        void OnContextMenuOpening(EventArgs e);
+
+        void OnContextMenuClosed(EventArgs e);
+
         DirectoryInfo EnsureExtensionsDirectory();
 
         WorkflowBuilder LoadWorkflow(string fileName);
