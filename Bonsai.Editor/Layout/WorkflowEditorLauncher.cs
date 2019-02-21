@@ -61,8 +61,6 @@ namespace Bonsai.Design
             get { return VisualizerDialog; }
         }
 
-        public bool ReadOnly { get; set; }
-
         public VisualizerLayout VisualizerLayout { get; set; }
 
         public WorkflowGraphView WorkflowGraphView
@@ -142,7 +140,7 @@ namespace Bonsai.Design
             var workflowEditor = Container;
             if (workflowEditor == null)
             {
-                workflowEditor = new WorkflowEditorControl(provider, ReadOnly);
+                workflowEditor = new WorkflowEditorControl(provider, ParentView.ReadOnly);
                 workflowEditor.SuspendLayout();
                 workflowEditor.Dock = DockStyle.Fill;
                 workflowEditor.Font = ParentView.Font;
@@ -167,7 +165,7 @@ namespace Bonsai.Design
                 visualizerDialog.Dock = DockStyle.Fill;
                 visualizerDialog.TopLevel = false;
                 visualizerDialog.Visible = true;
-                var tabState = workflowEditor.CreateTab(builder, ReadOnly, visualizerDialog);
+                var tabState = workflowEditor.CreateTab(builder, ParentView.ReadOnly, visualizerDialog);
                 workflowGraphView = tabState.WorkflowGraphView;
                 tabState.TabClosing += EditorClosing;
             }
