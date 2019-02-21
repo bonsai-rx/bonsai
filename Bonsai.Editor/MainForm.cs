@@ -411,7 +411,7 @@ namespace Bonsai.Editor
 
                     var nameProperty = TypeDescriptor.GetProperties(typeof(SubscribeSubjectBuilder))["Name"];
                     var subjects = nameProperty.Converter.GetStandardValues(new TypeDescriptorContext(workflowBuilder, nameProperty, editorSite));
-                    if (subjects.Count > 0)
+                    if (subjects != null && subjects.Count > 0)
                     {
                         var elementCategories = new[] { ~ElementCategory.Source };
                         foreach (string entry in subjects)
