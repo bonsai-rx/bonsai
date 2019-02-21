@@ -2089,7 +2089,6 @@ namespace Bonsai.Design
 
             editorLaunching = true;
             var launcher = Launcher;
-            var readOnly = ReadOnly || disableBuilder != null || workflowExpressionBuilder is IncludeWorkflowBuilder;
             var parentLaunching = launcher != null && launcher.ParentView.editorLaunching;
             var compositeExecutor = new Lazy<CommandExecutor>(() =>
             {
@@ -2114,7 +2113,6 @@ namespace Bonsai.Design
 
                     editorLauncher = new WorkflowEditorLauncher(workflowExpressionBuilder, parentSelector, containerSelector);
                     editorLauncher.VisualizerLayout = editorLayout;
-                    editorLauncher.ReadOnly = readOnly;
                     editorLauncher.Bounds = bounds;
                     var addEditorMapping = CreateUpdateEditorMappingDelegate(editorMapping => editorMapping.Add(workflowExpressionBuilder, editorLauncher));
                     var removeEditorMapping = CreateUpdateEditorMappingDelegate(editorMapping => editorMapping.Remove(workflowExpressionBuilder));
