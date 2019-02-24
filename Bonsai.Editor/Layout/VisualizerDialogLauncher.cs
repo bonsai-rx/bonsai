@@ -104,16 +104,18 @@ namespace Bonsai.Design
 
             visualizerDialog.Activated += delegate
             {
-                var graphNode = workflowGraphView.FindGraphNode(source);
-                if (graphNode != null)
-                {
-                    workflowGraphView.GraphView.SelectedNode = graphNode;
-                }
+                workflowGraphView.SelectBuilderNode(source);
             };
         }
 
         void visualizerDialog_KeyDown(object sender, KeyEventArgs e)
         {
+            if (e.KeyCode == Keys.Back && e.Control)
+            {
+                workflowGraphView.SelectBuilderNode(source);
+                workflowGraphView.EditorControl.ParentForm.Activate();
+            }
+
             if (e.KeyCode == Keys.Delete && e.Control)
             {
                 var dialogMashup = visualizer.Value as DialogMashupVisualizer;
