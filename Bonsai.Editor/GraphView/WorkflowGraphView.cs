@@ -1990,7 +1990,7 @@ namespace Bonsai.Design
             graphView.SelectedNodes = graphNodes;
         }
 
-        public GraphNode FindGraphNode(object value)
+        public GraphNode FindGraphNode(ExpressionBuilder value)
         {
             return graphView.Nodes.SelectMany(layer => layer).FirstOrDefault(n => n.Value == value);
         }
