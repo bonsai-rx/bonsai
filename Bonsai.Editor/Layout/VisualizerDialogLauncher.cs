@@ -114,7 +114,7 @@ namespace Bonsai.Design
 
         void visualizerDialog_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Back && e.Control)
+            if (e.KeyCode == Keys.Delete && e.Control)
             {
                 var dialogMashup = visualizer.Value as DialogMashupVisualizer;
                 if (dialogMashup != null && dialogMashup.Mashups.Count > 0)
