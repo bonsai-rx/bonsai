@@ -1995,6 +1995,18 @@ namespace Bonsai.Design
             return graphView.Nodes.SelectMany(layer => layer).FirstOrDefault(n => n.Value == value);
         }
 
+        internal void SelectBuilderNode(ExpressionBuilder builder)
+        {
+            var graphNode = FindGraphNode(builder);
+            if (graphNode != null)
+            {
+                GraphView.SelectedNode = graphNode;
+                editorControl.SelectTab(this);
+                GraphView.Select();
+                UpdateSelection();
+            }
+        }
+
         private bool HasDefaultEditor(ExpressionBuilder builder)
         {
             var workflowExpressionBuilder = builder as IWorkflowExpressionBuilder;
@@ -2159,7 +2171,11 @@ namespace Bonsai.Design
 
         internal void UpdateSelection()
         {
-            selectionModel.UpdateSelection(this);
+            if (selectionModel.SelectedView != this ||
+                selectionModel.SelectedNodes != GraphView.SelectedNodes)
+            {
+                selectionModel.UpdateSelection(this);
+            }
         }
 
         internal void CloseWorkflowView(IWorkflowExpressionBuilder workflowExpressionBuilder)
@@ -2717,10 +2733,7 @@ namespace Bonsai.Design
                     var parentNode = parentView.Workflow.FirstOrDefault(node => ExpressionBuilder.Unwrap(node.Value) == launcher.Builder);
                     if (parentNode != null)
                     {
-                        var graphNode = parentView.FindGraphNode(parentNode.Value);
-                        parentView.GraphView.SelectedNode = graphNode;
-                        parentEditor.SelectTab(parentView);
-                        parentView.GraphView.Select();
+                        parentView.SelectBuilderNode(parentNode.Value);
                     }
                 }
             }
@@ -2771,7 +2784,7 @@ namespace Bonsai.Design
 
         private void graphView_SelectedNodeChanged(object sender, EventArgs e)
         {
-            UpdateSelection();
+            selectionModel.UpdateSelection(this);
         }
 
         private void graphView_NodeMouseDoubleClick(object sender, GraphNodeMouseEventArgs e)
@@ -3264,11 +3277,8 @@ namespace Bonsai.Design
 
         private void contextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
-            // Ensure that the current view is selected 
-            if (selectionModel.SelectedView != this)
-            {
-                selectionModel.UpdateSelection(this);
-            }
+            // Ensure that the current view is selected
+            UpdateSelection();
 
             editorService.OnContextMenuOpening(e);
             var selectedNodes = selectionModel.SelectedNodes.ToArray();
