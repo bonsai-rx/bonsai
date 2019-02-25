@@ -26,6 +26,7 @@ namespace Bonsai.Shaders
         ResourceManager resourceManager;
         ShaderWindowSettings settings;
         const string DefaultTitle = "Bonsai Shader Window";
+        static readonly RectangleF DefaultViewport = new RectangleF(0, 0, 1, 1);
         static readonly object syncRoot = string.Intern("A1105A50-BBB0-4EC6-B8B2-B5EF38A9CC3E");
         readonly Subject<FrameEvent> updateFrame;
         readonly Subject<FrameEvent> renderFrame;
@@ -52,8 +53,8 @@ namespace Bonsai.Shaders
             Location = configuration.Location.GetValueOrDefault(Location);
             WindowBorder = configuration.WindowBorder;
             WindowState = configuration.WindowState;
-            Viewport = new RectangleF(0, 0, 1, 1);
-            Scissor = new RectangleF(0, 0, 1, 1);
+            Viewport = DefaultViewport;
+            Scissor = DefaultViewport;
             TargetRenderFrequency = configuration.TargetRenderFrequency;
             TargetUpdateFrequency = configuration.TargetRenderFrequency;
             RefreshPeriod = VSync == VSyncMode.On && TargetRenderFrequency == 0
@@ -206,6 +207,8 @@ namespace Bonsai.Shaders
         {
             if (clearMask != ClearBufferMask.None)
             {
+                if (viewport != DefaultViewport) Viewport = DefaultViewport;
+                if (scissor != DefaultViewport) Scissor = DefaultViewport;
                 GL.DepthMask(true);
                 GL.ClearColor(clearColor);
                 GL.Clear(clearMask);
