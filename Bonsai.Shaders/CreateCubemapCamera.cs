@@ -22,9 +22,11 @@ namespace Bonsai.Shaders
         [Description("The eye, or camera position, in the world coordinate frame.")]
         public Vector3 Eye { get; set; }
 
+        [Category("Z-Clipping")]
         [Description("The distance to the near clip plane.")]
         public float NearClip { get; set; }
 
+        [Category("Z-Clipping")]
         [Description("The distance to the far clip plane.")]
         public float FarClip { get; set; }
 
