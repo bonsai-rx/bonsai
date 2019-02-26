@@ -32,7 +32,7 @@ namespace Bonsai.IO
 
         [Description("The name of the CSV file.")]
         [FileNameFilter("CSV (Comma delimited)|*.csv|All Files|*.*")]
-        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string FileName { get; set; }
 
         [Description("The separator used to delimit elements in variable length rows. This argument is optional.")]

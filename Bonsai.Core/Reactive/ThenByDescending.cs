@@ -24,7 +24,7 @@ namespace Bonsai.Reactive
         /// Gets or sets a string used to specify a key for each element of the input enumerable sequences.
         /// </summary>
         [Description("The inner properties that will be used as a key for sorting the elements of the enumerable sequences.")]
-        [Editor("Bonsai.Design.OrderedEnumerableMemberSelectorEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        [Editor("Bonsai.Design.OrderedEnumerableMemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string KeySelector { get; set; }
 
         /// <summary>
