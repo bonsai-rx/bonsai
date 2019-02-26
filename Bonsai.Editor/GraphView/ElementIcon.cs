@@ -134,8 +134,15 @@ namespace Bonsai.Design
             return string.Concat(path.Split(InvalidPathChars));
         }
 
-        static string ResolvePath(string path)
+        static string ResolvePath(string path, string assemblyName)
         {
+            if (!string.IsNullOrEmpty(assemblyName))
+            {
+                var prefix = assemblyName + ExpressionHelper.MemberSeparator;
+                var index = path.IndexOf(prefix, StringComparison.Ordinal);
+                if (index == 0) path = path.Substring(prefix.Length);
+            }
+
             var workflowPath = Path.Combine(Environment.CurrentDirectory, path);
             if (File.Exists(workflowPath)) return workflowPath;
 
@@ -176,8 +183,10 @@ namespace Bonsai.Design
                 return null;
             }
 
+            var includedType = false;
             if (name != defaultName)
             {
+                includedType = includeElement != null;
                 name = Path.ChangeExtension(name, SvgExtension);
             }
             else if (Path.GetExtension(name) != SvgExtension)
@@ -188,7 +197,7 @@ namespace Bonsai.Design
             string assemblyName;
             name = ResolveEmbeddedPath(name, out assemblyName);
 
-            var iconPath = ResolvePath(name);
+            var iconPath = ResolvePath(name, includedType ? string.Empty : assemblyName);
             if (!string.IsNullOrEmpty(iconPath))
             {
                 return new FileStream(iconPath, FileMode.Open, FileAccess.Read);
