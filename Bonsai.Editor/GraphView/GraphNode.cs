@@ -49,7 +49,7 @@ namespace Bonsai.Design
                 if (obsolete) Flags |= NodeFlags.Obsolete;
                 Category = elementCategoryAttribute.Category;
                 Pen = expressionBuilder.IsBuildDependency() ? DashPen : SolidPen;
-                Icon = new ElementIcon(expressionBuilder);
+                Icon = new ElementIcon(workflowElement);
                 if (workflowElement is IWorkflowExpressionBuilder)
                 {
                     if (Category == ElementCategory.Workflow)

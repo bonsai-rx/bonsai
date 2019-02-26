@@ -578,6 +578,11 @@ namespace Bonsai.Design
             {
                 rendererCache.Add(fallbackIcons.Pop(), renderer);
             }
+
+            if (renderer == null && node.Icon.IsIncludeElement)
+            {
+                TryGetIconRenderer(ElementIcon.Include, out renderer);
+            }
             return renderer;
         }
 

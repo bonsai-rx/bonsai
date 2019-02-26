@@ -21,6 +21,7 @@ namespace Bonsai.Design
         static readonly ElementIcon Property = new ElementIcon(ElementCategory.Property);
         static readonly ElementIcon Combinator = new ElementIcon(ElementCategory.Combinator);
         static readonly ElementIcon Workflow = new ElementIcon(ElementCategory.Workflow);
+        public static readonly ElementIcon Include = new ElementIcon(typeof(IncludeWorkflowBuilder));
 
         static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
         const string SvgExtension = ".svg";
@@ -45,27 +46,20 @@ namespace Bonsai.Design
                 Enum.GetName(typeof(ElementCategory), category));
         }
 
-        public ElementIcon(ExpressionBuilder builder)
-            : this(builder, false)
+        public ElementIcon(object workflowElement)
+            : this(workflowElement.GetType())
         {
+            includeElement = workflowElement as IncludeWorkflowBuilder;
         }
 
-        private ElementIcon(ExpressionBuilder builder, bool forceDefault)
+        private ElementIcon(Type workflowElementType)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException("builder");
-            }
-
-            var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
-            var workflowElementType = workflowElement.GetType();
-            var attributes = TypeDescriptor.GetAttributes(workflowElement);
-            var iconAttribute = (WorkflowIconAttribute)attributes[typeof(WorkflowIconAttribute)];
+            var iconAttribute = (WorkflowIconAttribute)(
+                Attribute.GetCustomAttribute(workflowElementType, typeof(WorkflowIconAttribute))
+                ?? WorkflowIconAttribute.Default);
             resourceQualifier = Type.GetType(iconAttribute.TypeName ?? string.Empty, false) ?? workflowElementType;
             if (!string.IsNullOrEmpty(iconAttribute.Name)) defaultName = iconAttribute.Name;
             else defaultName = workflowElementType.Name;
-
-            includeElement = forceDefault ? null : workflowElement as IncludeWorkflowBuilder;
             if (resourceQualifier.Namespace != null)
             {
                 defaultName = string.Join(ExpressionHelper.MemberSeparator, resourceQualifier.Namespace, defaultName);
@@ -86,6 +80,11 @@ namespace Bonsai.Design
             }
         }
 
+        public bool IsIncludeElement
+        {
+            get { return includeElement != null; }
+        }
+
         static ElementIcon GetNamespaceIcon(string name, string assemblyName, IncludeWorkflowBuilder include)
         {
             if (string.IsNullOrEmpty(assemblyName) || assemblyName == name) return new ElementIcon(name, include);
@@ -101,7 +100,7 @@ namespace Bonsai.Design
                 var path = Path.ChangeExtension(name, null);
                 path = ResolveEmbeddedPath(path, out assemblyName);
                 var separatorIndex = path.LastIndexOf(ExpressionHelper.MemberSeparator);
-                if (separatorIndex < 0) return new ElementIcon(includeElement, forceDefault: true);
+                if (separatorIndex < 0) return null;
                 path = path.Substring(0, separatorIndex);
                 return GetNamespaceIcon(path, assemblyName, includeElement);
             }
@@ -122,10 +121,6 @@ namespace Bonsai.Design
                 if (separatorIndex >= 0)
                 {
                     return new ElementIcon(name.Substring(0, separatorIndex), includeElement);
-                }
-                else if (includeElement != null)
-                {
-                    return new ElementIcon(includeElement, forceDefault: true);
                 }
 
                 return null;
@@ -190,7 +185,7 @@ namespace Bonsai.Design
             var includedType = false;
             if (name != defaultName)
             {
-                includedType = includeElement != null;
+                includedType = IsIncludeElement;
                 name = Path.ChangeExtension(name, SvgExtension);
             }
             else if (Path.GetExtension(name) != SvgExtension)
