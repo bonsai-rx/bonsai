@@ -19,6 +19,7 @@ namespace Bonsai.IO
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string FileName { get; set; }
 
+        [Editor(DesignTypes.MultilineStringEditor, DesignTypes.UITypeEditor)]
         [Description("The optional set of command-line arguments to use when starting the application.")]
         public string Arguments { get; set; }
 
