@@ -16,7 +16,7 @@ namespace Bonsai.IO
     {
         [Description("The name of the application to start.")]
         [FileNameFilter("Executable files|*.exe|All Files|*.*")]
-        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string FileName { get; set; }
 
         [Description("The optional set of command-line arguments to use when starting the application.")]

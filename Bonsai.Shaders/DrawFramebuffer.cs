@@ -20,7 +20,7 @@ namespace Bonsai.Shaders
 
         [Category("State")]
         [Description("Specifies any render states that are required to render the framebuffer.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.StateConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        [Editor("Bonsai.Shaders.Configuration.Design.StateConfigurationCollectionEditor, Bonsai.Shaders.Design", DesignTypes.UITypeEditor)]
         public StateConfigurationCollection RenderState
         {
             get { return renderState; }
@@ -28,7 +28,7 @@ namespace Bonsai.Shaders
 
         [Category("State")]
         [Description("Specifies any attachments that are required to render the framebuffer.")]
-        [Editor("Bonsai.Shaders.Configuration.Design.FramebufferAttachmentConfigurationCollectionEditor, Bonsai.Shaders.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        [Editor("Bonsai.Shaders.Configuration.Design.FramebufferAttachmentConfigurationCollectionEditor, Bonsai.Shaders.Design", DesignTypes.UITypeEditor)]
         public Collection<FramebufferAttachmentConfiguration> FramebufferAttachments
         {
             get { return framebufferConfiguration.FramebufferAttachments; }
