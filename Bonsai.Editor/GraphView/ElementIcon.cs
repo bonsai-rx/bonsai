@@ -86,6 +86,12 @@ namespace Bonsai.Design
             }
         }
 
+        static ElementIcon GetNamespaceIcon(string name, string assemblyName, IncludeWorkflowBuilder include)
+        {
+            if (string.IsNullOrEmpty(assemblyName) || assemblyName == name) return new ElementIcon(name, include);
+            else return new ElementIcon(assemblyName + AssemblySeparator + name, include);
+        }
+
         public ElementIcon GetDefaultIcon()
         {
             var name = Name;
@@ -96,10 +102,8 @@ namespace Bonsai.Design
                 path = ResolveEmbeddedPath(path, out assemblyName);
                 var separatorIndex = path.LastIndexOf(ExpressionHelper.MemberSeparator);
                 if (separatorIndex < 0) return new ElementIcon(includeElement, forceDefault: true);
-
                 path = path.Substring(0, separatorIndex);
-                name = !string.IsNullOrEmpty(assemblyName) ? assemblyName + AssemblySeparator + path : path;
-                return new ElementIcon(name, includeElement);
+                return GetNamespaceIcon(path, assemblyName, includeElement);
             }
 
             if (resourceQualifier != null)
@@ -110,7 +114,7 @@ namespace Bonsai.Design
                     ?? WorkflowIconAttribute.Default);
                 if (!string.IsNullOrEmpty(iconAttribute.Name)) assemblyName = iconAttribute.Name;
                 else assemblyName = resourceQualifier.Assembly.GetName().Name;
-                return new ElementIcon(assemblyName + AssemblySeparator + resourceQualifier.Namespace, null);
+                return GetNamespaceIcon(resourceQualifier.Namespace, assemblyName, null);
             }
             else
             {
