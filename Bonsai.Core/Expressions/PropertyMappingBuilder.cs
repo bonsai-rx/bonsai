@@ -115,12 +115,11 @@ namespace Bonsai.Expressions
             public override PropertyDescriptorCollection GetProperties(Attribute[] attributes)
             {
                 if (instance == null) return base.GetProperties(attributes);
-                var properties = new PropertyDescriptor[instance.Count];
-                for (int i = 0; i < properties.Length; i++)
-                {
-                    properties[i] = new MappingPropertyDescriptor(instance[i]);
-                }
-                return new PropertyDescriptorCollection(properties);
+                return new PropertyDescriptorCollection(
+                    (from mapping in instance
+                     where !string.IsNullOrEmpty(mapping.Name)
+                     select new MappingPropertyDescriptor(mapping))
+                     .ToArray());
             }
         }
 
