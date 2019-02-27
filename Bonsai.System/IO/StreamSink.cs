@@ -111,7 +111,7 @@ namespace Bonsai.IO
                 }
 
                 var disposable = new WriterDisposable<TWriter>();
-                disposable.Scheduler.Schedule(() =>
+                disposable.Schedule(() =>
                 {
                     Stream stream = null;
                     try
@@ -130,7 +130,7 @@ namespace Bonsai.IO
 
                 var process = source.Do(input =>
                 {
-                    disposable.Scheduler.Schedule(() =>
+                    disposable.Schedule(() =>
                     {
                         if (disposable.Writer != null)
                         {
