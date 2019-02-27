@@ -106,17 +106,7 @@ namespace Bonsai.IO
 
             return Observable.Create<TElement>(observer =>
             {
-                TWriter writer = null;
-                var disposable = Buffered ? new WriterDisposable<TWriter>() : null;
-                var close = disposable != null ? disposable : Disposable.Create(() =>
-                {
-                    var closingWriter = writer;
-                    if (closingWriter != null)
-                    {
-                        closingWriter.Dispose();
-                    }
-                });
-
+                var disposable = new WriterDisposable<TWriter>(Buffered);
                 var process = source.Do(element =>
                 {
                     Action writeTask = () =>
@@ -124,7 +114,7 @@ namespace Bonsai.IO
                         try
                         {
                             var input = selector(element);
-                            var runningWriter = writer;
+                            var runningWriter = disposable.Writer;
                             if (runningWriter == null)
                             {
                                 var fileName = FileName;
@@ -140,7 +130,7 @@ namespace Bonsai.IO
                                     throw new IOException(string.Format("The file '{0}' already exists.", fileName));
                                 }
 
-                                runningWriter = writer = CreateWriter(fileName, input);
+                                runningWriter = disposable.Writer = CreateWriter(fileName, input);
                             }
 
                             Write(runningWriter, input);
@@ -151,11 +141,10 @@ namespace Bonsai.IO
                         }
                     };
 
-                    if (disposable == null) writeTask();
-                    else disposable.Scheduler.Schedule(writeTask);
+                    disposable.Schedule(writeTask);
                 }).SubscribeSafe(observer);
 
-                return new CompositeDisposable(process, close);
+                return new CompositeDisposable(process, disposable);
             });
         }
 
