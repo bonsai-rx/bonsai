@@ -195,7 +195,7 @@ namespace Bonsai.IO
                     }
 
                     var disposable = new WriterDisposable<StreamWriter>();
-                    disposable.Scheduler.Schedule(() =>
+                    disposable.Schedule(() =>
                     {
                         var writer = new StreamWriter(fileName, Append, Encoding.ASCII);
                         if (!string.IsNullOrEmpty(header)) writer.WriteLine(header);
@@ -205,7 +205,7 @@ namespace Bonsai.IO
                 },
                 disposable => source.Do(input =>
                 {
-                    disposable.Scheduler.Schedule(() => writeAction(input, disposable.Writer));
+                    disposable.Schedule(() => writeAction(input, disposable.Writer));
                 }));
         }
     }

@@ -9,26 +9,46 @@ namespace Bonsai.IO
 {
     class WriterDisposable<TWriter> : IDisposable where TWriter : IDisposable
     {
-        readonly EventLoopScheduler scheduler = new EventLoopScheduler();
+        readonly EventLoopScheduler scheduler;
+
+        public WriterDisposable()
+            : this(true)
+        {
+        }
+
+        public WriterDisposable(bool buffered)
+        {
+            scheduler = buffered ? new EventLoopScheduler() : null;
+        }
 
         public TWriter Writer { get; set; }
 
-        public EventLoopScheduler Scheduler
+        public void Schedule(Action action)
         {
-            get { return scheduler; }
+            if (scheduler == null) action();
+            else scheduler.Schedule(action);
+        }
+
+        void DisposeInternal()
+        {
+            var writer = Writer;
+            if (writer != null)
+            {
+                writer.Dispose();
+            }
         }
 
         public void Dispose()
         {
-            scheduler.Schedule(() =>
+            if (scheduler == null) DisposeInternal();
+            else
             {
-                var writer = Writer;
-                if (writer != null)
+                scheduler.Schedule(() =>
                 {
-                    writer.Dispose();
-                }
-                scheduler.Dispose();
-            });
+                    DisposeInternal();
+                    scheduler.Dispose();
+                });
+            }
         }
     }
 }
