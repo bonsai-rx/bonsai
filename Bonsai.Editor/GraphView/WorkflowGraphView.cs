@@ -1499,7 +1499,8 @@ namespace Bonsai.Design
             commandExecutor.Execute(EmptyAction, updateGraphLayout);
 
             var elements = nodes.ToWorkflowBuilder().Workflow.ToInspectableGraph();
-            var buildDependencies = (from item in nodes.Select(node => new { node, element = FindWorkflowValue(elements, GetGraphNodeBuilder(node)) })
+            var sortedNodes = nodes.OrderBy(n => n.Value, elements.Comparer).ToList();
+            var buildDependencies = (from item in sortedNodes.Zip(elements, (node, element) => new { node, element })
                                      from predecessor in workflow.PredecessorEdges(GetGraphNodeTag(workflow, item.node))
                                      where predecessor.Item1.Value.IsBuildDependency() && !elements.Any(node => node.Value == item.node.Value)
                                      orderby predecessor.Item3
