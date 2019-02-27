@@ -1217,7 +1217,7 @@ namespace Bonsai.Design
                ((nodeType == CreateGraphNodeType.Successor && targetNodes.Skip(1).Any(node => targetNodes[0].DepthFirstSearch().Contains(node))) ||
                 (nodeType == CreateGraphNodeType.Predecessor && targetNodes.Skip(1).Any(node => node.DepthFirstSearch().Contains(targetNodes[0])))))
             {
-                throw new InvalidOperationException("Connecting the target nodes in the specified order would create a loop in the workflow.");
+                throw new InvalidOperationException(Resources.InsertValidation_Error);
             }
 
             var insertCommands = GetInsertGraphNodeCommands(inspectNode, inspectNode, targetNodes, nodeType, branch, validateInsert);
