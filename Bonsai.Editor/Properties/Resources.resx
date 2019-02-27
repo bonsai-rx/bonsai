@@ -265,4 +265,7 @@ Do you want to install Visual Studio Code?</value>
   <data name="UncompiledScriptExpression_Error" xml:space="preserve">
     <value>Unable to evaluate uncompiled script expression. Please ensure all script files have been created and reload extensions.</value>
   </data>
+  <data name="InsertValidation_Error" xml:space="preserve">
+    <value>Connecting the target nodes in the specified order would create a loop in the workflow. Consider inserting the operator as a branch.</value>
+  </data>
 </root>

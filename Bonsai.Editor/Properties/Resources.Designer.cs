@@ -166,6 +166,15 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Connecting the target nodes in the specified order would create a loop in the workflow. Consider inserting the operator as a branch..
+        /// </summary>
+        internal static string InsertValidation_Error {
+            get {
+                return ResourceManager.GetString("InsertValidation_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to open script editor.
         ///Do you want to install Visual Studio Code?.
         /// </summary>
