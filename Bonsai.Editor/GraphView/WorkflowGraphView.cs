@@ -484,7 +484,7 @@ namespace Bonsai.Design
             else return workflow.FirstOrDefault(ns => ns.Value == nodeTag.Value);
         }
 
-        Tuple<Action, Action> GetInsertGraphNodeCommands(
+        GraphCommand GetInsertGraphNodeCommands(
             Node<ExpressionBuilder, ExpressionBuilderArgument> sourceNode,
             Node<ExpressionBuilder, ExpressionBuilderArgument> sinkNode,
             IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> targetNodes,
@@ -501,7 +501,9 @@ namespace Bonsai.Design
                 foreach (var node in targetNodes)
                 {
                     // Ensure we can connect to the selected node
-                    if (!validate || node.Value.ArgumentRange.UpperBound > 0)
+                    var mappingBuilder = ExpressionBuilder.Unwrap(node.Value) as ExternalizedMappingBuilder;
+                    var maxConnectionCount = mappingBuilder != null ? 1 : node.Value.ArgumentRange.UpperBound;
+                    if (!validate || maxConnectionCount > 0)
                     {
                         var parameter = new ExpressionBuilderArgument();
                         var predecessors = workflow.PredecessorEdges(node).ToList();
@@ -573,7 +575,7 @@ namespace Bonsai.Design
                 }
             }
 
-            return Tuple.Create(addConnection, removeConnection);
+            return new GraphCommand(addConnection, removeConnection);
         }
 
         bool CanConnect(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget)
@@ -688,17 +690,39 @@ namespace Bonsai.Design
             return true;
         }
 
+        PropertyMappingBuilder ConvertExternalizedMapping(ExternalizedMappingBuilder mappingBuilder)
+        {
+            var builder = new PropertyMappingBuilder();
+            foreach (var mapping in mappingBuilder.ExternalizedProperties)
+            {
+                builder.PropertyMappings.Add(new PropertyMapping(mapping.Name, null));
+            }
+
+            return builder;
+        }
+
+        void ReplaceExternalizedMappings(CreateGraphNodeType nodeType, GraphNode[] targetNodes)
+        {
+            if (nodeType == CreateGraphNodeType.Predecessor)
+            {
+                for (int i = 0; i < targetNodes.Length; i++)
+                {
+                    var mappingBuilder = GetGraphNodeBuilder(targetNodes[i]) as ExternalizedMappingBuilder;
+                    if (mappingBuilder != null)
+                    {
+                        var propertyMappingBuilder = ConvertExternalizedMapping(mappingBuilder);
+                        ReplaceNode(targetNodes[i], propertyMappingBuilder);
+                    }
+                }
+            }
+        }
+
         public void ConnectGraphNodes(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget)
         {
             var mappingBuilder = GetGraphNodeBuilder(graphViewTarget) as ExternalizedMappingBuilder;
             if (mappingBuilder != null)
             {
-                var propertyMappingBuilder = new PropertyMappingBuilder();
-                foreach (var mapping in mappingBuilder.ExternalizedProperties)
-                {
-                    propertyMappingBuilder.PropertyMappings.Add(new PropertyMapping(mapping.Name, null));
-                }
-
+                var propertyMappingBuilder = ConvertExternalizedMapping(mappingBuilder);
                 var restoreSelectedNodes = CreateUpdateSelectionDelegate(graphViewSources);
                 var selectCreatedNode = CreateUpdateSelectionDelegate(propertyMappingBuilder);
                 var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
@@ -1149,15 +1173,38 @@ namespace Bonsai.Design
 
             var externalizedMapping = typeNode.Name == typeof(ExternalizedMappingBuilder).AssemblyQualifiedName;
             if (externalizedMapping) nodeType = CreateGraphNodeType.Predecessor;
-            CreateGraphNode(builder, selectedNodes, nodeType, branch);
+            var commands = GetCreateGraphNodeCommands(builder, selectedNodes, nodeType, branch);
+            commandExecutor.BeginCompositeCommand();
+            commandExecutor.Execute(EmptyAction, commands.Item2.Undo);
+            commandExecutor.Execute(commands.Item1.Command, commands.Item1.Undo);
+            ReplaceExternalizedMappings(nodeType, selectedNodes);
+            commandExecutor.Execute(commands.Item2.Command, EmptyAction);
+            commandExecutor.EndCompositeCommand();
         }
 
         public void CreateGraphNode(ExpressionBuilder builder, GraphNode selectedNode, CreateGraphNodeType nodeType, bool branch, bool validate = true)
         {
-            CreateGraphNode(builder, selectedNode != null ? new[] { selectedNode } : Enumerable.Empty<GraphNode>(), nodeType, branch, validate);
+            var selection = selectedNode != null ? new[] { selectedNode } : Enumerable.Empty<GraphNode>();
+            var commands = GetCreateGraphNodeCommands(builder, selection, nodeType, branch, validate);
+            commandExecutor.Execute(
+            () =>
+            {
+                commands.Item1.Command();
+                commands.Item2.Command();
+            },
+            () =>
+            {
+                commands.Item1.Undo();
+                commands.Item2.Undo();
+            });
         }
 
-        public void CreateGraphNode(ExpressionBuilder builder, IEnumerable<GraphNode> selectedNodes, CreateGraphNodeType nodeType, bool branch, bool validate = true)
+        Tuple<GraphCommand, GraphCommand> GetCreateGraphNodeCommands(
+            ExpressionBuilder builder,
+            IEnumerable<GraphNode> selectedNodes,
+            CreateGraphNodeType nodeType,
+            bool branch,
+            bool validate = true)
         {
             if (builder == null)
             {
@@ -1221,29 +1268,42 @@ namespace Bonsai.Design
             var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
             var updateSelectedNode = CreateUpdateSelectionDelegate(builder);
             var insertCommands = GetInsertGraphNodeCommands(inspectNode, inspectNode, targetNodes, nodeType, branch, validateInsert);
-            var addConnection = insertCommands.Item1;
-            var removeConnection = insertCommands.Item2;
-            commandExecutor.Execute(
-            () =>
+            var addConnection = insertCommands.Command;
+            var removeConnection = insertCommands.Undo;
+
+            GraphCommand createNode;
+            createNode.Command = () =>
             {
                 addNode();
                 addConnection();
-                if (validate)
-                {
-                    updateGraphLayout();
-                    updateSelectedNode();
-                }
-            },
-            () =>
+            };
+            createNode.Undo = () =>
             {
                 removeConnection();
                 removeNode();
-                if (validate)
+            };
+
+            GraphCommand updateLayout;
+            if (validate)
+            {
+                updateLayout.Command = () =>
+                {
+                    updateGraphLayout();
+                    updateSelectedNode();
+                };
+                updateLayout.Undo = () =>
                 {
                     updateGraphLayout();
                     restoreSelectedNodes();
-                }
-            });
+                };
+            }
+            else
+            {
+                updateLayout.Command = EmptyAction;
+                updateLayout.Undo = EmptyAction;
+            }
+
+            return Tuple.Create(createNode, updateLayout);
         }
 
         public void InsertGraphElements(ExpressionBuilderGraph elements, CreateGraphNodeType nodeType, bool branch)
@@ -1279,8 +1339,8 @@ namespace Bonsai.Design
                 if (source != null && sink != null)
                 {
                     var insertCommands = GetInsertGraphNodeCommands(source, sink, targetNodes, nodeType, branch);
-                    addConnection += insertCommands.Item1;
-                    removeConnection += insertCommands.Item2;
+                    addConnection += insertCommands.Command;
+                    removeConnection += insertCommands.Undo;
                 }
             }
 
@@ -1301,6 +1361,7 @@ namespace Bonsai.Design
                     RemoveWorkflowNode(workflow, node);
                 }
             });
+            ReplaceExternalizedMappings(nodeType, selectedNodes);
         }
 
         void DeleteGraphNode(GraphNode node)
@@ -3426,5 +3487,17 @@ namespace Bonsai.Design
     {
         Successor,
         Predecessor
+    }
+
+    struct GraphCommand
+    {
+        public Action Command;
+        public Action Undo;
+
+        public GraphCommand(Action command, Action undo)
+        {
+            Command = command;
+            Undo = undo;
+        }
     }
 }
