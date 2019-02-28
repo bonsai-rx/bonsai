@@ -3190,7 +3190,7 @@ namespace Bonsai.Design
                 valueProperty.SetValue(propertySource, memberValue);
                 propertySource.MemberName = memberName;
 
-                CreateGraphNode(propertySource, Enumerable.Empty<GraphNode>(), CreateGraphNodeType.Predecessor, branch: true);
+                CreateGraphNode(propertySource, default(GraphNode), CreateGraphNodeType.Predecessor, branch: true);
                 contextMenuStrip.Close(ToolStripDropDownCloseReason.ItemClicked);
             });
 
