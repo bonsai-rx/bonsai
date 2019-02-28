@@ -1178,9 +1178,6 @@ namespace Bonsai.Design
             Action removeNode = () => { RemoveWorkflowNode(workflow, inspectNode); };
             builder = inspectBuilder.Builder;
 
-            var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
-            var updateSelectedNode = CreateUpdateSelectionDelegate(builder);
-
             var targetNodes = selectedNodes.Select(node => GetGraphNodeTag(workflow, node)).ToArray();
             var restoreSelectedNodes = CreateUpdateSelectionDelegate(selectedNodes);
 
@@ -1221,6 +1218,8 @@ namespace Bonsai.Design
                 throw new InvalidOperationException(Resources.InsertValidation_Error);
             }
 
+            var updateGraphLayout = CreateUpdateGraphLayoutDelegate();
+            var updateSelectedNode = CreateUpdateSelectionDelegate(builder);
             var insertCommands = GetInsertGraphNodeCommands(inspectNode, inspectNode, targetNodes, nodeType, branch, validateInsert);
             var addConnection = insertCommands.Item1;
             var removeConnection = insertCommands.Item2;
