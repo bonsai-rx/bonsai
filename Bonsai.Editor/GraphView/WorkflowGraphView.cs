@@ -1092,63 +1092,64 @@ namespace Bonsai.Design
                 throw new ArgumentNullException("typeNode");
             }
 
+            var selectedNodes = graphView.SelectedNodes.ToArray();
+            var selectedNode = selectedNodes.Length > 0 ? selectedNodes[0] : null;
+            if (group && selectedNode != null)
+            {
+                CreateOrReplaceGroupNode(selectedNodes, typeNode);
+                return;
+            }
+
+            ExpressionBuilder builder;
             var elementCategory = GetToolboxElementCategory(typeNode);
             if (elementCategory == ~ElementCategory.Workflow)
             {
-                var includeBuilder = new IncludeWorkflowBuilder { Path = typeNode.Name };
-                CreateGraphNode(includeBuilder, graphView.SelectedNodes, nodeType, branch);
+                builder = new IncludeWorkflowBuilder { Path = typeNode.Name };
             }
             else if (elementCategory == ~ElementCategory.Source)
             {
-                var subjectBuilder = new SubscribeSubjectBuilder { Name = typeNode.Name };
-                CreateGraphNode(subjectBuilder, graphView.SelectedNodes, nodeType, branch);
+                builder = new SubscribeSubjectBuilder { Name = typeNode.Name };
             }
             else
             {
-                var selectedNodes = graphView.SelectedNodes;
-                var selectedNode = selectedNodes.FirstOrDefault();
-                if (group && selectedNode != null) CreateOrReplaceGroupNode(selectedNodes.ToArray(), typeNode);
-                else
+                builder = CreateBuilder(typeNode);
+                if (!string.IsNullOrEmpty(arguments))
                 {
-                    var builder = CreateBuilder(typeNode);
-                    if (!string.IsNullOrEmpty(arguments))
+                    //TODO: This special case for binary operator operands should be avoided in the future
+                    var binaryOperator = builder as BinaryOperatorBuilder;
+                    if (binaryOperator != null && selectedNode != null)
                     {
-                        //TODO: This special case for binary operator operands should be avoided in the future
-                        var binaryOperator = builder as BinaryOperatorBuilder;
-                        if (binaryOperator != null && selectedNode != null)
+                        var inputBuilder = ((Node<ExpressionBuilder, ExpressionBuilderArgument>)selectedNode.Tag).Value as InspectBuilder;
+                        if (inputBuilder != null && inputBuilder.ObservableType != null)
                         {
-                            var inputBuilder = ((Node<ExpressionBuilder, ExpressionBuilderArgument>)selectedNode.Tag).Value as InspectBuilder;
-                            if (inputBuilder != null && inputBuilder.ObservableType != null)
-                            {
-                                binaryOperator.Build(Expression.Parameter(typeof(IObservable<>).MakeGenericType(inputBuilder.ObservableType)));
-                            }
-                        }
-
-                        var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
-                        var defaultProperty = TypeDescriptor.GetDefaultProperty(workflowElement);
-                        if (defaultProperty != null &&
-                            !defaultProperty.IsReadOnly &&
-                            defaultProperty.Converter != null &&
-                            defaultProperty.Converter.CanConvertFrom(typeof(string)))
-                        {
-                            try
-                            {
-                                var context = new TypeDescriptorContext(workflowElement, defaultProperty, serviceProvider);
-                                var propertyValue = defaultProperty.Converter.ConvertFromString(context, arguments);
-                                defaultProperty.SetValue(workflowElement, propertyValue);
-                            }
-                            catch (Exception ex)
-                            {
-                                throw new SystemException(ex.Message, ex);
-                            }
+                            binaryOperator.Build(Expression.Parameter(typeof(IObservable<>).MakeGenericType(inputBuilder.ObservableType)));
                         }
                     }
 
-                    var externalizedMapping = typeNode.Name == typeof(ExternalizedMappingBuilder).AssemblyQualifiedName;
-                    if (externalizedMapping) nodeType = CreateGraphNodeType.Predecessor;
-                    CreateGraphNode(builder, selectedNodes, nodeType, branch);
+                    var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
+                    var defaultProperty = TypeDescriptor.GetDefaultProperty(workflowElement);
+                    if (defaultProperty != null &&
+                        !defaultProperty.IsReadOnly &&
+                        defaultProperty.Converter != null &&
+                        defaultProperty.Converter.CanConvertFrom(typeof(string)))
+                    {
+                        try
+                        {
+                            var context = new TypeDescriptorContext(workflowElement, defaultProperty, serviceProvider);
+                            var propertyValue = defaultProperty.Converter.ConvertFromString(context, arguments);
+                            defaultProperty.SetValue(workflowElement, propertyValue);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new SystemException(ex.Message, ex);
+                        }
+                    }
                 }
             }
+
+            var externalizedMapping = typeNode.Name == typeof(ExternalizedMappingBuilder).AssemblyQualifiedName;
+            if (externalizedMapping) nodeType = CreateGraphNodeType.Predecessor;
+            CreateGraphNode(builder, selectedNodes, nodeType, branch);
         }
 
         public void CreateGraphNode(ExpressionBuilder builder, GraphNode selectedNode, CreateGraphNodeType nodeType, bool branch, bool validate = true)
