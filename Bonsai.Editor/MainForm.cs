@@ -1885,9 +1885,23 @@ namespace Bonsai.Editor
                     if (selectedNode.Tag != null)
                     {
                         var elementCategories = (ElementCategory[])selectedNode.Tag;
-                        var allowSuccessor = selectedNode.Name != typeof(ExternalizedMappingBuilder).AssemblyQualifiedName;
-                        insertAfterToolStripMenuItem.Visible = createBranchToolStripMenuItem.Visible = allowSuccessor;
-                        createGroupToolStripMenuItem.Visible = elementCategories.Contains(ElementCategory.Nested);
+                        if (elementCategories.Contains(~ElementCategory.Source))
+                        {
+                            foreach (ToolStripItem item in toolboxContextMenuStrip.Items)
+                            {
+                                item.Visible = false;
+                            }
+                            subscribeSubjectToolStripMenuItem.Visible = true;
+                            multicastSubjectToolStripMenuItem.Visible = true;
+                        }
+                        else
+                        {
+                            var allowSuccessor = selectedNode.Name != typeof(ExternalizedMappingBuilder).AssemblyQualifiedName;
+                            insertAfterToolStripMenuItem.Visible = createBranchToolStripMenuItem.Visible = allowSuccessor;
+                            createGroupToolStripMenuItem.Visible = elementCategories.Contains(ElementCategory.Nested);
+                            subscribeSubjectToolStripMenuItem.Visible = false;
+                            multicastSubjectToolStripMenuItem.Visible = false;
+                        }
                         toolboxContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);
                     }
                 }
