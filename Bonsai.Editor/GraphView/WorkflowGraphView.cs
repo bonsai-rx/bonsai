@@ -1118,21 +1118,22 @@ namespace Bonsai.Design
 
             var selectedNodes = graphView.SelectedNodes.ToArray();
             var selectedNode = selectedNodes.Length > 0 ? selectedNodes[0] : null;
-            if (group && selectedNode != null)
+            var elementCategory = GetToolboxElementCategory(typeNode);
+            if (group && selectedNode != null && elementCategory != ~ElementCategory.Source)
             {
                 CreateOrReplaceGroupNode(selectedNodes, typeNode);
                 return;
             }
 
             ExpressionBuilder builder;
-            var elementCategory = GetToolboxElementCategory(typeNode);
             if (elementCategory == ~ElementCategory.Workflow)
             {
                 builder = new IncludeWorkflowBuilder { Path = typeNode.Name };
             }
             else if (elementCategory == ~ElementCategory.Source)
             {
-                builder = new SubscribeSubjectBuilder { Name = typeNode.Name };
+                if (group) builder = new MulticastSubjectBuilder { Name = typeNode.Name };
+                else builder = new SubscribeSubjectBuilder { Name = typeNode.Name };
             }
             else
             {
