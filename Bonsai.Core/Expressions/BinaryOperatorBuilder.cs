@@ -158,7 +158,8 @@ namespace Bonsai.Expressions
                 if (operand == null)
                 {
                     if (expression.Type.IsInterface ||
-                        expression.Type.IsClass && expression.Type.GetConstructor(Type.EmptyTypes) == null)
+                        expression.Type.IsClass && expression.Type != typeof(string) &&
+                        expression.Type.GetConstructor(Type.EmptyTypes) == null)
                     {
                         throw new InvalidOperationException(string.Format(Resources.Exception_UnsupportedMinArgumentCount, 2));
                     }
