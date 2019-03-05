@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bonsai.Properties;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -12,11 +13,8 @@ namespace Bonsai.Expressions
     /// <summary>
     /// Represents an expression builder that is a proxy for an unknown type.
     /// </summary>
-    [Description(ErrorMessage)]
     public abstract class UnknownTypeBuilder : ExpressionBuilder
     {
-        const string ErrorMessage = "This is a proxy for an unknown type. Please install any missing packages or replace this module.";
-
         /// <summary>
         /// Gets the range of input arguments that this expression builder accepts.
         /// </summary>
@@ -38,7 +36,8 @@ namespace Bonsai.Expressions
         /// </exception>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            throw new NotImplementedException(ErrorMessage);
+            var typeName = GetType().FullName;
+            throw new NotImplementedException(string.Format(Resources.Exception_UnknownTypeBuilder, typeName));
         }
     }
 }
