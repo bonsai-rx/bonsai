@@ -15,6 +15,7 @@ namespace Bonsai.Expressions
     /// Represents an expression builder that creates a single value observable sequence
     /// from the result of the encapsulated workflow.
     /// </summary>
+    [WorkflowElementCategory(ElementCategory.Source)]
     [XmlType("CreateAsync", Namespace = Constants.XmlNamespace)]
     [Description("Creates and emits the last value of the observable sequence for each subscription using the encapsulated workflow.")]
     public class CreateAsyncBuilder : WorkflowExpressionBuilder
