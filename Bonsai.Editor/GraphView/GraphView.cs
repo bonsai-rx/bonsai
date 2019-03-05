@@ -55,8 +55,8 @@ namespace Bonsai.Design
         Pen CursorPen;
         Pen WhitePen;
         Pen BlackPen;
-        Pen WhiteIconPen;
-        Pen BlackIconPen;
+        Pen WhiteOutliningPen;
+        Pen BlackOutliningPen;
         Font ExportFont;
         Brush TextBrush;
 
@@ -356,10 +356,10 @@ namespace Bonsai.Design
                 NodePen.Dispose();
                 WhitePen.Dispose();
                 BlackPen.Dispose();
-                WhiteIconPen.Dispose();
-                BlackIconPen.Dispose();
+                WhiteOutliningPen.Dispose();
+                BlackOutliningPen.Dispose();
                 CursorPen = WhitePen = BlackPen = NodePen = null;
-                WhiteIconPen = BlackIconPen = null;
+                WhiteOutliningPen = BlackOutliningPen = null;
             }
 
             if (ExportFont != null)
@@ -429,8 +429,8 @@ namespace Bonsai.Design
             NodePen = new Pen(Brushes.DarkGray, PenWidth);
             WhitePen = new Pen(Brushes.White, PenWidth);
             BlackPen = new Pen(Brushes.Black, PenWidth);
-            WhiteIconPen = new Pen(Brushes.White);
-            BlackIconPen = new Pen(Brushes.Black);
+            WhiteOutliningPen = new Pen(Brushes.White);
+            BlackOutliningPen = new Pen(Brushes.Black);
             TextBrush = Brushes.Black;
             UpdateCursorPen();
             UpdateModelLayout();
@@ -1096,10 +1096,10 @@ namespace Bonsai.Design
             IGraphics graphics,
             LayoutNode layout,
             Size offset,
-            Pen iconPen,
             Pen pen,
             Brush brush,
-            Brush textBrush,
+            Pen outlining,
+            Brush foreground,
             bool hot = false,
             bool cursor = false,
             Font vectorFont = null)
@@ -1110,7 +1110,8 @@ namespace Bonsai.Design
                 NodeSize, NodeSize);
 
             SvgRenderer renderer;
-            iconRendererState.Outlining = iconPen;
+            iconRendererState.Outlining = outlining;
+            iconRendererState.Foreground = foreground;
             iconRendererState.Translation = nodeRectangle.Location;
             graphics.DrawEllipse(pen, nodeRectangle);
             if (IconRenderer != null &&
@@ -1141,7 +1142,7 @@ namespace Bonsai.Design
             {
                 graphics.DrawString(
                     layout.Label.Substring(0, 1),
-                    vectorFont, textBrush,
+                    vectorFont, foreground,
                     new RectangleF(
                         nodeRectangle.Location,
                         SizeF.Add(nodeRectangle.Size, VectorTextOffset)),
@@ -1151,7 +1152,7 @@ namespace Bonsai.Design
             {
                 graphics.DrawString(
                     layout.Label.Substring(0, 1),
-                    Font, textBrush,
+                    Font, foreground,
                     nodeRectangle, CenteredTextFormat);
             }
 
@@ -1196,7 +1197,7 @@ namespace Bonsai.Design
 
         public void DrawGraphics(IGraphics graphics, bool scaleFont)
         {
-            var textBrush = Brushes.Black;
+            var foreground = Brushes.Black;
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
             graphics.Clear(Color.White);
 
@@ -1215,7 +1216,7 @@ namespace Bonsai.Design
                 {
                     if (layout.Node.Value != null)
                     {
-                        DrawNode(graphics, layout, Size.Empty, BlackIconPen, NodePen, layout.Node.ModifierBrush, textBrush, vectorFont: font);
+                        DrawNode(graphics, layout, Size.Empty, NodePen, layout.Node.ModifierBrush, BlackOutliningPen, foreground, vectorFont: font);
                         var labelRect = layout.LabelRectangle;
                         foreach (var line in layout.Label.Split(Environment.NewLine.ToArray(),
                                                                 StringSplitOptions.RemoveEmptyEntries))
@@ -1227,7 +1228,7 @@ namespace Bonsai.Design
                                 VectorTextFormat,
                                 out charactersFitted, out linesFilled);
                             var lineLabel = line.Length > charactersFitted ? line.Substring(0, charactersFitted) : line;
-                            graphics.DrawString(lineLabel, font, textBrush, labelRect);
+                            graphics.DrawString(lineLabel, font, foreground, labelRect);
                             labelRect.Y += size.Height;
                         }
                     }
@@ -1247,23 +1248,23 @@ namespace Bonsai.Design
             {
                 if (layout.Node.Value != null)
                 {
-                    Pen iconPen;
                     Brush brush;
+                    Pen outlining;
                     var selected = selectedNodes.Contains(layout.Node);
-                    var textBrush = selected ? Brushes.White : Brushes.Black;
+                    var foreground = selected ? Brushes.White : Brushes.Black;
                     var pen = cursor == layout.Node ? CursorPen : NodePen;
                     if (layout.Node.Highlight)
                     {
                         brush = selected ? HighlightedSelectionBrush : HighlightedBrush;
-                        iconPen = WhiteIconPen;
+                        outlining = WhiteOutliningPen;
                     }
                     else
                     {
-                        iconPen = selected ? WhiteIconPen : BlackIconPen;
+                        outlining = selected ? WhiteOutliningPen : BlackOutliningPen;
                         brush = selected ? (Focused ? FocusedSelectionBrush : UnfocusedSelectionBrush) : layout.Node.ModifierBrush;
                     }
 
-                    DrawNode(graphics, layout, offset, iconPen, pen, brush, textBrush, layout.Node == hot, layout.Node == cursor);
+                    DrawNode(graphics, layout, offset, pen, brush, outlining, foreground, layout.Node == hot, layout.Node == cursor);
                     if (TextDrawMode == GraphViewTextDrawMode.All || layout.Node == hot)
                     {
                         var labelRect = layout.LabelRectangle;
