@@ -135,6 +135,9 @@
   <data name="Exception_SerializingUnknownTypeBuilder" xml:space="preserve">
     <value>The workflow contains unspecified types. Please install any missing packages or replace the affected modules and try again.</value>
   </data>
+  <data name="Exception_UnknownTypeBuilder" xml:space="preserve">
+    <value>This is a proxy for the unknown type '{0}'. Please install any missing packages or replace this operator.</value>
+  </data>
   <data name="Exception_UnsupportedMaxArgumentCount" xml:space="preserve">
     <value>Unsupported number of arguments. This node supports at most {0} input connection(s).</value>
   </data>

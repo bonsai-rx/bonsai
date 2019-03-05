@@ -115,6 +115,15 @@ namespace Bonsai.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This is a proxy for the unknown type &apos;{0}&apos;. Please install any missing packages or replace this operator..
+        /// </summary>
+        internal static string Exception_UnknownTypeBuilder {
+            get {
+                return ResourceManager.GetString("Exception_UnknownTypeBuilder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unsupported number of arguments. This node supports at most {0} input connection(s)..
         /// </summary>
         internal static string Exception_UnsupportedMaxArgumentCount {

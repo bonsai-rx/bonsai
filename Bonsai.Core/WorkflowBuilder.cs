@@ -16,6 +16,7 @@ using System.Diagnostics;
 using System.Reflection.Emit;
 using Bonsai.Properties;
 using System.Xml.Xsl;
+using System.ComponentModel;
 
 namespace Bonsai
 {
@@ -348,8 +349,12 @@ namespace Bonsai
                             typeName,
                             TypeAttributes.Public | TypeAttributes.Class,
                             typeof(UnknownTypeBuilder));
+                        var errorMessage = string.Format(Resources.Exception_UnknownTypeBuilder, typeName);
+                        var descriptionAttributeConstructor = typeof(DescriptionAttribute).GetConstructor(new[] { typeof(string) });
+                        var descriptionAttributeBuilder = new CustomAttributeBuilder(descriptionAttributeConstructor, new[] { errorMessage });
                         var obsoleteAttributeConstructor = typeof(ObsoleteAttribute).GetConstructor(Type.EmptyTypes);
                         var obsoleteAttributeBuilder = new CustomAttributeBuilder(obsoleteAttributeConstructor, new object[0]);
+                        typeBuilder.SetCustomAttribute(descriptionAttributeBuilder);
                         typeBuilder.SetCustomAttribute(obsoleteAttributeBuilder);
                         type = typeBuilder.CreateType();
                         dynamicTypes.Add(typeName, type);
