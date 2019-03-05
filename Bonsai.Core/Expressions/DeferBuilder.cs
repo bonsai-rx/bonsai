@@ -15,6 +15,7 @@ namespace Bonsai.Expressions
     /// Represents an expression builder that creates a new observable sequence
     /// for each subscription using the encapsulated workflow.
     /// </summary>
+    [WorkflowElementCategory(ElementCategory.Source)]
     [XmlType("Defer", Namespace = Constants.XmlNamespace)]
     [Description("Creates a new observable sequence for each subscription using the encapsulated workflow.")]
     public class DeferBuilder : WorkflowExpressionBuilder
