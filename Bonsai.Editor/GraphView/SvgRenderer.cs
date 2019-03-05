@@ -25,6 +25,7 @@ namespace Bonsai.Design
         public float Scale;
         public PointF Translation;
         public Pen Outlining;
+        public Brush Foreground;
     }
 
     class SvgRendererContext
@@ -183,7 +184,8 @@ namespace Bonsai.Design
         Expression CreateFill(string fill, string opacity, SvgRendererContext context)
         {
             const string UrlPrefix = "url(";
-            if (fill == null || fill == "none") return null;
+            if (fill == null) return Expression.PropertyOrField(context.State, "Foreground");
+            if (fill == "none") return null;
             if (fill.StartsWith(UrlPrefix))
             {
                 Brush brush;
@@ -222,19 +224,13 @@ namespace Bonsai.Design
 
         Expression CreateStroke(string stroke, string strokeWidth, SvgRendererContext context)
         {
-            if (stroke == null || stroke == "none") return null;
+            if (stroke == null) return Expression.PropertyOrField(context.State, "Outlining");
+            if (stroke == "none") return null;
             var color = ((SvgColor)stroke).Color;
-            var width = strokeWidth == null ? 0 : ((SvgLength)strokeWidth);
-            if (width.Value == 0)
-            {
-                return Expression.PropertyOrField(context.State, "Outlining");
-            }
-            else
-            {
-                var pen = new Pen(color, width.Value);
-                disposableResources.Add(pen);
-                return Expression.Constant(pen);
-            }
+            var width = strokeWidth == null ? 1 : ((SvgLength)strokeWidth);
+            var pen = new Pen(color, width.Value);
+            disposableResources.Add(pen);
+            return Expression.Constant(pen);
         }
 
         void CreateDrawTransform(SvgElement element, Matrix transform, SvgRendererContext context)
