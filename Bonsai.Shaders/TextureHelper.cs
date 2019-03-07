@@ -51,30 +51,21 @@ namespace Bonsai.Shaders
             }
         }
 
-        public static void RetrieveTexture(TextureTarget target, int texture, IplImage image)
+        public static void UpdatePixelStore(IplImage image, out PixelFormat pixelFormat, out PixelType pixelType)
         {
             int pixelSize;
-            PixelType pixelType;
-            PixelFormat pixelFormat;
             if (image == null) throw new ArgumentNullException("image");
             GetPixelFormat(image, out pixelFormat, out pixelSize, out pixelType);
-
             GL.PixelStore(PixelStoreParameter.PackAlignment, image.WidthStep % 4 == 0 ? 4 : 1);
             GL.PixelStore(PixelStoreParameter.PackRowLength, image.WidthStep / (pixelSize * image.Channels));
-            GL.GetTexImage(target, 0, pixelFormat, pixelType, image.ImageData);
-            GC.KeepAlive(image);
         }
 
-        public static void UpdateTexture(TextureTarget target, int texture, PixelInternalFormat? internalFormat, IplImage image)
+        public static void UpdateTexture(TextureTarget target, PixelInternalFormat? internalFormat, IplImage image)
         {
-            int pixelSize;
             PixelType pixelType;
             PixelFormat pixelFormat;
             if (image == null) throw new ArgumentNullException("image");
-            GetPixelFormat(image, out pixelFormat, out pixelSize, out pixelType);
-
-            GL.PixelStore(PixelStoreParameter.UnpackAlignment, image.WidthStep % 4 == 0 ? 4 : 1);
-            GL.PixelStore(PixelStoreParameter.UnpackRowLength, image.WidthStep / (pixelSize * image.Channels));
+            UpdatePixelStore(image, out pixelFormat, out pixelType);
             if (internalFormat.HasValue)
             {
                 GL.TexImage2D(target, 0, internalFormat.Value, image.Width, image.Height, 0, pixelFormat, pixelType, image.ImageData);

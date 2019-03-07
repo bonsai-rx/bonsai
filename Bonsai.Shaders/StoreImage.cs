@@ -89,7 +89,7 @@ namespace Bonsai.Shaders
                     {
                         GL.BindTexture(TextureTarget.Texture2D, texture.Id);
                         var internalFormat = textureSize != input.Size ? InternalFormat : (PixelInternalFormat?)null;
-                        TextureHelper.UpdateTexture(TextureTarget.Texture2D, texture.Id, internalFormat, input);
+                        TextureHelper.UpdateTexture(TextureTarget.Texture2D, internalFormat, input);
                         textureSize = input.Size;
                         observer.OnNext(texture);
                     });
