@@ -36,11 +36,14 @@ namespace Bonsai.Shaders
                 return source.Select(texture =>
                 {
                     int width, height;
+                    PixelType pixelType;
+                    PixelFormat pixelFormat;
                     GL.BindTexture(TextureTarget.Texture2D, texture.Id);
                     GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureWidth, out width);
                     GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureHeight, out height);
                     var result = new IplImage(new Size(width, height), Depth, Channels);
-                    TextureHelper.RetrieveTexture(TextureTarget.Texture2D, texture.Id, result);
+                    TextureHelper.UpdatePixelStore(result, out pixelFormat, out pixelType);
+                    GL.GetTexImage(TextureTarget.Texture2D, 0, pixelFormat, pixelType, result.ImageData);
 
                     var flipMode = FlipMode;
                     if (flipMode.HasValue)

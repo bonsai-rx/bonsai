@@ -69,7 +69,7 @@ namespace Bonsai.Shaders.Configuration
         [Description("Specifies the optional flip mode applied to the loaded image.")]
         public FlipMode? FlipMode { get; set; }
 
-        void LoadRenderTarget(Texture texture, TextureTarget target, string fileName)
+        void LoadRenderTarget(TextureTarget target, string fileName)
         {
             if (string.IsNullOrEmpty(fileName))
             {
@@ -97,19 +97,19 @@ namespace Bonsai.Shaders.Configuration
             var flipMode = FlipMode;
             if (flipMode.HasValue) CV.Flip(image, null, flipMode.Value);
             var internalFormat = faceSize > 0 ? (PixelInternalFormat?)null : InternalFormat;
-            TextureHelper.UpdateTexture(target, texture.Id, internalFormat, image);
+            TextureHelper.UpdateTexture(target, internalFormat, image);
         }
 
         public override Texture CreateResource(ResourceManager resourceManager)
         {
             var texture = base.CreateResource(resourceManager);
             GL.BindTexture(TextureTarget.TextureCubeMap, texture.Id);
-            LoadRenderTarget(texture, TextureTarget.TextureCubeMapPositiveX, PositiveX);
-            LoadRenderTarget(texture, TextureTarget.TextureCubeMapNegativeX, NegativeX);
-            LoadRenderTarget(texture, TextureTarget.TextureCubeMapPositiveY, PositiveY);
-            LoadRenderTarget(texture, TextureTarget.TextureCubeMapNegativeY, NegativeY);
-            LoadRenderTarget(texture, TextureTarget.TextureCubeMapPositiveZ, PositiveZ);
-            LoadRenderTarget(texture, TextureTarget.TextureCubeMapNegativeZ, NegativeZ);
+            LoadRenderTarget(TextureTarget.TextureCubeMapPositiveX, PositiveX);
+            LoadRenderTarget(TextureTarget.TextureCubeMapNegativeX, NegativeX);
+            LoadRenderTarget(TextureTarget.TextureCubeMapPositiveY, PositiveY);
+            LoadRenderTarget(TextureTarget.TextureCubeMapNegativeY, NegativeY);
+            LoadRenderTarget(TextureTarget.TextureCubeMapPositiveZ, PositiveZ);
+            LoadRenderTarget(TextureTarget.TextureCubeMapNegativeZ, NegativeZ);
             GL.BindTexture(TextureTarget.TextureCubeMap, 0);
             return texture;
         }
