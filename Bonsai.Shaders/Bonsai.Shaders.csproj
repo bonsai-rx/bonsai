@@ -91,6 +91,7 @@
     <Compile Include="LoadResources.cs" />
     <Compile Include="MaterialNameConverter.cs" />
     <Compile Include="MeshResources.cs" />
+    <Compile Include="ReadPixels.cs" />
     <Compile Include="RenderCubemap.cs" />
     <Compile Include="RenderCubemapTarget.cs" />
     <Compile Include="RenderTexture.cs" />
