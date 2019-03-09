@@ -25,38 +25,59 @@ namespace Bonsai.Vision
         [Description("The value to which constant border pixels will be set to.")]
         public Scalar FillValue { get; set; }
 
+        [TypeConverter(typeof(NumericRecordConverter))]
+        [Description("The optional top-left coordinates where the source image will be placed.")]
+        public Point? Offset { get; set; }
+
+        static void AdjustRectangle(ref int left, int right, ref int origin, ref int extent)
+        {
+            if (left < 0)
+            {
+                origin -= left;
+                extent += left;
+                left = 0;
+            }
+            if (right < 0)
+            {
+                extent += right;
+            }
+        }
+
         public override IObservable<IplImage> Process(IObservable<IplImage> source)
         {
             return source.Select(input =>
             {
                 var targetSize = Size;
-                var top = targetSize.Height - input.Height;
-                var left = targetSize.Width - input.Width;
-                if (top == 0 && left == 0) return input;
+                if (targetSize.Width == 0) targetSize.Width = input.Width;
+                if (targetSize.Height == 0) targetSize.Height = input.Height;
+
+                Point offset;
+                var offsetNullable = Offset;
+                if (offsetNullable.HasValue) offset = offsetNullable.Value;
                 else
                 {
-                    var inputRect = new Rect(0, 0, input.Width, input.Height);
-                    if (left < 0)
-                    {
-                        left = 0;
-                        inputRect.X = input.Width / 2 - targetSize.Width / 2;
-                        inputRect.Width = targetSize.Width;
-                    }
-                    if (top < 0)
-                    {
-                        top = 0;
-                        inputRect.Y = input.Height / 2 - targetSize.Height / 2;
-                        inputRect.Height = targetSize.Height;
-                        if (left == 0) return input.GetSubRect(inputRect);
-                    }
-
-                    var output = new IplImage(targetSize, input.Depth, input.Channels);
-                    using (var inputHeader = input.GetSubRect(inputRect))
-                    {
-                        CV.CopyMakeBorder(inputHeader, output, new Point(left / 2, top / 2), BorderType, FillValue);
-                    }
-                    return output;
+                    offset.X = (targetSize.Width - input.Width) / 2;
+                    offset.Y = (targetSize.Height - input.Height) / 2;
                 }
+
+                var right = targetSize.Width - offset.X - input.Width;
+                var bottom = targetSize.Height - offset.Y - input.Height;
+                if (offset.X == 0 && offset.Y == 0 && right == 0 && bottom == 0) return input;
+
+                var inputRect = new Rect(0, 0, input.Width, input.Height);
+                AdjustRectangle(ref offset.X, right, ref inputRect.X, ref inputRect.Width);
+                AdjustRectangle(ref offset.Y, bottom, ref inputRect.Y, ref inputRect.Height);
+                if (offset.X <= 0 && offset.Y <= 0 && right <= 0 && bottom <= 0)
+                {
+                    return input.GetSubRect(inputRect);
+                }
+
+                var output = new IplImage(targetSize, input.Depth, input.Channels);
+                using (var inputHeader = input.GetSubRect(inputRect))
+                {
+                    CV.CopyMakeBorder(inputHeader, output, offset, BorderType, FillValue);
+                }
+                return output;
             });
         }
     }
