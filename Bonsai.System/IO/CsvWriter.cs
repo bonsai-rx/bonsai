@@ -236,9 +236,16 @@ namespace Bonsai.IO
                 var disposable = new WriterDisposable<StreamWriter>();
                 disposable.Schedule(() =>
                 {
-                    var writer = new StreamWriter(fileName, Append, Encoding.ASCII);
-                    if (!string.IsNullOrEmpty(header)) writer.WriteLine(header);
-                    disposable.Writer = writer;
+                    try
+                    {
+                        var writer = new StreamWriter(fileName, Append, Encoding.ASCII);
+                        if (!string.IsNullOrEmpty(header)) writer.WriteLine(header);
+                        disposable.Writer = writer;
+                    }
+                    catch (Exception ex)
+                    {
+                        observer.OnError(ex);
+                    }
                 });
 
                 var process = source.Do(input =>
