@@ -162,7 +162,7 @@ namespace Bonsai
             serializer.Serialize(writer, workflow.ToDescriptor(), serializerNamespaces);
 
             writer.WriteStartElement(ExtensionTypeNodeName);
-            foreach (var type in types)
+            foreach (var type in types.OrderBy(type => type.AssemblyQualifiedName))
             {
                 if (type.BaseType == typeof(UnknownTypeBuilder))
                 {
