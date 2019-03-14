@@ -1136,7 +1136,13 @@ namespace Bonsai.Expressions
                 throw new ArgumentNullException("source");
             }
 
-            var nodes = source.ToArray();
+            IEnumerable<Node<ExpressionBuilder, ExpressionBuilderArgument>> buildOrder;
+            if (!TopologicalSort.TrySort(source, out buildOrder))
+            {
+                throw new ArgumentException("Cannot serialize a workflow with cyclical dependencies.", "source");
+            }
+
+            var nodes = buildOrder.ToArray();
             var descriptor = new ExpressionBuilderGraphDescriptor();
 
             foreach (var node in nodes)
