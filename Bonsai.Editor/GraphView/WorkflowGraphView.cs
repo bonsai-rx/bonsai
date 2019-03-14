@@ -2349,7 +2349,7 @@ namespace Bonsai.Design
         public void UpdateVisualizerLayout()
         {
             var updatedLayout = new VisualizerLayout();
-            foreach (var node in workflow)
+            foreach (var node in workflow.TopologicalSort())
             {
                 var builder = node.Value;
                 VisualizerDialogSettings dialogSettings;
