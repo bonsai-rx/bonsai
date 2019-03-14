@@ -51,7 +51,7 @@ namespace Bonsai.Expressions
     {
         const string ExpressionBuilderSuffix = "Builder";
         internal readonly int DecoratorCounter;
-        internal readonly int InstanceNumber;
+        internal int InstanceNumber;
         static int InstanceCounter;
 
         /// <summary>

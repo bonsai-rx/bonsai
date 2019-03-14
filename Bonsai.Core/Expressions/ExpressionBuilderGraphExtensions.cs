@@ -915,6 +915,7 @@ namespace Bonsai.Expressions
             var workflowExpression = (WorkflowExpressionBuilder)Activator.CreateInstance(builder.GetType(), workflow);
             workflowExpression.Name = builder.Name;
             workflowExpression.Description = builder.Description;
+            workflowExpression.InstanceNumber = builder.InstanceNumber;
             foreach (var mapping in builder.PropertyMappings)
             {
                 workflowExpression.PropertyMappings.Add(mapping);
