@@ -28,6 +28,7 @@ namespace Bonsai.Expressions
         /// <summary>
         /// Gets or sets the composite format string used to specify the output representation.
         /// </summary>
+        [Editor(DesignTypes.MultilineStringEditor, DesignTypes.UITypeEditor)]
         [Description("The composite format string used to specify the output representation.")]
         public string Format { get; set; }
 
