@@ -40,7 +40,7 @@ namespace Bonsai.Core.Tests
         [TestMethod]
         public void MemberAccess_SelfMemberPath_ReturnsInstance()
         {
-            var result = ExpressionHelper.MemberAccess(PrimitiveConstant, ".");
+            var result = ExpressionHelper.MemberAccess(PrimitiveConstant, ExpressionHelper.ImplicitParameterName);
             Assert.AreSame(PrimitiveConstant, result);
         }
 
