@@ -343,7 +343,7 @@ namespace Bonsai.Design
 
         public void Invalidate(GraphNode node)
         {
-            if (layoutNodes.Contains(node))
+            if (node != null && layoutNodes.Contains(node))
             {
                 canvas.Invalidate(GetBoundingRectangle(node));
             }
@@ -558,6 +558,7 @@ namespace Bonsai.Design
         protected override void OnGotFocus(EventArgs e)
         {
             InvalidateSelection();
+            Invalidate(cursor);
             base.OnGotFocus(e);
         }
 
@@ -565,6 +566,7 @@ namespace Bonsai.Design
         {
             ignoreMouseUp = true;
             InvalidateSelection();
+            Invalidate(cursor);
             base.OnLostFocus(e);
         }
 
