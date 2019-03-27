@@ -209,5 +209,61 @@ namespace Bonsai.Core.Tests
                 {      'B', 'D' }
             }, "ABDC");
         }
+
+        [TestMethod]
+        public void TopologicalSort_MergeDanglingSource_InsertionOrder()
+        {
+            AssertOrder(new TestGraph(8)
+            {
+                { 'F',      'A' },
+                { 'F', 'C', 'B' },
+                { 'G', 'C' },
+                { 'H', 'B' },
+                { 'D', 'E' }
+            }, "FAGCHBDE");
+        }
+
+        [TestMethod]
+        public void TopologicalSort_ConnectedComponents_InsertionOrder()
+        {
+            AssertOrder(new TestGraph(6)
+            {
+                { 'A', 'C' },
+                { 'F', 'B' },
+                { 'D', 'E' }
+            }, "ACFBDE");
+        }
+
+        [TestMethod]
+        public void TopologicalSort_DeferredConnectedComponents_InsertionOrder()
+        {
+            AssertOrder(new TestGraph(7)
+            {
+                { 'A', 'B' },
+                { 'C', 'D' },
+                { 'E', 'F' },
+                { 'G', 'E' },
+                { 'G', 'A' }
+            }, "CDGEFAB");
+        }
+
+        [TestMethod]
+        public void TopologicalSort_ScrambledConnectedComponentConnections_SingleComponent()
+        {
+            AssertOrder(new TestGraph(12)
+            {
+                { 'A', 'B' },
+                { 'C', 'D' },
+                { 'E', 'F' },
+                { 'G', 'H' },
+                { 'I', 'J' },
+                { 'K', 'C' },
+                { 'K', 'E' },
+                { 'L', 'G' },
+                { 'L', 'K' },
+                { 'L', 'I' },
+                { 'L', 'A' },
+            }, "LGHKCDEFIJAB");
+        }
     }
 }
