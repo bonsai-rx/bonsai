@@ -27,14 +27,14 @@ namespace Bonsai.Dag
         {
             var stack = new CallStack(source.Count);
             var marks = new MarkDictionary(source.Count);
-            var orderingStack = new Stack<ResultOrdering>();
+            var orderedComponents = new List<ComponentOrdering>();
 
             foreach (var node in source)
             {
                 if (!marks.ContainsKey(node))
                 {
-                    var ordering = new ResultOrdering();
-                    orderingStack.Push(ordering);
+                    var ordering = new NodeOrdering();
+                    var component = default(ComponentOrdering);
                     stack.Push(node, 0);
                     while (stack.Count > 0)
                     {
@@ -66,19 +66,33 @@ namespace Bonsai.Dag
                                 if (successorMark.Ordering != ordering)
                                 {
                                     ordering.Add(successorMark.Ordering, successorMark.Flag);
+                                    if (component == null) component = successorMark.Ordering.Component;
+                                    else if (component != successorMark.Ordering.Component)
+                                    {
+                                        successorMark.Ordering.Component.Add(component);
+                                        orderedComponents[component.Index] = null;
+                                        component = successorMark.Ordering.Component;
+                                    }
                                 }
                             }
                             else stack.Push(successor, 0);
                         }
                     }
+
+                    if (component == null)
+                    {
+                        component = new ComponentOrdering(orderedComponents.Count);
+                        orderedComponents.Add(component);
+                    }
+                    component.Add(ordering);
                 }
             }
 
             var result = new List<Node<TNodeValue, TEdgeLabel>>(source.Count);
-            while (orderingStack.Count > 0)
+            for (int i = orderedComponents.Count - 1; i >= 0; i--)
             {
-                var ordering = orderingStack.Pop();
-                ordering.Evaluate(result);
+                if (orderedComponents[i] == null) continue;
+                orderedComponents[i].Evaluate(result);
             }
 
             topologicalOrder = ReverseIterator(result);
@@ -90,6 +104,46 @@ namespace Bonsai.Dag
             for (int i = source.Count - 1; i >= 0; i--)
             {
                 yield return source[i];
+            }
+        }
+
+        [DebuggerDisplay("Index = {Index}")]
+        class ComponentOrdering
+        {
+            readonly List<NodeOrdering> orderingStack;
+            readonly int index;
+
+            public ComponentOrdering(int componentIndex)
+            {
+                orderingStack = new List<NodeOrdering>();
+                index = componentIndex;
+            }
+
+            public int Index
+            {
+                get { return index; }
+            }
+
+            public void Add(NodeOrdering ordering)
+            {
+                orderingStack.Add(ordering);
+                ordering.Component = this;
+            }
+
+            public void Add(ComponentOrdering component)
+            {
+                for (int i = 0; i < component.orderingStack.Count; i++)
+                {
+                    Add(component.orderingStack[i]);
+                }
+            }
+
+            public void Evaluate(List<Node<TNodeValue, TEdgeLabel>> result)
+            {
+                for (int i = orderingStack.Count - 1; i >= 0; i--)
+                {
+                    orderingStack[i].Evaluate(result);
+                }
             }
         }
 
@@ -116,7 +170,7 @@ namespace Bonsai.Dag
             {
             }
 
-            public void Add(Node<TNodeValue, TEdgeLabel> node, ResultOrdering ordering, int flag)
+            public void Add(Node<TNodeValue, TEdgeLabel> node, NodeOrdering ordering, int flag)
             {
                 NodeMark mark;
                 mark.Ordering = ordering;
@@ -126,12 +180,12 @@ namespace Bonsai.Dag
         }
 
         [DebuggerDisplay("Count = {Count}")]
-        class ResultOrdering
+        class NodeOrdering
         {
             int frontIndex;
             readonly List<Action<List<Node<TNodeValue, TEdgeLabel>>>> ordering;
 
-            public ResultOrdering()
+            public NodeOrdering()
             {
                 ordering = new List<Action<List<Node<TNodeValue, TEdgeLabel>>>>();
             }
@@ -141,12 +195,14 @@ namespace Bonsai.Dag
                 get { return ordering.Count; }
             }
 
+            public ComponentOrdering Component { get; set; }
+
             public void Add(Node<TNodeValue, TEdgeLabel> node)
             {
                 ordering.Add(result => result.Add(node));
             }
 
-            public void Add(ResultOrdering ordering, int index)
+            public void Add(NodeOrdering ordering, int index)
             {
                 this.ordering.Add(result => ordering.Evaluate(result, index));
             }
@@ -175,7 +231,7 @@ namespace Bonsai.Dag
 
         struct NodeMark
         {
-            public ResultOrdering Ordering;
+            public NodeOrdering Ordering;
             public int Flag;
         }
     }
