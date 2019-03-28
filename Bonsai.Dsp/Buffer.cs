@@ -431,6 +431,73 @@ namespace Bonsai.Dsp
 
         #region N-Channels
 
+        TValue[,] ToArray<TValue>(IList<IList<TValue>> source)
+        {
+            if (source.Count == 0)
+            {
+                return new TValue[0, 0];
+            }
+
+            var channels = source[0].Count;
+            var output = new TValue[channels, source.Count];
+            for (int j = 0; j < source.Count; j++)
+            {
+                var list = source[j];
+                if (list.Count != channels)
+                {
+                    throw new InvalidOperationException("All samples in the buffer must have the same number of channels.");
+                }
+
+                for (int i = 0; i < list.Count; i++)
+                {
+                    output[i, j] = list[i]; 
+                }
+            }
+            return output;
+        }
+
+        public IObservable<Mat> Process(IObservable<IList<byte>> source)
+        {
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
+        }
+
+        public IObservable<Mat> Process(IObservable<IList<short>> source)
+        {
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
+        }
+
+        public IObservable<Mat> Process(IObservable<IList<ushort>> source)
+        {
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
+        }
+
+        public IObservable<Mat> Process(IObservable<IList<int>> source)
+        {
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
+        }
+
+        public IObservable<Mat> Process(IObservable<IList<float>> source)
+        {
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
+        }
+
+        public IObservable<Mat> Process(IObservable<IList<double>> source)
+        {
+            var skip = Skip;
+            var sourceBuffer = skip.HasValue ? source.Buffer(Count, skip.Value) : source.Buffer(Count);
+            return sourceBuffer.Select(buffer => Mat.FromArray(ToArray(buffer)));
+        }
+
         public IObservable<Mat> Process(IObservable<Mat> source)
         {
             return Observable.Create<Mat>(observer =>
