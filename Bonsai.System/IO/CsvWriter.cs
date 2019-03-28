@@ -52,6 +52,9 @@ namespace Bonsai.IO
             }
         }
 
+        [Description("The separator used to delimit elements in variable length rows. This argument is optional.")]
+        public string ListSeparator { get; set; }
+
         [Description("Indicates whether data should be appended to the output file if it already exists.")]
         public bool Append { get; set; }
 
@@ -65,7 +68,7 @@ namespace Bonsai.IO
         public bool IncludeHeader { get; set; }
 
         [Description("The inner properties that will be selected for output in each element of the sequence.")]
-        [Editor("Bonsai.Design.MultiMemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
+        [Editor("Bonsai.IO.Design.DataMemberSelectorEditor, Bonsai.System.Design", DesignTypes.UITypeEditor)]
         public string Selector { get; set; }
 
         [Browsable(false)]
@@ -167,20 +170,33 @@ namespace Bonsai.IO
 
         protected override Expression BuildCombinator(IEnumerable<Expression> arguments)
         {
-            const string ParameterName = "input";
+            const string InputParameterName = "input";
+            const string DataParameterName = "item";
 
             var source = arguments.First();
             var parameterType = source.Type.GetGenericArguments()[0];
-            var inputParameter = Expression.Parameter(parameterType, ParameterName);
+            var inputParameter = Expression.Parameter(parameterType, InputParameterName);
+            var dataType = ExpressionHelper.GetGenericTypeBindings(typeof(IList<>), parameterType).FirstOrDefault() ?? parameterType;
+            var dataParameter = dataType == parameterType ? inputParameter : Expression.Parameter(dataType, DataParameterName);
             var writerParameter = Expression.Parameter(typeof(StreamWriter));
-            var selectedMembers = SelectMembers(inputParameter, Selector);
+            var selectedMembers = SelectMembers(dataParameter, Selector);
 
             var delimiter = Delimiter;
             if (string.IsNullOrEmpty(delimiter))
             {
                 delimiter = CompatibilityMode ? " " : CultureInfo.InvariantCulture.TextInfo.ListSeparator;
             }
+
+            var listSeparator = ListSeparator;
+            if (string.IsNullOrEmpty(listSeparator))
+            {
+                listSeparator = delimiter;
+            }
+
             var delimiterConstant = Expression.Constant(Regex.Unescape(delimiter));
+            var listSeparatorConstant = listSeparator == delimiter
+                ? delimiterConstant
+                : Expression.Constant(Regex.Unescape(listSeparator));
 
             var legacyCharacter = CompatibilityMode
                 ? Enumerable.Repeat(Expression.Constant(string.Empty), 1)
@@ -192,6 +208,17 @@ namespace Bonsai.IO
 
             var memberAccessArrayExpression = Expression.NewArrayInit(typeof(string), memberAccessExpressions);
             var lineExpression = Expression.Call(stringJoinMethod, delimiterConstant, memberAccessArrayExpression);
+            if (dataParameter != inputParameter)
+            {
+                var converterExpression = Expression.Lambda(lineExpression, dataParameter);
+                lineExpression = Expression.Call(
+                    typeof(CsvWriter),
+                    "ListJoin",
+                    new[] { dataType },
+                    inputParameter,
+                    converterExpression,
+                    listSeparatorConstant);
+            }
             var body = Expression.Call(writerParameter, writeLineMethod, lineExpression);
             var writeAction = Expression.Lambda(body, inputParameter, writerParameter);
 
@@ -214,6 +241,11 @@ namespace Bonsai.IO
             var csvWriter = Expression.Constant(this);
             var headerExpression = Expression.Constant(header);
             return Expression.Call(csvWriter, "Process", new[] { parameterType }, source, headerExpression, writeAction);
+        }
+
+        static string ListJoin<TSource>(IList<TSource> source, Func<TSource, string> converter, string separator)
+        {
+            return string.Join(separator, source.Select(converter));
         }
 
         IObservable<TSource> Process<TSource>(IObservable<TSource> source, string header, Action<TSource, StreamWriter> writeAction)

@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataMemberSelectorEditor.cs" />
     <Compile Include="SerialPortConfigurationControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
