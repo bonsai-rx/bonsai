@@ -133,6 +133,7 @@
     <Compile Include="DetectSpikes.cs" />
     <Compile Include="Shift.cs" />
     <Compile Include="Skip.cs" />
+    <Compile Include="Slice.cs" />
     <Compile Include="SpikeWaveform.cs" />
     <Compile Include="SpikeWaveformCollection.cs" />
     <Compile Include="SpikeWaveformRefinement.cs" />
