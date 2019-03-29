@@ -1337,7 +1337,7 @@ namespace Bonsai.Editor
         {
             if (workflowError != null)
             {
-                HighlightExceptionBuilderNode(editorControl.WorkflowGraphView, workflowError, false);
+                HighlightExceptionBuilderNode(workflowError, false);
             }
         }
 
@@ -1373,12 +1373,17 @@ namespace Bonsai.Editor
             }
         }
 
-        void HighlightExceptionBuilderNode(WorkflowGraphView workflowView, WorkflowException e, bool showMessageBox)
+        void HighlightExceptionBuilderNode(WorkflowException ex, bool showMessageBox)
+        {
+            HighlightExceptionBuilderNode(editorControl.WorkflowGraphView, ex, showMessageBox);
+        }
+
+        void HighlightExceptionBuilderNode(WorkflowGraphView workflowView, WorkflowException ex, bool showMessageBox)
         {
             GraphNode graphNode = null;
             if (workflowView != null)
             {
-                graphNode = workflowView.FindGraphNode(e.Builder);
+                graphNode = workflowView.FindGraphNode(ex.Builder);
                 if (graphNode == null)
                 {
                     throw new InvalidOperationException("Exception builder node not found in active workflow editor.");
@@ -1389,7 +1394,7 @@ namespace Bonsai.Editor
                 graphNode.Highlight = true;
             }
 
-            var nestedException = e.InnerException as WorkflowException;
+            var nestedException = ex.InnerException as WorkflowException;
             if (nestedException != null)
             {
                 WorkflowGraphView nestedEditor = null;
@@ -1412,13 +1417,13 @@ namespace Bonsai.Editor
                     workflowView.GraphView.Select();
                 }
 
-                var buildException = e is WorkflowBuildException;
+                var buildException = ex is WorkflowBuildException;
                 var errorCaption = buildException ? "Build Error" : "Runtime Error";
-                statusTextLabel.Text = e.Message;
+                statusTextLabel.Text = ex.Message;
                 statusImageLabel.Image = buildException ? Resources.StatusBlockedImage : Resources.StatusCriticalImage;
                 if (showMessageBox)
                 {
-                    editorSite.ShowError(e.Message, errorCaption);
+                    editorSite.ShowError(ex.Message, errorCaption);
                 }
             }
         }
@@ -1438,7 +1443,7 @@ namespace Bonsai.Editor
                 if (workflowException != null && workflowException.Builder != null || exceptionCache.TryGetValue(e, out workflowException))
                 {
                     workflowError = workflowException;
-                    HighlightExceptionBuilderNode(editorControl.WorkflowGraphView, workflowException, building);
+                    HighlightExceptionBuilderNode(workflowException, building);
                 }
                 else editorSite.ShowError(e.Message, Name);
             };
