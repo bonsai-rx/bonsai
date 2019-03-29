@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace Bonsai.Dsp
 {
     [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Converts the input buffer into a managed array of bytes.")]
+    [Description("Converts the input buffer into a managed array.")]
     public class ConvertToArray : SelectBuilder
     {
         [TypeConverter(typeof(DepthConverter))]
@@ -29,6 +29,12 @@ namespace Bonsai.Dsp
                 var elementType = GetElementType(depth.Value);
                 var depthExpression = Expression.Constant(depth.Value);
                 return Expression.Call(typeof(ConvertToArray), "Process", new[] { arrayType, elementType }, expression, depthExpression);
+            }
+            else if (!typeof(Arr).IsAssignableFrom(arrayType))
+            {
+                var elementType = ExpressionHelper.GetGenericTypeBindings(typeof(IEnumerable<>), expression.Type).FirstOrDefault();
+                if (elementType == null) throw new InvalidOperationException("The input buffer must be an array or enumerable type.");
+                return Expression.Call(typeof(Enumerable), "ToArray", new[] { elementType }, expression);
             }
             else return Expression.Call(typeof(ConvertToArray), "Process", new[] { arrayType }, expression);
         }
