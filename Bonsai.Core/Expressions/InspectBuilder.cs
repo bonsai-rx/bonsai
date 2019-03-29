@@ -168,6 +168,7 @@ namespace Bonsai.Expressions
                 return Disposable.Create(() =>
                 {
                     try { subscription.Dispose(); }
+                    catch (WorkflowRuntimeException) { throw; }
                     catch (Exception ex)
                     {
                         throw new WorkflowRuntimeException(ex.Message, this, ex);
