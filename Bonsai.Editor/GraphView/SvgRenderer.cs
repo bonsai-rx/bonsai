@@ -460,7 +460,7 @@ namespace Bonsai.Design
 
         void CreateLinearGradient(SvgElement element, SvgRendererContext context)
         {
-            var linearGradient = element as SvgLinearGradient;
+            var linearGradient = element as SvgLinearGradientElement;
             if (linearGradient != null)
             {
                 var color1 = default(Color);
