@@ -284,12 +284,12 @@ namespace Bonsai.Design
             var style = CreateStyle(element, context);
             if (style != null)
             {
-                var cx = CreateFloat(element, "cx");
-                var cy = CreateFloat(element, "cy");
-                var r = CreateFloat(element, "r");
-                var x = Expression.Subtract(cx, r);
-                var y = Expression.Subtract(cy, r);
-                var d = Expression.Multiply(Expression.Constant(2f), r);
+                var cx = ParseFloat(element, "cx");
+                var cy = ParseFloat(element, "cy");
+                var r = ParseFloat(element, "r");
+                var x = Expression.Constant(cx - r);
+                var y = Expression.Constant(cy - r);
+                var d = Expression.Constant(2f * r);
                 CreateDrawTransform(element, transform, context);
                 if (style.Fill != null)
                 {
@@ -308,14 +308,14 @@ namespace Bonsai.Design
             var style = CreateStyle(element, context);
             if (style != null)
             {
-                var cx = CreateFloat(element, "cx");
-                var cy = CreateFloat(element, "cy");
-                var rx = CreateFloat(element, "rx");
-                var ry = CreateFloat(element, "ry");
-                var x = Expression.Subtract(cx, rx);
-                var y = Expression.Subtract(cy, ry);
-                var dx = Expression.Multiply(Expression.Constant(2f), rx);
-                var dy = Expression.Multiply(Expression.Constant(2f), ry);
+                var cx = ParseFloat(element, "cx");
+                var cy = ParseFloat(element, "cy");
+                var rx = ParseFloat(element, "rx");
+                var ry = ParseFloat(element, "ry");
+                var x = Expression.Constant(cx - rx);
+                var y = Expression.Constant(cy - ry);
+                var dx = Expression.Constant(2f * rx);
+                var dy = Expression.Constant(2f * ry);
                 CreateDrawTransform(element, transform, context);
                 if (style.Fill != null)
                 {
