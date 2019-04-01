@@ -138,11 +138,12 @@ namespace Bonsai.Design
 
         Matrix ParseTransform(SvgElement element, Matrix parent, string attribute)
         {
-            var result = new Matrix();
-            disposableResources.Add(result);
+            Matrix result = null;
             var transformAttribute = element.Attributes[attribute];
             if (transformAttribute != null)
             {
+                result = new Matrix();
+                disposableResources.Add(result);
                 var transformList = transformAttribute as SvgTransformList;
                 if (transformList == null) transformList = (SvgTransformList)(string)transformAttribute;
                 for (int i = 0; i < transformList.Count; i++)
@@ -151,7 +152,9 @@ namespace Bonsai.Design
                     result.Multiply(transform.Matrix);
                 }
             }
-            if (parent != null) result.Multiply(parent, MatrixOrder.Append);
+
+            if (parent != null && result == null) result = parent;
+            else if (parent != null) result.Multiply(parent, MatrixOrder.Append);
             return result;
         }
 
@@ -164,7 +167,7 @@ namespace Bonsai.Design
         Expression CreateTransform(SvgElement element, Matrix parent)
         {
             var transform = ParseTransform(element, parent);
-            return Expression.Constant(transform);
+            return transform != null ? Expression.Constant(transform) : null;
         }
 
         Expression CreateFill(SvgStyle style, SvgRendererContext context)
@@ -249,7 +252,10 @@ namespace Bonsai.Design
             var offsetY = Expression.PropertyOrField(translation, "Y");
             context.Expressions.Add(Expression.Call(context.Graphics, "TranslateTransform", null, offsetX, offsetY));
             context.Expressions.Add(Expression.Call(context.Graphics, "ScaleTransform", null, scale, scale));
-            context.Expressions.Add(Expression.Call(context.Graphics, "MultiplyTransform", null, localTransform));
+            if (localTransform != null)
+            {
+                context.Expressions.Add(Expression.Call(context.Graphics, "MultiplyTransform", null, localTransform));
+            }
         }
 
         void CreateResetTransform(SvgRendererContext context)
@@ -502,7 +508,7 @@ namespace Bonsai.Design
                     ParsePoint(linearGradient, "x1", "y1").GetValueOrDefault(PointF.Empty),
                     ParsePoint(linearGradient, "x2", "y2").GetValueOrDefault(new PointF(1, 1))
                 };
-                gradientTransform.TransformPoints(points);
+                if (gradientTransform != null) gradientTransform.TransformPoints(points);
                 gradient = new LinearGradientBrush(points[0], points[1], color1, color2);
                 context.Gradients.Add(new SvgUriReference(linearGradient).Href, gradient);
                 disposableResources.Add(gradient);
@@ -548,9 +554,8 @@ namespace Bonsai.Design
 
         SvgRenderer CreateRenderer(SvgElement element)
         {
-            var transform = new Matrix();
             var context = new SvgRendererContext();
-            CreateDrawBody(element, transform, context);
+            CreateDrawBody(element, null, context);
             var body = context.Expressions.Count > 0 ? (Expression)Expression.Block(context.Expressions) : Expression.Empty();
             var renderer = Expression.Lambda<SvgRenderer>(body, context.State, context.Graphics);
             return renderer.Compile();
