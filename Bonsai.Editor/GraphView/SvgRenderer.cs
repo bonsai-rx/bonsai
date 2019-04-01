@@ -212,22 +212,29 @@ namespace Bonsai.Design
         {
             var stroke = (string)style.Get("stroke");
             var strokeWidth = (string)style.Get("stroke-width");
-            return CreateStroke(stroke, strokeWidth, context);
+            var strokeOpacity = (string)style.Get("stroke-opacity");
+            return CreateStroke(stroke, strokeWidth, strokeOpacity, context);
         }
 
         Expression CreateStroke(SvgElement element, SvgRendererContext context)
         {
             var stroke = (string)element["stroke"];
             var strokeWidth = (string)element["stroke-width"];
-            return CreateStroke(stroke, strokeWidth, context);
+            var strokeOpacity = (string)element["stroke-opacity"];
+            return CreateStroke(stroke, strokeWidth, strokeOpacity, context);
         }
 
-        Expression CreateStroke(string stroke, string strokeWidth, SvgRendererContext context)
+        Expression CreateStroke(string stroke, string strokeWidth, string opacity, SvgRendererContext context)
         {
             if (stroke == null) return Expression.PropertyOrField(context.State, "Outlining");
             if (stroke == "none") return null;
-            var color = ((SvgColor)stroke).Color;
             var width = strokeWidth == null ? 1 : ((SvgLength)strokeWidth);
+            var color = ((SvgColor)stroke).Color;
+            if (opacity != null)
+            {
+                var opacityValue = ((SvgLength)opacity).Value;
+                color = Color.FromArgb((int)(opacityValue * 255), color);
+            }
             var pen = new Pen(color, width.Value);
             disposableResources.Add(pen);
             return Expression.Constant(pen);
