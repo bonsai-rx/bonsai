@@ -77,7 +77,32 @@ namespace Bonsai.Design
 
         static SvgPath ParsePath(SvgElement element, string attribute)
         {
-            return (SvgPath)(string)element.Attributes[attribute];
+            var data = (string)element.Attributes[attribute];
+            if (data == null) return null;
+
+            var previous = true;
+            var pathBuilder = new StringBuilder(data.Length);
+            for (int i = 0; i < data.Length; i++)
+            {
+                var c = data[i];
+                if (char.IsWhiteSpace(c) || c == ',' || c == 'e')
+                {
+                    if (!previous) pathBuilder.Append(c);
+                    previous = true;
+                    continue;
+                }
+
+                var letter = char.IsLetter(c);
+                if (!previous && (letter || c == '-'))
+                {
+                    pathBuilder.Append(' ');
+                }
+                pathBuilder.Append(c);
+                if (letter && i < data.Length - 1) pathBuilder.Append(' ');
+                previous = letter;
+            }
+
+            return (SvgPath)pathBuilder.ToString();
         }
 
         static PointF? ParsePoint(SvgElement element, string x, string y)
