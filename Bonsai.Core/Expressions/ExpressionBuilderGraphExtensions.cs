@@ -1042,6 +1042,7 @@ namespace Bonsai.Expressions
             if (includeWorkflow != null && recurse)
             {
                 builder = new IncludeWorkflowBuilder(includeWorkflow, true);
+                builder.InstanceNumber = includeWorkflow.InstanceNumber;
             }
             return new InspectBuilder(builder);
         }
@@ -1053,6 +1054,7 @@ namespace Bonsai.Expressions
             if (includeWorkflow != null && recurse)
             {
                 builder = new IncludeWorkflowBuilder(includeWorkflow, false);
+                builder.InstanceNumber = includeWorkflow.InstanceNumber;
             }
             return builder;
         }
