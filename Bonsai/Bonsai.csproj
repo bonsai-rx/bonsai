@@ -102,7 +102,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="App.manifest" />
+    <None Include="App.manifest">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Bonsai.nuspec">
       <SubType>Designer</SubType>
     </None>

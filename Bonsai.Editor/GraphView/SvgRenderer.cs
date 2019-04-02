@@ -367,6 +367,15 @@ namespace Bonsai.Design
         {
             var data = segment.Data;
             var offset = !segment.Abs && points.Count > 0 ? points[points.Count - 1] : PointF.Empty;
+            if (segment.Type == SvgPathSegType.SVG_SEGTYPE_SMOOTHCURVETO)
+            {
+                if (points.Count == 1) points.Add(points[points.Count - 1]);
+                else
+                {
+                    var reflection = points[points.Count - 2];
+                    points.Add(new PointF(-reflection.X + offset.X, -reflection.Y + offset.Y));
+                }
+            }
             for (int i = 0; i < data.Length / 2; i++)
             {
                 points.Add(new PointF(
@@ -377,20 +386,21 @@ namespace Bonsai.Design
 
         static void AddPathData(GraphicsPath path, SvgPath pathData)
         {
+            var point = default(PointF);
             var bezierPoints = new List<PointF>(pathData.Count);
             var linePoints = new List<PointF>(pathData.Count);
             for (int i = 0; i < pathData.Count; i++)
             {
-                PointF point;
                 var segment = pathData[i];
-                if (linePoints.Count > 0 && (segment.Type == SvgPathSegType.SVG_SEGTYPE_CURVETO || !segment.Abs))
+                if (segment.Abs && segment.Type != SvgPathSegType.SVG_SEGTYPE_CURVETO)
                 {
-                    point = linePoints[linePoints.Count - 1];
+                    point = default(PointF);
                 }
-                else point = default(PointF);
+
                 switch (segment.Type)
                 {
                     case SvgPathSegType.SVG_SEGTYPE_CURVETO:
+                    case SvgPathSegType.SVG_SEGTYPE_SMOOTHCURVETO:
                         AddLines(path, linePoints);
                         if (bezierPoints.Count == 0) bezierPoints.Add(point);
                         AddBezierData(bezierPoints, segment);
