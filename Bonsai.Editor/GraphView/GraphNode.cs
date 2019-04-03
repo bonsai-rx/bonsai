@@ -24,7 +24,6 @@ namespace Bonsai.Design
             Successors = successors;
 
             Pen = SolidPen;
-            Brush = Brushes.White;
             if (value != null)
             {
                 var expressionBuilder = ExpressionBuilder.Unwrap(value);
@@ -58,19 +57,6 @@ namespace Bonsai.Design
                         Flags |= NodeFlags.NestedGroup;
                     }
                     else Flags |= NodeFlags.NestedScope;
-                }
-
-                switch (elementCategoryAttribute.Category)
-                {
-                    case ElementCategory.Source: Brush = Brushes.Violet; break;
-                    case ElementCategory.Condition: Brush = Brushes.LightGreen; break;
-                    case ElementCategory.Transform: Brush = Brushes.White; break;
-                    case ElementCategory.Sink: Brush = Brushes.DarkGray; break;
-                    case ElementCategory.Nested:
-                    case ElementCategory.Workflow: Brush = Brushes.Goldenrod; break;
-                    case ElementCategory.Property: Brush = Brushes.Orange; break;
-                    case ElementCategory.Combinator:
-                    default: Brush = Brushes.LightBlue; break;
                 }
             }
 
@@ -108,7 +94,24 @@ namespace Bonsai.Design
 
         public object Tag { get; set; }
 
-        public Brush Brush { get; private set; }
+        public Brush Brush
+        {
+            get
+            {
+                switch (Category)
+                {
+                    case ElementCategory.Source: return CategoryBrushes.Source;
+                    case ElementCategory.Condition: return CategoryBrushes.Combinator;
+                    case ElementCategory.Transform: return CategoryBrushes.Transform;
+                    case ElementCategory.Sink: return CategoryBrushes.Sink;
+                    case ElementCategory.Nested:
+                    case ElementCategory.Workflow: return CategoryBrushes.Combinator;
+                    case ElementCategory.Property: return CategoryBrushes.Property;
+                    case ElementCategory.Combinator:
+                    default: return CategoryBrushes.Combinator;
+                }
+            }
+        }
 
         public Brush ModifierBrush
         {
@@ -172,6 +175,15 @@ namespace Bonsai.Design
             Disabled = 0x4,
             NestedScope = 0x8,
             NestedGroup = 0x10
+        }
+
+        static class CategoryBrushes
+        {
+            public static readonly Brush Source = new SolidBrush(Color.FromArgb(91, 178, 126));
+            public static readonly Brush Transform = new SolidBrush(Color.FromArgb(68, 154, 223));
+            public static readonly Brush Sink = new SolidBrush(Color.FromArgb(155, 91, 179));
+            public static readonly Brush Combinator = new SolidBrush(Color.FromArgb(238, 192, 75));
+            public static readonly Brush Property = Brushes.Gray;
         }
     }
 }
