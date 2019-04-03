@@ -23,14 +23,14 @@ namespace Bonsai.Design
         static readonly Brush DarkGrayBrush = Brushes.DarkGray;
         static readonly Color CursorLight = Color.White;
         static readonly Color CursorDark = Color.Black;
-        static readonly Brush HighlightedBrush = new SolidBrush(Color.FromArgb(217, 129, 119));
-        static readonly Brush HighlightedSelectionBrush = new SolidBrush(Color.FromArgb(171, 39, 47));
-        static readonly Brush SelectionWhite = new SolidBrush(Color.FromArgb(250, 250, 250));
-        static readonly Brush UnfocusedSelectionWhite = new SolidBrush(Color.FromArgb(224, 224, 224));
-        static readonly Brush SelectionBlack = new SolidBrush(Color.FromArgb(51, 51, 51));
-        static readonly Brush UnfocusedSelectionBlack = new SolidBrush(Color.FromArgb(81, 81, 81));
-        static readonly Pen RubberBandPen = new Pen(Color.FromArgb(51, 153, 255));
-        static readonly Brush RubberBandBrush = new SolidBrush(Color.FromArgb(128, 170, 204, 238));
+        static readonly Color HighlightedBrush = Color.FromArgb(217, 129, 119);
+        static readonly Color HighlightedSelectionBrush = Color.FromArgb(171, 39, 47);
+        static readonly Color SelectionWhite = Color.FromArgb(250, 250, 250);
+        static readonly Color UnfocusedSelectionWhite = Color.FromArgb(224, 224, 224);
+        static readonly Color SelectionBlack = Color.FromArgb(51, 51, 51);
+        static readonly Color UnfocusedSelectionBlack = Color.FromArgb(81, 81, 81);
+        static readonly Color RubberBandPen = Color.FromArgb(51, 153, 255);
+        static readonly Color RubberBandBrush = Color.FromArgb(128, 170, 204, 238);
         static readonly Brush HotBrush = new SolidBrush(Color.FromArgb(128, 229, 243, 251));
         static readonly StringFormat TextFormat = new StringFormat(StringFormatFlags.NoWrap);
         static readonly StringFormat CenteredTextFormat = new StringFormat(StringFormat.GenericTypographic)
@@ -90,9 +90,9 @@ namespace Bonsai.Design
         {
             InitializeComponent();
             InitializeReactiveEvents();
-            FocusedSelectionBrush = Brushes.Black;
-            UnfocusedSelectionBrush = Brushes.Gray;
-            ContrastSelectionBrush = Brushes.White;
+            FocusedSelectionBrush = Color.Black;
+            UnfocusedSelectionBrush = Color.Gray;
+            ContrastSelectionBrush = Color.White;
             TextDrawMode = GraphViewTextDrawMode.All;
         }
 
@@ -233,11 +233,11 @@ namespace Bonsai.Design
             remove { Events.RemoveHandler(EventSelectedNodeChanged, value); }
         }
 
-        public Brush FocusedSelectionBrush { get; set; }
+        public Color FocusedSelectionBrush { get; set; }
 
-        public Brush ContrastSelectionBrush { get; set; }
+        public Color ContrastSelectionBrush { get; set; }
 
-        public Brush UnfocusedSelectionBrush { get; set; }
+        public Color UnfocusedSelectionBrush { get; set; }
 
         public SvgRendererFactory IconRenderer { get; set; }
 
@@ -403,14 +403,14 @@ namespace Bonsai.Design
                 CursorPen = BlackPen;
                 FocusedSelectionBrush = SelectionBlack;
                 UnfocusedSelectionBrush = UnfocusedSelectionWhite;
-                ContrastSelectionBrush = Brushes.Black;
+                ContrastSelectionBrush = Color.Black;
             }
             else
             {
                 CursorPen = WhitePen;
                 FocusedSelectionBrush = SelectionWhite;
                 UnfocusedSelectionBrush = UnfocusedSelectionBlack;
-                ContrastSelectionBrush = Brushes.White;
+                ContrastSelectionBrush = Color.White;
             }
         }
 
@@ -1103,7 +1103,7 @@ namespace Bonsai.Design
             IGraphics graphics,
             LayoutNode layout,
             Size offset,
-            Brush brush,
+            SolidBrush selection,
             Brush foreground,
             Pen cursor = null,
             bool hot = false,
@@ -1139,9 +1139,9 @@ namespace Bonsai.Design
                 else graphics.DrawEllipse(NodePen, nodeRectangle);
             }
 
-            if (brush != null)
+            if (selection != null)
             {
-                graphics.FillEllipse(brush, nodeRectangle);
+                graphics.FillEllipse(selection, nodeRectangle);
             }
 
             if (IconRenderer != null && layout.Node.Icon != null &&
@@ -1258,41 +1258,50 @@ namespace Bonsai.Design
             var offset = new Size(-canvas.HorizontalScroll.Value, -canvas.VerticalScroll.Value);
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
-            DrawEdges(graphics, offset);
-            foreach (var layout in layoutNodes)
+            using (var selection = new SolidBrush(Color.Empty))
             {
-                if (layout.Node.Value != null)
+                DrawEdges(graphics, offset);
+                foreach (var layout in layoutNodes)
                 {
-                    Brush brush;
-                    Brush foreground;
-                    var selected = selectedNodes.Contains(layout.Node);
-                    var pen = cursor == layout.Node ? CursorPen : null;
-                    if (layout.Node.Highlight)
+                    if (layout.Node.Value != null)
                     {
-                        brush = selected ? HighlightedSelectionBrush : HighlightedBrush;
-                        foreground = WhiteBrush;
-                    }
-                    else
-                    {
-                        brush = selected ? (Focused ? FocusedSelectionBrush : UnfocusedSelectionBrush) : null;
-                        foreground = selected ? DarkGrayBrush : WhiteBrush;
-                    }
+                        Brush foreground;
+                        Color selectionColor;
+                        var selected = selectedNodes.Contains(layout.Node);
+                        var pen = cursor == layout.Node ? CursorPen : null;
+                        if (layout.Node.Highlight)
+                        {
+                            selectionColor = selected ? HighlightedSelectionBrush : HighlightedBrush;
+                            foreground = WhiteBrush;
+                        }
+                        else
+                        {
+                            selectionColor = selected ? (Focused ? FocusedSelectionBrush : UnfocusedSelectionBrush) : Color.Empty;
+                            foreground = selected ? DarkGrayBrush : WhiteBrush;
+                        }
 
-                    DrawNode(graphics, layout, offset, brush, foreground, pen, layout.Node == hot);
-                    if (TextDrawMode == GraphViewTextDrawMode.All || layout.Node == hot)
-                    {
-                        var labelRect = layout.LabelRectangle;
-                        labelRect.Location += offset;
-                        graphics.DrawString(layout.Label, Font, ContrastSelectionBrush, labelRect, TextFormat);
+                        selection.Color = selectionColor;
+                        DrawNode(graphics, layout, offset, selectionColor.IsEmpty ? null : selection, foreground, pen, layout.Node == hot);
+                        if (TextDrawMode == GraphViewTextDrawMode.All || layout.Node == hot)
+                        {
+                            selection.Color = ContrastSelectionBrush;
+                            var labelRect = layout.LabelRectangle;
+                            labelRect.Location += offset;
+                            graphics.DrawString(layout.Label, Font, selection, labelRect, TextFormat);
+                        }
                     }
+                    else DrawDummyNode(graphics, layout, offset);
                 }
-                else DrawDummyNode(graphics, layout, offset);
             }
 
             if (rubberBand.Width > 0 && rubberBand.Height > 0)
             {
-                e.Graphics.FillRectangle(RubberBandBrush, rubberBand);
-                e.Graphics.DrawRectangle(RubberBandPen, rubberBand);
+                using (var rubberBandPen = new Pen(RubberBandPen))
+                using (var rubberBandBrush = new SolidBrush(RubberBandBrush))
+                {
+                    e.Graphics.FillRectangle(rubberBandBrush, rubberBand);
+                    e.Graphics.DrawRectangle(rubberBandPen, rubberBand);
+                }
             }
         }
 
