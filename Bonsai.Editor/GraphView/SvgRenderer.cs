@@ -129,29 +129,53 @@ namespace Bonsai.Design
             }
         }
 
+        static SvgStyle ParseStyle(SvgElement element, string attribute)
+        {
+            var value = element.Attributes[attribute];
+            var style = value as SvgStyle;
+            if (style == null)
+            {
+                var rawStyle = value as string;
+                if (rawStyle == null) return null;
+                style = (SvgStyle)rawStyle;
+            }
+
+            return style;
+        }
+
+        static void SetStyleAttribute(ref SvgStyle style, SvgElement element, string attribute)
+        {
+            var value = (string)element.Attributes[attribute];
+            if (value != null)
+            {
+                if (style == null) style = new SvgStyle();
+                style.Set(attribute, value);
+            }
+        }
+
+        SvgStyle GetElementStyle(SvgElement element)
+        {
+            SvgStyle style = null;
+            do
+            {
+                var elementStyle = ParseStyle(element, "style");
+                if (style == null) style = elementStyle;
+                else if (elementStyle != null) style += elementStyle;
+                SetStyleAttribute(ref style, element, "fill");
+                SetStyleAttribute(ref style, element, "fill-opacity");
+                SetStyleAttribute(ref style, element, "stroke");
+                SetStyleAttribute(ref style, element, "stroke-width");
+                SetStyleAttribute(ref style, element, "stroke-opacity");
+            } while (style == null && (element = element.Parent) != null && element.Name == "g");
+            return style;
+        }
+
         SvgDrawingStyle CreateStyle(SvgElement element, SvgRendererContext context)
         {
             Expression fill, stroke;
-            var value = element.Attributes["style"];
-            if (value != null)
-            {
-                var style = value as SvgStyle;
-                if (style == null)
-                {
-                    var rawStyle = value as string;
-                    if (rawStyle == null) return null;
-                    style = (SvgStyle)rawStyle;
-                }
-
-                fill = CreateFill(style, context);
-                stroke = CreateStroke(style, context);
-            }
-            else
-            {
-                fill = CreateFill(element, context);
-                stroke = CreateStroke(element, context);
-            }
-
+            var style = GetElementStyle(element);
+            fill = CreateFill(style, context);
+            stroke = CreateStroke(style, context);
             if (fill == null && stroke == null) return null;
             else return new SvgDrawingStyle(fill, stroke);
         }
@@ -197,15 +221,9 @@ namespace Bonsai.Design
 
         Expression CreateFill(SvgStyle style, SvgRendererContext context)
         {
+            if (style == null) return CreateFill(null, null, context);
             var fill = (string)style.Get("fill");
             var opacity = (string)style.Get("fill-opacity");
-            return CreateFill(fill, opacity, context);
-        }
-
-        Expression CreateFill(SvgElement element, SvgRendererContext context)
-        {
-            var fill = (string)element["fill"];
-            var opacity = (string)element["fill-opacity"];
             return CreateFill(fill, opacity, context);
         }
 
@@ -238,17 +256,10 @@ namespace Bonsai.Design
 
         Expression CreateStroke(SvgStyle style, SvgRendererContext context)
         {
+            if (style == null) return null;
             var stroke = (string)style.Get("stroke");
             var strokeWidth = (string)style.Get("stroke-width");
             var strokeOpacity = (string)style.Get("stroke-opacity");
-            return CreateStroke(stroke, strokeWidth, strokeOpacity, context);
-        }
-
-        Expression CreateStroke(SvgElement element, SvgRendererContext context)
-        {
-            var stroke = (string)element["stroke"];
-            var strokeWidth = (string)element["stroke-width"];
-            var strokeOpacity = (string)element["stroke-opacity"];
             return CreateStroke(stroke, strokeWidth, strokeOpacity, context);
         }
 
