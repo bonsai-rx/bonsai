@@ -394,11 +394,14 @@ namespace Bonsai.Design
             var offset = !segment.Abs && points.Count > 0 ? points[points.Count - 1] : PointF.Empty;
             if (segment.Type == SvgPathSegType.SVG_SEGTYPE_SMOOTHCURVETO)
             {
-                if (points.Count == 1) points.Add(points[points.Count - 1]);
+                var first = points[points.Count - 1];
+                if (points.Count == 1) points.Add(first);
                 else
                 {
                     var reflection = points[points.Count - 2];
-                    points.Add(new PointF(-reflection.X + offset.X, -reflection.Y + offset.Y));
+                    reflection.X = 2 * first.X - reflection.X;
+                    reflection.Y = 2 * first.Y - reflection.Y;
+                    points.Add(reflection);
                 }
             }
             for (int i = 0; i < data.Length / 2; i++)
