@@ -24,7 +24,6 @@ namespace Bonsai.Design
     {
         public float Scale;
         public PointF Translation;
-        public Pen Outlining;
         public Brush Foreground;
     }
 
@@ -265,8 +264,8 @@ namespace Bonsai.Design
 
         Expression CreateStroke(string stroke, string strokeWidth, string opacity, SvgRendererContext context)
         {
-            if (stroke == null) return Expression.PropertyOrField(context.State, "Outlining");
-            if (stroke == "none") return null;
+            if (stroke == null || stroke == "none") return null;
+            if (stroke == "currentColor") return null;
             var width = strokeWidth == null ? 1 : ((SvgLength)strokeWidth);
             var color = ((SvgColor)stroke).Color;
             if (opacity != null)

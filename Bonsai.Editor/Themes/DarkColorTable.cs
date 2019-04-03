@@ -33,7 +33,7 @@ namespace Bonsai.Editor.Themes
 
             public override Color WindowBackColor
             {
-                get { return SystemColors.Menu; }
+                get { return Color.FromArgb(225, 225, 225); }
             }
         }
     }
