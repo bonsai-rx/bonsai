@@ -464,6 +464,7 @@ namespace Bonsai.Design
                         linePoints.Add(point);
                         break;
                     case SvgPathSegType.SVG_SEGTYPE_CLOSEPATH:
+                        if (linePoints.Count > 0) point = linePoints[0];
                         AddLines(path, linePoints);
                         AddBeziers(path, bezierPoints);
                         path.CloseFigure();
