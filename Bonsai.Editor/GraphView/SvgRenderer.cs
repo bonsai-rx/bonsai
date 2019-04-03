@@ -432,6 +432,7 @@ namespace Bonsai.Design
                         AddLines(path, linePoints);
                         if (bezierPoints.Count == 0) bezierPoints.Add(point);
                         AddBezierData(bezierPoints, segment);
+                        point = bezierPoints[bezierPoints.Count - 1];
                         break;
                     case SvgPathSegType.SVG_SEGTYPE_MOVETO:
                         AddLines(path, linePoints);
