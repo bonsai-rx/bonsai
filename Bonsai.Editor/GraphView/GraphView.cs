@@ -19,19 +19,17 @@ namespace Bonsai.Design
     {
         const float DefaultDpi = 96f;
         const float DefaultPenWidth = 2;
-        static readonly Brush WhiteBrush = Brushes.White;
-        static readonly Brush DarkGrayBrush = Brushes.DarkGray;
         static readonly Color CursorLight = Color.White;
         static readonly Color CursorDark = Color.Black;
-        static readonly Color HighlightedBrush = Color.FromArgb(217, 129, 119);
-        static readonly Color HighlightedSelectionBrush = Color.FromArgb(171, 39, 47);
+        static readonly Color HighlightedColor = Color.FromArgb(217, 129, 119);
+        static readonly Color HighlightedSelectionColor = Color.FromArgb(171, 39, 47);
         static readonly Color SelectionWhite = Color.FromArgb(250, 250, 250);
         static readonly Color UnfocusedSelectionWhite = Color.FromArgb(224, 224, 224);
         static readonly Color SelectionBlack = Color.FromArgb(51, 51, 51);
         static readonly Color UnfocusedSelectionBlack = Color.FromArgb(81, 81, 81);
-        static readonly Color RubberBandPen = Color.FromArgb(51, 153, 255);
-        static readonly Color RubberBandBrush = Color.FromArgb(128, 170, 204, 238);
-        static readonly Brush HotBrush = new SolidBrush(Color.FromArgb(128, 229, 243, 251));
+        static readonly Color RubberBandPenColor = Color.FromArgb(51, 153, 255);
+        static readonly Color RubberBandBrushColor = Color.FromArgb(128, 170, 204, 238);
+        static readonly Color HotBrushColor = Color.FromArgb(128, 229, 243, 251);
         static readonly StringFormat TextFormat = new StringFormat(StringFormatFlags.NoWrap);
         static readonly StringFormat CenteredTextFormat = new StringFormat(StringFormat.GenericTypographic)
         {
@@ -90,9 +88,9 @@ namespace Bonsai.Design
         {
             InitializeComponent();
             InitializeReactiveEvents();
-            FocusedSelectionBrush = Color.Black;
-            UnfocusedSelectionBrush = Color.Gray;
-            ContrastSelectionBrush = Color.White;
+            FocusedSelectionColor = Color.Black;
+            UnfocusedSelectionColor = Color.Gray;
+            ContrastSelectionColor = Color.White;
             TextDrawMode = GraphViewTextDrawMode.All;
         }
 
@@ -233,11 +231,11 @@ namespace Bonsai.Design
             remove { Events.RemoveHandler(EventSelectedNodeChanged, value); }
         }
 
-        public Color FocusedSelectionBrush { get; set; }
+        public Color FocusedSelectionColor { get; set; }
 
-        public Color ContrastSelectionBrush { get; set; }
+        public Color ContrastSelectionColor { get; set; }
 
-        public Color UnfocusedSelectionBrush { get; set; }
+        public Color UnfocusedSelectionColor { get; set; }
 
         public SvgRendererFactory IconRenderer { get; set; }
 
@@ -401,16 +399,16 @@ namespace Bonsai.Design
             if (brightness > 0.5)
             {
                 CursorPen = BlackPen;
-                FocusedSelectionBrush = SelectionBlack;
-                UnfocusedSelectionBrush = UnfocusedSelectionWhite;
-                ContrastSelectionBrush = Color.Black;
+                FocusedSelectionColor = SelectionBlack;
+                UnfocusedSelectionColor = UnfocusedSelectionWhite;
+                ContrastSelectionColor = Color.Black;
             }
             else
             {
                 CursorPen = WhitePen;
-                FocusedSelectionBrush = SelectionWhite;
-                UnfocusedSelectionBrush = UnfocusedSelectionBlack;
-                ContrastSelectionBrush = Color.White;
+                FocusedSelectionColor = SelectionWhite;
+                UnfocusedSelectionColor = UnfocusedSelectionBlack;
+                ContrastSelectionColor = Color.White;
             }
         }
 
@@ -1104,7 +1102,8 @@ namespace Bonsai.Design
             LayoutNode layout,
             Size offset,
             SolidBrush selection,
-            Brush foreground,
+            SolidBrush fill,
+            Color currentColor,
             Pen cursor = null,
             bool hot = false,
             Font vectorFont = null)
@@ -1115,7 +1114,8 @@ namespace Bonsai.Design
                 NodeSize, NodeSize);
 
             SvgRenderer renderer;
-            iconRendererState.Foreground = foreground;
+            iconRendererState.Fill = fill;
+            iconRendererState.CurrentColor = currentColor;
             iconRendererState.Translation = nodeRectangle.Location;
             if (layout.Node.ModifierBrush != null)
             {
@@ -1153,7 +1153,8 @@ namespace Bonsai.Design
             {
                 graphics.DrawString(
                     layout.Label.Substring(0, 1),
-                    vectorFont, foreground,
+                    vectorFont,
+                    iconRendererState.FillStyle(),
                     new RectangleF(
                         nodeRectangle.Location,
                         SizeF.Add(nodeRectangle.Size, VectorTextOffset)),
@@ -1163,7 +1164,8 @@ namespace Bonsai.Design
             {
                 graphics.DrawString(
                     layout.Label.Substring(0, 1),
-                    DefaultIconFont, foreground,
+                    DefaultIconFont,
+                    iconRendererState.FillStyle(),
                     nodeRectangle, CenteredTextFormat);
             }
 
@@ -1173,7 +1175,7 @@ namespace Bonsai.Design
             }
 
             if (cursor != null && ContainsFocus) graphics.DrawEllipse(cursor, nodeRectangle);
-            if (hot) graphics.FillEllipse(HotBrush, nodeRectangle);
+            if (hot) graphics.FillEllipse(iconRendererState.FillStyle(HotBrushColor), nodeRectangle);
             if (layout.Node.ArgumentCount < layout.Node.ArgumentRange.UpperBound)
             {
                 var connectorRectangle = layout.ConnectorRectangle;
@@ -1226,28 +1228,31 @@ namespace Bonsai.Design
                     font = ExportFont;
                 }
 
-                DrawEdges(graphics, Size.Empty);
-                foreach (var layout in layoutNodes)
+                using (var fill = new SolidBrush(Color.White))
                 {
-                    if (layout.Node.Value != null)
+                    DrawEdges(graphics, Size.Empty);
+                    foreach (var layout in layoutNodes)
                     {
-                        DrawNode(graphics, layout, Size.Empty, null, WhiteBrush, vectorFont: font);
-                        var labelRect = layout.LabelRectangle;
-                        foreach (var line in layout.Label.Split(Environment.NewLine.ToArray(),
-                                                                StringSplitOptions.RemoveEmptyEntries))
+                        if (layout.Node.Value != null)
                         {
-                            int charactersFitted, linesFilled;
-                            var size = measureGraphics.MeasureString(
-                                line, Font,
-                                labelRect.Size,
-                                VectorTextFormat,
-                                out charactersFitted, out linesFilled);
-                            var lineLabel = line.Length > charactersFitted ? line.Substring(0, charactersFitted) : line;
-                            graphics.DrawString(lineLabel, font, Brushes.Black, labelRect);
-                            labelRect.Y += size.Height;
+                            DrawNode(graphics, layout, Size.Empty, null, fill, Color.White, vectorFont: font);
+                            var labelRect = layout.LabelRectangle;
+                            foreach (var line in layout.Label.Split(Environment.NewLine.ToArray(),
+                                                                    StringSplitOptions.RemoveEmptyEntries))
+                            {
+                                int charactersFitted, linesFilled;
+                                var size = measureGraphics.MeasureString(
+                                    line, Font,
+                                    labelRect.Size,
+                                    VectorTextFormat,
+                                    out charactersFitted, out linesFilled);
+                                var lineLabel = line.Length > charactersFitted ? line.Substring(0, charactersFitted) : line;
+                                graphics.DrawString(lineLabel, font, Brushes.Black, labelRect);
+                                labelRect.Y += size.Height;
+                            }
                         }
+                        else DrawDummyNode(graphics, layout, Size.Empty);
                     }
-                    else DrawDummyNode(graphics, layout, Size.Empty);
                 }
             }
         }
@@ -1259,32 +1264,39 @@ namespace Bonsai.Design
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
             using (var selection = new SolidBrush(Color.Empty))
+            using (var fill = new SolidBrush(Color.Empty))
             {
                 DrawEdges(graphics, offset);
                 foreach (var layout in layoutNodes)
                 {
                     if (layout.Node.Value != null)
                     {
-                        Brush foreground;
+                        Color currentColor;
                         Color selectionColor;
                         var selected = selectedNodes.Contains(layout.Node);
                         var pen = cursor == layout.Node ? CursorPen : null;
                         if (layout.Node.Highlight)
                         {
-                            selectionColor = selected ? HighlightedSelectionBrush : HighlightedBrush;
-                            foreground = WhiteBrush;
+                            selectionColor = selected ? HighlightedSelectionColor : HighlightedColor;
+                            currentColor = Color.White;
                         }
                         else
                         {
-                            selectionColor = selected ? (Focused ? FocusedSelectionBrush : UnfocusedSelectionBrush) : Color.Empty;
-                            foreground = selected ? DarkGrayBrush : WhiteBrush;
+                            selectionColor = selected ? (Focused ? FocusedSelectionColor : UnfocusedSelectionColor) : Color.Empty;
+                            currentColor = selected ? Color.DarkGray : Color.White;
                         }
 
-                        selection.Color = selectionColor;
-                        DrawNode(graphics, layout, offset, selectionColor.IsEmpty ? null : selection, foreground, pen, layout.Node == hot);
+                        SolidBrush activeSelection = null;
+                        if (!selectionColor.IsEmpty)
+                        {
+                            activeSelection = selection;
+                            activeSelection.Color = selectionColor;
+                        }
+
+                        DrawNode(graphics, layout, offset, activeSelection, fill, currentColor, pen, layout.Node == hot);
                         if (TextDrawMode == GraphViewTextDrawMode.All || layout.Node == hot)
                         {
-                            selection.Color = ContrastSelectionBrush;
+                            selection.Color = ContrastSelectionColor;
                             var labelRect = layout.LabelRectangle;
                             labelRect.Location += offset;
                             graphics.DrawString(layout.Label, Font, selection, labelRect, TextFormat);
@@ -1296,8 +1308,8 @@ namespace Bonsai.Design
 
             if (rubberBand.Width > 0 && rubberBand.Height > 0)
             {
-                using (var rubberBandPen = new Pen(RubberBandPen))
-                using (var rubberBandBrush = new SolidBrush(RubberBandBrush))
+                using (var rubberBandPen = new Pen(RubberBandPenColor))
+                using (var rubberBandBrush = new SolidBrush(RubberBandBrushColor))
                 {
                     e.Graphics.FillRectangle(rubberBandBrush, rubberBand);
                     e.Graphics.DrawRectangle(rubberBandPen, rubberBand);
