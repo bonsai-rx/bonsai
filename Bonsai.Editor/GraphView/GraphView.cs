@@ -21,6 +21,7 @@ namespace Bonsai.Design
         const float DefaultPenWidth = 2;
         static readonly Color CursorLight = Color.White;
         static readonly Color CursorDark = Color.Black;
+        static readonly Color NodeEdgeColor = Color.DarkGray;
         static readonly Color HighlightedColor = Color.FromArgb(217, 129, 119);
         static readonly Color HighlightedSelectionColor = Color.FromArgb(171, 39, 47);
         static readonly Color SelectionWhite = Color.FromArgb(250, 250, 250);
@@ -1103,6 +1104,7 @@ namespace Bonsai.Design
             Size offset,
             SolidBrush selection,
             SolidBrush fill,
+            Pen stroke,
             Color currentColor,
             Pen cursor = null,
             bool hot = false,
@@ -1115,6 +1117,7 @@ namespace Bonsai.Design
 
             SvgRenderer renderer;
             iconRendererState.Fill = fill;
+            iconRendererState.Stroke = stroke;
             iconRendererState.CurrentColor = currentColor;
             iconRendererState.Translation = nodeRectangle.Location;
             if (layout.Node.ModifierBrush != null)
@@ -1229,13 +1232,14 @@ namespace Bonsai.Design
                 }
 
                 using (var fill = new SolidBrush(Color.White))
+                using (var stroke = new Pen(NodeEdgeColor, PenWidth))
                 {
                     DrawEdges(graphics, Size.Empty);
                     foreach (var layout in layoutNodes)
                     {
                         if (layout.Node.Value != null)
                         {
-                            DrawNode(graphics, layout, Size.Empty, null, fill, Color.White, vectorFont: font);
+                            DrawNode(graphics, layout, Size.Empty, null, fill, stroke, Color.White, vectorFont: font);
                             var labelRect = layout.LabelRectangle;
                             foreach (var line in layout.Label.Split(Environment.NewLine.ToArray(),
                                                                     StringSplitOptions.RemoveEmptyEntries))
@@ -1265,6 +1269,7 @@ namespace Bonsai.Design
 
             using (var selection = new SolidBrush(Color.Empty))
             using (var fill = new SolidBrush(Color.Empty))
+            using (var stroke = new Pen(NodeEdgeColor, PenWidth))
             {
                 DrawEdges(graphics, offset);
                 foreach (var layout in layoutNodes)
@@ -1293,7 +1298,7 @@ namespace Bonsai.Design
                             activeSelection.Color = selectionColor;
                         }
 
-                        DrawNode(graphics, layout, offset, activeSelection, fill, currentColor, pen, layout.Node == hot);
+                        DrawNode(graphics, layout, offset, activeSelection, fill, stroke, currentColor, pen, layout.Node == hot);
                         if (TextDrawMode == GraphViewTextDrawMode.All || layout.Node == hot)
                         {
                             selection.Color = ContrastSelectionColor;

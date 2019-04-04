@@ -26,6 +26,7 @@ namespace Bonsai.Design
         public PointF Translation;
         public Color CurrentColor;
         public SolidBrush Fill;
+        public Pen Stroke;
 
         public Brush FillStyle()
         {
@@ -36,6 +37,13 @@ namespace Bonsai.Design
         {
             Fill.Color = color;
             return Fill;
+        }
+
+        public Pen StrokeStyle(Color color, float width)
+        {
+            Stroke.Color = color;
+            Stroke.Width = width;
+            return Stroke;
         }
     }
 
@@ -274,18 +282,27 @@ namespace Bonsai.Design
 
         Expression CreateStroke(string stroke, string strokeWidth, string opacity, SvgRendererContext context)
         {
+            Expression colorArgument;
             if (stroke == null || stroke == "none") return null;
-            if (stroke == "currentColor") return null;
-            var width = strokeWidth == null ? 1 : ((SvgLength)strokeWidth);
-            var color = ((SvgColor)stroke).Color;
-            if (opacity != null)
+            var alpha = opacity == null ? null : (int?)(((SvgLength)opacity).Value * 255);
+            if (stroke == "currentColor")
             {
-                var opacityValue = ((SvgLength)opacity).Value;
-                color = Color.FromArgb((int)(opacityValue * 255), color);
+                colorArgument = Expression.PropertyOrField(context.State, "CurrentColor");
+                if (alpha.HasValue)
+                {
+                    var alphaArgument = Expression.Constant(alpha.Value);
+                    colorArgument = Expression.Call(typeof(Color), "FromArgb", null, alphaArgument, colorArgument);
+                }
             }
-            var pen = new Pen(color, width.Value);
-            disposableResources.Add(pen);
-            return Expression.Constant(pen);
+            else
+            {
+                var color = ((SvgColor)stroke).Color;
+                if (alpha.HasValue) color = Color.FromArgb(alpha.Value, color);
+                colorArgument = Expression.Constant(color);
+            }
+            var width = strokeWidth == null ? 1 : ((SvgLength)strokeWidth);
+            var widthArgument = Expression.Constant(width.Value);
+            return Expression.Call(context.State, "StrokeStyle", null, colorArgument, widthArgument);
         }
 
         void CreateDrawTransform(SvgElement element, Matrix transform, SvgRendererContext context)
