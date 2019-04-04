@@ -24,7 +24,19 @@ namespace Bonsai.Design
     {
         public float Scale;
         public PointF Translation;
-        public Brush Foreground;
+        public Color CurrentColor;
+        public SolidBrush Fill;
+
+        public Brush FillStyle()
+        {
+            return FillStyle(CurrentColor);
+        }
+
+        public Brush FillStyle(Color color)
+        {
+            Fill.Color = color;
+            return Fill;
+        }
     }
 
     class SvgRendererContext
@@ -229,8 +241,8 @@ namespace Bonsai.Design
         Expression CreateFill(string fill, string opacity, SvgRendererContext context)
         {
             const string UrlPrefix = "url(";
-            if (fill == null) return Expression.PropertyOrField(context.State, "Foreground");
             if (fill == "none") return null;
+            if (fill == null) return Expression.Call(context.State, "FillStyle", null);
             if (fill.StartsWith(UrlPrefix))
             {
                 Brush brush;
@@ -247,9 +259,7 @@ namespace Bonsai.Design
                     color = Color.FromArgb((int)(opacityValue * 255), color);
                 }
 
-                var brush = new SolidBrush(color);
-                disposableResources.Add(brush);
-                return Expression.Constant(brush);
+                return Expression.Call(context.State, "FillStyle", null, Expression.Constant(color));
             }
         }
 
