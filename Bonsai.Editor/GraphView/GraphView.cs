@@ -1126,7 +1126,7 @@ namespace Bonsai.Design
             {
                 renderer(iconRendererState, graphics);
             }
-            else graphics.FillEllipse(layout.Node.Brush, nodeRectangle);
+            else graphics.FillEllipse(iconRendererState.FillStyle(layout.Node.FillColor), nodeRectangle);
 
             var nestedCategory = layout.Node.NestedCategory;
             if (nestedCategory != null)
