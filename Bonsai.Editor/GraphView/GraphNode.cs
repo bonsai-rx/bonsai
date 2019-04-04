@@ -94,21 +94,21 @@ namespace Bonsai.Design
 
         public object Tag { get; set; }
 
-        public Brush Brush
+        public Color FillColor
         {
             get
             {
                 switch (Category)
                 {
-                    case ElementCategory.Source: return CategoryBrushes.Source;
-                    case ElementCategory.Condition: return CategoryBrushes.Combinator;
-                    case ElementCategory.Transform: return CategoryBrushes.Transform;
-                    case ElementCategory.Sink: return CategoryBrushes.Sink;
+                    case ElementCategory.Source: return CategoryColors.Source;
+                    case ElementCategory.Condition: return CategoryColors.Combinator;
+                    case ElementCategory.Transform: return CategoryColors.Transform;
+                    case ElementCategory.Sink: return CategoryColors.Sink;
                     case ElementCategory.Nested:
-                    case ElementCategory.Workflow: return CategoryBrushes.Combinator;
-                    case ElementCategory.Property: return CategoryBrushes.Property;
+                    case ElementCategory.Workflow: return CategoryColors.Combinator;
+                    case ElementCategory.Property: return CategoryColors.Property;
                     case ElementCategory.Combinator:
-                    default: return CategoryBrushes.Combinator;
+                    default: return CategoryColors.Combinator;
                 }
             }
         }
@@ -177,13 +177,13 @@ namespace Bonsai.Design
             NestedGroup = 0x10
         }
 
-        static class CategoryBrushes
+        static class CategoryColors
         {
-            public static readonly Brush Source = new SolidBrush(Color.FromArgb(91, 178, 126));
-            public static readonly Brush Transform = new SolidBrush(Color.FromArgb(68, 154, 223));
-            public static readonly Brush Sink = new SolidBrush(Color.FromArgb(155, 91, 179));
-            public static readonly Brush Combinator = new SolidBrush(Color.FromArgb(238, 192, 75));
-            public static readonly Brush Property = Brushes.Gray;
+            public static readonly Color Source = Color.FromArgb(91, 178, 126);
+            public static readonly Color Transform = Color.FromArgb(68, 154, 223);
+            public static readonly Color Sink = Color.FromArgb(155, 91, 179);
+            public static readonly Color Combinator = Color.FromArgb(238, 192, 75);
+            public static readonly Color Property = Color.Gray;
         }
     }
 }
