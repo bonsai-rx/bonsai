@@ -14,8 +14,6 @@ namespace Bonsai.Design
         static readonly Range<int> EmptyRange = Range.Create(0, 0);
         static readonly Brush DisabledBrush = new HatchBrush(HatchStyle.BackwardDiagonal, Color.Black, Color.Transparent);
         static readonly Brush ObsoleteBrush = new HatchBrush(HatchStyle.OutlinedDiamond, Color.Black, Color.Transparent);
-        static readonly Pen DashPen = new Pen(Brushes.DarkGray) { DashPattern = new[] { 4f, 2f } };
-        static readonly Pen SolidPen = Pens.DarkGray;
 
         public GraphNode(ExpressionBuilder value, int layer, IEnumerable<GraphEdge> successors)
         {
@@ -23,7 +21,6 @@ namespace Bonsai.Design
             Layer = layer;
             Successors = successors;
 
-            Pen = SolidPen;
             if (value != null)
             {
                 var expressionBuilder = ExpressionBuilder.Unwrap(value);
@@ -47,7 +44,7 @@ namespace Bonsai.Design
 
                 if (obsolete) Flags |= NodeFlags.Obsolete;
                 Category = elementCategoryAttribute.Category;
-                Pen = expressionBuilder.IsBuildDependency() ? DashPen : SolidPen;
+                BuildDependency = expressionBuilder.IsBuildDependency();
                 Icon = new ElementIcon(workflowElement);
                 if (workflowElement is IWorkflowExpressionBuilder)
                 {
@@ -69,7 +66,7 @@ namespace Bonsai.Design
             {
                 if (successor.Node.Value == null)
                 {
-                    successor.Node.Pen = Pen;
+                    successor.Node.BuildDependency = BuildDependency;
                     successor.Node.InitializeDummySuccessors();
                 }
             }
@@ -137,7 +134,7 @@ namespace Bonsai.Design
 
         public ElementIcon Icon { get; private set; }
 
-        public Pen Pen { get; private set; }
+        public bool BuildDependency { get; private set; }
 
         public string Text
         {
