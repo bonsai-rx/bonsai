@@ -61,10 +61,8 @@ namespace Bonsai.Design
         Size EntryOffset;
         Size ExitOffset;
         Size ConnectorOffset;
-        Pen NodePen;
-        Pen CursorPen;
-        Pen WhitePen;
-        Pen BlackPen;
+        Pen SolidPen;
+        Pen DashPen;
         Font DefaultIconFont;
         Font ExportFont;
 
@@ -76,7 +74,6 @@ namespace Bonsai.Design
         Point? previousScrollOffset;
         GraphNode[] selectionBeforeDrag;
         GraphViewTextDrawMode textDrawMode;
-        Dictionary<Pen, Pen> customPens = new Dictionary<Pen, Pen>();
         LayoutNodeCollection layoutNodes = new LayoutNodeCollection();
         HashSet<GraphNode> selectedNodes = new HashSet<GraphNode>();
         SvgRendererState iconRendererState = new SvgRendererState();
@@ -238,6 +235,8 @@ namespace Bonsai.Design
 
         public Color UnfocusedSelectionColor { get; set; }
 
+        public Color CursorColor { get; set; }
+
         public SvgRendererFactory IconRenderer { get; set; }
 
         public GraphViewTextDrawMode TextDrawMode
@@ -356,12 +355,11 @@ namespace Bonsai.Design
 
         void DisposeDrawResources()
         {
-            if (CursorPen != null)
+            if (SolidPen != null)
             {
-                NodePen.Dispose();
-                WhitePen.Dispose();
-                BlackPen.Dispose();
-                CursorPen = WhitePen = BlackPen = NodePen = null;
+                SolidPen.Dispose();
+                DashPen.Dispose();
+                SolidPen = DashPen = null;
             }
 
             if (ExportFont != null)
@@ -369,29 +367,6 @@ namespace Bonsai.Design
                 ExportFont.Dispose();
                 ExportFont = null;
             }
-
-            foreach (var customPen in customPens.Values)
-            {
-                customPen.Dispose();
-            }
-            customPens.Clear();
-        }
-
-        Pen GetCustomPen(Pen pen)
-        {
-            Pen customPen;
-            if (!customPens.TryGetValue(pen, out customPen))
-            {
-                customPen = new Pen(pen.Color, pen.Width * drawScale);
-                customPen.DashStyle = pen.DashStyle;
-                if (pen.DashStyle == DashStyle.Custom)
-                {
-                    customPen.DashPattern = pen.DashPattern;
-                }
-                customPens.Add(pen, customPen);
-            }
-
-            return customPen;
         }
 
         void UpdateCursorPen()
@@ -399,14 +374,14 @@ namespace Bonsai.Design
             var brightness = canvas.BackColor.GetBrightness();
             if (brightness > 0.5)
             {
-                CursorPen = BlackPen;
+                CursorColor = CursorDark;
                 FocusedSelectionColor = SelectionBlack;
                 UnfocusedSelectionColor = UnfocusedSelectionWhite;
                 ContrastSelectionColor = Color.Black;
             }
             else
             {
-                CursorPen = WhitePen;
+                CursorColor = CursorLight;
                 FocusedSelectionColor = SelectionWhite;
                 UnfocusedSelectionColor = UnfocusedSelectionBlack;
                 ContrastSelectionColor = Color.White;
@@ -432,9 +407,8 @@ namespace Bonsai.Design
             EntryOffset = new Size(-PenWidth / 2, NodeSize / 2);
             ExitOffset = new Size(NodeSize + PenWidth / 2, NodeSize / 2);
             ConnectorOffset = new Size(-ConnectorSize / 2, EntryOffset.Height - ConnectorSize / 2);
-            NodePen = new Pen(Brushes.DarkGray, PenWidth);
-            WhitePen = new Pen(CursorLight, PenWidth);
-            BlackPen = new Pen(CursorDark, PenWidth);
+            SolidPen = new Pen(NodeEdgeColor, drawScale);
+            DashPen = new Pen(NodeEdgeColor, drawScale) { DashPattern = new[] { 4f, 2f } };
             DefaultIconFont = new Font(Font, FontStyle.Bold);
             UpdateCursorPen();
             UpdateModelLayout();
@@ -1106,7 +1080,7 @@ namespace Bonsai.Design
             SolidBrush fill,
             Pen stroke,
             Color currentColor,
-            Pen cursor = null,
+            Color? cursor = null,
             bool hot = false,
             Font vectorFont = null)
         {
@@ -1139,7 +1113,7 @@ namespace Bonsai.Design
                 {
                     renderer(iconRendererState, graphics);
                 }
-                else graphics.DrawEllipse(NodePen, nodeRectangle);
+                else graphics.DrawEllipse(iconRendererState.StrokeStyle(NodeEdgeColor, PenWidth), nodeRectangle);
             }
 
             if (selection != null)
@@ -1177,7 +1151,11 @@ namespace Bonsai.Design
                 graphics.FillEllipse(layout.Node.ModifierBrush, nodeRectangle);
             }
 
-            if (cursor != null && ContainsFocus) graphics.DrawEllipse(cursor, nodeRectangle);
+            if (cursor.HasValue && ContainsFocus)
+            {
+                graphics.DrawEllipse(iconRendererState.StrokeStyle(cursor.Value, PenWidth), nodeRectangle);
+            }
+
             if (hot) graphics.FillEllipse(iconRendererState.FillStyle(HotBrushColor), nodeRectangle);
             if (layout.Node.ArgumentCount < layout.Node.ArgumentRange.UpperBound)
             {
@@ -1185,7 +1163,7 @@ namespace Bonsai.Design
                 var argumentRequired = layout.Node.ArgumentCount < layout.Node.ArgumentRange.LowerBound;
                 var connectorBrush = argumentRequired ? Brushes.Black : Brushes.White;
                 connectorRectangle.Offset(offset.Width, offset.Height);
-                graphics.DrawEllipse(NodePen, connectorRectangle);
+                graphics.DrawEllipse(iconRendererState.StrokeStyle(NodeEdgeColor, PenWidth), connectorRectangle);
                 graphics.FillEllipse(connectorBrush, connectorRectangle);
             }
         }
@@ -1195,7 +1173,7 @@ namespace Bonsai.Design
             if (layout.Node.Tag != null)
             {
                 graphics.DrawLine(
-                    GetCustomPen(layout.Node.Pen),
+                    layout.Node.BuildDependency ? DashPen : SolidPen,
                     Point.Add(layout.EntryPoint, offset),
                     Point.Add(layout.ExitPoint, offset));
             }
@@ -1209,7 +1187,7 @@ namespace Bonsai.Design
                 {
                     var successorLayout = layoutNodes[successor.Node];
                     graphics.DrawLine(
-                        GetCustomPen(layout.Node.Pen),
+                        layout.Node.BuildDependency ? DashPen : SolidPen,
                         Point.Add(layout.ExitPoint, offset),
                         Point.Add(successorLayout.EntryPoint, offset));
                 }
@@ -1278,8 +1256,8 @@ namespace Bonsai.Design
                     {
                         Color currentColor;
                         Color selectionColor;
+                        var cursorColor = cursor == layout.Node ? CursorColor : default(Color?);
                         var selected = selectedNodes.Contains(layout.Node);
-                        var pen = cursor == layout.Node ? CursorPen : null;
                         if (layout.Node.Highlight)
                         {
                             selectionColor = selected ? HighlightedSelectionColor : HighlightedColor;
@@ -1298,7 +1276,7 @@ namespace Bonsai.Design
                             activeSelection.Color = selectionColor;
                         }
 
-                        DrawNode(graphics, layout, offset, activeSelection, fill, stroke, currentColor, pen, layout.Node == hot);
+                        DrawNode(graphics, layout, offset, activeSelection, fill, stroke, currentColor, cursorColor, layout.Node == hot);
                         if (TextDrawMode == GraphViewTextDrawMode.All || layout.Node == hot)
                         {
                             selection.Color = ContrastSelectionColor;
