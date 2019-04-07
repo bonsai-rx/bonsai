@@ -41,6 +41,12 @@ namespace Bonsai.Dsp
         [Description("The optional target bit depth of individual buffer elements.")]
         public Depth? Depth { get; set; }
 
+        [Browsable(false)]
+        public bool DepthSpecified
+        {
+            get { return Depth.HasValue; }
+        }
+
         [Description("The amplitude of the signal waveform.")]
         public double Amplitude { get; set; }
 
