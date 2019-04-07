@@ -47,37 +47,52 @@ namespace Bonsai.Dsp
         [Description("The optional DC-offset of the signal waveform.")]
         public double Offset { get; set; }
 
+        [Range(-Math.PI, Math.PI)]
+        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Description("The optional phase offset, in radians, of the signal waveform.")]
+        public double Phase { get; set; }
+
+        static double NormalizedPhase(double phase)
+        {
+            const double TwoPI = 2 * Math.PI;
+            phase = phase + Math.Ceiling(-phase / TwoPI) * TwoPI;
+            return phase / TwoPI;
+        }
+
         Mat CreateBuffer()
         {
             var buffer = new double[BufferLength];
             var frequency = Math.Max(0, Frequency);
             if (frequency > 0)
             {
-                var period = buffer.Length / frequency;
-                var indexScale = 1.0 / buffer.Length;
+                var phase = Phase / frequency;
+                var period = buffer.Length / (double)frequency;
+                var timeStep = 1.0 / buffer.Length;
                 var waveform = Waveform;
                 switch (waveform)
                 {
                     default:
                     case FunctionWaveform.Sine:
-                        indexScale = 2 * Math.PI * indexScale;
+                        timeStep = timeStep * 2 * Math.PI;
                         for (int i = 0; i < buffer.Length; i++)
                         {
-                            buffer[i] = Math.Sin(frequency * i * indexScale);
+                            buffer[i] = Math.Sin(frequency * (i * timeStep + phase));
                         }
                         break;
                     case FunctionWaveform.Triangular:
+                        phase = NormalizedPhase(phase);
                         for (int i = 0; i < buffer.Length; i++)
                         {
-                            var t = frequency * (i + period / 4) * indexScale;
+                            var t = frequency * ((i + period / 4) * timeStep + phase);
                             buffer[i] = (1 - (4 * Math.Abs((t % 1) - 0.5) - 1)) - 1;
                         }
                         break;
                     case FunctionWaveform.Square:
                     case FunctionWaveform.Sawtooth:
+                        phase = NormalizedPhase(phase);
                         for (int i = 0; i < buffer.Length; i++)
                         {
-                            var t = frequency * (i + period / 2) * indexScale;
+                            var t = frequency * ((i + period / 2) * timeStep + phase);
                             buffer[i] = 2 * (t % 1) - 1;
                             if (waveform == FunctionWaveform.Square)
                             {
