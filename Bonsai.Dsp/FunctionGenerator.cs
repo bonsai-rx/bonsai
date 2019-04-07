@@ -17,9 +17,9 @@ namespace Bonsai.Dsp
     {
         public FunctionGenerator()
         {
-            PlaybackRate = 100;
+            SampleRate = 44100;
             BufferLength = 441;
-            Frequency = 1;
+            Frequency = 100;
             Amplitude = 1;
         }
 
@@ -28,14 +28,34 @@ namespace Bonsai.Dsp
 
         [Range(1, int.MaxValue)]
         [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
-        [Description("The number of periods in each output buffer.")]
-        public int Frequency { get; set; }
+        [Description("The frequency of the signal waveform, in Hz.")]
+        public double Frequency { get; set; }
 
-        [Description("The periodic waveform used to generate each output buffer.")]
+        [Description("The periodic waveform used to sample the signal.")]
         public FunctionWaveform Waveform { get; set; }
 
-        [Description("The number of buffers generated per second.")]
-        public int PlaybackRate { get; set; }
+        [Description("The sampling rate of the generated signal waveform, in Hz.")]
+        public int SampleRate { get; set; }
+
+        [Browsable(false)]
+        public int? PlaybackRate
+        {
+            get { return null; }
+            set
+            {
+                if (value != null)
+                {
+                    SampleRate = BufferLength * value.Value;
+                    Frequency *= value.Value;
+                }
+            }
+        }
+
+        [Browsable(false)]
+        public bool PlaybackRateSpecified
+        {
+            get { return PlaybackRate.HasValue; }
+        }
 
         [TypeConverter(typeof(DepthConverter))]
         [Description("The optional target bit depth of individual buffer elements.")]
@@ -65,15 +85,14 @@ namespace Bonsai.Dsp
             return phase / TwoPI;
         }
 
-        Mat CreateBuffer()
+        Mat CreateBuffer(int bufferLength, long sampleOffset, double timeStep)
         {
-            var buffer = new double[BufferLength];
+            var buffer = new double[bufferLength];
             var frequency = Math.Max(0, Frequency);
             if (frequency > 0)
             {
+                var period = 1.0 / frequency;
                 var phase = Phase / frequency;
-                var period = buffer.Length / (double)frequency;
-                var timeStep = 1.0 / buffer.Length;
                 var waveform = Waveform;
                 switch (waveform)
                 {
@@ -82,14 +101,14 @@ namespace Bonsai.Dsp
                         timeStep = timeStep * 2 * Math.PI;
                         for (int i = 0; i < buffer.Length; i++)
                         {
-                            buffer[i] = Math.Sin(frequency * (i * timeStep + phase));
+                            buffer[i] = Math.Sin(frequency * ((i + sampleOffset) * timeStep + phase));
                         }
                         break;
                     case FunctionWaveform.Triangular:
                         phase = NormalizedPhase(phase);
                         for (int i = 0; i < buffer.Length; i++)
                         {
-                            var t = frequency * ((i + period / 4) * timeStep + phase);
+                            var t = frequency * ((i + sampleOffset + period / 4) * timeStep + phase);
                             buffer[i] = (1 - (4 * Math.Abs((t % 1) - 0.5) - 1)) - 1;
                         }
                         break;
@@ -98,7 +117,7 @@ namespace Bonsai.Dsp
                         phase = NormalizedPhase(phase);
                         for (int i = 0; i < buffer.Length; i++)
                         {
-                            var t = frequency * ((i + period / 2) * timeStep + phase);
+                            var t = frequency * ((i + sampleOffset + period / 2) * timeStep + phase);
                             buffer[i] = 2 * (t % 1) - 1;
                             if (waveform == FunctionWaveform.Square)
                             {
@@ -123,22 +142,25 @@ namespace Bonsai.Dsp
             {
                 return Task.Factory.StartNew(() =>
                 {
-                    var i = 1L;
+                    var i = 0L;
                     using (var sampleSignal = new ManualResetEvent(false))
                     {
                         var stopwatch = new Stopwatch();
                         stopwatch.Start();
 
-                        var playbackRate = PlaybackRate;
+                        var bufferLength = BufferLength;
+                        var sampleRate = SampleRate;
+                        var playbackRate = (double)sampleRate / bufferLength;
                         if (playbackRate <= 0)
                         {
-                            throw new InvalidOperationException("Playback rate must be a positive integer.");
+                            throw new InvalidOperationException("Sample rate and buffer length must be positive integers.");
                         }
 
+                        var timeStep = 1.0 / sampleRate;
                         var playbackInterval = 1000.0 / playbackRate;
                         while (!cancellationToken.IsCancellationRequested)
                         {
-                            var buffer = CreateBuffer();
+                            var buffer = CreateBuffer(bufferLength, i++ * bufferLength, timeStep);
                             observer.OnNext(buffer);
 
                             var sampleInterval = (int)(playbackInterval * i - stopwatch.ElapsedMilliseconds);
@@ -146,8 +168,6 @@ namespace Bonsai.Dsp
                             {
                                 sampleSignal.WaitOne(sampleInterval);
                             }
-
-                            i++;
                         }
                     }
                 },
@@ -159,7 +179,13 @@ namespace Bonsai.Dsp
 
         public IObservable<Mat> Generate<TSource>(IObservable<TSource> source)
         {
-            return source.Select(x => CreateBuffer());
+            return Observable.Defer(() =>
+            {
+                var i = 0L;
+                var bufferLength = BufferLength;
+                var timeStep = 1.0 / SampleRate;
+                return source.Select(x => CreateBuffer(bufferLength, i++ * bufferLength, timeStep));
+            });
         }
     }
 }
