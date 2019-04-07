@@ -20,6 +20,7 @@ namespace Bonsai.Dsp
             PlaybackRate = 100;
             BufferLength = 441;
             Frequency = 1;
+            Amplitude = 1;
         }
 
         [Description("The number of samples in each output buffer.")]
@@ -35,6 +36,16 @@ namespace Bonsai.Dsp
 
         [Description("The number of buffers generated per second.")]
         public int PlaybackRate { get; set; }
+
+        [TypeConverter(typeof(DepthConverter))]
+        [Description("The optional target bit depth of individual buffer elements.")]
+        public Depth? Depth { get; set; }
+
+        [Description("The amplitude of the signal waveform.")]
+        public double Amplitude { get; set; }
+
+        [Description("The optional DC-offset of the signal waveform.")]
+        public double Offset { get; set; }
 
         Mat CreateBuffer()
         {
@@ -77,7 +88,12 @@ namespace Bonsai.Dsp
                 }
             }
 
-            return Mat.FromArray(buffer);
+            var result = new Mat(1, buffer.Length, Depth.GetValueOrDefault(OpenCV.Net.Depth.F64), 1);
+            using (var bufferHeader = Mat.CreateMatHeader(buffer))
+            {
+                CV.ConvertScale(bufferHeader, result, Amplitude, Offset);
+                return result;
+            }
         }
 
         public override IObservable<Mat> Generate()
