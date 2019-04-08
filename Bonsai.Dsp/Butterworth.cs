@@ -14,18 +14,37 @@ namespace Bonsai.Dsp
         int filterOrder = 3;
         FilterType filterType;
         double cutoff1, cutoff2;
-        double samplingFrequency;
+        int sampleRate = 44100;
         readonly IirFilter filter = new IirFilter();
 
-        [Description("The sampling frequency (Hz) of the input signal.")]
-        public double SamplingFrequency
+        [Description("The sample rate of the input signal, in Hz.")]
+        public int SampleRate
         {
-            get { return samplingFrequency; }
+            get { return sampleRate; }
             set
             {
-                samplingFrequency = value;
+                sampleRate = value;
                 UpdateFilter();
             }
+        }
+
+        [Browsable(false)]
+        public double? SamplingFrequency
+        {
+            get { return null; }
+            set
+            {
+                if (value != null)
+                {
+                    SampleRate = (int)value.Value;
+                }
+            }
+        }
+
+        [Browsable(false)]
+        public bool SamplingFrequencySpecified
+        {
+            get { return SamplingFrequency.HasValue; }
         }
 
         [Description("The first cutoff frequency (Hz) applied to the input signal.")]
@@ -76,7 +95,7 @@ namespace Bonsai.Dsp
         {
             double[] b, a;
             var butter = FilterDesign.ButterworthPrototype(filterOrder);
-            var fs = samplingFrequency;
+            var fs = sampleRate;
             var cutoff1 = Cutoff1 / fs;
             var cutoff2 = Cutoff2 / fs;
             FilterDesign.GetFilterCoefficients(butter, new[] { cutoff1, cutoff2 }, filterType, out b, out a);

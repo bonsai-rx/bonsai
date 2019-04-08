@@ -18,6 +18,7 @@ namespace Bonsai.Dsp
         public Decimate()
         {
             Factor = 1;
+            SampleRate = 44100;
             Downsampling = DownsamplingMethod.LowPass;
         }
 
@@ -34,19 +35,38 @@ namespace Bonsai.Dsp
             set
             {
                 factor = value;
-                UpdateCutoffFrequency(SamplingFrequency, value);
+                UpdateCutoffFrequency(SampleRate, value);
             }
         }
 
-        [Description("The sampling frequency (Hz) of the input signal.")]
-        public double SamplingFrequency
+        [Description("The sample rate of the input signal, in Hz.")]
+        public int SampleRate
         {
-            get { return filter.SamplingFrequency; }
+            get { return filter.SampleRate; }
             set
             {
-                filter.SamplingFrequency = value;
+                filter.SampleRate = value;
                 UpdateCutoffFrequency(value, Factor);
             }
+        }
+
+        [Browsable(false)]
+        public double? SamplingFrequency
+        {
+            get { return null; }
+            set
+            {
+                if (value != null)
+                {
+                    SampleRate = (int)value.Value;
+                }
+            }
+        }
+
+        [Browsable(false)]
+        public bool SamplingFrequencySpecified
+        {
+            get { return SamplingFrequency.HasValue; }
         }
 
         [TypeConverter(typeof(KernelLengthConverter))]
@@ -57,11 +77,11 @@ namespace Bonsai.Dsp
             set { filter.KernelLength = value; }
         }
 
-        void UpdateCutoffFrequency(double samplingFrequency, int factor)
+        void UpdateCutoffFrequency(double sampleRate, int factor)
         {
             if (factor > 0)
             {
-                filter.Cutoff1 = samplingFrequency / (2 * factor);
+                filter.Cutoff1 = sampleRate / (2 * factor);
             }
             else filter.Cutoff1 = 0;
         }

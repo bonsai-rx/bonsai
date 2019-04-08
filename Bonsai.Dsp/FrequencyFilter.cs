@@ -13,18 +13,37 @@ namespace Bonsai.Dsp
         int kernelLength = 60;
         FilterType filterType;
         double cutoff1, cutoff2;
-        double samplingFrequency;
+        int sampleRate = 44100;
         FirFilter filter = new FirFilter();
 
-        [Description("The sampling frequency (Hz) of the input signal.")]
-        public double SamplingFrequency
+        [Description("The sample rate of the input signal, in Hz.")]
+        public int SampleRate
         {
-            get { return samplingFrequency; }
+            get { return sampleRate; }
             set
             {
-                samplingFrequency = value;
+                sampleRate = value;
                 UpdateFilter();
             }
+        }
+
+        [Browsable(false)]
+        public double? SamplingFrequency
+        {
+            get { return null; }
+            set
+            {
+                if (value != null)
+                {
+                    SampleRate = (int)value.Value;
+                }
+            }
+        }
+
+        [Browsable(false)]
+        public bool SamplingFrequencySpecified
+        {
+            get { return SamplingFrequency.HasValue; }
         }
 
         [Description("The first cutoff frequency (Hz) applied to the input signal.")]
@@ -75,8 +94,8 @@ namespace Bonsai.Dsp
         void UpdateFilter()
         {
             float[] kernel = null;
-            var samplingFrequency = SamplingFrequency;
-            if (samplingFrequency > 0)
+            var sampleRate = SampleRate;
+            if (sampleRate > 0)
             {
                 var filterType = FilterType;
                 var kernelLength = KernelLength;
@@ -87,7 +106,7 @@ namespace Bonsai.Dsp
 
                 var cutoff1 = Cutoff1;
                 var cutoff2 = Cutoff2;
-                kernel = CreateLowPassKernel(samplingFrequency, cutoff1, kernelLength);
+                kernel = CreateLowPassKernel(sampleRate, cutoff1, kernelLength);
                 switch (filterType)
                 {
                     case FilterType.HighPass:
@@ -95,7 +114,7 @@ namespace Bonsai.Dsp
                         break;
                     case FilterType.BandPass:
                     case FilterType.BandStop:
-                        var highPass = InvertSpectrum(CreateLowPassKernel(samplingFrequency, cutoff2, kernelLength));
+                        var highPass = InvertSpectrum(CreateLowPassKernel(sampleRate, cutoff2, kernelLength));
                         var bandStop = AddKernels(kernel, highPass);
                         if (filterType == FilterType.BandStop) kernel = bandStop;
                         else kernel = InvertSpectrum(bandStop);
@@ -106,10 +125,10 @@ namespace Bonsai.Dsp
             filter.Kernel = kernel;
         }
 
-        float[] CreateLowPassKernel(double samplingFrequency, double cutoffFrequency, int kernelLength)
+        float[] CreateLowPassKernel(double sampleRate, double cutoffFrequency, int kernelLength)
         {
             // Low-pass windowed-sinc filter: http://www.dspguide.com/ch16/4.htm
-            var cutoffRadians = (float)(2 * Math.PI * cutoffFrequency / samplingFrequency);
+            var cutoffRadians = (float)(2 * Math.PI * cutoffFrequency / sampleRate);
             var kernel = new float[kernelLength + 1];
             for (int i = 0; i < kernel.Length; i++)
             {
