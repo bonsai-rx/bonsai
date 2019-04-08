@@ -42,10 +42,29 @@ namespace Bonsai.Dsp
         [Description("The byte offset at which to start reading the raw binary file.")]
         public long Offset { get; set; }
 
-        [Description("The frequency of the output signal.")]
-        public int Frequency { get; set; }
+        [Description("The sample rate of the stored signal, in Hz.")]
+        public int SampleRate { get; set; }
 
-        [Description("The number of channels in the output signal.")]
+        [Browsable(false)]
+        public int? Frequency
+        {
+            get { return null; }
+            set
+            {
+                if (value != null)
+                {
+                    SampleRate = value.Value;
+                }
+            }
+        }
+
+        [Browsable(false)]
+        public bool FrequencySpecified
+        {
+            get { return Frequency.HasValue; }
+        }
+
+        [Description("The number of channels in the stored signal.")]
         public int ChannelCount { get; set; }
 
         [Description("The number of samples in each output buffer.")]
@@ -142,8 +161,8 @@ namespace Bonsai.Dsp
                             if (!reader.MoveNext()) break;
                             observer.OnNext(reader.Current);
 
-                            var frequency = Frequency;
-                            var sampleInterval = frequency > 0 ? 1000.0 / Frequency : 0;
+                            var sampleRate = SampleRate;
+                            var sampleInterval = sampleRate > 0 ? 1000.0 / sampleRate : 0;
                             var dueTime = Math.Max(0, (sampleInterval * BufferLength) - stopwatch.Elapsed.TotalMilliseconds);
                             if (dueTime > 0)
                             {
