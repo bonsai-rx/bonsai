@@ -17,7 +17,8 @@ namespace Bonsai.Dsp
             MaxValue = 1;
         }
 
-        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Range(0, 1)]
+        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Description("The threshold value used to test individual samples.")]
         public double ThresholdValue { get; set; }
 
