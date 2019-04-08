@@ -26,24 +26,24 @@ namespace Bonsai.Audio
         {
             SampleFormat = ALFormat.Mono16;
             BufferLength = 10;
-            Frequency = 44100;
+            SampleRate = 44100;
 
             source = Observable.Create<Mat>((observer, cancellationToken) =>
             {
                 return Task.Factory.StartNew(() =>
                 {
-                    var frequency = Frequency;
+                    var sampleRate = SampleRate;
                     var bufferLength = BufferLength;
                     var sampleFormat = SampleFormat;
                     var channelCount = SampleFormat == ALFormat.Stereo16 ? 2 : 1;
-                    var bufferSize = (int)Math.Ceiling(frequency * bufferLength / 1000);
+                    var bufferSize = (int)Math.Ceiling(sampleRate * bufferLength / 1000);
                     var readBuffer = sampleFormat == ALFormat.Stereo16 ? new Mat(bufferSize, channelCount, Depth.S16, 1) : null;
                     var captureInterval = TimeSpan.FromMilliseconds((int)(bufferLength / 2 + 0.5));
                     var captureBufferSize = bufferSize * 4;
 
                     lock (captureLock)
                     {
-                        using (var capture = new OpenTK.Audio.AudioCapture(DeviceName, frequency, sampleFormat, captureBufferSize))
+                        using (var capture = new OpenTK.Audio.AudioCapture(DeviceName, sampleRate, sampleFormat, captureBufferSize))
                         using (var captureSignal = new ManualResetEvent(false))
                         {
                             capture.Start();
@@ -79,8 +79,27 @@ namespace Bonsai.Audio
         [TypeConverter(typeof(CaptureDeviceNameConverter))]
         public string DeviceName { get; set; }
 
-        [Description("The sampling frequency (Hz) used by the audio capture device.")]
-        public int Frequency { get; set; }
+        [Description("The sample rate used by the audio capture device, in Hz.")]
+        public int SampleRate { get; set; }
+
+        [Browsable(false)]
+        public int? Frequency
+        {
+            get { return null; }
+            set
+            {
+                if (value != null)
+                {
+                    SampleRate = value.Value;
+                }
+            }
+        }
+
+        [Browsable(false)]
+        public bool FrequencySpecified
+        {
+            get { return Frequency.HasValue; }
+        }
 
         [TypeConverter(typeof(SampleFormatConverter))]
         [Description("The requested capture buffer format.")]

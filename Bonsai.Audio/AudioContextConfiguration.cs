@@ -13,10 +13,10 @@ namespace Bonsai.Audio
         [TypeConverter(typeof(PlaybackDeviceNameConverter))]
         public string DeviceName { get; set; }
 
-        [Description("The playback frequency (Hz) used by the output device.")]
-        public int Frequency { get; set; }
+        [Description("The sample rate, in Hz, used by the output device.")]
+        public int SampleRate { get; set; }
 
-        [Description("The refresh frequency (Hz) used by the output device.")]
+        [Description("The refresh frequency, in Hz, used by the output device.")]
         public int Refresh { get; set; }
     }
 }

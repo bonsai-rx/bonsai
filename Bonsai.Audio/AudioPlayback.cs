@@ -20,7 +20,7 @@ namespace Bonsai.Audio
 
         public AudioPlayback()
         {
-            Frequency = 44100;
+            SampleRate = 44100;
         }
 
         [Description("The name of the output device used for playback.")]
@@ -31,8 +31,27 @@ namespace Bonsai.Audio
             set { createSource.DeviceName = value; }
         }
 
-        [Description("The playback frequency (Hz) to use for input buffers.")]
-        public int Frequency { get; set; }
+        [Description("The sample rate, in Hz, used to playback the input buffers.")]
+        public int SampleRate { get; set; }
+
+        [Browsable(false)]
+        public int? Frequency
+        {
+            get { return null; }
+            set
+            {
+                if (value != null)
+                {
+                    SampleRate = value.Value;
+                }
+            }
+        }
+
+        [Browsable(false)]
+        public bool FrequencySpecified
+        {
+            get { return Frequency.HasValue; }
+        }
 
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
@@ -78,7 +97,7 @@ namespace Bonsai.Audio
                     }
 
                     var buffer = AL.GenBuffer();
-                    AL.BufferData(buffer, format, input.Data, input.Rows * input.Step, Frequency);
+                    AL.BufferData(buffer, format, input.Data, input.Rows * input.Step, SampleRate);
                     AL.SourceQueueBuffer(source.Id, buffer);
 
                     source.ClearBuffers(0);

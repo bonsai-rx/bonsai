@@ -36,7 +36,7 @@ namespace Bonsai.Audio
                         var contextConfiguration = configuration[deviceName];
                         context = new AudioContext(
                             deviceName,
-                            contextConfiguration.Frequency,
+                            contextConfiguration.SampleRate,
                             contextConfiguration.Refresh);
                     }
                     else context = new AudioContext(deviceName);

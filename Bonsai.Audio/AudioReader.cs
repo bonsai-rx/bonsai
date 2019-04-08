@@ -82,12 +82,12 @@ namespace Bonsai.Audio
                 AssertFormatValue(1u, reader.ReadUInt16());
 
                 var channels = (int)reader.ReadUInt16();
-                var samplingFrequency = (long)reader.ReadUInt32();
+                var sampleRate = (long)reader.ReadUInt32();
                 reader.ReadUInt32();
                 var sampleSize = (int)reader.ReadUInt16();
                 var depth = reader.ReadUInt16() == 8 ? Depth.U8 : Depth.S16;
 
-                var bufferSize = (int)Math.Ceiling(samplingFrequency * bufferLength / 1000);
+                var bufferSize = (int)Math.Ceiling(sampleRate * bufferLength / 1000);
                 FindId(reader, id, RiffHeader.DataId);
                 var dataSize = (long)reader.ReadUInt32();
                 var sampleCount = dataSize / sampleSize;
