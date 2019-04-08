@@ -15,6 +15,8 @@ namespace Bonsai.Dsp
     [Description("Generates signal waveforms following any of a set of common periodic functions.")]
     public class FunctionGenerator : Source<Mat>
     {
+        const double TwoPI = 2 * Math.PI;
+
         public FunctionGenerator()
         {
             SampleRate = 44100;
@@ -80,44 +82,55 @@ namespace Bonsai.Dsp
 
         static double NormalizedPhase(double phase)
         {
-            const double TwoPI = 2 * Math.PI;
-            phase = phase + Math.Ceiling(-phase / TwoPI) * TwoPI;
-            return phase / TwoPI;
+            return phase + Math.Ceiling(-phase / TwoPI) * TwoPI;
         }
 
-        Mat CreateBuffer(int bufferLength, long sampleOffset, double timeStep)
+        static void FrequencyPhaseShift(
+            long sampleOffset,
+            double timeStep,
+            double newFrequency,
+            ref double frequency,
+            ref double phase)
+        {
+            newFrequency = Math.Max(0, newFrequency);
+            if (frequency != newFrequency)
+            {
+                phase = NormalizedPhase(sampleOffset * timeStep * TwoPI * (frequency - newFrequency) + phase);
+                frequency = newFrequency;
+            }
+        }
+
+        Mat CreateBuffer(int bufferLength, long sampleOffset, double frequency, double phase)
         {
             var buffer = new double[bufferLength];
-            var frequency = Math.Max(0, Frequency);
             if (frequency > 0)
             {
                 var period = 1.0 / frequency;
-                var phase = Phase / frequency;
                 var waveform = Waveform;
                 switch (waveform)
                 {
                     default:
                     case FunctionWaveform.Sine:
-                        timeStep = timeStep * 2 * Math.PI;
+                        frequency = frequency * TwoPI;
                         for (int i = 0; i < buffer.Length; i++)
                         {
-                            buffer[i] = Math.Sin(frequency * ((i + sampleOffset) * timeStep + phase));
+                            buffer[i] = Math.Sin(frequency * (i + sampleOffset) + phase);
                         }
                         break;
                     case FunctionWaveform.Triangular:
-                        phase = NormalizedPhase(phase);
+                        phase = NormalizedPhase(phase) / TwoPI;
                         for (int i = 0; i < buffer.Length; i++)
                         {
-                            var t = frequency * ((i + sampleOffset + period / 4) * timeStep + phase);
+                            var t = frequency * (i + sampleOffset + period / 4) + phase;
                             buffer[i] = (1 - (4 * Math.Abs((t % 1) - 0.5) - 1)) - 1;
                         }
                         break;
                     case FunctionWaveform.Square:
                     case FunctionWaveform.Sawtooth:
-                        phase = NormalizedPhase(phase);
+                        phase = NormalizedPhase(phase) / TwoPI;
                         for (int i = 0; i < buffer.Length; i++)
                         {
-                            var t = frequency * ((i + sampleOffset + period / 2) * timeStep + phase);
+                            var t = frequency * (i + sampleOffset + period / 2) + phase;
                             buffer[i] = 2 * (t % 1) - 1;
                             if (waveform == FunctionWaveform.Square)
                             {
@@ -156,11 +169,15 @@ namespace Bonsai.Dsp
                             throw new InvalidOperationException("Sample rate and buffer length must be positive integers.");
                         }
 
+                        var frequency = 0.0;
+                        var phaseShift = 0.0;
                         var timeStep = 1.0 / sampleRate;
                         var playbackInterval = 1000.0 / playbackRate;
                         while (!cancellationToken.IsCancellationRequested)
                         {
-                            var buffer = CreateBuffer(bufferLength, i++ * bufferLength, timeStep);
+                            var sampleOffset = i++ * bufferLength;
+                            FrequencyPhaseShift(sampleOffset, timeStep, Frequency, ref frequency, ref phaseShift);
+                            var buffer = CreateBuffer(bufferLength, sampleOffset, frequency * timeStep, Phase + phaseShift);
                             observer.OnNext(buffer);
 
                             var sampleInterval = (int)(playbackInterval * i - stopwatch.ElapsedMilliseconds);
@@ -182,9 +199,16 @@ namespace Bonsai.Dsp
             return Observable.Defer(() =>
             {
                 var i = 0L;
+                var frequency = 0.0;
+                var phaseShift = 0.0;
                 var bufferLength = BufferLength;
                 var timeStep = 1.0 / SampleRate;
-                return source.Select(x => CreateBuffer(bufferLength, i++ * bufferLength, timeStep));
+                return source.Select(x =>
+                {
+                    var sampleOffset = i++ * bufferLength;
+                    FrequencyPhaseShift(sampleOffset, timeStep, Frequency, ref frequency, ref phaseShift);
+                    return CreateBuffer(bufferLength, sampleOffset, frequency * timeStep, Phase + phaseShift);
+                });
             });
         }
     }
