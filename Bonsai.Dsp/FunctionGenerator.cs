@@ -155,23 +155,28 @@ namespace Bonsai.Dsp
             {
                 return Task.Factory.StartNew(() =>
                 {
+                    var bufferLength = BufferLength;
+                    if (bufferLength <= 0)
+                    {
+                        throw new InvalidOperationException("Buffer length must be a positive integer.");
+                    }
+
+                    var sampleRate = SampleRate;
+                    if (sampleRate <= 0)
+                    {
+                        throw new InvalidOperationException("Sample rate must be a positive integer.");
+                    }
+
                     var i = 0L;
                     using (var sampleSignal = new ManualResetEvent(false))
                     {
                         var stopwatch = new Stopwatch();
                         stopwatch.Start();
 
-                        var bufferLength = BufferLength;
-                        var sampleRate = SampleRate;
-                        var playbackRate = (double)sampleRate / bufferLength;
-                        if (playbackRate <= 0)
-                        {
-                            throw new InvalidOperationException("Sample rate and buffer length must be positive integers.");
-                        }
-
                         var frequency = 0.0;
                         var phaseShift = 0.0;
                         var timeStep = 1.0 / sampleRate;
+                        var playbackRate = sampleRate / (double)bufferLength;
                         var playbackInterval = 1000.0 / playbackRate;
                         while (!cancellationToken.IsCancellationRequested)
                         {
@@ -198,11 +203,22 @@ namespace Bonsai.Dsp
         {
             return Observable.Defer(() =>
             {
+                var bufferLength = BufferLength;
+                if (bufferLength <= 0)
+                {
+                    throw new InvalidOperationException("Buffer length must be a positive integer.");
+                }
+
+                var sampleRate = SampleRate;
+                if (sampleRate <= 0)
+                {
+                    throw new InvalidOperationException("Sample rate must be a positive integer.");
+                }
+
                 var i = 0L;
                 var frequency = 0.0;
                 var phaseShift = 0.0;
-                var bufferLength = BufferLength;
-                var timeStep = 1.0 / SampleRate;
+                var timeStep = 1.0 / sampleRate;
                 return source.Select(x =>
                 {
                     var sampleOffset = i++ * bufferLength;
