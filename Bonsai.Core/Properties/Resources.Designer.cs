@@ -115,6 +115,15 @@ namespace Bonsai.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to load type &apos;{0}&apos;..
+        /// </summary>
+        internal static string Exception_TypeLoadException {
+            get {
+                return ResourceManager.GetString("Exception_TypeLoadException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This is a proxy for the unknown type &apos;{0}&apos;. Please install any missing packages or replace this operator..
         /// </summary>
         internal static string Exception_UnknownTypeBuilder {

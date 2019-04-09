@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -36,8 +37,15 @@ namespace Bonsai.Expressions
         /// </exception>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            var typeName = GetType().FullName;
-            throw new NotImplementedException(string.Format(Resources.Exception_UnknownTypeBuilder, typeName));
+            var type = GetType();
+            var descriptionAttribute = type.GetCustomAttribute<DescriptionAttribute>();
+            if (descriptionAttribute == null)
+            {
+                var description = string.Format(Resources.Exception_UnknownTypeBuilder, type.FullName);
+                descriptionAttribute = new DescriptionAttribute(description);
+            }
+
+            throw new NotImplementedException(descriptionAttribute.Description);
         }
     }
 }

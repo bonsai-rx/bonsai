@@ -112,8 +112,12 @@ namespace Bonsai
             var types = new HashSet<Type>();
             while (reader.ReadToNextSibling(TypeNodeName))
             {
+                var type = default(Type);
                 var typeName = reader.ReadElementString();
-                var type = Type.GetType(typeName, false);
+                try { type = Type.GetType(typeName, false); }
+                catch (IOException) { }
+                catch (BadImageFormatException) { }
+                catch (TypeLoadException) { }
                 if (type == null)
                 {
                     lock (typeResolverLock)
@@ -319,15 +323,32 @@ namespace Bonsai
             public Assembly ResolveAssembly(AssemblyName assemblyName)
             {
                 try { return Assembly.Load(assemblyName); }
-                catch (IOException)
+                catch (SystemException ex)
                 {
-                    return GetDynamicAssembly(assemblyName.FullName);
+                    if (ex is IOException || ex is BadImageFormatException)
+                    {
+                        return GetDynamicAssembly(assemblyName.FullName);
+                    }
+
+                    throw;
                 }
             }
 
             public Type ResolveType(Assembly assembly, string typeName, bool ignoreCase)
             {
-                var type = assembly.GetType(typeName, false, ignoreCase);
+                Type type;
+                string message = Resources.Exception_UnknownTypeBuilder;
+                try { type = assembly.GetType(typeName, false, ignoreCase); }
+                catch (SystemException ex)
+                {
+                    if (ex is IOException || ex is BadImageFormatException || ex is TypeLoadException)
+                    {
+                        message = string.Join(" ", Resources.Exception_TypeLoadException, ex.Message);
+                        type = null;
+                    }
+                    else throw;
+                }
+
                 if (type == null)
                 {
                     var assemblyBuilder = assembly as AssemblyBuilder;
@@ -349,7 +370,7 @@ namespace Bonsai
                             typeName,
                             TypeAttributes.Public | TypeAttributes.Class,
                             typeof(UnknownTypeBuilder));
-                        var errorMessage = string.Format(Resources.Exception_UnknownTypeBuilder, typeName);
+                        var errorMessage = string.Format(message, typeBuilder.FullName);
                         var descriptionAttributeConstructor = typeof(DescriptionAttribute).GetConstructor(new[] { typeof(string) });
                         var descriptionAttributeBuilder = new CustomAttributeBuilder(descriptionAttributeConstructor, new[] { errorMessage });
                         var obsoleteAttributeConstructor = typeof(ObsoleteAttribute).GetConstructor(Type.EmptyTypes);
