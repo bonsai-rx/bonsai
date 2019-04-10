@@ -88,7 +88,9 @@ namespace Bonsai.Design.Visualizers
 
         internal virtual TimeSeriesView CreateView()
         {
-            return new TimeSeriesView();
+            var graph = new TimeSeriesView();
+            graph.NumSeries = numSeries;
+            return graph;
         }
 
         protected void AddValue(DateTime time, params object[] value)
@@ -111,7 +113,6 @@ namespace Bonsai.Design.Visualizers
         {
             graph = CreateView();
             graph.Dock = DockStyle.Fill;
-            graph.NumSeries = numSeries;
 
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
             if (visualizerService != null)

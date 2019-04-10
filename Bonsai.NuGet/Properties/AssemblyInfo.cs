@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Bonsai.NuGet")]
-[assembly: AssemblyCopyright("Copyright © Gonçalo Lopes 2011-2018")]
+[assembly: AssemblyCopyright("Copyright © Gonçalo Lopes 2011-2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
