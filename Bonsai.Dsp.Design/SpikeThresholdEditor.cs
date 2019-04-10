@@ -23,7 +23,7 @@ namespace Bonsai.Dsp.Design
         const string DeviationLabel = "SD";
 
         public SpikeThresholdEditor()
-            : base(DataSource.Input)
+            : base(DataSource.Input, typeof(Mat))
         {
         }
 

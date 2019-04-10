@@ -19,7 +19,7 @@ namespace Bonsai.Vision.Design
     public abstract class IplImageRectangleEditor : DataSourceTypeEditor
     {
         protected IplImageRectangleEditor(DataSource source)
-            : base(source)
+            : base(source, typeof(IplImage))
         {
         }
 

@@ -20,7 +20,7 @@ namespace Bonsai.Vision.Design
     public abstract class IplImageRoiEditor : DataSourceTypeEditor
     {
         protected IplImageRoiEditor(DataSource source)
-            : base(source)
+            : base(source, typeof(IplImage))
         {
         }
 
