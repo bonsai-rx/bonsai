@@ -6,6 +6,7 @@ using System.Reactive;
 using Bonsai;
 using Bonsai.Design.Visualizers;
 
+[assembly: TypeVisualizer(typeof(TimestampedTimeSeriesVisualizer<byte>), Target = typeof(Timestamped<byte>))]
 [assembly: TypeVisualizer(typeof(TimestampedTimeSeriesVisualizer<int>), Target = typeof(Timestamped<int>))]
 [assembly: TypeVisualizer(typeof(TimestampedTimeSeriesVisualizer<uint>), Target = typeof(Timestamped<uint>))]
 [assembly: TypeVisualizer(typeof(TimestampedTimeSeriesVisualizer<long>), Target = typeof(Timestamped<long>))]
