@@ -7,6 +7,7 @@ using Bonsai.Design.Visualizers;
 using ZedGraph;
 using System.Windows.Forms;
 
+[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(byte))]
 [assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(int))]
 [assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(uint))]
 [assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(long))]
