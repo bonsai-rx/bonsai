@@ -17,7 +17,7 @@ namespace Bonsai.Dsp.Design
     public class SelectChannelEditor : DataSourceTypeEditor
     {
         public SelectChannelEditor()
-            : base(DataSource.Input)
+            : base(DataSource.Input, typeof(Mat))
         {
         }
 

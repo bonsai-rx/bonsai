@@ -19,7 +19,7 @@ namespace Bonsai.Vision.Design
     public abstract class IplImageQuadrangleEditor : DataSourceTypeEditor
     {
         protected IplImageQuadrangleEditor(DataSource source)
-            : base(source)
+            : base(source, typeof(IplImage))
         {
         }
 
