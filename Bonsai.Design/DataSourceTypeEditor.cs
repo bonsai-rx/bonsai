@@ -58,7 +58,9 @@ namespace Bonsai.Design
             InspectBuilder dataSource;
             switch (Source)
             {
-                case DataSource.Input: dataSource = (InspectBuilder)workflow.Predecessors(node).First().Value; break;
+                case DataSource.Input:
+                    dataSource = (InspectBuilder)workflow.Predecessors(node).First(p => !p.Value.IsBuildDependency()).Value;
+                    break;
                 case DataSource.Output: dataSource = (InspectBuilder)node.Value; break;
                 default: throw new InvalidOperationException("The specified data source is not supported.");
             }
