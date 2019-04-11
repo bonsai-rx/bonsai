@@ -46,9 +46,10 @@ namespace Bonsai.Vision.Design
                     int baseline;
                     Size labelSize;
                     var label = i.ToString();
+                    var activity = regions[i].Activity.Val0.ToString("0.##");
                     CV.GetTextSize(label, font, out labelSize, out baseline);
-                    CV.PutText(canvas, i.ToString(), new Point(rectangle.X + RoiThickness, rectangle.Y + labelSize.Height + RoiThickness), font, color);
-                    CV.PutText(canvas, regions[i].Activity.Val0.ToString(), new Point(rectangle.X + RoiThickness, rectangle.Y - labelSize.Height - RoiThickness), font, color);
+                    CV.PutText(canvas, label, new Point(rectangle.X + RoiThickness, rectangle.Y + labelSize.Height + RoiThickness), font, color);
+                    CV.PutText(canvas, activity, new Point(rectangle.X + RoiThickness, rectangle.Y - labelSize.Height - RoiThickness), font, color);
                 }
 
                 base.Show(canvas);
