@@ -24,6 +24,7 @@ namespace Bonsai.Vision.Design
         int? selectedRoi;
         const float LineWidth = 1;
         const float PointSize = 2;
+        const double ScaleIncrement = 0.1;
         Collection<Point[]> regions = new Collection<Point[]>();
         CommandExecutor commandExecutor = new CommandExecutor();
 
@@ -263,6 +264,8 @@ namespace Bonsai.Vision.Design
 
         void Canvas_KeyDown(object sender, KeyEventArgs e)
         {
+            if (e.KeyCode == Keys.PageUp) ImageScale += ScaleIncrement;
+            if (e.KeyCode == Keys.PageDown) ImageScale -= ScaleIncrement;
             if (e.Control && e.KeyCode == Keys.Z) commandExecutor.Undo();
             if (e.Control && e.KeyCode == Keys.Y) commandExecutor.Redo();
             if (e.Control && e.KeyCode == Keys.V)

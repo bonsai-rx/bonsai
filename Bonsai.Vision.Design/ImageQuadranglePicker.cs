@@ -16,6 +16,7 @@ namespace Bonsai.Vision.Design
     {
         CommandExecutor commandExecutor = new CommandExecutor();
         Point2f[] quadrangle = new Point2f[4];
+        const double ScaleIncrement = 0.1;
         const float LineWidth = 2;
 
         public ImageQuadranglePicker()
@@ -162,6 +163,8 @@ namespace Bonsai.Vision.Design
 
         void Canvas_KeyDown(object sender, KeyEventArgs e)
         {
+            if (e.KeyCode == Keys.PageUp) ImageScale += ScaleIncrement;
+            if (e.KeyCode == Keys.PageDown) ImageScale -= ScaleIncrement;
             if (e.Control && e.KeyCode == Keys.Z) commandExecutor.Undo();
             if (e.Control && e.KeyCode == Keys.Y) commandExecutor.Redo();
         }

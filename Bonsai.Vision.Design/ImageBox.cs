@@ -21,6 +21,13 @@ namespace Bonsai.Vision.Design
         bool canvasInvalidated;
         IplImageTexture texture;
 
+        public ImageBox()
+        {
+            ImageScale = 1.0;
+        }
+
+        internal double ImageScale { get; set; }
+
         public IplImage Image
         {
             get { return image; }
@@ -46,7 +53,7 @@ namespace Bonsai.Vision.Design
         protected virtual void SetImage(IplImage image)
         {
             MakeCurrent();
-            texture.Update(image);
+            texture.Update(image, ImageScale);
             Canvas.Invalidate();
             canvasInvalidated = true;
         }
