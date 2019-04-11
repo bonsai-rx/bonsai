@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>Public release of chart visualizers for primitive types in Bonsai.</releaseNotes>
-    <copyright>Gonçalo Lopes © 2017</copyright>
+    <copyright>Gonçalo Lopes © 2019</copyright>
     <tags>Bonsai Visualizers</tags>
     <dependencies>
       <dependency id="Bonsai.Core" version="2.4.0" />

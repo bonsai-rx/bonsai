@@ -11,7 +11,7 @@
     <iconUrl>https://bitbucket.org/horizongir/bonsai/raw/7aacc64dc4647e57362ab310238591dc197fef0d/Resources/Bonsai.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>The Bonsai Starter Pack includes everything you need to build your own data processing workflows.</description>
-    <copyright>Gonçalo Lopes © 2018</copyright>
+    <copyright>Gonçalo Lopes © 2019</copyright>
     <tags>Bonsai Starter Pack Examples</tags>
     <dependencies>
       <dependency id="Bonsai.Arduino" version="2.3.0" />

@@ -11,7 +11,7 @@
     <iconUrl>https://bitbucket.org/horizongir/bonsai/raw/7aacc64dc4647e57362ab310238591dc197fef0d/Resources/Bonsai.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <copyright>Gonçalo Lopes © 2018</copyright>
+    <copyright>Gonçalo Lopes © 2019</copyright>
     <tags>Bonsai Rx Reactive Extensions Events Data Processing</tags>
   </metadata>
 </package>
