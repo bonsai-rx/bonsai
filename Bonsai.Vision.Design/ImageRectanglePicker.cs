@@ -18,6 +18,7 @@ namespace Bonsai.Vision.Design
         Rect previous;
         Rect rectangle;
         const float LineWidth = 2;
+        const double ScaleIncrement = 0.1;
         CommandExecutor commandExecutor = new CommandExecutor();
 
         public ImageRectanglePicker()
@@ -70,6 +71,8 @@ namespace Bonsai.Vision.Design
 
         void Canvas_KeyDown(object sender, KeyEventArgs e)
         {
+            if (e.KeyCode == Keys.PageUp) ImageScale += ScaleIncrement;
+            if (e.KeyCode == Keys.PageDown) ImageScale -= ScaleIncrement;
             if (e.Control && e.KeyCode == Keys.Z) commandExecutor.Undo();
             if (e.Control && e.KeyCode == Keys.Y) commandExecutor.Redo();
         }

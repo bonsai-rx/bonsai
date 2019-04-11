@@ -63,20 +63,30 @@ namespace Bonsai.Vision.Design
 
         public void Update(IplImage image)
         {
+            Update(image, 1.0);
+        }
+
+        internal void Update(IplImage image, double scale)
+        {
+            var shift = 0.0;
             if (image == null) throw new ArgumentNullException("image");
             if (image.Depth != IplDepth.U8)
             {
                 double min, max;
                 Point minLoc, maxLoc;
-                normalizedImage = IplImageHelper.EnsureImageFormat(normalizedImage, image.Size, IplDepth.U8, image.Channels);
                 using (var buffer = image.Reshape(1, 0))
                 {
                     CV.MinMaxLoc(buffer, out min, out max, out minLoc, out maxLoc);
                 }
 
-                var range = max - min;
-                var scale = range > 0 ? 255.0 / range : 0;
-                var shift = range > 0 ? -min : 0;
+                var range = scale * (max - min);
+                scale = range > 0 ? 255.0 / range : 0;
+                shift = range > 0 ? -min : 0;
+            }
+
+            if (scale != 1.0 || image.Depth != IplDepth.U8)
+            {
+                normalizedImage = IplImageHelper.EnsureImageFormat(normalizedImage, image.Size, IplDepth.U8, image.Channels);
                 CV.ConvertScale(image, normalizedImage, scale, shift * scale);
                 image = normalizedImage;
             }
