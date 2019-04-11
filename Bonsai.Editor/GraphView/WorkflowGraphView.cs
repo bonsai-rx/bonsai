@@ -3012,9 +3012,18 @@ namespace Bonsai.Design
 
         static string GetTypeName(Type type)
         {
+            return GetTypeName(new CodeTypeReference(type));
+        }
+
+        static string GetTypeName(string typeName)
+        {
+            return GetTypeName(new CodeTypeReference(typeName));
+        }
+
+        static string GetTypeName(CodeTypeReference typeRef)
+        {
             using (var provider = new CSharpCodeProvider())
             {
-                var typeRef = new CodeTypeReference(type);
                 return provider.GetTypeOutput(typeRef);
             }
         }
@@ -3263,7 +3272,7 @@ namespace Bonsai.Design
         {
             ToolStripMenuItem menuItem = null;
             var emptyVisualizer = string.IsNullOrEmpty(typeName);
-            var itemText = emptyVisualizer ? Resources.ContextMenu_NoneMenuItemLabel : typeName;
+            var itemText = emptyVisualizer ? Resources.ContextMenu_NoneMenuItemLabel : GetTypeName(typeName);
             menuItem = new ToolStripMenuItem(itemText, null, delegate
             {
                 if (!menuItem.Checked)
