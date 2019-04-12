@@ -265,5 +265,50 @@ namespace Bonsai.Core.Tests
                 { 'L', 'A' },
             }, "LGHKCDEFIJAB");
         }
+
+        [TestMethod]
+        public void TopologicalSort_DanglingBranchFromMergeInput_InsertionOrder()
+        {
+            AssertOrder(new TestGraph(5)
+            {
+                { 'A', 'D' },
+                { 'B', 'D' },
+                { 'C', 'D' },
+                { 'B', 'E' }
+            }, "ABCDE");
+        }
+
+        [TestMethod]
+        public void TopologicalSort_DanglingBranchFromMergeInput_ScrambledOrder()
+        {
+            AssertOrder(new TestGraph(5)
+            {
+                { 'D', 'E', 'A' },
+                     { 'E', 'B', 'A' },
+                     { 'C', 'A' }
+            }, "CDEBA");
+        }
+
+        [TestMethod]
+        public void TopologicalSort_BranchToMergeInputScrambledConstructor_ScrambledOrder()
+        {
+            AssertOrder(new TestGraph(5)
+            {
+                { 'D', 'E', 'A' },
+                     { 'E', 'B', 'A' },
+                { 'D', 'C', 'A' }
+            }, "DEBCA");
+        }
+
+        [TestMethod]
+        public void TopologicalSort_SelfDependencyReference_InsertionOrder()
+        {
+            AssertOrder(new TestGraph(4)
+            {
+                { 'B',           'A' },
+                { 'B', 'C',      'A' },
+                     { 'C', 'D', 'A' },
+            }, "BCDA");
+        }
     }
 }

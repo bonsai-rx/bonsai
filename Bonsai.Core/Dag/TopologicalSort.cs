@@ -54,7 +54,8 @@ namespace Bonsai.Dag
                         {
                             NodeMark successorMark;
                             stack.Push(current.Node, current.Index + 1);
-                            var successor = successors[successors.Count - current.Index - 1].Target;
+                            var successorIndex = successors.Count - current.Index - 1;
+                            var successor = successors[successorIndex].Target;
                             if (marks.TryGetValue(successor, out successorMark))
                             {
                                 if (successorMark.Flag == TemporaryMark)
@@ -65,6 +66,12 @@ namespace Bonsai.Dag
 
                                 if (successorMark.Ordering != ordering)
                                 {
+                                    foreach (var dependency in successorMark.Dependencies)
+                                    {
+                                        if (dependency.Ordering == ordering) continue;
+                                        ordering.Add(dependency.Ordering, dependency.Flag);
+                                    }
+
                                     ordering.Add(successorMark.Ordering, successorMark.Flag);
                                     if (component == null) component = successorMark.Ordering.Component;
                                     else if (component != successorMark.Ordering.Component)
@@ -72,6 +79,13 @@ namespace Bonsai.Dag
                                         successorMark.Ordering.Component.Add(component);
                                         orderedComponents[component.Index] = null;
                                         component = successorMark.Ordering.Component;
+                                    }
+
+                                    for (int i = successors.Count - 1; i > successorIndex; i--)
+                                    {
+                                        var sibling = successors[i].Target;
+                                        var siblingMark = marks[sibling];
+                                        successorMark.AddDependency(siblingMark);
                                     }
                                 }
                             }
@@ -172,7 +186,7 @@ namespace Bonsai.Dag
 
             public void Add(Node<TNodeValue, TEdgeLabel> node, NodeOrdering ordering, int flag)
             {
-                NodeMark mark;
+                var mark = new NodeMark();
                 mark.Ordering = ordering;
                 mark.Flag = flag;
                 this[node] = mark;
@@ -229,10 +243,22 @@ namespace Bonsai.Dag
             public int Index;
         }
 
-        struct NodeMark
+        class NodeMark
         {
+            List<NodeMark> dependencies;
             public NodeOrdering Ordering;
             public int Flag;
+
+            public void AddDependency(NodeMark dependency)
+            {
+                if (dependencies == null) dependencies = new List<NodeMark>();
+                dependencies.Add(dependency);
+            }
+
+            public IEnumerable<NodeMark> Dependencies
+            {
+                get { return dependencies ?? Enumerable.Empty<NodeMark>(); }
+            }
         }
     }
 }
