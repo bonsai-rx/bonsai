@@ -19,11 +19,18 @@ namespace Bonsai
     {
         readonly ScriptExtensions scriptEnvironment;
         readonly PackageConfiguration packageConfiguration;
+        const string XsiAttributeValue = "http://www.w3.org/2001/XMLSchema-instance";
         const string BonsaiExtension = ".bonsai";
         const string LayoutExtension = ".layout";
         const string RepositoryPath = "Packages";
-        const string ExtensionTypeNodeName = "ExtensionTypes";
-        const string TypeNodeName = "Type";
+        const string WorkflowElementName = "Workflow";
+        const string ExpressionElementName = "Expression";
+        const string ExtensionTypeElementName = "ExtensionTypes";
+        const string IncludeWorkflowTypeName = "IncludeWorkflow";
+        const string PathAttributeName = "Path";
+        const string TypeAttributeName = "type";
+        const string TypeElementName = "Type";
+        const char AssemblySeparator = ':';
 
         public DependencyInspector(PackageConfiguration configuration)
         {
@@ -58,11 +65,34 @@ namespace Bonsai
             {
                 using (var reader = XmlReader.Create(path))
                 {
-                    reader.ReadToFollowing(ExtensionTypeNodeName);
+                    reader.ReadToFollowing(WorkflowElementName);
+                    using (var workflowReader = reader.ReadSubtree())
+                    {
+                        while (workflowReader.ReadToFollowing(ExpressionElementName))
+                        {
+                            if (!workflowReader.HasAttributes) continue;
+                            if (workflowReader.GetAttribute(TypeAttributeName, XsiAttributeValue) == IncludeWorkflowTypeName)
+                            {
+                                var includePath = workflowReader.GetAttribute(PathAttributeName);
+                                var separatorIndex = includePath != null ? includePath.IndexOf(AssemblySeparator) : -1;
+                                if (separatorIndex >= 0 && !Path.IsPathRooted(includePath))
+                                {
+                                    var assemblyName = includePath.Split(new[] { AssemblySeparator }, 2)[0];
+                                    if (!string.IsNullOrEmpty(assemblyName))
+                                    {
+                                        var assembly = Assembly.Load(assemblyName);
+                                        assemblies.Add(assembly);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    reader.ReadToFollowing(ExtensionTypeElementName);
                     reader.ReadStartElement();
 
                     assemblies.Add(typeof(WorkflowBuilder).Assembly);
-                    while (reader.ReadToNextSibling(TypeNodeName))
+                    while (reader.ReadToNextSibling(TypeElementName))
                     {
                         var typeName = reader.ReadElementString();
                         var type = Type.GetType(typeName, false);
