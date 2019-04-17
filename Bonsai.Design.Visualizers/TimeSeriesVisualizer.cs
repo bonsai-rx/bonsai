@@ -16,15 +16,15 @@ using System.Windows.Forms;
 [assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(ushort))]
 [assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(float))]
 [assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(double))]
-[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer<int, int>), Target = typeof(Tuple<int, int>))]
-[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer<float, float>), Target = typeof(Tuple<float, float>))]
-[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer<double, double>), Target = typeof(Tuple<double, double>))]
-[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer<int, int, int>), Target = typeof(Tuple<int, int, int>))]
-[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer<float, float, float>), Target = typeof(Tuple<float, float, float>))]
-[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer<double, double, double>), Target = typeof(Tuple<double, double, double>))]
-[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer<int, int, int, int>), Target = typeof(Tuple<int, int, int, int>))]
-[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer<float, float, float, float>), Target = typeof(Tuple<float, float, float, float>))]
-[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer<double, double, double, double>), Target = typeof(Tuple<double, double, double, double>))]
+[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(byte[]))]
+[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(int[]))]
+[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(uint[]))]
+[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(long[]))]
+[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(ulong[]))]
+[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(short[]))]
+[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(ushort[]))]
+[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(float[]))]
+[assembly: TypeVisualizer(typeof(TimeSeriesVisualizer), Target = typeof(double[]))]
 
 namespace Bonsai.Design.Visualizers
 {
@@ -71,47 +71,18 @@ namespace Bonsai.Design.Visualizers
             };
             return graph;
         }
-    }
-
-    public class TimeSeriesVisualizer<T1, T2> : TimeSeriesVisualizer
-    {
-        public TimeSeriesVisualizer()
-            : base(2)
-        {
-        }
 
         public override void Show(object value)
         {
-            var tuple = (Tuple<T1, T2>)value;
-            AddValue(DateTime.Now, tuple.Item1, tuple.Item2);
-        }
-    }
-
-    public class TimeSeriesVisualizer<T1, T2, T3> : TimeSeriesVisualizer
-    {
-        public TimeSeriesVisualizer()
-            : base(3)
-        {
-        }
-
-        public override void Show(object value)
-        {
-            var tuple = (Tuple<T1, T2, T3>)value;
-            AddValue(DateTime.Now, tuple.Item1, tuple.Item2, tuple.Item3);
-        }
-    }
-
-    public class TimeSeriesVisualizer<T1, T2, T3, T4> : TimeSeriesVisualizer
-    {
-        public TimeSeriesVisualizer()
-            : base(4)
-        {
-        }
-
-        public override void Show(object value)
-        {
-            var tuple = (Tuple<T1, T2, T3, T4>)value;
-            AddValue(DateTime.Now, tuple.Item1, tuple.Item2, tuple.Item3, tuple.Item4);
+            var array = value as Array;
+            if (array != null)
+            {
+                XDate time = DateTime.Now;
+                if (array.Length != graph.Chart.NumSeries) graph.Chart.NumSeries = array.Length;
+                graph.Chart.AddValues(time, array);
+                UpdateView(DateTime.Now);
+            }
+            else base.Show(value);
         }
     }
 
@@ -120,7 +91,7 @@ namespace Bonsai.Design.Visualizers
         static readonly TimeSpan TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 30);
 
         readonly int numSeries;
-        TimeSeriesView graph;
+        internal TimeSeriesView graph;
         DateTimeOffset updateTime;
 
         public TimeSeriesVisualizerBase()
@@ -145,15 +116,19 @@ namespace Bonsai.Design.Visualizers
             return graph;
         }
 
-        protected void AddValue(DateTime time, params object[] value)
+        internal void UpdateView(DateTime time)
         {
-            graph.AddValues(time, value);
-
             if ((time - updateTime) > TargetElapsedTime)
             {
                 Chart.Invalidate();
                 updateTime = time;
             }
+        }
+
+        protected void AddValue(DateTime time, params object[] value)
+        {
+            graph.AddValues(time, value);
+            UpdateView(time);
         }
 
         public override void Show(object value)

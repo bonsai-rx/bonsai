@@ -27,7 +27,15 @@ namespace Bonsai.Design.Visualizers
         public int NumSeries
         {
             get { return numSeries; }
-            set { numSeries = value; }
+            set
+            {
+                numSeries = value;
+                if (series != null)
+                {
+                    series = null;
+                    EnsureCapacity();
+                }
+            }
         }
 
         public int Capacity
@@ -131,6 +139,14 @@ namespace Bonsai.Design.Visualizers
             for (int i = 0; i < series.Length; i++)
             {
                 series[i].Add(time, Convert.ToDouble(values[i]));
+            }
+        }
+
+        public void AddValues(double time, Array values)
+        {
+            for (int i = 0; i < series.Length; i++)
+            {
+                series[i].Add(time, Convert.ToDouble(values.GetValue(i)));
             }
         }
     }
