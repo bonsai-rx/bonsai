@@ -16,6 +16,7 @@ using OpenTK;
 using Point = OpenCV.Net.Point;
 using Size = OpenCV.Net.Size;
 using Bonsai.Design;
+using System.Collections.Specialized;
 
 namespace Bonsai.Vision.Design
 {
@@ -25,7 +26,7 @@ namespace Bonsai.Vision.Design
         const float LineWidth = 1;
         const float PointSize = 2;
         const double ScaleIncrement = 0.1;
-        Collection<Point[]> regions = new Collection<Point[]>();
+        ObservableCollection<Point[]> regions = new ObservableCollection<Point[]>();
         CommandExecutor commandExecutor = new CommandExecutor();
 
         public ImageRoiPicker()
@@ -57,6 +58,9 @@ namespace Bonsai.Vision.Design
                                         let modifiedRegion = ModifierKeys.HasFlag(Keys.Control)
                                             ? ScaleRegion(region, target, ModifierKeys.HasFlag(Keys.Shift))
                                             : MoveRegion(region, target - location)
+                                        let modifiedRectangle = RegionRectangle(modifiedRegion)
+                                        where modifiedRectangle.Left >= 0 && modifiedRectangle.Top >= 0 &&
+                                              modifiedRectangle.Right < Image.Width && modifiedRectangle.Bottom < Image.Height
                                         select modifiedRegion)
                                         .Publish(ps =>
                                             ps.TakeLast(1).Do(modifiedRegion =>
@@ -348,34 +352,35 @@ namespace Bonsai.Vision.Design
             finally { regionHandle.Free(); }
         }
 
-        Rect ClipRectangle(Rect rect)
-        {
-            var clipX = rect.X < 0 ? -rect.X : 0;
-            var clipY = rect.Y < 0 ? -rect.Y : 0;
-            clipX += Math.Max(0, rect.X + rect.Width - Image.Width);
-            clipY += Math.Max(0, rect.Y + rect.Height - Image.Height);
-
-            rect.X = Math.Max(0, rect.X);
-            rect.Y = Math.Max(0, rect.Y);
-            rect.Width = rect.Width - clipX;
-            rect.Height = rect.Height - clipY;
-            return rect;
-        }
-
         Point NormalizedLocation(int x, int y)
         {
             return new Point(
-                (int)(x * Image.Width / (float)Canvas.Width),
-                (int)(y * Image.Height / (float)Canvas.Height));
+                Math.Max(0, Math.Min((int)(x * Image.Width / (float)Canvas.Width), Image.Width - 1)),
+                Math.Max(0, Math.Min((int)(y * Image.Height / (float)Canvas.Height), Image.Height - 1)));
         }
 
-        Rect NormalizedRectangle(Rect rect)
+        RectangleF RegionRectangle(Point[] region)
         {
-            return new Rect(
-                (int)(rect.X * Image.Width / (float)Canvas.Width),
-                (int)(rect.Y * Image.Height / (float)Canvas.Height),
-                (int)(rect.Width * Image.Width / (float)Canvas.Width),
-                (int)(rect.Height * Image.Width / (float)Canvas.Width));
+            var rect = new RectangleF();
+            for (int i = 0; i < region.Length; i++)
+            {
+                if (i == 0)
+                {
+                    rect.X = rect.Width = region[i].X;
+                    rect.Y = rect.Height = region[i].Y;
+                }
+                else
+                {
+                    rect.X = Math.Min(rect.X, region[i].X);
+                    rect.Y = Math.Min(rect.Y, region[i].Y);
+                    rect.Width = Math.Max(rect.Width, region[i].X);
+                    rect.Height = Math.Max(rect.Height, region[i].Y);
+                }
+            }
+
+            rect.Width = rect.Width - rect.X;
+            rect.Height = rect.Height - rect.Y;
+            return rect;
         }
 
         Tuple<int, int> NearestLine(Point[] region, Point location)
@@ -414,15 +419,10 @@ namespace Bonsai.Vision.Design
             get { return regions; }
         }
 
-        public event EventHandler RegionsChanged;
-
-        protected virtual void OnRegionsChanged(EventArgs e)
+        public event EventHandler RegionsChanged
         {
-            var handler = RegionsChanged;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            add { regions.CollectionChanged += new NotifyCollectionChangedEventHandler(value); }
+            remove { regions.CollectionChanged -= new NotifyCollectionChangedEventHandler(value); }
         }
 
         void RenderRegion(Point[] region, PrimitiveType mode, Color color, Size imageSize)
