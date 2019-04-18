@@ -26,7 +26,7 @@ namespace Bonsai.Vision.Design
         const float LineWidth = 1;
         const float PointSize = 2;
         const double ScaleIncrement = 0.1;
-        ObservableCollection<Point[]> regions = new ObservableCollection<Point[]>();
+        RegionCollection regions = new RegionCollection();
         CommandExecutor commandExecutor = new CommandExecutor();
 
         public ImageRoiPicker()
@@ -84,10 +84,10 @@ namespace Bonsai.Vision.Design
                                      .Publish(ps =>
                                          ps.TakeLast(1).Do(target =>
                                              commandExecutor.Execute(
-                                                 () => regions[selection][nearestPoint] = target,
-                                                 () => regions[selection][nearestPoint] = source))
+                                                 () => regions.SetPoint(selection, nearestPoint, target),
+                                                 () => regions.SetPoint(selection, nearestPoint, source)))
                                            .Merge(ps))
-                                     .Select(target => new Action(() => regions[selection][nearestPoint] = target)))
+                                     .Select(target => new Action(() => regions.SetPoint(selection, nearestPoint, target))))
                             .Switch();
 
             var regionInsertion = (from downEvt in mouseDown
@@ -464,6 +464,15 @@ namespace Bonsai.Vision.Design
                     RenderRegion(region, PrimitiveType.LineLoop, Color.LimeGreen, image.Size);
                     RenderRegion(region, PrimitiveType.Points, Color.Blue, image.Size);
                 }
+            }
+        }
+
+        class RegionCollection : ObservableCollection<Point[]>
+        {
+            public void SetPoint(int regionIndex, int pointIndex, Point value)
+            {
+                Items[regionIndex][pointIndex] = value;
+                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             }
         }
     }
