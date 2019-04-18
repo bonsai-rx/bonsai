@@ -24,6 +24,8 @@ namespace Bonsai.Vision.Design
         {
         }
 
+        internal bool LabelRegions { get; set; }
+
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
             return UITypeEditorEditStyle.Modal;
@@ -37,6 +39,7 @@ namespace Bonsai.Vision.Design
                 using (var visualizerDialog = new TypeVisualizerDialog())
                 {
                     var imageControl = new ImageRoiPicker();
+                    imageControl.LabelRegions = LabelRegions;
                     var regions = default(OpenCV.Net.Point[][]);
                     var propertyDescriptor = context.PropertyDescriptor;
                     if (propertyDescriptor.PropertyType == typeof(OpenCV.Net.Point[]))

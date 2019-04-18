@@ -89,6 +89,7 @@
     <Compile Include="BinaryRegionExtremesMashupVisualizer.cs" />
     <Compile Include="ContourConvexityMashupVisualizer.cs" />
     <Compile Include="CircleVisualizer.cs" />
+    <Compile Include="IplImageInputLabeledRoiEditor.cs" />
     <Compile Include="PolygonMashupVisualizer.cs" />
     <Compile Include="RectMashupVisualizer.cs" />
     <Compile Include="RectVisualizer.cs" />

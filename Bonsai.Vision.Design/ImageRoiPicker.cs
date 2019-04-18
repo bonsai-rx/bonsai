@@ -16,6 +16,8 @@ using OpenTK;
 using Point = OpenCV.Net.Point;
 using Size = OpenCV.Net.Size;
 using Bonsai.Design;
+using System.Globalization;
+using System.Drawing.Text;
 using System.Collections.Specialized;
 
 namespace Bonsai.Vision.Design
@@ -25,14 +27,19 @@ namespace Bonsai.Vision.Design
         int? selectedRoi;
         const float LineWidth = 1;
         const float PointSize = 2;
+        const int FillOpacity = 85;
         const double ScaleIncrement = 0.1;
         RegionCollection regions = new RegionCollection();
         CommandExecutor commandExecutor = new CommandExecutor();
+        IplImage labelImage;
+        IplImageTexture labelTexture;
+        bool refreshLabels;
 
         public ImageRoiPicker()
         {
             Canvas.KeyDown += Canvas_KeyDown;
             commandExecutor.StatusChanged += commandExecutor_StatusChanged;
+            regions.CollectionChanged += regions_CollectionChanged;
             var mouseDoubleClick = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseDoubleClick").Select(e => e.EventArgs);
             var mouseMove = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseMove").Select(e => e.EventArgs);
             var mouseDown = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseDown").Select(e => e.EventArgs);
@@ -159,6 +166,11 @@ namespace Bonsai.Vision.Design
             {
                 action();
             });
+        }
+
+        void regions_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            refreshLabels = true;
         }
 
         void commandExecutor_StatusChanged(object sender, EventArgs e)
@@ -406,6 +418,8 @@ namespace Bonsai.Vision.Design
                     .FirstOrDefault();
         }
 
+        public bool LabelRegions { get; set; }
+
         public int? MaxRegions { get; set; }
 
         public int? SelectedRegion
@@ -427,7 +441,7 @@ namespace Bonsai.Vision.Design
 
         void RenderRegion(Point[] region, PrimitiveType mode, Color color, Size imageSize)
         {
-            GL.Color3(color);
+            GL.Color4(color);
             GL.Begin(mode);
             for (int i = 0; i < region.Length; i++)
             {
@@ -438,31 +452,83 @@ namespace Bonsai.Vision.Design
 
         protected override void OnLoad(EventArgs e)
         {
+            if (DesignMode) return;
             GL.LineWidth(LineWidth);
             GL.PointSize(PointSize);
             GL.Enable(EnableCap.PointSmooth);
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            labelTexture = new IplImageTexture();
             base.OnLoad(e);
+        }
+
+        private void UpdateLabelTexture()
+        {
+            if (labelImage != null)
+            {
+                labelImage.SetZero();
+                using (var labelBitmap = new Bitmap(labelImage.Width, labelImage.Height, labelImage.WidthStep, System.Drawing.Imaging.PixelFormat.Format32bppArgb, labelImage.ImageData))
+                using (var graphics = Graphics.FromImage(labelBitmap))
+                using (var format = new StringFormat())
+                {
+                    graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+                    format.Alignment = StringAlignment.Center;
+                    format.LineAlignment = StringAlignment.Center;
+                    for (int i = 0; i < regions.Count; i++)
+                    {
+                        var rect = RegionRectangle(regions[i]);
+                        graphics.DrawString(i.ToString(CultureInfo.InvariantCulture), Font, Brushes.White, rect, format);
+                    }
+                }
+
+                labelTexture.Update(labelImage);
+            }
+        }
+
+        protected override void SetImage(IplImage image)
+        {
+            if (image == null || !LabelRegions) labelImage = null;
+            else if (labelImage == null || labelImage.Width != image.Width || labelImage.Height != image.Height)
+            {
+                labelImage = new IplImage(image.Size, IplDepth.U8, 4);
+                refreshLabels = true;
+            }
+            base.SetImage(image);
         }
 
         protected override void OnRenderFrame(EventArgs e)
         {
-            GL.Color3(Color.White);
             base.OnRenderFrame(e);
-
             var image = Image;
             if (image != null)
             {
                 GL.Disable(EnableCap.Texture2D);
+                var regionColor = Color.FromArgb(FillOpacity, Color.Red);
                 foreach (var region in regions.Where((region, i) => i != selectedRoi))
                 {
+                    RenderRegion(region, PrimitiveType.TriangleFan, regionColor, image.Size);
                     RenderRegion(region, PrimitiveType.LineLoop, Color.Red, image.Size);
                 }
 
                 if (selectedRoi.HasValue)
                 {
                     var region = regions[selectedRoi.Value];
+                    var selectedColor = Color.FromArgb(FillOpacity, Color.LimeGreen);
+                    RenderRegion(region, PrimitiveType.TriangleFan, selectedColor, image.Size);
                     RenderRegion(region, PrimitiveType.LineLoop, Color.LimeGreen, image.Size);
                     RenderRegion(region, PrimitiveType.Points, Color.Blue, image.Size);
+                }
+
+                GL.Color3(Color.White);
+                GL.Enable(EnableCap.Texture2D);
+                if (labelImage != null)
+                {
+                    if (refreshLabels)
+                    {
+                        UpdateLabelTexture();
+                        refreshLabels = false;
+                    }
+                    labelTexture.Draw();
                 }
             }
         }
