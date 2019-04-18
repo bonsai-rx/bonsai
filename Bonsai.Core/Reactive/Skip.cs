@@ -18,6 +18,14 @@ namespace Bonsai.Reactive
     public class Skip : Combinator
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="Skip"/> class.
+        /// </summary>
+        public Skip()
+        {
+            Count = 1;
+        }
+
+        /// <summary>
         /// Gets or sets the number of elements to skip.
         /// </summary>
         [Description("The number of elements to skip.")]
