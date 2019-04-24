@@ -15,10 +15,20 @@ namespace Bonsai.Windows.Input
         [Description("The target keys to be observed.")]
         public Keys Filter { get; set; }
 
+        [Description("Indicates whether to ignore character repetitions when a key is held down.")]
+        public bool SuppressRepetitions { get; set; }
+
         public override IObservable<Keys> Generate()
         {
-            return InterceptKeys.Instance.KeyDown
-                .Where(key => Filter == Keys.None || key == Filter);
+            Func<Keys, bool> predicate = key => Filter == Keys.None || key == Filter;
+            var source = InterceptKeys.Instance.KeyDown.Where(predicate);
+            if (SuppressRepetitions)
+            {
+                source = source
+                    .Window(() => InterceptKeys.Instance.KeyUp.Where(predicate))
+                    .SelectMany(sequence => sequence.Take(1));
+            }
+            return source;
         }
     }
 }
