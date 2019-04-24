@@ -28,6 +28,7 @@ namespace Bonsai.Expressions
     [XmlInclude(typeof(SelectManyBuilder))]
     [XmlInclude(typeof(PublishBuilder))]
     [XmlInclude(typeof(ReplayBuilder))]
+    [XmlInclude(typeof(WindowBuilder))]
     [XmlInclude(typeof(BehaviorSubjectBuilder))]
     [XmlInclude(typeof(ReplaySubjectBuilder))]
     [XmlInclude(typeof(PublishSubjectBuilder))]
