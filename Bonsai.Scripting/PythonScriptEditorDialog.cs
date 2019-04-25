@@ -48,6 +48,12 @@ namespace Bonsai.Scripting
         {
             scintilla.Text = Script;
             scintilla.EmptyUndoBuffer();
+            if (Owner != null)
+            {
+                Icon = Owner.Icon;
+                ShowIcon = true;
+            }
+
             base.OnLoad(e);
         }
 
