@@ -1,0 +1,76 @@
+﻿using ScintillaNET;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+
+namespace Bonsai.Scripting
+{
+    public partial class ExpressionScriptEditorDialog : Form
+    {
+        public ExpressionScriptEditorDialog()
+        {
+            InitializeComponent();
+            scintilla.StyleResetDefault();
+            scintilla.Styles[Style.Default].Font = "Consolas";
+            scintilla.Styles[Style.Default].Size = 10;
+            scintilla.StyleClearAll();
+
+            scintilla.CaretLineBackColor = ColorTranslator.FromHtml("#feefff");
+            scintilla.Styles[Style.Cpp.Default].ForeColor = Color.Black;
+            scintilla.Styles[Style.Cpp.Number].ForeColor = Color.Black;
+            scintilla.Styles[Style.Cpp.Character].ForeColor = ColorTranslator.FromHtml("#a31515");
+            scintilla.Styles[Style.Cpp.String].ForeColor = ColorTranslator.FromHtml("#a31515");
+            scintilla.Styles[Style.Cpp.StringEol].ForeColor = ColorTranslator.FromHtml("#a31515");
+            scintilla.Styles[Style.Cpp.Word].ForeColor = ColorTranslator.FromHtml("#0000ff");
+            scintilla.Styles[Style.Cpp.Word2].ForeColor = ColorTranslator.FromHtml("#2b91af");
+            scintilla.Lexer = Lexer.Cpp;
+
+            scintilla.SetKeywords(0, "it new as");
+            scintilla.SetKeywords(1, "Math int32");
+        }
+
+        public string Script { get; set; }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            scintilla.Text = Script;
+            scintilla.EmptyUndoBuffer();
+            if (Owner != null)
+            {
+                Icon = Owner.Icon;
+                ShowIcon = true;
+            }
+
+            base.OnLoad(e);
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape && !e.Handled)
+            {
+                Close();
+                e.Handled = true;
+            }
+
+            base.OnKeyDown(e);
+        }
+
+        private void scintilla_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter && e.Modifiers == Keys.Control)
+            {
+                okButton.PerformClick();
+            }
+        }
+
+        private void scintilla_TextChanged(object sender, EventArgs e)
+        {
+            Script = scintilla.Text;
+        }
+    }
+}
