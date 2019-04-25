@@ -659,14 +659,15 @@ namespace Bonsai.Design
                 }
             }
 
+            if (renderer == null)
+            {
+                if (node.Icon.IsIncludeElement) TryGetIconRenderer(ElementIcon.Include, out renderer);
+                else TryGetIconRenderer(ElementIcon.Default, out renderer);
+            }
+
             while (fallbackIcons != null && fallbackIcons.Count > 0)
             {
                 rendererCache.Add(fallbackIcons.Pop(), renderer);
-            }
-
-            if (renderer == null && node.Icon.IsIncludeElement)
-            {
-                TryGetIconRenderer(ElementIcon.Include, out renderer);
             }
             return renderer;
         }
