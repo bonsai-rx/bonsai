@@ -33,7 +33,7 @@ namespace Bonsai.Scripting
         [Editor(DesignTypes.MultilineStringEditor, typeof(UITypeEditor))]
         public string Description { get; set; }
         
-        [Editor(DesignTypes.MultilineStringEditor, typeof(UITypeEditor))]
+        [Editor(typeof(ExpressionScriptEditor), typeof(UITypeEditor))]
         [Description("The expression that determines the action to perform on the input elements.")]
         public string Expression { get; set; }
 
