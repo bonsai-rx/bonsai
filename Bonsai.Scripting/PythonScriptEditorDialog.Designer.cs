@@ -81,6 +81,7 @@
             this.KeyPreview = true;
             this.MinimumSize = new System.Drawing.Size(640, 320);
             this.Name = "PythonScriptEditorDialog";
+            this.ShowIcon = false;
             this.Text = "Python Script";
             this.ResumeLayout(false);
 
