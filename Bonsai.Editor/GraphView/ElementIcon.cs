@@ -22,6 +22,7 @@ namespace Bonsai.Design
         static readonly ElementIcon Combinator = new ElementIcon(ElementCategory.Combinator);
         static readonly ElementIcon Workflow = new ElementIcon(ElementCategory.Workflow);
         public static readonly ElementIcon Include = new ElementIcon(typeof(IncludeWorkflowBuilder));
+        public static readonly ElementIcon Default = new ElementIcon(typeof(ExpressionBuilder));
 
         static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
         const string SvgExtension = ".svg";
