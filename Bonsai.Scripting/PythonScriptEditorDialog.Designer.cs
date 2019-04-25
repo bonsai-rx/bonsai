@@ -45,6 +45,7 @@
             this.scintilla.TabWidth = 2;
             this.scintilla.UseTabs = false;
             this.scintilla.WrapMode = ScintillaNET.WrapMode.Word;
+            this.scintilla.KeyDown += new System.Windows.Forms.KeyEventHandler(this.scintilla_KeyDown);
             this.scintilla.TextChanged += new System.EventHandler(this.scintilla_TextChanged);
             // 
             // okButton
@@ -77,6 +78,7 @@
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.okButton);
             this.Controls.Add(this.scintilla);
+            this.KeyPreview = true;
             this.MinimumSize = new System.Drawing.Size(640, 320);
             this.Name = "PythonScriptEditorDialog";
             this.Text = "Python Script";
