@@ -30,8 +30,9 @@ namespace Bonsai.Scripting
             scintilla.Styles[Style.Cpp.Word2].ForeColor = ColorTranslator.FromHtml("#2b91af");
             scintilla.Lexer = Lexer.Cpp;
 
-            scintilla.SetKeywords(0, "it new as");
-            scintilla.SetKeywords(1, "Math int32");
+            var types = "Object Boolean Char String SByte Byte Int16 UInt16 Int32 UInt32 Int64 UInt64 Single Double Decimal DateTime DateTimeOffset TimeSpan Guid Math Convert";
+            scintilla.SetKeywords(0, "it iif new outerIt as true false null");
+            scintilla.SetKeywords(1, string.Join(" ", types, types.ToLowerInvariant()));
         }
 
         public string Script { get; set; }
