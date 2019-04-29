@@ -25,6 +25,7 @@ namespace Bonsai.Shaders
             WrapT = TextureWrapMode.Repeat;
             MinFilter = TextureMinFilter.Linear;
             MagFilter = TextureMagFilter.Linear;
+            InternalFormat = PixelInternalFormat.Rgba;
         }
 
         [Category("Render Settings")]
@@ -59,6 +60,10 @@ namespace Bonsai.Shaders
         [Category("TextureSize")]
         [Description("The optional height of the texture.")]
         public int? Height { get; set; }
+
+        [Category("TextureParameter")]
+        [Description("The internal storage format of the texture target.")]
+        public PixelInternalFormat InternalFormat { get; set; }
 
         [Category("TextureParameter")]
         [Description("Specifies wrapping parameters for the column coordinates of the texture sampler.")]
@@ -116,7 +121,7 @@ namespace Bonsai.Shaders
                             GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, depthRenderbuffer);
                             GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.DepthComponent, width, height);
                             GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, depthRenderbuffer);
-                            colorTarget = CreateRenderTarget(width, height, PixelInternalFormat.Rgba, PixelFormat.Rgba, PixelType.UnsignedByte);
+                            colorTarget = CreateRenderTarget(width, height, InternalFormat, PixelFormat.Rgba, PixelType.UnsignedByte);
                             GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, colorTarget.Id, 0);
                             GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
                             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
