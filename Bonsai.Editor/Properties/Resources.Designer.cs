@@ -259,6 +259,16 @@ namespace Bonsai.Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There was an error while reordering the selected nodes:
+        ///{0}.
+        /// </summary>
+        internal static string ReorderGraphNodes_Error {
+            get {
+                return ResourceManager.GetString("ReorderGraphNodes_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Running.
         /// </summary>
         internal static string RunningStatus {
