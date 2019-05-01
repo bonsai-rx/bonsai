@@ -654,6 +654,7 @@ namespace Bonsai.Editor
             commandExecutor.Clear();
             version = 0;
             saveVersion = 0;
+            UpdatePropertyGrid();
         }
 
         bool EnsureWorkflowFile(bool force = false)
@@ -826,13 +827,13 @@ namespace Bonsai.Editor
                 }
             }
 
+            saveWorkflowDialog.FileName = fileName;
             ResetProjectStatus();
             if (UpgradeHelper.IsDeprecated(workflowVersion))
             {
                 saveWorkflowDialog.FileName = null;
                 version++;
             }
-            else saveWorkflowDialog.FileName = fileName;
 
             UpdateTitle();
             return true;
@@ -1083,7 +1084,7 @@ namespace Bonsai.Editor
                 }
                 else if (!IsDisposed)
                 {
-                    selectionModel_SelectionChanged(this, e);
+                    UpdatePropertyGrid();
                 }
             }
         }
@@ -1606,6 +1607,11 @@ namespace Bonsai.Editor
         }
 
         private void selectionModel_SelectionChanged(object sender, EventArgs e)
+        {
+            UpdatePropertyGrid();
+        }
+
+        private void UpdatePropertyGrid()
         {
             var selectedObjects = selectionModel.SelectedNodes.Select(node =>
             {
