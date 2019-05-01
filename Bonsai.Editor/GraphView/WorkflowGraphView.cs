@@ -1060,7 +1060,14 @@ namespace Bonsai.Design
             for (int i = 0; i < reorderCommands.Count; i++)
             {
                 var node = reorderCommands[i];
-                ReorderGraphNode(node, ref targetNode, reorderCommands, selectedNodes);
+                try { ReorderGraphNode(node, ref targetNode, reorderCommands, selectedNodes); }
+                catch (InvalidOperationException ex)
+                {
+                    uiService.ShowError(ex.InnerException, Resources.ReorderGraphNodes_Error);
+                    commandExecutor.EndCompositeCommand();
+                    commandExecutor.Undo();
+                    return;
+                }
             }
 
             var updateSelectedNodes = CreateUpdateSelectionDelegate(selectedNodes);

@@ -268,4 +268,8 @@ Do you want to install Visual Studio Code?</value>
   <data name="InsertValidation_Error" xml:space="preserve">
     <value>Connecting the target nodes in the specified order would create a loop in the workflow. Consider inserting the operator as a branch.</value>
   </data>
+  <data name="ReorderGraphNodes_Error" xml:space="preserve">
+    <value>There was an error while reordering the selected nodes:
+{0}</value>
+  </data>
 </root>
