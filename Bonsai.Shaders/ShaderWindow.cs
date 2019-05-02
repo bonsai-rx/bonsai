@@ -50,7 +50,8 @@ namespace Bonsai.Shaders
             clearMask = configuration.ClearMask;
             Title = configuration.Title ?? DefaultTitle;
             CursorVisible = configuration.CursorVisible;
-            Location = configuration.Location.GetValueOrDefault(Location);
+            if (configuration.Location.HasValue) Location = configuration.Location.Value;
+            else Location = new Point(display.Width / 2 - Width / 2, display.Height / 2 - Height / 2);
             WindowBorder = configuration.WindowBorder;
             WindowState = configuration.WindowState;
             Viewport = DefaultViewport;
