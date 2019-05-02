@@ -522,6 +522,7 @@ namespace Bonsai.Editor
             else basePathLength = basePath.Length;
 
             try { workflowFiles = Directory.GetFiles(basePath, "*" + BonsaiExtension, SearchOption.AllDirectories); }
+            catch (UnauthorizedAccessException) { yield break; }
             catch (DirectoryNotFoundException) { yield break; }
 
             foreach (var fileName in workflowFiles)
