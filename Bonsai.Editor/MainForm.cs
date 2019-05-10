@@ -1913,6 +1913,7 @@ namespace Bonsai.Editor
                             createGroupToolStripMenuItem.Visible = elementCategories.Contains(ElementCategory.Nested);
                             subscribeSubjectToolStripMenuItem.Visible = false;
                             multicastSubjectToolStripMenuItem.Visible = false;
+                            insertBeforeToolStripMenuItem.Visible = true;
                         }
                         toolboxContextMenuStrip.Show(toolboxTreeView, e.X, e.Y);
                     }
