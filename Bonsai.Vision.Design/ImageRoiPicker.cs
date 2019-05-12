@@ -25,6 +25,7 @@ namespace Bonsai.Vision.Design
     class ImageRoiPicker : ImageBox
     {
         int? selectedRoi;
+        float scaleFactor = 1;
         const float LineWidth = 1;
         const float PointSize = 2;
         const double ScaleIncrement = 0.1;
@@ -452,13 +453,19 @@ namespace Bonsai.Vision.Design
         protected override void OnLoad(EventArgs e)
         {
             if (DesignMode) return;
-            GL.LineWidth(LineWidth);
-            GL.PointSize(PointSize);
+            GL.LineWidth(LineWidth * scaleFactor);
+            GL.PointSize(PointSize * scaleFactor);
             GL.Enable(EnableCap.PointSmooth);
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             labelTexture = new IplImageTexture();
             base.OnLoad(e);
+        }
+
+        protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
+        {
+            scaleFactor = factor.Width;
+            base.ScaleControl(factor, specified);
         }
 
         private void UpdateLabelTexture()
