@@ -87,12 +87,14 @@ namespace Bonsai.Vision
 
         static Mat CreateTransform(Point2f translation, double rotation, Point2f scale, Point2f pivot)
         {
-            var alpha = (float)(scale.X * Math.Cos(rotation));
-            var beta = (float)(scale.Y * Math.Sin(rotation));
+            var rcos = (float)Math.Cos(rotation);
+            var rsin = (float)Math.Sin(rotation);
+            var pivotOffsetX = -pivot.X * scale.X * rcos - pivot.Y * scale.X * rsin + pivot.X;
+            var pivotOffsetY = pivot.X * scale.Y * rsin - pivot.Y * scale.Y * rcos + pivot.Y;
             return Mat.FromArray(new float[,]
             {
-                { alpha, beta, (1 - alpha) * pivot.X - beta * pivot.Y + translation.X },
-                { -beta, alpha, beta * pivot.X + (1 - alpha) * pivot.Y + translation.Y }
+                { scale.X * rcos, scale.X * rsin, pivotOffsetX + translation.X },
+                { -scale.Y * rsin, scale.Y * rcos, pivotOffsetY + translation.Y }
             });
         }
 
