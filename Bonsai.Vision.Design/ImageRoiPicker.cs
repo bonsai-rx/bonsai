@@ -27,7 +27,6 @@ namespace Bonsai.Vision.Design
         int? selectedRoi;
         const float LineWidth = 1;
         const float PointSize = 2;
-        const int FillOpacity = 85;
         const double ScaleIncrement = 0.1;
         RegionCollection regions = new RegionCollection();
         CommandExecutor commandExecutor = new CommandExecutor();
@@ -503,18 +502,14 @@ namespace Bonsai.Vision.Design
             if (image != null)
             {
                 GL.Disable(EnableCap.Texture2D);
-                var regionColor = Color.FromArgb(FillOpacity, Color.Red);
                 foreach (var region in regions.Where((region, i) => i != selectedRoi))
                 {
-                    RenderRegion(region, PrimitiveType.TriangleFan, regionColor, image.Size);
                     RenderRegion(region, PrimitiveType.LineLoop, Color.Red, image.Size);
                 }
 
                 if (selectedRoi.HasValue)
                 {
                     var region = regions[selectedRoi.Value];
-                    var selectedColor = Color.FromArgb(FillOpacity, Color.LimeGreen);
-                    RenderRegion(region, PrimitiveType.TriangleFan, selectedColor, image.Size);
                     RenderRegion(region, PrimitiveType.LineLoop, Color.LimeGreen, image.Size);
                     RenderRegion(region, PrimitiveType.Points, Color.Blue, image.Size);
                 }
