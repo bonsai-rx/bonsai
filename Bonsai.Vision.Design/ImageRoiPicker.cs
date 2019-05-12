@@ -13,33 +13,38 @@ using Bonsai.Vision;
 using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
 using OpenTK;
-using Point = OpenCV.Net.Point;
-using Size = OpenCV.Net.Size;
 using Bonsai.Design;
 using System.Globalization;
 using System.Drawing.Text;
 using System.Collections.Specialized;
+using Point = OpenCV.Net.Point;
+using Size = OpenCV.Net.Size;
+using Font = System.Drawing.Font;
 
 namespace Bonsai.Vision.Design
 {
     class ImageRoiPicker : ImageBox
     {
+        bool disposed;
         int? selectedRoi;
         float scaleFactor = 1;
         const float LineWidth = 1;
         const float PointSize = 2;
+        const float LabelFontHeight = 35;
         const double ScaleIncrement = 0.1;
         RegionCollection regions = new RegionCollection();
         CommandExecutor commandExecutor = new CommandExecutor();
         IplImage labelImage;
         IplImageTexture labelTexture;
         bool refreshLabels;
+        Font labelFont;
 
         public ImageRoiPicker()
         {
             Canvas.KeyDown += Canvas_KeyDown;
             commandExecutor.StatusChanged += commandExecutor_StatusChanged;
             regions.CollectionChanged += regions_CollectionChanged;
+            labelFont = new Font(Font.FontFamily, Font.SizeInPoints * LabelFontHeight / Font.Height);
             var mouseDoubleClick = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseDoubleClick").Select(e => e.EventArgs);
             var mouseMove = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseMove").Select(e => e.EventArgs);
             var mouseDown = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseDown").Select(e => e.EventArgs);
@@ -483,7 +488,7 @@ namespace Bonsai.Vision.Design
                     for (int i = 0; i < regions.Count; i++)
                     {
                         var rect = RegionRectangle(regions[i]);
-                        graphics.DrawString(i.ToString(CultureInfo.InvariantCulture), Font, Brushes.White, rect, format);
+                        graphics.DrawString(i.ToString(CultureInfo.InvariantCulture), labelFont, Brushes.White, rect, format);
                     }
                 }
 
@@ -533,6 +538,27 @@ namespace Bonsai.Vision.Design
                     labelTexture.Draw();
                 }
             }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    MakeCurrent();
+                    if (labelTexture != null)
+                    {
+                        labelTexture.Dispose();
+                        labelTexture = null;
+                    }
+
+                    labelFont.Dispose();
+                    disposed = true;
+                }
+            }
+
+            base.Dispose(disposing);
         }
 
         class RegionCollection : ObservableCollection<Point[]>
