@@ -2652,6 +2652,7 @@ namespace Bonsai.Editor
             resetToolStripMenuItem.Enabled =
                 item != null &&
                 item.PropertyDescriptor != null &&
+                item.Parent.Value != null &&
                 item.PropertyDescriptor.CanResetValue(item.Parent.Value);
         }
 
