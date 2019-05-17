@@ -67,8 +67,8 @@ namespace Bonsai.Vision.Design
                                 let region = regions[selection]
                                 select (from moveEvt in mouseMove.TakeUntil(mouseUp)
                                         let target = NormalizedLocation(moveEvt.X, moveEvt.Y)
-                                        let modifiedRegion = ModifierKeys.HasFlag(Keys.Control)
-                                            ? ScaleRegion(region, target, ModifierKeys.HasFlag(Keys.Shift))
+                                        let modifiedRegion = ModifierKeys.HasFlag(Keys.Shift)
+                                            ? ScaleRegion(region, target, ModifierKeys.HasFlag(Keys.Control))
                                             : MoveRegion(region, target - location)
                                         let modifiedRectangle = RegionRectangle(modifiedRegion)
                                         where modifiedRectangle.Left >= 0 && modifiedRectangle.Top >= 0 &&
