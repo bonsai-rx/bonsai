@@ -30,6 +30,7 @@ namespace Bonsai.Vision.Design
         float scaleFactor = 1;
         const float LineWidth = 1;
         const float PointSize = 2;
+        const int FillOpacity = 85;
         const float LabelFontHeight = 35;
         const double ScaleIncrement = 0.1;
         RegionCollection regions = new RegionCollection();
@@ -58,7 +59,7 @@ namespace Bonsai.Vision.Design
                                                orderby distance
                                                select region.i)
                                                .FirstOrDefault()
-                              select new Action(() => selectedRoi = selection);
+                              select new Action(() => SelectedRegion = selection);
 
             var roiMoveScale = (from downEvt in mouseDown
                                 where downEvt.Button == MouseButtons.Left && selectedRoi.HasValue
@@ -115,7 +116,7 @@ namespace Bonsai.Vision.Design
                                                ps.TakeLast(1).Do(region =>
                                                    commandExecutor.Execute(
                                                        () => { if (count == regions.Count) AddRegion(region); },
-                                                       () => { regions.Remove(region); selectedRoi = null; }))
+                                                       () => { regions.Remove(region); SelectedRegion = null; }))
                                                  .Merge(ps))
                                            .Select(region => new Action(() =>
                                            {
@@ -289,7 +290,7 @@ namespace Bonsai.Vision.Design
                     var selection = selectedRoi;
                     commandExecutor.Execute(
                         () => AddRegion(roi),
-                        () => { regions.Remove(roi); selectedRoi = selection; });
+                        () => { regions.Remove(roi); SelectedRegion = selection; });
                 }
                 catch (ArgumentException) { }
                 catch (InvalidCastException) { }
@@ -315,8 +316,8 @@ namespace Bonsai.Vision.Design
                     var selection = selectedRoi.Value;
                     var region = regions[selection];
                     commandExecutor.Execute(
-                        () => { regions.RemoveAt(selection); selectedRoi = null; },
-                        () => { regions.Insert(selection, region); selectedRoi = selection; });
+                        () => { regions.RemoveAt(selection); SelectedRegion = null; },
+                        () => { regions.Insert(selection, region); SelectedRegion = selection; });
                 }
             }
         }
@@ -325,7 +326,7 @@ namespace Bonsai.Vision.Design
         {
             if (keyData == Keys.Tab && regions.Count > 0)
             {
-                selectedRoi = ((selectedRoi ?? 0) + 1) % regions.Count;
+                SelectedRegion = ((selectedRoi ?? 0) + 1) % regions.Count;
                 Canvas.Invalidate();
             }
 
@@ -335,7 +336,7 @@ namespace Bonsai.Vision.Design
         void AddRegion(Point[] region)
         {
             regions.Add(region);
-            selectedRoi = regions.Count - 1;
+            SelectedRegion = regions.Count - 1;
         }
 
         double TestIntersection(Point[] region, Point point)
@@ -426,7 +427,11 @@ namespace Bonsai.Vision.Design
         public int? SelectedRegion
         {
             get { return selectedRoi; }
-            set { selectedRoi = value; }
+            set
+            {
+                selectedRoi = value;
+                refreshLabels = true;
+            }
         }
 
         public Collection<Point[]> Regions
@@ -476,6 +481,8 @@ namespace Bonsai.Vision.Design
                 labelImage.SetZero();
                 using (var labelBitmap = new Bitmap(labelImage.Width, labelImage.Height, labelImage.WidthStep, System.Drawing.Imaging.PixelFormat.Format32bppArgb, labelImage.ImageData))
                 using (var graphics = Graphics.FromImage(labelBitmap))
+                using (var regionBrush = new SolidBrush(Color.FromArgb(FillOpacity, Color.Red)))
+                using (var selectedBrush = new SolidBrush(Color.FromArgb(FillOpacity, Color.LimeGreen)))
                 using (var format = new StringFormat())
                 {
                     graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
@@ -484,6 +491,8 @@ namespace Bonsai.Vision.Design
                     for (int i = 0; i < regions.Count; i++)
                     {
                         var rect = RegionRectangle(regions[i]);
+                        var brush = i == selectedRoi ? selectedBrush : regionBrush;
+                        graphics.FillPolygon(brush, Array.ConvertAll(regions[i], point => new System.Drawing.Point(point.X, point.Y)));
                         graphics.DrawString(i.ToString(CultureInfo.InvariantCulture), labelFont, Brushes.White, rect, format);
                     }
                 }
