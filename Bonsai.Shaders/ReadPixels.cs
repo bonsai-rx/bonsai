@@ -39,7 +39,7 @@ namespace Bonsai.Shaders
                         var rect = RegionOfInterest.GetValueOrDefault(new Rect(0, 0, window.Width, window.Height));
                         var result = new IplImage(new Size(rect.Width, rect.Height), IplDepth.U8, 3);
                         rect.Y = window.Height - (rect.Y + rect.Height);
-                        TextureHelper.UpdatePixelStore(result, out pixelFormat, out pixelType);
+                        TextureHelper.PackPixelStore(result, out pixelFormat, out pixelType);
                         GL.ReadPixels(rect.X, rect.Y, rect.Width, rect.Height, pixelFormat, pixelType, result.ImageData);
                         if (flipBuffer == null || flipBuffer.Size != result.Size)
                         {
