@@ -107,10 +107,9 @@ namespace Bonsai.Vision.Design
                                    let count = regions.Count
                                    let origin = NormalizedLocation(downEvt.X, downEvt.Y)
                                    select (from moveEvt in mouseMove.TakeUntil(mouseUp)
-                                           let location = NormalizedLocation(moveEvt.X, moveEvt.Y)
-                                           select ModifierKeys.HasFlag(Keys.Control) ? ModifierKeys.HasFlag(Keys.Shift)
-                                               ? CreateCircularRegion(origin, location)
-                                               : CreateEllipseRegion(origin, location)
+                                           let location = EnsureSizeRatio(origin, NormalizedLocation(moveEvt.X, moveEvt.Y), ModifierKeys.HasFlag(Keys.Control))
+                                           select ModifierKeys.HasFlag(Keys.Shift)
+                                               ? CreateEllipseRegion(origin, location)
                                                : CreateRectangularRegion(origin, location))
                                            .Publish(ps =>
                                                ps.TakeLast(1).Do(region =>
@@ -203,23 +202,6 @@ namespace Bonsai.Vision.Design
                 var angle = i * 2 * Math.PI / region.Length;
                 region[i].X = (int)Math.Round(Math.Cos(angle) * scaleX + center.X);
                 region[i].Y = (int)Math.Round(Math.Sin(angle) * scaleY + center.Y);
-            }
-
-            return region;
-        }
-
-        static Point[] CreateCircularRegion(Point origin, Point location)
-        {
-            var region = new Point[36];
-            var diameterX = location.X - origin.X;
-            var diameterY = location.Y - origin.Y;
-            var radius = Math.Sqrt(diameterX * diameterX + diameterY * diameterY) / 2;
-            var center = new Point2f(origin.X + diameterX / 2f, origin.Y + diameterY / 2f);
-            for (int i = 0; i < region.Length; i++)
-            {
-                var angle = i * 2 * Math.PI / region.Length;
-                region[i].X = (int)Math.Round(Math.Cos(angle) * radius + center.X);
-                region[i].Y = (int)Math.Round(Math.Sin(angle) * radius + center.Y);
             }
 
             return region;
@@ -374,6 +356,20 @@ namespace Bonsai.Vision.Design
             return new Point(
                 Math.Max(0, Math.Min((int)(x * Image.Width / (float)Canvas.Width), Image.Width - 1)),
                 Math.Max(0, Math.Min((int)(y * Image.Height / (float)Canvas.Height), Image.Height - 1)));
+        }
+
+        Point EnsureSizeRatio(Point origin, Point location, bool square)
+        {
+            if (square)
+            {
+                var dx = location.X - origin.X;
+                var dy = location.Y - origin.Y;
+                var width = Math.Abs(dx);
+                var height = Math.Abs(dy);
+                if (width < height) location.Y -= Math.Sign(dy) * (height - width);
+                else location.X -= Math.Sign(dx) * (width - height);
+            }
+            return location;
         }
 
         RectangleF RegionRectangle(Point[] region)
