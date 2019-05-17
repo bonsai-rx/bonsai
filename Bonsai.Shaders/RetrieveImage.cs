@@ -42,7 +42,7 @@ namespace Bonsai.Shaders
                     GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureWidth, out width);
                     GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureHeight, out height);
                     var result = new IplImage(new Size(width, height), Depth, Channels);
-                    TextureHelper.UpdatePixelStore(result, out pixelFormat, out pixelType);
+                    TextureHelper.PackPixelStore(result, out pixelFormat, out pixelType);
                     GL.GetTexImage(TextureTarget.Texture2D, 0, pixelFormat, pixelType, result.ImageData);
 
                     var flipMode = FlipMode;
