@@ -23,6 +23,7 @@ namespace Bonsai.Vision.Design
     public class RegionActivityCollectionVisualizer : IplImageVisualizer
     {
         const int RoiThickness = 1;
+        const float DefaultDpiWidth = 6;
         static readonly Scalar InactiveRoi = Scalar.Rgb(255, 0, 0);
         static readonly Scalar ActiveRoi = Scalar.Rgb(0, 255, 0);
 
@@ -31,6 +32,7 @@ namespace Bonsai.Vision.Design
         IplImage canvas;
         IDisposable inputHandle;
         RegionActivityCollection regions;
+        float scaleFactor;
 
         public override void Show(object value)
         {
@@ -88,8 +90,13 @@ namespace Bonsai.Vision.Design
                 inputHandle = imageInput.Subscribe(value => input = (IplImage)value);
             }
 
-            font = new Font(1);
             base.Load(provider);
+            font = new Font(1);
+            VisualizerCanvas.Load += delegate
+            {
+                var scaleFactor = VisualizerCanvas.AutoScaleDimensions.Width / DefaultDpiWidth;
+                GL.LineWidth(RoiThickness * scaleFactor);
+            };
         }
 
         public override void Unload()
