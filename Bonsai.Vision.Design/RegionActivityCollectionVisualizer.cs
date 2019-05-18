@@ -82,18 +82,10 @@ namespace Bonsai.Vision.Design
 
         public override void Load(IServiceProvider provider)
         {
-            var workflow = (ExpressionBuilderGraph)provider.GetService(typeof(ExpressionBuilderGraph));
-            var context = (ITypeVisualizerContext)provider.GetService(typeof(ITypeVisualizerContext));
-            if (workflow != null && context != null)
+            var imageInput = VisualizerHelper.ImageInput(provider);
+            if (imageInput != null)
             {
-                var predecessorNode = workflow.Where(node => node.Value == context.Source)
-                                              .Select(node => workflow.Predecessors(node).FirstOrDefault())
-                                              .FirstOrDefault();
-                if (predecessorNode != null)
-                {
-                    var inputInspector = (InspectBuilder)predecessorNode.Value;
-                    inputHandle = inputInspector.Output.Merge().Subscribe(value => input = (IplImage)value);
-                }
+                inputHandle = imageInput.Subscribe(value => input = (IplImage)value);
             }
 
             font = new Font(1);
