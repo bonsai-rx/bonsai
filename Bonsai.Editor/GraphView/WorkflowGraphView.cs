@@ -413,7 +413,7 @@ namespace Bonsai.Design
         private void InitializeVisualizerMapping()
         {
             if (workflow == null) return;
-            visualizerMapping = (from node in workflow
+            visualizerMapping = (from node in workflow.TopologicalSort()
                                  let key = (InspectBuilder)node.Value
                                  let graphNode = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == key)
                                  let visualizerLauncher = CreateVisualizerLauncher(key, graphNode) where visualizerLauncher != null
