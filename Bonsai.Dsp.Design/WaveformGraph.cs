@@ -22,7 +22,9 @@ namespace Bonsai.Dsp.Design
     {
         const float TitleFontSize = 10;
         const float YAxisMinSpace = 50;
-        const int MaxSamplePoints = 1000;
+        const int MinSamplePoints = 1000;
+        const int SamplePointScale = 16000;
+        const int MaxSamplePoints = 8000;
         const float DefaultPaneMargin = 10;
         const float DefaultPaneTitleGap = 0.5f;
         const float TileMasterPaneHorizontalMargin = 1;
@@ -40,6 +42,7 @@ namespace Bonsai.Dsp.Design
         int channelsPerPage;
         int pageCount;
         int channelCount;
+        int maxPointsPerChannel;
         bool overlayChannels;
         int historyLength;
         double channelOffset;
@@ -431,7 +434,7 @@ namespace Bonsai.Dsp.Design
                     else if (replayDithering) random.Mode = ReplayMode.Replaying;
                     
                     var points = (DownsampledPointPairList)curve.Points;
-                    points.SetBounds(pane.XAxis.Scale.Min, pane.XAxis.Scale.Max, MaxSamplePoints);
+                    points.SetBounds(pane.XAxis.Scale.Min, pane.XAxis.Scale.Max, maxPointsPerChannel);
                 }
             }
 
@@ -457,6 +460,7 @@ namespace Bonsai.Dsp.Design
             if (values == null || values.Length != channels || channelCountChanged)
             {
                 values = new DownsampledPointPairList[channels];
+                maxPointsPerChannel = Math.Max(MinSamplePoints, Math.Min(SamplePointScale / channelCount, MaxSamplePoints));
                 ResetWaveform();
             }
         }
@@ -513,7 +517,7 @@ namespace Bonsai.Dsp.Design
                 points.Add(samples[j] + channelPane * ChannelOffset);
             }
 
-            if (setBounds) points.SetBounds(0, points.HistoryLength, MaxSamplePoints);
+            if (setBounds) points.SetBounds(0, points.HistoryLength, maxPointsPerChannel);
             if (overlayChannels || seriesIndex >= seriesCount)
             {
                 InsertTimeSeries(channelPane, channelLabel);
@@ -569,7 +573,7 @@ namespace Bonsai.Dsp.Design
                     points.Add(samples[channel * columns + j] + i * ChannelOffset);
                 }
 
-                if (setBounds) points.SetBounds(0, points.HistoryLength, MaxSamplePoints);
+                if (setBounds) points.SetBounds(0, points.HistoryLength, maxPointsPerChannel);
             }
 
             random.Mode = ReplayMode.None;
