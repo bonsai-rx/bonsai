@@ -158,7 +158,7 @@ namespace Bonsai.Design
                 var dialogMashupType = dialogMashup.GetType();
                 var visualizerType = visualizerDialog.visualizer.Value.GetType();
                 var mashupVisualizer = default(Type);
-                while (dialogMashupType != null)
+                while (dialogMashupType != null && dialogMashupType != typeof(DialogMashupVisualizer))
                 {
                     var mashup = typeof(VisualizerMashup<,>).MakeGenericType(dialogMashupType, visualizerType);
                     mashupVisualizer = editorService.GetTypeVisualizers(mashup).SingleOrDefault();
