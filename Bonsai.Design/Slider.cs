@@ -26,6 +26,8 @@ namespace Bonsai.Design
             trackBar.Top = -10;
         }
 
+        public TypeConverter Converter { get; set; }
+
         public double Minimum
         {
             get { return minimum; }
@@ -100,7 +102,8 @@ namespace Bonsai.Design
         {
             if (decimalPlaces.HasValue) value = Math.Round(value, decimalPlaces.Value);
             value = Math.Max(minimum, Math.Min(value, maximum));
-            valueLabel.Text = value.ToString(CultureInfo.InvariantCulture);
+            if (Converter != null) valueLabel.Text = Converter.ConvertToInvariantString(value);
+            else valueLabel.Text = value.ToString(CultureInfo.InvariantCulture);
             this.value = value;
         }
 

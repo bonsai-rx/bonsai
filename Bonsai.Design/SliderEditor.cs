@@ -70,6 +70,7 @@ namespace Bonsai.Design
 
                 var changed = false;
                 var cancelled = false;
+                slider.Converter = propertyDescriptor.Converter;
                 slider.Value = Math.Max(slider.Minimum, Math.Min(Convert.ToDouble(value), slider.Maximum));
                 slider.PreviewKeyDown += (sender, e) => cancelled = e.KeyCode == Keys.Escape;
                 slider.ValueChanged += (sender, e) =>
