@@ -20,7 +20,7 @@ namespace Bonsai.Dsp.Design
 
         public WaveformThresholdPicker()
         {
-            Chart.IsEnableZoom = false;
+            Graph.IsEnableZoom = false;
             InitializeReactiveEvents();
         }
 
@@ -48,13 +48,13 @@ namespace Bonsai.Dsp.Design
         private void InitializeReactiveEvents()
         {
             var scheduler = new ControlScheduler(this);
-            var thresholdDrag = (from mouseDown in Chart.MouseDown
+            var thresholdDrag = (from mouseDown in Graph.MouseDown
                                  where mouseDown.Button == MouseButtons.Left
-                                 let pane = Chart.MasterPane.FindChartRect(mouseDown.Location)
+                                 let pane = Graph.MasterPane.FindChartRect(mouseDown.Location)
                                  where pane != null
                                  let firstThreshold = GetLocationValue(pane, mouseDown.Location)
                                  select Observable.Return(firstThreshold).Concat(
-                                        (from mouseMove in Chart.MouseMove.TakeUntil(Chart.MouseUp)
+                                        (from mouseMove in Graph.MouseMove.TakeUntil(Graph.MouseUp)
                                                                     .Sample(PickerRefreshInterval, scheduler)
                                          select GetLocationValue(pane, mouseMove.Location)))
                                          .Select(threshold => new { pane, threshold }))
@@ -92,7 +92,7 @@ namespace Bonsai.Dsp.Design
 
         private double[] EnsureThreshold()
         {
-            var channelCount = Chart.ChannelCount;
+            var channelCount = Graph.ChannelCount;
             var thresholdValues = Threshold ?? new double[channelCount];
             if (thresholdValues.Length != channelCount) Array.Resize(ref thresholdValues, channelCount);
             Threshold = thresholdValues;
@@ -104,7 +104,7 @@ namespace Bonsai.Dsp.Design
             if (!initialized)
             {
                 var thresholdValues = EnsureThreshold();
-                foreach (var pane in Chart.MasterPane.PaneList)
+                foreach (var pane in Graph.MasterPane.PaneList)
                 {
                     var channelIndex = (int)pane.Tag;
                     var threshold = thresholdValues[channelIndex];

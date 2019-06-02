@@ -78,8 +78,8 @@ namespace Bonsai.Design.Visualizers
             if (array != null)
             {
                 XDate time = DateTime.Now;
-                if (array.Length != graph.Chart.NumSeries) graph.Chart.NumSeries = array.Length;
-                graph.Chart.AddValues(time, array);
+                if (array.Length != view.Graph.NumSeries) view.Graph.NumSeries = array.Length;
+                view.Graph.AddValues(time, array);
                 UpdateView(DateTime.Now);
             }
             else base.Show(value);
@@ -91,7 +91,7 @@ namespace Bonsai.Design.Visualizers
         static readonly TimeSpan TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 30);
 
         readonly int numSeries;
-        internal TimeSeriesView graph;
+        internal TimeSeriesView view;
         DateTimeOffset updateTime;
 
         public TimeSeriesVisualizerBase()
@@ -104,9 +104,9 @@ namespace Bonsai.Design.Visualizers
             this.numSeries = numSeries;
         }
 
-        protected ChartControl Chart
+        protected GraphControl Graph
         {
-            get { return graph.Chart; }
+            get { return view.Graph; }
         }
 
         internal virtual TimeSeriesView CreateView()
@@ -120,14 +120,14 @@ namespace Bonsai.Design.Visualizers
         {
             if ((time - updateTime) > TargetElapsedTime)
             {
-                Chart.Invalidate();
+                Graph.Invalidate();
                 updateTime = time;
             }
         }
 
         protected void AddValue(DateTime time, params object[] value)
         {
-            graph.AddValues(time, value);
+            view.AddValues(time, value);
             UpdateView(time);
         }
 
@@ -138,20 +138,20 @@ namespace Bonsai.Design.Visualizers
 
         public override void Load(IServiceProvider provider)
         {
-            graph = CreateView();
-            graph.Dock = DockStyle.Fill;
+            view = CreateView();
+            view.Dock = DockStyle.Fill;
 
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
             if (visualizerService != null)
             {
-                visualizerService.AddControl(graph);
+                visualizerService.AddControl(view);
             }
         }
 
         public override void Unload()
         {
-            graph.Dispose();
-            graph = null;
+            view.Dispose();
+            view = null;
         }
     }
 }

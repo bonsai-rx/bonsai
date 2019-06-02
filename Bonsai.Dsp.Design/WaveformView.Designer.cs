@@ -40,7 +40,7 @@
             this.ymaxStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.autoScaleYButton = new System.Windows.Forms.ToolStripButton();
             this.overlayModeSplitButton = new System.Windows.Forms.ToolStripSplitButton();
-            this.chart = new Bonsai.Dsp.Design.WaveformGraph();
+            this.graph = new Bonsai.Dsp.Design.WaveformGraph();
             this.historyLengthNumericUpDown = new Bonsai.Dsp.Design.ToolStripLabeledNumericUpDown();
             this.bufferLengthNumericUpDown = new Bonsai.Dsp.Design.ToolStripLabeledNumericUpDown();
             this.channelOffsetNumericUpDown = new Bonsai.Dsp.Design.ToolStripLabeledNumericUpDown();
@@ -156,24 +156,24 @@
             this.overlayModeSplitButton.Size = new System.Drawing.Size(32, 20);
             this.overlayModeSplitButton.ButtonClick += new System.EventHandler(this.overlayModeSplitButton_Click);
             // 
-            // chart
+            // graph
             // 
-            this.chart.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chart.Location = new System.Drawing.Point(0, 0);
-            this.chart.Name = "chart";
-            this.chart.ScrollGrace = 0D;
-            this.chart.ScrollMaxX = 0D;
-            this.chart.ScrollMaxY = 0D;
-            this.chart.ScrollMaxY2 = 0D;
-            this.chart.ScrollMinX = 0D;
-            this.chart.ScrollMinY = 0D;
-            this.chart.ScrollMinY2 = 0D;
-            this.chart.Size = new System.Drawing.Size(400, 218);
-            this.chart.TabIndex = 2;
-            this.chart.ZoomEvent += new ZedGraph.ZedGraphControl.ZoomEventHandler(this.chart_ZoomEvent);
-            this.chart.MouseMoveEvent += new ZedGraph.ZedGraphControl.ZedMouseEventHandler(this.chart_MouseMoveEvent);
-            this.chart.KeyDown += new System.Windows.Forms.KeyEventHandler(this.chart_KeyDown);
-            this.chart.MouseClick += new System.Windows.Forms.MouseEventHandler(this.chart_MouseClick);
+            this.graph.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.graph.Location = new System.Drawing.Point(0, 0);
+            this.graph.Name = "graph";
+            this.graph.ScrollGrace = 0D;
+            this.graph.ScrollMaxX = 0D;
+            this.graph.ScrollMaxY = 0D;
+            this.graph.ScrollMaxY2 = 0D;
+            this.graph.ScrollMinX = 0D;
+            this.graph.ScrollMinY = 0D;
+            this.graph.ScrollMinY2 = 0D;
+            this.graph.Size = new System.Drawing.Size(400, 218);
+            this.graph.TabIndex = 2;
+            this.graph.ZoomEvent += new ZedGraph.ZedGraphControl.ZoomEventHandler(this.graph_ZoomEvent);
+            this.graph.MouseMoveEvent += new ZedGraph.ZedGraphControl.ZedMouseEventHandler(this.graph_MouseMoveEvent);
+            this.graph.KeyDown += new System.Windows.Forms.KeyEventHandler(this.graph_KeyDown);
+            this.graph.MouseClick += new System.Windows.Forms.MouseEventHandler(this.graph_MouseClick);
             // 
             // historyLengthNumericUpDown
             // 
@@ -291,7 +291,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.chart);
+            this.Controls.Add(this.graph);
             this.Controls.Add(this.statusStrip);
             this.Name = "WaveformGraph";
             this.Size = new System.Drawing.Size(400, 240);
@@ -306,7 +306,7 @@
 
         private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ToolStripButton autoScaleYButton;
-        private WaveformGraph chart;
+        private WaveformGraph graph;
         private System.Windows.Forms.ToolStripStatusLabel cursorStatusLabel;
         private System.Windows.Forms.ToolStripStatusLabel scaleYStatusLabel;
         private System.Windows.Forms.ToolStripStatusLabel yminStatusLabel;

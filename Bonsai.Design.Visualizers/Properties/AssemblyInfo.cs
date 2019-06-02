@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Bonsai - Visualizers Library")]
-[assembly: AssemblyDescription("Bonsai Visualizers Library containing chart visualizations for primitive types in Bonsai.")]
+[assembly: AssemblyDescription("Bonsai Visualizers Library containing graph visualizations for primitive types in Bonsai.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Gonçalo Lopes")]
 [assembly: AssemblyProduct("Bonsai.Design.Visualizers")]

@@ -13,7 +13,7 @@ namespace Bonsai.Design.Visualizers
     {
         int stateIndex;
         const int StateColumns = 10;
-        ChartControl chart;
+        GraphControl graph;
         RollingPointPairList values;
 
         object state;
@@ -24,9 +24,9 @@ namespace Bonsai.Design.Visualizers
             values = new RollingPointPairList(StateColumns);
         }
 
-        protected ChartControl Chart
+        protected GraphControl Graph
         {
-            get { return chart; }
+            get { return graph; }
         }
 
         protected void AddValue(DateTime time, object value)
@@ -49,10 +49,10 @@ namespace Bonsai.Design.Visualizers
                 {
                     textLabels[i] = (string)values[i].Tag;
                 }
-                chart.GraphPane.XAxis.Scale.TextLabels = textLabels;
+                graph.GraphPane.XAxis.Scale.TextLabels = textLabels;
             }
 
-            chart.Invalidate();
+            graph.Invalidate();
         }
 
         public override void Show(object value)
@@ -62,30 +62,30 @@ namespace Bonsai.Design.Visualizers
 
         public override void Load(IServiceProvider provider)
         {
-            chart = new ChartControl();
-            chart.Dock = DockStyle.Fill;
-            chart.GraphPane.Chart.Border.IsVisible = true;
-            chart.GraphPane.YAxis.MajorGrid.IsVisible = true;
-            chart.GraphPane.YAxis.MajorGrid.DashOff = 0;
-            chart.GraphPane.YAxis.Title.IsVisible = true;
-            chart.GraphPane.YAxis.Title.Text = "Time (s)";
-            chart.GraphPane.XAxis.Type = AxisType.Text;
-            chart.GraphPane.XAxis.Scale.FontSpec.Angle = 90;
-            chart.GraphPane.XAxis.MajorTic.IsInside = false;
-            chart.GraphPane.XAxis.MinorTic.IsAllTics = false;
-            chart.GraphPane.XAxis.MajorGrid.IsVisible = true;
-            chart.GraphPane.XAxis.MajorGrid.DashOff = 0;
-            Chart.GraphPane.XAxis.Title.IsVisible = true;
-            Chart.GraphPane.XAxis.Title.Text = "State";
+            graph = new GraphControl();
+            graph.Dock = DockStyle.Fill;
+            graph.GraphPane.Chart.Border.IsVisible = true;
+            graph.GraphPane.YAxis.MajorGrid.IsVisible = true;
+            graph.GraphPane.YAxis.MajorGrid.DashOff = 0;
+            graph.GraphPane.YAxis.Title.IsVisible = true;
+            graph.GraphPane.YAxis.Title.Text = "Time (s)";
+            graph.GraphPane.XAxis.Type = AxisType.Text;
+            graph.GraphPane.XAxis.Scale.FontSpec.Angle = 90;
+            graph.GraphPane.XAxis.MajorTic.IsInside = false;
+            graph.GraphPane.XAxis.MinorTic.IsAllTics = false;
+            graph.GraphPane.XAxis.MajorGrid.IsVisible = true;
+            graph.GraphPane.XAxis.MajorGrid.DashOff = 0;
+            Graph.GraphPane.XAxis.Title.IsVisible = true;
+            Graph.GraphPane.XAxis.Title.Text = "State";
             var barSeries = new BarItem(string.Empty, values, Color.Navy);
-            barSeries.Bar.Fill.Brush = new SolidBrush(chart.GetNextColor());
+            barSeries.Bar.Fill.Brush = new SolidBrush(graph.GetNextColor());
             barSeries.Bar.Border.IsVisible = false;
-            chart.GraphPane.CurveList.Add(barSeries);
+            graph.GraphPane.CurveList.Add(barSeries);
 
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
             if (visualizerService != null)
             {
-                visualizerService.AddControl(chart);
+                visualizerService.AddControl(graph);
             }
         }
 
@@ -94,8 +94,8 @@ namespace Bonsai.Design.Visualizers
             values.Clear();
             state = null;
 
-            chart.Dispose();
-            chart = null;
+            graph.Dispose();
+            graph = null;
         }
     }
 }

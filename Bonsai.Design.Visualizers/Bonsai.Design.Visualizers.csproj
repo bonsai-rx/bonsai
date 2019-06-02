@@ -70,6 +70,9 @@
     <Compile Include="ChartControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="GraphControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="StateTimeVisualizer.cs" />

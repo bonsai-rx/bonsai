@@ -25,7 +25,7 @@ namespace Bonsai.Vision.Design
         CurveItem val1;
         CurveItem val2;
         CurveItem val3;
-        ChartControl chart;
+        GraphControl graph;
         DateTimeOffset updateTime;
 
         CurveItem CreateHistogramCurve(Color color)
@@ -34,7 +34,7 @@ namespace Bonsai.Vision.Design
             series.Line.IsAntiAlias = true;
             series.Line.IsOptimizedDraw = true;
             series.Label.IsVisible = false;
-            chart.GraphPane.CurveList.Add(series);
+            graph.GraphPane.CurveList.Add(series);
             return series;
         }
 
@@ -51,7 +51,7 @@ namespace Bonsai.Vision.Design
         {
             if (histogram == null)
             {
-                chart.GraphPane.CurveList.Remove(values);
+                graph.GraphPane.CurveList.Remove(values);
                 values = null;
             }
             else
@@ -69,7 +69,7 @@ namespace Bonsai.Vision.Design
         {
             if (value == null)
             {
-                chart.GraphPane.CurveList.Clear();
+                graph.GraphPane.CurveList.Clear();
                 val0 = val1 = val2 = val3 = null;
                 return;
             }
@@ -87,31 +87,31 @@ namespace Bonsai.Vision.Design
             {
                 var histogram = (ScalarHistogram)value;
                 UpdateValues(histogram);
-                chart.Invalidate();
+                graph.Invalidate();
                 updateTime = time;
             }
         }
 
         public override void Load(IServiceProvider provider)
         {
-            chart = new ChartControl();
-            chart.Dock = DockStyle.Fill;
-            chart.GraphPane.XAxis.Type = AxisType.Linear;
-            chart.GraphPane.XAxis.Title.Text = "Intensity";
-            chart.GraphPane.XAxis.Title.IsVisible = true;
-            chart.GraphPane.XAxis.MinorTic.IsAllTics = false;
+            graph = new GraphControl();
+            graph.Dock = DockStyle.Fill;
+            graph.GraphPane.XAxis.Type = AxisType.Linear;
+            graph.GraphPane.XAxis.Title.Text = "Intensity";
+            graph.GraphPane.XAxis.Title.IsVisible = true;
+            graph.GraphPane.XAxis.MinorTic.IsAllTics = false;
 
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
             if (visualizerService != null)
             {
-                visualizerService.AddControl(chart);
+                visualizerService.AddControl(graph);
             }
         }
 
         public override void Unload()
         {
-            chart.Dispose();
-            chart = null;
+            graph.Dispose();
+            graph = null;
             val0 = null;
             val1 = null;
             val2 = null;
