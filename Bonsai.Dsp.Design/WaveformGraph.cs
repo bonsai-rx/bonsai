@@ -18,7 +18,7 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Dsp.Design
 {
-    public partial class WaveformGraph : ChartControl
+    public partial class WaveformGraph : GraphControl
     {
         const float TitleFontSize = 10;
         const float YAxisMinSpace = 50;
@@ -77,7 +77,7 @@ namespace Bonsai.Dsp.Design
             selectedChannels = new ObservableCollection<int>();
             selectedChannels.CollectionChanged += selectedChannels_CollectionChanged;
             GraphPane.AxisChangeEvent += GraphPane_AxisChangeEvent;
-            ZoomEvent += chart_ZoomEvent;
+            ZoomEvent += graph_ZoomEvent;
             InitializeReactiveEvents();
         }
 
@@ -618,7 +618,7 @@ namespace Bonsai.Dsp.Design
             }
         }
 
-        private void chart_ZoomEvent(ZedGraphControl sender, ZoomState oldState, ZoomState newState)
+        private void graph_ZoomEvent(ZedGraphControl sender, ZoomState oldState, ZoomState newState)
         {
             MasterPane.AxisChange();
         }

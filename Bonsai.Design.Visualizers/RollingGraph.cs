@@ -7,7 +7,7 @@ using ZedGraph;
 
 namespace Bonsai.Design.Visualizers
 {
-    class RollingGraph : ChartControl
+    class RollingGraph : GraphControl
     {
         int capacity;
         int numSeries;

@@ -24,14 +24,14 @@ namespace Bonsai.Design.Visualizers
         {
             InitializeComponent();
             autoScaleButton.Checked = true;
-            Chart.GraphPane.AxisChangeEvent += GraphPane_AxisChangeEvent;
-            Chart.GraphPane.XAxis.Type = AxisType.DateAsOrdinal;
-            Chart.GraphPane.XAxis.Title.Text = "Time";
-            Chart.GraphPane.XAxis.Title.IsVisible = true;
-            Chart.GraphPane.XAxis.Scale.Format = "HH:mm:ss";
-            Chart.GraphPane.XAxis.Scale.MajorUnit = DateUnit.Second;
-            Chart.GraphPane.XAxis.Scale.MinorUnit = DateUnit.Millisecond;
-            Chart.GraphPane.XAxis.MinorTic.IsAllTics = false;
+            Graph.GraphPane.AxisChangeEvent += GraphPane_AxisChangeEvent;
+            Graph.GraphPane.XAxis.Type = AxisType.DateAsOrdinal;
+            Graph.GraphPane.XAxis.Title.Text = "Time";
+            Graph.GraphPane.XAxis.Title.IsVisible = true;
+            Graph.GraphPane.XAxis.Scale.Format = "HH:mm:ss";
+            Graph.GraphPane.XAxis.Scale.MajorUnit = DateUnit.Second;
+            Graph.GraphPane.XAxis.Scale.MinorUnit = DateUnit.Millisecond;
+            Graph.GraphPane.XAxis.MinorTic.IsAllTics = false;
 
             capacityTextBox = new ToolStripTextBox();
             capacityTextBox.LostFocus += capacityTextBox_LostFocus;
@@ -58,33 +58,33 @@ namespace Bonsai.Design.Visualizers
             get { return statusStrip; }
         }
 
-        public RollingGraph Chart
+        public RollingGraph Graph
         {
-            get { return chart; }
+            get { return graph; }
         }
 
         public int NumSeries
         {
-            get { return chart.NumSeries; }
-            set { chart.NumSeries = value; }
+            get { return graph.NumSeries; }
+            set { graph.NumSeries = value; }
         }
 
         public virtual int Capacity
         {
-            get { return chart.Capacity; }
-            set { chart.Capacity = value; }
+            get { return graph.Capacity; }
+            set { graph.Capacity = value; }
         }
 
         public double Min
         {
-            get { return chart.Min; }
-            set { chart.Min = value; }
+            get { return graph.Min; }
+            set { graph.Min = value; }
         }
 
         public double Max
         {
-            get { return chart.Max; }
-            set { chart.Max = value; }
+            get { return graph.Max; }
+            set { graph.Max = value; }
         }
 
         public bool AutoScale
@@ -112,13 +112,13 @@ namespace Bonsai.Design.Visualizers
 
         protected override void OnLoad(EventArgs e)
         {
-            chart.EnsureCapacity();
+            graph.EnsureCapacity();
             base.OnLoad(e);
         }
 
         public virtual void AddValues(XDate time, params object[] values)
         {
-            chart.AddValues(time, values);
+            graph.AddValues(time, values);
         }
 
         protected override bool ProcessDialogKey(Keys keyData)
@@ -127,26 +127,26 @@ namespace Bonsai.Design.Visualizers
             var modifiers = keyData & Keys.Modifiers;
             if (modifiers == Keys.Control && keyCode == Keys.P)
             {
-                chart.DoPrint();
+                graph.DoPrint();
             }
 
             if (modifiers == Keys.Control && keyCode == Keys.S)
             {
-                chart.SaveAs();
+                graph.SaveAs();
             }
 
             return base.ProcessDialogKey(keyData);
         }
 
-        private void chart_ZoomEvent(ZedGraphControl sender, ZoomState oldState, ZoomState newState)
+        private void graph_ZoomEvent(ZedGraphControl sender, ZoomState oldState, ZoomState newState)
         {
-            chart.MasterPane.AxisChange();
+            graph.MasterPane.AxisChange();
         }
 
-        private bool chart_MouseMoveEvent(ZedGraphControl sender, MouseEventArgs e)
+        private bool graph_MouseMoveEvent(ZedGraphControl sender, MouseEventArgs e)
         {
             double x, y;
-            var pane = chart.MasterPane.FindChartRect(e.Location);
+            var pane = graph.MasterPane.FindChartRect(e.Location);
             if (pane != null)
             {
                 pane.ReverseTransform(e.Location, out x, out y);
@@ -155,7 +155,7 @@ namespace Bonsai.Design.Visualizers
             return false;
         }
 
-        private void chart_MouseClick(object sender, MouseEventArgs e)
+        private void graph_MouseClick(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
             {
@@ -165,7 +165,7 @@ namespace Bonsai.Design.Visualizers
 
         private void GraphPane_AxisChangeEvent(GraphPane pane)
         {
-            var capacity = chart.Capacity;
+            var capacity = graph.Capacity;
             var scale = pane.YAxis.Scale;
             autoScaleButton.Checked = pane.YAxis.Scale.MaxAuto;
             capacityValueLabel.Text = capacity.ToString(CultureInfo.InvariantCulture);
@@ -176,7 +176,7 @@ namespace Bonsai.Design.Visualizers
 
         private void autoScaleButton_CheckedChanged(object sender, EventArgs e)
         {
-            chart.AutoScale = autoScaleButton.Checked;
+            graph.AutoScale = autoScaleButton.Checked;
             minStatusLabel.Visible = !autoScaleButton.Checked;
             maxStatusLabel.Visible = !autoScaleButton.Checked;
         }
@@ -245,11 +245,11 @@ namespace Bonsai.Design.Visualizers
             textBox.Focus();
         }
 
-        private void chart_KeyDown(object sender, KeyEventArgs e)
+        private void graph_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Back)
             {
-                chart.ZoomOut(chart.GraphPane);
+                graph.ZoomOut(graph.GraphPane);
             }
         }
     }

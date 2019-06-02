@@ -28,7 +28,7 @@ namespace Bonsai.Design.Visualizers
 
         protected override void OnLoad(EventArgs e)
         {
-            ((LineItem)Chart.GraphPane.CurveList[0]).Line.Width = 2;
+            ((LineItem)Graph.GraphPane.CurveList[0]).Line.Width = 2;
             base.OnLoad(e);
         }
 
