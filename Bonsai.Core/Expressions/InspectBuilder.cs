@@ -137,10 +137,28 @@ namespace Bonsai.Expressions
                 source = multicastExpression.Source;
             }
 
-            var methodCall = source as MethodCallExpression;
-            if (methodCall != null && methodCall.Object != null && methodCall.Object.Type == typeof(InspectBuilder))
+            MethodCallExpression methodCall;
+            while ((methodCall = source as MethodCallExpression) != null)
             {
-                return (InspectBuilder)((ConstantExpression)methodCall.Object).Value;
+                if (methodCall.Object == null)
+                {
+                    // If merging dangling branches in a workflow, recurse on the main output source
+                    if (methodCall.Method.DeclaringType == typeof(ExpressionBuilder) && methodCall.Method.Name == "MergeOutput")
+                    {
+                        source = methodCall.Arguments[0];
+                    }
+                    else break;
+                }
+                else if (methodCall.Object.Type == typeof(InspectBuilder))
+                {
+                    return (InspectBuilder)((ConstantExpression)methodCall.Object).Value;
+                }
+                else if (methodCall.Object.Type.BaseType == typeof(MulticastBranchBuilder))
+                {
+                    // If closing multicast scope, recurse on the scope body
+                    source = ((LambdaExpression)methodCall.Arguments[1]).Body;
+                }
+                else break;
             }
 
             return null;
