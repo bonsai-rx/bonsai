@@ -19,7 +19,9 @@ namespace Bonsai.Expressions
     /// are derived. This is an abstract class.
     /// </summary>
     [XmlInclude(typeof(UnitBuilder))]
+    [XmlInclude(typeof(SinkBuilder))]
     [XmlInclude(typeof(DeferBuilder))]
+    [XmlInclude(typeof(VisualizerBuilder))]
     [XmlInclude(typeof(CreateAsyncBuilder))]
     [XmlInclude(typeof(SourceBuilder))]
     [XmlInclude(typeof(DisableBuilder))]
@@ -147,6 +149,17 @@ namespace Bonsai.Expressions
             if (combinatorBuilder != null) return combinatorBuilder.Combinator;
 
             return builder;
+        }
+
+        public static InspectBuilder GetVisualizerElement(ExpressionBuilder builder)
+        {
+            var inspectBuilder = (InspectBuilder)builder;
+            return GetVisualizerElement(inspectBuilder);
+        }
+
+        internal static InspectBuilder GetVisualizerElement(InspectBuilder builder)
+        {
+            return builder.VisualizerElement ?? builder;
         }
 
         internal static Type GetWorkflowPropertyType(Type expressionType)
