@@ -16,7 +16,7 @@ namespace Bonsai.Expressions
     /// Represents an expression builder that replays the latest notification from all the
     /// subscriptions made to its decorated builder.
     /// </summary>
-    public class InspectBuilder : ExpressionBuilder, INamedElement
+    public sealed class InspectBuilder : ExpressionBuilder, INamedElement
     {
         static readonly MethodInfo CreateSubjectMethod = typeof(InspectBuilder).GetMethod("CreateInspectorSubject", BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -33,6 +33,8 @@ namespace Bonsai.Expressions
             Builder = builder;
             PublishNotifications = true;
         }
+
+        internal InspectBuilder VisualizerElement { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether runtime notifications from
@@ -107,14 +109,21 @@ namespace Bonsai.Expressions
 
             // If source is already an inspect node, use it
             // for output notifications, but not for errors
-            var inspectBuilder = GetInspectBuilder(source);
-            if (inspectBuilder != null)
+            VisualizerElement = GetInspectBuilder(source);
+            if (VisualizerElement != null)
             {
-                Output = inspectBuilder.Output;
+                Output = VisualizerElement.Output;
                 ErrorEx = Observable.Empty<Exception>();
+                VisualizerElement = GetVisualizerElement(VisualizerElement);
                 return source;
             }
-            else if (PublishNotifications && ObservableType != null)
+            else if (Builder.GetType() == typeof(VisualizerBuilder))
+            {
+                var visualizerSource = GetInspectBuilder(((LambdaExpression)((MethodCallExpression)source).Arguments[1]).Body);
+                if (visualizerSource != null) VisualizerElement = GetVisualizerElement(visualizerSource);
+            }
+            
+            if (PublishNotifications && ObservableType != null)
             {
                 source = HandleObservableCreationException(source);
                 var subject = CreateSubjectMethod.MakeGenericMethod(ObservableType).Invoke(this, null);
@@ -125,6 +134,10 @@ namespace Bonsai.Expressions
             {
                 Output = Observable.Empty<IObservable<object>>();
                 ErrorEx = Observable.Empty<Exception>();
+                if (VisualizerElement != null)
+                {
+                    return Expression.Call(Expression.Constant(this), "Process", new[] { ObservableType }, source);
+                }
                 return source;
             }
         }
@@ -174,6 +187,11 @@ namespace Bonsai.Expressions
                 .Select(x => default(Exception))
                 .Catch<Exception, Exception>(ex => Observable.Return(ex)));
             return subject;
+        }
+
+        IObservable<TSource> Process<TSource>(IObservable<TSource> source)
+        {
+            return source;
         }
 
         IObservable<TSource> Process<TSource>(IObservable<TSource> source, ReplaySubject<IObservable<TSource>> subject)

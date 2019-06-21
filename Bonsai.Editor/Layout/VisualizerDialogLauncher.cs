@@ -14,17 +14,22 @@ namespace Bonsai.Design
 {
     class VisualizerDialogLauncher : DialogLauncher, ITypeVisualizerContext
     {
-        InspectBuilder source;
         IDisposable visualizerObserver;
+        InspectBuilder visualizerSource;
         Lazy<DialogTypeVisualizer> visualizer;
         WorkflowGraphView workflowGraphView;
         ServiceContainer visualizerContext;
+        InspectBuilder source;
 
-        public VisualizerDialogLauncher(InspectBuilder source, Func<DialogTypeVisualizer> visualizerFactory, WorkflowGraphView workflowGraphView)
+        public VisualizerDialogLauncher(
+            InspectBuilder visualizerSource,
+            Func<DialogTypeVisualizer> visualizerFactory,
+            WorkflowGraphView workflowGraphView,
+            InspectBuilder workflowSource)
         {
-            if (source == null)
+            if (visualizerSource == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException("visualizerSource");
             }
 
             if (visualizerFactory == null)
@@ -37,9 +42,10 @@ namespace Bonsai.Design
                 throw new ArgumentNullException("workflowGraphView");
             }
 
-            this.source = source;
+            this.visualizerSource = visualizerSource;
             this.visualizer = new Lazy<DialogTypeVisualizer>(visualizerFactory);
             this.workflowGraphView = workflowGraphView;
+            this.source = workflowSource ?? visualizerSource;
         }
 
         public string Text { get; set; }
@@ -63,7 +69,7 @@ namespace Bonsai.Design
             visualizerContext.AddService(typeof(IDialogTypeVisualizerService), visualizerDialog);
             visualizerContext.AddService(typeof(ExpressionBuilderGraph), workflowGraphView.Workflow);
             visualizer.Value.Load(visualizerContext);
-            var visualizerOutput = visualizer.Value.Visualize(source.Output, visualizerContext);
+            var visualizerOutput = visualizer.Value.Visualize(visualizerSource.Output, visualizerContext);
 
             visualizerDialog.AllowDrop = true;
             visualizerDialog.KeyPreview = true;
@@ -134,7 +140,7 @@ namespace Bonsai.Design
             if (visualizerObserver != null && dialogMashup != null)
             {
                 dialogMashup.LoadMashups(visualizerContext);
-                var visualizerOutput = visualizer.Value.Visualize(source.Output, visualizerContext);
+                var visualizerOutput = visualizer.Value.Visualize(visualizerSource.Output, visualizerContext);
                 visualizerObserver = visualizerOutput.Subscribe();
             }
         }
@@ -170,7 +176,7 @@ namespace Bonsai.Design
                 {
                     UnloadMashups();
                     var visualizerMashup = (MashupTypeVisualizer)Activator.CreateInstance(mashupVisualizer);
-                    dialogMashup.Mashups.Add(new VisualizerMashup(visualizerDialog.Source.Output, visualizerMashup));
+                    dialogMashup.Mashups.Add(new VisualizerMashup(visualizerDialog.visualizerSource.Output, visualizerMashup));
                     ReloadMashups();
                 }
             }

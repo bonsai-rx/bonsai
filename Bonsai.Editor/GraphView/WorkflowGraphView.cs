@@ -320,9 +320,8 @@ namespace Bonsai.Design
             workflowEditorMapping.Clear();
         }
 
-        private IEnumerable<Type> GetTypeVisualizers(GraphNode graphNode)
+        private IEnumerable<Type> GetTypeVisualizers(InspectBuilder inspectBuilder)
         {
-            var inspectBuilder = (InspectBuilder)graphNode.Value;
             var workflowElementType = ExpressionBuilder.GetWorkflowElement(inspectBuilder).GetType();
             foreach (var type in editorService.GetTypeVisualizers(workflowElementType))
             {
@@ -360,7 +359,7 @@ namespace Bonsai.Design
             var deserializeVisualizer = false;
             Func<DialogTypeVisualizer> visualizerFactory = null;
             var layoutSettings = GetLayoutSettings(graphNode.Value);
-            var visualizerTypes = GetTypeVisualizers(graphNode);
+            var visualizerTypes = GetTypeVisualizers(inspectBuilder);
             if (layoutSettings != null && !string.IsNullOrEmpty(layoutSettings.VisualizerTypeName))
             {
                 visualizerType = visualizerTypes.FirstOrDefault(type => type.FullName == layoutSettings.VisualizerTypeName);
@@ -394,8 +393,8 @@ namespace Bonsai.Design
                 visualizerFactory = Expression.Lambda<Func<DialogTypeVisualizer>>(visualizerActivation).Compile();
             }
 
-            var launcher = new VisualizerDialogLauncher(inspectBuilder, visualizerFactory, this);
-            launcher.Text = ExpressionBuilder.GetElementDisplayName(inspectBuilder);
+            var launcher = new VisualizerDialogLauncher(inspectBuilder, visualizerFactory, this, (InspectBuilder)graphNode.Value);
+            launcher.Text = graphNode.Text;
             if (deserializeVisualizer)
             {
                 launcher = launcher.Visualizer.Value != null ? launcher : null;
@@ -416,7 +415,9 @@ namespace Bonsai.Design
             visualizerMapping = (from node in workflow.TopologicalSort()
                                  let key = (InspectBuilder)node.Value
                                  let graphNode = graphView.Nodes.SelectMany(layer => layer).First(n => n.Value == key)
-                                 let visualizerLauncher = CreateVisualizerLauncher(key, graphNode) where visualizerLauncher != null
+                                 let inspectBuilder = ExpressionBuilder.GetVisualizerElement(graphNode.Value)
+                                 let visualizerLauncher = CreateVisualizerLauncher(inspectBuilder, graphNode)
+                                 where visualizerLauncher != null
                                  select new { key, visualizerLauncher })
                                  .ToDictionary(mapping => mapping.key,
                                                mapping => mapping.visualizerLauncher);
@@ -3293,7 +3294,7 @@ namespace Bonsai.Design
                     }
                     else
                     {
-                        var inspectBuilder = (InspectBuilder)selectedNode.Value;
+                        var inspectBuilder = ExpressionBuilder.GetVisualizerElement(selectedNode.Value);
                         var visualizerLauncher = visualizerMapping[inspectBuilder];
                         var visualizerVisible = visualizerLauncher.Visible;
                         if (visualizerVisible)
@@ -3419,11 +3420,12 @@ namespace Bonsai.Design
                 var layoutSettings = GetLayoutSettings(selectedNode.Value);
                 if (layoutSettings != null)
                 {
+                    var visualizerElement = ExpressionBuilder.GetVisualizerElement(inspectBuilder);
                     var activeVisualizer = layoutSettings.VisualizerTypeName;
                     if (editorState.WorkflowRunning)
                     {
                         VisualizerDialogLauncher visualizerLauncher;
-                        if (visualizerMapping.TryGetValue(inspectBuilder, out visualizerLauncher))
+                        if (visualizerMapping.TryGetValue(visualizerElement, out visualizerLauncher))
                         {
                             var visualizer = visualizerLauncher.Visualizer;
                             if (visualizer.IsValueCreated)
@@ -3433,11 +3435,11 @@ namespace Bonsai.Design
                         }
                     }
 
-                    if (inspectBuilder != null && inspectBuilder.ObservableType != null &&
-                        (!editorState.WorkflowRunning || inspectBuilder.PublishNotifications))
+                    if (visualizerElement != null && visualizerElement.ObservableType != null &&
+                        (!editorState.WorkflowRunning || visualizerElement.PublishNotifications))
                     {
                         var visualizerTypes = Enumerable.Repeat<Type>(null, 1);
-                        visualizerTypes = visualizerTypes.Concat(GetTypeVisualizers(selectedNode));
+                        visualizerTypes = visualizerTypes.Concat(GetTypeVisualizers(visualizerElement));
                         visualizerToolStripMenuItem.Enabled = true;
                         foreach (var type in visualizerTypes)
                         {

@@ -1218,9 +1218,15 @@ namespace Bonsai.Editor
             foreach (var settings in root.DialogSettings)
             {
                 var inspectBuilder = settings.Tag as InspectBuilder;
-                if (inspectBuilder != null)
+                while (inspectBuilder != null && !inspectBuilder.PublishNotifications)
                 {
                     inspectBuilder.PublishNotifications = !string.IsNullOrEmpty(settings.VisualizerTypeName);
+                    var visualizerElement = ExpressionBuilder.GetVisualizerElement(inspectBuilder);
+                    if (inspectBuilder.PublishNotifications && visualizerElement != inspectBuilder)
+                    {
+                        inspectBuilder = visualizerElement;
+                    }
+                    else inspectBuilder = null;
                 }
 
                 var editorSettings = settings as WorkflowEditorSettings;

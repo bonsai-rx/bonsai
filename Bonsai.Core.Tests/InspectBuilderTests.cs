@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bonsai.Expressions;
 using System.Linq.Expressions;
@@ -77,6 +78,28 @@ namespace Bonsai.Core.Tests
             var combinator = new TransformErrorCombinator();
             var builder = new CombinatorBuilder { Combinator = combinator };
             RunInspector(source, builder);
+        }
+
+        [TestMethod]
+        public void Build_GroupInspectBuilder_ReturnNestedVisualizerElement()
+        {
+            var workflowBuilder = new WorkflowBuilder();
+            var source = workflowBuilder.Workflow.Add(new UnitBuilder());
+            var group = workflowBuilder.Workflow.Add(new GroupWorkflowBuilder());
+            var groupBuilder = (GroupWorkflowBuilder)group.Value;
+            workflowBuilder.Workflow.AddEdge(source, group, new ExpressionBuilderArgument());
+
+            var input = groupBuilder.Workflow.Add(new WorkflowInputBuilder());
+            var combinator = groupBuilder.Workflow.Add(new UnitBuilder());
+            var output = groupBuilder.Workflow.Add(new WorkflowOutputBuilder());
+            groupBuilder.Workflow.AddEdge(input, combinator, new ExpressionBuilderArgument());
+            groupBuilder.Workflow.AddEdge(combinator, output, new ExpressionBuilderArgument());
+
+            var inspectable = workflowBuilder.Workflow.ToInspectableGraph();
+            var inspectGroup = (InspectBuilder)inspectable.ElementAt(1).Value;
+            var result = inspectable.Build();
+            var visualizerElement = ExpressionBuilder.GetVisualizerElement(inspectGroup);
+            Assert.AreEqual(combinator.Value, visualizerElement.Builder);
         }
 
         #region Error Classes

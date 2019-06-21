@@ -140,6 +140,7 @@
     <Compile Include="Expressions\SubscribeSubjectBuilder.cs" />
     <Compile Include="Expressions\UnknownTypeBuilder.cs" />
     <Compile Include="Expressions\VariableArgumentExpressionBuilder.cs" />
+    <Compile Include="Expressions\VisualizerBuilder.cs" />
     <Compile Include="Expressions\WindowBuilder.cs" />
     <Compile Include="Expressions\WindowWorkflowBuilder.cs" />
     <Compile Include="Expressions\WorkflowPropertyDescriptor.cs" />
