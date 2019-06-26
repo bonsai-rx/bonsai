@@ -3294,7 +3294,7 @@ namespace Bonsai.Design
                     }
                     else
                     {
-                        var inspectBuilder = ExpressionBuilder.GetVisualizerElement(selectedNode.Value);
+                        var inspectBuilder = (InspectBuilder)selectedNode.Value;
                         var visualizerLauncher = visualizerMapping[inspectBuilder];
                         var visualizerVisible = visualizerLauncher.Visible;
                         if (visualizerVisible)
@@ -3303,7 +3303,8 @@ namespace Bonsai.Design
                         }
 
                         var visualizerBounds = visualizerLauncher.Bounds;
-                        visualizerLauncher = CreateVisualizerLauncher(inspectBuilder, selectedNode);
+                        var visualizerElement = ExpressionBuilder.GetVisualizerElement(inspectBuilder);
+                        visualizerLauncher = CreateVisualizerLauncher(visualizerElement, selectedNode);
                         visualizerLauncher.Bounds = new Rectangle(visualizerBounds.Location, Size.Empty);
                         visualizerMapping[inspectBuilder] = visualizerLauncher;
                         if (layoutSettings.Visible)
@@ -3420,12 +3421,11 @@ namespace Bonsai.Design
                 var layoutSettings = GetLayoutSettings(selectedNode.Value);
                 if (layoutSettings != null)
                 {
-                    var visualizerElement = ExpressionBuilder.GetVisualizerElement(inspectBuilder);
                     var activeVisualizer = layoutSettings.VisualizerTypeName;
                     if (editorState.WorkflowRunning)
                     {
                         VisualizerDialogLauncher visualizerLauncher;
-                        if (visualizerMapping.TryGetValue(visualizerElement, out visualizerLauncher))
+                        if (visualizerMapping.TryGetValue(inspectBuilder, out visualizerLauncher))
                         {
                             var visualizer = visualizerLauncher.Visualizer;
                             if (visualizer.IsValueCreated)
@@ -3435,6 +3435,7 @@ namespace Bonsai.Design
                         }
                     }
 
+                    var visualizerElement = ExpressionBuilder.GetVisualizerElement(inspectBuilder);
                     if (visualizerElement != null && visualizerElement.ObservableType != null &&
                         (!editorState.WorkflowRunning || visualizerElement.PublishNotifications))
                     {
