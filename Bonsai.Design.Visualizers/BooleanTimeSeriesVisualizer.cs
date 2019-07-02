@@ -20,15 +20,15 @@ namespace Bonsai.Design.Visualizers
 
         public int Capacity { get; set; }
 
-        internal override TimeSeriesView CreateView()
+        internal override RollingGraphView CreateView()
         {
-            var graph = new BooleanTimeSeriesView();
-            graph.Capacity = Capacity;
-            graph.HandleDestroyed += delegate
+            var view = new BooleanTimeSeriesView();
+            view.Capacity = Capacity;
+            view.HandleDestroyed += delegate
             {
-                Capacity = graph.Capacity;
+                Capacity = view.Capacity;
             };
-            return graph;
+            return view;
         }
     }
 }

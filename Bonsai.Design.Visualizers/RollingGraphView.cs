@@ -14,28 +14,20 @@ using System.Collections.ObjectModel;
 
 namespace Bonsai.Design.Visualizers
 {
-    partial class TimeSeriesView : UserControl
+    partial class RollingGraphView : UserControl
     {
         ToolStripTextBox minTextBox;
         ToolStripTextBox maxTextBox;
         ToolStripTextBox capacityTextBox;
 
-        public TimeSeriesView()
+        public RollingGraphView()
         {
             InitializeComponent();
             autoScaleButton.Checked = true;
-            Graph.GraphPane.AxisChangeEvent += GraphPane_AxisChangeEvent;
-            Graph.GraphPane.XAxis.Type = AxisType.DateAsOrdinal;
-            Graph.GraphPane.XAxis.Title.Text = "Time";
-            Graph.GraphPane.XAxis.Title.IsVisible = true;
-            Graph.GraphPane.XAxis.Scale.Format = "HH:mm:ss";
-            Graph.GraphPane.XAxis.Scale.MajorUnit = DateUnit.Second;
-            Graph.GraphPane.XAxis.Scale.MinorUnit = DateUnit.Millisecond;
-            Graph.GraphPane.XAxis.MinorTic.IsAllTics = false;
-
             capacityTextBox = new ToolStripTextBox();
             capacityTextBox.LostFocus += capacityTextBox_LostFocus;
             InitializeEditableScale(capacityTextBox, capacityValueLabel);
+            Graph.GraphPane.AxisChangeEvent += GraphPane_AxisChangeEvent;
 
             minTextBox = new ToolStripTextBox();
             maxTextBox = new ToolStripTextBox();
@@ -116,9 +108,9 @@ namespace Bonsai.Design.Visualizers
             base.OnLoad(e);
         }
 
-        public virtual void AddValues(XDate time, params object[] values)
+        public virtual void AddValues(double index, params object[] values)
         {
-            graph.AddValues(time, values);
+            graph.AddValues(index, values);
         }
 
         protected override bool ProcessDialogKey(Keys keyData)

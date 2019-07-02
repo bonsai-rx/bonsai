@@ -51,25 +51,25 @@ namespace Bonsai.Design.Visualizers
 
         public bool AutoScale { get; set; }
 
-        internal override TimeSeriesView CreateView()
+        internal override RollingGraphView CreateView()
         {
-            var graph = base.CreateView();
-            graph.Capacity = Capacity;
-            graph.AutoScale = AutoScale;
+            var view = base.CreateView();
+            view.Capacity = Capacity;
+            view.AutoScale = AutoScale;
             if (!AutoScale)
             {
-                graph.Min = Min;
-                graph.Max = Max;
+                view.Min = Min;
+                view.Max = Max;
             }
 
-            graph.HandleDestroyed += delegate
+            view.HandleDestroyed += delegate
             {
-                Min = graph.Min;
-                Max = graph.Max;
-                AutoScale = graph.AutoScale;
-                Capacity = graph.Capacity;
+                Min = view.Min;
+                Max = view.Max;
+                AutoScale = view.AutoScale;
+                Capacity = view.Capacity;
             };
-            return graph;
+            return view;
         }
 
         public override void Show(object value)
@@ -91,7 +91,7 @@ namespace Bonsai.Design.Visualizers
         static readonly TimeSpan TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 30);
 
         readonly int numSeries;
-        internal TimeSeriesView view;
+        internal RollingGraphView view;
         DateTimeOffset updateTime;
 
         public TimeSeriesVisualizerBase()
@@ -109,11 +109,18 @@ namespace Bonsai.Design.Visualizers
             get { return view.Graph; }
         }
 
-        internal virtual TimeSeriesView CreateView()
+        internal virtual RollingGraphView CreateView()
         {
-            var graph = new TimeSeriesView();
-            graph.NumSeries = numSeries;
-            return graph;
+            var view = new RollingGraphView();
+            view.Graph.GraphPane.XAxis.Type = AxisType.DateAsOrdinal;
+            view.Graph.GraphPane.XAxis.Title.Text = "Time";
+            view.Graph.GraphPane.XAxis.Title.IsVisible = true;
+            view.Graph.GraphPane.XAxis.Scale.Format = "HH:mm:ss";
+            view.Graph.GraphPane.XAxis.Scale.MajorUnit = DateUnit.Second;
+            view.Graph.GraphPane.XAxis.Scale.MinorUnit = DateUnit.Millisecond;
+            view.Graph.GraphPane.XAxis.MinorTic.IsAllTics = false;
+            view.NumSeries = numSeries;
+            return view;
         }
 
         internal void UpdateView(DateTime time)
@@ -127,7 +134,7 @@ namespace Bonsai.Design.Visualizers
 
         protected void AddValue(DateTime time, params object[] value)
         {
-            view.AddValues(time, value);
+            view.AddValues((XDate)time, value);
             UpdateView(time);
         }
 
