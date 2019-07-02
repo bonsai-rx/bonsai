@@ -81,11 +81,11 @@
     </Compile>
     <Compile Include="TimeSeriesVisualizer.cs" />
     <Compile Include="TimestampedTimeSeriesVisualizer.cs" />
-    <Compile Include="TimeSeriesView.cs">
+    <Compile Include="RollingGraphView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="TimeSeriesView.Designer.cs">
-      <DependentUpon>TimeSeriesView.cs</DependentUpon>
+    <Compile Include="RollingGraphView.Designer.cs">
+      <DependentUpon>RollingGraphView.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -105,8 +105,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="TimeSeriesView.resx">
-      <DependentUpon>TimeSeriesView.cs</DependentUpon>
+    <EmbeddedResource Include="RollingGraphView.resx">
+      <DependentUpon>RollingGraphView.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

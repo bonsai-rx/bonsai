@@ -7,7 +7,7 @@ using ZedGraph;
 
 namespace Bonsai.Design.Visualizers
 {
-    class BooleanTimeSeriesView : TimeSeriesView
+    class BooleanTimeSeriesView : RollingGraphView
     {
         object[] previousValues;
 
@@ -32,10 +32,10 @@ namespace Bonsai.Design.Visualizers
             base.OnLoad(e);
         }
 
-        public override void AddValues(XDate time, params object[] values)
+        public override void AddValues(double index, params object[] values)
         {
-            if (previousValues != null) base.AddValues(time, previousValues);
-            base.AddValues(time, values);
+            if (previousValues != null) base.AddValues(index, previousValues);
+            base.AddValues(index, values);
             previousValues = values;
         }
     }

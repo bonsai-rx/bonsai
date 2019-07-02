@@ -126,27 +126,27 @@ namespace Bonsai.Design.Visualizers
             }
         }
 
-        public void AddValues(double time, params double[] values)
+        public void AddValues(double index, params double[] values)
         {
             for (int i = 0; i < series.Length; i++)
             {
-                series[i].Add(time, values[i]);
+                series[i].Add(index, values[i]);
             }
         }
 
-        public void AddValues(double time, params object[] values)
+        public void AddValues(double index, params object[] values)
         {
             for (int i = 0; i < series.Length; i++)
             {
-                series[i].Add(time, Convert.ToDouble(values[i]));
+                series[i].Add(index, Convert.ToDouble(values[i]));
             }
         }
 
-        public void AddValues(double time, Array values)
+        public void AddValues(double index, Array values)
         {
             for (int i = 0; i < series.Length; i++)
             {
-                series[i].Add(time, Convert.ToDouble(values.GetValue(i)));
+                series[i].Add(index, Convert.ToDouble(values.GetValue(i)));
             }
         }
     }

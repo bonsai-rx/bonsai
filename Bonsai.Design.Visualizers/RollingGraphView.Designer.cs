@@ -1,6 +1,6 @@
 ﻿namespace Bonsai.Design.Visualizers
 {
-    partial class TimeSeriesView
+    partial class RollingGraphView
     {
         /// <summary> 
         /// Required designer variable.
