@@ -155,7 +155,7 @@ namespace Bonsai.NuGet
         private bool OperationHitTest(Point pt)
         {
             var hitTestInfo = HitTest(pt);
-            if (hitTestInfo.Node != null && hitTestInfo.Node == SelectedNode)
+            if (hitTestInfo.Node != null && !hitTestInfo.Node.Checked && hitTestInfo.Node == SelectedNode)
             {
                 if (hitTestInfo.Node.Tag == null) return false;
                 var buttonBounds = GetOperationButtonBounds(hitTestInfo.Node.Bounds);
