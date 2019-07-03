@@ -53,6 +53,12 @@ namespace Bonsai.Design.Visualizers
 
         public bool AutoScale { get; set; }
 
+        [Obsolete]
+        protected GraphControl Graph
+        {
+            get { return view.Graph; }
+        }
+
         internal override RollingGraphView CreateView()
         {
             var view = base.CreateView();
@@ -95,11 +101,6 @@ namespace Bonsai.Design.Visualizers
         internal RollingGraphView view;
         DateTimeOffset updateTime;
 
-        protected GraphControl Graph
-        {
-            get { return view.Graph; }
-        }
-
         internal virtual RollingGraphView CreateView()
         {
             return new RollingGraphView();
@@ -109,7 +110,7 @@ namespace Bonsai.Design.Visualizers
         {
             if ((time - updateTime) > TargetElapsedTime)
             {
-                Graph.Invalidate();
+                view.Graph.Invalidate();
                 updateTime = time;
             }
         }
