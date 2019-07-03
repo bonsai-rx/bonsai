@@ -171,6 +171,31 @@ namespace Bonsai
         }
 
         /// <summary>
+        /// Returns the set of member selector expressions specified by a composite selector string.
+        /// </summary>
+        /// <param name="selector">
+        /// The comma-separated selector string used to extract multiple members.
+        /// </param>
+        /// <returns>
+        /// A set of <see cref="Expression"/> instances representing the member variables accessed by
+        /// the composite selector string.
+        /// </returns>
+        public static IEnumerable<Expression> SelectMembers(Expression expression, string selector)
+        {
+            if (string.IsNullOrWhiteSpace(selector))
+            {
+                yield return expression;
+                yield break;
+            }
+
+            var selectedMemberNames = SelectMemberNames(selector);
+            foreach (var memberPath in selectedMemberNames)
+            {
+                yield return MemberAccess(expression, memberPath);
+            }
+        }
+
+        /// <summary>
         /// Creates an <see cref="Expression"/> representing a chained access to a member
         /// variable.
         /// </summary>

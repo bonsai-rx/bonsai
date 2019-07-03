@@ -46,7 +46,7 @@ namespace Bonsai.Design.Visualizers
             var selectorX = IndexSelector;
             if (!string.IsNullOrEmpty(selectorX))
             {
-                selectedX = SelectMembers(elementVariable, selectorX).First();
+                selectedX = ExpressionHelper.SelectMembers(elementVariable, selectorX).First();
                 Controller.IndexLabel = selectorX;
             }
             else
@@ -64,7 +64,7 @@ namespace Bonsai.Design.Visualizers
             selectedX = Expression.Convert(selectedX, typeof(double));
 
             Expression showBody;
-            var selectedMembers = SelectMembers(elementVariable, ElementSelector)
+            var selectedMembers = ExpressionHelper.SelectMembers(elementVariable, ElementSelector)
                 .Select(x => x.Type.IsArray ? x : Expression.Convert(x, typeof(object))).ToArray();
             if (selectedMembers.Length == 1 && selectedMembers[0].Type.IsArray)
             {
