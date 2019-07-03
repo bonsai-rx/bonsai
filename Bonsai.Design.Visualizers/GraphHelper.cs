@@ -23,5 +23,43 @@ namespace Bonsai.Design.Visualizers
             axis.Scale.MinorUnit = DateUnit.Millisecond;
             axis.MinorTic.IsAllTics = false;
         }
+
+        internal static void FormatOrdinalAxis(Axis axis, Type type)
+        {
+            if (type == typeof(XDate))
+            {
+                GraphHelper.FormatDateAxis(axis);
+            }
+            else
+            {
+                axis.Type = AxisType.LinearAsOrdinal;
+                if (type.IsPrimitive && IsIntegralType(type))
+                {
+                    axis.Scale.Format = "F0";
+                }
+                else axis.Scale.Format = "F2";
+            }
+        }
+
+        static bool IsIntegralType(Type type)
+        {
+            var typeCode = Type.GetTypeCode(type);
+            switch (typeCode)
+            {
+                case TypeCode.Boolean:
+                case TypeCode.Byte:
+                case TypeCode.Char:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.SByte:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                    return true;
+                default:
+                    return false;
+            }
+        }
     }
 }
