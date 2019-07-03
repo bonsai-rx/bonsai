@@ -63,7 +63,9 @@ namespace Bonsai.Expressions
             }
 
             var formatExpression = Expression.Constant(format);
-            var args = Expression.NewArrayInit(typeof(object), SelectMembers(expression, Selector).Select(x => Expression.Convert(x, typeof(object))));
+            var args = Expression.NewArrayInit(typeof(object), ExpressionHelper
+                .SelectMembers(expression, Selector)
+                .Select(x => Expression.Convert(x, typeof(object))));
             return Expression.Call(formatMethod, Expression.Constant(CultureInfo.InvariantCulture), formatExpression, args);
         }
     }

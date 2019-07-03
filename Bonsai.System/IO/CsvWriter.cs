@@ -179,7 +179,7 @@ namespace Bonsai.IO
             var dataType = ExpressionHelper.GetGenericTypeBindings(typeof(IList<>), parameterType).FirstOrDefault() ?? parameterType;
             var dataParameter = dataType == parameterType ? inputParameter : Expression.Parameter(dataType, DataParameterName);
             var writerParameter = Expression.Parameter(typeof(StreamWriter));
-            var selectedMembers = SelectMembers(dataParameter, Selector);
+            var selectedMembers = ExpressionHelper.SelectMembers(dataParameter, Selector);
 
             var delimiter = Delimiter;
             if (string.IsNullOrEmpty(delimiter))

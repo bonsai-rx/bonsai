@@ -260,7 +260,7 @@ namespace Bonsai.Expressions
 
         internal static Expression MemberSelector(Expression expression, string selector)
         {
-            var selectedMembers = SelectMembers(expression, selector).ToArray();
+            var selectedMembers = ExpressionHelper.SelectMembers(expression, selector).ToArray();
             if (selectedMembers.Length > 1)
             {
                 return ExpressionHelper.CreateTuple(selectedMembers);
@@ -992,19 +992,10 @@ namespace Bonsai.Expressions
             return Tuple.Create(source, selector);
         }
 
+        [Obsolete]
         protected static IEnumerable<Expression> SelectMembers(Expression expression, string selector)
         {
-            if (string.IsNullOrWhiteSpace(selector))
-            {
-                yield return expression;
-                yield break;
-            }
-
-            var selectedMemberNames = ExpressionHelper.SelectMemberNames(selector);
-            foreach (var memberPath in selectedMemberNames)
-            {
-                yield return ExpressionHelper.MemberAccess(expression, memberPath);
-            }
+            return ExpressionHelper.SelectMembers(expression, selector);
         }
 
         [Obsolete]
@@ -1076,7 +1067,7 @@ namespace Bonsai.Expressions
                 }
                 else
                 {
-                    var arguments = SelectMembers(parameter, sourceSelector).ToArray();
+                    var arguments = ExpressionHelper.SelectMembers(parameter, sourceSelector).ToArray();
                     var propertyType = Nullable.GetUnderlyingType(property.Type) ?? property.Type;
                     var constructor = OverloadResolution(propertyType.GetConstructors(), arguments);
                     if (constructor.method != null)
