@@ -36,12 +36,14 @@ namespace Bonsai.Design.Visualizers
         }
 
         public TimeSeriesVisualizer(int numSeries)
-            : base(numSeries)
         {
+            NumSeries = numSeries;
             AutoScale = true;
             Capacity = 640;
             Max = 1;
         }
+
+        private int NumSeries { get; set; }
 
         public int Capacity { get; set; }
 
@@ -54,6 +56,7 @@ namespace Bonsai.Design.Visualizers
         internal override RollingGraphView CreateView()
         {
             var view = base.CreateView();
+            view.NumSeries = NumSeries;
             view.Capacity = Capacity;
             view.AutoScale = AutoScale;
             if (!AutoScale)
@@ -89,20 +92,8 @@ namespace Bonsai.Design.Visualizers
     public class TimeSeriesVisualizerBase : DialogTypeVisualizer
     {
         static readonly TimeSpan TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 30);
-
-        readonly int numSeries;
         internal RollingGraphView view;
         DateTimeOffset updateTime;
-
-        public TimeSeriesVisualizerBase()
-            : this(1)
-        {
-        }
-
-        public TimeSeriesVisualizerBase(int numSeries)
-        {
-            this.numSeries = numSeries;
-        }
 
         protected GraphControl Graph
         {
@@ -111,16 +102,7 @@ namespace Bonsai.Design.Visualizers
 
         internal virtual RollingGraphView CreateView()
         {
-            var view = new RollingGraphView();
-            view.Graph.GraphPane.XAxis.Type = AxisType.DateAsOrdinal;
-            view.Graph.GraphPane.XAxis.Title.Text = "Time";
-            view.Graph.GraphPane.XAxis.Title.IsVisible = true;
-            view.Graph.GraphPane.XAxis.Scale.Format = "HH:mm:ss";
-            view.Graph.GraphPane.XAxis.Scale.MajorUnit = DateUnit.Second;
-            view.Graph.GraphPane.XAxis.Scale.MinorUnit = DateUnit.Millisecond;
-            view.Graph.GraphPane.XAxis.MinorTic.IsAllTics = false;
-            view.NumSeries = numSeries;
-            return view;
+            return new RollingGraphView();
         }
 
         internal void UpdateView(DateTime time)
@@ -147,6 +129,8 @@ namespace Bonsai.Design.Visualizers
         {
             view = CreateView();
             view.Dock = DockStyle.Fill;
+            GraphHelper.FormatDateAxis(view.Graph.GraphPane.XAxis);
+            GraphHelper.SetAxisLabel(view.Graph.GraphPane.XAxis, "Time");
 
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
             if (visualizerService != null)
