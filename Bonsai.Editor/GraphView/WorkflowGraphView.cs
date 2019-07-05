@@ -133,7 +133,7 @@ namespace Bonsai.Design
             {
                 ClearEditorMapping();
                 workflow = value;
-                UpdateEditorWorkflow(validateWorkflow: false);
+                UpdateEditorWorkflow();
             }
         }
 
@@ -297,9 +297,9 @@ namespace Bonsai.Design
                 });
         }
 
-        private void UpdateEditorWorkflow(bool validateWorkflow)
+        private void UpdateEditorWorkflow()
         {
-            UpdateGraphLayout(validateWorkflow);
+            UpdateGraphLayout(validateWorkflow: false);
             if (editorState.WorkflowRunning)
             {
                 InitializeVisualizerMapping();
