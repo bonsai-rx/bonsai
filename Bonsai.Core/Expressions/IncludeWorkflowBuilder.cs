@@ -330,7 +330,7 @@ namespace Bonsai.Expressions
                         writeTime = lastWriteTime;
 
                         var parameterCount = workflow.GetNestedParameters().Count();
-                        SetArgumentRange(parameterCount, parameterCount);
+                        SetArgumentRange(0, parameterCount);
                         if (inspectWorkflow)
                         {
                             workflow = workflow.ToInspectableGraph();

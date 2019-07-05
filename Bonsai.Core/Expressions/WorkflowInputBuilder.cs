@@ -55,17 +55,7 @@ namespace Bonsai.Expressions
         /// </returns>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            var source = Source;
-            try
-            {
-                if (source == null)
-                {
-                    throw new InvalidOperationException("Workflow input nodes must be encapsulated inside a workflow group with a matching number of inputs.");
-                }
-
-                return source;
-            }
-            finally { Source = null; }
+            return Source ?? EmptyExpression.Instance;
         }
     }
 }

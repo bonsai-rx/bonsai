@@ -121,7 +121,7 @@ namespace Bonsai.Expressions
             get
             {
                 var parameterCount = workflow.GetNestedParameters().Count();
-                return Range.Create(parameterCount, parameterCount);
+                return Range.Create(0, parameterCount);
             }
         }
 
