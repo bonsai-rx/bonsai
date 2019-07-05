@@ -2479,7 +2479,7 @@ namespace Bonsai.Design
             }
 
             UpdateVisualizerLayout();
-            editorControl.SelectTab(this);
+            if (validateWorkflow) editorControl.SelectTab(this);
             UpdateSelection();
         }
 
