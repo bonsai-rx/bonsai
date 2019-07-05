@@ -595,7 +595,14 @@ namespace Bonsai.Expressions
                 assignment.parameter.Source = assignment.argument;
             }
 
-            return source.Build(buildContext);
+            try { return source.Build(buildContext); }
+            finally
+            {
+                foreach (var parameter in parameters)
+                {
+                    parameter.Source = null;
+                }
+            }
         }
 
         #endregion
