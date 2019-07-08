@@ -52,6 +52,7 @@ namespace Bonsai.Vision.Design
             var mouseUp = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseUp").Select(e => e.EventArgs);
             
             var roiSelected = from downEvt in mouseDown
+                              where Image != null
                               let location = NormalizedLocation(downEvt.X, downEvt.Y)
                               let selection = (from region in regions.Select((polygon, i) => new { polygon, i = (int?)i })
                                                let distance = TestIntersection(region.polygon, location)
@@ -62,7 +63,7 @@ namespace Bonsai.Vision.Design
                               select new Action(() => SelectedRegion = selection);
 
             var roiMoveScale = (from downEvt in mouseDown
-                                where downEvt.Button == MouseButtons.Left && selectedRoi.HasValue
+                                where Image != null && downEvt.Button == MouseButtons.Left && selectedRoi.HasValue
                                 let location = NormalizedLocation(downEvt.X, downEvt.Y)
                                 let selection = selectedRoi.Value
                                 let region = regions[selection]
@@ -85,7 +86,7 @@ namespace Bonsai.Vision.Design
                                 .Switch();
 
             var pointMove = (from downEvt in mouseDown
-                             where downEvt.Button == MouseButtons.Right && selectedRoi.HasValue
+                             where Image != null && downEvt.Button == MouseButtons.Right && selectedRoi.HasValue
                              let location = NormalizedLocation(downEvt.X, downEvt.Y)
                              let selection = selectedRoi.Value
                              let region = regions[selection]
@@ -104,7 +105,7 @@ namespace Bonsai.Vision.Design
                             .Switch();
 
             var regionInsertion = (from downEvt in mouseDown
-                                   where downEvt.Button == MouseButtons.Left && !selectedRoi.HasValue
+                                   where Image != null && downEvt.Button == MouseButtons.Left && !selectedRoi.HasValue
                                    let count = regions.Count
                                    let origin = NormalizedLocation(downEvt.X, downEvt.Y)
                                    select (from moveEvt in mouseMove.TakeUntil(mouseUp)
@@ -126,7 +127,7 @@ namespace Bonsai.Vision.Design
                                    .Switch();
 
             var pointInsertion = from clickEvt in mouseDoubleClick
-                                 where clickEvt.Button == MouseButtons.Left && selectedRoi.HasValue
+                                 where Image != null && clickEvt.Button == MouseButtons.Left && selectedRoi.HasValue
                                  let location = NormalizedLocation(clickEvt.X, clickEvt.Y)
                                  let region = regions[selectedRoi.Value]
                                  let nearestLine = NearestLine(region, location)
@@ -150,7 +151,7 @@ namespace Bonsai.Vision.Design
                                  });
 
             var pointDeletion = from clickEvt in mouseDoubleClick
-                                where clickEvt.Button == MouseButtons.Right && selectedRoi.HasValue
+                                where Image != null && clickEvt.Button == MouseButtons.Right && selectedRoi.HasValue
                                 let region = regions[selectedRoi.Value]
                                 where region.Length > 3
                                 let location = NormalizedLocation(clickEvt.X, clickEvt.Y)
