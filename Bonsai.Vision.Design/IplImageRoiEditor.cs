@@ -26,6 +26,11 @@ namespace Bonsai.Vision.Design
 
         internal bool LabelRegions { get; set; }
 
+        protected virtual IObservable<IplImage> GetImageSource(IObservable<IObservable<object>> source)
+        {
+            return source.Merge().Select(image => image as IplImage);
+        }
+
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
             return UITypeEditorEditStyle.Modal;
@@ -69,8 +74,9 @@ namespace Bonsai.Vision.Design
                     };
 
                     IDisposable subscription = null;
-                    var source = GetDataSource(context, provider).Output.Merge();
-                    imageControl.Load += delegate { subscription = source.Subscribe(image => imageControl.Image = image as IplImage); };
+                    var source = GetDataSource(context, provider);
+                    var imageSource = GetImageSource(source.Output);
+                    imageControl.Load += delegate { subscription = imageSource.Subscribe(image => imageControl.Image = image); };
                     imageControl.HandleDestroyed += delegate { subscription.Dispose(); };
                     editorService.ShowDialog(visualizerDialog);
 
