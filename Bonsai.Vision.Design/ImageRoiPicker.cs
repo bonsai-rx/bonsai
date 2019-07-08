@@ -31,7 +31,7 @@ namespace Bonsai.Vision.Design
         const float LineWidth = 1;
         const float PointSize = 2;
         const int FillOpacity = 85;
-        const float LabelFontHeight = 35;
+        const float LabelFontScale = 0.1f;
         const double ScaleIncrement = 0.1;
         RegionCollection regions = new RegionCollection();
         CommandExecutor commandExecutor = new CommandExecutor();
@@ -45,7 +45,6 @@ namespace Bonsai.Vision.Design
             Canvas.KeyDown += Canvas_KeyDown;
             commandExecutor.StatusChanged += commandExecutor_StatusChanged;
             regions.CollectionChanged += regions_CollectionChanged;
-            labelFont = new Font(Font.FontFamily, Font.SizeInPoints * LabelFontHeight / Font.Height);
             var mouseDoubleClick = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseDoubleClick").Select(e => e.EventArgs);
             var mouseMove = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseMove").Select(e => e.EventArgs);
             var mouseDown = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseDown").Select(e => e.EventArgs);
@@ -479,6 +478,12 @@ namespace Bonsai.Vision.Design
         {
             if (labelImage != null)
             {
+                if (labelFont == null)
+                {
+                    var emSize = Font.SizeInPoints * (labelImage.Height * LabelFontScale) / Font.Height;
+                    labelFont = new Font(Font.FontFamily, emSize);
+                }
+
                 labelImage.SetZero();
                 using (var labelBitmap = new Bitmap(labelImage.Width, labelImage.Height, labelImage.WidthStep, System.Drawing.Imaging.PixelFormat.Format32bppArgb, labelImage.ImageData))
                 using (var graphics = Graphics.FromImage(labelBitmap))
@@ -559,7 +564,11 @@ namespace Bonsai.Vision.Design
                         labelTexture = null;
                     }
 
-                    labelFont.Dispose();
+                    if (labelFont != null)
+                    {
+                        labelFont.Dispose();
+                        labelFont = null;
+                    }
                     disposed = true;
                 }
             }
