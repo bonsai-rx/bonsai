@@ -70,7 +70,8 @@ namespace Bonsai.Vision.Design
                                             ? ScaleRegion(region, target, ModifierKeys.HasFlag(Keys.Control))
                                             : MoveRegion(region, target - location)
                                         let modifiedRectangle = RegionRectangle(modifiedRegion)
-                                        where modifiedRectangle.Left >= 0 && modifiedRectangle.Top >= 0 &&
+                                        where modifiedRectangle.Width > 0 && modifiedRectangle.Height > 0 &&
+                                              modifiedRectangle.Left >= 0 && modifiedRectangle.Top >= 0 &&
                                               modifiedRectangle.Right < Image.Width && modifiedRectangle.Bottom < Image.Height
                                         select modifiedRegion)
                                         .Publish(ps =>
@@ -88,6 +89,7 @@ namespace Bonsai.Vision.Design
                                    let origin = NormalizedLocation(downEvt.X, downEvt.Y)
                                    select (from moveEvt in mouseMove.TakeUntil(mouseUp)
                                            let location = EnsureSizeRatio(origin, NormalizedLocation(moveEvt.X, moveEvt.Y), ModifierKeys.HasFlag(Keys.Control))
+                                           where location.X - origin.X != 0 && location.Y - origin.Y != 0
                                            select CreateEllipseRegion(origin, location))
                                            .Publish(ps =>
                                                ps.TakeLast(1).Do(region =>
