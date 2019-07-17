@@ -71,7 +71,6 @@ namespace Bonsai.Vision.Design
             if (visualizerImage != null)
             {
                 imageTexture.Update(visualizerImage);
-                if (values.Count == 1) visualizerImage = null;
             }
             visualizerCanvas.Canvas.Invalidate();
         }
