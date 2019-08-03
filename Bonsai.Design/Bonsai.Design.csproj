@@ -77,6 +77,13 @@
     <Compile Include="ControlObservable.cs" />
     <Compile Include="ControlScheduler.cs" />
     <Compile Include="EnumerableMemberSelectorEditor.cs" />
+    <Compile Include="TypeMappingEditor.cs" />
+    <Compile Include="TypeMappingEditorDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TypeMappingEditorDialog.Designer.cs">
+      <DependentUpon>TypeMappingEditorDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="FolderBrowserDialog.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -133,6 +140,7 @@
       <DependentUpon>Slider.cs</DependentUpon>
     </Compile>
     <Compile Include="SliderEditor.cs" />
+    <Compile Include="TypeVisitor.cs" />
     <Compile Include="TypeVisualizerDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -151,6 +159,9 @@
   <ItemGroup>
     <EmbeddedResource Include="ConfigurationDropDown.resx">
       <DependentUpon>ConfigurationDropDown.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TypeMappingEditorDialog.resx">
+      <DependentUpon>TypeMappingEditorDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MultiMemberSelectorEditorDialog.resx">
       <DependentUpon>MultiMemberSelectorEditorDialog.cs</DependentUpon>

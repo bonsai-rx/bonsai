@@ -3,7 +3,6 @@ using System;
 using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -73,22 +72,10 @@ namespace Bonsai.Design
 
             if (node.Nodes.Count == 0 && recurse)
             {
-                InitializeDummyMembers(node.Nodes, type);
+                type.VisitMember((member, memberType) => EnsureNode(nodes, member.Name, memberType, recurse: false));
             }
 
             return node;
-        }
-
-        static IEnumerable<PropertyInfo> GetProperties(Type type, BindingFlags bindingAttr)
-        {
-            var properties = type.GetProperties(bindingAttr).Except(type.GetDefaultMembers().OfType<PropertyInfo>());
-            if (type.IsInterface)
-            {
-                properties = properties.Concat(type
-                    .GetInterfaces()
-                    .SelectMany(i => i.GetProperties(bindingAttr)));
-            }
-            return properties;
         }
 
         internal void InitializeMemberTree(TreeNodeCollection nodes, Type componentType)
@@ -98,32 +85,7 @@ namespace Bonsai.Design
                 throw new ArgumentNullException("componentType");
             }
 
-            foreach (var field in componentType.GetFields(BindingFlags.Instance | BindingFlags.Public)
-                                               .OrderBy(member => member.MetadataToken))
-            {
-                EnsureNode(nodes, field.Name, field.FieldType);
-            }
-
-            foreach (var property in GetProperties(componentType, BindingFlags.Instance | BindingFlags.Public)
-                                                  .OrderBy(member => member.MetadataToken))
-            {
-                EnsureNode(nodes, property.Name, property.PropertyType);
-            }
-        }
-
-        void InitializeDummyMembers(TreeNodeCollection nodes, Type componentType)
-        {
-            foreach (var field in componentType.GetFields(BindingFlags.Instance | BindingFlags.Public)
-                                               .OrderBy(member => member.MetadataToken))
-            {
-                EnsureNode(nodes, field.Name, field.FieldType, recurse: false);
-            }
-
-            foreach (var property in GetProperties(componentType, BindingFlags.Instance | BindingFlags.Public)
-                                                  .OrderBy(member => member.MetadataToken))
-            {
-                EnsureNode(nodes, property.Name, property.PropertyType, recurse: false);
-            }
+            componentType.VisitMember((member, memberType) => EnsureNode(nodes, member.Name, memberType));
         }
 
         private void treeView_BeforeExpand(object sender, TreeViewCancelEventArgs e)

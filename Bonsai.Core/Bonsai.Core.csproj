@@ -95,6 +95,7 @@
     <Compile Include="Expressions\IncludeContext.cs" />
     <Compile Include="Expressions\IncludeWorkflowBuilder.cs" />
     <Compile Include="Expressions\IndexBuilder.cs" />
+    <Compile Include="Expressions\ISerializableElement.cs" />
     <Compile Include="Expressions\IWorkflowExpressionBuilder.cs" />
     <Compile Include="Expressions\MappingNameConverter.cs" />
     <Compile Include="Expressions\MulticastBranchExpression.cs" />
@@ -138,6 +139,8 @@
     <Compile Include="Expressions\SubjectBuilder.cs" />
     <Compile Include="Expressions\SubjectNameConverter.cs" />
     <Compile Include="Expressions\SubscribeSubjectBuilder.cs" />
+    <Compile Include="Expressions\TypeMapping.cs" />
+    <Compile Include="Expressions\TypeMappingConverter.cs" />
     <Compile Include="Expressions\UnknownTypeBuilder.cs" />
     <Compile Include="Expressions\VariableArgumentExpressionBuilder.cs" />
     <Compile Include="Expressions\VisualizerBuilder.cs" />

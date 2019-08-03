@@ -284,8 +284,11 @@ namespace Bonsai
                 }
             }
 
-            var binaryOperator = element as BinaryOperatorBuilder;
-            if (binaryOperator != null && binaryOperator.Operand != null) yield return binaryOperator.Operand;
+            var serializableElement = element as ISerializableElement;
+            if (serializableElement != null && (element = serializableElement.Element) != null)
+            {
+                yield return element;
+            }
         }
 
         static IEnumerable<Type> GetExtensionTypes(ExpressionBuilderGraph workflow)

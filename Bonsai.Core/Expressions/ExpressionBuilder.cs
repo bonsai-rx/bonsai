@@ -1052,36 +1052,9 @@ namespace Bonsai.Expressions
             if (source == EmptyExpression.Instance) return source;
             var sourceType = source.Type.GetGenericArguments()[0];
             var parameter = Expression.Parameter(sourceType);
-
-            Expression body = parameter;
-            if (!string.IsNullOrEmpty(sourceSelector))
-            {
-                body = MemberSelector(body, sourceSelector);
-            }
-
-            if (body.Type != property.Type)
-            {
-                if (HasConversion(body.Type, property.Type))
-                {
-                    body = Expression.Convert(body, property.Type);
-                }
-                else
-                {
-                    var arguments = ExpressionHelper.SelectMembers(parameter, sourceSelector).ToArray();
-                    var propertyType = Nullable.GetUnderlyingType(property.Type) ?? property.Type;
-                    var constructor = OverloadResolution(propertyType.GetConstructors(), arguments);
-                    if (constructor.method != null)
-                    {
-                        body = Expression.New((ConstructorInfo)constructor.method, constructor.arguments);
-                        if (propertyType != property.Type)
-                        {
-                            body = Expression.Convert(body, property.Type);
-                        }
-                    }
-                }
-            }
-
+            var body = BuildTypeMapping(parameter, property.Type, sourceSelector);
             body = Expression.Assign(property, body);
+
             var actionType = Expression.GetActionType(parameter.Type);
             var action = Expression.Lambda(actionType, body, parameter);
             return Expression.Call(
@@ -1090,6 +1063,39 @@ namespace Bonsai.Expressions
                 new[] { sourceType },
                 source,
                 action);
+        }
+
+        internal static Expression BuildTypeMapping(Expression expression, Type targetType, string selector)
+        {
+            var result = expression;
+            if (!string.IsNullOrEmpty(selector))
+            {
+                result = MemberSelector(result, selector);
+            }
+
+            if (targetType != null && result.Type != targetType)
+            {
+                if (HasConversion(result.Type, targetType))
+                {
+                    result = Expression.Convert(result, targetType);
+                }
+                else
+                {
+                    var arguments = ExpressionHelper.SelectMembers(expression, selector).ToArray();
+                    var propertyType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+                    var constructor = OverloadResolution(propertyType.GetConstructors(), arguments);
+                    if (constructor.method != null)
+                    {
+                        result = Expression.New((ConstructorInfo)constructor.method, constructor.arguments);
+                        if (propertyType != targetType)
+                        {
+                            result = Expression.Convert(result, targetType);
+                        }
+                    }
+                }
+            }
+
+            return result;
         }
 
         static IObservable<TSource> PropertyMapping<TSource>(IObservable<TSource> source, Action<TSource> action)

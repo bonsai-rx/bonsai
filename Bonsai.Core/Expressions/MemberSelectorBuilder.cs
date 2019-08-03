@@ -13,20 +13,34 @@ namespace Bonsai.Expressions
 {
     /// <summary>
     /// Represents an expression builder that defines a simple selector on the elements
-    /// of an observable sequence by mapping each element to one of its member values.
+    /// of an observable sequence by mapping specified member values into the output data type.
     /// </summary>
     [DefaultProperty("Selector")]
     [XmlType("MemberSelector", Namespace = Constants.XmlNamespace)]
-    [Description("Selects inner properties of elements of the sequence.")]
-    public class MemberSelectorBuilder : SelectBuilder, INamedElement
+    [Description("Selects inner properties of elements of the sequence and optionally maps them into the specified output type.")]
+    public class MemberSelectorBuilder : SelectBuilder, INamedElement, ISerializableElement
     {
         /// <summary>
-        /// Gets or sets a string used to select the input element member to project
-        /// as output of the sequence.
+        /// Gets or sets a string used to select the input element members that will
+        /// be projected as output of the sequence.
         /// </summary>
         [Description("The inner properties that will be selected for each element of the sequence.")]
         [Editor("Bonsai.Design.MultiMemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string Selector { get; set; }
+
+        /// <summary>
+        /// Gets or sets the optional output data type into which the selected properties
+        /// will be projected.
+        /// </summary>
+        [TypeConverter(typeof(TypeMappingConverter))]
+        [Description("The optional output data type into which the selected properties will be projected.")]
+        [Editor("Bonsai.Design.TypeMappingEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
+        public TypeMapping TypeMapping { get; set; }
+
+        object ISerializableElement.Element
+        {
+            get { return TypeMapping; }
+        }
 
         string INamedElement.Name
         {
@@ -59,7 +73,8 @@ namespace Bonsai.Expressions
         /// </returns>
         protected override Expression BuildSelector(Expression expression)
         {
-            return MemberSelector(expression, Selector);
+            var targetType = TypeMapping != null ? TypeMapping.TargetType : null;
+            return BuildTypeMapping(expression, targetType, Selector);
         }
     }
 }

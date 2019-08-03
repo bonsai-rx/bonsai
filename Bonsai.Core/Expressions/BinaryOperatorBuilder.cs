@@ -18,7 +18,7 @@ namespace Bonsai.Expressions
     /// </summary>
     [DefaultProperty("Value")]
     [TypeDescriptionProvider(typeof(BinaryOperatorTypeDescriptionProvider))]
-    public abstract class BinaryOperatorBuilder : SelectBuilder, IPropertyMappingBuilder
+    public abstract class BinaryOperatorBuilder : SelectBuilder, IPropertyMappingBuilder, ISerializableElement
     {
         static readonly MethodInfo GetEnumeratorMethod = typeof(IEnumerable).GetMethod("GetEnumerator");
         static readonly MethodInfo MoveNextMethod = typeof(IEnumerator).GetMethod("MoveNext");
@@ -30,6 +30,11 @@ namespace Bonsai.Expressions
         /// </summary>
         [Browsable(false)]
         public WorkflowProperty Operand { get; set; }
+
+        object ISerializableElement.Element
+        {
+            get { return Operand; }
+        }
 
         /// <summary>
         /// Gets the collection of property mappings assigned to this expression builder.
