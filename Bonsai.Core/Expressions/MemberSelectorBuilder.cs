@@ -29,12 +29,12 @@ namespace Bonsai.Expressions
         public string Selector { get; set; }
 
         /// <summary>
-        /// Gets or sets the optional output data type into which the selected properties
-        /// will be projected.
+        /// Gets or sets an optional type mapping specifying the data type which the selected properties
+        /// will be projected into.
         /// </summary>
         [Externalizable(false)]
         [TypeConverter(typeof(TypeMappingConverter))]
-        [Description("The optional output data type into which the selected properties will be projected.")]
+        [Description("Specifies an optional output type into which the selected properties will be mapped.")]
         [Editor("Bonsai.Design.TypeMappingEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public TypeMapping TypeMapping { get; set; }
 
