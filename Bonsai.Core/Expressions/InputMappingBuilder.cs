@@ -17,7 +17,7 @@ namespace Bonsai.Expressions
     [XmlType("InputMapping", Namespace = Constants.XmlNamespace)]
     [Description("Selects inner properties of elements of the sequence and assigns their values to properties of a workflow element.")]
     [TypeDescriptionProvider(typeof(InputMappingTypeDescriptionProvider))]
-    public class InputMappingBuilder : PropertyMappingBuilder
+    public class InputMappingBuilder : PropertyMappingBuilder, ISerializableElement
     {
         readonly MemberSelectorBuilder selector = new MemberSelectorBuilder();
 
@@ -31,6 +31,24 @@ namespace Bonsai.Expressions
         {
             get { return selector.Selector; }
             set { selector.Selector = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the optional output data type into which the selected properties
+        /// will be projected.
+        /// </summary>
+        [TypeConverter(typeof(TypeMappingConverter))]
+        [Description("The optional output data type into which the selected properties will be projected.")]
+        [Editor("Bonsai.Design.TypeMappingEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
+        public TypeMapping TypeMapping
+        {
+            get { return selector.TypeMapping; }
+            set { selector.TypeMapping = value; }
+        }
+
+        object ISerializableElement.Element
+        {
+            get { return selector.TypeMapping; }
         }
 
         internal override bool BuildArgument(Expression source, Edge<ExpressionBuilder, ExpressionBuilderArgument> successor, out Expression argument)
