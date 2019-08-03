@@ -107,17 +107,22 @@
             // 
             // CollectionEditorDialog
             // 
+            this.AcceptButton = this.okButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.cancelButton;
             this.ClientSize = new System.Drawing.Size(484, 341);
-            this.MinimumSize = new System.Drawing.Size(484, 341);
             this.Controls.Add(this.collectionEditorControl);
             this.Controls.Add(this.memberLabel);
             this.Controls.Add(this.propertyGrid);
             this.Controls.Add(this.propertiesLabel);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.okButton);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(484, 341);
             this.Name = "CollectionEditorDialog";
+            this.ShowIcon = false;
             this.Text = "Collection Editor";
             this.ResumeLayout(false);
             this.PerformLayout();
