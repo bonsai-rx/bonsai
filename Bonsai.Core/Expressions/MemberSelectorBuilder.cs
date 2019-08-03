@@ -32,6 +32,7 @@ namespace Bonsai.Expressions
         /// Gets or sets the optional output data type into which the selected properties
         /// will be projected.
         /// </summary>
+        [Externalizable(false)]
         [TypeConverter(typeof(TypeMappingConverter))]
         [Description("The optional output data type into which the selected properties will be projected.")]
         [Editor("Bonsai.Design.TypeMappingEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
