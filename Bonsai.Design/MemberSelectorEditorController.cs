@@ -72,7 +72,7 @@ namespace Bonsai.Design
 
             if (node.Nodes.Count == 0 && recurse)
             {
-                type.VisitMember((member, memberType) => EnsureNode(nodes, member.Name, memberType, recurse: false));
+                type.VisitMember((member, memberType) => EnsureNode(node.Nodes, member.Name, memberType, recurse: false));
             }
 
             return node;
