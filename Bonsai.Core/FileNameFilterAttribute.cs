@@ -10,7 +10,7 @@ namespace Bonsai
     /// selection box of a file dialog.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
-    public class FileNameFilterAttribute : Attribute
+    public sealed class FileNameFilterAttribute : Attribute
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="FileNameFilterAttribute"/> class with

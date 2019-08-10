@@ -9,7 +9,7 @@ namespace Bonsai
     /// Determines the category of the workflow element this attribute is bound to.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    public class WorkflowElementCategoryAttribute : Attribute
+    public sealed class WorkflowElementCategoryAttribute : Attribute
     {
         /// <summary>
         /// Specifies the default value for the <see cref="WorkflowElementCategoryAttribute"/>. This field is read-only.
