@@ -43,7 +43,7 @@
             this.cancelButton.Location = new System.Drawing.Point(397, 226);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
-            this.cancelButton.TabIndex = 11;
+            this.cancelButton.TabIndex = 2;
             this.cancelButton.Text = "Cancel";
             this.cancelButton.UseVisualStyleBackColor = true;
             // 
@@ -54,7 +54,7 @@
             this.okButton.Location = new System.Drawing.Point(316, 226);
             this.okButton.Name = "okButton";
             this.okButton.Size = new System.Drawing.Size(75, 23);
-            this.okButton.TabIndex = 10;
+            this.okButton.TabIndex = 1;
             this.okButton.Text = "OK";
             this.okButton.UseVisualStyleBackColor = true;
             // 
@@ -66,7 +66,7 @@
             this.memberLabel.Location = new System.Drawing.Point(15, 6);
             this.memberLabel.Name = "memberLabel";
             this.memberLabel.Size = new System.Drawing.Size(53, 13);
-            this.memberLabel.TabIndex = 15;
+            this.memberLabel.TabIndex = 5;
             this.memberLabel.Text = "Members:";
             // 
             // propertiesLabel
@@ -77,7 +77,7 @@
             this.propertiesLabel.Location = new System.Drawing.Point(259, 6);
             this.propertiesLabel.Name = "propertiesLabel";
             this.propertiesLabel.Size = new System.Drawing.Size(57, 13);
-            this.propertiesLabel.TabIndex = 14;
+            this.propertiesLabel.TabIndex = 4;
             this.propertiesLabel.Text = "Properties:";
             // 
             // treeView
@@ -87,7 +87,7 @@
             this.treeView.Location = new System.Drawing.Point(256, 25);
             this.treeView.Name = "treeView";
             this.treeView.Size = new System.Drawing.Size(216, 196);
-            this.treeView.TabIndex = 16;
+            this.treeView.TabIndex = 3;
             // 
             // selectionListBox
             // 
@@ -101,7 +101,7 @@
             this.selectionListBox.Location = new System.Drawing.Point(12, 25);
             this.selectionListBox.Name = "selectionListBox";
             this.selectionListBox.Size = new System.Drawing.Size(208, 196);
-            this.selectionListBox.TabIndex = 17;
+            this.selectionListBox.TabIndex = 0;
             this.selectionListBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.selectionListBox_DrawItem);
             this.selectionListBox.SelectedIndexChanged += new System.EventHandler(this.selectionListBox_SelectedIndexChanged);
             // 
