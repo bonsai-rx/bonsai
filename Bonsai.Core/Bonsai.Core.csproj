@@ -175,6 +175,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="ProxyTypeAttribute.cs" />
     <Compile Include="Range.cs" />
     <Compile Include="Reactive\Accumulate.cs" />
     <Compile Include="Reactive\Average.cs" />

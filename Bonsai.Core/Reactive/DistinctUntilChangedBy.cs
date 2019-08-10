@@ -16,9 +16,9 @@ namespace Bonsai.Reactive
     /// elements according to the specified key are propagated.
     /// </summary>
     [DefaultProperty("KeySelector")]
-    [XmlType("DistinctUntilChangedBy", Namespace = Constants.XmlNamespace)]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Ensures that only distinct contiguous elements according to the specified key are propagated.")]
-    public class DistinctUntilChangedByBuilder : SingleArgumentExpressionBuilder
+    public class DistinctUntilChangedBy : SingleArgumentExpressionBuilder
     {
         /// <summary>
         /// Gets or sets a string used to specify a key to test for contiguity of each element in the observable sequence.
@@ -57,5 +57,15 @@ namespace Bonsai.Reactive
         {
             return source.DistinctUntilChanged(keySelector);
         }
+    }
+
+    /// <summary>
+    /// This type is obsolete. Please use the <see cref="DistinctUntilChangedBy"/> operator instead.
+    /// </summary>
+    [Obsolete]
+    [ProxyType(typeof(DistinctUntilChangedBy))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
+    public class DistinctUntilChangedByBuilder : DistinctUntilChangedBy
+    {
     }
 }

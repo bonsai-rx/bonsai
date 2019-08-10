@@ -16,9 +16,9 @@ namespace Bonsai.Reactive
     /// contains only distinct elements according to the specified key.
     /// </summary>
     [DefaultProperty("KeySelector")]
-    [XmlType("DistinctBy", Namespace = Constants.XmlNamespace)]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Returns a sequence that contains only distinct elements according to the specified key.")]
-    public class DistinctByBuilder : SingleArgumentExpressionBuilder
+    public class DistinctBy : SingleArgumentExpressionBuilder
     {
         /// <summary>
         /// Gets or sets a string used to specify a key to test for the uniqueness of each element in the observable sequence.
@@ -57,5 +57,15 @@ namespace Bonsai.Reactive
         {
             return source.Distinct(keySelector);
         }
+    }
+
+    /// <summary>
+    /// This type is obsolete. Please use the <see cref="DistinctBy"/> operator instead.
+    /// </summary>
+    [Obsolete]
+    [ProxyType(typeof(DistinctBy))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
+    public class DistinctByBuilder : DistinctBy
+    {
     }
 }

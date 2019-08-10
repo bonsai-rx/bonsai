@@ -16,9 +16,9 @@ namespace Bonsai.Reactive
     /// sequences according to the specified key.
     /// </summary>
     [DefaultProperty("KeySelector")]
-    [XmlType("ThenByDescending", Namespace = Constants.XmlNamespace)]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Performs a subsequent ordering of the elements of the input enumerable sequences, in descending order.")]
-    public class ThenByDescendingBuilder : SingleArgumentExpressionBuilder
+    public class ThenByDescending : SingleArgumentExpressionBuilder
     {
         /// <summary>
         /// Gets or sets a string used to specify a key for each element of the input enumerable sequences.
@@ -61,5 +61,15 @@ namespace Bonsai.Reactive
         {
             return source.Select(input => input.ThenByDescending(keySelector));
         }
+    }
+
+    /// <summary>
+    /// This type is obsolete. Please use the <see cref="ThenByDescending"/> operator instead.
+    /// </summary>
+    [Obsolete]
+    [ProxyType(typeof(ThenByDescending))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
+    public class ThenByDescendingBuilder : ThenByDescending
+    {
     }
 }
