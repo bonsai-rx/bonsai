@@ -97,8 +97,11 @@ namespace Bonsai.Design
             }
 
             var root = treeView.Nodes.Add(provider.GetTypeOutput(new CodeTypeReference(type)));
-            type.VisitMember((member, memberType) => CreateNode(root.Nodes, member.Name, memberType));
-            root.Expand();
+            if (!type.IsArray)
+            {
+                type.VisitMember((member, memberType) => CreateNode(root.Nodes, member.Name, memberType));
+                root.Expand();
+            }
         }
 
         private void selectionListBox_SelectedIndexChanged(object sender, EventArgs e)
