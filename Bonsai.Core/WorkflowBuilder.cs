@@ -17,6 +17,9 @@ using System.Reflection.Emit;
 using Bonsai.Properties;
 using System.Xml.Xsl;
 using System.ComponentModel;
+using System.Globalization;
+using Microsoft.CSharp;
+using System.CodeDom;
 
 namespace Bonsai
 {
@@ -28,6 +31,7 @@ namespace Bonsai
         readonly ExpressionBuilderGraph workflow;
         const string DynamicAssemblyPrefix = "@Dynamic";
         const string VersionAttributeName = "Version";
+        const string TypeArgumentsAttributeName = "TypeArguments";
         const string ExtensionTypeNodeName = "ExtensionTypes";
         const string DescriptionElementName = "Description";
         const string WorkflowNodeName = "Workflow";
@@ -96,45 +100,40 @@ namespace Bonsai
                 Description = reader.ReadElementContentAsString();
             }
 
+            var types = new HashSet<Type>();
             var workflowMarkup = string.Empty;
             if (reader.IsStartElement(WorkflowNodeName))
             {
-                var xmlns = reader.NamespaceURI;
-                workflowMarkup = reader.ReadOuterXml();
-                if (xmlns != Constants.XmlNamespace)
+                if (reader.NamespaceURI != Constants.XmlNamespace)
                 {
-                    workflowMarkup = ConvertDescriptorMarkup(workflowMarkup);
+                    workflowMarkup = ConvertDescriptorMarkup(reader.ReadOuterXml());
                 }
+                else workflowMarkup = ReadXmlExtensions(reader, types);
             }
 
-            reader.ReadToFollowing(ExtensionTypeNodeName);
-            reader.ReadStartElement();
-            var types = new HashSet<Type>();
-            while (reader.ReadToNextSibling(TypeNodeName))
+            XmlSerializer serializer;
+            if (reader.ReadToNextSibling(ExtensionTypeNodeName))
             {
-                var type = default(Type);
-                var typeName = reader.ReadElementString();
-                try { type = Type.GetType(typeName, false); }
-                catch (IOException) { }
-                catch (BadImageFormatException) { }
-                catch (TypeLoadException) { }
-                if (type == null)
+                reader.ReadStartElement();
+                while (reader.ReadToNextSibling(TypeNodeName))
                 {
-                    lock (typeResolverLock)
-                    {
-                        type = Type.GetType(typeName, TypeResolver.ResolveAssembly, TypeResolver.ResolveType, true);
-                    }
+                    var typeName = reader.ReadElementString();
+                    var type = LookupType(typeName);
+                    var proxyTypeAttribute = (ProxyTypeAttribute)Attribute.GetCustomAttribute(type, typeof(ProxyTypeAttribute));
+                    if (proxyTypeAttribute != null) type = proxyTypeAttribute.Type;
+                    types.Add(type);
                 }
 
-                types.Add(type);
-            }
+                if (reader.NodeType == XmlNodeType.EndElement && reader.Name == ExtensionTypeNodeName)
+                {
+                    reader.ReadEndElement();
+                }
 
-            if (reader.NodeType == XmlNodeType.EndElement && reader.Name == ExtensionTypeNodeName)
-            {
-                reader.ReadEndElement();
+                types.ExceptWith(serializerExtraTypes);
+                serializer = GetXmlSerializerLegacy(types);
             }
+            else serializer = GetXmlSerializer(types);
 
-            var serializer = GetXmlSerializer(types);
             using (var workflowReader = new StringReader(workflowMarkup))
             {
                 var descriptor = (ExpressionBuilderGraphDescriptor)serializer.Deserialize(workflowReader);
@@ -145,6 +144,24 @@ namespace Bonsai
 
         void IXmlSerializable.WriteXml(System.Xml.XmlWriter writer)
         {
+            var types = new HashSet<Type>(GetExtensionTypes(workflow));
+            foreach (var type in types)
+            {
+                if (!type.IsPublic)
+                {
+                    throw new InvalidOperationException(Resources.Exception_SerializingNonPublicType);
+                }
+
+                if (type.BaseType == typeof(UnknownTypeBuilder))
+                {
+                    throw new InvalidOperationException(Resources.Exception_SerializingUnknownTypeBuilder);
+                }
+            }
+
+            Dictionary<string, GenericTypeCode> genericTypes;
+            var serializer = GetXmlSerializer(types, out genericTypes);
+            writer = new XmlExtensionWriter(writer, genericTypes);
+
             var assembly = Assembly.GetExecutingAssembly();
             var versionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
             writer.WriteAttributeString(VersionAttributeName, versionInfo.ProductVersion);
@@ -155,27 +172,8 @@ namespace Bonsai
                 writer.WriteElementString(DescriptionElementName, description);
             }
 
-            var types = new HashSet<Type>(GetExtensionTypes(workflow));
-            if (types.Any(type => !type.IsPublic))
-            {
-                throw new InvalidOperationException(Resources.Exception_SerializingNonPublicType);
-            }
-
-            var serializer = GetXmlSerializer(types);
             var serializerNamespaces = GetXmlSerializerNamespaces(types);
             serializer.Serialize(writer, workflow.ToDescriptor(), serializerNamespaces);
-
-            writer.WriteStartElement(ExtensionTypeNodeName);
-            foreach (var type in types.OrderBy(type => type.AssemblyQualifiedName))
-            {
-                if (type.BaseType == typeof(UnknownTypeBuilder))
-                {
-                    throw new InvalidOperationException(Resources.Exception_SerializingUnknownTypeBuilder);
-                }
-
-                writer.WriteElementString(TypeNodeName, type.AssemblyQualifiedName.Replace(DynamicAssemblyPrefix, string.Empty));
-            }
-            writer.WriteEndElement();
         }
 
         #endregion
@@ -193,47 +191,104 @@ namespace Bonsai
 
         static HashSet<Type> serializerTypes;
         static XmlSerializer serializerCache;
+        static Dictionary<string, GenericTypeCode> genericTypeCache;
+        static readonly CSharpCodeProvider codeProvider = new CSharpCodeProvider();
         static readonly object cacheLock = new object();
+        static readonly string SystemNamespace = GetClrNamespace(typeof(object));
+        static readonly string SystemCollectionsGenericNamespace = GetClrNamespace(typeof(IEnumerable<>));
+        static readonly string BonsaiReactiveNamespace = GetClrNamespace(typeof(Bonsai.Reactive.Zip));
+        static readonly Type[] serializerExtraTypes = GetDefaultSerializerTypes().ToArray();
 
         static IEnumerable<Type> GetDefaultSerializerTypes()
         {
-            return Attribute.GetCustomAttributes(typeof(ExpressionBuilder), typeof(XmlIncludeAttribute), false)
-                            .Select(attribute => ((XmlIncludeAttribute)attribute).Type);
-        }
-
-        static string GetXmlNamespace(Type type)
-        {
-            var xmlTypeAttribute = (XmlTypeAttribute)Attribute.GetCustomAttribute(type, typeof(XmlTypeAttribute), false);
-            if (xmlTypeAttribute != null) return xmlTypeAttribute.Namespace;
-            return GetClrNamespace(type);
+            var builderType = typeof(ExpressionBuilder);
+            return builderType.Assembly.GetTypes().Where(type =>
+                !type.IsGenericType && !type.IsAbstract &&
+                type.Namespace == builderType.Namespace &&
+                Attribute.IsDefined(type, typeof(XmlTypeAttribute), false) &&
+                !Attribute.IsDefined(type, typeof(ObsoleteAttribute), false));
         }
 
         static string GetClrNamespace(Type type)
         {
+            if (type.Assembly == typeof(WorkflowBuilder).Assembly &&
+                type.Namespace == typeof(ExpressionBuilder).Namespace)
+            {
+                return Constants.XmlNamespace;
+            }
+
             var assemblyName = type.Assembly.GetName().Name.Replace(DynamicAssemblyPrefix, string.Empty);
             return string.Format("clr-namespace:{0};assembly={1}", type.Namespace, assemblyName);
+        }
+
+        static void GetXmlNamespaces(Type type, HashSet<string> xmlNamespaces)
+        {
+            xmlNamespaces.Add(GetClrNamespace(type));
+            if (type.IsGenericType)
+            {
+                var typeArguments = type.GetGenericArguments();
+                for (int i = 0; i < typeArguments.Length; i++)
+                {
+                    GetXmlNamespaces(typeArguments[i], xmlNamespaces);
+                }
+            }
         }
 
         static XmlSerializerNamespaces GetXmlSerializerNamespaces(HashSet<Type> types)
         {
             int namespaceIndex = 1;
+            var xmlNamespaces = new HashSet<string>();
+            foreach (var type in types) GetXmlNamespaces(type, xmlNamespaces);
+
             var serializerNamespaces = new XmlSerializerNamespaces();
             serializerNamespaces.Add("xsd", XmlSchema.Namespace);
             serializerNamespaces.Add("xsi", XmlSchema.InstanceNamespace);
-            foreach (var xmlNamespace in (from type in types
-                                          let xmlNamespace = GetXmlNamespace(type)
-                                          where xmlNamespace != Constants.XmlNamespace
-                                          select xmlNamespace)
-                                         .Distinct())
+            foreach (var xmlNamespace in xmlNamespaces)
             {
-                serializerNamespaces.Add("q" + namespaceIndex, xmlNamespace);
+                if (xmlNamespace == Constants.XmlNamespace) continue;
+                if (xmlNamespace == SystemNamespace) serializerNamespaces.Add("sys", SystemNamespace);
+                else if (xmlNamespace == SystemCollectionsGenericNamespace) serializerNamespaces.Add("scg", SystemCollectionsGenericNamespace);
+                else if (xmlNamespace == BonsaiReactiveNamespace) serializerNamespaces.Add("rx", BonsaiReactiveNamespace);
+                else serializerNamespaces.Add("q" + namespaceIndex, xmlNamespace);
                 namespaceIndex++;
             }
 
             return serializerNamespaces;
         }
 
+        static XmlSerializer GetXmlSerializerLegacy(HashSet<Type> serializerTypes)
+        {
+            var overrides = new XmlAttributeOverrides();
+            foreach (var type in serializerTypes)
+            {
+                var obsolete = Attribute.IsDefined(type, typeof(ObsoleteAttribute), false);
+                var xmlTypeDefined = Attribute.IsDefined(type, typeof(XmlTypeAttribute), false);
+                if (xmlTypeDefined && !obsolete) continue;
+
+                var attributes = new XmlAttributes();
+                if (obsolete && xmlTypeDefined)
+                {
+                    var xmlType = (XmlTypeAttribute)Attribute.GetCustomAttribute(type, typeof(XmlTypeAttribute));
+                    attributes.XmlType = xmlType;
+                }
+                else attributes.XmlType = new XmlTypeAttribute { Namespace = GetClrNamespace(type) };
+                overrides.Add(type, attributes);
+            }
+
+            var extraTypes = serializerTypes.Concat(serializerExtraTypes).ToArray();
+            overrides.Add(typeof(SourceBuilder), new XmlAttributes { XmlType = new XmlTypeAttribute("Source") { Namespace = Constants.XmlNamespace } });
+            overrides.Add(typeof(WindowWorkflowBuilder), new XmlAttributes { XmlType = new XmlTypeAttribute("WindowWorkflow") { Namespace = Constants.XmlNamespace } });
+            var rootAttribute = new XmlRootAttribute(WorkflowNodeName) { Namespace = Constants.XmlNamespace };
+            return new XmlSerializer(typeof(ExpressionBuilderGraphDescriptor), overrides, extraTypes, rootAttribute, null);
+        }
+
         static XmlSerializer GetXmlSerializer(HashSet<Type> types)
+        {
+            Dictionary<string, GenericTypeCode> genericTypes;
+            return GetXmlSerializer(types, out genericTypes);
+        }
+
+        static XmlSerializer GetXmlSerializer(HashSet<Type> types, out Dictionary<string, GenericTypeCode> genericTypes)
         {
             lock (cacheLock)
             {
@@ -242,31 +297,35 @@ namespace Bonsai
                     if (serializerTypes == null) serializerTypes = types;
                     else serializerTypes.UnionWith(types);
 
+                    genericTypeCache = new Dictionary<string, GenericTypeCode>();
                     XmlAttributeOverrides overrides = new XmlAttributeOverrides();
                     foreach (var type in serializerTypes)
                     {
-                        var obsolete = Attribute.IsDefined(type, typeof(ObsoleteAttribute), false);
                         var xmlTypeDefined = Attribute.IsDefined(type, typeof(XmlTypeAttribute), false);
-                        if (xmlTypeDefined && !obsolete) continue;
-
                         var attributes = new XmlAttributes();
-                        if (obsolete && xmlTypeDefined)
+                        attributes.XmlType = xmlTypeDefined
+                            ? (XmlTypeAttribute)Attribute.GetCustomAttribute(type, typeof(XmlTypeAttribute))
+                            : new XmlTypeAttribute();
+                        
+                        if (type.IsGenericType)
                         {
-                            var xmlType = (XmlTypeAttribute)Attribute.GetCustomAttribute(type, typeof(XmlTypeAttribute));
-                            attributes.XmlType = xmlType;
+                            var typeRef = new CodeTypeReference(type);
+                            var typeName = codeProvider.GetTypeOutput(typeRef);
+                            genericTypeCache.Add(typeName, GenericTypeCode.FromType(type));
+                            attributes.XmlType.TypeName = typeName;
                         }
-                        else attributes.XmlType = new XmlTypeAttribute { Namespace = GetClrNamespace(type) };
+                        else attributes.XmlType.Namespace = GetClrNamespace(type);
                         overrides.Add(type, attributes);
                     }
 
-                    overrides.Add(typeof(SourceBuilder), new XmlAttributes { XmlType = new XmlTypeAttribute("Source") { Namespace = Constants.XmlNamespace } });
-                    overrides.Add(typeof(WindowWorkflowBuilder), new XmlAttributes { XmlType = new XmlTypeAttribute("WindowWorkflow") { Namespace = Constants.XmlNamespace } });
+                    var extraTypes = serializerTypes.Concat(serializerExtraTypes).ToArray();
                     var rootAttribute = new XmlRootAttribute(WorkflowNodeName) { Namespace = Constants.XmlNamespace };
-                    serializerCache = new XmlSerializer(typeof(ExpressionBuilderGraphDescriptor), overrides, serializerTypes.ToArray(), rootAttribute, null);
+                    serializerCache = new XmlSerializer(typeof(ExpressionBuilderGraphDescriptor), overrides, extraTypes, rootAttribute, null);
                 }
-            }
 
-            return serializerCache;
+                genericTypes = genericTypeCache;
+                return serializerCache;
+            }
         }
 
         static IEnumerable<object> GetWorkflowElements(ExpressionBuilder builder)
@@ -295,7 +354,7 @@ namespace Bonsai
         {
             return workflow.SelectMany(node => GetWorkflowElements(node.Value))
                 .Select(element => element.GetType())
-                .Except(GetDefaultSerializerTypes());
+                .Except(serializerExtraTypes);
         }
 
         #endregion
@@ -468,6 +527,518 @@ namespace Bonsai
                     xslt.Transform(xmlReader, xmlWriter);
                     return writer.ToString();
                 }
+            }
+        }
+
+        #endregion
+
+        #region ReadXmlExtensions
+
+        static string Split(string value, char separator, out string prefix)
+        {
+            var index = value.IndexOf(separator);
+            return Split(value, index, 1, out prefix);
+        }
+
+        static string Split(string value, string separator, out string prefix)
+        {
+            var index = value.IndexOf(separator);
+            return Split(value, index, separator.Length, out prefix);
+        }
+
+        static string Split(string value, int index, int offset, out string prefix)
+        {
+            if (index >= 0)
+            {
+                prefix = value.Substring(0, index);
+                return value.Substring(index + offset);
+            }
+            else
+            {
+                prefix = string.Empty;
+                return value;
+            }
+        }
+
+        struct GenericTypeToken
+        {
+            public string Token;
+            public List<Type> TypeArguments;
+        }
+
+        static Type[] ParseTypeArguments(XmlReader reader, string value)
+        {
+            var i = 0;
+            var hasNext = false;
+            var builder = new StringBuilder(value.Length);
+            var typeArguments = new List<Type>();
+            var stack = new Stack<GenericTypeToken>();
+            do
+            {
+                hasNext = i < value.Length;
+                var c = hasNext ? value[i++] : ',';
+                switch (c)
+                {
+                    case '(':
+                        GenericTypeToken genericType;
+                        genericType.Token = builder.ToString();
+                        genericType.TypeArguments = typeArguments;
+                        typeArguments = new List<Type>();
+                        stack.Push(genericType);
+                        builder.Clear();
+                        break;
+                    case ',':
+                    case ')':
+                        if (builder.Length > 0)
+                        {
+                            var token = builder.ToString();
+                            var type = LookupType(reader, token);
+                            typeArguments.Add(type);
+                            builder.Clear();
+                        }
+
+                        if (c == ')')
+                        {
+                            var baseType = stack.Pop();
+                            var type = LookupType(reader, baseType.Token, typeArguments.ToArray());
+                            typeArguments = baseType.TypeArguments;
+                            typeArguments.Add(type);
+                        }
+                        break;
+                    default:
+                        builder.Append(c);
+                        break;
+                }
+            }
+            while (hasNext);
+            return typeArguments.ToArray();
+        }
+
+        static Type LookupType(XmlReader reader, string name, params Type[] typeArguments)
+        {
+            string prefix, ns;
+            name = ResolveTypeName(reader, name, out prefix, out ns);
+            return LookupType(name, ns, typeArguments);
+        }
+
+        static Type LookupType(string name, string ns, params Type[] typeArguments)
+        {
+            if (typeArguments != null && typeArguments.Length > 0)
+            {
+                name = name + '`' + typeArguments.Length;
+            }
+
+            var assembly = Split(ns, ";assembly=", out ns);
+            var typeName = string.IsNullOrEmpty(ns)
+                ? name + "," + assembly
+                : ns + "." + name + "," + assembly;
+            return LookupType(typeName, typeArguments);
+        }
+
+        static Type LookupType(string typeName, params Type[] typeArguments)
+        {
+            var type = default(Type);
+            try { type = Type.GetType(typeName, false); }
+            catch (IOException) { }
+            catch (BadImageFormatException) { }
+            catch (TypeLoadException) { }
+            if (type == null)
+            {
+                lock (typeResolverLock)
+                {
+                    type = Type.GetType(typeName, TypeResolver.ResolveAssembly, TypeResolver.ResolveType, true);
+                }
+            }
+            return type.IsGenericTypeDefinition ? type.MakeGenericType(typeArguments) : type;
+        }
+
+        static string ResolveTypeName(XmlReader reader, string value, out string prefix, out string ns)
+        {
+            var name = Split(value, ':', out prefix);
+            ns = reader.LookupNamespace(prefix);
+            if (ns == Constants.XmlNamespace) ns = "Bonsai.Expressions;assembly=Bonsai.Core";
+            else
+            {
+                ns = Split(ns, ':', out prefix);
+                if (prefix != "clr-namespace")
+                {
+                    throw new InvalidOperationException(string.Format(Resources.Exception_InvalidTypeNamespace, value));
+                }
+            }
+            return name;
+        }
+
+        static Type ResolveXmlExtension(XmlReader reader, string value, string typeArguments)
+        {
+            string prefix, ns;
+            var name = ResolveTypeName(reader, value, out prefix, out ns);
+            if (prefix == "clr-namespace" || !string.IsNullOrEmpty(typeArguments))
+            {
+                Type[] genericArguments = null;
+                if (!string.IsNullOrEmpty(typeArguments))
+                {
+                    genericArguments = ParseTypeArguments(reader, typeArguments);
+                }
+
+                return LookupType(name, ns, genericArguments);
+            }
+
+            return null;
+        }
+
+        static void WriteXmlAttributes(XmlReader reader, XmlWriter writer, bool lookupTypes, HashSet<Type> types)
+        {
+            do
+            {
+                if (!reader.IsDefault && (!lookupTypes || reader.LocalName != TypeArgumentsAttributeName))
+                {
+                    var ns = reader.NamespaceURI;
+                    writer.WriteStartAttribute(reader.Prefix, reader.LocalName, ns);
+                    while (reader.ReadAttributeValue())
+                    {
+                        if (reader.NodeType == XmlNodeType.EntityReference)
+                        {
+                            writer.WriteEntityRef(reader.Name);
+                        }
+                        else
+                        {
+                            var value = reader.Value;
+                            // ensure xsi:type attributes are resolved only for workflow element types
+                            if (ns == XmlSchema.InstanceNamespace && lookupTypes)
+                            {
+                                var typeArguments = reader.GetAttribute(TypeArgumentsAttributeName);
+                                var type = ResolveXmlExtension(reader, value, typeArguments);
+                                if (type != null)
+                                {
+                                    types.Add(type);
+                                    if (!string.IsNullOrEmpty(typeArguments))
+                                    {
+                                        var typeRef = new CodeTypeReference(type);
+                                        var typeName = codeProvider.GetTypeOutput(typeRef);
+                                        value = XmlConvert.EncodeName(typeName);
+                                    }
+                                }
+                            }
+
+                            writer.WriteString(value);
+                        }
+                    }
+                    writer.WriteEndAttribute();
+                }
+            }
+            while (reader.MoveToNextAttribute());
+        }
+
+        static string ReadXmlExtensions(XmlReader reader, HashSet<Type> types)
+        {
+            const int ChunkBufferSize = 1024;
+            char[] chunkBuffer = null;
+
+            var canReadChunk = reader.CanReadValueChunk;
+            var depth = reader.NodeType == XmlNodeType.None ? -1 : reader.Depth;
+            var sw = new StringWriter(CultureInfo.InvariantCulture);
+            using (var writer = XmlWriter.Create(sw))
+            {
+                do
+                {
+                    switch (reader.NodeType)
+                    {
+                        case XmlNodeType.Element:
+                            var elementNamespace = reader.NamespaceURI;
+                            writer.WriteStartElement(reader.Prefix, reader.LocalName, elementNamespace);
+                            if (reader.MoveToFirstAttribute())
+                            {
+                                var lookupTypes = elementNamespace == Constants.XmlNamespace;
+                                WriteXmlAttributes(reader, writer, lookupTypes, types);
+                                reader.MoveToElement();
+                            }
+
+                            if (reader.IsEmptyElement)
+                            {
+                                writer.WriteEndElement();
+                            }
+                            break;
+                        case XmlNodeType.Text:
+                            if (canReadChunk)
+                            {
+                                int chunkSize;
+                                if (chunkBuffer == null) chunkBuffer = new char[ChunkBufferSize];
+                                while ((chunkSize = reader.ReadValueChunk(chunkBuffer, 0, ChunkBufferSize)) > 0)
+                                {
+                                    writer.WriteChars(chunkBuffer, 0, chunkSize);
+                                }
+                            }
+                            else writer.WriteString(reader.Value);
+                            break;
+                        case XmlNodeType.CDATA:
+                            writer.WriteCData(reader.Value);
+                            break;
+                        case XmlNodeType.Comment:
+                            writer.WriteComment(reader.Value);
+                            break;
+                        case XmlNodeType.EndElement:
+                            writer.WriteFullEndElement();
+                            break;
+                        case XmlNodeType.EntityReference:
+                            writer.WriteEntityRef(reader.Name);
+                            break;
+                        case XmlNodeType.Whitespace:
+                        case XmlNodeType.SignificantWhitespace:
+                            writer.WriteWhitespace(reader.Value);
+                            break;
+                        case XmlNodeType.XmlDeclaration:
+                        case XmlNodeType.ProcessingInstruction:
+                            writer.WriteProcessingInstruction(reader.Name, reader.Value);
+                            break;
+                    }
+                }
+                while (reader.Read() && (depth < reader.Depth || (depth == reader.Depth && reader.NodeType == XmlNodeType.EndElement)));
+            }
+            return sw.ToString();
+        }
+
+        #endregion
+
+        #region XmlExtensionWriter
+
+        class GenericTypeCode
+        {
+            public string Name;
+            public string Namespace;
+            public GenericTypeCode[] TypeArguments;
+            static readonly GenericTypeCode[] EmptyTypes = new GenericTypeCode[0];
+
+            public static GenericTypeCode FromType(Type type)
+            {
+                var code = new GenericTypeCode();
+                code.Name = type.Name;
+                code.Namespace = GetClrNamespace(type);
+                if (type.IsGenericType)
+                {
+                    code.Name = code.Name.Substring(0, code.Name.LastIndexOf('`'));
+                    code.TypeArguments = Array.ConvertAll(type.GetGenericArguments(), FromType);
+                }
+                else code.TypeArguments = EmptyTypes;
+                return code;
+            }
+        }
+
+        class XmlExtensionWriter : XmlWriter
+        {
+            bool xsiTypeAttribute;
+            string xsiTypeArguments;
+            readonly XmlWriter writer;
+            readonly Dictionary<string, GenericTypeCode> genericTypes;
+
+            public XmlExtensionWriter(XmlWriter writer, Dictionary<string, GenericTypeCode> genericTypes)
+            {
+                this.writer = writer;
+                this.genericTypes = genericTypes;
+            }
+
+            public override XmlWriterSettings Settings
+            {
+                get { return writer.Settings; }
+            }
+
+            public override WriteState WriteState
+            {
+                get { return writer.WriteState; }
+            }
+
+            public override string XmlLang
+            {
+                get { return writer.XmlLang; }
+            }
+
+            public override XmlSpace XmlSpace
+            {
+                get { return writer.XmlSpace; }
+            }
+
+            public override void Flush()
+            {
+                writer.Flush();
+            }
+
+            public override string LookupPrefix(string ns)
+            {
+                return writer.LookupPrefix(ns);
+            }
+
+            public override void WriteBase64(byte[] buffer, int index, int count)
+            {
+                writer.WriteBase64(buffer, index, count);
+            }
+
+            public override void WriteBinHex(byte[] buffer, int index, int count)
+            {
+                writer.WriteBinHex(buffer, index, count);
+            }
+
+            public override void WriteCData(string text)
+            {
+                writer.WriteCData(text);
+            }
+
+            public override void WriteCharEntity(char ch)
+            {
+                writer.WriteCharEntity(ch);
+            }
+
+            public override void WriteChars(char[] buffer, int index, int count)
+            {
+                writer.WriteChars(buffer, index, count);
+            }
+
+            public override void WriteComment(string text)
+            {
+                writer.WriteComment(text);
+            }
+
+            public override void WriteDocType(string name, string pubid, string sysid, string subset)
+            {
+                writer.WriteDocType(name, pubid, sysid, subset);
+            }
+
+            public override void WriteEndAttribute()
+            {
+                writer.WriteEndAttribute();
+                if (xsiTypeArguments != null)
+                {
+                    writer.WriteAttributeString(TypeArgumentsAttributeName, xsiTypeArguments);
+                    xsiTypeArguments = null;
+                }
+            }
+
+            public override void WriteEndDocument()
+            {
+                writer.WriteEndDocument();
+            }
+
+            public override void WriteEndElement()
+            {
+                writer.WriteEndElement();
+            }
+
+            public override void WriteEntityRef(string name)
+            {
+                writer.WriteEntityRef(name);
+            }
+
+            public override void WriteFullEndElement()
+            {
+                writer.WriteFullEndElement();
+            }
+
+            public override void WriteName(string name)
+            {
+                writer.WriteName(name);
+            }
+
+            public override void WriteNmToken(string name)
+            {
+                writer.WriteNmToken(name);
+            }
+
+            public override void WriteProcessingInstruction(string name, string text)
+            {
+                writer.WriteProcessingInstruction(name, text);
+            }
+
+            public override void WriteQualifiedName(string localName, string ns)
+            {
+                writer.WriteQualifiedName(localName, ns);
+            }
+
+            public override void WriteRaw(string data)
+            {
+                writer.WriteRaw(data);
+            }
+
+            public override void WriteRaw(char[] buffer, int index, int count)
+            {
+                writer.WriteRaw(buffer, index, count);
+            }
+
+            public override void WriteStartAttribute(string prefix, string localName, string ns)
+            {
+                xsiTypeAttribute = ns == XmlSchema.InstanceNamespace && localName == "type";
+                writer.WriteStartAttribute(prefix, localName, ns);
+            }
+
+            public override void WriteStartDocument(bool standalone)
+            {
+                writer.WriteStartDocument(standalone);
+            }
+
+            public override void WriteStartDocument()
+            {
+                writer.WriteStartDocument();
+            }
+
+            public override void WriteStartElement(string prefix, string localName, string ns)
+            {
+                writer.WriteStartElement(prefix, localName, ns);
+            }
+
+            string EncodeGenericType(GenericTypeCode type)
+            {
+                var prefix = writer.LookupPrefix(type.Namespace);
+                return string.IsNullOrEmpty(prefix) ? type.Name : prefix + ":" + type.Name;
+            }
+
+            string EncodeGenericTypeArguments(GenericTypeCode[] typeArguments)
+            {
+                var builder = new StringBuilder();
+                EncodeGenericTypeArguments(builder, typeArguments);
+                return builder.ToString();
+            }
+
+            void EncodeGenericTypeArguments(StringBuilder builder, GenericTypeCode[] typeArguments)
+            {
+                for (int i = 0; i < typeArguments.Length; i++)
+                {
+                    if (i > 0) builder.Append(',');
+                    var typeArgument = typeArguments[i];
+                    builder.Append(EncodeGenericType(typeArgument));
+                    if (typeArgument.TypeArguments.Length > 0)
+                    {
+                        builder.Append('(');
+                        EncodeGenericTypeArguments(builder, typeArgument.TypeArguments);
+                        builder.Append(')');
+                    }
+                }
+            }
+
+            public override void WriteString(string text)
+            {
+                if (writer.WriteState == WriteState.Attribute && xsiTypeAttribute)
+                {
+                    GenericTypeCode type;
+                    var typeName = XmlConvert.DecodeName(text);
+                    if (genericTypes.TryGetValue(typeName, out type))
+                    {
+                        text = EncodeGenericType(type);
+                        if (type.TypeArguments.Length > 0)
+                        {
+                            xsiTypeArguments = EncodeGenericTypeArguments(type.TypeArguments);
+                        }
+                    }
+                    xsiTypeAttribute = false;
+                }
+
+                writer.WriteString(text);
+            }
+
+            public override void WriteSurrogateCharEntity(char lowChar, char highChar)
+            {
+                writer.WriteSurrogateCharEntity(lowChar, highChar);
+            }
+
+            public override void WriteWhitespace(string ws)
+            {
+                writer.WriteWhitespace(ws);
             }
         }
 

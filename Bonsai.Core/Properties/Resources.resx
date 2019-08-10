@@ -126,6 +126,9 @@
   <data name="Exception_IndexerNotFound" xml:space="preserve">
     <value>No indexer with matching number of arguments is defined for type '{0}'.</value>
   </data>
+  <data name="Exception_InvalidTypeNamespace" xml:space="preserve">
+    <value>Unable to resolve the XML type '{0}' without a valid clr-namespace.</value>
+  </data>
   <data name="Exception_PropertyNotFound" xml:space="preserve">
     <value>The specified property '{0}' was not found in the workflow. </value>
   </data>

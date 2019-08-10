@@ -16,9 +16,9 @@ namespace Bonsai.Reactive
     /// sequences according to the specified key.
     /// </summary>
     [DefaultProperty("KeySelector")]
-    [XmlType("OrderByDescending", Namespace = Constants.XmlNamespace)]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Sorts the elements of the input enumerable sequences in descending order according to the specified key.")]
-    public class OrderByDescendingBuilder : SingleArgumentExpressionBuilder
+    public class OrderByDescending : SingleArgumentExpressionBuilder
     {
         /// <summary>
         /// Gets or sets a string used to specify a key for each element of the input enumerable sequences.
@@ -61,5 +61,15 @@ namespace Bonsai.Reactive
         {
             return source.Select(input => input.OrderByDescending(keySelector));
         }
+    }
+
+    /// <summary>
+    /// This type is obsolete. Please use the <see cref="OrderByDescending"/> operator instead.
+    /// </summary>
+    [Obsolete]
+    [ProxyType(typeof(OrderByDescending))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
+    public class OrderByDescendingBuilder : OrderByDescending
+    {
     }
 }

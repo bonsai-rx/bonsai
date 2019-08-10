@@ -88,6 +88,15 @@ namespace Bonsai.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to resolve the XML type &apos;{0}&apos; without a valid clr-namespace..
+        /// </summary>
+        internal static string Exception_InvalidTypeNamespace {
+            get {
+                return ResourceManager.GetString("Exception_InvalidTypeNamespace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The specified property &apos;{0}&apos; was not found in the workflow. .
         /// </summary>
         internal static string Exception_PropertyNotFound {

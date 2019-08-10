@@ -17,9 +17,9 @@ namespace Bonsai.Reactive
     /// sequence with the maximum key value.
     /// </summary>
     [DefaultProperty("KeySelector")]
-    [XmlType("MaxBy", Namespace = Constants.XmlNamespace)]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Returns the elements in the observable sequence with the maximum key value.")]
-    public class MaxByBuilder : SingleArgumentExpressionBuilder
+    public class MaxBy : SingleArgumentExpressionBuilder
     {
         static readonly MethodInfo maxBy = typeof(Observable).GetMethods()
                                                              .Single(m => m.Name == "MaxBy" &&
@@ -49,5 +49,15 @@ namespace Bonsai.Reactive
             var keySelector = Expression.Lambda(keySelectorBody, parameter);
             return Expression.Call(maxBy.MakeGenericMethod(parameterType, keySelector.ReturnType), source, keySelector);
         }
+    }
+
+    /// <summary>
+    /// This type is obsolete. Please use the <see cref="MaxBy"/> operator instead.
+    /// </summary>
+    [Obsolete]
+    [ProxyType(typeof(MaxBy))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
+    public class MaxByBuilder : MaxBy
+    {
     }
 }

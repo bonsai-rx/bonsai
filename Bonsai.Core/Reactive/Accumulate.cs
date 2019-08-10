@@ -16,9 +16,9 @@ namespace Bonsai.Reactive
     /// Represents a combinator that computes the cumulative sum of an observable sequence
     /// and returns each intermediate result.
     /// </summary>
-    [XmlType("Accumulate", Namespace = Constants.XmlNamespace)]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Computes the cumulative sum of an observable sequence and returns each intermediate result.")]
-    public class AccumulateBuilder : SingleArgumentExpressionBuilder
+    public class Accumulate : SingleArgumentExpressionBuilder
     {
         static readonly MethodInfo scanMethod = typeof(Observable).GetMethods()
                                                                   .Single(m => m.Name == "Scan" &&
@@ -42,5 +42,15 @@ namespace Bonsai.Reactive
             var accumulator = Expression.Lambda(accumulatorBody, accumulatorParameter, currentParameter);
             return Expression.Call(scanMethod.MakeGenericMethod(parameterType), source, accumulator);
         }
+    }
+
+    /// <summary>
+    /// This type is obsolete. Please use the <see cref="Accumulate"/> operator instead.
+    /// </summary>
+    [Obsolete]
+    [ProxyType(typeof(Accumulate))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
+    public class AccumulateBuilder : Accumulate
+    {
     }
 }

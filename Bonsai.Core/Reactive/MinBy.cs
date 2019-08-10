@@ -17,9 +17,9 @@ namespace Bonsai.Reactive
     /// sequence with the minimum key value.
     /// </summary>
     [DefaultProperty("KeySelector")]
-    [XmlType("MinBy", Namespace = Constants.XmlNamespace)]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Returns the elements in the observable sequence with the minimum key value.")]
-    public class MinByBuilder : SingleArgumentExpressionBuilder
+    public class MinBy : SingleArgumentExpressionBuilder
     {
         static readonly MethodInfo minBy = typeof(Observable).GetMethods()
                                                              .Single(m => m.Name == "MinBy" &&
@@ -49,5 +49,15 @@ namespace Bonsai.Reactive
             var keySelector = Expression.Lambda(keySelectorBody, parameter);
             return Expression.Call(minBy.MakeGenericMethod(parameterType, keySelector.ReturnType), source, keySelector);
         }
+    }
+
+    /// <summary>
+    /// This type is obsolete. Please use the <see cref="MinBy"/> operator instead.
+    /// </summary>
+    [Obsolete]
+    [ProxyType(typeof(MinBy))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
+    public class MinByBuilder : MinBy
+    {
     }
 }

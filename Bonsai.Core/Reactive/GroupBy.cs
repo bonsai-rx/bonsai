@@ -16,9 +16,9 @@ namespace Bonsai.Reactive
     /// sequence according to the specified key.
     /// </summary>
     [DefaultProperty("KeySelector")]
-    [XmlType("GroupBy", Namespace = Constants.XmlNamespace)]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     [Description("Groups the elements of an observable sequence according to the specified key.")]
-    public class GroupByBuilder : SingleArgumentExpressionBuilder
+    public class GroupBy : SingleArgumentExpressionBuilder
     {
         /// <summary>
         /// Gets or sets a string used to specify a key for each element of the observable sequence.
@@ -86,5 +86,15 @@ namespace Bonsai.Reactive
         {
             return source.GroupBy(keySelector, elementSelector);
         }
+    }
+
+    /// <summary>
+    /// This type is obsolete. Please use the <see cref="GroupBy"/> operator instead.
+    /// </summary>
+    [Obsolete]
+    [ProxyType(typeof(GroupBy))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
+    public class GroupByBuilder : GroupBy
+    {
     }
 }
