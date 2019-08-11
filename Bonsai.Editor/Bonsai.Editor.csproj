@@ -187,6 +187,7 @@
     <Compile Include="WorkflowElementDescriptor.cs" />
     <Compile Include="WorkflowRuntimeExceptionCache.cs" />
     <Compile Include="UpgradeHelper.cs" />
+    <Compile Include="XmlnsIndentedWriter.cs" />
     <EmbeddedResource Include="AboutBox.resx">
       <DependentUpon>AboutBox.cs</DependentUpon>
     </EmbeddedResource>

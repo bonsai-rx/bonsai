@@ -93,6 +93,17 @@ namespace Bonsai
 
         void IXmlSerializable.ReadXml(System.Xml.XmlReader reader)
         {
+            var serializerNamespaces = new SerializerNamespaces();
+            if (reader.MoveToFirstAttribute())
+            {
+                do
+                {
+                    if (reader.Prefix != "xmlns") continue;
+                    serializerNamespaces.Add(reader.LocalName, reader.Value);
+                }
+                while (reader.MoveToNextAttribute());
+            }
+
             reader.ReadStartElement(typeof(WorkflowBuilder).Name);
 
             if (reader.IsStartElement(DescriptionElementName))
@@ -108,7 +119,7 @@ namespace Bonsai
                 {
                     workflowMarkup = ConvertDescriptorMarkup(reader.ReadOuterXml());
                 }
-                else workflowMarkup = ReadXmlExtensions(reader, types);
+                else workflowMarkup = ReadXmlExtensions(reader, types, serializerNamespaces);
             }
 
             XmlSerializer serializer;
@@ -166,13 +177,20 @@ namespace Bonsai
             var versionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
             writer.WriteAttributeString(VersionAttributeName, versionInfo.ProductVersion);
 
+            var namespaceDeclarations = GetXmlSerializerNamespaces(types);
+            foreach (var qname in namespaceDeclarations)
+            {
+                writer.WriteAttributeString("xmlns", qname.Name, null, qname.Namespace);
+            }
+
             var description = Description;
             if (!string.IsNullOrEmpty(description))
             {
                 writer.WriteElementString(DescriptionElementName, description);
             }
 
-            var serializerNamespaces = GetXmlSerializerNamespaces(types);
+            var serializerNamespaces = new XmlSerializerNamespaces();
+            serializerNamespaces.Add(string.Empty, Constants.XmlNamespace);
             serializer.Serialize(writer, workflow.ToDescriptor(), serializerNamespaces);
         }
 
@@ -182,7 +200,7 @@ namespace Bonsai
 
         static class SerializerFactory
         {
-            internal static readonly XmlSerializer instance = new XmlSerializer(typeof(WorkflowBuilder));
+            internal static readonly XmlSerializer instance = new XmlSerializer(typeof(WorkflowBuilder), Constants.XmlNamespace);
         }
 
         #endregion
@@ -232,14 +250,13 @@ namespace Bonsai
             }
         }
 
-        static XmlSerializerNamespaces GetXmlSerializerNamespaces(HashSet<Type> types)
+        static SerializerNamespaces GetXmlSerializerNamespaces(HashSet<Type> types)
         {
             int namespaceIndex = 1;
             var clrNamespaces = new Dictionary<ClrNamespace, Assembly>();
             foreach (var type in types) GetClrNamespaces(type, clrNamespaces);
 
-            var serializerNamespaces = new XmlSerializerNamespaces();
-            serializerNamespaces.Add("xsd", XmlSchema.Namespace);
+            var serializerNamespaces = new SerializerNamespaces();
             serializerNamespaces.Add("xsi", XmlSchema.InstanceNamespace);
             foreach (var item in clrNamespaces)
             {
@@ -729,7 +746,7 @@ namespace Bonsai
             while (reader.MoveToNextAttribute());
         }
 
-        static string ReadXmlExtensions(XmlReader reader, HashSet<Type> types)
+        static string ReadXmlExtensions(XmlReader reader, HashSet<Type> types, SerializerNamespaces namespaces)
         {
             const int ChunkBufferSize = 1024;
             char[] chunkBuffer = null;
@@ -746,6 +763,15 @@ namespace Bonsai
                         case XmlNodeType.Element:
                             var elementNamespace = reader.NamespaceURI;
                             writer.WriteStartElement(reader.Prefix, reader.LocalName, elementNamespace);
+                            if (namespaces != null)
+                            {
+                                foreach (var qname in namespaces)
+                                {
+                                    writer.WriteAttributeString("xmlns", qname.Name, null, qname.Namespace);
+                                }
+                                namespaces = null;
+                            }
+
                             if (reader.MoveToFirstAttribute())
                             {
                                 var lookupTypes = elementNamespace == Constants.XmlNamespace;
@@ -820,6 +846,26 @@ namespace Bonsai
                 }
                 else code.TypeArguments = EmptyTypes;
                 return code;
+            }
+        }
+
+        class SerializerNamespaces : IEnumerable<XmlQualifiedName>
+        {
+            readonly List<XmlQualifiedName> values = new List<XmlQualifiedName>();
+
+            public void Add(string prefix, string ns)
+            {
+                values.Add(new XmlQualifiedName(prefix, ns));
+            }
+
+            public IEnumerator<XmlQualifiedName> GetEnumerator()
+            {
+                return values.GetEnumerator();
+            }
+
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
             }
         }
 
