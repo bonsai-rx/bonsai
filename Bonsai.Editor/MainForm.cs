@@ -734,7 +734,8 @@ namespace Bonsai.Editor
                 reader.MoveToContent();
                 var versionName = reader.GetAttribute(VersionAttributeName);
                 SemanticVersion.TryParse(versionName, out version);
-                return (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
+                var serializer = new XmlSerializer(typeof(WorkflowBuilder), reader.NamespaceURI);
+                return (WorkflowBuilder)serializer.Deserialize(reader);
             }
         }
 
@@ -845,7 +846,7 @@ namespace Bonsai.Editor
             try
             {
                 using (var memoryStream = new MemoryStream())
-                using (var writer = XmlWriter.Create(memoryStream, DefaultWriterSettings))
+                using (var writer = XmlnsIndentedWriter.Create(memoryStream, DefaultWriterSettings))
                 {
                     serializer.Serialize(writer, o);
                     using (var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
@@ -2407,7 +2408,7 @@ namespace Bonsai.Editor
                 if (builder.Workflow.Count > 0)
                 {
                     var stringBuilder = new StringBuilder();
-                    using (var writer = XmlWriter.Create(stringBuilder, DefaultWriterSettings))
+                    using (var writer = XmlnsIndentedWriter.Create(stringBuilder, DefaultWriterSettings))
                     {
                         WorkflowBuilder.Serializer.Serialize(writer, builder);
                     }
@@ -2427,9 +2428,11 @@ namespace Bonsai.Editor
                     {
                         try
                         {
-                            if (WorkflowBuilder.Serializer.CanDeserialize(reader))
+                            reader.MoveToContent();
+                            var serializer = new XmlSerializer(typeof(WorkflowBuilder), reader.NamespaceURI);
+                            if (serializer.CanDeserialize(reader))
                             {
-                                return (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
+                                return (WorkflowBuilder)serializer.Deserialize(reader);
                             }
                         }
                         catch (XmlException) { }

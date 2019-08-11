@@ -324,7 +324,9 @@ namespace Bonsai.Expressions
                     using (var stream = GetWorkflowStream(path, embeddedResource))
                     using (var reader = XmlReader.Create(stream))
                     {
-                        var builder = (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
+                        reader.MoveToContent();
+                        var serializer = new XmlSerializer(typeof(WorkflowBuilder), reader.NamespaceURI);
+                        var builder = (WorkflowBuilder)serializer.Deserialize(reader);
                         description = builder.Description;
                         workflow = builder.Workflow;
                         writeTime = lastWriteTime;
