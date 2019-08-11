@@ -194,9 +194,8 @@ namespace Bonsai
         static Dictionary<string, GenericTypeCode> genericTypeCache;
         static readonly CSharpCodeProvider codeProvider = new CSharpCodeProvider();
         static readonly object cacheLock = new object();
-        static readonly string SystemNamespace = GetClrNamespace(typeof(object));
-        static readonly string SystemCollectionsGenericNamespace = GetClrNamespace(typeof(IEnumerable<>));
-        static readonly string BonsaiReactiveNamespace = GetClrNamespace(typeof(Bonsai.Reactive.Zip));
+        static readonly string SystemNamespace = GetXmlNamespace(typeof(object));
+        static readonly string SystemCollectionsGenericNamespace = GetXmlNamespace(typeof(IEnumerable<>));
         static readonly Type[] serializerExtraTypes = GetDefaultSerializerTypes().ToArray();
 
         static IEnumerable<Type> GetDefaultSerializerTypes()
@@ -209,7 +208,7 @@ namespace Bonsai
                 !Attribute.IsDefined(type, typeof(ObsoleteAttribute), false));
         }
 
-        static string GetClrNamespace(Type type)
+        static string GetXmlNamespace(Type type)
         {
             if (type.Assembly == typeof(WorkflowBuilder).Assembly &&
                 type.Namespace == typeof(ExpressionBuilder).Namespace)
@@ -217,19 +216,18 @@ namespace Bonsai
                 return Constants.XmlNamespace;
             }
 
-            var assemblyName = type.Assembly.GetName().Name.Replace(DynamicAssemblyPrefix, string.Empty);
-            return string.Format("clr-namespace:{0};assembly={1}", type.Namespace, assemblyName);
+            return ClrNamespace.FromType(type).ToString();
         }
 
-        static void GetXmlNamespaces(Type type, HashSet<string> xmlNamespaces)
+        static void GetClrNamespaces(Type type, Dictionary<ClrNamespace, Assembly> clrNamespaces)
         {
-            xmlNamespaces.Add(GetClrNamespace(type));
+            clrNamespaces[ClrNamespace.FromType(type)] = type.Assembly;
             if (type.IsGenericType)
             {
                 var typeArguments = type.GetGenericArguments();
                 for (int i = 0; i < typeArguments.Length; i++)
                 {
-                    GetXmlNamespaces(typeArguments[i], xmlNamespaces);
+                    GetClrNamespaces(typeArguments[i], clrNamespaces);
                 }
             }
         }
@@ -237,20 +235,31 @@ namespace Bonsai
         static XmlSerializerNamespaces GetXmlSerializerNamespaces(HashSet<Type> types)
         {
             int namespaceIndex = 1;
-            var xmlNamespaces = new HashSet<string>();
-            foreach (var type in types) GetXmlNamespaces(type, xmlNamespaces);
+            var clrNamespaces = new Dictionary<ClrNamespace, Assembly>();
+            foreach (var type in types) GetClrNamespaces(type, clrNamespaces);
 
             var serializerNamespaces = new XmlSerializerNamespaces();
             serializerNamespaces.Add("xsd", XmlSchema.Namespace);
             serializerNamespaces.Add("xsi", XmlSchema.InstanceNamespace);
-            foreach (var xmlNamespace in xmlNamespaces)
+            foreach (var item in clrNamespaces)
             {
-                if (xmlNamespace == Constants.XmlNamespace) continue;
+                var clrNamespace = item.Key;
+                if (clrNamespace.IsDefault) continue;
+
+                var xmlNamespace = clrNamespace.ToString();
                 if (xmlNamespace == SystemNamespace) serializerNamespaces.Add("sys", SystemNamespace);
                 else if (xmlNamespace == SystemCollectionsGenericNamespace) serializerNamespaces.Add("scg", SystemCollectionsGenericNamespace);
-                else if (xmlNamespace == BonsaiReactiveNamespace) serializerNamespaces.Add("rx", BonsaiReactiveNamespace);
-                else serializerNamespaces.Add("q" + namespaceIndex, xmlNamespace);
-                namespaceIndex++;
+                else
+                {
+                    var assembly = item.Value;
+                    var prefix = (from attribute in assembly.GetCustomAttributes<XmlNamespacePrefixAttribute>()
+                                  let attributeNamespace = ClrNamespace.FromUri(attribute.XmlNamespace)
+                                  where attributeNamespace.Namespace == clrNamespace.Namespace
+                                  select attribute.Prefix)
+                                  .FirstOrDefault();
+                    if (prefix == null) prefix = "q" + namespaceIndex++;
+                    serializerNamespaces.Add(prefix, xmlNamespace);
+                }
             }
 
             return serializerNamespaces;
@@ -271,7 +280,7 @@ namespace Bonsai
                     var xmlType = (XmlTypeAttribute)Attribute.GetCustomAttribute(type, typeof(XmlTypeAttribute));
                     attributes.XmlType = xmlType;
                 }
-                else attributes.XmlType = new XmlTypeAttribute { Namespace = GetClrNamespace(type) };
+                else attributes.XmlType = new XmlTypeAttribute { Namespace = GetXmlNamespace(type) };
                 overrides.Add(type, attributes);
             }
 
@@ -314,7 +323,7 @@ namespace Bonsai
                             genericTypeCache.Add(typeName, GenericTypeCode.FromType(type));
                             attributes.XmlType.TypeName = typeName;
                         }
-                        else attributes.XmlType.Namespace = GetClrNamespace(type);
+                        else attributes.XmlType.Namespace = GetXmlNamespace(type);
                         overrides.Add(type, attributes);
                     }
 
@@ -616,22 +625,19 @@ namespace Bonsai
 
         static Type LookupType(XmlReader reader, string name, params Type[] typeArguments)
         {
-            string prefix, ns;
-            name = ResolveTypeName(reader, name, out prefix, out ns);
-            return LookupType(name, ns, typeArguments);
+            ClrNamespace clrNamespace;
+            name = ResolveTypeName(reader, name, out clrNamespace);
+            return LookupType(name, clrNamespace, typeArguments);
         }
 
-        static Type LookupType(string name, string ns, params Type[] typeArguments)
+        static Type LookupType(string name, ClrNamespace clrNamespace, params Type[] typeArguments)
         {
             if (typeArguments != null && typeArguments.Length > 0)
             {
                 name = name + '`' + typeArguments.Length;
             }
 
-            var assembly = Split(ns, ";assembly=", out ns);
-            var typeName = string.IsNullOrEmpty(ns)
-                ? name + "," + assembly
-                : ns + "." + name + "," + assembly;
+            var typeName = clrNamespace.GetAssemblyQualifiedName(name);
             return LookupType(typeName, typeArguments);
         }
 
@@ -652,27 +658,21 @@ namespace Bonsai
             return type.IsGenericTypeDefinition ? type.MakeGenericType(typeArguments) : type;
         }
 
-        static string ResolveTypeName(XmlReader reader, string value, out string prefix, out string ns)
+        static string ResolveTypeName(XmlReader reader, string value, out ClrNamespace clrNamespace)
         {
+            string prefix;
             var name = Split(value, ':', out prefix);
-            ns = reader.LookupNamespace(prefix);
-            if (ns == Constants.XmlNamespace) ns = "Bonsai.Expressions;assembly=Bonsai.Core";
-            else
-            {
-                ns = Split(ns, ':', out prefix);
-                if (prefix != "clr-namespace")
-                {
-                    throw new InvalidOperationException(string.Format(Resources.Exception_InvalidTypeNamespace, value));
-                }
-            }
+            var ns = reader.LookupNamespace(prefix);
+            if (ns == Constants.XmlNamespace) clrNamespace = ClrNamespace.Default;
+            else clrNamespace = ClrNamespace.FromUri(ns);
             return name;
         }
 
         static Type ResolveXmlExtension(XmlReader reader, string value, string typeArguments)
         {
-            string prefix, ns;
-            var name = ResolveTypeName(reader, value, out prefix, out ns);
-            if (prefix == "clr-namespace" || !string.IsNullOrEmpty(typeArguments))
+            ClrNamespace clrNamespace;
+            var name = ResolveTypeName(reader, value, out clrNamespace);
+            if (clrNamespace != ClrNamespace.Default || !string.IsNullOrEmpty(typeArguments))
             {
                 Type[] genericArguments = null;
                 if (!string.IsNullOrEmpty(typeArguments))
@@ -680,7 +680,7 @@ namespace Bonsai
                     genericArguments = ParseTypeArguments(reader, typeArguments);
                 }
 
-                return LookupType(name, ns, genericArguments);
+                return LookupType(name, clrNamespace, genericArguments);
             }
 
             return null;
@@ -812,7 +812,7 @@ namespace Bonsai
             {
                 var code = new GenericTypeCode();
                 code.Name = type.Name;
-                code.Namespace = GetClrNamespace(type);
+                code.Namespace = GetXmlNamespace(type);
                 if (type.IsGenericType)
                 {
                     code.Name = code.Name.Substring(0, code.Name.LastIndexOf('`'));
@@ -1039,6 +1039,95 @@ namespace Bonsai
             public override void WriteWhitespace(string ws)
             {
                 writer.WriteWhitespace(ws);
+            }
+        }
+
+        #endregion
+
+        #region ClrNamespace
+
+        struct ClrNamespace : IEquatable<ClrNamespace>
+        {
+            const string SchemePrefix = "clr-namespace";
+            const string AssemblyNameArgument = ";assembly=";
+            public static readonly ClrNamespace Default = FromType(typeof(ExpressionBuilder));
+            public readonly string Namespace;
+            public readonly string AssemblyName;
+
+            public ClrNamespace(string ns, string assemblyName)
+            {
+                Namespace = ns;
+                AssemblyName = assemblyName;
+            }
+
+            public bool IsDefault
+            {
+                get { return Equals(Default); }
+            }
+
+            public static ClrNamespace FromType(Type type)
+            {
+                var assemblyName = type.Assembly.GetName().Name.Replace(DynamicAssemblyPrefix, string.Empty);
+                return new ClrNamespace(type.Namespace, assemblyName);
+            }
+
+            public static ClrNamespace FromUri(string clrNamespace)
+            {
+                string prefix;
+                var path = Split(clrNamespace, ':', out prefix);
+                if (prefix != SchemePrefix)
+                {
+                    throw new ArgumentException(Resources.Exception_InvalidTypeNamespace, "clrNamespace");
+                }
+
+                var separator = path.IndexOf(AssemblyNameArgument);
+                var assemblyName = separator < 0 ? string.Empty : Split(path, separator, AssemblyNameArgument.Length, out path);
+                return new ClrNamespace(path, assemblyName);
+            }
+
+            public string GetAssemblyQualifiedName(string typeName)
+            {
+                return string.IsNullOrEmpty(Namespace)
+                    ? typeName + "," + AssemblyName
+                    : Namespace + "." + typeName + "," + AssemblyName;
+            }
+
+            public override string ToString()
+            {
+                return SchemePrefix + ":" + Namespace + AssemblyNameArgument + AssemblyName;
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (obj is ClrNamespace)
+                {
+                    return Equals((ClrNamespace)obj);
+                }
+
+                return false;
+            }
+
+            public bool Equals(ClrNamespace other)
+            {
+                return Namespace == other.Namespace && AssemblyName == other.AssemblyName;
+            }
+
+            public override int GetHashCode()
+            {
+                var hash = 53;
+                if (!string.IsNullOrEmpty(Namespace)) hash = hash * 23 + Namespace.GetHashCode();
+                if (!string.IsNullOrEmpty(AssemblyName)) hash = hash * 23 + AssemblyName.GetHashCode();
+                return hash;
+            }
+
+            public static bool operator ==(ClrNamespace left, ClrNamespace right)
+            {
+                return left.Equals(right);
+            }
+
+            public static bool operator !=(ClrNamespace left, ClrNamespace right)
+            {
+                return !left.Equals(right);
             }
         }
 
