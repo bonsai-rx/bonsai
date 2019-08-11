@@ -309,6 +309,7 @@
     <Compile Include="Source.cs" />
     <Compile Include="TypeVisualizerAttribute.cs" />
     <Compile Include="WorkflowBuilder.cs" />
+    <Compile Include="XmlNamespacePrefixAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Bonsai.Core.nuspec" />
