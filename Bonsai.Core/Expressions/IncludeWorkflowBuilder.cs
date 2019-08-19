@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Schema;
 using System.Xml.Serialization;
 using SystemPath = System.IO.Path;
 
@@ -25,6 +26,7 @@ namespace Bonsai.Expressions
     {
         const char AssemblySeparator = ':';
         static readonly XmlElement[] EmptyProperties = new XmlElement[0];
+        static readonly XmlSerializerNamespaces DefaultSerializerNamespaces = GetXmlSerializerNamespaces();
         XmlElement[] xmlProperties;
 
         IBuildContext buildContext;
@@ -142,6 +144,13 @@ namespace Bonsai.Expressions
             set { xmlProperties = value; }
         }
 
+        static XmlSerializerNamespaces GetXmlSerializerNamespaces()
+        {
+            var serializerNamespaces = new XmlSerializerNamespaces();
+            serializerNamespaces.Add("xsi", XmlSchema.InstanceNamespace);
+            return serializerNamespaces;
+        }
+
         XmlElement[] GetXmlProperties()
         {
             return (from property in TypeDescriptor.GetProperties(this).Cast<PropertyDescriptor>()
@@ -225,7 +234,7 @@ namespace Bonsai.Expressions
             var serializer = PropertySerializer.GetXmlSerializer(property.Name, property.PropertyType);
             using (var writer = document.CreateNavigator().AppendChild())
             {
-                serializer.Serialize(writer, property.GetValue(this));
+                serializer.Serialize(writer, property.GetValue(this), DefaultSerializerNamespaces);
             }
             return document.DocumentElement;
         }
