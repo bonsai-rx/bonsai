@@ -248,12 +248,14 @@ namespace Bonsai
             PackageConfiguration packageConfiguration,
             string editorRepositoryPath,
             string editorPath,
-            IPackageName editorPackageName)
+            IPackageName editorPackageName,
+            bool updatePackages)
         {
             EnableVisualStyles();
             using (var packageManagerDialog = new PackageManagerDialog(editorRepositoryPath))
             using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManagerDialog.PackageManager, editorPath, editorPackageName))
             {
+                packageManagerDialog.DefaultTab = updatePackages ? PackageManagerTab.Updates : PackageManagerTab.Online;
                 if (packageManagerDialog.ShowDialog() == DialogResult.OK)
                 {
                     AppResult.SetResult(packageManagerDialog.InstallPath);
@@ -293,8 +295,10 @@ namespace Bonsai
                     LoadAction.None;
                 updatesAvailable.Subscribe(value => mainForm.UpdatesAvailable = value);
                 Application.Run(mainForm);
+                var editorFlags = mainForm.UpdatesAvailable ? EditorFlags.UpdatesAvailable : EditorFlags.None;
+                if (scriptEnvironment.DebugScripts) editorFlags |= EditorFlags.DebugScripts;
+                AppResult.SetResult(editorFlags);
                 AppResult.SetResult(mainForm.FileName);
-                AppResult.SetResult(scriptEnvironment.DebugScripts);
                 return (int)mainForm.EditorResult;
             }
         }
