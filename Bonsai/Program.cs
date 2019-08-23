@@ -21,6 +21,7 @@ namespace Bonsai
         const string SuppressBootstrapCommand = "--no-boot";
         const string SuppressEditorCommand = "--no-editor";
         const string PackageManagerCommand = "--package-manager";
+        const string PackageManagerUpdates = "updates";
         const string ExportPackageCommand = "--export-package";
         const string ReloadEditorCommand = "--reload-editor";
         const string GalleryCommand = "--gallery";
@@ -42,6 +43,7 @@ namespace Bonsai
             var launchEditor = true;
             var debugScripts = false;
             var editorScale = 1.0f;
+            var updatePackages = false;
             var launchResult = default(EditorResult);
             var launchPackageId = default(string);
             var launchPackageVersion = default(SemanticVersion);
@@ -55,10 +57,15 @@ namespace Bonsai
             parser.RegisterCommand(DebugScriptCommand, () => debugScripts = true);
             parser.RegisterCommand(SuppressBootstrapCommand, () => bootstrap = false);
             parser.RegisterCommand(SuppressEditorCommand, () => launchEditor = false);
-            parser.RegisterCommand(PackageManagerCommand, () => { launchResult = EditorResult.ManagePackages; bootstrap = false; });
             parser.RegisterCommand(ExportPackageCommand, () => { launchResult = EditorResult.ExportPackage; bootstrap = false; });
             parser.RegisterCommand(ReloadEditorCommand, () => { launchResult = EditorResult.ReloadEditor; bootstrap = false; });
             parser.RegisterCommand(EditorScaleCommand, scale => editorScale = float.Parse(scale, CultureInfo.InvariantCulture));
+            parser.RegisterCommand(PackageManagerCommand, option =>
+            {
+                launchResult = EditorResult.ManagePackages;
+                updatePackages = option == PackageManagerUpdates;
+                bootstrap = false;
+            });
             parser.RegisterCommand(GalleryCommand, option =>
             {
                 if (string.IsNullOrEmpty(option))
@@ -123,7 +130,12 @@ namespace Bonsai
                 else if (launchResult == EditorResult.ManagePackages)
                 {
                     Configuration.ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
-                    return Launcher.LaunchPackageManager(packageConfiguration, editorRepositoryPath, editorPath, editorPackageName);
+                    return Launcher.LaunchPackageManager(
+                        packageConfiguration,
+                        editorRepositoryPath,
+                        editorPath,
+                        editorPackageName,
+                        updatePackages);
                 }
                 else if (launchResult == EditorResult.OpenGallery)
                 {
@@ -184,8 +196,13 @@ namespace Bonsai
                 {
                     string[] editorArgs;
                     if (launchResult == EditorResult.ExportPackage) editorArgs = new[] { initialFileName, ExportPackageCommand };
-                    else if (launchResult == EditorResult.ManagePackages) editorArgs = new[] { PackageManagerCommand };
                     else if (launchResult == EditorResult.OpenGallery) editorArgs = new[] { GalleryCommand };
+                    else if (launchResult == EditorResult.ManagePackages)
+                    {
+                        editorArgs = updatePackages
+                            ? new[] { PackageManagerCommand + ":" + PackageManagerUpdates }
+                            : new[] { PackageManagerCommand };
+                    }
                     else
                     {
                         var extraArgs = new List<string>(args);
@@ -208,6 +225,7 @@ namespace Bonsai
                     var exitCode = (EditorResult)editorDomain.ExecuteAssembly(editorPath, editorArgs);
                     Environment.SetEnvironmentVariable(PathEnvironmentVariable, currentPath);
 
+                    var editorFlags = AppResult.GetResult<EditorFlags>(editorDomain);
                     launchResult = AppResult.GetResult<EditorResult>(editorDomain);
                     if (launchResult != EditorResult.Exit && launchResult != EditorResult.ReloadEditor)
                     {
@@ -225,7 +243,8 @@ namespace Bonsai
                     }
                     else
                     {
-                        debugScripts = AppResult.GetResult<bool>(editorDomain);
+                        debugScripts = editorFlags.HasFlag(EditorFlags.DebugScripts);
+                        updatePackages = editorFlags.HasFlag(EditorFlags.UpdatesAvailable);
                         initialFileName = AppResult.GetResult<string>(editorDomain);
                         launchResult = exitCode;
                     }

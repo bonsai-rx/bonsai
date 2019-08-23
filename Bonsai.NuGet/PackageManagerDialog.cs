@@ -57,7 +57,10 @@ namespace Bonsai.NuGet
             multiOperationPanel.Visible = false;
             multiOperationLabel.Text = Resources.MultipleUpdatesLabel;
             multiOperationButton.Text = Resources.MultipleUpdatesOperationName;
+            DefaultTab = PackageManagerTab.Online;
         }
+
+        public PackageManagerTab DefaultTab { get; set; }
 
         public string InstallPath { get; set; }
 
@@ -84,7 +87,6 @@ namespace Bonsai.NuGet
 
             onlineNode = repositoriesView.Nodes.Add(Resources.OnlineNodeName);
             InitializeRepositoryViewNode(onlineNode);
-            onlineNode.Expand();
 
             updatesNode = repositoriesView.Nodes.Add(Resources.UpdatesNodeName);
             InitializeRepositoryViewNode(updatesNode);
@@ -115,10 +117,19 @@ namespace Bonsai.NuGet
 
         void SelectDefaultNode()
         {
-            var selectedNode = onlineNode.Nodes
+            TreeNode rootNode;
+            switch (DefaultTab)
+            {
+                case PackageManagerTab.Installed: rootNode = installedPackagesNode; break;
+                case PackageManagerTab.Updates: rootNode = updatesNode; break;
+                case PackageManagerTab.Online:
+                default: rootNode = onlineNode; break;
+            }
+
+            var selectedNode = rootNode.Nodes
                 .Cast<TreeNode>()
                 .FirstOrDefault(node => node.Text == DefaultRepository)
-                ?? onlineNode.FirstNode;
+                ?? rootNode.FirstNode;
             repositoriesView.SelectedNode = selectedNode;
             repositoriesView.Select();
         }
@@ -291,5 +302,12 @@ namespace Bonsai.NuGet
         {
             Close();
         }
+    }
+
+    public enum PackageManagerTab
+    {
+        Installed,
+        Online,
+        Updates
     }
 }
