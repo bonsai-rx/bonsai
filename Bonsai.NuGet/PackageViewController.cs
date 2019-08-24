@@ -179,6 +179,7 @@ namespace Bonsai.NuGet
             var aggregatePackageManager = CreatePackageManager(aggregateRepository, logger);
             managers.Add(Resources.AllNodeName, aggregatePackageManager);
             packageManagerProxy.PackageManager = aggregatePackageManager;
+            packageManagerProxy.SourceRepository = aggregatePackageManager.SourceRepository;
 
             var packageRepositories = packageSourceProvider
                 .GetEnabledPackageSources()

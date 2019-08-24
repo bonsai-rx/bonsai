@@ -252,8 +252,9 @@ namespace Bonsai.NuGet
         private void repositoriesView_AfterSelect(object sender, TreeViewEventArgs e)
         {
             selectingNode = null;
-            packageManagerProxy.PackageManager = e.Node.Tag as PackageManager;
-            if (packageManagerProxy.PackageManager == null) return;
+            var selectedManager = e.Node.Tag as PackageManager;
+            packageManagerProxy.SourceRepository = selectedManager != null ? selectedManager.SourceRepository : null;
+            if (packageManagerProxy.SourceRepository == null) return;
             if (e.Node == installedPackagesNode || e.Node.Parent == installedPackagesNode)
             {
                 releaseFilterComboBox.Visible = false;
