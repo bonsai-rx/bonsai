@@ -406,14 +406,17 @@ namespace Bonsai.NuGet
 
             var packageFeed = GetPackageFeed();
             var pageIndex = packagePageSelector.SelectedIndex;
-            var feedRequest = Observable.Defer(() =>
+            var feedRequest = Observable.If(
+                () => packagePageSelector.PageCount == 0,
+                Observable.Empty<IPackage>(),
+                Observable.Defer(() =>
                 packageFeed().AsBufferedEnumerable(PackagesPerPage * 3)
                 .Where(PackageExtensions.IsListed)
                 .AsCollapsed()
                 .Skip(pageIndex * PackagesPerPage)
                 .Take(PackagesPerPage)
                 .ToObservable()
-                .Catch<IPackage, WebException>(ex => Observable.Empty<IPackage>()))
+                .Catch<IPackage, WebException>(ex => Observable.Empty<IPackage>())))
                 .Buffer(PackagesPerPage)
                 .SubscribeOn(NewThreadScheduler.Default)
                 .ObserveOn(control)
