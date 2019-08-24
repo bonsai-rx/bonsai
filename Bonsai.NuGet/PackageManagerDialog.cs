@@ -126,10 +126,14 @@ namespace Bonsai.NuGet
                 default: rootNode = onlineNode; break;
             }
 
-            var selectedNode = rootNode.Nodes
-                .Cast<TreeNode>()
-                .FirstOrDefault(node => node.Text == DefaultRepository)
-                ?? rootNode.FirstNode;
+            TreeNode selectedNode;
+            if (rootNode == onlineNode)
+            {
+                selectedNode = rootNode.Nodes.Cast<TreeNode>()
+                    .FirstOrDefault(node => node.Text == DefaultRepository)
+                    ?? rootNode.FirstNode;
+            }
+            else selectedNode = rootNode.FirstNode;
             rootNode.Expand();
             repositoriesView.SelectedNode = selectedNode;
             repositoriesView.Select();
