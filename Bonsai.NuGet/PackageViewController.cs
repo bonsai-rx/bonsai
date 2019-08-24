@@ -449,7 +449,7 @@ namespace Bonsai.NuGet
             SetPackageViewStatus(Resources.RetrievingInformationLabel, Resources.WaitImage);
             var packageFeed = GetPackageFeed();
             activeRequests.Add(Observable.Start(() => packageFeed().Count())
-                .Catch<int, WebException>(ex =>
+                .Catch<int, InvalidOperationException>(ex =>
                 {
                     feedExceptionMessage = ex.Message;
                     return Observable.Return(0);
