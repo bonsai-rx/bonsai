@@ -133,7 +133,7 @@ namespace Bonsai.NuGet
 
         private void UpdateSelectedRepository()
         {
-            if (packageManagerProxy.PackageManager == null) return;
+            if (packageManagerProxy.SourceRepository == null) return;
             packageViewController.SelectedRepository = packageManagerProxy.SourceRepository;
             packageView.OperationText = Resources.OpenOperationName;
             searchComboBox.Text = string.Empty;

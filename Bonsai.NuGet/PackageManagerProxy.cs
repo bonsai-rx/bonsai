@@ -10,6 +10,7 @@ namespace Bonsai.NuGet
     class PackageManagerProxy : IPackageManager
     {
         IPackageManager packageManager;
+        IPackageRepository sourceRepository;
 
         public IPackageManager PackageManager
         {
@@ -38,7 +39,7 @@ namespace Bonsai.NuGet
         public IFileSystem FileSystem
         {
             get { return packageManager != null ? packageManager.FileSystem : null; }
-            set { if (packageManager != null)packageManager.FileSystem = value; }
+            set { if (packageManager != null) packageManager.FileSystem = value; }
         }
 
         public void InstallPackage(string packageId, SemanticVersion version, bool ignoreDependencies, bool allowPrereleaseVersions)
@@ -130,7 +131,8 @@ namespace Bonsai.NuGet
 
         public IPackageRepository SourceRepository
         {
-            get { return packageManager != null ? packageManager.SourceRepository : null; }
+            get { return sourceRepository; }
+            set { sourceRepository = value; }
         }
 
         public void UninstallPackage(string packageId, SemanticVersion version, bool forceRemove, bool removeDependencies)
