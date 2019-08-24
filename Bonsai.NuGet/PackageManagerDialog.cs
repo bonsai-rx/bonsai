@@ -130,6 +130,7 @@ namespace Bonsai.NuGet
                 .Cast<TreeNode>()
                 .FirstOrDefault(node => node.Text == DefaultRepository)
                 ?? rootNode.FirstNode;
+            rootNode.Expand();
             repositoriesView.SelectedNode = selectedNode;
             repositoriesView.Select();
         }
