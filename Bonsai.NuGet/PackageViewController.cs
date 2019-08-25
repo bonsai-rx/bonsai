@@ -494,14 +494,7 @@ namespace Bonsai.NuGet
                     {
                         foreach (var package in packages)
                         {
-                            if (update || packageManagerProxy.LocalRepository.FindPackage(package.Id) != null)
-                            {
-                                packageManagerProxy.UpdatePackage(package, handleDependencies, allowPrereleaseVersions);
-                            }
-                            else
-                            {
-                                packageManagerProxy.InstallPackage(package, !handleDependencies, allowPrereleaseVersions);
-                            }
+                            packageManagerProxy.InstallPackage(package, !handleDependencies, allowPrereleaseVersions);
                         }
                     });
                 }
