@@ -25,6 +25,11 @@ namespace Bonsai.Design
         public static readonly ElementIcon Default = new ElementIcon(typeof(ExpressionBuilder));
 
         static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
+        static readonly Dictionary<string, string> DefaultManifestResources = GetDefaultManifestResources();
+        const string ManifestResourcePrefix = "Bonsai.Editor.Resources";
+        const string EditorScriptingNamespace = "Bonsai.Editor.Scripting";
+        const string ExtensionsResourcePrefix = "Extensions.Extensions";
+        const string BonsaiPackageName = "Bonsai";
         const string SvgExtension = ".svg";
         const char AssemblySeparator = ':';
         readonly string defaultName;
@@ -83,6 +88,23 @@ namespace Bonsai.Design
         public bool IsIncludeElement
         {
             get { return includeElement != null; }
+        }
+
+        static Dictionary<string, string> GetDefaultManifestResources()
+        {
+            var resourceNames = typeof(ElementIcon).Assembly.GetManifestResourceNames();
+            var resourceMap = new Dictionary<string, string>(resourceNames.Length);
+            foreach (var name in resourceNames)
+            {
+                if (Path.GetExtension(name) != SvgExtension) continue;
+                var key = name.Replace(ManifestResourcePrefix, BonsaiPackageName);
+                if (key.EndsWith(EditorScriptingNamespace + SvgExtension))
+                {
+                    resourceMap.Add(ExtensionsResourcePrefix + SvgExtension, name);
+                }
+                resourceMap.Add(key, name);
+            }
+            return resourceMap;
         }
 
         static ElementIcon GetNamespaceIcon(string name, string assemblyName, IncludeWorkflowBuilder include)
@@ -219,7 +241,12 @@ namespace Bonsai.Design
 
             if (!assembly.IsDynamic)
             {
-                return assembly.GetManifestResourceStream(name);
+                var resourceStream = assembly.GetManifestResourceStream(name);
+                if (resourceStream == null && DefaultManifestResources.TryGetValue(name, out name))
+                {
+                    resourceStream = typeof(ElementIcon).Assembly.GetManifestResourceStream(name);
+                }
+                return resourceStream;
             }
             else return null;
         }
