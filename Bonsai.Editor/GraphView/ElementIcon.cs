@@ -42,8 +42,7 @@ namespace Bonsai.Design
             resourceQualifier = GetType();
             defaultName = string.Join(
                 ExpressionHelper.MemberSeparator,
-                resourceQualifier.Namespace,
-                typeof(ElementCategory).Name,
+                typeof(ElementCategory).FullName,
                 Enum.GetName(typeof(ElementCategory), category));
         }
 
