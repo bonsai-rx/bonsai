@@ -89,6 +89,7 @@ namespace Bonsai.Design
         static ElementIcon GetNamespaceIcon(string name, string assemblyName, IncludeWorkflowBuilder include)
         {
             if (string.IsNullOrEmpty(assemblyName) || assemblyName == name) return new ElementIcon(name, include);
+            else if (string.IsNullOrEmpty(name)) return new ElementIcon(assemblyName, include);
             else return new ElementIcon(assemblyName + AssemblySeparator + name, include);
         }
 
