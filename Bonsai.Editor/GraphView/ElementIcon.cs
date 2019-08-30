@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -27,7 +28,7 @@ namespace Bonsai.Design
         static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
         static readonly Dictionary<string, string> DefaultManifestResources = GetDefaultManifestResources();
         const string ManifestResourcePrefix = "Bonsai.Editor.Resources";
-        const string EditorScriptingNamespace = "Bonsai.Editor.Scripting";
+        const string EditorScriptingNamespace = "Bonsai.IconCategory.CSharp";
         const string ExtensionsResourcePrefix = "Extensions.Extensions";
         const string BonsaiPackageName = "Bonsai";
         const string SvgExtension = ".svg";
@@ -130,13 +131,22 @@ namespace Bonsai.Design
 
             if (resourceQualifier != null)
             {
-                string assemblyName;
-                var iconAttribute = (WorkflowIconAttribute)(
-                    Attribute.GetCustomAttribute(resourceQualifier.Assembly, typeof(WorkflowIconAttribute))
-                    ?? WorkflowIconAttribute.Default);
-                if (!string.IsNullOrEmpty(iconAttribute.Name)) assemblyName = iconAttribute.Name;
-                else assemblyName = resourceQualifier.Assembly.GetName().Name;
-                return GetNamespaceIcon(resourceQualifier.Namespace, assemblyName, null);
+                name = resourceQualifier.Namespace;
+                var assemblyName = resourceQualifier.Assembly.GetName().Name;
+                foreach (var attribute in resourceQualifier.Assembly.GetCustomAttributes<WorkflowNamespaceIconAttribute>())
+                {
+                    if (attribute.Namespace == resourceQualifier.Namespace || string.IsNullOrEmpty(attribute.Namespace))
+                    {
+                        assemblyName = string.Empty;
+                        name = attribute.ResourceName;
+                        if (!string.IsNullOrEmpty(attribute.Namespace))
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                return GetNamespaceIcon(name, assemblyName, null);
             }
             else
             {

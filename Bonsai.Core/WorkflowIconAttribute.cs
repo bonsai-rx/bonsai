@@ -11,7 +11,7 @@ namespace Bonsai
     /// Specifies the icon that should represent the element this attribute is bound to
     /// when drawing the workflow.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Assembly)]
+    [AttributeUsage(AttributeTargets.Class)]
     public sealed class WorkflowIconAttribute : Attribute
     {
         /// <summary>
