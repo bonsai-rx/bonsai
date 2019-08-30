@@ -12,28 +12,28 @@ namespace Bonsai
     /// when drawing the workflow.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
-    public sealed class WorkflowIconAttribute : Attribute
+    public sealed class WorkflowElementIconAttribute : Attribute
     {
         /// <summary>
-        /// Specifies the default value for the <see cref="WorkflowIconAttribute"/>. This field is read-only.
+        /// Specifies the default value for the <see cref="WorkflowElementIconAttribute"/>. This field is read-only.
         /// </summary>
-        public static readonly WorkflowIconAttribute Default = new WorkflowIconAttribute(string.Empty);
+        public static readonly WorkflowElementIconAttribute Default = new WorkflowElementIconAttribute(string.Empty);
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="WorkflowIconAttribute"/> class with
+        /// Initializes a new instance of the <see cref="WorkflowElementIconAttribute"/> class with
         /// the name of the icon resource that should represent the workflow element.
         /// </summary>
         /// <param name="name">
         /// The name of the icon resource that should represent the workflow element
         /// this attribute is bound to.
         /// </param>
-        public WorkflowIconAttribute(string name)
+        public WorkflowElementIconAttribute(string name)
         {
             Name = name;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="WorkflowIconAttribute"/> class with
+        /// Initializes a new instance of the <see cref="WorkflowElementIconAttribute"/> class with
         /// the name of the icon resource that should represent the workflow element, scoped
         /// by the namespace of the specified type.
         /// </summary>
@@ -42,13 +42,13 @@ namespace Bonsai
         /// The name of the icon resource that should represent the workflow element
         /// this attribute is bound to.
         /// </param>
-        public WorkflowIconAttribute(Type type, string name)
+        public WorkflowElementIconAttribute(Type type, string name)
             : this(type != null ? type.AssemblyQualifiedName : null, name)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="WorkflowIconAttribute"/> class with
+        /// Initializes a new instance of the <see cref="WorkflowElementIconAttribute"/> class with
         /// the name of the icon resource that should represent the workflow element, scoped
         /// by the namespace of the specified type.
         /// </summary>
@@ -60,7 +60,7 @@ namespace Bonsai
         /// The name of the icon resource that should represent the workflow element
         /// this attribute is bound to.
         /// </param>
-        public WorkflowIconAttribute(string typeName, string name)
+        public WorkflowElementIconAttribute(string typeName, string name)
             : this(name)
         {
             TypeName = typeName;

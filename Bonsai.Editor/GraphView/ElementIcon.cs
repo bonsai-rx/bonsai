@@ -60,9 +60,7 @@ namespace Bonsai.Design
 
         private ElementIcon(Type workflowElementType)
         {
-            var iconAttribute = (WorkflowIconAttribute)(
-                Attribute.GetCustomAttribute(workflowElementType, typeof(WorkflowIconAttribute))
-                ?? WorkflowIconAttribute.Default);
+            var iconAttribute = workflowElementType.GetCustomAttribute<WorkflowElementIconAttribute>() ?? WorkflowElementIconAttribute.Default;
             resourceQualifier = Type.GetType(iconAttribute.TypeName ?? string.Empty, false) ?? workflowElementType;
             if (!string.IsNullOrEmpty(iconAttribute.Name)) defaultName = iconAttribute.Name;
             else defaultName = resourceQualifier.Name;
