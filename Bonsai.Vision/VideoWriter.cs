@@ -11,6 +11,7 @@ using System.IO;
 
 namespace Bonsai.Vision
 {
+    [WorkflowElementIcon(typeof(ElementCategory), "ElementIcon.Video")]
     [Description("Writes the input image sequence into a compressed AVI file.")]
     public class VideoWriter : FileSink<IplImage, VideoWriterDisposable>
     {

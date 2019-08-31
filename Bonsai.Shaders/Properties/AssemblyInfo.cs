@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using Bonsai;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -33,4 +34,6 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("0.19.0.0")]
-[assembly: AssemblyInformationalVersion("0.19.0")]
+[assembly: AssemblyInformationalVersion("0.19.0-preview")]
+[assembly: XmlNamespacePrefix("clr-namespace:Bonsai.Shaders", "gl")]
+[assembly: WorkflowNamespaceIcon("Bonsai:ElementIcon.Shaders")]
