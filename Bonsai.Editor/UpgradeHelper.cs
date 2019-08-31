@@ -11,7 +11,7 @@ namespace Bonsai.Editor
 {
     static class UpgradeHelper
     {
-        static readonly SemanticVersion DeprecationTarget = SemanticVersion.Parse("2.4.0-preview");
+        static readonly SemanticVersion DeprecationTarget = SemanticVersion.Parse("2.4.0");
         static readonly SemanticVersion RemoveMemberSelectorPrefixVersion = SemanticVersion.Parse("2.4.0-preview");
         static readonly SemanticVersion EnumerableUnfoldingVersion = SemanticVersion.Parse("2.3.0");
         const string MemberSelectorPrefix = ExpressionBuilderArgument.ArgumentNamePrefix + ".";
