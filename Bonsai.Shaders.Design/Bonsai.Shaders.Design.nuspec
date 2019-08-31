@@ -14,8 +14,8 @@
     <copyright>Gonçalo Lopes © 2019</copyright>
     <tags>Bonsai Shaders Design Graphics OpenGL</tags>
     <dependencies>
-      <dependency id="Bonsai.Design" version="2.4.0-preview" />
-      <dependency id="Bonsai.Shaders" version="0.19.0-preview" />
+      <dependency id="Bonsai.Design" version="2.4.0" />
+      <dependency id="Bonsai.Shaders" version="0.19.0" />
     </dependencies>
   </metadata>
 </package>

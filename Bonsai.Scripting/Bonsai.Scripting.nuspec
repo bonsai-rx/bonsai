@@ -14,8 +14,8 @@
     <copyright>Gonçalo Lopes © 2019</copyright>
     <tags>Bonsai Rx Reactive Extensions Scripting</tags>
     <dependencies>
-      <dependency id="Bonsai.Core" version="2.4.0-preview" />
-      <dependency id="Bonsai.System" version="2.4.0-preview" />
+      <dependency id="Bonsai.Core" version="2.4.0" />
+      <dependency id="Bonsai.System" version="2.4.0" />
       <dependency id="IronPython.StdLib" version="2.7.5" />
     </dependencies>
   </metadata>
