@@ -166,7 +166,7 @@ namespace Bonsai.Design
 
         static string ResolvePath(string path, string assemblyName)
         {
-            if (!string.IsNullOrEmpty(assemblyName))
+            if (!string.IsNullOrEmpty(assemblyName) && assemblyName != BonsaiPackageName)
             {
                 var prefix = assemblyName + ExpressionHelper.MemberSeparator;
                 var index = path.IndexOf(prefix, StringComparison.Ordinal);
