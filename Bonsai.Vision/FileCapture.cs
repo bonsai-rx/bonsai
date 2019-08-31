@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 namespace Bonsai.Vision
 {
     [DefaultProperty("FileName")]
+    [WorkflowElementIcon(typeof(ElementCategory), "ElementIcon.Video")]
     [Description("Produces a video sequence of images from the specified movie file.")]
     [Editor("Bonsai.Vision.Design.FileCaptureEditor, Bonsai.Vision.Design", typeof(ComponentEditor))]
     public class FileCapture : Source<IplImage>

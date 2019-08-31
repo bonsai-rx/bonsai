@@ -28,7 +28,7 @@ namespace Bonsai.Design
         static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
         static readonly Dictionary<string, string> DefaultManifestResources = GetDefaultManifestResources();
         const string ManifestResourcePrefix = "Bonsai.Editor.Resources";
-        const string EditorScriptingNamespace = "Bonsai.IconCategory.CSharp";
+        const string EditorScriptingNamespace = "Bonsai.ElementIcon.CSharp";
         const string ExtensionsResourcePrefix = "Extensions.Extensions";
         const string BonsaiPackageName = "Bonsai";
         const string SvgExtension = ".svg";
