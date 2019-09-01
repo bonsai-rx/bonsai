@@ -43,18 +43,21 @@ namespace Bonsai.Vision
                 else roi = IplImageHelper.EnsureImageFormat(roi, input.Size, input.Depth, input.Channels);
                 if (Regions != currentRegions)
                 {
-                    mask.SetZero();
                     currentRegions = Regions;
-                    CV.FillPoly(mask, currentRegions, Scalar.All(255));
-                    boundingRegions = currentRegions.Select(polygon =>
+                    if (currentRegions != null)
                     {
-                        var points = polygon.SelectMany(point => new[] { point.X, point.Y }).ToArray();
-                        using (var mat = new Mat(1, polygon.Length, Depth.S32, 2))
+                        mask.SetZero();
+                        CV.FillPoly(mask, currentRegions, Scalar.All(255));
+                        boundingRegions = currentRegions.Select(polygon =>
                         {
-                            Marshal.Copy(points, 0, mat.Data, points.Length);
-                            return CV.BoundingRect(mat);
-                        }
-                    }).ToArray();
+                            var points = polygon.SelectMany(point => new[] { point.X, point.Y }).ToArray();
+                            using (var mat = new Mat(1, polygon.Length, Depth.S32, 2))
+                            {
+                                Marshal.Copy(points, 0, mat.Data, points.Length);
+                                return CV.BoundingRect(mat);
+                            }
+                        }).ToArray();
+                    }
                 }
 
                 if (currentRegions != null)

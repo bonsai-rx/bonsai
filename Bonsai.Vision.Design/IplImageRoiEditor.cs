@@ -81,9 +81,10 @@ namespace Bonsai.Vision.Design
                     editorService.ShowDialog(visualizerDialog);
 
                     var result = imageControl.Regions.ToArray();
-                    if (propertyDescriptor.PropertyType == typeof(OpenCV.Net.Point[]))
+                    if (result.Length == 0) return null;
+                    else if (propertyDescriptor.PropertyType == typeof(OpenCV.Net.Point[]))
                     {
-                        return result.Length > 0 ? result[0] : null;
+                        return result[0];
                     }
                     else return result;
                 }
