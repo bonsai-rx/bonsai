@@ -65,6 +65,7 @@ namespace Bonsai.Vision
                     if (Regions != currentRegions)
                     {
                         currentRegions = Regions;
+                        boundingBox = default(Rect);
                         if (currentRegions != null)
                         {
                             mask = new IplImage(input.Size, IplDepth.U8, 1);
@@ -90,7 +91,7 @@ namespace Bonsai.Vision
                         else mask = null;
                     }
 
-                    if (currentRegions != null)
+                    if (currentRegions != null && boundingBox.Width > 0 && boundingBox.Height > 0)
                     {
                         var selectionType = MaskType;
                         var template = selectionType <= ThresholdTypes.BinaryInv ? mask : input;
