@@ -103,12 +103,10 @@ namespace Bonsai.Vision
                             switch (selectionType)
                             {
                                 case ThresholdTypes.Binary:
-                                    output.SetZero();
                                     CV.Copy(mask, output);
                                     break;
                                 case ThresholdTypes.BinaryInv:
-                                    output.Set(Scalar.All(255));
-                                    output.Set(Scalar.All(0), mask);
+                                    CV.Not(mask, output);
                                     break;
                                 case ThresholdTypes.ToZeroInv:
                                     var fillRoi = cropOutput ? inputRoi : input;
