@@ -15,11 +15,6 @@ namespace Bonsai.Vision
     [Description("Calculates activation intensity inside specified regions of interest.")]
     public class RoiActivity : Transform<IplImage, RegionActivityCollection>
     {
-        IplImage roi;
-        IplImage mask;
-        Point[][] currentRegions;
-        Rect[] boundingRegions;
-
         public RoiActivity()
         {
             Operation = ReduceOperation.Sum;
@@ -34,61 +29,68 @@ namespace Bonsai.Vision
 
         public override IObservable<RegionActivityCollection> Process(IObservable<IplImage> source)
         {
-            return source.Select(input =>
+            return Observable.Defer(() =>
             {
-                var operation = Operation;
-                var output = new RegionActivityCollection();
-                mask = IplImageHelper.EnsureImageFormat(mask, input.Size, IplDepth.U8, 1);
-                if (operation != ReduceOperation.Sum) roi = null;
-                else roi = IplImageHelper.EnsureImageFormat(roi, input.Size, input.Depth, input.Channels);
-                if (Regions != currentRegions)
+                var roi = default(IplImage);
+                var mask = default(IplImage);
+                var currentRegions = default(Point[][]);
+                var boundingRegions = default(Rect[]);
+                return source.Select(input =>
                 {
-                    currentRegions = Regions;
-                    if (currentRegions != null)
+                    var operation = Operation;
+                    var output = new RegionActivityCollection();
+                    mask = IplImageHelper.EnsureImageFormat(mask, input.Size, IplDepth.U8, 1);
+                    if (operation != ReduceOperation.Sum) roi = null;
+                    else roi = IplImageHelper.EnsureImageFormat(roi, input.Size, input.Depth, input.Channels);
+                    if (Regions != currentRegions)
                     {
-                        mask.SetZero();
-                        CV.FillPoly(mask, currentRegions, Scalar.All(255));
-                        boundingRegions = currentRegions.Select(polygon =>
+                        currentRegions = Regions;
+                        if (currentRegions != null)
                         {
-                            var points = polygon.SelectMany(point => new[] { point.X, point.Y }).ToArray();
-                            using (var mat = new Mat(1, polygon.Length, Depth.S32, 2))
+                            mask.SetZero();
+                            CV.FillPoly(mask, currentRegions, Scalar.All(255));
+                            boundingRegions = currentRegions.Select(polygon =>
                             {
-                                Marshal.Copy(points, 0, mat.Data, points.Length);
-                                return CV.BoundingRect(mat);
-                            }
-                        }).ToArray();
-                    }
-                }
-
-                if (currentRegions != null)
-                {
-                    var activeMask = mask;
-                    if (roi != null)
-                    {
-                        roi.SetZero();
-                        CV.Copy(input, roi, mask);
-                        activeMask = roi;
-                    }
-
-                    var activation = ActivationFunction(operation);
-                    for (int i = 0; i < boundingRegions.Length; i++)
-                    {
-                        var rect = boundingRegions[i];
-                        var polygon = currentRegions[i];
-                        using (var region = input.GetSubRect(rect))
-                        using (var regionMask = activeMask.GetSubRect(rect))
-                        {
-                            output.Add(new RegionActivity
-                            {
-                                Roi = polygon,
-                                Rect = rect,
-                                Activity = activation(region, regionMask)
-                            });
+                                var points = polygon.SelectMany(point => new[] { point.X, point.Y }).ToArray();
+                                using (var mat = new Mat(1, polygon.Length, Depth.S32, 2))
+                                {
+                                    Marshal.Copy(points, 0, mat.Data, points.Length);
+                                    return CV.BoundingRect(mat);
+                                }
+                            }).ToArray();
                         }
                     }
-                }
 
-                return output;
+                    if (currentRegions != null)
+                    {
+                        var activeMask = mask;
+                        if (roi != null)
+                        {
+                            roi.SetZero();
+                            CV.Copy(input, roi, mask);
+                            activeMask = roi;
+                        }
+
+                        var activation = ActivationFunction(operation);
+                        for (int i = 0; i < boundingRegions.Length; i++)
+                        {
+                            var rect = boundingRegions[i];
+                            var polygon = currentRegions[i];
+                            using (var region = input.GetSubRect(rect))
+                            using (var regionMask = activeMask.GetSubRect(rect))
+                            {
+                                output.Add(new RegionActivity
+                                {
+                                    Roi = polygon,
+                                    Rect = rect,
+                                    Activity = activation(region, regionMask)
+                                });
+                            }
+                        }
+                    }
+
+                    return output;
+                });
             });
         }
 
