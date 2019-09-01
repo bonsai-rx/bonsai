@@ -91,23 +91,36 @@ namespace Bonsai.Vision
                         else mask = null;
                     }
 
+                    var selectionType = MaskType;
+                    if (selectionType <= ThresholdTypes.BinaryInv)
+                    {
+                        var size = mask != null ? mask.Size : input.Size;
+                        var output = new IplImage(size, IplDepth.U8, 1);
+                        switch (selectionType)
+                        {
+                            case ThresholdTypes.Binary:
+                                if (mask == null) output.SetZero();
+                                else CV.Copy(mask, output);
+                                break;
+                            case ThresholdTypes.BinaryInv:
+                                if (mask == null) output.Set(Scalar.All(255));
+                                else CV.Not(mask, output);
+                                break;
+                            default:
+                                throw new InvalidOperationException("Selection operation is not supported.");
+                        }
+
+                        return output;
+                    }
+
                     if (currentRegions != null && boundingBox.Width > 0 && boundingBox.Height > 0)
                     {
-                        var selectionType = MaskType;
-                        var template = selectionType <= ThresholdTypes.BinaryInv ? mask : input;
-
-                        var output = new IplImage(mask.Size, template.Depth, template.Channels);
-                        var inputRoi = cropOutput && selectionType > ThresholdTypes.BinaryInv ? input.GetSubRect(boundingBox) : input;
+                        var output = new IplImage(mask.Size, input.Depth, input.Channels);
+                        var inputRoi = cropOutput ? input.GetSubRect(boundingBox) : input;
                         try
                         {
                             switch (selectionType)
                             {
-                                case ThresholdTypes.Binary:
-                                    CV.Copy(mask, output);
-                                    break;
-                                case ThresholdTypes.BinaryInv:
-                                    CV.Not(mask, output);
-                                    break;
                                 case ThresholdTypes.ToZeroInv:
                                     var fillRoi = cropOutput ? inputRoi : input;
                                     CV.Copy(fillRoi, output);
