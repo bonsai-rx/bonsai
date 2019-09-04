@@ -21,11 +21,13 @@ namespace Bonsai.Vision
 
         protected override void Write(BinaryWriter writer, IplImage input)
         {
-            var data = new byte[input.WidthStep * input.Height];
+            var step = input.Width * input.Channels * ((int)(input.Depth) & 0xFF) / 8;
+            var data = new byte[step * input.Height];
             var dataHandle = GCHandle.Alloc(data, GCHandleType.Pinned);
             try
             {
-                var dataHeader = new IplImage(input.Size, input.Depth, input.Channels, dataHandle.AddrOfPinnedObject());
+                var dataHeader = new IplImage(input.Size, input.Depth, input.Channels, IntPtr.Zero);
+                dataHeader.SetData(dataHandle.AddrOfPinnedObject(), step);
                 CV.Copy(input, dataHeader);
             }
             finally { dataHandle.Free(); }
