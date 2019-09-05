@@ -206,6 +206,10 @@ namespace Bonsai.Editor.Scripting
             {
                 var assemblyName = new AssemblyName("@DynamicExtensions");
                 var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+                var iconAttributeBuilder = new CustomAttributeBuilder(
+                    typeof(WorkflowNamespaceIconAttribute).GetConstructor(new[] { typeof(string) }),
+                    new object[] { "Bonsai:ElementIcon.CSharp" });
+                assemblyBuilder.SetCustomAttribute(iconAttributeBuilder);
                 moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.FullName);
 
                 var emptyExpressionBuilder = moduleBuilder.DefineType("@EmptyExpression", TypeAttributes.Class, typeof(Expression));
