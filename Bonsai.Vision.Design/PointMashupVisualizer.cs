@@ -16,9 +16,9 @@ namespace Bonsai.Vision.Design
 {
     public class PointMashupVisualizer : MashupTypeVisualizer
     {
-        bool tracking;
-        List<Point> points;
-        List<List<Point>> polylines;
+        TrackingMode tracking;
+        Queue<Point> points;
+        Queue<Queue<Point>> polylines;
         IplImageVisualizer visualizer;
         IDisposable subscription;
 
@@ -48,15 +48,24 @@ namespace Bonsai.Vision.Design
             {
                 points = null;
             }
-            else if (tracking)
+            else if (tracking != TrackingMode.None)
             {
                 if (points == null)
                 {
-                    points = new List<Point>(1);
-                    polylines.Add(points);
+                    points = new Queue<Point>(1);
+                    polylines.Enqueue(points);
                 }
 
-                points.Add(point);
+                points.Enqueue(point);
+                if (tracking == TrackingMode.Fixed)
+                {
+                    var head = polylines.Peek();
+                    head.Dequeue();
+                    if (head.Count == 0)
+                    {
+                        polylines.Dequeue();
+                    }
+                }
             }
 
             if (polylines.Count > 0)
@@ -65,7 +74,7 @@ namespace Bonsai.Vision.Design
             }
 
             CV.Circle(image, point, 3, Scalar.Rgb(0, 255, 0), 3);
-            if (!tracking)
+            if (tracking == TrackingMode.None)
             {
                 polylines.Clear();
                 points = null;
@@ -74,14 +83,17 @@ namespace Bonsai.Vision.Design
 
         public override void Load(IServiceProvider provider)
         {
-            points = new List<Point>(1);
-            polylines = new List<List<Point>>(1);
+            points = new Queue<Point>(1);
+            polylines = new Queue<Queue<Point>>(1);
             visualizer = (IplImageVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
             MouseEventHandler mouseHandler = (sender, e) =>
             {
                 if (e.Button == MouseButtons.Left)
                 {
-                    tracking = !tracking;
+                    if (++tracking > TrackingMode.Fixed)
+                    {
+                        tracking = TrackingMode.None;
+                    }
                 }
             };
 
@@ -99,6 +111,13 @@ namespace Bonsai.Vision.Design
                 polylines = null;
                 points = null;
             }
+        }
+
+        enum TrackingMode
+        {
+            None,
+            Infinite,
+            Fixed
         }
     }
 }
