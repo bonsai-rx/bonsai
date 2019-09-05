@@ -10,14 +10,9 @@
 
   <!-- Define constants -->
   <PropertyGroup>
-    <MSBuildMercurialTasksPath>$(MSBuildProjectDirectory)\..\MSBuild\MSBuild.Mercurial</MSBuildMercurialTasksPath>
-    <MercurialTasks>$(MSBuildMercurialTasksPath)\MSBuild.Mercurial.Tasks</MercurialTasks>
     <GeneratedAssemblyInfoFile>Properties\AssemblyInfo.Generated.cs</GeneratedAssemblyInfoFile>
     <AssemblyInfoFile>Properties\AssemblyInfo.cs</AssemblyInfoFile>
   </PropertyGroup>
-  
-  <!-- Import MSBuild.Mercurial.Tasks -->
-  <Import Project="$(MercurialTasks)" Condition="Exists('$(MercurialTasks)')" />
 
   <!-- If a generated assembly info file exists, extract the version number -->
   <Target Name="ExtractGeneratedAssemblyFileVersion" Condition="Exists('$(GeneratedAssemblyInfoFile)')">
@@ -49,12 +44,9 @@
       <MajorMinorPatch>$([System.Text.RegularExpressions.Regex]::Match($(AssemblyInfoInput), $(AssemblyVersionPattern)).Result("$1.$2.$3"))</MajorMinorPatch>
     </PropertyGroup>
 
-    <HgVersion LocalPath="$(MSBuildProjectDirectory)" ContinueOnError="True">
-      <Output TaskParameter="Revision" PropertyName="HgRevisionNumber" />
-    </HgVersion>
-
     <PropertyGroup>
-      <AssemblyFileVersion>$(MajorMinorPatch).$(HgRevisionNumber)</AssemblyFileVersion>
+      <DaysFromFirstRevision>$([System.DateTime]::UtcNow.Subtract($([System.DateTime]::Parse(2011/12/12))).Days)</DaysFromFirstRevision>
+      <AssemblyFileVersion>$(MajorMinorPatch).$(DaysFromFirstRevision)</AssemblyFileVersion>
     </PropertyGroup>
   </Target>
   
@@ -71,7 +63,6 @@
   
   <!-- Run the automatic build steps -->
   <Target Name="GenerateAssemblyInfo"
-          Condition="Exists('$(MercurialTasks)')"
           DependsOnTargets="GenerateAssemblyFileVersion;ExtractGeneratedAssemblyFileVersion;GenerateDefaultAssemblyFileVersion;RegenerateAssemblyInfo">
   </Target>
 </Project>
