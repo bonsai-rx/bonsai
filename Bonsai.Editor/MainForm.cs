@@ -1262,6 +1262,7 @@ namespace Bonsai.Editor
                                 statusTextLabel.Text = Resources.RunningStatus;
                                 statusImageLabel.Image = statusRunningImage;
                                 editorSite.OnWorkflowStarted(EventArgs.Empty);
+                                Activate();
                             }));
                         }
                         catch
