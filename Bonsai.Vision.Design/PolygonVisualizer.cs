@@ -23,9 +23,9 @@ namespace Bonsai.Vision.Design
 
         internal static void Draw(IplImage image, object value)
         {
-            if (image != null)
+            var points = value as Point[][];
+            if (image != null && points != null)
             {
-                var points = (Point[][])value;
                 var color = image.Channels == 1 ? Scalar.Real(255) : Scalar.Rgb(255, 0, 0);
                 var thickness = DefaultThickness * (int)Math.Ceiling(image.Height / DefaultHeight);
                 CV.PolyLine(image, points, true, color, DefaultThickness);
