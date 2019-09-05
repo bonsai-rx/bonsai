@@ -9,6 +9,7 @@ using System.IO.Pipes;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Concurrency;
+using System.Threading;
 
 namespace Bonsai.IO
 {
@@ -65,13 +66,25 @@ namespace Bonsai.IO
         /// <param name="input">The input element that should be pushed into the stream.</param>
         protected abstract void Write(TWriter writer, TSource input);
 
-        static Stream CreateStream(string path, bool overwrite)
+        static Stream CreateStream(string path, bool overwrite, CancellationToken cancellationToken)
         {
+            const int MaxNumberOfServerInstances = 1;
             if (path.StartsWith(PipeServerPrefix))
             {
                 var pipeName = path.Split(new[] { PipeServerPrefix }, StringSplitOptions.RemoveEmptyEntries).Single();
-                var stream = new NamedPipeServerStream(pipeName, PipeDirection.Out);
-                try { stream.WaitForConnection(); }
+                var stream = new NamedPipeServerStream(
+                    pipeName,
+                    PipeDirection.Out,
+                    MaxNumberOfServerInstances,
+                    PipeTransmissionMode.Byte,
+                    PipeOptions.Asynchronous);
+                try
+                {
+                    using (var cancellation = cancellationToken.Register(stream.Close))
+                    {
+                        stream.WaitForConnection();
+                    }
+                }
                 catch { stream.Close(); throw; }
                 return stream;
             }
@@ -110,6 +123,8 @@ namespace Bonsai.IO
                     throw new InvalidOperationException("A valid path must be specified.");
                 }
 
+                var cancellationSource = new CancellationTokenSource();
+                var cancel = Disposable.Create(cancellationSource.Cancel);
                 var disposable = new WriterDisposable<TWriter>();
                 disposable.Schedule(() =>
                 {
@@ -118,7 +133,7 @@ namespace Bonsai.IO
                     {
                         if (!path.StartsWith(@"\\")) PathHelper.EnsureDirectory(path);
                         path = PathHelper.AppendSuffix(path, Suffix);
-                        stream = CreateStream(path, Overwrite);
+                        stream = CreateStream(path, Overwrite, cancellationSource.Token);
                         disposable.Writer = CreateWriter(stream);
                     }
                     catch (Exception ex)
@@ -143,7 +158,7 @@ namespace Bonsai.IO
                     });
                 }).SubscribeSafe(observer);
 
-                return new CompositeDisposable(process, disposable);
+                return new CompositeDisposable(process, disposable, cancel, cancellationSource);
             });
         }
 
