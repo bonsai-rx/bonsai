@@ -52,6 +52,7 @@ namespace Bonsai.IO
                         using (var cancellation = cancellationToken.Register(() => exitSignal.Set()))
                         {
                             exitSignal.WaitOne();
+                            if (!process.HasExited) return 0;
                             return process.ExitCode;
                         }
                     }
