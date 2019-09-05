@@ -34,8 +34,8 @@ namespace Bonsai.IO
             {
                 return Task.Factory.StartNew(() =>
                 {
-                    using (var process = new Process())
                     using (var exitSignal = new ManualResetEvent(false))
+                    using (var process = new Process())
                     {
                         process.StartInfo.FileName = FileName;
                         process.StartInfo.Arguments = Arguments;
