@@ -10,7 +10,6 @@ using System.Reactive;
 using System.Windows.Forms;
 
 [assembly: TypeVisualizer(typeof(TimeIntervalIplImageVisualizer), Target = typeof(TimeInterval<IplImage>))]
-[assembly: TypeVisualizer(typeof(TimeIntervalIplImageVisualizer), Target = typeof(IObservable<TimeInterval<IplImage>>))]
 
 namespace Bonsai.Vision.Design
 {
@@ -35,11 +34,6 @@ namespace Bonsai.Vision.Design
             fpsLabel = new ToolStripStatusLabel();
             StatusStrip.Items.Add(timeIntervalLabel);
             StatusStrip.Items.Add(fpsLabel);
-        }
-
-        public override IObservable<object> Visualize(IObservable<IObservable<object>> source, IServiceProvider provider)
-        {
-            return Visualize<TimeInterval<IplImage>>(source, provider);
         }
 
         public override void Unload()

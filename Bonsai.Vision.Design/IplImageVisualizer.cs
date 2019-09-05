@@ -16,7 +16,6 @@ using Size = System.Drawing.Size;
 using Timer = System.Windows.Forms.Timer;
 
 [assembly: TypeVisualizer(typeof(IplImageVisualizer), Target = typeof(IplImage))]
-[assembly: TypeVisualizer(typeof(IplImageVisualizer), Target = typeof(IObservable<IplImage>))]
 
 namespace Bonsai.Vision.Design
 {
@@ -175,18 +174,12 @@ namespace Bonsai.Vision.Design
             }
         }
 
-        protected IObservable<object> Visualize<T>(IObservable<IObservable<object>> source, IServiceProvider provider)
+        public override IObservable<object> Visualize(IObservable<IObservable<object>> source, IServiceProvider provider)
         {
-            IObservable<object> mergedSource;
             IObservable<IList<object>> dataSource;
-            var visualizerContext = (ITypeVisualizerContext)provider.GetService(typeof(ITypeVisualizerContext));
-            if (visualizerContext != null && typeof(IObservable<T>).IsAssignableFrom(visualizerContext.Source.ObservableType))
-            {
-                mergedSource = source.SelectMany(xs => xs.Select(ws => ws as IObservable<T>)
-                                                         .Where(ws => ws != null)
-                                                         .SelectMany(ws => ws.Select(vs => (object)vs).Do(ys => { }, () => visualizerCanvas.BeginInvoke((Action)SequenceCompleted))));
-            }
-            else mergedSource = source.SelectMany(xs => xs.Do(ys => { }, () => visualizerCanvas.BeginInvoke((Action)SequenceCompleted)));
+            var mergedSource = source.SelectMany(xs => xs.Do(
+                ys => { },
+                () => visualizerCanvas.BeginInvoke((Action)SequenceCompleted)));
 
             if (Mashups.Count > 0)
             {
@@ -205,11 +198,6 @@ namespace Bonsai.Vision.Design
                     UpdateCanvas(xs);
                 }
             });
-        }
-
-        public override IObservable<object> Visualize(IObservable<IObservable<object>> source, IServiceProvider provider)
-        {
-            return Visualize<IplImage>(source, provider);
         }
 
         public override void Unload()

@@ -10,7 +10,6 @@ using System.Reactive;
 using System.Windows.Forms;
 
 [assembly: TypeVisualizer(typeof(TimestampedIplImageVisualizer), Target = typeof(Timestamped<IplImage>))]
-[assembly: TypeVisualizer(typeof(TimestampedIplImageVisualizer), Target = typeof(IObservable<Timestamped<IplImage>>))]
 
 namespace Bonsai.Vision.Design
 {
@@ -30,11 +29,6 @@ namespace Bonsai.Vision.Design
             base.Load(provider);
             timestampLabel = new ToolStripStatusLabel();
             StatusStrip.Items.Add(timestampLabel);
-        }
-
-        public override IObservable<object> Visualize(IObservable<IObservable<object>> source, IServiceProvider provider)
-        {
-            return Visualize<Timestamped<IplImage>>(source, provider);
         }
 
         public override void Unload()
