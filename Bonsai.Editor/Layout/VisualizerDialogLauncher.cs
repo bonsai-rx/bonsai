@@ -108,9 +108,12 @@ namespace Bonsai.Design
                 visualizerContext = null;
             };
 
-            visualizerDialog.Activated += delegate
+            visualizerDialog.Shown += delegate
             {
-                workflowGraphView.SelectBuilderNode(source);
+                visualizerDialog.Activated += delegate
+                {
+                    workflowGraphView.SelectBuilderNode(source);
+                };
             };
         }
 
