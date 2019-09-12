@@ -62,7 +62,7 @@ namespace Bonsai.Shaders
                 : TargetRenderPeriod;
             updateFrame = new Subject<FrameEvent>();
             renderFrame = new Subject<FrameEvent>();
-            resourceManager = new ResourceManager(this);
+            resourceManager = new ResourceManager();
             textures = new ResourceDictionary<Texture>(resourceManager);
             meshes = new ResourceDictionary<Mesh>(resourceManager);
             shaders = new List<Shader>();
@@ -164,7 +164,9 @@ namespace Bonsai.Shaders
 
         protected override void OnLoad(EventArgs e)
         {
+            var windowManager = new WindowManagerConfiguration(this);
             var resources = new List<IResourceConfiguration>();
+            resources.Add(windowManager);
             resources.AddRange(settings.Textures);
             resources.AddRange(settings.Meshes);
             resources.AddRange(settings.Shaders);
@@ -257,6 +259,36 @@ namespace Bonsai.Shaders
             shaders.Clear();
             resourceManager.Dispose();
             base.OnUnload(e);
+        }
+
+        class WindowManagerConfiguration : ResourceConfiguration<WindowManager>
+        {
+            readonly ShaderWindow window;
+
+            internal WindowManagerConfiguration(ShaderWindow owner)
+            {
+                Name = string.Empty;
+                window = owner;
+            }
+
+            public override WindowManager CreateResource(ResourceManager resourceManager)
+            {
+                return new WindowManager(window);
+            }
+        }
+    }
+
+    class WindowManager : IDisposable
+    {
+        internal WindowManager(ShaderWindow window)
+        {
+            Window = window;
+        }
+
+        internal ShaderWindow Window { get; private set; }
+
+        public void Dispose()
+        {
         }
     }
 }

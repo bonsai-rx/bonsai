@@ -28,16 +28,17 @@ namespace Bonsai.Shaders.Configuration
 
         public override Shader CreateResource(ResourceManager resourceManager)
         {
+            var windowManager = resourceManager.Load<WindowManager>(string.Empty);
             var computeSource = ReadShaderSource(ComputeShader);
             var computation = new ComputeProgram(
-                Name, resourceManager.Window,
+                Name, windowManager.Window,
                 computeSource,
                 RenderState,
                 ShaderUniforms,
                 BufferBindings,
                 Framebuffer);
             computation.WorkGroups = WorkGroups;
-            resourceManager.Window.AddShader(computation);
+            windowManager.Window.AddShader(computation);
             return computation;
         }
 
