@@ -15,10 +15,5 @@ namespace Bonsai.Shaders
         {
             return source.Select(input => input.ResourceManager.Load(input));
         }
-
-        public IObservable<IDisposable> Process(IObservable<Tuple<IEnumerable<IResourceConfiguration>, ResourceManager>> source)
-        {
-            return source.Select(input => input.Item2.Load(input.Item1));
-        }
     }
 }

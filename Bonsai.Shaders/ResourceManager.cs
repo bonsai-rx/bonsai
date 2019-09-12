@@ -10,24 +10,8 @@ namespace Bonsai.Shaders
     public sealed class ResourceManager : IDisposable
     {
         bool disposed;
-        readonly ShaderWindow shaderWindow;
         readonly Dictionary<ResourceKey, IResourceConfiguration> preload = new Dictionary<ResourceKey, IResourceConfiguration>();
         readonly Dictionary<ResourceKey, IDisposable> resources = new Dictionary<ResourceKey, IDisposable>();
-
-        public ResourceManager(ShaderWindow window)
-        {
-            if (window == null)
-            {
-                throw new ArgumentNullException("window");
-            }
-
-            shaderWindow = window;
-        }
-
-        public ShaderWindow Window
-        {
-            get { return shaderWindow; }
-        }
 
         public IDisposable Load(IEnumerable<IResourceConfiguration> source)
         {

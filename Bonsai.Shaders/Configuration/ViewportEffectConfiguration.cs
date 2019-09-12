@@ -32,16 +32,17 @@ namespace Bonsai.Shaders.Configuration
 
         public override Shader CreateResource(ResourceManager resourceManager)
         {
+            var windowManager = resourceManager.Load<WindowManager>(string.Empty);
             var fragmentSource = ReadShaderSource(FragmentShader);
             var effect = new ViewportEffect(
-                Name, resourceManager.Window,
+                Name, windowManager.Window,
                 fragmentSource,
                 RenderState,
                 ShaderUniforms,
                 BufferBindings,
                 Framebuffer,
                 texturedQuad.CreateResource(resourceManager));
-            resourceManager.Window.AddShader(effect);
+            windowManager.Window.AddShader(effect);
             return effect;
         }
 

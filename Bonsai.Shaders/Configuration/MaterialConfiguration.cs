@@ -41,12 +41,13 @@ namespace Bonsai.Shaders.Configuration
 
         public override Shader CreateResource(ResourceManager resourceManager)
         {
+            var windowManager = resourceManager.Load<WindowManager>(string.Empty);
             var vertexSource = ReadShaderSource(VertexShader);
             var geometrySource = ReadShaderSource(GeometryShader);
             var fragmentSource = ReadShaderSource(FragmentShader);
 
             var material = new Material(
-                Name, resourceManager.Window,
+                Name, windowManager.Window,
                 vertexSource,
                 geometrySource,
                 fragmentSource,
@@ -58,7 +59,7 @@ namespace Bonsai.Shaders.Configuration
             {
                 material.Mesh = resourceManager.Load<Mesh>(MeshName);
             }
-            resourceManager.Window.AddShader(material);
+            windowManager.Window.AddShader(material);
             return material;
         }
 
