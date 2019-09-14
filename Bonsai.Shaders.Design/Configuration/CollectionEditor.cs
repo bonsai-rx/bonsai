@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing.Design;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -13,19 +14,44 @@ namespace Bonsai.Shaders.Configuration.Design
 {
     class CollectionEditor : UITypeEditor
     {
+        Type collectionItemType;
+        readonly Type collectionType;
+
         public CollectionEditor(Type type)
         {
-            
+            collectionType = type;
+        }
+
+        protected Type CollectionType
+        {
+            get { return collectionType; }
+        }
+
+        protected Type CollectionItemType
+        {
+            get
+            {
+                if (collectionItemType == null)
+                {
+                    collectionItemType = CreateCollectionItemType();
+                }
+
+                return collectionItemType;
+            }
         }
 
         protected virtual Type CreateCollectionItemType()
         {
-            return null;
+            var defaultMember = TypeDescriptor.GetReflectionType(collectionType)
+                .GetDefaultMembers()
+                .OfType<PropertyInfo>()
+                .FirstOrDefault();
+            return defaultMember != null ? defaultMember.PropertyType : typeof(object);
         }
 
         protected virtual Type[] CreateNewItemTypes()
         {
-            return Type.EmptyTypes;
+            return new[] { CollectionItemType };
         }
 
         protected virtual CollectionEditorDialog CreateEditorDialog()
