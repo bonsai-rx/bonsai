@@ -6,20 +6,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bonsai.Shaders
+namespace Bonsai.Resources
 {
     public class ResourceNameConverter : StringConverter
     {
-        internal readonly Func<IResourceConfiguration, bool> targetResource;
+        readonly Type targetType;
 
-        public ResourceNameConverter(Type type)
-            : this(resource => resource.Type == type)
+        protected ResourceNameConverter(Type type)
         {
+            targetType = type;
         }
 
-        internal ResourceNameConverter(Func<IResourceConfiguration, bool> predicate)
+        protected virtual bool IsResourceSupported(IResourceConfiguration resource)
         {
-            targetResource = predicate;
+            return resource.Type == targetType;
         }
 
         static bool IsGroup(IWorkflowExpressionBuilder builder)
@@ -94,7 +94,7 @@ namespace Bonsai.Shaders
                                      from element in SelectContextElements(level)
                                      let loader = ExpressionBuilder.GetWorkflowElement(element) as ResourceLoader
                                      where loader != null
-                                     from resource in loader.GetResources().Where(targetResource)
+                                     from resource in loader.GetResources().Where(IsResourceSupported)
                                      select resource.Name)
                                      .Distinct()
                                      .ToList();

@@ -1,5 +1,4 @@
-﻿using Bonsai.Resources;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -7,9 +6,8 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bonsai.Shaders
+namespace Bonsai.Resources
 {
-    [Obsolete]
     [Description("Loads a collection of resources into the resource manager.")]
     public class LoadResources : Combinator<ResourceConfigurationCollection, IDisposable>
     {

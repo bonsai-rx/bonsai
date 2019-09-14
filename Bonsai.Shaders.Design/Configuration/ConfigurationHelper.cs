@@ -1,5 +1,4 @@
-﻿using Bonsai.Shaders.Design.Properties;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,7 +10,7 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration.Design
 {
-    class ConfigurationHelper
+    static class ConfigurationHelper
     {
         public static ShaderWindowSettings LoadConfiguration(out DialogResult result)
         {

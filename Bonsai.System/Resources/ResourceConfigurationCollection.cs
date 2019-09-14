@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bonsai.Shaders
+namespace Bonsai.Resources
 {
     public class ResourceConfigurationCollection : IEnumerable<IResourceConfiguration>
     {

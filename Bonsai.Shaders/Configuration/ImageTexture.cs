@@ -1,4 +1,5 @@
-﻿using OpenCV.Net;
+﻿using Bonsai.Resources;
+using OpenCV.Net;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;

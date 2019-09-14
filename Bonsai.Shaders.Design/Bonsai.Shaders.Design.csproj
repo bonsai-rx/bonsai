@@ -156,6 +156,10 @@
       <Project>{4d325c30-e014-4151-bc69-064d9b272641}</Project>
       <Name>Bonsai.Shaders</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Bonsai.System\Bonsai.System.csproj">
+      <Project>{b783d74f-cb2d-4419-b438-266cd15774fb}</Project>
+      <Name>Bonsai.System</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Configuration\CollectionEditorControl.resx">
@@ -174,6 +178,8 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+      <CustomToolNamespace>Bonsai.Shaders.Configuration.Design</CustomToolNamespace>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

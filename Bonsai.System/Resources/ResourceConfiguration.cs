@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bonsai.Shaders
+namespace Bonsai.Resources
 {
     public interface IResourceConfiguration
     {
@@ -42,7 +42,7 @@ namespace Bonsai.Shaders
             else return string.Format("{0} [{1}]", name, typeName);
         }
 
-        internal Stream OpenResource(string path)
+        protected Stream OpenResource(string path)
         {
             const char AssemblySeparator = ':';
             if (string.IsNullOrEmpty(path))

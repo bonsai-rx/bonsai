@@ -1,5 +1,4 @@
 ﻿using Bonsai.Shaders.Design;
-using Bonsai.Shaders.Design.Properties;
 using System;
 using System.Collections;
 using System.Collections.Generic;

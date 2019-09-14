@@ -1,4 +1,5 @@
-﻿using Bonsai.Shaders.Configuration;
+﻿using Bonsai.Resources;
+using Bonsai.Shaders.Configuration;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -23,7 +24,7 @@ namespace Bonsai.Shaders
             get { return meshes; }
         }
 
-        protected internal override IEnumerable<IResourceConfiguration> GetResources()
+        protected override IEnumerable<IResourceConfiguration> GetResources()
         {
             return meshes;
         }

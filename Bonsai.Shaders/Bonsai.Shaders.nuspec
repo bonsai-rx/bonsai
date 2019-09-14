@@ -15,6 +15,7 @@
     <tags>Bonsai Shaders Graphics OpenGL</tags>
     <dependencies>
       <dependency id="Bonsai.Core" version="2.4.0" />
+      <dependency id="Bonsai.System" version="2.4.0" />
     </dependencies>
   </metadata>
 </package>

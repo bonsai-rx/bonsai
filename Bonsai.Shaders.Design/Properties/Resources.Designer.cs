@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Bonsai.Shaders.Design.Properties {
+namespace Bonsai.Shaders.Configuration.Design {
     using System;
     
     

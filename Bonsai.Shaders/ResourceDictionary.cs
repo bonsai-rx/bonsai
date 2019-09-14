@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bonsai.Shaders
+namespace Bonsai.Resources
 {
+    [Obsolete]
     class ResourceDictionary<TResource> : IDictionary<string, TResource> where TResource : IDisposable
     {
         readonly ResourceManager manager;
