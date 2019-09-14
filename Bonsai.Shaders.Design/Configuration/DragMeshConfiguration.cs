@@ -15,7 +15,7 @@ namespace Bonsai.Shaders.Configuration.Design
         {
         }
 
-        protected override bool IsResourceAllowed(string fileName)
+        protected override bool IsResourceSupported(string fileName)
         {
             return Path.GetExtension(fileName) == ".obj";
         }

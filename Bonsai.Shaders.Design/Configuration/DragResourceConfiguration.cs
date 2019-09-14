@@ -21,7 +21,7 @@ namespace Bonsai.Shaders.Configuration.Design
                     for (int i = 0; i < fileNames.Length; i++)
                     {
                         var path = fileNames[i];
-                        if (IsResourceAllowed(path))
+                        if (IsResourceSupported(path))
                         {
                             var item = CreateResourceConfiguration(path);
                             if (item != null)
@@ -34,7 +34,7 @@ namespace Bonsai.Shaders.Configuration.Design
             };
         }
 
-        protected abstract bool IsResourceAllowed(string fileName);
+        protected abstract bool IsResourceSupported(string fileName);
 
         protected abstract object CreateResourceConfiguration(string fileName);
 
@@ -43,7 +43,7 @@ namespace Bonsai.Shaders.Configuration.Design
             if (e.Data.GetDataPresent(DataFormats.FileDrop, true))
             {
                 var fileNames = (string[])e.Data.GetData(DataFormats.FileDrop, true);
-                e.Effect = Array.Exists(fileNames, IsResourceAllowed) ? DragDropEffects.Copy : DragDropEffects.None;
+                e.Effect = Array.Exists(fileNames, IsResourceSupported) ? DragDropEffects.Copy : DragDropEffects.None;
             }
         }
     }
