@@ -119,7 +119,6 @@
     <Compile Include="Configuration\TextureConfigurationCollection.cs" />
     <Compile Include="Configuration\ImageTexture.cs" />
     <Compile Include="Configuration\Texture2D.cs" />
-    <Compile Include="ResourceConfiguration.cs" />
     <Compile Include="Configuration\TextureConfiguration.cs" />
     <Compile Include="Configuration\UniformConfiguration.cs" />
     <Compile Include="Configuration\UniformConfigurationCollection.cs" />
@@ -140,12 +139,8 @@
     <Compile Include="LatestOnRenderFrame.cs" />
     <Compile Include="MeshAttributeMapping.cs" />
     <Compile Include="MeshBounds.cs" />
-    <Compile Include="ResourceConfigurationCollection.cs" />
     <Compile Include="ResourceDictionary.cs" />
-    <Compile Include="ResourceKey.cs" />
     <Compile Include="ResourceLoader.cs" />
-    <Compile Include="ResourceManager.cs" />
-    <Compile Include="ResourceNameConverter.cs" />
     <Compile Include="RetrieveImage.cs" />
     <Compile Include="RotateAxisAngle.cs" />
     <Compile Include="RotateQuaternion.cs" />
@@ -261,6 +256,10 @@
     <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj">
       <Project>{e4d03ba3-54a2-4ff8-9dc6-52ba4cc14fed}</Project>
       <Name>Bonsai.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Bonsai.System\Bonsai.System.csproj">
+      <Project>{b783d74f-cb2d-4419-b438-266cd15774fb}</Project>
+      <Name>Bonsai.System</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

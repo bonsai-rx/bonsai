@@ -1,4 +1,5 @@
-﻿using Bonsai.Shaders.Configuration;
+﻿using Bonsai.Resources;
+using Bonsai.Shaders.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,9 @@ namespace Bonsai.Shaders
 {
     class ComputeProgramNameConverter : ShaderNameConverter
     {
-        public ComputeProgramNameConverter()
-            : base(resource => resource is ComputeProgramConfiguration)
+        protected override bool IsResourceSupported(IResourceConfiguration resource)
         {
+            return resource is ComputeProgramConfiguration;
         }
     }
 }

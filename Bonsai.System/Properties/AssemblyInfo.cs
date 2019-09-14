@@ -36,4 +36,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("2.4.0.0")]
 [assembly: AssemblyInformationalVersion("2.4.0")]
 [assembly: XmlNamespacePrefix("clr-namespace:Bonsai.IO", "io")]
+[assembly: XmlNamespacePrefix("clr-namespace:Bonsai.Resources", "res")]
 [assembly: WorkflowNamespaceIcon("Bonsai.IO", "Bonsai:ElementIcon.IO")]
+[assembly: WorkflowNamespaceIcon("Bonsai.Resources", "Bonsai:ElementIcon.IO")]

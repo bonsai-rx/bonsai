@@ -97,6 +97,13 @@
     <Compile Include="IO\TextWriter.cs" />
     <Compile Include="IO\Ports\SerialStringRead.cs" />
     <Compile Include="IO\Ports\SerialStringWrite.cs" />
+    <Compile Include="Resources\LoadResources.cs" />
+    <Compile Include="Resources\ResourceConfiguration.cs" />
+    <Compile Include="Resources\ResourceConfigurationCollection.cs" />
+    <Compile Include="Resources\ResourceKey.cs" />
+    <Compile Include="Resources\ResourceLoader.cs" />
+    <Compile Include="Resources\ResourceManager.cs" />
+    <Compile Include="Resources\ResourceNameConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj">

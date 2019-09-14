@@ -1,4 +1,5 @@
-﻿using Bonsai.Shaders.Configuration;
+﻿using Bonsai.Resources;
+using Bonsai.Shaders.Configuration;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
@@ -63,8 +64,6 @@ namespace Bonsai.Shaders
             updateFrame = new Subject<FrameEvent>();
             renderFrame = new Subject<FrameEvent>();
             resourceManager = new ResourceManager();
-            textures = new ResourceDictionary<Texture>(resourceManager);
-            meshes = new ResourceDictionary<Mesh>(resourceManager);
             shaders = new List<Shader>();
         }
 
@@ -110,13 +109,29 @@ namespace Bonsai.Shaders
         [Obsolete]
         public IDictionary<string, Texture> Textures
         {
-            get { return textures; }
+            get
+            {
+                if (textures == null)
+                {
+                    textures = new ResourceDictionary<Texture>(resourceManager);
+                }
+
+                return textures;
+            }
         }
 
         [Obsolete]
         public IDictionary<string, Mesh> Meshes
         {
-            get { return meshes; }
+            get
+            {
+                if (meshes == null)
+                {
+                    meshes = new ResourceDictionary<Mesh>(resourceManager);
+                }
+
+                return meshes;
+            }
         }
 
         public ResourceManager ResourceManager

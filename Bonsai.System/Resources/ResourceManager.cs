@@ -5,7 +5,7 @@ using System.Reactive.Disposables;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bonsai.Shaders
+namespace Bonsai.Resources
 {
     public sealed class ResourceManager : IDisposable
     {
