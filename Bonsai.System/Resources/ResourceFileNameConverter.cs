@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bonsai.Shaders.Configuration
+namespace Bonsai.Resources
 {
-    class ResourceFileNameConverter : StringConverter
+    public class ResourceFileNameConverter : StringConverter
     {
         public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType)
         {

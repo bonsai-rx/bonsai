@@ -107,7 +107,6 @@
     <Compile Include="Configuration\ComputeProgramConfiguration.cs" />
     <Compile Include="Configuration\DepthMaskState.cs" />
     <Compile Include="Configuration\ImageTextureBindingConfiguration.cs" />
-    <Compile Include="Configuration\ResourceFileNameConverter.cs" />
     <Compile Include="Configuration\ShaderConfiguration.cs" />
     <Compile Include="Configuration\Vec4Uniform.cs" />
     <Compile Include="Configuration\Vec3Uniform.cs" />

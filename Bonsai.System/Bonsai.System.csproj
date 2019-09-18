@@ -101,6 +101,7 @@
     <Compile Include="Resources\LoadResources.cs" />
     <Compile Include="Resources\ResourceConfiguration.cs" />
     <Compile Include="Resources\ResourceConfigurationCollection.cs" />
+    <Compile Include="Resources\ResourceFileNameConverter.cs" />
     <Compile Include="Resources\ResourceKey.cs" />
     <Compile Include="Resources\ResourceLoader.cs" />
     <Compile Include="Resources\ResourceManager.cs" />
