@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration.Design
 {
+    [Obsolete]
     class ShaderCollectionEditorControl : CollectionEditorControl
     {
         Lazy<XmlSerializer> textureCollectionSerializer;

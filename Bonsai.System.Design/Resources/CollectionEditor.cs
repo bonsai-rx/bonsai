@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 
-namespace Bonsai.Shaders.Configuration.Design
+namespace Bonsai.Resources.Design
 {
-    class CollectionEditor : UITypeEditor
+    public class CollectionEditor : UITypeEditor
     {
         Type collectionItemType;
         readonly Type collectionType;

@@ -1,4 +1,4 @@
-﻿namespace Bonsai.Shaders.Configuration.Design
+﻿namespace Bonsai.Resources.Design
 {
     partial class CollectionEditorDialog
     {
@@ -33,7 +33,7 @@
             this.propertiesLabel = new System.Windows.Forms.Label();
             this.cancelButton = new System.Windows.Forms.Button();
             this.okButton = new System.Windows.Forms.Button();
-            this.collectionEditorControl = new Bonsai.Shaders.Configuration.Design.CollectionEditorControl();
+            this.collectionEditorControl = new Bonsai.Resources.Design.CollectionEditorControl();
             this.SuspendLayout();
             // 
             // memberLabel
@@ -136,6 +136,6 @@
         private System.Windows.Forms.Label propertiesLabel;
         private System.Windows.Forms.Button cancelButton;
         private System.Windows.Forms.Button okButton;
-        private Shaders.Configuration.Design.CollectionEditorControl collectionEditorControl;
+        private Resources.Design.CollectionEditorControl collectionEditorControl;
     }
 }

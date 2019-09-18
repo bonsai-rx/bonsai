@@ -1,13 +1,14 @@
-﻿using System;
+﻿using Bonsai.Resources.Design;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Bonsai.Shaders.Configuration.Design
 {
-    class ShaderConfigurationCollectionEditor : CollectionEditor
+    class ShaderConfigurationCollectionEditor : ResourceCollectionEditor
     {
         public ShaderConfigurationCollectionEditor(Type type)
             : base(type)
@@ -24,11 +25,17 @@ namespace Bonsai.Shaders.Configuration.Design
             return new[] { typeof(MaterialConfiguration), typeof(ViewportEffectConfiguration), typeof(ComputeProgramConfiguration) };
         }
 
-        protected override CollectionEditorDialog CreateEditorDialog()
+        protected override bool IsResourceSupported(string fileName)
         {
-            var form = base.CreateEditorDialog();
-            form.Tag = new DragMaterialConfiguration(form.EditorControl);
-            return form;
+            return Path.GetExtension(fileName) == ".mtl";
+        }
+
+        protected override object CreateResourceConfiguration(string fileName)
+        {
+            var material = new MaterialConfiguration();
+            material.Name = Path.GetFileNameWithoutExtension(fileName);
+            MtlReader.ReadMaterial(material, fileName);
+            return material;
         }
     }
 }

@@ -70,27 +70,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configuration\CollectionEditor.cs" />
     <Compile Include="Configuration\CollectionEditorControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Configuration\CollectionEditorControl.Designer.cs">
       <DependentUpon>CollectionEditorControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Configuration\CollectionEditorDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Configuration\CollectionEditorDialog.Designer.cs">
-      <DependentUpon>CollectionEditorDialog.cs</DependentUpon>
-    </Compile>
     <Compile Include="Configuration\ConfigurationHelper.cs" />
     <Compile Include="Configuration\ContextMenuButton.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Configuration\DragMaterialConfiguration.cs" />
-    <Compile Include="Configuration\DragMeshConfiguration.cs" />
-    <Compile Include="Configuration\DragResourceConfiguration.cs" />
-    <Compile Include="Configuration\DragTextureConfiguration.cs" />
     <Compile Include="Configuration\MeshConfigurationCollectionEditor.cs" />
     <Compile Include="Configuration\MtlReader.cs" />
     <Compile Include="Configuration\ShaderCollectionEditorControl.cs">
@@ -148,6 +137,10 @@
       <Project>{4d325c30-e014-4151-bc69-064d9b272641}</Project>
       <Name>Bonsai.Shaders</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Bonsai.System.Design\Bonsai.System.Design.csproj">
+      <Project>{8005e3ed-424b-4cf8-94cf-9a4f6eed32b5}</Project>
+      <Name>Bonsai.System.Design</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Bonsai.System\Bonsai.System.csproj">
       <Project>{b783d74f-cb2d-4419-b438-266cd15774fb}</Project>
       <Name>Bonsai.System</Name>
@@ -156,9 +149,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Configuration\CollectionEditorControl.resx">
       <DependentUpon>CollectionEditorControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Configuration\CollectionEditorDialog.resx">
-      <DependentUpon>CollectionEditorDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Configuration\ShaderConfigurationEditorDialog.resx">
       <DependentUpon>ShaderConfigurationEditorDialog.cs</DependentUpon>

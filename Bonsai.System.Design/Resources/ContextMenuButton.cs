@@ -6,9 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Bonsai.Shaders.Configuration.Design
+namespace Bonsai.Resources.Design
 {
-    [Obsolete]
     class ContextMenuButton : Button
     {
         const int ArrowSeparatorThickness = 2;
