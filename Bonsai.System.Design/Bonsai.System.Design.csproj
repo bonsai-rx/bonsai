@@ -49,11 +49,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataMemberSelectorEditor.cs" />
-    <Compile Include="SerialPortConfigurationControl.cs">
+    <Compile Include="IO\DataMemberSelectorEditor.cs" />
+    <Compile Include="IO\SerialPortConfigurationControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="SerialPortConfigurationEditor.cs" />
+    <Compile Include="IO\SerialPortConfigurationEditor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
   </ItemGroup>
