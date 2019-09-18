@@ -68,36 +68,8 @@ namespace Bonsai.Audio
             return audioSource.SelectMany(source =>
                 dataSource.Do(input =>
                 {
-                    var transpose = input.Rows < input.Cols;
-                    var channels = transpose ? input.Rows : input.Cols;
-                    if (channels > 2)
-                    {
-                        throw new InvalidOperationException("Unsupported number of channels for the specified output format.");
-                    }
-
-                    var format = channels == 2 ? ALFormat.Stereo16 : ALFormat.Mono16;
-                    var convertDepth = input.Depth != Depth.S16;
-                    if (convertDepth || transpose)
-                    {
-                        // Convert if needed
-                        if (convertDepth)
-                        {
-                            var temp = new Mat(input.Rows, input.Cols, Depth.S16, 1);
-                            CV.Convert(input, temp);
-                            input = temp;
-                        }
-
-                        // Transpose multichannel to column order
-                        if (transpose)
-                        {
-                            var temp = new Mat(input.Cols, input.Rows, input.Depth, 1);
-                            CV.Transpose(input, temp);
-                            input = temp;
-                        }
-                    }
-
                     var buffer = AL.GenBuffer();
-                    AL.BufferData(buffer, format, input.Data, input.Rows * input.Step, SampleRate);
+                    BufferHelper.UpdateBuffer(buffer, input, SampleRate);
                     AL.SourceQueueBuffer(source.Id, buffer);
 
                     source.ClearBuffers(0);

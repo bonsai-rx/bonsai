@@ -30,77 +30,26 @@ namespace Bonsai.Audio
         [Description("The length of the sample buffer (ms).")]
         public double BufferLength { get; set; }
 
-        static void FindId(BinaryReader reader, byte[] bytes, string id)
-        {
-            while (true)
-            {
-                var count = reader.Read(bytes, 0, bytes.Length);
-                if (count < bytes.Length)
-                {
-                    var message = string.Format("No {0} chunk found in the specified WAV file.", id);
-                    throw new InvalidOperationException(message);
-                }
-
-                if (string.Compare(Encoding.ASCII.GetString(bytes), id, true) != 0)
-                {
-                    var size = reader.ReadUInt32();
-                    reader.BaseStream.Seek(size, SeekOrigin.Current);
-                }
-                else break;
-            }
-        }
-
-        static void CheckId(BinaryReader reader, byte[] bytes, string id)
-        {
-            var count = reader.Read(bytes, 0, bytes.Length);
-            if (count < bytes.Length ||
-                string.Compare(Encoding.ASCII.GetString(bytes), id, true) != 0)
-            {
-                throw new InvalidOperationException("The specified file has an invalid RIFF header.");
-            }
-        }
-
-        static void AssertFormatValue(uint expected, uint actual)
-        {
-            if (expected != actual)
-            {
-                throw new InvalidOperationException("The specified file has an unsupported WAV format.");
-            }
-        }
-
         IEnumerable<Mat> CreateReader(double bufferLength)
         {
             using (var reader = new BinaryReader(new FileStream(FileName, FileMode.Open, FileAccess.Read)))
             {
-                var id = new byte[4];
-                CheckId(reader, id, RiffHeader.RiffId);
-                reader.ReadInt32();
-                CheckId(reader, id, RiffHeader.WaveId);
-                CheckId(reader, id, RiffHeader.FmtId);
+                RiffHeader header;
+                RiffReader.ReadHeader(reader, out header);
 
-                AssertFormatValue(16u, reader.ReadUInt32());
-                AssertFormatValue(1u, reader.ReadUInt16());
-
-                var channels = (int)reader.ReadUInt16();
-                var sampleRate = (long)reader.ReadUInt32();
-                reader.ReadUInt32();
-                var sampleSize = (int)reader.ReadUInt16();
-                var depth = reader.ReadUInt16() == 8 ? Depth.U8 : Depth.S16;
-
-                var bufferSize = (int)Math.Ceiling(sampleRate * bufferLength / 1000);
-                FindId(reader, id, RiffHeader.DataId);
-                var dataSize = (long)reader.ReadUInt32();
-                var sampleCount = dataSize / sampleSize;
+                var sampleCount = header.DataLength / header.BlockAlign;
+                var depth = header.BitsPerSample == 8 ? Depth.U8 : Depth.S16;
+                var bufferSize = (int)Math.Ceiling(header.SampleRate * bufferLength / 1000);
                 bufferSize = bufferSize <= 0 ? (int)sampleCount : bufferSize;
 
-                var sampleData = new byte[bufferSize * sampleSize];
+                var sampleData = new byte[bufferSize * header.BlockAlign];
                 for (int i = 0; i < sampleCount / bufferSize; i++)
                 {
                     var bytesRead = reader.Read(sampleData, 0, sampleData.Length);
                     if (bytesRead < sampleData.Length) break;
 
-                    var output = new Mat(channels, bufferSize, depth, 1);
-                    using (var bufferHeader = Mat.CreateMatHeader(sampleData, bufferSize, channels, depth, 1))
+                    var output = new Mat(header.Channels, bufferSize, depth, 1);
+                    using (var bufferHeader = Mat.CreateMatHeader(sampleData, bufferSize, header.Channels, depth, 1))
                     {
                         CV.Transpose(bufferHeader, output);
                     }
