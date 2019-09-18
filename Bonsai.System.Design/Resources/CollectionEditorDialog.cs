@@ -9,24 +9,24 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Bonsai.Shaders.Configuration.Design
+namespace Bonsai.Resources.Design
 {
-    partial class CollectionEditorDialog : Form
+    public partial class CollectionEditorDialog : Form
     {
         int initialHeight;
         int initialCollectionEditorHeight;
         EditorSite editorSite;
 
-        public CollectionEditorDialog()
+        internal CollectionEditorDialog()
         {
             InitializeComponent();
             editorSite = new EditorSite(this);
             propertyGrid.Site = editorSite;
         }
 
-        public IServiceProvider ServiceProvider { get; set; }
+        internal IServiceProvider ServiceProvider { get; set; }
 
-        public CollectionEditorControl EditorControl
+        internal CollectionEditorControl EditorControl
         {
             get { return collectionEditorControl; }
         }
@@ -34,13 +34,13 @@ namespace Bonsai.Shaders.Configuration.Design
         public Type CollectionItemType
         {
             get { return collectionEditorControl.CollectionItemType; }
-            set { collectionEditorControl.CollectionItemType = value; }
+            internal set { collectionEditorControl.CollectionItemType = value; }
         }
 
         public Type[] NewItemTypes
         {
             get { return collectionEditorControl.NewItemTypes; }
-            set { collectionEditorControl.NewItemTypes = value; }
+            internal set { collectionEditorControl.NewItemTypes = value; }
         }
 
         public IEnumerable Items

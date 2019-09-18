@@ -12,9 +12,8 @@ using System.Xml;
 using System.Xml.Serialization;
 using System.IO;
 
-namespace Bonsai.Shaders.Configuration.Design
+namespace Bonsai.Resources.Design
 {
-    [Obsolete]
     partial class CollectionEditorControl : UserControl
     {
         int addTop;

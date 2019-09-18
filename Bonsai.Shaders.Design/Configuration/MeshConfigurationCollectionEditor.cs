@@ -1,7 +1,7 @@
 ﻿using Bonsai.Design;
+using Bonsai.Resources.Design;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace Bonsai.Shaders.Configuration.Design
 {
-    class MeshConfigurationCollectionEditor : CollectionEditor
+    class MeshConfigurationCollectionEditor : ResourceCollectionEditor
     {
         public MeshConfigurationCollectionEditor(Type type)
             : base(type)
@@ -27,11 +27,17 @@ namespace Bonsai.Shaders.Configuration.Design
             return new[] { typeof(MeshConfiguration), typeof(TexturedQuad), typeof(TexturedModel) };
         }
 
-        protected override CollectionEditorDialog CreateEditorDialog()
+        protected override bool IsResourceSupported(string fileName)
         {
-            var form = base.CreateEditorDialog();
-            form.Tag = new DragMeshConfiguration(form.EditorControl);
-            return form;
+            return Path.GetExtension(fileName) == ".obj";
+        }
+
+        protected override object CreateResourceConfiguration(string fileName)
+        {
+            var configuration = new TexturedModel();
+            configuration.FileName = PathConvert.GetProjectPath(fileName);
+            configuration.Name = Path.GetFileNameWithoutExtension(fileName);
+            return configuration;
         }
     }
 }

@@ -15,6 +15,7 @@ using System.Xml;
 
 namespace Bonsai.Shaders.Configuration.Design
 {
+    [Obsolete]
     partial class ShaderConfigurationEditorDialog : Form
     {
         int initialHeight;
@@ -23,9 +24,6 @@ namespace Bonsai.Shaders.Configuration.Design
         FormClosingEventArgs closingEventArgs;
         ShaderConfigurationEditorPage selectedPage;
         ShaderWindowSettings configuration;
-        DragMeshConfiguration dragMesh;
-        DragTextureConfiguration dragTexture;
-        DragMaterialConfiguration dragMaterial;
         string currentDirectory;
 
         public ShaderConfigurationEditorDialog()
@@ -42,9 +40,6 @@ namespace Bonsai.Shaders.Configuration.Design
             meshCollectionEditor.NewItemTypes = new[] { typeof(MeshConfiguration), typeof(TexturedQuad), typeof(TexturedModel) };
             textureCollectionEditor.CollectionItemType = typeof(TextureConfiguration);
             textureCollectionEditor.NewItemTypes = new[] { typeof(Texture2D), typeof(Cubemap), typeof(ImageTexture), typeof(ImageCubemap) };
-            dragMesh = new DragMeshConfiguration(meshCollectionEditor);
-            dragTexture = new DragTextureConfiguration(textureCollectionEditor);
-            dragMaterial = new DragMaterialConfiguration(shaderCollectionEditor);
         }
 
         public GlslScriptExampleCollection ScriptExamples
