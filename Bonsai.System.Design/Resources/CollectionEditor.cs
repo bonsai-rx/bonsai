@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
+using System.Xml.Serialization;
 
 namespace Bonsai.Resources.Design
 {
@@ -51,7 +52,11 @@ namespace Bonsai.Resources.Design
 
         protected virtual Type[] CreateNewItemTypes()
         {
-            return new[] { CollectionItemType };
+            var itemType = CollectionItemType;
+            var newItemTypes = new List<Type>();
+            if (!itemType.IsAbstract) newItemTypes.Add(itemType);
+            newItemTypes.AddRange(itemType.GetCustomAttributes<XmlIncludeAttribute>().Select(attribute => attribute.Type));
+            return newItemTypes.ToArray();
         }
 
         protected virtual CollectionEditorDialog CreateEditorDialog()
