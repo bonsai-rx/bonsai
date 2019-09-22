@@ -26,7 +26,9 @@ namespace Bonsai.Audio
         {
             if (string.IsNullOrEmpty(deviceName))
             {
-                deviceName = OpenTK.Audio.AudioContext.DefaultDevice;
+                var currentContext = OpenTK.Audio.AudioContext.CurrentContext;
+                if (currentContext != null) deviceName = currentContext.CurrentDevice;
+                else deviceName = OpenTK.Audio.AudioContext.DefaultDevice;
             }
 
             Tuple<AudioContext, RefCountDisposable> activeContext;
