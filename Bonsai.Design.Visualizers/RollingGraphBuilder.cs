@@ -65,6 +65,7 @@ namespace Bonsai.Design.Visualizers
 
             Expression showBody;
             var selectedMembers = ExpressionHelper.SelectMembers(elementVariable, ElementSelector)
+                .SelectMany(GraphHelper.UnwrapMemberAccess)
                 .Select(x => x.Type.IsArray ? x : Expression.Convert(x, typeof(object))).ToArray();
             if (selectedMembers.Length == 1 && selectedMembers[0].Type.IsArray)
             {
