@@ -14,18 +14,18 @@ namespace Bonsai.Audio
     public class UpdateListener : Sink
     {
         static Vector3 Up = Vector3.UnitY;
-        static Vector3 Forward = Vector3.UnitZ;
+        static Vector3 Forward = -Vector3.UnitZ;
 
         [TypeConverter(typeof(NumericRecordConverter))]
-        [Description("The current location of the listener in three-dimensional space.")]
+        [Description("The current location of the listener, in the world coordinate frame.")]
         public Vector3? Position { get; set; }
 
         [TypeConverter(typeof(NumericRecordConverter))]
-        [Description("The current velocity of the listener in three-dimensional space.")]
+        [Description("The current velocity of the listener, in the world coordinate frame.")]
         public Vector3? Velocity { get; set; }
 
         [TypeConverter(typeof(NumericRecordConverter))]
-        [Description("The current orientation of the listener in three-dimensional space.")]
+        [Description("The current orientation of the listener, in the world coordinate frame.")]
         public Quaternion? Orientation { get; set; }
 
         [Description("The amount of amplification applied to the listener. Each multiplication by 2 increases gain by +6dB.")]
