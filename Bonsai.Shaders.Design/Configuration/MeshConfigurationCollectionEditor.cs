@@ -27,9 +27,9 @@ namespace Bonsai.Shaders.Configuration.Design
             return new[] { typeof(MeshConfiguration), typeof(TexturedQuad), typeof(TexturedModel) };
         }
 
-        protected override bool IsResourceSupported(string fileName)
+        protected override string[] CreateSupportedExtensions()
         {
-            return Path.GetExtension(fileName) == ".obj";
+            return new[] { ".obj" };
         }
 
         protected override object CreateResourceConfiguration(string fileName)
