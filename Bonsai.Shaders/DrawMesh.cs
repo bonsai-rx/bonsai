@@ -36,7 +36,7 @@ namespace Bonsai.Shaders
 
         public IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
-            return Observable.Create<TSource>(observer =>
+            return Observable.Defer(() =>
             {
                 var drawMesh = default(Action);
                 var meshName = default(string);
@@ -52,13 +52,13 @@ namespace Bonsai.Shaders
 
                         shader.Update(drawMesh);
                         return input;
-                    }).SubscribeSafe(observer);
+                    });
             });
         }
 
         public IObservable<Mesh> Process(IObservable<Mesh> source)
         {
-            return Observable.Create<Mesh>(observer =>
+            return Observable.Defer(() =>
             {
                 var drawMesh = default(Action);
                 var meshName = default(string);
@@ -74,7 +74,7 @@ namespace Bonsai.Shaders
 
                         shader.Update(drawMesh ?? (() => input.Draw()));
                         return input;
-                    }).SubscribeSafe(observer);
+                    });
             });
         }
     }

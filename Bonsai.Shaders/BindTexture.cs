@@ -37,7 +37,7 @@ namespace Bonsai.Shaders
 
         IObservable<TSource> Process<TSource>(IObservable<TSource> source, Action<int, TSource> update)
         {
-            return Observable.Create<TSource>(observer =>
+            return Observable.Defer(() =>
             {
                 var textureId = 0;
                 var textureName = default(string);
@@ -56,7 +56,7 @@ namespace Bonsai.Shaders
 
                         shader.Update(() => update(textureId, input));
                         return input;
-                    }).SubscribeSafe(observer);
+                    });
             });
         }
 
