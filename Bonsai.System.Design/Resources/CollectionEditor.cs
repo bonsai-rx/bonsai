@@ -15,6 +15,7 @@ namespace Bonsai.Resources.Design
 {
     public class CollectionEditor : UITypeEditor
     {
+        Type[] newItemTypes;
         Type collectionItemType;
         readonly Type collectionType;
 
@@ -38,6 +39,19 @@ namespace Bonsai.Resources.Design
                 }
 
                 return collectionItemType;
+            }
+        }
+
+        protected Type[] NewItemTypes
+        {
+            get
+            {
+                if (newItemTypes == null)
+                {
+                    newItemTypes = CreateNewItemTypes();
+                }
+
+                return newItemTypes;
             }
         }
 
@@ -92,7 +106,7 @@ namespace Bonsai.Resources.Design
                     var itemType = CreateCollectionItemType();
                     collectionForm.ServiceProvider = provider;
                     collectionForm.CollectionItemType = itemType;
-                    collectionForm.NewItemTypes = CreateNewItemTypes();
+                    collectionForm.NewItemTypes = NewItemTypes;
                     collectionForm.Items = value as IEnumerable;
                     collectionForm.Text = itemType.Name + " " + collectionForm.Text;
                     if (editorService.ShowDialog(collectionForm) == DialogResult.OK)
