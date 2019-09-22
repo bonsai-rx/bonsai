@@ -92,6 +92,11 @@ namespace Bonsai.Audio
             }
         }
 
+        public ALSourceState State
+        {
+            get { return AL.GetSourceState(id); }
+        }
+
         internal void ClearBuffers(int input)
         {
             int[] freeBuffers;

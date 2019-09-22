@@ -68,16 +68,29 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AudioCapture.cs" />
+    <Compile Include="AudioContext.cs" />
     <Compile Include="AudioContextConfiguration.cs" />
     <Compile Include="AudioContextConfigurationCollection.cs" />
     <Compile Include="AudioContextDisposable.cs" />
     <Compile Include="AudioManager.cs" />
     <Compile Include="AudioPlayback.cs" />
     <Compile Include="AudioReader.cs" />
+    <Compile Include="AudioResources.cs" />
     <Compile Include="AudioSource.cs" />
     <Compile Include="AudioWriter.cs" />
+    <Compile Include="Buffer.cs" />
     <Compile Include="BufferHelper.cs" />
+    <Compile Include="BufferNameConverter.cs" />
     <Compile Include="CaptureDeviceNameConverter.cs" />
+    <Compile Include="Configuration\BufferConfiguration.cs" />
+    <Compile Include="Configuration\BufferConfigurationCollection.cs" />
+    <Compile Include="Configuration\SoundBuffer.cs" />
+    <Compile Include="Configuration\SourceConfiguration.cs" />
+    <Compile Include="Configuration\SourceConfigurationCollection.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="CreateAudioContext.cs" />
+    <Compile Include="SourceNameConverter.cs" />
+    <Compile Include="UpdateBuffer.cs" />
     <Compile Include="UpdateSource.cs" />
     <Compile Include="CreateSource.cs" />
     <Compile Include="PlaybackDeviceNameConverter.cs" />

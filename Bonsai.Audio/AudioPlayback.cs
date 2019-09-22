@@ -31,6 +31,10 @@ namespace Bonsai.Audio
             set { createSource.DeviceName = value; }
         }
 
+        [TypeConverter(typeof(SourceNameConverter))]
+        [Description("The optional name of the source used to playback the input buffers.")]
+        public string SourceName { get; set; }
+
         [Description("The sample rate, in Hz, used to playback the input buffers.")]
         public int SampleRate { get; set; }
 
@@ -55,7 +59,8 @@ namespace Bonsai.Audio
 
         public override IObservable<Mat> Process(IObservable<Mat> source)
         {
-            return source.Publish(ps => Process(createSource.Generate().TakeUntil(ps.LastAsync()), ps));
+            return createSource.Generate().SelectMany(audioSource =>
+                Process(Observable.Return(audioSource), source).Finally(audioSource.Dispose));
         }
 
         public IObservable<Mat> Process(IObservable<Mat> dataSource, IObservable<AudioSource> audioSource)
@@ -65,8 +70,9 @@ namespace Bonsai.Audio
 
         public IObservable<Mat> Process(IObservable<AudioSource> audioSource, IObservable<Mat> dataSource)
         {
-            return audioSource.SelectMany(source =>
-                dataSource.Do(input =>
+            return Observable.Using(
+                () => AudioManager.ReserveContext(DeviceName),
+                resource => audioSource.SelectMany(source => dataSource.Do(input =>
                 {
                     var buffer = AL.GenBuffer();
                     BufferHelper.UpdateBuffer(buffer, input, SampleRate);
@@ -77,7 +83,7 @@ namespace Bonsai.Audio
                     {
                         AL.SourcePlay(source.Id);
                     }
-                }));
+                })));
         }
     }
 }

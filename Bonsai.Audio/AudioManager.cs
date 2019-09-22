@@ -19,9 +19,14 @@ namespace Bonsai.Audio
 
         public static AudioContextDisposable ReserveContext(string deviceName)
         {
+            return ReserveContext(deviceName, 0, 0);
+        }
+
+        internal static AudioContextDisposable ReserveContext(string deviceName, int sampleRate, int refresh)
+        {
             if (string.IsNullOrEmpty(deviceName))
             {
-                deviceName = AudioContext.DefaultDevice;
+                deviceName = OpenTK.Audio.AudioContext.DefaultDevice;
             }
 
             Tuple<AudioContext, RefCountDisposable> activeContext;
@@ -39,7 +44,7 @@ namespace Bonsai.Audio
                             contextConfiguration.SampleRate,
                             contextConfiguration.Refresh);
                     }
-                    else context = new AudioContext(deviceName);
+                    else context = new AudioContext(deviceName, sampleRate, refresh);
                     
                     var dispose = Disposable.Create(() =>
                     {
