@@ -89,7 +89,12 @@
     <Compile Include="Configuration\SourceConfigurationCollection.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="CreateAudioContext.cs" />
+    <Compile Include="PauseSource.cs" />
+    <Compile Include="PlaySource.cs" />
+    <Compile Include="RewindSource.cs" />
+    <Compile Include="SourceNameArrayConverter.cs" />
     <Compile Include="SourceNameConverter.cs" />
+    <Compile Include="StopSource.cs" />
     <Compile Include="UpdateBuffer.cs" />
     <Compile Include="UpdateSource.cs" />
     <Compile Include="CreateSource.cs" />
@@ -100,6 +105,7 @@
     <Compile Include="RiffReader.cs" />
     <Compile Include="RiffWriter.cs" />
     <Compile Include="UpdateListener.cs" />
+    <Compile Include="UpdateSourceState.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj">
