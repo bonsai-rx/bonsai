@@ -176,7 +176,7 @@ namespace Bonsai.Shaders
                     "If you want to control shader window creation, please delete the '{2}' file " +
                     "and specify window resources using the {1} operator.",
                     typeof(CreateWindow).Name,
-                    typeof(LoadResources).Name,
+                    typeof(Bonsai.Resources.LoadResources).Name,
                     ShaderManager.DefaultConfigurationFile)));
             }
             
