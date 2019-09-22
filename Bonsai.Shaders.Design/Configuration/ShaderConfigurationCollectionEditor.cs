@@ -25,9 +25,9 @@ namespace Bonsai.Shaders.Configuration.Design
             return new[] { typeof(MaterialConfiguration), typeof(ViewportEffectConfiguration), typeof(ComputeProgramConfiguration) };
         }
 
-        protected override bool IsResourceSupported(string fileName)
+        protected override string[] CreateSupportedExtensions()
         {
-            return Path.GetExtension(fileName) == ".mtl";
+            return new[] { ".mtl" };
         }
 
         protected override object CreateResourceConfiguration(string fileName)
