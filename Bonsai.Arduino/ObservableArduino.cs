@@ -36,10 +36,15 @@ namespace Bonsai.Arduino
 
         public static IObservable<bool> DigitalInput(string portName, int pin)
         {
+            return DigitalInput(portName, pin, PinMode.Input);
+        }
+
+        public static IObservable<bool> DigitalInput(string portName, int pin, PinMode pinMode)
+        {
             return Observable.Create<bool>(observer =>
             {
                 var connection = ArduinoManager.ReserveConnection(portName);
-                connection.Arduino.PinMode(pin, PinMode.Input);
+                connection.Arduino.PinMode(pin, pinMode);
                 var port = Arduino.GetPortNumber(pin);
                 EventHandler<DigitalInputReceivedEventArgs> inputReceived;
                 inputReceived = (sender, e) =>

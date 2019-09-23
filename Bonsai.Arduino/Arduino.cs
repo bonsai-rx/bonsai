@@ -351,12 +351,17 @@ namespace Bonsai.Arduino
 
     public enum PinMode : byte
     {
-        Input = 0,
-        Output = 1,
-        Analog = 2,
-        Pwm = 3,
-        Servo = 4,
-        Shift = 5,
-        I2C = 6
+        Input = 0x00,
+        Output = 0x01,
+        Analog = 0x02,
+        Pwm = 0x03,
+        Servo = 0x04,
+        Shift = 0x05,
+        I2C = 0x06,
+        OneWire = 0x07,
+        Stepper = 0x08,
+        Encoder = 0x09,
+        Serial = 0x0A,
+        InputPullUp = 0x0B
     }
 }
