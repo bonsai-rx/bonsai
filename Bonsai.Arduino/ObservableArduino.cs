@@ -9,47 +9,6 @@ namespace Bonsai.Arduino
 {
     static class ObservableArduino
     {
-        public static IEnumerable<Action<int>> AnalogOutput(string portName, int pin)
-        {
-            return AnalogOutput(portName, pin, PinMode.Pwm);
-        }
-
-        public static IEnumerable<Action<int>> AnalogOutput(string portName, int pin, PinMode pinMode)
-        {
-            using (var connection = ArduinoManager.ReserveConnection(portName))
-            {
-                connection.Arduino.PinMode(pin, pinMode);
-                while (true)
-                {
-                    yield return value =>
-                    {
-                        lock (connection.Arduino)
-                        {
-                            connection.Arduino.AnalogWrite(pin, value);
-                        }
-                    };
-                }
-            }
-        }
-
-        public static IEnumerable<Action<bool>> DigitalOutput(string portName, int pin)
-        {
-            using (var connection = ArduinoManager.ReserveConnection(portName))
-            {
-                connection.Arduino.PinMode(pin, PinMode.Output);
-                while (true)
-                {
-                    yield return value =>
-                    {
-                        lock (connection.Arduino)
-                        {
-                            connection.Arduino.DigitalWrite(pin, value ? Arduino.High : Arduino.Low);
-                        };
-                    };
-                }
-            }
-        }
-
         public static IObservable<int> AnalogInput(string portName, int pin)
         {
             return Observable.Create<int>(observer =>

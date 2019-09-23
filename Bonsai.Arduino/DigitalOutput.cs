@@ -23,14 +23,19 @@ namespace Bonsai.Arduino
         public override IObservable<bool> Process(IObservable<bool> source)
         {
             return Observable.Using(
-                () =>
+                () => ArduinoManager.ReserveConnection(PortName),
+                connection =>
                 {
-                    var digitalOutput = ObservableArduino.DigitalOutput(PortName, Pin);
-                    var iterator = digitalOutput.GetEnumerator();
-                    iterator.MoveNext();
-                    return iterator;
-                },
-                iterator => source.Do(input => iterator.Current(input)));
+                    var pin = Pin;
+                    connection.Arduino.PinMode(pin, PinMode.Output);
+                    return source.Do(value =>
+                    {
+                        lock (connection.Arduino)
+                        {
+                            connection.Arduino.DigitalWrite(pin, value);
+                        }
+                    });
+                });
         }
     }
 }
