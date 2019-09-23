@@ -17,6 +17,11 @@ namespace Bonsai.Arduino
 
         public static ArduinoDisposable ReserveConnection(string portName)
         {
+            return ReserveConnection(portName, Arduino.DefaultBaudRate, Arduino.DefaultSamplingInterval);
+        }
+
+        internal static ArduinoDisposable ReserveConnection(string portName, int baudRate, int samplingInterval)
+        {
             if (string.IsNullOrEmpty(portName))
             {
                 throw new ArgumentException("A serial port name must be specified.", "portName");
@@ -32,17 +37,13 @@ namespace Bonsai.Arduino
                     if (configuration.Contains(portName))
                     {
                         var arduinoConfiguration = configuration[portName];
-                        arduino = new Arduino(portName, arduinoConfiguration.BaudRate);
-                        arduino.Open();
-
-                        arduino.SamplingInterval(arduinoConfiguration.SamplingInterval);
-                    }
-                    else
-                    {
-                        arduino = new Arduino(portName);
-                        arduino.Open();
+                        baudRate = arduinoConfiguration.BaudRate;
+                        samplingInterval = arduinoConfiguration.SamplingInterval;
                     }
 
+                    arduino = new Arduino(portName, baudRate);
+                    arduino.Open();
+                    arduino.SamplingInterval(samplingInterval);
                     var dispose = Disposable.Create(() =>
                     {
                         arduino.Close();

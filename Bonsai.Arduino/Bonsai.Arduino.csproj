@@ -64,6 +64,7 @@
     <Compile Include="AnalogInput.cs" />
     <Compile Include="ArduinoConfiguration.cs" />
     <Compile Include="ArduinoConfigurationCollection.cs" />
+    <Compile Include="CreateArduino.cs" />
     <Compile Include="DigitalInput.cs" />
     <Compile Include="DigitalOutput.cs" />
     <Compile Include="AnalogOutput.cs" />
