@@ -71,6 +71,8 @@
     <Compile Include="ArduinoManager.cs" />
     <Compile Include="InputPullUp.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
+    <Compile Include="ReceiveSysex.cs" />
+    <Compile Include="SendSysex.cs" />
     <Compile Include="ServoOutput.cs" />
     <Compile Include="DigitalInputReceivedEventArgs.cs" />
     <Compile Include="ObservableArduino.cs" />
