@@ -69,6 +69,7 @@
     <Compile Include="AnalogOutput.cs" />
     <Compile Include="ArduinoDisposable.cs" />
     <Compile Include="ArduinoManager.cs" />
+    <Compile Include="InputPullUp.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="ServoOutput.cs" />
     <Compile Include="DigitalInputReceivedEventArgs.cs" />
