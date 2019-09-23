@@ -8,6 +8,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.Arduino
 {
+    [DefaultProperty("Pin")]
     [Description("Produces a sequence of digitized analog readings from the specified Arduino input pin.")]
     public class AnalogInput : Source<int>
     {

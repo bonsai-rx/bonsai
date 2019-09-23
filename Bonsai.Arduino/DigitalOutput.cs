@@ -9,6 +9,7 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Arduino
 {
+    [DefaultProperty("Pin")]
     [Description("Writes the sequence of digital state transitions to the specified Arduino output pin.")]
     public class DigitalOutput : Sink<bool>
     {

@@ -9,6 +9,7 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Arduino
 {
+    [DefaultProperty("Pin")]
     [Description("Writes the sequence of numerical values to the specified Arduino output pin using PWM.")]
     public class AnalogOutput : Sink<int>
     {

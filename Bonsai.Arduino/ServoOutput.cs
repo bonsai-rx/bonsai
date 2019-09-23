@@ -9,6 +9,7 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Arduino
 {
+    [DefaultProperty("Pin")]
     [Description("Uses a sequence of numerical values from 0 to 180 to control a servomotor connected to an Arduino output pin.")]
     public class ServoOutput : Sink<int>
     {
