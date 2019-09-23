@@ -8,6 +8,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.Arduino
 {
+    [DefaultProperty("Pin")]
     [Description("Produces a sequence of digital state transitions from the specified Arduino input pin.")]
     public class DigitalInput : Source<bool>
     {
