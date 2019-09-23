@@ -7,13 +7,13 @@ namespace Bonsai.Arduino
 {
     public class SysexReceivedEventArgs : EventArgs
     {
-        public SysexReceivedEventArgs(byte command, byte[] args)
+        public SysexReceivedEventArgs(byte feature, byte[] args)
         {
-            Command = command;
+            Feature = feature;
             Args = args;
         }
 
-        public byte Command { get; private set; }
+        public byte Feature { get; private set; }
 
         public byte[] Args { get; private set; }
     }

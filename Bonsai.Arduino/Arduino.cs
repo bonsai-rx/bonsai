@@ -11,8 +11,6 @@ namespace Bonsai.Arduino
     {
         #region Constants
 
-        public const int Low = 0;
-        public const int High = 1;
         public const int DefaultBaudRate = 57600;
         public const int DefaultSamplingInterval = 19;
 
@@ -182,16 +180,27 @@ namespace Bonsai.Arduino
             return ((digitalInput[portNumber] >> (pin & 0x07)) & 0x01);
         }
 
-        public void DigitalWrite(int pin, int value)
+        public void DigitalWrite(int pin, bool value)
         {
             var portNumber = GetPortNumber(pin);
             EnsureCapacity(ref digitalOutput, portNumber);
-            if (value == 0) digitalOutput[portNumber] &= (byte)~(1 << (pin & 0x07));
+            if (value) digitalOutput[portNumber] &= (byte)~(1 << (pin & 0x07));
             else digitalOutput[portNumber] |= (byte)(1 << (pin & 0x07));
+            WritePort(portNumber, digitalOutput[portNumber]);
+        }
 
+        public void DigitalWrite(int portNumber, int value)
+        {
+            EnsureCapacity(ref digitalOutput, portNumber);
+            digitalOutput[portNumber] = (byte)value;
+            WritePort(portNumber, digitalOutput[portNumber]);
+        }
+
+        void WritePort(int portNumber, byte value)
+        {
             commandBuffer[0] = (byte)(DIGITAL_MESSAGE | portNumber);
-            commandBuffer[1] = (byte)(digitalOutput[portNumber] & 0x7F);
-            commandBuffer[2] = (byte)(digitalOutput[portNumber] >> 7);
+            commandBuffer[1] = (byte)(value & 0x7F);
+            commandBuffer[2] = (byte)(value >> 7);
             serialPort.Write(commandBuffer, 0, 3);
         }
 
@@ -226,6 +235,27 @@ namespace Bonsai.Arduino
             Array.Copy(args, 0, commandBuffer, 2, args.Length);
             commandBuffer[args.Length + 2] = END_SYSEX;
             serialPort.Write(commandBuffer, 0, args.Length + 3);
+        }
+
+        public void I2CConfig(params byte[] args)
+        {
+            SendSysex(I2C_CONFIG, args);
+        }
+
+        public void I2CWrite(int address, params byte[] data)
+        {
+            I2CRequest(address, 0, data);
+        }
+
+        public void I2CRequest(int address, byte mode, params byte[] data)
+        {
+            commandBuffer[0] = START_SYSEX;
+            commandBuffer[1] = I2C_REQUEST;
+            commandBuffer[2] = (byte)(address & 0x7F);
+            commandBuffer[3] = (byte)((address >> 7) & 0x7 | mode);
+            Array.Copy(data, 0, commandBuffer, 4, data.Length);
+            commandBuffer[data.Length + 4] = END_SYSEX;
+            serialPort.Write(commandBuffer, 0, data.Length + 5);
         }
 
         static void EnsureCapacity<TElement>(ref TElement[] array, int index)
@@ -268,10 +298,10 @@ namespace Bonsai.Arduino
                 if (inputData == END_SYSEX)
                 {
                     parsingSysex = false;
-                    var command = sysexBuffer[0];
+                    var feature = sysexBuffer[0];
                     var args = new byte[sysexBytesRead - 1];
                     Array.Copy(sysexBuffer, 1, args, 0, args.Length);
-                    OnSysexReceived(new SysexReceivedEventArgs(command, args));
+                    OnSysexReceived(new SysexReceivedEventArgs(feature, args));
                 }
                 else if (sysexBytesRead < sysexBuffer.Length)
                 {
