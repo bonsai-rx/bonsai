@@ -1203,5 +1203,57 @@ namespace Bonsai.Expressions
         }
 
         #endregion
+
+        #region Workflow Traversal
+
+        /// <summary>
+        /// Returns a filtered collection of the child elements for this workflow.
+        /// </summary>
+        /// <param name="source">The expression builder workflow to search.</param>
+        /// <returns>An enumerable sequence of all the elements in this workflow.</returns>
+        public static IEnumerable<ExpressionBuilder> Elements(this ExpressionBuilderGraph source)
+        {
+            foreach (var node in source)
+            {
+                yield return ExpressionBuilder.Unwrap(node.Value);
+            }
+        }
+
+        /// <summary>
+        /// Returns a filtered collection of the descendant elements for this workflow, including elements
+        /// nested inside grouped workflows. Any descendants of disabled groups will not be included in the result.
+        /// </summary>
+        /// <param name="source">The expression builder workflow to search.</param>
+        /// <returns>An enumerable sequence of all the descendant elements in this workflow.</returns>
+        public static IEnumerable<ExpressionBuilder> Descendants(this ExpressionBuilderGraph source)
+        {
+            var stack = new Stack<IEnumerator<Node<ExpressionBuilder, ExpressionBuilderArgument>>>();
+            stack.Push(source.GetEnumerator());
+
+            while (stack.Count > 0)
+            {
+                var nodeEnumerator = stack.Peek();
+                while (true)
+                {
+                    if (!nodeEnumerator.MoveNext())
+                    {
+                        stack.Pop();
+                        break;
+                    }
+
+                    var builder = ExpressionBuilder.Unwrap(nodeEnumerator.Current.Value);
+                    yield return builder;
+
+                    var workflowBuilder = builder as IWorkflowExpressionBuilder;
+                    if (workflowBuilder != null && workflowBuilder.Workflow != null)
+                    {
+                        stack.Push(workflowBuilder.Workflow.GetEnumerator());
+                        break;
+                    }
+                }
+            }
+        }
+
+        #endregion
     }
 }
