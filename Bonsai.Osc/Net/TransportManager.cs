@@ -19,18 +19,26 @@ namespace Bonsai.Osc.Net
 
         public static TransportDisposable ReserveConnection(string name)
         {
+            return ReserveConnection(name, null);
+        }
+
+        internal static TransportDisposable ReserveConnection(string name, TransportConfiguration transportConfiguration)
+        {
             Tuple<ITransport, RefCountDisposable> connection;
             lock (openConnectionsLock)
             {
                 if (!openConnections.TryGetValue(name, out connection))
                 {
                     var configuration = LoadConfiguration();
-                    if (!configuration.Contains(name))
+                    if (configuration.Contains(name))
+                    {
+                        transportConfiguration = configuration[name];
+                    }
+                    else if (transportConfiguration == null)
                     {
                         throw new ArgumentException("The specified connection name has no matching configuration.");
                     }
 
-                    var transportConfiguration = configuration[name];
                     var transport = transportConfiguration.CreateTransport();
                     var dispose = Disposable.Create(() =>
                     {
