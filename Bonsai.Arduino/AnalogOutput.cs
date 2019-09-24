@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using Bonsai.IO;
-using System.Drawing.Design;
 using System.Reactive.Linq;
 
 namespace Bonsai.Arduino
@@ -13,7 +12,7 @@ namespace Bonsai.Arduino
     [Description("Writes the sequence of numerical values to the specified Arduino output pin using PWM.")]
     public class AnalogOutput : Sink<int>
     {
-        [Editor("Bonsai.Arduino.Design.ArduinoConfigurationEditor, Bonsai.Arduino.Design", typeof(UITypeEditor))]
+        [TypeConverter(typeof(SerialPortNameConverter))]
         [Description("The name of the serial port used to communicate with the Arduino.")]
         public string PortName { get; set; }
 
