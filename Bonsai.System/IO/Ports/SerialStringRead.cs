@@ -16,8 +16,8 @@ namespace Bonsai.IO
             NewLine = ObservableSerialPort.DefaultNewLine;
         }
 
+        [TypeConverter(typeof(PortNameConverter))]
         [Description("The name of the serial port.")]
-        [TypeConverter(typeof(SerialPortNameConverter))]
         public string PortName { get; set; }
 
         [Description("The value used to interpret lines sourced from the serial port.")]
