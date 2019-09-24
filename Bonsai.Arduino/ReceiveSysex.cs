@@ -1,5 +1,4 @@
-﻿using Bonsai.IO;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -14,7 +13,7 @@ namespace Bonsai.Arduino
     [Description("Receives a sequence of system exclusive messages from the specified Arduino.")]
     public class ReceiveSysex : Source<byte[]>
     {
-        [TypeConverter(typeof(SerialPortNameConverter))]
+        [TypeConverter(typeof(PortNameConverter))]
         [Description("The name of the serial port used to communicate with the Arduino.")]
         public string PortName { get; set; }
 

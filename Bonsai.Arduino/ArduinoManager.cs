@@ -17,14 +17,15 @@ namespace Bonsai.Arduino
 
         public static ArduinoDisposable ReserveConnection(string portName)
         {
-            return ReserveConnection(portName, Arduino.DefaultBaudRate, Arduino.DefaultSamplingInterval);
+            return ReserveConnection(portName, ArduinoConfiguration.Default);
         }
 
-        internal static ArduinoDisposable ReserveConnection(string portName, int baudRate, int samplingInterval)
+        internal static ArduinoDisposable ReserveConnection(string portName, ArduinoConfiguration arduinoConfiguration)
         {
             if (string.IsNullOrEmpty(portName))
             {
-                throw new ArgumentException("A serial port name must be specified.", "portName");
+                if (!string.IsNullOrEmpty(arduinoConfiguration.PortName)) portName = arduinoConfiguration.PortName;
+                else throw new ArgumentException("An alias or serial port name must be specified.", "portName");
             }
 
             Tuple<Arduino, RefCountDisposable> connection;
@@ -32,18 +33,18 @@ namespace Bonsai.Arduino
             {
                 if (!openConnections.TryGetValue(portName, out connection))
                 {
-                    Arduino arduino;
+                    var serialPortName = arduinoConfiguration.PortName;
+                    if (string.IsNullOrEmpty(serialPortName)) serialPortName = portName;
+
                     var configuration = LoadConfiguration();
-                    if (configuration.Contains(portName))
+                    if (configuration.Contains(serialPortName))
                     {
-                        var arduinoConfiguration = configuration[portName];
-                        baudRate = arduinoConfiguration.BaudRate;
-                        samplingInterval = arduinoConfiguration.SamplingInterval;
+                        arduinoConfiguration = configuration[serialPortName];
                     }
 
-                    arduino = new Arduino(portName, baudRate);
+                    var arduino = new Arduino(serialPortName, arduinoConfiguration.BaudRate);
                     arduino.Open();
-                    arduino.SamplingInterval(samplingInterval);
+                    arduino.SamplingInterval(arduinoConfiguration.SamplingInterval);
                     var dispose = Disposable.Create(() =>
                     {
                         arduino.Close();

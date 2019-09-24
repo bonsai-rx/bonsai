@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
-using Bonsai.IO;
 
 namespace Bonsai.Arduino
 {
@@ -11,7 +10,7 @@ namespace Bonsai.Arduino
     [Description("Produces a sequence of digital state transitions from the specified Arduino input pin.")]
     public class DigitalInput : Source<bool>
     {
-        [TypeConverter(typeof(SerialPortNameConverter))]
+        [TypeConverter(typeof(PortNameConverter))]
         [Description("The name of the serial port used to communicate with the Arduino.")]
         public string PortName { get; set; }
 

@@ -10,6 +10,8 @@ namespace Bonsai.Arduino
 {
     public class ArduinoConfiguration
     {
+        internal static readonly ArduinoConfiguration Default = new ArduinoConfiguration();
+
         public ArduinoConfiguration()
         {
             BaudRate = Arduino.DefaultBaudRate;
