@@ -27,14 +27,15 @@ namespace Bonsai.IO
         {
             var newLine = ObservableSerialPort.Unescape(NewLine);
             return Observable.Using(
-                () =>
+                () => SerialPortManager.ReserveConnection(PortName),
+                connection => source.Do(value =>
                 {
-                    var writeLine = ObservableSerialPort.WriteLine(PortName, newLine);
-                    var iterator = writeLine.GetEnumerator();
-                    iterator.MoveNext();
-                    return iterator;
-                },
-                iterator => source.Do(input => iterator.Current(input.ToString())));
+                    lock (connection.SerialPort)
+                    {
+                        connection.SerialPort.Write(value.ToString());
+                        connection.SerialPort.Write(newLine);
+                    }
+                }));
         }
     }
 }

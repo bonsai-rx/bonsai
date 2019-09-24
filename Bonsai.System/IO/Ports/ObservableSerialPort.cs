@@ -47,24 +47,6 @@ namespace Bonsai.IO
             });
         }
 
-        public static IEnumerable<Action<string>> WriteLine(string portName, string newLine)
-        {
-            using (var connection = SerialPortManager.ReserveConnection(portName))
-            {
-                while (true)
-                {
-                    yield return value =>
-                    {
-                        lock (connection)
-                        {
-                            connection.SerialPort.Write(value);
-                            connection.SerialPort.Write(newLine);
-                        };
-                    };
-                }
-            }
-        }
-
         public static IObservable<string> ReadLine(string portName, string newLine)
         {
             return Observable.Create<string>(observer =>
