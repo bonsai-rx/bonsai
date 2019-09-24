@@ -25,7 +25,7 @@ namespace Bonsai.Osc
             Address = MessageBuilder.AddressSeparator;
         }
 
-        [TypeConverter(typeof(ChannelNameConverter))]
+        [TypeConverter(typeof(ConnectionNameConverter))]
         [Description("The communication channel to use for the OSC protocol.")]
         public string Connection { get; set; }
 

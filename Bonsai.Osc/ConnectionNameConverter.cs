@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Osc
 {
-    class ChannelNameConverter : StringConverter
+    class ConnectionNameConverter : StringConverter
     {
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
         {
