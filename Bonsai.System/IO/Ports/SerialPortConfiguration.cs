@@ -9,6 +9,8 @@ namespace Bonsai.IO
 {
     public class SerialPortConfiguration
     {
+        internal static readonly SerialPortConfiguration Default = new SerialPortConfiguration();
+
         public SerialPortConfiguration()
         {
             BaudRate = 9600;

@@ -18,35 +18,36 @@ namespace Bonsai.IO
 
         public static SerialPortDisposable ReserveConnection(string portName)
         {
+            return ReserveConnection(portName, SerialPortConfiguration.Default);
+        }
+
+        internal static SerialPortDisposable ReserveConnection(string portName, SerialPortConfiguration serialPortConfiguration)
+        {
             Tuple<SerialPort, RefCountDisposable> connection;
             lock (openConnectionsLock)
             {
                 if (!openConnections.TryGetValue(portName, out connection))
                 {
-                    SerialPort serialPort;
                     var configuration = LoadConfiguration();
                     if (configuration.Contains(portName))
                     {
-                        var serialPortConfiguration = configuration[portName];
-                        serialPort = new SerialPort(
-                            portName,
-                            serialPortConfiguration.BaudRate,
-                            serialPortConfiguration.Parity,
-                            serialPortConfiguration.DataBits,
-                            serialPortConfiguration.StopBits);
-                        serialPort.ReceivedBytesThreshold = serialPortConfiguration.ReceivedBytesThreshold;
-                        serialPort.ReadBufferSize = serialPortConfiguration.ReadBufferSize;
-                        serialPort.WriteBufferSize = serialPortConfiguration.WriteBufferSize;
-                        serialPort.ParityReplace = serialPortConfiguration.ParityReplace;
-                        serialPort.Handshake = serialPortConfiguration.Handshake;
-                        serialPort.DiscardNull = serialPortConfiguration.DiscardNull;
-                        serialPort.DtrEnable = serialPortConfiguration.DtrEnable;
-                        serialPort.RtsEnable = serialPortConfiguration.RtsEnable;
+                        serialPortConfiguration = configuration[portName];
                     }
-                    else
-                    {
-                        serialPort = new SerialPort(portName);
-                    }
+
+                    var serialPort = new SerialPort(
+                        portName,
+                        serialPortConfiguration.BaudRate,
+                        serialPortConfiguration.Parity,
+                        serialPortConfiguration.DataBits,
+                        serialPortConfiguration.StopBits);
+                    serialPort.ReceivedBytesThreshold = serialPortConfiguration.ReceivedBytesThreshold;
+                    serialPort.ReadBufferSize = serialPortConfiguration.ReadBufferSize;
+                    serialPort.WriteBufferSize = serialPortConfiguration.WriteBufferSize;
+                    serialPort.ParityReplace = serialPortConfiguration.ParityReplace;
+                    serialPort.Handshake = serialPortConfiguration.Handshake;
+                    serialPort.DiscardNull = serialPortConfiguration.DiscardNull;
+                    serialPort.DtrEnable = serialPortConfiguration.DtrEnable;
+                    serialPort.RtsEnable = serialPortConfiguration.RtsEnable;
 
                     serialPort.Open();
                     serialPort.ReadExisting();
