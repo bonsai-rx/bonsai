@@ -59,6 +59,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChannelNameConverter.cs" />
+    <Compile Include="CreateTcpClient.cs" />
+    <Compile Include="CreateTcpServer.cs" />
+    <Compile Include="CreateTransport.cs" />
+    <Compile Include="CreateUdpClient.cs" />
     <Compile Include="IO\BigEndianReader.cs" />
     <Compile Include="IO\BigEndianWriter.cs" />
     <Compile Include="Dispatcher.cs" />

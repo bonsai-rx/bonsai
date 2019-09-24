@@ -4,7 +4,6 @@ using Bonsai.Osc.Net;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -26,8 +25,8 @@ namespace Bonsai.Osc
             Address = MessageBuilder.AddressSeparator;
         }
 
+        [TypeConverter(typeof(ChannelNameConverter))]
         [Description("The communication channel to use for the OSC protocol.")]
-        [Editor("Bonsai.Osc.Design.TransportConfigurationEditor, Bonsai.Osc.Design", typeof(UITypeEditor))]
         public string Connection { get; set; }
 
         [Description("The OSC address space on which the received data is being broadcast.")]
