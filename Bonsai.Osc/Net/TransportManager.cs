@@ -24,6 +24,11 @@ namespace Bonsai.Osc.Net
 
         internal static TransportDisposable ReserveConnection(string name, TransportConfiguration transportConfiguration)
         {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentException("A connection name must be specified.", "name");
+            }
+
             Tuple<ITransport, RefCountDisposable> connection;
             lock (openConnectionsLock)
             {
