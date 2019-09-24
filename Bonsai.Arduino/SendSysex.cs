@@ -23,11 +23,11 @@ namespace Bonsai.Arduino
         {
             return Observable.Using(
                 () => ArduinoManager.ReserveConnection(PortName),
-                connection => source.Do(input =>
+                connection => source.Do(value =>
                 {
                     lock (connection.Arduino)
                     {
-                        connection.Arduino.SendSysex((byte)Feature, input);
+                        connection.Arduino.SendSysex((byte)Feature, value);
                     }
                 }));
         }
