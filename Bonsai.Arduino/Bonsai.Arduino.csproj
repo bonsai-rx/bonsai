@@ -71,6 +71,7 @@
     <Compile Include="ArduinoDisposable.cs" />
     <Compile Include="ArduinoManager.cs" />
     <Compile Include="InputPullUp.cs" />
+    <Compile Include="PortNameConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="ReceiveSysex.cs" />
     <Compile Include="SendSysex.cs" />

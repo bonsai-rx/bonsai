@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
-using Bonsai.IO;
 using System.Reactive.Linq;
 
 namespace Bonsai.Arduino
@@ -12,7 +11,7 @@ namespace Bonsai.Arduino
     [Description("Uses a sequence of numerical values from 0 to 180 to control a servomotor connected to an Arduino output pin.")]
     public class ServoOutput : Sink<int>
     {
-        [TypeConverter(typeof(SerialPortNameConverter))]
+        [TypeConverter(typeof(PortNameConverter))]
         [Description("The name of the serial port used to communicate with the Arduino.")]
         public string PortName { get; set; }
 

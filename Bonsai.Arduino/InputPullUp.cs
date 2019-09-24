@@ -1,5 +1,4 @@
-﻿using Bonsai.IO;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -12,7 +11,7 @@ namespace Bonsai.Arduino
     [Description("Produces a sequence of digital state transitions from the specified Arduino input pin in pull-up mode.")]
     public class InputPullUp : Source<bool>
     {
-        [TypeConverter(typeof(SerialPortNameConverter))]
+        [TypeConverter(typeof(PortNameConverter))]
         [Description("The name of the serial port used to communicate with the Arduino.")]
         public string PortName { get; set; }
 
