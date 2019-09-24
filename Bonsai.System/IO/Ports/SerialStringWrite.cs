@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Reactive.Linq;
 
 namespace Bonsai.IO
@@ -18,7 +17,7 @@ namespace Bonsai.IO
         }
 
         [Description("The name of the serial port.")]
-        [Editor("Bonsai.IO.Design.SerialPortConfigurationEditor, Bonsai.System.Design", typeof(UITypeEditor))]
+        [TypeConverter(typeof(SerialPortNameConverter))]
         public string PortName { get; set; }
 
         [Description("The value used to terminate lines sent to the serial port.")]

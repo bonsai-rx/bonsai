@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.IO.Ports;
 using System.ComponentModel;
-using System.Drawing.Design;
 
 namespace Bonsai.IO
 {
@@ -18,7 +17,7 @@ namespace Bonsai.IO
         }
 
         [Description("The name of the serial port.")]
-        [Editor("Bonsai.IO.Design.SerialPortConfigurationEditor, Bonsai.System.Design", typeof(UITypeEditor))]
+        [TypeConverter(typeof(SerialPortNameConverter))]
         public string PortName { get; set; }
 
         [Description("The value used to interpret lines sourced from the serial port.")]
