@@ -9,10 +9,15 @@ using System.Threading.Tasks;
 
 namespace Bonsai.IO
 {
+    [DefaultProperty("Name")]
     [Description("Creates and configures a connection to a system serial port.")]
-    public class CreateSerialPort : Source<SerialPort>
+    public class CreateSerialPort : Source<SerialPort>, INamedElement
     {
         readonly SerialPortConfiguration configuration = new SerialPortConfiguration();
+
+        [Category("Connection")]
+        [Description("The optional alias for the serial port connection.")]
+        public string Name { get; set; }
 
         [Category("Connection")]
         [TypeConverter(typeof(SerialPortNameConverter))]
@@ -120,7 +125,7 @@ namespace Bonsai.IO
         public override IObservable<SerialPort> Generate()
         {
             return Observable.Using(
-                () => SerialPortManager.ReserveConnection(configuration.PortName, configuration),
+                () => SerialPortManager.ReserveConnection(Name, configuration),
                 connection => Observable.Return(connection.SerialPort).Concat(Observable.Never(connection.SerialPort)));
         }
     }

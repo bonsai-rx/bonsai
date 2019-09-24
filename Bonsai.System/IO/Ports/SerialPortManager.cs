@@ -23,19 +23,28 @@ namespace Bonsai.IO
 
         internal static SerialPortDisposable ReserveConnection(string portName, SerialPortConfiguration serialPortConfiguration)
         {
+            if (string.IsNullOrEmpty(portName))
+            {
+                if (!string.IsNullOrEmpty(serialPortConfiguration.PortName)) portName = serialPortConfiguration.PortName;
+                else throw new ArgumentException("An alias or serial port name must be specified.", "portName");
+            }
+
             Tuple<SerialPort, RefCountDisposable> connection;
             lock (openConnectionsLock)
             {
                 if (!openConnections.TryGetValue(portName, out connection))
                 {
+                    var serialPortName = serialPortConfiguration.PortName;
+                    if (string.IsNullOrEmpty(serialPortName)) serialPortName = portName;
+
                     var configuration = LoadConfiguration();
-                    if (configuration.Contains(portName))
+                    if (configuration.Contains(serialPortName))
                     {
-                        serialPortConfiguration = configuration[portName];
+                        serialPortConfiguration = configuration[serialPortName];
                     }
 
                     var serialPort = new SerialPort(
-                        portName,
+                        serialPortName,
                         serialPortConfiguration.BaudRate,
                         serialPortConfiguration.Parity,
                         serialPortConfiguration.DataBits,
