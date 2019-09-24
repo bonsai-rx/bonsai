@@ -59,7 +59,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChannelNameConverter.cs" />
+    <Compile Include="ConnectionNameConverter.cs" />
     <Compile Include="CreateTcpClient.cs" />
     <Compile Include="CreateTcpServer.cs" />
     <Compile Include="CreateTransport.cs" />
