@@ -49,6 +49,12 @@ namespace Bonsai.IO
                     serialPort.DtrEnable = serialPortConfiguration.DtrEnable;
                     serialPort.RtsEnable = serialPortConfiguration.RtsEnable;
 
+                    var encoding = serialPortConfiguration.Encoding;
+                    if (!string.IsNullOrEmpty(encoding))
+                    {
+                        serialPort.Encoding = Encoding.GetEncoding(encoding);
+                    }
+
                     serialPort.Open();
                     serialPort.ReadExisting();
                     var dispose = Disposable.Create(() =>

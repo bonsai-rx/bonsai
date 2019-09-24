@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IO\Ports\CreateSerialPort.cs" />
+    <Compile Include="IO\Ports\SerialPortEncodingConverter.cs" />
     <Compile Include="IO\ReadLine.cs" />
     <Compile Include="IO\WriteLine.cs" />
     <Compile Include="IO\EnumerateFileSystemEntries.cs" />

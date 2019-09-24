@@ -32,6 +32,14 @@ namespace Bonsai.IO
             set { configuration.BaudRate = value; }
         }
 
+        [TypeConverter(typeof(SerialPortEncodingConverter))]
+        [Description("The byte encoding used for pre- and post-transmission conversion of text.")]
+        public string Encoding
+        {
+            get { return configuration.Encoding; }
+            set { configuration.Encoding = value; }
+        }
+
         [Description("The parity checking protocol.")]
         public Parity Parity
         {

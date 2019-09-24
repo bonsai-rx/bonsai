@@ -30,7 +30,9 @@ namespace Bonsai.IO
         [Description("The baud rate used by the serial port.")]
         public int BaudRate { get; set; }
 
-        [Description("The parity checking protocol.")]
+        [TypeConverter(typeof(SerialPortEncodingConverter))]
+        public string Encoding { get; set; }
+
         public Parity Parity { get; set; }
 
         [Description("The byte with which to replace bytes received with parity errors.")]
