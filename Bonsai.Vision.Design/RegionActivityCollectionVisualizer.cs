@@ -32,7 +32,6 @@ namespace Bonsai.Vision.Design
         IplImage canvas;
         IDisposable inputHandle;
         RegionActivityCollection regions;
-        float scaleFactor;
 
         public override void Show(object value)
         {
