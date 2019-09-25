@@ -1,8 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<WorkflowBuilder Version="2.4.0">
-  <Workflow xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://horizongir.org/bonsai">
+<WorkflowBuilder Version="2.4.0"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns="https://bonsai-rx.org/2018/workflow">
+  <Workflow>
     <Nodes />
     <Edges />
   </Workflow>
-  <ExtensionTypes />
 </WorkflowBuilder>
