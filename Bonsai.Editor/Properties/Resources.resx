@@ -171,9 +171,9 @@
   </data>
   <data name="AttributionNotices" xml:space="preserve">
     <value>
-The Bonsai framework includes software from the NuGet Project developed at the Outercurve Foundation (http://www.outercurve.org/).
+The Bonsai framework includes software from the Reactive Extensions for .NET and the NuGet projects developed at the .NET Foundation (https://dotnetfoundation.org/).
 
-Copyright 2010-2012 Outercurve Foundation</value>
+Copyright (c) .NET Foundation and Contributors</value>
   </data>
   <data name="ContextMenu_NoneMenuItemLabel" xml:space="preserve">
     <value>None</value>
