@@ -62,9 +62,9 @@ namespace Bonsai.Editor.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to 
-        ///The Bonsai framework includes software from the NuGet Project developed at the Outercurve Foundation (http://www.outercurve.org/).
+        ///The Bonsai framework includes software from the Reactive Extensions for .NET and the NuGet projects developed at the .NET Foundation (https://dotnetfoundation.org/).
         ///
-        ///Copyright 2010-2012 Outercurve Foundation.
+        ///Copyright (c) .NET Foundation and Contributors.
         /// </summary>
         internal static string AttributionNotices {
             get {
