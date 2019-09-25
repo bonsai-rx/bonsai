@@ -140,7 +140,7 @@ namespace Bonsai
                     reader.ReadEndElement();
                 }
 
-                types.ExceptWith(serializerExtraTypes);
+                types.ExceptWith(SerializerExtraTypes);
                 serializer = GetXmlSerializerLegacy(types);
             }
             else serializer = GetXmlSerializer(types);
@@ -214,7 +214,7 @@ namespace Bonsai
         static readonly object cacheLock = new object();
         static readonly string SystemNamespace = GetXmlNamespace(typeof(object));
         static readonly string SystemCollectionsGenericNamespace = GetXmlNamespace(typeof(IEnumerable<>));
-        static readonly Type[] serializerExtraTypes = GetDefaultSerializerTypes().ToArray();
+        static readonly Type[] SerializerExtraTypes = GetDefaultSerializerTypes().ToArray();
 
         static IEnumerable<Type> GetDefaultSerializerTypes()
         {
@@ -301,7 +301,7 @@ namespace Bonsai
                 overrides.Add(type, attributes);
             }
 
-            var extraTypes = serializerTypes.Concat(serializerExtraTypes).ToArray();
+            var extraTypes = serializerTypes.Concat(SerializerExtraTypes).ToArray();
             overrides.Add(typeof(SourceBuilder), new XmlAttributes { XmlType = new XmlTypeAttribute("Source") { Namespace = Constants.XmlNamespace } });
             overrides.Add(typeof(WindowWorkflowBuilder), new XmlAttributes { XmlType = new XmlTypeAttribute("WindowWorkflow") { Namespace = Constants.XmlNamespace } });
             var rootAttribute = new XmlRootAttribute(WorkflowNodeName) { Namespace = Constants.XmlNamespace };
@@ -344,7 +344,7 @@ namespace Bonsai
                         overrides.Add(type, attributes);
                     }
 
-                    var extraTypes = serializerTypes.Concat(serializerExtraTypes).ToArray();
+                    var extraTypes = serializerTypes.Concat(SerializerExtraTypes).ToArray();
                     var rootAttribute = new XmlRootAttribute(WorkflowNodeName) { Namespace = Constants.XmlNamespace };
                     serializerCache = new XmlSerializer(typeof(ExpressionBuilderGraphDescriptor), overrides, extraTypes, rootAttribute, null);
                 }
@@ -380,7 +380,7 @@ namespace Bonsai
         {
             return workflow.SelectMany(node => GetWorkflowElements(node.Value))
                 .Select(element => element.GetType())
-                .Except(serializerExtraTypes);
+                .Except(SerializerExtraTypes);
         }
 
         #endregion
