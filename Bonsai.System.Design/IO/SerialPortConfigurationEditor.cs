@@ -8,6 +8,7 @@ using System.Windows.Forms.Design;
 
 namespace Bonsai.IO.Design
 {
+    [Obsolete]
     public class SerialPortConfigurationEditor : UITypeEditor
     {
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)

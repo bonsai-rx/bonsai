@@ -15,6 +15,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.IO.Design
 {
+    [Obsolete]
     public partial class SerialPortConfigurationControl : ConfigurationDropDown
     {
         protected override IEnumerable<string> GetConfigurationNames()
