@@ -15,6 +15,7 @@ using System.Drawing.Design;
 
 namespace Bonsai.Design
 {
+    [Obsolete]
     public abstract partial class ConfigurationDropDown : UserControl
     {
         const float DefaultDpi = 96f;
