@@ -28,6 +28,7 @@ namespace Bonsai.Core.Tests
             workflow.Workflow.Add(new InputMappingBuilder { TypeMapping = new TypeMapping<Tuple<Tuple<int, int>, int>>() });
             workflow.Workflow.Add(new InputMappingBuilder { TypeMapping = new TypeMapping<List<Bonsai.Core.Tests.MappingNamespace1.Vector2>>() });
             workflow.Workflow.Add(new InputMappingBuilder { TypeMapping = new TypeMapping<List<Bonsai.Core.Tests.MappingNamespace2.Vector2>>() });
+            workflow.Workflow.Add(new InputMappingBuilder { TypeMapping = new TypeMapping<System.Diagnostics.Stopwatch>() });
             using (var writer = XmlWriter.Create(builder, new XmlWriterSettings { Indent = true }))
             {
                 WorkflowBuilder.Serializer.Serialize(writer, workflow);
