@@ -82,6 +82,16 @@ namespace Bonsai.Shaders
             get { return windowSource; }
         }
 
+        public static IObservable<ShaderWindow> WindowUpdate(Action<ShaderWindow> update)
+        {
+            return ShaderManager.WindowSource.SelectMany(window => window.UpdateFrameAsync.Take(1)).Select(evt =>
+            {
+                var window = (ShaderWindow)evt.Sender;
+                update(window);
+                return window;
+            });
+        }
+
         public static IObservable<Shader> ReserveShader(string shaderName)
         {
             if (string.IsNullOrEmpty(shaderName))

@@ -16,7 +16,6 @@ namespace Bonsai.Shaders
     [Description("Writes the input image data to a texture.")]
     public class StoreImage : Combinator<IplImage, Texture>
     {
-        readonly UpdateFrame updateFrame = new UpdateFrame();
         readonly Texture2D configuration = new Texture2D();
 
         [Category("TextureSize")]
@@ -75,39 +74,35 @@ namespace Bonsai.Shaders
             set { configuration.MagFilter = value; }
         }
 
-        async Task<IDisposable> CreateTexture(IObservable<IplImage> source, IObserver<Texture> observer)
-        {
-            var evt = await updateFrame.Generate().FirstOrDefaultAsync();
-            if (evt != null)
-            {
-                var textureSize = default(Size);
-                var window = (ShaderWindow)evt.Sender;
-                var texture = configuration.CreateResource(window.ResourceManager);
-                var update = Observer.Create<IplImage>(input =>
-                {
-                    window.Update(() =>
-                    {
-                        GL.BindTexture(TextureTarget.Texture2D, texture.Id);
-                        var internalFormat = textureSize != input.Size ? InternalFormat : (PixelInternalFormat?)null;
-                        TextureHelper.UpdateTexture(TextureTarget.Texture2D, internalFormat, input);
-                        textureSize = input.Size;
-                        observer.OnNext(texture);
-                    });
-                }, observer.OnError, observer.OnCompleted);
-                var windowClosed = window.EventPattern<EventArgs>(
-                    handler => window.Closed += handler,
-                    handler => window.Closed -= handler);
-                return source.TakeUntil(windowClosed).Finally(() =>
-                {
-                    window.Update(texture.Dispose);
-                }).SubscribeSafe(update);
-            }
-            else return Disposable.Empty;
-        }
-
         public override IObservable<Texture> Process(IObservable<IplImage> source)
         {
-            return Observable.Create<Texture>(observer => CreateTexture(source, observer));
+            return Observable.Defer(() =>
+            {
+                var texture = default(Texture);
+                var textureSize = default(Size);
+                return source.CombineEither(
+                    ShaderManager.WindowUpdate(window =>
+                    {
+                        texture = configuration.CreateResource(window.ResourceManager);
+                    }),
+                    (input, window) =>
+                    {
+                        window.Update(() =>
+                        {
+                            GL.BindTexture(TextureTarget.Texture2D, texture.Id);
+                            var internalFormat = textureSize != input.Size ? InternalFormat : (PixelInternalFormat?)null;
+                            TextureHelper.UpdateTexture(TextureTarget.Texture2D, internalFormat, input);
+                            textureSize = input.Size;
+                        });
+                        return texture;
+                    }).Finally(() =>
+                    {
+                        if (texture != null)
+                        {
+                            texture.Dispose();
+                        }
+                    });
+            });
         }
     }
 }
