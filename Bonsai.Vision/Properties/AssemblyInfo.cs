@@ -36,4 +36,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("2.4.0.0")]
 [assembly: AssemblyInformationalVersion("2.4.0")]
 [assembly: XmlNamespacePrefix("clr-namespace:Bonsai.Vision", "cv")]
+[assembly: XmlNamespacePrefix("clr-namespace:Bonsai.Vision.Drawing", "drw")]
 [assembly: WorkflowNamespaceIcon("Bonsai:ElementIcon.Vision")]
