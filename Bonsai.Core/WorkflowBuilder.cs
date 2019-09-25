@@ -410,7 +410,7 @@ namespace Bonsai
 
             public Assembly ResolveAssembly(AssemblyName assemblyName)
             {
-                try { return Assembly.Load(assemblyName); }
+                try { return ClrNamespace.ResolveAssembly(assemblyName); }
                 catch (SystemException ex)
                 {
                     if (ex is IOException || ex is BadImageFormatException)
@@ -661,7 +661,7 @@ namespace Bonsai
         static Type LookupType(string typeName, params Type[] typeArguments)
         {
             var type = default(Type);
-            try { type = Type.GetType(typeName, false); }
+            try { type = Type.GetType(typeName, ClrNamespace.ResolveAssembly, null, false); }
             catch (IOException) { }
             catch (BadImageFormatException) { }
             catch (TypeLoadException) { }
@@ -1094,11 +1094,18 @@ namespace Bonsai
 
         struct ClrNamespace : IEquatable<ClrNamespace>
         {
+            public readonly string Namespace;
+            public readonly string AssemblyName;
             const string SchemePrefix = "clr-namespace";
             const string AssemblyNameArgument = ";assembly=";
             public static readonly ClrNamespace Default = FromType(typeof(ExpressionBuilder));
-            public readonly string Namespace;
-            public readonly string AssemblyName;
+            public static readonly Dictionary<string, string> FrameworkAssemblyNames = new Dictionary<string, string>
+            {
+                { "mscorlib", typeof(int).Assembly.FullName },
+                { "System", typeof(Uri).Assembly.FullName },
+                { "System.Core", typeof(Enumerable).Assembly.FullName },
+                { "System.Drawing", "System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" }
+            };
 
             public ClrNamespace(string ns, string assemblyName)
             {
@@ -1111,10 +1118,24 @@ namespace Bonsai
                 get { return Equals(Default); }
             }
 
+            internal static Assembly ResolveAssembly(AssemblyName assemblyName)
+            {
+                string assemblyString;
+                if (FrameworkAssemblyNames.TryGetValue(assemblyName.Name, out assemblyString))
+                {
+                    return Assembly.Load(assemblyString);
+                }
+                else return Assembly.Load(assemblyName);
+            }
+
             public static ClrNamespace FromType(Type type)
             {
-                var assemblyName = type.Assembly.GetName().Name.Replace(DynamicAssemblyPrefix, string.Empty);
-                return new ClrNamespace(type.Namespace, assemblyName);
+                var assemblyName = type.Assembly.GetName();
+                if (type.Assembly.GlobalAssemblyCache && !FrameworkAssemblyNames.ContainsKey(assemblyName.Name))
+                {
+                    return new ClrNamespace(type.Namespace, assemblyName.FullName);
+                }
+                else return new ClrNamespace(type.Namespace, assemblyName.Name.Replace(DynamicAssemblyPrefix, string.Empty));
             }
 
             public static ClrNamespace FromUri(string clrNamespace)
