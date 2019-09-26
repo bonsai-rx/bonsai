@@ -253,8 +253,7 @@ namespace Bonsai.NuGet
         {
             selectingNode = null;
             var selectedManager = e.Node.Tag as PackageManager;
-            packageManagerProxy.SourceRepository = selectedManager != null ? selectedManager.SourceRepository : null;
-            if (packageManagerProxy.SourceRepository == null) return;
+            if (selectedManager == null) return;
             if (e.Node == installedPackagesNode || e.Node.Parent == installedPackagesNode)
             {
                 releaseFilterComboBox.Visible = false;
@@ -264,7 +263,7 @@ namespace Bonsai.NuGet
             else
             {
                 releaseFilterComboBox.Visible = true;
-                packageViewController.SelectedRepository = packageManagerProxy.SourceRepository;
+                packageViewController.SelectedRepository = selectedManager.SourceRepository;
                 if (e.Node == updatesNode || e.Node.Parent == updatesNode)
                 {
                     packageView.OperationText = Resources.UpdateOperationName;
