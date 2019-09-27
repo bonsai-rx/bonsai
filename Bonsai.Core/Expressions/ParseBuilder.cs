@@ -33,6 +33,7 @@ namespace Bonsai.Expressions
         /// integer elements (e.g. %I for unsigned int).
         /// </remarks>
         [TypeConverter(typeof(PatternConverter))]
+        [Editor("Bonsai.Design.ParsePatternEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [Description("The parse pattern to match, including data type format specifiers. If the pattern is empty, the input string is returned.")]
         public string Pattern { get; set; }
 

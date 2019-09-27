@@ -33,6 +33,7 @@ namespace Bonsai.IO
         public string ListSeparator { get; set; }
 
         [TypeConverter("Bonsai.Expressions.ParseBuilder+PatternConverter, Bonsai.Core")]
+        [Editor("Bonsai.Design.ParsePatternEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [Description("The optional parse pattern for scanning individual lines. In case of variable length rows, the pattern will be applied to each individual element.")]
         public string ScanPattern { get; set; }
 
