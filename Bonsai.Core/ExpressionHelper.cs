@@ -446,5 +446,61 @@ namespace Bonsai
                 matchValidation,
                 resultExpression);
         }
+
+        static readonly MethodInfo convertAllMethod = typeof(Array).GetMethod("ConvertAll");
+        static readonly MethodInfo splitMethod = (from method in typeof(string).GetMethods()
+                                                  where method.Name == "Split"
+                                                  let parameters = method.GetParameters()
+                                                  where parameters.Length == 2 && parameters[0].ParameterType == typeof(string[])
+                                                  select method).Single();
+
+        /// <summary>
+        /// Creates an <see cref="Expression"/> representing the result of first
+        /// splitting a string using separator tokens and then parsing each of the
+        /// elements against the specified pattern.
+        /// </summary>
+        /// <param name="expression">
+        /// An <see cref="Expression"/> that represents the string to parse.
+        /// </param>
+        /// <param name="pattern">
+        /// The parse pattern to match, including data type format specifiers.
+        /// If <paramref name="pattern"/> is <b>null</b>, each of the resulting
+        /// element strings is returned unchanged.
+        /// </param>
+        /// <param name="separator">
+        /// An optional array of delimiters used for splitting the string into
+        /// individual elements before parsing. If the array is empty, the input
+        /// string is parsed directly without further processing.
+        /// </param>
+        /// <returns>
+        /// An <see cref="Expression"/> that represents the result of splitting and parsing
+        /// the specified string. If a separator array is specified, the resulting expression
+        /// will be of type <see cref="System.Array"/>.
+        /// </returns>
+        public static Expression Parse(Expression expression, string pattern, params string[] separator)
+        {
+            if (expression == null)
+            {
+                throw new ArgumentNullException("expression");
+            }
+
+            if (separator == null)
+            {
+                throw new ArgumentNullException("separator");
+            }
+
+            if (separator.Length > 0)
+            {
+                var separatorExpression = Expression.Constant(separator);
+                var splitOptions = Expression.Constant(StringSplitOptions.RemoveEmptyEntries);
+                var elements = Expression.Call(expression, splitMethod, separatorExpression, splitOptions);
+                var elementParameter = Expression.Parameter(typeof(string));
+                var elementParseBody = Parse(elementParameter, pattern);
+                var elementConverterType = typeof(Converter<,>).MakeGenericType(elementParameter.Type, elementParseBody.Type);
+                var elementParser = Expression.Lambda(elementConverterType, elementParseBody, elementParameter);
+                return Expression.Call(convertAllMethod.MakeGenericMethod(elementParameter.Type, elementParseBody.Type), elements, elementParser);
+            }
+            else return Parse(expression, pattern);
+        }
     }
 }
