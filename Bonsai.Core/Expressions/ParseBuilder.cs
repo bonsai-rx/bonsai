@@ -20,16 +20,17 @@ namespace Bonsai.Expressions
     public class ParseBuilder : SelectBuilder
     {
         /// <summary>
-        /// Gets or sets the parse pattern to match, including conversion specifications
-        /// for the different output data types.
+        /// Gets or sets the parse pattern to match, including data type format specifiers.
         /// </summary>
         /// <remarks>
-        /// The allowed conversion specifications are preceded by the character '%'.
-        /// Currently the only supported types are: int (%i); float (%f); double (%d);
-        /// bool (%b); char (%c); string (%s); date-time (%t) and time-span (%p).
+        /// The allowed data type format specifiers are preceded by the character '%'.
+        /// Currently the supported types are: byte (%B); short (%h); int (%i); long (%l); float (%f);
+        /// double (%d); bool (%b); char (%c); string (%s); date-time (%t) and time-span (%T).
+        /// Upper case characters can be used to indicate the unsigned type in the case of
+        /// integer elements (e.g. %I for unsigned int).
         /// </remarks>
         [TypeConverter(typeof(PatternConverter))]
-        [Description("The parse pattern to match, including conversion specifications for output data types.")]
+        [Description("The parse pattern to match, including data type format specifiers. If the pattern is empty, the input string is returned.")]
         public string Pattern { get; set; }
 
         /// <summary>
