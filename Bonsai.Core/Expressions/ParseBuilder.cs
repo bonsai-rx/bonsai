@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
@@ -19,6 +20,8 @@ namespace Bonsai.Expressions
     [Description("Applies a pattern matching operation on elements of an observable sequence.")]
     public class ParseBuilder : SelectBuilder
     {
+        static readonly string[] EmptySeparator = new string[0];
+
         /// <summary>
         /// Gets or sets the parse pattern to match, including data type format specifiers.
         /// </summary>
@@ -34,6 +37,13 @@ namespace Bonsai.Expressions
         public string Pattern { get; set; }
 
         /// <summary>
+        /// Gets or sets the optional separator used to delimit elements in variable
+        /// length patterns.
+        /// </summary>
+        [Description("The separator used to delimit elements in variable length patterns. This argument is optional.")]
+        public string Separator { get; set; }
+
+        /// <summary>
         /// Returns the expression that applies a pattern matching operation on
         /// the specified input parameter to the selector result.
         /// </summary>
@@ -44,14 +54,11 @@ namespace Bonsai.Expressions
         /// </returns>
         protected override Expression BuildSelector(Expression expression)
         {
-            if (expression.Type != typeof(string))
-            {
-                throw new ArgumentException("Unsupported input data type. Parse input has to be of type 'string'.");
-            }
-
             var pattern = Pattern;
-            if (string.IsNullOrEmpty(pattern)) return Expression.Constant(Unit.Default);
-            else return ExpressionHelper.Parse(expression, pattern);
+            var separatorString = Separator;
+            var separator = string.IsNullOrEmpty(separatorString) ? EmptySeparator : new[] { Regex.Unescape(separatorString) };
+            if (string.IsNullOrEmpty(pattern)) pattern = null;
+            return ExpressionHelper.Parse(expression, pattern, separator);
         }
 
         class PatternConverter : StringConverter
