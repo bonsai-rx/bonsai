@@ -64,15 +64,20 @@ namespace Bonsai.Expressions
             {
                 return new StandardValuesCollection(new[]
                 {
+                    "%B",
+                    "%h",
+                    "%H",
                     "%i",
+                    "%I",
                     "%l",
+                    "%L",
                     "%f",
                     "%d",
                     "%b",
                     "%c",
                     "%s",
                     "%t",
-                    "%p"
+                    "%T"
                 });
             }
         }

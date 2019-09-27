@@ -370,14 +370,19 @@ namespace Bonsai
                     Type tokenType;
                     switch (token[0])
                     {
+                        case 'B': tokenType = typeof(byte); break;
+                        case 'h': tokenType = typeof(short); break;
+                        case 'H': tokenType = typeof(ushort); break;
                         case 'i': tokenType = typeof(int); break;
+                        case 'I': tokenType = typeof(uint); break;
                         case 'l': tokenType = typeof(long); break;
+                        case 'L': tokenType = typeof(ulong); break;
                         case 'f': tokenType = typeof(float); break;
                         case 'd': tokenType = typeof(double); break;
                         case 'b': tokenType = typeof(bool); break;
                         case 'c': tokenType = typeof(char); break;
                         case 't': tokenType = typeof(DateTimeOffset); break;
-                        case 'p': tokenType = typeof(TimeSpan); break;
+                        case 'T': tokenType = typeof(TimeSpan); break;
                         case 's':
                         default:
                             tokenType = typeof(string);

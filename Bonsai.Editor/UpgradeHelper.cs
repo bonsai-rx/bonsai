@@ -106,6 +106,15 @@ namespace Bonsai.Editor
                 }
 
                 var workflowElement = ExpressionBuilder.GetWorkflowElement(builder);
+                var parse = workflowElement as ParseBuilder;
+                if (parse != null && version < RemoveMemberSelectorPrefixVersion)
+                {
+                    return new ParseBuilder
+                    {
+                        Pattern = parse.Pattern.Replace("%p", "%T")
+                    };
+                }
+
                 var index = workflowElement as Bonsai.Reactive.Index;
                 if (index != null)
                 {
