@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
-using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -18,12 +17,7 @@ namespace Bonsai.IO
     [Description("Sources individual lines of a text file as an observable sequence.")]
     public class CsvReader : CombinatorExpressionBuilder
     {
-        static readonly MethodInfo convertAllMethod = typeof(Array).GetMethod("ConvertAll");
-        static readonly MethodInfo splitMethod = (from method in typeof(string).GetMethods()
-                                                  where method.Name == "Split"
-                                                  let parameters = method.GetParameters()
-                                                  where parameters.Length == 2 && parameters[0].ParameterType == typeof(string[])
-                                                  select method).Single();
+        static readonly string[] EmptySeparator = new string[0];
 
         public CsvReader()
             : base(minArguments: 0, maxArguments: 0)
@@ -45,29 +39,16 @@ namespace Bonsai.IO
         [Description("The number of lines to skip at the start of the file.")]
         public int SkipRows { get; set; }
 
-        static Expression CreateParser(ParameterExpression parameter, string scanPattern)
-        {
-            return !string.IsNullOrEmpty(scanPattern) ? ExpressionHelper.Parse(parameter, scanPattern) : parameter;
-        }
-
         protected override Expression BuildCombinator(IEnumerable<Expression> arguments)
         {
             Expression parseBody;
-            var separator = ListSeparator;
-            var scanPattern = ScanPattern;
+            var pattern = ScanPattern;
+            var separatorString = ListSeparator;
+            if (string.IsNullOrEmpty(pattern)) pattern = null;
+            var separator = string.IsNullOrEmpty(separatorString) ? EmptySeparator : new[] { Regex.Unescape(separatorString) };
+
             var parameter = Expression.Parameter(typeof(string));
-            if (!string.IsNullOrEmpty(separator))
-            {
-                var separatorExpression = Expression.Constant(Regex.Unescape(separator));
-                var splitOptions = Expression.Constant(StringSplitOptions.RemoveEmptyEntries);
-                var columns = Expression.Call(parameter, splitMethod, Expression.NewArrayInit(typeof(string), separatorExpression), splitOptions);
-                var columnParameter = Expression.Parameter(typeof(string));
-                var columnParseBody = CreateParser(columnParameter, scanPattern);
-                var columnConverterType = typeof(Converter<,>).MakeGenericType(columnParameter.Type, columnParseBody.Type);
-                var columnParser = Expression.Lambda(columnConverterType, columnParseBody, columnParameter);
-                parseBody = Expression.Call(convertAllMethod.MakeGenericMethod(columnParameter.Type, columnParseBody.Type), columns, columnParser);
-            }
-            else parseBody = CreateParser(parameter, scanPattern);
+            parseBody = ExpressionHelper.Parse(parameter, pattern, separator);
             var parser = Expression.Lambda(parseBody, parameter);
             var combinatorExpression = Expression.Constant(this);
             return Expression.Call(combinatorExpression, "Generate", new[] { parseBody.Type }, parser);
