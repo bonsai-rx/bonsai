@@ -334,7 +334,8 @@ namespace Bonsai
         /// </param>
         /// <param name="pattern">
         /// The parse pattern to match, including conversion specifications
-        /// for the different output data types.
+        /// for the different output data types. If <paramref name="pattern"/>
+        /// is <b>null</b>, the input string is returned.
         /// </param>
         /// <returns>
         /// An <see cref="Expression"/> that represents the result of parsing
@@ -342,6 +343,21 @@ namespace Bonsai
         /// </returns>
         public static Expression Parse(Expression expression, string pattern)
         {
+            if (expression == null)
+            {
+                throw new ArgumentNullException("expression");
+            }
+
+            if (expression.Type != typeof(string))
+            {
+                throw new ArgumentException("The input expression must be a string type.", "expression");
+            }
+
+            if (pattern == null)
+            {
+                return expression;
+            }
+
             var regexPattern = string.Empty;
             pattern = pattern.Replace("%%", "%");
             var tokens = pattern.Split(new[] { '%' }, StringSplitOptions.None);
