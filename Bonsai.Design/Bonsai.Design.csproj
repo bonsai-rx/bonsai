@@ -77,6 +77,7 @@
     <Compile Include="ControlObservable.cs" />
     <Compile Include="ControlScheduler.cs" />
     <Compile Include="EnumerableMemberSelectorEditor.cs" />
+    <Compile Include="ParsePatternEditor.cs" />
     <Compile Include="TypeMappingEditor.cs" />
     <Compile Include="TypeMappingEditorDialog.cs">
       <SubType>Form</SubType>
