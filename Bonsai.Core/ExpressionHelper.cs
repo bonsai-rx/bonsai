@@ -333,9 +333,8 @@ namespace Bonsai
         /// An <see cref="Expression"/> that represents the string to parse.
         /// </param>
         /// <param name="pattern">
-        /// The parse pattern to match, including conversion specifications
-        /// for the different output data types. If <paramref name="pattern"/>
-        /// is <b>null</b>, the input string is returned.
+        /// The parse pattern to match, including data type format specifiers.
+        /// If <paramref name="pattern"/> is <b>null</b>, the input string is returned.
         /// </param>
         /// <returns>
         /// An <see cref="Expression"/> that represents the result of parsing
