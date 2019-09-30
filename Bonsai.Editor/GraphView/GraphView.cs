@@ -404,8 +404,8 @@ namespace Bonsai.Design
             ConnectorSize = (int)(6 * drawScale);
             LabelTextOffset = (int)(5 * drawScale);
             VectorTextOffset = new SizeF(0, 1.375f * drawScale);
-            EntryOffset = new Size(-2 * PenWidth, NodeSize / 2);
-            ExitOffset = new Size(NodeSize + 2 * PenWidth, NodeSize / 2);
+            EntryOffset = new SizeF(-2 * DefaultPenWidth * drawScale, NodeSize / 2).ToSize();
+            ExitOffset = new SizeF(NodeSize + 2 * DefaultPenWidth * drawScale, NodeSize / 2).ToSize();
             ConnectorOffset = new Size(-ConnectorSize / 2, EntryOffset.Height - ConnectorSize / 2);
             SolidPen = new Pen(NodeEdgeColor, drawScale);
             DashPen = new Pen(NodeEdgeColor, drawScale) { DashPattern = new[] { 4f, 2f } };
