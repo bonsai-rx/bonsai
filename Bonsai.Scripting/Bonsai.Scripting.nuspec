@@ -6,9 +6,9 @@
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
-    <licenseUrl>https://bitbucket.org/horizongir/bonsai/raw/0391fb050a80c94f8ff45c861678a41ae97ca257/LICENSE</licenseUrl>
-    <projectUrl>https://bitbucket.org/horizongir/bonsai</projectUrl>
-    <iconUrl>https://bitbucket.org/horizongir/bonsai/raw/7aacc64dc4647e57362ab310238591dc197fef0d/Resources/Bonsai.png</iconUrl>
+    <licenseUrl>https://bonsai-rx.org/license</licenseUrl>
+    <projectUrl>https://bonsai-rx.org</projectUrl>
+    <iconUrl>https://bonsai-rx.org/assets/images/bonsai.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <copyright>Gonçalo Lopes © 2019</copyright>
