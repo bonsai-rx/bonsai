@@ -19,30 +19,7 @@
    inkscape:export-xdpi="2.4000001"
    inkscape:export-ydpi="2.4000001">
   <defs
-     id="defs4">
-    <linearGradient
-       id="linearGradient3817-1">
-      <stop
-         style="stop-color:#4c2710;stop-opacity:1"
-         offset="0"
-         id="stop3819-7" />
-      <stop
-         style="stop-color:#2e170a;stop-opacity:1"
-         offset="1"
-         id="stop3821-4" />
-    </linearGradient>
-    <linearGradient
-       id="linearGradient3809-9">
-      <stop
-         style="stop-color:#000000;stop-opacity:1"
-         offset="0"
-         id="stop3811-4" />
-      <stop
-         style="stop-color:#00b200;stop-opacity:1"
-         offset="1"
-         id="stop3813-8" />
-    </linearGradient>
-  </defs>
+     id="defs4" />
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -51,7 +28,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.0223476"
-     inkscape:cx="360.80523"
+     inkscape:cx="237.681"
      inkscape:cy="323.46435"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
