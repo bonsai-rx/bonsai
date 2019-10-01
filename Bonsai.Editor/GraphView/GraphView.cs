@@ -21,6 +21,8 @@ namespace Bonsai.Design
         const float DefaultPenWidth = 2;
         const float DefaultNodeSize = 30;
         const float DefaultNodeAirspace = 80;
+        const float DefaultConnectorSize = 6;
+        const float DefaultLabelTextOffset = 5;
         static readonly Color CursorLight = Color.White;
         static readonly Color CursorDark = Color.Black;
         static readonly Color NodeEdgeColor = Color.DarkGray;
@@ -53,10 +55,10 @@ namespace Bonsai.Design
         static readonly object EventNodeMouseHover = new object();
         static readonly object EventSelectedNodeChanged = new object();
 
-        int PenWidth;
-        int NodeAirspace;
-        int NodeSize;
-        int HalfSize;
+        float PenWidth;
+        float NodeAirspace;
+        float NodeSize;
+        float HalfSize;
         float ConnectorSize;
         float LabelTextOffset;
         SizeF VectorTextOffset;
@@ -71,8 +73,8 @@ namespace Bonsai.Design
         float drawScale;
         bool ignoreMouseUp;
         bool mouseDownHandled;
-        Rectangle rubberBand;
-        Rectangle previousRectangle;
+        RectangleF rubberBand;
+        RectangleF previousRectangle;
         Point? previousScrollOffset;
         GraphNode[] selectionBeforeDrag;
         GraphViewTextDrawMode textDrawMode;
@@ -399,12 +401,12 @@ namespace Bonsai.Design
             }
 
             iconRendererState.Scale = drawScale;
-            PenWidth = (int)(DefaultPenWidth * drawScale);
-            NodeAirspace = (int)(DefaultNodeAirspace * drawScale);
-            NodeSize = (int)(DefaultNodeSize * drawScale);
+            PenWidth = DefaultPenWidth * drawScale;
+            NodeAirspace = DefaultNodeAirspace * drawScale;
+            NodeSize = DefaultNodeSize * drawScale;
             HalfSize = NodeSize / 2;
-            ConnectorSize = 6 * drawScale;
-            LabelTextOffset = 5 * drawScale;
+            ConnectorSize = DefaultConnectorSize * drawScale;
+            LabelTextOffset = DefaultLabelTextOffset * drawScale;
             VectorTextOffset = new SizeF(0, 1.375f * drawScale);
             EntryOffset = new SizeF(-2 * DefaultPenWidth * drawScale, DefaultNodeSize * drawScale / 2);
             ExitOffset = new SizeF(NodeSize + 2 * DefaultPenWidth * drawScale, DefaultNodeSize * drawScale / 2);
@@ -608,7 +610,7 @@ namespace Bonsai.Design
             {
                 if (layout.Node.Value != null)
                 {
-                    var nodeCenter = new Point(
+                    var nodeCenter = new PointF(
                         layout.Location.X + offset.Width,
                         layout.Location.Y + offset.Height);
                     var selected = CircleIntersect(layout.Center, HalfSize, selectionRect);
@@ -623,7 +625,7 @@ namespace Bonsai.Design
         void ProcessRubberBand(Rectangle? rect)
         {
             if (!Focused) Select();
-            var selectionRect = Rectangle.Empty;
+            var selectionRect = RectangleF.Empty;
             if (rect.HasValue)
             {
                 var selection = new HashSet<GraphNode>(GetRubberBandSelection(rect.Value));
@@ -639,12 +641,12 @@ namespace Bonsai.Design
                 var selectionChanged = !selection.SetEquals(selectedNodes);
                 if (selectionChanged)
                 {
-                    foreach (var node in selectedNodes) selectionRect = Rectangle.Union(selectionRect, GetBoundingRectangle(node));
+                    foreach (var node in selectedNodes) selectionRect = RectangleF.Union(selectionRect, GetBoundingRectangle(node));
                     selectedNodes.Clear();
                     foreach (var node in selection)
                     {
                         selectedNodes.Add(node);
-                        selectionRect = Rectangle.Union(selectionRect, GetBoundingRectangle(node));
+                        selectionRect = RectangleF.Union(selectionRect, GetBoundingRectangle(node));
                     }
                     OnSelectedNodeChanged(EventArgs.Empty);
                 }
@@ -653,7 +655,7 @@ namespace Bonsai.Design
             rubberBand = rect.GetValueOrDefault();
             var invalidateRect = rubberBand;
             invalidateRect.Inflate(PenWidth, PenWidth);
-            invalidateRect = (selectionRect.Width > 0 || selectionRect.Height > 0) ? Rectangle.Union(invalidateRect, selectionRect) : invalidateRect;
+            invalidateRect = (selectionRect.Width > 0 || selectionRect.Height > 0) ? RectangleF.Union(invalidateRect, selectionRect) : invalidateRect;
             if (previousScrollOffset.HasValue)
             {
                 var scrollPosition = canvas.AutoScrollPosition;
@@ -663,7 +665,8 @@ namespace Bonsai.Design
                 previousRectangle.Offset(scrollPosition);
             }
 
-            canvas.Invalidate(Rectangle.Union(invalidateRect, previousRectangle));
+            invalidateRect = RectangleF.Union(invalidateRect, previousRectangle);
+            canvas.Invalidate(Rectangle.Truncate(invalidateRect));
             previousRectangle = invalidateRect;
             previousScrollOffset = rect.HasValue ? canvas.AutoScrollPosition : (Point?)null;
         }
@@ -686,19 +689,19 @@ namespace Bonsai.Design
                 Math.Abs(p2.Y - p1.Y));
         }
 
-        float SquaredDistance(ref Point point, ref Point center)
+        float SquaredDistance(ref PointF point, ref PointF center)
         {
             var xdiff = point.X - center.X;
             var ydiff = point.Y - center.Y;
             return xdiff * xdiff + ydiff * ydiff;
         }
 
-        bool CircleIntersect(Point center, int radius, Point point)
+        bool CircleIntersect(PointF center, float radius, PointF point)
         {
             return SquaredDistance(ref point, ref center) <= radius * radius;
         }
 
-        bool CircleIntersect(Point center, int radius, Rectangle rect)
+        bool CircleIntersect(PointF center, float radius, RectangleF rect)
         {
             float closestX = Math.Max(rect.Left, Math.Min(center.X, rect.Right));
             float closestY = Math.Max(rect.Top, Math.Min(center.Y, rect.Bottom));
@@ -708,7 +711,7 @@ namespace Bonsai.Design
             return distanceSquared < (radius * radius);
         }
 
-        public Point GetNodeLocation(GraphNode node)
+        public PointF GetNodeLocation(GraphNode node)
         {
             return layoutNodes[node].Location;
         }
@@ -853,34 +856,11 @@ namespace Bonsai.Design
             }
         }
 
-        public GraphNode GetClosestNodeTo(Point point)
-        {
-            point.X += canvas.HorizontalScroll.Value;
-            point.Y += canvas.VerticalScroll.Value;
-
-            float minDistance = 0;
-            GraphNode closest = null;
-            foreach (var layout in layoutNodes)
-            {
-                if (layout.Node.Value == null) continue;
-
-                var center = layout.Center;
-                var distance = SquaredDistance(ref point, ref center);
-                if (closest == null || distance < minDistance)
-                {
-                    closest = layout.Node;
-                    minDistance = distance;
-                }
-            }
-
-            return closest;
-        }
-
         private void UpdateModelLayout()
         {
             layoutNodes.Clear();
             var model = Nodes;
-            Size size = Size.Empty;
+            var size = SizeF.Empty;
             if (model != null)
             {
                 using (var graphics = CreateGraphics())
@@ -894,7 +874,7 @@ namespace Bonsai.Design
                         {
                             if (pivot == null) pivot = cursor = node;
                             var row = node.LayerIndex;
-                            var location = new Point(column * NodeAirspace + 2 * PenWidth, row * NodeAirspace + 2 * PenWidth);
+                            var location = new PointF(column * NodeAirspace + 2 * PenWidth, row * NodeAirspace + 2 * PenWidth);
                             var layout = new LayoutNode(this, node, location);
                             layout.SetNodeLabel(node.Text, Font, graphics, WrapLabels);
                             layoutNodes.Add(layout);
@@ -909,7 +889,7 @@ namespace Bonsai.Design
                 }
             }
 
-            canvas.AutoScrollMinSize = size;
+            canvas.AutoScrollMinSize = Size.Truncate(size);
         }
 
         private static IEnumerable<GraphNode> GetAllPaths(GraphNode from, GraphNode to)
@@ -1086,7 +1066,7 @@ namespace Bonsai.Design
             bool hot = false,
             Font vectorFont = null)
         {
-            var nodeRectangle = new Rectangle(
+            var nodeRectangle = new RectangleF(
                 layout.Location.X + offset.Width,
                 layout.Location.Y + offset.Height,
                 NodeSize, NodeSize);
@@ -1297,7 +1277,7 @@ namespace Bonsai.Design
                 using (var rubberBandBrush = new SolidBrush(RubberBandBrushColor))
                 {
                     e.Graphics.FillRectangle(rubberBandBrush, rubberBand);
-                    e.Graphics.DrawRectangle(rubberBandPen, rubberBand);
+                    e.Graphics.DrawRectangle(rubberBandPen, rubberBand.X, rubberBand.Y, rubberBand.Width, rubberBand.Height);
                 }
             }
         }
@@ -1391,7 +1371,7 @@ namespace Bonsai.Design
 
         class LayoutNode
         {
-            public LayoutNode(GraphView view, GraphNode node, Point location)
+            public LayoutNode(GraphView view, GraphNode node, PointF location)
             {
                 View = view;
                 Node = node;
@@ -1402,7 +1382,7 @@ namespace Bonsai.Design
 
             public GraphNode Node { get; private set; }
 
-            public Point Location { get; private set; }
+            public PointF Location { get; private set; }
 
             public string Text { get; private set; }
 
@@ -1410,9 +1390,9 @@ namespace Bonsai.Design
 
             public RectangleF LabelRectangle { get; private set; }
 
-            public Point Center
+            public PointF Center
             {
-                get { return Point.Add(Location, new Size(View.HalfSize, View.HalfSize)); }
+                get { return PointF.Add(Location, new SizeF(View.HalfSize, View.HalfSize)); }
             }
 
             public PointF EntryPoint
@@ -1461,7 +1441,7 @@ namespace Bonsai.Design
                 {
                     if (labelBuilder.Length > 0) labelBuilder.AppendLine();
                     labelBuilder.Append(word);
-                    var size = graphics.MeasureString(word, font, View.NodeAirspace, TextFormat);
+                    var size = graphics.MeasureString(word, font, (int)View.NodeAirspace, TextFormat);
                     labelSize.Width = Math.Max(size.Width, labelSize.Width);
                     labelSize.Height += size.Height;
                 }
