@@ -12,6 +12,8 @@ namespace Bonsai.Design.Visualizers
         int capacity;
         int numSeries;
         bool autoScale;
+        float lineWidth;
+        SymbolType symbolType;
         RollingPointPairList[] series;
         const int DefaultCapacity = 640;
         const int DefaultNumSeries = 1;
@@ -22,6 +24,20 @@ namespace Bonsai.Design.Visualizers
             IsShowContextMenu = false;
             capacity = DefaultCapacity;
             numSeries = DefaultNumSeries;
+            symbolType = SymbolType.None;
+            lineWidth = 1;
+        }
+
+        public SymbolType SymbolType
+        {
+            get { return symbolType; }
+            set { symbolType = value; }
+        }
+
+        public float LineWidth
+        {
+            get { return lineWidth; }
+            set { lineWidth = value; }
         }
 
         public int NumSeries
@@ -95,7 +111,7 @@ namespace Bonsai.Design.Visualizers
                 GraphPane.CurveList.Clear();
                 for (int i = 0; i < series.Length; i++)
                 {
-                    var curve = new LineItem(string.Empty, series[i], GetNextColor(), SymbolType.None);
+                    var curve = new LineItem(string.Empty, series[i], GetNextColor(), symbolType, lineWidth);
                     curve.Line.IsAntiAlias = true;
                     curve.Line.IsOptimizedDraw = true;
                     curve.Label.IsVisible = false;
