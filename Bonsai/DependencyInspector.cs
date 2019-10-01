@@ -63,7 +63,9 @@ namespace Bonsai
             var assemblies = new HashSet<Assembly>();
             foreach (var path in fileNames)
             {
-                using (var reader = XmlReader.Create(path))
+                var metadata = WorkflowBuilder.ReadMetadata(path);
+                using (var markupReader = new StringReader(metadata.WorkflowMarkup))
+                using (var reader = XmlReader.Create(markupReader))
                 {
                     reader.ReadToFollowing(WorkflowElementName);
                     using (var workflowReader = reader.ReadSubtree())
@@ -87,21 +89,10 @@ namespace Bonsai
                             }
                         }
                     }
-
-                    reader.ReadToFollowing(ExtensionTypeElementName);
-                    reader.ReadStartElement();
-
-                    assemblies.Add(typeof(WorkflowBuilder).Assembly);
-                    while (reader.ReadToNextSibling(TypeElementName))
-                    {
-                        var typeName = reader.ReadElementString();
-                        var type = Type.GetType(typeName, false);
-                        if (type != null)
-                        {
-                            assemblies.Add(type.Assembly);
-                        }
-                    }
                 }
+
+                assemblies.Add(typeof(WorkflowBuilder).Assembly);
+                assemblies.AddRange(metadata.GetExtensionTypes().Select(type => type.Assembly));
 
                 var layoutPath = Path.ChangeExtension(path, BonsaiExtension + LayoutExtension);
                 if (File.Exists(layoutPath))
