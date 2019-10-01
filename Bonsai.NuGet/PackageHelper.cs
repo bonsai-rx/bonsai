@@ -130,22 +130,6 @@ namespace Bonsai.NuGet
             });
         }
 
-        public static Task<IPackage> StartUpdatePackage(this IPackageManager packageManager, string packageId, SemanticVersion version)
-        {
-            return Task.Factory.StartNew(() =>
-            {
-                packageManager.Logger.Log(MessageLevel.Info, Resources.UpdatePackageLatestVersion, packageId);
-                var package = packageManager.SourceRepository.FindPackage(packageId, version);
-                if (package == null)
-                {
-                    var errorMessage = string.Format(Resources.MissingPackageLatestVersion, packageId);
-                    throw new InvalidOperationException(errorMessage);
-                }
-                packageManager.UpdatePackage(package, true, true);
-                return packageManager.LocalRepository.FindPackage(packageId, version);
-            });
-        }
-
         public static Task<IPackage> StartRestorePackage(this IPackageManager packageManager, string packageId, SemanticVersion version)
         {
             return Task.Factory.StartNew(() =>

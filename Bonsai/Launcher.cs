@@ -75,28 +75,7 @@ namespace Bonsai
 
             var packageManager = CreatePackageManager(editorRepositoryPath);
             var editorPackage = packageManager.LocalRepository.FindPackage(editorPackageName.Id);
-            if (editorPackage == null)
-            {
-                EnableVisualStyles();
-                using (var monitor = string.IsNullOrEmpty(packageConfiguration.ConfigurationFile)
-                    ? new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageName)
-                    : (IDisposable)DisposableAction.NoOp)
-                {
-                    PackageHelper.RunPackageOperation(
-                        packageManager,
-                        () => packageManager
-                            .StartInstallPackage(editorPackageName.Id, editorPackageName.Version)
-                            .ContinueWith(task => editorPackage = task.Result));
-                    if (editorPackage == null)
-                    {
-                        var assemblyName = Assembly.GetEntryAssembly().GetName();
-                        MessageBox.Show(Resources.InstallEditorPackageError, assemblyName.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return null;
-                    }
-                }
-            }
-
-            if (editorPackage.Version < editorPackageName.Version)
+            if (editorPackage == null || editorPackage.Version < editorPackageName.Version)
             {
                 EnableVisualStyles();
                 using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageName))
@@ -104,13 +83,14 @@ namespace Bonsai
                     PackageHelper.RunPackageOperation(
                         packageManager,
                         () => packageManager
-                            .StartUpdatePackage(editorPackageName.Id, editorPackageName.Version)
+                            .StartInstallPackage(editorPackageName.Id, editorPackageName.Version)
                             .ContinueWith(task => editorPackage = task.Result),
-                        operationLabel: "Updating...");
+                        operationLabel: editorPackage != null ? "Updating..." : null);
                     if (editorPackage == null)
                     {
                         var assemblyName = Assembly.GetEntryAssembly().GetName();
-                        MessageBox.Show(Resources.UpdateEditorPackageError, assemblyName.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        var errorMessage = editorPackage == null ? Resources.InstallEditorPackageError : Resources.UpdateEditorPackageError;
+                        MessageBox.Show(errorMessage, assemblyName.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return null;
                     }
                 }
