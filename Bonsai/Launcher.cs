@@ -78,7 +78,6 @@ namespace Bonsai
             if (editorPackage == null)
             {
                 EnableVisualStyles();
-                visualStylesEnabled = true;
                 using (var monitor = string.IsNullOrEmpty(packageConfiguration.ConfigurationFile)
                     ? new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageName)
                     : (IDisposable)DisposableAction.NoOp)
@@ -100,7 +99,6 @@ namespace Bonsai
             if (editorPackage.Version < editorPackageName.Version)
             {
                 EnableVisualStyles();
-                visualStylesEnabled = true;
                 using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageName))
                 {
                     PackageHelper.RunPackageOperation(
