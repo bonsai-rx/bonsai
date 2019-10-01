@@ -255,6 +255,7 @@
     <Compile Include="Properties\AssemblyInfo.Generated.cs" />
     <Compile Include="WorkflowElementCategoryAttribute.cs" />
     <Compile Include="WorkflowElementIconAttribute.cs" />
+    <Compile Include="WorkflowMetadata.cs" />
     <Compile Include="WorkflowNamespaceIconAttribute.cs" />
     <Compile Include="WorkflowRuntimeException.cs" />
     <Compile Include="WorkflowException.cs" />

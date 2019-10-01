@@ -84,15 +84,32 @@ namespace Bonsai
             get { return SerializerFactory.instance; }
         }
 
-        #region IXmlSerializable Members
-
-        System.Xml.Schema.XmlSchema IXmlSerializable.GetSchema()
+        /// <summary>
+        /// Reads workflow metadata from the serializable XML workflow representation
+        /// at the specified URI.
+        /// </summary>
+        /// <param name="inputUri">The URI for the file containing the XML data.</param>
+        /// <returns>
+        /// A <see cref="WorkflowMetadata"/> instance containing the retrieved metadata.
+        /// </returns>
+        public static WorkflowMetadata ReadMetadata(string inputUri)
         {
-            return null;
+            using (var reader = XmlReader.Create(inputUri))
+            {
+                return ReadMetadata(reader);
+            }
         }
 
-        void IXmlSerializable.ReadXml(System.Xml.XmlReader reader)
+        /// <summary>
+        /// Reads workflow metadata from the serializable XML workflow representation.
+        /// </summary>
+        /// <param name="reader">The <see cref="XmlReader"/> stream from which the metadata is retrieved.</param>
+        /// <returns>
+        /// A <see cref="WorkflowMetadata"/> instance containing the retrieved metadata.
+        /// </returns>
+        public static WorkflowMetadata ReadMetadata(XmlReader reader)
         {
+            var metadata = new WorkflowMetadata();
             var serializerNamespaces = new SerializerNamespaces();
             if (reader.MoveToFirstAttribute())
             {
@@ -108,7 +125,7 @@ namespace Bonsai
 
             if (reader.IsStartElement(DescriptionElementName))
             {
-                Description = reader.ReadElementContentAsString();
+                metadata.Description = reader.ReadElementContentAsString();
             }
 
             var types = new HashSet<Type>();
@@ -122,7 +139,6 @@ namespace Bonsai
                 else workflowMarkup = ReadXmlExtensions(reader, types, serializerNamespaces);
             }
 
-            XmlSerializer serializer;
             if (reader.ReadToNextSibling(ExtensionTypeNodeName))
             {
                 reader.ReadStartElement();
@@ -141,11 +157,27 @@ namespace Bonsai
                 }
 
                 types.ExceptWith(SerializerExtraTypes);
-                serializer = GetXmlSerializerLegacy(types);
+                metadata.Legacy = true;
             }
-            else serializer = GetXmlSerializer(types);
 
-            using (var workflowReader = new StringReader(workflowMarkup))
+            metadata.Types = types;
+            metadata.WorkflowMarkup = workflowMarkup;
+            return metadata;
+        }
+
+        #region IXmlSerializable Members
+
+        System.Xml.Schema.XmlSchema IXmlSerializable.GetSchema()
+        {
+            return null;
+        }
+
+        void IXmlSerializable.ReadXml(System.Xml.XmlReader reader)
+        {
+            var metadata = ReadMetadata(reader);
+            Description = metadata.Description;
+            var serializer = metadata.Legacy ? GetXmlSerializerLegacy(metadata.Types) : GetXmlSerializer(metadata.Types);
+            using (var workflowReader = new StringReader(metadata.WorkflowMarkup))
             {
                 var descriptor = (ExpressionBuilderGraphDescriptor)serializer.Deserialize(workflowReader);
                 workflow.AddDescriptor(descriptor);
