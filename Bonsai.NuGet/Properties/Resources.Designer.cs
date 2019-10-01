@@ -423,15 +423,6 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Checking for latest version of &apos;{0}&apos;..
-        /// </summary>
-        internal static string UpdatePackageLatestVersion {
-            get {
-                return ResourceManager.GetString("UpdatePackageLatestVersion", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Updates.
         /// </summary>
         internal static string UpdatesNodeName {

@@ -263,7 +263,4 @@
   <data name="RestorePackageVersion" xml:space="preserve">
     <value>Restoring dependency '{0} {1}'.</value>
   </data>
-  <data name="UpdatePackageLatestVersion" xml:space="preserve">
-    <value>Checking for latest version of '{0}'.</value>
-  </data>
 </root>
