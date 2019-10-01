@@ -19,6 +19,8 @@ namespace Bonsai.Design
     {
         const float DefaultDpi = 96f;
         const float DefaultPenWidth = 2;
+        const float DefaultNodeSize = 30;
+        const float DefaultNodeAirspace = 80;
         static readonly Color CursorLight = Color.White;
         static readonly Color CursorDark = Color.Black;
         static readonly Color NodeEdgeColor = Color.DarkGray;
@@ -55,12 +57,12 @@ namespace Bonsai.Design
         int NodeAirspace;
         int NodeSize;
         int HalfSize;
-        int ConnectorSize;
-        int LabelTextOffset;
+        float ConnectorSize;
+        float LabelTextOffset;
         SizeF VectorTextOffset;
-        Size EntryOffset;
-        Size ExitOffset;
-        Size ConnectorOffset;
+        SizeF EntryOffset;
+        SizeF ExitOffset;
+        SizeF ConnectorOffset;
         Pen SolidPen;
         Pen DashPen;
         Font DefaultIconFont;
@@ -398,15 +400,15 @@ namespace Bonsai.Design
 
             iconRendererState.Scale = drawScale;
             PenWidth = (int)(DefaultPenWidth * drawScale);
-            NodeAirspace = (int)(80 * drawScale);
-            NodeSize = (int)(30 * drawScale);
+            NodeAirspace = (int)(DefaultNodeAirspace * drawScale);
+            NodeSize = (int)(DefaultNodeSize * drawScale);
             HalfSize = NodeSize / 2;
-            ConnectorSize = (int)(6 * drawScale);
-            LabelTextOffset = (int)(5 * drawScale);
+            ConnectorSize = 6 * drawScale;
+            LabelTextOffset = 5 * drawScale;
             VectorTextOffset = new SizeF(0, 1.375f * drawScale);
-            EntryOffset = new SizeF(-2 * DefaultPenWidth * drawScale, NodeSize / 2).ToSize();
-            ExitOffset = new SizeF(NodeSize + 2 * DefaultPenWidth * drawScale, NodeSize / 2).ToSize();
-            ConnectorOffset = new Size(-ConnectorSize / 2, EntryOffset.Height - ConnectorSize / 2);
+            EntryOffset = new SizeF(-2 * DefaultPenWidth * drawScale, DefaultNodeSize * drawScale / 2);
+            ExitOffset = new SizeF(NodeSize + 2 * DefaultPenWidth * drawScale, DefaultNodeSize * drawScale / 2);
+            ConnectorOffset = new SizeF(-ConnectorSize / 2, EntryOffset.Height - ConnectorSize / 2);
             SolidPen = new Pen(NodeEdgeColor, drawScale);
             DashPen = new Pen(NodeEdgeColor, drawScale) { DashPattern = new[] { 4f, 2f } };
             DefaultIconFont = new Font(Font, FontStyle.Bold);
@@ -434,7 +436,7 @@ namespace Bonsai.Design
             }
 
             labelRectangle.Offset(offset);
-            return Rectangle.Union(boundingRectangle, Rectangle.Truncate(labelRectangle));
+            return Rectangle.Truncate(RectangleF.Union(boundingRectangle, labelRectangle));
         }
 
         public void EnsureVisible(Point point)
@@ -1174,8 +1176,8 @@ namespace Bonsai.Design
             {
                 graphics.DrawLine(
                     layout.Node.BuildDependency ? DashPen : SolidPen,
-                    Point.Add(layout.EntryPoint, offset),
-                    Point.Add(layout.ExitPoint, offset));
+                    PointF.Add(layout.EntryPoint, offset),
+                    PointF.Add(layout.ExitPoint, offset));
             }
         }
 
@@ -1188,8 +1190,8 @@ namespace Bonsai.Design
                     var successorLayout = layoutNodes[successor.Node];
                     graphics.DrawLine(
                         layout.Node.BuildDependency ? DashPen : SolidPen,
-                        Point.Add(layout.ExitPoint, offset),
-                        Point.Add(successorLayout.EntryPoint, offset));
+                        PointF.Add(layout.ExitPoint, offset),
+                        PointF.Add(successorLayout.EntryPoint, offset));
                 }
             }
         }
@@ -1413,38 +1415,38 @@ namespace Bonsai.Design
                 get { return Point.Add(Location, new Size(View.HalfSize, View.HalfSize)); }
             }
 
-            public Point EntryPoint
+            public PointF EntryPoint
             {
-                get { return Point.Add(Location, View.EntryOffset); }
+                get { return PointF.Add(Location, View.EntryOffset); }
             }
 
-            public Point ExitPoint
+            public PointF ExitPoint
             {
-                get { return Point.Add(Location, View.ExitOffset); }
+                get { return PointF.Add(Location, View.ExitOffset); }
             }
 
-            public Point ConnectorLocation
+            public PointF ConnectorLocation
             {
-                get { return Point.Add(Location, View.ConnectorOffset); }
+                get { return PointF.Add(Location, View.ConnectorOffset); }
             }
 
-            public Rectangle BoundingRectangle
+            public RectangleF BoundingRectangle
             {
                 get
                 {
-                    return new Rectangle(
+                    return new RectangleF(
                         ConnectorLocation.X - View.PenWidth, Location.Y - View.PenWidth,
                         View.ConnectorSize / 2 + View.NodeSize + 2 * View.PenWidth, View.NodeSize + 2 * View.PenWidth);
                 }
             }
 
-            public Rectangle ConnectorRectangle
+            public RectangleF ConnectorRectangle
             {
                 get
                 {
-                    return new Rectangle(
+                    return new RectangleF(
                         ConnectorLocation,
-                        new Size(View.ConnectorSize, View.ConnectorSize));
+                        new SizeF(View.ConnectorSize, View.ConnectorSize));
                 }
             }
 
