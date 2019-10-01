@@ -26,7 +26,6 @@
         <ComponentGroupRef Id="ProductComponents" />
         <ComponentRef Id="Gallery"/>
         <ComponentRef Id="Extensions" />
-        <ComponentRef Id="Snippets" />
         <ComponentRef Id="NuGetMachineWideSettings" />
         <ComponentRef Id="ProgramMenuDir" />
       </Feature>
@@ -48,11 +47,6 @@
           </Directory>
           <Directory Id="EXTENSIONSFOLDER" Name="Extensions">
             <Component Id="Extensions" Guid="6f263e27-790c-455f-b224-ac055a7dff11" Win64="$(var.Win64)">
-              <CreateFolder />
-            </Component>
-          </Directory>
-          <Directory Id="SNIPPETFOLDER" Name="Snippets">
-            <Component Id="Snippets" Guid="93bbf926-af27-497d-b9c5-93fe65c49c80" Win64="$(var.Win64)">
               <CreateFolder />
             </Component>
           </Directory>
