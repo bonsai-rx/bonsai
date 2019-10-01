@@ -13,7 +13,7 @@ namespace Bonsai.Vision
 {
     [DefaultProperty("Index")]
     [WorkflowElementIcon(typeof(ElementCategory), "ElementIcon.Video")]
-    [Description("Produces a video sequence of images acquired from the specified camera index.")]
+    [Description("Produces a sequence of images acquired from the specified camera index.")]
     public class CameraCapture : Source<IplImage>
     {
         IObservable<IplImage> source;
