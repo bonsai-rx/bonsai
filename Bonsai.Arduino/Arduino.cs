@@ -184,8 +184,8 @@ namespace Bonsai.Arduino
         {
             var portNumber = GetPortNumber(pin);
             EnsureCapacity(ref digitalOutput, portNumber);
-            if (value) digitalOutput[portNumber] &= (byte)~(1 << (pin & 0x07));
-            else digitalOutput[portNumber] |= (byte)(1 << (pin & 0x07));
+            if (value) digitalOutput[portNumber] |= (byte)(1 << (pin & 0x07));
+            else digitalOutput[portNumber] &= (byte)~(1 << (pin & 0x07));
             WritePort(portNumber, digitalOutput[portNumber]);
         }
 
