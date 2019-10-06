@@ -48,7 +48,7 @@ namespace Bonsai.Shaders
                 if (eao > 0)
                 {
                     GL.BindBuffer(BufferTarget.ElementArrayBuffer, eao);
-                    GL.DrawElementsInstanced(instanceMesh.DrawMode, vertexCount, DrawElementsType.UnsignedShort, IntPtr.Zero, instanceCount);
+                    GL.DrawElementsInstanced(instanceMesh.DrawMode, vertexCount, instanceMesh.ElementArrayType, IntPtr.Zero, instanceCount);
                     GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
                 }
                 else GL.DrawArraysInstanced(instanceMesh.DrawMode, 0, vertexCount, instanceCount);
