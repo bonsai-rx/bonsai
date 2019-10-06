@@ -48,6 +48,29 @@ namespace Bonsai
 
         public bool DebugScripts { get; set; }
 
+        private void EnsureNuGetSettings()
+        {
+            var projectFolder = Path.GetDirectoryName(ProjectFileName);
+            var settingsFileName = Path.Combine(projectFolder, Constants.SettingsFileName);
+            if (!File.Exists(settingsFileName))
+            {
+                var machineWideSettings = new Bonsai.NuGet.BonsaiMachineWideSettings();
+                var settings = machineWideSettings.Settings.FirstOrDefault();
+                if (settings != null)
+                {
+                    const string SectionPackageSources = "packageSources";
+                    var packageSources = settings.GetValues(SectionPackageSources, false).ToList();
+                    packageSources.RemoveAll(source => !Uri.IsWellFormedUriString(source.Value, UriKind.Absolute));
+                    if (packageSources.Count > 0)
+                    {
+                        var fileSystem = new PhysicalFileSystem(projectFolder);
+                        var localSettings = new Settings(fileSystem);
+                        localSettings.SetValues(SectionPackageSources, packageSources);
+                    }
+                }
+            }
+        }
+
         public IEnumerable<string> GetPackageReferences()
         {
             if (!File.Exists(ProjectFileName)) return Enumerable.Empty<string>();
@@ -64,6 +87,7 @@ namespace Bonsai
             if (!File.Exists(ProjectFileName))
             {
                 root = XElement.Parse(ProjectFileTemplate, LoadOptions.PreserveWhitespace);
+                EnsureNuGetSettings();
             }
             else root = XElement.Load(ProjectFileName, LoadOptions.PreserveWhitespace);
 
