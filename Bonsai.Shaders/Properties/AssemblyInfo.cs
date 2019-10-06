@@ -34,7 +34,7 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("0.19.0.0")]
-[assembly: AssemblyInformationalVersion("0.19.0")]
+[assembly: AssemblyInformationalVersion("0.19.1")]
 [assembly: XmlNamespacePrefix("clr-namespace:Bonsai.Shaders", "gl")]
 [assembly: XmlNamespacePrefix("clr-namespace:Bonsai.Shaders.Input", "gli")]
 [assembly: WorkflowNamespaceIcon("Bonsai:ElementIcon.Shaders")]

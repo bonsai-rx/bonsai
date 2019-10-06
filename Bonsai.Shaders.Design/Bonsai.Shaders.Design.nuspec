@@ -16,7 +16,7 @@
     <dependencies>
       <dependency id="Bonsai.Design" version="2.4.0" />
       <dependency id="Bonsai.System.Design" version="2.4.0" />
-      <dependency id="Bonsai.Shaders" version="0.19.0" />
+      <dependency id="Bonsai.Shaders" version="0.19.1" />
     </dependencies>
   </metadata>
 </package>

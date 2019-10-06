@@ -89,6 +89,7 @@ namespace Bonsai.Shaders
             var vertexCount = -1;
             var instanceCount = -1;
             var drawMode = default(PrimitiveType);
+            var elementArrayType = DrawElementsType.UnsignedShort;
             for (int i = 0; i < meshAttributes.Length; i++)
             {
                 var mesh = meshAttributes[i].Mesh;
@@ -131,6 +132,7 @@ namespace Bonsai.Shaders
                             throw new NotSupportedException("Aggregated mesh data can specify only a single element array buffer.");
                         }
                         eao = mesh.ElementArray;
+                        elementArrayType = mesh.ElementArrayType;
                     }
                 }
             }
@@ -141,7 +143,7 @@ namespace Bonsai.Shaders
                 if (eao > 0)
                 {
                     GL.BindBuffer(BufferTarget.ElementArrayBuffer, eao);
-                    GL.DrawElementsInstanced(drawMode, vertexCount, DrawElementsType.UnsignedShort, IntPtr.Zero, instanceCount);
+                    GL.DrawElementsInstanced(drawMode, vertexCount, elementArrayType, IntPtr.Zero, instanceCount);
                     GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
                 }
                 else GL.DrawArraysInstanced(drawMode, 0, vertexCount, instanceCount);
@@ -153,7 +155,7 @@ namespace Bonsai.Shaders
                 if (eao > 0)
                 {
                     GL.BindBuffer(BufferTarget.ElementArrayBuffer, eao);
-                    GL.DrawElements(drawMode, vertexCount, DrawElementsType.UnsignedShort, IntPtr.Zero);
+                    GL.DrawElements(drawMode, vertexCount, elementArrayType, IntPtr.Zero);
                     GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
                 }
                 else GL.DrawArrays(drawMode, 0, vertexCount);
