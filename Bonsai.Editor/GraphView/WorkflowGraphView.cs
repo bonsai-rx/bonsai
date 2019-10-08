@@ -3161,7 +3161,11 @@ namespace Bonsai.Design
             return menuItem;
         }
 
-        static readonly Attribute[] ExternalizableAttributes = new[] { ExternalizableAttribute.Default };
+        static readonly Attribute[] ExternalizableAttributes = new Attribute[]
+        {
+            ExternalizableAttribute.Default,
+            DesignTimeVisibleAttribute.Yes
+        };
 
         private HashSet<string> FindMappedProperties(GraphNode node)
         {
