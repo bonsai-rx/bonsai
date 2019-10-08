@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bonsai.Properties;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -27,7 +28,7 @@ namespace Bonsai.Expressions
         const char AssemblySeparator = ':';
         static readonly XmlElement[] EmptyProperties = new XmlElement[0];
         static readonly XmlSerializerNamespaces DefaultSerializerNamespaces = GetXmlSerializerNamespaces();
-        XmlElement[] xmlProperties;
+        XmlNode[] xmlProperties;
 
         IBuildContext buildContext;
         ExpressionBuilderGraph workflow;
@@ -130,11 +131,22 @@ namespace Bonsai.Expressions
         /// </summary>
         [XmlAnyElement]
         [Browsable(false)]
-        public XmlElement[] PropertiesXml
+        public XmlNode[] PropertiesXml
         {
             get
             {
-                if (xmlProperties != null) return xmlProperties;
+                if (xmlProperties != null)
+                {
+                    return Array.ConvertAll(xmlProperties, xmlNode =>
+                    {
+                        if (xmlNode.NodeType != XmlNodeType.Element)
+                        {
+                            throw new InvalidOperationException(Resources.Exception_PendingPropertyAssignment);
+                        }
+
+                        return (XmlElement)xmlNode;
+                    });
+                }
                 else if (workflow != null)
                 {
                     return GetXmlProperties();
@@ -142,6 +154,11 @@ namespace Bonsai.Expressions
                 else return EmptyProperties;
             }
             set { xmlProperties = value; }
+        }
+
+        internal XmlNode[] InternalXmlProperties
+        {
+            get { return xmlProperties; }
         }
 
         static XmlSerializerNamespaces GetXmlSerializerNamespaces()
@@ -153,28 +170,36 @@ namespace Bonsai.Expressions
 
         XmlElement[] GetXmlProperties()
         {
-            return (from property in TypeDescriptor.GetProperties(this).Cast<PropertyDescriptor>()
-                    let externalizedProperty = EnsureXmlSerializable(property as ExternalizedPropertyDescriptor)
-                    where externalizedProperty != null && (!externalizedProperty.IsReadOnly || ExpressionHelper.IsCollectionType(externalizedProperty.PropertyType))
-                    select SerializeProperty(externalizedProperty))
-                    .ToArray();
+            var properties = TypeDescriptor.GetProperties(this);
+            return GetXmlSerializableProperties(properties).Select(SerializeProperty).ToArray();
         }
 
-        void SetXmlProperties(XmlElement[] xmlProperties)
+        void SetXmlProperties(XmlNode[] xmlProperties)
         {
-            var properties = (from property in TypeDescriptor.GetProperties(this).Cast<PropertyDescriptor>()
-                              let externalizedProperty = EnsureXmlSerializable(property as ExternalizedPropertyDescriptor)
-                              where externalizedProperty != null && (!externalizedProperty.IsReadOnly || ExpressionHelper.IsCollectionType(externalizedProperty.PropertyType))
-                              select externalizedProperty)
-                              .ToDictionary(property => property.Name);
+            var properties = TypeDescriptor.GetProperties(this);
+            var serializableProperties = GetXmlSerializableProperties(properties).ToDictionary(property => property.Name);
             for (int i = 0; i < xmlProperties.Length; i++)
             {
                 ExternalizedPropertyDescriptor property;
-                if (properties.TryGetValue(xmlProperties[i].Name, out property))
+                if (serializableProperties.TryGetValue(xmlProperties[i].Name, out property))
                 {
-                    DeserializeProperty(xmlProperties[i], property);
+                    if (xmlProperties[i].NodeType == XmlNodeType.CDATA)
+                    {
+                        var value = xmlProperties[i].Value;
+                        property = (ExternalizedPropertyDescriptor)properties[property.Name];
+                        property.SetValue(this, property.Converter.ConvertFromInvariantString(value));
+                    }
+                    else DeserializeProperty(xmlProperties[i], property);
                 }
             }
+        }
+
+        IEnumerable<ExternalizedPropertyDescriptor> GetXmlSerializableProperties(PropertyDescriptorCollection properties)
+        {
+            return from property in properties.Cast<PropertyDescriptor>()
+                   let externalizedProperty = EnsureXmlSerializable(property as ExternalizedPropertyDescriptor)
+                   where externalizedProperty != null && (!externalizedProperty.IsReadOnly || ExpressionHelper.IsCollectionType(externalizedProperty.PropertyType))
+                   select externalizedProperty;
         }
 
         ExternalizedPropertyDescriptor EnsureXmlSerializable(ExternalizedPropertyDescriptor descriptor)
@@ -200,10 +225,10 @@ namespace Bonsai.Expressions
             return descriptor;
         }
 
-        void DeserializeProperty(XmlElement element, PropertyDescriptor property)
+        void DeserializeProperty(XmlNode node, PropertyDescriptor property)
         {
             var serializer = PropertySerializer.GetXmlSerializer(property.Name, property.PropertyType);
-            using (var reader = new StringReader(element.OuterXml))
+            using (var reader = new StringReader(node.OuterXml))
             {
                 var value = serializer.Deserialize(reader);
                 if (property.IsReadOnly)
@@ -437,7 +462,8 @@ namespace Bonsai.Expressions
                 if (builder != null)
                 {
                     var description = new IncludeWorkflowDescriptionAttribute(builder, DefaultDescription);
-                    return new WorkflowTypeDescriptor(instance, description);
+                    if (builder.Workflow == null) return new IncludeWorkflowXmlTypeDescriptor(builder, description);
+                    else return new WorkflowTypeDescriptor(instance, description);
                 }
 
                 return base.GetExtendedTypeDescriptor(instance);
