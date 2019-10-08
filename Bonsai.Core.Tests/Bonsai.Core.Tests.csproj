@@ -68,6 +68,7 @@
     <Compile Include="CombinatorBuilderTests.cs" />
     <Compile Include="ExpressionBuilderArgumentTests.cs" />
     <Compile Include="ExpressionHelperTests.cs" />
+    <Compile Include="ExternalizedPropertyDescriptorTests.cs" />
     <Compile Include="TypeMappingTests.cs" />
     <Compile Include="InspectBuilderTests.cs" />
     <Compile Include="OverloadedCombinatorBuilderTests.cs" />
