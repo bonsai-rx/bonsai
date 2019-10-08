@@ -97,6 +97,15 @@ namespace Bonsai.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Pending property assignments have been found on some of the missing included workflows. Please restore the missing files and reload the workflow..
+        /// </summary>
+        internal static string Exception_PendingPropertyAssignment {
+            get {
+                return ResourceManager.GetString("Exception_PendingPropertyAssignment", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The specified property &apos;{0}&apos; was not found in the workflow. .
         /// </summary>
         internal static string Exception_PropertyNotFound {
@@ -115,7 +124,7 @@ namespace Bonsai.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The workflow contains unspecified types. Please install any missing packages or replace the affected modules and try again..
+        ///   Looks up a localized string similar to The workflow contains unspecified types. Please install any missing packages or replace the affected modules before saving the workflow..
         /// </summary>
         internal static string Exception_SerializingUnknownTypeBuilder {
             get {

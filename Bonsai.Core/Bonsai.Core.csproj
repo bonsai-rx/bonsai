@@ -94,6 +94,7 @@
     <Compile Include="Expressions\IGroupWorkflowBuilder.cs" />
     <Compile Include="Expressions\IncludeContext.cs" />
     <Compile Include="Expressions\IncludeWorkflowBuilder.cs" />
+    <Compile Include="Expressions\IncludeWorkflowXmlTypeDescriptor.cs" />
     <Compile Include="Expressions\IndexBuilder.cs" />
     <Compile Include="Expressions\ISerializableElement.cs" />
     <Compile Include="Expressions\IWorkflowExpressionBuilder.cs" />
