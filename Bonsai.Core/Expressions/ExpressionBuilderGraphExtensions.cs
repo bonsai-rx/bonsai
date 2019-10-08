@@ -12,6 +12,7 @@ using System.Reactive.Linq;
 using System.Reactive.Concurrency;
 using System.ComponentModel;
 using Bonsai.Properties;
+using System.Globalization;
 
 namespace Bonsai.Expressions
 {
@@ -92,7 +93,7 @@ namespace Bonsai.Expressions
 
             if (value != null && value.GetType() != propertyDescriptor.PropertyType)
             {
-                value = propertyDescriptor.Converter.ConvertFrom(value);
+                value = propertyDescriptor.Converter.ConvertFrom(null, CultureInfo.InvariantCulture, value);
             }
 
             propertyDescriptor.SetValue(source, value);
