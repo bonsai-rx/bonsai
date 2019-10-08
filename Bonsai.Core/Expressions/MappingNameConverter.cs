@@ -10,7 +10,11 @@ namespace Bonsai.Expressions
 {
     abstract class MappingNameConverter<TMapping> : StringConverter where TMapping : class
     {
-        static readonly Attribute[] ExternalizableAttributes = new[] { ExternalizableAttribute.Default };
+        static readonly Attribute[] ExternalizableAttributes = new Attribute[]
+        {
+            ExternalizableAttribute.Default,
+            DesignTimeVisibleAttribute.Yes
+        };
 
         protected abstract bool ContainsMapping(ExpressionBuilder builder, TMapping mapping);
 

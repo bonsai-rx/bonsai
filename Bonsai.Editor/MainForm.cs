@@ -161,6 +161,7 @@ namespace Bonsai.Editor
             editorControl.Workflow = workflowBuilder.Workflow;
             editorControl.Dock = DockStyle.Fill;
             workflowSplitContainer.Panel1.Controls.Add(editorControl);
+            propertyGrid.BrowsableAttributes = new AttributeCollection(BrowsableAttribute.Yes, DesignTimeVisibleAttribute.Yes);
             propertyGrid.LineColor = SystemColors.InactiveBorder;
             propertyGrid.Site = editorSite;
 

@@ -12,7 +12,11 @@ namespace Bonsai.Design
 {
     class MappingCollectionEditor : DescriptiveCollectionEditor
     {
-        static readonly Attribute[] ExternalizableAttributes = new[] { ExternalizableAttribute.Default };
+        static readonly Attribute[] ExternalizableAttributes = new Attribute[]
+        {
+            ExternalizableAttribute.Default,
+            DesignTimeVisibleAttribute.Yes
+        };
 
         public MappingCollectionEditor(Type type)
             : base(type)
