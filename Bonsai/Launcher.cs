@@ -74,28 +74,6 @@ namespace Bonsai
             }
 
             var packageManager = CreatePackageManager(editorRepositoryPath);
-            var editorPackage = packageManager.LocalRepository.FindPackage(editorPackageName.Id);
-            if (editorPackage == null || editorPackage.Version < editorPackageName.Version)
-            {
-                EnableVisualStyles();
-                using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageName))
-                {
-                    PackageHelper.RunPackageOperation(
-                        packageManager,
-                        () => packageManager
-                            .StartInstallPackage(editorPackageName.Id, editorPackageName.Version)
-                            .ContinueWith(task => editorPackage = task.Result),
-                        operationLabel: editorPackage != null ? "Updating..." : null);
-                    if (editorPackage == null)
-                    {
-                        var assemblyName = Assembly.GetEntryAssembly().GetName();
-                        var errorMessage = editorPackage == null ? Resources.InstallEditorPackageError : Resources.UpdateEditorPackageError;
-                        MessageBox.Show(errorMessage, assemblyName.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return null;
-                    }
-                }
-            }
-
             var missingPackages = GetMissingPackages(packageConfiguration.Packages, packageManager.LocalRepository).ToList();
             if (missingPackages.Count > 0)
             {
@@ -129,6 +107,28 @@ namespace Bonsai
 
                             Task.WaitAll(operations);
                         }));
+                }
+            }
+
+            var editorPackage = packageManager.LocalRepository.FindPackage(editorPackageName.Id);
+            if (editorPackage == null || editorPackage.Version < editorPackageName.Version)
+            {
+                EnableVisualStyles();
+                using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageName))
+                {
+                    PackageHelper.RunPackageOperation(
+                        packageManager,
+                        () => packageManager
+                            .StartInstallPackage(editorPackageName.Id, editorPackageName.Version)
+                            .ContinueWith(task => editorPackage = task.Result),
+                        operationLabel: editorPackage != null ? "Updating..." : null);
+                    if (editorPackage == null)
+                    {
+                        var assemblyName = Assembly.GetEntryAssembly().GetName();
+                        var errorMessage = editorPackage == null ? Resources.InstallEditorPackageError : Resources.UpdateEditorPackageError;
+                        MessageBox.Show(errorMessage, assemblyName.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return null;
+                    }
                 }
             }
 
