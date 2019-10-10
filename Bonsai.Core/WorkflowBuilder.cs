@@ -247,6 +247,7 @@ namespace Bonsai
         static readonly string SystemNamespace = GetXmlNamespace(typeof(object));
         static readonly string SystemCollectionsGenericNamespace = GetXmlNamespace(typeof(IEnumerable<>));
         static readonly Type[] SerializerExtraTypes = GetDefaultSerializerTypes().ToArray();
+        static readonly Type[] SerializerLegacyTypes = new[] { typeof(SourceBuilder), typeof(WindowWorkflowBuilder) };
 
         static IEnumerable<Type> GetDefaultSerializerTypes()
         {
@@ -333,7 +334,7 @@ namespace Bonsai
                 overrides.Add(type, attributes);
             }
 
-            var extraTypes = serializerTypes.Concat(SerializerExtraTypes).ToArray();
+            var extraTypes = serializerTypes.Concat(SerializerExtraTypes).Concat(SerializerLegacyTypes).ToArray();
             overrides.Add(typeof(SourceBuilder), new XmlAttributes { XmlType = new XmlTypeAttribute("Source") { Namespace = Constants.XmlNamespace } });
             overrides.Add(typeof(WindowWorkflowBuilder), new XmlAttributes { XmlType = new XmlTypeAttribute("WindowWorkflow") { Namespace = Constants.XmlNamespace } });
             var rootAttribute = new XmlRootAttribute(WorkflowNodeName) { Namespace = Constants.XmlNamespace };
