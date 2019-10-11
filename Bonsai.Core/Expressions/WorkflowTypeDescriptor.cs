@@ -43,21 +43,22 @@ namespace Bonsai.Expressions
                              let externalizedBuilder = ExpressionBuilder.Unwrap(node.Value) as IExternalizedMappingBuilder
                              where externalizedBuilder != null
                              let targetComponents = node.Successors.Select(edge => ExpressionBuilder.GetWorkflowElement(edge.Target.Value)).ToArray()
+                             let targetProperties = Array.ConvertAll(targetComponents, component => TypeDescriptor.GetProperties(component, ExternalizableAttributes))
                              from property in externalizedBuilder.GetExternalizedProperties()
                              where !string.IsNullOrEmpty(property.Name)
-                             let aggregateProperties = GetAggregateProperties(property, targetComponents)
+                             let aggregateProperties = GetAggregateProperties(property, targetProperties)
                              where aggregateProperties.Length > 0
                              select new ExternalizedPropertyDescriptor(property, aggregateProperties, targetComponents);
             return new PropertyDescriptorCollection(properties.ToArray());
         }
 
-        static PropertyDescriptor[] GetAggregateProperties(ExternalizedMapping property, object[] components)
+        static PropertyDescriptor[] GetAggregateProperties(ExternalizedMapping property, PropertyDescriptorCollection[] components)
         {
             var propertyType = default(Type);
             var properties = new PropertyDescriptor[components.Length];
             for (int i = 0; i < properties.Length; i++)
             {
-                var descriptor = TypeDescriptor.GetProperties(components[i], ExternalizableAttributes)[property.Name];
+                var descriptor = components[i][property.Name];
                 if (descriptor == null) return EmptyProperties;
 
                 if (propertyType == null)
