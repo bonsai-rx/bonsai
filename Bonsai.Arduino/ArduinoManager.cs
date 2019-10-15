@@ -22,16 +22,17 @@ namespace Bonsai.Arduino
 
         internal static ArduinoDisposable ReserveConnection(string portName, ArduinoConfiguration arduinoConfiguration)
         {
-            if (string.IsNullOrEmpty(portName))
-            {
-                if (!string.IsNullOrEmpty(arduinoConfiguration.PortName)) portName = arduinoConfiguration.PortName;
-                else throw new ArgumentException("An alias or serial port name must be specified.", "portName");
-            }
-
-            Tuple<Arduino, RefCountDisposable> connection;
+            var connection = default(Tuple<Arduino, RefCountDisposable>);
             lock (openConnectionsLock)
             {
-                if (!openConnections.TryGetValue(portName, out connection))
+                if (string.IsNullOrEmpty(portName))
+                {
+                    if (!string.IsNullOrEmpty(arduinoConfiguration.PortName)) portName = arduinoConfiguration.PortName;
+                    else if (openConnections.Count == 1) connection = openConnections.Values.Single();
+                    else throw new ArgumentException("An alias or serial port name must be specified.", "portName");
+                }
+
+                if (connection == null && !openConnections.TryGetValue(portName, out connection))
                 {
                     var serialPortName = arduinoConfiguration.PortName;
                     if (string.IsNullOrEmpty(serialPortName)) serialPortName = portName;
