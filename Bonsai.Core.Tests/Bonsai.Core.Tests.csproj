@@ -69,6 +69,7 @@
     <Compile Include="ExpressionBuilderArgumentTests.cs" />
     <Compile Include="ExpressionHelperTests.cs" />
     <Compile Include="ExternalizedPropertyDescriptorTests.cs" />
+    <Compile Include="IncludeWorkflowTests.cs" />
     <Compile Include="TypeMappingTests.cs" />
     <Compile Include="InspectBuilderTests.cs" />
     <Compile Include="OverloadedCombinatorBuilderTests.cs" />
@@ -83,6 +84,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="IncludeWorkflowOuter.bonsai" />
+    <EmbeddedResource Include="IncludeWorkflowInner.bonsai" />
+    <EmbeddedResource Include="IncludeWorkflow.bonsai" />
     <None Include="packages.config" />
   </ItemGroup>
   <Choose>
