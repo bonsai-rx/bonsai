@@ -48,17 +48,20 @@ namespace Bonsai.Core.Tests
         }
 
         [TestMethod]
-        public void SetWorkflowProperty_BeforeBuild_EnsureWorkflowIsLoadedAndInnerPropertyIsAssigned()
+        public void SetWorkflowProperty_BeforeBuild_EnsureWorkflowIsLoadedWithInnerPropertyAssigned()
         {
             var propertyValue = 3;
-            var propertyName = "Count";
+            var innerPropertyName = "Count";
+            var outerPropertyName = "OuterCount";
             var workflowBuilder = LoadEmbeddedWorkflow("IncludeWorkflowOuter.bonsai");
-            workflowBuilder.Workflow.SetWorkflowProperty(propertyName, propertyValue.ToString(CultureInfo.InvariantCulture));
+            workflowBuilder.Workflow.SetWorkflowProperty(outerPropertyName, propertyValue.ToString(CultureInfo.InvariantCulture));
+            workflowBuilder.Workflow.Build();
+
             var innerIncludeBuilder = (IncludeWorkflowBuilder)workflowBuilder.Workflow
                 .Single(node => node.Value is IncludeWorkflowBuilder).Value;
             Assert.IsNotNull(innerIncludeBuilder.Workflow);
 
-            var property = TypeDescriptor.GetProperties(innerIncludeBuilder.Workflow)[propertyName];
+            var property = TypeDescriptor.GetProperties(innerIncludeBuilder.Workflow)[innerPropertyName];
             Assert.AreEqual(propertyValue, property.GetValue(innerIncludeBuilder.Workflow));
         }
 

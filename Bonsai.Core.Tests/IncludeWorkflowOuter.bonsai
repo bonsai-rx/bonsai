@@ -12,7 +12,7 @@
         </Combinator>
       </Expression>
       <Expression xsi:type="ExternalizedMapping">
-        <Property Name="Count" />
+        <Property Name="Count" DisplayName="OuterCount" />
       </Expression>
       <Expression xsi:type="IncludeWorkflow" Path="Bonsai.Core.Tests:IncludeWorkflowInner.bonsai">
         <Count>1</Count>

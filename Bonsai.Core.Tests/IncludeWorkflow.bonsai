@@ -6,7 +6,7 @@
   <Workflow>
     <Nodes>
       <Expression xsi:type="IncludeWorkflow" Path="Bonsai.Core.Tests:IncludeWorkflowOuter.bonsai">
-        <Count>2</Count>
+        <OuterCount>2</OuterCount>
       </Expression>
     </Nodes>
   </Workflow>
