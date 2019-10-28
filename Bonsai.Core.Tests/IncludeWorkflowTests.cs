@@ -61,5 +61,13 @@ namespace Bonsai.Core.Tests
             var property = TypeDescriptor.GetProperties(innerIncludeBuilder.Workflow)[propertyName];
             Assert.AreEqual(propertyValue, property.GetValue(innerIncludeBuilder.Workflow));
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(WorkflowBuildException))]
+        public void Build_SelfIncludingWorkflows_WorkflowBuildException()
+        {
+            var workflowBuilder = LoadEmbeddedWorkflow("IncludeWorkflowSelfOuter.bonsai");
+            workflowBuilder.Workflow.Build();
+        }
     }
 }
