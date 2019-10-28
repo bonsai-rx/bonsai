@@ -87,6 +87,8 @@
     <EmbeddedResource Include="IncludeWorkflowOuter.bonsai" />
     <EmbeddedResource Include="IncludeWorkflowInner.bonsai" />
     <EmbeddedResource Include="IncludeWorkflow.bonsai" />
+    <EmbeddedResource Include="IncludeWorkflowSelfOuter.bonsai" />
+    <EmbeddedResource Include="IncludeWorkflowSelfInner.bonsai" />
     <None Include="packages.config" />
   </ItemGroup>
   <Choose>
