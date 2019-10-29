@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace Bonsai.Expressions
 {
@@ -44,8 +45,8 @@ namespace Bonsai.Expressions
         {
             int propertyIndex;
 
-            public XmlPropertyDescriptor(string name, int index, params Attribute[] attrs)
-                : base(name, attrs)
+            public XmlPropertyDescriptor(XName name, int index, params Attribute[] attrs)
+                : base(name.LocalName, attrs)
             {
                 propertyIndex = index;
             }
@@ -65,7 +66,7 @@ namespace Bonsai.Expressions
                 get { return typeof(IncludeWorkflowBuilder); }
             }
 
-            static XmlNode[] GetXmlProperties(object component)
+            static XElement[] GetXmlProperties(object component)
             {
                 return ((IncludeWorkflowBuilder)component).InternalXmlProperties;
             }
@@ -82,7 +83,7 @@ namespace Bonsai.Expressions
 
             public override Type PropertyType
             {
-                get { return typeof(XmlNode); }
+                get { return typeof(XElement); }
             }
 
             public override void ResetValue(object component)
@@ -92,25 +93,52 @@ namespace Bonsai.Expressions
 
             public override void SetValue(object component, object value)
             {
-                var xmlNode = value as XmlNode;
-                if (xmlNode == null)
+                var element = value as XElement;
+                if (element == null)
                 {
                     throw new ArgumentException("Incompatible types found in workflow property assignment.", "value");
                 }
 
                 var xmlProperties = GetXmlProperties(component);
-                if (xmlNode.NodeType == XmlNodeType.CDATA)
+                if (element.NodeType == XmlNodeType.Text)
                 {
-                    var property = xmlProperties[propertyIndex];
-                    xmlNode = new XmlCDataProperty(property, xmlNode.Value);
+                    element = new XProperty(xmlProperties[propertyIndex].Name, element.Value);
+                }
+                else if (element.Name != xmlProperties[propertyIndex].Name)
+                {
+                    element = new XElement(
+                        xmlProperties[propertyIndex].Name,
+                        element.Attributes(),
+                        element.Elements(),
+                        element.Value);
                 }
 
-                xmlProperties[propertyIndex] = xmlNode;
+                xmlProperties[propertyIndex] = element;
             }
 
             public override bool ShouldSerializeValue(object component)
             {
                 return false;
+            }
+        }
+
+        class XProperty : XElement
+        {
+            static readonly XName DefaultName = XName.Get(typeof(XProperty).Name, Constants.XmlNamespace);
+
+            internal XProperty(object content)
+                : base(DefaultName, content)
+            {
+            }
+
+            internal XProperty(XName name, object content)
+                : base(name, content)
+            {
+            }
+
+            public override XmlNodeType NodeType
+            {
+                get { return XmlNodeType.Text; }
             }
         }
 
@@ -160,7 +188,7 @@ namespace Bonsai.Expressions
                 var data = value as string;
                 if (data != null)
                 {
-                    return new XmlCDataProperty(data);
+                    return new XProperty(data);
                 }
 
                 return base.ConvertFrom(context, culture, value);

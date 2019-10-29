@@ -32,18 +32,23 @@ namespace Bonsai.Core.Tests
         {
             var workflowBuilder = LoadEmbeddedWorkflow("IncludeWorkflow.bonsai");
             var outerIncludeBuilder = (IncludeWorkflowBuilder)workflowBuilder.Workflow.Single().Value;
-            Assert.IsNotNull(outerIncludeBuilder.PropertiesXml);
-            Assert.AreEqual(1, outerIncludeBuilder.PropertiesXml.Length);
-            var outerIncludeProperty = outerIncludeBuilder.PropertiesXml[0];
-            var count = int.Parse(outerIncludeProperty.InnerText, CultureInfo.InvariantCulture);
+            var outerProperties = outerIncludeBuilder.PropertiesXml;
+            Assert.IsNotNull(outerProperties);
+            Assert.AreEqual(1, outerProperties.Length);
+            var outerIncludeProperty = outerProperties[0];
+            var count = int.Parse(outerIncludeProperty.Value, CultureInfo.InvariantCulture);
 
             workflowBuilder.Workflow.Build();
             Assert.IsNotNull(outerIncludeBuilder.Workflow);
             var innerIncludeBuilder = (IncludeWorkflowBuilder)outerIncludeBuilder.Workflow
                 .Single(node => node.Value is IncludeWorkflowBuilder).Value;
             Assert.IsNotNull(innerIncludeBuilder.Workflow);
+            var innerProperties = innerIncludeBuilder.PropertiesXml;
+            Assert.IsNotNull(innerProperties);
+            Assert.AreEqual(1, innerProperties.Length);
+            var innerIncludeProperty = innerProperties[0];
 
-            var property = TypeDescriptor.GetProperties(innerIncludeBuilder.Workflow)[outerIncludeProperty.Name];
+            var property = TypeDescriptor.GetProperties(innerIncludeBuilder.Workflow)[innerIncludeProperty.Name.LocalName];
             Assert.AreEqual(count, property.GetValue(innerIncludeBuilder.Workflow));
         }
 
@@ -51,15 +56,19 @@ namespace Bonsai.Core.Tests
         public void SetWorkflowProperty_BeforeBuild_EnsureWorkflowIsLoadedWithInnerPropertyAssigned()
         {
             var propertyValue = 3;
-            var innerPropertyName = "Count";
-            var outerPropertyName = "OuterCount";
             var workflowBuilder = LoadEmbeddedWorkflow("IncludeWorkflowOuter.bonsai");
+            var outerExternalizedMapping = (ExternalizedMappingBuilder)workflowBuilder.Workflow
+                .Single(node => node.Value is ExternalizedMappingBuilder).Value;
+            var outerPropertyName = outerExternalizedMapping.ExternalizedProperties.Single().DisplayName;
             workflowBuilder.Workflow.SetWorkflowProperty(outerPropertyName, propertyValue.ToString(CultureInfo.InvariantCulture));
             workflowBuilder.Workflow.Build();
 
             var innerIncludeBuilder = (IncludeWorkflowBuilder)workflowBuilder.Workflow
                 .Single(node => node.Value is IncludeWorkflowBuilder).Value;
             Assert.IsNotNull(innerIncludeBuilder.Workflow);
+            var innerExternalizedMapping = (ExternalizedMappingBuilder)innerIncludeBuilder.Workflow
+                .Single(node => node.Value is ExternalizedMappingBuilder).Value;
+            var innerPropertyName = innerExternalizedMapping.ExternalizedProperties.Single().Name;
 
             var property = TypeDescriptor.GetProperties(innerIncludeBuilder.Workflow)[innerPropertyName];
             Assert.AreEqual(propertyValue, property.GetValue(innerIncludeBuilder.Workflow));

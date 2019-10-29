@@ -1,5 +1,4 @@
-﻿using Bonsai.Properties;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,6 +8,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using SystemPath = System.IO.Path;
@@ -26,9 +26,9 @@ namespace Bonsai.Expressions
     public sealed class IncludeWorkflowBuilder : VariableArgumentExpressionBuilder, IGroupWorkflowBuilder, INamedElement, IRequireBuildContext
     {
         const char AssemblySeparator = ':';
-        static readonly XmlElement[] EmptyProperties = new XmlElement[0];
+        static readonly XElement[] EmptyProperties = new XElement[0];
         static readonly XmlSerializerNamespaces DefaultSerializerNamespaces = GetXmlSerializerNamespaces();
-        XmlNode[] xmlProperties;
+        XElement[] xmlProperties;
 
         IBuildContext buildContext;
         ExpressionBuilderGraph workflow;
@@ -131,22 +131,11 @@ namespace Bonsai.Expressions
         /// </summary>
         [XmlAnyElement]
         [Browsable(false)]
-        public XmlNode[] PropertiesXml
+        public XElement[] PropertiesXml
         {
             get
             {
-                if (xmlProperties != null)
-                {
-                    return Array.ConvertAll(xmlProperties, xmlNode =>
-                    {
-                        if (xmlNode.NodeType != XmlNodeType.Element)
-                        {
-                            throw new InvalidOperationException(Resources.Exception_PendingPropertyAssignment);
-                        }
-
-                        return (XmlElement)xmlNode;
-                    });
-                }
+                if (xmlProperties != null) return xmlProperties;
                 else if (workflow != null)
                 {
                     return GetXmlProperties();
@@ -156,7 +145,7 @@ namespace Bonsai.Expressions
             set { xmlProperties = value; }
         }
 
-        internal XmlNode[] InternalXmlProperties
+        internal XElement[] InternalXmlProperties
         {
             get { return xmlProperties; }
         }
@@ -168,22 +157,22 @@ namespace Bonsai.Expressions
             return serializerNamespaces;
         }
 
-        XmlElement[] GetXmlProperties()
+        XElement[] GetXmlProperties()
         {
             var properties = TypeDescriptor.GetProperties(this);
             return GetXmlSerializableProperties(properties).Select(SerializeProperty).ToArray();
         }
 
-        void SetXmlProperties(XmlNode[] xmlProperties)
+        void SetXmlProperties(XElement[] xmlProperties)
         {
             var properties = TypeDescriptor.GetProperties(this);
             var serializableProperties = GetXmlSerializableProperties(properties).ToDictionary(property => property.Name);
             for (int i = 0; i < xmlProperties.Length; i++)
             {
                 ExternalizedPropertyDescriptor property;
-                if (serializableProperties.TryGetValue(xmlProperties[i].Name, out property))
+                if (serializableProperties.TryGetValue(xmlProperties[i].Name.LocalName, out property))
                 {
-                    if (xmlProperties[i].NodeType == XmlNodeType.CDATA)
+                    if (xmlProperties[i].NodeType == XmlNodeType.Text)
                     {
                         var value = xmlProperties[i].Value;
                         property = (ExternalizedPropertyDescriptor)properties[property.Name];
@@ -225,10 +214,16 @@ namespace Bonsai.Expressions
             return descriptor;
         }
 
-        void DeserializeProperty(XmlNode node, PropertyDescriptor property)
+        void DeserializeProperty(XElement element, PropertyDescriptor property)
         {
+            if (property.PropertyType == typeof(XElement))
+            {
+                property.SetValue(this, element);
+                return;
+            }
+
             var serializer = PropertySerializer.GetXmlSerializer(property.Name, property.PropertyType);
-            using (var reader = new StringReader(node.OuterXml))
+            using (var reader = element.CreateReader())
             {
                 var value = serializer.Deserialize(reader);
                 if (property.IsReadOnly)
@@ -253,15 +248,15 @@ namespace Bonsai.Expressions
             }
         }
 
-        XmlElement SerializeProperty(PropertyDescriptor property)
+        XElement SerializeProperty(PropertyDescriptor property)
         {
-            var document = new XmlDocument();
+            var document = new XDocument();
             var serializer = PropertySerializer.GetXmlSerializer(property.Name, property.PropertyType);
-            using (var writer = document.CreateNavigator().AppendChild())
+            using (var writer = document.CreateWriter())
             {
                 serializer.Serialize(writer, property.GetValue(this), DefaultSerializerNamespaces);
             }
-            return document.DocumentElement;
+            return document.Root;
         }
 
         static string GetWorkflowPath(string path)
