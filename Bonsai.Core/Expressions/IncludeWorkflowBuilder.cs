@@ -359,18 +359,18 @@ namespace Bonsai.Expressions
                         description = builder.Description;
                         workflow = builder.Workflow;
                         writeTime = lastWriteTime;
+                    }
 
-                        var parameterCount = workflow.GetNestedParameters().Count();
-                        SetArgumentRange(0, parameterCount);
-                        if (inspectWorkflow)
-                        {
-                            workflow = workflow.ToInspectableGraph();
-                        }
+                    var parameterCount = workflow.GetNestedParameters().Count();
+                    SetArgumentRange(0, parameterCount);
+                    if (inspectWorkflow)
+                    {
+                        workflow = workflow.ToInspectableGraph();
+                    }
 
-                        if (properties != null)
-                        {
-                            SetXmlProperties(properties);
-                        }
+                    if (properties != null)
+                    {
+                        SetXmlProperties(properties);
                     }
                 }
             }
