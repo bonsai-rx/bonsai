@@ -31,6 +31,7 @@ namespace Bonsai
         readonly ExpressionBuilderGraph workflow;
         const string DynamicAssemblyPrefix = "@Dynamic";
         const string VersionAttributeName = "Version";
+        const string IncludeWorkflowTypeName = "IncludeWorkflow";
         const string TypeArgumentsAttributeName = "TypeArguments";
         const string ExtensionTypeNodeName = "ExtensionTypes";
         const string DescriptionElementName = "Description";
@@ -736,7 +737,7 @@ namespace Bonsai
             return null;
         }
 
-        static void WriteXmlAttributes(XmlReader reader, XmlWriter writer, bool lookupTypes, HashSet<Type> types)
+        static void WriteXmlAttributes(XmlReader reader, XmlWriter writer, bool lookupTypes, HashSet<Type> types, ref bool includeWorkflow)
         {
             do
             {
@@ -754,8 +755,10 @@ namespace Bonsai
                         {
                             var value = reader.Value;
                             // ensure xsi:type attributes are resolved only for workflow element types
-                            if (ns == XmlSchema.InstanceNamespace && lookupTypes)
+                            if (ns == XmlSchema.InstanceNamespace && lookupTypes && !includeWorkflow)
                             {
+                                // ensure xsi:type attributes nested inside include workflow properties are ignored
+                                includeWorkflow = value == IncludeWorkflowTypeName;
                                 var typeArguments = reader.GetAttribute(TypeArgumentsAttributeName);
                                 var type = ResolveXmlExtension(reader, value, typeArguments);
                                 if (type != null)
@@ -784,6 +787,7 @@ namespace Bonsai
             const int ChunkBufferSize = 1024;
             char[] chunkBuffer = null;
 
+            var includeDepth = -1;
             var canReadChunk = reader.CanReadValueChunk;
             var depth = reader.NodeType == XmlNodeType.None ? -1 : reader.Depth;
             var sw = new StringWriter(CultureInfo.InvariantCulture);
@@ -807,13 +811,16 @@ namespace Bonsai
 
                             if (reader.MoveToFirstAttribute())
                             {
+                                var includeWorkflow = includeDepth >= 0;
                                 var lookupTypes = elementNamespace == Constants.XmlNamespace;
-                                WriteXmlAttributes(reader, writer, lookupTypes, types);
+                                WriteXmlAttributes(reader, writer, lookupTypes, types, ref includeWorkflow);
+                                if (lookupTypes && includeDepth < 0 && includeWorkflow) includeDepth = reader.Depth;
                                 reader.MoveToElement();
                             }
 
                             if (reader.IsEmptyElement)
                             {
+                                if (includeDepth >= 0 && reader.Depth <= includeDepth) includeDepth = -1;
                                 writer.WriteEndElement();
                             }
                             break;
@@ -836,6 +843,7 @@ namespace Bonsai
                             writer.WriteComment(reader.Value);
                             break;
                         case XmlNodeType.EndElement:
+                            if (includeDepth >= 0 && reader.Depth <= includeDepth) includeDepth = -1;
                             writer.WriteFullEndElement();
                             break;
                         case XmlNodeType.EntityReference:
