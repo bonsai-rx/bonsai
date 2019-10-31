@@ -9,17 +9,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
+using System.Xml.Serialization;
 
 namespace Bonsai.Core.Tests
 {
     [TestClass]
     public class IncludeWorkflowTests
     {
-        static WorkflowBuilder LoadEmbeddedWorkflow(string name)
+        static Stream LoadEmbeddedResource(string name)
         {
             var qualifierType = typeof(IncludeWorkflowTests);
             var embeddedWorkflowStream = qualifierType.Namespace + "." + name;
-            using (var workflowStream = qualifierType.Assembly.GetManifestResourceStream(embeddedWorkflowStream))
+            return qualifierType.Assembly.GetManifestResourceStream(embeddedWorkflowStream);
+        }
+
+        static WorkflowBuilder LoadEmbeddedWorkflow(string name)
+        {
+            using (var workflowStream = LoadEmbeddedResource(name))
             using (var reader = XmlReader.Create(workflowStream))
             {
                 reader.MoveToContent();
@@ -80,6 +87,65 @@ namespace Bonsai.Core.Tests
         {
             var workflowBuilder = LoadEmbeddedWorkflow("IncludeWorkflowSelfOuter.bonsai");
             workflowBuilder.Workflow.Build();
+        }
+
+        [TestMethod]
+        public void Build_SerializeWorkflowWithPolymorphicProperties_NoPrefixClash()
+        {
+            var builder = new WorkflowBuilder();
+            var polymorphic = new PolymorphicPropertyTest();
+            polymorphic.Types.Add(new PolyType());
+            polymorphic.Types.Add(new MorphicType());
+            polymorphic.Types.Add(new ExtraTypes.ExtraType());
+            builder.Workflow.Add(new CombinatorBuilder { Combinator = polymorphic });
+
+            using (var sw = new StringWriter())
+            using (var writer = XmlWriter.Create(sw, new XmlWriterSettings { Indent = true }))
+            {
+                WorkflowBuilder.Serializer.Serialize(writer, builder);
+                var text = sw.ToString();
+                var output = XDocument.Parse(text);
+                var result = output.Root
+                    .Descendants()
+                    .Any(element => element.Name.LocalName == typeof(PolymorphicType).Name);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public void Build_IncludedWorkflowWithPolymorphicProperties_ReuseTopLevelPrefixes()
+        {
+            var workflowBuilder = LoadEmbeddedWorkflow("IncludeWorkflowPolymorphic.bonsai");
+            workflowBuilder.Workflow.Build();
+
+            using (var sw = new StringWriter())
+            using (var reader = LoadEmbeddedResource("IncludeWorkflowPolymorphic.bonsai"))
+            using (var writer = XmlWriter.Create(sw, new XmlWriterSettings { Indent = true, NamespaceHandling = NamespaceHandling.OmitDuplicates }))
+            {
+                WorkflowBuilder.Serializer.Serialize(writer, workflowBuilder);
+                var text = sw.ToString();
+
+                var input = XDocument.Load(reader);
+                var output = XDocument.Parse(text);
+                output.Root.SetAttributeValue("Version", input.Root.Attribute("Version").Value);
+                var result = XNode.DeepEquals(input.Root, output.Root);
+                Assert.IsTrue(result);
+            }
+        }
+    }
+
+    public class PolymorphicPropertyTest : Sink
+    {
+        readonly List<PolymorphicType> types = new List<PolymorphicType>();
+
+        public List<PolymorphicType> Types
+        {
+            get { return types; }
+        }
+
+        public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
+        {
+            return source;
         }
     }
 }
