@@ -308,7 +308,7 @@ namespace Bonsai
                                   where attributeNamespace.Namespace == clrNamespace.Namespace
                                   select attribute.Prefix)
                                   .FirstOrDefault();
-                    if (prefix == null) prefix = "q" + namespaceIndex++;
+                    if (prefix == null) prefix = "p" + namespaceIndex++;
                     serializerNamespaces.Add(prefix, xmlNamespace);
                 }
             }
