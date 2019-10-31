@@ -935,6 +935,11 @@ namespace Bonsai
 
         class XmlExtensionWriter : XmlWriter
         {
+            int depth;
+            int fragmentDepth;
+            string fragmentXmlnsPrefix;
+            readonly Dictionary<string, string> fragmentPrefixMap;
+
             bool xsiTypeAttribute;
             string xsiTypeArguments;
             readonly XmlWriter writer;
@@ -944,6 +949,28 @@ namespace Bonsai
             {
                 this.writer = writer;
                 this.genericTypes = genericTypes;
+                fragmentPrefixMap = new Dictionary<string, string>();
+                fragmentDepth = -1;
+            }
+
+            private bool Fragment
+            {
+                get { return fragmentDepth >= 0; }
+                set { fragmentDepth = value ? depth : -1; }
+            }
+
+            private int Depth
+            {
+                get { return depth; }
+                set
+                {
+                    depth = value;
+                    if (Fragment && depth < fragmentDepth)
+                    {
+                        Fragment = false;
+                        fragmentPrefixMap.Clear();
+                    }
+                }
             }
 
             public override XmlWriterSettings Settings
@@ -1013,6 +1040,12 @@ namespace Bonsai
 
             public override void WriteEndAttribute()
             {
+                if (fragmentXmlnsPrefix != null)
+                {
+                    fragmentXmlnsPrefix = null;
+                    return;
+                }
+
                 writer.WriteEndAttribute();
                 if (xsiTypeArguments != null)
                 {
@@ -1029,6 +1062,7 @@ namespace Bonsai
             public override void WriteEndElement()
             {
                 writer.WriteEndElement();
+                Depth--;
             }
 
             public override void WriteEntityRef(string name)
@@ -1039,6 +1073,7 @@ namespace Bonsai
             public override void WriteFullEndElement()
             {
                 writer.WriteFullEndElement();
+                Depth--;
             }
 
             public override void WriteName(string name)
@@ -1073,6 +1108,12 @@ namespace Bonsai
 
             public override void WriteStartAttribute(string prefix, string localName, string ns)
             {
+                if (Fragment && prefix == "xmlns" && localName != "xsi")
+                {
+                    fragmentXmlnsPrefix = localName;
+                    return;
+                }
+
                 xsiTypeAttribute = ns == XmlSchema.InstanceNamespace && localName == "type";
                 writer.WriteStartAttribute(prefix, localName, ns);
             }
@@ -1089,7 +1130,13 @@ namespace Bonsai
 
             public override void WriteStartElement(string prefix, string localName, string ns)
             {
+                if (Fragment && !string.IsNullOrEmpty(prefix))
+                {
+                    prefix = writer.LookupPrefix(ns);
+                }
+
                 writer.WriteStartElement(prefix, localName, ns);
+                Depth++;
             }
 
             string EncodeGenericType(GenericTypeCode type)
@@ -1123,8 +1170,37 @@ namespace Bonsai
 
             public override void WriteString(string text)
             {
+                if (fragmentXmlnsPrefix != null)
+                {
+                    var prefix = writer.LookupPrefix(text);
+                    if (!string.IsNullOrEmpty(prefix))
+                    {
+                        fragmentPrefixMap[fragmentXmlnsPrefix] = prefix;
+                        return;
+                    }
+                    else
+                    {
+                        writer.WriteStartAttribute("xmlns", fragmentXmlnsPrefix, null);
+                        fragmentXmlnsPrefix = null;
+                    }
+                }
+
                 if (writer.WriteState == WriteState.Attribute && xsiTypeAttribute)
                 {
+                    if (Fragment)
+                    {
+                        string typePrefix;
+                        var name = Split(text, ':', out typePrefix);
+                        if (fragmentPrefixMap.TryGetValue(typePrefix, out typePrefix))
+                        {
+                            text = typePrefix + ":" + name;
+                        }
+                    }
+                    else if (text == IncludeWorkflowTypeName)
+                    {
+                        Fragment = true;
+                    }
+
                     GenericTypeCode type;
                     var typeName = XmlConvert.DecodeName(text);
                     if (genericTypes.TryGetValue(typeName, out type))
