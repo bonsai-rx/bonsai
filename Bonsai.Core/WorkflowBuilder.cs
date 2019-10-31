@@ -737,12 +737,13 @@ namespace Bonsai
             return null;
         }
 
-        static void WriteXmlAttributes(XmlReader reader, XmlWriter writer, bool lookupTypes, HashSet<Type> types, ref bool includeWorkflow)
+        static void WriteXmlAttributes(XmlReader reader, XmlWriter writer, bool lookupTypes, HashSet<Type> types, SerializerNamespaces namespaces, ref bool includeWorkflow)
         {
             do
             {
                 if (!reader.IsDefault && (!lookupTypes || reader.LocalName != TypeArgumentsAttributeName))
                 {
+                    var xsiType = string.Empty;
                     var ns = reader.NamespaceURI;
                     writer.WriteStartAttribute(reader.Prefix, reader.LocalName, ns);
                     while (reader.ReadAttributeValue())
@@ -754,8 +755,13 @@ namespace Bonsai
                         else
                         {
                             var value = reader.Value;
+                            if (ns == XmlSchema.InstanceNamespace)
+                            {
+                                xsiType = value;
+                            }
+
                             // ensure xsi:type attributes are resolved only for workflow element types
-                            if (ns == XmlSchema.InstanceNamespace && lookupTypes && !includeWorkflow)
+                            if (!string.IsNullOrEmpty(xsiType) && lookupTypes && !includeWorkflow)
                             {
                                 // ensure xsi:type attributes nested inside include workflow properties are ignored
                                 includeWorkflow = value == IncludeWorkflowTypeName;
@@ -777,6 +783,19 @@ namespace Bonsai
                         }
                     }
                     writer.WriteEndAttribute();
+
+                    if (!string.IsNullOrEmpty(xsiType) && includeWorkflow)
+                    {
+                        xsiType = Split(xsiType, ':', out ns);
+                        if (!string.IsNullOrEmpty(ns) && reader.GetAttribute("xmlns" + ":" + ns) == null)
+                        {
+                            var qname = namespaces.FirstOrDefault(q => q.Name == ns);
+                            if (qname != null)
+                            {
+                                writer.WriteAttributeString("xmlns", qname.Name, null, qname.Namespace);
+                            }
+                        }
+                    }
                 }
             }
             while (reader.MoveToNextAttribute());
@@ -788,6 +807,7 @@ namespace Bonsai
             char[] chunkBuffer = null;
 
             var includeDepth = -1;
+            var serializerNamespaces = namespaces;
             var canReadChunk = reader.CanReadValueChunk;
             var depth = reader.NodeType == XmlNodeType.None ? -1 : reader.Depth;
             var sw = new StringWriter(CultureInfo.InvariantCulture);
@@ -813,9 +833,12 @@ namespace Bonsai
                             {
                                 var includeWorkflow = includeDepth >= 0;
                                 var lookupTypes = elementNamespace == Constants.XmlNamespace;
-                                WriteXmlAttributes(reader, writer, lookupTypes, types, ref includeWorkflow);
-                                if (lookupTypes && includeDepth < 0 && includeWorkflow) includeDepth = reader.Depth;
+                                WriteXmlAttributes(reader, writer, lookupTypes, types, serializerNamespaces, ref includeWorkflow);
                                 reader.MoveToElement();
+                                if (lookupTypes && includeDepth < 0 && includeWorkflow)
+                                {
+                                    includeDepth = reader.Depth;
+                                }
                             }
 
                             if (reader.IsEmptyElement)
