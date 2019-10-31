@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkflowBuilder Version="2.4.0"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:p1="clr-namespace:Bonsai.Core.Tests;assembly=Bonsai.Core.Tests"
+                 xmlns="https://bonsai-rx.org/2018/workflow">
+  <Workflow>
+    <Nodes>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Types" />
+      </Expression>
+      <Expression xsi:type="WorkflowInput">
+        <Name>Source1</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:PolymorphicPropertyTest">
+          <p1:Types>
+            <p1:PolymorphicType xsi:type="p1:PolyType" />
+            <p1:PolymorphicType xsi:type="p1:MorphicType">
+              <p1:Extension xmlns:q1="clr-namespace:Bonsai.Core.Tests.ExtraTypes;assembly=Bonsai.Core.Tests" xsi:type="q1:ExtraType" />
+            </p1:PolymorphicType>
+          </p1:Types>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="WorkflowOutput" />
+    </Nodes>
+    <Edges>
+      <Edge From="0" To="2" Label="Source2" />
+      <Edge From="1" To="2" Label="Source1" />
+      <Edge From="2" To="3" Label="Source1" />
+    </Edges>
+  </Workflow>
+</WorkflowBuilder>
