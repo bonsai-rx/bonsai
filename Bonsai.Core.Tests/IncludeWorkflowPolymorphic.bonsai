@@ -2,9 +2,8 @@
 <WorkflowBuilder Version="2.4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p1="clr-namespace:Bonsai.Core.Tests;assembly=Bonsai.Core.Tests" xmlns="https://bonsai-rx.org/2018/workflow">
   <Workflow>
     <Nodes>
-      <Expression xsi:type="Unit" />
-      <Expression xsi:type="IncludeWorkflow" Path="Bonsai.Core.Tests:IncludeWorkflowPolymorphicInner.bonsai">
-        <Types>
+      <Expression xsi:type="IncludeWorkflow" Path="Bonsai.Core.Tests:IncludeWorkflowPolymorphicOuter.bonsai">
+        <OuterTypes>
           <PolymorphicType xsi:type="p1:PolyType">
             <p1:Extension xsi:type="p1:MorphicType" />
           </PolymorphicType>
@@ -12,7 +11,7 @@
             <p1:Extension xmlns:q3="clr-namespace:Bonsai.Core.Tests.ExtraTypes;assembly=Bonsai.Core.Tests" xsi:type="q3:ExtraType" />
           </PolymorphicType>
           <PolymorphicType xmlns:q4="clr-namespace:Bonsai.Core.Tests.ExtraTypes;assembly=Bonsai.Core.Tests" xsi:type="q4:ExtraType" />
-        </Types>
+        </OuterTypes>
       </Expression>
       <Expression xsi:type="Unit" />
       <Expression xsi:type="Combinator">
@@ -22,8 +21,7 @@
       </Expression>
     </Nodes>
     <Edges>
-      <Edge From="0" To="1" Label="Source1" />
-      <Edge From="2" To="3" Label="Source1" />
+      <Edge From="1" To="2" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>

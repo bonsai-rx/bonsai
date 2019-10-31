@@ -93,6 +93,7 @@
     <EmbeddedResource Include="IncludeWorkflowSelfInner.bonsai" />
     <EmbeddedResource Include="IncludeWorkflowPolymorphicInner.bonsai" />
     <EmbeddedResource Include="IncludeWorkflowPolymorphic.bonsai" />
+    <EmbeddedResource Include="IncludeWorkflowPolymorphicOuter.bonsai" />
     <None Include="packages.config" />
   </ItemGroup>
   <Choose>
