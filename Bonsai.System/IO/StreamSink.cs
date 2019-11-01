@@ -18,6 +18,7 @@ namespace Bonsai.IO
     /// into a named stream (e.g. a named pipe).
     /// </summary>
     [Combinator]
+    [DefaultProperty("Path")]
     [WorkflowElementCategory(ElementCategory.Sink)]
     public abstract class StreamSink
     {

@@ -16,6 +16,7 @@ namespace Bonsai.IO
     /// into a file.
     /// </summary>
     [Combinator]
+    [DefaultProperty("FileName")]
     [WorkflowElementCategory(ElementCategory.Sink)]
     public abstract class FileSink
     {
