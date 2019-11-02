@@ -18,6 +18,7 @@ namespace Bonsai.Expressions
     {
         object combinator;
         int maxArgumentCount;
+        Delegate resetCombinator;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CombinatorBuilder"/> class.
@@ -60,6 +61,7 @@ namespace Bonsai.Expressions
             else
             {
                 var combinatorType = combinator.GetType();
+                resetCombinator = BuildResetCombinator(combinatorType);
                 var processMethodParameters = GetProcessMethods(combinatorType).Select(m => m.GetParameters()).ToArray();
                 var paramArray = processMethodParameters.Any(p =>
                     p.Length >= 1 &&
@@ -73,6 +75,36 @@ namespace Bonsai.Expressions
                     SetArgumentRange(min, maxArgumentCount = max);
                 }
             }
+        }
+
+        static Delegate BuildResetCombinator(Type combinatorType)
+        {
+            List<PropertyInfo> resetProperties = null;
+            var combinatorProperties = combinatorType.GetProperties();
+            for (int i = 0; i < combinatorProperties.Length; i++)
+            {
+                var property = combinatorProperties[i];
+                if (!property.CanWrite || !Attribute.IsDefined(property, typeof(XmlIgnoreAttribute))) continue;
+
+                var proxyProperty = Array.Find(combinatorProperties, p =>
+                {
+                    var xmlElement = p.GetCustomAttribute<XmlElementAttribute>();
+                    return xmlElement != null && xmlElement.ElementName == property.Name;
+                });
+                if (proxyProperty == null)
+                {
+                    if (resetProperties == null) resetProperties = new List<PropertyInfo>();
+                    resetProperties.Add(property);
+                }
+            }
+
+            if (resetProperties == null) return null;
+            var combinator = Expression.Parameter(combinatorType);
+            return Expression.Lambda(Expression.Block(resetProperties.Select(property =>
+            {
+                var propertyExpression = Expression.Property(combinator, property);
+                return Expression.Assign(propertyExpression, Expression.Default(property.PropertyType));
+            })), combinator).Compile();
         }
 
         static IEnumerable<MethodInfo> GetProcessMethods(Type combinatorType)
@@ -116,6 +148,7 @@ namespace Bonsai.Expressions
         {
             var combinatorExpression = Expression.Constant(combinator);
             var processMethods = GetProcessMethods(combinatorExpression.Type);
+            if (resetCombinator != null) resetCombinator.DynamicInvoke(combinator);
             return BuildCall(combinatorExpression, processMethods, arguments.Take(maxArgumentCount).ToArray());
         }
     }
