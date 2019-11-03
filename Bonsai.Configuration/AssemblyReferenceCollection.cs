@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 
 namespace Bonsai.Configuration
 {
     [Serializable]
-    public class AssemblyReferenceCollection : KeyedCollection<string, AssemblyReference>
+    public class AssemblyReferenceCollection : SortedKeyedCollection<string, AssemblyReference>
     {
         public void Add(string name)
         {

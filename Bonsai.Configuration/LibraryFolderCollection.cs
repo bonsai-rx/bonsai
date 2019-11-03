@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 
 namespace Bonsai.Configuration
 {
     [Serializable]
-    public class LibraryFolderCollection : KeyedCollection<string, LibraryFolder>
+    public class LibraryFolderCollection : SortedKeyedCollection<string, LibraryFolder>
     {
         public void Add(string path, string platform)
         {
