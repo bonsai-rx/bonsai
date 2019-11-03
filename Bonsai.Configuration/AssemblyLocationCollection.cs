@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -8,7 +7,7 @@ using System.Text;
 namespace Bonsai.Configuration
 {
     [Serializable]
-    public class AssemblyLocationCollection : KeyedCollection<Tuple<string, ProcessorArchitecture>, AssemblyLocation>
+    public class AssemblyLocationCollection : SortedKeyedCollection<Tuple<string, ProcessorArchitecture>, AssemblyLocation>
     {
         public void Add(string name, ProcessorArchitecture processorArchitecture, string path)
         {
