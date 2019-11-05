@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\ilmerge.3.0.29\build\ILMerge.props" Condition="Exists('..\packages\ilmerge.3.0.29\build\ILMerge.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -151,7 +152,6 @@
   <Import Project="$(MSBuildProjectDirectory)\..\MSBuild\AssemblyInfo.targets" />
   <Target Name="MergeExecutable" Inputs="$(OutputPath)\NuGet.Core.dll;$(OutputPath)\Bonsai.NuGet.dll;$(OutputPath)\Bonsai.Configuration.dll;$(OutputPath)\Bonsai.exe" Outputs="$(OutputPath)Merged\Bonsai.exe" Condition=" '$(OS)' == 'Windows_NT'">
     <PropertyGroup>
-      <ILMergeExe>$(MsBuildProjectDirectory)\..\packages\ilmerge.2.13.0307\ILMerge.exe</ILMergeExe>
       <ILMergeInternalizeExcludeFile>$(MsBuildProjectDirectory)\ilmerge.internalize.exclude.txt</ILMergeInternalizeExcludeFile>
       <ILMergeOutputFile>Bonsai.exe</ILMergeOutputFile>
       <ILMergeOutputFilePath>$(OutputPath)Merged\$(ILMergeOutputFile)</ILMergeOutputFilePath>
@@ -164,7 +164,7 @@
     </ItemGroup>
     <MakeDir Directories="$(OutputPath)Merged" Condition="!Exists('$(OutputPath)Merged')" />
     <Delete Files="@(ILMergeOutputs)" Condition="Exists($(ILMergeOutputFilePath))" />
-    <Exec Command="&quot;$(ILMergeExe)&quot; $(ILMergeCommandArgs)" WorkingDirectory="$(OutputPath)" />
+    <Exec Command="&quot;$(ILMergeConsolePath)&quot; $(ILMergeCommandArgs)" WorkingDirectory="$(OutputPath)" />
     <Copy SourceFiles="@(ILMergeOutputs)" DestinationFolder="$(OutputPath)" />
   </Target>
   <PropertyGroup>
@@ -174,6 +174,12 @@
     </BuildDependsOn>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\ilmerge.3.0.29\build\ILMerge.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\ilmerge.3.0.29\build\ILMerge.props'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
