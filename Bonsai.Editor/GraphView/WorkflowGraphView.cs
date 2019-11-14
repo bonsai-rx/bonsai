@@ -3266,6 +3266,11 @@ namespace Bonsai.Design
         {
             var menuItem = new ToolStripMenuItem(memberName, null, delegate
             {
+                while (elementType.IsSubclassOf(typeof(PropertySource)) && elementType.IsGenericType)
+                {
+                    elementType = elementType.GetGenericArguments()[0];
+                }
+
                 var propertySourceType = typeof(PropertySource<,>).MakeGenericType(elementType, memberType);
                 var propertySource = (PropertySource)Activator.CreateInstance(propertySourceType);
                 var valueProperty = propertySourceType.GetProperty("Value");
