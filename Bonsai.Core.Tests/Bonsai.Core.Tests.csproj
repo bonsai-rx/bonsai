@@ -94,7 +94,11 @@
     <EmbeddedResource Include="IncludeWorkflowPolymorphicInner.bonsai" />
     <EmbeddedResource Include="IncludeWorkflowPolymorphic.bonsai" />
     <EmbeddedResource Include="IncludeWorkflowPolymorphicOuter.bonsai" />
-    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Rx-Linq">
+      <Version>2.2.5</Version>
+    </PackageReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
