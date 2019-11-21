@@ -31,13 +31,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Dsp", "Bonsai.Dsp\Bo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.System.Design", "Bonsai.System.Design\Bonsai.System.Design.csproj", "{8005E3ED-424B-4CF8-94CF-9A4F6EED32B5}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{FDB58FD6-66F0-4728-AC90-011CF2518B42}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Design.Visualizers", "Bonsai.Design.Visualizers\Bonsai.Design.Visualizers.csproj", "{2DB4F295-AB4C-4642-BEB4-16E9D751B16A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.NuGet", "Bonsai.NuGet\Bonsai.NuGet.csproj", "{73701CE6-B60F-4137-B277-EADCCD5AD1C3}"
@@ -323,5 +316,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8099BA0A-E94A-4101-97A2-7F7E466AA473}
 	EndGlobalSection
 EndGlobal
