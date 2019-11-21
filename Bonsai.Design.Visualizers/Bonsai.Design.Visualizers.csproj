@@ -95,7 +95,6 @@
     <None Include="Bonsai.Design.Visualizers.nuspec">
       <SubType>Designer</SubType>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj">
@@ -111,6 +110,14 @@
     <EmbeddedResource Include="RollingGraphView.resx">
       <DependentUpon>RollingGraphView.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Rx-Linq">
+      <Version>2.2.5</Version>
+    </PackageReference>
+    <PackageReference Include="ZedGraph">
+      <Version>5.1.7</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\MSBuild\AssemblyInfo.targets" />

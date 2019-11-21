@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2012 for Windows Desktop
+# Visual Studio Express 15 for Windows Desktop
+VisualStudioVersion = 15.0.28010.2003
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai", "Bonsai\Bonsai.csproj", "{F44C66DD-913A-4DF0-B617-F8C458533C50}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Editor", "Bonsai.Editor\Bonsai.Editor.csproj", "{C7FDC11D-066A-4B2B-9A52-27A5E793BEFB}"
