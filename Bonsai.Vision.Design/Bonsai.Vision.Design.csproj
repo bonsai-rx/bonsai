@@ -5,8 +5,8 @@
     <Description>Bonsai Design Library containing visualizer and editor classes for image processing types.</Description>
     <PackageTags>Bonsai Rx Vision Visualizers</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
-    <TargetFramework>net462</TargetFramework>
-    <Version>2.6.0</Version>
+    <TargetFramework>net472</TargetFramework>
+    <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="OpenTK.GLControl" Version="3.1.0" />

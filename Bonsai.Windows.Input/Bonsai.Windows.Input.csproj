@@ -5,8 +5,8 @@
     <Description>Bonsai Windows Library containing reactive interfaces to the standard operating system input devices.</Description>
     <PackageTags>Bonsai Rx Windows Input</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
-    <TargetFramework>net462</TargetFramework>
-    <Version>2.6.0</Version>
+    <TargetFramework>net472</TargetFramework>
+    <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj" />

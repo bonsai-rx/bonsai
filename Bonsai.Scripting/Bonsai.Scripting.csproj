@@ -5,8 +5,8 @@
     <Description>Bonsai Scripting Library containing scripting infrastructure for Bonsai.</Description>
     <PackageTags>Bonsai Rx Scripting</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
-    <TargetFramework>net462</TargetFramework>
-    <Version>2.6.0</Version>
+    <TargetFramework>net472</TargetFramework>
+    <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="IronPython" Version="2.7.5" />

@@ -5,8 +5,8 @@
     <Description>The Bonsai Starter Pack includes everything you need to build your own data processing workflows.</Description>
     <PackageTags>Bonsai Rx Starter Pack</PackageTags>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    <TargetFramework>net462</TargetFramework>
-    <Version>2.6.1</Version>
+    <TargetFramework>net472</TargetFramework>
+    <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Arduino\Bonsai.Arduino.csproj" />

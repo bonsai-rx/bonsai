@@ -5,8 +5,8 @@
     <Description>Bonsai Design Library containing visualizer and editor classes for signal processing data types.</Description>
     <PackageTags>Bonsai Rx Dsp Visualizers</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
-    <TargetFramework>net462</TargetFramework>
-    <Version>2.6.0</Version>
+    <TargetFramework>net472</TargetFramework>
+    <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Design.Visualizers\Bonsai.Design.Visualizers.csproj" />

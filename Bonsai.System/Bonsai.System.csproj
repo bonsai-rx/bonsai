@@ -4,12 +4,9 @@
     <Title>Bonsai - System Library</Title>
     <Description>Bonsai System Library containing reactive infrastructure to interface with the underlying operating system.</Description>
     <PackageTags>Bonsai Rx Reactive Extensions IO Serial Port Resources</PackageTags>
-    <TargetFramework>net462</TargetFramework>
-    <Version>2.6.0</Version>
+    <TargetFramework>net472</TargetFramework>
+    <Version>3.0.0</Version>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Rx-PlatformServices" Version="2.2.5" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj" />
   </ItemGroup>

@@ -6,11 +6,11 @@
     <GenerateDocumentationFile Condition="'$(Configuration)'=='Release'">true</GenerateDocumentationFile>
     <PackageTags>Bonsai Rx Reactive Extensions</PackageTags>
     <RootNamespace>Bonsai</RootNamespace>
-    <TargetFramework>net462</TargetFramework>
-    <Version>2.6.0</Version>
+    <TargetFramework>net472</TargetFramework>
+    <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Rx-Linq" Version="2.2.5" />
+    <PackageReference Include="System.Reactive" Version="4.4.1" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
