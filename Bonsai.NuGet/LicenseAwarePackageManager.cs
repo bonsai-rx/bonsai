@@ -11,7 +11,7 @@ namespace Bonsai.NuGet
 {
     public class LicenseAwarePackageManager : PackageManager
     {
-        static readonly FrameworkName DefaultFramework = new FrameworkName(".NETFramework,Version=v4.6.2");
+        static readonly FrameworkName DefaultFramework = new FrameworkName(".NETFramework,Version=v4.7.2");
 
         public LicenseAwarePackageManager(IPackageRepository sourceRepository, string path)
             : base(sourceRepository, path)

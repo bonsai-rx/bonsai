@@ -14,8 +14,8 @@
     <copyright>Gonçalo Lopes © 2019</copyright>
     <tags>Bonsai Vision Visualizers</tags>
     <dependencies>
-      <dependency id="Bonsai.Vision" version="2.4.0" />
-      <dependency id="Bonsai.Design.Visualizers" version="2.4.0" />
+      <dependency id="Bonsai.Vision" version="2.5.0" />
+      <dependency id="Bonsai.Design.Visualizers" version="2.5.0" />
     </dependencies>
   </metadata>
 </package>
