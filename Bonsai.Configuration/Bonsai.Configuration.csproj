@@ -3,7 +3,7 @@
   <PropertyGroup>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <TargetFramework>net472</TargetFramework>
-    <Version>2.6.3</Version>
+    <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.NuGet\Bonsai.NuGet.csproj" />
