@@ -15,14 +15,14 @@
     <tags>Bonsai Starter Pack Examples</tags>
     <dependencies>
       <dependency id="Bonsai.Arduino" version="2.4.1" />
-      <dependency id="Bonsai.Audio" version="2.4.0" />
-      <dependency id="Bonsai.Dsp" version="2.4.0" />
-      <dependency id="Bonsai.Dsp.Design" version="2.4.0" />
-      <dependency id="Bonsai.Osc" version="2.4.0" />
-      <dependency id="Bonsai.Scripting" version="2.4.0" />
-      <dependency id="Bonsai.Vision" version="2.4.0" />
-      <dependency id="Bonsai.Vision.Design" version="2.4.0" />
-      <dependency id="Bonsai.Windows.Input" version="2.4.0" />
+      <dependency id="Bonsai.Audio" version="2.5.0" />
+      <dependency id="Bonsai.Dsp" version="2.5.0" />
+      <dependency id="Bonsai.Dsp.Design" version="2.5.0" />
+      <dependency id="Bonsai.Osc" version="2.5.0" />
+      <dependency id="Bonsai.Scripting" version="2.5.0" />
+      <dependency id="Bonsai.Vision" version="2.5.0" />
+      <dependency id="Bonsai.Vision.Design" version="2.5.0" />
+      <dependency id="Bonsai.Windows.Input" version="2.5.0" />
     </dependencies>
   </metadata>
   <files />

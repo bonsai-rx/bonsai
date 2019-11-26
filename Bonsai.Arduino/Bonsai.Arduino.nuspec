@@ -14,7 +14,7 @@
     <copyright>Gonçalo Lopes © 2019</copyright>
     <tags>Bonsai Rx Reactive Extensions Arduino</tags>
     <dependencies>
-      <dependency id="Bonsai.System" version="2.4.0" />
+      <dependency id="Bonsai.System" version="2.5.0" />
     </dependencies>
   </metadata>
 </package>
