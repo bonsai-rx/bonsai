@@ -22,8 +22,9 @@ using System.Drawing.Design;
 using Bonsai.Editor;
 using System.Reactive.Disposables;
 using Bonsai.Editor.Themes;
+using Bonsai.Design;
 
-namespace Bonsai.Design
+namespace Bonsai.Editor.GraphView
 {
     partial class WorkflowGraphView : UserControl
     {
@@ -115,7 +116,7 @@ namespace Bonsai.Design
             get { return !ReadOnly && !editorState.WorkflowRunning; }
         }
 
-        public GraphView GraphView
+        public GraphViewControl GraphView
         {
             get { return graphView; }
         }
@@ -216,7 +217,7 @@ namespace Bonsai.Design
                 : () => action(workflowEditorMapping);
         }
 
-        private Action CreateUpdateGraphViewDelegate(Action<GraphView> action)
+        private Action CreateUpdateGraphViewDelegate(Action<GraphViewControl> action)
         {
             var launcher = Launcher;
             return launcher != null

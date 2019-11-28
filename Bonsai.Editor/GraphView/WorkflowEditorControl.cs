@@ -10,8 +10,9 @@ using System.Windows.Forms;
 using System.IO;
 using Bonsai.Expressions;
 using Bonsai.Editor;
+using Bonsai.Design;
 
-namespace Bonsai.Design
+namespace Bonsai.Editor.GraphView
 {
     partial class WorkflowEditorControl : UserControl
     {

@@ -9,6 +9,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Bonsai.Dag;
 using Bonsai.Editor;
+using Bonsai.Editor.GraphView;
 
 namespace Bonsai.Design
 {

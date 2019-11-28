@@ -1,6 +1,6 @@
-﻿namespace Bonsai.Design
+﻿namespace Bonsai.Editor.GraphView
 {
-    partial class GraphView
+    partial class GraphViewControl
     {
         /// <summary> 
         /// Required designer variable.
@@ -32,7 +32,7 @@
             this.components = new System.ComponentModel.Container();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.tooltipTimer = new System.Windows.Forms.Timer(this.components);
-            this.canvas = new Bonsai.Design.GraphViewPanel();
+            this.canvas = new Bonsai.Editor.GraphView.GraphViewPanel();
             this.SuspendLayout();
             // 
             // toolTip
@@ -74,7 +74,7 @@
 
         #endregion
 
-        private Bonsai.Design.GraphViewPanel canvas;
+        private Bonsai.Editor.GraphView.GraphViewPanel canvas;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.Timer tooltipTimer;
     }

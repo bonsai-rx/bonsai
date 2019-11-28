@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Bonsai.Design
+namespace Bonsai.Editor
 {
     class CueBannerTextBox : TextBox
     {
