@@ -6,11 +6,15 @@
     <Product>Bonsai.Design</Product>
     <RootNamespace>Bonsai.Design</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <TargetFramework>net472</TargetFramework>
     <LangVersion>8.0</LangVersion>
     <Features>strict</Features>
     <Version>3.0.0</Version>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Resources.Extensions" Version="4.6.0" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj" />
   </ItemGroup>

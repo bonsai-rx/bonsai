@@ -6,6 +6,7 @@
     <Product>Bonsai.Editor</Product>
     <RootNamespace>Bonsai.Editor</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <TargetFramework>net472</TargetFramework>
     <LangVersion>8.0</LangVersion>
