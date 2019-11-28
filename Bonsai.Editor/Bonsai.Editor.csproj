@@ -3,6 +3,7 @@
   <PropertyGroup>
     <Title>Bonsai - Editor</Title>
     <Description>An integrated development environment for the Bonsai visual programming language.</Description>
+    <PackageTags>Bonsai Editor Rx Reactive Extensions</PackageTags>
     <Product>Bonsai.Editor</Product>
     <RootNamespace>Bonsai.Editor</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>

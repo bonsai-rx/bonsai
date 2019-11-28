@@ -3,6 +3,7 @@
   <PropertyGroup>
     <Title>Bonsai - Design Library</Title>
     <Description>Bonsai Design Library containing base visualizer classes and editor infrastructure.</Description>
+    <PackageTags>Bonsai Design Rx Reactive Extensions</PackageTags>
     <Product>Bonsai.Design</Product>
     <RootNamespace>Bonsai.Design</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>
