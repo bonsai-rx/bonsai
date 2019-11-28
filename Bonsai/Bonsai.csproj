@@ -114,9 +114,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ilmerge.internalize.exclude.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -128,8 +125,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ILMerge">
-      <Version>3.0.29</Version>
+    <PackageReference Include="ILRepack.MSBuild.Task">
+      <Version>2.0.13</Version>
+      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Web.Xdt">
       <Version>2.1.1</Version>
@@ -143,27 +141,25 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\MSBuild\AssemblyInfo.targets" />
-  <Target Name="MergeExecutable" Inputs="$(OutputPath)\NuGet.Core.dll;$(OutputPath)\Bonsai.NuGet.dll;$(OutputPath)\Bonsai.Configuration.dll;$(OutputPath)\Bonsai.exe" Outputs="$(OutputPath)Merged\Bonsai.exe" Condition=" '$(OS)' == 'Windows_NT'">
+  <Target Name="ILRepack" AfterTargets="Build">
     <PropertyGroup>
-      <ILMergeInternalizeExcludeFile>$(MsBuildProjectDirectory)\ilmerge.internalize.exclude.txt</ILMergeInternalizeExcludeFile>
-      <ILMergeOutputFile>Bonsai.exe</ILMergeOutputFile>
-      <ILMergeOutputFilePath>$(OutputPath)Merged\$(ILMergeOutputFile)</ILMergeOutputFilePath>
-      <ILMergeCommandArgs>/internalize:"$(ILMergeInternalizeExcludeFile)" /target:exe /out:"Merged\$(ILMergeOutputFile)" /log:"Merged\ilmerge.msbuild.log" /allowDup $(ILMergeOutputFile) Bonsai.Configuration.dll Bonsai.NuGet.dll NuGet.Core.dll Microsoft.Web.XmlTransform.dll</ILMergeCommandArgs>
-      <ILMergeCommandArgs Condition=" '$(SignAssembly)' == 'true' ">/keyfile:"$(AssemblyOriginatorKeyFile)" /delaysign $(ILMergeCommandArgs)</ILMergeCommandArgs>
+      <WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>
     </PropertyGroup>
     <ItemGroup>
-      <ILMergeOutputs Include="$(ILMergeOutputFilePath)" />
-      <ILMergeOutputs Include="$(OutputPath)Merged\Bonsai.pdb" />
+      <InputAssemblies Include="Bonsai.Configuration.dll" />
+      <InputAssemblies Include="Bonsai.NuGet.dll" />
+      <InputAssemblies Include="NuGet.Core.dll" />
     </ItemGroup>
-    <MakeDir Directories="$(OutputPath)Merged" Condition="!Exists('$(OutputPath)Merged')" />
-    <Delete Files="@(ILMergeOutputs)" Condition="Exists($(ILMergeOutputFilePath))" />
-    <Exec Command="&quot;$(ILMergeConsolePath)&quot; $(ILMergeCommandArgs)" WorkingDirectory="$(OutputPath)" />
-    <Copy SourceFiles="@(ILMergeOutputs)" DestinationFolder="$(OutputPath)" />
+    <ItemGroup>
+      <InternalizeExcludeAssemblies Include="^Bonsai.Configuration" />
+      <InternalizeExcludeAssemblies Include="NuGet.Manifest" />
+    </ItemGroup>
+    <ILRepack OutputType="$(OutputType)" MainAssembly="$(AssemblyName).exe" OutputAssembly="$(AssemblyName).exe" InputAssemblies="@(InputAssemblies)" InternalizeExcludeAssemblies="@(InternalizeExcludeAssemblies)" WorkingDirectory="$(WorkingDirectory)" />
   </Target>
   <PropertyGroup>
     <BuildDependsOn>
       $(BuildDependsOn);
-      MergeExecutable;
+      ILRepack;
     </BuildDependsOn>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
