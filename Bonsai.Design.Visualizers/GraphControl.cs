@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using ZedGraph;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
+using System.Reactive.Concurrency;
 
 namespace Bonsai.Design.Visualizers
 {

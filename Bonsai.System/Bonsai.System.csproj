@@ -14,7 +14,4 @@
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Rx-PlatformServices" Version="2.2.5" />
-  </ItemGroup>
 </Project>
