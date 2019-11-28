@@ -6,12 +6,15 @@
     <PackageTags>Bonsai Rx Reactive Extensions</PackageTags>
     <Product>Bonsai.Core</Product>
     <RootNamespace>Bonsai</RootNamespace>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFrameworks>net472;netstandard2.1</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
     <Features>strict</Features>
     <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="System.CodeDom" Version="4.6.0" />
     <PackageReference Include="System.Reactive" Version="4.2.0" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.6.0" />
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.6.0" />
   </ItemGroup>
 </Project>
