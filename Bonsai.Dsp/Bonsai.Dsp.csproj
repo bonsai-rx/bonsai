@@ -1,165 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{9C5BE065-0175-4C6F-A3A3-44F78CA7370E}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <Title>Bonsai - Dsp Library</Title>
+    <Description>Bonsai Dsp Library containing reactive algorithms for digital signal processing.</Description>
+    <PackageTags>Bonsai Rx Dsp Signal Processing</PackageTags>
+    <Product>Bonsai.Dsp</Product>
     <RootNamespace>Bonsai.Dsp</RootNamespace>
-    <AssemblyName>Bonsai.Dsp</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
-    <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <BuildPackage>true</BuildPackage>
-    <Prefer32Bit>false</Prefer32Bit>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>8.0</LangVersion>
+    <Features>strict</Features>
+    <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="OpenCV.Net" Version="3.3.1" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Abs.cs" />
-    <Compile Include="AbsoluteDifference.cs" />
-    <Compile Include="Accumulate.cs" />
-    <Compile Include="ArrayExtrema.cs" />
-    <Compile Include="BitBuffer.cs" />
-    <Compile Include="Butterworth.cs" />
-    <Compile Include="ConvertToSeq.cs" />
-    <Compile Include="IncrementalMean.cs" />
-    <Compile Include="KernelLengthConverter.cs" />
-    <Compile Include="Pow.cs" />
-    <Compile Include="Decimate.cs" />
-    <Compile Include="DownsamplingMethod.cs" />
-    <Compile Include="FilterDesign.cs" />
-    <Compile Include="IirFilter.cs" />
-    <Compile Include="Range.cs" />
-    <Compile Include="RasterSpikes.cs" />
-    <Compile Include="Rescale.cs" />
-    <Compile Include="RescaleMethod.cs" />
-    <Compile Include="Reshape.cs" />
-    <Compile Include="Histogram2D.cs" />
-    <Compile Include="Histogram1D.cs" />
-    <Compile Include="ArrFactory.cs" />
-    <Compile Include="ArrayTransform.cs" />
-    <Compile Include="ArrHelper.cs" />
-    <Compile Include="Average.cs" />
-    <Compile Include="BinaryArrayTransform.cs" />
-    <Compile Include="Buffer.cs" />
-    <Compile Include="CartToPolar.cs" />
-    <Compile Include="Concat.cs" />
-    <Compile Include="ConvertFromArray.cs" />
-    <Compile Include="ConvertScale.cs" />
-    <Compile Include="ConvertToArray.cs" />
-    <Compile Include="ConvertToMat.cs" />
-    <Compile Include="PolarToCart.cs" />
-    <Compile Include="DepthConverter.cs" />
-    <Compile Include="Extrema.cs" />
-    <Compile Include="MatchTemplate.cs" />
-    <Compile Include="MatConverter.cs" />
-    <Compile Include="Norm.cs" />
-    <Compile Include="Phase.cs" />
-    <Compile Include="Magnitude.cs" />
-    <Compile Include="Exp.cs" />
-    <Compile Include="Log.cs" />
-    <Compile Include="CountNonZero.cs" />
-    <Compile Include="Delay.cs" />
-    <Compile Include="Difference.cs" />
-    <Compile Include="DiscreteFourierTransform.cs" />
-    <Compile Include="ElementCountBuffer.cs" />
-    <Compile Include="FilterType.cs" />
-    <Compile Include="FirFilter.cs" />
-    <Compile Include="FrequencyFilter.cs" />
-    <Compile Include="FunctionGenerator.cs" />
-    <Compile Include="FunctionWaveform.cs" />
-    <Compile Include="MatrixReader.cs" />
-    <Compile Include="MatrixLayout.cs" />
-    <Compile Include="MatrixWriter.cs" />
-    <Compile Include="Merge.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\AssemblyInfo.Generated.cs" />
-    <Compile Include="Reduce.cs" />
-    <Compile Include="ReferenceChannels.cs" />
-    <Compile Include="RunningAverage.cs" />
-    <Compile Include="SampleBuffer.cs" />
-    <Compile Include="ScalarBuffer.cs" />
-    <Compile Include="SelectChannels.cs" />
-    <Compile Include="DetectSpikes.cs" />
-    <Compile Include="Shift.cs" />
-    <Compile Include="Skip.cs" />
-    <Compile Include="Slice.cs" />
-    <Compile Include="SpikeWaveform.cs" />
-    <Compile Include="SpikeWaveformCollection.cs" />
-    <Compile Include="SpikeWaveformRefinement.cs" />
-    <Compile Include="Split.cs" />
-    <Compile Include="Submatrix.cs" />
-    <Compile Include="Sum.cs" />
-    <Compile Include="Threshold.cs" />
-    <Compile Include="Tile.cs" />
-    <Compile Include="Transpose.cs" />
-    <Compile Include="TriggeredBuffer.cs" />
+    <ProjectReference Include="..\Bonsai.System\Bonsai.System.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj">
-      <Project>{E4D03BA3-54A2-4FF8-9DC6-52BA4CC14FED}</Project>
-      <Name>Bonsai.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Bonsai.System\Bonsai.System.csproj">
-      <Project>{b783d74f-cb2d-4419-b438-266cd15774fb}</Project>
-      <Name>Bonsai.System</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Bonsai.Dsp.nuspec">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="OpenCV.Net">
-      <Version>3.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="Rx-Linq">
-      <Version>2.2.5</Version>
-    </PackageReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(MSBuildProjectDirectory)\..\MSBuild\AssemblyInfo.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

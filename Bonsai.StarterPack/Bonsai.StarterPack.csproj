@@ -1,56 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B75681B2-B881-4179-9F2A-ACB89CE513EE}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Bonsai.StarterPack</RootNamespace>
-    <AssemblyName>Bonsai.StarterPack</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <BuildPackage>true</BuildPackage>
-    <IgnoreProjectFile>true</IgnoreProjectFile>
-  </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
+    <Title>Bonsai - Starter Pack</Title>
+    <Description>The Bonsai Starter Pack includes everything you need to build your own data processing workflows.</Description>
+    <PackageTags>Bonsai Rx Starter Pack</PackageTags>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>8.0</LangVersion>
+    <Features>strict</Features>
+    <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="App.config" />
-    <None Include="Bonsai.StarterPack.nuspec">
-      <SubType>Designer</SubType>
-    </None>
+    <ProjectReference Include="..\Bonsai.Arduino\Bonsai.Arduino.csproj" />
+    <ProjectReference Include="..\Bonsai.Audio\Bonsai.Audio.csproj" />
+    <ProjectReference Include="..\Bonsai.Dsp.Design\Bonsai.Dsp.Design.csproj" />
+    <ProjectReference Include="..\Bonsai.Osc\Bonsai.Osc.csproj" />
+    <ProjectReference Include="..\Bonsai.Scripting\Bonsai.Scripting.csproj" />
+    <ProjectReference Include="..\Bonsai.Vision.Design\Bonsai.Vision.Design.csproj" />
+    <ProjectReference Include="..\Bonsai.Windows.Input\Bonsai.Windows.Input.csproj" />
   </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

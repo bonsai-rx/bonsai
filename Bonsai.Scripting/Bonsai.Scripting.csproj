@@ -1,133 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{A341A5A1-45A6-4B35-9AB1-FE42C622F738}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <Title>Bonsai - Scripting Library</Title>
+    <Description>Bonsai Scripting Library containing scripting infrastructure for Bonsai.</Description>
+    <PackageTags>Bonsai Rx Scripting</PackageTags>
+    <Product>Bonsai.Scripting</Product>
     <RootNamespace>Bonsai.Scripting</RootNamespace>
-    <AssemblyName>Bonsai.Scripting</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <BuildPackage>true</BuildPackage>
-    <Prefer32Bit>false</Prefer32Bit>
+    <UseWindowsForms>true</UseWindowsForms>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>8.0</LangVersion>
+    <Features>strict</Features>
+    <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="System.Resources.Extensions" Version="4.6.0" />
+    <PackageReference Include="IronPython" Version="2.7.9" />
+    <PackageReference Include="IronPython.StdLib" Version="2.7.9" />
+    <PackageReference Include="jacobslusser.ScintillaNET" Version="3.6.3" />
+    <PackageReference Include="System.Linq.Dynamic" Version="1.0.7" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExpressionScriptEditor.cs" />
-    <Compile Include="ExpressionScriptEditorDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ExpressionScriptEditorDialog.Designer.cs">
-      <DependentUpon>ExpressionScriptEditorDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ExpressionSink.cs" />
-    <Compile Include="ExpressionCondition.cs" />
-    <Compile Include="IScriptingElement.cs" />
-    <Compile Include="PythonEngine.cs" />
-    <Compile Include="PythonHelper.cs" />
-    <Compile Include="PythonProcessor.cs" />
-    <Compile Include="PythonSelectMany.cs" />
-    <Compile Include="ExpressionTransform.cs" />
-    <Compile Include="Properties\AssemblyInfo.Generated.cs" />
-    <Compile Include="PythonSource.cs" />
-    <Compile Include="PythonTextWriter.cs" />
-    <Compile Include="PythonSink.cs" />
-    <Compile Include="PythonCondition.cs" />
-    <Compile Include="PythonTransform.cs" />
-    <Compile Include="PythonScriptEditor.cs" />
-    <Compile Include="PythonScriptEditorDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="PythonScriptEditorDialog.Designer.cs">
-      <DependentUpon>PythonScriptEditorDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScriptingElementTypeDescriptor.cs" />
-    <Compile Include="TabSpaceRichTextBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <ProjectReference Include="..\Bonsai.System\Bonsai.System.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj">
-      <Project>{E4D03BA3-54A2-4FF8-9DC6-52BA4CC14FED}</Project>
-      <Name>Bonsai.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Bonsai.System\Bonsai.System.csproj">
-      <Project>{b783d74f-cb2d-4419-b438-266cd15774fb}</Project>
-      <Name>Bonsai.System</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="ExpressionScriptEditorDialog.resx">
-      <DependentUpon>ExpressionScriptEditorDialog.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="PythonScriptEditorDialog.resx">
-      <DependentUpon>PythonScriptEditorDialog.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Bonsai.Scripting.nuspec">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="IronPython">
-      <Version>2.7.5</Version>
-    </PackageReference>
-    <PackageReference Include="jacobslusser.ScintillaNET">
-      <Version>3.5.10</Version>
-    </PackageReference>
-    <PackageReference Include="Rx-Linq">
-      <Version>2.2.5</Version>
-    </PackageReference>
-    <PackageReference Include="System.Linq.Dynamic">
-      <Version>1.0.7</Version>
-    </PackageReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(MSBuildProjectDirectory)\..\MSBuild\AssemblyInfo.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
