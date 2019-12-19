@@ -41,7 +41,8 @@ namespace Bonsai
             new FrameworkName(".NETFramework,Version=v4.0"),
             new FrameworkName(".NETFramework,Version=v4.0,Profile=Client"),
             new FrameworkName(".NETFramework,Version=v3.5"),
-            new FrameworkName(".NETFramework,Version=v3.5,Profile=Client")
+            new FrameworkName(".NETFramework,Version=v3.5,Profile=Client"),
+            new FrameworkName(".NETFramework,Version=v2.0")
         };
 
         public PackageConfigurationUpdater(PackageConfiguration configuration, IPackageManager manager, string bootstrapperPath = null, IPackageName bootstrapperName = null)
