@@ -86,6 +86,7 @@
     <Compile Include="CreatePerspectiveOffCenter.cs" />
     <Compile Include="CreateWindow.cs" />
     <Compile Include="CubemapTargetConverter.cs" />
+    <Compile Include="DelaySubscription.cs" />
     <Compile Include="FrameEvent.cs" />
     <Compile Include="LoadImage.cs" />
     <Compile Include="LoadResources.cs" />
