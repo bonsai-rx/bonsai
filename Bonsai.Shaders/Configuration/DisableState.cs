@@ -12,6 +12,11 @@ namespace Bonsai.Shaders.Configuration
     [XmlType(Namespace = Constants.XmlNamespace)]
     public class DisableState : StateConfiguration
     {
+        public DisableState()
+        {
+            Capability = EnableCap.Blend;
+        }
+
         [Description("The render state capability to disable.")]
         public EnableCap Capability { get; set; }
 
