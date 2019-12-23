@@ -151,6 +151,14 @@ namespace Bonsai.Shaders
         }
 
         [Category("Render Settings")]
+        [Description("The optional target update frequency. If a value is not specified, it will be the same as the render frequency.")]
+        public double? TargetUpdateFrequency
+        {
+            get { return configuration.TargetUpdateFrequency; }
+            set { configuration.TargetUpdateFrequency = value; }
+        }
+
+        [Category("Render Settings")]
         [Description("Specifies the initial shader window render state.")]
         [Editor("Bonsai.Shaders.Configuration.Design.StateConfigurationCollectionEditor, Bonsai.Shaders.Design", DesignTypes.UITypeEditor)]
         public StateConfigurationCollection RenderState

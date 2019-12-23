@@ -57,17 +57,15 @@ namespace Bonsai.Shaders
             Viewport = DefaultViewport;
             Scissor = DefaultViewport;
             TargetRenderFrequency = configuration.TargetRenderFrequency;
-            TargetUpdateFrequency = configuration.TargetRenderFrequency;
-            RefreshPeriod = VSync == VSyncMode.On && TargetRenderFrequency == 0
-                ? 1.0 / display.RefreshRate
-                : TargetRenderPeriod;
+            TargetUpdateFrequency = configuration.TargetUpdateFrequency.GetValueOrDefault(
+                VSync != VSyncMode.Off && configuration.TargetRenderFrequency == 0
+                ? display.RefreshRate
+                : configuration.TargetRenderFrequency);
             updateFrame = new Subject<FrameEvent>();
             renderFrame = new Subject<FrameEvent>();
             resourceManager = new ResourceManager();
             shaders = new List<Shader>();
         }
-
-        internal double RefreshPeriod { get; private set; }
 
         internal IObservable<FrameEvent> UpdateFrameAsync
         {
@@ -216,7 +214,7 @@ namespace Bonsai.Shaders
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            OnFrameEvent(updateFrame, e);
+            OnFrameEvent(updateFrame, TargetUpdatePeriod, e);
             base.OnUpdateFrame(e);
         }
 
@@ -237,7 +235,7 @@ namespace Bonsai.Shaders
                 action();
             }
 
-            OnFrameEvent(renderFrame, e);
+            OnFrameEvent(renderFrame, TargetRenderPeriod, e);
             base.OnRenderFrame(e);
             shaders.RemoveAll(shader =>
             {
@@ -253,11 +251,11 @@ namespace Bonsai.Shaders
             else lock (syncRoot) SwapBuffers();
         }
 
-        private void OnFrameEvent(Subject<FrameEvent> subject, FrameEventArgs e)
+        private void OnFrameEvent(Subject<FrameEvent> subject, double elapsedTime, FrameEventArgs e)
         {
             if (subject.HasObservers)
             {
-                var frameEvent = new FrameEvent(this, e);
+                var frameEvent = new FrameEvent(this, elapsedTime, e);
                 subject.OnNext(frameEvent);
             }
         }
