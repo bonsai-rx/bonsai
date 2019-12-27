@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -21,7 +20,7 @@ namespace Bonsai.IO
         }
 
         [Description("The path to search.")]
-        [Editor("Bonsai.Design.FolderNameEditor, Bonsai.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Design.FolderNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string Path { get; set; }
 
         [Description("The search string used to match against the names of files and subdirectories in the path.")]
