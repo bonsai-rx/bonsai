@@ -29,7 +29,9 @@ namespace Bonsai.Player
             }
 
             WorkflowBuilder workflowBuilder;
-            ConfigurationHelper.SetAssemblyResolve();
+            var packageConfiguration = ConfigurationHelper.Load();
+            Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, Environment.CurrentDirectory);
+            ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
             using (var reader = XmlReader.Create(fileName))
             {
                 workflowBuilder = (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
