@@ -7,7 +7,7 @@
     <PackageTags>Bonsai Player Rx Reactive Extensions</PackageTags>
     <Product>Bonsai.Player</Product>
     <RootNamespace>Bonsai.Player</RootNamespace>
-    <TargetFrameworks>net472;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
     <Features>strict</Features>
     <Version>3.0.0</Version>
