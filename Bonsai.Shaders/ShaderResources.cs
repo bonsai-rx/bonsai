@@ -3,7 +3,6 @@ using Bonsai.Shaders.Configuration;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,7 +16,7 @@ namespace Bonsai.Shaders
     {
         readonly ShaderConfigurationCollection shaders = new ShaderConfigurationCollection();
 
-        [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationCollectionEditor, Bonsai.Shaders.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationCollectionEditor, Bonsai.Shaders.Design", DesignTypes.UITypeEditor)]
         [Description("The collection of shader resources to be loaded into the resource manager.")]
         public ShaderConfigurationCollection Shaders
         {

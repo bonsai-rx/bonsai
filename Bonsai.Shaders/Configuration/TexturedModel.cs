@@ -3,7 +3,6 @@ using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -16,7 +15,7 @@ namespace Bonsai.Shaders.Configuration
     public class TexturedModel : MeshConfiguration
     {
         [TypeConverter(typeof(ResourceFileNameConverter))]
-        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [FileNameFilter("OBJ Files (*.obj)|*.obj")]
         [Description("The name of the model file.")]
         public string FileName { get; set; }
