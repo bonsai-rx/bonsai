@@ -1,5 +1,6 @@
 ﻿using Bonsai.Dag;
 using Bonsai.Design;
+using Bonsai.Editor.GraphView;
 using Bonsai.Editor.Properties;
 using Bonsai.Expressions;
 using Microsoft.CSharp;

@@ -29,11 +29,12 @@ namespace Bonsai.Player
             }
 
             WorkflowBuilder workflowBuilder;
-            ConfigurationHelper.SetAssemblyResolve();
+            var packageConfiguration = ConfigurationHelper.Load();
+            Configuration.ConfigurationHelper.RegisterPath(packageConfiguration, Environment.CurrentDirectory);
+            ConfigurationHelper.SetAssemblyResolve(packageConfiguration);
             using (var reader = XmlReader.Create(fileName))
             {
-                var serializer = new XmlSerializer(typeof(WorkflowBuilder));
-                workflowBuilder = (WorkflowBuilder)serializer.Deserialize(reader);
+                workflowBuilder = (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
             }
 
             var workflowCompleted = new ManualResetEvent(false);

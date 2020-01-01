@@ -15,6 +15,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using Bonsai.Design;
 using System.Reactive.Linq;
+using System.Reactive.Concurrency;
 
 namespace Bonsai.Dsp.Design
 {

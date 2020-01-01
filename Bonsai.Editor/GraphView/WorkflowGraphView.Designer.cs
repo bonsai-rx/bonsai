@@ -1,4 +1,4 @@
-﻿namespace Bonsai.Design
+﻿namespace Bonsai.Editor.GraphView
 {
     partial class WorkflowGraphView
     {
@@ -55,7 +55,7 @@
             this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
             this.enableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.disableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.graphView = new Bonsai.Design.GraphView();
+            this.graphView = new Bonsai.Editor.GraphView.GraphViewControl();
             this.contextMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -298,11 +298,11 @@
             this.graphView.Padding = new System.Windows.Forms.Padding(3);
             this.graphView.Size = new System.Drawing.Size(150, 150);
             this.graphView.TabIndex = 0;
-            this.graphView.TextDrawMode = Bonsai.Design.GraphViewTextDrawMode.All;
+            this.graphView.TextDrawMode = Bonsai.Editor.GraphView.GraphViewTextDrawMode.All;
             this.graphView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.graphView_ItemDrag);
-            this.graphView.NodeMouseDoubleClick += new System.EventHandler<Bonsai.Design.GraphNodeMouseEventArgs>(this.graphView_NodeMouseDoubleClick);
-            this.graphView.NodeMouseEnter += new System.EventHandler<Bonsai.Design.GraphNodeMouseEventArgs>(this.graphView_NodeMouseEnter);
-            this.graphView.NodeMouseLeave += new System.EventHandler<Bonsai.Design.GraphNodeMouseEventArgs>(this.graphView_NodeMouseLeave);
+            this.graphView.NodeMouseDoubleClick += new System.EventHandler<Bonsai.Editor.GraphView.GraphNodeMouseEventArgs>(this.graphView_NodeMouseDoubleClick);
+            this.graphView.NodeMouseEnter += new System.EventHandler<Bonsai.Editor.GraphView.GraphNodeMouseEventArgs>(this.graphView_NodeMouseEnter);
+            this.graphView.NodeMouseLeave += new System.EventHandler<Bonsai.Editor.GraphView.GraphNodeMouseEventArgs>(this.graphView_NodeMouseLeave);
             this.graphView.SelectedNodeChanged += new System.EventHandler(this.graphView_SelectedNodeChanged);
             this.graphView.DragDrop += new System.Windows.Forms.DragEventHandler(this.graphView_DragDrop);
             this.graphView.DragEnter += new System.Windows.Forms.DragEventHandler(this.graphView_DragEnter);
@@ -327,7 +327,7 @@
 
         #endregion
 
-        private GraphView graphView;
+        private GraphViewControl graphView;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem cutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;

@@ -16,7 +16,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace Bonsai.Design
+namespace Bonsai.Editor.GraphView
 {
     delegate void SvgRenderer(SvgRendererState state, IGraphics graphics);
 

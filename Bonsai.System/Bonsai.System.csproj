@@ -1,135 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{B783D74F-CB2D-4419-B438-266CD15774FB}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <Title>Bonsai - System Library</Title>
+    <Description>Bonsai System Library containing reactive infrastructure to interface with the underlying operating system.</Description>
+    <PackageTags>Bonsai Rx Reactive Extensions IO Serial Port Resources</PackageTags>
+    <Product>Bonsai.System</Product>
     <RootNamespace>Bonsai.System</RootNamespace>
-    <AssemblyName>Bonsai.System</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <BuildPackage>true</BuildPackage>
-    <Prefer32Bit>false</Prefer32Bit>
+    <TargetFrameworks>net472;netstandard2.1</TargetFrameworks>
+    <LangVersion>8.0</LangVersion>
+    <Features>strict</Features>
+    <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Reactive.Core, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Rx-Core.2.2.5\lib\net45\System.Reactive.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.Interfaces, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Rx-Interfaces.2.2.5\lib\net45\System.Reactive.Interfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.Linq, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Rx-Linq.2.2.5\lib\net45\System.Reactive.Linq.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.PlatformServices, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Rx-PlatformServices.2.2.5\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="System.IO.Ports" Version="4.6.0" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IO\Ports\CreateSerialPort.cs" />
-    <Compile Include="IO\Ports\PortNameConverter.cs" />
-    <Compile Include="IO\Ports\SerialPortEncodingConverter.cs" />
-    <Compile Include="IO\ReadLine.cs" />
-    <Compile Include="IO\WriteLine.cs" />
-    <Compile Include="IO\EnumerateFileSystemEntries.cs" />
-    <Compile Include="IO\EnumerateFiles.cs" />
-    <Compile Include="IO\EnumerateDirectories.cs" />
-    <Compile Include="IO\GetDirectoryName.cs" />
-    <Compile Include="IO\GetExtension.cs" />
-    <Compile Include="IO\GetFileName.cs" />
-    <Compile Include="IO\GetFileNameWithoutExtension.cs" />
-    <Compile Include="IO\GetFileSystemEntries.cs" />
-    <Compile Include="IO\GetDirectories.cs" />
-    <Compile Include="IO\CsvReader.cs" />
-    <Compile Include="IO\GetFiles.cs" />
-    <Compile Include="IO\GetFullPath.cs" />
-    <Compile Include="IO\GetPathRoot.cs" />
-    <Compile Include="IO\Ports\BaudRateConverter.cs" />
-    <Compile Include="IO\FileSink.cs" />
-    <Compile Include="IO\PathHelper.cs" />
-    <Compile Include="IO\PathSuffix.cs" />
-    <Compile Include="IO\StartProcess.cs" />
-    <Compile Include="IO\StreamSink.cs" />
-    <Compile Include="IO\Ports\SerialPortConfiguration.cs" />
-    <Compile Include="IO\Ports\SerialPortDisposable.cs" />
-    <Compile Include="IO\Ports\SerialPortManager.cs" />
-    <Compile Include="IO\CsvWriter.cs" />
-    <Compile Include="IO\Ports\ObservableSerialPort.cs" />
-    <Compile Include="IO\WriterDisposable.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\AssemblyInfo.Generated.cs" />
-    <Compile Include="IO\Ports\SerialPortConfigurationCollection.cs" />
-    <Compile Include="IO\Ports\SerialPortNameConverter.cs" />
-    <Compile Include="IO\TextWriter.cs" />
-    <Compile Include="IO\Ports\SerialStringRead.cs" />
-    <Compile Include="IO\Ports\SerialStringWrite.cs" />
-    <Compile Include="Resources\Constants.cs" />
-    <Compile Include="Resources\LoadResources.cs" />
-    <Compile Include="Resources\ResourceConfiguration.cs" />
-    <Compile Include="Resources\ResourceConfigurationCollection.cs" />
-    <Compile Include="Resources\ResourceFileNameConverter.cs" />
-    <Compile Include="Resources\ResourceKey.cs" />
-    <Compile Include="Resources\ResourceLoader.cs" />
-    <Compile Include="Resources\ResourceManager.cs" />
-    <Compile Include="Resources\ResourceNameConverter.cs" />
+    <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj">
-      <Project>{E4D03BA3-54A2-4FF8-9DC6-52BA4CC14FED}</Project>
-      <Name>Bonsai.Core</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Bonsai.System.nuspec">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(MSBuildProjectDirectory)\..\MSBuild\AssemblyInfo.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

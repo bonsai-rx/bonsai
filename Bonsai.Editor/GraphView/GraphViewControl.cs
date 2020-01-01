@@ -13,9 +13,9 @@ using System.Reactive.Subjects;
 using SvgNet.SvgGdi;
 using System.Drawing.Text;
 
-namespace Bonsai.Design
+namespace Bonsai.Editor.GraphView
 {
-    partial class GraphView : UserControl
+    partial class GraphViewControl : UserControl
     {
         const float DefaultDpi = 96f;
         const float DefaultPenWidth = 2;
@@ -86,7 +86,7 @@ namespace Bonsai.Design
         GraphNode cursor;
         GraphNode hot;
 
-        public GraphView()
+        public GraphViewControl()
         {
             InitializeComponent();
             InitializeReactiveEvents();
@@ -1371,14 +1371,14 @@ namespace Bonsai.Design
 
         class LayoutNode
         {
-            public LayoutNode(GraphView view, GraphNode node, PointF location)
+            public LayoutNode(GraphViewControl view, GraphNode node, PointF location)
             {
                 View = view;
                 Node = node;
                 Location = location;
             }
 
-            private GraphView View { get; set; }
+            private GraphViewControl View { get; set; }
 
             public GraphNode Node { get; private set; }
 

@@ -113,7 +113,7 @@
             this.statusImageLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolboxSplitContainer = new Bonsai.Editor.SelectableSplitContainer();
             this.toolboxTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.searchTextBox = new Bonsai.Design.CueBannerTextBox();
+            this.searchTextBox = new Bonsai.Editor.CueBannerTextBox();
             this.toolboxTreeView = new Bonsai.Editor.ToolboxTreeView();
             this.toolboxDescriptionPanel = new Bonsai.Editor.BorderPanel();
             this.toolboxDescriptionTextBox = new System.Windows.Forms.RichTextBox();
@@ -1317,7 +1317,7 @@
         private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem packageManagerToolStripMenuItem;
         private System.Windows.Forms.TableLayoutPanel toolboxTableLayoutPanel;
-        private Bonsai.Design.CueBannerTextBox searchTextBox;
+        private Bonsai.Editor.CueBannerTextBox searchTextBox;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem groupToolStripMenuItem;
         private System.Windows.Forms.ToolStripButton undoToolStripButton;

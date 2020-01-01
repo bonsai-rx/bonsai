@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bonsai.Design
+namespace Bonsai.Editor.GraphView
 {
     [DebuggerDisplay("{Name}")]
     class ElementIcon

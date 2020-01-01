@@ -1,4 +1,4 @@
-﻿namespace Bonsai.Design
+﻿namespace Bonsai.Editor.GraphView
 {
     partial class WorkflowEditorControl
     {
@@ -32,7 +32,7 @@
             this.tabContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tabControl = new Bonsai.Design.WorkflowEditorTabControl();
+            this.tabControl = new Bonsai.Editor.GraphView.WorkflowEditorTabControl();
             this.workflowTabPage = new System.Windows.Forms.TabPage();
             this.tabContextMenuStrip.SuspendLayout();
             this.tabControl.SuspendLayout();
@@ -103,7 +103,7 @@
 
         #endregion
 
-        private Bonsai.Design.WorkflowEditorTabControl tabControl;
+        private Bonsai.Editor.GraphView.WorkflowEditorTabControl tabControl;
         private System.Windows.Forms.TabPage workflowTabPage;
         private System.Windows.Forms.ContextMenuStrip tabContextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
