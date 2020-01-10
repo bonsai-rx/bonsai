@@ -463,7 +463,7 @@ namespace Bonsai.Vision.Design
             GL.PointSize(PointSize * scaleFactor);
             GL.Enable(EnableCap.PointSmooth);
             GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             labelTexture = new IplImageTexture();
             base.OnLoad(e);
         }

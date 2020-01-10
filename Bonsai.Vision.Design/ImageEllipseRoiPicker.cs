@@ -280,7 +280,7 @@ namespace Bonsai.Vision.Design
         {
             if (DesignMode) return;
             GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             labelTexture = new IplImageTexture();
             base.OnLoad(e);
         }
