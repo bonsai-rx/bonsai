@@ -42,7 +42,7 @@ namespace Bonsai.Vision
                                     var image = captureProperties.Capture.QueryFrame();
                                     if (image == null)
                                     {
-                                        observer.OnCompleted();
+                                        observer.OnError(new InvalidOperationException("Unable to acquire camera frame."));
                                         break;
                                     }
                                     else observer.OnNext(image.Clone());
