@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,7 +14,7 @@ namespace Bonsai.Vision
             var baseProperties = base.GetProperties(context, value, attributes);
 
             var propertyAttributes = context == null ? AttributeCollection.Empty : context.PropertyDescriptor.Attributes;
-            var editorAttribute = propertyAttributes[typeof(EditorAttribute)] ?? new EditorAttribute(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor));
+            var editorAttribute = propertyAttributes[typeof(EditorAttribute)] ?? new EditorAttribute(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor);
             var valueAttributes = new Attribute[] { propertyAttributes[typeof(PrecisionAttribute)], propertyAttributes[typeof(RangeAttribute)], editorAttribute };
 
             var properties = new PropertyDescriptor[4];

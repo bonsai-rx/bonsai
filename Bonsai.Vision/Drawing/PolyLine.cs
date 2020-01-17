@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,7 +30,7 @@ namespace Bonsai.Vision.Drawing
         [Range(0, 255)]
         [Precision(0, 1)]
         [TypeConverter(typeof(BgraScalarConverter))]
-        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
         [Description("The color of the polylines.")]
         public Scalar Color { get; set; }
 

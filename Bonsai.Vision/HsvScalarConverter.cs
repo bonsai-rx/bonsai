@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using OpenCV.Net;
-using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
@@ -15,7 +14,7 @@ namespace Bonsai.Vision
             var baseProperties = base.GetProperties(context, value, attributes);
 
             var precisionAttribute = new PrecisionAttribute(0, 1);
-            var editorAttribute = new EditorAttribute(DesignTypes.SliderEditor, typeof(UITypeEditor));
+            var editorAttribute = new EditorAttribute(DesignTypes.SliderEditor, DesignTypes.UITypeEditor);
             var hueAttributes = new Attribute[] { new RangeAttribute(0, 179), precisionAttribute, editorAttribute };
             var satValAttributes = new Attribute[] { new RangeAttribute(0, 255), precisionAttribute, editorAttribute };
 

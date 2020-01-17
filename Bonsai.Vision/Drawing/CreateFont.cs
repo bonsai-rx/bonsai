@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !NETSTANDARD2_1
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -79,3 +80,4 @@ namespace Bonsai.Vision.Drawing
         }
     }
 }
+#endif

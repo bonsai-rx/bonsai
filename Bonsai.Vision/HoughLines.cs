@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -24,16 +23,16 @@ namespace Bonsai.Vision
         [Precision(2, 0.01)]
         [Range(0.1, int.MaxValue)]
         [Description("The distance resolution in units of pixels.")]
-        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         public double Rho { get; set; }
 
         [Range(0.01, Math.PI)]
         [Description("The angle resolution in radians.")]
-        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
         public double Theta { get; set; }
 
         [Range(1, int.MaxValue)]
-        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         [Description("The accumulator threshold. A line is returned when the corresponding accumulator is greater than this value.")]
         public int Threshold { get; set; }
 

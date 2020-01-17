@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -14,7 +13,7 @@ namespace Bonsai.Vision.Drawing
     public class CropCanvas : Transform<Canvas, Canvas>
     {
         [Description("The region of interest inside the input canvas.")]
-        [Editor("Bonsai.Vision.Design.IplImageInputRectangleEditor, Bonsai.Vision.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Vision.Design.IplImageInputRectangleEditor, Bonsai.Vision.Design", DesignTypes.UITypeEditor)]
         public Rect RegionOfInterest { get; set; }
 
         public override IObservable<Canvas> Process(IObservable<Canvas> source)

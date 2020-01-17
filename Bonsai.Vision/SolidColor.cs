@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -31,7 +30,7 @@ namespace Bonsai.Vision
         [Range(0, 255)]
         [Precision(0, 1)]
         [TypeConverter(typeof(BgraScalarConverter))]
-        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
         [Description("The color value to which all pixels in the output image will be set to.")]
         public Scalar Color { get; set; }
 

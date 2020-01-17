@@ -5,7 +5,6 @@ using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
-using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
@@ -20,7 +19,7 @@ namespace Bonsai.Vision
         [Range(1, 7)]
         [Precision(0, 2)]
         [TypeConverter(typeof(OddKernelSizeConverter))]
-        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         [Description("The size of the extended Sobel kernel used to compute derivatives.")]
         public int ApertureSize { get; set; }
 

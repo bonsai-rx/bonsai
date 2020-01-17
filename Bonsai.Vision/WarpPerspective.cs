@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
 
@@ -20,11 +19,11 @@ namespace Bonsai.Vision
         }
 
         [Description("Coordinates of the four source quadrangle vertices in the input image.")]
-        [Editor("Bonsai.Vision.Design.IplImageInputQuadrangleEditor, Bonsai.Vision.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Vision.Design.IplImageInputQuadrangleEditor, Bonsai.Vision.Design", DesignTypes.UITypeEditor)]
         public Point2f[] Source { get; set; }
 
         [Description("Coordinates of the four corresponding quadrangle vertices in the output image.")]
-        [Editor("Bonsai.Vision.Design.IplImageOutputQuadrangleEditor, Bonsai.Vision.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Vision.Design.IplImageOutputQuadrangleEditor, Bonsai.Vision.Design", DesignTypes.UITypeEditor)]
         public Point2f[] Destination { get; set; }
 
         [Description("Specifies interpolation and operation flags for the image warp.")]

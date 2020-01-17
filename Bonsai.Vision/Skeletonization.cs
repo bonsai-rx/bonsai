@@ -5,7 +5,6 @@ using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
-using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
@@ -27,13 +26,13 @@ namespace Bonsai.Vision
 
         [Range(1, 31)]
         [Precision(0, 2)]
-        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         [Description("The size of the extended Sobel kernel used to compute derivatives.")]
         public int LaplacianAperture { get; set; }
 
         [Precision(2, 0.1)]
         [Range(int.MinValue, 0.0)]
-        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         [Description("The second-derivative cutoff used to isolate skeleton lines.")]
         public double RidgeThreshold { get; set; }
 

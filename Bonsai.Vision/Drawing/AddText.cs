@@ -1,4 +1,5 @@
-﻿using OpenCV.Net;
+﻿#if !NETSTANDARD2_1
+using OpenCV.Net;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -25,3 +26,4 @@ namespace Bonsai.Vision.Drawing
         }
     }
 }
+#endif

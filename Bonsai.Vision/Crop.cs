@@ -5,7 +5,6 @@ using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
-using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
@@ -14,7 +13,7 @@ namespace Bonsai.Vision
     public class Crop : Transform<IplImage, IplImage>
     {
         [Description("The region of interest inside the input image.")]
-        [Editor("Bonsai.Vision.Design.IplImageInputRectangleEditor, Bonsai.Vision.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Vision.Design.IplImageInputRectangleEditor, Bonsai.Vision.Design", DesignTypes.UITypeEditor)]
         public Rect RegionOfInterest { get; set; }
 
         public override IObservable<IplImage> Process(IObservable<IplImage> source)

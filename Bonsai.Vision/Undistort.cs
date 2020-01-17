@@ -6,7 +6,6 @@ using OpenCV.Net;
 using System.Runtime.InteropServices;
 using System.Reactive.Linq;
 using System.ComponentModel;
-using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {

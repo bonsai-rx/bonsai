@@ -5,7 +5,6 @@ using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
-using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
@@ -31,7 +30,7 @@ namespace Bonsai.Vision
         [Precision(0, 2)]
         [Range(3, int.MaxValue)]
         [TypeConverter(typeof(OddKernelSizeConverter))]
-        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         [Description("The size of the pixel neighborhood used to calculate the threshold for a pixel.")]
         public int BlockSize { get; set; }
 

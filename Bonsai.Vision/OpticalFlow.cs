@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -25,32 +24,32 @@ namespace Bonsai.Vision
         }
 
         [Range(0, 1)]
-        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
         [Description("Specifies the image scale (less than 1) to build the pyramids for each image.")]
         public double PyramidScale { get; set; }
 
         [Range(1, int.MaxValue)]
-        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         [Description("The number of pyramid layers, including the initial image.")]
         public int Levels { get; set; }
 
         [Range(0, int.MaxValue)]
-        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         [Description("The averaging window size. Larger values increase robustness to noise and fast motion, but yield a blurred motion field.")]
         public int WindowSize { get; set; }
 
         [Range(0, int.MaxValue)]
-        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         [Description("The number of iterations the algorithm does at each pyramid level.")]
         public int Iterations { get; set; }
 
         [Range(0, int.MaxValue)]
-        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         [Description("Size of the pixel neighborhood used to find polynomial expansion in each pixel.")]
         public int PolyN { get; set; }
 
         [Precision(2, 0.01)]
-        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         [Description("Standard deviation of the Gaussian used to smooth derivatives used as a basis for the polynomial expansion.")]
         public double PolySigma { get; set; }
 

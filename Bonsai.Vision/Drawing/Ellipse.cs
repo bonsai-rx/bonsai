@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,24 +27,24 @@ namespace Bonsai.Vision.Drawing
         public Size Axes { get; set; }
 
         [Range(0, 360)]
-        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
         [Description("The rotation angle of the ellipse, in degrees.")]
         public double Angle { get; set; }
 
         [Range(0, 360)]
-        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
         [Description("The starting angle of the elliptic arc, in degrees.")]
         public double StartAngle { get; set; }
 
         [Range(0, 360)]
-        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
         [Description("The ending angle of the elliptic arc, in degrees.")]
         public double EndAngle { get; set; }
 
         [Range(0, 255)]
         [Precision(0, 1)]
         [TypeConverter(typeof(BgraScalarConverter))]
-        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
         [Description("The color of the ellipse.")]
         public Scalar Color { get; set; }
 

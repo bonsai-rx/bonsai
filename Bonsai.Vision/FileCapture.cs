@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Diagnostics;
 using System.Threading;
 using System.Reactive.Linq;
@@ -34,12 +33,12 @@ namespace Bonsai.Vision
             get { return captureCache; }
         }
 
-        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [Description("The name of the movie file.")]
         public string FileName { get; set; }
 
         [Range(0, int.MaxValue)]
-        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         [Description("The rate at which to read images from the file. A value of 0 means the native video frame rate will be used.")]
         public double PlaybackRate { get; set; }
 

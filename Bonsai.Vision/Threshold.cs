@@ -5,7 +5,6 @@ using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
-using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
@@ -20,7 +19,7 @@ namespace Bonsai.Vision
 
         [Range(0, 255)]
         [Precision(0, 1)]
-        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
         [Description("The threshold value used to test individual pixels.")]
         public double ThresholdValue { get; set; }
 

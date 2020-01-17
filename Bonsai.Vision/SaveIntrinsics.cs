@@ -3,7 +3,6 @@ using OpenCV.Net;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -16,7 +15,7 @@ namespace Bonsai.Vision
     public class SaveIntrinsics : Sink<Intrinsics>
     {
         [FileNameFilter("YML Files (*.yml)|*.yml|All Files|*.*")]
-        [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [Description("The name of the output camera intrinsics file.")]
         public string FileName { get; set; }
 

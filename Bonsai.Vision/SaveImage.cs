@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.IO;
 using Bonsai.IO;
 using System.Reactive.Linq;
@@ -16,7 +15,7 @@ namespace Bonsai.Vision
     public class SaveImage : Sink<IplImage>
     {
         [FileNameFilter("PNG Files (*.png)|*.png|BMP Files (*.bmp)|*.bmp|JPEG Files (*.jpg;*.jpeg)|*.jpg;*.jpeg|TIFF Files (*.tif)|*.tif")]
-        [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Design.SaveFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [Description("The name of the output image file.")]
         public string FileName { get; set; }
 
