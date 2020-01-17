@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.IO;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
@@ -29,7 +28,7 @@ namespace Bonsai.Dsp
         }
 
         [Description("The name of the input data path.")]
-        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string Path { get; set; }
 
         [Browsable(false)]

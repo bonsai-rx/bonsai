@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
 
@@ -14,7 +13,7 @@ namespace Bonsai.Dsp
     public class RunningAverage : ArrayTransform
     {
         [Range(0, 1)]
-        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
         [Description("The weight of the input buffer. This parameter determines how fast the average forgets previous input arrays.")]
         public double Alpha { get; set; }
 

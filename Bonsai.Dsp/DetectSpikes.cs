@@ -3,7 +3,6 @@ using OpenCV.Net;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -34,7 +33,7 @@ namespace Bonsai.Dsp
         public int Length { get; set; }
 
         [TypeConverter(typeof(UnidimensionalArrayConverter))]
-        [Editor("Bonsai.Dsp.Design.SpikeThresholdEditor, Bonsai.Dsp.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Dsp.Design.SpikeThresholdEditor, Bonsai.Dsp.Design", DesignTypes.UITypeEditor)]
         [Description("The per-channel threshold for detecting individual spikes.")]
         public double[] Threshold { get; set; }
 
