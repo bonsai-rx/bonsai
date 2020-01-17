@@ -6,7 +6,7 @@
     <PackageTags>Bonsai Rx Osc</PackageTags>
     <Product>Bonsai.Osc</Product>
     <RootNamespace>Bonsai.Osc</RootNamespace>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFrameworks>net472;netstandard2.1</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
     <Features>strict</Features>
     <Version>3.0.0</Version>
