@@ -4,7 +4,6 @@ using OpenTK.Audio;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -19,14 +18,14 @@ namespace Bonsai.Audio
         readonly BufferConfigurationCollection buffers = new BufferConfigurationCollection();
         readonly SourceConfigurationCollection sources = new SourceConfigurationCollection();
 
-        [Editor("Bonsai.Resources.Design.ResourceCollectionEditor, Bonsai.System.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Resources.Design.ResourceCollectionEditor, Bonsai.System.Design", DesignTypes.UITypeEditor)]
         [Description("The collection of buffer resources to be loaded into the resource manager.")]
         public BufferConfigurationCollection Buffers
         {
             get { return buffers; }
         }
 
-        [Editor("Bonsai.Resources.Design.CollectionEditor, Bonsai.System.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Resources.Design.CollectionEditor, Bonsai.System.Design", DesignTypes.UITypeEditor)]
         [Description("The collection of audio sources to be loaded into the resource manager.")]
         public SourceConfigurationCollection Sources
         {
