@@ -1,4 +1,4 @@
-﻿namespace Bonsai.Scripting
+﻿namespace Bonsai.Scripting.Design
 {
     partial class ExpressionScriptEditorDialog
     {

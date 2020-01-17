@@ -10,7 +10,7 @@ using System.Threading;
 using System.Windows.Forms.Design;
 using System.Windows.Forms;
 
-namespace Bonsai.Scripting
+namespace Bonsai.Scripting.Design
 {
     public class ExpressionScriptEditor : UITypeEditor
     {

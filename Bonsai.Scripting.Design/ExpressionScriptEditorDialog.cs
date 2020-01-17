@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Bonsai.Scripting
+namespace Bonsai.Scripting.Design
 {
     public partial class ExpressionScriptEditorDialog : Form
     {

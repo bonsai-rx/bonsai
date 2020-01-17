@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
@@ -35,10 +34,10 @@ namespace Bonsai.Scripting
         [Category("Design")]
         [Externalizable(false)]
         [Description("A description for the expression condition.")]
-        [Editor(DesignTypes.MultilineStringEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.MultilineStringEditor, DesignTypes.UITypeEditor)]
         public string Description { get; set; }
 
-        [Editor(typeof(ExpressionScriptEditor), typeof(UITypeEditor))]
+        [Editor("Bonsai.Scripting.Design.ExpressionScriptEditor, Bonsai.Scripting.Design", DesignTypes.UITypeEditor)]
         [Description("The expression that determines which elements to filter.")]
         public string Expression { get; set; }
 
