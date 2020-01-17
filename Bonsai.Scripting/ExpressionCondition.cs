@@ -45,7 +45,7 @@ namespace Bonsai.Scripting
         {
             var source = arguments.First();
             var sourceType = source.Type.GetGenericArguments()[0];
-            var predicate = global::System.Linq.Dynamic.DynamicExpression.ParseLambda(sourceType, typeof(bool), Expression);
+            var predicate = global::System.Linq.Dynamic.Core.DynamicExpressionParser.ParseLambda(sourceType, typeof(bool), Expression);
             return System.Linq.Expressions.Expression.Call(whereMethod.MakeGenericMethod(sourceType), source, predicate);
         }
 

@@ -45,7 +45,7 @@ namespace Bonsai.Scripting
         {
             var source = arguments.First();
             var sourceType = source.Type.GetGenericArguments()[0];
-            var selector = global::System.Linq.Dynamic.DynamicExpression.ParseLambda(sourceType, null, Expression);
+            var selector = global::System.Linq.Dynamic.Core.DynamicExpressionParser.ParseLambda(sourceType, null, Expression);
             return System.Linq.Expressions.Expression.Call(selectMethod.MakeGenericMethod(sourceType, selector.ReturnType), source, selector);
         }
 
