@@ -6,7 +6,6 @@
     <PackageTags>Bonsai Rx Scripting</PackageTags>
     <Product>Bonsai.Scripting</Product>
     <RootNamespace>Bonsai.Scripting</RootNamespace>
-    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <TargetFrameworks>net472;netstandard2.1</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
     <Features>strict</Features>
