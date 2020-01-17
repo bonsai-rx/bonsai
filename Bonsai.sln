@@ -5,59 +5,61 @@ VisualStudioVersion = 16.0.29519.87
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai", "Bonsai\Bonsai.csproj", "{F44C66DD-913A-4DF0-B617-F8C458533C50}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Editor", "Bonsai.Editor\Bonsai.Editor.csproj", "{C7FDC11D-066A-4B2B-9A52-27A5E793BEFB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Editor", "Bonsai.Editor\Bonsai.Editor.csproj", "{C7FDC11D-066A-4B2B-9A52-27A5E793BEFB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Vision", "Bonsai.Vision\Bonsai.Vision.csproj", "{C226E461-6A82-49A7-9CAF-0CF872A1C91B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Vision", "Bonsai.Vision\Bonsai.Vision.csproj", "{C226E461-6A82-49A7-9CAF-0CF872A1C91B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Design", "Bonsai.Design\Bonsai.Design.csproj", "{765D928A-B147-46FF-8A59-BDE73F88A844}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Design", "Bonsai.Design\Bonsai.Design.csproj", "{765D928A-B147-46FF-8A59-BDE73F88A844}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Core", "Bonsai.Core\Bonsai.Core.csproj", "{E4D03BA3-54A2-4FF8-9DC6-52BA4CC14FED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Core", "Bonsai.Core\Bonsai.Core.csproj", "{E4D03BA3-54A2-4FF8-9DC6-52BA4CC14FED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Vision.Design", "Bonsai.Vision.Design\Bonsai.Vision.Design.csproj", "{0004026F-D014-451D-859F-93DCEC59B2A2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Vision.Design", "Bonsai.Vision.Design\Bonsai.Vision.Design.csproj", "{0004026F-D014-451D-859F-93DCEC59B2A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.System", "Bonsai.System\Bonsai.System.csproj", "{B783D74F-CB2D-4419-B438-266CD15774FB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.System", "Bonsai.System\Bonsai.System.csproj", "{B783D74F-CB2D-4419-B438-266CD15774FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Arduino", "Bonsai.Arduino\Bonsai.Arduino.csproj", "{CFED93E8-2AE9-471D-81D6-C89BB0356EF3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Arduino", "Bonsai.Arduino\Bonsai.Arduino.csproj", "{CFED93E8-2AE9-471D-81D6-C89BB0356EF3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Scripting", "Bonsai.Scripting\Bonsai.Scripting.csproj", "{A341A5A1-45A6-4B35-9AB1-FE42C622F738}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Scripting", "Bonsai.Scripting\Bonsai.Scripting.csproj", "{A341A5A1-45A6-4B35-9AB1-FE42C622F738}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Player", "Bonsai.Player\Bonsai.Player.csproj", "{156452CC-3847-4706-AC65-4FA3BECA88EF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Player", "Bonsai.Player\Bonsai.Player.csproj", "{156452CC-3847-4706-AC65-4FA3BECA88EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Audio", "Bonsai.Audio\Bonsai.Audio.csproj", "{BFAFD84F-6D1A-4D98-B91D-BBFCEA0FACF9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Audio", "Bonsai.Audio\Bonsai.Audio.csproj", "{BFAFD84F-6D1A-4D98-B91D-BBFCEA0FACF9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Dsp.Design", "Bonsai.Dsp.Design\Bonsai.Dsp.Design.csproj", "{6CD26D96-DAEB-4C46-AC34-1F673413C9E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Dsp.Design", "Bonsai.Dsp.Design\Bonsai.Dsp.Design.csproj", "{6CD26D96-DAEB-4C46-AC34-1F673413C9E5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Dsp", "Bonsai.Dsp\Bonsai.Dsp.csproj", "{9C5BE065-0175-4C6F-A3A3-44F78CA7370E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Dsp", "Bonsai.Dsp\Bonsai.Dsp.csproj", "{9C5BE065-0175-4C6F-A3A3-44F78CA7370E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.System.Design", "Bonsai.System.Design\Bonsai.System.Design.csproj", "{8005E3ED-424B-4CF8-94CF-9A4F6EED32B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.System.Design", "Bonsai.System.Design\Bonsai.System.Design.csproj", "{8005E3ED-424B-4CF8-94CF-9A4F6EED32B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Design.Visualizers", "Bonsai.Design.Visualizers\Bonsai.Design.Visualizers.csproj", "{2DB4F295-AB4C-4642-BEB4-16E9D751B16A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Design.Visualizers", "Bonsai.Design.Visualizers\Bonsai.Design.Visualizers.csproj", "{2DB4F295-AB4C-4642-BEB4-16E9D751B16A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.NuGet", "Bonsai.NuGet\Bonsai.NuGet.csproj", "{73701CE6-B60F-4137-B277-EADCCD5AD1C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Configuration", "Bonsai.Configuration\Bonsai.Configuration.csproj", "{4FFCE61A-E4D7-4DDA-A276-4807E8F74635}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Configuration", "Bonsai.Configuration\Bonsai.Configuration.csproj", "{4FFCE61A-E4D7-4DDA-A276-4807E8F74635}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai64", "Bonsai64\Bonsai64.csproj", "{8794CB93-EB69-4B98-84F9-F50ABB350E14}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Windows.Input", "Bonsai.Windows.Input\Bonsai.Windows.Input.csproj", "{082F80A4-B096-45A3-ABB7-E8BFBF450CCD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Windows.Input", "Bonsai.Windows.Input\Bonsai.Windows.Input.csproj", "{082F80A4-B096-45A3-ABB7-E8BFBF450CCD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Osc", "Bonsai.Osc\Bonsai.Osc.csproj", "{BAA06D47-70E5-43BB-ABB9-A72F14196E92}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Osc", "Bonsai.Osc\Bonsai.Osc.csproj", "{BAA06D47-70E5-43BB-ABB9-A72F14196E92}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Core.Tests", "Bonsai.Core.Tests\Bonsai.Core.Tests.csproj", "{E1144727-1CFB-46A6-83B0-68592894D64C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Core.Tests", "Bonsai.Core.Tests\Bonsai.Core.Tests.csproj", "{E1144727-1CFB-46A6-83B0-68592894D64C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.StarterPack", "Bonsai.StarterPack\Bonsai.StarterPack.csproj", "{B75681B2-B881-4179-9F2A-ACB89CE513EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.StarterPack", "Bonsai.StarterPack\Bonsai.StarterPack.csproj", "{B75681B2-B881-4179-9F2A-ACB89CE513EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Shaders", "Bonsai.Shaders\Bonsai.Shaders.csproj", "{4D325C30-E014-4151-BC69-064D9B272641}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Shaders", "Bonsai.Shaders\Bonsai.Shaders.csproj", "{4D325C30-E014-4151-BC69-064D9B272641}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Shaders.Design", "Bonsai.Shaders.Design\Bonsai.Shaders.Design.csproj", "{851B4D3C-D8BA-433E-B4E8-CBA186F10C0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.Shaders.Design", "Bonsai.Shaders.Design\Bonsai.Shaders.Design.csproj", "{851B4D3C-D8BA-433E-B4E8-CBA186F10C0C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.System.Tests", "Bonsai.System.Tests\Bonsai.System.Tests.csproj", "{FC54C35D-120F-49DC-9430-63447E550E39}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bonsai.System.Tests", "Bonsai.System.Tests\Bonsai.System.Tests.csproj", "{FC54C35D-120F-49DC-9430-63447E550E39}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E591BF46-D858-4C34-A20B-494DF58DFE3C}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
 		LICENSE = LICENSE
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Scripting.Python", "Bonsai.Scripting.Python\Bonsai.Scripting.Python.csproj", "{6AD5304B-F610-4E29-B674-87195E7E38A1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -319,6 +321,18 @@ Global
 		{FC54C35D-120F-49DC-9430-63447E550E39}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{FC54C35D-120F-49DC-9430-63447E550E39}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{FC54C35D-120F-49DC-9430-63447E550E39}.Release|x64.ActiveCfg = Release|Any CPU
+		{6AD5304B-F610-4E29-B674-87195E7E38A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6AD5304B-F610-4E29-B674-87195E7E38A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6AD5304B-F610-4E29-B674-87195E7E38A1}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{6AD5304B-F610-4E29-B674-87195E7E38A1}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{6AD5304B-F610-4E29-B674-87195E7E38A1}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6AD5304B-F610-4E29-B674-87195E7E38A1}.Debug|x64.Build.0 = Debug|Any CPU
+		{6AD5304B-F610-4E29-B674-87195E7E38A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6AD5304B-F610-4E29-B674-87195E7E38A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6AD5304B-F610-4E29-B674-87195E7E38A1}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{6AD5304B-F610-4E29-B674-87195E7E38A1}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{6AD5304B-F610-4E29-B674-87195E7E38A1}.Release|x64.ActiveCfg = Release|Any CPU
+		{6AD5304B-F610-4E29-B674-87195E7E38A1}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

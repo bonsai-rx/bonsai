@@ -1,10 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
-    <Title>Bonsai - Scripting Library</Title>
-    <Description>Bonsai Scripting Library containing scripting infrastructure for Bonsai.</Description>
-    <PackageTags>Bonsai Rx Scripting</PackageTags>
-    <Product>Bonsai.Scripting</Product>
+    <Title>Bonsai - Python Scripting Library</Title>
+    <Description>Bonsai Scripting Library containing Python scripting infrastructure for Bonsai.</Description>
+    <PackageTags>Bonsai Rx Scripting Python</PackageTags>
+    <Product>Bonsai.Scripting.Python</Product>
     <RootNamespace>Bonsai.Scripting</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
@@ -15,8 +15,9 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Resources.Extensions" Version="4.6.0" />
+    <PackageReference Include="IronPython" Version="2.7.9" />
+    <PackageReference Include="IronPython.StdLib" Version="2.7.9" />
     <PackageReference Include="jacobslusser.ScintillaNET" Version="3.6.3" />
-    <PackageReference Include="System.Linq.Dynamic" Version="1.0.7" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.System\Bonsai.System.csproj" />
