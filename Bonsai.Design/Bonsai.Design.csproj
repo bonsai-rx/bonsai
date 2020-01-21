@@ -145,7 +145,7 @@
     <Compile Include="TypeVisualizerDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="TypeVisualizerDialog.designer.cs">
+    <Compile Include="TypeVisualizerDialog.Designer.cs">
       <DependentUpon>TypeVisualizerDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="VisualizerMashup.cs" />
