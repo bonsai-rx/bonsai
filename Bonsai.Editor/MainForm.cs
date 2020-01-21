@@ -40,6 +40,7 @@ namespace Bonsai.Editor
         const string SubjectCategoryName = "Subject";
         const string VersionAttributeName = "Version";
         const string DefaultWorkflowNamespace = "Unspecified";
+        static readonly bool IsRunningOnMono = Type.GetType("Mono.Runtime") != null;
         static readonly char[] ToolboxArgumentSeparator = new[] { ' ' };
         static readonly object ExtensionsDirectoryChanged = new object();
         static readonly object WorkflowValidating = new object();
@@ -275,9 +276,13 @@ namespace Bonsai.Editor
 
             var currentDirectory = Path.GetFullPath(Environment.CurrentDirectory).TrimEnd('\\');
             var appDomainBaseDirectory = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\');
-            var systemPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.System)).TrimEnd('\\');
-            var systemX86Path = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86)).TrimEnd('\\');
-            var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory || currentDirectory == systemPath || currentDirectory == systemX86Path;
+            var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory;
+            if (!IsRunningOnMono)
+            {
+                var systemPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.System)).TrimEnd('\\');
+                var systemX86Path = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86)).TrimEnd('\\');
+                currentDirectoryRestricted |= currentDirectory == systemPath || currentDirectory == systemX86Path;
+            }
             var formClosed = Observable.FromEventPattern<FormClosedEventHandler, FormClosedEventArgs>(
                 handler => FormClosed += handler,
                 handler => FormClosed -= handler);
