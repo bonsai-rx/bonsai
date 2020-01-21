@@ -2770,6 +2770,16 @@ namespace Bonsai.Editor
             return theme == ColorTheme.Light ? ColorTheme.Dark : ColorTheme.Light;
         }
 
+        private void InitializeBorderTheme()
+        {
+            var colorTable = themeRenderer.ToolStripRenderer.ColorTable;
+            var panelColor = colorTable.ContentPanelBackColor;
+            propertyGrid.CategorySplitterColor = colorTable.SeparatorDark;
+            propertyGrid.CommandsBorderColor = panelColor;
+            propertyGrid.ViewBorderColor = panelColor;
+            propertyGrid.CanShowVisualStyleGlyphs = false;
+        }
+
         private void InitializeTheme()
         {
             var colorTable = themeRenderer.ToolStripRenderer.ColorTable;
@@ -2791,13 +2801,7 @@ namespace Bonsai.Editor
             propertyGrid.HelpForeColor = foreColor;
             propertyGrid.ViewBackColor = panelColor;
             propertyGrid.ViewForeColor = windowText;
-            if (!IsRunningOnMono)
-            {
-                propertyGrid.CategorySplitterColor = colorTable.SeparatorDark;
-                propertyGrid.CommandsBorderColor = panelColor;
-                propertyGrid.ViewBorderColor = panelColor;
-                propertyGrid.CanShowVisualStyleGlyphs = false;
-            }
+            if (!IsRunningOnMono) InitializeBorderTheme();
 
             toolboxTableLayoutPanel.BackColor = panelColor;
             toolboxSplitContainer.BackColor = panelColor;
