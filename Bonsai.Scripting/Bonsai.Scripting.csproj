@@ -4,11 +4,7 @@
     <Title>Bonsai - Scripting Library</Title>
     <Description>Bonsai Scripting Library containing scripting infrastructure for Bonsai.</Description>
     <PackageTags>Bonsai Rx Scripting</PackageTags>
-    <Product>Bonsai.Scripting</Product>
-    <RootNamespace>Bonsai.Scripting</RootNamespace>
     <TargetFrameworks>net472;netstandard2.1</TargetFrameworks>
-    <LangVersion>8.0</LangVersion>
-    <Features>strict</Features>
     <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>

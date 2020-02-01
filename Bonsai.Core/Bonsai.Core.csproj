@@ -4,11 +4,8 @@
     <Title>Bonsai - Core Library</Title>
     <Description>Bonsai Core Library containing base classes and workflow infrastructure.</Description>
     <PackageTags>Bonsai Rx Reactive Extensions</PackageTags>
-    <Product>Bonsai.Core</Product>
     <RootNamespace>Bonsai</RootNamespace>
     <TargetFrameworks>net472;netstandard2.1</TargetFrameworks>
-    <LangVersion>8.0</LangVersion>
-    <Features>strict</Features>
     <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>

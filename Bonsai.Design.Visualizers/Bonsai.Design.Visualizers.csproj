@@ -4,13 +4,9 @@
     <Title>Bonsai - Visualizers Library</Title>
     <Description>Bonsai Visualizers Library containing base visualizer classes and editor infrastructure.</Description>
     <PackageTags>Bonsai Rx Visualizers</PackageTags>
-    <Product>Bonsai.Design.Visualizers</Product>
-    <RootNamespace>Bonsai.Design.Visualizers</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <TargetFramework>net472</TargetFramework>
-    <LangVersion>8.0</LangVersion>
-    <Features>strict</Features>
     <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>

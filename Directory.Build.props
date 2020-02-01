@@ -9,5 +9,7 @@
     <PackageOutputPath>..\bin\$(Configuration)</PackageOutputPath>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <GenerateDocumentationFile Condition="'$(Configuration)'=='Release'">true</GenerateDocumentationFile>
+    <LangVersion>8.0</LangVersion>
+    <Features>strict</Features>
   </PropertyGroup>
 </Project>

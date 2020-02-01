@@ -4,13 +4,9 @@
     <Title>Bonsai - Windows Input Library</Title>
     <Description>Bonsai Windows Library containing reactive interfaces to the standard operating system input devices.</Description>
     <PackageTags>Bonsai Rx Windows Input</PackageTags>
-    <Product>Bonsai.Windows.Input</Product>
-    <RootNamespace>Bonsai.Windows.Input</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <TargetFramework>net472</TargetFramework>
-    <LangVersion>8.0</LangVersion>
-    <Features>strict</Features>
     <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>

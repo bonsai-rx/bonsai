@@ -4,11 +4,7 @@
     <Title>Bonsai - Arduino Library</Title>
     <Description>Bonsai Arduino Library containing communication infrastructure to probe and control the state of Arduino microcontrollers.</Description>
     <PackageTags>Bonsai Rx Arduino</PackageTags>
-    <Product>Bonsai.Arduino</Product>
-    <RootNamespace>Bonsai.Arduino</RootNamespace>
     <TargetFrameworks>net472;netstandard2.1</TargetFrameworks>
-    <LangVersion>8.0</LangVersion>
-    <Features>strict</Features>
     <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>

@@ -4,13 +4,9 @@
     <Title>Bonsai - Shaders Design Library</Title>
     <Description>Bonsai Design Library containing editor classes for shader configuration.</Description>
     <PackageTags>Bonsai Rx Shaders Design Graphics OpenGL</PackageTags>
-    <Product>Bonsai.Shaders.Design</Product>
-    <RootNamespace>Bonsai.Shaders.Design</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <TargetFramework>net472</TargetFramework>
-    <LangVersion>8.0</LangVersion>
-    <Features>strict</Features>
     <Version>0.21.0</Version>
   </PropertyGroup>
   <ItemGroup>

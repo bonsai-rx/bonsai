@@ -4,11 +4,7 @@
     <Title>Bonsai - System Library</Title>
     <Description>Bonsai System Library containing reactive infrastructure to interface with the underlying operating system.</Description>
     <PackageTags>Bonsai Rx Reactive Extensions IO Serial Port Resources</PackageTags>
-    <Product>Bonsai.System</Product>
-    <RootNamespace>Bonsai.System</RootNamespace>
     <TargetFrameworks>net472;netstandard2.1</TargetFrameworks>
-    <LangVersion>8.0</LangVersion>
-    <Features>strict</Features>
     <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>

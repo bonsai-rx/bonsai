@@ -4,13 +4,10 @@
     <Title>Bonsai - Python Scripting Library</Title>
     <Description>Bonsai Scripting Library containing Python scripting infrastructure for Bonsai.</Description>
     <PackageTags>Bonsai Rx Scripting Python</PackageTags>
-    <Product>Bonsai.Scripting.Python</Product>
     <RootNamespace>Bonsai.Scripting</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <TargetFramework>net472</TargetFramework>
-    <LangVersion>8.0</LangVersion>
-    <Features>strict</Features>
     <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>

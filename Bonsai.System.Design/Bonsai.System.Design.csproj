@@ -4,13 +4,9 @@
     <Title>Bonsai - System Design Library</Title>
     <Description>Bonsai Design Library containing editor classes for IO and other system configurations.</Description>
     <PackageTags>Bonsai Rx Reactive Extensions IO Resources Design</PackageTags>
-    <Product>Bonsai.System.Design</Product>
-    <RootNamespace>Bonsai.System.Design</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <TargetFramework>net472</TargetFramework>
-    <LangVersion>8.0</LangVersion>
-    <Features>strict</Features>
     <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>

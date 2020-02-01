@@ -4,11 +4,7 @@
     <Title>Bonsai - Vision Library</Title>
     <Description>Bonsai Vision Library containing reactive algorithms for computer vision and image processing.</Description>
     <PackageTags>Bonsai Rx Image Processing Computer Vision</PackageTags>
-    <Product>Bonsai.Vision</Product>
-    <RootNamespace>Bonsai.Vision</RootNamespace>
     <TargetFrameworks>net472;netstandard2.1</TargetFrameworks>
-    <LangVersion>8.0</LangVersion>
-    <Features>strict</Features>
     <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>

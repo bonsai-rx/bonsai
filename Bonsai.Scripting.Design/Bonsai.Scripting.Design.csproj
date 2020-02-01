@@ -4,13 +4,9 @@
     <Title>Bonsai - Scripting Design Library</Title>
     <Description>Bonsai Design Library containing editor classes for expression scripts.</Description>
     <PackageTags>Bonsai Rx Scripting Design</PackageTags>
-    <Product>Bonsai.Scripting.Design</Product>
-    <RootNamespace>Bonsai.Scripting.Design</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <TargetFramework>net472</TargetFramework>
-    <LangVersion>8.0</LangVersion>
-    <Features>strict</Features>
     <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>

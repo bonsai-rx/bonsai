@@ -2,8 +2,6 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <TargetFramework>net472</TargetFramework>
-    <LangVersion>8.0</LangVersion>
-    <Features>strict</Features>
     <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>

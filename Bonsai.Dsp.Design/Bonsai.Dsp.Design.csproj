@@ -4,13 +4,9 @@
     <Title>Bonsai - Dsp Design Library</Title>
     <Description>Bonsai Design Library containing visualizer and editor classes for signal processing data types.</Description>
     <PackageTags>Bonsai Rx Dsp Visualizers</PackageTags>
-    <Product>Bonsai.Dsp.Design</Product>
-    <RootNamespace>Bonsai.Dsp.Design</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <TargetFramework>net472</TargetFramework>
-    <LangVersion>8.0</LangVersion>
-    <Features>strict</Features>
     <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>

@@ -4,13 +4,9 @@
     <Title>Bonsai - Design Library</Title>
     <Description>Bonsai Design Library containing base visualizer classes and editor infrastructure.</Description>
     <PackageTags>Bonsai Design Rx Reactive Extensions</PackageTags>
-    <Product>Bonsai.Design</Product>
-    <RootNamespace>Bonsai.Design</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <TargetFramework>net472</TargetFramework>
-    <LangVersion>8.0</LangVersion>
-    <Features>strict</Features>
     <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>

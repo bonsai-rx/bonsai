@@ -4,13 +4,9 @@
     <Title>Bonsai - Vision Design Library</Title>
     <Description>Bonsai Design Library containing visualizer and editor classes for image processing types.</Description>
     <PackageTags>Bonsai Rx Vision Visualizers</PackageTags>
-    <Product>Bonsai.Vision.Design</Product>
-    <RootNamespace>Bonsai.Vision.Design</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <TargetFramework>net472</TargetFramework>
-    <LangVersion>8.0</LangVersion>
-    <Features>strict</Features>
     <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
