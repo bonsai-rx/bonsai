@@ -357,17 +357,16 @@ namespace Bonsai
                 return expression;
             }
 
-            var regexPattern = string.Empty;
-            pattern = pattern.Replace("%%", "%");
-            var tokens = pattern.Split(new[] { '%' }, StringSplitOptions.None);
-            var tokenTypes = new Type[tokens.Length - 1];
-            for (int i = 0; i < tokens.Length; i++)
+            var tokenTypes = new List<Type>();
+            var regexPattern = new StringBuilder(pattern.Length);
+            for (int i = 0; i < pattern.Length; i++)
             {
-                var token = tokens[i];
-                if (i > 0)
+                var c = pattern[i];
+                if (c == '%')
                 {
                     Type tokenType;
-                    switch (token[0])
+                    var token = pattern[++i];
+                    switch (token)
                     {
                         case 'B': tokenType = typeof(byte); break;
                         case 'h': tokenType = typeof(short); break;
@@ -383,18 +382,18 @@ namespace Bonsai
                         case 't': tokenType = typeof(DateTimeOffset); break;
                         case 'T': tokenType = typeof(TimeSpan); break;
                         case 's': tokenType = typeof(string); break;
+                        case '%': regexPattern.Append(token); continue;
                         default: throw new ArgumentException("The parse pattern contains invalid token specifiers.");
                     }
 
-                    tokenTypes[i - 1] = tokenType;
-                    token = token.Substring(1);
-                    regexPattern += "(.*)";
+                    tokenTypes.Add(tokenType);
+                    regexPattern.Append("(.*)");
                 }
-
-                regexPattern += token;
+                else regexPattern.Append(c);
             }
 
-            var regex = new Regex(regexPattern, RegexOptions.Singleline);
+            var typeArguments = tokenTypes.ToArray();
+            var regex = new Regex(regexPattern.ToString(), RegexOptions.Singleline);
             var regexExpression = Expression.Constant(regex);
             var matchVariable = Expression.Variable(typeof(Match));
             var matchExpression = Expression.Call(regexExpression, "Match", null, expression);
@@ -408,7 +407,7 @@ namespace Bonsai
                     new InvalidOperationException("The input string cannot be null."))));
 
             int groupIndex = 1;
-            var groupParsers = Array.ConvertAll(tokenTypes, tokenType =>
+            var groupParsers = Array.ConvertAll(typeArguments, tokenType =>
             {
                 var groupExpression = Expression.Property(matchVariable, "Groups");
                 var groupIndexer = Expression.Property(groupExpression, "Item", Expression.Constant(groupIndex++));
@@ -429,12 +428,12 @@ namespace Bonsai
                     new InvalidOperationException("The input string failed to match the parse pattern."))));
 
             Expression resultExpression;
-            switch (tokenTypes.Length)
+            switch (typeArguments.Length)
             {
                 case 0: resultExpression = Expression.Constant(Unit.Default); break;
                 case 1: resultExpression = groupParsers[0]; break;
                 default:
-                    resultExpression = (Expression)Expression.Call(typeof(Tuple), "Create", tokenTypes, groupParsers);
+                    resultExpression = (Expression)Expression.Call(typeof(Tuple), "Create", typeArguments, groupParsers);
                     break;
             }
 
