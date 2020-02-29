@@ -37,7 +37,8 @@ namespace Bonsai.Reactive
         {
             return source.Publish(ps =>
                 ps.CombineLatest(other, (xs, ys) => Tuple.Create(xs, ys))
-                  .Sample(ps));
+                  .Sample(ps)
+                  .TakeUntil(ps.IgnoreElements().LastOrDefaultAsync()));
         }
     }
 }

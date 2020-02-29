@@ -34,7 +34,7 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("2.4.0.0")]
-[assembly: AssemblyInformationalVersion("2.4.1")]
+[assembly: AssemblyInformationalVersion("2.4.2")]
 [assembly: XmlNamespacePrefix("clr-namespace:Bonsai.Reactive", "rx")]
 [assembly: WorkflowNamespaceIcon("Bonsai.Reactive", "Bonsai:ElementIcon.Reactive")]
 [assembly: WorkflowNamespaceIcon("Bonsai.Expressions", "Bonsai:ElementIcon.Numerics")]
