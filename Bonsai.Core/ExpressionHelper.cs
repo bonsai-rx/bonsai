@@ -382,10 +382,8 @@ namespace Bonsai
                         case 'c': tokenType = typeof(char); break;
                         case 't': tokenType = typeof(DateTimeOffset); break;
                         case 'T': tokenType = typeof(TimeSpan); break;
-                        case 's':
-                        default:
-                            tokenType = typeof(string);
-                            break;
+                        case 's': tokenType = typeof(string); break;
+                        default: throw new ArgumentException("The parse pattern contains invalid token specifiers.");
                     }
 
                     tokenTypes[i - 1] = tokenType;
