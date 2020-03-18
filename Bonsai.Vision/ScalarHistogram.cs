@@ -9,7 +9,7 @@ namespace Bonsai.Vision
 {
     public class ScalarHistogram
     {
-        internal ScalarHistogram(Histogram val0, Histogram val1, Histogram val2, Histogram val3)
+        public ScalarHistogram(Histogram val0, Histogram val1, Histogram val2, Histogram val3)
         {
             Val0 = val0;
             Val1 = val1;
