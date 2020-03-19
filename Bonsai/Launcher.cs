@@ -39,7 +39,7 @@ namespace Bonsai
         {
             var logger = new EventLogger();
             var machineWideSettings = new BonsaiMachineWideSettings();
-            var settings = Settings.LoadDefaultSettings(null, null, machineWideSettings);
+            var settings = Settings.LoadDefaultSettings(new PhysicalFileSystem(AppDomain.CurrentDomain.BaseDirectory), null, machineWideSettings);
             var sourceProvider = new PackageSourceProvider(settings);
             var sourceRepository = sourceProvider.CreateAggregateRepository(PackageRepositoryFactory.Default, true);
             return new LicenseAwarePackageManager(sourceRepository, path) { Logger = logger };
