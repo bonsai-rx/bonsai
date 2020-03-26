@@ -1,0 +1,8 @@
+bin
+obj
+packages
+*.Generated.cs
+*.orig
+*.user
+*.suo
+.vs
