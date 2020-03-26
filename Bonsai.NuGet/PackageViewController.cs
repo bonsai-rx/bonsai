@@ -108,7 +108,7 @@ namespace Bonsai.NuGet
 
             activeRequests = new List<IDisposable>();
             var machineWideSettings = new BonsaiMachineWideSettings();
-            var settings = Settings.LoadDefaultSettings(null, null, machineWideSettings);
+            var settings = Settings.LoadDefaultSettings(new PhysicalFileSystem(AppDomain.CurrentDomain.BaseDirectory), null, machineWideSettings);
             packageSourceProvider = new PackageSourceProvider(settings);
             packageManagers = CreatePackageManagers();
             searchComboBox.CueBanner = Resources.SearchOnlineCueBanner;

@@ -40,6 +40,7 @@ namespace Bonsai.Editor
         const string SubjectCategoryName = "Subject";
         const string VersionAttributeName = "Version";
         const string DefaultWorkflowNamespace = "Unspecified";
+        static readonly bool IsRunningOnMono = Type.GetType("Mono.Runtime") != null;
         static readonly char[] ToolboxArgumentSeparator = new[] { ' ' };
         static readonly object ExtensionsDirectoryChanged = new object();
         static readonly object WorkflowValidating = new object();
@@ -275,9 +276,13 @@ namespace Bonsai.Editor
 
             var currentDirectory = Path.GetFullPath(Environment.CurrentDirectory).TrimEnd('\\');
             var appDomainBaseDirectory = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory).TrimEnd('\\');
-            var systemPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.System)).TrimEnd('\\');
-            var systemX86Path = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86)).TrimEnd('\\');
-            var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory || currentDirectory == systemPath || currentDirectory == systemX86Path;
+            var currentDirectoryRestricted = currentDirectory == appDomainBaseDirectory;
+            if (!IsRunningOnMono)
+            {
+                var systemPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.System)).TrimEnd('\\');
+                var systemX86Path = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86)).TrimEnd('\\');
+                currentDirectoryRestricted |= currentDirectory == systemPath || currentDirectory == systemX86Path;
+            }
             var formClosed = Observable.FromEventPattern<FormClosedEventHandler, FormClosedEventArgs>(
                 handler => FormClosed += handler,
                 handler => FormClosed -= handler);
@@ -795,7 +800,14 @@ namespace Bonsai.Editor
             try { workflowBuilder = LoadWorkflow(fileName, out workflowVersion); }
             catch (InvalidOperationException ex)
             {
-                var errorMessage = string.Format(Resources.OpenWorkflow_Error, ex.InnerException != null ? ex.InnerException.Message : ex.Message);
+                var activeException = ex.InnerException != null ? ex.InnerException : ex;
+                var errorMessage = activeException.Message;
+                if (activeException.InnerException != null)
+                {
+                    errorMessage += Environment.NewLine + activeException.InnerException.Message;
+                }
+
+                errorMessage = string.Format(Resources.OpenWorkflow_Error, errorMessage);
                 MessageBox.Show(this, errorMessage, Resources.OpenWorkflow_Error_Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
@@ -2758,6 +2770,16 @@ namespace Bonsai.Editor
             return theme == ColorTheme.Light ? ColorTheme.Dark : ColorTheme.Light;
         }
 
+        private void InitializeBorderTheme()
+        {
+            var colorTable = themeRenderer.ToolStripRenderer.ColorTable;
+            var panelColor = colorTable.ContentPanelBackColor;
+            propertyGrid.CategorySplitterColor = colorTable.SeparatorDark;
+            propertyGrid.CommandsBorderColor = panelColor;
+            propertyGrid.ViewBorderColor = panelColor;
+            propertyGrid.CanShowVisualStyleGlyphs = false;
+        }
+
         private void InitializeTheme()
         {
             var colorTable = themeRenderer.ToolStripRenderer.ColorTable;
@@ -2774,15 +2796,13 @@ namespace Bonsai.Editor
             propertyGrid.BackColor = panelColor;
             propertyGrid.LineColor = colorTable.SeparatorDark;
             propertyGrid.CategoryForeColor = foreColor;
-            propertyGrid.CategorySplitterColor = colorTable.SeparatorDark;
             propertyGrid.CommandsBackColor = panelColor;
-            propertyGrid.CommandsBorderColor = panelColor;
             propertyGrid.HelpBackColor = panelColor;
             propertyGrid.HelpForeColor = foreColor;
             propertyGrid.ViewBackColor = panelColor;
             propertyGrid.ViewForeColor = windowText;
-            propertyGrid.ViewBorderColor = panelColor;
-            propertyGrid.CanShowVisualStyleGlyphs = false;
+            if (!IsRunningOnMono) InitializeBorderTheme();
+
             toolboxTableLayoutPanel.BackColor = panelColor;
             toolboxSplitContainer.BackColor = panelColor;
             toolboxLabel.BackColor = colorTable.SeparatorDark;

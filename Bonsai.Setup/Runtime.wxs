@@ -23,6 +23,11 @@
         <File Id="Bonsai64EXE" Name="Bonsai64.exe" Source="$(var.BonsaiBuildPath)\Bonsai64.exe" KeyPath="yes">
           <Shortcut Id="startmenuBonsai64" Directory="ProgramMenuDir" WorkingDirectory="INSTALLFOLDER" Name="$(var.Product64DisplayName)" Icon="Bonsai.ico" Advertise="yes"/>
         </File>
+        <ProgId Id='Bonsai64.workflow' Description='Bonsai workflow file' Icon='BonsaiWorkflow.ico' Advertise='yes'>
+          <Extension Id='bonsai' ContentType='application/xml'>
+            <Verb Id='open64' Command='Open' Argument='"%1"' />
+          </Extension>
+        </ProgId>
       </Component>
 
       <Component Id='BonsaiInstallDir' Guid='*' Win64="$(var.Win64)">

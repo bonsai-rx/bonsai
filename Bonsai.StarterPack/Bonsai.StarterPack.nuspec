@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Bonsai.StarterPack</id>
-    <version>2.4.1</version>
+    <version>2.4.2</version>
     <title>Bonsai - Starter Pack</title>
     <authors>Gonçalo Lopes</authors>
     <owners>Gonçalo Lopes</owners>
@@ -20,6 +20,8 @@
       <dependency id="Bonsai.Dsp.Design" version="2.5.0" />
       <dependency id="Bonsai.Osc" version="2.5.0" />
       <dependency id="Bonsai.Scripting" version="2.5.0" />
+      <dependency id="Bonsai.System" version="2.5.0" />
+      <dependency id="Bonsai.System.Design" version="2.5.0" />
       <dependency id="Bonsai.Vision" version="2.5.0" />
       <dependency id="Bonsai.Vision.Design" version="2.5.0" />
       <dependency id="Bonsai.Windows.Input" version="2.5.0" />

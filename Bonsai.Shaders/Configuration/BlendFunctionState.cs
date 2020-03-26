@@ -14,15 +14,15 @@ namespace Bonsai.Shaders.Configuration
     {
         public BlendFunctionState()
         {
-            SourceFactor = BlendingFactorSrc.SrcAlpha;
-            DestinationFactor = BlendingFactorDest.OneMinusSrcAlpha;
+            SourceFactor = BlendingFactor.SrcAlpha;
+            DestinationFactor = BlendingFactor.OneMinusSrcAlpha;
         }
 
         [Description("Specifies the scale factor for blending source color values.")]
-        public BlendingFactorSrc SourceFactor { get; set; }
+        public BlendingFactor SourceFactor { get; set; }
 
         [Description("Specifies the scale factor for blending destination color values.")]
-        public BlendingFactorDest DestinationFactor { get; set; }
+        public BlendingFactor DestinationFactor { get; set; }
 
         public override void Execute(ShaderWindow window)
         {
