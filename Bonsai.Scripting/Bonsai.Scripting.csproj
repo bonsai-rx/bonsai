@@ -112,7 +112,7 @@
       <Version>2.7.5</Version>
     </PackageReference>
     <PackageReference Include="jacobslusser.ScintillaNET">
-      <Version>3.5.10</Version>
+      <Version>3.6.3</Version>
     </PackageReference>
     <PackageReference Include="Rx-Linq">
       <Version>2.2.5</Version>
