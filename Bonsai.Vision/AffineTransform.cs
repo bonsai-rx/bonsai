@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -51,7 +50,7 @@ namespace Bonsai.Vision
         }
 
         [Range(-Math.PI, Math.PI)]
-        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
         [Description("The rotation angle around the pivot, in radians.")]
         public float Rotation
         {

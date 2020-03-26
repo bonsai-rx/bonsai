@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -14,7 +13,7 @@ namespace Bonsai.Dsp
     public class ReferenceChannels : Transform<Mat, Mat>
     {
         [TypeConverter(typeof(UnidimensionalArrayConverter))]
-        [Editor("Bonsai.Dsp.Design.SelectChannelEditor, Bonsai.Dsp.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Dsp.Design.SelectChannelEditor, Bonsai.Dsp.Design", DesignTypes.UITypeEditor)]
         [Description("The channels to use as reference. If empty, the average of all the array channels is used.")]
         public int[] Channels { get; set; }
 

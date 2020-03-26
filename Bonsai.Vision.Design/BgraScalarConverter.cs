@@ -5,7 +5,6 @@ using System.Text;
 using System.ComponentModel;
 using Bonsai.Design;
 using OpenCV.Net;
-using System.Drawing.Design;
 
 namespace Bonsai.Vision.Design
 {
@@ -20,7 +19,7 @@ namespace Bonsai.Vision.Design
         public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object value, Attribute[] attributes)
         {
             var propertyDescriptor = context.PropertyDescriptor;
-            var editorAttribute = propertyDescriptor.Attributes[typeof(EditorAttribute)] ?? new EditorAttribute(typeof(NumericUpDownEditor), typeof(UITypeEditor));
+            var editorAttribute = propertyDescriptor.Attributes[typeof(EditorAttribute)] ?? new EditorAttribute(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor);
             var valueAttributes = new Attribute[] { propertyDescriptor.Attributes[typeof(PrecisionAttribute)], propertyDescriptor.Attributes[typeof(RangeAttribute)], editorAttribute };
 
             var properties = new PropertyDescriptor[4];

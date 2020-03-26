@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
@@ -28,7 +27,7 @@ namespace Bonsai.Vision
         }
 
         [Description("The polygonal contours bounding the region of interest.")]
-        [Editor("Bonsai.Vision.Design.IplImageInputRoiEditor, Bonsai.Vision.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Vision.Design.IplImageInputRoiEditor, Bonsai.Vision.Design", DesignTypes.UITypeEditor)]
         public Point[][] Regions { get; set; }
 
         [TypeConverter(typeof(ThresholdTypeConverter))]

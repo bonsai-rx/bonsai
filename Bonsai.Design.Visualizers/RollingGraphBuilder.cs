@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -15,11 +14,11 @@ namespace Bonsai.Design.Visualizers
     [Description("A visualizer that plots each element of the sequence as a rolling graph.")]
     public class RollingGraphBuilder : SingleArgumentExpressionBuilder
     {
-        [Editor(typeof(MemberSelectorEditor), typeof(UITypeEditor))]
+        [Editor("Bonsai.Design.MemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [Description("The inner property that will be used as index for the graph.")]
         public string IndexSelector { get; set; }
 
-        [Editor(typeof(MultiMemberSelectorEditor), typeof(UITypeEditor))]
+        [Editor("Bonsai.Design.MultiMemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [Description("The inner properties that will be displayed in the graph.")]
         public string ElementSelector { get; set; }
 

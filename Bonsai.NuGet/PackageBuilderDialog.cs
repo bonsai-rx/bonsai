@@ -7,7 +7,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Drawing.Design;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -374,7 +373,7 @@ namespace Bonsai.NuGet
 
                     if (descriptor.Name == "Description" || descriptor.Name == "Summary" || descriptor.Name == "ReleaseNotes")
                     {
-                        var editorAttribute = new EditorAttribute(DesignTypes.MultilineStringEditor, typeof(UITypeEditor));
+                        var editorAttribute = new EditorAttribute(DesignTypes.MultilineStringEditor, DesignTypes.UITypeEditor);
                         return new SimplePropertyDescriptor(descriptor, new Attribute[] { descriptionAttribute, editorAttribute });
                     }
 

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 
@@ -19,7 +18,7 @@ namespace Bonsai.Vision
             Mode = LoadImageFlags.Unchanged;
         }
 
-        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [FileNameFilter("Image Files|*.png;*.bmp;*.jpg;*.jpeg;*.tif;*.tiff|PNG Files (*.png)|*.png|BMP Files (*.bmp)|*.bmp|JPEG Files (*.jpg;*.jpeg)|*.jpg;*.jpeg|TIFF Files (*.tif;*.tiff)|*.tif;*.tiff")]
         [Description("The name of the image file.")]
         public string FileName { get; set; }

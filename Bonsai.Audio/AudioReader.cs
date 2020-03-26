@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing.Design;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -24,7 +23,7 @@ namespace Bonsai.Audio
 
         [Description("The name of the WAV file.")]
         [FileNameFilter("WAV Files (*.wav;*.wave)|*.wav;*.wave|All Files|*.*")]
-        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string FileName { get; set; }
 
         [Description("The length of the sample buffer (ms).")]

@@ -3,7 +3,6 @@ using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
@@ -18,7 +17,7 @@ namespace Bonsai.Shaders
     public class WarpPerspective
     {
         [Description("Coordinates of the four corresponding quadrangle vertices in the output image.")]
-        [Editor("Bonsai.Vision.Design.IplImageOutputQuadrangleEditor, Bonsai.Vision.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Vision.Design.IplImageOutputQuadrangleEditor, Bonsai.Vision.Design", DesignTypes.UITypeEditor)]
         public Point2f[] Destination { get; set; }
 
         static Point2f[] InitializeQuadrangle()

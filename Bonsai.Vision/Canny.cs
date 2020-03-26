@@ -5,7 +5,6 @@ using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
-using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
@@ -18,19 +17,19 @@ namespace Bonsai.Vision
         }
 
         [Range(0, int.MaxValue)]
-        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         [Description("The first threshold. The smallest threshold is used for edge linking and the largest to find initial edge segments.")]
         public double Threshold1 { get; set; }
 
         [Range(0, int.MaxValue)]
-        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         [Description("The second threshold. The smallest threshold is used for edge linking and the largest to find initial edge segments.")]
         public double Threshold2 { get; set; }
 
         [Range(3, 7)]
         [Precision(0, 2)]
         [TypeConverter(typeof(OddKernelSizeConverter))]
-        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         [Description("Aperture parameter for the Sobel operator.")]
         public int ApertureSize { get; set; }
 

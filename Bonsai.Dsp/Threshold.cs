@@ -5,7 +5,6 @@ using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
-using System.Drawing.Design;
 
 namespace Bonsai.Dsp
 {
@@ -18,7 +17,7 @@ namespace Bonsai.Dsp
         }
 
         [Range(0, 1)]
-        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
         [Description("The threshold value used to test individual samples.")]
         public double ThresholdValue { get; set; }
 

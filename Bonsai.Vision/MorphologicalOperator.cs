@@ -6,7 +6,6 @@ using OpenCV.Net;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using System.ComponentModel;
-using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
@@ -69,7 +68,7 @@ namespace Bonsai.Vision
         }
 
         [Range(0, int.MaxValue)]
-        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         [Description("The number of times to apply the morphological operator.")]
         public int Iterations { get; set; }
 

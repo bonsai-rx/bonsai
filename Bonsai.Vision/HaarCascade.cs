@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -23,7 +22,7 @@ namespace Bonsai.Vision
 
         [FileNameFilter("XML Files|*.xml|All Files|*.*")]
         [Description("The name of the file describing a trained Haar cascade classifier.")]
-        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string FileName { get; set; }
 
         [Description("The factor by which the search window is scaled between subsequent scans.")]

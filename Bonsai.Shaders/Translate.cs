@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,17 +12,17 @@ namespace Bonsai.Shaders
     public class Translate : MatrixTransform
     {
         [Range(-1, 1)]
-        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
         [Description("The translation along the x-axis.")]
         public float X { get; set; }
 
         [Range(-1, 1)]
-        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
         [Description("The translation along the y-axis.")]
         public float Y { get; set; }
 
         [Range(-1, 1)]
-        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
         [Description("The translation along the z-axis.")]
         public float Z { get; set; }
 

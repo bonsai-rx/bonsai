@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,7 +34,7 @@ namespace Bonsai.Vision.Design
                                               capture.SetProperty(property.Property, property.Value);
                                           }
                                       },
-                                      new EditorAttribute(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))))
+                                      new EditorAttribute(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)))
                                  .ToArray();
                 return new PropertyDescriptorCollection(properties);
             }

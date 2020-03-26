@@ -4,7 +4,6 @@ using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,42 +24,42 @@ namespace Bonsai.Shaders.Configuration
         [Category("TextureData")]
         [FileNameFilter(FileNameFilter)]
         [TypeConverter(typeof(ResourceFileNameConverter))]
-        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [Description("The name of the image file to load for the positive X direction.")]
         public string PositiveX { get; set; }
 
         [Category("TextureData")]
         [FileNameFilter(FileNameFilter)]
         [TypeConverter(typeof(ResourceFileNameConverter))]
-        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [Description("The name of the image file to load for the negative X direction.")]
         public string NegativeX { get; set; }
 
         [Category("TextureData")]
         [FileNameFilter(FileNameFilter)]
         [TypeConverter(typeof(ResourceFileNameConverter))]
-        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [Description("The name of the image file to load for the positive Y direction.")]
         public string PositiveY { get; set; }
 
         [Category("TextureData")]
         [FileNameFilter(FileNameFilter)]
         [TypeConverter(typeof(ResourceFileNameConverter))]
-        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [Description("The name of the image file to load for the negative Y direction.")]
         public string NegativeY { get; set; }
 
         [Category("TextureData")]
         [FileNameFilter(FileNameFilter)]
         [TypeConverter(typeof(ResourceFileNameConverter))]
-        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [Description("The name of the image file to load for the positive Z direction.")]
         public string PositiveZ { get; set; }
 
         [Category("TextureData")]
         [FileNameFilter(FileNameFilter)]
         [TypeConverter(typeof(ResourceFileNameConverter))]
-        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [Description("The name of the image file to load for the negative Z direction.")]
         public string NegativeZ { get; set; }
 

@@ -3,7 +3,6 @@ using OpenTK.Audio.OpenAL;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -17,7 +16,7 @@ namespace Bonsai.Audio.Configuration
     {
         [Description("The name of the sound WAV file.")]
         [FileNameFilter("WAV Files (*.wav;*.wave)|*.wav;*.wave|All Files|*.*")]
-        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [TypeConverter(typeof(ResourceFileNameConverter))]
         public string FileName { get; set; }
 

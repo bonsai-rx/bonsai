@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -32,7 +31,7 @@ namespace Bonsai.Vision.Drawing
         [Range(0, 255)]
         [Precision(0, 1)]
         [TypeConverter(typeof(BgraScalarConverter))]
-        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
         [Description("The optional background color used to initialize all pixels in the canvas.")]
         public Scalar? Color { get; set; }
 

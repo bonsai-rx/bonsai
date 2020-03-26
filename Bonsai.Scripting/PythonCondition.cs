@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using Microsoft.Scripting.Hosting;
-using System.Drawing.Design;
 using Bonsai.Expressions;
 using System.Reactive.Linq;
 using System.Linq.Expressions;
@@ -22,7 +21,7 @@ namespace Bonsai.Scripting
             Script = "def process(value):\n  return True";
         }
 
-        [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
+        [Editor("Bonsai.Scripting.PythonScriptEditor, Bonsai.Scripting", DesignTypes.UITypeEditor)]
         [Description("The script that determines the criteria for the condition.")]
         public string Script { get; set; }
 

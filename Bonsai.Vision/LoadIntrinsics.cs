@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -17,7 +16,7 @@ namespace Bonsai.Vision
     {
         [Description("The name of the camera intrinsics file.")]
         [FileNameFilter("YML Files (*.yml)|*.yml|All Files|*.*")]
-        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", typeof(UITypeEditor))]
+        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string FileName { get; set; }
 
         Intrinsics CreateIntrinsics()

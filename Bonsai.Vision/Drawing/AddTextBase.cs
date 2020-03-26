@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Design;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
 using System.Linq;
@@ -24,7 +23,7 @@ namespace Bonsai.Vision.Drawing
         }
 
         [Description("The text to draw.")]
-        [Editor(DesignTypes.MultilineStringEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.MultilineStringEditor, DesignTypes.UITypeEditor)]
         public string Text { get; set; }
 
         [XmlIgnore]
@@ -46,7 +45,7 @@ namespace Bonsai.Vision.Drawing
         [Range(0, 255)]
         [Precision(0, 1)]
         [TypeConverter(typeof(BgraScalarConverter))]
-        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
         [Description("The color of the text.")]
         public Scalar Color { get; set; }
 

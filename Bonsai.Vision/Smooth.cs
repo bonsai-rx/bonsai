@@ -5,7 +5,6 @@ using System.Reactive.Linq;
 using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
-using System.Drawing.Design;
 
 namespace Bonsai.Vision
 {
@@ -25,25 +24,25 @@ namespace Bonsai.Vision
         [Range(1, int.MaxValue)]
         [TypeConverter(typeof(SmoothKernelSizeConverter))]
         [Description("The aperture width of the smoothing kernel.")]
-        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         public int Size1 { get; set; }
 
         [Precision(0, 2)]
         [Range(1, int.MaxValue)]
         [TypeConverter(typeof(SmoothKernelSizeConverter))]
         [Description("The aperture height of the smoothing kernel.")]
-        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         public int Size2 { get; set; }
 
         [Precision(2, 0.1)]
         [Range(0, int.MaxValue)]
-        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         [Description("The standard deviation for the first dimension in case of Gaussian smoothing.")]
         public double Sigma1 { get; set; }
 
         [Precision(2, 0.1)]
         [Range(0, int.MaxValue)]
-        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         [Description("The standard deviation for the second dimension in case of Gaussian smoothing.")]
         public double Sigma2 { get; set; }
 

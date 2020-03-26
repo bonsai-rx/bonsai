@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing.Design;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -29,7 +28,7 @@ namespace Bonsai.Dsp
         public int BufferLength { get; set; }
 
         [Range(1, int.MaxValue)]
-        [Editor(DesignTypes.NumericUpDownEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.NumericUpDownEditor, DesignTypes.UITypeEditor)]
         [Description("The frequency of the signal waveform, in Hz.")]
         public double Frequency { get; set; }
 
@@ -76,7 +75,7 @@ namespace Bonsai.Dsp
         public double Offset { get; set; }
 
         [Range(-Math.PI, Math.PI)]
-        [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.SliderEditor, DesignTypes.UITypeEditor)]
         [Description("The optional phase offset, in radians, of the signal waveform.")]
         public double Phase { get; set; }
 

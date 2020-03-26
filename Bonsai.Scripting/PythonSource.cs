@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using Microsoft.Scripting.Hosting;
-using System.Drawing.Design;
 using Bonsai.Expressions;
 using System.Reactive.Linq;
 using System.Linq.Expressions;
@@ -38,10 +37,10 @@ namespace Bonsai.Scripting
         [Category("Design")]
         [Externalizable(false)]
         [Description("A description for the python source.")]
-        [Editor(DesignTypes.MultilineStringEditor, typeof(UITypeEditor))]
+        [Editor(DesignTypes.MultilineStringEditor, DesignTypes.UITypeEditor)]
         public string Description { get; set; }
 
-        [Editor(typeof(PythonScriptEditor), typeof(UITypeEditor))]
+        [Editor("Bonsai.Scripting.PythonScriptEditor, Bonsai.Scripting", DesignTypes.UITypeEditor)]
         [Description("The script that determines the operation of the source.")]
         public string Script { get; set; }
 
