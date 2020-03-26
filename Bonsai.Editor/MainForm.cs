@@ -2180,7 +2180,7 @@ namespace Bonsai.Editor
 
         private void reportBugToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            StartBrowser("https://bitbucket.org/horizongir/bonsai/issues/new");
+            StartBrowser("https://github.com/bonsai-rx/bonsai/issues");
         }
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
