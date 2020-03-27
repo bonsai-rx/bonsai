@@ -395,8 +395,8 @@ namespace Bonsai.Dsp.Design
         {
             OverlayChannels = !OverlayChannels;
             overlayModeSplitButton.Image = !OverlayChannels
-                ? Resources.OverlayGraphModeImage
-                : Resources.OverlayGridModeImage;
+                ? Properties.Resources.OverlayGraphModeImage
+                : Properties.Resources.OverlayGridModeImage;
         }
 
         private void graph_KeyDown(object sender, KeyEventArgs e)
