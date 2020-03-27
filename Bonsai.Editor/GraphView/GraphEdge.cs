@@ -6,7 +6,7 @@ using System.Drawing;
 using System.ComponentModel;
 using Bonsai.Expressions;
 
-namespace Bonsai.Design
+namespace Bonsai.Editor.GraphView
 {
     class GraphEdge
     {

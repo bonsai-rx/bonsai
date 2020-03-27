@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Collections.ObjectModel;
 
-namespace Bonsai.Design
+namespace Bonsai.Editor.GraphView
 {
     class GraphNodeGrouping : Collection<GraphNode>, IGrouping<int, GraphNode>
     {

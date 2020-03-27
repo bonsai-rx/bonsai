@@ -26,6 +26,7 @@ using System.Globalization;
 using System.Reactive.Subjects;
 using Bonsai.Editor.Scripting;
 using Bonsai.Editor.Themes;
+using Bonsai.Editor.GraphView;
 
 namespace Bonsai.Editor
 {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 
-namespace Bonsai.Design
+namespace Bonsai.Editor.GraphView
 {
     class WorkflowGraphViewEditorService : IWindowsFormsEditorService, IServiceProvider
     {

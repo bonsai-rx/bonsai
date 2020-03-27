@@ -7,7 +7,7 @@ using System.Globalization;
 using Bonsai.Expressions;
 using System.ComponentModel;
 
-namespace Bonsai.Design
+namespace Bonsai.Editor.GraphView
 {
     static class LayeredGraphExtensions
     {

@@ -8,6 +8,7 @@ using System.ComponentModel.Design;
 using Bonsai.Expressions;
 using Bonsai.Dag;
 using System.ComponentModel;
+using Bonsai.Editor.GraphView;
 
 namespace Bonsai.Design
 {
