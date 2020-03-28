@@ -13,6 +13,10 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NuGet.Core" Version="2.14.0" />
+    <PackageReference Include="ILRepack.MSBuild.Task" Version="2.0.13">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj" />
@@ -21,4 +25,24 @@
     <ProjectReference Include="..\Bonsai.NuGet\Bonsai.NuGet.csproj" PrivateAssets="all" />
     <ProjectReference Include="..\Bonsai.Configuration\Bonsai.Configuration.csproj" PrivateAssets="all" />
   </ItemGroup>
+  <Target Name="ILRepack" AfterTargets="Build">
+    <PropertyGroup>
+      <WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>
+    </PropertyGroup>
+    <ItemGroup>
+      <InputAssemblies Include="Bonsai.Configuration.dll" />
+      <InputAssemblies Include="Bonsai.NuGet.dll" />
+      <InputAssemblies Include="NuGet.Core.dll" />
+    </ItemGroup>
+    <ItemGroup>
+      <InternalizeExcludeAssemblies Include="^Bonsai.Configuration" />
+      <InternalizeExcludeAssemblies Include="NuGet.Manifest" />
+    </ItemGroup>
+    <ILRepack OutputType="$(OutputType)"
+              MainAssembly="$(AssemblyName).exe"
+              OutputAssembly="$(AssemblyName).exe"
+              InputAssemblies="@(InputAssemblies)"
+              InternalizeExcludeAssemblies="@(InternalizeExcludeAssemblies)"
+              WorkingDirectory="$(WorkingDirectory)" />
+  </Target>
 </Project>
