@@ -32,9 +32,9 @@ namespace Bonsai
         readonly PackageConfiguration packageConfiguration;
         static readonly char[] DirectorySeparators = new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
         static readonly FrameworkName NativeFramework = new FrameworkName("native,Version=v0.0");
+        static readonly FrameworkName NetStandardFramework = new FrameworkName(".NETStandard,Version=v2.0");
         static readonly IEnumerable<FrameworkName> SupportedFrameworks = new[]
         {
-            new FrameworkName(".NETStandard,Version=v2.0"),
             new FrameworkName(".NETFramework,Version=v4.7.2"),
             new FrameworkName(".NETFramework,Version=v4.7.1"),
             new FrameworkName(".NETFramework,Version=v4.7"),
@@ -46,7 +46,8 @@ namespace Bonsai
             new FrameworkName(".NETFramework,Version=v4.0,Profile=Client"),
             new FrameworkName(".NETFramework,Version=v3.5"),
             new FrameworkName(".NETFramework,Version=v3.5,Profile=Client"),
-            new FrameworkName(".NETFramework,Version=v2.0")
+            new FrameworkName(".NETFramework,Version=v2.0"),
+            NetStandardFramework
         };
 
         public PackageConfigurationUpdater(PackageConfiguration configuration, IPackageManager manager, string bootstrapperPath = null, IPackageName bootstrapperName = null)
@@ -157,7 +158,8 @@ namespace Bonsai
                          reference.SupportedFrameworks.Intersect(SupportedFrameworks).Any()
                    group reference by reference.Name into referenceGroup
                    from reference in referenceGroup
-                       .OrderByDescending(reference => reference.TargetFramework != null
+                       .OrderByDescending(reference => reference.TargetFramework != null &&
+                                                       reference.TargetFramework != NetStandardFramework
                            ? reference.TargetFramework.FullName
                            : null)
                        .Take(1)
