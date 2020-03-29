@@ -33,6 +33,7 @@ namespace Bonsai.Shaders
             WindowState = WindowState.Normal;
             DisplayDevice = DisplayIndex.Default;
             GraphicsMode = new GraphicsModeConfiguration();
+            TargetRenderFrequency = 60;
             CursorVisible = true;
             SwapSync = false;
         }
