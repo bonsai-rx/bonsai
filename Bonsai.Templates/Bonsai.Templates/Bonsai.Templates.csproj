@@ -45,23 +45,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\..\bin\Release\Bonsai.Core.2.5.0.nupkg">
-      <Link>Packages\Bonsai.Core.2.4.1.nupkg</Link>
+      <Link>Packages\Bonsai.Core.2.5.0.nupkg</Link>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="..\..\bin\Release\Bonsai.Design.2.5.0.nupkg">
-      <Link>Packages\Bonsai.Design.2.4.1.nupkg</Link>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="..\packages\Rx-Core.2.2.5\Rx-Core.2.2.5.nupkg">
-      <Link>Packages\Rx-Core.2.2.5.nupkg</Link>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="..\packages\Rx-Interfaces.2.2.5\Rx-Interfaces.2.2.5.nupkg">
-      <Link>Packages\Rx-Interfaces.2.2.5.nupkg</Link>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="..\packages\Rx-Linq.2.2.5\Rx-Linq.2.2.5.nupkg">
-      <Link>Packages\Rx-Linq.2.2.5.nupkg</Link>
+      <Link>Packages\Bonsai.Design.2.5.0.nupkg</Link>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
   </ItemGroup>
@@ -69,7 +57,6 @@
     <Content Include="eula.rtf">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <None Include="packages.config" />
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
