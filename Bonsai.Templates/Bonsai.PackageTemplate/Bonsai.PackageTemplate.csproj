@@ -60,8 +60,6 @@
     <None Include="Transform1.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="AssemblyInfo.cs" />
-    <None Include="ProjectPackage.nuspec" />
     <None Include="ProjectTemplate.csproj" />
   </ItemGroup>
   <ItemGroup>

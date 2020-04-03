@@ -44,16 +44,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\bin\Release\Bonsai.Core.2.5.0.nupkg">
-      <Link>Packages\Bonsai.Core.2.5.0.nupkg</Link>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="..\..\bin\Release\Bonsai.Design.2.5.0.nupkg">
-      <Link>Packages\Bonsai.Design.2.5.0.nupkg</Link>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="eula.rtf">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>

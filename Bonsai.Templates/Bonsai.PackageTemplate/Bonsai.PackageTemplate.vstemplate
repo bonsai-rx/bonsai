@@ -10,25 +10,12 @@
     <ProvideDefaultName>true</ProvideDefaultName>
     <LocationField>Enabled</LocationField>
     <EnableLocationBrowseButton>true</EnableLocationBrowseButton>
+    <CreateInPlace>true</CreateInPlace>
     <Icon>__TemplateIcon.ico</Icon>
   </TemplateData>
   <TemplateContent>
     <Project TargetFileName="ProjectTemplate.csproj" File="ProjectTemplate.csproj" ReplaceParameters="true">
-      <ProjectItem ReplaceParameters="true" TargetFileName="Properties/AssemblyInfo.cs">AssemblyInfo.cs</ProjectItem>
-      <ProjectItem ReplaceParameters="true" TargetFileName="$safeprojectname$.nuspec">ProjectPackage.nuspec</ProjectItem>
       <ProjectItem ReplaceParameters="true" TargetFileName="Transform1.cs">Transform1.cs</ProjectItem>
     </Project>
   </TemplateContent>
-  <WizardExtension>
-    <Assembly>NuGet.VisualStudio.Interop, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</Assembly>
-    <FullClassName>NuGet.VisualStudio.TemplateWizard</FullClassName>
-  </WizardExtension>
-  <WizardData>
-    <packages repository="extension" repositoryId="BonsaiTemplatesVsix.ac37e8b9-5d6c-407c-b2ca-2e550a8ab918">
-      <package id="Rx-Core" version="2.2.5" />
-      <package id="Rx-Interfaces" version="2.2.5" />
-      <package id="Rx-Linq" version="2.2.5" />
-      <package id="Bonsai.Core" version="2.5.0" />
-    </packages>
-  </WizardData>
 </VSTemplate>
