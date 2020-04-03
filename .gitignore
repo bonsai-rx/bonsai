@@ -1,8 +1,10 @@
 bin
 obj
 packages
+Resources/*.ico
 *.Generated.cs
 *.orig
 *.user
 *.suo
+*.exe
 .vs
