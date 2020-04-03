@@ -3,7 +3,7 @@
   <?define Win64="no"?>
   <?define ProductDisplayName="Bonsai"?>
   <?define Product64DisplayName="Bonsai (x64)"?>
-  <?define BonsaiBuildPath="..\Bonsai\bin\Release"?>
+  <?define BonsaiBuildPath="..\Bonsai\bin\Release\net472"?>
   
   <Fragment>
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
