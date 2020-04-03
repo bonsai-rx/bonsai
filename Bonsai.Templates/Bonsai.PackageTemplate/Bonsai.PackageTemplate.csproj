@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <None Include="launchSettings.json" />
     <None Include="Transform1.cs" />
   </ItemGroup>
   <ItemGroup>

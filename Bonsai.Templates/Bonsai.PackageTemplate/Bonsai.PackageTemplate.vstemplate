@@ -15,6 +15,7 @@
   </TemplateData>
   <TemplateContent>
     <Project TargetFileName="ProjectTemplate.csproj" File="ProjectTemplate.csproj" ReplaceParameters="true">
+      <ProjectItem ReplaceParameters="true" TargetFileName="Properties/launchSettings.json">launchSettings.json</ProjectItem>
       <ProjectItem ReplaceParameters="true" TargetFileName="Transform1.cs">Transform1.cs</ProjectItem>
     </Project>
   </TemplateContent>
