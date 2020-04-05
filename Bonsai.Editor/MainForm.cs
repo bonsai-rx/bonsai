@@ -1392,6 +1392,7 @@ namespace Bonsai.Editor
             }
             else
             {
+                statusStrip.ContextMenuStrip = null;
                 statusTextLabel.Text = Resources.ReadyStatus;
                 statusImageLabel.Image = Resources.StatusReadyImage;
             }
@@ -1444,6 +1445,7 @@ namespace Bonsai.Editor
                 var buildException = ex is WorkflowBuildException;
                 var errorCaption = buildException ? "Build Error" : "Runtime Error";
                 statusTextLabel.Text = ex.Message;
+                statusStrip.ContextMenuStrip = statusContextMenuStrip;
                 statusImageLabel.Image = buildException ? Resources.StatusBlockedImage : Resources.StatusCriticalImage;
                 if (showMessageBox)
                 {
@@ -2760,6 +2762,14 @@ namespace Bonsai.Editor
         void statusStrip_SizeChanged(object sender, EventArgs e)
         {
             UpdateStatusLabelSize();
+        }
+
+        private void statusCopyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (workflowError != null)
+            {
+                Clipboard.SetText(workflowError.ToString());
+            }
         }
 
         #endregion

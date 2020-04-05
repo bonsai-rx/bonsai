@@ -508,6 +508,9 @@
   <data name="statusStrip.TrayLocation" type="System.Drawing.Point, System.Drawing">
     <value>1018, 17</value>
   </data>
+  <metadata name="statusContextMenuStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 56</value>
+  </metadata>
   <data name="propertyGridContextMenuStrip.TrayLocation" type="System.Drawing.Point, System.Drawing">
     <value>1127, 17</value>
   </data>
