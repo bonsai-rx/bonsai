@@ -1,18 +1,18 @@
 ﻿using Bonsai;
 using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
-
-// TODO: replace this with the sink input type.
-using TSource = System.String;
 
 namespace $rootnamespace$
 {
-    public class $safeitemname$ : Sink<TSource>
+    [Combinator]
+    [Description("")]
+    [WorkflowElementCategory(ElementCategory.Sink)]
+    public class $safeitemname$
     {
-        public override IObservable<TSource> Process(IObservable<TSource> source)
+        public IObservable<int> Process(IObservable<int> source)
         {
             return source.Do(input =>
             {

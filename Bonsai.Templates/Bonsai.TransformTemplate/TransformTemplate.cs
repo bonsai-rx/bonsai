@@ -1,25 +1,24 @@
 ﻿using Bonsai;
 using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
-
-// TODO: replace this with the transform input and output types.
-using TSource = System.String;
-using TResult = System.String;
 
 namespace $rootnamespace$
 {
-    public class $safeitemname$ : Transform<TSource, TResult>
+    [Combinator]
+    [Description("")]
+    [WorkflowElementCategory(ElementCategory.Transform)]
+    public class $safeitemname$
     {
-        public override IObservable<TResult> Process(IObservable<TSource> source)
+        public IObservable<int> Process(IObservable<int> source)
         {
             return source.Select(input =>
             {
                 // TODO: process the input object and return the result.
                 throw new NotImplementedException();
-                return default(TResult);
+                return default(int);
             });
         }
     }
