@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,24 +8,6 @@ namespace Bonsai.Vision
 {
     public static class ExtensionMethods
     {
-        public static IplDepth GetConversionDepth(this ColorConversion conversion)
-        {
-            switch (conversion)
-            {
-                case ColorConversion.Bgr2Bgr565:
-                case ColorConversion.Rgb2Bgr565:
-                case ColorConversion.Bgra2Bgr565:
-                case ColorConversion.Rgba2Bgr565:
-                case ColorConversion.Gray2Bgr565:
-                case ColorConversion.Bgr2Bgr555:
-                case ColorConversion.Rgb2Bgr555:
-                case ColorConversion.Bgra2Bgr555:
-                case ColorConversion.Rgba2Bgr555:
-                case ColorConversion.Gray2Bgr555: return IplDepth.U16;
-                default: return IplDepth.U8;
-            }
-        }
-
         public static int GetConversionNumChannels(this ColorConversion conversion)
         {
             switch (conversion)

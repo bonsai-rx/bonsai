@@ -11,7 +11,6 @@ namespace Bonsai.Vision
     [Description("Converts an image from one color space to another.")]
     public class ConvertColor : Transform<IplImage, IplImage>
     {
-        IplDepth depth;
         int numChannels;
         bool conversionChanged;
         ColorConversion conversion;
@@ -38,12 +37,11 @@ namespace Bonsai.Vision
             {
                 if (conversionChanged)
                 {
-                    depth = Conversion.GetConversionDepth();
                     numChannels = Conversion.GetConversionNumChannels();
                     conversionChanged = false;
                 }
 
-                var output = new IplImage(input.Size, depth, numChannels);
+                var output = new IplImage(input.Size, input.Depth, numChannels);
                 CV.CvtColor(input, output, conversion);
                 return output;
             });

@@ -21,7 +21,7 @@ namespace Bonsai.Vision
                 }
                 else
                 {
-                    var output = new IplImage(input.Size, IplDepth.U8, 1);
+                    var output = new IplImage(input.Size, input.Depth, 1);
                     CV.CvtColor(input, output, ColorConversion.Bgr2Gray);
                     return output;
                 }
