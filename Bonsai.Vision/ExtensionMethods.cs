@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +6,7 @@ using OpenCV.Net;
 
 namespace Bonsai.Vision
 {
-    public static class ExtensionMethods
+    static class ExtensionMethods
     {
         public static int GetConversionNumChannels(this ColorConversion conversion)
         {
