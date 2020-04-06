@@ -25,9 +25,9 @@ namespace Bonsai.Vision
         [XmlIgnore]
         public Contour Contour { get; set; }
 
-        public static ConnectedComponent FromImage(IplImage image)
+        public static ConnectedComponent FromImage(IplImage image, bool binary = false)
         {
-            var moments = new Moments(image);
+            var moments = new Moments(image, binary);
             var component = FromMoments(moments);
             component.Patch = image;
             return component;

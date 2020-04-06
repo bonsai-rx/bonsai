@@ -13,7 +13,7 @@ namespace Bonsai.Vision
     {
         public IObservable<ConnectedComponent> Process(IObservable<IplImage> source)
         {
-            return source.Select(input => ConnectedComponent.FromImage(input));
+            return source.Select(input => ConnectedComponent.FromImage(input, binary: true));
         }
 
         public IObservable<ConnectedComponent> Process(IObservable<Seq> source)
