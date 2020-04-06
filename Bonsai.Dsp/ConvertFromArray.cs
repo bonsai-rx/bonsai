@@ -49,10 +49,10 @@ namespace Bonsai.Dsp
                 throw new InvalidOperationException("Depth must be specified when converting arrays with custom types.");
             }
 
-            if (size.Width > 0 || size.Height > 0 || depth.HasValue || channels.HasValue)
+            if (!depth.HasValue) depth = defaultDepth;
+            if (size.Width > 0 || size.Height > 0 || channels.HasValue)
             {
                 var elementSize = Marshal.SizeOf(typeof(TData));
-                if (!depth.HasValue) depth = defaultDepth;
                 if (!channels.HasValue) channels = 1;
 
                 var rows = size.Height;
