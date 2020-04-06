@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Gonçalo Lopes")]
 [assembly: AssemblyProduct("Bonsai.SourceTemplate")]
-[assembly: AssemblyCopyright("Copyright © Gonçalo Lopes 2019")]
+[assembly: AssemblyCopyright("Copyright © Gonçalo Lopes 2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
