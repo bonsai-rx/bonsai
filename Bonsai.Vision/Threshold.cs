@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
@@ -33,6 +33,13 @@ namespace Bonsai.Vision
         {
             return source.Select(input =>
             {
+                if (input.Depth == IplDepth.U16)
+                {
+                    var temp = new IplImage(input.Size, IplDepth.F32, input.Channels);
+                    CV.Convert(input, temp);
+                    input = temp;
+                }
+
                 var output = new IplImage(input.Size, IplDepth.U8, input.Channels);
                 CV.Threshold(input, output, ThresholdValue, MaxValue, ThresholdType);
                 return output;
