@@ -11,6 +11,8 @@ namespace Bonsai.Osc.Net
     [XmlInclude(typeof(UdpConfiguration))]
     [XmlInclude(typeof(TcpClientConfiguration))]
     [XmlInclude(typeof(TcpServerConfiguration))]
+    [XmlInclude(typeof(WebSocketClientConfiguration))]
+    [XmlInclude(typeof(WebSocketServerConfiguration))]
     public abstract class TransportConfiguration
     {
         public string Name { get; set; }
