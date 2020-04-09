@@ -38,5 +38,12 @@ namespace Bonsai.Osc
             get { return configuration.NoDelay; }
             set { configuration.NoDelay = value; }
         }
+
+        [Description("Enables or disables Network Address Translation (NAT) on the server instance.")]
+        public bool AllowNatTraversal
+        {
+            get { return configuration.AllowNatTraversal; }
+            set { configuration.AllowNatTraversal = value; }
+        }
     }
 }

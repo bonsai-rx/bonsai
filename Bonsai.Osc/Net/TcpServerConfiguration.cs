@@ -14,13 +14,14 @@ namespace Bonsai.Osc.Net
 
         public bool NoDelay { get; set; }
 
+        public bool AllowNatTraversal { get; set; }
+
         internal override ITransport CreateTransport()
         {
             var listener = new TcpListener(IPAddress.Loopback, Port);
+            listener.AllowNatTraversal(AllowNatTraversal);
             listener.Start();
-            var tcpClient = listener.AcceptTcpClient();
-            tcpClient.NoDelay = NoDelay;
-            return new TcpTransport(tcpClient);
+            return new TcpServerTransport(listener, NoDelay);
         }
     }
 }
