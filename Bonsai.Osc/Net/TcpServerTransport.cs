@@ -1,40 +1,45 @@
 ﻿using Bonsai.Osc.IO;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Bonsai.Osc.Net
 {
     class TcpServerTransport : ITransport
     {
-        TcpListener owner;
-        readonly ConcurrentBag<TcpClientTransport> connections;
-        readonly IObservable<Message> messageReceived;
+        IDisposable subscription;
+        readonly TcpListener owner;
+        readonly object connectionsLock = new object();
+        readonly Dictionary<TcpClient, TcpTransport> connections;
+        readonly Subject<Message> messageReceived;
 
         public TcpServerTransport(TcpListener listener, bool noDelay)
         {
+            listener.Start();
             owner = listener;
-            connections = new ConcurrentBag<TcpClientTransport>();
-            messageReceived = Observable
-                .FromAsync(listener.AcceptTcpClientAsync)
+            connections = new Dictionary<TcpClient, TcpTransport>();
+            messageReceived = new Subject<Message>();
+            subscription = Observable
+                .FromAsync(owner.AcceptTcpClientAsync)
                 .Repeat()
                 .Do(client => client.NoDelay = noDelay)
                 .SelectMany(client => Observable.Using(
-                    () => new TcpClientTransport(client),
+                    () => new TcpTransport(client),
                     transport =>
                     {
-                        connections.Add(transport);
+                        lock (connectionsLock) { connections.Add(client, transport); }
                         return transport.MessageReceived.Finally(() =>
                         {
-                            connections.TryTake(out _);
+                            lock (connectionsLock) { connections.Remove(client); }
+                            client.Dispose();
                         });
-                    }));
+                    }))
+                .Subscribe(messageReceived);
         }
 
         public IObservable<Message> MessageReceived
@@ -44,18 +49,23 @@ namespace Bonsai.Osc.Net
 
         public void SendPacket(Action<BigEndianWriter> writePacket)
         {
-            foreach (var connection in connections)
+            lock (connections)
             {
-                connection.SendPacket(writePacket);
+                foreach (var connection in connections.Values)
+                {
+                    connection.SendPacket(writePacket);
+                }
             }
         }
 
         private void Dispose(bool disposing)
         {
-            var disposable = Interlocked.Exchange(ref owner, null);
+            var disposable = Interlocked.Exchange(ref subscription, null);
             if (disposable != null && disposing)
             {
-                disposable.Stop();
+                disposable.Dispose();
+                messageReceived.Dispose();
+                owner.Stop();
             }
         }
 

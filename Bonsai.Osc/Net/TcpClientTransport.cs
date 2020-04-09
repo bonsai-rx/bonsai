@@ -7,6 +7,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Reactive.Threading.Tasks;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,54 +17,28 @@ namespace Bonsai.Osc.Net
 {
     class TcpClientTransport : ITransport
     {
-        TcpClient owner;
-        readonly NetworkStream stream;
-        readonly IObservable<Message> messageReceived;
+        IDisposable subscription;
+        TcpTransport connection;
+        readonly TcpClient owner;
+        readonly ManualResetEvent initialized;
+        readonly Subject<Message> messageReceived;
 
-        public TcpClientTransport(TcpClient client)
+        public TcpClientTransport(TcpClient client, string host, int port)
         {
             owner = client;
-            stream = client.GetStream();
-            messageReceived = Observable.Using(
-                () => new EventLoopScheduler(),
-                scheduler => Observable.Create<Message>(observer =>
-                {
-                    var sizeBuffer = new byte[sizeof(int)];
-                    var dispatcher = new Dispatcher(observer, scheduler);
-                    return scheduler.Schedule(recurse =>
+            initialized = new ManualResetEvent(false);
+            messageReceived = new Subject<Message>();
+            subscription = Observable
+                .FromAsync(() => client.ConnectAsync(host, port))
+                .SelectMany(unit => Observable.Using(
+                    () => new TcpTransport(client),
+                    transport =>
                     {
-                        try
-                        {
-                            var bytesRead = stream.Read(sizeBuffer, 0, sizeBuffer.Length);
-                            if (bytesRead == 0) observer.OnCompleted();
-                            else if (bytesRead < sizeBuffer.Length)
-                            {
-                                observer.OnError(new InvalidOperationException("Unexpected end of stream."));
-                            }
-                            else
-                            {
-                                var packetSize = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(sizeBuffer, 0));
-                                var packet = new byte[packetSize];
-                                bytesRead = stream.Read(packet, 0, packet.Length);
-                                if (bytesRead < packet.Length)
-                                {
-                                    observer.OnError(new InvalidOperationException("Unexpected end of stream."));
-                                }
-                                else
-                                {
-                                    dispatcher.ProcessPacket(packet);
-                                    recurse();
-                                }
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            observer.OnError(e);
-                        }
-                    });
-                }))
-                .PublishReconnectable()
-                .RefCount();
+                        Interlocked.Exchange(ref connection, transport);
+                        initialized.Set();
+                        return transport.MessageReceived;
+                    }))
+                .Subscribe(messageReceived);
         }
 
         public IObservable<Message> MessageReceived
@@ -72,30 +48,22 @@ namespace Bonsai.Osc.Net
 
         public void SendPacket(Action<BigEndianWriter> writePacket)
         {
-            byte[] buffer;
-            using (var memoryStream = new MemoryStream())
-            using (var writer = new BigEndianWriter(memoryStream))
+            if (connection == null)
             {
-                writePacket(writer);
-                buffer = memoryStream.ToArray();
+                initialized.WaitOne();
             }
 
-            lock (stream)
-            {
-                using (var writer = new BigEndianWriter(stream, true))
-                {
-                    writer.Write(buffer.Length);
-                    writer.Write(buffer);
-                }
-            }
+            connection.SendPacket(writePacket);
         }
 
         private void Dispose(bool disposing)
         {
-            var disposable = Interlocked.Exchange(ref owner, null);
+            var disposable = Interlocked.Exchange(ref subscription, null);
             if (disposable != null && disposing)
             {
-                disposable.Close();
+                disposable.Dispose();
+                messageReceived.Dispose();
+                owner.Close();
             }
         }
 

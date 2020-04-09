@@ -19,8 +19,7 @@ namespace Bonsai.Osc.Net
         {
             var tcpClient = new TcpClient();
             tcpClient.NoDelay = NoDelay;
-            tcpClient.Connect(HostName, Port);
-            return new TcpClientTransport(tcpClient);
+            return new TcpClientTransport(tcpClient, HostName, Port);
         }
     }
 }

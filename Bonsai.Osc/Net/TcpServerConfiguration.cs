@@ -20,7 +20,6 @@ namespace Bonsai.Osc.Net
         {
             var listener = new TcpListener(IPAddress.Loopback, Port);
             listener.AllowNatTraversal(AllowNatTraversal);
-            listener.Start();
             return new TcpServerTransport(listener, NoDelay);
         }
     }
