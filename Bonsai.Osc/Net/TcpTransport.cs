@@ -15,11 +15,13 @@ namespace Bonsai.Osc.Net
 {
     class TcpTransport : ITransport
     {
-        NetworkStream stream;
-        IObservable<Message> messageReceived;
+        TcpClient owner;
+        readonly NetworkStream stream;
+        readonly IObservable<Message> messageReceived;
 
         public TcpTransport(TcpClient client)
         {
+            owner = client;
             stream = client.GetStream();
             messageReceived = Observable.Using(
                 () => new EventLoopScheduler(),
@@ -32,7 +34,8 @@ namespace Bonsai.Osc.Net
                         try
                         {
                             var bytesRead = stream.Read(sizeBuffer, 0, sizeBuffer.Length);
-                            if (bytesRead < sizeBuffer.Length)
+                            if (bytesRead == 0) observer.OnCompleted();
+                            else if (bytesRead < sizeBuffer.Length)
                             {
                                 observer.OnError(new InvalidOperationException("Unexpected end of stream."));
                             }
@@ -89,7 +92,7 @@ namespace Bonsai.Osc.Net
 
         private void Dispose(bool disposing)
         {
-            var disposable = Interlocked.Exchange(ref stream, null);
+            var disposable = Interlocked.Exchange(ref owner, null);
             if (disposable != null && disposing)
             {
                 disposable.Close();
