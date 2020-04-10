@@ -27,7 +27,6 @@ namespace Bonsai.Vision.Design
     {
         bool disposed;
         int? selectedRoi;
-        float scaleFactor = 1;
         const int FillOpacity = 85;
         const float LabelFontScale = 0.1f;
         const double ScaleIncrement = 0.1;
@@ -283,12 +282,6 @@ namespace Bonsai.Vision.Design
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             labelTexture = new IplImageTexture();
             base.OnLoad(e);
-        }
-
-        protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
-        {
-            scaleFactor = factor.Width;
-            base.ScaleControl(factor, specified);
         }
 
         private void UpdateLabelTexture()
