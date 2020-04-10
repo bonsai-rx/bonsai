@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
   <?define Win64="no"?>
   <?define ProductDisplayName="Bonsai"?>
   <?define Product64DisplayName="Bonsai (x64)"?>
@@ -32,6 +33,7 @@
 
       <Component Id='BonsaiInstallDir' Guid='*' Win64="$(var.Win64)">
         <RegistryValue Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' Name='InstallDir' Type='string' Value='[INSTALLFOLDER]' KeyPath='yes'/>
+        <util:RemoveFolderEx Property='INSTALLFOLDER' On='uninstall'/>
       </Component>
     </ComponentGroup>
   </Fragment>
