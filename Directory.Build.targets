@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <DaysFromFirstRevision>$([System.DateTime]::UtcNow.Subtract($([System.DateTime]::Parse(2011/12/12))).Days)</DaysFromFirstRevision>
+    <FileVersion>$(Version).$(DaysFromFirstRevision)</FileVersion>
+  </PropertyGroup>
+</Project>
