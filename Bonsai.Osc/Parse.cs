@@ -36,7 +36,7 @@ namespace Bonsai.Osc
 
         TResult Process<TResult>(Message message, Func<BinaryReader, TResult> messageReader)
         {
-            var contents = message.GetStream();
+            var contents = message.GetContentStream();
             using (var reader = new BigEndianReader(contents))
             {
                 return messageReader(reader);

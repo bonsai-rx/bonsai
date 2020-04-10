@@ -13,18 +13,27 @@ namespace Bonsai.Osc
     public sealed class Message
     {
         const char AddressSeparator = '/';
-        int contentSize;
-        int contentIndex;
-        byte[] contents;
-        MessagePattern[] addressParts;
+        readonly int contentSize;
+        readonly int contentOffset;
+        readonly MessagePattern[] addressParts;
 
-        public Message(byte[] packet, int index, int count)
+        public Message(byte[] array)
+            : this(array, 0, array.Length)
         {
-            contentIndex = index;
-            Address = Dispatcher.ReadString(packet, ref contentIndex);
-            TypeTag = Dispatcher.ReadString(packet, ref contentIndex);
-            contents = packet;
-            contentSize = count - (contentIndex - index);
+        }
+
+        public Message(ArraySegment<byte> buffer)
+            : this(buffer.Array, buffer.Offset, buffer.Count)
+        {
+        }
+
+        public Message(byte[] array, int offset, int count)
+        {
+            contentOffset = offset;
+            Address = Dispatcher.ReadString(array, ref contentOffset);
+            TypeTag = Dispatcher.ReadString(array, ref contentOffset);
+            Buffer = new ArraySegment<byte>(array, offset, count);
+            contentSize = count - (contentOffset - offset);
             addressParts = Array.ConvertAll(
                 Address.Split(AddressSeparator),
                 pattern => new MessagePattern(pattern));
@@ -33,6 +42,8 @@ namespace Bonsai.Osc
         public string Address { get; private set; }
 
         public string TypeTag { get; private set; }
+
+        public ArraySegment<byte> Buffer { get; }
 
         public bool IsMatch(string methodName)
         {
@@ -55,16 +66,16 @@ namespace Bonsai.Osc
             return false;
         }
 
-        public Stream GetStream()
+        public Stream GetContentStream()
         {
-            return new MemoryStream(contents, contentIndex, contentSize, false);
+            return new MemoryStream(Buffer.Array, contentOffset, contentSize, false);
         }
 
         public IEnumerable GetContents()
         {
             var chars = TypeTag.ToArray();
             var activeArrays = new Stack<ArrayList>();
-            using (var reader = new BigEndianReader(GetStream()))
+            using (var reader = new BigEndianReader(GetContentStream()))
             {
                 for (int i = 1; i < chars.Length; i++)
                 {

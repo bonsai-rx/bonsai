@@ -70,7 +70,7 @@ namespace Bonsai.Osc
         {
             return Generate().Select(message =>
             {
-                var contents = message.GetStream();
+                var contents = message.GetContentStream();
                 using (var reader = new BigEndianReader(contents))
                 {
                     return messageReader(reader);

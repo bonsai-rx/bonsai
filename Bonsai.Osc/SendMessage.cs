@@ -36,11 +36,29 @@ namespace Bonsai.Osc
             var source = arguments.First();
             var parameterTypes = source.Type.GetGenericArguments();
             var inputParameter = Expression.Parameter(parameterTypes[0]);
+            var builder = Expression.Constant(this);
+            if (inputParameter.Type == typeof(Message))
+            {
+                return Expression.Call(builder, nameof(Process), null, source);
+            }
+
             var writerParameter = Expression.Parameter(typeof(BigEndianWriter));
             var buildMessage = MessageBuilder.Message(Address, inputParameter, writerParameter);
             var messageBuilder = Expression.Lambda(buildMessage, inputParameter, writerParameter);
-            var builder = Expression.Constant(this);
-            return Expression.Call(builder, "Process", parameterTypes, source, messageBuilder);
+            return Expression.Call(builder, nameof(Process), parameterTypes, source, messageBuilder);
+        }
+
+        IObservable<Message> Process(IObservable<Message> source)
+        {
+            return Observable.Using(
+                () => TransportManager.ReserveConnection(Connection),
+                connection => source.Do(input =>
+                {
+                    connection.Transport.SendPacket(writer => writer.Write(
+                        input.Buffer.Array,
+                        input.Buffer.Offset,
+                        input.Buffer.Count));
+                }));
         }
 
         IObservable<TSource> Process<TSource>(IObservable<TSource> source, Action<TSource, BigEndianWriter> messageBuilder)
