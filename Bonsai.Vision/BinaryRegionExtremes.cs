@@ -72,10 +72,19 @@ namespace Bonsai.Vision
                         extremePoint2 = FindExtremity(points, point => -point.Y);
                         break;
                     case FindExtremesMethod.MajorAxis:
-                        var directionVector1 = new Point2f((float)Math.Cos(orientation), (float)Math.Sin(orientation));
-                        var directionVector2 = new Point2f((float)Math.Cos(orientation + Math.PI), (float)Math.Sin(orientation + Math.PI));
+                        var directionX = (float)Math.Cos(orientation);
+                        var directionY = (float)Math.Sin(orientation);
+                        var directionVector1 = new Point2f(directionX, directionY);
+                        var directionVector2 = new Point2f(-directionX, -directionY);
                         extremePoint1 = FindExtremity(points, point => Dot(point, directionVector1));
                         extremePoint2 = FindExtremity(points, point => Dot(point, directionVector2));
+                        break;
+                    case FindExtremesMethod.MajorAxisVertex:
+                        var cos = Math.Cos(orientation);
+                        var sin = Math.Sin(orientation);
+                        var length = input.MajorAxisLength / 2;
+                        extremePoint1 = new Point2f((float)(length * cos + centroid.X), (float)(length * sin + centroid.Y));
+                        extremePoint2 = new Point2f((float)(-length * cos + centroid.X), (float)(-length * sin + centroid.Y));
                         break;
                     case FindExtremesMethod.Radial:
                         extremePoint1 = FindExtremity(points, point => Norm(point - centroid));
@@ -97,6 +106,7 @@ namespace Bonsai.Vision
         Horizontal,
         Vertical,
         MajorAxis,
+        MajorAxisVertex,
         Radial
     }
 }
