@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -49,19 +49,12 @@ namespace Bonsai.Vision.Design
             get { return visualizerCanvas; }
         }
 
-        IEnumerable<T> EnumerableMashup<T>(T first, IEnumerable<T> mashups)
-        {
-            yield return first;
-            foreach (var mashup in mashups)
-            {
-                yield return mashup;
-            }
-        }
-
         protected virtual void ShowMashup(IList<object> values)
         {
             drawnValues = values;
-            foreach (var mashupValue in values.Zip(EnumerableMashup(this, Mashups.Select(xs => (DialogTypeVisualizer)xs.Visualizer)), (value, visualizer) => new { value, visualizer }))
+            foreach (var mashupValue in values.Zip(
+                Mashups.Select(xs => (DialogTypeVisualizer)xs.Visualizer).Prepend(this),
+                (value, visualizer) => new { value, visualizer }))
             {
                 mashupValue.visualizer.Show(mashupValue.value);
             }
@@ -185,7 +178,7 @@ namespace Bonsai.Vision.Design
             {
                 var mergedMashups = Mashups.Select(xs => xs.Visualizer.Visualize(xs.Source, provider).Publish().RefCount()).ToArray();
                 dataSource = Observable
-                    .CombineLatest(EnumerableMashup(mergedSource, mergedMashups))
+                    .CombineLatest(mergedMashups.Prepend(mergedSource))
                     .Window(mergedMashups.Last())
                     .SelectMany(window => window.TakeLast(1));
             }
