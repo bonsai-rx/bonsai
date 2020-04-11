@@ -22,14 +22,14 @@ namespace Bonsai.Arduino
         public override IObservable<byte[]> Process(IObservable<byte[]> source)
         {
             return Observable.Using(
-                () => ArduinoManager.ReserveConnection(PortName),
-                connection => source.Do(value =>
+                cancellationToken => ArduinoManager.ReserveConnectionAsync(PortName),
+                (connection, cancellationToken) => Task.FromResult(source.Do(value =>
                 {
                     lock (connection.Arduino)
                     {
                         connection.Arduino.SendSysex((byte)Feature, value);
                     }
-                }));
+                })));
         }
     }
 }

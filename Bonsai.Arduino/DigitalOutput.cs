@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 
 namespace Bonsai.Arduino
 {
@@ -21,18 +22,18 @@ namespace Bonsai.Arduino
         public override IObservable<bool> Process(IObservable<bool> source)
         {
             return Observable.Using(
-                () => ArduinoManager.ReserveConnection(PortName),
-                connection =>
+                cancellationToken => ArduinoManager.ReserveConnectionAsync(PortName),
+                (connection, cancellationToken) =>
                 {
                     var pin = Pin;
                     connection.Arduino.PinMode(pin, PinMode.Output);
-                    return source.Do(value =>
+                    return Task.FromResult(source.Do(value =>
                     {
                         lock (connection.Arduino)
                         {
                             connection.Arduino.DigitalWrite(pin, value);
                         }
-                    });
+                    }));
                 });
         }
     }

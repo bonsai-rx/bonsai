@@ -22,9 +22,9 @@ namespace Bonsai.Arduino
 
         public override IObservable<byte[]> Generate()
         {
-            return Observable.Create<byte[]>(observer =>
+            return Observable.Create<byte[]>(async observer =>
             {
-                var connection = ArduinoManager.ReserveConnection(PortName);
+                var connection = await ArduinoManager.ReserveConnectionAsync(PortName);
                 EventHandler<SysexReceivedEventArgs> sysexReceived;
                 sysexReceived = (sender, e) =>
                 {

@@ -11,9 +11,9 @@ namespace Bonsai.Arduino
     {
         public static IObservable<int> AnalogInput(string portName, int pin)
         {
-            return Observable.Create<int>(observer =>
+            return Observable.Create<int>(async observer =>
             {
-                var connection = ArduinoManager.ReserveConnection(portName);
+                var connection = await ArduinoManager.ReserveConnectionAsync(portName);
                 EventHandler<AnalogInputReceivedEventArgs> inputReceived;
                 inputReceived = (sender, e) =>
                 {
@@ -41,9 +41,9 @@ namespace Bonsai.Arduino
 
         public static IObservable<bool> DigitalInput(string portName, int pin, PinMode pinMode)
         {
-            return Observable.Create<bool>(observer =>
+            return Observable.Create<bool>(async observer =>
             {
-                var connection = ArduinoManager.ReserveConnection(portName);
+                var connection = await ArduinoManager.ReserveConnectionAsync(portName);
                 connection.Arduino.PinMode(pin, pinMode);
                 var port = Arduino.GetPortNumber(pin);
                 EventHandler<DigitalInputReceivedEventArgs> inputReceived;
