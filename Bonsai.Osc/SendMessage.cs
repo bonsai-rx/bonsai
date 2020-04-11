@@ -33,17 +33,18 @@ namespace Bonsai.Osc
 
         protected override Expression BuildCombinator(IEnumerable<Expression> arguments)
         {
+            var address = Address;
             var source = arguments.First();
             var parameterTypes = source.Type.GetGenericArguments();
             var inputParameter = Expression.Parameter(parameterTypes[0]);
             var builder = Expression.Constant(this);
-            if (inputParameter.Type == typeof(Message))
+            if (inputParameter.Type == typeof(Message) && string.IsNullOrEmpty(address))
             {
                 return Expression.Call(builder, nameof(Process), null, source);
             }
 
             var writerParameter = Expression.Parameter(typeof(BigEndianWriter));
-            var buildMessage = MessageBuilder.Message(Address, inputParameter, writerParameter);
+            var buildMessage = MessageBuilder.Message(address, inputParameter, writerParameter);
             var messageBuilder = Expression.Lambda(buildMessage, inputParameter, writerParameter);
             return Expression.Call(builder, nameof(Process), parameterTypes, source, messageBuilder);
         }

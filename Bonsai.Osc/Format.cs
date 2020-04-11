@@ -28,14 +28,15 @@ namespace Bonsai.Osc
 
         protected override Expression BuildSelector(Expression expression)
         {
-            if (expression.Type == typeof(Message))
+            var address = Address;
+            if (expression.Type == typeof(Message) && string.IsNullOrEmpty(address))
             {
                 return expression;
             }
 
             var inputParameter = Expression.Parameter(expression.Type);
             var writerParameter = Expression.Parameter(typeof(BigEndianWriter));
-            var buildMessage = MessageBuilder.Message(Address, inputParameter, writerParameter);
+            var buildMessage = MessageBuilder.Message(address, inputParameter, writerParameter);
             var messageBuilder = Expression.Lambda(buildMessage, inputParameter, writerParameter);
             return Expression.Call(typeof(Format), nameof(BuildMessage), new[] { expression.Type }, expression, messageBuilder);
         }

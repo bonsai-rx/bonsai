@@ -61,6 +61,16 @@ namespace Bonsai.Osc
             return value;
         }
 
+        static void WriteMessage(BigEndianWriter writer, Message message)
+        {
+            var offset = message.Address.Length + 1;
+            var excess = offset % PadLength;
+            if (excess != 0) offset += PadLength - excess;
+            var array = message.Buffer.Array;
+            var count = message.Buffer.Count - offset;
+            writer.Write(array, offset, count);
+        }
+
         static void WriteBlob(BigEndianWriter writer, byte[] buffer)
         {
             writer.Write(buffer.Length);
@@ -194,15 +204,22 @@ namespace Bonsai.Osc
             }
 
             var addressBytes = Encoding.ASCII.GetBytes(address);
+            addressBytes = PadBytes(addressBytes, 1);
+            var addressExpression = Expression.Constant(addressBytes);
+            if (parameter.Type == typeof(Message))
+            {
+                return Expression.Block(
+                    Expression.Call(writer, WriteBytes, addressExpression),
+                    Expression.Call(typeof(MessageBuilder), nameof(WriteMessage), null, writer, parameter));
+            }
+
             var typeTagBuilder = new StringBuilder();
             typeTagBuilder.Append(TypeTagSeparator);
             var messageBuilder = CreateMessageBuilder(parameter, typeTagBuilder, writer);
             var typeTag = typeTagBuilder.ToString();
             var typeTagBytes = Encoding.ASCII.GetBytes(typeTag);
 
-            addressBytes = PadBytes(addressBytes, 1);
             typeTagBytes = PadBytes(typeTagBytes, 1);
-            var addressExpression = Expression.Constant(addressBytes);
             var typeTagExpression = Expression.Constant(typeTagBytes);
             return Expression.Block(
                 Expression.Call(writer, WriteBytes, addressExpression),
