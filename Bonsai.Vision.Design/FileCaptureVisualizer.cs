@@ -33,7 +33,8 @@ namespace Bonsai.Vision.Design
         public override void Load(IServiceProvider provider)
         {
             var context = (ITypeVisualizerContext)provider.GetService(typeof(ITypeVisualizerContext));
-            capture = (FileCapture)ExpressionBuilder.GetWorkflowElement(context.Source.Builder);
+            var visualizerElement = ExpressionBuilder.GetVisualizerElement(context.Source);
+            capture = (FileCapture)ExpressionBuilder.GetWorkflowElement(visualizerElement.Builder);
             videoPlayer = new VideoPlayer { Dock = DockStyle.Fill };
             videoPlayer.LoopChanged += (sender, e) => capture.Loop = videoPlayer.Loop;
             videoPlayer.PlayingChanged += (sender, e) => capture.Playing = videoPlayer.Playing;
