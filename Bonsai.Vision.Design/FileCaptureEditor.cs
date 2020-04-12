@@ -9,6 +9,9 @@ using System.Reactive.Linq;
 using OpenCV.Net;
 using Bonsai.Expressions;
 using Bonsai.Dag;
+using OpenTK;
+using System.Threading;
+using Timer = System.Windows.Forms.Timer;
 
 namespace Bonsai.Vision.Design
 {
@@ -31,6 +34,12 @@ namespace Bonsai.Vision.Design
                         var videoPlayer = new VideoPlayer { Dock = DockStyle.Fill };
                         editorForm.AddControl(videoPlayer);
 
+                        var allowUpdate = 1;
+                        var updateTimer = new Timer();
+                        updateTimer.Tick += (sender, e) => Interlocked.Exchange(ref allowUpdate, 1);
+                        var refreshRate = DisplayDevice.Default.RefreshRate;
+                        updateTimer.Interval = Math.Max(1, (int)(500 / refreshRate));
+
                         var captureNode = workflow.FirstOrDefault(node => ExpressionBuilder.GetWorkflowElement(node.Value) == component);
                         var captureInspector = captureNode != null ? captureNode.Value as InspectBuilder : null;
                         if (captureInspector == null) return false;
@@ -39,7 +48,18 @@ namespace Bonsai.Vision.Design
                         var capture = (FileCapture)component;
                         var captureFrame = captureOutput
                             .Select(image => Tuple.Create((IplImage)image, (int)capture.Capture.GetProperty(CaptureProperty.PosFrames)))
-                            .Do(frame => videoPlayer.Update(frame.Item1, frame.Item2 - 1));
+                            .Do(frame =>
+                            {
+                                if (allowUpdate == 0) return;
+                                else
+                                {
+                                    Interlocked.Exchange(ref allowUpdate, 0);
+                                    videoPlayer.BeginInvoke((Action)(() =>
+                                    {
+                                        videoPlayer.Update(frame.Item1, frame.Item2 - 1);
+                                    }));
+                                }
+                            });
 
                         var frameRate = 0.0;
                         IDisposable captureFrameHandle = null;
@@ -52,14 +72,17 @@ namespace Bonsai.Vision.Design
                             frameRate = capture.Capture.GetProperty(CaptureProperty.Fps);
                             videoPlayer.PlaybackRate = capture.PlaybackRate == 0 ? frameRate : capture.PlaybackRate;
                             videoPlayer.FrameCount = (int)capture.Capture.GetProperty(CaptureProperty.FrameCount);
-                            captureFrameHandle = captureFrame.Subscribe();
+                            captureFrameHandle = captureFrame.Subscribe();                            
+                            updateTimer.Start();
                         };
 
                         editorForm.FormClosed += (sender, e) =>
                         {
+                            updateTimer.Stop();
                             captureFrameHandle.Dispose();
                             editorState.WorkflowStopped -= workflowStoppedHandler;
                             editorForms.Remove(editorForm);
+                            updateTimer.Dispose();
                         };
 
                         videoPlayer.LoopChanged += (sender, e) => capture.Loop = videoPlayer.Loop;

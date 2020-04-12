@@ -17,7 +17,6 @@ namespace Bonsai.Vision.Design
         bool playing;
         int frameCount;
         double playbackRate;
-        volatile bool allowUpdate;
         ToolStripButton loopButton;
         ToolStripStatusLabel statusLabel;
         ToolStripStatusLabel frameNumberHeaderLabel;
@@ -27,7 +26,6 @@ namespace Bonsai.Vision.Design
         public VideoPlayer()
         {
             InitializeComponent();
-            allowUpdate = true;
             var playButton = new ToolStripButton(">");
             var pauseButton = new ToolStripButton("| |");
             var slowerButton = new ToolStripButton("<<");
@@ -125,6 +123,11 @@ namespace Bonsai.Vision.Design
             frameNumberTextBox.Focus();
         }
 
+        public VisualizerCanvas Canvas
+        {
+            get { return imageControl; }
+        }
+
         public int FrameCount
         {
             get { return frameCount; }
@@ -176,9 +179,6 @@ namespace Bonsai.Vision.Design
         protected override void OnLoad(EventArgs e)
         {
             if (DesignMode) return;
-            var refreshRate = DisplayDevice.Default.RefreshRate;
-            updateTimer.Interval = Math.Max(1, (int)(500 / refreshRate));
-            updateTimer.Start();
             base.OnLoad(e);
         }
 
@@ -211,18 +211,10 @@ namespace Bonsai.Vision.Design
 
         public void Update(IplImage frame, int frameNumber)
         {
-            if (!allowUpdate) return;
-            else
-            {
-                allowUpdate = false;
-                BeginInvoke((Action)(() =>
-                {
-                    imageControl.Image = frame;
-                    seekBar.Value = frameNumber;
-                    if (frame == null) statusLabel.Text = string.Empty;
-                    frameNumberLabel.Text = frameNumber.ToString(CultureInfo.CurrentCulture);
-                }));
-            }
+            imageControl.Image = frame;
+            seekBar.Value = frameNumber;
+            if (frame == null) statusLabel.Text = string.Empty;
+            frameNumberLabel.Text = frameNumber.ToString(CultureInfo.CurrentCulture);
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -239,11 +231,6 @@ namespace Bonsai.Vision.Design
             }
 
             return base.ProcessCmdKey(ref msg, keyData);
-        }
-
-        private void updateTimer_Tick(object sender, EventArgs e)
-        {
-            allowUpdate = true;
         }
 
         void imageControl_MouseClick(object sender, MouseEventArgs e)

@@ -33,7 +33,6 @@
             this.seekBar = new Bonsai.Design.SeekBar();
             this.imageControl = new Bonsai.Vision.Design.ImageBox();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
-            this.updateTimer = new System.Windows.Forms.Timer(this.components);
             this.tableLayoutPanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -82,10 +81,6 @@
             this.statusStrip.TabIndex = 3;
             this.statusStrip.Text = "statusStrip";
             // 
-            // updateTimer
-            // 
-            this.updateTimer.Tick += new System.EventHandler(this.updateTimer_Tick);
-            // 
             // VideoPlayerControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -106,6 +101,5 @@
         private Bonsai.Design.SeekBar seekBar;
         private ImageBox imageControl;
         private System.Windows.Forms.StatusStrip statusStrip;
-        private System.Windows.Forms.Timer updateTimer;
     }
 }
