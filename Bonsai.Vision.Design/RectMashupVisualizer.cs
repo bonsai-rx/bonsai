@@ -8,14 +8,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-[assembly: TypeVisualizer(typeof(RectMashupVisualizer), Target = typeof(VisualizerMashup<IplImageVisualizer, RectVisualizer>))]
-[assembly: TypeVisualizer(typeof(RectMashupVisualizer), Target = typeof(VisualizerMashup<ContoursVisualizer, RectVisualizer>))]
+[assembly: TypeVisualizer(typeof(RectMashupVisualizer), Target = typeof(VisualizerMashup<ImageMashupVisualizer, RectVisualizer>))]
 
 namespace Bonsai.Vision.Design
 {
     public class RectMashupVisualizer : MashupTypeVisualizer
     {
-        IplImageVisualizer visualizer;
+        ImageMashupVisualizer visualizer;
 
         public override void Show(object value)
         {
@@ -24,7 +23,7 @@ namespace Bonsai.Vision.Design
 
         public override void Load(IServiceProvider provider)
         {
-            visualizer = (IplImageVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
+            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
         }
 
         public override void Unload()

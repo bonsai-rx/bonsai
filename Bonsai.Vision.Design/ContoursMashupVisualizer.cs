@@ -7,13 +7,13 @@ using Bonsai;
 using Bonsai.Vision.Design;
 using OpenCV.Net;
 
-[assembly: TypeVisualizer(typeof(ContoursMashupVisualizer), Target = typeof(VisualizerMashup<IplImageVisualizer, ContoursVisualizer>))]
+[assembly: TypeVisualizer(typeof(ContoursMashupVisualizer), Target = typeof(VisualizerMashup<ImageMashupVisualizer, ContoursVisualizer>))]
 
 namespace Bonsai.Vision.Design
 {
     public class ContoursMashupVisualizer : MashupTypeVisualizer
     {
-        IplImageVisualizer visualizer;
+        ImageMashupVisualizer visualizer;
 
         public override void Show(object value)
         {
@@ -27,7 +27,7 @@ namespace Bonsai.Vision.Design
 
         public override void Load(IServiceProvider provider)
         {
-            visualizer = (IplImageVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
+            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
         }
 
         public override void Unload()

@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-[assembly: TypeVisualizer(typeof(PointMashupVisualizer), Target = typeof(VisualizerMashup<IplImageVisualizer, PointVisualizer>))]
+[assembly: TypeVisualizer(typeof(PointMashupVisualizer), Target = typeof(VisualizerMashup<ImageMashupVisualizer, PointVisualizer>))]
 
 namespace Bonsai.Vision.Design
 {
@@ -19,7 +19,7 @@ namespace Bonsai.Vision.Design
         TrackingMode tracking;
         Queue<Point> points;
         Queue<Queue<Point>> polylines;
-        IplImageVisualizer visualizer;
+        ImageMashupVisualizer visualizer;
         IDisposable subscription;
 
         public override void Show(object value)
@@ -85,7 +85,7 @@ namespace Bonsai.Vision.Design
         {
             points = new Queue<Point>(1);
             polylines = new Queue<Queue<Point>>(1);
-            visualizer = (IplImageVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
+            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
             MouseEventHandler mouseHandler = (sender, e) =>
             {
                 if (e.Button == MouseButtons.Left)

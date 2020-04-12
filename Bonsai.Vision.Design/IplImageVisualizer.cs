@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,18 +19,13 @@ using Timer = System.Windows.Forms.Timer;
 
 namespace Bonsai.Vision.Design
 {
-    public class IplImageVisualizer : DialogMashupVisualizer
+    public class IplImageVisualizer : ImageMashupVisualizer
     {
-        const int TargetInterval = 16;
         UserControl imagePanel;
         StatusStrip statusStrip;
         ToolStripStatusLabel statusLabel;
         VisualizerCanvas visualizerCanvas;
         IplImageTexture imageTexture;
-        IplImage visualizerImage;
-        IList<object> activeValues;
-        IList<object> drawnValues;
-        Timer updateTimer;
 
         protected bool StatusStripEnabled { get; set; }
 
@@ -39,43 +34,25 @@ namespace Bonsai.Vision.Design
             get { return statusStrip; }
         }
 
-        public IplImage VisualizerImage
-        {
-            get { return visualizerImage; }
-        }
-
-        public VisualizerCanvas VisualizerCanvas
+        public override VisualizerCanvas VisualizerCanvas
         {
             get { return visualizerCanvas; }
         }
 
-        protected virtual void ShowMashup(IList<object> values)
+        protected override void ShowMashup(IList<object> values)
         {
-            drawnValues = values;
-            foreach (var mashupValue in values.Zip(
-                Mashups.Select(xs => (DialogTypeVisualizer)xs.Visualizer).Prepend(this),
-                (value, visualizer) => new { value, visualizer }))
-            {
-                mashupValue.visualizer.Show(mashupValue.value);
-            }
-
+            base.ShowMashup(values);
             visualizerCanvas.MakeCurrent();
-            if (visualizerImage != null)
+            if (VisualizerImage != null)
             {
-                imageTexture.Update(visualizerImage);
+                imageTexture.Update(VisualizerImage);
             }
             visualizerCanvas.Canvas.Invalidate();
         }
 
         public override void Show(object value)
         {
-            var inputImage = (IplImage)value;
-            if (Mashups.Count > 0)
-            {
-                visualizerImage = IplImageHelper.EnsureImageFormat(visualizerImage, inputImage.Size, inputImage.Depth, inputImage.Channels);
-                CV.Copy(inputImage, visualizerImage);
-            }
-            else visualizerImage = inputImage;
+            base.Show(value);
             UpdateStatus();
         }
 
@@ -86,6 +63,7 @@ namespace Bonsai.Vision.Design
 
         private void UpdateStatus()
         {
+            var visualizerImage = VisualizerImage;
             if (visualizerImage != null && statusStrip.Visible)
             {
                 var cursorPosition = visualizerCanvas.Canvas.PointToClient(Form.MousePosition);
@@ -117,9 +95,9 @@ namespace Bonsai.Vision.Design
             {
                 if (e.Button == MouseButtons.Left)
                 {
-                    if (visualizerImage != null)
+                    if (VisualizerImage != null)
                     {
-                        imagePanel.Parent.ClientSize = new Size(visualizerImage.Width, visualizerImage.Height);
+                        imagePanel.Parent.ClientSize = new Size(VisualizerImage.Width, VisualizerImage.Height);
                     }
                 }
             };
@@ -137,75 +115,21 @@ namespace Bonsai.Vision.Design
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
             if (visualizerService != null)
             {
-                updateTimer = new Timer();
-                updateTimer.Interval = TargetInterval;
-                updateTimer.Tick += updateTimer_Tick;
                 visualizerService.AddControl(imagePanel);
-                updateTimer.Start();
             }
 
             base.Load(provider);
         }
 
-        void updateTimer_Tick(object sender, EventArgs e)
-        {
-            var values = Interlocked.Exchange(ref activeValues, null);
-            if (values != drawnValues)
-            {
-                UpdateCanvas(values);
-            }
-
-            drawnValues = null;
-        }
-
-        void UpdateCanvas(IList<object> values)
-        {
-            var canvas = visualizerCanvas;
-            if (values != null && canvas != null)
-            {
-                canvas.BeginInvoke((Action<IList<object>>)ShowMashup, values);
-            }
-        }
-
-        public override IObservable<object> Visualize(IObservable<IObservable<object>> source, IServiceProvider provider)
-        {
-            IObservable<IList<object>> dataSource;
-            var mergedSource = source.SelectMany(xs => xs.Do(
-                ys => { },
-                () => visualizerCanvas.BeginInvoke((Action)SequenceCompleted)));
-
-            if (Mashups.Count > 0)
-            {
-                var mergedMashups = Mashups.Select(xs => xs.Visualizer.Visualize(xs.Source, provider).Publish().RefCount()).ToArray();
-                dataSource = Observable
-                    .CombineLatest(mergedMashups.Prepend(mergedSource))
-                    .Window(mergedMashups.Last())
-                    .SelectMany(window => window.TakeLast(1));
-            }
-            else dataSource = mergedSource.Select(xs => new[] { xs });
-
-            return dataSource.Do(xs =>
-            {
-                if (Interlocked.Exchange(ref activeValues, xs) == null)
-                {
-                    UpdateCanvas(xs);
-                }
-            });
-        }
-
         public override void Unload()
         {
             base.Unload();
-            updateTimer.Stop();
-            updateTimer.Dispose();
             imageTexture.Dispose();
             imagePanel.Dispose();
-            updateTimer = null;
             imagePanel = null;
             statusStrip = null;
             visualizerCanvas = null;
             imageTexture = null;
-            visualizerImage = null;
         }
     }
 }

@@ -8,13 +8,13 @@ using Bonsai.Vision;
 using OpenCV.Net;
 using Bonsai.Design;
 
-[assembly: TypeVisualizer(typeof(KeyPointCollectionMashupVisualizer), Target = typeof(VisualizerMashup<IplImageVisualizer, KeyPointCollectionVisualizer>))]
+[assembly: TypeVisualizer(typeof(KeyPointCollectionMashupVisualizer), Target = typeof(VisualizerMashup<ImageMashupVisualizer, KeyPointCollectionVisualizer>))]
 
 namespace Bonsai.Vision.Design
 {
     public class KeyPointCollectionMashupVisualizer : MashupTypeVisualizer
     {
-        IplImageVisualizer visualizer;
+        ImageMashupVisualizer visualizer;
 
         public override void Show(object value)
         {
@@ -24,7 +24,7 @@ namespace Bonsai.Vision.Design
 
         public override void Load(IServiceProvider provider)
         {
-            visualizer = (IplImageVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
+            visualizer = (ImageMashupVisualizer)provider.GetService(typeof(DialogMashupVisualizer));
         }
 
         public override void Unload()
