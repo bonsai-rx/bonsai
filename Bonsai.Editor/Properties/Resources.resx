@@ -242,7 +242,9 @@ Copyright (c) .NET Foundation and Contributors</value>
   </data>
   <data name="InstallScriptEditor_Question" xml:space="preserve">
     <value>Unable to open script editor.
-Do you want to install Visual Studio Code?</value>
+Do you want to install Visual Studio Code?
+
+NOTE: You will have to restart Bonsai for any changes to take effect.</value>
   </data>
   <data name="InstallScriptEditor_Question_Caption" xml:space="preserve">
     <value>Install Script Editor</value>
