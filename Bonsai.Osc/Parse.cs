@@ -1,4 +1,4 @@
-﻿using Bonsai.Expressions;
+using Bonsai.Expressions;
 using Bonsai.Osc.IO;
 using System;
 using System.Collections.Generic;
@@ -6,41 +6,82 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reactive;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Bonsai.Osc
 {
-    [Description("Retrieves data contents from an OSC message.")]
-    public class Parse : SelectBuilder
+    [Description("Decodes data contents from an OSC message stream.")]
+    public class Parse : SingleArgumentExpressionBuilder
     {
+        [Description("The OSC address space on which the received data is being broadcast.")]
+        public string Address { get; set; }
+
         [TypeConverter(typeof(TypeTagConverter))]
         [Description("The OSC type tag specifying the contents of the message.")]
         public string TypeTag { get; set; }
 
-        protected override Expression BuildSelector(Expression expression)
+        public override Expression Build(IEnumerable<Expression> arguments)
         {
-            var readerParameter = Expression.Parameter(typeof(BinaryReader));
-            var builder = Expression.Constant(this);
-            if (string.IsNullOrEmpty(TypeTag))
+            var source = arguments.First();
+            var parameterType = source.Type.GetGenericArguments()[0];
+            if (parameterType != typeof(Message))
             {
-                return expression;
+                source = Expression.Call(typeof(Parse), nameof(Convert), null, source);
             }
+
+            var address = Address;
+            if (!string.IsNullOrEmpty(address))
+            {
+                source = Expression.Call(typeof(Parse), nameof(Filter), null, source, Expression.Constant(address));
+            }
+
+            var typeTag = TypeTag;
+            if (string.IsNullOrEmpty(typeTag)) return source;
             else
             {
-                var parseMessage = MessageParser.Content(TypeTag, readerParameter);
+                var readerParameter = Expression.Parameter(typeof(BinaryReader));
+                var parseMessage = MessageParser.Content(typeTag, readerParameter);
                 var messageParser = Expression.Lambda(parseMessage, readerParameter);
-                return Expression.Call(builder, "Process", new[] { messageParser.ReturnType }, expression, messageParser);
+                return Expression.Call(typeof(Parse), nameof(Process), new[] { messageParser.ReturnType }, source, messageParser);
             }
         }
 
-        TResult Process<TResult>(Message message, Func<BinaryReader, TResult> messageReader)
+        static IObservable<Message> Convert(IObservable<byte[]> source)
         {
-            var contents = message.GetContentStream();
-            using (var reader = new BigEndianReader(contents))
+            return Convert(source.Select(array => new ArraySegment<byte>(array)));
+        }
+
+        static IObservable<Message> Convert(IObservable<ArraySegment<byte>> source)
+        {
+            return Observable.Create<Message>(observer =>
             {
-                return messageReader(reader);
-            }
+                var dispatcher = new Dispatcher(observer, HighResolutionScheduler.Default);
+                var messageObserver = Observer.Create<ArraySegment<byte>>(
+                    buffer => dispatcher.Process(buffer),
+                    observer.OnError,
+                    observer.OnCompleted);
+                return source.SubscribeSafe(messageObserver);
+            });
+        }
+
+        static IObservable<Message> Filter(IObservable<Message> source, string address)
+        {
+            return source.Where(message => message.IsMatch(address));
+        }
+
+        static IObservable<TResult> Process<TResult>(IObservable<Message> source, Func<BinaryReader, TResult> messageReader)
+        {
+            return source.Select(message =>
+            {
+                var contents = message.GetContentStream();
+                using (var reader = new BigEndianReader(contents))
+                {
+                    return messageReader(reader);
+                }
+            });
         }
     }
 }

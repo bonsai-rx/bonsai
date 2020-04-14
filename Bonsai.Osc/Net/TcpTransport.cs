@@ -48,7 +48,7 @@ namespace Bonsai.Osc.Net
                                 }
                                 else
                                 {
-                                    dispatcher.ProcessPacket(packet);
+                                    dispatcher.Process(packet);
                                     recurse();
                                 }
                             }

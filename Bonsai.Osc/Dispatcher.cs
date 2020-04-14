@@ -16,75 +16,85 @@ namespace Bonsai.Osc
         const byte MessageByte = 0x2F; // '/'
         const byte BundleByte =  0x23; // '#'
         const string BundleIdentifier = "#bundle";
-        IObserver<Message> observer;
-        EventLoopScheduler scheduler;
+        readonly IObserver<Message> observer;
+        readonly IScheduler scheduler;
 
-        public Dispatcher(IObserver<Message> observer, EventLoopScheduler scheduler)
+        public Dispatcher(IObserver<Message> observer, IScheduler scheduler)
         {
             if (observer == null)
             {
-                throw new ArgumentNullException("observer");
+                throw new ArgumentNullException(nameof(observer));
             }
 
             if (scheduler == null)
             {
-                throw new ArgumentNullException("scheduler");
+                throw new ArgumentNullException(nameof(scheduler));
             }
 
             this.observer = observer;
             this.scheduler = scheduler;
         }
 
-        public void ProcessPacket(byte[] packet)
+        public void Process(byte[] array)
         {
-            try { ProcessPacket(packet, 0, packet.Length); }
+            Process(array, 0, array.Length);
+        }
+
+        public void Process(ArraySegment<byte> buffer)
+        {
+            Process(buffer.Array, buffer.Offset, buffer.Count);
+        }
+
+        public void Process(byte[] buffer, int offset, int count)
+        {
+            try { ProcessPacket(buffer, offset, count); }
             catch (Exception e) { observer.OnError(e); }
         }
 
-        private void ProcessPacket(byte[] packet, int index, int count)
+        private void ProcessPacket(byte[] buffer, int offset, int count)
         {
-            if (packet == null)
+            if (buffer == null)
             {
-                throw new ArgumentNullException("packet");
+                throw new ArgumentNullException(nameof(buffer));
             }
 
-            if (index < 0 || index >= packet.Length)
+            if (offset < 0 || offset >= buffer.Length)
             {
-                throw new ArgumentOutOfRangeException("index");
+                throw new ArgumentOutOfRangeException(nameof(offset));
             }
 
-            var identifier = packet[index];
-            if (identifier == MessageByte) ProcessMessage(packet, index, count);
-            else if (identifier == BundleByte) ProcessBundle(packet, index, count);
-            else throw new ArgumentException("An OSC packet must contain either a message or a bundle.", "packet");
+            var identifier = buffer[offset];
+            if (identifier == MessageByte) ProcessMessage(buffer, offset, count);
+            else if (identifier == BundleByte) ProcessBundle(buffer, offset, count);
+            else throw new ArgumentException("An OSC packet must contain either a message or a bundle.", nameof(buffer));
         }
 
-        private void ProcessMessage(byte[] packet, int index, int count)
+        private void ProcessMessage(byte[] buffer, int offset, int count)
         {
-            var message = new Message(packet, index, count);
+            var message = new Message(buffer, offset, count);
             observer.OnNext(message);
         }
 
-        private void ProcessBundle(byte[] packet, int index, int count)
+        private void ProcessBundle(byte[] buffer, int offset, int count)
         {
-            var currentIndex = index;
-            var bundleId = ReadString(packet, ref currentIndex);
+            var currentIndex = offset;
+            var bundleId = ReadString(buffer, ref currentIndex);
             if (bundleId != BundleIdentifier)
             {
                 throw new ArgumentException(
                     string.Format("An OSC bundle must start with the OSC-string '{0}'.", BundleIdentifier),
-                    "packet");
+                    nameof(buffer));
             }
 
-            var timeTag = ReadTimeTag(packet, ref currentIndex);
+            var timeTag = ReadTimeTag(buffer, ref currentIndex);
             Action processElements = () =>
             {
                 try
                 {
-                    while (currentIndex < index + count)
+                    while (currentIndex < offset + count)
                     {
-                        var elementSize = ReadInt32(packet, ref currentIndex);
-                        ProcessPacket(packet, currentIndex, elementSize);
+                        var elementSize = ReadInt32(buffer, ref currentIndex);
+                        ProcessPacket(buffer, currentIndex, elementSize);
                         currentIndex += elementSize;
                     }
                 }
@@ -95,31 +105,31 @@ namespace Bonsai.Osc
             else scheduler.Schedule(timeTag, processElements);
         }
 
-        private static int ReadInt32(byte[] packet, ref int index)
+        private static int ReadInt32(byte[] buffer, ref int offset)
         {
-            var value = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(packet, index));
-            index += sizeof(int);
+            var value = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(buffer, offset));
+            offset += sizeof(int);
             return value;
         }
 
-        private static DateTimeOffset ReadTimeTag(byte[] packet, ref int index)
+        private static DateTimeOffset ReadTimeTag(byte[] buffer, ref int offset)
         {
-            var timeTag = (ulong)IPAddress.NetworkToHostOrder(BitConverter.ToInt64(packet, index));
-            index += sizeof(ulong);
+            var timeTag = (ulong)IPAddress.NetworkToHostOrder(BitConverter.ToInt64(buffer, offset));
+            offset += sizeof(ulong);
             return TimeTag.ToTimestamp(timeTag);
         }
 
-        internal static string ReadString(byte[] packet, ref int index)
+        internal static string ReadString(byte[] buffer, ref int offset)
         {
             const int PadLength = 4;
-            var terminator = Array.IndexOf<byte>(packet, 0, index);
+            var terminator = Array.IndexOf<byte>(buffer, 0, offset);
             if (terminator < 0)
             {
-                throw new ArgumentException("OSC strings must be null terminated.", "packet");
+                throw new ArgumentException("OSC strings must be null terminated.", nameof(buffer));
             }
 
-            var result = Encoding.ASCII.GetString(packet, index, terminator - index);
-            index = terminator + PadLength - (terminator % PadLength);
+            var result = Encoding.ASCII.GetString(buffer, offset, terminator - offset);
+            offset = terminator + PadLength - (terminator % PadLength);
             return result;
         }
     }

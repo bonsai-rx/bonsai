@@ -37,7 +37,7 @@ namespace Bonsai.Osc.Net
                         {
                             var endPoint = new IPEndPoint(IPAddress.Any, 0);
                             var packet = client.Receive(ref endPoint);
-                            dispatcher.ProcessPacket(packet);
+                            dispatcher.Process(packet);
                             recurse();
                         }
                         catch (Exception e)
