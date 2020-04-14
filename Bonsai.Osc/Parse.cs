@@ -1,4 +1,4 @@
-using Bonsai.Expressions;
+﻿using Bonsai.Expressions;
 using Bonsai.Osc.IO;
 using System;
 using System.Collections.Generic;
@@ -26,6 +26,11 @@ namespace Bonsai.Osc
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             var source = arguments.First();
+            return Build(source);
+        }
+
+        internal Expression Build(Expression source)
+        {
             var parameterType = source.Type.GetGenericArguments()[0];
             if (parameterType != typeof(Message))
             {

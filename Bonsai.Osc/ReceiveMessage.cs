@@ -17,65 +17,39 @@ namespace Bonsai.Osc
 {
     [WorkflowElementCategory(ElementCategory.Source)]
     [Description("Reads data from an Open Sound Control communication channel.")]
-    public class ReceiveMessage : CombinatorExpressionBuilder
+    public class ReceiveMessage : Parse
     {
+        static readonly Range<int> argumentRange = Range.Create(lowerBound: 0, upperBound: 0);
+
         public ReceiveMessage()
-            : base(minArguments: 0, maxArguments: 0)
         {
             Address = MessageBuilder.AddressSeparator;
+        }
+
+        public override Range<int> ArgumentRange
+        {
+            get { return argumentRange; }
         }
 
         [TypeConverter(typeof(ConnectionNameConverter))]
         [Description("The communication channel to use for the OSC protocol.")]
         public string Connection { get; set; }
 
-        [Description("The OSC address space on which the received data is being broadcast.")]
-        public string Address { get; set; }
-
-        [TypeConverter(typeof(TypeTagConverter))]
-        [Description("The OSC type tag specifying the contents of the message.")]
-        public string TypeTag { get; set; }
-
-        protected override Expression BuildCombinator(IEnumerable<Expression> arguments)
+        public override Expression Build(IEnumerable<Expression> arguments)
         {
-            var readerParameter = Expression.Parameter(typeof(BinaryReader));
-            var builder = Expression.Constant(this);
-
-            if (string.IsNullOrEmpty(TypeTag))
-            {
-                return Expression.Call(builder, "Generate", null);
-            }
-            else
-            {
-                var parseMessage = MessageParser.Content(TypeTag, readerParameter);
-                var messageParser = Expression.Lambda(parseMessage, readerParameter);
-                return Expression.Call(builder, "Generate", new[] { messageParser.ReturnType }, messageParser);
-            }
+            var source = Expression.Parameter(typeof(IObservable<Message>));
+            var parseMessage = Build(source);
+            var processor = Expression.Lambda(parseMessage, source);
+            var connection = Expression.Constant(Connection);
+            var resultType = processor.ReturnType.GetGenericArguments();
+            return Expression.Call(typeof(ReceiveMessage), nameof(Generate), resultType, connection, processor);
         }
 
-        IObservable<Message> Generate()
+        static IObservable<TResult> Generate<TResult>(string connection, Func<IObservable<Message>, IObservable<TResult>> processor)
         {
             return Observable.Using(
-                () => TransportManager.ReserveConnection(Connection),
-                connection => connection.Transport.MessageReceived
-                    .Where(message =>
-                    {
-                        var address = Address;
-                        return string.IsNullOrEmpty(address) || message.IsMatch(address);
-                    }))
-                    .SubscribeOn(TaskPoolScheduler.Default);
-        }
-
-        IObservable<TSource> Generate<TSource>(Func<BinaryReader, TSource> messageReader)
-        {
-            return Generate().Select(message =>
-            {
-                var contents = message.GetContentStream();
-                using (var reader = new BigEndianReader(contents))
-                {
-                    return messageReader(reader);
-                }
-            });
+                () => TransportManager.ReserveConnection(connection),
+                connection => processor(connection.Transport.MessageReceived));
         }
     }
 }
