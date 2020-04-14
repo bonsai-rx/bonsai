@@ -16,10 +16,9 @@ namespace Bonsai.Osc
 {
     [WorkflowElementCategory(ElementCategory.Sink)]
     [Description("Writes input data to an Open Sound Control communication channel.")]
-    public class SendMessage : CombinatorExpressionBuilder
+    public class SendMessage : SingleArgumentExpressionBuilder
     {
         public SendMessage()
-            : base(minArguments: 1, maxArguments: 1)
         {
             Address = MessageBuilder.AddressSeparator;
         }
@@ -31,7 +30,7 @@ namespace Bonsai.Osc
         [Description("The OSC address on which to broadcast the input data.")]
         public string Address { get; set; }
 
-        protected override Expression BuildCombinator(IEnumerable<Expression> arguments)
+        public override Expression Build(IEnumerable<Expression> arguments)
         {
             var address = Address;
             var source = arguments.First();
