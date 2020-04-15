@@ -42,9 +42,9 @@ namespace Bonsai.Osc.Net
                     }
                     finally
                     {
-                        connections = connections.Remove(client);
-
                         observer.OnCompleted();
+                        connections = connections.Remove(client);
+                        stream.Close();
                     }
 
                     return Disposable.Empty;
@@ -57,6 +57,7 @@ namespace Bonsai.Osc.Net
 
         public void SendPacket(Action<BigEndianWriter> writePacket)
         {
+            // get the osc packet
             byte[] payloadBuffer;
             using (var memoryStream = new MemoryStream())
             using (var writer = new BigEndianWriter(memoryStream))
@@ -65,13 +66,16 @@ namespace Bonsai.Osc.Net
                 payloadBuffer = memoryStream.ToArray();
             }
 
+            // prepend the packet size
             var packetBuffer = new byte[sizeof(int) + payloadBuffer.Length];
             var sizeBuffer = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(payloadBuffer.Length));
             Array.Copy(sizeBuffer, packetBuffer, sizeof(int));
             Array.Copy(payloadBuffer, 0, packetBuffer, sizeof(int), payloadBuffer.Length);
 
+            // encode to websocket packet
             var encoded = WebSocketServerPipe.Encode(new ArraySegment<byte>(packetBuffer), WebSocketServerPipe.Opcode.Binary); // encode as web socket frame
 
+            // broadcast to all open connections
             foreach (var connection in connections.Values)
             {
                 connection.WriteAsync(encoded, 0, encoded.Length).GetAwaiter().GetResult();
