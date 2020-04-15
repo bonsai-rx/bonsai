@@ -3,6 +3,7 @@ using System;
 using System.Collections.Immutable;
 using System.IO;
 using System.IO.Pipelines;
+using System.Net;
 using System.Net.Sockets;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -64,15 +65,10 @@ namespace Bonsai.Osc.Net
                 payloadBuffer = memoryStream.ToArray();
             }
 
-            // prepend the size
-            byte[] packetBuffer;
-            using (var memoryStream = new MemoryStream())
-            using (var writer = new BigEndianWriter(memoryStream))
-            {
-                writer.Write(payloadBuffer.Length);
-                writer.Write(payloadBuffer);
-                packetBuffer = memoryStream.ToArray();
-            }
+            var packetBuffer = new byte[sizeof(int) + payloadBuffer.Length];
+            var sizeBuffer = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(payloadBuffer.Length));
+            Array.Copy(sizeBuffer, packetBuffer, sizeof(int));
+            Array.Copy(payloadBuffer, 0, packetBuffer, sizeof(int), payloadBuffer.Length);
 
             var encoded = WebSocketServerPipe.Encode(new ArraySegment<byte>(packetBuffer), WebSocketServerPipe.Opcode.Binary); // encode as web socket frame
 
