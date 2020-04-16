@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "$projectname$": {
+    "Bonsai": {
       "commandName": "Executable",
       "executablePath": "$(registry:HKEY_CURRENT_USER\\Software\\Goncalo Lopes\\Bonsai@InstallDir)Bonsai64.exe",
       "commandLineArgs": "--lib:$(TargetDir)."
