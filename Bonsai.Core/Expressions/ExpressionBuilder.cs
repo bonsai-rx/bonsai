@@ -120,6 +120,17 @@ namespace Bonsai.Expressions
             return builder;
         }
 
+        /// <summary>
+        /// Returns the <see cref="InspectBuilder"/> instance that should be used to visualize
+        /// the specified workflow element.
+        /// </summary>
+        /// <param name="builder">
+        /// The <see cref="ExpressionBuilder"/> for which to retrieve the visualizer element.
+        /// </param>
+        /// <returns>
+        /// The <see cref="InspectBuilder"/> instance that should be used to visualize the
+        /// specified workflow element.
+        /// </returns>
         public static InspectBuilder GetVisualizerElement(ExpressionBuilder builder)
         {
             var inspectBuilder = (InspectBuilder)builder;
@@ -959,13 +970,17 @@ namespace Bonsai.Expressions
         }
 
         [Obsolete]
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         protected static IEnumerable<Expression> SelectMembers(Expression expression, string selector)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
             return ExpressionHelper.SelectMembers(expression, selector);
         }
 
         [Obsolete]
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         protected Tuple<Expression, string> GetArgumentAccess(IEnumerable<Expression> arguments, string selector)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
             return BuildArgumentAccess(arguments, selector);
         }

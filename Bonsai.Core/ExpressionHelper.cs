@@ -173,6 +173,7 @@ namespace Bonsai
         /// <summary>
         /// Returns the set of member selector expressions specified by a composite selector string.
         /// </summary>
+        /// <param name="expression">The object to which the members belong.</param>
         /// <param name="selector">
         /// The comma-separated selector string used to extract multiple members.
         /// </param>
