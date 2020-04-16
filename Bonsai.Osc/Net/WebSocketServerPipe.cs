@@ -29,15 +29,15 @@ namespace Bonsai.Osc.Net
                 // perform handshake
                 while (true)
                 {
-                    var readResult = await reader.ReadAsync(cancellationToken);
+                    var readResult = await reader.ReadAsync(cancellationToken).ConfigureAwait(false);
                     var buffer = readResult.Buffer;
 
                     try
                     {
                         if (TryParseWebSocketHandshake(ref buffer, out var response))
                         {
-                            await stream.WriteAsync(response, 0, response.Length, cancellationToken);
-                            await stream.FlushAsync(cancellationToken);
+                            await stream.WriteAsync(response, 0, response.Length, cancellationToken).ConfigureAwait(false);
+                            await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
                             break;
                         }
                     }
@@ -50,14 +50,14 @@ namespace Bonsai.Osc.Net
                 // process packets
                 while (true)
                 {
-                    var readResult = await reader.ReadAsync(cancellationToken);
+                    var readResult = await reader.ReadAsync(cancellationToken).ConfigureAwait(false);
                     var buffer = readResult.Buffer;
 
                     try
                     {
                         while (TryParseWebSocketPacket(ref buffer, writer))
                         {
-                            var flushResult = await writer.FlushAsync(cancellationToken);
+                            var flushResult = await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
                             if (flushResult.IsCanceled || flushResult.IsCompleted)
                                 break;
                         }
@@ -88,8 +88,8 @@ namespace Bonsai.Osc.Net
             }
             finally
             {
-                await reader.CompleteAsync(error);
-                await writer.CompleteAsync(error);
+                await reader.CompleteAsync(error).ConfigureAwait(false);
+                await writer.CompleteAsync(error).ConfigureAwait(false);
             }
         }
 

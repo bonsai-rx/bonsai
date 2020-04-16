@@ -19,7 +19,7 @@ namespace Bonsai.Osc.Net
             {
                 while (true)
                 {
-                    var readResult = await reader.ReadAsync(cancellationToken);
+                    var readResult = await reader.ReadAsync(cancellationToken).ConfigureAwait(false);
                     if (readResult.IsCanceled || readResult.IsCompleted)
                         break;
 
@@ -59,7 +59,7 @@ namespace Bonsai.Osc.Net
             }
             finally
             {
-                await reader.CompleteAsync(error);
+                await reader.CompleteAsync(error).ConfigureAwait(false);
             }
         }
 

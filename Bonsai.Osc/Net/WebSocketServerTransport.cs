@@ -38,7 +38,7 @@ namespace Bonsai.Osc.Net
                         var transforming = WebSocketServerPipe.TransformAsync(webSocketPipe.Reader, stream, oscPipe.Writer, cancellationToken);
                         var reading = OscPipe.TransformAsync(oscPipe.Reader, observer, cancellationToken);
 
-                        await Task.WhenAll(reading, transforming, writing);
+                        await Task.WhenAll(reading, transforming, writing).ConfigureAwait(false);
                     }
                     finally
                     {

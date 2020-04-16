@@ -18,7 +18,7 @@ namespace Bonsai.Osc.Net
                 {
                     try
                     {
-                        var result = await client.ReceiveAsync(array, cancellationToken);
+                        var result = await client.ReceiveAsync(array, cancellationToken).ConfigureAwait(false);
                         if (result.Count == 0)
                             break;
 
@@ -30,12 +30,12 @@ namespace Bonsai.Osc.Net
                     }
                 }
 
-                var flushResult = await writer.FlushAsync(cancellationToken);
+                var flushResult = await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
                 if (flushResult.IsCanceled || flushResult.IsCompleted)
                     break;
             }
 
-            await writer.CompleteAsync();
+            await writer.CompleteAsync().ConfigureAwait(false);
         }
 
         public static async Task TransformAsync(PipeReader reader, ClientWebSocket client, WebSocketMessageType messageType, CancellationToken cancellationToken = default)
@@ -45,7 +45,7 @@ namespace Bonsai.Osc.Net
             {
                 while (true)
                 {
-                    var readResult = await reader.ReadAsync(cancellationToken);
+                    var readResult = await reader.ReadAsync(cancellationToken).ConfigureAwait(false);
                     if (readResult.IsCanceled || readResult.IsCompleted)
                         break;
 
@@ -61,7 +61,7 @@ namespace Bonsai.Osc.Net
                             {
                                 if (MemoryMarshal.TryGetArray(previous, out var arraySegment))
                                 {
-                                    await client.SendAsync(arraySegment, messageType, false, cancellationToken);
+                                    await client.SendAsync(arraySegment, messageType, false, cancellationToken).ConfigureAwait(false);
                                 }
 
                                 previous = enumerator.Current;
@@ -69,7 +69,7 @@ namespace Bonsai.Osc.Net
 
                             if (MemoryMarshal.TryGetArray(previous, out var lastArraySegment))
                             {
-                                await client.SendAsync(lastArraySegment, messageType, true, cancellationToken);
+                                await client.SendAsync(lastArraySegment, messageType, true, cancellationToken).ConfigureAwait(false);
                             }
                         }
                     }
@@ -87,7 +87,7 @@ namespace Bonsai.Osc.Net
             }
             finally
             {
-                await reader.CompleteAsync(error);
+                await reader.CompleteAsync(error).ConfigureAwait(false);
             }
         }
     }

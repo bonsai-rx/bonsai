@@ -18,7 +18,7 @@ namespace Bonsai.Osc.Net
                 {
                     try
                     {
-                        var bytesRead = await stream.ReadAsync(array.Array, array.Offset, array.Count, cancellationToken);
+                        var bytesRead = await stream.ReadAsync(array.Array, array.Offset, array.Count, cancellationToken).ConfigureAwait(false);
                         if (bytesRead == 0)
                             break;
 
@@ -30,12 +30,12 @@ namespace Bonsai.Osc.Net
                     }
                 }
 
-                var flushResult = await writer.FlushAsync(cancellationToken);
+                var flushResult = await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
                 if (flushResult.IsCanceled || flushResult.IsCompleted)
                     break;
             }
 
-            await writer.CompleteAsync();
+            await writer.CompleteAsync().ConfigureAwait(false);
         }
 
         public static async Task Transform(PipeReader reader, NetworkStream stream, CancellationToken cancellationToken = default)
@@ -45,7 +45,7 @@ namespace Bonsai.Osc.Net
             {
                 while (true)
                 {
-                    var readResult = await reader.ReadAsync(cancellationToken);
+                    var readResult = await reader.ReadAsync(cancellationToken).ConfigureAwait(false);
                     if (readResult.IsCanceled || readResult.IsCompleted)
                         break;
 
@@ -56,7 +56,7 @@ namespace Bonsai.Osc.Net
                         {
                             if (MemoryMarshal.TryGetArray(memory, out var arraySegment))
                             {
-                                await stream.WriteAsync(arraySegment.Array, arraySegment.Offset, arraySegment.Count, cancellationToken);
+                                await stream.WriteAsync(arraySegment.Array, arraySegment.Offset, arraySegment.Count, cancellationToken).ConfigureAwait(false);
                             }
                         }
                     }
@@ -74,7 +74,7 @@ namespace Bonsai.Osc.Net
             }
             finally
             {
-                await reader.CompleteAsync(error);
+                await reader.CompleteAsync(error).ConfigureAwait(false);
             }
         }
     }

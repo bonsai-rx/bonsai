@@ -33,7 +33,7 @@ namespace Bonsai.Osc.Net
                         var writing = WebSocketClientPipe.GenerateAsync(client, 64, pipe.Writer, cancellationToken);
                         var reading = OscPipe.TransformAsync(pipe.Reader, observer, cancellationToken);
 
-                        await Task.WhenAll(reading, writing);
+                        await Task.WhenAll(reading, writing).ConfigureAwait(false);
                     }
                     finally
                     {
