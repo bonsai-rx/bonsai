@@ -1,10 +1,8 @@
 ﻿using Bonsai.Expressions;
 using Bonsai.Dag;
 using System;
-using System.Collections.Generic;
 using System.Drawing.Design;
 using System.Linq;
-using System.Text;
 using System.Reactive.Linq;
 using System.ComponentModel;
 

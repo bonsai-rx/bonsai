@@ -1,12 +1,7 @@
 ﻿using Bonsai.Design;
 using Bonsai.Resources.Design;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace Bonsai.Shaders.Configuration.Design
 {

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Bonsai
+﻿namespace Bonsai
 {
     /// <summary>
     /// Represents an operation on observable sequences which transforms every element of the source

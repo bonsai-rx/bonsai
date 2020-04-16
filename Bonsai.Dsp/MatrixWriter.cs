@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using OpenCV.Net;
-using System.Threading.Tasks;
 using System.IO;
 using Bonsai.IO;
 using System.ComponentModel;
-using System.Runtime.InteropServices;
 
 namespace Bonsai.Dsp
 {

@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
 using System.Reactive.Linq;
-using System.Reactive.Disposables;
 
 namespace Bonsai.Dsp
 {

@@ -1,16 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Bonsai.Design.Visualizers;
 using ZedGraph;
 using System.Globalization;
-using Bonsai.Dsp.Design.Properties;
 using System.Collections.ObjectModel;
 
 namespace Bonsai.Dsp.Design

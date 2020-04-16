@@ -6,8 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 [assembly: TypeVisualizer(typeof(PointMashupVisualizer), Target = typeof(VisualizerMashup<ImageMashupVisualizer, PointVisualizer>))]

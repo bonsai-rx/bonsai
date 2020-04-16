@@ -1,19 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using OpenTK;
 using Bonsai;
 using Bonsai.Vision.Design;
 using OpenCV.Net;
 using Bonsai.Design;
 using System.Windows.Forms;
 using System.Drawing;
-using System.Reactive.Linq;
-using System.Threading;
-using System.ComponentModel.Design;
 using Size = System.Drawing.Size;
-using Timer = System.Windows.Forms.Timer;
 
 [assembly: TypeVisualizer(typeof(IplImageVisualizer), Target = typeof(IplImage))]
 

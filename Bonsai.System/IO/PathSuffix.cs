@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Bonsai.IO
+﻿namespace Bonsai.IO
 {
     /// <summary>
     /// Specifies the known path suffixes that can be appended to a path.

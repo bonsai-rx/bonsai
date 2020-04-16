@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Bonsai;
 using Bonsai.Vision.Design;
-using Bonsai.Vision;
-using OpenCV.Net;
 using Bonsai.Design;
 
 [assembly: TypeVisualizer(typeof(KeyPointOpticalFlowMashupVisualizer), Target = typeof(VisualizerMashup<ImageMashupVisualizer, KeyPointOpticalFlowVisualizer>))]

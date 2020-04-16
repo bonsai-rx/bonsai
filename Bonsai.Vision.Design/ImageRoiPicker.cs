@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using OpenCV.Net;
 using System.Reactive.Linq;
 using System.Windows.Forms;
-using System.Reactive;
-using Bonsai.Vision.Design;
 using System.Collections.ObjectModel;
 using System.Drawing;
-using Bonsai.Vision;
 using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
 using OpenTK;

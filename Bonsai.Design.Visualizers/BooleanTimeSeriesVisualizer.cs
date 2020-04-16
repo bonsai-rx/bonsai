@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Bonsai;
+﻿using Bonsai;
 using Bonsai.Design.Visualizers;
-using ZedGraph;
-using System.Windows.Forms;
 
 [assembly: TypeVisualizer(typeof(BooleanTimeSeriesVisualizer), Target = typeof(bool))]
 

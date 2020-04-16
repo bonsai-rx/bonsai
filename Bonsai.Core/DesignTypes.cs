@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Bonsai
+﻿namespace Bonsai
 {
     /// <summary>
     /// Provides assembly qualified names for well-known designer types.

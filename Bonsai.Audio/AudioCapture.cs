@@ -1,16 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using OpenTK.Audio.OpenAL;
 using System.ComponentModel;
 using System.Threading;
-using OpenTK;
 using System.Reactive.Linq;
-using System.Reactive.Concurrency;
-using System.Reactive.Disposables;
-using System.Reactive;
-using System.Runtime.InteropServices;
 using OpenCV.Net;
 using System.Threading.Tasks;
 

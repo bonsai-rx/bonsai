@@ -1,10 +1,5 @@
 ﻿using Bonsai.Expressions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ZedGraph;
 
 namespace Bonsai.Design.Visualizers
 {

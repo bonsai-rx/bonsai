@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Bonsai.Dag
+﻿namespace Bonsai.Dag
 {
     /// <summary>
     /// Represents a serializable descriptor of an edge connecting two nodes in a directed graph.

@@ -1,15 +1,9 @@
 ﻿using Bonsai.Design;
-using Bonsai.Expressions;
 using OpenCV.Net;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing.Design;
-using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Windows.Forms.Design;
 
 namespace Bonsai.Dsp.Design

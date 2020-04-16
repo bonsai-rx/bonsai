@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Bonsai;
+﻿using Bonsai;
 using Bonsai.Vision.Design;
 using OpenCV.Net;
-using Bonsai.Design;
 using Bonsai.Vision;
 
 [assembly: TypeVisualizer(typeof(ConnectedComponentCollectionVisualizer), Target = typeof(ConnectedComponentCollection))]

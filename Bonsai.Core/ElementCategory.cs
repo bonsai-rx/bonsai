@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Bonsai.Expressions;
-
-namespace Bonsai
+﻿namespace Bonsai
 {
     /// <summary>
     /// Specifies the category of a workflow element.

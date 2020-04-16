@@ -1,10 +1,8 @@
 ﻿using OpenTK;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
 
 namespace Bonsai.Shaders
 {

@@ -1,9 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq.Expressions;
-using Bonsai.Expressions;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
 
 namespace Bonsai.Core.Tests
 {

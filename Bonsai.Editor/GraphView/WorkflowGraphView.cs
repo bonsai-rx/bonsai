@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Bonsai.Expressions;
 using System.Xml.Linq;
@@ -19,7 +16,6 @@ using System.Reflection;
 using Microsoft.CSharp;
 using System.CodeDom;
 using System.Drawing.Design;
-using Bonsai.Editor;
 using System.Reactive.Disposables;
 using Bonsai.Editor.Themes;
 using Bonsai.Design;

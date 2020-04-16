@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Bonsai;
 using Bonsai.Vision.Design;
 using OpenCV.Net;
-using Bonsai.Design;
 using Bonsai.Vision;
 using System.Windows.Forms;
-using System.Drawing;
 
 [assembly: TypeVisualizer(typeof(ContoursVisualizer), Target = typeof(Contours))]
 

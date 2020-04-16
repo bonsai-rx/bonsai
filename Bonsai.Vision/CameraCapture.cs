@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using OpenCV.Net;
-using System.Threading;
 using System.Reactive.Linq;
 using System.ComponentModel;
-using System.Reactive.Disposables;
 using System.Threading.Tasks;
 
 namespace Bonsai.Vision

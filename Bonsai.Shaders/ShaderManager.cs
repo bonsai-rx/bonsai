@@ -1,14 +1,9 @@
 ﻿using Bonsai.Shaders.Configuration;
-using OpenTK;
 using OpenTK.Graphics;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Text;
 using System.Threading;
 
 namespace Bonsai.Osc.Net

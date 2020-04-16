@@ -2,13 +2,6 @@
 using Bonsai.Vision;
 using Bonsai.Vision.Design;
 using OpenCV.Net;
-using OpenTK.Graphics.OpenGL;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Point = OpenCV.Net.Point;
 using Size = OpenCV.Net.Size;
 

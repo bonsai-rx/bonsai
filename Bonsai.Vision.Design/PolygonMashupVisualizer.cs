@@ -2,10 +2,6 @@
 using Bonsai.Design;
 using Bonsai.Vision.Design;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 [assembly: TypeVisualizer(typeof(PolygonMashupVisualizer), Target = typeof(VisualizerMashup<ImageMashupVisualizer, PolygonVisualizer>))]
 

@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Bonsai.Design;
-using System.Windows.Forms;
-using System.Drawing;
 using OpenCV.Net;
 using Bonsai.Expressions;
 using Bonsai.Dag;

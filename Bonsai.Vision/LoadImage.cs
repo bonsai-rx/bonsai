@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using OpenCV.Net;
 using System.ComponentModel;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 
 namespace Bonsai.Vision

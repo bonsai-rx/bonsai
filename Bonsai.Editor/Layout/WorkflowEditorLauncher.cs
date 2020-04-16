@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Drawing;
 using System.Windows.Forms;
-using System.ComponentModel.Design;
 using Bonsai.Expressions;
-using Bonsai.Dag;
 using System.ComponentModel;
 using Bonsai.Editor.GraphView;
 

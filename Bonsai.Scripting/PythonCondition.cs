@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.ComponentModel;
-using Microsoft.Scripting.Hosting;
-using Bonsai.Expressions;
 using System.Reactive.Linq;
-using System.Linq.Expressions;
 
 namespace Bonsai.Scripting
 {

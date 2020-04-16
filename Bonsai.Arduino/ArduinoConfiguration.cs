@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using Bonsai.IO;
-using System.Collections.ObjectModel;
 
 namespace Bonsai.Arduino
 {

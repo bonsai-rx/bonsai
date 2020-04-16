@@ -1,16 +1,9 @@
 ﻿using Bonsai.Expressions;
 using Bonsai.Osc.IO;
-using Bonsai.Osc.Net;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Net.Sockets;
-using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bonsai.Osc
 {

@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using System.IO;
-using System.Reactive.Concurrency;
 
 namespace Bonsai.IO
 {

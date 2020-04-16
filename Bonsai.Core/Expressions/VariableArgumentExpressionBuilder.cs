@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Bonsai.Expressions
+﻿namespace Bonsai.Expressions
 {
     /// <summary>
     /// Provides a base class for expression builders that can have a variable number of

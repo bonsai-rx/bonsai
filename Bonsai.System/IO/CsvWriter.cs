@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -13,7 +12,6 @@ using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using Bonsai.Expressions;
 using System.Text.RegularExpressions;
-using System.Reactive.Concurrency;
 
 namespace Bonsai.IO
 {

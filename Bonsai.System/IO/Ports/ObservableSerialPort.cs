@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using System.IO.Ports;
-using System.Reactive.Subjects;
 using System.Text.RegularExpressions;
 
 namespace Bonsai.IO

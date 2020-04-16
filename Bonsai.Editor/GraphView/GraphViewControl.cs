@@ -2,16 +2,13 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Data;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Collections.ObjectModel;
 using System.Drawing.Drawing2D;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using SvgNet.SvgGdi;
-using System.Drawing.Text;
 
 namespace Bonsai.Editor.GraphView
 {

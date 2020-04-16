@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Bonsai.Design;
 using Bonsai;
 using Bonsai.Vision.Design;
-using OpenCV.Net;
 
 [assembly: TypeVisualizer(typeof(ConnectedComponentCollectionMashupVisualizer), Target = typeof(VisualizerMashup<ImageMashupVisualizer, ConnectedComponentCollectionVisualizer>))]
 

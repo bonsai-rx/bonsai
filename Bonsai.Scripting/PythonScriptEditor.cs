@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Drawing.Design;
 using System.ComponentModel;
-using System.IO;
-using System.Diagnostics;
-using System.Threading;
 using System.Windows.Forms.Design;
 using System.Windows.Forms;
 

@@ -1,23 +1,10 @@
-﻿using Bonsai.Design;
-using Bonsai.NuGet.Properties;
+﻿using Bonsai.NuGet.Properties;
 using NuGet;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Reactive;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
-using System.Runtime.Versioning;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Bonsai.NuGet

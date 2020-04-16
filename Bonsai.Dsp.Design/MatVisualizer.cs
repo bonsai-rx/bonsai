@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Bonsai;
 using Bonsai.Dsp.Design;
 using Bonsai.Design;
 using OpenCV.Net;
 using System.Runtime.InteropServices;
 using System.Reactive.Linq;
-using ZedGraph;
 using System.Windows.Forms;
-using Bonsai.Design.Visualizers;
 
 [assembly: TypeVisualizer(typeof(MatVisualizer), Target = typeof(Mat))]
 

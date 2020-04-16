@@ -3,17 +3,13 @@ using SvgNet.SvgElements;
 using SvgNet.SvgGdi;
 using SvgNet.SvgTypes;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Globalization;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace Bonsai.Editor.GraphView

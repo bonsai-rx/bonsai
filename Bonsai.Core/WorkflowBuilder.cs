@@ -6,8 +6,6 @@ using Bonsai.Dag;
 using System.Xml.Serialization;
 using System.IO;
 using Bonsai.Expressions;
-using System.Linq.Expressions;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Xml.Schema;

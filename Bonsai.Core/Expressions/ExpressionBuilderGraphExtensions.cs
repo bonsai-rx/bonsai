@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Bonsai.Dag;
 using System.Linq.Expressions;
 using System.Reactive.Disposables;
-using System.Reflection;
-using System.Threading;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Concurrency;

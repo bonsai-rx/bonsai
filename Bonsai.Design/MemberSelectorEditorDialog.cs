@@ -1,15 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using System.Reflection;
-using System.Collections.ObjectModel;
-using Microsoft.CSharp;
-using System.CodeDom;
 
 namespace Bonsai.Design
 {

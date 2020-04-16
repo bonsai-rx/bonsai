@@ -1,14 +1,6 @@
 ﻿using Bonsai.Shaders.Configuration;
-using OpenTK;
-using OpenTK.Graphics.OpenGL4;
-using OpenTK.Platform;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Bonsai.Shaders
 {

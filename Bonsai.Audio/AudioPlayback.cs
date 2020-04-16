@@ -1,15 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using OpenTK.Audio;
 using OpenTK.Audio.OpenAL;
-using OpenTK;
 using System.ComponentModel;
-using System.Runtime.InteropServices;
 using OpenCV.Net;
 using System.Reactive.Linq;
-using System.Reactive.Disposables;
 
 namespace Bonsai.Audio
 {
