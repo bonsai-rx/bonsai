@@ -3,6 +3,7 @@
   <PropertyGroup>
     <Title>Bonsai - Core Library</Title>
     <Description>Bonsai Core Library containing base classes and workflow infrastructure.</Description>
+    <GenerateDocumentationFile Condition="'$(Configuration)'=='Release'">true</GenerateDocumentationFile>
     <PackageTags>Bonsai Rx Reactive Extensions</PackageTags>
     <RootNamespace>Bonsai</RootNamespace>
     <TargetFramework>net472</TargetFramework>

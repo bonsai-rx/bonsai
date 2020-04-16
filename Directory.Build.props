@@ -9,7 +9,7 @@
     <PackageOutputPath>..\bin\$(Configuration)</PackageOutputPath>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeSymbols Condition="'$(Configuration)'=='Release'">true</IncludeSymbols>
-    <GenerateDocumentationFile Condition="'$(Configuration)'=='Release'">true</GenerateDocumentationFile>
+    <GenerateDocumentationFile Condition="'$(Configuration)'=='Release'">false</GenerateDocumentationFile>
     <LangVersion>8.0</LangVersion>
     <Features>strict</Features>
   </PropertyGroup>
