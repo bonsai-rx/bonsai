@@ -12,6 +12,7 @@ namespace Bonsai.Scripting
     [DefaultProperty("Expression")]
     [WorkflowElementCategory(ElementCategory.Transform)]
     [TypeDescriptionProvider(typeof(ExpressionTransformTypeDescriptionProvider))]
+    [Description("An expression script used to transform individual values of the input sequence.")]
     public class ExpressionTransform : SingleArgumentExpressionBuilder, IScriptingElement
     {
         static readonly MethodInfo selectMethod = typeof(Observable).GetMethods()

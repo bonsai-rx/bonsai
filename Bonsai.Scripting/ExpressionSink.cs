@@ -12,6 +12,7 @@ namespace Bonsai.Scripting
     [DefaultProperty("Expression")]
     [WorkflowElementCategory(ElementCategory.Sink)]
     [TypeDescriptionProvider(typeof(ExpressionSinkTypeDescriptionProvider))]
+    [Description("An expression script used to operate on individual values of the input sequence.")]
     public class ExpressionSink : SingleArgumentExpressionBuilder, IScriptingElement
     {
         static readonly MethodInfo doMethod = typeof(Observable).GetMethods()

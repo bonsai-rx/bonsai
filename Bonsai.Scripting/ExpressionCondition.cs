@@ -12,6 +12,7 @@ namespace Bonsai.Scripting
     [DefaultProperty("Expression")]
     [WorkflowElementCategory(ElementCategory.Condition)]
     [TypeDescriptionProvider(typeof(ExpressionConditionTypeDescriptionProvider))]
+    [Description("An expression script used to determine which values of the input sequence are accepted.")]
     public class ExpressionCondition : SingleArgumentExpressionBuilder, IScriptingElement
     {
         static readonly MethodInfo whereMethod = typeof(Observable).GetMethods()

@@ -13,6 +13,7 @@ namespace Bonsai.Scripting
     [DefaultProperty("Script")]
     [WorkflowElementCategory(ElementCategory.Source)]
     [TypeDescriptionProvider(typeof(PythonSourceTypeDescriptionProvider))]
+    [Description("A Python script used to generate an observable sequence of values.")]
     public class PythonSource : ZeroArgumentExpressionBuilder, IScriptingElement
     {
         public PythonSource()

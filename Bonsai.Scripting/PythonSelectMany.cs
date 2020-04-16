@@ -13,6 +13,7 @@ namespace Bonsai.Scripting
     [DefaultProperty("Script")]
     [WorkflowElementCategory(ElementCategory.Combinator)]
     [TypeDescriptionProvider(typeof(PythonSelectManyTypeDescriptionProvider))]
+    [Description("A Python script used to project each value of the input into an observable sequence.")]
     public class PythonSelectMany : SingleArgumentExpressionBuilder, IScriptingElement
     {
         public PythonSelectMany()

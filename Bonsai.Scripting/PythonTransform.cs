@@ -12,6 +12,7 @@ namespace Bonsai.Scripting
     [DefaultProperty("Script")]
     [WorkflowElementCategory(ElementCategory.Transform)]
     [TypeDescriptionProvider(typeof(PythonTransformTypeDescriptionProvider))]
+    [Description("A Python script used to transform individual values of the input sequence.")]
     public class PythonTransform : SingleArgumentExpressionBuilder, IScriptingElement
     {
         public PythonTransform()
