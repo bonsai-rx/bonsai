@@ -11,7 +11,6 @@
     <PackageOutputPath>..\bin\$(Configuration)</PackageOutputPath>
     <PackageTags>Bonsai Rx $projectname$</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <GenerateDocumentationFile Condition="'$(Configuration)' == 'Release'">true</GenerateDocumentationFile>
     <TargetFramework>net472</TargetFramework>
     <Features>strict</Features>
     <Version>0.1.0</Version>
