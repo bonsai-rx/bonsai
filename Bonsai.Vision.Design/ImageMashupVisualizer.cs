@@ -45,11 +45,11 @@ namespace Bonsai.Vision.Design
         protected virtual void ShowMashup(IList<object> values)
         {
             shownValues = values;
-            foreach (var (value, visualizer) in values.Zip(
+            foreach (var pair in values.Zip(
                 Mashups.Select(xs => (DialogTypeVisualizer)xs.Visualizer).Prepend(this),
-                (value, visualizer) => (value, visualizer)))
+                (value, visualizer) => Tuple.Create(value, visualizer)))
             {
-                visualizer.Show(value);
+                pair.Item2.Show(pair.Item1);
             }
         }
 
@@ -111,6 +111,18 @@ namespace Bonsai.Vision.Design
             updateTimer.Dispose();
             updateTimer = null;
             VisualizerImage = null;
+        }
+    }
+
+    static class EnumerableExtensions
+    {
+        public static IEnumerable<TSource> Prepend<TSource>(this IEnumerable<TSource> source, TSource value)
+        {
+            yield return value;
+            foreach (var x in source)
+            {
+                yield return x;
+            }
         }
     }
 }

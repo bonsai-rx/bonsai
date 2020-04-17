@@ -6,7 +6,7 @@
     <PackageTags>Bonsai Editor Rx Reactive Extensions</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net462</TargetFramework>
     <Version>2.5.0</Version>
   </PropertyGroup>
   <ItemGroup>

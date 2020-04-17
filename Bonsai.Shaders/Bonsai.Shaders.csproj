@@ -4,7 +4,7 @@
     <Title>Bonsai - Shaders Library</Title>
     <Description>Bonsai Shaders Library containing modules for dynamic control of shader primitives.</Description>
     <PackageTags>Bonsai Rx Shaders Graphics OpenGL</PackageTags>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net462</TargetFramework>
     <Version>0.21.0</Version>
   </PropertyGroup>
   <ItemGroup>

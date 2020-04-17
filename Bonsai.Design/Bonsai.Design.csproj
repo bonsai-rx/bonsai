@@ -5,7 +5,7 @@
     <Description>Bonsai Design Library containing base visualizer classes and editor infrastructure.</Description>
     <PackageTags>Bonsai Design Rx Reactive Extensions</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net462</TargetFramework>
     <Version>2.5.0</Version>
   </PropertyGroup>
   <ItemGroup>

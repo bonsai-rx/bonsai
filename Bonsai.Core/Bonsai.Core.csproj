@@ -6,7 +6,7 @@
     <GenerateDocumentationFile Condition="'$(Configuration)'=='Release'">true</GenerateDocumentationFile>
     <PackageTags>Bonsai Rx Reactive Extensions</PackageTags>
     <RootNamespace>Bonsai</RootNamespace>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net462</TargetFramework>
     <Version>2.5.0</Version>
   </PropertyGroup>
   <ItemGroup>

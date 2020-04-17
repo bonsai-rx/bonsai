@@ -5,7 +5,7 @@
     <Description>Bonsai Design Library containing editor classes for IO and other system configurations.</Description>
     <PackageTags>Bonsai Rx Reactive Extensions IO Resources Design</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net462</TargetFramework>
     <Version>2.5.0</Version>
   </PropertyGroup>
   <ItemGroup>
