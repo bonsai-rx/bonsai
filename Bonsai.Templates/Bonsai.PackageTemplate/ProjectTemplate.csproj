@@ -5,13 +5,13 @@
     <Description>A package for the Bonsai visual programming language.</Description>
     <Authors>$registeredorganization$</Authors>
     <Copyright>Copyright © $registeredorganization$ $year$</Copyright>
+    <GeneratePackageOnBuild Condition="'$(Configuration)'=='Release'">true</GeneratePackageOnBuild>
     <ProjectUrl></ProjectUrl>
     <PackageLicenseExpression></PackageLicenseExpression>
     <PackageIcon></PackageIcon>
     <PackageOutputPath>..\bin\$(Configuration)</PackageOutputPath>
     <PackageTags>Bonsai Rx $projectname$</PackageTags>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net462</TargetFramework>
     <Features>strict</Features>
     <Version>0.1.0</Version>
   </PropertyGroup>
