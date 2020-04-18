@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Net;
@@ -280,6 +281,19 @@ namespace Bonsai.NuGet
             };
         }
 
+        static Bitmap ResizeImage(Image image, Size newSize)
+        {
+            var result = new Bitmap(newSize.Width, newSize.Height);
+            using (var graphics = Graphics.FromImage(result))
+            {
+                graphics.SmoothingMode = SmoothingMode.HighQuality;
+                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                graphics.DrawImage(image, 0, 0, newSize.Width, newSize.Height);
+            }
+            return result;
+        }
+
         IObservable<Image> GetPackageIcon(Uri iconUrl)
         {
             if (iconUrl == null) return defaultIcon;
@@ -301,7 +315,7 @@ namespace Bonsai.NuGet
                                               try
                                               {
                                                   var image = Image.FromStream(stream);
-                                                  return Observable.Return(new Bitmap(image, packageIcons.ImageSize));
+                                                  return Observable.Return(ResizeImage(image, packageIcons.ImageSize));
                                               }
                                               catch (ArgumentException) { return defaultIcon; }
                                           }),
