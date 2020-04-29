@@ -3,14 +3,9 @@ using System.IO.Ports;
 
 namespace Bonsai.IO
 {
-    public class SerialPortNameConverter : TypeConverter
+    public class SerialPortNameConverter : StringConverter
     {
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
-        {
-            return true;
-        }
-
-        public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
         {
             return true;
         }
