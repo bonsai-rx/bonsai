@@ -1719,6 +1719,7 @@ namespace Bonsai.Editor
         private void searchTextBox_TextChanged(object sender, EventArgs e)
         {
             toolboxTreeView.BeginUpdate();
+            toolboxTreeView.SelectedNode = null;
             if (string.IsNullOrWhiteSpace(searchTextBox.Text))
             {
                 if (treeCache.Count > 0)
@@ -1730,7 +1731,6 @@ namespace Bonsai.Editor
                     }
                     treeCache.Clear();
                     toolboxTreeView.ShowRootLines = true;
-                    toolboxTreeView.SelectedNode = null;
                 }
             }
             else
