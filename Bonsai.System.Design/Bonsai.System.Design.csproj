@@ -6,7 +6,7 @@
     <PackageTags>Bonsai Rx Reactive Extensions IO Resources Design</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net462</TargetFramework>
-    <Version>2.5.0</Version>
+    <Version>2.5.1</Version>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bonsai.Design\Bonsai.Design.csproj" />
@@ -14,5 +14,10 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Design" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\CollectionEditorControl.resx">
+      <LogicalName>Bonsai.Resources.Design.CollectionEditorControl.resources</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>
