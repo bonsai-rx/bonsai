@@ -321,11 +321,12 @@ namespace Bonsai.Editor
             inverseScaleFactor = new SizeF(1f / factor.Width, 1f / factor.Height);
 
             const float DefaultToolboxSplitterDistance = 245f;
+            var workflowSplitterScale = IsRunningOnMono ? 0.5f : 1.0f;
+            var toolboxSplitterScale = DefaultToolboxSplitterDistance / toolboxSplitContainer.SplitterDistance;
             panelSplitContainer.SplitterDistance = (int)(panelSplitContainer.SplitterDistance * factor.Height);
-            workflowSplitContainer.SplitterDistance = (int)(workflowSplitContainer.SplitterDistance * factor.Height);
+            workflowSplitContainer.SplitterDistance = (int)(workflowSplitContainer.SplitterDistance * workflowSplitterScale * factor.Height);
             propertiesSplitContainer.SplitterDistance = (int)(propertiesSplitContainer.SplitterDistance * factor.Height);
-            var splitterScale = DefaultToolboxSplitterDistance / toolboxSplitContainer.SplitterDistance;
-            toolboxSplitContainer.SplitterDistance = (int)(toolboxSplitContainer.SplitterDistance * splitterScale * factor.Height);
+            toolboxSplitContainer.SplitterDistance = (int)(toolboxSplitContainer.SplitterDistance * toolboxSplitterScale * factor.Height);
             workflowSplitContainer.Panel1.Padding = new Padding(0, 6, 0, 2);
 
             var imageSize = toolStrip.ImageScalingSize;
