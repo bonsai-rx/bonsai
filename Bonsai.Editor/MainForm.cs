@@ -2806,13 +2806,16 @@ namespace Bonsai.Editor
             propertiesLabel.ForeColor = foreColor;
             propertyGrid.BackColor = panelColor;
             propertyGrid.LineColor = colorTable.SeparatorDark;
-            propertyGrid.CategoryForeColor = foreColor;
             propertyGrid.CommandsBackColor = panelColor;
             propertyGrid.HelpBackColor = panelColor;
             propertyGrid.HelpForeColor = foreColor;
             propertyGrid.ViewBackColor = panelColor;
             propertyGrid.ViewForeColor = windowText;
-            if (!IsRunningOnMono) InitializeBorderTheme();
+            if (!IsRunningOnMono)
+            {
+                propertyGrid.CategoryForeColor = foreColor;
+                InitializeBorderTheme();
+            }
 
             toolboxTableLayoutPanel.BackColor = panelColor;
             toolboxSplitContainer.BackColor = panelColor;
