@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -1060,7 +1060,7 @@ namespace Bonsai.Editor
 
         private void browseDirectoryToolStripButton_Click(object sender, EventArgs e)
         {
-            Process.Start(directoryToolStripTextBox.Text);
+            OpenUri(directoryToolStripTextBox.Text);
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2145,11 +2145,11 @@ namespace Bonsai.Editor
 
         #region Help Menu
 
-        private void StartBrowser(string url)
+        private void OpenUri(string url)
         {
             Uri result;
             var validUrl = Uri.TryCreate(url, UriKind.Absolute, out result) &&
-                (result.Scheme == Uri.UriSchemeHttp || result.Scheme == Uri.UriSchemeHttps);
+                (result.Scheme == Uri.UriSchemeFile || result.Scheme == Uri.UriSchemeHttp || result.Scheme == Uri.UriSchemeHttps);
             if (!validUrl)
             {
                 throw new ArgumentException("The URL is malformed.");
@@ -2158,7 +2158,11 @@ namespace Bonsai.Editor
             try
             {
                 Cursor = Cursors.AppStarting;
-                Process.Start(url);
+                if (IsRunningOnMono && Environment.OSVersion.Platform == PlatformID.Unix)
+                {
+                    Process.Start("xdg-open", url);
+                }
+                else Process.Start(url);
             }
             catch { } //best effort
             finally
@@ -2169,17 +2173,17 @@ namespace Bonsai.Editor
 
         private void docsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            StartBrowser("http://bonsai-rx.org/docs/editor/");
+            OpenUri("http://bonsai-rx.org/docs/editor/");
         }
 
         private void forumToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            StartBrowser("https://groups.google.com/forum/#!forum/bonsai-users");
+            OpenUri("https://groups.google.com/forum/#!forum/bonsai-users");
         }
 
         private void reportBugToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            StartBrowser("https://github.com/bonsai-rx/bonsai/issues");
+            OpenUri("https://github.com/bonsai-rx/bonsai/issues");
         }
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
