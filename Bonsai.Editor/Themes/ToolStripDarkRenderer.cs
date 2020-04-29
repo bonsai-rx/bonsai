@@ -28,14 +28,17 @@ namespace Bonsai.Editor.Themes
 
         protected override void OnRenderItemImage(ToolStripItemImageRenderEventArgs e)
         {
-            Image image;
-            if (!itemImages.TryGetValue(e.Image, out image))
+            if (e.Image != null)
             {
-                image = ThemeHelper.Invert(e.Image);
-                itemImages.Add(e.Image, image);
-            }
+                Image image;
+                if (!itemImages.TryGetValue(e.Image, out image))
+                {
+                    image = ThemeHelper.Invert(e.Image);
+                    itemImages.Add(e.Image, image);
+                }
 
-            e = new ToolStripItemImageRenderEventArgs(e.Graphics, e.Item, image, e.ImageRectangle);
+                e = new ToolStripItemImageRenderEventArgs(e.Graphics, e.Item, image, e.ImageRectangle);
+            }
             base.OnRenderItemImage(e);
         }
     }
