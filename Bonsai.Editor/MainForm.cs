@@ -166,6 +166,12 @@ namespace Bonsai.Editor
             toolboxElements = elementProvider;
             visualizerElements = visualizerProvider;
             Application.AddMessageFilter(hotKeys);
+
+            if (IsRunningOnMono)
+            {
+                editorControl.Enter += delegate { menuStrip.Enabled = false; };
+                editorControl.Leave += delegate { menuStrip.Enabled = true; };
+            }
             components.Add(editorControl);
         }
 
