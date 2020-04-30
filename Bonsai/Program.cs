@@ -187,7 +187,7 @@ namespace Bonsai
                     }
                 }
             }
-            else if (Bootstrapper.GetEditorPackage(packageConfiguration, editorRepositoryPath, editorPath, editorPackageName) != null)
+            else if (Bootstrapper.GetEditorPackage(packageConfiguration, editorRepositoryPath, editorPath, editorPackageName, launchEditor) != null)
             {
                 args = Array.FindAll(args, arg => arg != DebugScriptCommand);
                 do

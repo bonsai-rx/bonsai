@@ -56,7 +56,8 @@ namespace Bonsai
             PackageConfiguration packageConfiguration,
             string editorRepositoryPath,
             string editorPath,
-            IPackageName editorPackageName)
+            IPackageName editorPackageName,
+            bool showDialog)
         {
             const string OldExtension = ".old";
             var backupExePath = editorPath + OldExtension;
@@ -67,15 +68,17 @@ namespace Bonsai
             }
 
             var packageManager = CreatePackageManager(editorRepositoryPath);
+            if (!showDialog) packageManager.Logger = ConsoleLogger.Default;
             var missingPackages = GetMissingPackages(packageConfiguration.Packages, packageManager.LocalRepository).ToList();
             if (missingPackages.Count > 0)
             {
-                EnableVisualStyles();
+                if (showDialog) EnableVisualStyles();
                 using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageName))
                 {
-                    PackageHelper.RunPackageOperation(packageManager, () =>
-                        Task.Factory.ContinueWhenAll(missingPackages.Select(package =>
-                        packageManager.StartRestorePackage(package.Id, ParseVersion(package.Version))).ToArray(), operations =>
+                    Task RestoreMissingPackages()
+                    {
+                        var restoreTasks = missingPackages.Select(package => packageManager.StartRestorePackage(package.Id, ParseVersion(package.Version)));
+                        return Task.Factory.ContinueWhenAll(restoreTasks.ToArray(), operations =>
                         {
                             foreach (var task in operations)
                             {
@@ -99,27 +102,38 @@ namespace Bonsai
                             }
 
                             Task.WaitAll(operations);
-                        }));
+                        });
+                    };
+
+                    if (!showDialog) RestoreMissingPackages().Wait();
+                    else PackageHelper.RunPackageOperation(packageManager, RestoreMissingPackages);
                 }
             }
 
             var editorPackage = packageManager.LocalRepository.FindPackage(editorPackageName.Id);
             if (editorPackage == null || editorPackage.Version < editorPackageName.Version)
             {
-                EnableVisualStyles();
+                if (showDialog) EnableVisualStyles();
                 using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageName))
                 {
-                    PackageHelper.RunPackageOperation(
-                        packageManager,
-                        () => packageManager
+                    Task RestoreEditorPackage()
+                    {
+                        return packageManager
                             .StartInstallPackage(editorPackageName.Id, editorPackageName.Version)
-                            .ContinueWith(task => editorPackage = task.Result),
+                            .ContinueWith(task => editorPackage = task.Result);
+                    };
+
+                    if (!showDialog) RestoreEditorPackage().Wait();
+                    else PackageHelper.RunPackageOperation(
+                        packageManager,
+                        RestoreEditorPackage,
                         operationLabel: editorPackage != null ? "Updating..." : null);
                     if (editorPackage == null)
                     {
                         var assemblyName = Assembly.GetEntryAssembly().GetName();
                         var errorMessage = editorPackage == null ? Resources.InstallEditorPackageError : Resources.UpdateEditorPackageError;
-                        MessageBox.Show(errorMessage, assemblyName.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        if (!showDialog) ConsoleLogger.Default.Log(MessageLevel.Error, errorMessage);
+                        else MessageBox.Show(errorMessage, assemblyName.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return null;
                     }
                 }
