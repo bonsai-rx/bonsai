@@ -320,7 +320,8 @@ namespace Bonsai.Editor
 
             const float DefaultToolboxSplitterDistance = 245f;
             var workflowSplitterScale = IsRunningOnMono ? 0.5f : 1.0f;
-            var toolboxSplitterScale = DefaultToolboxSplitterDistance / toolboxSplitContainer.SplitterDistance;
+            var toolboxSplitterScale = IsRunningOnMono ? 0.75f : 1.0f;
+            toolboxSplitterScale *= DefaultToolboxSplitterDistance / toolboxSplitContainer.SplitterDistance;
             panelSplitContainer.SplitterDistance = (int)(panelSplitContainer.SplitterDistance * factor.Height);
             workflowSplitContainer.SplitterDistance = (int)(workflowSplitContainer.SplitterDistance * workflowSplitterScale * factor.Height);
             propertiesSplitContainer.SplitterDistance = (int)(propertiesSplitContainer.SplitterDistance * factor.Height);
