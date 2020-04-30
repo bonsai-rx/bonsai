@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -285,7 +285,7 @@ namespace Bonsai.Editor
             InitializeSubjectSources().TakeUntil(formClosed).Subscribe();
             InitializeWorkflowFileWatcher().TakeUntil(formClosed).Subscribe();
             updatesAvailable.TakeUntil(formClosed).ObserveOn(formScheduler).Subscribe(HandleUpdatesAvailable);
-            directoryToolStripTextBox.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+            directoryToolStripLabel.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
 
             InitializeEditorToolboxTypes();
             var shutdown = ShutdownSequence();
@@ -970,7 +970,7 @@ namespace Bonsai.Editor
         {
             var workflowDirectory = Path.GetDirectoryName(fileName);
             openWorkflowDialog.InitialDirectory = saveWorkflowDialog.InitialDirectory = workflowDirectory;
-            if (setWorkingDirectory && directoryToolStripTextBox.Text != workflowDirectory)
+            if (setWorkingDirectory && directoryToolStripLabel.Text != workflowDirectory)
             {
                 Environment.CurrentDirectory = workflowDirectory;
                 saveWorkflowDialog.FileName = fileName;
@@ -983,17 +983,6 @@ namespace Bonsai.Editor
                 EditorSettings.Instance.RecentlyUsedFiles.Add(fileName);
                 EditorSettings.Instance.Save();
             }
-        }
-
-        void UpdateCurrentDirectory()
-        {
-            if (Directory.Exists(directoryToolStripTextBox.Text))
-            {
-                Environment.CurrentDirectory = directoryToolStripTextBox.Text;
-                extensionsPath = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, ExtensionsDirectory));
-                OnExtensionsDirectoryChanged(EventArgs.Empty);
-            }
-            else directoryToolStripTextBox.Text = Environment.CurrentDirectory;
         }
 
         void ExportImage(WorkflowGraphView model)
@@ -1032,35 +1021,9 @@ namespace Bonsai.Editor
             }
         }
 
-        private void directoryToolStripTextBox_TextChanged(object sender, EventArgs e)
-        {
-            if (!directoryToolStripTextBox.Focused)
-            {
-                UpdateCurrentDirectory();
-            }
-        }
-
-        private void directoryToolStripTextBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Return)
-            {
-                ProcessTabKey(true);
-            }
-        }
-
-        private void directoryToolStripTextBox_Leave(object sender, EventArgs e)
-        {
-            UpdateCurrentDirectory();
-        }
-
-        private void directoryToolStripTextBox_DoubleClick(object sender, EventArgs e)
-        {
-            directoryToolStripTextBox.SelectAll();
-        }
-
         private void browseDirectoryToolStripButton_Click(object sender, EventArgs e)
         {
-            OpenUri(directoryToolStripTextBox.Text);
+            OpenUri(directoryToolStripLabel.Text);
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1992,17 +1955,10 @@ namespace Bonsai.Editor
 
         private void copyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (directoryToolStripTextBox.Focused)
+            var model = selectionModel.SelectedView;
+            if (model.GraphView.Focused)
             {
-                directoryToolStripTextBox.Copy();
-            }
-            else
-            {
-                var model = selectionModel.SelectedView;
-                if (model.GraphView.Focused)
-                {
-                    model.CopyToClipboard();
-                }
+                model.CopyToClipboard();
             }
         }
 
@@ -2013,17 +1969,10 @@ namespace Bonsai.Editor
 
         private void pasteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (directoryToolStripTextBox.Focused)
+            var model = selectionModel.SelectedView;
+            if (model.GraphView.Focused)
             {
-                directoryToolStripTextBox.Paste();
-            }
-            else
-            {
-                var model = selectionModel.SelectedView;
-                if (model.GraphView.Focused)
-                {
-                    model.PasteFromClipboard();
-                }
+                model.PasteFromClipboard();
             }
         }
 
@@ -2819,6 +2768,9 @@ namespace Bonsai.Editor
             menuStrip.ForeColor = SystemColors.ControlText;
             toolStrip.Renderer = themeRenderer.ToolStripRenderer;
             statusStrip.Renderer = themeRenderer.ToolStripRenderer;
+            directoryToolStripLabel.BorderStyle = themeRenderer.ActiveTheme == ColorTheme.Light
+                ? Border3DStyle.Flat
+                : Border3DStyle.SunkenOuter;
 
             var searchLayoutTop = propertiesLabel.Height + searchTextBox.Top + 1;
             var labelOffset = searchLayoutTop - editorControl.ItemHeight;

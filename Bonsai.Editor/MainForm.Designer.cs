@@ -104,7 +104,7 @@
             this.stopToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.restartToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.helpToolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
-            this.directoryToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
+            this.directoryToolStripLabel = new Bonsai.Editor.ToolStripConstrainedStatusLabel();
             this.browseDirectoryToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
             this.editExtensionsToolStripButton = new System.Windows.Forms.ToolStripButton();
@@ -659,7 +659,7 @@
             this.stopToolStripButton,
             this.restartToolStripButton,
             this.helpToolStripSeparator,
-            this.directoryToolStripTextBox,
+            this.directoryToolStripLabel,
             this.browseDirectoryToolStripButton,
             this.toolStripSeparator9,
             this.editExtensionsToolStripButton,
@@ -788,15 +788,14 @@
             this.helpToolStripSeparator.Name = "helpToolStripSeparator";
             this.helpToolStripSeparator.Size = new System.Drawing.Size(6, 25);
             // 
-            // directoryToolStripTextBox
+            // directoryToolStripLabel
             // 
-            this.directoryToolStripTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.directoryToolStripTextBox.Name = "directoryToolStripTextBox";
-            this.directoryToolStripTextBox.Size = new System.Drawing.Size(200, 25);
-            this.directoryToolStripTextBox.Leave += new System.EventHandler(this.directoryToolStripTextBox_Leave);
-            this.directoryToolStripTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.directoryToolStripTextBox_KeyDown);
-            this.directoryToolStripTextBox.DoubleClick += new System.EventHandler(this.directoryToolStripTextBox_DoubleClick);
-            this.directoryToolStripTextBox.TextChanged += new System.EventHandler(this.directoryToolStripTextBox_TextChanged);
+            this.directoryToolStripLabel.AutoToolTip = true;
+            this.directoryToolStripLabel.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.All;
+            this.directoryToolStripLabel.MaximumSize = new System.Drawing.Size(200, 0);
+            this.directoryToolStripLabel.Name = "directoryToolStripLabel";
+            this.directoryToolStripLabel.Size = new System.Drawing.Size(200, 25);
+            this.directoryToolStripLabel.Spring = true;
             // 
             // browseDirectoryToolStripButton
             // 
@@ -1328,7 +1327,7 @@
         private System.Windows.Forms.SplitContainer workflowSplitContainer;
         private System.Windows.Forms.ToolStripSeparator editToolStripSeparator;
         private System.Windows.Forms.ToolStripSeparator helpToolStripSeparator;
-        private System.Windows.Forms.ToolStripTextBox directoryToolStripTextBox;
+        private Bonsai.Editor.ToolStripConstrainedStatusLabel directoryToolStripLabel;
         private System.Windows.Forms.ToolStripButton browseDirectoryToolStripButton;
         private Bonsai.Editor.SelectableSplitContainer toolboxSplitContainer;
         private Bonsai.Editor.BorderPanel toolboxDescriptionPanel;
