@@ -71,6 +71,19 @@ namespace Bonsai.Editor.Themes
             base.OnRenderToolStripBorder(e);
         }
 
+        protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
+        {
+            var statusLabel = e.Item as ToolStripStatusLabel;
+            if (statusLabel != null && statusLabel.Spring)
+            {
+                TextRenderer.DrawText(e.Graphics, e.Text, e.TextFont,
+                    new Rectangle(Point.Empty, e.TextRectangle.Size),
+                    e.TextColor, Color.Transparent,
+                    TextFormatFlags.Default);
+            }
+            else base.OnRenderItemText(e);
+        }
+
         protected override void InitializeItem(ToolStripItem item)
         {
             var dropDown = item as ToolStripDropDownItem;

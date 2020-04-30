@@ -61,7 +61,7 @@ namespace Bonsai.Editor
         Dictionary<string, string> propertyAssignments;
         Dictionary<string, TreeNode> toolboxCategories;
         List<TreeNode> treeCache;
-        Label statusTextLabel;
+        ToolStripStatusLabel statusTextLabel;
         Bitmap statusRunningImage;
         ThemeRenderer themeRenderer;
         SvgRendererFactory iconRenderer;
@@ -111,8 +111,8 @@ namespace Bonsai.Editor
             }
 
             InitializeComponent();
-            statusTextLabel = new Label();
-            statusTextLabel.AutoSize = true;
+            statusTextLabel = new ToolStripStatusLabel();
+            statusTextLabel.Spring = true;
             statusTextLabel.Text = Resources.ReadyStatus;
             formScheduler = new FormScheduler(this);
             themeRenderer = new ThemeRenderer();
@@ -126,9 +126,7 @@ namespace Bonsai.Editor
             statusUpdateAvailableLabel.Image = Resources.StatusUpdateAvailable;
             statusRunningImage = Resources.StatusRunningImage;
             searchTextBox.CueBanner = Resources.SearchModuleCueBanner;
-            statusStrip.Items.Add(new ToolStripControlHost(statusTextLabel));
-            statusStrip.SizeChanged += new EventHandler(statusStrip_SizeChanged);
-            UpdateStatusLabelSize();
+            statusStrip.Items.Add(statusTextLabel);
 
             toolboxCategories = new Dictionary<string, TreeNode>();
             foreach (TreeNode node in toolboxTreeView.Nodes)
@@ -2753,17 +2751,6 @@ namespace Bonsai.Editor
         #endregion
 
         #region StatusStrip Controller
-
-        void UpdateStatusLabelSize()
-        {
-            var statusSize = statusStrip.Size;
-            statusTextLabel.MaximumSize = new Size(statusSize.Width - statusImageLabel.Width * 2, 0);
-        }
-
-        void statusStrip_SizeChanged(object sender, EventArgs e)
-        {
-            UpdateStatusLabelSize();
-        }
 
         private void statusCopyToolStripMenuItem_Click(object sender, EventArgs e)
         {
