@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -255,22 +254,28 @@ namespace Bonsai
             var elementProvider = WorkflowElementLoader.GetWorkflowElementTypes(packageConfiguration);
             var visualizerProvider = TypeVisualizerLoader.GetTypeVisualizerDictionary(packageConfiguration);
             var packageManager = CreatePackageManager(editorRepositoryPath);
-            var updatesAvailable = Observable.Start(() => packageManager.SourceRepository.GetUpdates(
-                packageManager.LocalRepository.GetPackages(),
-                includePrerelease: false,
-                includeAllVersions: false).Any())
-                .Catch(Observable.Return(false));
+            var updatesAvailable = Task.Factory.StartNew(() =>
+            {
+                try
+                {
+                    return packageManager.SourceRepository.GetUpdates(
+                        packageManager.LocalRepository.GetPackages(),
+                        includePrerelease: false,
+                        includeAllVersions: false).Any();
+                }
+                catch { return false; }
+            });
 
             EnableVisualStyles();
             using (var mainForm = new MainForm(elementProvider, visualizerProvider, scriptEnvironment, editorScale))
             {
+                updatesAvailable.ContinueWith(task => mainForm.UpdatesAvailable = task.Result);
                 mainForm.FileName = initialFileName;
                 mainForm.PropertyAssignments.AddRange(propertyAssignments);
                 mainForm.LoadAction =
                     start && debugging ? LoadAction.Start :
                     start ? LoadAction.StartWithoutDebugging :
                     LoadAction.None;
-                updatesAvailable.Subscribe(value => mainForm.UpdatesAvailable = value);
                 Application.Run(mainForm);
                 var editorFlags = mainForm.UpdatesAvailable ? EditorFlags.UpdatesAvailable : EditorFlags.None;
                 if (scriptEnvironment.DebugScripts) editorFlags |= EditorFlags.DebugScripts;

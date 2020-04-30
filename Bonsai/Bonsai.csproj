@@ -6,7 +6,7 @@
     <PackageTags>Bonsai Rx Reactive Extensions</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net472</TargetFramework>
-    <Version>2.5.0</Version>
+    <Version>2.5.1</Version>
     <OutputType>Exe</OutputType>
     <ApplicationIcon>..\Bonsai.Editor\Bonsai.ico</ApplicationIcon>
     <ApplicationManifest>App.manifest</ApplicationManifest>
