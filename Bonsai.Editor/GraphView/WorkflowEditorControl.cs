@@ -11,7 +11,6 @@ namespace Bonsai.Editor.GraphView
     {
         IServiceProvider serviceProvider;
         IWorkflowEditorService editorService;
-        WorkflowSelectionModel selectionModel;
         TabPageController workflowTab;
         TabPageController activeTab;
         Padding? adjustMargin;
@@ -30,7 +29,6 @@ namespace Bonsai.Editor.GraphView
 
             InitializeComponent();
             serviceProvider = provider;
-            selectionModel = (WorkflowSelectionModel)provider.GetService(typeof(WorkflowSelectionModel));
             editorService = (IWorkflowEditorService)provider.GetService(typeof(IWorkflowEditorService));
             workflowTab = InitializeTab(workflowTabPage, readOnly, null);
             InitializeTheme(workflowTabPage);
