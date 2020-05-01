@@ -26,9 +26,10 @@ namespace Bonsai.Shaders
 
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
-            return updateFrame.Generate().Publish(update =>
+            var dueTime = DueTime.TotalSeconds;
+            if (dueTime == 0) return source;
+            else return updateFrame.Generate().Publish(update =>
             {
-                var dueTime = DueTime.TotalSeconds;
                 var elapsedTime = update.Scan(0.0, (elapsed, evt) => elapsed + evt.TimeStep.ElapsedTime);
                 var due = elapsedTime.FirstAsync(elapsed => elapsed > dueTime);
                 return source.SelectMany(input => due.Select(x => input));
