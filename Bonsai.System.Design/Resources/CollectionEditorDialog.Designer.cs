@@ -52,7 +52,7 @@
             this.propertyGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.propertyGrid.Location = new System.Drawing.Point(242, 25);
+            this.propertyGrid.Location = new System.Drawing.Point(249, 25);
             this.propertyGrid.Name = "propertyGrid";
             this.propertyGrid.Size = new System.Drawing.Size(228, 275);
             this.propertyGrid.TabIndex = 14;
@@ -63,7 +63,7 @@
             this.propertiesLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.propertiesLabel.AutoSize = true;
-            this.propertiesLabel.Location = new System.Drawing.Point(239, 9);
+            this.propertiesLabel.Location = new System.Drawing.Point(246, 9);
             this.propertiesLabel.Name = "propertiesLabel";
             this.propertiesLabel.Size = new System.Drawing.Size(57, 13);
             this.propertiesLabel.TabIndex = 12;
@@ -73,7 +73,7 @@
             // 
             this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cancelButton.Location = new System.Drawing.Point(395, 306);
+            this.cancelButton.Location = new System.Drawing.Point(402, 306);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
             this.cancelButton.TabIndex = 11;
@@ -84,7 +84,7 @@
             // 
             this.okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.okButton.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.okButton.Location = new System.Drawing.Point(314, 306);
+            this.okButton.Location = new System.Drawing.Point(321, 306);
             this.okButton.Name = "okButton";
             this.okButton.Size = new System.Drawing.Size(75, 23);
             this.okButton.TabIndex = 10;
@@ -96,10 +96,8 @@
             this.collectionEditorControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.collectionEditorControl.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.collectionEditorControl.CollectionItemType = null;
             this.collectionEditorControl.Location = new System.Drawing.Point(12, 25);
             this.collectionEditorControl.Name = "collectionEditorControl";
-            this.collectionEditorControl.NewItemTypes = null;
             this.collectionEditorControl.SelectedItem = null;
             this.collectionEditorControl.Size = new System.Drawing.Size(205, 275);
             this.collectionEditorControl.TabIndex = 15;
@@ -111,7 +109,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cancelButton;
-            this.ClientSize = new System.Drawing.Size(484, 341);
+            this.ClientSize = new System.Drawing.Size(491, 341);
             this.Controls.Add(this.collectionEditorControl);
             this.Controls.Add(this.memberLabel);
             this.Controls.Add(this.propertyGrid);
@@ -120,7 +118,7 @@
             this.Controls.Add(this.okButton);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(484, 341);
+            this.MinimumSize = new System.Drawing.Size(491, 341);
             this.Name = "CollectionEditorDialog";
             this.ShowIcon = false;
             this.Text = "Collection Editor";

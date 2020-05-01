@@ -44,7 +44,7 @@
             this.selectionListBox.Location = new System.Drawing.Point(3, 4);
             this.selectionListBox.Name = "selectionListBox";
             this.selectionListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.selectionListBox.Size = new System.Drawing.Size(156, 160);
+            this.selectionListBox.Size = new System.Drawing.Size(187, 160);
             this.selectionListBox.TabIndex = 0;
             this.selectionListBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.selectionListBox_DrawItem);
             this.selectionListBox.SelectedIndexChanged += new System.EventHandler(this.selectionListBox_SelectedIndexChanged);
@@ -54,9 +54,9 @@
             // 
             // removeButton
             // 
-            this.removeButton.Location = new System.Drawing.Point(84, 170);
+            this.removeButton.Location = new System.Drawing.Point(99, 170);
             this.removeButton.Name = "removeButton";
-            this.removeButton.Size = new System.Drawing.Size(75, 23);
+            this.removeButton.Size = new System.Drawing.Size(90, 23);
             this.removeButton.TabIndex = 3;
             this.removeButton.Text = "Remove";
             this.removeButton.UseVisualStyleBackColor = true;
@@ -65,7 +65,7 @@
             // upButton
             // 
             this.upButton.Image = ((System.Drawing.Image)(resources.GetObject("upButton.Image")));
-            this.upButton.Location = new System.Drawing.Point(165, 4);
+            this.upButton.Location = new System.Drawing.Point(196, 4);
             this.upButton.Name = "upButton";
             this.upButton.Size = new System.Drawing.Size(24, 24);
             this.upButton.TabIndex = 5;
@@ -75,7 +75,7 @@
             // downButton
             // 
             this.downButton.Image = ((System.Drawing.Image)(resources.GetObject("downButton.Image")));
-            this.downButton.Location = new System.Drawing.Point(165, 34);
+            this.downButton.Location = new System.Drawing.Point(196, 34);
             this.downButton.Name = "downButton";
             this.downButton.Size = new System.Drawing.Size(24, 24);
             this.downButton.TabIndex = 6;
@@ -86,7 +86,7 @@
             // 
             this.addButton.Location = new System.Drawing.Point(3, 170);
             this.addButton.Name = "addButton";
-            this.addButton.Size = new System.Drawing.Size(75, 23);
+            this.addButton.Size = new System.Drawing.Size(90, 23);
             this.addButton.TabIndex = 7;
             this.addButton.Text = "Add";
             this.addButton.UseVisualStyleBackColor = true;

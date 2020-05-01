@@ -15,19 +15,15 @@ namespace Bonsai.Resources.Design
     {
         Type[] newItemTypes;
         Type collectionItemType;
-        readonly Type collectionType;
 
         public CollectionEditor(Type type)
         {
-            collectionType = type;
+            CollectionType = type ?? throw new ArgumentNullException(nameof(type));
         }
 
-        protected Type CollectionType
-        {
-            get { return collectionType; }
-        }
+        protected Type CollectionType { get; }
 
-        protected Type CollectionItemType
+        protected internal Type CollectionItemType
         {
             get
             {
@@ -40,7 +36,7 @@ namespace Bonsai.Resources.Design
             }
         }
 
-        protected Type[] NewItemTypes
+        protected internal Type[] NewItemTypes
         {
             get
             {
@@ -55,7 +51,7 @@ namespace Bonsai.Resources.Design
 
         protected virtual Type CreateCollectionItemType()
         {
-            var defaultMember = TypeDescriptor.GetReflectionType(collectionType)
+            var defaultMember = TypeDescriptor.GetReflectionType(CollectionType)
                 .GetDefaultMembers()
                 .OfType<PropertyInfo>()
                 .FirstOrDefault();
@@ -71,9 +67,15 @@ namespace Bonsai.Resources.Design
             return newItemTypes.ToArray();
         }
 
+        protected internal virtual string GetDisplayText(object value)
+        {
+            if (value == null) return CollectionItemType.ToString();
+            return value.ToString();
+        }
+
         protected virtual CollectionEditorDialog CreateEditorDialog()
         {
-            return new CollectionEditorDialog();
+            return new CollectionEditorDialog(this);
         }
 
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
@@ -101,12 +103,9 @@ namespace Bonsai.Resources.Design
             {
                 using (var collectionForm = CreateEditorDialog())
                 {
-                    var itemType = CreateCollectionItemType();
                     collectionForm.ServiceProvider = provider;
-                    collectionForm.CollectionItemType = itemType;
-                    collectionForm.NewItemTypes = NewItemTypes;
                     collectionForm.Items = value as IEnumerable;
-                    collectionForm.Text = itemType.Name + " " + collectionForm.Text;
+                    collectionForm.Text = CollectionItemType.Name + " " + collectionForm.Text;
                     if (editorService.ShowDialog(collectionForm) == DialogResult.OK)
                     {
                         SetItems(value, collectionForm.Items);

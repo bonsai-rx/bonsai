@@ -1,9 +1,9 @@
-﻿using Bonsai.Design;
+﻿using Bonsai.Resources.Design;
 using System;
 
 namespace Bonsai.Shaders.Configuration.Design
 {
-    public class UniformConfigurationCollectionEditor : DescriptiveCollectionEditor
+    public class UniformConfigurationCollectionEditor : CollectionEditor
     {
         public UniformConfigurationCollectionEditor(Type type)
             : base(type)

@@ -12,9 +12,10 @@ namespace Bonsai.Resources.Design
         int initialCollectionEditorHeight;
         EditorSite editorSite;
 
-        internal CollectionEditorDialog()
+        internal CollectionEditorDialog(CollectionEditor editor)
         {
             InitializeComponent();
+            collectionEditorControl.Editor = editor;
             editorSite = new EditorSite(this);
             propertyGrid.Site = editorSite;
         }
@@ -24,18 +25,6 @@ namespace Bonsai.Resources.Design
         internal CollectionEditorControl EditorControl
         {
             get { return collectionEditorControl; }
-        }
-
-        public Type CollectionItemType
-        {
-            get { return collectionEditorControl.CollectionItemType; }
-            internal set { collectionEditorControl.CollectionItemType = value; }
-        }
-
-        public Type[] NewItemTypes
-        {
-            get { return collectionEditorControl.NewItemTypes; }
-            internal set { collectionEditorControl.NewItemTypes = value; }
         }
 
         public IEnumerable Items

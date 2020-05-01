@@ -18,19 +18,17 @@ namespace Bonsai.Resources.Design
         int initialHeight;
         int initialListHeight;
         const int ButtonMargin = 2;
-        static readonly object AfterExpandEvent = new object();
-        static readonly object BeforeExpandEvent = new object();
         static readonly object SelectedItemChangedEvent = new object();
+        static readonly CollectionEditor DefaultEditor = new CollectionEditor(typeof(object));
         Lazy<XmlSerializer> itemCollectionSerializer;
 
         public CollectionEditorControl()
         {
             InitializeComponent();
+            Editor = DefaultEditor;
         }
 
-        public Type CollectionItemType { get; set; }
-
-        public Type[] NewItemTypes { get; set; }
+        internal CollectionEditor Editor { get; set; }
 
         public override bool AllowDrop
         {
@@ -68,16 +66,6 @@ namespace Bonsai.Resources.Design
             remove { Events.RemoveHandler(SelectedItemChangedEvent, value); }
         }
 
-        void SetExpanded(bool expanded)
-        {
-            selectionListBox.Visible = expanded;
-            addButton.Visible = expanded;
-            removeButton.Visible = expanded;
-            upButton.Visible = expanded;
-            downButton.Visible = expanded;
-            OnSelectedItemChanged(EventArgs.Empty);
-        }
-
         private void OnSelectedItemChanged(EventArgs e)
         {
             var handler = (EventHandler)Events[SelectedItemChangedEvent];
@@ -94,8 +82,8 @@ namespace Bonsai.Resources.Design
             initialHeight = Height;
             initialListHeight = selectionListBox.Height;
             itemCollectionSerializer = new Lazy<XmlSerializer>(() =>
-                new XmlSerializer(typeof(List<>).MakeGenericType(CollectionItemType)));
-            var itemTypes = NewItemTypes ?? new[] { CollectionItemType };
+                new XmlSerializer(typeof(List<>).MakeGenericType(Editor.CollectionItemType)));
+            var itemTypes = Editor.NewItemTypes ?? new[] { Editor.CollectionItemType };
             if (itemTypes.Length > 1)
             {
                 var menuStrip = new ContextMenuStrip();
@@ -235,7 +223,7 @@ namespace Bonsai.Resources.Design
                 using (var writer = XmlWriter.Create(stringBuilder, new XmlWriterSettings { Indent = true }))
                 {
                     var serializer = itemCollectionSerializer.Value;
-                    var items = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(CollectionItemType));
+                    var items = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(Editor.CollectionItemType));
                     foreach (var item in selectionListBox.SelectedItems)
                     {
                         items.Add(item);
@@ -282,8 +270,8 @@ namespace Bonsai.Resources.Design
 
         private void addButton_Click(object sender, EventArgs e)
         {
-            var itemTypes = NewItemTypes;
-            var itemType = itemTypes != null && itemTypes.Length > 0 ? itemTypes[0] : CollectionItemType;
+            var itemTypes = Editor.NewItemTypes;
+            var itemType = itemTypes != null && itemTypes.Length > 0 ? itemTypes[0] : Editor.CollectionItemType;
             var item = CreateInstance(itemType);
             AddItem(item);
         }
@@ -356,7 +344,7 @@ namespace Bonsai.Resources.Design
                     itemBrush = Brushes.White;
                 }
 
-                var itemText = selectionListBox.Items[e.Index].ToString();
+                var itemText = Editor.GetDisplayText(selectionListBox.Items[e.Index]);
                 var itemExtent = (int)e.Graphics.MeasureString(itemText, e.Font).Width + buttonBounds.Width;
                 selectionListBox.HorizontalExtent = Math.Max(selectionListBox.HorizontalExtent, itemExtent);
                 e.Graphics.DrawString(itemText, e.Font, itemBrush, itemBounds, StringFormat.GenericDefault);

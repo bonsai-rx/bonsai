@@ -1,9 +1,9 @@
-﻿using Bonsai.Design;
+﻿using Bonsai.Resources.Design;
 using System;
 
 namespace Bonsai.Shaders.Configuration.Design
 {
-    public class FramebufferAttachmentConfigurationCollectionEditor : DescriptiveCollectionEditor
+    public class FramebufferAttachmentConfigurationCollectionEditor : CollectionEditor
     {
         const string BaseText = "Attach";
 
