@@ -68,7 +68,12 @@ namespace Bonsai
             }
 
             var packageManager = CreatePackageManager(editorRepositoryPath);
-            if (!showDialog) packageManager.Logger = ConsoleLogger.Default;
+            if (!showDialog)
+            {
+                packageManager.Logger = ConsoleLogger.Default;
+                packageManager.RequiringLicenseAcceptance += (sender, e) => e.LicenseAccepted = true;
+            }
+
             var missingPackages = GetMissingPackages(packageConfiguration.Packages, packageManager.LocalRepository).ToList();
             if (missingPackages.Count > 0)
             {
