@@ -39,7 +39,9 @@ namespace Bonsai.Shaders
 
         public override IObservable<long> Generate()
         {
-            return Generate(updateFrame.Generate());
+            return Generate(Observable.Concat(
+                Observable.Return(0.0),
+                updateFrame.Generate().Select(evt => evt.TimeStep.ElapsedTime)));
         }
 
         public IObservable<long> Generate(IObservable<FrameEvent> source)

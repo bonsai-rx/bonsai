@@ -6,6 +6,8 @@ namespace Bonsai.Shaders
 {
     public struct TimeStep : IEquatable<TimeStep>
     {
+        public static readonly TimeStep Zero = new TimeStep();
+
         public double ElapsedTime;
         public double ElapsedRealTime;
 
