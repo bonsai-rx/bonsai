@@ -23,7 +23,7 @@ namespace Bonsai
         const string ProjectFileTemplate = @"<Project Sdk=""Microsoft.NET.Sdk"">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
 
 </Project>";
