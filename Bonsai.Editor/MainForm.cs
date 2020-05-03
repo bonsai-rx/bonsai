@@ -291,7 +291,19 @@ namespace Bonsai.Editor
             InitializeSubjectSources().TakeUntil(formClosed).Subscribe();
             InitializeWorkflowFileWatcher().TakeUntil(formClosed).Subscribe();
             updatesAvailable.TakeUntil(formClosed).ObserveOn(formScheduler).Subscribe(HandleUpdatesAvailable);
-            directoryToolStripLabel.Text = !currentDirectoryRestricted ? currentDirectory : (validFileName ? Path.GetDirectoryName(initialFileName) : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+
+            var workflowBaseDirectory = validFileName
+                ? Path.GetDirectoryName(initialFileName)
+                : (!currentDirectoryRestricted ? currentDirectory : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+            if (currentDirectoryRestricted)
+            {
+                currentDirectory = workflowBaseDirectory;
+                Environment.CurrentDirectory = currentDirectory;
+            }
+
+            directoryToolStripLabel.Text = currentDirectory;
+            extensionsPath = new DirectoryInfo(Path.Combine(workflowBaseDirectory, ExtensionsDirectory));
+            if (extensionsPath.Exists) OnExtensionsDirectoryChanged(EventArgs.Empty);
 
             InitializeEditorToolboxTypes();
             var shutdown = ShutdownSequence();
@@ -521,7 +533,7 @@ namespace Bonsai.Editor
         static IEnumerable<WorkflowElementDescriptor> FindWorkflows(string basePath)
         {
             int basePathLength;
-            var workflowFiles = default(string[]);
+            string[] workflowFiles;
             if (!Path.IsPathRooted(basePath))
             {
                 var currentDirectory = Environment.CurrentDirectory;
