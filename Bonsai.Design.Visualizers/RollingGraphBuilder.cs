@@ -17,8 +17,17 @@ namespace Bonsai.Design.Visualizers
         public string IndexSelector { get; set; }
 
         [Editor("Bonsai.Design.MultiMemberSelectorEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
-        [Description("The inner properties that will be displayed in the graph.")]
-        public string ElementSelector { get; set; }
+        [Description("The inner properties that will be used as values for the graph.")]
+        public string ValueSelector { get; set; }
+
+        public bool ShouldSerializeElementSelector() => false;
+
+        [Browsable(false)]
+        public string ElementSelector
+        {
+            get { return ValueSelector; }
+            set { ValueSelector = value; }
+        }
 
         internal VisualizerController Controller { get; set; }
 
@@ -27,6 +36,7 @@ namespace Bonsai.Design.Visualizers
             internal int NumSeries;
             internal Type IndexType;
             internal string IndexLabel;
+            internal string[] ValueLabels;
             internal Action<object, RollingGraphView> Show;
         }
 
@@ -64,7 +74,9 @@ namespace Bonsai.Design.Visualizers
             }
 
             Expression showBody;
-            var selectedMembers = ExpressionHelper.SelectMembers(elementVariable, ElementSelector)
+            var memberNames = ExpressionHelper.SelectMemberNames(ValueSelector).ToArray();
+            if (memberNames.Length == 0) memberNames = new[] { ExpressionHelper.ImplicitParameterName };
+            var selectedMembers = memberNames.Select(name => ExpressionHelper.MemberAccess(elementVariable, name))
                 .SelectMany(GraphHelper.UnwrapMemberAccess)
                 .Select(x => x.Type.IsArray ? x : Expression.Convert(x, typeof(object))).ToArray();
             if (selectedMembers.Length == 1 && selectedMembers[0].Type.IsArray)
@@ -76,6 +88,7 @@ namespace Bonsai.Design.Visualizers
             }
             else
             {
+                Controller.ValueLabels = memberNames;
                 var selectedValues = Expression.NewArrayInit(typeof(object), selectedMembers);
                 showBody = Expression.Block(new[] { elementVariable },
                     Expression.Assign(elementVariable, Expression.Convert(valueParameter, parameterType)),

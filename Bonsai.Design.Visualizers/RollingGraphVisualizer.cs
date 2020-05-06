@@ -63,12 +63,7 @@ namespace Bonsai.Design.Visualizers
             view.Dock = System.Windows.Forms.DockStyle.Fill;
             GraphHelper.FormatOrdinalAxis(view.Graph.GraphPane.XAxis, controller.IndexType);
             GraphHelper.SetAxisLabel(view.Graph.GraphPane.XAxis, controller.IndexLabel);
-            view.Graph.GraphPane.XAxis.ScaleFormatEvent += (graph, axis, value, index) =>
-            {
-                if (view.NumSeries == 0) return null;
-                var series = graph.CurveList[0];
-                return index < series.NPts ? series[index].Tag as string : null;
-            };
+            GraphHelper.SetAxisMultiLabel(view.Graph.GraphPane, view.Graph.GraphPane.YAxis, controller.ValueLabels);
 
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
             if (visualizerService != null)
