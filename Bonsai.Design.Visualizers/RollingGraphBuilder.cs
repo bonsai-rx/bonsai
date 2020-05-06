@@ -49,28 +49,28 @@ namespace Bonsai.Design.Visualizers
             var elementVariable = Expression.Variable(parameterType);
             Controller = new VisualizerController();
 
-            Expression selectedX;
-            var selectorX = IndexSelector;
-            if (!string.IsNullOrEmpty(selectorX))
+            Expression selectedIndex;
+            var indexSelector = IndexSelector;
+            if (!string.IsNullOrEmpty(indexSelector))
             {
-                selectedX = ExpressionHelper.SelectMembers(elementVariable, selectorX).First();
-                Controller.IndexLabel = selectorX;
+                selectedIndex = ExpressionHelper.SelectMembers(elementVariable, indexSelector).First();
+                Controller.IndexLabel = indexSelector;
             }
             else
             {
-                selectedX = Expression.Property(null, typeof(DateTime), nameof(DateTime.Now));
+                selectedIndex = Expression.Property(null, typeof(DateTime), nameof(DateTime.Now));
                 Controller.IndexLabel = "Time";
             }
 
-            if (selectedX.Type == typeof(DateTimeOffset)) selectedX = Expression.Property(selectedX, nameof(DateTimeOffset.DateTime));
-            if (selectedX.Type == typeof(DateTime))
+            if (selectedIndex.Type == typeof(DateTimeOffset)) selectedIndex = Expression.Property(selectedIndex, nameof(DateTimeOffset.DateTime));
+            if (selectedIndex.Type == typeof(DateTime))
             {
-                selectedX = Expression.Convert(selectedX, typeof(ZedGraph.XDate));
+                selectedIndex = Expression.Convert(selectedIndex, typeof(ZedGraph.XDate));
             }
-            Controller.IndexType = selectedX.Type;
-            if (selectedX.Type != typeof(double) && selectedX.Type != typeof(string))
+            Controller.IndexType = selectedIndex.Type;
+            if (selectedIndex.Type != typeof(double) && selectedIndex.Type != typeof(string))
             {
-                selectedX = Expression.Convert(selectedX, typeof(double));
+                selectedIndex = Expression.Convert(selectedIndex, typeof(double));
             }
 
             Expression showBody;
@@ -84,7 +84,7 @@ namespace Bonsai.Design.Visualizers
                 var selectedValues = Expression.Convert(selectedMembers[0], typeof(Array));
                 showBody = Expression.Block(new[] { elementVariable },
                     Expression.Assign(elementVariable, Expression.Convert(valueParameter, parameterType)),
-                    Expression.Call(typeof(RollingGraphBuilder), nameof(ShowArrayValues), null, viewParameter, selectedX, selectedValues));
+                    Expression.Call(typeof(RollingGraphBuilder), nameof(ShowArrayValues), null, viewParameter, selectedIndex, selectedValues));
             }
             else
             {
@@ -92,7 +92,7 @@ namespace Bonsai.Design.Visualizers
                 var selectedValues = Expression.NewArrayInit(typeof(object), selectedMembers);
                 showBody = Expression.Block(new[] { elementVariable },
                     Expression.Assign(elementVariable, Expression.Convert(valueParameter, parameterType)),
-                    Expression.Call(viewParameter, nameof(RollingGraphView.AddValues), null, selectedX, selectedValues));
+                    Expression.Call(viewParameter, nameof(RollingGraphView.AddValues), null, selectedIndex, selectedValues));
             }
 
             Controller.NumSeries = selectedMembers.Length;
