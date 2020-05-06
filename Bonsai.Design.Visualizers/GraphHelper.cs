@@ -31,12 +31,18 @@ namespace Bonsai.Design.Visualizers
             {
                 GraphHelper.FormatDateAxis(axis);
             }
+            else if (type == typeof(string))
+            {
+                axis.Type = AxisType.Text;
+                axis.MinorTic.IsAllTics = false;
+            }
             else
             {
                 axis.Type = AxisType.LinearAsOrdinal;
                 if (type.IsPrimitive && IsIntegralType(type))
                 {
                     axis.Scale.Format = "F0";
+                    axis.MinorTic.IsAllTics = false;
                 }
                 else axis.Scale.Format = "F2";
             }
