@@ -95,6 +95,64 @@ namespace Bonsai.Design.Visualizers
             }
         }
 
+        internal static Expression SelectIndexMember(Expression expression, string indexSelector, out string indexLabel)
+        {
+            Expression selectedIndex;
+            if (!string.IsNullOrEmpty(indexSelector))
+            {
+                selectedIndex = ExpressionHelper.SelectMembers(expression, indexSelector).First();
+                indexLabel = indexSelector;
+            }
+            else
+            {
+                selectedIndex = Expression.Property(null, typeof(DateTime), nameof(DateTime.Now));
+                indexLabel = "Time";
+            }
+
+            if (selectedIndex.Type == typeof(DateTimeOffset)) selectedIndex = Expression.Property(selectedIndex, nameof(DateTimeOffset.DateTime));
+            if (selectedIndex.Type == typeof(DateTime))
+            {
+                selectedIndex = Expression.Convert(selectedIndex, typeof(ZedGraph.XDate));
+            }
+
+            return selectedIndex;
+        }
+
+        internal static Expression SelectDataValues(Expression expression, string valueSelector, out string[] valueLabels)
+        {
+            Expression selectedValues;
+            var memberNames = ExpressionHelper.SelectMemberNames(valueSelector).ToArray();
+            if (memberNames.Length == 0) memberNames = new[] { ExpressionHelper.ImplicitParameterName };
+            var selectedMembers = memberNames.Select(name => ExpressionHelper.MemberAccess(expression, name))
+                .SelectMany(UnwrapMemberAccess)
+                .Select(x => x.Type.IsArray ? x : Expression.Convert(x, typeof(double))).ToArray();
+            if (selectedMembers.Length == 1 && selectedMembers[0].Type.IsArray)
+            {
+                valueLabels = null;
+                selectedValues = selectedMembers[0];
+                if (selectedValues.Type != typeof(double[]))
+                {
+                    var elementType = selectedValues.Type.GetElementType();
+                    var arrayElement = Expression.Parameter(elementType);
+                    var typeArguments = new[] { elementType, typeof(double) };
+                    var converterType = typeof(Converter<,>).MakeGenericType(typeArguments);
+                    selectedValues = Expression.Call(
+                        typeof(Array),
+                        nameof(Array.ConvertAll),
+                        typeArguments,
+                        selectedValues,
+                        Expression.Lambda(converterType, Expression.Convert(arrayElement, typeof(double)), arrayElement));
+                }
+            }
+            else
+            {
+                valueLabels = memberNames;
+                selectedValues = Expression.NewArrayInit(typeof(double), selectedMembers);
+            }
+
+            return selectedValues;
+        }
+
         static IEnumerable<MemberInfo> GetDataMembers(Type type)
         {
             var members = Enumerable.Concat<MemberInfo>(
@@ -111,7 +169,7 @@ namespace Bonsai.Design.Visualizers
                           .Except(type.GetDefaultMembers());
         }
 
-        internal static IEnumerable<Expression> UnwrapMemberAccess(Expression expression)
+        static IEnumerable<Expression> UnwrapMemberAccess(Expression expression)
         {
             if (expression.Type == typeof(string) || IsNullable(expression.Type)) yield return expression;
             else if (expression.Type.IsPrimitive || expression.Type.IsEnum || expression.Type.IsArray ||

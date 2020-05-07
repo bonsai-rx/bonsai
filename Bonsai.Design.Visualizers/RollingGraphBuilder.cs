@@ -1,4 +1,4 @@
-using Bonsai.Expressions;
+﻿using Bonsai.Expressions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 
 namespace Bonsai.Design.Visualizers
 {
-    [DefaultProperty("ElementSelector")]
+    [DefaultProperty(nameof(ValueSelector))]
     [TypeVisualizer(typeof(RollingGraphVisualizer))]
     [Description("A visualizer that plots each element of the sequence as a rolling graph.")]
     public class RollingGraphBuilder : SingleArgumentExpressionBuilder
@@ -49,66 +49,18 @@ namespace Bonsai.Design.Visualizers
             var elementVariable = Expression.Variable(parameterType);
             Controller = new VisualizerController();
 
-            Expression selectedIndex;
-            var indexSelector = IndexSelector;
-            if (!string.IsNullOrEmpty(indexSelector))
-            {
-                selectedIndex = ExpressionHelper.SelectMembers(elementVariable, indexSelector).First();
-                Controller.IndexLabel = indexSelector;
-            }
-            else
-            {
-                selectedIndex = Expression.Property(null, typeof(DateTime), nameof(DateTime.Now));
-                Controller.IndexLabel = "Time";
-            }
-
-            if (selectedIndex.Type == typeof(DateTimeOffset)) selectedIndex = Expression.Property(selectedIndex, nameof(DateTimeOffset.DateTime));
-            if (selectedIndex.Type == typeof(DateTime))
-            {
-                selectedIndex = Expression.Convert(selectedIndex, typeof(ZedGraph.XDate));
-            }
+            var selectedIndex = GraphHelper.SelectIndexMember(elementVariable, IndexSelector, out Controller.IndexLabel);
             Controller.IndexType = selectedIndex.Type;
             if (selectedIndex.Type != typeof(double) && selectedIndex.Type != typeof(string))
             {
                 selectedIndex = Expression.Convert(selectedIndex, typeof(double));
             }
 
-            Expression showBody;
-            var memberNames = ExpressionHelper.SelectMemberNames(ValueSelector).ToArray();
-            if (memberNames.Length == 0) memberNames = new[] { ExpressionHelper.ImplicitParameterName };
-            var selectedMembers = memberNames.Select(name => ExpressionHelper.MemberAccess(elementVariable, name))
-                .SelectMany(GraphHelper.UnwrapMemberAccess)
-                .Select(x => x.Type.IsArray ? x : Expression.Convert(x, typeof(double))).ToArray();
-            if (selectedMembers.Length == 1 && selectedMembers[0].Type.IsArray)
-            {
-                var selectedValues = selectedMembers[0];
-                if (selectedValues.Type != typeof(double[]))
-                {
-                    var elementType = selectedValues.Type.GetElementType();
-                    var arrayElement = Expression.Parameter(elementType);
-                    var typeArguments = new[] { elementType, typeof(double) };
-                    var converterType = typeof(Converter<,>).MakeGenericType(typeArguments);
-                    selectedValues = Expression.Call(
-                        typeof(Array),
-                        nameof(Array.ConvertAll),
-                        typeArguments,
-                        selectedValues,
-                        Expression.Lambda(converterType, Expression.Convert(arrayElement, typeof(double)), arrayElement));
-                }
-                showBody = Expression.Block(new[] { elementVariable },
-                    Expression.Assign(elementVariable, Expression.Convert(valueParameter, parameterType)),
-                    Expression.Call(typeof(RollingGraphBuilder), nameof(ShowArrayValues), null, viewParameter, selectedIndex, selectedValues));
-            }
-            else
-            {
-                Controller.ValueLabels = memberNames;
-                var selectedValues = Expression.NewArrayInit(typeof(double), selectedMembers);
-                showBody = Expression.Block(new[] { elementVariable },
-                    Expression.Assign(elementVariable, Expression.Convert(valueParameter, parameterType)),
-                    Expression.Call(viewParameter, nameof(RollingGraphView.AddValues), null, selectedIndex, selectedValues));
-            }
-
-            Controller.NumSeries = selectedMembers.Length;
+            var selectedValues = GraphHelper.SelectDataValues(elementVariable, ValueSelector, out Controller.ValueLabels);
+            Controller.NumSeries = Controller.ValueLabels == null ? 1 : Controller.ValueLabels.Length;
+            var showBody = Expression.Block(new[] { elementVariable },
+                Expression.Assign(elementVariable, Expression.Convert(valueParameter, parameterType)),
+                Expression.Call(typeof(RollingGraphBuilder), nameof(ShowArrayValues), null, viewParameter, selectedIndex, selectedValues));
             Controller.Show = Expression.Lambda<Action<object, RollingGraphView>>(showBody, valueParameter, viewParameter).Compile();
             return Expression.Call(typeof(RollingGraphBuilder), nameof(Process), new[] { parameterType }, source);
         }
