@@ -5,7 +5,7 @@ namespace Bonsai.Design.Visualizers
 {
     class BooleanTimeSeriesView : RollingGraphView
     {
-        object[] previousValues;
+        double[] previousValues;
 
         public BooleanTimeSeriesView()
         {
@@ -28,7 +28,7 @@ namespace Bonsai.Design.Visualizers
             base.OnLoad(e);
         }
 
-        public override void AddValues(double index, params object[] values)
+        public override void AddValues(double index, params double[] values)
         {
             if (previousValues != null) base.AddValues(index, previousValues);
             base.AddValues(index, values);

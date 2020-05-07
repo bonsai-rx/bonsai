@@ -1,4 +1,4 @@
-﻿using Bonsai.Expressions;
+using Bonsai.Expressions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -78,10 +78,23 @@ namespace Bonsai.Design.Visualizers
             if (memberNames.Length == 0) memberNames = new[] { ExpressionHelper.ImplicitParameterName };
             var selectedMembers = memberNames.Select(name => ExpressionHelper.MemberAccess(elementVariable, name))
                 .SelectMany(GraphHelper.UnwrapMemberAccess)
-                .Select(x => x.Type.IsArray ? x : Expression.Convert(x, typeof(object))).ToArray();
+                .Select(x => x.Type.IsArray ? x : Expression.Convert(x, typeof(double))).ToArray();
             if (selectedMembers.Length == 1 && selectedMembers[0].Type.IsArray)
             {
-                var selectedValues = Expression.Convert(selectedMembers[0], typeof(Array));
+                var selectedValues = selectedMembers[0];
+                if (selectedValues.Type != typeof(double[]))
+                {
+                    var elementType = selectedValues.Type.GetElementType();
+                    var arrayElement = Expression.Parameter(elementType);
+                    var typeArguments = new[] { elementType, typeof(double) };
+                    var converterType = typeof(Converter<,>).MakeGenericType(typeArguments);
+                    selectedValues = Expression.Call(
+                        typeof(Array),
+                        nameof(Array.ConvertAll),
+                        typeArguments,
+                        selectedValues,
+                        Expression.Lambda(converterType, Expression.Convert(arrayElement, typeof(double)), arrayElement));
+                }
                 showBody = Expression.Block(new[] { elementVariable },
                     Expression.Assign(elementVariable, Expression.Convert(valueParameter, parameterType)),
                     Expression.Call(typeof(RollingGraphBuilder), nameof(ShowArrayValues), null, viewParameter, selectedIndex, selectedValues));
@@ -89,7 +102,7 @@ namespace Bonsai.Design.Visualizers
             else
             {
                 Controller.ValueLabels = memberNames;
-                var selectedValues = Expression.NewArrayInit(typeof(object), selectedMembers);
+                var selectedValues = Expression.NewArrayInit(typeof(double), selectedMembers);
                 showBody = Expression.Block(new[] { elementVariable },
                     Expression.Assign(elementVariable, Expression.Convert(valueParameter, parameterType)),
                     Expression.Call(viewParameter, nameof(RollingGraphView.AddValues), null, selectedIndex, selectedValues));
@@ -100,13 +113,13 @@ namespace Bonsai.Design.Visualizers
             return Expression.Call(typeof(RollingGraphBuilder), nameof(Process), new[] { parameterType }, source);
         }
 
-        static void ShowArrayValues(RollingGraphView view, string index, Array values)
+        static void ShowArrayValues(RollingGraphView view, string index, double[] values)
         {
             if (values.Length != view.Graph.NumSeries) view.Graph.NumSeries = values.Length;
             view.Graph.AddValues(0, index, values);
         }
 
-        static void ShowArrayValues(RollingGraphView view, double index, Array values)
+        static void ShowArrayValues(RollingGraphView view, double index, double[] values)
         {
             if (values.Length != view.Graph.NumSeries) view.Graph.NumSeries = values.Length;
             view.Graph.AddValues(index, values);

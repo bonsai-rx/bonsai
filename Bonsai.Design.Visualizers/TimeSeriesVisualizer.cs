@@ -112,7 +112,13 @@ namespace Bonsai.Design.Visualizers
             }
         }
 
+        [Obsolete]
         protected void AddValue(DateTime time, params object[] value)
+        {
+            AddValue(time, Array.ConvertAll(value, x => Convert.ToDouble(x)));
+        }
+
+        protected void AddValue(DateTime time, params double[] value)
         {
             view.AddValues((XDate)time, value);
             UpdateView(time);
@@ -120,7 +126,7 @@ namespace Bonsai.Design.Visualizers
 
         public override void Show(object value)
         {
-            AddValue(DateTime.Now, value);
+            AddValue(DateTime.Now, Convert.ToDouble(value));
         }
 
         public override void Load(IServiceProvider provider)

@@ -1,4 +1,5 @@
-﻿using System.Reactive;
+﻿using System;
+using System.Reactive;
 using Bonsai;
 using Bonsai.Design.Visualizers;
 
@@ -19,7 +20,7 @@ namespace Bonsai.Design.Visualizers
         public override void Show(object value)
         {
             var timestamped = (Timestamped<T>)value;
-            AddValue(timestamped.Timestamp.DateTime, timestamped.Value);
+            AddValue(timestamped.Timestamp.DateTime, Convert.ToDouble(timestamped.Value));
         }
     }
 }

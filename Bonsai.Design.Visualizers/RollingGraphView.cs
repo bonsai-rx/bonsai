@@ -99,12 +99,12 @@ namespace Bonsai.Design.Visualizers
             base.OnLoad(e);
         }
 
-        public void AddValues(string index, params object[] values)
+        public void AddValues(string index, params double[] values)
         {
             graph.AddValues(0, index, values);
         }
 
-        public virtual void AddValues(double index, params object[] values)
+        public virtual void AddValues(double index, params double[] values)
         {
             graph.AddValues(index, values);
         }
