@@ -2776,39 +2776,36 @@ namespace Bonsai.Editor
         private void InitializeTheme()
         {
             var colorTable = themeRenderer.ToolStripRenderer.ColorTable;
-            var foreColor = colorTable.ControlForeColor;
-            var backColor = colorTable.ControlBackColor;
             var panelColor = colorTable.ContentPanelBackColor;
-            var windowBackColor = colorTable.WindowBackColor;
             var windowText = colorTable.WindowText;
-            ForeColor = foreColor;
-            BackColor = backColor;
+            ForeColor = colorTable.ControlForeColor;
+            BackColor = colorTable.ControlBackColor;
             propertiesSplitContainer.BackColor = panelColor;
             propertiesLabel.BackColor = colorTable.SeparatorDark;
-            propertiesLabel.ForeColor = foreColor;
+            propertiesLabel.ForeColor = ForeColor;
             propertyGrid.BackColor = panelColor;
             propertyGrid.LineColor = colorTable.SeparatorDark;
             propertyGrid.CommandsBackColor = panelColor;
             propertyGrid.HelpBackColor = panelColor;
-            propertyGrid.HelpForeColor = foreColor;
+            propertyGrid.HelpForeColor = ForeColor;
             propertyGrid.ViewBackColor = panelColor;
             propertyGrid.ViewForeColor = windowText;
             if (!IsRunningOnMono)
             {
-                propertyGrid.CategoryForeColor = foreColor;
+                propertyGrid.CategoryForeColor = ForeColor;
                 InitializeBorderTheme();
             }
 
             toolboxTableLayoutPanel.BackColor = panelColor;
             toolboxSplitContainer.BackColor = panelColor;
             toolboxLabel.BackColor = colorTable.SeparatorDark;
-            toolboxLabel.ForeColor = foreColor;
+            toolboxLabel.ForeColor = ForeColor;
             toolboxTreeView.BackColor = panelColor;
             toolboxTreeView.ForeColor = windowText;
             toolboxDescriptionTextBox.BackColor = panelColor;
-            toolboxDescriptionTextBox.ForeColor = foreColor;
+            toolboxDescriptionTextBox.ForeColor = ForeColor;
             propertiesDescriptionTextBox.BackColor = panelColor;
-            propertiesDescriptionTextBox.ForeColor = foreColor;
+            propertiesDescriptionTextBox.ForeColor = ForeColor;
             menuStrip.ForeColor = SystemColors.ControlText;
             toolStrip.Renderer = themeRenderer.ToolStripRenderer;
             statusStrip.Renderer = themeRenderer.ToolStripRenderer;

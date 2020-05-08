@@ -61,10 +61,6 @@ namespace Bonsai.Design.Visualizers
                 selectedIndex = Expression.Call(selectedIndex, nameof(ToString), null);
             }
 
-            var baseAxis = BaseAxis;
-            var ordinalValue = Expression.Default(typeof(double));
-            var baseX = Expression.Constant(baseAxis <= BarBase.X2);
-            var pointConstructor = typeof(PointPair).GetConstructor(new[] { typeof(double), typeof(double), typeof(string) });
             var selectedValues = GraphHelper.SelectDataValues(elementVariable, ValueSelector, out Controller.ValueLabels);
             var addValuesBody = Expression.Block(new[] { elementVariable },
                 Expression.Assign(elementVariable, Expression.Convert(valueParameter, parameterType)),
