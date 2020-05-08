@@ -66,6 +66,7 @@ namespace Bonsai.Editor
         ThemeRenderer themeRenderer;
         SvgRendererFactory iconRenderer;
         ToolStripButton statusUpdateAvailableLabel;
+        ToolStripItem directoryToolStripItem;
         BehaviorSubject<bool> updatesAvailable;
         DirectoryInfo extensionsPath;
         FormScheduler formScheduler;
@@ -127,6 +128,19 @@ namespace Bonsai.Editor
             statusRunningImage = Resources.StatusRunningImage;
             searchTextBox.CueBanner = Resources.SearchModuleCueBanner;
             statusStrip.Items.Add(statusTextLabel);
+
+            directoryToolStripItem = directoryToolStripTextBox;
+            if (IsRunningOnMono)
+            {
+                var directoryToolStripLabel = new ToolStripConstrainedStatusLabel();
+                directoryToolStripLabel.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.All;
+                directoryToolStripLabel.MaximumSize = new System.Drawing.Size(250, 0);
+                directoryToolStripLabel.Spring = true;
+                var textBoxIndex = toolStrip.Items.IndexOf(directoryToolStripTextBox);
+                toolStrip.Items.RemoveAt(textBoxIndex);
+                toolStrip.Items.Insert(textBoxIndex, directoryToolStripLabel);
+                directoryToolStripItem = directoryToolStripLabel;
+            }
 
             toolboxCategories = new Dictionary<string, TreeNode>();
             foreach (TreeNode node in toolboxTreeView.Nodes)
@@ -301,7 +315,7 @@ namespace Bonsai.Editor
                 Environment.CurrentDirectory = currentDirectory;
             }
 
-            directoryToolStripLabel.Text = currentDirectory;
+            directoryToolStripItem.Text = currentDirectory;
             extensionsPath = new DirectoryInfo(Path.Combine(workflowBaseDirectory, ExtensionsDirectory));
             if (extensionsPath.Exists) OnExtensionsDirectoryChanged(EventArgs.Empty);
 
@@ -988,7 +1002,7 @@ namespace Bonsai.Editor
         {
             var workflowDirectory = Path.GetDirectoryName(fileName);
             openWorkflowDialog.InitialDirectory = saveWorkflowDialog.InitialDirectory = workflowDirectory;
-            if (setWorkingDirectory && directoryToolStripLabel.Text != workflowDirectory)
+            if (setWorkingDirectory && directoryToolStripItem.Text != workflowDirectory)
             {
                 Environment.CurrentDirectory = workflowDirectory;
                 saveWorkflowDialog.FileName = fileName;
@@ -1039,9 +1053,14 @@ namespace Bonsai.Editor
             }
         }
 
+        private void directoryToolStripTextBox_DoubleClick(object sender, EventArgs e)
+        {
+            directoryToolStripTextBox.SelectAll();
+        }
+
         private void browseDirectoryToolStripButton_Click(object sender, EventArgs e)
         {
-            OpenUri(directoryToolStripLabel.Text);
+            OpenUri(directoryToolStripItem.Text);
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1973,10 +1992,17 @@ namespace Bonsai.Editor
 
         private void copyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var model = selectionModel.SelectedView;
-            if (model.GraphView.Focused)
+            if (directoryToolStripTextBox.Focused)
             {
-                model.CopyToClipboard();
+                directoryToolStripTextBox.Copy();
+            }
+            else
+            {
+                var model = selectionModel.SelectedView;
+                if (model.GraphView.Focused)
+                {
+                    model.CopyToClipboard();
+                }
             }
         }
 
@@ -2786,9 +2812,6 @@ namespace Bonsai.Editor
             menuStrip.ForeColor = SystemColors.ControlText;
             toolStrip.Renderer = themeRenderer.ToolStripRenderer;
             statusStrip.Renderer = themeRenderer.ToolStripRenderer;
-            directoryToolStripLabel.BorderStyle = themeRenderer.ActiveTheme == ColorTheme.Light
-                ? Border3DStyle.Flat
-                : Border3DStyle.SunkenOuter;
 
             var searchLayoutTop = propertiesLabel.Height + searchTextBox.Top + 1;
             var labelOffset = searchLayoutTop - editorControl.ItemHeight;

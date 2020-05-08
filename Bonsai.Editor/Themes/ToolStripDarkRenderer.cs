@@ -13,6 +13,13 @@ namespace Bonsai.Editor.Themes
         {
         }
 
+        protected override void InitializeItem(ToolStripItem item)
+        {
+            item.BackColor = ColorTable.ControlBackColor;
+            item.ForeColor = ColorTable.ControlForeColor;
+            base.InitializeItem(item);
+        }
+
         protected override void OnRenderArrow(ToolStripArrowRenderEventArgs e)
         {
             e.ArrowColor = ColorTable.ControlForeColor;

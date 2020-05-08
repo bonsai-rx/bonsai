@@ -95,8 +95,6 @@ namespace Bonsai.Editor.Themes
                 }
             }
 
-            item.BackColor = ColorTable.ControlBackColor;
-            item.ForeColor = ColorTable.ControlForeColor;
             base.InitializeItem(item);
         }
     }
