@@ -83,7 +83,7 @@ namespace Bonsai.Design.Visualizers
                         ? (IPointListEdit)new RollingPointPairList(controller.Capacity)
                         : new PointPairList();
                     var barItem = new BarItem(labelBars ? controller.ValueLabels[i] : null, values, color);
-                    barItem.Bar.Fill.Brush = new SolidBrush(color);
+                    barItem.Bar.Fill.Type = FillType.Solid;
                     barItem.Bar.Border.IsVisible = false;
                     graph.GraphPane.CurveList.Add(barItem);
                     barSeries[i] = values;

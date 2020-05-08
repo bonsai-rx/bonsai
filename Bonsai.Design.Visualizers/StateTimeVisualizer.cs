@@ -73,8 +73,8 @@ namespace Bonsai.Design.Visualizers
             graph.GraphPane.XAxis.MajorGrid.DashOff = 0;
             Graph.GraphPane.XAxis.Title.IsVisible = true;
             Graph.GraphPane.XAxis.Title.Text = "State";
-            var barSeries = new BarItem(string.Empty, values, Color.Navy);
-            barSeries.Bar.Fill.Brush = new SolidBrush(graph.GetNextColor());
+            var barSeries = new BarItem(string.Empty, values, graph.GetNextColor());
+            barSeries.Bar.Fill.Type = FillType.Solid;
             barSeries.Bar.Border.IsVisible = false;
             graph.GraphPane.CurveList.Add(barSeries);
 
