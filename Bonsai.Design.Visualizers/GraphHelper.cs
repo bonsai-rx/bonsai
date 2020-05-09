@@ -10,6 +10,8 @@ namespace Bonsai.Design.Visualizers
 {
     static class GraphHelper
     {
+        static ConstructorInfo NewPointPair = typeof(PointPair).GetConstructor(new[] { typeof(double), typeof(double) });
+
         internal static void SetAxisLabel(Axis axis, string label)
         {
             axis.Title.Text = label;
@@ -129,20 +131,7 @@ namespace Bonsai.Design.Visualizers
             if (selectedMembers.Length == 1 && selectedMembers[0].Type.IsArray)
             {
                 valueLabels = null;
-                selectedValues = selectedMembers[0];
-                if (selectedValues.Type != typeof(double[]))
-                {
-                    var elementType = selectedValues.Type.GetElementType();
-                    var arrayElement = Expression.Parameter(elementType);
-                    var typeArguments = new[] { elementType, typeof(double) };
-                    var converterType = typeof(Converter<,>).MakeGenericType(typeArguments);
-                    selectedValues = Expression.Call(
-                        typeof(Array),
-                        nameof(Array.ConvertAll),
-                        typeArguments,
-                        selectedValues,
-                        Expression.Lambda(converterType, Expression.Convert(arrayElement, typeof(double)), arrayElement));
-                }
+                selectedValues = ConvertArray(selectedMembers[0], typeof(double));
             }
             else
             {
@@ -151,6 +140,89 @@ namespace Bonsai.Design.Visualizers
             }
 
             return selectedValues;
+        }
+
+        internal static Expression SelectDataPoints(Expression expression, string valueSelector, out string[] valueLabels)
+        {
+            var memberNames = ExpressionHelper.SelectMemberNames(valueSelector).ToArray();
+            if (memberNames.Length == 0) memberNames = new[] { ExpressionHelper.ImplicitParameterName };
+            if (memberNames.Length == 1)
+            {
+                var memberName = memberNames[0];
+                valueLabels = memberName != ExpressionHelper.ImplicitParameterName ? new[] { memberName } : null;
+                var member = ExpressionHelper.MemberAccess(expression, memberNames[0]);
+                if (member.Type.IsArray)
+                {
+                    if (member.Type != typeof(PointPair[]))
+                    {
+                        var arrayElement = Expression.Parameter(member.Type.GetElementType());
+                        member = ConvertArray(member, GetPointPair(arrayElement), arrayElement);
+                    }
+
+                    return member;
+                }
+                else return Expression.NewArrayInit(typeof(PointPair), GetPointPair(member));
+            }
+
+            valueLabels = memberNames;
+            var members = Array.ConvertAll(memberNames, name => ExpressionHelper.MemberAccess(expression, name));
+            if (members.Length == 2 && members[0].Type.IsPrimitive && members[1].Type.IsPrimitive)
+            {
+                var x = Expression.Convert(members[0], typeof(double));
+                var y = Expression.Convert(members[1], typeof(double));
+                return Expression.NewArrayInit(typeof(PointPair), Expression.New(NewPointPair, x, y));
+            }
+
+            for (int i = 0; i < members.Length; i++)
+            {
+                members[i] = GetPointPair(members[i]);
+            }
+            return Expression.NewArrayInit(typeof(PointPair), members);
+        }
+
+        static Expression ConvertArray(Expression array, Type targetType)
+        {
+            var elementType = array.Type.GetElementType();
+            if (elementType != targetType)
+            {
+                var arrayElement = Expression.Parameter(array.Type.GetElementType());
+                var converterBody = Expression.Convert(arrayElement, targetType);
+                array = ConvertArray(array, converterBody, arrayElement);
+            }
+
+            return array;
+        }
+
+        static Expression ConvertArray(Expression array, Expression body, ParameterExpression parameter)
+        {
+            var typeArguments = new[] { parameter.Type, body.Type };
+            var converterType = typeof(Converter<,>).MakeGenericType(typeArguments);
+            return Expression.Call(
+                typeof(Array),
+                nameof(Array.ConvertAll),
+                typeArguments, array,
+                Expression.Lambda(converterType, body, parameter));
+        }
+
+        static Expression GetDoubleMember(Expression expression, string memberName)
+        {
+            var member = (Expression)Expression.PropertyOrField(expression, memberName);
+            return member.Type != typeof(double) ? Expression.Convert(member, typeof(double)) : member;
+        }
+
+        static Expression GetPointPair(Expression expression)
+        {
+            if (expression.Type == typeof(PointPair)) return expression;
+            if (expression.Type == typeof(Tuple<,>))
+            {
+                return Expression.New(NewPointPair,
+                    GetDoubleMember(expression, "Item1"),
+                    GetDoubleMember(expression, "Item2"));
+            }
+
+            return Expression.New(NewPointPair,
+                GetDoubleMember(expression, nameof(PointPair.X)),
+                GetDoubleMember(expression, nameof(PointPair.Y)));
         }
 
         static IEnumerable<MemberInfo> GetDataMembers(Type type)
