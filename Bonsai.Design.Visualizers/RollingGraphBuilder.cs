@@ -20,6 +20,9 @@ namespace Bonsai.Design.Visualizers
         [Description("The inner properties that will be used as values for the graph.")]
         public string ValueSelector { get; set; }
 
+        [Description("The optional capacity used for rolling line graphs. If no capacity is specified, all data points will be displayed.")]
+        public int? Capacity { get; set; }
+
         public bool ShouldSerializeElementSelector() => false;
 
         [Browsable(false)]
@@ -33,11 +36,11 @@ namespace Bonsai.Design.Visualizers
 
         internal class VisualizerController
         {
-            internal int NumSeries;
+            internal int Capacity;
             internal Type IndexType;
             internal string IndexLabel;
             internal string[] ValueLabels;
-            internal Action<object, RollingGraphView> Show;
+            internal Action<object, RollingGraphVisualizer> AddValues;
         }
 
         public override Expression Build(IEnumerable<Expression> arguments)
@@ -45,9 +48,10 @@ namespace Bonsai.Design.Visualizers
             var source = arguments.First();
             var parameterType = source.Type.GetGenericArguments()[0];
             var valueParameter = Expression.Parameter(typeof(object));
-            var viewParameter = Expression.Parameter(typeof(RollingGraphView));
+            var viewParameter = Expression.Parameter(typeof(RollingGraphVisualizer));
             var elementVariable = Expression.Variable(parameterType);
             Controller = new VisualizerController();
+            Controller.Capacity = Capacity.GetValueOrDefault();
 
             var selectedIndex = GraphHelper.SelectIndexMember(elementVariable, IndexSelector, out Controller.IndexLabel);
             Controller.IndexType = selectedIndex.Type;
@@ -57,24 +61,11 @@ namespace Bonsai.Design.Visualizers
             }
 
             var selectedValues = GraphHelper.SelectDataValues(elementVariable, ValueSelector, out Controller.ValueLabels);
-            Controller.NumSeries = Controller.ValueLabels == null ? 1 : Controller.ValueLabels.Length;
             var showBody = Expression.Block(new[] { elementVariable },
                 Expression.Assign(elementVariable, Expression.Convert(valueParameter, parameterType)),
-                Expression.Call(typeof(RollingGraphBuilder), nameof(ShowArrayValues), null, viewParameter, selectedIndex, selectedValues));
-            Controller.Show = Expression.Lambda<Action<object, RollingGraphView>>(showBody, valueParameter, viewParameter).Compile();
+                Expression.Call(viewParameter, nameof(RollingGraphVisualizer.AddValues), null, selectedIndex, selectedValues));
+            Controller.AddValues = Expression.Lambda<Action<object, RollingGraphVisualizer>>(showBody, valueParameter, viewParameter).Compile();
             return Expression.Call(typeof(RollingGraphBuilder), nameof(Process), new[] { parameterType }, source);
-        }
-
-        static void ShowArrayValues(RollingGraphView view, string index, double[] values)
-        {
-            if (values.Length != view.Graph.NumSeries) view.Graph.NumSeries = values.Length;
-            view.Graph.AddValues(0, index, values);
-        }
-
-        static void ShowArrayValues(RollingGraphView view, double index, double[] values)
-        {
-            if (values.Length != view.Graph.NumSeries) view.Graph.NumSeries = values.Length;
-            view.Graph.AddValues(index, values);
         }
 
         static IObservable<TSource> Process<TSource>(IObservable<TSource> source)

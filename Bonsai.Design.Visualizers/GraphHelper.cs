@@ -18,26 +18,6 @@ namespace Bonsai.Design.Visualizers
             axis.Title.IsVisible = !string.IsNullOrEmpty(label);
         }
 
-        internal static void SetAxisMultiLabel(GraphPane pane, Axis axis, params string[] labels)
-        {
-            if (labels != null && labels.Length > 0)
-            {
-                if (labels.Length == 1)
-                {
-                    SetAxisLabel(axis, labels[0]);
-                }
-                else
-                {
-                    for (int i = 0; i < labels.Length; i++)
-                    {
-                        var item = pane.CurveList[i];
-                        item.Label.Text = labels[i];
-                        item.Label.IsVisible = true;
-                    }
-                }
-            }
-        }
-
         internal static void FormatDateAxis(Axis axis)
         {
             axis.Type = AxisType.DateAsOrdinal;

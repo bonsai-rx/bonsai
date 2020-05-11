@@ -1,38 +1,49 @@
 ﻿using Bonsai.Expressions;
 using System;
+using System.Windows.Forms;
+using ZedGraph;
 
 namespace Bonsai.Design.Visualizers
 {
     public class RollingGraphVisualizer : DialogTypeVisualizer
     {
-        RollingGraphView view;
+        GraphControl graph;
         RollingGraphBuilder.VisualizerController controller;
-        static readonly TimeSpan TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 30);
-        DateTimeOffset updateTime;
+        IPointListEdit[] lineSeries;
+        bool labelLines;
 
-        public RollingGraphVisualizer()
+        public void AddValues(string index, params double[] values) => AddValues(0, index, values);
+
+        public void AddValues(double index, params double[] values) => AddValues(index, null, values);
+
+        public void AddValues(double index, string tag, params double[] values)
         {
-            AutoScale = true;
-            Capacity = 640;
-            Max = 1;
+            EnsureSeries(values.Length);
+            for (int i = 0; i < lineSeries.Length; i++)
+            {
+                lineSeries[i].Add(new PointPair(index, values[i], tag));
+            }
         }
 
-        public int Capacity { get; set; }
-
-        public double Min { get; set; }
-
-        public double Max { get; set; }
-
-        public bool AutoScale { get; set; }
-
-        public override void Show(object value)
+        void EnsureSeries(int count)
         {
-            var time = DateTime.Now;
-            controller.Show(value, view);
-            if ((time - updateTime) > TargetElapsedTime)
+            if (lineSeries == null || lineSeries.Length != count)
             {
-                view.Graph.Invalidate();
-                updateTime = time;
+                graph.ResetColorCycle();
+                graph.GraphPane.CurveList.Clear();
+                lineSeries = new IPointListEdit[count];
+                for (int i = 0; i < lineSeries.Length; i++)
+                {
+                    var color = graph.GetNextColor();
+                    var values = controller.Capacity > 0
+                        ? (IPointListEdit)new RollingPointPairList(controller.Capacity)
+                        : new PointPairList();
+                    var lineItem = new LineItem(labelLines ? controller.ValueLabels[i] : null, values, color, SymbolType.None, 1);
+                    lineItem.Line.IsAntiAlias = true;
+                    lineItem.Line.IsOptimizedDraw = true;
+                    graph.GraphPane.CurveList.Add(lineItem);
+                    lineSeries[i] = values;
+                }
             }
         }
 
@@ -42,40 +53,36 @@ namespace Bonsai.Design.Visualizers
             var lineChartBuilder = (RollingGraphBuilder)ExpressionBuilder.GetVisualizerElement(context.Source).Builder;
             controller = lineChartBuilder.Controller;
 
-            view = new RollingGraphView();
-            view.Capacity = Capacity;
-            view.AutoScale = AutoScale;
-            if (!AutoScale)
-            {
-                view.Min = Min;
-                view.Max = Max;
-            }
+            graph = new GraphControl();
+            graph.Dock = DockStyle.Fill;
+            var indexAxis = graph.GraphPane.XAxis;
+            var valueAxis = graph.GraphPane.YAxis;
+            GraphHelper.FormatOrdinalAxis(indexAxis, controller.IndexType);
+            GraphHelper.SetAxisLabel(indexAxis, controller.IndexLabel);
 
-            view.HandleDestroyed += delegate
-            {
-                Min = view.Min;
-                Max = view.Max;
-                AutoScale = view.AutoScale;
-                Capacity = view.Capacity;
-            };
-
-            view.NumSeries = controller.NumSeries;
-            view.Dock = System.Windows.Forms.DockStyle.Fill;
-            GraphHelper.FormatOrdinalAxis(view.Graph.GraphPane.XAxis, controller.IndexType);
-            GraphHelper.SetAxisLabel(view.Graph.GraphPane.XAxis, controller.IndexLabel);
-            GraphHelper.SetAxisMultiLabel(view.Graph.GraphPane, view.Graph.GraphPane.YAxis, controller.ValueLabels);
+            var hasLabels = controller.ValueLabels != null;
+            var labelAxis = hasLabels && controller.ValueLabels.Length == 1;
+            if (labelAxis) GraphHelper.SetAxisLabel(valueAxis, controller.ValueLabels[0]);
+            labelLines = hasLabels && !labelAxis;
+            EnsureSeries(hasLabels ? controller.ValueLabels.Length : 0);
 
             var visualizerService = (IDialogTypeVisualizerService)provider.GetService(typeof(IDialogTypeVisualizerService));
             if (visualizerService != null)
             {
-                visualizerService.AddControl(view);
+                visualizerService.AddControl(graph);
             }
+        }
+
+        public override void Show(object value)
+        {
+            controller.AddValues(value, this);
+            graph.Invalidate();
         }
 
         public override void Unload()
         {
-            view.Dispose();
-            view = null;
+            graph.Dispose();
+            graph = null;
             controller = null;
         }
     }
