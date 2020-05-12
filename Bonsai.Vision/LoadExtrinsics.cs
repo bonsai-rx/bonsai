@@ -46,9 +46,9 @@ namespace Bonsai.Vision
 
                     if (translation != null)
                     {
-                        extrinsics.Translation.X = fileStorage.ReadReal(rotation, "x");
-                        extrinsics.Translation.Y = fileStorage.ReadReal(rotation, "y");
-                        extrinsics.Translation.Z = fileStorage.ReadReal(rotation, "z");
+                        extrinsics.Translation.X = fileStorage.ReadReal(translation, "x");
+                        extrinsics.Translation.Y = fileStorage.ReadReal(translation, "y");
+                        extrinsics.Translation.Z = fileStorage.ReadReal(translation, "z");
                     }
                     else extrinsics.Translation = Point3d.Zero;
                 }
