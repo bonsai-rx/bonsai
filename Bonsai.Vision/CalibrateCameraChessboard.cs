@@ -17,9 +17,6 @@ namespace Bonsai.Vision
         [Description("The number of inner corners per chessboard row and column.")]
         public Size PatternSize { get; set; }
 
-        [Description("The physical size of each chessboard checker, in metric units.")]
-        public float CheckerSize { get; set; }
-
         [Description("The available operation flags for calibrating camera intrinsics.")]
         public CameraCalibrationFlags CalibrationFlags { get; set; }
 
@@ -33,8 +30,6 @@ namespace Bonsai.Vision
             return Observable.Defer(() =>
             {
                 var guess = false;
-                var cornerCount = 0;
-                var checkerSize = 0f;
                 var imageSize = new Size();
                 var patternSize = new Size();
                 var calibration = new CameraCalibration();
@@ -46,19 +41,11 @@ namespace Bonsai.Vision
                     if (patternSize != PatternSize)
                     {
                         patternSize = PatternSize;
-                        cornerCount = patternSize.Width * patternSize.Height;
-                    }
-
-                    if (checkerSize != CheckerSize && cornerCount > 0)
-                    {
-                        checkerSize = CheckerSize;
-                        chessboardCorners = new Point3f[cornerCount];
+                        chessboardCorners = new Point3f[patternSize.Width * patternSize.Height];
                         for (int i = 0; i < chessboardCorners.Length; i++)
                         {
-                            var x = i % patternSize.Width;
-                            var y = i / patternSize.Width;
-                            chessboardCorners[i].X = x * checkerSize;
-                            chessboardCorners[i].Y = y * checkerSize;
+                            chessboardCorners[i].X = i % patternSize.Width;
+                            chessboardCorners[i].Y = i / patternSize.Width;
                             chessboardCorners[i].Z = 0;
                         }
                     }
