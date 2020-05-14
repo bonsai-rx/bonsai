@@ -29,6 +29,7 @@ namespace Bonsai.Vision.Design
         IplImageTexture labelTexture;
         bool refreshLabels;
         Font labelFont;
+        bool dragging;
 
         public ImageEllipseRoiPicker()
         {
@@ -39,6 +40,8 @@ namespace Bonsai.Vision.Design
             var mouseMove = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseMove").Select(e => e.EventArgs);
             var mouseDown = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseDown").Select(e => e.EventArgs);
             var mouseUp = Observable.FromEventPattern<MouseEventArgs>(Canvas, "MouseUp").Select(e => e.EventArgs);
+            mouseDown = mouseDown.Do(x => dragging = true);
+            mouseUp = mouseUp.Do(x => dragging = false);
 
             var roiSelected = from downEvt in mouseDown
                               where Image != null
@@ -72,7 +75,7 @@ namespace Bonsai.Vision.Design
                                                     () => regions[selection] = modifiedRegion,
                                                     () => regions[selection] = region))
                                                 .Merge(ps))
-                                        .Select(displacedRegion => new Action(() => regions[selectedRoi.Value] = displacedRegion)))
+                                        .Select(displacedRegion => new Action(() => regions[selection] = displacedRegion)))
                                 .Switch();
 
             var regionInsertion = (from downEvt in mouseDown
@@ -145,6 +148,7 @@ namespace Bonsai.Vision.Design
 
         void Canvas_KeyDown(object sender, KeyEventArgs e)
         {
+            if (dragging) return;
             if (e.KeyCode == Keys.PageUp) ImageScale += ScaleIncrement;
             if (e.KeyCode == Keys.PageDown) ImageScale -= ScaleIncrement;
             if (e.Control && e.KeyCode == Keys.Z) commandExecutor.Undo();
