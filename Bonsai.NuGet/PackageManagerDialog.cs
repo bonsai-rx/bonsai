@@ -265,13 +265,17 @@ namespace Bonsai.NuGet
         private void repositoriesView_BeforeSelect(object sender, TreeViewCancelEventArgs e)
         {
             var node = e.Node;
-            selectingNode = node;
-            if (node != collapsingNode && node.Parent == null)
+            if (node != collapsingNode && node != selectingNode && node.Parent == null)
             {
                 e.Cancel = true;
+                selectingNode = e.Node;
                 var selectedNode = repositoriesView.SelectedNode;
                 if (selectedNode != null && selectedNode.Parent != null) selectedNode = selectedNode.Parent;
-                if (selectedNode != null) selectedNode.Collapse();
+                if (selectedNode != null)
+                {
+                    selectingNode = selectedNode;
+                    selectedNode.Collapse();
+                }
 
                 node.Expand();
                 var selectedChild = e.Node.Nodes[0];
