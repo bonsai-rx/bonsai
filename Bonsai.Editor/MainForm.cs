@@ -2367,7 +2367,7 @@ namespace Bonsai.Editor
 
             public DirectoryInfo EnsureExtensionsDirectory()
             {
-                if (!siteForm.workflowFileWatcher.EnableRaisingEvents && !siteForm.extensionsPath.Exists)
+                if (!siteForm.extensionsPath.Exists)
                 {
                     if (string.IsNullOrEmpty(siteForm.FileName))
                     {
