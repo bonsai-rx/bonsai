@@ -60,11 +60,7 @@ namespace Bonsai
                                     where package != null
                                     from assemblyReference in FindAssemblyReferences(packageRepository, package)
                                     select assemblyReference;
-            assemblyNames.Add("System.dll");
-            assemblyNames.Add("System.Core.dll");
-            assemblyNames.Add("System.Drawing.dll");
-            assemblyNames.Add("System.Reactive.Linq.dll");
-            assemblyNames.Add("Bonsai.Core.dll");
+            assemblyNames.AddRange(scriptEnvironment.GetAssemblyReferences());
             assemblyNames.AddRange(projectReferences);
 
             var assemblyFile = Path.Combine(assemblyDirectory, Path.ChangeExtension(OutputAssemblyName, DllExtension));

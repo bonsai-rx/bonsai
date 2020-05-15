@@ -19,6 +19,7 @@ namespace Bonsai
         const string PackageReferenceElement = "PackageReference";
         const string PackageIncludeAttribute = "Include";
         const string PackageVersionAttribute = "Version";
+        const string UseWindowsFormsElement = "UseWindowsForms";
         const string ItemGroupElement = "ItemGroup";
         const string ProjectFileTemplate = @"<Project Sdk=""Microsoft.NET.Sdk"">
 
@@ -66,6 +67,23 @@ namespace Bonsai
                         localSettings.SetValues(SectionPackageSources, packageSources);
                     }
                 }
+            }
+        }
+
+        public IEnumerable<string> GetAssemblyReferences()
+        {
+            yield return "System.dll";
+            yield return "System.Core.dll";
+            yield return "System.Drawing.dll";
+            yield return "System.Reactive.Linq.dll";
+            yield return "Bonsai.Core.dll";
+
+            if (!File.Exists(ProjectFileName)) yield break;
+            var document = XmlUtility.LoadSafe(ProjectFileName);
+            var useWindowsForms = document.Descendants(XName.Get(UseWindowsFormsElement)).FirstOrDefault();
+            if (useWindowsForms != null && useWindowsForms.Value == "true")
+            {
+                yield return "System.Windows.Forms.dll";
             }
         }
 
