@@ -2,6 +2,7 @@
 
 namespace Bonsai.Shaders.Configuration
 {
+    [XmlInclude(typeof(HintState))]
     [XmlInclude(typeof(EnableState))]
     [XmlInclude(typeof(DisableState))]
     [XmlInclude(typeof(ViewportState))]

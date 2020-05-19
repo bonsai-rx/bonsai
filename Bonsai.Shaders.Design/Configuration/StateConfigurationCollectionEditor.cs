@@ -24,7 +24,8 @@ namespace Bonsai.Shaders.Configuration.Design
                 typeof(PolygonModeState),
                 typeof(BlendFunctionState),
                 typeof(DepthFunctionState),
-                typeof(MemoryBarrierState)
+                typeof(MemoryBarrierState),
+                typeof(HintState)
             };
         }
     }
