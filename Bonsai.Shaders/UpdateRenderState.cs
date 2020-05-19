@@ -1,4 +1,5 @@
-﻿using Bonsai.Shaders.Configuration;
+﻿using Bonsai.Resources;
+using Bonsai.Shaders.Configuration;
 using System;
 using System.ComponentModel;
 using System.Reactive.Linq;
@@ -19,14 +20,25 @@ namespace Bonsai.Shaders
             get { return renderState; }
         }
 
+        private void Process(ShaderWindow window)
+        {
+            foreach (var state in renderState)
+            {
+                state.Execute(window);
+            }
+        }
+
         public IObservable<ShaderWindow> Process(IObservable<ShaderWindow> source)
         {
-            return source.Do(window =>
+            return source.Do(Process);
+        }
+
+        public IObservable<ResourceConfigurationCollection> Process(IObservable<ResourceConfigurationCollection> source)
+        {
+            return source.Do(input =>
             {
-                foreach (var state in renderState)
-                {
-                    state.Execute(window);
-                }
+                var windowManager = input.ResourceManager.Load<WindowManager>(string.Empty);
+                Process(windowManager.Window);
             });
         }
 
@@ -36,10 +48,7 @@ namespace Bonsai.Shaders
                 ShaderManager.WindowSource,
                 (input, window) =>
                 {
-                    foreach (var state in renderState)
-                    {
-                        state.Execute(window);
-                    }
+                    Process(window);
                     return input;
                 });
         }
