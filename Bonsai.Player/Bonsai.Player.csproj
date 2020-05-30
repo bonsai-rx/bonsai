@@ -5,7 +5,7 @@
     <Title>Bonsai - Player</Title>
     <Description>A command line player for Bonsai workflows.</Description>
     <PackageTags>Bonsai Player Rx Reactive Extensions</PackageTags>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
@@ -18,21 +18,4 @@
     <ProjectReference Include="..\Bonsai.Core\Bonsai.Core.csproj" />
     <ProjectReference Include="..\Bonsai.Configuration\Bonsai.Configuration.csproj" PrivateAssets="all" />
   </ItemGroup>
-  <Target Name="ILRepack" AfterTargets="Build">
-    <PropertyGroup>
-      <WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>
-    </PropertyGroup>
-    <ItemGroup>
-      <InputAssemblies Include="Bonsai.Configuration.dll" />
-    </ItemGroup>
-    <ItemGroup>
-      <InternalizeExcludeAssemblies Include="^Bonsai.Configuration" />
-    </ItemGroup>
-    <ILRepack OutputType="$(OutputType)"
-              MainAssembly="$(AssemblyName).exe"
-              OutputAssembly="$(AssemblyName).exe"
-              InputAssemblies="@(InputAssemblies)"
-              InternalizeExcludeAssemblies="@(InternalizeExcludeAssemblies)"
-              WorkingDirectory="$(WorkingDirectory)" />
-  </Target>
 </Project>
