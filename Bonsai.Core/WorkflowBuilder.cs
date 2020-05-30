@@ -488,7 +488,7 @@ namespace Bonsai
                         var obsoleteAttributeBuilder = new CustomAttributeBuilder(obsoleteAttributeConstructor, new object[0]);
                         typeBuilder.SetCustomAttribute(descriptionAttributeBuilder);
                         typeBuilder.SetCustomAttribute(obsoleteAttributeBuilder);
-                        type = typeBuilder.CreateType();
+                        type = typeBuilder.CreateTypeInfo();
                         dynamicTypes.Add(typeName, type);
                     }
                 }

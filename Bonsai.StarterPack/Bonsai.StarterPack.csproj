@@ -5,7 +5,7 @@
     <Description>The Bonsai Starter Pack includes everything you need to build your own data processing workflows.</Description>
     <PackageTags>Bonsai Rx Starter Pack</PackageTags>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>

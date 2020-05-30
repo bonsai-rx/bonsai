@@ -4,7 +4,7 @@
     <Title>Bonsai - Osc Library</Title>
     <Description>Bonsai Osc Library containing reactive infrastructure to interface with devices using the Open Sound Control protocol.</Description>
     <PackageTags>Bonsai Rx Osc</PackageTags>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
