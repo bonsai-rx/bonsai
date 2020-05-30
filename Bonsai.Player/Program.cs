@@ -29,7 +29,6 @@ namespace Bonsai.Player
             ConfigurationHelper.SetAssemblyResolve();
             using (var reader = XmlReader.Create(fileName))
             {
-                var serializer = new XmlSerializer(typeof(WorkflowBuilder));
                 workflowBuilder = (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
             }
 
