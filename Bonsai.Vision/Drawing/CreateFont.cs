@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
@@ -38,14 +38,14 @@ namespace Bonsai.Vision.Drawing
             {
                 var font = Font;
                 if (font == null || font == SystemFonts.DefaultFont) return null;
-                var converter = new FontConverter();
+                var converter = TypeDescriptor.GetConverter(typeof(Font));
                 return converter.ConvertToString(Font);
             }
             set
             {
                 if (!string.IsNullOrEmpty(value))
                 {
-                    var converter = new FontConverter();
+                    var converter = TypeDescriptor.GetConverter(typeof(Font));
                     Font = (Font)converter.ConvertFromString(value);
                 }
                 else Font = SystemFonts.DefaultFont;
