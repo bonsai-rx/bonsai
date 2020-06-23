@@ -745,7 +745,9 @@ namespace Bonsai.Expressions
                         {
                             // If there are no successors, or the expression is a disabled build dependency, this scope should never close
                             if (successorCount == 0 || expression == DisconnectExpression.Instance) scope.References.Add(null);
-                            else scope.References.AddRange(nodeSuccessors.Select(successor => successor.Target.Value));
+                            else scope.References.AddRange(nodeSuccessors
+                                .Where(successor => successor.Label != null)
+                                .Select(successor => successor.Target.Value));
                         }
                         while (expandedArguments != null && expandedArguments.MoveNext());
                     }
@@ -828,8 +830,11 @@ namespace Bonsai.Expressions
                     else multicastBuilder = new PublishBranchBuilder();
                     expression = multicastBuilder.Build(expression);
 
+                    // Ensure publish/subscribe subject dependencies are not multicast
                     var multicastScope = new MulticastScope(multicastBuilder);
-                    multicastScope.References.AddRange(nodeSuccessors.Select(successor => successor.Target.Value));
+                    multicastScope.References.AddRange(nodeSuccessors
+                        .Where(successor => successor.Label != null)
+                        .Select(successor => successor.Target.Value));
                     multicastMap.Insert(0, multicastScope);
                 }
 
