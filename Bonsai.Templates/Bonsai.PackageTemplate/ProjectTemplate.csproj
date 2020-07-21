@@ -6,7 +6,7 @@
     <Authors>$registeredorganization$</Authors>
     <Copyright>Copyright © $registeredorganization$ $year$</Copyright>
     <GeneratePackageOnBuild Condition="'$(Configuration)'=='Release'">true</GeneratePackageOnBuild>
-    <ProjectUrl></ProjectUrl>
+    <PackageProjectUrl></PackageProjectUrl>
     <PackageLicenseExpression></PackageLicenseExpression>
     <PackageIcon></PackageIcon>
     <PackageOutputPath>..\bin\$(Configuration)</PackageOutputPath>
