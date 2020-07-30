@@ -109,6 +109,26 @@ namespace Bonsai.Editor.GraphView
             else return new ElementIcon(assemblyName + AssemblySeparator + name, include);
         }
 
+        static ElementIcon GetNamespaceIcon(string ns, Assembly assembly, IncludeWorkflowBuilder include = null)
+        {
+            var name = ns;
+            var assemblyName = assembly.GetName().Name;
+            foreach (var attribute in assembly.GetCustomAttributes<WorkflowNamespaceIconAttribute>())
+            {
+                if (attribute.Namespace == ns || string.IsNullOrEmpty(attribute.Namespace))
+                {
+                    assemblyName = string.Empty;
+                    name = attribute.ResourceName;
+                    if (!string.IsNullOrEmpty(attribute.Namespace))
+                    {
+                        break;
+                    }
+                }
+            }
+
+            return GetNamespaceIcon(name, assemblyName, include);
+        }
+
         public ElementIcon GetDefaultIcon()
         {
             var name = Name;
@@ -120,27 +140,21 @@ namespace Bonsai.Editor.GraphView
                 var separatorIndex = path.LastIndexOf(ExpressionHelper.MemberSeparator);
                 if (separatorIndex < 0) return null;
                 path = path.Substring(0, separatorIndex);
+                if (!string.IsNullOrEmpty(assemblyName))
+                {
+                    try
+                    {
+                        var assembly = Assembly.Load(assemblyName);
+                        return GetNamespaceIcon(path, assembly, includeElement);
+                    }
+                    catch (SystemException) { }
+                }
                 return GetNamespaceIcon(path, assemblyName, includeElement);
             }
 
             if (resourceQualifier != null)
             {
-                name = resourceQualifier.Namespace;
-                var assemblyName = resourceQualifier.Assembly.GetName().Name;
-                foreach (var attribute in resourceQualifier.Assembly.GetCustomAttributes<WorkflowNamespaceIconAttribute>())
-                {
-                    if (attribute.Namespace == resourceQualifier.Namespace || string.IsNullOrEmpty(attribute.Namespace))
-                    {
-                        assemblyName = string.Empty;
-                        name = attribute.ResourceName;
-                        if (!string.IsNullOrEmpty(attribute.Namespace))
-                        {
-                            break;
-                        }
-                    }
-                }
-
-                return GetNamespaceIcon(name, assemblyName, null);
+                return GetNamespaceIcon(resourceQualifier.Namespace, resourceQualifier.Assembly);
             }
             else
             {
@@ -229,7 +243,7 @@ namespace Bonsai.Editor.GraphView
                 return new FileStream(iconPath, FileMode.Open, FileAccess.Read);
             }
 
-            System.Reflection.Assembly assembly;
+            Assembly assembly;
             if (resourceQualifier == null || !string.IsNullOrEmpty(assemblyName))
             {
                 if (string.IsNullOrEmpty(assemblyName))
@@ -238,7 +252,7 @@ namespace Bonsai.Editor.GraphView
                     name = assemblyName + ExpressionHelper.MemberSeparator + assemblyName + SvgExtension;
                 }
 
-                try { assembly = System.Reflection.Assembly.Load(assemblyName); }
+                try { assembly = Assembly.Load(assemblyName); }
                 catch (SystemException) { return null; }
             }
             else assembly = resourceQualifier.Assembly;
