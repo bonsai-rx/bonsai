@@ -6,6 +6,7 @@ using System.IO;
 using System.Reactive.Linq;
 using Bonsai.Configuration;
 using Bonsai.Editor;
+using System.Diagnostics;
 
 namespace Bonsai
 {
@@ -22,7 +23,11 @@ namespace Bonsai
             var typeVisualizers = Enumerable.Empty<TypeVisualizerAttribute>();
 
             try { types = assembly.GetTypes(); }
-            catch (ReflectionTypeLoadException) { return typeVisualizers; }
+            catch (ReflectionTypeLoadException ex)
+            {
+                Trace.WriteLine(string.Join<Exception>(Environment.NewLine, ex.LoaderExceptions));
+                return typeVisualizers;
+            }
 
             for (int i = 0; i < types.Length; i++)
             {
@@ -56,9 +61,9 @@ namespace Bonsai
                 typeVisualizers = typeVisualizers.Concat(visualizerAttributes);
                 typeVisualizers = typeVisualizers.Concat(GetCustomAttributeTypes(assembly));
             }
-            catch (FileLoadException) { }
-            catch (FileNotFoundException) { }
-            catch (BadImageFormatException) { }
+            catch (FileLoadException ex) { Trace.TraceError("{0}", ex); }
+            catch (FileNotFoundException ex) { Trace.TraceError("{0}", ex); }
+            catch (BadImageFormatException ex) { Trace.TraceError("{0}", ex); }
 
             return typeVisualizers.Distinct().Select(data => new TypeVisualizerDescriptor(data)).ToArray();
         }

@@ -9,6 +9,7 @@ using System.ComponentModel;
 using Bonsai.Configuration;
 using Bonsai.Editor;
 using System.Xml;
+using System.Diagnostics;
 
 namespace Bonsai
 {
@@ -37,7 +38,11 @@ namespace Bonsai
             Type[] types;
 
             try { types = assembly.GetTypes(); }
-            catch (ReflectionTypeLoadException) { yield break; }
+            catch (ReflectionTypeLoadException ex)
+            {
+                Trace.WriteLine(string.Join<Exception>(Environment.NewLine, ex.LoaderExceptions));
+                yield break;
+            }
 
             for (int i = 0; i < types.Length; i++)
             {
@@ -79,7 +84,11 @@ namespace Bonsai
                             }
                         }
                     }
-                    catch (SystemException) { continue; }
+                    catch (SystemException ex)
+                    {
+                        Trace.TraceError("{0}", ex);
+                        continue;
+                    }
 
                     var assemblyName = assembly.GetName().Name;
                     var name = Path.GetFileNameWithoutExtension(embeddedResources[i]);
@@ -104,9 +113,9 @@ namespace Bonsai
                 var assembly = Assembly.Load(assemblyRef);
                 types = types.Concat(GetWorkflowElements(assembly));
             }
-            catch (FileLoadException) { }
-            catch (FileNotFoundException) { }
-            catch (BadImageFormatException) { }
+            catch (FileLoadException ex) { Trace.TraceError("{0}", ex); }
+            catch (FileNotFoundException ex) { Trace.TraceError("{0}", ex); }
+            catch (BadImageFormatException ex) { Trace.TraceError("{0}", ex); }
 
             return types.Distinct().ToArray();
         }
