@@ -12,6 +12,13 @@ namespace Bonsai.Shaders
         public int NumGroupsY;
         public int NumGroupsZ;
 
+        public DispatchParameters(int numGroupsX, int numGroupsY, int numGroupsZ)
+        {
+            NumGroupsX = numGroupsX;
+            NumGroupsY = numGroupsY;
+            NumGroupsZ = numGroupsZ;
+        }
+
         public bool Equals(DispatchParameters other)
         {
             return NumGroupsX == other.NumGroupsX &&
