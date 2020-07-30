@@ -1632,6 +1632,14 @@ namespace Bonsai.Editor
             UpdatePropertyGrid();
         }
 
+        private void GetSelectionDescription(object[] selectedObjects, out string displayName, out string description)
+        {
+            var displayNames = selectedObjects.Select(GetElementName).Distinct().Reverse().ToArray();
+            displayName = string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ", displayNames);
+            var objectDescriptions = selectedObjects.Select(GetElementDescription).Distinct().Reverse().ToArray();
+            description = objectDescriptions.Length == 1 ? objectDescriptions[0] : string.Empty;
+        }
+
         private void UpdatePropertyGrid()
         {
             var selectedObjects = selectionModel.SelectedNodes.Select(node =>
@@ -1642,10 +1650,6 @@ namespace Bonsai.Editor
                 return instance;
             }).ToArray();
 
-            var displayNames = selectedObjects.Select(GetElementName).Distinct().Reverse().ToArray();
-            var displayName = string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ", displayNames);
-            var objectDescriptions = selectedObjects.Select(GetElementDescription).Distinct().Reverse().ToArray();
-            var description = objectDescriptions.Length == 1 ? objectDescriptions[0] : string.Empty;
             var selectedView = selectionModel.SelectedView;
             var canEdit = selectedView != null && selectedView.CanEdit;
             var hasSelectedObjects = selectedObjects.Length > 0;
@@ -1658,29 +1662,32 @@ namespace Bonsai.Editor
             ungroupToolStripMenuItem.Enabled = canEdit && hasSelectedObjects;
             enableToolStripMenuItem.Enabled = canEdit && hasSelectedObjects;
             disableToolStripMenuItem.Enabled = canEdit && hasSelectedObjects;
-            if (!hasSelectedObjects)
+
+            string displayName, description;
+            if (!hasSelectedObjects && selectedView != null)
             {
                 // Select externalized properties
-                if (selectedView != null)
+                var launcher = selectedView.Launcher;
+                if (launcher != null)
                 {
-                    var launcher = selectedView.Launcher;
-                    if (launcher != null)
-                    {
-                        displayName = GetElementName(launcher.Builder);
-                        description = GetElementDescription(launcher.Builder);
-                    }
-                    else
-                    {
-                        description = workflowBuilder.Description ?? Resources.WorkflowPropertiesDescription;
-                        displayName = !string.IsNullOrEmpty(saveWorkflowDialog.FileName)
-                            ? Path.GetFileNameWithoutExtension(saveWorkflowDialog.FileName)
-                            : editorControl.ActiveTab.TabPage.Text;
-                    }
-
-                    propertyGrid.SelectedObject = selectedView.Workflow;
+                    displayName = GetElementName(launcher.Builder);
+                    description = GetElementDescription(launcher.Builder);
                 }
+                else
+                {
+                    description = workflowBuilder.Description ?? Resources.WorkflowPropertiesDescription;
+                    displayName = !string.IsNullOrEmpty(saveWorkflowDialog.FileName)
+                        ? Path.GetFileNameWithoutExtension(saveWorkflowDialog.FileName)
+                        : editorControl.ActiveTab.TabPage.Text;
+                }
+
+                propertyGrid.SelectedObject = selectedView.Workflow;
             }
-            else propertyGrid.SelectedObjects = selectedObjects;
+            else
+            {
+                GetSelectionDescription(selectedObjects, out displayName, out description);
+                propertyGrid.SelectedObjects = selectedObjects;
+            }
             UpdateDescriptionTextBox(displayName, description, propertiesDescriptionTextBox);
         }
 
@@ -2693,6 +2700,20 @@ namespace Bonsai.Editor
         {
             editorSite.ValidateWorkflow();
             RefreshSelection();
+        }
+
+        private void propertyGrid_Refreshed(object sender, EventArgs e)
+        {
+            var selectedObjects = propertyGrid.SelectedObjects;
+            if (selectedObjects != null && selectedObjects.Length > 0)
+            {
+                var selectedView = selectionModel.SelectedView;
+                if (selectedObjects.Length > 1 || selectedObjects[0] != selectedView.Workflow)
+                {
+                    GetSelectionDescription(selectedObjects, out string displayName, out string description);
+                    UpdateDescriptionTextBox(displayName, description, propertiesDescriptionTextBox);
+                }
+            }
         }
 
         private void propertyGrid_DragEnter(object sender, DragEventArgs e)

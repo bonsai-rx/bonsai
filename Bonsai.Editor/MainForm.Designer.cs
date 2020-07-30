@@ -122,7 +122,7 @@
             this.propertiesSplitContainer = new System.Windows.Forms.SplitContainer();
             this.propertiesDescriptionPanel = new Bonsai.Editor.BorderPanel();
             this.propertiesDescriptionTextBox = new System.Windows.Forms.RichTextBox();
-            this.propertyGrid = new Bonsai.Design.PropertyGrid();
+            this.propertyGrid = new Bonsai.Editor.PropertyGrid();
             this.propertyGridContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.resetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.descriptionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -1030,6 +1030,7 @@
             this.propertyGrid.TabIndex = 0;
             this.propertyGrid.DragDrop += new System.Windows.Forms.DragEventHandler(this.propertyGrid_DragDrop);
             this.propertyGrid.DragEnter += new System.Windows.Forms.DragEventHandler(this.propertyGrid_DragEnter);
+            this.propertyGrid.Refreshed += new System.EventHandler(this.propertyGrid_Refreshed);
             this.propertyGrid.Validated += new System.EventHandler(this.propertyGrid_Validated);
             // 
             // propertyGridContextMenuStrip
@@ -1317,7 +1318,7 @@
         private System.Windows.Forms.ToolStripSeparator fileToolStripSeparator;
         private System.Windows.Forms.StatusStrip statusStrip;
         private Bonsai.Editor.ToolboxTreeView toolboxTreeView;
-        private Bonsai.Design.PropertyGrid propertyGrid;
+        private Bonsai.Editor.PropertyGrid propertyGrid;
         private System.Windows.Forms.ToolStripMenuItem startToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem startWithoutDebuggingToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem stopToolStripMenuItem;
