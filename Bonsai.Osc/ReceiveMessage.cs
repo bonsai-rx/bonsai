@@ -32,7 +32,7 @@ namespace Bonsai.Osc
             var source = Expression.Parameter(typeof(IObservable<Message>));
             var parseMessage = Build(source);
             var processor = Expression.Lambda(parseMessage, source);
-            var connection = Expression.Constant(Connection);
+            var connection = Expression.Constant(Connection, typeof(string));
             var resultType = processor.ReturnType.GetGenericArguments();
             return Expression.Call(typeof(ReceiveMessage), nameof(Generate), resultType, connection, processor);
         }
