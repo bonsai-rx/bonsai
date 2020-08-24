@@ -154,7 +154,7 @@ namespace Bonsai.Osc
                         var elementType = type.GetElementType();
                         if (!elementType.IsValueType)
                         {
-                            throw new ArgumentException("OSC-blob arrays of reference types are not supported.", "argument");
+                            throw new ArgumentException("OSC-blob arrays of reference types are not supported.", nameof(parameter));
                         }
 
                         Expression blobAssignment;
@@ -184,6 +184,11 @@ namespace Bonsai.Osc
                         return Expression.Block(members.Select(member =>
                         {
                             var memberAccess = Expression.MakeMemberAccess(parameter, member);
+                            if (memberAccess.Type == type)
+                            {
+                                throw new ArgumentException("Recursive data types are not supported.", nameof(parameter));
+                            }
+
                             return CreateMessageBuilder(memberAccess, typeTagBuilder, writer);
                         }));
                     }
@@ -198,7 +203,7 @@ namespace Bonsai.Osc
             {
                 throw new ArgumentException(
                     string.Format("The OSC Address Pattern cannot be null and must begin with a '{0}' character.", AddressSeparator),
-                    "address");
+                    nameof(address));
             }
 
             var addressBytes = Encoding.ASCII.GetBytes(address);
