@@ -25,29 +25,13 @@ namespace Bonsai.Design
         public double Minimum
         {
             get { return minimum; }
-            set
-            {
-                if (value >= maximum)
-                {
-                    throw new ArgumentOutOfRangeException("value");
-                }
-
-                minimum = value;
-            }
+            set { minimum = value; }
         }
 
         public double Maximum
         {
             get { return maximum; }
-            set
-            {
-                if (value <= minimum)
-                {
-                    throw new ArgumentOutOfRangeException("value");
-                }
-
-                maximum = value;
-            }
+            set { maximum = value; }
         }
 
         public int? DecimalPlaces
@@ -69,6 +53,11 @@ namespace Bonsai.Design
             get { return value; }
             set
             {
+                if (minimum >= maximum)
+                {
+                    throw new InvalidOperationException("The slider range is invalid. Minimum value is greater than or equal to maximum.");
+                }
+
                 if (value > maximum || value < minimum)
                 {
                     throw new ArgumentOutOfRangeException("value");
