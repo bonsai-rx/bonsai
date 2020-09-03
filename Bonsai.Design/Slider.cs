@@ -58,11 +58,6 @@ namespace Bonsai.Design
                     throw new InvalidOperationException("The slider range is invalid. Minimum value is greater than or equal to maximum.");
                 }
 
-                if (value > maximum || value < minimum)
-                {
-                    throw new ArgumentOutOfRangeException("value");
-                }
-
                 UpdateValue(value);
                 trackBar.Value = (int)(trackBar.Maximum * (this.value - minimum) / (maximum - minimum));
             }
