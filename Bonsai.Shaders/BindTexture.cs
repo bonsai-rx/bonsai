@@ -49,7 +49,10 @@ namespace Bonsai.Shaders
                             textureId = texture != null ? texture.Id : 0;
                         }
 
-                        shader.Update(() => update(textureId, input));
+                        if (textureId != 0)
+                        {
+                            shader.Update(() => update(textureId, input));
+                        }
                         return input;
                     });
             });
