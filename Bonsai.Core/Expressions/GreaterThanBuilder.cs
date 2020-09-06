@@ -24,6 +24,11 @@ namespace Bonsai.Expressions
         /// </returns>
         protected override Expression BuildSelector(Expression left, Expression right)
         {
+            if (left.Type.IsEnum && left.Type == right.Type)
+            {
+                left = Expression.Convert(left, left.Type.GetEnumUnderlyingType());
+                right = Expression.Convert(right, right.Type.GetEnumUnderlyingType());
+            }
             return Expression.GreaterThan(left, right);
         }
     }
