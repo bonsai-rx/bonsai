@@ -34,7 +34,7 @@ namespace Bonsai.Core.Tests
             var xml = builder.ToString();
             using (var reader = XmlReader.Create(new StringReader(xml)))
             {
-                WorkflowBuilder.Serializer.Deserialize(reader);
+                workflow = (WorkflowBuilder)WorkflowBuilder.Serializer.Deserialize(reader);
             }
 
             builder.Clear();
