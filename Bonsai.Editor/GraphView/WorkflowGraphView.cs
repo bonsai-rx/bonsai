@@ -3052,6 +3052,7 @@ namespace Bonsai.Editor.GraphView
             var root = string.IsNullOrEmpty(ownerItem.Name);
 
             foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public)
+                                      .Where(member => !member.IsDefined(typeof(ObsoleteAttribute)))
                                       .OrderBy(member => member.MetadataToken))
             {
                 var memberSelector = root ? field.Name : string.Join(ExpressionHelper.MemberSeparator, ownerItem.Name, field.Name);
@@ -3060,6 +3061,7 @@ namespace Bonsai.Editor.GraphView
             }
 
             foreach (var property in GetProperties(type, BindingFlags.Instance | BindingFlags.Public)
+                                         .Where(member => !member.IsDefined(typeof(ObsoleteAttribute)))
                                          .Distinct(PropertyInfoComparer.Default)
                                          .OrderBy(member => member.MetadataToken))
             {
