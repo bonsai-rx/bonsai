@@ -4,29 +4,29 @@ namespace Bonsai.Shaders
 {
     class TextureBinding : BufferBinding
     {
-        int textureId;
-        TextureUnit textureUnit;
-        TextureTarget textureTarget;
+        readonly Texture texture;
+        readonly TextureUnit textureUnit;
+        readonly TextureTarget textureTarget;
 
-        public TextureBinding(Texture texture, TextureUnit textureSlot, TextureTarget target)
+        public TextureBinding(Texture source, TextureUnit textureSlot, TextureTarget target)
         {
-            textureId = texture != null ? texture.Id : 0;
+            texture = source;
             textureUnit = textureSlot;
             textureTarget = target;
         }
 
         public override void Bind()
         {
-            if (textureId > 0)
+            if (texture != null)
             {
                 GL.ActiveTexture(textureUnit);
-                GL.BindTexture(textureTarget, textureId);
+                GL.BindTexture(textureTarget, texture.Id);
             }
         }
 
         public override void Unbind()
         {
-            if (textureId > 0)
+            if (texture != null)
             {
                 GL.ActiveTexture(textureUnit);
                 GL.BindTexture(textureTarget, 0);

@@ -34,7 +34,7 @@ namespace Bonsai.Shaders
         {
             return Observable.Defer(() =>
             {
-                var textureId = 0;
+                var texture = default(Texture);
                 var textureName = default(string);
                 return source.CombineEither(
                     ShaderManager.ReserveShader(ShaderName),
@@ -43,15 +43,14 @@ namespace Bonsai.Shaders
                         if (textureName != TextureName)
                         {
                             textureName = TextureName;
-                            var texture = !string.IsNullOrEmpty(textureName)
+                            texture = !string.IsNullOrEmpty(textureName)
                                 ? shader.Window.ResourceManager.Load<Texture>(textureName)
                                 : null;
-                            textureId = texture != null ? texture.Id : 0;
                         }
 
-                        if (textureId != 0)
+                        if (texture != null)
                         {
-                            shader.Update(() => update(textureId, input));
+                            shader.Update(() => update(texture.Id, input));
                         }
                         return input;
                     });

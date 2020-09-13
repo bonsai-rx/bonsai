@@ -4,14 +4,14 @@ namespace Bonsai.Shaders
 {
     class ImageTextureBinding : BufferBinding
     {
-        int textureId;
-        TextureUnit textureUnit;
-        TextureAccess bindingAccess;
-        SizedInternalFormat bindingFormat;
+        readonly Texture texture;
+        readonly TextureUnit textureUnit;
+        readonly TextureAccess bindingAccess;
+        readonly SizedInternalFormat bindingFormat;
 
-        public ImageTextureBinding(Texture texture, TextureUnit textureSlot, TextureAccess access, SizedInternalFormat format)
+        public ImageTextureBinding(Texture source, TextureUnit textureSlot, TextureAccess access, SizedInternalFormat format)
         {
-            textureId = texture.Id;
+            texture = source;
             textureUnit = textureSlot;
             bindingAccess = access;
             bindingFormat = format;
@@ -21,7 +21,7 @@ namespace Bonsai.Shaders
         {
             GL.BindImageTexture(
                 (int)(textureUnit - TextureUnit.Texture0),
-                textureId,
+                texture.Id,
                 0, false, 0,
                 bindingAccess,
                 bindingFormat);

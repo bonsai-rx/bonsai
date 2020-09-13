@@ -29,8 +29,8 @@ namespace Bonsai.Shaders
         {
             return Observable.Create<IplImage>(observer =>
             {
-                var texture = 0;
                 var name = TextureName;
+                var texture = default(Texture);
                 var textureSize = default(Size);
                 if (string.IsNullOrEmpty(name))
                 {
@@ -42,11 +42,7 @@ namespace Bonsai.Shaders
                     {
                         window.Update(() =>
                         {
-                            try
-                            {
-                                var tex = window.ResourceManager.Load<Texture>(name);
-                                texture = tex.Id;
-                            }
+                            try { texture = window.ResourceManager.Load<Texture>(name); }
                             catch (Exception ex) { observer.OnError(ex); }
                         });
                     }),
@@ -57,9 +53,9 @@ namespace Bonsai.Shaders
                             var target = TextureTarget;
                             if (target > TextureTarget.TextureBindingCubeMap && target < TextureTarget.ProxyTextureCubeMap)
                             {
-                                GL.BindTexture(TextureTarget.TextureCubeMap, texture);
+                                GL.BindTexture(TextureTarget.TextureCubeMap, texture.Id);
                             }
-                            else GL.BindTexture(target, texture);
+                            else GL.BindTexture(target, texture.Id);
                             var internalFormat = textureSize != input.Size ? InternalFormat : (PixelInternalFormat?)null;
                             TextureHelper.UpdateTexture(target, internalFormat, input);
                             textureSize = input.Size;
