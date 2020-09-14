@@ -16,7 +16,7 @@ namespace Bonsai.Vision.Design
             ImageScale = 1.0;
         }
 
-        internal double ImageScale { get; set; }
+        public double ImageScale { get; set; }
 
         public IplImage Image
         {
