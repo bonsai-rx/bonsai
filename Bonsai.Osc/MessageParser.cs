@@ -10,16 +10,12 @@ namespace Bonsai.Osc
     static class MessageParser
     {
         const int PadLength = 4;
-        const string ReadBlobMethodName = "ReadBlob";
-        const string ReadCharMethodName = "ReadChar";
-        const string ReadStringMethodName = "ReadString";
-        const string ReadTimeTagMethodName = "ReadTimeTag";
-        static readonly MethodInfo ReadBytes = typeof(BinaryReader).GetMethod("ReadBytes");
-        static readonly MethodInfo ReadInt32 = typeof(BinaryReader).GetMethod("ReadInt32");
-        static readonly MethodInfo ReadInt64 = typeof(BinaryReader).GetMethod("ReadInt64");
-        static readonly MethodInfo ReadUInt64 = typeof(BinaryReader).GetMethod("ReadUInt64");
-        static readonly MethodInfo ReadFloat = typeof(BinaryReader).GetMethod("ReadSingle");
-        static readonly MethodInfo ReadDouble = typeof(BinaryReader).GetMethod("ReadDouble");
+        static readonly MethodInfo ReadBytes = typeof(BinaryReader).GetMethod(nameof(BinaryReader.ReadBytes));
+        static readonly MethodInfo ReadInt32 = typeof(BinaryReader).GetMethod(nameof(BinaryReader.ReadInt32));
+        static readonly MethodInfo ReadInt64 = typeof(BinaryReader).GetMethod(nameof(BinaryReader.ReadInt64));
+        static readonly MethodInfo ReadUInt64 = typeof(BinaryReader).GetMethod(nameof(BinaryReader.ReadUInt64));
+        static readonly MethodInfo ReadFloat = typeof(BinaryReader).GetMethod(nameof(BinaryReader.ReadSingle));
+        static readonly MethodInfo ReadDouble = typeof(BinaryReader).GetMethod(nameof(BinaryReader.ReadDouble));
 
         internal static DateTimeOffset ReadTimeTag(BinaryReader reader)
         {
@@ -84,14 +80,14 @@ namespace Bonsai.Osc
 
         internal static Expression Address(Expression reader)
         {
-            return Expression.Call(typeof(MessageParser), ReadStringMethodName, null, reader);
+            return Expression.Call(typeof(MessageParser), nameof(ReadString), null, reader);
         }
 
         internal static Expression Content(string typeTag, Expression reader)
         {
             if (string.IsNullOrEmpty(typeTag))
             {
-                throw new ArgumentException("A valid type tag must be specified.", "typeTag");
+                throw new ArgumentException("A valid type tag must be specified.", nameof(typeTag));
             }
 
             var chars = typeTag.ToArray();
@@ -100,7 +96,7 @@ namespace Bonsai.Osc
                 .FirstOrDefault();
             if (tupleCreate == null)
             {
-                throw new ArgumentException("OSC messages with more than eight arguments are not supported.", "typeTag");
+                throw new ArgumentException("OSC messages with more than eight arguments are not supported.", nameof(typeTag));
             }
 
             var arguments = Array.ConvertAll(chars, tag =>
@@ -108,9 +104,9 @@ namespace Bonsai.Osc
                 switch (tag)
                 {
                     case TypeTag.Char:
-                        return Expression.Call(typeof(MessageParser), ReadCharMethodName, null, reader);
+                        return Expression.Call(typeof(MessageParser), nameof(ReadChar), null, reader);
                     case TypeTag.TimeTag:
-                        return Expression.Call(typeof(MessageParser), ReadTimeTagMethodName, null, reader);
+                        return Expression.Call(typeof(MessageParser), nameof(ReadTimeTag), null, reader);
                     case TypeTag.Int64: return Expression.Call(reader, ReadInt64);
                     case TypeTag.Int32: return Expression.Call(reader, ReadInt32);
                     case TypeTag.Float: return Expression.Call(reader, ReadFloat);
@@ -119,8 +115,8 @@ namespace Bonsai.Osc
                     case TypeTag.String: return Address(reader);
                     case TypeTag.Blob:
                         var blobSize = Expression.Call(reader, ReadInt32);
-                        return Expression.Call(typeof(MessageParser), ReadBlobMethodName, null, reader, blobSize);
-                    default: throw new ArgumentException(string.Format("The type tag '{0}' is not supported.", tag), "typeTag");
+                        return Expression.Call(typeof(MessageParser), nameof(ReadBlob), null, reader, blobSize);
+                    default: throw new ArgumentException(string.Format("The type tag '{0}' is not supported.", tag), nameof(typeTag));
                 }
             });
 

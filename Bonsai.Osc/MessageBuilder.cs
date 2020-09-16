@@ -12,22 +12,14 @@ namespace Bonsai.Osc
     static class MessageBuilder
     {
         const int PadLength = 4;
-        const string ASCIIEncodingName = "ASCII";
-        const string WriteMethodName = "Write";
-        const string GetBytesMethodName = "GetBytes";
-        const string PadBytesMethodName = "PadBytes";
-        const string WriteBlobMethodName = "WriteBlob";
-        const string ArrayLengthProperty = "Length";
-        const string BlockCopyMethodName = "BlockCopy";
-        const string FromTimestampMethodName = "FromTimestamp";
-        static readonly MethodInfo GetBytes = typeof(Encoding).GetMethod(GetBytesMethodName, new[] { typeof(string) });
-        static readonly MethodInfo GetCharBytes = typeof(Encoding).GetMethod(GetBytesMethodName, new[] { typeof(char[]) });
-        static readonly MethodInfo WriteBytes = typeof(BigEndianWriter).GetMethod(WriteMethodName, new[] { typeof(byte[]) });
-        static readonly MethodInfo WriteInt32 = typeof(BigEndianWriter).GetMethod(WriteMethodName, new[] { typeof(int) });
-        static readonly MethodInfo WriteInt64 = typeof(BigEndianWriter).GetMethod(WriteMethodName, new[] { typeof(long) });
-        static readonly MethodInfo WriteUInt64 = typeof(BigEndianWriter).GetMethod(WriteMethodName, new[] { typeof(ulong) });
-        static readonly MethodInfo WriteFloat = typeof(BigEndianWriter).GetMethod(WriteMethodName, new[] { typeof(float) });
-        static readonly MethodInfo WriteDouble = typeof(BigEndianWriter).GetMethod(WriteMethodName, new[] { typeof(double) });
+        static readonly MethodInfo GetBytes = typeof(Encoding).GetMethod(nameof(Encoding.GetBytes), new[] { typeof(string) });
+        static readonly MethodInfo GetCharBytes = typeof(Encoding).GetMethod(nameof(Encoding.GetBytes), new[] { typeof(char[]) });
+        static readonly MethodInfo WriteBytes = typeof(BigEndianWriter).GetMethod(nameof(BigEndianWriter.Write), new[] { typeof(byte[]) });
+        static readonly MethodInfo WriteInt32 = typeof(BigEndianWriter).GetMethod(nameof(BigEndianWriter.Write), new[] { typeof(int) });
+        static readonly MethodInfo WriteInt64 = typeof(BigEndianWriter).GetMethod(nameof(BigEndianWriter.Write), new[] { typeof(long) });
+        static readonly MethodInfo WriteUInt64 = typeof(BigEndianWriter).GetMethod(nameof(BigEndianWriter.Write), new[] { typeof(ulong) });
+        static readonly MethodInfo WriteFloat = typeof(BigEndianWriter).GetMethod(nameof(BigEndianWriter.Write), new[] { typeof(float) });
+        static readonly MethodInfo WriteDouble = typeof(BigEndianWriter).GetMethod(nameof(BigEndianWriter.Write), new[] { typeof(double) });
         static readonly ConstructorInfo DateTimeOffsetConstructor = typeof(DateTimeOffset).GetConstructor(new[] { typeof(DateTime) });
 
         public const string AddressSeparator = "/";
@@ -91,10 +83,10 @@ namespace Bonsai.Osc
                 case TypeCode.Char:
                     typeTagBuilder.Append(TypeTag.Char);
                     var charPad = Expression.Constant(0);
-                    var charEncoding = Expression.Property(null, typeof(Encoding), ASCIIEncodingName);
+                    var charEncoding = Expression.Property(null, typeof(Encoding), nameof(Encoding.ASCII));
                     parameter = Expression.NewArrayInit(typeof(char), parameter);
                     parameter = Expression.Call(charEncoding, GetCharBytes, parameter);
-                    parameter = Expression.Call(typeof(MessageBuilder), PadBytesMethodName, null, parameter, charPad);
+                    parameter = Expression.Call(typeof(MessageBuilder), nameof(MessageBuilder.PadBytes), null, parameter, charPad);
                     return Expression.Call(writer, WriteBytes, parameter);
                 case TypeCode.DateTime:
                     typeTagBuilder.Append(TypeTag.TimeTag);
@@ -102,7 +94,7 @@ namespace Bonsai.Osc
                     {
                         parameter = Expression.New(DateTimeOffsetConstructor, parameter);
                     }
-                    parameter = Expression.Call(typeof(TimeTag), FromTimestampMethodName, null, parameter);
+                    parameter = Expression.Call(typeof(TimeTag), nameof(TimeTag.FromTimestamp), null, parameter);
                     return Expression.Call(writer, WriteUInt64, parameter);
                 case TypeCode.Decimal:
                 case TypeCode.Double:
@@ -142,9 +134,9 @@ namespace Bonsai.Osc
                 case TypeCode.String:
                     typeTagBuilder.Append(TypeTag.String);
                     var stringPad = Expression.Constant(1);
-                    var stringEncoding = Expression.Property(null, typeof(Encoding), ASCIIEncodingName);
+                    var stringEncoding = Expression.Property(null, typeof(Encoding), nameof(Encoding.ASCII));
                     parameter = Expression.Call(stringEncoding, GetBytes, parameter);
-                    parameter = Expression.Call(typeof(MessageBuilder), PadBytesMethodName, null, parameter, stringPad);
+                    parameter = Expression.Call(typeof(MessageBuilder), nameof(MessageBuilder.PadBytes), null, parameter, stringPad);
                     return Expression.Call(writer, WriteBytes, parameter);
                 case TypeCode.Object:
                 default:
@@ -163,20 +155,20 @@ namespace Bonsai.Osc
                         {
                             var offset = Expression.Constant(0);
                             var elementSize = Expression.Constant(Marshal.SizeOf(elementType));
-                            var arrayLength = Expression.Property(parameter, ArrayLengthProperty);
+                            var arrayLength = Expression.Property(parameter, nameof(Array.Length));
                             var blobBounds = Expression.Multiply(arrayLength, elementSize);
                             var blobArray = Expression.NewArrayBounds(typeof(byte), blobBounds);
-                            var blockCopy = Expression.Call(typeof(Buffer), BlockCopyMethodName, null, parameter, offset, blobVariable, offset, blobBounds);
+                            var blockCopy = Expression.Call(typeof(Buffer), nameof(Buffer.BlockCopy), null, parameter, offset, blobVariable, offset, blobBounds);
                             blobAssignment = Expression.Assign(blobVariable, blobArray);
                             blobAssignment = Expression.Block(blobAssignment, blockCopy);
                         }
                         else blobAssignment = Expression.Assign(blobVariable, parameter);
-                        var blobSize = Expression.Property(blobVariable, ArrayLengthProperty);
+                        var blobSize = Expression.Property(blobVariable, nameof(Array.Length));
 
                         return Expression.Block(
                             new[] { blobVariable },
                             blobAssignment,
-                            Expression.Call(typeof(MessageBuilder), WriteBlobMethodName, null, writer, blobVariable));
+                            Expression.Call(typeof(MessageBuilder), nameof(MessageBuilder.WriteBlob), null, writer, blobVariable));
                     }
                     else
                     {
