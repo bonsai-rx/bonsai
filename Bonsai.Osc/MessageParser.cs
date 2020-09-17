@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -90,41 +91,69 @@ namespace Bonsai.Osc
                 throw new ArgumentException("A valid type tag must be specified.", nameof(typeTag));
             }
 
-            var chars = typeTag.ToArray();
-            var tupleCreate = typeof(Tuple).GetMethods()
-                .Where(method => method.Name == "Create" && method.GetParameters().Length == chars.Length)
-                .FirstOrDefault();
-            if (tupleCreate == null)
-            {
-                throw new ArgumentException("OSC messages with more than eight arguments are not supported.", nameof(typeTag));
-            }
-
-            var arguments = Array.ConvertAll(chars, tag =>
+            var stack = new Stack<List<Expression>>();
+            var arguments = new List<Expression>();
+            foreach (var tag in typeTag)
             {
                 switch (tag)
                 {
                     case TypeTag.Char:
-                        return Expression.Call(typeof(MessageParser), nameof(ReadChar), null, reader);
+                        arguments.Add(Expression.Call(typeof(MessageParser), nameof(ReadChar), null, reader));
+                        break;
                     case TypeTag.TimeTag:
-                        return Expression.Call(typeof(MessageParser), nameof(ReadTimeTag), null, reader);
-                    case TypeTag.Int64: return Expression.Call(reader, ReadInt64);
-                    case TypeTag.Int32: return Expression.Call(reader, ReadInt32);
-                    case TypeTag.Float: return Expression.Call(reader, ReadFloat);
-                    case TypeTag.Double: return Expression.Call(reader, ReadDouble);
+                        arguments.Add(Expression.Call(typeof(MessageParser), nameof(ReadTimeTag), null, reader));
+                        break;
+                    case TypeTag.Int64: arguments.Add(Expression.Call(reader, ReadInt64)); break;
+                    case TypeTag.Int32: arguments.Add(Expression.Call(reader, ReadInt32)); break;
+                    case TypeTag.Float: arguments.Add(Expression.Call(reader, ReadFloat)); break;
+                    case TypeTag.Double: arguments.Add(Expression.Call(reader, ReadDouble)); break;
                     case TypeTag.Alternate:
-                    case TypeTag.String: return Address(reader);
+                    case TypeTag.String: arguments.Add(Address(reader)); break;
                     case TypeTag.Blob:
                         var blobSize = Expression.Call(reader, ReadInt32);
-                        return Expression.Call(typeof(MessageParser), nameof(ReadBlob), null, reader, blobSize);
+                        arguments.Add(Expression.Call(typeof(MessageParser), nameof(ReadBlob), null, reader, blobSize));
+                        break;
+                    case TypeTag.ArrayBegin:
+                        stack.Push(arguments);
+                        arguments = new List<Expression>();
+                        break;
+                    case TypeTag.ArrayEnd:
+                        var array = Arguments(arguments);
+                        if (stack.Count == 0) throw new ArgumentException("Invalid OSC array declaration.", nameof(typeTag));
+                        arguments = stack.Pop();
+                        arguments.Add(array);
+                        break;
                     default: throw new ArgumentException(string.Format("The type tag '{0}' is not supported.", tag), nameof(typeTag));
                 }
-            });
+            };
 
-            if (arguments.Length == 1) return arguments[0];
+            if (stack.Count > 0)
+            {
+                throw new ArgumentException("Unexpected end of type tag. Check for missing array declaration brackets.", nameof(typeTag));
+            }
+            return Arguments(arguments);
+        }
+
+        static Expression Arguments(List<Expression> arguments)
+        {
+            if (arguments.Count == 0)
+            {
+                throw new ArgumentException("OSC arrays cannot be empty.", nameof(arguments));
+            }
+
+            if (arguments.Count > 8)
+            {
+                throw new ArgumentException("OSC messages or arrays with more than eight arguments are not supported.", nameof(arguments));
+            }
+
+            if (arguments.Count == 1) return arguments[0];
             else
             {
                 var argumentTypes = arguments.Select(m => m.Type).ToArray();
-                tupleCreate = tupleCreate.MakeGenericMethod(argumentTypes);
+                var tupleCreate = typeof(Tuple).GetMethods().First(
+                    m => m.Name == nameof(Tuple.Create) &&
+                    m.GetParameters().Length == arguments.Count)
+                    .MakeGenericMethod(argumentTypes);
                 return Expression.Call(tupleCreate, arguments);
             }
         }
