@@ -57,6 +57,17 @@ namespace Bonsai.Design
             get { return visualizer; }
         }
 
+        static IDisposable SubscribeDialog<TSource>(IObservable<TSource> source, TypeVisualizerDialog visualizerDialog)
+        {
+            return source.Subscribe(
+                xs => { },
+                ex => visualizerDialog.BeginInvoke((Action)(() =>
+                {
+                    MessageBox.Show(visualizerDialog, ex.Message, visualizerDialog.Text);
+                    visualizerDialog.Close();
+                })));
+        }
+
         protected override void InitializeComponents(TypeVisualizerDialog visualizerDialog, IServiceProvider provider)
         {
             visualizerDialog.Text = Text;
@@ -74,16 +85,7 @@ namespace Bonsai.Design
             visualizerDialog.DragEnter += new DragEventHandler(visualizerDialog_DragEnter);
             visualizerDialog.DragOver += new DragEventHandler(visualizerDialog_DragOver);
             visualizerDialog.DragDrop += new DragEventHandler(visualizerDialog_DragDrop);
-            visualizerDialog.Load += delegate
-            {
-                visualizerObserver = visualizerOutput.Subscribe(
-                    xs => { },
-                    ex => visualizerDialog.BeginInvoke((Action)(() =>
-                    {
-                        MessageBox.Show(visualizerDialog, ex.Message, visualizerDialog.Text);
-                        visualizerDialog.Close();
-                    })));
-            };
+            visualizerDialog.Load += (sender, e) => visualizerObserver = SubscribeDialog(visualizerOutput, visualizerDialog);
 
             visualizerDialog.HandleDestroyed += delegate
             {
@@ -141,7 +143,7 @@ namespace Bonsai.Design
             {
                 dialogMashup.LoadMashups(visualizerContext);
                 var visualizerOutput = visualizer.Value.Visualize(visualizerSource.Output, visualizerContext);
-                visualizerObserver = visualizerOutput.Subscribe();
+                visualizerObserver = SubscribeDialog(visualizerOutput, VisualizerDialog);
             }
         }
 
