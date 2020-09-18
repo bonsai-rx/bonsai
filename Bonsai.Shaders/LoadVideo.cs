@@ -99,6 +99,13 @@ namespace Bonsai.Shaders
             set { configuration.BufferLength = value; }
         }
 
+        [Description("The optional offset into the video, in frames, at which the sequence should start.")]
+        public int Offset
+        {
+            get { return configuration.Offset; }
+            set { configuration.Offset = value; }
+        }
+
         [Description("Indicates whether the video should loop when the end of the file is reached.")]
         public bool Loop
         {
