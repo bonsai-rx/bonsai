@@ -13,6 +13,7 @@ namespace Bonsai.Vision.Design
     public abstract class ImageMashupVisualizer : DialogMashupVisualizer
     {
         const int TargetInterval = 16;
+        IObserver<IList<object>> activeObserver;
         IList<object> activeValues;
         IList<object> shownValues;
         Timer updateTimer;
@@ -73,7 +74,18 @@ namespace Bonsai.Vision.Design
             var canvas = VisualizerCanvas;
             if (values != null && canvas != null)
             {
-                canvas.BeginInvoke((Action<IList<object>>)ShowMashup, values);
+                canvas.BeginInvoke((Action)(() =>
+                {
+                    try { ShowMashup(values); }
+                    catch (Exception ex)
+                    {
+                        var observer = activeObserver;
+                        if (observer != null)
+                        {
+                            observer.OnError(ex);
+                        }
+                    }
+                }));
             }
         }
 
@@ -94,13 +106,17 @@ namespace Bonsai.Vision.Design
             }
             else dataSource = mergedSource.Select(xs => new[] { xs });
 
-            return dataSource.Do(xs =>
+            return Observable.Create<IList<object>>(observer =>
             {
-                UpdateValues(xs);
-                if (Interlocked.Exchange(ref activeValues, xs) == null)
+                Interlocked.Exchange(ref activeObserver, observer);
+                return dataSource.Do(xs =>
                 {
-                    UpdateCanvas(xs);
-                }
+                    UpdateValues(xs);
+                    if (Interlocked.Exchange(ref activeValues, xs) == null)
+                    {
+                        UpdateCanvas(xs);
+                    }
+                }).SubscribeSafe(observer);
             });
         }
 
@@ -111,6 +127,7 @@ namespace Bonsai.Vision.Design
             updateTimer.Dispose();
             updateTimer = null;
             VisualizerImage = null;
+            activeObserver = null;
         }
     }
 
