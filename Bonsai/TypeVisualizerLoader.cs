@@ -25,7 +25,7 @@ namespace Bonsai
             try { types = assembly.GetTypes(); }
             catch (ReflectionTypeLoadException ex)
             {
-                Trace.WriteLine(string.Join<Exception>(Environment.NewLine, ex.LoaderExceptions));
+                Trace.TraceError(string.Join<Exception>(Environment.NewLine, ex.LoaderExceptions));
                 return typeVisualizers;
             }
 
