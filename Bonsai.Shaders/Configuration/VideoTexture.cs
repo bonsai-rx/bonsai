@@ -36,7 +36,7 @@ namespace Bonsai.Shaders.Configuration
         public bool Loop { get; set; }
 
         [Category("TextureData")]
-        [Description("Indicates whether to preload video frames into texture memory. This parameter is ignored if the number of frames exceeds the buffer size.")]
+        [Description("Indicates whether to preload only the specified number of buffer video frames into texture memory.")]
         public bool Preload { get; set; }
 
         public override Texture CreateResource(ResourceManager resourceManager)
@@ -60,13 +60,13 @@ namespace Bonsai.Shaders.Configuration
             var loop = Loop;
             var offset = Offset;
             var flipMode = FlipMode;
+            var preloaded = Preload;
             var fps = capture.GetProperty(CaptureProperty.Fps);
             var frameCount = (int)capture.GetProperty(CaptureProperty.FrameCount);
             var width = Width.GetValueOrDefault((int)capture.GetProperty(CaptureProperty.FrameWidth));
             var height = Height.GetValueOrDefault((int)capture.GetProperty(CaptureProperty.FrameHeight));
             var internalFormat = width > 0 && height > 0 ? (PixelInternalFormat?)null : InternalFormat;
             var bufferLength = BufferLength.GetValueOrDefault(1);
-            var preloaded = Preload && frameCount > 0 && frameCount <= bufferLength;
             if (preloaded) bufferLength = Math.Min(frameCount, bufferLength);
             var frames = new VideoEnumerator(capture, width, height, offset, flipMode, loop && !preloaded, !preloaded);
             frames.Reset();
@@ -74,12 +74,12 @@ namespace Bonsai.Shaders.Configuration
             ITextureSequence sequence;
             if (preloaded)
             {
-                int i = 0;
                 var texture = new TextureSequence(bufferLength, loop);
                 try
                 {
-                    while (frames.MoveNext())
+                    for (int i = 0; i < bufferLength; i++)
                     {
+                        frames.MoveNext();
                         texture.SetActiveTexture(i++);
                         ConfigureTexture(texture, width, height);
                         TextureHelper.UpdateTexture(TextureTarget.Texture2D, internalFormat, frames.Current);
