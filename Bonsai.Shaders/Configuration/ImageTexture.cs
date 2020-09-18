@@ -15,15 +15,18 @@ namespace Bonsai.Shaders.Configuration
             ColorType = LoadImageFlags.Unchanged;
         }
 
+        [Category("TextureData")]
         [TypeConverter(typeof(ResourceFileNameConverter))]
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [FileNameFilter("Image Files|*.png;*.bmp;*.jpg;*.jpeg;*.tif|PNG Files (*.png)|*.png|BMP Files (*.bmp)|*.bmp|JPEG Files (*.jpg;*.jpeg)|*.jpg;*.jpeg|TIFF Files (*.tif)|*.tif")]
         [Description("The name of the image file.")]
         public string FileName { get; set; }
 
+        [Category("TextureData")]
         [Description("Specifies optional conversions applied to the loaded image.")]
         public LoadImageFlags ColorType { get; set; }
 
+        [Category("TextureData")]
         [Description("Specifies the optional flip mode applied to the loaded image.")]
         public FlipMode? FlipMode { get; set; }
 

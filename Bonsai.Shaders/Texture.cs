@@ -12,14 +12,29 @@ namespace Bonsai.Shaders
             GL.GenTextures(1, out id);
         }
 
+        internal Texture(int value)
+        {
+            id = value;
+        }
+
         public int Id
         {
             get { return id; }
+            internal set { id = value; }
+        }
+
+        internal virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                GL.DeleteTextures(1, ref id);
+            }
         }
 
         public void Dispose()
         {
-            GL.DeleteTextures(1, ref id);
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

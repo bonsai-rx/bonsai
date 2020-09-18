@@ -59,9 +59,11 @@ namespace Bonsai.Shaders.Configuration
         [Description("The name of the image file to load for the negative Z direction.")]
         public string NegativeZ { get; set; }
 
+        [Category("TextureData")]
         [Description("Specifies optional conversions applied to the loaded image.")]
         public LoadImageFlags ColorType { get; set; }
 
+        [Category("TextureData")]
         [Description("Specifies the optional flip mode applied to the loaded image.")]
         public FlipMode? FlipMode { get; set; }
 

@@ -46,20 +46,25 @@ namespace Bonsai.Shaders.Configuration
         [Description("Specifies the texture magnification filter.")]
         public TextureMagFilter MagFilter { get; set; }
 
-        public override Texture CreateResource(ResourceManager resourceManager)
+        internal void ConfigureTexture(Texture texture, int width, int height)
         {
-            var texture = new Texture();
             GL.BindTexture(TextureTarget.Texture2D, texture.Id);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)WrapS);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)WrapT);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)MinFilter);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)MagFilter);
-            var width = Width.GetValueOrDefault();
-            var height = Height.GetValueOrDefault();
             if (width > 0 && height > 0)
             {
                 GL.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat, width, height, 0, PixelFormat.Bgr, PixelType.UnsignedByte, IntPtr.Zero);
             }
+        }
+
+        public override Texture CreateResource(ResourceManager resourceManager)
+        {
+            var texture = new Texture();
+            var width = Width.GetValueOrDefault();
+            var height = Height.GetValueOrDefault();
+            ConfigureTexture(texture, width, height);
             GL.BindTexture(TextureTarget.Texture2D, 0);
             return texture;
         }
