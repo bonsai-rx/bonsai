@@ -2,6 +2,8 @@
 {
     interface ITextureSequence
     {
+        bool Loop { get; set; }
+
         double PlaybackRate { get; set; }
 
         bool MoveNext();

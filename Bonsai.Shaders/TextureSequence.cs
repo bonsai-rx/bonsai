@@ -2,14 +2,14 @@
 {
     class TextureSequence : TextureArray, ITextureSequence
     {
-        int index = 0;
-        readonly bool looping;
+        int index;
 
-        public TextureSequence(int bufferLength, bool loop)
+        public TextureSequence(int bufferLength)
             : base(bufferLength)
         {
-            looping = loop;
         }
+
+        public bool Loop { get; set; }
 
         public double PlaybackRate { get; set; }
 
@@ -17,7 +17,7 @@
         {
             if (index >= Length)
             {
-                if (looping) index = 0;
+                if (Loop) index = 0;
                 else return false;
             }
 

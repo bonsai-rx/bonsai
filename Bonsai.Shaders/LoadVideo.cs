@@ -106,13 +106,6 @@ namespace Bonsai.Shaders
             set { configuration.Offset = value; }
         }
 
-        [Description("Indicates whether the video should loop when the end of the file is reached.")]
-        public bool Loop
-        {
-            get { return configuration.Loop; }
-            set { configuration.Loop = value; }
-        }
-
         [Description("Indicates whether to preload video frames into texture memory. This parameter is ignored if the number of frames exceeds the buffer size.")]
         public bool Preload
         {

@@ -32,10 +32,6 @@ namespace Bonsai.Shaders.Configuration
         public int Offset { get; set; }
 
         [Category("TextureData")]
-        [Description("Indicates whether the video should loop when the end of the file is reached.")]
-        public bool Loop { get; set; }
-
-        [Category("TextureData")]
         [Description("Indicates whether to preload only the specified number of buffer video frames into texture memory.")]
         public bool Preload { get; set; }
 
@@ -57,7 +53,6 @@ namespace Bonsai.Shaders.Configuration
                     Name, fileName));
             }
 
-            var loop = Loop;
             var offset = Offset;
             var flipMode = FlipMode;
             var preloaded = Preload;
@@ -68,13 +63,13 @@ namespace Bonsai.Shaders.Configuration
             var internalFormat = width > 0 && height > 0 ? (PixelInternalFormat?)null : InternalFormat;
             var bufferLength = BufferLength.GetValueOrDefault(1);
             if (preloaded) bufferLength = Math.Min(frameCount, bufferLength);
-            var frames = new VideoEnumerator(capture, width, height, offset, flipMode, loop && !preloaded, !preloaded);
+            var frames = new VideoEnumerator(capture, width, height, offset, flipMode, !preloaded);
             frames.Reset();
 
             ITextureSequence sequence;
             if (preloaded)
             {
-                var texture = new TextureSequence(bufferLength, loop);
+                var texture = new TextureSequence(bufferLength);
                 try
                 {
                     for (int i = 0; i < bufferLength; i++)
@@ -108,17 +103,15 @@ namespace Bonsai.Shaders.Configuration
             readonly int height;
             readonly double offset;
             readonly FlipMode? flipMode;
-            readonly bool loop;
             readonly bool clone;
 
-            public VideoEnumerator(Capture capture, int width, int height, double offset, FlipMode? flipMode, bool loop, bool clone)
+            public VideoEnumerator(Capture capture, int width, int height, double offset, FlipMode? flipMode, bool clone)
             {
                 this.capture = capture;
                 this.width = width;
                 this.height = height;
                 this.offset = offset;
                 this.flipMode = flipMode;
-                this.loop = loop;
                 this.clone = clone;
             }
 
@@ -131,16 +124,8 @@ namespace Bonsai.Shaders.Configuration
                 var frame = capture.QueryFrame();
                 if (frame == null)
                 {
-                    if (loop)
-                    {
-                        Reset();
-                        frame = capture.QueryFrame();
-                    }
-                    else
-                    {
-                        Current = null;
-                        return false;
-                    }
+                    Current = null;
+                    return false;
                 }
 
                 if (width > 0 && height > 0 && (frame.Width != width || frame.Height != height))

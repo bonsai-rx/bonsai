@@ -22,6 +22,8 @@ namespace Bonsai.Shaders
             frames = source;
         }
 
+        public bool Loop { get; set; }
+
         public double PlaybackRate { get; set; }
 
         public bool MoveNext()
@@ -35,6 +37,7 @@ namespace Bonsai.Shaders
 
         public void Reset()
         {
+            Loop = false;
             if (preloaded != null)
             {
                 preloaded.Dispose();
@@ -48,11 +51,18 @@ namespace Bonsai.Shaders
             preloaded = GetPreloadedFrames(frames, capacity);
         }
 
-        static Task<IplImage> GetNextFrame(IEnumerator<IplImage> frames, Task<IplImage> task, CancellationToken cancellationToken)
+        Task<IplImage> GetNextFrame(IEnumerator<IplImage> frames, CancellationToken cancellationToken)
         {
-            return task.ContinueWith(task =>
+            return queryFrame = queryFrame.ContinueWith(task =>
             {
-                if (cancellationToken.IsCancellationRequested || !frames.MoveNext()) return null;
+                if (cancellationToken.IsCancellationRequested) return null;
+                if (!frames.MoveNext())
+                {
+                    if (!Loop) return null;
+                    frames.Reset();
+                    frames.MoveNext();
+                }
+
                 return frames.Current;
             });
         }
@@ -69,7 +79,7 @@ namespace Bonsai.Shaders
                     var nextFrame = taskBuffer.Dequeue();
                     if (!nextFrame.IsCompleted) nextFrame.Wait(cancellation.Token);
                     if (nextFrame.Result == null) break;
-                    taskBuffer.Enqueue(queryFrame = GetNextFrame(frames, queryFrame, cancellation.Token));
+                    taskBuffer.Enqueue(GetNextFrame(frames, cancellation.Token));
                     yield return nextFrame.Result;
                 }
             }
@@ -85,7 +95,7 @@ namespace Bonsai.Shaders
             var cancellation = new CancellationTokenSource();
             while (taskBuffer.Count < bufferLength)
             {
-                taskBuffer.Enqueue(queryFrame = GetNextFrame(frames, queryFrame, cancellation.Token));
+                taskBuffer.Enqueue(GetNextFrame(frames, cancellation.Token));
             }
             return GetFrameEnumerator(frames, taskBuffer, cancellation);
         }
