@@ -39,7 +39,7 @@ namespace Bonsai.Shaders
             get { return Index.HasValue; }
         }
 
-        IObservable<TSource> Process<TSource>(IObservable<TSource> source, Action<int, TSource> update)
+        IObservable<TSource> Process<TSource>(IObservable<TSource> source, Action<TSource> update)
         {
             return Observable.Defer(() =>
             {
@@ -60,9 +60,14 @@ namespace Bonsai.Shaders
                         if (texture != null)
                         {
                             var index = Index;
-                            if (index.HasValue) shader.Update(() => update(((TextureSequence)texture).Textures[index.Value], input));
-                            else shader.Update(() => update(texture.Id, input));
+                            var textureId = index.HasValue ? ((TextureSequence)texture).Textures[index.Value] : texture.Id;
+                            shader.Update(() =>
+                            {
+                                GL.ActiveTexture(TextureSlot);
+                                GL.BindTexture(TextureTarget, textureId);
+                            });
                         }
+                        else if (update != null) shader.Update(() => update(input));
                         return input;
                     });
             });
@@ -70,19 +75,15 @@ namespace Bonsai.Shaders
 
         public IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
-            return Process(source, (id, input) =>
-            {
-                GL.ActiveTexture(TextureSlot);
-                GL.BindTexture(TextureTarget, id);
-            });
+            return Process(source, update: null);
         }
 
         public IObservable<Texture> Process(IObservable<Texture> source)
         {
-            return Process(source, (id, input) =>
+            return Process(source, input =>
             {
                 GL.ActiveTexture(TextureSlot);
-                GL.BindTexture(TextureTarget, id == 0 && input != null ? input.Id : id);
+                GL.BindTexture(TextureTarget, input != null ? input.Id : 0);
             });
         }
     }
