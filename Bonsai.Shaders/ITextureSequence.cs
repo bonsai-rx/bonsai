@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Bonsai.Reactive;
+using System.Collections.Generic;
 
 namespace Bonsai.Shaders
 {
@@ -6,6 +7,6 @@ namespace Bonsai.Shaders
     {
         double PlaybackRate { get; set; }
 
-        IEnumerator<int> GetEnumerator(bool loop);
+        IEnumerator<ElementIndex<Texture>> GetEnumerator(bool loop);
     }
 }

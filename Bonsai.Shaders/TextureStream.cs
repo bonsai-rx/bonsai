@@ -95,7 +95,7 @@ namespace Bonsai.Shaders
             base.Dispose(disposing);
         }
 
-        public IEnumerator<int> GetEnumerator(bool loop)
+        public IEnumerator<ElementIndex<Texture>> GetEnumerator(bool loop)
         {
             try
             {
@@ -108,7 +108,7 @@ namespace Bonsai.Shaders
                     var current = preloaded.Current;
                     GL.BindTexture(TextureTarget.Texture2D, Id);
                     TextureHelper.UpdateTexture(TextureTarget.Texture2D, pixelFormat, current.Value);
-                    yield return current.Index;
+                    yield return new ElementIndex<Texture>(this, current.Index);
                 }
             }
             finally

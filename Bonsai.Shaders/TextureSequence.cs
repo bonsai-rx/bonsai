@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Bonsai.Reactive;
+using System.Collections.Generic;
 
 namespace Bonsai.Shaders
 {
@@ -19,9 +20,10 @@ namespace Bonsai.Shaders
 
         public double PlaybackRate { get; set; }
 
-        public IEnumerator<int> GetEnumerator(bool loop)
+        public IEnumerator<ElementIndex<Texture>> GetEnumerator(bool loop)
         {
             var index = 0;
+            var texture = new TextureReference();
             try
             {
                 while (true)
@@ -32,11 +34,11 @@ namespace Bonsai.Shaders
                         else yield break;
                     }
 
-                    Id = textures[index];
-                    yield return index++;
+                    texture.Id = Id = textures[index];
+                    yield return new ElementIndex<Texture>(texture, index++);
                 }
             }
-            finally { Id = 0; }
+            finally { texture.Id = Id = 0; }
         }
 
         internal override void Dispose(bool disposing)
@@ -44,6 +46,18 @@ namespace Bonsai.Shaders
             if (disposing)
             {
                 textures.Dispose();
+            }
+        }
+
+        class TextureReference : Texture
+        {
+            public TextureReference()
+                : base(0)
+            {
+            }
+
+            internal override void Dispose(bool disposing)
+            {
             }
         }
     }
