@@ -75,7 +75,7 @@ namespace Bonsai.Shaders.Configuration
                     for (int i = 0; i < bufferLength; i++)
                     {
                         frames.MoveNext();
-                        texture.SetActiveTexture(i++);
+                        texture.MoveNext();
                         ConfigureTexture(texture, width, height);
                         TextureHelper.UpdateTexture(TextureTarget.Texture2D, internalFormat, frames.Current);
                     }

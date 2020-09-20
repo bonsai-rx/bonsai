@@ -1,34 +1,46 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Bonsai.Shaders
 {
-    class TextureArray : Texture
+    public class TextureArray : IDisposable, IEnumerable<int>
     {
         readonly int[] textures;
 
         public TextureArray(int count)
-            : base(0)
         {
             textures = new int[count];
             GL.GenTextures(textures.Length, textures);
         }
 
-        internal int Length
+        public int this[int index]
+        {
+            get { return textures[index]; }
+        }
+
+        public int Length
         {
             get { return textures.Length; }
         }
 
-        internal void SetActiveTexture(int index)
+        public void Dispose()
         {
-            Id = textures[index];
+            GL.DeleteTextures(textures.Length, textures);
         }
 
-        internal override void Dispose(bool disposing)
+        public IEnumerator<int> GetEnumerator()
         {
-            if (disposing)
+            for (int i = 0; i < textures.Length; i++)
             {
-                GL.DeleteTextures(textures.Length, textures);
+                yield return textures[i];
             }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

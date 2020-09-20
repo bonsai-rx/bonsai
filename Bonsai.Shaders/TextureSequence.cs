@@ -1,12 +1,19 @@
 ﻿namespace Bonsai.Shaders
 {
-    class TextureSequence : TextureArray, ITextureSequence
+    class TextureSequence : Texture, ITextureSequence
     {
         int index;
+        readonly TextureArray textures;
 
         public TextureSequence(int bufferLength)
-            : base(bufferLength)
+            : base(0)
         {
+            textures = new TextureArray(bufferLength);
+        }
+
+        public TextureArray Textures
+        {
+            get { return textures; }
         }
 
         public bool Loop { get; set; }
@@ -15,14 +22,13 @@
 
         public bool MoveNext()
         {
-            if (index >= Length)
+            if (index >= textures.Length)
             {
                 if (Loop) index = 0;
                 else return false;
             }
 
-            SetActiveTexture(index);
-            index = index + 1;
+            Id = textures[index++];
             return true;
         }
 
@@ -30,6 +36,14 @@
         {
             index = 0;
             Id = 0;
+        }
+
+        internal override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                textures.Dispose();
+            }
         }
     }
 }
