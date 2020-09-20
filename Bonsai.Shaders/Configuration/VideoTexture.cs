@@ -70,12 +70,12 @@ namespace Bonsai.Shaders.Configuration
             if (preloaded)
             {
                 var texture = new TextureSequence(bufferLength);
+                using var enumerator = texture.GetEnumerator(false);
                 try
                 {
-                    for (int i = 0; i < bufferLength; i++)
+                    while (enumerator.MoveNext())
                     {
                         frames.MoveNext();
-                        texture.MoveNext();
                         ConfigureTexture(texture, width, height);
                         TextureHelper.UpdateTexture(TextureTarget.Texture2D, internalFormat, frames.Current);
                     }
@@ -92,7 +92,6 @@ namespace Bonsai.Shaders.Configuration
 
             GL.BindTexture(TextureTarget.Texture2D, 0);
             sequence.PlaybackRate = fps;
-            sequence.Reset();
             return (Texture)sequence;
         }
 

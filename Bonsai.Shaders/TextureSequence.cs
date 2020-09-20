@@ -1,8 +1,9 @@
-﻿namespace Bonsai.Shaders
+﻿using System.Collections.Generic;
+
+namespace Bonsai.Shaders
 {
     class TextureSequence : Texture, ITextureSequence
     {
-        int index;
         readonly TextureArray textures;
 
         public TextureSequence(int bufferLength)
@@ -16,26 +17,26 @@
             get { return textures; }
         }
 
-        public bool Loop { get; set; }
-
         public double PlaybackRate { get; set; }
 
-        public bool MoveNext()
+        public IEnumerator<int> GetEnumerator(bool loop)
         {
-            if (index >= textures.Length)
+            var index = 0;
+            try
             {
-                if (Loop) index = 0;
-                else return false;
+                while (true)
+                {
+                    if (index >= textures.Length)
+                    {
+                        if (loop) index = 0;
+                        else yield break;
+                    }
+
+                    Id = textures[index];
+                    yield return index++;
+                }
             }
-
-            Id = textures[index++];
-            return true;
-        }
-
-        public void Reset()
-        {
-            index = 0;
-            Id = 0;
+            finally { Id = 0; }
         }
 
         internal override void Dispose(bool disposing)

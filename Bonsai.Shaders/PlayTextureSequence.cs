@@ -5,7 +5,7 @@ using System.Reactive.Linq;
 namespace Bonsai.Shaders
 {
     [Description("Starts playing the frame sequence of a video texture or texture array.")]
-    public class PlayTextureSequence : Combinator<long>
+    public class PlayTextureSequence : Combinator<int>
     {
         [TypeConverter(typeof(TextureNameConverter))]
         [Description("The name of the texture sequence.")]
@@ -19,25 +19,26 @@ namespace Bonsai.Shaders
         [Description("Indicates whether the video should loop when the end of the file is reached.")]
         public bool Loop { get; set; }
 
-        internal static IObservable<long> Process(ITextureSequence texture, double playbackRate, bool loop)
+        internal static IObservable<int> Process(ITextureSequence texture, double playbackRate, bool loop)
         {
-            texture.Loop = loop;
             playbackRate = playbackRate > 0 ? playbackRate : texture.PlaybackRate;
             var timer = new Timer { Period = TimeSpan.FromSeconds(1.0 / playbackRate) };
-            return timer.Generate().TakeWhile(x => texture.MoveNext()).Finally(texture.Reset);
+            return Observable.Using(
+                () => texture.GetEnumerator(loop),
+                enumerator => timer.Generate().TakeWhile(x => enumerator.MoveNext()).Select(x => enumerator.Current));
         }
 
-        public IObservable<long> Process()
+        public IObservable<int> Process()
         {
             return Process(Observable.Return(0));
         }
 
-        public IObservable<long> Process(IObservable<Texture> source)
+        public IObservable<int> Process(IObservable<Texture> source)
         {
             return source.Select(input => Process((ITextureSequence)input, PlaybackRate, Loop)).Switch();
         }
 
-        public override IObservable<long> Process<TSource>(IObservable<TSource> source)
+        public override IObservable<int> Process<TSource>(IObservable<TSource> source)
         {
             return source.Select(input =>
             {

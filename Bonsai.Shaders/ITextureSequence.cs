@@ -1,13 +1,11 @@
-﻿namespace Bonsai.Shaders
+﻿using System.Collections.Generic;
+
+namespace Bonsai.Shaders
 {
     interface ITextureSequence
     {
-        bool Loop { get; set; }
-
         double PlaybackRate { get; set; }
 
-        bool MoveNext();
-
-        void Reset();
+        IEnumerator<int> GetEnumerator(bool loop);
     }
 }

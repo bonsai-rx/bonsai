@@ -1,4 +1,5 @@
-﻿using OpenCV.Net;
+﻿using Bonsai.Reactive;
+using OpenCV.Net;
 using OpenTK.Graphics.OpenGL4;
 using System.Collections.Generic;
 using System.Threading;
@@ -8,68 +9,45 @@ namespace Bonsai.Shaders
 {
     class TextureStream : Texture, ITextureSequence
     {
+        bool loop;
         readonly int capacity;
         readonly IEnumerator<IplImage> frames;
         readonly PixelInternalFormat? pixelFormat;
-        IEnumerator<IplImage> preloaded;
-        Task<IplImage> queryFrame;
+        IEnumerator<ElementIndex<IplImage>> preloaded;
+        Task<ElementIndex<IplImage>> queryFrame;
 
         public TextureStream(IEnumerator<IplImage> source, PixelInternalFormat? internalFormat, int bufferLength)
         {
-            queryFrame = Task.FromResult(default(IplImage));
+            queryFrame = Task.FromResult(default(ElementIndex<IplImage>));
+            preloaded = GetPreloadedFrames(source, bufferLength);
             pixelFormat = internalFormat;
             capacity = bufferLength;
             frames = source;
         }
 
-        public bool Loop { get; set; }
-
         public double PlaybackRate { get; set; }
 
-        public bool MoveNext()
-        {
-            var result = preloaded.MoveNext();
-            if (!result) return false;
-            GL.BindTexture(TextureTarget.Texture2D, Id);
-            TextureHelper.UpdateTexture(TextureTarget.Texture2D, pixelFormat, preloaded.Current);
-            return true;
-        }
-
-        public void Reset()
-        {
-            Loop = false;
-            if (preloaded != null)
-            {
-                preloaded.Dispose();
-                queryFrame = queryFrame.ContinueWith(task =>
-                {
-                    frames.Reset();
-                    return default(IplImage);
-                });
-            }
-
-            preloaded = GetPreloadedFrames(frames, capacity);
-        }
-
-        Task<IplImage> GetNextFrame(IEnumerator<IplImage> frames, CancellationToken cancellationToken)
+        Task<ElementIndex<IplImage>> GetNextFrame(IEnumerator<IplImage> frames, CancellationToken cancellationToken)
         {
             return queryFrame = queryFrame.ContinueWith(task =>
             {
-                if (cancellationToken.IsCancellationRequested) return null;
+                var index = task.Result.Index + 1;
+                if (cancellationToken.IsCancellationRequested) return default;
                 if (!frames.MoveNext())
                 {
-                    if (!Loop) return null;
+                    if (!loop) return default;
                     frames.Reset();
                     frames.MoveNext();
+                    index = 0;
                 }
 
-                return frames.Current;
+                return new ElementIndex<IplImage>(frames.Current, index);
             });
         }
 
-        IEnumerator<IplImage> GetFrameEnumerator(
+        IEnumerator<ElementIndex<IplImage>> GetFrameEnumerator(
             IEnumerator<IplImage> frames,
-            Queue<Task<IplImage>> taskBuffer,
+            Queue<Task<ElementIndex<IplImage>>> taskBuffer,
             CancellationTokenSource cancellation)
         {
             try
@@ -78,7 +56,7 @@ namespace Bonsai.Shaders
                 {
                     var nextFrame = taskBuffer.Dequeue();
                     if (!nextFrame.IsCompleted) nextFrame.Wait(cancellation.Token);
-                    if (nextFrame.Result == null) break;
+                    if (nextFrame.Result.Value == null) break;
                     taskBuffer.Enqueue(GetNextFrame(frames, cancellation.Token));
                     yield return nextFrame.Result;
                 }
@@ -89,9 +67,9 @@ namespace Bonsai.Shaders
             }
         }
 
-        IEnumerator<IplImage> GetPreloadedFrames(IEnumerator<IplImage> frames, int bufferLength)
+        IEnumerator<ElementIndex<IplImage>> GetPreloadedFrames(IEnumerator<IplImage> frames, int bufferLength)
         {
-            var taskBuffer = new Queue<Task<IplImage>>(bufferLength);
+            var taskBuffer = new Queue<Task<ElementIndex<IplImage>>>(bufferLength);
             var cancellation = new CancellationTokenSource();
             while (taskBuffer.Count < bufferLength)
             {
@@ -110,11 +88,44 @@ namespace Bonsai.Shaders
                     queryFrame = queryFrame.ContinueWith(task =>
                     {
                         frames.Dispose();
-                        return default(IplImage);
+                        return default(ElementIndex<IplImage>);
                     });
                 }
             }
             base.Dispose(disposing);
+        }
+
+        public IEnumerator<int> GetEnumerator(bool loop)
+        {
+            try
+            {
+                this.loop = loop;
+                while (preloaded != null)
+                {
+                    var result = preloaded.MoveNext();
+                    if (!result) yield break;
+
+                    var current = preloaded.Current;
+                    GL.BindTexture(TextureTarget.Texture2D, Id);
+                    TextureHelper.UpdateTexture(TextureTarget.Texture2D, pixelFormat, current.Value);
+                    yield return current.Index;
+                }
+            }
+            finally
+            {
+                this.loop = false;
+                if (preloaded != null)
+                {
+                    preloaded.Dispose();
+                    queryFrame = queryFrame.ContinueWith(task =>
+                    {
+                        frames.Reset();
+                        return default(ElementIndex<IplImage>);
+                    });
+                }
+
+                preloaded = GetPreloadedFrames(frames, capacity);
+            }
         }
     }
 }
