@@ -30,6 +30,15 @@ namespace Bonsai.Shaders
         [Description("The texture target that will be bound to the sampler.")]
         public TextureTarget TextureTarget { get; set; }
 
+        [Description("The optional index of the texture that will be bound to the shader. Only applicable to texture array objects.")]
+        public int? Index { get; set; }
+
+        [Browsable(false)]
+        public bool IndexSpecified
+        {
+            get { return Index.HasValue; }
+        }
+
         IObservable<TSource> Process<TSource>(IObservable<TSource> source, Action<int, TSource> update)
         {
             return Observable.Defer(() =>
@@ -50,7 +59,9 @@ namespace Bonsai.Shaders
 
                         if (texture != null)
                         {
-                            shader.Update(() => update(texture.Id, input));
+                            var index = Index;
+                            if (index.HasValue) shader.Update(() => update(((TextureSequence)texture).Textures[index.Value], input));
+                            else shader.Update(() => update(texture.Id, input));
                         }
                         return input;
                     });
