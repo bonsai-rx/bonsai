@@ -739,15 +739,29 @@ namespace Bonsai.Editor.GraphView
             ConnectGraphNodes(new[] { source }, target, validate: false);
         }
 
+        static void FindNextIndex(ref int index, ref int offset, int[] indices)
+        {
+            for (; offset < indices.Length; offset++, index++)
+            {
+                if (indices[offset] > index) break;
+            }
+        }
+
         private void ConnectGraphNodes(IEnumerable<GraphNode> graphViewSources, GraphNode graphViewTarget, bool validate)
         {
             var workflow = this.workflow;
             var addConnection = EmptyAction;
             var removeConnection = EmptyAction;
             var target = GetGraphNodeTag(workflow, graphViewTarget);
-            var connectionIndex = workflow.Predecessors(target).Count();
+            var sortedPredecessors = workflow.PredecessorEdges(target)
+                .Select(edge => edge.Item2.Label.Index)
+                .OrderBy(idx => idx).ToArray();
+
+            var offset = 0;
+            var connectionIndex = 0;
             foreach (var graphViewSource in graphViewSources)
             {
+                FindNextIndex(ref connectionIndex, ref offset, sortedPredecessors);
                 var source = GetGraphNodeTag(workflow, graphViewSource);
                 var parameter = new ExpressionBuilderArgument(connectionIndex);
                 var edge = Edge.Create(target, parameter);
@@ -1879,7 +1893,7 @@ namespace Bonsai.Editor.GraphView
                 return;
             }
 
-            var predecessors = workflow.PredecessorEdges(workflowNode).OrderBy(edge => edge.Item3).Select(xs => xs.Item1.Value).ToArray();
+            var predecessors = workflow.PredecessorEdges(workflowNode).OrderBy(edge => edge.Item2.Label.Index).Select(xs => xs.Item1.Value).ToArray();
             var successors = workflowNode.Successors.Select(xs => xs.Target.Value).ToArray();
             var groupWorkflow = new ExpressionBuilderGraph();
             groupWorkflow.AddDescriptor(workflowBuilder.Workflow.ToDescriptor());
@@ -1895,7 +1909,7 @@ namespace Bonsai.Editor.GraphView
                               select n).ToArray();
             var groupOutputs = groupSinks.Take(1)
                 .Select(groupWorkflow.PredecessorEdges)
-                .SelectMany(edges => edges.OrderBy(edge => edge.Item3))
+                .SelectMany(edges => edges.OrderBy(edge => edge.Item2.Label.Index))
                 .ToArray();
             foreach (var terminal in groupSources.Concat(groupSinks))
             {
