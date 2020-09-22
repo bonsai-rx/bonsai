@@ -23,7 +23,7 @@ namespace Bonsai.Shaders.Configuration.Design
 
         protected override Type[] CreateNewItemTypes()
         {
-            return new[] { typeof(Texture2D), typeof(Cubemap), typeof(ImageTexture), typeof(ImageCubemap), typeof(VideoTexture) };
+            return new[] { typeof(Texture2D), typeof(Cubemap), typeof(ImageTexture), typeof(ImageCubemap), typeof(ImageSequence), typeof(VideoTexture) };
         }
 
         protected override string[] CreateSupportedExtensions()

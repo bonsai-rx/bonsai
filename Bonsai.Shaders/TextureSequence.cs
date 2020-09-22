@@ -7,10 +7,10 @@ namespace Bonsai.Shaders
     {
         readonly TextureArray textures;
 
-        public TextureSequence(int bufferLength)
+        public TextureSequence(int length)
             : base(0)
         {
-            textures = new TextureArray(bufferLength);
+            textures = new TextureArray(length);
         }
 
         public TextureArray Textures

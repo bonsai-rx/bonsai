@@ -9,13 +9,13 @@ using System.Reactive.Linq;
 namespace Bonsai.Shaders
 {
     [DefaultProperty("FileName")]
-    [Description("Loads a texture which can be dynamically updated from the specified movie file.")]
-    public class LoadVideo : Source<Texture>
+    [Description("Loads an image sequence from the specified movie file or image folder.")]
+    public class LoadImageSequence : Source<Texture>
     {
         readonly UpdateFrame updateFrame = new UpdateFrame();
-        readonly VideoTexture configuration = new VideoTexture();
+        readonly ImageSequence configuration = new ImageSequence();
 
-        public LoadVideo()
+        public LoadImageSequence()
         {
             FlipMode = OpenCV.Net.FlipMode.Vertical;
         }
@@ -78,7 +78,7 @@ namespace Bonsai.Shaders
 
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         [FileNameFilter("Video Files|*.avi;*.mp4;*.ogg;*.ogv;*.wmv|AVI Files (*.avi)|*.avi|MP4 Files (*.mp4)|*.mp4|OGG Files (*.ogg;*.ogv)|*.ogg;*.ogv|WMV Files (*.wmv)|*.wmv")]
-        [Description("The name of the movie file.")]
+        [Description("The path to a movie file or image sequence search pattern.")]
         public string FileName
         {
             get { return configuration.FileName; }
@@ -92,25 +92,18 @@ namespace Bonsai.Shaders
             set { configuration.FlipMode = value; }
         }
 
-        [Description("The optional maximum number of frames to include in the video sequence.")]
+        [Description("The optional maximum number of frames to include in the image sequence.")]
         public int? FrameCount
         {
             get { return configuration.FrameCount; }
             set { configuration.FrameCount = value; }
         }
 
-        [Description("The offset, in frames, at which the video sequence should start.")]
+        [Description("The offset, in frames, at which the image sequence should start.")]
         public int StartPosition
         {
             get { return configuration.StartPosition; }
             set { configuration.StartPosition = value; }
-        }
-
-        [Description("The optional size of the pre-loading buffer for video frames.")]
-        public int? BufferLength
-        {
-            get { return configuration.BufferLength; }
-            set { configuration.BufferLength = value; }
         }
 
         public override IObservable<Texture> Generate()

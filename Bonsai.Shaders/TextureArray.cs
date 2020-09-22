@@ -9,9 +9,9 @@ namespace Bonsai.Shaders
     {
         readonly int[] textures;
 
-        public TextureArray(int count)
+        public TextureArray(int length)
         {
-            textures = new int[count];
+            textures = new int[length];
             GL.GenTextures(textures.Length, textures);
         }
 

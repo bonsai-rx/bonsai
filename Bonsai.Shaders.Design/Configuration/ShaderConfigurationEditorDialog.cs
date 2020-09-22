@@ -33,7 +33,7 @@ namespace Bonsai.Shaders.Configuration.Design
             meshCollectionEditor.CollectionItemType = typeof(MeshConfiguration);
             meshCollectionEditor.NewItemTypes = new[] { typeof(MeshConfiguration), typeof(TexturedQuad), typeof(TexturedModel) };
             textureCollectionEditor.CollectionItemType = typeof(TextureConfiguration);
-            textureCollectionEditor.NewItemTypes = new[] { typeof(Texture2D), typeof(Cubemap), typeof(ImageTexture), typeof(ImageCubemap), typeof(VideoTexture) };
+            textureCollectionEditor.NewItemTypes = new[] { typeof(Texture2D), typeof(Cubemap), typeof(ImageTexture), typeof(ImageCubemap), typeof(ImageSequence), typeof(VideoTexture) };
         }
 
         public GlslScriptExampleCollection ScriptExamples
