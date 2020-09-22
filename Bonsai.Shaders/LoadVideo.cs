@@ -114,7 +114,7 @@ namespace Bonsai.Shaders
             return update.Select(x => configuration.CreateResource(((ShaderWindow)x.Sender).ResourceManager));
         }
 
-        public IObservable<Texture> Generate<TSource>(IObservable<double> source)
+        public IObservable<Texture> Generate<TSource>(IObservable<TSource> source)
         {
             return source.SelectMany(Generate());
         }
