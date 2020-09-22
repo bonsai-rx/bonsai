@@ -15,11 +15,6 @@ namespace Bonsai.Shaders
         readonly UpdateFrame updateFrame = new UpdateFrame();
         readonly VideoTexture configuration = new VideoTexture();
 
-        public LoadVideo()
-        {
-            FlipMode = OpenCV.Net.FlipMode.Vertical;
-        }
-
         [Category("TextureSize")]
         [Description("The optional width of the texture.")]
         public int? Width

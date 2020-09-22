@@ -21,7 +21,7 @@ namespace Bonsai.Shaders.Configuration
 
         [Category("TextureData")]
         [Description("Specifies the optional flip mode applied to individual frames.")]
-        public FlipMode? FlipMode { get; set; }
+        public FlipMode? FlipMode { get; set; } = OpenCV.Net.FlipMode.Vertical;
 
         [Category("TextureData")]
         [Description("The optional maximum number of frames to include in the image sequence.")]

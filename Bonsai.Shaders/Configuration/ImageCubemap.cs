@@ -12,11 +12,6 @@ namespace Bonsai.Shaders.Configuration
     {
         const string FileNameFilter = "Image Files|*.png;*.bmp;*.jpg;*.jpeg;*.tif|PNG Files (*.png)|*.png|BMP Files (*.bmp)|*.bmp|JPEG Files (*.jpg;*.jpeg)|*.jpg;*.jpeg|TIFF Files (*.tif)|*.tif";
 
-        public ImageCubemap()
-        {
-            ColorType = LoadImageFlags.Unchanged;
-        }
-
         [Category("TextureData")]
         [FileNameFilter(FileNameFilter)]
         [TypeConverter(typeof(ResourceFileNameConverter))]
@@ -61,7 +56,7 @@ namespace Bonsai.Shaders.Configuration
 
         [Category("TextureData")]
         [Description("Specifies optional conversions applied to the loaded image.")]
-        public LoadImageFlags ColorType { get; set; }
+        public LoadImageFlags ColorType { get; set; } = LoadImageFlags.Unchanged;
 
         [Category("TextureData")]
         [Description("Specifies the optional flip mode applied to the loaded image.")]

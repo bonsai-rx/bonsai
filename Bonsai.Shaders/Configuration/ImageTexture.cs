@@ -10,11 +10,6 @@ namespace Bonsai.Shaders.Configuration
     [XmlType(Namespace = Constants.XmlNamespace)]
     public class ImageTexture : Texture2D
     {
-        public ImageTexture()
-        {
-            ColorType = LoadImageFlags.Unchanged;
-        }
-
         [Category("TextureData")]
         [TypeConverter(typeof(ResourceFileNameConverter))]
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
@@ -24,11 +19,11 @@ namespace Bonsai.Shaders.Configuration
 
         [Category("TextureData")]
         [Description("Specifies optional conversions applied to the loaded image.")]
-        public LoadImageFlags ColorType { get; set; }
+        public LoadImageFlags ColorType { get; set; } = LoadImageFlags.Unchanged;
 
         [Category("TextureData")]
         [Description("Specifies the optional flip mode applied to the loaded image.")]
-        public FlipMode? FlipMode { get; set; }
+        public FlipMode? FlipMode { get; set; } = OpenCV.Net.FlipMode.Vertical;
 
         public override Texture CreateResource(ResourceManager resourceManager)
         {

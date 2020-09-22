@@ -15,12 +15,6 @@ namespace Bonsai.Shaders
         readonly UpdateFrame updateFrame = new UpdateFrame();
         readonly ImageTexture configuration = new ImageTexture();
 
-        public LoadImage()
-        {
-            ColorType = LoadImageFlags.Unchanged;
-            FlipMode = OpenCV.Net.FlipMode.Vertical;
-        }
-
         [Category("TextureSize")]
         [Description("The optional width of the texture.")]
         public int? Width
