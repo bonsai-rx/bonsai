@@ -1,4 +1,4 @@
-using Bonsai.Resources;
+﻿using Bonsai.Resources;
 using OpenCV.Net;
 using OpenTK.Graphics.OpenGL4;
 using System;
@@ -45,8 +45,8 @@ namespace Bonsai.Shaders.Configuration
             {
                 while (enumerator.MoveNext())
                 {
-                    frames.MoveNext();
                     ConfigureTexture(sequence, frames.Width, frames.Height);
+                    if (!frames.MoveNext()) continue;
                     TextureHelper.UpdateTexture(TextureTarget.Texture2D, internalFormat, frames.Current);
                 }
             }
