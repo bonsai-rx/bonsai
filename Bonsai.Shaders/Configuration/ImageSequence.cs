@@ -1,10 +1,11 @@
-﻿using Bonsai.Resources;
+using Bonsai.Resources;
 using OpenCV.Net;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Xml.Serialization;
 
 namespace Bonsai.Shaders.Configuration
@@ -12,6 +13,8 @@ namespace Bonsai.Shaders.Configuration
     [XmlType(Namespace = Constants.XmlNamespace)]
     public class ImageSequence : Texture2D
     {
+        static readonly string[] ImageExtensions = new[] { ".png", ".bmp", ".jpg", ".jpeg", ".tif" };
+
         [Category("TextureData")]
         [TypeConverter(typeof(ResourceFileNameConverter))]
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
@@ -33,8 +36,8 @@ namespace Bonsai.Shaders.Configuration
 
         public override Texture CreateResource(ResourceManager resourceManager)
         {
-            var frames = GetVideoEnumerator(FileName, clone: false, out PixelInternalFormat? internalFormat);
-            if (frames.FourCC > 0) frames.Reset();
+            var frames = GetFrames(FileName, clone: false, out bool video, out PixelInternalFormat? internalFormat);
+            if (video) frames.Reset();
 
             var sequence = new TextureSequence(frames.Count);
             using var enumerator = sequence.GetEnumerator(false);
@@ -53,7 +56,7 @@ namespace Bonsai.Shaders.Configuration
             return (Texture)sequence;
         }
 
-        internal VideoEnumerator GetVideoEnumerator(string fileName, bool clone, out PixelInternalFormat? internalFormat)
+        internal VideoEnumerator GetFrames(string fileName, bool clone, out bool video, out PixelInternalFormat? internalFormat)
         {
             if (string.IsNullOrEmpty(fileName))
             {
@@ -69,6 +72,9 @@ namespace Bonsai.Shaders.Configuration
                     "Failed to load image sequence \"{0}\" from the specified path: \"{1}\".",
                     Name, fileName));
             }
+
+            var extension = Path.GetExtension(fileName);
+            video = Array.FindIndex(ImageExtensions, ext => extension.Contains(ext)) < 0;
 
             var flipMode = FlipMode;
             var offset = StartPosition;

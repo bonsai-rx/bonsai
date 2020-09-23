@@ -15,8 +15,8 @@ namespace Bonsai.Shaders.Configuration
 
         public override Texture CreateResource(ResourceManager resourceManager)
         {
-            var frames = GetVideoEnumerator(FileName, clone: true, out PixelInternalFormat? internalFormat);
-            if (frames.FourCC == 0)
+            var frames = GetFrames(FileName, clone: true, out bool video, out PixelInternalFormat? internalFormat);
+            if (!video)
             {
                 throw new InvalidOperationException(string.Format(
                     "The image sequence path \"{1}\" cannot be used for the video texture \"{0}\".",
