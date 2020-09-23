@@ -31,5 +31,15 @@ namespace Bonsai.Shaders.Configuration
             sequence.PlaybackRate = frames.PlaybackRate;
             return sequence;
         }
+
+        public override string ToString()
+        {
+            var name = Name;
+            var fileName = FileName;
+            var typeName = GetType().Name;
+            if (string.IsNullOrEmpty(name)) return typeName;
+            else if (string.IsNullOrEmpty(fileName)) return name;
+            else return string.Format("{0} [Video: {1}]", name, fileName);
+        }
     }
 }

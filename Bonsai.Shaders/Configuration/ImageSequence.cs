@@ -166,7 +166,7 @@ namespace Bonsai.Shaders.Configuration
             var typeName = GetType().Name;
             if (string.IsNullOrEmpty(name)) return typeName;
             else if (string.IsNullOrEmpty(fileName)) return name;
-            else return string.Format("{0} [{1}]", name, fileName);
+            else return string.Format("{0} [Sequence: {1}]", name, fileName);
         }
     }
 }
