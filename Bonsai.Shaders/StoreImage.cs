@@ -12,22 +12,6 @@ namespace Bonsai.Shaders
     {
         readonly Texture2D configuration = new Texture2D();
 
-        [Category("TextureSize")]
-        [Description("The optional width of the texture.")]
-        public int? Width
-        {
-            get { return configuration.Width; }
-            set { configuration.Width = value; }
-        }
-
-        [Category("TextureSize")]
-        [Description("The optional height of the texture.")]
-        public int? Height
-        {
-            get { return configuration.Height; }
-            set { configuration.Height = value; }
-        }
-
         [Category("TextureParameter")]
         [Description("The internal pixel format of the texture.")]
         public PixelInternalFormat InternalFormat
