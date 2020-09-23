@@ -8,10 +8,12 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Shaders.Input
 {
+    [DefaultProperty(nameof(Button))]
     [Description("Produces a sequence of events whenever a mouse button is released over the shader window.")]
     [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationComponentEditor, Bonsai.Shaders.Design", typeof(ComponentEditor))]
     public class MouseUp : Source<EventPattern<INativeWindow, MouseButtonEventArgs>>
     {
+        [TypeConverter(typeof(NullableEnumConverter))]
         [Description("The optional mouse button to use as a filter.")]
         public MouseButton? Button { get; set; }
 

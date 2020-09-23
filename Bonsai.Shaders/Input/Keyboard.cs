@@ -6,6 +6,7 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Shaders.Input
 {
+    [DefaultProperty(nameof(Index))]
     [Description("Retrieves the state of the specified keyboard device.")]
     public class Keyboard : Source<KeyboardState>
     {

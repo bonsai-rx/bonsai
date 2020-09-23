@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Shaders.Input
 {
+    [DefaultProperty(nameof(KeyChar))]
     [Description("Produces a sequence of characters whenever a key is pressed while the shader window has focus.")]
     [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationComponentEditor, Bonsai.Shaders.Design", typeof(ComponentEditor))]
     public class KeyPress : Source<EventPattern<INativeWindow, KeyPressEventArgs>>

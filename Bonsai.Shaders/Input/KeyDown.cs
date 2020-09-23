@@ -8,13 +8,16 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Shaders.Input
 {
+    [DefaultProperty(nameof(Key))]
     [Description("Produces a sequence of events whenever a key is pressed while the shader window has focus.")]
     [Editor("Bonsai.Shaders.Configuration.Design.ShaderConfigurationComponentEditor, Bonsai.Shaders.Design", typeof(ComponentEditor))]
     public class KeyDown : Source<EventPattern<INativeWindow, KeyboardKeyEventArgs>>
     {
+        [TypeConverter(typeof(NullableEnumConverter))]
         [Description("The optional key to use as a filter.")]
         public Key? Key { get; set; }
 
+        [TypeConverter(typeof(NullableEnumConverter))]
         [Description("The optional key modifiers to use as a filter.")]
         public KeyModifiers? Modifiers { get; set; }
 

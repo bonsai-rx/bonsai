@@ -6,6 +6,7 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Shaders.Input
 {
+    [DefaultProperty(nameof(Index))]
     [Description("Retrieves the state of the specified mouse device. The position and wheel values are defined in a hardware-specific coordinate system.")]
     public class Mouse : Source<MouseState>
     {
