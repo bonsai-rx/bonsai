@@ -25,9 +25,10 @@ namespace Bonsai.Shaders
 
         internal virtual void Dispose(bool disposing)
         {
-            if (disposing)
+            if (disposing && id > 0)
             {
                 GL.DeleteTextures(1, ref id);
+                id = 0;
             }
         }
 
