@@ -5,7 +5,7 @@ using System.ComponentModel;
 
 namespace Bonsai.Shaders
 {
-    [DefaultProperty("Shaders")]
+    [DefaultProperty(nameof(Shaders))]
     [Description("Creates a collection of shader resources to be loaded into the resource manager.")]
     public class ShaderResources : ResourceLoader
     {

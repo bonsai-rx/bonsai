@@ -8,7 +8,7 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Shaders
 {
-    [DefaultProperty("FileName")]
+    [DefaultProperty(nameof(FileName))]
     [Description("Loads a texture buffer from the specified file.")]
     public class LoadImage : Source<Texture>
     {

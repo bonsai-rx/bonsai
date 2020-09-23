@@ -8,7 +8,7 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Shaders
 {
-    [DefaultProperty("FileName")]
+    [DefaultProperty(nameof(FileName))]
     [Description("Loads a texture which can be dynamically updated from the specified movie file.")]
     public class LoadVideo : Source<Texture>
     {

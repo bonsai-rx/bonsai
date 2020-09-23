@@ -6,7 +6,7 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Shaders
 {
-    [DefaultProperty("RenderState")]
+    [DefaultProperty(nameof(RenderState))]
     [Description("Updates the render state of the shader window.")]
     public class UpdateRenderState : Sink
     {

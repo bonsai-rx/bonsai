@@ -10,7 +10,7 @@ using System.Xml.Serialization;
 
 namespace Bonsai.Shaders
 {
-    [DefaultProperty("ClearColor")]
+    [DefaultProperty(nameof(ClearColor))]
     [TypeConverter(typeof(SettingsConverter))]
     [Description("Creates the shader window with the specified display style and render settings.")]
     [Editor("Bonsai.Shaders.Configuration.Design.ShaderScriptComponentEditor, Bonsai.Shaders.Design", typeof(ComponentEditor))]

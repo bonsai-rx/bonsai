@@ -5,7 +5,7 @@ using System.ComponentModel;
 
 namespace Bonsai.Shaders
 {
-    [DefaultProperty("Meshes")]
+    [DefaultProperty(nameof(Meshes))]
     [Description("Creates a collection of mesh resources to be loaded into the resource manager.")]
     public class MeshResources : ResourceLoader
     {

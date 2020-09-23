@@ -8,7 +8,7 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Shaders
 {
-    [DefaultProperty("FileName")]
+    [DefaultProperty(nameof(FileName))]
     [Description("Loads an image sequence from the specified movie file or image folder.")]
     public class LoadImageSequence : Source<Texture>
     {
