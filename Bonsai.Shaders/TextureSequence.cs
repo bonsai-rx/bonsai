@@ -13,6 +13,11 @@ namespace Bonsai.Shaders
             textures = new TextureArray(length);
         }
 
+        public TextureSequence(int[] textures)
+        {
+            this.textures = new TextureArray(textures);
+        }
+
         public TextureArray Textures
         {
             get { return textures; }

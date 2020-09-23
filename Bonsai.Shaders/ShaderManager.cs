@@ -77,9 +77,14 @@ namespace Bonsai.Shaders
             get { return windowSource; }
         }
 
+        internal static IObservable<ShaderWindow> WindowUpdate()
+        {
+            return WindowSource.SelectMany(window => window.UpdateFrameAsync).Take(1).Select(evt => (ShaderWindow)evt.Sender);
+        }
+
         public static IObservable<ShaderWindow> WindowUpdate(Action<ShaderWindow> update)
         {
-            return ShaderManager.WindowSource.SelectMany(window => window.UpdateFrameAsync.Take(1)).Select(evt =>
+            return WindowSource.SelectMany(window => window.UpdateFrameAsync.Take(1)).Select(evt =>
             {
                 var window = (ShaderWindow)evt.Sender;
                 update(window);

@@ -15,6 +15,11 @@ namespace Bonsai.Shaders
             GL.GenTextures(textures.Length, textures);
         }
 
+        internal TextureArray(int[] textures)
+        {
+            this.textures = textures;
+        }
+
         public int this[int index]
         {
             get { return textures[index]; }
