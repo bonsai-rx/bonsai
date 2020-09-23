@@ -12,7 +12,7 @@ namespace Bonsai.Shaders
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
             var render = renderFrame.Generate();
-            return source.CombineLatest(render, (x, evt) => x).Sample(render);
+            return source.CombineLatest(render, (x, evt) => x).SampleSafe(render);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Bonsai.Shaders
         public override IObservable<TSource> Process<TSource>(IObservable<TSource> source)
         {
             var update = updateFrame.Generate();
-            return source.Sample(update);
+            return source.SampleSafe(update);
         }
     }
 }

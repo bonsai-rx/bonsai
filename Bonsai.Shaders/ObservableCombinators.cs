@@ -9,6 +9,11 @@ namespace Bonsai.Shaders
 {
     static class ObservableCombinators
     {
+        public static IObservable<TSource> SampleSafe<TSource, TSample>(this IObservable<TSource> source, IObservable<TSample> sampler)
+        {
+            return source.Sample(sampler).TakeUntil(sampler.IgnoreElements().LastOrDefaultAsync());
+        }
+
         public static IConnectableObservable<TSource> ReplayReconnectable<TSource>(this IObservable<TSource> source)
         {
             return source.MulticastReconnectable(() => new ReplaySubject<TSource>());
