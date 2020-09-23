@@ -23,7 +23,8 @@ namespace Bonsai.Shaders
         internal static IObservable<ElementIndex<Texture>> Process(ITextureSequence texture, double playbackRate, bool loop)
         {
             playbackRate = playbackRate > 0 ? playbackRate : texture.PlaybackRate;
-            var timer = new Timer { Period = TimeSpan.FromSeconds(1.0 / playbackRate) };
+            var periodTicks = (long)(TimeSpan.TicksPerSecond / playbackRate);
+            var timer = new Timer { Period = TimeSpan.FromTicks(periodTicks) };
             return Observable.Using(
                 () => texture.GetEnumerator(loop),
                 enumerator => timer.Generate().TakeWhile(x => enumerator.MoveNext()).Select(x => enumerator.Current));
