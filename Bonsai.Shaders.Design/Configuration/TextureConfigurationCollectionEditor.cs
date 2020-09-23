@@ -1,8 +1,8 @@
 ﻿using Bonsai.Design;
 using Bonsai.Resources.Design;
-using OpenCV.Net;
 using System;
 using System.IO;
+using System.Windows.Forms;
 
 namespace Bonsai.Shaders.Configuration.Design
 {
@@ -42,18 +42,10 @@ namespace Bonsai.Shaders.Configuration.Design
             Texture2D configuration;
             if (Array.IndexOf(VideoExtensions, extension) >= 0)
             {
-                configuration = new VideoTexture
-                {
-                    FlipMode = FlipMode.Vertical,
-                    FileName = fileName
-                };
+                if (Control.ModifierKeys == Keys.Control) configuration = new ImageSequence { FileName = fileName };
+                else configuration = new VideoTexture { FileName = fileName };
             }
-            else configuration = new ImageTexture
-            {
-                FlipMode = FlipMode.Vertical,
-                FileName = fileName
-            };
-
+            else configuration = new ImageTexture { FileName = fileName };
             configuration.Name = Path.GetFileNameWithoutExtension(fileName);
             return configuration;
         }
