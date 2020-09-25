@@ -2368,7 +2368,8 @@ namespace Bonsai.Editor.GraphView
         public void UpdateVisualizerLayout()
         {
             var updatedLayout = new VisualizerLayout();
-            foreach (var node in workflow.TopologicalSort())
+            var topologicalOrder = workflow.TopologicalSort();
+            foreach (var node in topologicalOrder)
             {
                 var builder = node.Value;
                 VisualizerDialogSettings dialogSettings;
@@ -2388,11 +2389,13 @@ namespace Bonsai.Editor.GraphView
                     {
                         foreach (var mashup in mashupVisualizer.Mashups)
                         {
-                            var predecessorIndex = (from element in visualizerMapping.Select((mapping, index) => new { mapping, index })
-                                                    where element.mapping.Value.Source.Output == mashup.Source
-                                                    select element.index)
-                                                   .FirstOrDefault();
-                            dialogSettings.Mashups.Add(predecessorIndex);
+                            var mashupIndex = topologicalOrder
+                                .Select((n, i) => ExpressionBuilder.GetVisualizerElement(n.Value).Output == mashup.Source ? (int?)i : null)
+                                .FirstOrDefault(index => index.HasValue);
+                            if (mashupIndex.HasValue)
+                            {
+                                dialogSettings.Mashups.Add(mashupIndex.Value);
+                            }
                         }
                     }
 
