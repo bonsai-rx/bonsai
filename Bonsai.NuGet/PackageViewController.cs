@@ -1,4 +1,4 @@
-﻿using Bonsai.Design;
+using Bonsai.Design;
 using Bonsai.NuGet.Properties;
 using NuGet;
 using System;
@@ -387,7 +387,17 @@ namespace Bonsai.NuGet
                 .Skip(pageIndex * PackagesPerPage)
                 .Take(PackagesPerPage)
                 .ToObservable()
-                .Catch<IPackage, WebException>(ex => Observable.Empty<IPackage>())))
+                .Catch<IPackage, InvalidOperationException>(ex =>
+                {
+                    Exception innerException = ex;
+                    feedExceptionMessage = ex.Message;
+                    while (innerException.InnerException != null)
+                    {
+                        innerException = innerException.InnerException;
+                        feedExceptionMessage += Environment.NewLine + "\t --> " + innerException.Message;
+                    }
+                    return Observable.Empty<IPackage>();
+                })))
                 .Buffer(PackagesPerPage)
                 .SubscribeOn(NewThreadScheduler.Default)
                 .ObserveOn(control)
