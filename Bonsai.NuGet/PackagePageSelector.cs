@@ -7,106 +7,70 @@ namespace Bonsai.NuGet
 {
     partial class PackagePageSelector : UserControl
     {
-        const int MaxPageButtons = 5;
-        Button[] buttons;
-        int selectedIndex;
-        int indexOffset;
-        int pageCount;
-        Font normalFont;
+        int selectedPage;
         Font boldFont;
 
         public PackagePageSelector()
         {
             InitializeComponent();
-            buttons = new[] { button1, button2, button3, button4, button5 };
-            for (int i = 0; i < buttons.Length; i++)
-            {
-                var buttonIndex = i;
-                var button = buttons[i];
-                button.Visible = false;
-                button.Click += delegate { SelectedIndex = indexOffset + buttonIndex; };
-                buttons[i] = button;
-            }
             previousButton.Visible = false;
             nextButton.Visible = false;
 
             nextButton.Click += nextButton_Click;
             previousButton.Click += previousButton_Click;
-            normalFont = nextButton.Font;
-            boldFont = new Font(normalFont, FontStyle.Bold);
+            boldFont = new Font(nextButton.Font, FontStyle.Bold);
+            currentButton.Font = boldFont;
+            RefreshLayout();
         }
 
         [Category("Behavior")]
         public event EventHandler SelectedIndexChanged;
 
-        public int SelectedIndex
+        public int SelectedPage
         {
-            get { return selectedIndex; }
+            get { return selectedPage; }
             set
             {
-                selectedIndex = pageCount > 0 ? value : -1;
+                selectedPage = value;
                 RefreshLayout();
                 OnSelectedIndexChanged(EventArgs.Empty);
             }
         }
 
-        public int PageCount
+        public bool ShowNext
         {
-            get { return pageCount; }
-            set
-            {
-                pageCount = value;
-                for (int i = 0; i < MaxPageButtons; i++)
-                {
-                    var button = buttons[i];
-                    button.Visible = i < pageCount;
-                }
-
-                RefreshLayout();
-            }
+            get { return nextButton.Visible; }
+            set { nextButton.Visible = value; }
         }
 
         private void OnSelectedIndexChanged(EventArgs e)
         {
-            var handler = SelectedIndexChanged;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            SelectedIndexChanged?.Invoke(this, e);
+        }
+
+        protected override void OnVisibleChanged(EventArgs e)
+        {
+            RefreshLayout();
+            base.OnVisibleChanged(e);
         }
 
         void previousButton_Click(object sender, EventArgs e)
         {
-            var index = Math.Max(selectedIndex - 1, 0);
-            if (index < indexOffset) indexOffset--;
-            SelectedIndex = index;
+            var index = Math.Max(selectedPage - 1, 0);
+            if (index < selectedPage) selectedPage--;
+            SelectedPage = index;
         }
 
         void nextButton_Click(object sender, EventArgs e)
         {
-            var index = Math.Min(selectedIndex + 1, pageCount - 1);
-            if (index >= indexOffset + MaxPageButtons) indexOffset++;
-            SelectedIndex = index;
+            SelectedPage++;
         }
 
         void RefreshLayout()
         {
             SuspendLayout();
-            previousButton.Visible = false;
-            nextButton.Visible = false;
-            if (pageCount > 1)
-            {
-                if (selectedIndex > 0) previousButton.Visible = true;
-                if (selectedIndex < pageCount - 1) nextButton.Visible = true;
-            }
-
-            for (int i = 0; i < buttons.Length; i++)
-            {
-                var button = buttons[i];
-                var buttonIndex = indexOffset + i;
-                button.Font = buttonIndex == selectedIndex ? boldFont : normalFont;
-                button.Text = (buttonIndex + 1).ToString();
-            }
+            previousButton.Visible = selectedPage > 0;
+            currentButton.Text = (selectedPage + 1).ToString();
             ResumeLayout();
         }
     }

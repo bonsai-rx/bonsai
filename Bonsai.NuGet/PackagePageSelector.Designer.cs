@@ -29,11 +29,7 @@
         private void InitializeComponent()
         {
             this.flowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
+            this.currentButton = new System.Windows.Forms.Button();
             this.previousButton = new System.Windows.Forms.Button();
             this.nextButton = new System.Windows.Forms.Button();
             this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
@@ -44,11 +40,7 @@
             // flowLayoutPanel
             // 
             this.flowLayoutPanel.AutoSize = true;
-            this.flowLayoutPanel.Controls.Add(this.button1);
-            this.flowLayoutPanel.Controls.Add(this.button2);
-            this.flowLayoutPanel.Controls.Add(this.button3);
-            this.flowLayoutPanel.Controls.Add(this.button4);
-            this.flowLayoutPanel.Controls.Add(this.button5);
+            this.flowLayoutPanel.Controls.Add(this.currentButton);
             this.flowLayoutPanel.Location = new System.Drawing.Point(26, 0);
             this.flowLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
             this.flowLayoutPanel.Name = "flowLayoutPanel";
@@ -57,73 +49,17 @@
             // 
             // button1
             // 
-            this.button1.AutoSize = true;
-            this.button1.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
-            this.button1.FlatAppearance.BorderSize = 0;
-            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button1.Location = new System.Drawing.Point(0, 2);
-            this.button1.Margin = new System.Windows.Forms.Padding(0, 2, 0, 2);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(23, 23);
-            this.button1.TabIndex = 2;
-            this.button1.Text = "1";
-            this.button1.UseVisualStyleBackColor = true;
-            // 
-            // button2
-            // 
-            this.button2.AutoSize = true;
-            this.button2.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
-            this.button2.FlatAppearance.BorderSize = 0;
-            this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button2.Location = new System.Drawing.Point(23, 2);
-            this.button2.Margin = new System.Windows.Forms.Padding(0, 2, 0, 2);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(23, 23);
-            this.button2.TabIndex = 3;
-            this.button2.Text = "2";
-            this.button2.UseVisualStyleBackColor = true;
-            // 
-            // button3
-            // 
-            this.button3.AutoSize = true;
-            this.button3.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
-            this.button3.FlatAppearance.BorderSize = 0;
-            this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button3.Location = new System.Drawing.Point(46, 2);
-            this.button3.Margin = new System.Windows.Forms.Padding(0, 2, 0, 2);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(23, 23);
-            this.button3.TabIndex = 4;
-            this.button3.Text = "3";
-            this.button3.UseVisualStyleBackColor = true;
-            // 
-            // button4
-            // 
-            this.button4.AutoSize = true;
-            this.button4.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
-            this.button4.FlatAppearance.BorderSize = 0;
-            this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button4.Location = new System.Drawing.Point(69, 2);
-            this.button4.Margin = new System.Windows.Forms.Padding(0, 2, 0, 2);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(23, 23);
-            this.button4.TabIndex = 5;
-            this.button4.Text = "4";
-            this.button4.UseVisualStyleBackColor = true;
-            // 
-            // button5
-            // 
-            this.button5.AutoSize = true;
-            this.button5.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
-            this.button5.FlatAppearance.BorderSize = 0;
-            this.button5.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button5.Location = new System.Drawing.Point(92, 2);
-            this.button5.Margin = new System.Windows.Forms.Padding(0, 2, 0, 2);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(23, 23);
-            this.button5.TabIndex = 6;
-            this.button5.Text = "5";
-            this.button5.UseVisualStyleBackColor = true;
+            this.currentButton.AutoSize = true;
+            this.currentButton.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
+            this.currentButton.FlatAppearance.BorderSize = 0;
+            this.currentButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.currentButton.Location = new System.Drawing.Point(0, 2);
+            this.currentButton.Margin = new System.Windows.Forms.Padding(0, 2, 0, 2);
+            this.currentButton.Name = "currentButton";
+            this.currentButton.Size = new System.Drawing.Size(23, 23);
+            this.currentButton.TabIndex = 2;
+            this.currentButton.Text = "1";
+            this.currentButton.UseVisualStyleBackColor = true;
             // 
             // previousButton
             // 
@@ -191,11 +127,7 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel;
         private System.Windows.Forms.Button previousButton;
         private System.Windows.Forms.Button nextButton;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Button currentButton;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel;
 
     }

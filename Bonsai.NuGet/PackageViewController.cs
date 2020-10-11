@@ -1,4 +1,4 @@
-using Bonsai.Design;
+﻿using Bonsai.Design;
 using Bonsai.NuGet.Properties;
 using NuGet;
 using System;
@@ -89,6 +89,7 @@ namespace Bonsai.NuGet
             packageView.AfterSelect += packageView_AfterSelect;
             prereleaseCheckBox.CheckedChanged += prereleaseFilterCheckBox_CheckedChanged;
             packagePageSelector.SelectedIndexChanged += packagePageSelector_SelectedIndexChanged;
+            packagePageSelector.Visible = false;
 
             packageManagerPath = path;
             iconCache = new ConcurrentDictionary<Uri, IObservable<Image>>();
@@ -316,7 +317,7 @@ namespace Bonsai.NuGet
         {
             if (packages.Count > 0)
             {
-                if (packages.Count > 1 && packagePageSelector.SelectedIndex == 0 &&
+                if (packages.Count > 1 && packagePageSelector.SelectedPage == 0 &&
                     packageView.OperationText == Resources.UpdateOperationName)
                 {
                     setMultiOperationVisible(true);
@@ -325,7 +326,7 @@ namespace Bonsai.NuGet
                 packageView.BeginUpdate();
                 packageView.Nodes.Clear();
                 packageIcons.Images.Clear();
-                foreach (var package in packages)
+                foreach (var package in packages.Take(PackagesPerPage))
                 {
                     AddPackage(package);
                 }
@@ -376,16 +377,17 @@ namespace Bonsai.NuGet
             SetPackageViewStatus(Resources.RetrievingInformationLabel, Resources.WaitImage);
 
             var packageFeed = GetPackageFeed();
-            var pageIndex = packagePageSelector.SelectedIndex;
+            var pageIndex = packagePageSelector.SelectedPage;
+            var packagesPerRequest = PackagesPerPage + 1;
             var feedRequest = Observable.If(
-                () => packagePageSelector.PageCount == 0,
+                () => packagePageSelector.SelectedPage < 0,
                 Observable.Empty<IPackage>(),
                 Observable.Defer(() =>
                 packageFeed().AsBufferedEnumerable(PackagesPerPage * 3)
                 .Where(PackageExtensions.IsListed)
                 .AsCollapsed()
                 .Skip(pageIndex * PackagesPerPage)
-                .Take(PackagesPerPage)
+                .Take(packagesPerRequest)
                 .ToObservable()
                 .Catch<IPackage, InvalidOperationException>(ex =>
                 {
@@ -398,26 +400,22 @@ namespace Bonsai.NuGet
                     }
                     return Observable.Empty<IPackage>();
                 })))
-                .Buffer(PackagesPerPage)
+                .Buffer(packagesPerRequest)
                 .SubscribeOn(NewThreadScheduler.Default)
                 .ObserveOn(control)
                 .Do(packages => AddPackageRange(packages))
                 .Sum(packages => packages.Count)
                 .Subscribe(packageCount =>
                 {
+                    packagePageSelector.ShowNext = packageCount > PackagesPerPage;
                     if (packageCount == 0)
                     {
-                        packagePageSelector.PageCount = pageIndex;
                         if (feedExceptionMessage != null) SetPackageViewStatus(feedExceptionMessage);
                         else if (packageView.OperationText == Resources.UpdateOperationName)
                         {
                             SetPackageViewStatus(Resources.NoUpdatesAvailableLabel);
                         }
                         else SetPackageViewStatus(Resources.NoItemsFoundLabel);
-                    }
-                    else if (packageCount < PackagesPerPage)
-                    {
-                        packagePageSelector.PageCount = pageIndex + 1;
                     }
                 });
 
@@ -440,8 +438,8 @@ namespace Bonsai.NuGet
                 {
                     var pageCount = count / PackagesPerPage;
                     if (count % PackagesPerPage != 0) pageCount++;
-                    packagePageSelector.PageCount = pageCount;
-                    packagePageSelector.SelectedIndex = selectedPage < pageCount ? selectedPage : 0;
+                    packagePageSelector.SelectedPage = count > 0 ? (selectedPage < pageCount ? selectedPage : 0) : -1;
+                    packagePageSelector.Visible = count > PackagesPerPage;
                 }));
         }
 
@@ -488,7 +486,7 @@ namespace Bonsai.NuGet
                         () => dialog.Complete());
                     if (dialog.ShowDialog() == DialogResult.OK)
                     {
-                        UpdatePackageFeed(packagePageSelector.SelectedIndex);
+                        UpdatePackageFeed(packagePageSelector.SelectedPage);
                     }
                 }
                 finally { operationDialog = null; }
