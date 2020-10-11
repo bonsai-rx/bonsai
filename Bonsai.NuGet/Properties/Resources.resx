@@ -192,8 +192,8 @@
   <data name="RetrievingInformationLabel" xml:space="preserve">
     <value>Retrieving information...</value>
   </data>
-  <data name="SearchOnlineCueBanner" xml:space="preserve">
-    <value>Search Online (Ctrl+E)</value>
+  <data name="SearchCueBanner" xml:space="preserve">
+    <value>Search (Ctrl+L)</value>
   </data>
   <data name="WaitImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -262,5 +262,25 @@
   </data>
   <data name="RestorePackageVersion" xml:space="preserve">
     <value>Restoring dependency '{0} {1}'.</value>
+  </data>
+  <data name="RefreshImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        vAAADrwBlbxySQAAAQJJREFUOE+lk7ERgzAMRRkhI2SEjJCjZy1ajp4dKJiCngHoKdxwUBI/nRQMUUgR
+        3f0LlvS/v2wnO8c8z49lWULEdkKgpm1+GLksyy3PcwHf/5IN7bquT20/hkdOURSFiI3jiFCltD1UQJo8
+        AQNCwzB8imBtmiaxmorUdb31fb81TSNkE8HJYZxIbCGCs4jl2NlENNcqXQTexa7rhOABJ+aCtZBDCDfs
+        245Y9k6bHDXruxTw7twTiLm7FFnYCNiM630+DXLuCARFOziKelXycPSK28tDpJGrsQZ+2Q3L4Oc1ElGx
+        SnfxQM19SBYUUMdiKsQ3ua9POQ2sMV+EHFQC58+UZS/3uQOpPz8OfAAAAABJRU5ErkJggg==
+</value>
+  </data>
+  <data name="SettingsImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAADYSURBVDhPpVOxEYMwDGQUZqGnd0nhsegZI00oXDkjeAOS
+        htbRK3qfQ4ocWHd/Z0n/byzs7hj7vk+CmyAfgNpktN+QZi+IRs4ppTwMgwJr1o3Tm+wTKAi2ZVlyCEGJ
+        WNNgnmetoYc6uNCYXA1iLfDe53EcS441aszNJFKMM6s7Cf/Ar4QWBmVg3AU7rvc1P7eXAmt+ETjkQwsD
+        HRLOSRLFMT4UNKE5uBysGqBRg2LmNKk5wGkD59wXrxi0HqF5iG2/0e7C9YuEkKTtKiNQEFx7THVI88Rz
+        7ro3JJCBt2M2zxYAAAAASUVORK5CYII=
+</value>
   </data>
 </root>

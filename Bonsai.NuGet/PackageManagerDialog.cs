@@ -1,6 +1,7 @@
 ﻿using Bonsai.NuGet.Properties;
 using NuGet;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Reactive.Linq;
@@ -14,12 +15,6 @@ namespace Bonsai.NuGet
         const string DefaultRepository = "Bonsai Packages";
         PackageManagerProxy packageManagerProxy;
         PackageViewController packageViewController;
-
-        TreeNode installedPackagesNode;
-        TreeNode onlineNode;
-        TreeNode updatesNode;
-        TreeNode collapsingNode;
-        TreeNode selectingNode;
 
         public PackageManagerDialog(string path)
         {
@@ -35,16 +30,15 @@ namespace Bonsai.NuGet
                 packageManagerProxy,
                 packageIcons,
                 searchComboBox,
-                sortComboBox,
-                releaseFilterComboBox,
-                () => updatesNode.IsExpanded,
+                prereleaseCheckBox,
+                () => updatesButton.Checked,
                 value => multiOperationPanel.Visible = value,
                 Enumerable.Empty<string>());
-            InitializeRepositoryViewNodes();
+            InitializePackageSourceItems();
             multiOperationPanel.Visible = false;
             multiOperationLabel.Text = Resources.MultipleUpdatesLabel;
             multiOperationButton.Text = Resources.MultipleUpdatesOperationName;
-            DefaultTab = PackageManagerTab.Online;
+            DefaultTab = PackageManagerTab.Browse;
         }
 
         public PackageManagerTab DefaultTab { get; set; }
@@ -56,33 +50,58 @@ namespace Bonsai.NuGet
             get { return packageManagerProxy; }
         }
 
-        private void InitializeRepositoryViewNode(TreeNode rootNode)
+        private void InitializePackageSourceItems()
         {
+            packageSourceComboBox.Items.Clear();
             foreach (var pair in packageViewController.PackageManagers)
             {
-                var node = rootNode.Nodes.Add(pair.Key);
-                node.Tag = pair.Value;
+                packageSourceComboBox.Items.Add(pair);
             }
         }
 
-        private void InitializeRepositoryViewNodes()
+        private void UpdateSelectedRepository()
         {
-            repositoriesView.Nodes.Clear();
-            installedPackagesNode = repositoriesView.Nodes.Add(Resources.InstalledPackagesNodeName);
-            var allInstalledNode = installedPackagesNode.Nodes.Add(Resources.AllNodeName);
-            allInstalledNode.Tag = packageViewController.PackageManagers[Resources.AllNodeName];
+            packageViewController.SetPackageViewStatus(Resources.NoItemsFoundLabel);
+            packageViewController.ClearActiveRequests();
+            if (installedButton.Checked)
+            {
+                packageView.OperationText = Resources.UninstallOperationName;
+                packageViewController.SelectedRepository = packageManagerProxy.LocalRepository;
+            }
+            else
+            {
+                var selectedItem = packageSourceComboBox.SelectedItem;
+                if (selectedItem != null)
+                {
+                    var selectedManager = ((KeyValuePair<string, PackageManager>)selectedItem).Value;
+                    packageViewController.SelectedRepository = selectedManager.SourceRepository;
+                }
+                else if (packageViewController.PackageManagers.TryGetValue(DefaultRepository, out PackageManager defaultPackageManager))
+                {
+                    packageViewController.SelectedRepository = defaultPackageManager.SourceRepository;
+                }
+                else packageViewController.SelectedRepository = packageViewController.PackageManagers[Resources.AllNodeName].SourceRepository;
 
-            onlineNode = repositoriesView.Nodes.Add(Resources.OnlineNodeName);
-            InitializeRepositoryViewNode(onlineNode);
+                if (updatesButton.Checked)
+                {
+                    packageView.OperationText = Resources.UpdateOperationName;
+                }
+                else packageView.OperationText = Resources.InstallOperationName;
+            }
 
-            updatesNode = repositoriesView.Nodes.Add(Resources.UpdatesNodeName);
-            InitializeRepositoryViewNode(updatesNode);
+            searchComboBox.Text = string.Empty;
+            packageViewController.UpdatePackageFeed();
         }
 
         protected override void OnLoad(EventArgs e)
         {
             packageViewController.OnLoad(e);
-            SelectDefaultNode();
+            switch (DefaultTab)
+            {
+                case PackageManagerTab.Installed: installedButton.PerformClick(); break;
+                case PackageManagerTab.Updates: updatesButton.PerformClick(); break;
+                default: browseButton.PerformClick(); break;
+            }
             base.OnLoad(e);
         }
 
@@ -100,30 +119,6 @@ namespace Bonsai.NuGet
         {
             packageViewController.OnHandleDestroyed(e);
             base.OnHandleDestroyed(e);
-        }
-
-        void SelectDefaultNode()
-        {
-            TreeNode rootNode;
-            switch (DefaultTab)
-            {
-                case PackageManagerTab.Installed: rootNode = installedPackagesNode; break;
-                case PackageManagerTab.Updates: rootNode = updatesNode; break;
-                case PackageManagerTab.Online:
-                default: rootNode = onlineNode; break;
-            }
-
-            TreeNode selectedNode;
-            if (rootNode == onlineNode)
-            {
-                selectedNode = rootNode.Nodes.Cast<TreeNode>()
-                    .FirstOrDefault(node => node.Text == DefaultRepository)
-                    ?? rootNode.FirstNode;
-            }
-            else selectedNode = rootNode.FirstNode;
-            rootNode.Expand();
-            repositoriesView.SelectedNode = selectedNode;
-            repositoriesView.Select();
         }
 
         protected override void OnResizeBegin(EventArgs e)
@@ -212,75 +207,9 @@ namespace Bonsai.NuGet
             }
         }
 
-        private void repositoriesView_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
+        private void refreshButton_Click(object sender, EventArgs e)
         {
-            collapsingNode = e.Node;
-        }
-
-        private void repositoriesView_AfterCollapse(object sender, TreeViewEventArgs e)
-        {
-            collapsingNode = null;
-            if (repositoriesView.SelectedNode == e.Node && selectingNode == null)
-            {
-                repositoriesView.SelectedNode = null;
-                packageViewController.SetPackageViewStatus(Resources.NoItemsFoundLabel);
-                packageViewController.ClearActiveRequests();
-            }
-        }
-
-        private void repositoriesView_AfterExpand(object sender, TreeViewEventArgs e)
-        {
-            if (repositoriesView.SelectedNode != e.Node)
-            {
-                repositoriesView.SelectedNode = e.Node;
-            }
-        }
-
-        private void repositoriesView_AfterSelect(object sender, TreeViewEventArgs e)
-        {
-            selectingNode = null;
-            var selectedManager = e.Node.Tag as PackageManager;
-            if (selectedManager == null) return;
-            if (e.Node == installedPackagesNode || e.Node.Parent == installedPackagesNode)
-            {
-                releaseFilterComboBox.Visible = false;
-                packageView.OperationText = Resources.UninstallOperationName;
-                packageViewController.SelectedRepository = packageManagerProxy.LocalRepository;
-            }
-            else
-            {
-                releaseFilterComboBox.Visible = true;
-                packageViewController.SelectedRepository = selectedManager.SourceRepository;
-                if (e.Node == updatesNode || e.Node.Parent == updatesNode)
-                {
-                    packageView.OperationText = Resources.UpdateOperationName;
-                }
-                else packageView.OperationText = Resources.InstallOperationName;
-            }
-
-            searchComboBox.Text = string.Empty;
-            packageViewController.UpdatePackageFeed();
-        }
-
-        private void repositoriesView_BeforeSelect(object sender, TreeViewCancelEventArgs e)
-        {
-            var node = e.Node;
-            if (node != collapsingNode && node != selectingNode && node.Parent == null)
-            {
-                e.Cancel = true;
-                selectingNode = e.Node;
-                var selectedNode = repositoriesView.SelectedNode;
-                if (selectedNode != null && selectedNode.Parent != null) selectedNode = selectedNode.Parent;
-                if (selectedNode != null)
-                {
-                    selectingNode = selectedNode;
-                    selectedNode.Collapse();
-                }
-
-                node.Expand();
-                var selectedChild = e.Node.Nodes[0];
-                repositoriesView.SelectedNode = selectedChild;
-            }
+            UpdateSelectedRepository();
         }
 
         private void settingsButton_Click(object sender, EventArgs e)
@@ -288,8 +217,7 @@ namespace Bonsai.NuGet
             Hide();
             if (packageViewController.ShowPackageSourceConfigurationDialog() == DialogResult.OK)
             {
-                InitializeRepositoryViewNodes();
-                SelectDefaultNode();
+                InitializePackageSourceItems();
             }
             Show();
         }
@@ -302,8 +230,8 @@ namespace Bonsai.NuGet
 
     public enum PackageManagerTab
     {
+        Browse,
         Installed,
-        Online,
         Updates
     }
 }

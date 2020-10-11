@@ -1,6 +1,7 @@
 ﻿using Bonsai.NuGet.Properties;
 using NuGet;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Reactive.Linq;
@@ -30,11 +31,11 @@ namespace Bonsai.NuGet
                 packageManagerProxy,
                 packageIcons,
                 searchComboBox,
-                sortComboBox,
-                releaseFilterComboBox,
+                prereleaseCheckBox,
                 () => false,
                 value => { },
                 new[] { Constants.BonsaiDirectory, Constants.GalleryDirectory });
+            InitializePackageSourceItems();
         }
 
         public string InstallPath { get; set; }
@@ -117,13 +118,37 @@ namespace Bonsai.NuGet
             }
         }
 
+        private void InitializePackageSourceItems()
+        {
+            packageSourceComboBox.Items.Clear();
+            foreach (var pair in packageViewController.PackageManagers)
+            {
+                packageSourceComboBox.Items.Add(pair);
+            }
+        }
+
         private void UpdateSelectedRepository()
         {
             if (packageManagerProxy.SourceRepository == null) return;
-            packageViewController.SelectedRepository = packageManagerProxy.SourceRepository;
+            packageViewController.SetPackageViewStatus(Resources.NoItemsFoundLabel);
+            packageViewController.ClearActiveRequests();
+
+            var selectedItem = packageSourceComboBox.SelectedItem;
+            if (selectedItem != null)
+            {
+                var selectedManager = ((KeyValuePair<string, PackageManager>)selectedItem).Value;
+                packageViewController.SelectedRepository = selectedManager.SourceRepository;
+            }
+            else packageViewController.SelectedRepository = packageViewController.PackageManagers[Resources.AllNodeName].SourceRepository;
+
             packageView.OperationText = Resources.OpenOperationName;
             searchComboBox.Text = string.Empty;
             packageViewController.UpdatePackageFeed();
+        }
+
+        private void refreshButton_Click(object sender, EventArgs e)
+        {
+            UpdateSelectedRepository();
         }
 
         private void settingsButton_Click(object sender, EventArgs e)

@@ -20,15 +20,9 @@ namespace Bonsai.NuGet
     class PackageViewController
     {
         const int PackagesPerPage = 10;
-        const string SortByMostDownloads = "Most Downloads";
-        const string SortByPublishedDate = "Published Date";
-        const string SortByNameAscending = "Name: Ascending";
-        const string SortByNameDescending = "Name: Descending";
-        const string SortByRelevance = "Relevance";
         static readonly Uri PackageDefaultIconUrl = new Uri("https://www.nuget.org/Content/Images/packageDefaultIcon.png");
         static readonly TimeSpan DefaultIconTimeout = TimeSpan.FromSeconds(10);
         static readonly Image DefaultIconImage = new Bitmap(32, 32, PixelFormat.Format32bppArgb);
-        static readonly IEnumerable<string> TagProperties = Enumerable.Repeat("Tags", 1);
         readonly ConcurrentDictionary<Uri, IObservable<Image>> iconCache;
         readonly IObservable<Image> defaultIcon;
 
@@ -50,8 +44,7 @@ namespace Bonsai.NuGet
         PackagePageSelector packagePageSelector;
         ImageList packageIcons;
         CueBannerComboBox searchComboBox;
-        ComboBox sortComboBox;
-        ComboBox releaseFilterComboBox;
+        CheckBox prereleaseCheckBox;
         Func<bool> getUpdateFeed;
         Action<bool> setMultiOperationVisible;
 
@@ -64,8 +57,7 @@ namespace Bonsai.NuGet
             PackageManagerProxy managerProxy,
             ImageList icons,
             CueBannerComboBox search,
-            ComboBox sort,
-            ComboBox releaseFilter,
+            CheckBox prerelease,
             Func<bool> updateFeed,
             Action<bool> multiOperationVisible,
             IEnumerable<string> tagConstraints)
@@ -77,8 +69,7 @@ namespace Bonsai.NuGet
             if (managerProxy == null) throw new ArgumentNullException("managerProxy");
             if (icons == null) throw new ArgumentNullException("icons");
             if (search == null) throw new ArgumentNullException("search");
-            if (sort == null) throw new ArgumentNullException("sort");
-            if (releaseFilter == null) throw new ArgumentNullException("releaseFilter");
+            if (prerelease == null) throw new ArgumentNullException("prerelease");
             if (updateFeed == null) throw new ArgumentNullException("updateFeed");
             if (multiOperationVisible == null) throw new ArgumentNullException("multiOperationVisible");
             if (tagConstraints == null) throw new ArgumentNullException("tagConstraints");
@@ -90,15 +81,13 @@ namespace Bonsai.NuGet
             packageManagerProxy = managerProxy;
             packageIcons = icons;
             searchComboBox = search;
-            sortComboBox = sort;
-            releaseFilterComboBox = releaseFilter;
+            prereleaseCheckBox = prerelease;
             getUpdateFeed = updateFeed;
             setMultiOperationVisible = multiOperationVisible;
             tagSearchTerms = tagConstraints;
             control.KeyDown += control_KeyDown;
             packageView.AfterSelect += packageView_AfterSelect;
-            sortComboBox.SelectedIndexChanged += filterComboBox_SelectedIndexChanged;
-            releaseFilterComboBox.SelectedIndexChanged += filterComboBox_SelectedIndexChanged;
+            prereleaseCheckBox.CheckedChanged += prereleaseFilterCheckBox_CheckedChanged;
             packagePageSelector.SelectedIndexChanged += packagePageSelector_SelectedIndexChanged;
 
             packageManagerPath = path;
@@ -110,14 +99,7 @@ namespace Bonsai.NuGet
             var settings = Settings.LoadDefaultSettings(new PhysicalFileSystem(AppDomain.CurrentDomain.BaseDirectory), null, machineWideSettings);
             packageSourceProvider = new PackageSourceProvider(settings);
             packageManagers = CreatePackageManagers();
-            searchComboBox.CueBanner = Resources.SearchOnlineCueBanner;
-
-            sortComboBox.Items.Add(SortByMostDownloads);
-            sortComboBox.Items.Add(SortByPublishedDate);
-            sortComboBox.Items.Add(SortByNameAscending);
-            sortComboBox.Items.Add(SortByNameDescending);
-            sortComboBox.SelectedIndex = 0;
-            releaseFilterComboBox.SelectedIndex = 0;
+            searchComboBox.CueBanner = Resources.SearchCueBanner;
         }
 
         public IPackageRepository SelectedRepository
@@ -202,25 +184,7 @@ namespace Bonsai.NuGet
                 handler => searchComboBox.TextChanged -= new EventHandler(handler))
                 .Throttle(TimeSpan.FromSeconds(1))
                 .ObserveOn(control)
-                .Subscribe(evt =>
-                {
-                    var searchText = searchComboBox.Text;
-                    if (!string.IsNullOrEmpty(searchText))
-                    {
-                        if (!sortComboBox.Items.Contains(SortByRelevance))
-                        {
-                            sortComboBox.Items.Insert(0, SortByRelevance);
-                        }
-                        if (!searchComboBox.Items.Contains(searchText))
-                        {
-                            searchComboBox.Items.Add(searchComboBox.Text);
-                        }
-                    }
-                    else sortComboBox.Items.Remove(SortByRelevance);
-                    sortComboBox.SelectedIndex = 0;
-                    UpdatePackageFeed();
-                });
-
+                .Subscribe(evt => UpdatePackageFeed());
             loaded = true;
         }
 
@@ -234,7 +198,7 @@ namespace Bonsai.NuGet
         {
             get
             {
-                return releaseFilterComboBox.SelectedIndex == 1 ||
+                return prereleaseCheckBox.Checked ||
                     selectedRepository == packageManagers[Resources.AllNodeName].LocalRepository;
             }
         }
@@ -243,7 +207,6 @@ namespace Bonsai.NuGet
         {
             var searchTerm = searchComboBox.Text;
             var allowPrereleaseVersions = AllowPrereleaseVersions;
-            var sortMode = (string)sortComboBox.SelectedItem;
             var updateFeed = getUpdateFeed();
             return () =>
             {
@@ -267,16 +230,11 @@ namespace Bonsai.NuGet
                     if (allowPrereleaseVersions) packages = packages.Where(p => p.IsAbsoluteLatestVersion);
                     else packages = packages.Where(p => p.IsLatestVersion);
                 }
-                switch (sortMode)
-                {
-                    case SortByRelevance: break;
-                    case SortByMostDownloads: packages = packages.OrderByDescending(p => p.DownloadCount); break;
-                    case SortByPublishedDate: packages = packages.OrderByDescending(p => p.Published); break;
-                    case SortByNameAscending: packages = packages.OrderBy(p => p.Title); break;
-                    case SortByNameDescending: packages = packages.OrderByDescending(p => p.Title); break;
-                    default: throw new InvalidOperationException("Invalid sort option");
-                }
 
+                if (string.IsNullOrEmpty(searchTerm))
+                {
+                    packages = packages.OrderByDescending(p => p.DownloadCount);
+                }
                 return packages;
             };
         }
@@ -540,7 +498,7 @@ namespace Bonsai.NuGet
 
         private void control_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.E && e.Modifiers == Keys.Control && !searchComboBox.Focused)
+            if (e.KeyCode == Keys.L && e.Modifiers == Keys.Control && !searchComboBox.Focused)
             {
                 searchComboBox.Select();
             }
@@ -551,7 +509,7 @@ namespace Bonsai.NuGet
             packageDetails.SetPackage((IPackage)e.Node.Tag);
         }
 
-        private void filterComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        private void prereleaseFilterCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             if (loaded)
             {

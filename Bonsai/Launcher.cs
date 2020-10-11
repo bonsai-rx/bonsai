@@ -117,7 +117,7 @@ namespace Bonsai
             using (var packageManagerDialog = new PackageManagerDialog(editorRepositoryPath))
             using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManagerDialog.PackageManager, editorPath, editorPackageName))
             {
-                packageManagerDialog.DefaultTab = updatePackages ? PackageManagerTab.Updates : PackageManagerTab.Online;
+                packageManagerDialog.DefaultTab = updatePackages ? PackageManagerTab.Updates : PackageManagerTab.Browse;
                 if (packageManagerDialog.ShowDialog() == DialogResult.OK)
                 {
                     AppResult.SetResult(packageManagerDialog.InstallPath);
