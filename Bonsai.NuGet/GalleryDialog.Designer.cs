@@ -276,7 +276,6 @@
             this.packagePageSelector.Location = new System.Drawing.Point(0, 0);
             this.packagePageSelector.Margin = new System.Windows.Forms.Padding(5);
             this.packagePageSelector.Name = "packagePageSelector";
-            this.packagePageSelector.SelectedPage = -1;
             this.packagePageSelector.Size = new System.Drawing.Size(719, 41);
             this.packagePageSelector.TabIndex = 0;
             // 

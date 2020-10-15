@@ -1,40 +1,37 @@
 ﻿using Bonsai.NuGet.Properties;
-using NuGet;
+using NuGet.Packaging;
+using NuGet.Packaging.Core;
+using NuGet.Protocol.Core.Types;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Reactive.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Bonsai.NuGet
 {
     public partial class GalleryDialog : Form
     {
-        PackageManagerProxy packageManagerProxy;
         PackageViewController packageViewController;
 
         string targetPath;
-        IPackage targetPackage;
+        PackageIdentity targetPackage;
 
         public GalleryDialog(string path)
         {
             InitializeComponent();
-            packageManagerProxy = new PackageManagerProxy();
-            packageManagerProxy.PackageInstalling += packageManagerProxy_PackageInstalling;
             packageViewController = new PackageViewController(
                 path,
                 this,
                 packageView,
                 packageDetails,
                 packagePageSelector,
-                packageManagerProxy,
                 packageIcons,
                 searchComboBox,
                 prereleaseCheckBox,
                 () => false,
                 value => { },
                 new[] { Constants.BonsaiDirectory, Constants.GalleryDirectory });
+            packageViewController.PackageManager.PackageManagerPlugins.Add(new GalleryPackagePlugin(this));
             InitializePackageSourceItems();
         }
 
@@ -42,7 +39,7 @@ namespace Bonsai.NuGet
 
         public IPackageManager PackageManager
         {
-            get { return packageManagerProxy; }
+            get { return packageViewController.PackageManager; }
         }
 
         protected override void OnLoad(EventArgs e)
@@ -83,13 +80,13 @@ namespace Bonsai.NuGet
 
         private void packageView_OperationClick(object sender, TreeViewEventArgs e)
         {
-            var package = (IPackage)e.Node.Tag;
+            var package = (IPackageSearchMetadata)e.Node.Tag;
             if (package != null)
             {
-                saveFolderDialog.FileName = package.Id;
+                saveFolderDialog.FileName = package.Identity.Id;
                 if (saveFolderDialog.ShowDialog(this) == DialogResult.OK)
                 {
-                    targetPackage = package;
+                    targetPackage = package.Identity;
                     targetPath = saveFolderDialog.FileName;
                     packageViewController.RunPackageOperation(new[] { package }, true);
                     if (DialogResult == DialogResult.OK)
@@ -100,50 +97,52 @@ namespace Bonsai.NuGet
             }
         }
 
-        void packageManagerProxy_PackageInstalling(object sender, PackageOperationEventArgs e)
+        class GalleryPackagePlugin : PackageManagerPlugin
         {
-            var package = e.Package;
-            if (package == targetPackage)
+            public GalleryPackagePlugin(GalleryDialog owner)
             {
-                var entryPoint = package.Id + Constants.BonsaiExtension;
-                if (!package.GetContentFiles().Any(file => file.EffectivePath == entryPoint))
+                Owner = owner;
+            }
+
+            private GalleryDialog Owner { get; set; }
+
+            public override Task<bool> OnPackageInstallingAsync(PackageIdentity package, PackageReaderBase packageReader, string installPath)
+            {
+                if (PackageIdentityComparer.Default.Equals(package, Owner.targetPackage))
                 {
-                    var message = string.Format(Resources.MissingWorkflowEntryPoint, entryPoint);
-                    throw new InvalidOperationException(message);
+                    var framework = Owner.packageViewController.PackageManager.ProjectFramework;
+                    Owner.InstallPath = PackageHelper.InstallExecutablePackage(package, framework, packageReader, Owner.targetPath);
+                    Owner.DialogResult = DialogResult.OK;
                 }
 
-                var targetFileSystem = new PhysicalFileSystem(targetPath);
-                InstallPath = PackageHelper.InstallExecutablePackage(package, targetFileSystem);
-                DialogResult = DialogResult.OK;
+                return base.OnPackageInstallingAsync(package, packageReader, installPath);
             }
         }
 
         private void InitializePackageSourceItems()
         {
             packageSourceComboBox.Items.Clear();
-            foreach (var pair in packageViewController.PackageManagers)
+            foreach (var repository in PackageManager.SourceRepositoryProvider.GetRepositories())
             {
-                packageSourceComboBox.Items.Add(pair);
+                packageSourceComboBox.Items.Add(repository);
             }
         }
 
         private void UpdateSelectedRepository()
         {
-            if (packageManagerProxy.SourceRepository == null) return;
             packageViewController.SetPackageViewStatus(Resources.NoItemsFoundLabel);
             packageViewController.ClearActiveRequests();
 
             var selectedItem = packageSourceComboBox.SelectedItem;
             if (selectedItem != null)
             {
-                var selectedManager = ((KeyValuePair<string, PackageManager>)selectedItem).Value;
-                packageViewController.SelectedRepository = selectedManager.SourceRepository;
+                packageViewController.SelectedRepository = (SourceRepository)selectedItem;
             }
-            else packageViewController.SelectedRepository = packageViewController.PackageManagers[Resources.AllNodeName].SourceRepository;
+            else packageViewController.SelectedRepository = null;
 
             packageView.OperationText = Resources.OpenOperationName;
             searchComboBox.Text = string.Empty;
-            packageViewController.UpdatePackageFeed();
+            packageViewController.UpdatePackagePage();
         }
 
         private void refreshButton_Click(object sender, EventArgs e)

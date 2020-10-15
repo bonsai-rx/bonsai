@@ -1,111 +1,38 @@
-﻿using Bonsai.NuGet.Properties;
-using NuGet;
+﻿using NuGet.Configuration;
+using NuGet.Frameworks;
+using NuGet.Protocol.Core.Types;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Versioning;
 
 namespace Bonsai.NuGet
 {
     public class LicenseAwarePackageManager : PackageManager
     {
-        static readonly FrameworkName DefaultFramework = new FrameworkName(".NETFramework,Version=v4.7.2");
+        static readonly NuGetFramework DefaultFramework = NuGetFramework.ParseFolder("net472");
 
-        public LicenseAwarePackageManager(IPackageRepository sourceRepository, string path)
-            : base(sourceRepository, path)
+        public LicenseAwarePackageManager(PackageSourceProvider packageSourceProvider, string path)
+            : this(packageSourceProvider.Settings, packageSourceProvider, path)
         {
         }
 
-        public LicenseAwarePackageManager(
-            IPackageRepository sourceRepository,
-            IPackagePathResolver pathResolver,
-            IFileSystem fileSystem)
-            : base(sourceRepository, pathResolver, fileSystem)
+        public LicenseAwarePackageManager(ISettings settings, IPackageSourceProvider packageSourceProvider, string path)
+            : this(settings, packageSourceProvider, new PackageSource(path))
         {
         }
 
-        public LicenseAwarePackageManager(
-            IPackageRepository sourceRepository,
-            IPackagePathResolver pathResolver,
-            IFileSystem fileSystem,
-            IPackageRepository localRepository)
-            : base(sourceRepository, pathResolver, fileSystem, localRepository)
+        public LicenseAwarePackageManager(ISettings settings, IPackageSourceProvider packageSourceProvider, PackageSource localRepository)
+            : base(settings, packageSourceProvider, localRepository)
         {
+            ProjectFramework = DefaultFramework;
         }
 
         public event EventHandler<RequiringLicenseAcceptanceEventArgs> RequiringLicenseAcceptance;
 
-        protected virtual void OnRequiringLicenseAcceptance(RequiringLicenseAcceptanceEventArgs e)
+        protected override bool AcceptLicenseAgreement(IEnumerable<IPackageSearchMetadata> licensePackages)
         {
-            var handler = RequiringLicenseAcceptance;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
-
-        public override void InstallPackage(IPackage package, bool ignoreDependencies, bool allowPrereleaseVersions)
-        {
-            InstallPackage(package, DefaultFramework, ignoreDependencies, allowPrereleaseVersions);
-        }
-
-        protected void InstallPackage(
-            IPackage package,
-            FrameworkName targetFramework,
-            bool ignoreDependencies,
-            bool allowPrereleaseVersions)
-        {
-            var installerWalker = new UpdateWalker(
-                LocalRepository,
-                SourceRepository,
-                new DependentsWalker(LocalRepository, targetFramework),
-                NullConstraintProvider.Instance,
-                targetFramework,
-                Logger,
-                !ignoreDependencies,
-                allowPrereleaseVersions);
-            Execute(package, installerWalker);
-        }
-
-        private void Execute(IPackage package, IPackageOperationResolver resolver)
-        {
-            var operations = resolver.ResolveOperations(package).ToList();
-            if (operations.Any())
-            {
-                if (!ShowLicenseAgreement(operations))
-                {
-                    return;
-                }
-
-                foreach (PackageOperation operation in operations)
-                {
-                    Execute(operation);
-                }
-            }
-            else if (LocalRepository.Exists(package))
-            {
-                // If the package wasn't installed by our set of operations, notify the user.
-                Logger.Log(MessageLevel.Info, Resources.PackageAlreadyInstalled, package.GetFullName());
-            }
-        }
-
-        private bool ShowLicenseAgreement(IEnumerable<PackageOperation> operations)
-        {
-            var licensePackages = (from operation in operations
-                                   where operation.Action == PackageAction.Install &&
-                                         operation.Package.RequireLicenseAcceptance &&
-                                         !LocalRepository.Exists(operation.Package)
-                                   select operation.Package)
-                                   .ToList();
-
-            if (licensePackages.Any())
-            {
-                var licenseAcceptanceEventArgs = new RequiringLicenseAcceptanceEventArgs(licensePackages);
-                OnRequiringLicenseAcceptance(licenseAcceptanceEventArgs);
-                return licenseAcceptanceEventArgs.LicenseAccepted;
-            }
-
-            return true;
+            var eventArgs = new RequiringLicenseAcceptanceEventArgs(licensePackages);
+            RequiringLicenseAcceptance?.Invoke(this, eventArgs);
+            return eventArgs.LicenseAccepted;
         }
     }
 }

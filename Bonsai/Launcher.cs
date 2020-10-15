@@ -2,115 +2,29 @@
 using Bonsai.Editor;
 using Bonsai.Expressions;
 using Bonsai.NuGet;
-using NuGet;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Serialization;
-using PackageHelper = Bonsai.NuGet.PackageHelper;
 using Bonsai.Properties;
+using NuGet.Packaging.Core;
+using NuGet.Packaging;
+using NuGet.Configuration;
+using System.Linq;
 
 namespace Bonsai
 {
     class Launcher : Bootstrapper
     {
-        internal static string LaunchPackageBootstrapper(
-            PackageConfiguration packageConfiguration,
-            string editorRepositoryPath,
-            string editorPath,
-            IPackage package)
-        {
-            return LaunchPackageBootstrapper(
-                packageConfiguration,
-                editorRepositoryPath,
-                editorPath,
-                null,
-                package.Id,
-                packageManager => packageManager.StartInstallPackage(package));
-        }
-
-        internal static string LaunchPackageBootstrapper(
-            PackageConfiguration packageConfiguration,
-            string editorRepositoryPath,
-            string editorPath,
-            string targetPath,
-            string packageId,
-            SemanticVersion packageVersion)
-        {
-            return LaunchPackageBootstrapper(
-                packageConfiguration,
-                editorRepositoryPath,
-                editorPath,
-                targetPath,
-                packageId,
-                packageManager => packageManager.StartInstallPackage(packageId, packageVersion));
-        }
-
-        static string LaunchPackageBootstrapper(
-            PackageConfiguration packageConfiguration,
-            string editorRepositoryPath,
-            string editorPath,
-            string targetPath,
-            string packageId,
-            Func<IPackageManager, Task> installPackage)
-        {
-            EnableVisualStyles();
-            var installPath = string.Empty;
-            var executablePackage = default(IPackage);
-            var packageManager = CreatePackageManager(editorRepositoryPath);
-            using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath))
-            {
-                packageManager.PackageInstalling += (sender, e) =>
-                {
-                    var package = e.Package;
-                    if (package.Id == packageId && e.Cancel)
-                    {
-                        executablePackage = package;
-                    }
-                };
-
-                PackageHelper.RunPackageOperation(packageManager, () => installPackage(packageManager));
-            }
-
-            if (executablePackage != null)
-            {
-                if (string.IsNullOrEmpty(targetPath))
-                {
-                    var entryPoint = executablePackage.Id + NuGet.Constants.BonsaiExtension;
-                    var message = string.Format(Resources.InstallExecutablePackageWarning, executablePackage.Id);
-                    var result = MessageBox.Show(message, Resources.InstallExecutablePackageCaption, MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
-                    if (result == DialogResult.Yes)
-                    {
-                        using (var dialog = new SaveFolderDialog())
-                        {
-                            dialog.FileName = executablePackage.Id;
-                            if (dialog.ShowDialog() == DialogResult.OK)
-                            {
-                                targetPath = dialog.FileName;
-                            }
-                        }
-                    }
-                }
-
-                if (!string.IsNullOrEmpty(targetPath))
-                {
-                    var targetFileSystem = new PhysicalFileSystem(targetPath);
-                    installPath = PackageHelper.InstallExecutablePackage(executablePackage, targetFileSystem);
-                }
-            }
-            return installPath;
-        }
-
         internal static int LaunchPackageManager(
             PackageConfiguration packageConfiguration,
             string editorRepositoryPath,
             string editorPath,
-            IPackageName editorPackageName,
+            PackageIdentity editorPackageName,
             bool updatePackages)
         {
             EnableVisualStyles();
@@ -140,22 +54,35 @@ namespace Bonsai
             var elementProvider = WorkflowElementLoader.GetWorkflowElementTypes(packageConfiguration);
             var visualizerProvider = TypeVisualizerLoader.GetTypeVisualizerDictionary(packageConfiguration);
             var packageManager = CreatePackageManager(editorRepositoryPath);
-            var updatesAvailable = Task.Factory.StartNew(() =>
+            using var cancellation = new CancellationTokenSource();
+            var updatesAvailable = Task.Run(async () =>
             {
                 try
                 {
-                    return packageManager.SourceRepository.GetUpdates(
-                        packageManager.LocalRepository.GetPackages(),
-                        includePrerelease: false,
-                        includeAllVersions: false).Any();
+                    var localPackages = packageManager.LocalRepository.GetLocalPackages();
+                    foreach (var repository in packageManager.SourceRepositoryProvider.GetRepositories())
+                    {
+                        try
+                        {
+                            if (cancellation.IsCancellationRequested) break;
+                            var updates = await repository.GetUpdatesAsync(localPackages, includePrerelease: false, cancellation.Token);
+                            if (updates.Any()) return true;
+                        }
+                        catch { continue; }
+                    }
+
+                    return false;
                 }
                 catch { return false; }
-            });
+            }, cancellation.Token);
 
             EnableVisualStyles();
-            using (var mainForm = new MainForm(elementProvider, visualizerProvider, scriptEnvironment, editorScale))
+            using var mainForm = new MainForm(elementProvider, visualizerProvider, scriptEnvironment, editorScale);
+            try
             {
-                updatesAvailable.ContinueWith(task => mainForm.UpdatesAvailable = task.Result);
+                updatesAvailable.ContinueWith(
+                    task => mainForm.UpdatesAvailable = !task.IsFaulted && !task.IsCanceled && task.Result,
+                    cancellation.Token);
                 mainForm.FileName = initialFileName;
                 mainForm.PropertyAssignments.AddRange(propertyAssignments);
                 mainForm.LoadAction =
@@ -169,6 +96,7 @@ namespace Bonsai
                 AppResult.SetResult(mainForm.FileName);
                 return (int)mainForm.EditorResult;
             }
+            finally { cancellation.Cancel(); }
         }
 
         internal static int LaunchStartScreen(out string initialFileName)
@@ -250,7 +178,7 @@ namespace Bonsai
             }
 
             Manifest manifest;
-            var metadataPath = Path.ChangeExtension(fileName, global::NuGet.Constants.ManifestExtension);
+            var metadataPath = Path.ChangeExtension(fileName, NuGetConstants.ManifestExtension);
             try { manifest = PackageBuilderHelper.CreatePackageManifest(metadataPath); }
             catch (XmlException ex) { return ShowManifestReadError(metadataPath, ex.Message); }
             catch (InvalidOperationException ex)
@@ -264,7 +192,7 @@ namespace Bonsai
             var builder = PackageBuilderHelper.CreateExecutablePackage(fileName, manifest, packageConfiguration, out updateDependencies);
             using (var builderDialog = new PackageBuilderDialog())
             {
-                builderDialog.MetadataPath = Path.ChangeExtension(fileName, global::NuGet.Constants.ManifestExtension);
+                builderDialog.MetadataPath = Path.ChangeExtension(fileName, NuGetConstants.ManifestExtension);
                 builderDialog.InitialDirectory = Path.Combine(editorFolder, NuGet.Constants.GalleryDirectory);
                 builderDialog.SetPackageBuilder(builder);
                 if (updateDependencies)
@@ -280,7 +208,7 @@ namespace Bonsai
             PackageConfiguration packageConfiguration,
             string editorRepositoryPath,
             string editorPath,
-            IPackageName editorPackageName)
+            PackageIdentity editorPackageName)
         {
             EnableVisualStyles();
             using (var galleryDialog = new GalleryDialog(editorRepositoryPath))

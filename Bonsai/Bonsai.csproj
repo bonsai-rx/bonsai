@@ -32,7 +32,14 @@
     <ItemGroup>
       <InputAssemblies Include="Bonsai.Configuration.dll" />
       <InputAssemblies Include="Bonsai.NuGet.dll" />
-      <InputAssemblies Include="NuGet.Core.dll" />
+      <InputAssemblies Include="Newtonsoft.Json.dll" />
+      <InputAssemblies Include="NuGet.Common.dll" />
+      <InputAssemblies Include="NuGet.Configuration.dll" />
+      <InputAssemblies Include="NuGet.Frameworks.dll" />
+      <InputAssemblies Include="NuGet.Packaging.dll" />
+      <InputAssemblies Include="NuGet.Protocol.dll" />
+      <InputAssemblies Include="NuGet.Resolver.dll" />
+      <InputAssemblies Include="NuGet.Versioning.dll" />
     </ItemGroup>
     <ItemGroup>
       <InternalizeExcludeAssemblies Include="^Bonsai.Configuration" />

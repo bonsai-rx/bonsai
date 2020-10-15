@@ -1,5 +1,9 @@
 ﻿using Bonsai.Configuration;
-using NuGet;
+using NuGet.Configuration;
+using NuGet.Frameworks;
+using NuGet.Packaging;
+using NuGet.Packaging.Core;
+using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,8 +26,8 @@ namespace Bonsai
         {
             return from file in Directory.GetFiles(basePath, "*", SearchOption.AllDirectories)
                    let extension = Path.GetExtension(file)
-                   where extension != global::NuGet.Constants.ManifestExtension &&
-                         extension != global::NuGet.Constants.PackageExtension
+                   where extension != NuGetConstants.ManifestExtension &&
+                         extension != NuGetConstants.PackageExtension
                    select new ManifestFile
                    {
                        Source = file,
@@ -42,15 +46,14 @@ namespace Bonsai
             }
             else
             {
-                var manifest = new Manifest();
-                manifest.Metadata = new ManifestMetadata()
+                var metadata = new ManifestMetadata()
                 {
-                    Authors = Environment.UserName,
-                    Version = "1.0.0",
+                    Authors = new[] { Environment.UserName },
+                    Version = NuGetVersion.Parse("1.0.0"),
                     Id = Path.GetFileNameWithoutExtension(metadataPath),
                     Description = "My workflow description."
                 };
-                return manifest;
+                return new Manifest(metadata);
             }
         }
 
@@ -69,8 +72,8 @@ namespace Bonsai
             var files = manifest.Files ?? GetContentFiles(basePath);
             packageBuilder.PopulateFiles(basePath, files);
             var manifestDependencies = new Dictionary<string, PackageDependency>(StringComparer.OrdinalIgnoreCase);
-            foreach (var dependency in packageBuilder.DependencySets.Where(set => set.TargetFramework == null)
-                                                                    .SelectMany(set => set.Dependencies))
+            foreach (var dependency in packageBuilder.DependencyGroups.Where(group => group.TargetFramework == NuGetFramework.AnyFramework)
+                                                                      .SelectMany(group => group.Packages))
             {
                 manifestDependencies.Add(dependency.Id, dependency);
             }
@@ -83,8 +86,7 @@ namespace Bonsai
             var workflowDependencies = DependencyInspector.GetWorkflowPackageDependencies(workflowFiles, configuration).ToArray().Wait();
             foreach (var dependency in workflowDependencies)
             {
-                PackageDependency manifestDependency;
-                if (!manifestDependencies.TryGetValue(dependency.Id, out manifestDependency) ||
+                if (!manifestDependencies.TryGetValue(dependency.Id, out PackageDependency manifestDependency) ||
                     !DependencyEqualityComparer.Default.Equals(dependency, manifestDependency))
                 {
                     updateDependencies = true;
@@ -92,9 +94,9 @@ namespace Bonsai
                 }
             }
 
-            var dependencySet = new PackageDependencySet(null, manifestDependencies.Values);
-            packageBuilder.DependencySets.Clear();
-            packageBuilder.DependencySets.Add(dependencySet);
+            var dependencyGroup = new PackageDependencyGroup(NuGetFramework.AnyFramework, manifestDependencies.Values);
+            packageBuilder.DependencyGroups.Clear();
+            packageBuilder.DependencyGroups.Add(dependencyGroup);
             return packageBuilder;
         }
 
@@ -105,19 +107,19 @@ namespace Bonsai
             public bool Equals(PackageDependency x, PackageDependency y)
             {
                 return x.Id.Equals(y.Id, StringComparison.OrdinalIgnoreCase) &&
-                       x.VersionSpec.IsMaxInclusive == y.VersionSpec.IsMaxInclusive &&
-                       x.VersionSpec.IsMinInclusive == y.VersionSpec.IsMinInclusive &&
-                       x.VersionSpec.MaxVersion == y.VersionSpec.MaxVersion &&
-                       x.VersionSpec.MinVersion == y.VersionSpec.MinVersion;
+                       x.VersionRange.IsMaxInclusive == y.VersionRange.IsMaxInclusive &&
+                       x.VersionRange.IsMinInclusive == y.VersionRange.IsMinInclusive &&
+                       x.VersionRange.MaxVersion == y.VersionRange.MaxVersion &&
+                       x.VersionRange.MinVersion == y.VersionRange.MinVersion;
             }
 
             public int GetHashCode(PackageDependency obj)
             {
                 return obj.Id.GetHashCode() ^
-                       obj.VersionSpec.IsMaxInclusive.GetHashCode() ^
-                       obj.VersionSpec.IsMinInclusive.GetHashCode() ^
-                       EqualityComparer<SemanticVersion>.Default.GetHashCode(obj.VersionSpec.MaxVersion) ^
-                       EqualityComparer<SemanticVersion>.Default.GetHashCode(obj.VersionSpec.MinVersion);
+                       obj.VersionRange.IsMaxInclusive.GetHashCode() ^
+                       obj.VersionRange.IsMinInclusive.GetHashCode() ^
+                       EqualityComparer<SemanticVersion>.Default.GetHashCode(obj.VersionRange.MaxVersion) ^
+                       EqualityComparer<SemanticVersion>.Default.GetHashCode(obj.VersionRange.MinVersion);
             }
         }
     }

@@ -1,6 +1,7 @@
-﻿using Bonsai.Design;
+using Bonsai.Design;
 using Bonsai.NuGet.Properties;
-using NuGet;
+using NuGet.Configuration;
+using NuGet.Protocol.Core.Types;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,6 +14,8 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Bonsai.NuGet
@@ -29,24 +32,21 @@ namespace Bonsai.NuGet
         bool loaded;
         readonly string packageManagerPath;
         readonly IEnumerable<string> tagSearchTerms;
-        readonly IPackageSourceProvider packageSourceProvider;
-        Dictionary<string, PackageManager> packageManagers;
-        PackageManagerProxy packageManagerProxy;
-        IPackageRepository selectedRepository;
+        readonly PackageSourceProvider packageSourceProvider;
         string feedExceptionMessage;
-        List<IDisposable> activeRequests;
+        readonly List<IDisposable> activeRequests;
         IDisposable searchSubscription;
         Form operationDialog;
 
-        Control control;
-        PackageView packageView;
-        PackageDetails packageDetails;
-        PackagePageSelector packagePageSelector;
-        ImageList packageIcons;
-        CueBannerComboBox searchComboBox;
-        CheckBox prereleaseCheckBox;
-        Func<bool> getUpdateFeed;
-        Action<bool> setMultiOperationVisible;
+        readonly Control control;
+        readonly PackageView packageView;
+        readonly PackageDetails packageDetails;
+        readonly PackagePageSelector packagePageSelector;
+        readonly ImageList packageIcons;
+        readonly CueBannerComboBox searchComboBox;
+        readonly CheckBox prereleaseCheckBox;
+        readonly Func<bool> getUpdateFeed;
+        readonly Action<bool> setMultiOperationVisible;
 
         public PackageViewController(
             string path,
@@ -54,7 +54,6 @@ namespace Bonsai.NuGet
             PackageView view,
             PackageDetails details,
             PackagePageSelector pageSelector,
-            PackageManagerProxy managerProxy,
             ImageList icons,
             CueBannerComboBox search,
             CheckBox prerelease,
@@ -62,29 +61,16 @@ namespace Bonsai.NuGet
             Action<bool> multiOperationVisible,
             IEnumerable<string> tagConstraints)
         {
-            if (owner == null) throw new ArgumentNullException("owner");
-            if (view == null) throw new ArgumentNullException("view");
-            if (details == null) throw new ArgumentNullException("details");
-            if (pageSelector == null) throw new ArgumentNullException("pageSelector");
-            if (managerProxy == null) throw new ArgumentNullException("managerProxy");
-            if (icons == null) throw new ArgumentNullException("icons");
-            if (search == null) throw new ArgumentNullException("search");
-            if (prerelease == null) throw new ArgumentNullException("prerelease");
-            if (updateFeed == null) throw new ArgumentNullException("updateFeed");
-            if (multiOperationVisible == null) throw new ArgumentNullException("multiOperationVisible");
-            if (tagConstraints == null) throw new ArgumentNullException("tagConstraints");
-
-            control = owner;
-            packageView = view;
-            packageDetails = details;
-            packagePageSelector = pageSelector;
-            packageManagerProxy = managerProxy;
-            packageIcons = icons;
-            searchComboBox = search;
-            prereleaseCheckBox = prerelease;
-            getUpdateFeed = updateFeed;
-            setMultiOperationVisible = multiOperationVisible;
-            tagSearchTerms = tagConstraints;
+            control = owner ?? throw new ArgumentNullException(nameof(owner));
+            packageView = view ?? throw new ArgumentNullException(nameof(view));
+            packageDetails = details ?? throw new ArgumentNullException(nameof(details));
+            packagePageSelector = pageSelector ?? throw new ArgumentNullException(nameof(pageSelector));
+            packageIcons = icons ?? throw new ArgumentNullException(nameof(icons));
+            searchComboBox = search ?? throw new ArgumentNullException(nameof(search));
+            prereleaseCheckBox = prerelease ?? throw new ArgumentNullException(nameof(prerelease));
+            getUpdateFeed = updateFeed ?? throw new ArgumentNullException(nameof(updateFeed));
+            setMultiOperationVisible = multiOperationVisible ?? throw new ArgumentNullException(nameof(multiOperationVisible));
+            tagSearchTerms = tagConstraints ?? throw new ArgumentNullException(nameof(tagConstraints));
             control.KeyDown += control_KeyDown;
             packageView.AfterSelect += packageView_AfterSelect;
             prereleaseCheckBox.CheckedChanged += prereleaseFilterCheckBox_CheckedChanged;
@@ -97,22 +83,15 @@ namespace Bonsai.NuGet
 
             activeRequests = new List<IDisposable>();
             var machineWideSettings = new BonsaiMachineWideSettings();
-            var settings = Settings.LoadDefaultSettings(new PhysicalFileSystem(AppDomain.CurrentDomain.BaseDirectory), null, machineWideSettings);
+            var settings = Settings.LoadDefaultSettings(AppDomain.CurrentDomain.BaseDirectory, null, machineWideSettings);
             packageSourceProvider = new PackageSourceProvider(settings);
-            packageManagers = CreatePackageManagers();
+            PackageManager = CreatePackageManager(packageSourceProvider, Enumerable.Empty<PackageManagerPlugin>());
             searchComboBox.CueBanner = Resources.SearchCueBanner;
         }
 
-        public IPackageRepository SelectedRepository
-        {
-            get { return selectedRepository; }
-            set { selectedRepository = value; }
-        }
+        public SourceRepository SelectedRepository { get; set; }
 
-        public Dictionary<string, PackageManager> PackageManagers
-        {
-            get { return packageManagers; }
-        }
+        public LicenseAwarePackageManager PackageManager { get; private set; }
 
         public void ClearActiveRequests()
         {
@@ -124,11 +103,15 @@ namespace Bonsai.NuGet
             });
         }
 
-        PackageManager CreatePackageManager(IPackageRepository sourceRepository, EventLogger logger)
+        LicenseAwarePackageManager CreatePackageManager(PackageSourceProvider packageSourceProvider, IEnumerable<PackageManagerPlugin> plugins)
         {
-            var packageManager = new LicenseAwarePackageManager(sourceRepository, packageManagerPath);
+            var packageManager = new LicenseAwarePackageManager(packageSourceProvider, packageManagerPath);
             packageManager.RequiringLicenseAcceptance += packageManager_RequiringLicenseAcceptance;
-            packageManager.Logger = logger;
+            packageManager.Logger = new EventLogger();
+            foreach (var plugin in plugins)
+            {
+                packageManager.PackageManagerPlugins.Add(plugin);
+            }
             return packageManager;
         }
 
@@ -153,31 +136,6 @@ namespace Bonsai.NuGet
             }
         }
 
-        private Dictionary<string, PackageManager> CreatePackageManagers()
-        {
-            var logger = new EventLogger();
-            var managers = new Dictionary<string, PackageManager>();
-            var aggregateRepository = packageSourceProvider.CreateAggregateRepository(PackageRepositoryFactory.Default, true);
-            var aggregatePackageManager = CreatePackageManager(aggregateRepository, logger);
-            managers.Add(Resources.AllNodeName, aggregatePackageManager);
-            packageManagerProxy.PackageManager = aggregatePackageManager;
-            packageManagerProxy.SourceRepository = aggregatePackageManager.SourceRepository;
-
-            var packageRepositories = packageSourceProvider
-                .GetEnabledPackageSources()
-                .Zip(aggregateRepository.Repositories, (source, repository) => new
-                {
-                    name = source.Name,
-                    manager = CreatePackageManager(repository, logger)
-                });
-
-            foreach (var repository in packageRepositories)
-            {
-                managers.Add(repository.name, repository.manager);
-            }
-            return managers;
-        }
-
         public void OnLoad(EventArgs e)
         {
             searchSubscription = Observable.FromEventPattern<EventArgs>(
@@ -185,7 +143,7 @@ namespace Bonsai.NuGet
                 handler => searchComboBox.TextChanged -= new EventHandler(handler))
                 .Throttle(TimeSpan.FromSeconds(1))
                 .ObserveOn(control)
-                .Subscribe(evt => UpdatePackageFeed());
+                .Subscribe(evt => UpdatePackagePage());
             loaded = true;
         }
 
@@ -199,45 +157,38 @@ namespace Bonsai.NuGet
         {
             get
             {
-                return prereleaseCheckBox.Checked ||
-                    selectedRepository == packageManagers[Resources.AllNodeName].LocalRepository;
+                return prereleaseCheckBox.Checked || SelectedRepository == PackageManager.LocalRepository;
             }
         }
 
-        public Func<IQueryable<IPackage>> GetPackageFeed()
+        public async Task<IEnumerable<IPackageSearchMetadata>> GetPackageFeed(string searchTerm, int pageIndex, CancellationToken token = default)
         {
-            var searchTerm = searchComboBox.Text;
+            if (SelectedRepository == null || PackageManager == null)
+            {
+                return Enumerable.Empty<IPackageSearchMetadata>();
+            }
+
+            return await GetPackageFeed(SelectedRepository, searchTerm, pageIndex, token);
+        }
+
+        async Task<IEnumerable<IPackageSearchMetadata>> GetPackageFeed(SourceRepository repository, string searchTerm, int pageIndex, CancellationToken token = default)
+        {
             var allowPrereleaseVersions = AllowPrereleaseVersions;
             var updateFeed = getUpdateFeed();
-            return () =>
+
+            if (updateFeed)
             {
-                if (selectedRepository == null || packageManagerProxy.PackageManager == null)
-                {
-                    return Enumerable.Empty<IPackage>().AsQueryable();
-                }
-
-                IQueryable<IPackage> packages;
-                if (updateFeed)
-                {
-                    var localPackages = packageManagerProxy.LocalRepository.GetPackages();
-                    try { packages = selectedRepository.GetUpdates(localPackages, allowPrereleaseVersions, false).AsQueryable(); }
-                    catch (AggregateException e) { return Observable.Throw<IPackage>(e.InnerException).ToEnumerable().AsQueryable(); }
-                    catch (WebException e) { return Observable.Throw<IPackage>(e).ToEnumerable().AsQueryable(); }
-                }
-                else
-                {
-                    try { packages = selectedRepository.GetPackages().Find(searchTerm).WithTags(tagSearchTerms); }
-                    catch (WebException e) { return Observable.Throw<IPackage>(e).ToEnumerable().AsQueryable(); }
-                    if (allowPrereleaseVersions) packages = packages.Where(p => p.IsAbsoluteLatestVersion);
-                    else packages = packages.Where(p => p.IsLatestVersion);
-                }
-
-                if (string.IsNullOrEmpty(searchTerm))
-                {
-                    packages = packages.OrderByDescending(p => p.DownloadCount);
-                }
-                return packages;
-            };
+                var localPackages = PackageManager.LocalRepository.GetLocalPackages(token);
+                try { return await repository.GetUpdatesAsync(localPackages, allowPrereleaseVersions, token); }
+                catch (WebException e) { return Observable.Throw<IPackageSearchMetadata>(e).ToEnumerable(); }
+            }
+            else
+            {
+                var searchFilterType = allowPrereleaseVersions ? SearchFilterType.IsAbsoluteLatestVersion : SearchFilterType.IsLatestVersion;
+                var searchFilter = new SearchFilter(allowPrereleaseVersions, searchFilterType);
+                try { return await repository.SearchAsync(searchTerm, searchFilter, pageIndex * PackagesPerPage, PackagesPerPage + 1, token); }
+                catch (WebException e) { return Observable.Throw<IPackageSearchMetadata>(e).ToEnumerable(); }
+            }
         }
 
         static Bitmap ResizeImage(Image image, Size newSize)
@@ -256,9 +207,7 @@ namespace Bonsai.NuGet
         IObservable<Image> GetPackageIcon(Uri iconUrl)
         {
             if (iconUrl == null) return defaultIcon;
-
-            IObservable<Image> result;
-            if (!iconCache.TryGetValue(iconUrl, out result))
+            if (!iconCache.TryGetValue(iconUrl, out IObservable<Image> result))
             {
                 WebRequest imageRequest;
                 try { imageRequest = WebRequest.Create(iconUrl); }
@@ -313,7 +262,7 @@ namespace Bonsai.NuGet
             packageView.EndUpdate();
         }
 
-        private void AddPackageRange(IList<IPackage> packages)
+        private void AddPackageRange(IList<IPackageSearchMetadata> packages)
         {
             if (packages.Count > 0)
             {
@@ -335,23 +284,23 @@ namespace Bonsai.NuGet
             }
         }
 
-        private void AddPackage(IPackage package)
+        private void AddPackage(IPackageSearchMetadata package)
         {
             var installCheck = false;
-            if (selectedRepository != packageManagerProxy.LocalRepository &&
+            if (SelectedRepository != PackageManager.LocalRepository &&
                 packageView.OperationText != Resources.UpdateOperationName)
             {
-                var installedPackage = packageManagerProxy.LocalRepository.FindPackage(package.Id);
-                installCheck = installedPackage != null && installedPackage.Version >= package.Version;
+                var installedPackage = PackageManager.LocalRepository.FindLocalPackage(package.Identity.Id);
+                installCheck = installedPackage != null && installedPackage.Identity.Version >= package.Identity.Version;
             }
 
-            var nodeTitle = !string.IsNullOrWhiteSpace(package.Title) ? package.Title : package.Id;
+            var nodeTitle = !string.IsNullOrWhiteSpace(package.Title) ? package.Title : package.Identity.Id;
             var nodeText = string.Join(
                 Environment.NewLine, nodeTitle,
                 package.Summary ?? package.Description.Split(
                     new[] { Environment.NewLine, "\n", "\r" },
                     StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
-            var node = packageView.Nodes.Add(package.Id, nodeText);
+            var node = packageView.Nodes.Add(package.Identity.Id, nodeText);
             node.Checked = installCheck;
             node.Tag = package;
 
@@ -363,33 +312,23 @@ namespace Bonsai.NuGet
                     var defaultImage = defaultIcon.Wait();
                     packageIcons.Images.Add(defaultImage);
                 }
-                packageIcons.Images.Add(package.Id, image);
-                node.ImageKey = package.Id;
-                node.SelectedImageKey = package.Id;
+                packageIcons.Images.Add(package.Identity.Id, image);
+                node.ImageKey = package.Identity.Id;
+                node.SelectedImageKey = package.Identity.Id;
             });
 
             activeRequests.Add(iconRequest);
         }
 
-        private void UpdatePackagePage()
+        public void UpdatePackagePage(int pageIndex = 0)
         {
             ClearActiveRequests();
             SetPackageViewStatus(Resources.RetrievingInformationLabel, Resources.WaitImage);
 
-            var packageFeed = GetPackageFeed();
-            var pageIndex = packagePageSelector.SelectedPage;
-            var packagesPerRequest = PackagesPerPage + 1;
-            var feedRequest = Observable.If(
-                () => packagePageSelector.SelectedPage < 0,
-                Observable.Empty<IPackage>(),
-                Observable.Defer(() =>
-                packageFeed().AsBufferedEnumerable(PackagesPerPage * 3)
-                .Where(PackageExtensions.IsListed)
-                .AsCollapsed()
-                .Skip(pageIndex * PackagesPerPage)
-                .Take(packagesPerRequest)
-                .ToObservable()
-                .Catch<IPackage, InvalidOperationException>(ex =>
+            var searchTerm = searchComboBox.Text;
+            var feedRequest = Observable.FromAsync(token => GetPackageFeed(searchTerm, pageIndex, token))
+                .SelectMany(packages => packages)
+                .Catch<IPackageSearchMetadata, InvalidOperationException>(ex =>
                 {
                     Exception innerException = ex;
                     feedExceptionMessage = ex.Message;
@@ -398,15 +337,16 @@ namespace Bonsai.NuGet
                         innerException = innerException.InnerException;
                         feedExceptionMessage += Environment.NewLine + "\t --> " + innerException.Message;
                     }
-                    return Observable.Empty<IPackage>();
-                })))
-                .Buffer(packagesPerRequest)
+                    return Observable.Empty<IPackageSearchMetadata>();
+                })
+                .ToList()
                 .SubscribeOn(NewThreadScheduler.Default)
                 .ObserveOn(control)
                 .Do(packages => AddPackageRange(packages))
                 .Sum(packages => packages.Count)
                 .Subscribe(packageCount =>
                 {
+                    packagePageSelector.Visible = pageIndex > 0 || packageCount > PackagesPerPage;
                     packagePageSelector.ShowNext = packageCount > PackagesPerPage;
                     if (packageCount == 0)
                     {
@@ -422,42 +362,21 @@ namespace Bonsai.NuGet
             activeRequests.Add(feedRequest);
         }
 
-        public void UpdatePackageFeed(int selectedPage = 0)
-        {
-            feedExceptionMessage = null;
-            SetPackageViewStatus(Resources.RetrievingInformationLabel, Resources.WaitImage);
-            var packageFeed = GetPackageFeed();
-            activeRequests.Add(Observable.Start(() => packageFeed().Count())
-                .Catch<int, InvalidOperationException>(ex =>
-                {
-                    feedExceptionMessage = ex.Message;
-                    return Observable.Return(0);
-                })
-                .ObserveOn(control)
-                .Subscribe(count =>
-                {
-                    var pageCount = count / PackagesPerPage;
-                    if (count % PackagesPerPage != 0) pageCount++;
-                    packagePageSelector.SelectedPage = count > 0 ? (selectedPage < pageCount ? selectedPage : 0) : -1;
-                    packagePageSelector.Visible = count > PackagesPerPage;
-                }));
-        }
-
-        public void RunPackageOperation(IEnumerable<IPackage> packages, bool handleDependencies)
+        public void RunPackageOperation(IEnumerable<IPackageSearchMetadata> packages, bool handleDependencies)
         {
             using (var dialog = new PackageOperationDialog())
             {
-                var logger = packageManagerProxy.Logger;
+                var logger = PackageManager.Logger;
                 dialog.RegisterEventLogger((EventLogger)logger);
 
                 IObservable<Unit> operation;
-                if (selectedRepository == packageManagerProxy.LocalRepository)
+                if (SelectedRepository == PackageManager.LocalRepository)
                 {
-                    operation = Observable.Start(() =>
+                    operation = Observable.FromAsync(async () =>
                     {
                         foreach (var package in packages)
                         {
-                            packageManagerProxy.UninstallPackage(package, false, handleDependencies);
+                            await PackageManager.UninstallPackageAsync(package.Identity, handleDependencies, default);
                         }
                     });
                     dialog.Text = Resources.UninstallOperationLabel;
@@ -468,11 +387,11 @@ namespace Bonsai.NuGet
                     var update = packageView.OperationText == Resources.UpdateOperationName;
                     dialog.Text = update ? Resources.UpdateOperationLabel : Resources.InstallOperationLabel;
 
-                    operation = Observable.Start(() =>
+                    operation = Observable.FromAsync(async () =>
                     {
                         foreach (var package in packages)
                         {
-                            packageManagerProxy.InstallPackage(package, !handleDependencies, allowPrereleaseVersions);
+                            await PackageManager.InstallPackageAsync(package.Identity, !handleDependencies, default);
                         }
                     });
                 }
@@ -482,11 +401,11 @@ namespace Bonsai.NuGet
                 {
                     operation.ObserveOn(control).Subscribe(
                         xs => { },
-                        ex => logger.Log(MessageLevel.Error, ex.Message),
+                        ex => logger.LogError(ex.Message),
                         () => dialog.Complete());
                     if (dialog.ShowDialog() == DialogResult.OK)
                     {
-                        UpdatePackageFeed(packagePageSelector.SelectedPage);
+                        UpdatePackagePage(packagePageSelector.SelectedPage);
                     }
                 }
                 finally { operationDialog = null; }
@@ -514,20 +433,20 @@ namespace Bonsai.NuGet
 
         private void packageView_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            packageDetails.SetPackage((IPackage)e.Node.Tag);
+            packageDetails.SetPackage((IPackageSearchMetadata)e.Node.Tag);
         }
 
         private void prereleaseFilterCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             if (loaded)
             {
-                UpdatePackageFeed();
+                UpdatePackagePage();
             }
         }
 
         private void packagePageSelector_SelectedIndexChanged(object sender, EventArgs e)
         {
-            UpdatePackagePage();
+            UpdatePackagePage(packagePageSelector.SelectedPage);
         }
 
         public DialogResult ShowPackageSourceConfigurationDialog()
@@ -537,10 +456,9 @@ namespace Bonsai.NuGet
                 var result = dialog.ShowDialog(control);
                 if (result == DialogResult.OK)
                 {
-                    selectedRepository = null;
+                    SelectedRepository = null;
                     feedExceptionMessage = null;
-                    packageManagerProxy.PackageManager = null;
-                    packageManagers = CreatePackageManagers();
+                    PackageManager = CreatePackageManager(packageSourceProvider, PackageManager.PackageManagerPlugins);
                 }
                 return result;
             }

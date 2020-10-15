@@ -1,4 +1,7 @@
-﻿using NuGet;
+﻿using Bonsai.NuGet;
+using NuGet.Configuration;
+using NuGet.Packaging;
+using NuGet.Versioning;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -23,39 +26,38 @@ namespace Bonsai
             }
         }
 
-        static SemanticVersion TryParseVersion(string version)
-        {
-            SemanticVersion value;
-            SemanticVersion.TryParse(version, out value);
-            return value;
-        }
-
-        public static SemanticVersion FindOverlayVersion(IPackage package)
+        public static NuGetVersion FindOverlayVersion(PackageReaderBase package)
         {
             return (from file in package.GetFiles()
-                    where Path.GetFileName(file.Path) == NuGetOverlayCommandFileName
-                    from line in ReadAllLines(file.GetStream())
+                    where Path.GetFileName(file) == NuGetOverlayCommandFileName
+                    from line in ReadAllLines(package.GetStream(file))
                     where line.StartsWith(NuGetOverlayCommand)
                     let version = line.Split(' ')
                                       .SkipWhile(xs => xs != NuGetOverlayVersionArgument)
                                       .Skip(1)
                                       .FirstOrDefault()
-                    select TryParseVersion(version)).FirstOrDefault();
+                    select NuGetVersion.Parse(version)).FirstOrDefault();
         }
 
-        public static IEnumerable<string> FindPivots(IPackage package, string installPath)
+        public static IEnumerable<string> FindPivots(PackageReaderBase package, string installPath)
         {
             return from file in package.GetFiles()
-                   where Path.GetFileName(file.Path) == PivotListFileName
-                   from pivot in ReadAllLines(file.GetStream())
+                   where Path.GetFileName(file) == PivotListFileName
+                   from pivot in ReadAllLines(package.GetStream(file))
                    select pivot;
         }
 
-        public static PackageManager CreateOverlayManager(IPackageRepository sourceRepository, string installPath)
+        public static PackageManager CreateOverlayManager(IPackageManager packageManager, string installPath)
         {
-            var fileSystem = new PhysicalFileSystem(installPath);
+            var overlayPackageSource = new PackageSource(installPath);
             var overlayPathResolver = new OverlayPackagePathResolver(installPath);
-            return new PackageManager(sourceRepository, overlayPathResolver, fileSystem);
+            var overlayManager = new PackageManager(
+                packageManager.Settings,
+                packageManager.SourceRepositoryProvider.PackageSourceProvider,
+                overlayPackageSource,
+                overlayPathResolver);
+            overlayManager.PackageSaveMode = PackageSaveMode.Defaultv2;
+            return overlayManager;
         }
     }
 }

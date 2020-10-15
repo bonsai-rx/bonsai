@@ -1,7 +1,11 @@
 ﻿using Bonsai.Configuration;
 using Bonsai.NuGet;
 using Bonsai.Properties;
-using NuGet;
+using NuGet.Configuration;
+using NuGet.Versioning;
+using NuGet.Packaging.Core;
+using NuGet.Protocol.Core.Types;
+using NuGet.Protocol;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -32,31 +36,30 @@ namespace Bonsai
         {
             var logger = new EventLogger();
             var machineWideSettings = new BonsaiMachineWideSettings();
-            var settings = Settings.LoadDefaultSettings(new PhysicalFileSystem(AppDomain.CurrentDomain.BaseDirectory), null, machineWideSettings);
+            var settings = Settings.LoadDefaultSettings(AppDomain.CurrentDomain.BaseDirectory, null, machineWideSettings);
             var sourceProvider = new PackageSourceProvider(settings);
-            var sourceRepository = sourceProvider.CreateAggregateRepository(PackageRepositoryFactory.Default, true);
-            return new LicenseAwarePackageManager(sourceRepository, path) { Logger = logger };
+            return new LicenseAwarePackageManager(sourceProvider, path) { Logger = logger };
         }
 
-        static SemanticVersion ParseVersion(string version)
+        static NuGetVersion ParseVersion(string version)
         {
             if (string.IsNullOrEmpty(version)) return null;
-            return SemanticVersion.Parse(version);
+            return NuGetVersion.Parse(version);
         }
 
-        static IEnumerable<PackageReference> GetMissingPackages(IEnumerable<PackageReference> packages, IPackageRepository repository)
+        static IEnumerable<PackageReference> GetMissingPackages(IEnumerable<PackageReference> packages, SourceRepository repository)
         {
             return from package in packages
                    let version = ParseVersion(package.Version)
-                   where !repository.Exists(package.Id, version)
+                   where !repository.Exists(new PackageIdentity(package.Id, version))
                    select package;
         }
 
-        internal static IPackage GetEditorPackage(
+        internal static LocalPackageInfo GetEditorPackage(
             PackageConfiguration packageConfiguration,
             string editorRepositoryPath,
             string editorPath,
-            IPackageName editorPackageName,
+            PackageIdentity editorPackageName,
             bool showDialog)
         {
             const string OldExtension = ".old";
@@ -80,34 +83,12 @@ namespace Bonsai
                 if (showDialog) EnableVisualStyles();
                 using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageName))
                 {
-                    Task RestoreMissingPackages()
+                    async Task RestoreMissingPackages()
                     {
-                        var restoreTasks = missingPackages.Select(package => packageManager.StartRestorePackage(package.Id, ParseVersion(package.Version)));
-                        return Task.Factory.ContinueWhenAll(restoreTasks.ToArray(), operations =>
+                        foreach (var package in missingPackages)
                         {
-                            foreach (var task in operations)
-                            {
-                                if (task.IsFaulted || task.IsCanceled) continue;
-                                var package = task.Result;
-                                if (packageManager.LocalRepository.Exists(package.Id))
-                                {
-                                    packageManager.UpdatePackage(
-                                        package,
-                                        updateDependencies: false,
-                                        allowPrereleaseVersions: true);
-                                }
-                                else
-                                {
-                                    packageManager.InstallPackage(
-                                        package,
-                                        ignoreDependencies: true,
-                                        allowPrereleaseVersions: true,
-                                        ignoreWalkInfo: true);
-                                }
-                            }
-
-                            Task.WaitAll(operations);
-                        });
+                            await packageManager.StartRestorePackage(package.Id, ParseVersion(package.Version));
+                        }
                     };
 
                     if (!showDialog) RestoreMissingPackages().Wait();
@@ -115,8 +96,8 @@ namespace Bonsai
                 }
             }
 
-            var editorPackage = packageManager.LocalRepository.FindPackage(editorPackageName.Id);
-            if (editorPackage == null || editorPackage.Version < editorPackageName.Version)
+            var editorPackage = packageManager.LocalRepository.FindLocalPackage(editorPackageName.Id);
+            if (editorPackage == null || editorPackage.Identity.Version < editorPackageName.Version)
             {
                 if (showDialog) EnableVisualStyles();
                 using (var monitor = new PackageConfigurationUpdater(packageConfiguration, packageManager, editorPath, editorPackageName))
@@ -125,7 +106,7 @@ namespace Bonsai
                     {
                         return packageManager
                             .StartInstallPackage(editorPackageName.Id, editorPackageName.Version)
-                            .ContinueWith(task => editorPackage = task.Result);
+                            .ContinueWith(task => editorPackage = packageManager.LocalRepository.GetLocalPackage(task.Result.GetIdentity()));
                     };
 
                     if (!showDialog) RestoreEditorPackage().Wait();
@@ -137,7 +118,7 @@ namespace Bonsai
                     {
                         var assemblyName = Assembly.GetEntryAssembly().GetName();
                         var errorMessage = editorPackage == null ? Resources.InstallEditorPackageError : Resources.UpdateEditorPackageError;
-                        if (!showDialog) ConsoleLogger.Default.Log(MessageLevel.Error, errorMessage);
+                        if (!showDialog) ConsoleLogger.Default.LogError(errorMessage);
                         else MessageBox.Show(errorMessage, assemblyName.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return null;
                     }

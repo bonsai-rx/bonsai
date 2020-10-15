@@ -1,4 +1,4 @@
-﻿using NuGet;
+﻿using NuGet.Protocol.Core.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,14 +14,14 @@ namespace Bonsai.NuGet
         static readonly MethodInfo stringContains = typeof(string).GetMethod("Contains", new Type[] { typeof(string) });
         static readonly MethodInfo stringToLower = typeof(string).GetMethod("ToLower", Type.EmptyTypes);
 
-        public static IQueryable<T> WithTags<T>(this IQueryable<T> packages, IEnumerable<string> tags) where T : IPackage
+        public static IQueryable<T> WithTags<T>(this IQueryable<T> packages, IEnumerable<string> tags) where T : IPackageSearchMetadata
         {
             if (!tags.Any())
             {
                 return packages;
             }
 
-            var package = Expression.Parameter(typeof(IPackageMetadata));
+            var package = Expression.Parameter(typeof(IPackageSearchMetadata));
             var property = Expression.Property(package, TagsProperty);
             var condition = (from term in tags
                              select BuildTagExpression(property, term))

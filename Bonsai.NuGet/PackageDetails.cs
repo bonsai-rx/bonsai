@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Windows.Forms;
-using NuGet;
 using System.Globalization;
 using System.Diagnostics;
 using Bonsai.NuGet.Properties;
+using NuGet.Protocol.Core.Types;
 
 namespace Bonsai.NuGet
 {
@@ -19,20 +19,20 @@ namespace Bonsai.NuGet
             SetPackage(null);
         }
 
-        public void SetPackage(IPackage package)
+        public void SetPackage(IPackageSearchMetadata package)
         {
             SuspendLayout();
             detailsLayoutPanel.Visible = package != null;
             if (package == null) return;
 
             createdByLabel.Text = string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, package.Authors);
-            idLinkLabel.Text = package.Id;
-            var packageUri = new Uri(NugetPackageRepository, package.Id + "/" + package.Version.ToString());
+            idLinkLabel.Text = package.Identity.Id;
+            var packageUri = new Uri(NugetPackageRepository, package.Identity.Id + "/" + package.Identity.Version.ToString());
             SetLinkLabelUri(idLinkLabel, packageUri, false);
             versionLabel.Text = string.Format(
                 "{0}{1}",
-                package.Version.ToString(),
-                package.IsReleaseVersion() ? string.Empty : Resources.PrereleaseLabel);
+                package.Identity.Version.ToString(),
+                package.Identity.Version.IsPrerelease ? Resources.PrereleaseLabel : string.Empty);
             lastPublishedLabel.Text = package.Published.HasValue ? package.Published.Value.Date.ToShortDateString() : Resources.UnpublishedLabel;
             downloadsLabel.Text = package.DownloadCount.ToString();
             SetLinkLabelUri(licenseLinkLabel, package.LicenseUrl, true);
@@ -41,7 +41,7 @@ namespace Bonsai.NuGet
             descriptionLabel.Text = package.Description;
             tagsLabel.Text = package.Tags;
             dependenciesTextBox.Lines = (from dependencySet in package.DependencySets
-                                         from dependency in dependencySet.Dependencies
+                                         from dependency in dependencySet.Packages
                                          select dependency.ToString()).ToArray();
             if (dependenciesTextBox.Lines.Length > 0)
             {

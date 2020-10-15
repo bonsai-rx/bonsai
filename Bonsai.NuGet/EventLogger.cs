@@ -1,24 +1,21 @@
-﻿using NuGet;
+﻿using NuGet.Common;
 using System;
+using System.Threading.Tasks;
 
 namespace Bonsai.NuGet
 {
-    public class EventLogger : ILogger
+    public class EventLogger : LoggerBase
     {
-        public event EventHandler<LogEventArgs> Log;
+        public event EventHandler<LogEventArgs> LogMessage;
 
-        void ILogger.Log(MessageLevel level, string message, params object[] args)
+        public override void Log(ILogMessage message)
         {
-            var handler = Log;
-            if (handler != null)
-            {
-                handler(this, new LogEventArgs(level, message, args));
-            }
+            LogMessage?.Invoke(this, new LogEventArgs(message));
         }
 
-        FileConflictResolution IFileConflictResolver.ResolveFileConflict(string message)
+        public override Task LogAsync(ILogMessage message)
         {
-            return FileConflictResolution.IgnoreAll;
+            return Task.Factory.StartNew(() => Log(message));
         }
     }
 }

@@ -60,11 +60,7 @@ namespace Bonsai.NuGet
 
         private void OnOperationClick(TreeViewEventArgs e)
         {
-            var handler = OperationClick;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            OperationClick?.Invoke(this, e);
         }
 
         protected override CreateParams CreateParams
