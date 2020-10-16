@@ -89,6 +89,8 @@ namespace Bonsai.NuGet
             searchComboBox.CueBanner = Resources.SearchCueBanner;
         }
 
+        public string SearchPrefix { get; set; }
+
         public SourceRepository SelectedRepository { get; set; }
 
         public LicenseAwarePackageManager PackageManager { get; private set; }
@@ -168,6 +170,8 @@ namespace Bonsai.NuGet
                 return Enumerable.Empty<IPackageSearchMetadata>();
             }
 
+            var prefix = SearchPrefix;
+            if (!string.IsNullOrEmpty(prefix)) searchTerm = prefix + searchTerm;
             return await GetPackageFeed(SelectedRepository, searchTerm, pageIndex, token);
         }
 
