@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -282,5 +282,8 @@
         HRLOSRLFMT4UNKE5uBysGqBRg2LmNKk5wGkD59wXrxi0HqF5iG2/0e7C9YuEkKTtKiNQEFx7THVI88Rz
         7ro3JJCBt2M2zxYAAAAASUVORK5CYII=
 </value>
+  </data>
+  <data name="InvalidGalleryPackage" xml:space="preserve">
+    <value>The package '{0}' is not a gallery package. Please install this package through the package manager dialog.</value>
   </data>
 </root>

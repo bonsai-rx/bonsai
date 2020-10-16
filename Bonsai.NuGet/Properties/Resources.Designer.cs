@@ -169,6 +169,15 @@ namespace Bonsai.NuGet.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The package &apos;{0}&apos; is not a gallery package. Please install this package through the package manager dialog..
+        /// </summary>
+        internal static string InvalidGalleryPackage {
+            get {
+                return ResourceManager.GetString("InvalidGalleryPackage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (Author: {0}).
         /// </summary>
         internal static string LicenseAuthorshipLabel {

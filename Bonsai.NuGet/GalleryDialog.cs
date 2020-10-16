@@ -1,4 +1,4 @@
-using Bonsai.NuGet.Properties;
+﻿using Bonsai.NuGet.Properties;
 using NuGet.Packaging;
 using NuGet.Packaging.Core;
 using NuGet.Protocol.Core.Types;
@@ -84,6 +84,14 @@ namespace Bonsai.NuGet
             var package = (IPackageSearchMetadata)e.Node.Tag;
             if (package != null)
             {
+                if (!package.Tags.Contains(Constants.GalleryDirectory))
+                {
+                    MessageBox.Show(this,
+                        string.Format(Resources.InvalidGalleryPackage, package.Identity),
+                        string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
                 saveFolderDialog.FileName = package.Identity.Id;
                 if (saveFolderDialog.ShowDialog(this) == DialogResult.OK)
                 {
