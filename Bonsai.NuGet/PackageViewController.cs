@@ -31,7 +31,7 @@ namespace Bonsai.NuGet
 
         bool loaded;
         readonly string packageManagerPath;
-        readonly IEnumerable<string> tagSearchTerms;
+        readonly IEnumerable<string> packageTypes;
         readonly PackageSourceProvider packageSourceProvider;
         string feedExceptionMessage;
         readonly List<IDisposable> activeRequests;
@@ -59,7 +59,7 @@ namespace Bonsai.NuGet
             CheckBox prerelease,
             Func<bool> updateFeed,
             Action<bool> multiOperationVisible,
-            IEnumerable<string> tagConstraints)
+            IEnumerable<string> packageTypeFilter)
         {
             control = owner ?? throw new ArgumentNullException(nameof(owner));
             packageView = view ?? throw new ArgumentNullException(nameof(view));
@@ -70,7 +70,7 @@ namespace Bonsai.NuGet
             prereleaseCheckBox = prerelease ?? throw new ArgumentNullException(nameof(prerelease));
             getUpdateFeed = updateFeed ?? throw new ArgumentNullException(nameof(updateFeed));
             setMultiOperationVisible = multiOperationVisible ?? throw new ArgumentNullException(nameof(multiOperationVisible));
-            tagSearchTerms = tagConstraints ?? throw new ArgumentNullException(nameof(tagConstraints));
+            packageTypes = packageTypeFilter;
             control.KeyDown += control_KeyDown;
             packageView.AfterSelect += packageView_AfterSelect;
             prereleaseCheckBox.CheckedChanged += prereleaseFilterCheckBox_CheckedChanged;
@@ -186,6 +186,7 @@ namespace Bonsai.NuGet
             {
                 var searchFilterType = allowPrereleaseVersions ? SearchFilterType.IsAbsoluteLatestVersion : SearchFilterType.IsLatestVersion;
                 var searchFilter = new SearchFilter(allowPrereleaseVersions, searchFilterType);
+                searchFilter.PackageTypes = packageTypes;
                 try { return await repository.SearchAsync(searchTerm, searchFilter, pageIndex * PackagesPerPage, PackagesPerPage + 1, token); }
                 catch (WebException e) { return Observable.Throw<IPackageSearchMetadata>(e).ToEnumerable(); }
             }

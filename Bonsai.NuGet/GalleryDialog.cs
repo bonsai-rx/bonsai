@@ -1,4 +1,4 @@
-﻿using Bonsai.NuGet.Properties;
+using Bonsai.NuGet.Properties;
 using NuGet.Packaging;
 using NuGet.Packaging.Core;
 using NuGet.Protocol.Core.Types;
@@ -30,7 +30,7 @@ namespace Bonsai.NuGet
                 prereleaseCheckBox,
                 () => false,
                 value => { },
-                new[] { Constants.BonsaiDirectory, Constants.GalleryDirectory });
+                new[] { Constants.GalleryPackageType });
             packageViewController.PackageManager.PackageManagerPlugins.Add(new GalleryPackagePlugin(this));
             InitializePackageSourceItems();
         }
