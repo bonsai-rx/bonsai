@@ -240,7 +240,6 @@ namespace Bonsai.NuGet
                     {
                         foreach (var dependency in dependencyInfo.Dependencies)
                         {
-                            //TODO: GetMin version!!?
                             await GetPackageDependencies(
                                 new PackageIdentity(dependency.Id, dependency.VersionRange.MinVersion),
                                 framework, cacheContext, repositories, availablePackages, logger, ignoreDependencies, token);
@@ -253,6 +252,7 @@ namespace Bonsai.NuGet
             // dependency was not found in any repository
             if (dependencyInfo == null)
             {
+                throw new InvalidOperationException($"The package '{package}' could not be found.");
             }
         }
 
