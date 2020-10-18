@@ -221,7 +221,7 @@ namespace Bonsai.NuGet
                     PackageSaveMode,
                     XmlDocFileSaveMode.None,
                     ClientPolicyContext.GetClientPolicy(Settings, logger),
-                    logger);
+                    NullLogger.Instance);
                 foreach (var identity in installOperations)
                 {
                     PackageReaderBase packageReader;
@@ -285,11 +285,10 @@ namespace Bonsai.NuGet
                 if (dependencyInfo != null)
                 {
                     if (availablePackages.ContainsKey(dependencyInfo)) return;
-                    logger.LogInformation($"Attempting to resolve dependencies for '{dependencyInfo.Id} {dependencyInfo.Version}'.");
-
                     availablePackages.Add(dependencyInfo, dependencyInfo);
                     if (!ignoreDependencies)
                     {
+                        logger.LogInformation($"Attempting to resolve dependencies for '{dependencyInfo.Id} {dependencyInfo.Version}'.");
                         foreach (var dependency in dependencyInfo.Dependencies)
                         {
                             await GetPackageDependencies(
