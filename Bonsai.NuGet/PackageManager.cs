@@ -7,6 +7,7 @@ using NuGet.Packaging.Signing;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
 using NuGet.Resolver;
+using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -130,7 +131,8 @@ namespace Bonsai.NuGet
                 var installedPackages = (await GetInstalledPackagesAsync(token)).Select(info => info.Identity);
                 var localPackages = await GetDependencyInfoAsync(dependencyInfoResource, installedPackages, framework);
                 var sourcePackages = localPackages.ToDictionary(dependencyInfo => dependencyInfo, PackageIdentityComparer.Default);
-                await GetPackageDependencies(package, framework, cacheContext, repositories, sourcePackages, logger, ignoreDependencies, token);
+                var packageVersion = new VersionRange(package.Version, new FloatRange(NuGetVersionFloatBehavior.None));
+                await GetPackageDependencies(package.Id, packageVersion, framework, cacheContext, repositories, sourcePackages, logger, ignoreDependencies, token);
 
                 var resolverContext = new PackageResolverContext(
                     dependencyBehavior: ignoreDependencies ? DependencyBehavior.Ignore : DependencyBehavior,
@@ -140,7 +142,7 @@ namespace Bonsai.NuGet
                     preferredVersions: Enumerable.Empty<PackageIdentity>(),
                     availablePackages: sourcePackages.Values,
                     packageSources: repositories.Select(repository => repository.PackageSource),
-                    log: logger);
+                    log: NullLogger.Instance);
 
                 var resolver = new PackageResolver();
                 var installOperations = resolver.Resolve(resolverContext, token);
@@ -216,7 +218,8 @@ namespace Bonsai.NuGet
         }
 
         static async Task GetPackageDependencies(
-            PackageIdentity package,
+            string packageId,
+            VersionRange versionRange,
             NuGetFramework framework,
             SourceCacheContext cacheContext,
             IEnumerable<SourceRepository> repositories,
@@ -225,22 +228,32 @@ namespace Bonsai.NuGet
             bool ignoreDependencies,
             CancellationToken token)
         {
-            if (availablePackages.ContainsKey(package)) return;
-
             var dependencyInfo = default(SourcePackageDependencyInfo);
             foreach (var sourceRepository in repositories)
             {
                 var dependencyInfoResource = await sourceRepository.GetResourceAsync<DependencyInfoResource>(token);
-                dependencyInfo = await dependencyInfoResource.ResolvePackage(package, framework, cacheContext, logger, token);
+                var dependencyPackages = await dependencyInfoResource.ResolvePackages(packageId, framework, cacheContext, NullLogger.Instance, token);
+                foreach (var package in dependencyPackages)
+                {
+                    if (!versionRange.Satisfies(package.Version)) continue;
+                    if (dependencyInfo == null || package.Version < dependencyInfo.Version)
+                    {
+                        dependencyInfo = package;
+                    }
+                }
+
                 if (dependencyInfo != null)
                 {
+                    if (availablePackages.ContainsKey(dependencyInfo)) return;
+                    logger.LogInformation($"Attempting to resolve dependencies for '{dependencyInfo.Id} {dependencyInfo.Version}'.");
+
                     availablePackages.Add(dependencyInfo, dependencyInfo);
                     if (!ignoreDependencies)
                     {
                         foreach (var dependency in dependencyInfo.Dependencies)
                         {
                             await GetPackageDependencies(
-                                new PackageIdentity(dependency.Id, dependency.VersionRange.MinVersion),
+                                dependency.Id, dependency.VersionRange,
                                 framework, cacheContext, repositories, availablePackages, logger, ignoreDependencies, token);
                         }
                     }
@@ -251,7 +264,7 @@ namespace Bonsai.NuGet
             // dependency was not found in any repository
             if (dependencyInfo == null)
             {
-                throw new InvalidOperationException($"The package '{package}' could not be found.");
+                throw new InvalidOperationException($"The package '{packageId} {versionRange}' could not be found.");
             }
         }
 
