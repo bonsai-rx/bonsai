@@ -1,4 +1,4 @@
-using NuGet.Common;
+﻿using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Frameworks;
 using NuGet.Packaging;
@@ -176,6 +176,13 @@ namespace Bonsai.NuGet
                     return null;
                 }
 
+                // Get dependencies from removed packages while they are still installed
+                if (packagesToRemove.Count > 0)
+                {
+                    localPackages = await GetDependencyInfoAsync(dependencyInfoResource, packagesToRemove, framework);
+                    await DeletePackages(packagesToRemove, logger);
+                }
+
                 var targetPackage = default(PackageReaderBase);
                 var packageExtractionContext = new PackageExtractionContext(
                     PackageSaveMode,
@@ -206,7 +213,7 @@ namespace Bonsai.NuGet
                 {
                     IDictionary<PackageIdentity, HashSet<PackageIdentity>> dependentPackages, packageDependencies;
                     installedPackages = (await GetInstalledPackagesAsync(token)).Select(info => info.Identity);
-                    localPackages = await GetDependencyInfoAsync(dependencyInfoResource, installedPackages, framework);
+                    localPackages = localPackages.Union(await GetDependencyInfoAsync(dependencyInfoResource, installedPackages, framework));
                     GetPackageDependents(installedPackages, localPackages, out dependentPackages, out packageDependencies);
                     var uninstallOperations = GetPackagesToUninstall(packagesToRemove, packageDependencies, removeDependencies: true);
                     uninstallOperations = KeepActiveDependencies(uninstallOperations, packagesToRemove, dependentPackages, forceRemoveTargets: true);
@@ -437,6 +444,8 @@ namespace Bonsai.NuGet
             {
                 var installPath = PathResolver.GetInstalledPath(package);
                 var localPackage = LocalRepository.GetLocalPackage(package);
+                if (localPackage == null) continue;
+
                 using (var packageReader = localPackage.GetReader())
                 {
                     foreach (var plugin in PackageManagerPlugins)
