@@ -14,8 +14,6 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Bonsai.NuGet
@@ -34,8 +32,7 @@ namespace Bonsai.NuGet
         readonly IEnumerable<string> packageTypes;
         readonly PackageSourceProvider packageSourceProvider;
         readonly List<IDisposable> activeRequests;
-        QueryContinuation<IEnumerable<IPackageSearchMetadata>> packageQuery;
-        PackageQueryIndex queryIndex;
+        PackageQuery packageQuery;
         string feedExceptionMessage;
         IDisposable searchSubscription;
         Form operationDialog;
@@ -170,9 +167,7 @@ namespace Bonsai.NuGet
             var prefix = SearchPrefix;
             var searchTerm = searchComboBox.Text;
             if (!string.IsNullOrEmpty(prefix)) searchTerm = prefix + searchTerm;
-            var comparer = new RelevanceSearchMetadataComparer(searchTerm);
-            queryIndex = new PackageQueryIndex(comparer) { PageSize = PackagesPerPage };
-            packageQuery = GetPackageQuery(searchTerm);
+            packageQuery = new PackageQuery(searchTerm, PackagesPerPage, GetPackageQuery(searchTerm));
             packagePageSelector.SelectedPage = 0;
         }
 
@@ -205,22 +200,6 @@ namespace Bonsai.NuGet
                 return new UpdateQuery(repository, localPackages, includePrerelease);
             }
             else return new SearchQuery(repository, searchTerm, PackagesPerPage, includePrerelease, packageTypes);
-        }
-
-        async Task<IEnumerable<IPackageSearchMetadata>> GetPackageFeed(int pageIndex, CancellationToken token = default)
-        {
-            if (queryIndex == null)
-            {
-                throw new InvalidOperationException("!");
-            }
-
-            if (packageQuery != null && !queryIndex.HasFullPage(pageIndex))
-            {
-                var queryResult = await packageQuery.GetResultAsync(token);
-                queryIndex.AddRange(queryResult.Result);
-                packageQuery = queryResult.Continuation;
-            }
-            return queryIndex.GetPage(pageIndex);
         }
 
         static Bitmap ResizeImage(Image image, Size newSize)
@@ -357,7 +336,8 @@ namespace Bonsai.NuGet
             ClearActiveRequests();
             SetPackageViewStatus(Resources.RetrievingInformationLabel, Resources.WaitImage);
 
-            var feedRequest = Observable.FromAsync(token => GetPackageFeed(pageIndex, token))
+            var query = packageQuery;
+            var feedRequest = Observable.FromAsync(token => query.GetPackageFeed(pageIndex, token))
                 .SelectMany(packages => packages)
                 .Catch<IPackageSearchMetadata, InvalidOperationException>(ex =>
                 {
@@ -377,8 +357,8 @@ namespace Bonsai.NuGet
                 .Sum(packages => packages.Count)
                 .Subscribe(packageCount =>
                 {
-                    packagePageSelector.Visible = queryIndex.HasPage(1) || packageQuery != null;
-                    packagePageSelector.ShowNext = packageQuery != null || queryIndex.HasPage(pageIndex + 1);
+                    packagePageSelector.Visible = query.HasPage(1) || !packageQuery.IsCompleted;
+                    packagePageSelector.ShowNext = !packageQuery.IsCompleted || query.HasPage(pageIndex + 1);
                     if (packageCount == 0)
                     {
                         if (feedExceptionMessage != null) SetPackageViewStatus(feedExceptionMessage);
