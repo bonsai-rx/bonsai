@@ -23,6 +23,7 @@ namespace Bonsai
         const string PackageTagFilter = "Bonsai";
         const string GalleryDirectory = "Gallery";
         const string ExtensionsDirectory = "Extensions";
+        const string BuildDirectory = "build";
         const string BinDirectory = "bin";
         const string DebugDirectory = "debug";
         const string BonsaiExtension = ".bonsai";
@@ -126,7 +127,7 @@ namespace Bonsai
 
         static IEnumerable<LibraryFolder> GetLibraryFolders(PackageReaderBase package, string installPath)
         {
-            var nativeFramework = package.GetBuildItems().FirstOrDefault(
+            var nativeFramework = package.GetItems(BuildDirectory).FirstOrDefault(
                 frameworkGroup => NuGetFramework.FrameworkNameComparer.Equals(frameworkGroup.TargetFramework, NativeFramework));
             if (nativeFramework == null) return Enumerable.Empty<LibraryFolder>();
 
