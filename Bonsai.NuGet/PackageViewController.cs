@@ -34,7 +34,7 @@ namespace Bonsai.NuGet
         readonly List<IDisposable> activeRequests;
         PackageQuery packageQuery;
         string feedExceptionMessage;
-        IDisposable searchSubscription;
+        IDisposable eventSubscription;
         Form operationDialog;
 
         readonly Control control;
@@ -71,7 +71,6 @@ namespace Bonsai.NuGet
             setMultiOperationVisible = multiOperationVisible ?? throw new ArgumentNullException(nameof(multiOperationVisible));
             packageTypes = packageTypeFilter;
             control.KeyDown += control_KeyDown;
-            packageView.AfterSelect += packageView_AfterSelect;
             prereleaseCheckBox.CheckedChanged += prereleaseFilterCheckBox_CheckedChanged;
             packagePageSelector.SelectedIndexChanged += packagePageSelector_SelectedIndexChanged;
             packagePageSelector.Visible = false;
@@ -138,19 +137,25 @@ namespace Bonsai.NuGet
 
         public void OnLoad(EventArgs e)
         {
-            searchSubscription = Observable.FromEventPattern<EventArgs>(
+            var selectHandler = SelectPackageDetails()
+                .ObserveOn(control)
+                .Do(package => packageDetails.SetPackage(package))
+                .Select(result => Unit.Default);
+            var searchHandler = Observable.FromEventPattern<EventArgs>(
                 handler => searchComboBox.TextChanged += new EventHandler(handler),
                 handler => searchComboBox.TextChanged -= new EventHandler(handler))
                 .Throttle(TimeSpan.FromSeconds(1))
                 .ObserveOn(control)
-                .Subscribe(evt => UpdatePackageQuery());
+                .Do(evt => UpdatePackageQuery())
+                .Select(result => Unit.Default);
+            eventSubscription = selectHandler.Merge(searchHandler).Subscribe();
             loaded = true;
         }
 
         public void OnHandleDestroyed(EventArgs e)
         {
             ClearActiveRequests();
-            searchSubscription.Dispose();
+            eventSubscription.Dispose();
         }
 
         bool AllowPrereleaseVersions
@@ -442,9 +447,31 @@ namespace Bonsai.NuGet
             }
         }
 
-        private void packageView_AfterSelect(object sender, TreeViewEventArgs e)
+        private IObservable<IPackageSearchMetadata> SelectPackageDetails()
         {
-            packageDetails.SetPackage((IPackageSearchMetadata)e.Node.Tag);
+            return Observable.FromEventPattern<TreeViewEventHandler, TreeViewEventArgs>(
+                handler => packageView.AfterSelect += handler,
+                handler => packageView.AfterSelect -= handler)
+                .Select(evt => Observable.StartAsync(async token =>
+                {
+                    var selectedRepository = SelectedRepository;
+                    var package = (IPackageSearchMetadata)evt.EventArgs.Node.Tag;
+                    if (package == null) return null;
+                    var repositories = selectedRepository == null ? PackageManager.SourceRepositoryProvider.GetRepositories() : new[] { selectedRepository };
+                    using (var cacheContext = new SourceCacheContext())
+                    {
+                        foreach (var repository in repositories)
+                        {
+                            var metadata = await repository.GetMetadataAsync(package.Identity, cacheContext);
+                            if (metadata != null)
+                            {
+                                return metadata;
+                            }
+                        }
+
+                        return null;
+                    }
+                })).Switch();
         }
 
         private void prereleaseFilterCheckBox_CheckedChanged(object sender, EventArgs e)

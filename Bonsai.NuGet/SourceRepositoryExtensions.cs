@@ -64,7 +64,8 @@ namespace Bonsai.NuGet
             using var cacheContext = new SourceCacheContext { MaxAge = DateTimeOffset.UtcNow };
             foreach (var package in localPackages)
             {
-                var latestPackage = await GetLatestMetadataAsync(repository, package.Identity, includePrerelease, cacheContext, token);
+                var updateRange = new VersionRange(package.Identity.Version, includeMinVersion: false);
+                var latestPackage = await GetLatestMetadataAsync(repository, package.Identity.Id, updateRange, includePrerelease, cacheContext, token);
                 if (latestPackage != null)
                 {
                     updatePackages.Add(latestPackage);
@@ -74,9 +75,10 @@ namespace Bonsai.NuGet
             return updatePackages;
         }
 
-        public static Task<IPackageSearchMetadata> GetLatestMetadataAsync(this SourceRepository repository, PackageIdentity identity, bool includePrerelease, SourceCacheContext cacheContext, CancellationToken token = default)
+        public static async Task<IPackageSearchMetadata> GetMetadataAsync(this SourceRepository repository, PackageIdentity identity, SourceCacheContext cacheContext, CancellationToken token = default)
         {
-            return GetLatestMetadataAsync(repository, identity.Id, new VersionRange(identity.Version, includeMinVersion: false), includePrerelease, cacheContext, token);
+            var packageMetadataResource = await repository.GetResourceAsync<PackageMetadataResource>(token);
+            return await packageMetadataResource.GetMetadataAsync(identity, cacheContext, NullLogger.Instance, token);
         }
 
         public static async Task<IPackageSearchMetadata> GetLatestMetadataAsync(this SourceRepository repository, string id, VersionRange version, bool includePrerelease, SourceCacheContext cacheContext, CancellationToken token = default)
