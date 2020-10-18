@@ -389,11 +389,11 @@ namespace Bonsai.NuGet
                 IObservable<Unit> operation;
                 if (SelectedRepository == PackageManager.LocalRepository)
                 {
-                    operation = Observable.FromAsync(async () =>
+                    operation = Observable.FromAsync(async token =>
                     {
                         foreach (var package in packages)
                         {
-                            await PackageManager.UninstallPackageAsync(package.Identity, handleDependencies, default);
+                            await PackageManager.UninstallPackageAsync(package.Identity, handleDependencies, token);
                         }
                     });
                     dialog.Text = Resources.UninstallOperationLabel;
@@ -404,11 +404,11 @@ namespace Bonsai.NuGet
                     var update = packageView.OperationText == Resources.UpdateOperationName;
                     dialog.Text = update ? Resources.UpdateOperationLabel : Resources.InstallOperationLabel;
 
-                    operation = Observable.FromAsync(async () =>
+                    operation = Observable.FromAsync(async token =>
                     {
                         foreach (var package in packages)
                         {
-                            await PackageManager.InstallPackageAsync(package.Identity, !handleDependencies, default);
+                            await PackageManager.InstallPackageAsync(package.Identity, !handleDependencies, token);
                         }
                     });
                 }
@@ -416,10 +416,14 @@ namespace Bonsai.NuGet
                 operationDialog = dialog;
                 try
                 {
-                    operation.ObserveOn(control).Subscribe(
-                        xs => { },
-                        ex => logger.LogError(ex.Message),
-                        () => dialog.Complete());
+                    dialog.Shown += delegate
+                    {
+                        operation.ObserveOn(control).Subscribe(
+                            xs => { },
+                            ex => logger.LogError(ex.Message),
+                            dialog.Complete);
+                    };
+
                     if (dialog.ShowDialog() == DialogResult.OK)
                     {
                         UpdatePackagePage(packagePageSelector.SelectedPage);
