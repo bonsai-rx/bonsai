@@ -11,7 +11,7 @@ namespace Bonsai.NuGet
     public partial class PackageDetails : UserControl
     {
         const int TextHeightMargin = 7;
-        static readonly Uri NugetPackageRepository = new Uri("https://packages.nuget.org/api/v2");
+        static readonly Uri NugetPackageRepository = new Uri("https://packages.nuget.org/packages/");
 
         public PackageDetails()
         {
@@ -27,7 +27,7 @@ namespace Bonsai.NuGet
 
             createdByLabel.Text = string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, package.Authors);
             idLinkLabel.Text = package.Identity.Id;
-            var packageUri = new Uri(NugetPackageRepository, package.Identity.Id + "/" + package.Identity.Version.ToString());
+            var packageUri = package.PackageDetailsUrl ?? new Uri(NugetPackageRepository, package.Identity.Id + "/" + package.Identity.Version.ToString());
             SetLinkLabelUri(idLinkLabel, packageUri, false);
             versionLabel.Text = string.Format(
                 "{0}{1}",
