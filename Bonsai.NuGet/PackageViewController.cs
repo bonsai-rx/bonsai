@@ -33,8 +33,10 @@ namespace Bonsai.NuGet
         readonly string packageManagerPath;
         readonly IEnumerable<string> packageTypes;
         readonly PackageSourceProvider packageSourceProvider;
-        string feedExceptionMessage;
         readonly List<IDisposable> activeRequests;
+        QueryContinuation<IEnumerable<IPackageSearchMetadata>> packageQuery;
+        PackageQueryIndex queryIndex;
+        string feedExceptionMessage;
         IDisposable searchSubscription;
         Form operationDialog;
 
@@ -145,7 +147,7 @@ namespace Bonsai.NuGet
                 handler => searchComboBox.TextChanged -= new EventHandler(handler))
                 .Throttle(TimeSpan.FromSeconds(1))
                 .ObserveOn(control)
-                .Subscribe(evt => UpdatePackagePage());
+                .Subscribe(evt => UpdatePackageQuery());
             loaded = true;
         }
 
@@ -163,37 +165,62 @@ namespace Bonsai.NuGet
             }
         }
 
-        public async Task<IEnumerable<IPackageSearchMetadata>> GetPackageFeed(string searchTerm, int pageIndex, CancellationToken token = default)
+        public void UpdatePackageQuery()
         {
-            if (SelectedRepository == null || PackageManager == null)
-            {
-                return Enumerable.Empty<IPackageSearchMetadata>();
-            }
-
             var prefix = SearchPrefix;
+            var searchTerm = searchComboBox.Text;
             if (!string.IsNullOrEmpty(prefix)) searchTerm = prefix + searchTerm;
-            return await GetPackageFeed(SelectedRepository, searchTerm, pageIndex, token);
+            var comparer = new RelevanceSearchMetadataComparer(searchTerm);
+            queryIndex = new PackageQueryIndex(comparer) { PageSize = PackagesPerPage };
+            packageQuery = GetPackageQuery(searchTerm);
+            packagePageSelector.SelectedPage = 0;
         }
 
-        async Task<IEnumerable<IPackageSearchMetadata>> GetPackageFeed(SourceRepository repository, string searchTerm, int pageIndex, CancellationToken token = default)
+        QueryContinuation<IEnumerable<IPackageSearchMetadata>> GetPackageQuery(string searchTerm)
         {
+            if (PackageManager == null)
+            {
+                return null;
+            }
+
+            var selectedRepository = SelectedRepository;
             var allowPrereleaseVersions = AllowPrereleaseVersions;
             var updateFeed = getUpdateFeed();
+            if (selectedRepository == null)
+            {
+                var repositories = PackageManager.SourceRepositoryProvider.GetRepositories();
+                var packageQueries = repositories.Select(repository => GetPackageQuery(repository, searchTerm, allowPrereleaseVersions, updateFeed)).ToList();
+                if (packageQueries.Count == 1) return packageQueries[0];
+                else return AggregateQuery.Create(packageQueries, results => results.SelectMany(xs => xs));
+            }
 
+            return GetPackageQuery(selectedRepository, searchTerm, allowPrereleaseVersions, updateFeed);
+        }
+
+        QueryContinuation<IEnumerable<IPackageSearchMetadata>> GetPackageQuery(SourceRepository repository, string searchTerm, bool includePrerelease, bool updateFeed)
+        {
             if (updateFeed)
             {
-                var localPackages = PackageManager.LocalRepository.GetLocalPackages(token);
-                try { return await repository.GetUpdatesAsync(localPackages, allowPrereleaseVersions, token); }
-                catch (WebException e) { return Observable.Throw<IPackageSearchMetadata>(e).ToEnumerable(); }
+                var localPackages = PackageManager.LocalRepository.GetLocalPackages();
+                return new UpdateQuery(repository, localPackages, includePrerelease);
             }
-            else
+            else return new SearchQuery(repository, searchTerm, PackagesPerPage, includePrerelease, packageTypes);
+        }
+
+        async Task<IEnumerable<IPackageSearchMetadata>> GetPackageFeed(int pageIndex, CancellationToken token = default)
+        {
+            if (queryIndex == null)
             {
-                var searchFilterType = allowPrereleaseVersions ? SearchFilterType.IsAbsoluteLatestVersion : SearchFilterType.IsLatestVersion;
-                var searchFilter = new SearchFilter(allowPrereleaseVersions, searchFilterType);
-                searchFilter.PackageTypes = packageTypes;
-                try { return await repository.SearchAsync(searchTerm, searchFilter, pageIndex * PackagesPerPage, PackagesPerPage + 1, token); }
-                catch (WebException e) { return Observable.Throw<IPackageSearchMetadata>(e).ToEnumerable(); }
+                throw new InvalidOperationException("!");
             }
+
+            if (packageQuery != null && !queryIndex.HasFullPage(pageIndex))
+            {
+                var queryResult = await packageQuery.GetResultAsync(token);
+                queryIndex.AddRange(queryResult.Result);
+                packageQuery = queryResult.Continuation;
+            }
+            return queryIndex.GetPage(pageIndex);
         }
 
         static Bitmap ResizeImage(Image image, Size newSize)
@@ -280,7 +307,7 @@ namespace Bonsai.NuGet
                 packageView.BeginUpdate();
                 packageView.Nodes.Clear();
                 packageIcons.Images.Clear();
-                foreach (var package in packages.Take(PackagesPerPage))
+                foreach (var package in packages)
                 {
                     AddPackage(package);
                 }
@@ -330,8 +357,7 @@ namespace Bonsai.NuGet
             ClearActiveRequests();
             SetPackageViewStatus(Resources.RetrievingInformationLabel, Resources.WaitImage);
 
-            var searchTerm = searchComboBox.Text;
-            var feedRequest = Observable.FromAsync(token => GetPackageFeed(searchTerm, pageIndex, token))
+            var feedRequest = Observable.FromAsync(token => GetPackageFeed(pageIndex, token))
                 .SelectMany(packages => packages)
                 .Catch<IPackageSearchMetadata, InvalidOperationException>(ex =>
                 {
@@ -351,8 +377,8 @@ namespace Bonsai.NuGet
                 .Sum(packages => packages.Count)
                 .Subscribe(packageCount =>
                 {
-                    packagePageSelector.Visible = pageIndex > 0 || packageCount > PackagesPerPage;
-                    packagePageSelector.ShowNext = packageCount > PackagesPerPage;
+                    packagePageSelector.Visible = queryIndex.HasPage(1) || packageQuery != null;
+                    packagePageSelector.ShowNext = packageQuery != null || queryIndex.HasPage(pageIndex + 1);
                     if (packageCount == 0)
                     {
                         if (feedExceptionMessage != null) SetPackageViewStatus(feedExceptionMessage);
@@ -445,7 +471,7 @@ namespace Bonsai.NuGet
         {
             if (loaded)
             {
-                UpdatePackagePage();
+                UpdatePackageQuery();
             }
         }
 

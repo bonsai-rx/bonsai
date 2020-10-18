@@ -14,6 +14,7 @@ namespace Bonsai.NuGet
 {
     public partial class PackageManagerDialog : Form
     {
+        const string AggregateRepository = "All";
         const string DefaultRepository = "Bonsai Packages";
         PackageViewController packageViewController;
 
@@ -52,6 +53,9 @@ namespace Bonsai.NuGet
         private void InitializePackageSourceItems()
         {
             packageSourceComboBox.Items.Clear();
+            packageSourceComboBox.Items.Add(AggregateRepository);
+            packageSourceComboBox.SelectedIndex = 0;
+
             foreach (var repository in packageViewController.PackageManager.SourceRepositoryProvider.GetRepositories())
             {
                 packageSourceComboBox.Items.Add(repository);
@@ -73,7 +77,13 @@ namespace Bonsai.NuGet
             }
             else
             {
-                packageViewController.SelectedRepository = (SourceRepository)packageSourceComboBox.SelectedItem;
+                var selectedItem = packageSourceComboBox.SelectedItem;
+                if (!AggregateRepository.Equals(selectedItem))
+                {
+                    packageViewController.SelectedRepository = (SourceRepository)selectedItem;
+                }
+                else packageViewController.SelectedRepository = null;
+
                 if (updatesButton.Checked)
                 {
                     packageView.OperationText = Resources.UpdateOperationName;
@@ -82,7 +92,7 @@ namespace Bonsai.NuGet
             }
 
             searchComboBox.Text = string.Empty;
-            packageViewController.UpdatePackagePage();
+            packageViewController.UpdatePackageQuery();
         }
 
         protected override void OnLoad(EventArgs e)

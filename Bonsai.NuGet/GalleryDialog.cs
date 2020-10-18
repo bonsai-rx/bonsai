@@ -11,6 +11,7 @@ namespace Bonsai.NuGet
 {
     public partial class GalleryDialog : Form
     {
+        const string AggregateRepository = "All";
         PackageViewController packageViewController;
 
         string targetPath;
@@ -131,10 +132,12 @@ namespace Bonsai.NuGet
         private void InitializePackageSourceItems()
         {
             packageSourceComboBox.Items.Clear();
+            packageSourceComboBox.Items.Add(AggregateRepository);
             foreach (var repository in PackageManager.SourceRepositoryProvider.GetRepositories())
             {
                 packageSourceComboBox.Items.Add(repository);
             }
+            packageSourceComboBox.SelectedIndex = 0;
         }
 
         private void UpdateSelectedRepository()
@@ -143,7 +146,7 @@ namespace Bonsai.NuGet
             packageViewController.ClearActiveRequests();
 
             var selectedItem = packageSourceComboBox.SelectedItem;
-            if (selectedItem != null)
+            if (!AggregateRepository.Equals(selectedItem))
             {
                 packageViewController.SelectedRepository = (SourceRepository)selectedItem;
             }
@@ -151,7 +154,7 @@ namespace Bonsai.NuGet
 
             packageView.OperationText = Resources.OpenOperationName;
             searchComboBox.Text = string.Empty;
-            packageViewController.UpdatePackagePage();
+            packageViewController.UpdatePackageQuery();
         }
 
         private void refreshButton_Click(object sender, EventArgs e)

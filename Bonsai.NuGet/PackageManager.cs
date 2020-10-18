@@ -9,7 +9,6 @@ using NuGet.Protocol.Core.Types;
 using NuGet.Resolver;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;

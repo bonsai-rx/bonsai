@@ -204,7 +204,6 @@
             // 
             // packageSourceComboBox
             // 
-            this.packageSourceComboBox.DisplayMember = "Key";
             this.packageSourceComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.packageSourceComboBox.FormattingEnabled = true;
             this.packageSourceComboBox.Location = new System.Drawing.Point(132, 4);
