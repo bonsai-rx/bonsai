@@ -1,4 +1,4 @@
-﻿using NuGet.Common;
+using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Frameworks;
 using NuGet.Packaging;
@@ -72,7 +72,7 @@ namespace Bonsai.NuGet
             ILogger logger,
             CancellationToken token)
         {
-            logger.LogInformation($"Installing package '{packageInfo}'.");
+            logger.LogInformation($"Installing package '{packageInfo.Id} {packageInfo.Version}'.");
             var downloadResource = await packageInfo.Source.GetResourceAsync<DownloadResource>(token);
             var downloadResult = await downloadResource.GetDownloadResourceResultAsync(
                 packageInfo,
