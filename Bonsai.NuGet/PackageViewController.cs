@@ -99,7 +99,6 @@ namespace Bonsai.NuGet
 
         public void ClearActiveRequests()
         {
-            iconCache.Clear();
             activeRequests.RemoveAll(request =>
             {
                 request.Dispose();
@@ -167,6 +166,7 @@ namespace Bonsai.NuGet
 
         public void UpdatePackageQuery()
         {
+            iconCache.Clear();
             var prefix = SearchPrefix;
             var searchTerm = searchComboBox.Text;
             if (!string.IsNullOrEmpty(prefix)) searchTerm = prefix + searchTerm;
