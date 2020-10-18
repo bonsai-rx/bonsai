@@ -33,16 +33,6 @@ namespace Bonsai.NuGet
             }
         }
 
-        public bool HasPage(int pageIndex)
-        {
-            return pageIndex * PageSize < metadata.Count;
-        }
-
-        public bool HasFullPage(int pageIndex)
-        {
-            return (pageIndex + 1) * PageSize <= metadata.Count;
-        }
-
         public IEnumerable<IPackageSearchMetadata> GetPage(int pageIndex)
         {
             var offset = pageIndex * PageSize;

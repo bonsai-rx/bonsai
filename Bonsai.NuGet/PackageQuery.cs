@@ -18,9 +18,9 @@ namespace Bonsai.NuGet
             continuation = query;
         }
 
-        public bool HasPage(int pageIndex)
+        public bool HasQueryPage(int pageIndex)
         {
-            return queryIndex.HasPage(pageIndex);
+            return continuationCounter > pageIndex;
         }
 
         public bool IsCompleted

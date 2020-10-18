@@ -342,6 +342,7 @@ namespace Bonsai.NuGet
             SetPackageViewStatus(Resources.RetrievingInformationLabel, Resources.WaitImage);
 
             var query = packageQuery;
+            if (!query.HasQueryPage(pageIndex)) packagePageSelector.ShowNext = false;
             var feedRequest = Observable.FromAsync(token => query.GetPackageFeed(pageIndex, token))
                 .SelectMany(packages => packages)
                 .Catch<IPackageSearchMetadata, InvalidOperationException>(ex =>
@@ -362,8 +363,8 @@ namespace Bonsai.NuGet
                 .Sum(packages => packages.Count)
                 .Subscribe(packageCount =>
                 {
-                    packagePageSelector.Visible = query.HasPage(1) || !packageQuery.IsCompleted;
-                    packagePageSelector.ShowNext = !packageQuery.IsCompleted || query.HasPage(pageIndex + 1);
+                    packagePageSelector.Visible = query.HasQueryPage(1) || !packageQuery.IsCompleted;
+                    packagePageSelector.ShowNext = !packageQuery.IsCompleted || query.HasQueryPage(pageIndex + 1);
                     if (packageCount == 0)
                     {
                         if (feedExceptionMessage != null) SetPackageViewStatus(feedExceptionMessage);
