@@ -465,7 +465,9 @@ namespace Bonsai.NuGet
                             var metadata = await repository.GetMetadataAsync(package.Identity, cacheContext);
                             if (metadata != null)
                             {
-                                return metadata;
+                                var result = (PackageSearchMetadataBuilder.ClonedPackageSearchMetadata)PackageSearchMetadataBuilder.FromMetadata(metadata).Build();
+                                result.DownloadCount = package.DownloadCount;
+                                return result;
                             }
                         }
 
