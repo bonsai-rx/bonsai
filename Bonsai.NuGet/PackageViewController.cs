@@ -387,7 +387,8 @@ namespace Bonsai.NuGet
                 dialog.RegisterEventLogger((EventLogger)logger);
 
                 IObservable<Unit> operation;
-                if (SelectedRepository == PackageManager.LocalRepository)
+                var uninstallOperation = SelectedRepository == PackageManager.LocalRepository;
+                if (uninstallOperation)
                 {
                     operation = Observable.FromAsync(async token =>
                     {
@@ -426,7 +427,8 @@ namespace Bonsai.NuGet
 
                     if (dialog.ShowDialog() == DialogResult.OK)
                     {
-                        UpdatePackagePage(packagePageSelector.SelectedPage);
+                        if (uninstallOperation) UpdatePackageQuery();
+                        else UpdatePackagePage(packagePageSelector.SelectedPage);
                     }
                 }
                 finally { operationDialog = null; }
