@@ -10,6 +10,7 @@ using NuGet.Resolver;
 using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -101,11 +102,43 @@ namespace Bonsai.NuGet
             return downloadResult.PackageReader;
         }
 
-        private void DeletePackage(PackageIdentity package, string installPath, ILogger logger)
+        static void DeleteDirectoryTree(DirectoryInfo directory)
         {
-            var failedDeletes = new List<string>();
-            LocalResourceUtils.DeleteDirectoryTree(installPath, failedDeletes);
-            logger.LogInformation($"Deleting package '{package}'.");
+            foreach (var subdirectory in directory.GetDirectories())
+            {
+                DeleteDirectoryTree(subdirectory);
+            }
+
+            try { directory.Delete(); }
+            catch (IOException) { }
+            catch (UnauthorizedAccessException) { }
+        }
+
+        private async Task DeletePackage(LocalPackageInfo package, string installPath, ILogger logger, CancellationToken token)
+        {
+            logger.LogInformation($"Deleting package '{package.Identity}'.");
+            using (var packageReader = package.GetReader())
+            {
+                foreach (var plugin in PackageManagerPlugins)
+                {
+                    var accepted = await plugin.OnPackageUninstallingAsync(package.Identity, packageReader, installPath);
+                    if (!accepted) continue;
+                }
+
+                foreach (var file in await packageReader.GetPackageFilesAsync(PackageSaveMode, token))
+                {
+                    var path = Path.Combine(installPath, file);
+                    FileUtility.Delete(path);
+                }
+            }
+
+            FileUtility.Delete(package.Path);
+            var installTree = new DirectoryInfo(installPath);
+            DeleteDirectoryTree(installTree);
+            foreach (var plugin in PackageManagerPlugins)
+            {
+                await plugin.OnPackageUninstalledAsync(package.Identity, null, installPath);
+            }
         }
 
         public async Task<IEnumerable<LocalPackageInfo>> GetInstalledPackagesAsync(CancellationToken token)
@@ -180,7 +213,7 @@ namespace Bonsai.NuGet
                 if (packagesToRemove.Count > 0)
                 {
                     localPackages = await GetDependencyInfoAsync(dependencyInfoResource, packagesToRemove, framework);
-                    await DeletePackages(packagesToRemove, logger);
+                    await DeletePackages(packagesToRemove, logger, token);
                 }
 
                 var targetPackage = default(PackageReaderBase);
@@ -217,7 +250,7 @@ namespace Bonsai.NuGet
                     GetPackageDependents(installedPackages, localPackages, out dependentPackages, out packageDependencies);
                     var uninstallOperations = GetPackagesToUninstall(packagesToRemove, packageDependencies, removeDependencies: true);
                     uninstallOperations = KeepActiveDependencies(uninstallOperations, packagesToRemove, dependentPackages, forceRemoveTargets: true);
-                    await DeletePackages(uninstallOperations, logger);
+                    await DeletePackages(uninstallOperations, logger, token);
                 }
 
                 return targetPackage;
@@ -292,7 +325,7 @@ namespace Bonsai.NuGet
 
             var packageOperations = GetPackagesToUninstall(targetPackages, packageDependencies, removeDependencies);
             packageOperations = KeepActiveDependencies(packageOperations, targetPackages, dependentPackages, forceRemoveTargets: false);
-            await DeletePackages(packageOperations, logger);
+            await DeletePackages(packageOperations, logger, token);
             return true;
         }
 
@@ -438,26 +471,15 @@ namespace Bonsai.NuGet
             }
         }
 
-        async Task DeletePackages(IEnumerable<PackageIdentity> packages, ILogger log)
+        async Task DeletePackages(IEnumerable<PackageIdentity> packages, ILogger logger, CancellationToken token)
         {
             foreach (var package in packages)
             {
                 var installPath = PathResolver.GetInstalledPath(package);
                 var localPackage = LocalRepository.GetLocalPackage(package);
-                if (localPackage == null) continue;
-
-                using (var packageReader = localPackage.GetReader())
+                if (localPackage != null)
                 {
-                    foreach (var plugin in PackageManagerPlugins)
-                    {
-                        var accepted = await plugin.OnPackageUninstallingAsync(package, packageReader, installPath);
-                        if (!accepted) continue;
-                    }
-                }
-                DeletePackage(package, installPath, log);
-                foreach (var plugin in PackageManagerPlugins)
-                {
-                    await plugin.OnPackageUninstalledAsync(package, null, installPath);
+                    await DeletePackage(localPackage, installPath, logger, token);
                 }
             }
         }
