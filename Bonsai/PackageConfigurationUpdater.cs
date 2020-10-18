@@ -323,22 +323,25 @@ namespace Bonsai
                     if (pivots.Length > 0)
                     {
                         PathUtility.EnsureParentDirectory(Path.Combine(installPath, package.Id));
+                        var overlayVersion = OverlayHelper.FindOverlayVersion(packageReader);
+                        var overlayManager = OverlayHelper.CreateOverlayManager(Owner.packageManager, installPath);
+                        overlayManager.Logger = Owner.packageManager.Logger;
                         try
                         {
-                            var overlayVersion = OverlayHelper.FindOverlayVersion(packageReader);
-                            var overlayManager = OverlayHelper.CreateOverlayManager(Owner.packageManager, installPath);
-                            overlayManager.Logger = Owner.packageManager.Logger;
                             foreach (var pivot in pivots)
                             {
                                 var pivotIdentity = new PackageIdentity(pivot, overlayVersion);
-                                var pivotPackage = await overlayManager.InstallPackageAsync(pivotIdentity, ignoreDependencies: false, CancellationToken.None);
+                                var pivotPackage = await overlayManager.InstallPackageAsync(pivotIdentity, ignoreDependencies: true, CancellationToken.None);
                                 if (pivotPackage == null) throw new InvalidOperationException(string.Format("The package '{0}' could not be found.", pivot));
                             }
                         }
                         catch
                         {
-                            var failedDeletes = new List<string>();
-                            LocalResourceUtils.DeleteDirectoryTree(installPath, failedDeletes);
+                            foreach (var pivot in pivots)
+                            {
+                                var pivotIdentity = new PackageIdentity(pivot, overlayVersion);
+                                await overlayManager.UninstallPackageAsync(pivotIdentity, removeDependencies: false, CancellationToken.None);
+                            }
                             throw;
                         }
                     }
