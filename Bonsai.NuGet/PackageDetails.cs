@@ -7,6 +7,8 @@ using Bonsai.NuGet.Properties;
 using NuGet.Protocol.Core.Types;
 using NuGet.Packaging;
 using System.IO;
+using NuGet.Frameworks;
+using NuGet.Packaging.Core;
 
 namespace Bonsai.NuGet
 {
@@ -18,8 +20,11 @@ namespace Bonsai.NuGet
         public PackageDetails()
         {
             InitializeComponent();
+            ProjectFramework = NuGetFramework.AnyFramework;
             SetPackage(null);
         }
+
+        public NuGetFramework ProjectFramework { get; set; }
 
         public PackagePathResolver PathResolver { get; set; }
 
@@ -44,8 +49,8 @@ namespace Bonsai.NuGet
             SetLinkLabelUri(reportAbuseLinkLabel, package.ReportAbuseUrl, false);
             descriptionLabel.Text = package.Description;
             tagsLabel.Text = package.Tags;
-            dependenciesTextBox.Lines = (from dependencySet in package.DependencySets
-                                         from dependency in dependencySet.Packages
+            var nearestDependencyGroup = package.DependencySets.GetNearest(ProjectFramework);
+            dependenciesTextBox.Lines = (from dependency in ((nearestDependencyGroup?.Packages) ?? Enumerable.Empty<PackageDependency>())
                                          select dependency.ToString()).ToArray();
             if (dependenciesTextBox.Lines.Length > 0)
             {

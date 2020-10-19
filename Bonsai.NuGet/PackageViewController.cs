@@ -87,6 +87,7 @@ namespace Bonsai.NuGet
             packageSourceProvider = new PackageSourceProvider(settings);
             PackageManager = CreatePackageManager(packageSourceProvider, Enumerable.Empty<PackageManagerPlugin>());
             searchComboBox.CueBanner = Resources.SearchCueBanner;
+            packageDetails.ProjectFramework = PackageManager.ProjectFramework;
             packageDetails.PathResolver = PackageManager.PathResolver;
         }
 
