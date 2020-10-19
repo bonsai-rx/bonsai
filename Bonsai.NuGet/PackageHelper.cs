@@ -1,43 +1,75 @@
 ﻿using System;
 using System.IO;
-using NuGet;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Bonsai.NuGet.Properties;
+using NuGet.Common;
+using NuGet.Configuration;
+using NuGet.Frameworks;
+using NuGet.Packaging;
+using NuGet.Packaging.Core;
+using NuGet.Versioning;
 
 namespace Bonsai.NuGet
 {
     public static class PackageHelper
     {
-        public static string InstallExecutablePackage(IPackage package, IFileSystem fileSystem)
+        public static readonly string ContentFolder = PathUtility.EnsureTrailingSlash(PackagingConstants.Folders.Content);
+
+        public static bool IsExecutablePackage(PackageIdentity package, NuGetFramework projectFramework, PackageReaderBase packageReader)
         {
-            var targetId = Path.GetFileName(fileSystem.Root);
+            var entryPoint = package.Id + Constants.BonsaiExtension;
+            var nearestFrameworkGroup = packageReader.GetContentItems().GetNearest(projectFramework);
+            var executablePackage = nearestFrameworkGroup?.Items.Any(file => PathUtility.GetRelativePath(PackageHelper.ContentFolder, file) == entryPoint);
+            return executablePackage.GetValueOrDefault();
+        }
+
+        public static string InstallExecutablePackage(PackageIdentity package, NuGetFramework projectFramework, PackageReaderBase packageReader, string targetPath)
+        {
+            var targetId = Path.GetFileName(targetPath);
             var targetEntryPoint = targetId + Constants.BonsaiExtension;
             var targetEntryPointLayout = targetEntryPoint + Constants.LayoutExtension;
             var packageEntryPoint = package.Id + Constants.BonsaiExtension;
             var packageEntryPointLayout = packageEntryPoint + Constants.LayoutExtension;
 
-            foreach (var file in package.GetContentFiles())
+            var nearestFrameworkGroup = packageReader.GetContentItems().GetNearest(projectFramework);
+            if (nearestFrameworkGroup != null)
             {
-                var effectivePath = file.EffectivePath;
-                if (effectivePath == packageEntryPoint) effectivePath = targetEntryPoint;
-                else if (effectivePath == packageEntryPointLayout) effectivePath = targetEntryPointLayout;
-
-                using (var stream = file.GetStream())
+                foreach (var file in nearestFrameworkGroup.Items)
                 {
-                    fileSystem.AddFile(effectivePath, stream);
+                    var effectivePath = PathUtility.GetRelativePath(ContentFolder, file);
+                    if (effectivePath == packageEntryPoint) effectivePath = targetEntryPoint;
+                    else if (effectivePath == packageEntryPointLayout) effectivePath = targetEntryPointLayout;
+                    effectivePath = Path.Combine(targetPath, effectivePath);
+                    PathUtility.EnsureParentDirectory(effectivePath);
+
+                    using (var stream = packageReader.GetStream(file))
+                    using (var targetStream = File.Create(effectivePath))
+                    {
+                        stream.CopyTo(targetStream);
+                    }
                 }
             }
 
-            var manifest = Manifest.Create(package);
-            var metadata = Manifest.Create(manifest.Metadata);
-            var metadataPath = targetId + global::NuGet.Constants.ManifestExtension;
-            using (var stream = fileSystem.CreateFile(metadataPath))
+            var effectiveEntryPoint = Path.Combine(targetPath, targetEntryPoint);
+            if (!File.Exists(effectiveEntryPoint))
             {
-                metadata.Save(stream);
+                var message = string.Format(Resources.MissingWorkflowEntryPoint, targetEntryPoint);
+                throw new InvalidOperationException(message);
             }
 
-            return fileSystem.GetFullPath(targetEntryPoint);
+            var manifestFile = packageReader.GetNuspecFile();
+            var metadataPath = Path.Combine(targetPath, targetId + NuGetConstants.ManifestExtension);
+            using (var manifestStream = packageReader.GetStream(manifestFile))
+            using (var manifestTargetStream = File.Create(metadataPath))
+            {
+                var manifest = Manifest.ReadFrom(manifestStream, validateSchema: true);
+                manifest.Save(manifestTargetStream);
+            }
+
+            return effectiveEntryPoint;
         }
 
         static void LogException(ILogger logger, Exception exception)
@@ -50,7 +82,7 @@ namespace Bonsai.NuGet
                     LogException(logger, innerException);
                 }
             }
-            else logger.Log(MessageLevel.Error, exception.Message);
+            else logger.Log(LogLevel.Error, exception.Message);
         }
 
         public static void RunPackageOperation(LicenseAwarePackageManager packageManager, Func<Task> operationFactory, string operationLabel = null)
@@ -93,50 +125,30 @@ namespace Bonsai.NuGet
             }
         }
 
-        public static Task StartInstallPackage(this IPackageManager packageManager, IPackage package)
+        public static async Task StartInstallPackage(this IPackageManager packageManager, PackageIdentity package)
         {
             if (package == null)
             {
                 throw new ArgumentNullException("package");
             }
 
-            return Task.Factory.StartNew(() =>
-            {
-                packageManager.Logger.Log(MessageLevel.Info, Resources.InstallPackageVersion, package.Id, package.Version);
-                packageManager.InstallPackage(package, false, true);
-            });
+            packageManager.Logger.LogInformation(string.Format(Resources.InstallPackageVersion, package.Id, package.Version));
+            await packageManager.InstallPackageAsync(package, ignoreDependencies: false, CancellationToken.None);
         }
 
-        public static Task<IPackage> StartInstallPackage(this IPackageManager packageManager, string packageId, SemanticVersion version)
+        public static async Task<PackageReaderBase> StartInstallPackage(this IPackageManager packageManager, string packageId, NuGetVersion version)
         {
-            return Task.Factory.StartNew(() =>
-            {
-                var logMessage = version == null ? Resources.InstallPackageLatestVersion : Resources.InstallPackageVersion;
-                packageManager.Logger.Log(MessageLevel.Info, logMessage, packageId, version);
-                var package = packageManager.SourceRepository.FindPackage(packageId, version);
-                if (package == null)
-                {
-                    var errorMessage = version == null ? Resources.MissingPackageLatestVersion : Resources.MissingPackageVersion;
-                    throw new InvalidOperationException(string.Format(errorMessage, packageId, version));
-                }
-                packageManager.InstallPackage(package, false, true);
-                return packageManager.LocalRepository.FindPackage(packageId, version);
-            });
+            var logMessage = version == null ? Resources.InstallPackageLatestVersion : Resources.InstallPackageVersion;
+            packageManager.Logger.LogInformation(string.Format(logMessage, packageId, version));
+            var package = new PackageIdentity(packageId, version);
+            return await packageManager.InstallPackageAsync(package, ignoreDependencies: false, CancellationToken.None);
         }
 
-        public static Task<IPackage> StartRestorePackage(this IPackageManager packageManager, string packageId, SemanticVersion version)
+        public static async Task<PackageReaderBase> StartRestorePackage(this IPackageManager packageManager, string packageId, NuGetVersion version)
         {
-            return Task.Factory.StartNew(() =>
-            {
-                packageManager.Logger.Log(MessageLevel.Info, Resources.RestorePackageVersion, packageId, version);
-                var package = packageManager.SourceRepository.FindPackage(packageId, version);
-                if (package == null)
-                {
-                    var errorMessage = string.Format(Resources.MissingPackageVersion, packageId, version);
-                    throw new InvalidOperationException(errorMessage);
-                }
-                return package;
-            });
+            packageManager.Logger.LogInformation(string.Format(Resources.RestorePackageVersion, packageId, version));
+            var package = new PackageIdentity(packageId, version);
+            return await packageManager.InstallPackageAsync(package, ignoreDependencies: true, CancellationToken.None);
         }
     }
 }

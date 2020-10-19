@@ -1,6 +1,8 @@
 ﻿using Bonsai.Configuration;
 using Bonsai.Design;
-using NuGet;
+using NuGet.Packaging;
+using NuGet.Packaging.Core;
+using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,11 +23,9 @@ namespace Bonsai
         const string RepositoryPath = "Packages";
         const string WorkflowElementName = "Workflow";
         const string ExpressionElementName = "Expression";
-        const string ExtensionTypeElementName = "ExtensionTypes";
         const string IncludeWorkflowTypeName = "IncludeWorkflow";
         const string PathAttributeName = "Path";
         const string TypeAttributeName = "type";
-        const string TypeElementName = "Type";
         const char AssemblySeparator = ':';
 
         public DependencyInspector(PackageConfiguration configuration)
@@ -106,10 +106,9 @@ namespace Bonsai
                         var layout = (VisualizerLayout)VisualizerLayout.Serializer.Deserialize(reader);
                         foreach (var settings in GetVisualizerSettings(layout))
                         {
-                            Type type;
                             var typeName = settings.VisualizerTypeName;
                             if (typeName == null) continue;
-                            if (visualizerMap.Value.TryGetValue(typeName, out type))
+                            if (visualizerMap.Value.TryGetValue(typeName, out Type type))
                             {
                                 assemblies.Add(type.Assembly);
                             }
@@ -136,13 +135,18 @@ namespace Bonsai
 
         public static IDictionary<string, Configuration.PackageReference> GetPackageReferenceMap(PackageConfiguration configuration)
         {
-            var placeholderRepository = new LocalPackageRepository(RepositoryPath);
-            var pathResolver = new PackageManager(placeholderRepository, RepositoryPath).PathResolver;
+            var baseDirectory = Path.GetDirectoryName(configuration.ConfigurationFile);
+            var rootDirectory = Path.Combine(baseDirectory, RepositoryPath);
+            var pathResolver = new PackagePathResolver(rootDirectory);
             var packageMap = new Dictionary<string, Configuration.PackageReference>();
             foreach (var package in configuration.Packages)
             {
-                var packagePath = pathResolver.GetPackageDirectory(package.Id, SemanticVersion.Parse(package.Version));
-                packageMap.Add(packagePath, package);
+                var identity = new PackageIdentity(package.Id, NuGetVersion.Parse(package.Version));
+                var packagePath = pathResolver.GetPackageDirectoryName(identity);
+                if (packagePath != null)
+                {
+                    packageMap.Add(packagePath, package);
+                }
             }
 
             return packageMap;
@@ -162,8 +166,7 @@ namespace Bonsai
                     var pathElements = assemblyLocation.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
                     if (pathElements.Length > 1 && pathElements[0] == RepositoryPath)
                     {
-                        Configuration.PackageReference package;
-                        if (packageMap.TryGetValue(pathElements[1], out package))
+                        if (packageMap.TryGetValue(pathElements[1], out Configuration.PackageReference package))
                         {
                             dependencies.Add(package);
                         }
@@ -184,12 +187,8 @@ namespace Bonsai
             return Observable.Using(
                 () => new LoaderResource<DependencyInspector>(configuration),
                 resource => from dependency in resource.Loader.GetWorkflowPackageDependencies(fileNames).ToObservable()
-                            let versionSpec = new VersionSpec
-                            {
-                                MinVersion = SemanticVersion.Parse(dependency.Version),
-                                IsMinInclusive = true
-                            }
-                            select new PackageDependency(dependency.Id, versionSpec));
+                            let versionRange = new VersionRange(NuGetVersion.Parse(dependency.Version), includeMinVersion: true)
+                            select new PackageDependency(dependency.Id, versionRange));
         }
     }
 }

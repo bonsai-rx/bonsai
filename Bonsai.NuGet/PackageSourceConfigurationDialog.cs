@@ -1,4 +1,4 @@
-﻿using NuGet;
+﻿using NuGet.Configuration;
 using System;
 using System.Linq;
 using System.Windows.Forms;

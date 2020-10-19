@@ -1,39 +1,55 @@
 ﻿using Bonsai.Configuration;
 using Microsoft.CSharp;
-using NuGet;
+using NuGet.Common;
+using NuGet.Configuration;
+using NuGet.Frameworks;
+using NuGet.Packaging;
+using NuGet.Protocol;
+using NuGet.Protocol.Core.Types;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 
 namespace Bonsai
 {
     static class ScriptExtensionsProvider
     {
+        static readonly NuGetFramework DefaultFramework = NuGetFramework.ParseFolder("net472");
         const string OutputAssemblyName = "Extensions";
         const string ProjectExtension = ".csproj";
         const string ScriptExtension = "*.cs";
         const string DllExtension = ".dll";
 
-        static IEnumerable<string> FindAssemblyReferences(IPackageRepository repository, IPackage package)
+        static IEnumerable<string> FindAssemblyReferences(
+            DependencyInfoResource dependencyResource,
+            FindLocalPackagesResource localPackageResource,
+            SourceCacheContext cacheContext,
+            string packageId)
         {
-            foreach (var assembly in package.AssemblyReferences)
+            var packageInfo = localPackageResource.FindPackagesById(packageId, NullLogger.Instance, CancellationToken.None).FirstOrDefault();
+            if (packageInfo == null) yield break;
+            using (var reader = packageInfo.GetReader())
             {
-                yield return assembly.Name;
+                var nearestFramework = reader.GetReferenceItems().GetNearest(DefaultFramework);
+                if (nearestFramework != null)
+                {
+                    foreach (var assembly in nearestFramework.Items)
+                    {
+                        yield return Path.GetFileName(assembly);
+                    }
+                }
             }
 
-            var dependencies = package.GetCompatiblePackageDependencies(null);
-            foreach (var dependency in dependencies)
+            var dependencyInfo = dependencyResource.ResolvePackage(packageInfo.Identity, DefaultFramework, cacheContext, NullLogger.Instance, CancellationToken.None).Result;
+            foreach (var dependency in dependencyInfo.Dependencies)
             {
-                var dependencyPackage = repository.ResolveDependency(dependency, true, true);
-                if (dependencyPackage != null)
+                foreach (var reference in FindAssemblyReferences(dependencyResource, localPackageResource, cacheContext, dependency.Id))
                 {
-                    foreach (var reference in FindAssemblyReferences(repository, dependencyPackage))
-                    {
-                        yield return reference;
-                    }
+                    yield return reference;
                 }
             }
         }
@@ -54,14 +70,18 @@ namespace Bonsai
             var assemblyNames = new HashSet<string>();
             var assemblyDirectory = Path.GetTempPath() + OutputAssemblyName + "." + Guid.NewGuid().ToString();
             var scriptEnvironment = new ScriptExtensions(configuration, assemblyDirectory);
-            var packageRepository = new LocalPackageRepository(editorRepositoryPath);
-            var projectReferences = from id in scriptEnvironment.GetPackageReferences()
-                                    let package = packageRepository.FindPackage(id)
-                                    where package != null
-                                    from assemblyReference in FindAssemblyReferences(packageRepository, package)
-                                    select assemblyReference;
-            assemblyNames.AddRange(scriptEnvironment.GetAssemblyReferences());
-            assemblyNames.AddRange(projectReferences);
+            var packageSource = new PackageSource(editorRepositoryPath);
+            var packageRepository = new SourceRepository(packageSource, Repository.Provider.GetCoreV3());
+            var dependencyResource = packageRepository.GetResource<DependencyInfoResource>();
+            var localPackageResource = packageRepository.GetResource<FindLocalPackagesResource>();
+            using (var cacheContext = new SourceCacheContext())
+            {
+                var projectReferences = from id in scriptEnvironment.GetPackageReferences()
+                                        from assemblyReference in FindAssemblyReferences(dependencyResource, localPackageResource, cacheContext, id)
+                                        select assemblyReference;
+                assemblyNames.AddRange(scriptEnvironment.GetAssemblyReferences());
+                assemblyNames.AddRange(projectReferences);
+            }
 
             var assemblyFile = Path.Combine(assemblyDirectory, Path.ChangeExtension(OutputAssemblyName, DllExtension));
             var assemblyReferences = (from fileName in assemblyNames

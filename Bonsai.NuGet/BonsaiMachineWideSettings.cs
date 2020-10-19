@@ -1,28 +1,25 @@
-﻿using NuGet;
+﻿using NuGet.Configuration;
 using System;
-using System.Collections.Generic;
+using System.IO;
+using NuGetSettings = global::NuGet.Configuration.Settings;
 
 namespace Bonsai.NuGet
 {
     public class BonsaiMachineWideSettings : IMachineWideSettings
     {
-        Lazy<IEnumerable<Settings>> settings;
-        const string SettingsName = "Bonsai";
+        readonly Lazy<ISettings> settings;
+        const string SettingsFolderRoot = "Config";
 
         public BonsaiMachineWideSettings()
         {
             var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            settings = new Lazy<IEnumerable<Settings>>(() =>
+            settings = new Lazy<ISettings>(() =>
             {
-                return global::NuGet.Settings.LoadMachineWideSettings(
-                    new PhysicalFileSystem(baseDirectory),
-                    SettingsName);
+                var root = Path.Combine(baseDirectory, nameof(NuGet), SettingsFolderRoot);
+                return NuGetSettings.LoadMachineWideSettings(root);
             });
         }
 
-        public IEnumerable<Settings> Settings
-        {
-            get { return settings.Value; }
-        }
+        public ISettings Settings => settings.Value;
     }
 }

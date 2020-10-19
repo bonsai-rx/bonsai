@@ -1,23 +1,19 @@
-﻿using NuGet;
+﻿using NuGet.Packaging;
+using NuGet.Packaging.Core;
 
 namespace Bonsai
 {
-    class OverlayPackagePathResolver : DefaultPackagePathResolver
+    class OverlayPackagePathResolver : PackagePathResolver
     {
-        public string OverlayDirectory { get; set; }
-
         public OverlayPackagePathResolver(string path)
             : base(path)
         {
             OverlayDirectory = string.Empty;
         }
 
-        public override string GetPackageDirectory(IPackage package)
-        {
-            return GetPackageDirectory(package.Id, package.Version);
-        }
+        public string OverlayDirectory { get; set; }
 
-        public override string GetPackageDirectory(string packageId, SemanticVersion version)
+        public override string GetPackageDirectoryName(PackageIdentity package)
         {
             return OverlayDirectory;
         }

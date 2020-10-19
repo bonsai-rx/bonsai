@@ -1,4 +1,5 @@
-﻿using NuGet;
+﻿using NuGet.Packaging.Core;
+using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -43,8 +44,6 @@ namespace Bonsai
             var editorScale = 1.0f;
             var updatePackages = false;
             var launchResult = default(EditorResult);
-            var launchPackageId = default(string);
-            var launchPackageVersion = default(SemanticVersion);
             var initialFileName = default(string);
             var libFolders = new List<string>();
             var propertyAssignments = new Dictionary<string, string>();
@@ -57,30 +56,13 @@ namespace Bonsai
             parser.RegisterCommand(SuppressEditorCommand, () => launchEditor = false);
             parser.RegisterCommand(ExportPackageCommand, () => { launchResult = EditorResult.ExportPackage; bootstrap = false; });
             parser.RegisterCommand(ReloadEditorCommand, () => { launchResult = EditorResult.ReloadEditor; bootstrap = false; });
+            parser.RegisterCommand(GalleryCommand, () => { launchResult = EditorResult.OpenGallery; bootstrap = false; });
             parser.RegisterCommand(EditorScaleCommand, scale => editorScale = float.Parse(scale, CultureInfo.InvariantCulture));
             parser.RegisterCommand(PackageManagerCommand, option =>
             {
                 launchResult = EditorResult.ManagePackages;
                 updatePackages = option == PackageManagerUpdates;
                 bootstrap = false;
-            });
-            parser.RegisterCommand(GalleryCommand, option =>
-            {
-                if (string.IsNullOrEmpty(option))
-                {
-                    launchResult = EditorResult.OpenGallery;
-                    bootstrap = false;
-                }
-                else
-                {
-                    var assignment = PropertyAssignment.Parse(option);
-                    switch (assignment.Name)
-                    {
-                        case "id": launchPackageId = assignment.Value; break;
-                        case "version": launchPackageVersion = SemanticVersion.Parse(assignment.Value); break;
-                        default: throw new InvalidOperationException("Invalid gallery command option");
-                    }
-                }
             });
             parser.RegisterCommand(command => initialFileName = Path.GetFullPath(command));
             parser.RegisterCommand(PropertyCommand, property =>
@@ -94,8 +76,8 @@ namespace Bonsai
             var editorPath = editorAssembly.Location;
             var editorFolder = Path.GetDirectoryName(editorPath);
             var editorPackageId = editorAssembly.GetName().Name;
-            var editorPackageVersion = SemanticVersion.Parse(editorAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion);
-            var editorPackageName = new PackageName(editorPackageId, editorPackageVersion);
+            var editorPackageVersion = NuGetVersion.Parse(editorAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion);
+            var editorPackageName = new PackageIdentity(editorPackageId, editorPackageVersion);
             var editorRepositoryPath = Path.Combine(editorFolder, RepositoryPath);
             var editorExtensionsPath = Path.Combine(editorFolder, ExtensionsPath);
 
@@ -142,26 +124,6 @@ namespace Bonsai
                 }
                 else if (launchResult == EditorResult.ReloadEditor)
                 {
-                    if (!string.IsNullOrEmpty(launchPackageId))
-                    {
-                        initialFileName = Launcher.LaunchPackageBootstrapper(
-                            packageConfiguration,
-                            editorRepositoryPath,
-                            editorPath,
-                            initialFileName,
-                            launchPackageId,
-                            launchPackageVersion);
-                    }
-                    else if (Path.GetExtension(initialFileName) == Constants.PackageExtension)
-                    {
-                        var package = new OptimizedZipPackage(initialFileName);
-                        initialFileName = Launcher.LaunchPackageBootstrapper(
-                            packageConfiguration,
-                            editorRepositoryPath,
-                            editorPath,
-                            package);
-                    }
-
                     if (!string.IsNullOrEmpty(initialFileName))
                     {
                         var initialPath = Path.GetDirectoryName(initialFileName);

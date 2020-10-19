@@ -1,6 +1,9 @@
 ﻿using Bonsai.Design;
 using Bonsai.NuGet.Properties;
-using NuGet;
+using NuGet.Common;
+using NuGet.Configuration;
+using NuGet.Packaging;
+using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -71,7 +74,7 @@ namespace Bonsai.NuGet
                         var existingManifest = Manifest.ReadFrom(stream, true);
                         if (existingManifest.Files != null)
                         {
-                            manifest.Files = existingManifest.Files;
+                            manifest.Files.AddRange(existingManifest.Files);
                         }
                     }
                 }
@@ -174,7 +177,7 @@ namespace Bonsai.NuGet
             {
                 var packageFileName =
                     packageBuilder.Id + "." +
-                    packageBuilder.Version + global::NuGet.Constants.PackageExtension;
+                    packageBuilder.Version + NuGetConstants.PackageExtension;
                 saveFileDialog.FileName = packageFileName;
                 if (entryPoint != null)
                 {
@@ -190,10 +193,7 @@ namespace Bonsai.NuGet
                         ILogger logger = new EventLogger();
                         dialog.Text = Resources.ExportOperationLabel;
                         dialog.RegisterEventLogger((EventLogger)logger);
-                        logger.Log(MessageLevel.Info,
-                                   "Creating package '{0} {1}'.",
-                                   packageBuilder.Id,
-                                   packageBuilder.Version);
+                        logger.Log(LogLevel.Information, $"Creating package '{packageBuilder.Id} {packageBuilder.Version}'.");
                         var dialogClosed = Observable.FromEventPattern<FormClosedEventHandler, FormClosedEventArgs>(
                             handler => dialog.FormClosed += handler,
                             handler => dialog.FormClosed -= handler);
@@ -202,7 +202,7 @@ namespace Bonsai.NuGet
                             stream => Observable.Start(() => packageBuilder.Save(stream)).TakeUntil(dialogClosed));
                         using (var subscription = operation.ObserveOn(this).Subscribe(
                             xs => dialog.Complete(),
-                            ex => logger.Log(MessageLevel.Error, ex.Message)))
+                            ex => logger.Log(LogLevel.Error, ex.Message)))
                         {
                             if (dialog.ShowDialog() != DialogResult.OK)
                             {
@@ -329,7 +329,7 @@ namespace Bonsai.NuGet
                     { "ReleaseNotes", "A description of the changes made in this release of the package, often used in the Updates tab in place of the package description. " },
                     { "Copyright", "Copyright details for the package." },
                     { "Tags", "A space-delimited list of tags and keywords that describe the package and aid discoverability of packages through search and filtering mechanisms." },
-                    { "DependencySets", "The collection of dependencies for the package." }
+                    { "DependencyGroups", "The collection of dependencies for the package." }
                 };
 
                 DescriptionAttribute GetDescriptionAttribute(PropertyDescriptor descriptor)
@@ -346,7 +346,7 @@ namespace Bonsai.NuGet
                 PropertyDescriptor ConvertPropertyDescriptor(PropertyDescriptor descriptor)
                 {
                     var descriptionAttribute = GetDescriptionAttribute(descriptor);
-                    if (descriptor.Name == "DependencySets")
+                    if (descriptor.Name == "DependencyGroups")
                     {
                         var typeConverterAttribute = new TypeConverterAttribute(typeof(DependencySetConverter));
                         var attributes = new Attribute[] { descriptionAttribute, typeConverterAttribute };
@@ -358,6 +358,13 @@ namespace Bonsai.NuGet
                         var typeConverterAttribute = new TypeConverterAttribute(typeof(CommaDelimitedSetConverter));
                         var attributes = new Attribute[] { descriptionAttribute, typeConverterAttribute };
                         return new SetPropertyDescriptor(descriptor, attributes);
+                    }
+
+                    if (descriptor.Name == "Version")
+                    {
+                        var typeConverterAttribute = new TypeConverterAttribute(typeof(NuGetVersionConverter));
+                        var attributes = new Attribute[] { descriptionAttribute, typeConverterAttribute };
+                        return new SimplePropertyDescriptor(descriptor, attributes);
                     }
 
                     if (descriptor.Name == "Tags")
@@ -379,13 +386,23 @@ namespace Bonsai.NuGet
                 public override PropertyDescriptorCollection GetProperties(Attribute[] attributes)
                 {
                     var properties = from property in base.GetProperties(attributes).Cast<PropertyDescriptor>()
-                                     where property.Name != "Files" &&
-                                           property.Name != "Language" &&
-                                           property.Name != "MinClientVersion" &&
-                                           property.Name != "ContentFiles" &&
-                                           property.Name != "DevelopmentDependency" &&
-                                           property.Name != "FrameworkReferences" &&
-                                           property.Name != "PackageAssemblyReferences"
+                                     where property.Name != nameof(PackageBuilder.Files) &&
+                                           property.Name != nameof(PackageBuilder.Language) &&
+                                           property.Name != nameof(PackageBuilder.MinClientVersion) &&
+                                           property.Name != nameof(PackageBuilder.ContentFiles) &&
+                                           property.Name != nameof(PackageBuilder.DevelopmentDependency) &&
+                                           property.Name != nameof(PackageBuilder.FrameworkReferences) &&
+                                           property.Name != nameof(PackageBuilder.FrameworkReferenceGroups) &&
+                                           property.Name != nameof(PackageBuilder.PackageAssemblyReferences) &&
+                                           property.Name != nameof(PackageBuilder.HasSnapshotVersion) &&
+                                           property.Name != nameof(PackageBuilder.OutputName) &&
+                                           property.Name != nameof(PackageBuilder.PackageTypes) &&
+                                           property.Name != nameof(PackageBuilder.Properties) &&
+                                           property.Name != nameof(PackageBuilder.Repository) &&
+                                           property.Name != nameof(PackageBuilder.Serviceable) &&
+                                           property.Name != nameof(PackageBuilder.TargetFrameworks) &&
+                                           property.Name != nameof(PackageBuilder.Icon) &&
+                                           property.Name != nameof(PackageBuilder.LicenseMetadata)
                                      select ConvertPropertyDescriptor(property);
                     var output = new PropertyDescriptorCollection(properties.ToArray()).Sort(SortOrder);
                     return output;
@@ -450,6 +467,22 @@ namespace Bonsai.NuGet
                     public override bool ShouldSerializeValue(object component)
                     {
                         return descriptor.ShouldSerializeValue(component);
+                    }
+                }
+
+                class NuGetVersionConverter : TypeConverter
+                {
+                    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+                    {
+                        if (sourceType == typeof(string)) return true;
+                        return base.CanConvertFrom(context, sourceType);
+                    }
+
+                    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+                    {
+                        var text = value as string;
+                        if (text != null) return NuGetVersion.Parse(text);
+                        return base.ConvertFrom(context, culture, value);
                     }
                 }
 
@@ -634,12 +667,12 @@ namespace Bonsai.NuGet
 
                     public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object value, Attribute[] attributes)
                     {
-                        var dependencySet = value as Collection<PackageDependencySet>;
-                        if (dependencySet != null)
+                        var dependencyGroups = value as Collection<PackageDependencyGroup>;
+                        if (dependencyGroups != null)
                         {
-                            var properties = from set in dependencySet
-                                             from dependency in set.Dependencies
-                                             select new ConstantPropertyDescriptor(dependency.Id, dependency.VersionSpec);
+                            var properties = from dependencyGroup in dependencyGroups
+                                             from dependency in dependencyGroup.Packages
+                                             select new ConstantPropertyDescriptor(dependency.Id, dependency.VersionRange);
                             return new PropertyDescriptorCollection(properties.ToArray());
                         }
 

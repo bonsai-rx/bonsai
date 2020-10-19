@@ -1,5 +1,5 @@
 ﻿using Bonsai.NuGet.Properties;
-using NuGet;
+using NuGet.Protocol.Core.Types;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,7 +11,7 @@ namespace Bonsai.NuGet
 {
     public partial class LicenseAcceptanceDialog : Form
     {
-        public LicenseAcceptanceDialog(IEnumerable<IPackage> licensePackages)
+        public LicenseAcceptanceDialog(IEnumerable<IPackageSearchMetadata> licensePackages)
         {
             if (licensePackages == null)
             {
@@ -31,7 +31,7 @@ namespace Bonsai.NuGet
 
                 titleLabel.Font = bold;
                 titleLabel.AutoSize = true;
-                titleLabel.Text = package.Id;
+                titleLabel.Text = package.Identity.Id;
                 authorshipLabel.AutoSize = true;
                 var authorsText = string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, package.Authors);
                 authorshipLabel.Text = string.Format(Resources.LicenseAuthorshipLabel, authorsText);

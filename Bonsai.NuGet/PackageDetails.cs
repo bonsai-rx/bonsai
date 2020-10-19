@@ -1,47 +1,56 @@
 ﻿using System;
 using System.Linq;
 using System.Windows.Forms;
-using NuGet;
 using System.Globalization;
 using System.Diagnostics;
 using Bonsai.NuGet.Properties;
+using NuGet.Protocol.Core.Types;
+using NuGet.Packaging;
+using System.IO;
+using NuGet.Frameworks;
+using NuGet.Packaging.Core;
 
 namespace Bonsai.NuGet
 {
     public partial class PackageDetails : UserControl
     {
         const int TextHeightMargin = 7;
-        static readonly Uri NugetPackageRepository = new Uri("https://packages.nuget.org/api/v2");
+        static readonly Uri NugetPackageRepository = new Uri("https://packages.nuget.org/packages/");
 
         public PackageDetails()
         {
             InitializeComponent();
+            ProjectFramework = NuGetFramework.AnyFramework;
             SetPackage(null);
         }
 
-        public void SetPackage(IPackage package)
+        public NuGetFramework ProjectFramework { get; set; }
+
+        public PackagePathResolver PathResolver { get; set; }
+
+        public void SetPackage(IPackageSearchMetadata package)
         {
             SuspendLayout();
             detailsLayoutPanel.Visible = package != null;
             if (package == null) return;
 
             createdByLabel.Text = string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, package.Authors);
-            idLinkLabel.Text = package.Id;
-            var packageUri = new Uri(NugetPackageRepository, package.Id + "/" + package.Version.ToString());
+            idLinkLabel.Text = package.Identity.Id;
+            var packageUri = package.PackageDetailsUrl ?? new Uri(NugetPackageRepository, package.Identity.Id + "/" + package.Identity.Version.ToString());
             SetLinkLabelUri(idLinkLabel, packageUri, false);
             versionLabel.Text = string.Format(
                 "{0}{1}",
-                package.Version.ToString(),
-                package.IsReleaseVersion() ? string.Empty : Resources.PrereleaseLabel);
+                package.Identity.Version.ToString(),
+                package.Identity.Version.IsPrerelease ? Resources.PrereleaseLabel : string.Empty);
             lastPublishedLabel.Text = package.Published.HasValue ? package.Published.Value.Date.ToShortDateString() : Resources.UnpublishedLabel;
             downloadsLabel.Text = package.DownloadCount.ToString();
-            SetLinkLabelUri(licenseLinkLabel, package.LicenseUrl, true);
+            SetLinkLabelLicense(licenseLinkLabel, package, true);
             SetLinkLabelUri(projectLinkLabel, package.ProjectUrl, true);
             SetLinkLabelUri(reportAbuseLinkLabel, package.ReportAbuseUrl, false);
             descriptionLabel.Text = package.Description;
             tagsLabel.Text = package.Tags;
-            dependenciesTextBox.Lines = (from dependencySet in package.DependencySets
-                                         from dependency in dependencySet.Dependencies
+            var nearestDependencyGroup = package.DependencySets.GetNearest(ProjectFramework);
+            dependenciesTextBox.Lines = (from dependency in ((nearestDependencyGroup?.Packages) ?? Enumerable.Empty<PackageDependency>())
                                          select dependency.ToString()).ToArray();
             if (dependenciesTextBox.Lines.Length > 0)
             {
@@ -54,6 +63,24 @@ namespace Bonsai.NuGet
                 dependencyWarningLabel.Text = Resources.NoDependenciesLabel;
             }
             ResumeLayout();
+        }
+
+        void SetLinkLabelLicense(LinkLabel linkLabel, IPackageSearchMetadata package, bool hideEmptyLink)
+        {
+            var license = package.LicenseMetadata;
+            if (license != null && PathResolver != null)
+            {
+                switch (license.Type)
+                {
+                    case LicenseType.File:
+                        var licenseUri = new Uri(Path.Combine(PathResolver.GetInstallPath(package.Identity), license.License));
+                        SetLinkLabelUri(linkLabel, licenseUri, hideEmptyLink);
+                        break;
+                    case LicenseType.Expression: SetLinkLabelUri(linkLabel, license.LicenseUrl, hideEmptyLink); break;
+                    default: break;
+                }
+            }
+            else SetLinkLabelUri(linkLabel, package.LicenseUrl, hideEmptyLink);
         }
 
         static void SetLinkLabelUri(LinkLabel linkLabel, Uri uri, bool hideEmptyLink)

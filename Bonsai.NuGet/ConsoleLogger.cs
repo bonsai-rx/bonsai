@@ -1,9 +1,10 @@
-﻿using NuGet;
+﻿using NuGet.Common;
 using System;
+using System.Threading.Tasks;
 
 namespace Bonsai.NuGet
 {
-    public class ConsoleLogger : ILogger
+    public class ConsoleLogger : LoggerBase
     {
         public static readonly ConsoleLogger Default = new ConsoleLogger();
 
@@ -11,15 +12,15 @@ namespace Bonsai.NuGet
         {
         }
 
-        public void Log(MessageLevel level, string message, params object[] args)
+        public override void Log(ILogMessage message)
         {
-            if (level == MessageLevel.Error) Console.Error.WriteLine(message, args);
-            else Console.WriteLine(message, args);
+            if (message.Level == LogLevel.Error) Console.Error.WriteLine(message);
+            else Console.WriteLine(message);
         }
 
-        public FileConflictResolution ResolveFileConflict(string message)
+        public override Task LogAsync(ILogMessage message)
         {
-            return FileConflictResolution.IgnoreAll;
+            return Task.Factory.StartNew(() => Log(message));
         }
     }
 }

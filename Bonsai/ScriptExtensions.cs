@@ -1,6 +1,8 @@
 ﻿using Bonsai.Configuration;
 using Bonsai.Editor;
-using NuGet;
+using NuGet.Configuration;
+using NuGet.Packaging;
+using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -50,21 +52,35 @@ namespace Bonsai
         private void EnsureNuGetSettings()
         {
             var projectFolder = Path.GetDirectoryName(ProjectFileName);
-            var settingsFileName = Path.Combine(projectFolder, Constants.SettingsFileName);
+            var settingsFileName = Path.Combine(projectFolder, Settings.DefaultSettingsFileName);
             if (!File.Exists(settingsFileName))
             {
                 var machineWideSettings = new Bonsai.NuGet.BonsaiMachineWideSettings();
-                var settings = machineWideSettings.Settings.FirstOrDefault();
+                var settings = machineWideSettings.Settings;
                 if (settings != null)
                 {
                     const string SectionPackageSources = "packageSources";
-                    var packageSources = settings.GetValues(SectionPackageSources, false).ToList();
-                    packageSources.RemoveAll(source => !Uri.IsWellFormedUriString(source.Value, UriKind.Absolute));
-                    if (packageSources.Count > 0)
+                    var packageSourceSection = settings.GetSection(SectionPackageSources);
+                    if (packageSourceSection != null)
                     {
-                        var fileSystem = new PhysicalFileSystem(projectFolder);
-                        var localSettings = new Settings(fileSystem);
-                        localSettings.SetValues(SectionPackageSources, packageSources);
+                        var packageSources = (from item in packageSourceSection.Items
+                                              let source = item as SourceItem
+                                              where source != null && Uri.IsWellFormedUriString(source.Value, UriKind.Absolute)
+                                              select source).ToList();
+                        if (packageSources.Count > 0)
+                        {
+                            var localSettings = new Settings(projectFolder);
+                            foreach (var item in localSettings.GetSection(SectionPackageSources).Items)
+                            {
+                                localSettings.Remove(SectionPackageSources, item);
+                            }
+
+                            foreach (var source in packageSources)
+                            {
+                                localSettings.AddOrUpdate(SectionPackageSources, source);
+                            }
+                            localSettings.SaveToDisk();
+                        }
                     }
                 }
             }
@@ -79,7 +95,8 @@ namespace Bonsai
             yield return "Bonsai.Core.dll";
 
             if (!File.Exists(ProjectFileName)) yield break;
-            var document = XmlUtility.LoadSafe(ProjectFileName);
+            using var stream = File.OpenRead(ProjectFileName);
+            var document = XmlUtility.LoadSafe(stream);
             var useWindowsForms = document.Descendants(XName.Get(UseWindowsFormsElement)).FirstOrDefault();
             if (useWindowsForms != null && useWindowsForms.Value == "true")
             {
@@ -90,7 +107,8 @@ namespace Bonsai
         public IEnumerable<string> GetPackageReferences()
         {
             if (!File.Exists(ProjectFileName)) return Enumerable.Empty<string>();
-            var document = XmlUtility.LoadSafe(ProjectFileName);
+            using var stream = File.OpenRead(ProjectFileName);
+            var document = XmlUtility.LoadSafe(stream);
             return from element in document.Descendants(XName.Get(PackageReferenceElement))
                    let id = element.Attribute(PackageIncludeAttribute)
                    where id != null
@@ -123,7 +141,7 @@ namespace Bonsai
                 {
                     var version = existingReference.Attribute(PackageVersionAttribute);
                     if (version == null) existingReference.Add(versionAttribute);
-                    else if (SemanticVersion.Parse(version.Value) < SemanticVersion.Parse(reference.Version))
+                    else if (NuGetVersion.Parse(version.Value) < NuGetVersion.Parse(reference.Version))
                     {
                         version.SetValue(reference.Version);
                     }

@@ -1,4 +1,4 @@
-﻿using NuGet;
+﻿using NuGet.Protocol.Core.Types;
 using System;
 using System.Collections.Generic;
 
@@ -6,17 +6,12 @@ namespace Bonsai.NuGet
 {
     public class RequiringLicenseAcceptanceEventArgs : EventArgs
     {
-        public RequiringLicenseAcceptanceEventArgs(IEnumerable<IPackage> licensePackages)
+        public RequiringLicenseAcceptanceEventArgs(IEnumerable<IPackageSearchMetadata> licensePackages)
         {
-            if (licensePackages == null)
-            {
-                throw new ArgumentNullException("licensePackages");
-            }
-
-            LicensePackages = licensePackages;
+            LicensePackages = licensePackages ?? throw new ArgumentNullException(nameof(licensePackages));
         }
 
-        public IEnumerable<IPackage> LicensePackages { get; private set; }
+        public IEnumerable<IPackageSearchMetadata> LicensePackages { get; private set; }
 
         public bool LicenseAccepted { get; set; }
     }

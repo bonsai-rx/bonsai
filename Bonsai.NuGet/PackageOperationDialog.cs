@@ -1,5 +1,5 @@
 ﻿using Bonsai.NuGet.Properties;
-using NuGet;
+using NuGet.Common;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -39,7 +39,7 @@ namespace Bonsai.NuGet
         public void RegisterEventLogger(EventLogger logger)
         {
             ClearEventLogger();
-            logger.Log += logger_Log;
+            logger.LogMessage += logger_Log;
             eventLogger = logger;
         }
 
@@ -47,7 +47,7 @@ namespace Bonsai.NuGet
         {
             if (eventLogger != null)
             {
-                eventLogger.Log -= logger_Log;
+                eventLogger.LogMessage -= logger_Log;
                 eventLogger = null;
             }
         }
@@ -65,7 +65,7 @@ namespace Bonsai.NuGet
             {
                 loggerListBox.Items.Add(e);
                 loggerListBox.TopIndex = loggerListBox.Items.Count - 1;
-                if (e.Level == MessageLevel.Error)
+                if (e.Message.Level == LogLevel.Error)
                 {
                     progressBar.ForeColor = Color.Red;
                     progressBar.Style = ProgressBarStyle.Blocks;
@@ -87,19 +87,17 @@ namespace Bonsai.NuGet
             e.DrawFocusRectangle();
 
             var item = (LogEventArgs)loggerListBox.Items[e.Index];
-            var message = string.Format(item.Message, item.Args);
-
             Brush itemBrush;
-            switch (item.Level)
+            switch (item.Message.Level)
             {
-                case MessageLevel.Debug: itemBrush = Brushes.Yellow; break;
-                case MessageLevel.Error: itemBrush = Brushes.Red; break;
-                case MessageLevel.Warning: itemBrush = Brushes.Violet; break;
-                case MessageLevel.Info:
+                case LogLevel.Debug: itemBrush = Brushes.Yellow; break;
+                case LogLevel.Error: itemBrush = Brushes.Red; break;
+                case LogLevel.Warning: itemBrush = Brushes.Violet; break;
+                case LogLevel.Information:
                 default: itemBrush = Brushes.Black; break;
             }
 
-            e.Graphics.DrawString(message, e.Font, itemBrush, e.Bounds);
+            e.Graphics.DrawString(item.Message.Message, e.Font, itemBrush, e.Bounds);
         }
 
         private void loggerListBox_MeasureItem(object sender, MeasureItemEventArgs e)
@@ -107,9 +105,7 @@ namespace Bonsai.NuGet
             if (e.Index < 0) return;
 
             var item = (LogEventArgs)loggerListBox.Items[e.Index];
-            var message = string.Format(item.Message, item.Args);
-
-            var size = e.Graphics.MeasureString(message, loggerListBox.Font, loggerListBox.Width);
+            var size = e.Graphics.MeasureString(item.Message.Message, loggerListBox.Font, loggerListBox.Width);
             e.ItemWidth = (int)size.Width;
             e.ItemHeight = (int)size.Height;
         }
