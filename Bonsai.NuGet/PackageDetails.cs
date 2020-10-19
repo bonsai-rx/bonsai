@@ -5,6 +5,8 @@ using System.Globalization;
 using System.Diagnostics;
 using Bonsai.NuGet.Properties;
 using NuGet.Protocol.Core.Types;
+using NuGet.Packaging;
+using System.IO;
 
 namespace Bonsai.NuGet
 {
@@ -18,6 +20,8 @@ namespace Bonsai.NuGet
             InitializeComponent();
             SetPackage(null);
         }
+
+        public PackagePathResolver PathResolver { get; set; }
 
         public void SetPackage(IPackageSearchMetadata package)
         {
@@ -35,7 +39,7 @@ namespace Bonsai.NuGet
                 package.Identity.Version.IsPrerelease ? Resources.PrereleaseLabel : string.Empty);
             lastPublishedLabel.Text = package.Published.HasValue ? package.Published.Value.Date.ToShortDateString() : Resources.UnpublishedLabel;
             downloadsLabel.Text = package.DownloadCount.ToString();
-            SetLinkLabelUri(licenseLinkLabel, package.LicenseUrl, true);
+            SetLinkLabelLicense(licenseLinkLabel, package, true);
             SetLinkLabelUri(projectLinkLabel, package.ProjectUrl, true);
             SetLinkLabelUri(reportAbuseLinkLabel, package.ReportAbuseUrl, false);
             descriptionLabel.Text = package.Description;
@@ -54,6 +58,24 @@ namespace Bonsai.NuGet
                 dependencyWarningLabel.Text = Resources.NoDependenciesLabel;
             }
             ResumeLayout();
+        }
+
+        void SetLinkLabelLicense(LinkLabel linkLabel, IPackageSearchMetadata package, bool hideEmptyLink)
+        {
+            var license = package.LicenseMetadata;
+            if (license != null && PathResolver != null)
+            {
+                switch (license.Type)
+                {
+                    case LicenseType.File:
+                        var licenseUri = new Uri(Path.Combine(PathResolver.GetInstallPath(package.Identity), license.License));
+                        SetLinkLabelUri(linkLabel, licenseUri, hideEmptyLink);
+                        break;
+                    case LicenseType.Expression: SetLinkLabelUri(linkLabel, license.LicenseUrl, hideEmptyLink); break;
+                    default: break;
+                }
+            }
+            else SetLinkLabelUri(linkLabel, package.LicenseUrl, hideEmptyLink);
         }
 
         static void SetLinkLabelUri(LinkLabel linkLabel, Uri uri, bool hideEmptyLink)

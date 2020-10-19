@@ -1,6 +1,7 @@
 using Bonsai.Design;
 using Bonsai.NuGet.Properties;
 using NuGet.Configuration;
+using NuGet.Packaging;
 using NuGet.Protocol.Core.Types;
 using System;
 using System.Collections.Concurrent;
@@ -8,6 +9,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reactive;
@@ -85,6 +87,7 @@ namespace Bonsai.NuGet
             packageSourceProvider = new PackageSourceProvider(settings);
             PackageManager = CreatePackageManager(packageSourceProvider, Enumerable.Empty<PackageManagerPlugin>());
             searchComboBox.CueBanner = Resources.SearchCueBanner;
+            packageDetails.PathResolver = PackageManager.PathResolver;
         }
 
         public string SearchPrefix { get; set; }
@@ -220,34 +223,59 @@ namespace Bonsai.NuGet
             return result;
         }
 
+        IObservable<Image> GetPackageIconFileRequest(Uri iconUrl)
+        {
+            return Observable.Defer(() =>
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(iconUrl.Fragment)) return defaultIcon;
+                    using var packageReader = new PackageArchiveReader(iconUrl.AbsolutePath);
+                    using var iconStream = packageReader.GetStream(iconUrl.Fragment.Substring(1));
+                    using var image = Image.FromStream(iconStream);
+                    return Observable.Return(ResizeImage(image, packageIcons.ImageSize));
+                }
+                catch (IOException) { return defaultIcon; }
+                catch (ArgumentException) { return defaultIcon; }
+                catch (UnauthorizedAccessException) { return defaultIcon; }
+            });
+        }
+
+        IObservable<Image> GetPackageIconWebRequest(Uri iconUrl)
+        {
+            WebRequest imageRequest;
+            try { imageRequest = WebRequest.Create(iconUrl); }
+            catch (InvalidOperationException) { return defaultIcon; }
+            return (from response in Observable.Defer(() => imageRequest.GetResponseAsync().ToObservable())
+                    from image in Observable.If(
+                        () => response.ContentType.StartsWith("image/") ||
+                            response.ContentType.StartsWith("application/octet-stream"),
+                        Observable.Using(
+                            () => response.GetResponseStream(),
+                            stream =>
+                            {
+                                try
+                                {
+                                    using var image = Image.FromStream(stream);
+                                    return Observable.Return(ResizeImage(image, packageIcons.ImageSize));
+                                }
+                                catch (ArgumentException) { return defaultIcon; }
+                            }),
+                        defaultIcon)
+                    select image)
+                    .Catch<Image, WebException>(ex => defaultIcon)
+                    .Timeout(DefaultIconTimeout, defaultIcon ?? Observable.Return(DefaultIconImage));
+        }
+
         IObservable<Image> GetPackageIcon(Uri iconUrl)
         {
             if (iconUrl == null) return defaultIcon;
             if (!iconCache.TryGetValue(iconUrl, out IObservable<Image> result))
             {
-                WebRequest imageRequest;
-                try { imageRequest = WebRequest.Create(iconUrl); }
-                catch (InvalidOperationException) { return defaultIcon; }
-                var iconStream = (from response in Observable.Defer(() => imageRequest.GetResponseAsync().ToObservable())
-                                  from image in Observable.If(
-                                      () => response.ContentType.StartsWith("image/") ||
-                                            response.ContentType.StartsWith("application/octet-stream"),
-                                      Observable.Using(
-                                          () => response.GetResponseStream(),
-                                          stream =>
-                                          {
-                                              try
-                                              {
-                                                  var image = Image.FromStream(stream);
-                                                  return Observable.Return(ResizeImage(image, packageIcons.ImageSize));
-                                              }
-                                              catch (ArgumentException) { return defaultIcon; }
-                                          }),
-                                      defaultIcon)
-                                  select image)
-                                  .Catch<Image, WebException>(ex => defaultIcon)
-                                  .Timeout(DefaultIconTimeout, defaultIcon ?? Observable.Return(DefaultIconImage))
-                                  .PublishLast();
+                var iconStream = (iconUrl.IsFile
+                    ? GetPackageIconFileRequest(iconUrl)
+                    : GetPackageIconWebRequest(iconUrl))
+                    .PublishLast();
                 result = iconCache.GetOrAdd(iconUrl, iconStream);
                 if (iconStream == result)
                 {
