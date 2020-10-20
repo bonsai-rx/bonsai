@@ -3,7 +3,7 @@
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
   <?define Win64="no"?>
   <?define ProductDisplayName="Bonsai"?>
-  <?define Product64DisplayName="Bonsai (x64)"?>
+  <?define Product32DisplayName="Bonsai (x86)"?>
   <?define BonsaiBuildPath="..\Bonsai\bin\Release\net472"?>
   
   <Fragment>
@@ -19,16 +19,11 @@
         </ProgId>
       </Component>
 
-      <Component Id="Bonsai64Executable" Guid="*" Win64="$(var.Win64)">
+      <Component Id="Bonsai32Executable" Guid="*" Win64="$(var.Win64)">
         <Condition>INSTALL64</Condition>
-        <File Id="Bonsai64EXE" Name="Bonsai64.exe" Source="$(var.BonsaiBuildPath)\Bonsai64.exe" KeyPath="yes">
-          <Shortcut Id="startmenuBonsai64" Directory="ProgramMenuDir" WorkingDirectory="INSTALLFOLDER" Name="$(var.Product64DisplayName)" Icon="Bonsai.ico" Advertise="yes"/>
+        <File Id="Bonsai32EXE" Name="Bonsai32.exe" Source="$(var.BonsaiBuildPath)\Bonsai32.exe" KeyPath="yes">
+          <Shortcut Id="startmenuBonsai32" Directory="ProgramMenuDir" WorkingDirectory="INSTALLFOLDER" Name="$(var.Product32DisplayName)" Icon="Bonsai.ico" Advertise="yes"/>
         </File>
-        <ProgId Id='Bonsai64.workflow' Description='Bonsai workflow file' Icon='BonsaiWorkflow.ico' Advertise='yes'>
-          <Extension Id='bonsai' ContentType='application/xml'>
-            <Verb Id='open64' Command='Open' Argument='"%1"' />
-          </Extension>
-        </ProgId>
       </Component>
 
       <Component Id='BonsaiInstallDir' Guid='*' Win64="$(var.Win64)">

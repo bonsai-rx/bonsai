@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <Title>Bonsai32</Title>
+    <Description>The x86 bootstrapper for the Bonsai environment.</Description>
+    <PackageTags>Bonsai Rx Reactive Extensions</PackageTags>
+    <UseWindowsForms>true</UseWindowsForms>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <TargetFramework>net472</TargetFramework>
+    <PlatformTarget>x86</PlatformTarget>
+    <Version>2.6.0</Version>
+    <OutputType>Exe</OutputType>
+    <OutputPath>..\Bonsai\bin\$(Configuration)\</OutputPath>
+    <ApplicationIcon>..\Bonsai.Editor\Bonsai.ico</ApplicationIcon>
+    <ApplicationManifest>App.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Bonsai\Bonsai.csproj" />
+  </ItemGroup>
+</Project>
