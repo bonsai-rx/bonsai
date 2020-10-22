@@ -56,6 +56,25 @@ namespace Bonsai.Windows.Input
 
         public IObservable<Keys> KeyUp { get; private set; }
 
+        public static bool GetKeyState(Keys key)
+        {
+            return (GetAsyncKeyState(key) & 0x8000) != 0;
+        }
+
+        public static Func<Keys, bool> GetKeyFilter(Keys filter)
+        {
+            var keyCode = filter & Keys.KeyCode;
+            var modifiers = filter & Keys.Modifiers;
+            if (modifiers == Keys.None) return key => filter == Keys.None || key == keyCode;
+            else return key =>
+            {
+                var ctrl = (modifiers & Keys.Control) == Keys.None || GetKeyState(Keys.ControlKey);
+                var shift = (modifiers & Keys.Shift) == Keys.None || GetKeyState(Keys.ShiftKey);
+                var alt = (modifiers & Keys.Alt) == Keys.None || GetKeyState(Keys.Menu);
+                return ctrl && shift && alt && (filter == Keys.None || (key & Keys.KeyCode) == keyCode);
+            };
+        }
+
         private IDisposable RegisterHook()
         {
             lock (gate)
@@ -131,5 +150,8 @@ namespace Bonsai.Windows.Input
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr GetModuleHandle(string lpModuleName);
+
+        [DllImport("user32.dll")]
+        static extern short GetAsyncKeyState(Keys key);
     }
 }

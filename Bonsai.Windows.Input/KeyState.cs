@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace Bonsai.Windows.Input
@@ -14,12 +13,9 @@ namespace Bonsai.Windows.Input
         [Description("The target key to be observed.")]
         public Keys Filter { get; set; }
 
-        [DllImport("user32.dll")]
-        static extern short GetAsyncKeyState(Keys key);
-
         public override IObservable<bool> Process<TSource>(IObservable<TSource> source)
         {
-            return source.Select(input => (GetAsyncKeyState(Filter) & 0x8000) != 0);
+            return source.Select(input => InterceptKeys.GetKeyState(Filter));
         }
     }
 }

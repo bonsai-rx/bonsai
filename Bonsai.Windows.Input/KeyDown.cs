@@ -17,7 +17,7 @@ namespace Bonsai.Windows.Input
 
         public override IObservable<Keys> Generate()
         {
-            Func<Keys, bool> predicate = key => Filter == Keys.None || key == Filter;
+            var predicate = InterceptKeys.GetKeyFilter(Filter);
             var source = InterceptKeys.Instance.KeyDown.Where(predicate);
             if (SuppressRepetitions)
             {

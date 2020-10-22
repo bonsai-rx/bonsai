@@ -14,8 +14,7 @@ namespace Bonsai.Windows.Input
 
         public override IObservable<Keys> Generate()
         {
-            return InterceptKeys.Instance.KeyUp
-                .Where(key => Filter == Keys.None || key == Filter);
+            return InterceptKeys.Instance.KeyUp.Where(InterceptKeys.GetKeyFilter(Filter));
         }
     }
 }
