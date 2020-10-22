@@ -1,4 +1,5 @@
 ﻿using NuGet.Protocol.Core.Types;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -54,7 +55,11 @@ namespace Bonsai.NuGet
                     packageTypes: PackageTypes) : null;
                 return QueryResult.Create(result.Take(PageSize), continuation);
             }
-            catch (WebException e) { return QueryResult.Create(Observable.Throw<IPackageSearchMetadata>(e).ToEnumerable()); }
+            catch (NuGetProtocolException ex)
+            {
+                var exception = new InvalidOperationException($"There was an error searching the repository '{Repository}'.", ex);
+                return QueryResult.Create(Observable.Throw<IPackageSearchMetadata>(exception).ToEnumerable());
+            }
         }
     }
 }

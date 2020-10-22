@@ -1,5 +1,6 @@
 ﻿using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Reactive.Linq;
@@ -26,7 +27,11 @@ namespace Bonsai.NuGet
         public override async Task<QueryResult<IEnumerable<IPackageSearchMetadata>>> GetResultAsync(CancellationToken token = default)
         {
             try { return QueryResult.Create(await Repository.GetUpdatesAsync(LocalPackages, IncludePrerelease, token)); }
-            catch (WebException e) { return QueryResult.Create(Observable.Throw<IPackageSearchMetadata>(e).ToEnumerable()); }
+            catch (NuGetProtocolException ex)
+            {
+                var exception = new InvalidOperationException($"There was an error accessing the repository '{Repository}'.", ex);
+                return QueryResult.Create(Observable.Throw<IPackageSearchMetadata>(exception).ToEnumerable());
+            }
         }
     }
 }
