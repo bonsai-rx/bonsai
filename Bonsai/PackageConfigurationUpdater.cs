@@ -1,4 +1,4 @@
-﻿using Bonsai.Configuration;
+using Bonsai.Configuration;
 using Bonsai.NuGet;
 using Bonsai.Properties;
 using NuGet.Common;
@@ -116,7 +116,7 @@ namespace Bonsai
 
         static IEnumerable<string> GetAssemblyLocations(PackageReaderBase package)
         {
-            var nearestFramework = package.GetBuildItems().GetNearest(DefaultFramework);
+            var nearestFramework = package.GetItems(BuildDirectory).GetNearest(DefaultFramework);
             if (nearestFramework == null) return Enumerable.Empty<string>();
 
             return from file in nearestFramework.Items
