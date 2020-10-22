@@ -1,4 +1,4 @@
-using Bonsai.Configuration;
+﻿using Bonsai.Configuration;
 using Bonsai.NuGet;
 using Bonsai.Properties;
 using NuGet.Common;
@@ -65,7 +65,7 @@ namespace Bonsai
             var rootUri = new Uri(editorRoot);
             var pathUri = new Uri(path);
             var relativeUri = rootUri.MakeRelativeUri(pathUri);
-            return relativeUri.ToString().Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+            return PathUtility.GetPathWithDirectorySeparator(relativeUri.ToString());
         }
 
         static bool IsTaggedPackage(PackageReaderBase package)
@@ -122,7 +122,7 @@ namespace Bonsai
             return from file in nearestFramework.Items
                    where Path.GetExtension(file) == AssemblyExtension &&
                          !string.IsNullOrEmpty(ResolvePathPlatformName(file))
-                   select file;
+                   select PathUtility.GetPathWithDirectorySeparator(file);
         }
 
         static IEnumerable<LibraryFolder> GetLibraryFolders(PackageReaderBase package, string installPath)
@@ -142,7 +142,7 @@ namespace Bonsai
         {
             var nearestFramework = package.GetReferenceItems().GetNearest(DefaultFramework);
             if (nearestFramework == null) return Enumerable.Empty<string>();
-            return nearestFramework.Items;
+            return nearestFramework.Items.Select(PathUtility.GetPathWithDirectorySeparator);
         }
 
         void RegisterAssemblyLocations(PackageReaderBase package, string installPath, string relativePath, bool addReferences)
